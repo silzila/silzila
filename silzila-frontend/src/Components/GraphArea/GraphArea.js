@@ -37,6 +37,10 @@ import { toggleGraphSize } from "../../redux/TabTile/actionsTabTile";
 import HorizontalBar from "../Charts/HorizontalBar";
 import Horizontalstacked from "../Charts/Horizontalstacked";
 import RoseChart from "../Charts/RoseChart";
+import GeoChart from "../Charts/GeoChart";
+import StackedAreaChart from "../Charts/StackedAreaChart";
+import CalendarChart from "../Charts/CalendarChart";
+import BoxPlotChart from "../Charts/BoxPlotChart";
 
 const GraphArea = ({
 	// state
@@ -227,6 +231,39 @@ const GraphArea = ({
 			case "heatmap":
 				return (
 					<HeatMap
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
+
+			case "geoChart":
+				return (
+					<GeoChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
+			case "stackedArea":
+				return (
+					<StackedAreaChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
+			case "calendar":
+				return (
+					<CalendarChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
+			case "boxPlot":
+				return (
+					<BoxPlotChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
 						graphTileSize={tileState.tiles[propKey].graphSizeFull}

@@ -186,6 +186,10 @@ const BottomBar = ({
 					schema_name: el.schema,
 					id: el.id,
 					alias: el.alias,
+					table_position: {
+						x: el.table_position.x,
+						y: el.table_position.y,
+					},
 				};
 			});
 			//console.log(tablesSelectedInSidebar);

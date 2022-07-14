@@ -240,6 +240,16 @@ const MenuBar = ({
 		}
 	};
 
+	const closeDc = async () => {
+		var result = await FetchData({
+			requestType: "noData",
+			method: "POST",
+			url: "dc/close-all-dc",
+			headers: { Authorization: `Bearer ${token}` },
+		});
+		console.log(result.data);
+	};
+
 	const LogOutMenu = () => {
 		return (
 			<Menu
@@ -266,13 +276,18 @@ const MenuBar = ({
 							if (showSaveWarning || playBookState.playBookUid === null) {
 								setSaveFromLogoutIcon(true);
 								setSaveModal(true);
+								closeDc();
 							} else {
+								closeDc();
+
 								resetUser();
 								navigate("/login");
 							}
 						}
 
 						if (from === "dataHome" || from === "dataSet") {
+							closeDc();
+
 							resetUser();
 							navigate("/login");
 						}
@@ -615,6 +630,7 @@ const MenuBar = ({
 								onClick={() => {
 									// If discard button is clicked after a logout, reset user info and navigate to login page
 									if (saveFromLogoutIcon) {
+										closeDc();
 										setSaveFromLogoutIcon(false);
 										resetUser();
 										navigate("/login");
@@ -645,8 +661,10 @@ const MenuBar = ({
 
 								if (playBookState.playBookUid !== null) {
 									handleSave();
+									// closeDc();
 								} else {
 									savePlaybook();
+									// close
 								}
 							}}
 						>

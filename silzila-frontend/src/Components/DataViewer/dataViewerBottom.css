@@ -64,12 +64,12 @@
 }
 .tableHeadings {
 	height: 40px;
-	padding: 9px 9px 9px 0;
+	/* padding: 9px 9px 9px 0; */
 	position: sticky;
 	top: 0;
 	background-color: rgb(238, 238, 238);
 	font-weight: normal;
-	cursor: move;
+	/* cursor: move; */
 	font-weight: 600;
 	z-index: 2;
 }
@@ -81,9 +81,9 @@
 	cursor: move;
 	/* font-weight: 600; */
 }
-.tableHeadings:hover {
+/* .tableHeadings:hover {
 	background-color: rgb(211, 211, 211);
-}
+} */
 .tableRows:nth-child(odd) {
 	background-color: white;
 }
@@ -130,4 +130,18 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+
+.styleForTableHeader{
+padding:9px 9px 9px 0px;
+display: flex;
+cursor: move;
+}
+.styleForTableHeader:hover{
+	background-color: rgb(211, 211, 211);
+}
+
+.styleForColumnsOnly{
+	display: flex;
+	cursor: move;
 }

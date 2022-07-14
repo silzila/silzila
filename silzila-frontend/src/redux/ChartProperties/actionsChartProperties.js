@@ -21,6 +21,9 @@ export const addProp = (tabId, nextTileId, table, newTab, selectedDs, selectedTa
 		};
 	}
 };
+export const duplicateChartProperty = (propKey, chartProperty) => {
+	return { type: "DUPLICATE_CHART_PROP", payload: { propKey, chartProperty } };
+};
 
 export const removeChartProperties = (tabId, tileId, propKey, tileIndex) => {
 	return { type: "DELETE_PROP", payload: { tabId, tileId, propKey, tileIndex } };
@@ -135,8 +138,8 @@ export const changeChartAxes = (propKey, newAxes) => {
 export const changeChartTypeAndAxes = ({ propKey, chartType, newAxes }) => {
 	return (dispatch) => {
 		dispatch(toggleAxesEdited(propKey, true));
-		dispatch(changeChartType(propKey, chartType));
 		dispatch(changeChartAxes(propKey, newAxes));
+		dispatch(changeChartType(propKey, chartType));
 	};
 };
 

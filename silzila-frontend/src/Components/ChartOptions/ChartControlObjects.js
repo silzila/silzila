@@ -47,6 +47,16 @@ const ChartControlObjects = ({
 		"Format",
 	];
 	const crossTabOptionList = ["Title", "Tooltip", "Style", "Format"];
+	const boxPlotOptionsList = ["Title", "Tooltip", "Margin", "Colors", "Grid/Axes", "Style"];
+	const calendarOptionList = [
+		"Title",
+		"Labels",
+		"Margin",
+		"Tooltip",
+		"Colors",
+		// "Format",
+		"Style",
+	];
 
 	const RenderOptions = () => {
 		switch (selectedChart) {
@@ -57,6 +67,7 @@ const ChartControlObjects = ({
 			case "line":
 			case "area":
 			case "scatterPlot":
+			case "stakedArea":
 				return barOptionsList.map((option) => {
 					return (
 						<div
@@ -72,6 +83,23 @@ const ChartControlObjects = ({
 						</div>
 					);
 				});
+			case "calendar":
+				return calendarOptionList.map((option) => {
+					return (
+						<div
+							key={option}
+							className={
+								chartProp.properties[propKey].chartOptionSelected === option
+									? "optionImageSelected"
+									: "optionImage"
+							}
+							onClick={() => changeChartOption(propKey, option)}
+						>
+							{option}
+						</div>
+					);
+				});
+
 			case "pie":
 			case "donut":
 			case "rose":
@@ -91,6 +119,22 @@ const ChartControlObjects = ({
 					);
 				});
 
+			case "boxPlot":
+				return boxPlotOptionsList.map((option) => {
+					return (
+						<div
+							key={option}
+							className={
+								chartProp.properties[propKey].chartOptionSelected === option
+									? "optionImageSelected"
+									: "optionImage"
+							}
+							onClick={() => changeChartOption(propKey, option)}
+						>
+							{option}
+						</div>
+					);
+				});
 			case "funnel":
 				return funnelOptionList.map((option) => {
 					return (

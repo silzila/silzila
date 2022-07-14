@@ -365,7 +365,9 @@ export const actionsToAddTile = ({
 	selectedDs,
 	selectedTablesInDs,
 }) => {
-	let tileName = `Tile - ${nextTileId}`;
+	//let tileName = tileName ? tileName : `Tile - ${nextTileId}`;
+	// let tileName = `Tile - ${nextTileId}`;
+	let tileName;
 	return (dispatch) => {
 		dispatch(addProp(tabId, nextTileId, table, newTab, selectedDs, selectedTablesInDs));
 		dispatch(addControl(tabId, nextTileId, newTab));

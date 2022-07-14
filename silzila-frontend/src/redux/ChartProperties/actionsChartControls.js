@@ -30,6 +30,11 @@ export const addControl = (tabId, nextTileId, newTab) => {
 	}
 };
 
+export const duplicateControl = (propKey, chartControl) => {
+	console.log(propKey, chartControl);
+	return { type: "DUPLICATE_CHART_CONTROL", payload: { propKey, chartControl } };
+};
+
 export const removeChartControls = (tabId, tileId, propKey, tileIndex) => {
 	return { type: "DELETE_CONTROLS", payload: { tabId, tileId, propKey, tileIndex } };
 };
@@ -189,4 +194,14 @@ export const updateAxisOptions = (propKey, axis, option, value) => {
 
 export const updateGaugeAxisOptions = (propKey, option, value) => {
 	return { type: "UPDATE_GAUGE_AXIS_OPTIONS", payload: { propKey, option, value } };
+};
+
+//==================== calender chart ======================================
+
+export const updateCalendarStyleOptions = (propKey, option, value) => {
+	return { type: "UPDATE_CALENDER_STYLE_OPTIONS", payload: { propKey, option, value } };
+};
+
+export const updateBoxPlotStyleOptions = (propKey, option, value) => {
+	return { type: "UPDATE_BOXPLOT_STYLE_OPTIONS", payload: { propKey, option, value } };
 };

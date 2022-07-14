@@ -1,6 +1,6 @@
 // This component list all color themes available for charts
 
-import { FormControl, InputLabel, MenuItem, Popover, Select } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Popover, Select, Switch } from "@mui/material";
 import React, { useState } from "react";
 import { SketchPicker } from "react-color";
 import { connect } from "react-redux";
@@ -8,6 +8,7 @@ import {
 	setAreaColorOptions,
 	setColorScheme,
 	switchAutotoManualinSteps,
+	updateBoxPlotStyleOptions,
 } from "../../../redux/ChartProperties/actionsChartControls";
 import SliderWithInput from "../SliderWithInput";
 import { ColorSchemes } from "./ColorScheme";
@@ -22,6 +23,7 @@ const ChartColors = ({
 	setColorScheme,
 	setAreaColorOptions,
 	switchAutotoManualinSteps,
+	updateBoxPlotStyleOptions,
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
@@ -39,7 +41,6 @@ const ChartColors = ({
 	return (
 		<div className="optionsInfo">
 			<div className="optionDescription">COLOR SCHEME:</div>
-
 			<FormControl fullWidth size="small" style={{ fontSize: "12px", borderRadius: "4px" }}>
 				<Select
 					size="small"
@@ -116,6 +117,39 @@ const ChartColors = ({
 					/>
 				</React.Fragment>
 			) : null}
+			{chartProperties.properties[propKey].chartType === "boxPlot" ? (
+				<React.Fragment>
+					<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
+						<label
+							htmlFor="enableDisable"
+							className="enableDisableLabel"
+							style={{ marginRight: "10px" }}
+						>
+							Color By Category
+						</label>
+						<Switch
+							size="small"
+							id="enableDisable"
+							checked={
+								chartProp.properties[propKey].boxPlotChartControls.colorBy ===
+								"series"
+									? false
+									: true
+							}
+							onClick={() => {
+								if (
+									chartProp.properties[propKey].boxPlotChartControls.colorBy ===
+									"series"
+								) {
+									updateBoxPlotStyleOptions(propKey, "colorBy", "data");
+								} else {
+									updateBoxPlotStyleOptions(propKey, "colorBy", "series");
+								}
+							}}
+						/>
+					</div>
+				</React.Fragment>
+			) : null}
 			<Popover
 				open={isColorPopoverOpen}
 				onClose={() => setColorPopOverOpen(false)}
@@ -159,6 +193,8 @@ const mapDispatchToProps = (dispatch) => {
 			dispatch(switchAutotoManualinSteps(propKey, value)),
 		setAreaColorOptions: (propKey, option, value) =>
 			dispatch(setAreaColorOptions(propKey, option, value)),
+		updateBoxPlotStyleOptions: (propKey, option, value) =>
+			dispatch(updateBoxPlotStyleOptions(propKey, option, value)),
 	};
 };
 

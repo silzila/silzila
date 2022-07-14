@@ -14,12 +14,7 @@ export const Box = ({ name, type, fieldData, colsOnly }) => {
 	});
 
 	return (
-		<div
-			ref={drag}
-			style={{
-				display: "flex",
-			}}
-		>
+		<div ref={drag} className={colsOnly ? "styleForColumnsOnly" : "styleForTableHeader"}>
 			<DragIndicatorIcon fontSize="small" />
 			<span className="boxText">{name}</span>
 		</div>

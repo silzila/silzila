@@ -6,11 +6,17 @@ from typing_extensions import Literal  # 3.7 and below
 ####################### Data Set Creation #########################
 
 
+class TablePosition(BaseModel):
+    x: int
+    y: int
+
+
 class Table(BaseModel):
     table_name: str
     schema_name: str
     id: str
     alias: str
+    table_position: Optional[TablePosition]
 
 
 class Tables(BaseModel):

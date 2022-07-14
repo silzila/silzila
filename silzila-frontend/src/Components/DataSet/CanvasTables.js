@@ -48,6 +48,9 @@ const CanvasTables = ({
 	const [severity, setseverity] = useState("success");
 	const [testMessage, setTestMessage] = useState("");
 
+	const [x, setX] = useState(0);
+	const [y, setY] = useState(0);
+
 	var uid = new ShortUniqueId({ length: 8 });
 
 	// when a new arrow is created,check if there is alerady a relation between the two tables of this new arrow
@@ -209,8 +212,28 @@ const CanvasTables = ({
 				ref={dragRef}
 				handle={`#${tableData.tableName}`}
 				bounds="#canvasTableArea"
-				onDrag={updateXarrow}
-				onStop={updateXarrow}
+				position={{
+					x: tableData.table_position ? tableData.table_position.x : x,
+					y: tableData.table_position ? tableData.table_position.y : y,
+				}}
+				onDrag={() => {
+					updateXarrow();
+					setX(dragRef.current.state.x);
+					setY(dragRef.current.state.y);
+				}}
+				onStop={() => {
+					console.log(dataSetState.tempTable);
+					const newTable = [...dataSetState.tempTable].map((tab) => {
+						if (tab.table_uid === tableData.table_uid) {
+							tab.table_position.x = x;
+							tab.table_position.y = y;
+						}
+						return tab;
+					});
+					setTempTables(newTable);
+
+					updateXarrow();
+				}}
 			>
 				<div className="draggableBox" ref={dragRef}>
 					<div

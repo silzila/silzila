@@ -20,13 +20,25 @@ export const setPrefix = (fieldData, binName, chartType) => {
 
 		case "date":
 		case "timestamp":
-			if (binName === "Measure" || binName === "X" || binName === "Y") {
-				data.time_grain = "year";
-				data.agg = "max";
-			} else if (binName === "Dimension") {
-				data.time_grain = "year";
-			} else {
-				data.time_grain = "year";
+			// cause calendar chart works proper only with date
+			if (chartType === "calendar") {
+				if (binName === "Dimension") {
+					data.time_grain = "date";
+				} else {
+					data.time_grain = "year";
+					data.agg = "max";
+				}
+			}
+			//
+			else {
+				if (binName === "Measure" || binName === "X" || binName === "Y") {
+					data.time_grain = "year";
+					data.agg = "max";
+				} else if (binName === "Dimension") {
+					data.time_grain = "year";
+				} else {
+					data.time_grain = "year";
+				}
 			}
 			break;
 

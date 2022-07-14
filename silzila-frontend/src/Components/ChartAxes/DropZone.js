@@ -3,9 +3,11 @@
 // Cards can be moved between dropzones & also sorted within a dropzone
 
 import React from "react";
+import { useState } from "react";
 import { useDrop } from "react-dnd";
 import { connect } from "react-redux";
 import { editChartPropItem } from "../../redux/ChartProperties/actionsChartProperties";
+import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import Card from "./Card";
 import ChartsInfo from "./ChartsInfo2";
 import { setPrefix } from "./SetPrefix";
@@ -23,6 +25,10 @@ const DropZone = ({
 	updateDropZoneItems,
 	moveItemChartProp,
 }) => {
+	const [severity, setSeverity] = useState("success");
+	const [openAlert, setOpenAlert] = useState(false);
+	const [testMessage, setTestMessage] = useState("Testing alert");
+
 	const [, drop] = useDrop({
 		accept: "card",
 		drop: (item) => handleDrop(item, bIndex),
@@ -47,17 +53,93 @@ const DropZone = ({
 			const uID = uIdGenerator();
 			var fieldData = item.fieldData;
 			fieldData.uId = uID;
-
-			let newFieldData = JSON.parse(JSON.stringify(setPrefix(fieldData, name, chartType)));
-			// console.log(newFieldData);
-
-			updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
+			if (bIndex === 1) {
+				if (chartType === "calendar") {
+					if (fieldData.dataType === "date") {
+						let newFieldData = JSON.parse(
+							JSON.stringify(setPrefix(fieldData, name, chartType))
+						);
+						console.log(propKey, bIndex, newFieldData, allowedNumbers);
+						updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
+					} else {
+						setSeverity("error");
+						setOpenAlert(true);
+						setTestMessage(
+							"Can't drop columns of datatype other than date or timestamp"
+						);
+						setTimeout(() => {
+							setOpenAlert(false);
+							setTestMessage("");
+						}, 3000);
+					}
+				} else {
+					let newFieldData = JSON.parse(
+						JSON.stringify(setPrefix(fieldData, name, chartType))
+					);
+					updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
+				}
+			}
+			//bindex is not 1 (dimension)
+			else {
+				let newFieldData = JSON.parse(
+					JSON.stringify(setPrefix(fieldData, name, chartType))
+				);
+				updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
+			}
 		} else if (item.bIndex !== bIndex) {
 			// console.log("-------moving item from within------");
-
-			let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
-			["type", "bIndex"].forEach((e) => delete newFieldData[e]);
-			moveItemChartProp(propKey, item.bIndex, item.uId, newFieldData, bIndex, allowedNumbers);
+			if (bIndex === 1) {
+				if (chartType === "calendar") {
+					if (item.dataType === "date") {
+						let newFieldData = JSON.parse(
+							JSON.stringify(setPrefix(item, name, chartType))
+						);
+						["type", "bIndex"].forEach((e) => delete newFieldData[e]);
+						moveItemChartProp(
+							propKey,
+							item.bIndex,
+							item.uId,
+							newFieldData,
+							bIndex,
+							allowedNumbers
+						);
+					} else {
+						setSeverity("error");
+						setOpenAlert(true);
+						setTestMessage(
+							"Can't drop columns of datatype other than date or timestamp"
+						);
+						setTimeout(() => {
+							setOpenAlert(false);
+							setTestMessage("");
+						}, 3000);
+					}
+				} else {
+					let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
+					["type", "bIndex"].forEach((e) => delete newFieldData[e]);
+					moveItemChartProp(
+						propKey,
+						item.bIndex,
+						item.uId,
+						newFieldData,
+						bIndex,
+						allowedNumbers
+					);
+				}
+			}
+			//bindex is not 1 (dimension)
+			else {
+				let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
+				["type", "bIndex"].forEach((e) => delete newFieldData[e]);
+				moveItemChartProp(
+					propKey,
+					item.bIndex,
+					item.uId,
+					newFieldData,
+					bIndex,
+					allowedNumbers
+				);
+			}
 		}
 	};
 
@@ -128,6 +210,15 @@ const DropZone = ({
 					propKey={propKey}
 				/>
 			))}
+			<NotificationDialog
+				onCloseAlert={() => {
+					setOpenAlert(false);
+					setTestMessage("");
+				}}
+				severity={severity}
+				testMessage={testMessage}
+				openAlert={openAlert}
+			/>
 		</div>
 	);
 };

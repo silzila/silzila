@@ -14,6 +14,9 @@ import ChartMouseOver from "./MouseOver/ChartMouseOver";
 import ChartTitle from "./Title/ChartTitle";
 import ChartStyle from "./Style/ChartStyle";
 import ColorSteps from "./Color/ColorSteps";
+import CalendarLabels from "./Labels/CalendarLabels";
+import CalendarChartStyles from "./Style/CalendarChartStyles";
+import BoxPlotChartStyles from "./Style/BoxPlotChartStyles";
 
 const ControlDetail = ({ chartProp, tabTileProps }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
@@ -51,16 +54,23 @@ const ControlDetail = ({ chartProp, tabTileProps }) => {
 				return <GridAndAxes />;
 
 			case "Labels":
-				return <ChartLabels />;
+				if (chartType === "calendar") {
+					return <CalendarLabels />;
+				} else {
+					return <ChartLabels />;
+				}
 
 			case "Axis":
 				return <AxisControls />;
 
 			case "Style":
-				return <ChartStyle />;
-
-			case "Style":
-				return <ChartStyle />;
+				if (chartType === "calendar") {
+					return <CalendarChartStyles />;
+				} else if (chartType === "boxPlot") {
+					return <BoxPlotChartStyles />;
+				} else {
+					return <ChartStyle />;
+				}
 
 			case "Format":
 				return <ChartFormat chartType={chartType} />;

@@ -77,6 +77,19 @@ const ChartsInfo = {
 		],
 		showSwap: false,
 	},
+	geoChart: {
+		dropZones: [
+			{ name: "Filter", allowedNumbers: 64, min: 0 },
+			{
+				name: "Dimension",
+				allowedNumbers: 1,
+				min: 1,
+				dataType: ["text", "string", "timestamp"],
+			},
+			{ name: "Measure", allowedNumbers: 1, min: 1, dataType: ["int", "float", "double"] },
+		],
+		showSwap: false,
+	},
 	line: {
 		dropZones: [
 			{ name: "Filter", allowedNumbers: 64, min: 0 },
@@ -91,6 +104,19 @@ const ChartsInfo = {
 		showSwap: true,
 	},
 	area: {
+		dropZones: [
+			{ name: "Filter", allowedNumbers: 64, min: 0 },
+			{
+				name: "Dimension",
+				allowedNumbers: 1,
+				min: 1,
+				dataType: ["text", "string", "timestamp"],
+			},
+			{ name: "Measure", allowedNumbers: 4, min: 1, dataType: ["int", "float", "double"] },
+		],
+		showSwap: true,
+	},
+	stackedArea: {
 		dropZones: [
 			{ name: "Filter", allowedNumbers: 64, min: 0 },
 			{
@@ -213,6 +239,26 @@ const ChartsInfo = {
 			{ name: "Filter", allowedNumbers: 64 },
 			{ name: "Dimension", allowedNumbers: 1 },
 			{ name: "Measure", allowedNumbers: 4 },
+		],
+		showSwap: false,
+	},
+
+	boxPlot: {
+		dropZones: [
+			{ name: "Filter", allowedNumbers: 64, min: 0 },
+			{
+				name: "Dimension",
+				allowedNumbers: 1,
+				min: 1,
+				dataType: ["text", "string", "timestamp"],
+			},
+			{
+				name: "Distribution",
+				allowedNumbers: 1,
+				min: 1,
+				dataType: ["text", "string", "timestamp"],
+			},
+			{ name: "Measure", allowedNumbers: 1, min: 1, dataType: ["int", "float", "double"] },
 		],
 		showSwap: false,
 	},

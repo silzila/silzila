@@ -52,6 +52,11 @@ const EditDataSet = ({
 						id: tbl.id,
 
 						isNewTable: false,
+
+						table_position: {
+							x: tbl.table_position.x,
+							y: tbl.table_position.y,
+						},
 					};
 				})
 			);

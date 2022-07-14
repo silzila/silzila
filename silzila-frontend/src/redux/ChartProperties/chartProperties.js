@@ -178,6 +178,12 @@ const chartPropertiesState = (state = chartProperties, action) => {
 				propList: { ...state.propList, [action.payload.tabId]: [tileKey2] },
 			};
 
+		case "DUPLICATE_CHART_PROP":
+			console.log(action.payload);
+			return update(state, {
+				properties: { [action.payload.propKey]: { $set: action.payload.chartProperty } },
+			});
+
 		case "DELETE_PROP":
 			return update(state, {
 				properties: { $unset: [action.payload.propKey] },

@@ -201,6 +201,18 @@ function FormDialog({
 		}
 	};
 
+	const setUrlAndPort = (connection) => {
+		if (connection === "postgresql") {
+			return 5432;
+		}
+		if (connection === "mysql") {
+			return 3306;
+		}
+		if (connection === "mssql") {
+			return 1433;
+		}
+	};
+
 	return (
 		<>
 			<Dialog
@@ -252,7 +264,12 @@ function FormDialog({
 								variant="outlined"
 								value={account.vendor}
 								onChange={(e) => {
-									setAccount({ ...account, vendor: e.target.value });
+									setAccount({
+										...account,
+										vendor: e.target.value,
+										url: "localhost",
+										port: setUrlAndPort(e.target.value),
+									});
 									btnEnabelDisable();
 								}}
 								onFocus={() => setAccount({ ...account, vendorError: "" })}
@@ -337,7 +354,7 @@ function FormDialog({
 								if (account.friendly_name.length === 0) {
 									setAccount({
 										...account,
-										friendly_nameError: "Friendly Name should not be Empty",
+										friendly_nameError: "Connection Name should not be Empty",
 									});
 									btnEnabelDisable();
 								}

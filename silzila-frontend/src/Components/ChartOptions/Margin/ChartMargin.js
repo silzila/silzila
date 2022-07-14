@@ -6,6 +6,7 @@ import { connect } from "react-redux";
 import {
 	setSelectedMargin,
 	updateChartMargins,
+	updateCalendarStyleOptions,
 } from "../../../redux/ChartProperties/actionsChartControls";
 import SliderWithInput from "../SliderWithInput";
 
@@ -18,6 +19,7 @@ const ChartMargin = ({
 	// dispatch
 	setMargin,
 	updateMargin,
+	updateCalendarStyleOptions,
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
@@ -117,6 +119,45 @@ const ChartMargin = ({
 						/>
 					</React.Fragment>
 				);
+			case "calendar":
+				return (
+					<React.Fragment>
+						<div className="optionDescription">MARGIN RESIZE:</div>
+						<div className="optionDescription">Calender Height:</div>
+						<SliderWithInput
+							percent={false}
+							sliderValue={chartControl.properties[propKey].chartMargin.top}
+							sliderMinMax={{ min: 10, max: 80, step: 1 }}
+							changeValue={(value) => updateMargin(propKey, "top", value)}
+						/>
+
+						<div className="optionDescription">Right:</div>
+						<SliderWithInput
+							percent={false}
+							sliderValue={chartControl.properties[propKey].chartMargin.right}
+							sliderMinMax={{ min: 10, max: 100, step: 1 }}
+							changeValue={(value) => updateMargin(propKey, "right", value)}
+						/>
+						<div className="optionDescription">Left:</div>
+						<SliderWithInput
+							percent={false}
+							sliderValue={chartControl.properties[propKey].chartMargin.left}
+							sliderMinMax={{ min: 10, max: 100, step: 1 }}
+							changeValue={(value) => updateMargin(propKey, "left", value)}
+						/>
+						<div className="optionDescription">Calendar gap</div>
+						<SliderWithInput
+							percent={false}
+							sliderValue={
+								chartControl.properties[propKey].calendarStyleOptions.calendarGap
+							}
+							sliderMinMax={{ min: 10, max: 80, step: 1 }}
+							changeValue={(value) =>
+								updateCalendarStyleOptions(propKey, "calendarGap", value)
+							}
+						/>
+					</React.Fragment>
+				);
 			case "multibar":
 			case "stackedBar":
 			case "line":
@@ -124,7 +165,7 @@ const ChartMargin = ({
 			case "scatterPlot":
 			case "heatmap":
 			case "crosstab":
-				// case "funnel":
+			case "boxPlot":
 				return (
 					<React.Fragment>
 						<div className="optionDescription">MARGIN RESIZE:</div>
@@ -178,6 +219,8 @@ const mapDispatchToProps = (dispatch) => {
 
 		updateMargin: (propKey, option, value) =>
 			dispatch(updateChartMargins(propKey, option, value)),
+		updateCalendarStyleOptions: (propKey, option, value) =>
+			dispatch(updateCalendarStyleOptions(propKey, option, value)),
 	};
 };
 
