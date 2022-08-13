@@ -1,0 +1,14 @@
+{
+	"configurations": [
+		{
+			"type": "java",
+			"name": "Spring Boot-AppApplication<app>",
+			"request": "launch",
+			"cwd": "${workspaceFolder}",
+			"mainClass": "org.silzila.app.AppApplication",
+			"projectName": "app",
+			"args": "",
+			"envFile": "${workspaceFolder}/.env"
+		}
+	]
+}
