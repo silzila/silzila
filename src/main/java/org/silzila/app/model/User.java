@@ -1,5 +1,7 @@
 package org.silzila.app.model;
 
+import java.io.Serializable;
+
 // import org.silzila.app.helper.RandomUserIdGenerator;
 
 // import java.util.UUID;
@@ -26,8 +28,9 @@ import lombok.ToString;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private String id;
 
     @NotBlank
     private String name;
@@ -50,41 +53,5 @@ public class User {
         this.password = password;
 
     }
-
-    // public User(@NotBlank String name, @NotBlank @Size(max = 50) @Email String
-    // email,
-    // @NotBlank @Size(max = 255) String password) {
-    // this.name = name;
-    // this.email = email;
-    // this.password = password;
-    // }
-
-    // public Long getId() {
-    // return id;
-    // }
-
-    // public String getName() {
-    // return name;
-    // }
-
-    // public void setName(String name) {
-    // this.name = name;
-    // }
-
-    // public String getEmail() {
-    // return email;
-    // }
-
-    // public void setEmail(String email) {
-    // this.email = email;
-    // }
-
-    // public String getPassword() {
-    // return password;
-    // }
-
-    // public void setPassword(String password) {
-    // this.password = password;
-    // }
 
 }

@@ -8,13 +8,13 @@ import java.util.Optional;
 import org.silzila.app.model.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, String> {
 
-    Optional<User> findById(Long id);
+    Optional<User> findById(String id);
 
     Optional<User> findByEmail(String email);
 
     Boolean existsByEmail(String email);
 
-    boolean existsById(Long id);
+    boolean existsById(String id);
 }
