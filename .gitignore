@@ -1,3 +1,4 @@
+*.class
 *.db
 appdb.mv.db
 appdb.trace.db
@@ -38,7 +39,7 @@ lib/
 manifest.yml
 out
 overridedb.*
-target
+target/
 .flattened-pom.xml
 secrets.yml
 .gradletasknamecache

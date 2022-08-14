@@ -38,7 +38,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 id = jwtUtils.getIdFromJwtToken(jwt);
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(id);
+                UserDetails userDetails = userDetailsService.loadUserById(id);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
 
@@ -53,8 +53,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         MutableHttpServletRequest mutableRequest = new MutableHttpServletRequest(request);
         mutableRequest.putHeader("requesterUserId", id);
         filterChain.doFilter(mutableRequest, response);
-        // System.out.println("Mutable req header ========= " +
-        // mutableRequest.getHeader("requesterUserId"));
+
     }
 
     private String parseJwt(HttpServletRequest request) {
