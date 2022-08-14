@@ -88,12 +88,12 @@ public class AuthController {
             System.out.println("*********** use is persent " + optionalUser.toString());
             user = optionalUser.get();
         }
-        System.out.println("------- before authentication is called");
+        // System.out.println("------- before authentication is called");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         user.getEmail(),
                         loginRequest.getPassword()));
-        System.out.println("------- after authentication is called");
+        // System.out.println("------- after authentication is called");
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
         UserDetailsImpl userDetailsImpl = (UserDetailsImpl) authentication.getPrincipal();
