@@ -47,11 +47,11 @@ public class User {
     public User() {
     }
 
-    public User(String name, String email, String password) {
+    public User(@NotBlank String name, @NotBlank @Size(max = 50) @Email String email,
+            @NotBlank @Size(max = 255) String password) {
         this.name = name;
         this.email = email;
         this.password = password;
-
     }
 
 }
