@@ -13,7 +13,11 @@ public interface DBConnectionRepository extends JpaRepository<DBConnection, Stri
 
     List<DBConnection> findByUserId(String userId);
 
-    // Optional<DBConnectionDTO> findById(String id);
+    Optional<DBConnection> findById(String id);
+
+    Optional<DBConnection> findByIdAndUserId(String id, String userId);
+
+    List<DBConnection> findByIdNotAndUserIdAndConnectionName(String id, String userId, String connectionName);
 
     List<DBConnection> findByUserIdAndConnectionName(String userId, String connectionName);
 
