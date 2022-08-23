@@ -35,18 +35,25 @@ public class DBConnection {
     @Size(max = 255)
     private String server;
 
+    @NotBlank
     private Integer port;
+
     @NotBlank
     @Size(max = 255)
-
     private String database;
-    @NotBlank
-    @Size(max = 255)
 
-    private String username;
     @NotBlank
     @Size(max = 255)
-    private String password;
+    private String username;
+
+    @NotBlank
+    @Size(max = 255)
+    private String salt;
+
+    @NotBlank
+    @Size(max = 255)
+    @Column(name = "password_hash")
+    private String passwordHash;
 
     @NotBlank
     @Size(max = 255)
@@ -58,8 +65,9 @@ public class DBConnection {
     }
 
     public DBConnection(@NotBlank String userId, @NotBlank @Size(max = 100) String vendor,
-            @NotBlank @Size(max = 255) String server, Integer port, @NotBlank @Size(max = 255) String database,
-            @NotBlank @Size(max = 255) String username, @NotBlank @Size(max = 255) String password,
+            @NotBlank @Size(max = 255) String server, @NotBlank Integer port,
+            @NotBlank @Size(max = 255) String database, @NotBlank @Size(max = 255) String username,
+            @NotBlank @Size(max = 255) String salt, @NotBlank @Size(max = 255) String passwordHash,
             @NotBlank @Size(max = 255) String connectionName) {
         this.userId = userId;
         this.vendor = vendor;
@@ -67,7 +75,8 @@ public class DBConnection {
         this.port = port;
         this.database = database;
         this.username = username;
-        this.password = password;
+        this.salt = salt;
+        this.passwordHash = passwordHash;
         this.connectionName = connectionName;
     }
 
