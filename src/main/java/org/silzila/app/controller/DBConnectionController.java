@@ -9,6 +9,7 @@ import org.silzila.app.model.DBConnection;
 import org.silzila.app.payload.request.DBConnectionRequest;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.repository.DBConnectionRepository;
+import org.silzila.app.security.service.ConnectionPoolService;
 import org.silzila.app.security.service.DBConnectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.validation.Valid;
 
@@ -37,8 +45,8 @@ public class DBConnectionController {
     @Autowired
     DBConnectionService dbConnectionService;
 
-    // @Autowired
-    // DBConnectionConverter dbConnectionConverter;
+    @Autowired
+    ConnectionPoolService connectionPoolService;
 
     ModelMapper mapper = new ModelMapper();
 
@@ -98,6 +106,15 @@ public class DBConnectionController {
         // service call to delete
         dbConnectionService.deleteDBConnection(id, userId);
         return ResponseEntity.ok().body(new MessageResponse("DB Connection is deleted!"));
+
+    }
+
+    // test connect a given database connection parameters
+    @PostMapping("/database-connection-test")
+    public ResponseEntity<?> testDBConnection(@Valid @RequestBody DBConnectionRequest dbConnectionRequest)
+            throws SQLException, BadRequestException {
+        connectionPoolService.testDBConnection(dbConnectionRequest);
+        return ResponseEntity.ok().body(new MessageResponse("Connection OK!"));
 
     }
 
