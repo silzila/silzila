@@ -1,5 +1,6 @@
 package org.silzila.app.controller;
 
+import org.json.JSONArray;
 import org.modelmapper.ModelMapper;
 // import org.silzila.app.converter.DBConnectionConverter;
 import org.silzila.app.dto.DBConnectionDTO;
@@ -8,12 +9,16 @@ import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.model.DBConnection;
 import org.silzila.app.payload.request.DBConnectionRequest;
 import org.silzila.app.payload.response.MessageResponse;
+import org.silzila.app.payload.response.MetadataDatabase;
+import org.silzila.app.payload.response.MetadataSchema;
 import org.silzila.app.repository.DBConnectionRepository;
 import org.silzila.app.security.service.ConnectionPoolService;
 import org.silzila.app.security.service.DBConnectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -109,13 +114,39 @@ public class DBConnectionController {
 
     }
 
-    // test connect a given database connection parameters
+    // test connect a given database with provided connection parameters
     @PostMapping("/database-connection-test")
     public ResponseEntity<?> testDBConnection(@Valid @RequestBody DBConnectionRequest dbConnectionRequest)
             throws SQLException, BadRequestException {
         connectionPoolService.testDBConnection(dbConnectionRequest);
         return ResponseEntity.ok().body(new MessageResponse("Connection OK!"));
+    }
 
+    @PostMapping(value = "/run-query/{id}")
+    public ResponseEntity<String> runQuery(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id)
+            throws RecordNotFoundException, SQLException {
+        String userId = reqHeader.get("requesterUserId");
+        JSONArray jsonArray = connectionPoolService.runQuery(id, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+    }
+
+    @PostMapping(value = "/metadata-databases/{id}")
+    ResponseEntity<ArrayList<MetadataDatabase>> getDatabase(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id)
+            throws RecordNotFoundException, SQLException {
+        String userId = reqHeader.get("requesterUserId");
+        ArrayList<MetadataDatabase> databases = connectionPoolService.getDatabase(id, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(databases);
+    }
+
+    @PostMapping(value = "/metadata-schemas/{id}")
+    ResponseEntity<ArrayList<MetadataSchema>> getSchema(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id)
+            throws RecordNotFoundException, SQLException {
+        String userId = reqHeader.get("requesterUserId");
+        ArrayList<MetadataSchema> schema = connectionPoolService.getSchema(id, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(schema);
     }
 
 }

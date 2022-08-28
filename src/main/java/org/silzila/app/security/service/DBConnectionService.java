@@ -63,6 +63,20 @@ public class DBConnectionService {
         return dto;
     }
 
+    public DBConnection getDBConnectionWithPasswordById(String id, String userId)
+            throws RecordNotFoundException {
+        // fetch the particular DB connection for the user
+        Optional<DBConnection> optionalDBConnection = dbConnectionRepository.findByIdAndUserId(id, userId);
+        // if no connection details, then send NOT FOUND Error
+        if (!optionalDBConnection.isPresent()) {
+            throw new RecordNotFoundException("Error: No such Connection Id exists");
+        }
+        DBConnection dbConnection = optionalDBConnection.get();
+        dbConnection.setPasswordHash(AESEncryption.decrypt(dbConnection.getPasswordHash(), passwordEncryptionSecretKey,
+                dbConnection.getSalt()));
+        return dbConnection;
+    }
+
     public DBConnectionDTO createDBConnection(DBConnectionRequest dbConnectionRequest, String userId)
             throws BadRequestException {
         // check if connection name is alredy used for the requester
