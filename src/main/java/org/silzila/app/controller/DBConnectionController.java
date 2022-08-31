@@ -11,6 +11,7 @@ import org.silzila.app.payload.request.DBConnectionRequest;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.payload.response.MetadataDatabase;
 import org.silzila.app.payload.response.MetadataSchema;
+import org.silzila.app.payload.response.MetadataTable;
 import org.silzila.app.repository.DBConnectionRepository;
 import org.silzila.app.security.service.ConnectionPoolService;
 import org.silzila.app.security.service.DBConnectionService;
@@ -131,12 +132,19 @@ public class DBConnectionController {
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
+    @PostMapping(value = "/test-sqlserver")
+    public ResponseEntity<?> runSqlServer()
+            throws RecordNotFoundException, SQLException {
+        JSONArray jsonArray = connectionPoolService.checkSqlServer();
+        return ResponseEntity.ok().body(jsonArray.toString());
+    }
+
     @PostMapping(value = "/metadata-databases/{id}")
-    ResponseEntity<ArrayList<MetadataDatabase>> getDatabase(@RequestHeader Map<String, String> reqHeader,
+    ResponseEntity<ArrayList<String>> getDatabase(@RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id)
             throws RecordNotFoundException, SQLException {
         String userId = reqHeader.get("requesterUserId");
-        ArrayList<MetadataDatabase> databases = connectionPoolService.getDatabase(id, userId);
+        ArrayList<String> databases = connectionPoolService.getDatabase(id, userId);
         return ResponseEntity.status(HttpStatus.OK).body(databases);
     }
 
@@ -147,6 +155,23 @@ public class DBConnectionController {
         String userId = reqHeader.get("requesterUserId");
         ArrayList<MetadataSchema> schema = connectionPoolService.getSchema(id, userId);
         return ResponseEntity.status(HttpStatus.OK).body(schema);
+    }
+
+    @PostMapping("/metadata-tables/{id}")
+    ResponseEntity<?> getTable(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id,
+            @RequestParam(name = "database", required = false) String databaseName,
+            @RequestParam(name = "schema", required = false) String schemaName)
+            throws RecordNotFoundException, SQLException {
+        String userId = reqHeader.get("requesterUserId");
+
+        if (databaseName == null && schemaName == null) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Database Name or Schema Name is not provided"));
+        }
+        MetadataTable metadataTable = connectionPoolService.getTable(id, userId, databaseName, schemaName);
+        return ResponseEntity.status(HttpStatus.OK).body(metadataTable);
     }
 
 }

@@ -85,10 +85,17 @@
             <version>8.0.30</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
+        <!-- <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>10.2.1.jre17</version>
+        </dependency> -->
+
+        <!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <version>11.2.0.jre17</version>
+            <version>8.2.0.jre8</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.modelmapper/modelmapper -->
