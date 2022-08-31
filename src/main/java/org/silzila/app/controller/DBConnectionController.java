@@ -9,6 +9,7 @@ import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.model.DBConnection;
 import org.silzila.app.payload.request.DBConnectionRequest;
 import org.silzila.app.payload.response.MessageResponse;
+import org.silzila.app.payload.response.MetadataColumn;
 import org.silzila.app.payload.response.MetadataDatabase;
 import org.silzila.app.payload.response.MetadataSchema;
 import org.silzila.app.payload.response.MetadataTable;
@@ -172,6 +173,25 @@ public class DBConnectionController {
         }
         MetadataTable metadataTable = connectionPoolService.getTable(id, userId, databaseName, schemaName);
         return ResponseEntity.status(HttpStatus.OK).body(metadataTable);
+    }
+
+    @PostMapping("/metadata-columns/{id}")
+    public ResponseEntity<?> getColumn(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id,
+            @RequestParam(name = "database", required = false) String databaseName,
+            @RequestParam(name = "schema", required = false) String schemaName,
+            @RequestParam(name = "table") String tableName)
+            throws RecordNotFoundException, SQLException {
+        String userId = reqHeader.get("requesterUserId");
+
+        if (databaseName == null && schemaName == null) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error: Database Name or Schema Name is not provided"));
+        }
+        ArrayList<MetadataColumn> metadataColumns = connectionPoolService.getColumn(id, userId, databaseName,
+                schemaName, tableName);
+        return ResponseEntity.status(HttpStatus.OK).body(metadataColumns);
+
     }
 
 }

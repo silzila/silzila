@@ -17,10 +17,13 @@ import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.helper.ResultSetToJson;
 import org.silzila.app.model.DBConnection;
 import org.silzila.app.payload.request.DBConnectionRequest;
+import org.silzila.app.payload.response.MessageResponse;
+import org.silzila.app.payload.response.MetadataColumn;
 import org.silzila.app.payload.response.MetadataDatabase;
 import org.silzila.app.payload.response.MetadataSchema;
 import org.silzila.app.payload.response.MetadataTable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -249,6 +252,45 @@ public class ConnectionPoolService {
                 metadataTable.getViews().add(viewName);
             }
             return metadataTable;
+        } catch (Exception e) {
+            throw new SQLException();
+        }
+    }
+
+    public ArrayList<MetadataColumn> getColumn(String id, String userId, String databaseName, String schemaName,
+            String tableName)
+            throws RecordNotFoundException, SQLException {
+        // first create connection pool to query DB
+        createConnectionPool(id, userId);
+        // this list will contain the final result
+        ArrayList<MetadataColumn> metadataColumns = new ArrayList<MetadataColumn>();
+        try {
+            Connection _connection = connectionPool.get(id);
+            DBConnection _dbConnection = connectionDetails.get(id);
+            DatabaseMetaData databaseMetaData = _connection.getMetaData();
+
+            ResultSet resultSet = null;
+            // based on database dialect, we pass either DB name or schema name at different
+            // position in the funciton
+            // for POSTGRESQL DB
+            if (_dbConnection.getVendor().equalsIgnoreCase("postgresql")) {
+                // get column names from the given schema and Table name
+                resultSet = databaseMetaData.getColumns(null, schemaName, tableName, null);
+            }
+            // for MYSQL DB
+            else if (_dbConnection.getVendor().equalsIgnoreCase("mysql")) {
+                // get column names from the given schema and Table name
+                resultSet = databaseMetaData.getColumns(databaseName, null, tableName, null);
+
+            }
+            // iterate table names and add it to List
+            while (resultSet.next()) {
+                String columnName = resultSet.getString("COLUMN_NAME");
+                String dataType = resultSet.getString("DATA_TYPE");
+                MetadataColumn metadataColumn = new MetadataColumn(columnName, dataType);
+                metadataColumns.add(metadataColumn);
+            }
+            return metadataColumns;
         } catch (Exception e) {
             throw new SQLException();
         }
