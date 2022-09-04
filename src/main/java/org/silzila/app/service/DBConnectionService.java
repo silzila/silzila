@@ -1,4 +1,4 @@
-package org.silzila.app.security.service;
+package org.silzila.app.service;
 
 import org.silzila.app.repository.DBConnectionRepository;
 import org.silzila.app.security.encryption.AES;
@@ -80,10 +80,10 @@ public class DBConnectionService {
     public DBConnectionDTO createDBConnection(DBConnectionRequest dbConnectionRequest, String userId)
             throws BadRequestException {
         // check if connection name is alredy used for the requester
-        List<DBConnection> connection_list = dbConnectionRepository.findByUserIdAndConnectionName(userId,
+        List<DBConnection> connections = dbConnectionRepository.findByUserIdAndConnectionName(userId,
                 dbConnectionRequest.getConnectionName());
         // if connection name is alredy used, send error
-        if (!connection_list.isEmpty()) {
+        if (!connections.isEmpty()) {
             throw new BadRequestException("Error: Connection Name is already taken!");
         }
         // create a random string for using as Salt

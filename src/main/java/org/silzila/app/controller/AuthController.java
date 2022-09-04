@@ -7,8 +7,7 @@ import org.silzila.app.payload.response.JwtResponse;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.repository.UserRepository;
 import org.silzila.app.security.jwt.JwtUtils;
-import org.silzila.app.security.service.UserDetailsImpl;
-
+import org.silzila.app.service.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 

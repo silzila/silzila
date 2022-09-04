@@ -1,4 +1,4 @@
-package org.silzila.app.security.service;
+package org.silzila.app.service;
 
 import org.silzila.app.model.User;
 import org.silzila.app.repository.UserRepository;

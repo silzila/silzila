@@ -1,4 +1,4 @@
-package org.silzila.app.security.service;
+package org.silzila.app.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.silzila.app.model.User;

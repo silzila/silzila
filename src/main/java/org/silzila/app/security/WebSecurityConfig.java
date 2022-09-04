@@ -2,8 +2,8 @@ package org.silzila.app.security;
 
 import org.silzila.app.security.jwt.AuthEntryPointJwt;
 import org.silzila.app.security.jwt.AuthTokenFilter;
-import org.silzila.app.security.service.UserDetailsImpl;
-import org.silzila.app.security.service.UserDetailsServiceImpl;
+import org.silzila.app.service.UserDetailsImpl;
+import org.silzila.app.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

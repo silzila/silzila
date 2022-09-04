@@ -1,7 +1,8 @@
 package org.silzila.app.security.jwt;
 
-import org.silzila.app.security.service.UserDetailsImpl;
+import org.silzila.app.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

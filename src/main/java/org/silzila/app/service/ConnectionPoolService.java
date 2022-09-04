@@ -1,4 +1,4 @@
-package org.silzila.app.security.service;
+package org.silzila.app.service;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
