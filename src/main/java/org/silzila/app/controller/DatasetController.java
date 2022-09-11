@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import org.silzila.app.dto.DatasetDTO;
+import org.silzila.app.dto.DatasetNoSchemaDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.model.Dataset;
@@ -16,9 +17,11 @@ import org.silzila.app.service.DatasetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,32 +46,31 @@ public class DatasetController {
         // get the rquester user id
         String userId = reqHeader.get("requesterUserId");
 
-        // System.out.println("-------------- Schema Object toString");
-        // System.out.println(datasetRequest.getDataSchema().toString());
-        // ObjectMapper objectMapper = new ObjectMapper();
-
-        // String jsonString =
-        // objectMapper.writeValueAsString(datasetRequest.getDataSchema());
-        // System.out.println("-------------- SERIALIZE");
-        // System.out.println(jsonString);
-
-        // DataSchema dataSchema = objectMapper.readValue(jsonString, DataSchema.class);
-        // System.out.println("-------------- DE SERIALIZE");
-        // System.out.println(dataSchema.toString());
-
         DatasetDTO dto = datasetService.registerDataset(datasetRequest, userId);
+        return ResponseEntity.ok(dto);
+    }
+
+    // update dataset
+    @PutMapping("/dataset/{id}")
+    public ResponseEntity<?> updateDataset(@RequestHeader Map<String, String> reqHeader,
+            @Valid @RequestBody DatasetRequest datasetRequest,
+            @PathVariable(value = "id") String id)
+            throws JsonProcessingException, JsonMappingException, BadRequestException, RecordNotFoundException {
+        // get the rquester user id
+        String userId = reqHeader.get("requesterUserId");
+        DatasetDTO dto = datasetService.updateDataset(datasetRequest, id, userId);
         return ResponseEntity.ok(dto);
     }
 
     // list datasets
     @GetMapping("/dataset")
-    public List<DatasetDTO> getAllDataset(@RequestHeader Map<String, String> reqHeader)
-            throws JsonProcessingException, JsonMappingException {
+    public List<DatasetNoSchemaDTO> getAllDataset(@RequestHeader Map<String, String> reqHeader)
+            throws JsonProcessingException {
         // get the requester user Id
         String userId = reqHeader.get("requesterUserId");
         // service call to get list of data sets,
         // empty list will not throw exceptions but return as empty list
-        List<DatasetDTO> dtos = datasetService.getAllDatasets(userId);
+        List<DatasetNoSchemaDTO> dtos = datasetService.getAllDatasets(userId);
         return dtos;
     }
 
@@ -83,5 +85,17 @@ public class DatasetController {
         DatasetDTO dto = datasetService.getDatasetById(id, userId);
         return ResponseEntity.ok(dto);
 
+    }
+
+    // delete dataset
+    @DeleteMapping("/dataset/{id}")
+    public ResponseEntity<?> deleteDatasetById(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id)
+            throws RecordNotFoundException {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        // service call to delete
+        datasetService.deleteDataset(id, userId);
+        return ResponseEntity.ok().body(new MessageResponse("Dataset is deleted"));
     }
 }

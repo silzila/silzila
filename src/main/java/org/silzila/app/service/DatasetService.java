@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.silzila.app.dto.DatasetDTO;
+import org.silzila.app.dto.DatasetNoSchemaDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.model.Dataset;
@@ -97,7 +98,7 @@ public class DatasetService {
         return dataSchema;
     }
 
-    // create dataset
+    // CREATE DATASET
     public DatasetDTO registerDataset(DatasetRequest datasetRequest, String userId)
             throws JsonProcessingException, BadRequestException {
 
@@ -118,8 +119,7 @@ public class DatasetService {
                 datasetRequest.getIsFlatFileData(),
                 jsonString);
         datasetRepository.save(dataset);
-        // repackage request object + dataset Id (from saved object) to return the
-        // response
+        // repackage request object + dataset Id (from saved object) to return response
         DatasetDTO dto = new DatasetDTO(
                 dataset.getId(),
                 datasetRequest.getConnectionId(),
@@ -129,28 +129,54 @@ public class DatasetService {
         return dto;
     }
 
-    // get list of datasets
-    public List<DatasetDTO> getAllDatasets(String userId)
-            throws JsonProcessingException, JsonMappingException {
-        List<Dataset> datasets = datasetRepository.findByUserId(userId);
-        List<DatasetDTO> datasetDTOs = new ArrayList<>();
-        datasets.forEach(ds -> {
-            DataSchema dataSchema;
-            try {
-                dataSchema = objectMapper.readValue(ds.getDataSchema(), DataSchema.class);
-                DatasetDTO dto = new DatasetDTO(
-                        ds.getId(), ds.getConnectionId(), ds.getDatasetName(), ds.getIsFlatFileData(), dataSchema);
-                datasetDTOs.add(dto);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Error: Dataset schema could not be serialized!");
-            }
-        });
-        return datasetDTOs;
+    // UPDATE DATASET
+    public DatasetDTO updateDataset(DatasetRequest datasetRequest, String id, String userId)
+            throws RecordNotFoundException, JsonProcessingException, JsonMappingException, BadRequestException {
+
+        Optional<Dataset> dOptional = datasetRepository.findByIdAndUserId(id, userId);
+        // if no connection details inside optional warpper, then send NOT FOUND Error
+        if (!dOptional.isPresent()) {
+            throw new RecordNotFoundException("Error: No such Dataset Id exists");
+        }
+        // if dataset name already exists, send error
+        List<Dataset> datasets = datasetRepository.findByIdNotAndUserIdAndDatasetName(id, userId,
+                datasetRequest.getDatasetName());
+        if (!datasets.isEmpty()) {
+            throw new BadRequestException("Error: Dataset Name is already taken!");
+        }
+        // rename id to table alias (short name)
+        DataSchema dataSchema = createTableAliasName(datasetRequest.getDataSchema());
+        // stringify dataschema (table + relationship section of API) to save in DB
+        String jsonString = objectMapper.writeValueAsString(dataSchema);
+
+        Dataset _dataset = dOptional.get();
+        _dataset.setDatasetName(datasetRequest.getDatasetName());
+        _dataset.setDataSchema(jsonString);
+        datasetRepository.save(_dataset);
+        // repackage request object + dataset Id (from saved object) to return response
+        DatasetDTO dto = new DatasetDTO(
+                _dataset.getId(),
+                _dataset.getConnectionId(),
+                _dataset.getDatasetName(),
+                _dataset.getIsFlatFileData(),
+                dataSchema);
+        return dto;
     }
 
-    // get one dataset
+    // READ ALL DATASETS
+    public List<DatasetNoSchemaDTO> getAllDatasets(String userId)
+            throws JsonProcessingException {
+        List<Dataset> datasets = datasetRepository.findByUserId(userId);
+        List<DatasetNoSchemaDTO> dsDtos = new ArrayList<>();
+        datasets.forEach(ds -> {
+            DatasetNoSchemaDTO dto = new DatasetNoSchemaDTO(
+                    ds.getId(), ds.getConnectionId(), ds.getDatasetName(), ds.getIsFlatFileData());
+            dsDtos.add(dto);
+        });
+        return dsDtos;
+    }
+
+    // READ ONE DATASET
     public DatasetDTO getDatasetById(String id, String userId)
             throws RecordNotFoundException, JsonMappingException, JsonProcessingException {
         Optional<Dataset> dOptional = datasetRepository.findByIdAndUserId(id, userId);
@@ -179,6 +205,18 @@ public class DatasetService {
                     "Error: Dataset schema could not be serialized!");
         }
         return dto;
+    }
+
+    // DELETE DATASET
+    public void deleteDataset(String id, String userId) throws RecordNotFoundException {
+        // fetch the specific Dataset for the user
+        Optional<Dataset> datasetOptional = datasetRepository.findByIdAndUserId(id, userId);
+        // if no Dataset details, then send NOT FOUND Error
+        if (!datasetOptional.isPresent()) {
+            throw new RecordNotFoundException("Error: No such Dataset Id exists!");
+        }
+        // delete the record from DB
+        datasetRepository.deleteById(id);
     }
 
 }
