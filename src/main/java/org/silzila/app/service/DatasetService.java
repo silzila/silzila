@@ -1,8 +1,10 @@
 package org.silzila.app.service;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.silzila.app.dto.DatasetDTO;
@@ -12,6 +14,7 @@ import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.model.Dataset;
 import org.silzila.app.payload.request.DataSchema;
 import org.silzila.app.payload.request.DatasetRequest;
+import org.silzila.app.payload.request.Query;
 import org.silzila.app.payload.request.Table;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.repository.DatasetRepository;
@@ -29,11 +32,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 public class DatasetService {
 
+    private static Map<String, DatasetDTO> datasetDetails = new HashMap<>();
+
     @Autowired
     DatasetRepository datasetRepository;
 
+    @Autowired
+    ConnectionPoolService connectionPoolService;
+
     ObjectMapper objectMapper = new ObjectMapper();
 
+    // HELPER FUNCTION
     // In Data Set, each table is given short, meaningful & unique alias name.
     // This alias is used in query building. eg. product AS p, sub_category as sc
     // single word table names gets first letter. If multiple tables start with
@@ -217,6 +226,40 @@ public class DatasetService {
         }
         // delete the record from DB
         datasetRepository.deleteById(id);
+    }
+
+    // load dataset details in buffer. This helps faster query execution.
+    public DatasetDTO loadDataset(String datasetId, String userId)
+            throws RecordNotFoundException, JsonMappingException, JsonProcessingException {
+        DatasetDTO dto;
+        if (datasetDetails.containsKey(datasetId)) {
+            dto = datasetDetails.get(datasetId);
+        } else {
+            dto = getDatasetById(datasetId, userId);
+            datasetDetails.put(datasetId, dto);
+        }
+        return dto;
+    }
+
+    // RUN QUERY
+    public void runQuery(String userId, String dBConnectionId, String datasetId,
+            Query query)
+            throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException {
+        // need at least one dim or measure or field for query execution
+        if (query.getDimensions().isEmpty() && query.getMeasures().isEmpty() && query.getFields().isEmpty()) {
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Error: At least one Dimension/Measure/Field should be there!");
+        }
+        // load connection details in buffer & create connection pool (if not) and then
+        // get vendor name.
+        // SQL Dialect will be different based on vendor name
+        String vendorName = connectionPoolService.getVendorNameFromConnectionId(dBConnectionId, userId);
+        System.out.println("*****************" + vendorName);
+        // get dataset details to compose query
+        DatasetDTO ds = loadDataset(datasetId, userId);
+        System.out.println("*****************" + ds.toString());
+
     }
 
 }

@@ -45,6 +45,17 @@ public class ConnectionPoolService {
     @Autowired
     DBConnectionService dbConnectionService;
 
+    public String getVendorNameFromConnectionId(String id, String userId) throws RecordNotFoundException, SQLException {
+        String vendorName;
+        if (connectionDetails.containsKey(id)) {
+            vendorName = connectionDetails.get(id).getVendor();
+        } else {
+            createConnectionPool(id, userId);
+            vendorName = connectionDetails.get(id).getVendor();
+        }
+        return vendorName;
+    }
+
     public void createConnectionPool(String id, String userId) throws RecordNotFoundException, SQLException {
         System.out.println("calling createConnectionPool Fn ----------------");
         if (!connectionPool.containsKey(id)) {

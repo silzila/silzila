@@ -1,5 +1,6 @@
 package org.silzila.app.controller;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.model.Dataset;
 import org.silzila.app.payload.request.DataSchema;
 import org.silzila.app.payload.request.DatasetRequest;
+import org.silzila.app.payload.request.Query;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.service.DatasetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -98,4 +101,17 @@ public class DatasetController {
         datasetService.deleteDataset(id, userId);
         return ResponseEntity.ok().body(new MessageResponse("Dataset is deleted"));
     }
+
+    @PostMapping("/query")
+    public ResponseEntity<?> runQuery(@RequestHeader Map<String, String> reqHeader,
+            @Valid @RequestBody Query query,
+            @RequestParam(name = "dbconnectionid") String dBConnectionId,
+            @RequestParam(name = "datasetid") String datasetId)
+            throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException {
+        String userId = reqHeader.get("requesterUserId");
+
+        datasetService.runQuery(userId, dBConnectionId, datasetId, query);
+        return ResponseEntity.ok().body(new MessageResponse("OKKKK"));
+    }
+
 }
