@@ -107,7 +107,8 @@ public class DatasetController {
             @Valid @RequestBody Query query,
             @RequestParam(name = "dbconnectionid") String dBConnectionId,
             @RequestParam(name = "datasetid") String datasetId)
-            throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException {
+            throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
+            BadRequestException {
         String userId = reqHeader.get("requesterUserId");
 
         datasetService.runQuery(userId, dBConnectionId, datasetId, query);

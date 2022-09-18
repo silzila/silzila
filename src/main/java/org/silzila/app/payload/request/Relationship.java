@@ -123,8 +123,8 @@ public class Relationship implements Serializable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(Relationship.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this)))
-                .append('[');
+        // sb.append(Relationship.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this)))
+        sb.append('[');
         sb.append("table1");
         sb.append('=');
         sb.append(((this.table1 == null) ? "<null>" : this.table1));

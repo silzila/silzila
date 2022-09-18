@@ -17,6 +17,7 @@ import org.silzila.app.payload.request.DatasetRequest;
 import org.silzila.app.payload.request.Query;
 import org.silzila.app.payload.request.Table;
 import org.silzila.app.payload.response.MessageResponse;
+import org.silzila.app.querybuilder.QueryComposer;
 import org.silzila.app.repository.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,9 @@ public class DatasetService {
 
     @Autowired
     ConnectionPoolService connectionPoolService;
+
+    @Autowired
+    QueryComposer queryComposer;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -243,10 +247,11 @@ public class DatasetService {
 
     // RUN QUERY
     public void runQuery(String userId, String dBConnectionId, String datasetId,
-            Query query)
-            throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException {
+            Query req)
+            throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
+            BadRequestException {
         // need at least one dim or measure or field for query execution
-        if (query.getDimensions().isEmpty() && query.getMeasures().isEmpty() && query.getFields().isEmpty()) {
+        if (req.getDimensions().isEmpty() && req.getMeasures().isEmpty() && req.getFields().isEmpty()) {
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Error: At least one Dimension/Measure/Field should be there!");
@@ -258,7 +263,9 @@ public class DatasetService {
         System.out.println("*****************" + vendorName);
         // get dataset details to compose query
         DatasetDTO ds = loadDataset(datasetId, userId);
-        System.out.println("*****************" + ds.toString());
+        // System.out.println("*****************" + ds.toString());
+        String fromClause = queryComposer.composeQuuery(req, ds, vendorName);
+        System.out.println("******* FROM CLAUSE **********\n" + fromClause);
 
     }
 
