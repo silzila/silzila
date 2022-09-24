@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.json.JSONArray;
 import org.silzila.app.dto.DatasetDTO;
 import org.silzila.app.dto.DatasetNoSchemaDTO;
 import org.silzila.app.exception.BadRequestException;
@@ -246,7 +247,7 @@ public class DatasetService {
     }
 
     // RUN QUERY
-    public void runQuery(String userId, String dBConnectionId, String datasetId,
+    public JSONArray runQuery(String userId, String dBConnectionId, String datasetId,
             Query req)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
             BadRequestException {
@@ -259,14 +260,15 @@ public class DatasetService {
         // load connection details in buffer & create connection pool (if not) and then
         // get vendor name.
         // SQL Dialect will be different based on vendor name
-        String vendorName = connectionPoolService.getVendorNameFromConnectionId(dBConnectionId, userId);
+        String vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
         System.out.println("*****************" + vendorName);
         // get dataset details to compose query
         DatasetDTO ds = loadDataset(datasetId, userId);
         // System.out.println("*****************" + ds.toString());
-        String fromClause = queryComposer.composeQuuery(req, ds, vendorName);
-        System.out.println("******* FROM CLAUSE **********\n" + fromClause);
-
+        String query = queryComposer.composeQuery(req, ds, vendorName);
+        System.out.println("\n******* QUERY **********\n" + query);
+        JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
+        return jsonArray;
     }
 
 }

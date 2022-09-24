@@ -45,7 +45,8 @@ public class ConnectionPoolService {
     @Autowired
     DBConnectionService dbConnectionService;
 
-    public String getVendorNameFromConnectionId(String id, String userId) throws RecordNotFoundException, SQLException {
+    public String getVendorNameFromConnectionPool(String id, String userId)
+            throws RecordNotFoundException, SQLException {
         String vendorName;
         if (connectionDetails.containsKey(id)) {
             vendorName = connectionDetails.get(id).getVendor();
@@ -151,18 +152,17 @@ public class ConnectionPoolService {
         return null;
     }
 
-    public JSONArray runQuery(String id, String userId) throws RecordNotFoundException, SQLException {
-        System.out.println("calling runQuery Fn ----------------");
-        createConnectionPool(id, userId);
-        System.out.println("After calling createConnectionPool Fn ----------------");
+    public JSONArray runQuery(String id, String userId, String query) throws RecordNotFoundException, SQLException {
+        // System.out.println("calling runQuery Fn in Conn.Pool
+        // Service----------------");
+        // createConnectionPool(id, userId);
+        // System.out.println("After calling createConnectionPool Fn ----------------");
         try {
             Connection _connection = connectionPool.get(id);
             statement = _connection.createStatement();
-            System.out.println("after statement declaration ----------------");
-            resultSet = statement.executeQuery("select * from pos.point_of_sales limit 10"); // select 1 as x, 2 as y
+            // System.out.println("after statement declaration ----------------");
+            resultSet = statement.executeQuery(query); // select 1 as x, 2 as y
             JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
-            System.out.println("result printing ----------------");
-            System.out.println("Stringigy JSON ===========\n " + jsonArray.toString());
             return jsonArray;
         } catch (Exception e) {
             System.out.println("runQuery Exception ----------------");

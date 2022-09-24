@@ -124,14 +124,15 @@ public class DBConnectionController {
         return ResponseEntity.ok().body(new MessageResponse("Connection OK!"));
     }
 
-    @PostMapping(value = "/run-query/{id}")
-    public ResponseEntity<String> runQuery(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id)
-            throws RecordNotFoundException, SQLException {
-        String userId = reqHeader.get("requesterUserId");
-        JSONArray jsonArray = connectionPoolService.runQuery(id, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
-    }
+    // @PostMapping(value = "/run-query/{id}")
+    // public ResponseEntity<String> runQuery(@RequestHeader Map<String, String>
+    // reqHeader,
+    // @PathVariable(value = "id") String id)
+    // throws RecordNotFoundException, SQLException {
+    // String userId = reqHeader.get("requesterUserId");
+    // JSONArray jsonArray = connectionPoolService.runQuery(id, userId);
+    // return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+    // }
 
     @PostMapping(value = "/test-sqlserver")
     public ResponseEntity<?> runSqlServer()

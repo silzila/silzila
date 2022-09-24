@@ -18,7 +18,7 @@ public class QueryComposer {
      * Group By clause & Order By clause
      * Different dialects will have different syntaxes.
      */
-    public String composeQuuery(Query req, DatasetDTO ds, String vendorName) throws BadRequestException {
+    public String composeQuery(Query req, DatasetDTO ds, String vendorName) throws BadRequestException {
 
         QueryClauseFieldListMap qMap = new QueryClauseFieldListMap();
         String finalQuery = "";

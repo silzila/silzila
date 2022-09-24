@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.json.JSONArray;
 import org.silzila.app.dto.DatasetDTO;
 import org.silzila.app.dto.DatasetNoSchemaDTO;
 import org.silzila.app.exception.BadRequestException;
@@ -15,8 +16,10 @@ import org.silzila.app.payload.request.DataSchema;
 import org.silzila.app.payload.request.DatasetRequest;
 import org.silzila.app.payload.request.Query;
 import org.silzila.app.payload.response.MessageResponse;
+import org.silzila.app.service.ConnectionPoolService;
 import org.silzila.app.service.DatasetService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,6 +44,9 @@ public class DatasetController {
 
     @Autowired
     DatasetService datasetService;
+
+    @Autowired
+    ConnectionPoolService connectionPoolService;
 
     // create dataset
     @PostMapping("/dataset")
@@ -111,8 +117,8 @@ public class DatasetController {
             BadRequestException {
         String userId = reqHeader.get("requesterUserId");
 
-        datasetService.runQuery(userId, dBConnectionId, datasetId, query);
-        return ResponseEntity.ok().body(new MessageResponse("OKKKK"));
+        JSONArray jsonArray = datasetService.runQuery(userId, dBConnectionId, datasetId, query);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
 }
