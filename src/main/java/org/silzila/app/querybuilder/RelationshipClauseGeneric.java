@@ -14,7 +14,7 @@ import org.silzila.app.payload.request.Query;
 import org.silzila.app.payload.request.Relationship;
 import org.silzila.app.payload.request.Table;
 
-public class RelationshipGeneric {
+public class RelationshipClauseGeneric {
 
     /*
      * Recursively searches relationships to build network of tabels & joins
