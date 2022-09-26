@@ -43,8 +43,11 @@ public class QueryComposer {
         if (vendorName.equals("postgresql")) {
             System.out.println("------ inside postges block");
             qMap = SelectClausePostgres.buildSelectClause(req);
+        } else if (vendorName.equals("mysql")) {
+            System.out.println("------ inside mysql block");
+            qMap = SelectClauseMysql.buildSelectClause(req);
         } else {
-            // TODO "Vendor name is wrong"
+            throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
 
         selectClause = "\n\t" + qMap.getSelectList().stream().collect(Collectors.joining(",\n\t"));
