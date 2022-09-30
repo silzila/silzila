@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.json.JSONArray;
@@ -13,12 +14,14 @@ import org.silzila.app.dto.DatasetNoSchemaDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.model.Dataset;
+import org.silzila.app.payload.request.ColumnFilter;
 import org.silzila.app.payload.request.DataSchema;
 import org.silzila.app.payload.request.DatasetRequest;
 import org.silzila.app.payload.request.Query;
 import org.silzila.app.payload.request.Table;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.querybuilder.QueryComposer;
+import org.silzila.app.querybuilder.filteroptions.FilterOptionsQueryComposer;
 import org.silzila.app.repository.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,6 +47,9 @@ public class DatasetService {
 
     @Autowired
     QueryComposer queryComposer;
+
+    @Autowired
+    FilterOptionsQueryComposer filterOptionsQueryComposer;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -261,11 +267,30 @@ public class DatasetService {
         // get vendor name.
         // SQL Dialect will be different based on vendor name
         String vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
-        System.out.println("*****************" + vendorName);
+        System.out.println("Dialect *****************" + vendorName);
         // get dataset details to compose query
         DatasetDTO ds = loadDataset(datasetId, userId);
         // System.out.println("*****************" + ds.toString());
         String query = queryComposer.composeQuery(req, ds, vendorName);
+        System.out.println("\n******* QUERY **********\n" + query);
+        JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
+        return jsonArray;
+    }
+
+    // Populate filter Options
+    public JSONArray filterOptions(String userId, String dBConnectionId, String datasetId, ColumnFilter columnFilter)
+            throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
+            BadRequestException {
+
+        System.out.println("========================");
+        // load connection details in buffer & create connection pool (if not) and then
+        // get vendor name.
+        // SQL Dialect will be different based on vendor name
+        String vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
+        System.out.println("Dialect *****************" + vendorName);
+        // get dataset details to compose query
+        DatasetDTO ds = loadDataset(datasetId, userId);
+        String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, vendorName);
         System.out.println("\n******* QUERY **********\n" + query);
         JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
         return jsonArray;

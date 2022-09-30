@@ -12,15 +12,18 @@ import org.silzila.app.dto.DatasetNoSchemaDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.model.Dataset;
+import org.silzila.app.payload.request.ColumnFilter;
 import org.silzila.app.payload.request.DataSchema;
 import org.silzila.app.payload.request.DatasetRequest;
 import org.silzila.app.payload.request.Query;
+import org.silzila.app.payload.request.ColumnFilter.FilterOption;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.service.ConnectionPoolService;
 import org.silzila.app.service.DatasetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -119,6 +122,19 @@ public class DatasetController {
 
         JSONArray jsonArray = datasetService.runQuery(userId, dBConnectionId, datasetId, query);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+    }
+
+    @PostMapping("/filter-options")
+    public ResponseEntity<?> filterOptions(@RequestHeader Map<String, String> reqHeader,
+            @Valid @RequestBody ColumnFilter columnFilter,
+            @RequestParam(name = "dbconnectionid") String dBConnectionId,
+            @RequestParam(name = "datasetid") String datasetId)
+            throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
+            BadRequestException {
+        String userId = reqHeader.get("requesterUserId");
+        JSONArray jsonArray = datasetService.filterOptions(userId, dBConnectionId, datasetId, columnFilter);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+
     }
 
 }
