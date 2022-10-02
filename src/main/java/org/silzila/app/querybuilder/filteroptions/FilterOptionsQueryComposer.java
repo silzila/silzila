@@ -48,6 +48,7 @@ public class FilterOptionsQueryComposer {
             finalQuery = FilterQueryPostgres.getFilterOptions(cf, table);
         } else if (vendorName.equals("mysql")) {
             System.out.println("------ inside mysql block");
+            finalQuery = FilterQueryMysql.getFilterOptions(cf, table);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
