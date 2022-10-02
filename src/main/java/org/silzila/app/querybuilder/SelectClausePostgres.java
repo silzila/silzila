@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.silzila.app.domain.QueryClauseFieldListMap;
@@ -24,8 +25,8 @@ public class SelectClausePostgres {
         List<String> orderByDimList = new ArrayList<>();
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
-        Map<String, String> timeGrainMap = Map.of("year", "YEAR", "quarter", "QUARTER",
-                "month", "MONTH", "dayofweek", "DOW", "dayofmonth", "DAY");
+        Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "QUARTER", "QUARTER",
+                "MONTH", "MONTH", "DAYOFWEEK", "DOW", "DAYOFMONTH", "DAY");
 
         /*
          * --------------------------------------------------------
@@ -43,27 +44,27 @@ public class SelectClausePostgres {
             String field = "";
 
             // for non Date fields, Keep column as is
-            if (List.of("text", "boolean", "integer", "decimal").contains(dim.getDataType())) {
+            if (List.of("TEXT", "BOOLEAN", "INTEGER", "DECIMAL").contains(dim.getDataType().name())) {
                 field = dim.getTableId() + "." + dim.getFieldName();
                 groupByDimList.add(field);
                 orderByDimList.add(field);
             }
             // for date fields, need to Parse as year, month, etc.. to aggreate
-            else if (List.of("date", "timestamp").contains(dim.getDataType())) {
-                // if time grain is null then assign default value 'year'
-                if (dim.getTimeGrain() == null || dim.getTimeGrain().isBlank()) {
-                    dim.setTimeGrain("year");
-                }
+            else if (List.of("DATE", "TIMESTAMP").contains(dim.getDataType().name())) {
+                // // if time grain is null then assign default value 'year'
+                // if (dim.getTimeGrain() == null || dim.getTimeGrain().isBlank()) {
+                // dim.setTimeGrain("year");
+                // }
                 // checking ('year', 'quarter', 'month', 'yearmonth', 'yearquarter',
                 // 'dayofweek', 'date', 'dayofmonth')
                 // year -> 2015
-                if (dim.getTimeGrain().equals("year")) {
+                if (dim.getTimeGrain().name().equals("YEAR")) {
                     field = "EXTRACT(YEAR FROM " + dim.getTableId() + "." + dim.getFieldName() + ")::INTEGER";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // quarter name -> Q3
-                else if (dim.getTimeGrain().equals("quarter")) {
+                else if (dim.getTimeGrain().name().equals("QUARTER")) {
                     field = "CONCAT('Q', EXTRACT(QUARTER FROM " + dim.getTableId() + "." + dim.getFieldName()
                             + ")::INTEGER)";
                     groupByDimList.add(field);
@@ -72,7 +73,7 @@ public class SelectClausePostgres {
                 // month name -> August
                 // for month, need to give month number also for column sorting
                 // which should be available in group by list but not in select list
-                else if (dim.getTimeGrain().equals("month")) {
+                else if (dim.getTimeGrain().name().equals("MONTH")) {
                     String sortingFfield = "EXTRACT(MONTH FROM " + dim.getTableId() + "." + dim.getFieldName()
                             + ")::INTEGER";
                     field = "TRIM(TO_CHAR( " + dim.getTableId() + "." + dim.getFieldName() + ", 'Month'))";
@@ -81,20 +82,20 @@ public class SelectClausePostgres {
                     orderByDimList.add(sortingFfield);
                 }
                 // yearquarter name -> 2015-Q3
-                else if (dim.getTimeGrain().equals("yearquarter")) {
+                else if (dim.getTimeGrain().name().equals("YEARQUARTER")) {
                     field = "CONCAT(TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName()
                             + ", 'YYYY'), '-Q', TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'Q'))";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // yearmonth name -> 2015-08
-                else if (dim.getTimeGrain().equals("yearmonth")) {
+                else if (dim.getTimeGrain().name().equals("YEARMONTH")) {
                     field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'YYYY-MM')";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // date -> 2022-08-31
-                else if (dim.getTimeGrain().equals("date")) {
+                else if (dim.getTimeGrain().name().equals("DATE")) {
                     field = "DATE(" + dim.getTableId() + "." + dim.getFieldName() + ")";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
@@ -102,7 +103,7 @@ public class SelectClausePostgres {
                 // day Name -> Wednesday
                 // for day of week, also give day of week number for column sorting
                 // which should be available in group by list but not in select list
-                else if (dim.getTimeGrain().equals("dayofweek")) {
+                else if (dim.getTimeGrain().name().equals("DAYOFWEEK")) {
                     String sortingFfield = "EXTRACT(DOW FROM " + dim.getTableId() + "." + dim.getFieldName()
                             + ")::INTEGER +1";
                     field = "TRIM(TO_CHAR( " + dim.getTableId() + "." + dim.getFieldName() + ", 'Day'))";
@@ -111,7 +112,7 @@ public class SelectClausePostgres {
                     orderByDimList.add(sortingFfield);
                 }
                 // day of month -> 31
-                else if (dim.getTimeGrain().equals("dayofmonth")) {
+                else if (dim.getTimeGrain().name().equals("DAYOFMONTH")) {
                     field = "EXTRACT(DAY FROM " + dim.getTableId() + "." + dim.getFieldName()
                             + ")::INTEGER";
                     groupByDimList.add(field);
@@ -134,25 +135,25 @@ public class SelectClausePostgres {
         for (int i = 0; i < req.getMeasures().size(); i++) {
             Measure meas = req.getMeasures().get(i);
 
-            // if aggr is null then throw error
-            if (meas.getAggr() == null || meas.getAggr().isBlank()) {
-                throw new BadRequestException(
-                        "Error: Aggregation is not specified for measure " + meas.getFieldName());
-            }
+            // // if aggr is null then throw error
+            // if (meas.getAggr() == null || meas.getAggr().isBlank()) {
+            // throw new BadRequestException(
+            // "Error: Aggregation is not specified for measure " + meas.getFieldName());
+            // }
 
             // if text field in measure then use
             // Text Aggregation Methods like COUNT
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
-            if (List.of("text", "boolean").contains(meas.getDataType())) {
+            if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
                 // checking ('count', 'countnn', 'countn', 'countu')
-                if (meas.getAggr().equals("count")) {
+                if (meas.getAggr().name().equals("count")) {
                     field = "COUNT(*)";
-                } else if (meas.getAggr().equals("countnn")) {
+                } else if (meas.getAggr().name().equals("countnn")) {
                     field = "COUNT(" + meas.getTableId() + "." + meas.getFieldName() + ")";
-                } else if (meas.getAggr().equals("countu")) {
+                } else if (meas.getAggr().name().equals("countu")) {
                     field = "COUNT(DISTINCT " + meas.getTableId() + "." + meas.getFieldName() + ")";
-                } else if (meas.getAggr().equals("countn")) {
+                } else if (meas.getAggr().name().equals("countn")) {
                     field = "SUM(CASE WHEN " + meas.getTableId() + "." + meas.getFieldName()
                             + " IS NULL THEN 1 ELSE 0 END)";
                 } else {
@@ -163,55 +164,62 @@ public class SelectClausePostgres {
 
             // for date fields, parse to year, month, etc.. and then
             // aggregate the field for Min & Max only
-            else if (List.of("date", "timestamp").contains(meas.getDataType())) {
-                List<String> aggrList = List.of("min", "max");
-                List<String> timeGrainList = List.of("year", "quarter", "month", "dayofmonth");
+            else if (List.of("DATE", "TIMESTAMP").contains(meas.getDataType().name())) {
+
+                // if date fields don't have time grain, then throw error
+                if (Objects.isNull(meas.getTimeGrain())) {
+                    throw new BadRequestException(
+                            "Error: Date/Timestamp measure should have timeGrain");
+                }
+
+                List<String> aggrList = List.of("MIN", "MAX");
+                List<String> timeGrainList = List.of("YEAR", "QUARTER", "MONTH", "DAYOFMONTH");
                 // checking Aggregations: ('min', 'max', 'count', 'countnn', 'countn', 'countu')
                 // checking Time Grains: ('year', 'quarter', 'month', 'yearmonth',
                 // 'yearquarter', 'dayofmonth')
 
-                if (aggrList.contains(meas.getAggr()) && timeGrainList.contains(meas.getTimeGrain())) {
-                    field = meas.getAggr().toUpperCase() + "(EXTRACT(" + timeGrainMap.get(meas.getTimeGrain())
-                            + " FROM "
-                            + meas.getTableId() + "." + meas.getFieldName() + ")::INTEGER)";
+                if (aggrList.contains(meas.getAggr().name()) && timeGrainList.contains(meas.getTimeGrain().name())) {
+                    field = meas.getAggr().name() + "(EXTRACT("
+                            + timeGrainMap.get(meas.getTimeGrain().name())
+                            + " FROM " + meas.getTableId() + "." + meas.getFieldName() + ")::INTEGER)";
                 }
                 // checking ('date')
-                else if (aggrList.contains(meas.getAggr()) && meas.getTimeGrain().equals("date")) {
-                    field = meas.getAggr().toUpperCase() + "(DATE(" + meas.getTableId() + "." + meas.getFieldName()
-                            + "))";
+                else if (aggrList.contains(meas.getAggr().name()) && meas.getTimeGrain().name().equals("DATE")) {
+                    field = meas.getAggr().name() + "(DATE(" + meas.getTableId() + "."
+                            + meas.getFieldName() + "))";
                 }
                 // checking ('dayofweek')
                 // In postgres, dayofweek starts at 0 not 1, so need to add 1 to the function
-                else if (aggrList.contains(meas.getAggr()) && meas.getTimeGrain().equals("dayofweek")) {
-                    field = meas.getAggr().toUpperCase() + "(EXTRACT(" + timeGrainMap.get(meas.getTimeGrain())
-                            + " FROM "
-                            + meas.getTableId() + "." + meas.getFieldName() + ")::INTEGER) +1";
+                else if (aggrList.contains(meas.getAggr().name()) && meas.getTimeGrain().name().equals("DAYOFWEEK")) {
+                    field = meas.getAggr().name() + "(EXTRACT("
+                            + timeGrainMap.get(meas.getTimeGrain().name())
+                            + " FROM " + meas.getTableId() + "." + meas.getFieldName() + ")::INTEGER) +1";
                 }
 
                 /*
                  * countu is a special case & we can use time grain for this measure
                  */
-                else if (meas.getAggr().equals("countu") && timeGrainList.contains(meas.getTimeGrain())) {
-                    field = "COUNT(DISTINCT(EXTRACT(" + timeGrainMap.get(meas.getTimeGrain())
+                else if (meas.getAggr().name().equals("COUNTU") && timeGrainList.contains(meas.getTimeGrain().name())) {
+                    field = "COUNT(DISTINCT(EXTRACT(" + timeGrainMap.get(meas.getTimeGrain().name())
                             + " FROM " + meas.getTableId() + "." + meas.getFieldName() + ")::INTEGER))";
                 }
                 // checking ('date')
-                else if (meas.getAggr().equals("countu") && meas.getTimeGrain().equals("date")) {
+                else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("DATE")) {
                     field = "COUNT(DISTINCT(DATE(" + meas.getTableId() + "." + meas.getFieldName() + ")))";
                 }
                 // checking ('dayofweek')
-                else if (meas.getAggr().equals("countu") && meas.getTimeGrain().equals("dayofweek")) {
-                    field = "COUNT(DISTINCT(EXTRACT(" + timeGrainMap.get(meas.getTimeGrain())
+                else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("DAYOFWEEK")) {
+                    field = "COUNT(DISTINCT(EXTRACT(" + timeGrainMap.get(meas.getTimeGrain().name())
                             + " FROM " + meas.getTableId() + "." + meas.getFieldName() + ")::INTEGER) +1)";
                 }
 
                 // checking ('yearquarter')
-                else if (meas.getAggr().equals("countu") && meas.getTimeGrain().equals("yearquarter")) {
+                else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARQUARTER")) {
                     field = "COUNT(DISTINCT(CONCAT(TO_CHAR(" + meas.getTableId() + "." + meas.getFieldName()
                             + ", 'YYYY'), '-Q', TO_CHAR(" + meas.getTableId() + "." + meas.getFieldName() + ", 'Q'))))";
                 }
                 // checking ('yearmonth')
-                else if (meas.getAggr().equals("countu") && meas.getTimeGrain().equals("yearmonth")) {
+                else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARMONTH")) {
                     field = "COUNT(DISTINCT(TO_CHAR(" + meas.getTableId() + "." + meas.getFieldName()
                             + ", 'YYYY-MM')))";
                 }
@@ -219,11 +227,11 @@ public class SelectClausePostgres {
                 /*
                  * for simple count & variants, time grain is not needed
                  */
-                else if (meas.getAggr().equals("count")) {
+                else if (meas.getAggr().name().equals("COUNT")) {
                     field = "COUNT(*)";
-                } else if (meas.getAggr().equals("countnn")) {
+                } else if (meas.getAggr().name().equals("COUNTNN")) {
                     field = "COUNT(" + meas.getTableId() + "." + meas.getFieldName() + ")";
-                } else if (meas.getAggr().equals("countn")) {
+                } else if (meas.getAggr().name().equals("COUNTN")) {
                     field = "SUM(CASE WHEN " + meas.getTableId() + "." + meas.getFieldName()
                             + " IS NULL THEN 1 ELSE 0 END)";
                 } else {
@@ -232,18 +240,17 @@ public class SelectClausePostgres {
                 }
             }
             // for number fields, do aggregation
-            else if (List.of("integer", "decimal").contains(meas.getDataType())) {
-                List<String> aggrList = List.of("sum", "avg", "min", "max");
-                if (aggrList.contains(meas.getAggr())) {
-                    field = meas.getAggr().toUpperCase() + "(" + meas.getTableId() + "." + meas.getFieldName()
-                            + ")";
-                } else if (meas.getAggr().equals("count")) {
+            else if (List.of("INTEGER", "DECIMAL").contains(meas.getDataType().name())) {
+                List<String> aggrList = List.of("SUM", "AVG", "MIN", "MAX");
+                if (aggrList.contains(meas.getAggr().name())) {
+                    field = meas.getAggr().name() + "(" + meas.getTableId() + "." + meas.getFieldName() + ")";
+                } else if (meas.getAggr().name().equals("COUNT")) {
                     field = "COUNT(*)";
-                } else if (meas.getAggr().equals("countnn")) {
+                } else if (meas.getAggr().name().equals("COUNTNN")) {
                     field = "COUNT(" + meas.getTableId() + "." + meas.getFieldName() + ")";
-                } else if (meas.getAggr().equals("countu")) {
+                } else if (meas.getAggr().name().equals("COUNTU")) {
                     field = "COUNT(DISTINCT " + meas.getTableId() + "." + meas.getFieldName() + ")";
-                } else if (meas.getAggr().equals("countn")) {
+                } else if (meas.getAggr().name().equals("COUNTN")) {
                     field = "SUM(CASE WHEN " + meas.getTableId() + "." + meas.getFieldName()
                             + " IS NULL THEN 1 ELSE 0 END)";
                 } else {

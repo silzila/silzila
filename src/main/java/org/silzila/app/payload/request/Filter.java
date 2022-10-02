@@ -1,15 +1,18 @@
 package org.silzila.app.payload.request;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Generated;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "filterType",
         "tableId",
         "fieldName",
         "dataType",
@@ -21,23 +24,21 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("jsonschema2pojo")
 public class Filter implements Serializable {
 
-    @JsonProperty("filterType")
-    private String filterType;
     @JsonProperty("tableId")
     private String tableId;
     @JsonProperty("fieldName")
     private String fieldName;
     @JsonProperty("dataType")
-    private String dataType;
+    private Filter.DataType dataType;
     @JsonProperty("shouldExclude")
-    private Boolean shouldExclude;
+    private Boolean shouldExclude = false;
     @JsonProperty("timeGrain")
-    private String timeGrain;
+    private Filter.TimeGrain timeGrain = Filter.TimeGrain.fromValue("year");
     @JsonProperty("operator")
-    private String operator;
+    private Filter.Operator operator;
     @JsonProperty("userSelection")
     private List<String> userSelection = null;
-    private final static long serialVersionUID = -7373035549743445159L;
+    private final static long serialVersionUID = 4876626487235075859L;
 
     /**
      * No args constructor for use in serialization
@@ -54,13 +55,11 @@ public class Filter implements Serializable {
      * @param shouldExclude
      * @param tableId
      * @param userSelection
-     * @param filterType
      * @param operator
      */
-    public Filter(String filterType, String tableId, String fieldName, String dataType, Boolean shouldExclude,
-            String timeGrain, String operator, List<String> userSelection) {
+    public Filter(String tableId, String fieldName, Filter.DataType dataType, Boolean shouldExclude,
+            Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection) {
         super();
-        this.filterType = filterType;
         this.tableId = tableId;
         this.fieldName = fieldName;
         this.dataType = dataType;
@@ -68,16 +67,6 @@ public class Filter implements Serializable {
         this.timeGrain = timeGrain;
         this.operator = operator;
         this.userSelection = userSelection;
-    }
-
-    @JsonProperty("filterType")
-    public String getFilterType() {
-        return filterType;
-    }
-
-    @JsonProperty("filterType")
-    public void setFilterType(String filterType) {
-        this.filterType = filterType;
     }
 
     @JsonProperty("tableId")
@@ -101,12 +90,12 @@ public class Filter implements Serializable {
     }
 
     @JsonProperty("dataType")
-    public String getDataType() {
+    public Filter.DataType getDataType() {
         return dataType;
     }
 
     @JsonProperty("dataType")
-    public void setDataType(String dataType) {
+    public void setDataType(Filter.DataType dataType) {
         this.dataType = dataType;
     }
 
@@ -121,22 +110,22 @@ public class Filter implements Serializable {
     }
 
     @JsonProperty("timeGrain")
-    public String getTimeGrain() {
+    public Filter.TimeGrain getTimeGrain() {
         return timeGrain;
     }
 
     @JsonProperty("timeGrain")
-    public void setTimeGrain(String timeGrain) {
+    public void setTimeGrain(Filter.TimeGrain timeGrain) {
         this.timeGrain = timeGrain;
     }
 
     @JsonProperty("operator")
-    public String getOperator() {
+    public Filter.Operator getOperator() {
         return operator;
     }
 
     @JsonProperty("operator")
-    public void setOperator(String operator) {
+    public void setOperator(Filter.Operator operator) {
         this.operator = operator;
     }
 
@@ -155,10 +144,6 @@ public class Filter implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append(Filter.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this)))
                 .append('[');
-        sb.append("filterType");
-        sb.append('=');
-        sb.append(((this.filterType == null) ? "<null>" : this.filterType));
-        sb.append(',');
         sb.append("tableId");
         sb.append('=');
         sb.append(((this.tableId == null) ? "<null>" : this.tableId));
@@ -193,6 +178,144 @@ public class Filter implements Serializable {
             sb.append(']');
         }
         return sb.toString();
+    }
+
+    @Generated("jsonschema2pojo")
+    public enum DataType {
+
+        TEXT("text"),
+        INTEGER("integer"),
+        DECIMAL("decimal"),
+        BOOLEAN("boolean"),
+        DATE("date"),
+        TIMESTAMP("timestamp");
+
+        private final String value;
+        private final static Map<String, Filter.DataType> CONSTANTS = new HashMap<String, Filter.DataType>();
+
+        static {
+            for (Filter.DataType c : values()) {
+                CONSTANTS.put(c.value, c);
+            }
+        }
+
+        DataType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+
+        @JsonValue
+        public String value() {
+            return this.value;
+        }
+
+        @JsonCreator
+        public static Filter.DataType fromValue(String value) {
+            Filter.DataType constant = CONSTANTS.get(value);
+            if (constant == null) {
+                throw new IllegalArgumentException(value);
+            } else {
+                return constant;
+            }
+        }
+
+    }
+
+    @Generated("jsonschema2pojo")
+    public enum Operator {
+
+        EQUAL_TO("equalTo"),
+        NOT_EQUAL_TO("notEqualTo"),
+        BETWEEN("between"),
+        GREATER_THAN("greaterThan"),
+        GREATER_THAN_OR_EQUAL_TO("greaterThanOrEqualTo"),
+        LESS_THAN("lessThan"),
+        LESS_THAN_OR_EQUAL_TO("lessThanOrEqualTo");
+
+        private final String value;
+        private final static Map<String, Filter.Operator> CONSTANTS = new HashMap<String, Filter.Operator>();
+
+        static {
+            for (Filter.Operator c : values()) {
+                CONSTANTS.put(c.value, c);
+            }
+        }
+
+        Operator(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+
+        @JsonValue
+        public String value() {
+            return this.value;
+        }
+
+        @JsonCreator
+        public static Filter.Operator fromValue(String value) {
+            Filter.Operator constant = CONSTANTS.get(value);
+            if (constant == null) {
+                throw new IllegalArgumentException(value);
+            } else {
+                return constant;
+            }
+        }
+
+    }
+
+    @Generated("jsonschema2pojo")
+    public enum TimeGrain {
+
+        YEAR("year"),
+        QUARTER("quarter"),
+        MONTH("month"),
+        YEARQUARTER("yearquarter"),
+        YEARMONTH("yearmonth"),
+        DATE("date"),
+        DAYOFMONTH("dayofmonth"),
+        DAYOFWEEK("dayofweek");
+
+        private final String value;
+        private final static Map<String, Filter.TimeGrain> CONSTANTS = new HashMap<String, Filter.TimeGrain>();
+
+        static {
+            for (Filter.TimeGrain c : values()) {
+                CONSTANTS.put(c.value, c);
+            }
+        }
+
+        TimeGrain(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+
+        @JsonValue
+        public String value() {
+            return this.value;
+        }
+
+        @JsonCreator
+        public static Filter.TimeGrain fromValue(String value) {
+            Filter.TimeGrain constant = CONSTANTS.get(value);
+            if (constant == null) {
+                throw new IllegalArgumentException(value);
+            } else {
+                return constant;
+            }
+        }
+
     }
 
 }

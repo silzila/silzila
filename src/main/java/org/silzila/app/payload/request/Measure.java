@@ -1,10 +1,14 @@
 package org.silzila.app.payload.request;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.Generated;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -22,12 +26,12 @@ public class Measure implements Serializable {
     @JsonProperty("fieldName")
     private String fieldName;
     @JsonProperty("dataType")
-    private String dataType;
+    private Measure.DataType dataType;
     @JsonProperty("timeGrain")
-    private String timeGrain;
+    private Measure.TimeGrain timeGrain = Measure.TimeGrain.fromValue("year");
     @JsonProperty("aggr")
-    private String aggr;
-    private final static long serialVersionUID = 8696555275727684792L;
+    private Measure.Aggr aggr = Measure.Aggr.fromValue("count");
+    private final static long serialVersionUID = 1754801202036436076L;
 
     /**
      * No args constructor for use in serialization
@@ -44,7 +48,8 @@ public class Measure implements Serializable {
      * @param tableId
      * @param aggr
      */
-    public Measure(String tableId, String fieldName, String dataType, String timeGrain, String aggr) {
+    public Measure(String tableId, String fieldName, Measure.DataType dataType, Measure.TimeGrain timeGrain,
+            Measure.Aggr aggr) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
@@ -74,32 +79,32 @@ public class Measure implements Serializable {
     }
 
     @JsonProperty("dataType")
-    public String getDataType() {
+    public Measure.DataType getDataType() {
         return dataType;
     }
 
     @JsonProperty("dataType")
-    public void setDataType(String dataType) {
+    public void setDataType(Measure.DataType dataType) {
         this.dataType = dataType;
     }
 
     @JsonProperty("timeGrain")
-    public String getTimeGrain() {
+    public Measure.TimeGrain getTimeGrain() {
         return timeGrain;
     }
 
     @JsonProperty("timeGrain")
-    public void setTimeGrain(String timeGrain) {
+    public void setTimeGrain(Measure.TimeGrain timeGrain) {
         this.timeGrain = timeGrain;
     }
 
     @JsonProperty("aggr")
-    public String getAggr() {
+    public Measure.Aggr getAggr() {
         return aggr;
     }
 
     @JsonProperty("aggr")
-    public void setAggr(String aggr) {
+    public void setAggr(Measure.Aggr aggr) {
         this.aggr = aggr;
     }
 
@@ -134,6 +139,145 @@ public class Measure implements Serializable {
             sb.append(']');
         }
         return sb.toString();
+    }
+
+    @Generated("jsonschema2pojo")
+    public enum Aggr {
+
+        SUM("sum"),
+        AVG("avg"),
+        MIN("min"),
+        MAX("max"),
+        COUNT("count"),
+        COUNTU("countu"),
+        COUNTN("countn"),
+        COUNTNN("countnn");
+
+        private final String value;
+        private final static Map<String, Measure.Aggr> CONSTANTS = new HashMap<String, Measure.Aggr>();
+
+        static {
+            for (Measure.Aggr c : values()) {
+                CONSTANTS.put(c.value, c);
+            }
+        }
+
+        Aggr(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+
+        @JsonValue
+        public String value() {
+            return this.value;
+        }
+
+        @JsonCreator
+        public static Measure.Aggr fromValue(String value) {
+            Measure.Aggr constant = CONSTANTS.get(value);
+            if (constant == null) {
+                throw new IllegalArgumentException(value);
+            } else {
+                return constant;
+            }
+        }
+
+    }
+
+    @Generated("jsonschema2pojo")
+    public enum DataType {
+
+        TEXT("text"),
+        INTEGER("integer"),
+        DECIMAL("decimal"),
+        BOOLEAN("boolean"),
+        DATE("date"),
+        TIMESTAMP("timestamp");
+
+        private final String value;
+        private final static Map<String, Measure.DataType> CONSTANTS = new HashMap<String, Measure.DataType>();
+
+        static {
+            for (Measure.DataType c : values()) {
+                CONSTANTS.put(c.value, c);
+            }
+        }
+
+        DataType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+
+        @JsonValue
+        public String value() {
+            return this.value;
+        }
+
+        @JsonCreator
+        public static Measure.DataType fromValue(String value) {
+            Measure.DataType constant = CONSTANTS.get(value);
+            if (constant == null) {
+                throw new IllegalArgumentException(value);
+            } else {
+                return constant;
+            }
+        }
+
+    }
+
+    @Generated("jsonschema2pojo")
+    public enum TimeGrain {
+
+        YEAR("year"),
+        QUARTER("quarter"),
+        MONTH("month"),
+        YEARQUARTER("yearquarter"),
+        YEARMONTH("yearmonth"),
+        DATE("date"),
+        DAYOFMONTH("dayofmonth"),
+        DAYOFWEEK("dayofweek");
+
+        private final String value;
+        private final static Map<String, Measure.TimeGrain> CONSTANTS = new HashMap<String, Measure.TimeGrain>();
+
+        static {
+            for (Measure.TimeGrain c : values()) {
+                CONSTANTS.put(c.value, c);
+            }
+        }
+
+        TimeGrain(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+
+        @JsonValue
+        public String value() {
+            return this.value;
+        }
+
+        @JsonCreator
+        public static Measure.TimeGrain fromValue(String value) {
+            Measure.TimeGrain constant = CONSTANTS.get(value);
+            if (constant == null) {
+                throw new IllegalArgumentException(value);
+            } else {
+                return constant;
+            }
+        }
+
     }
 
 }

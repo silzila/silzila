@@ -19,7 +19,7 @@ public class FilterPanel implements Serializable {
     @JsonProperty("panelName")
     private String panelName;
     @JsonProperty("shouldAllConditionsMatch")
-    private Boolean shouldAllConditionsMatch;
+    private Boolean shouldAllConditionsMatch = true;
     @JsonProperty("filters")
     private List<Filter> filters = null;
     private final static long serialVersionUID = -2994418440697742665L;

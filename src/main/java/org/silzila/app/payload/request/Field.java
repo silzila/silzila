@@ -1,10 +1,14 @@
 package org.silzila.app.payload.request;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.Generated;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -20,8 +24,8 @@ public class Field implements Serializable {
     @JsonProperty("fieldName")
     private String fieldName;
     @JsonProperty("dataType")
-    private String dataType;
-    private final static long serialVersionUID = 3228910829163234655L;
+    private Field.DataType dataType;
+    private final static long serialVersionUID = -7207259868710547121L;
 
     /**
      * No args constructor for use in serialization
@@ -36,7 +40,7 @@ public class Field implements Serializable {
      * @param dataType
      * @param tableId
      */
-    public Field(String tableId, String fieldName, String dataType) {
+    public Field(String tableId, String fieldName, Field.DataType dataType) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
@@ -64,12 +68,12 @@ public class Field implements Serializable {
     }
 
     @JsonProperty("dataType")
-    public String getDataType() {
+    public Field.DataType getDataType() {
         return dataType;
     }
 
     @JsonProperty("dataType")
-    public void setDataType(String dataType) {
+    public void setDataType(Field.DataType dataType) {
         this.dataType = dataType;
     }
 
@@ -96,6 +100,51 @@ public class Field implements Serializable {
             sb.append(']');
         }
         return sb.toString();
+    }
+
+    @Generated("jsonschema2pojo")
+    public enum DataType {
+
+        TEXT("text"),
+        INTEGER("integer"),
+        DECIMAL("decimal"),
+        BOOLEAN("boolean"),
+        DATE("date"),
+        TIMESTAMP("timestamp");
+
+        private final String value;
+        private final static Map<String, Field.DataType> CONSTANTS = new HashMap<String, Field.DataType>();
+
+        static {
+            for (Field.DataType c : values()) {
+                CONSTANTS.put(c.value, c);
+            }
+        }
+
+        DataType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+
+        @JsonValue
+        public String value() {
+            return this.value;
+        }
+
+        @JsonCreator
+        public static Field.DataType fromValue(String value) {
+            Field.DataType constant = CONSTANTS.get(value);
+            if (constant == null) {
+                throw new IllegalArgumentException(value);
+            } else {
+                return constant;
+            }
+        }
+
     }
 
 }
