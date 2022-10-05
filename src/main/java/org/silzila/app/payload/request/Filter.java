@@ -228,8 +228,11 @@ public class Filter implements Serializable {
     @Generated("jsonschema2pojo")
     public enum Operator {
 
+        IN("in"),
         EQUAL_TO("equalTo"),
-        NOT_EQUAL_TO("notEqualTo"),
+        CONTAINS("contains"),
+        BEGINS_WITH("beginsWith"),
+        ENDS_WITH("endsWith"),
         BETWEEN("between"),
         GREATER_THAN("greaterThan"),
         GREATER_THAN_OR_EQUAL_TO("greaterThanOrEqualTo"),
