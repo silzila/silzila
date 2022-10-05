@@ -1,0 +1,33 @@
+#container1 {
+	background-color: #eeeeee;
+	height: auto;
+	width: 400px;
+	margin: 8rem auto;
+	border-radius: 3px;
+	padding: 20px;
+}
+#formElement {
+	display: grid;
+	grid-template-rows: 70% auto;
+	row-gap: 5px;
+	margin: 10px;
+}
+#error {
+	color: red;
+	font-size: 13px;
+}
+.inputElement {
+	height: 30px;
+	border-radius: 3px;
+	border: 1px solid black;
+	width: 70%;
+	margin: 1px auto;
+	padding: 10px;
+	background-color: transparent;
+}
+
+#loginSignupButton {
+	background-color: black;
+	width: 40%;
+	margin: 10px;
+}
