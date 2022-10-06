@@ -1,0 +1,138 @@
+.dataViewerMiddle {
+	flex: 1;
+	height: 100%;
+	display: flex;
+	transition: all 0.2s cubic-bezier(0, 1.26, 0.8, 1.28);
+	overflow: hidden;
+	/* margin-bottom: 0.25rem; */
+	/* border-top: 1px solid rgb(225, 225, 225); */
+}
+.centerColumn {
+	flex: 1;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	transition: all 0.2s cubic-bezier(0, 1.26, 0.8, 1.28);
+	margin: 0 0.5rem;
+}
+.graphTitleAndEdit {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	height: 3rem;
+	/* padding-left: 20px; */
+	display: flex;
+	/* border-bottom: 1px solid #d3d3d3; */
+	line-height: 3rem;
+	background-color: #fff;
+}
+.graphTitle {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	height: 3rem;
+	color: #b6b6b6;
+	/* text-transform: capitalize; */
+	text-align: center;
+	font-weight: 600;
+}
+.graphFullScreen {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 100vw;
+	height: 100vh;
+	background-color: white;
+	z-index: 2000;
+}
+
+.graphAreaIcons {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 5px;
+	color: #b6b6b6;
+}
+.graphAreaIcons:hover {
+	cursor: pointer;
+	color: #404040;
+}
+
+.graphAreaIconsSelected {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 5px;
+	color: #404040;
+}
+
+.editTitle {
+	flex: 1;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	height: 3rem;
+	background-color: white;
+	/* text-transform: capitalize; */
+	text-align: center;
+	border: none;
+	font-weight: 600;
+	border-bottom: 1px solid #d3d3d3;
+	font-family: "Segoe UI";
+}
+.graphContainer {
+	flex: 1;
+	overflow: auto;
+	background-color: #fff;
+	justify-content: center;
+}
+.syntaxHighlight {
+	text-align: left;
+}
+
+.controlsIcon {
+	padding: 8px;
+	height: 48px;
+	margin: 0 0 10px 0;
+	border-right: 3px solid transparent;
+	cursor: pointer;
+}
+.controlsIcon:hover {
+	background-color: white;
+}
+
+.selectedIcon {
+	border-right: 3px solid transparent;
+	border-right-color: #007bff;
+	background-color: white;
+}
+
+.rightColumn {
+	padding: 0%;
+	height: 100%;
+	width: auto;
+	display: flex;
+	flex-direction: row;
+}
+.rightColumnMenu {
+	height: 100%;
+	width: 3rem;
+	background-color: #eee;
+	border-bottom: 1px solid rgb(211, 211, 211);
+	border-top: 1px solid rgb(211, 211, 211);
+	display: flex;
+	flex-direction: column;
+}
+.rightColumnControlsAndFilters {
+	flex: 1;
+	height: 100%;
+	background-color: #eee;
+	width: 250px;
+	border-right: 1px solid #d3d3d3;
+	border-bottom: 1px solid rgb(211, 211, 211);
+	display: flex;
+	flex-direction: column;
+}
