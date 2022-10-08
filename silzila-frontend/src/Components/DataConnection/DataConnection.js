@@ -51,7 +51,7 @@ const DataConnection = (props) => {
 		var result = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: "dc/get-all-dc",
+			url: "database-connection",
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
 
@@ -100,7 +100,7 @@ const DataConnection = (props) => {
 		var result = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: "dc/get-dc/" + dcuid,
+			url: "database-connection/" + dcuid,
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
 
@@ -120,18 +120,18 @@ const DataConnection = (props) => {
 	const handleRegister = async () => {
 		var data = {
 			vendor: account.vendor,
-			url: account.url,
+			server: account.url,
 			port: account.port,
-			db_name: account.db_name,
+			database: account.db_name,
 			username: account.username,
 			password: account.password,
-			friendly_name: account.friendly_name,
+			connectionName: account.friendly_name,
 		};
 
 		var response = await FetchData({
 			requestType: "withData",
 			method: "POST",
-			url: "dc/create-dc",
+			url: "database-connection",
 			headers: { "Content-Type": "application/json", Authorization: `Bearer ${props.token}` },
 			data: data,
 		});
@@ -164,18 +164,18 @@ const DataConnection = (props) => {
 	const handleonUpdate = async () => {
 		var data = {
 			vendor: account.vendor,
-			url: account.url,
+			server: account.url,
 			port: account.port,
-			db_name: account.db_name,
+			database: account.db_name,
 			username: account.username,
 			password: account.password,
-			friendly_name: account.friendly_name,
+			connectionName: account.friendly_name,
 		};
 
 		var response = await FetchData({
 			requestType: "withData",
 			method: "PUT",
-			url: "dc/update-dc/" + dataConnId,
+			url: "database-connection/" + dataConnId,
 			headers: { "Content-Type": "application/json", Authorization: `Bearer ${props.token}` },
 			data: data,
 		});

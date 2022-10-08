@@ -8,7 +8,7 @@ import DataSetList from "../DataSet/DataSetList";
 import MenuBar from "../DataViewer/MenuBar";
 import DataConnection from "./DataConnection";
 import "./DataSetup.css";
-//import PlayBookList from "./PlayBookList";
+import PlayBookList from "./PlayBookList";
 
 const DataHome = () => {
 	return (
@@ -19,7 +19,7 @@ const DataHome = () => {
 					<DataConnection />
 					<DataSetList />
 				</div>
-			{/*	<PlayBookList />*/}
+				<PlayBookList />
 			</div>
 			
 		</div>

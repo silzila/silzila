@@ -49,7 +49,7 @@ const PlayBookList = ({
 	var navigate = useNavigate();
 
 	useEffect(() => {
-		getInformation();
+		//getInformation();
 		// eslint-disable-next-line
 	}, []);
 

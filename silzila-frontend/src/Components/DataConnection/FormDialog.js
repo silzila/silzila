@@ -67,11 +67,11 @@ function FormDialog({
 			(account.password !== "" || account.password !== undefined)
 		) {
 			let data = {
-				friendly_name: account.friendly_name,
+				connectionName: account.friendly_name,
 				vendor: account.vendor,
-				url: account.url,
+				server: account.url,
 				port: account.port,
-				db_name: account.db_name,
+				database: account.db_name,
 				username: account.username,
 				password: account.password,
 			};
@@ -79,7 +79,7 @@ function FormDialog({
 			var response = await FetchData({
 				requestType: "withData",
 				method: "POST",
-				url: "dc/test-dc",
+				url: "database-connection-test",
 				headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
 				data: data,
 			});

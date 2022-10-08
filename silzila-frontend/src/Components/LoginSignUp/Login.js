@@ -91,8 +91,8 @@ const Login = (props) => {
 				setLoginStatus(true);
 				var payload = {
 					isUserLogged: true,
-					accessToken: response.data.access_token,
-					tokenType: response.data.token_type,
+					accessToken: response.data.accessToken,
+					tokenType: response.data.tokenType,
 				};
 				props.userAuthentication(payload);
 				setTimeout(() => {

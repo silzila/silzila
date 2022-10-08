@@ -39,7 +39,7 @@ const DataSetList = ({
 		var result = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: "ds/get-all-ds",
+			url: "dataset",
 			headers: { Authorization: `Bearer ${token}` },
 		});
 
@@ -64,7 +64,7 @@ const DataSetList = ({
 		var result = await FetchData({
 			requestType: "noData",
 			method: "DELETE",
-			url: "ds/delete-ds/" + dsUid,
+			url: "dataset/" + dsUid,
 			headers: { Authorization: `Bearer ${token}` },
 		});
 		if (result.status) {

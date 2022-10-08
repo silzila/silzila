@@ -276,9 +276,9 @@ const MenuBar = ({
 							if (showSaveWarning || playBookState.playBookUid === null) {
 								setSaveFromLogoutIcon(true);
 								setSaveModal(true);
-								closeDc();
+								//closeDc();
 							} else {
-								closeDc();
+								//closeDc();
 
 								resetUser();
 								navigate("/login");
@@ -286,7 +286,7 @@ const MenuBar = ({
 						}
 
 						if (from === "dataHome" || from === "dataSet") {
-							closeDc();
+							//closeDc();
 
 							resetUser();
 							navigate("/login");
@@ -630,7 +630,7 @@ const MenuBar = ({
 								onClick={() => {
 									// If discard button is clicked after a logout, reset user info and navigate to login page
 									if (saveFromLogoutIcon) {
-										closeDc();
+										//closeDc();
 										setSaveFromLogoutIcon(false);
 										resetUser();
 										navigate("/login");
