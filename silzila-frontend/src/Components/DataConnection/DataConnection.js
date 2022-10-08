@@ -15,16 +15,16 @@ import { resetAllStates } from "../../redux/TabTile/actionsTabTile";
 const initialState = {
 	vendor: "",
 	vendorError: "",
-	url: "",
-	urlError: "",
+	server: "",
+	serverError: "",
 	port: "",
 	portError: "",
-	db_name: "",
-	db_nameError: "",
+	database: "",
+	databaseError: "",
 	username: "",
 	userNameError: "",
-	friendly_name: "",
-	friendly_nameError: "",
+	connectionName: "",
+	connectionNameError: "",
 	password: "",
 	passwordError: "",
 };
@@ -120,12 +120,12 @@ const DataConnection = (props) => {
 	const handleRegister = async () => {
 		var data = {
 			vendor: account.vendor,
-			server: account.url,
+			server: account.server,
 			port: account.port,
-			database: account.db_name,
+			database: account.database,
 			username: account.username,
 			password: account.password,
-			connectionName: account.friendly_name,
+			connectionName: account.connectionName,
 		};
 
 		var response = await FetchData({
@@ -140,7 +140,7 @@ const DataConnection = (props) => {
 			if (response.data.message === "Friendlly Name is already used") {
 				setAccount({
 					...account,
-					friendly_nameError: "Friendlly Name is already used try any other Name",
+					connectionNameError: "Friendlly Name is already used try any other Name",
 				});
 			} else {
 				setOpenAlert(true);
@@ -164,12 +164,12 @@ const DataConnection = (props) => {
 	const handleonUpdate = async () => {
 		var data = {
 			vendor: account.vendor,
-			server: account.url,
+			server: account.server,
 			port: account.port,
-			database: account.db_name,
+			database: account.database,
 			username: account.username,
 			password: account.password,
-			connectionName: account.friendly_name,
+			connectionName: account.connectionName,
 		};
 
 		var response = await FetchData({
@@ -245,7 +245,7 @@ const DataConnection = (props) => {
 					dataConnectionList.map((dc) => {
 						return (
 							<SelectListItem
-								key={dc.friendly_name}
+								key={dc.connectionName}
 								render={(xprops) => (
 									<div
 										className={
@@ -255,10 +255,10 @@ const DataConnection = (props) => {
 										}
 										onMouseOver={() => xprops.setOpen(true)}
 										onMouseLeave={() => xprops.setOpen(false)}
-										onClick={() => ViewOrEditDc(dc.dc_uid)}
+										onClick={() => ViewOrEditDc(dc.id)}
 									>
 										<div className="dataConnectionName">
-											{dc.friendly_name} (<i className="">{dc.db_name}</i>){" "}
+											{dc.connectionName} (<i className="">{dc.database}</i>){" "}
 										</div>
 										{xprops.open ? (
 											<Tooltip
@@ -272,7 +272,7 @@ const DataConnection = (props) => {
 														height: "1rem",
 														margin: "auto",
 													}}
-													onClick={() => ViewOrEditDc(dc.dc_uid)}
+													onClick={() => ViewOrEditDc(dc.id)}
 												/>
 											</Tooltip>
 										) : null}

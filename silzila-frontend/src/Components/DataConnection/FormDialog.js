@@ -39,11 +39,11 @@ function FormDialog({
 	const btnEnabelDisable = () => {
 		if (
 			account.vendor !== "" &&
-			account.url !== "" &&
+			account.server !== "" &&
 			account.port !== "" &&
-			account.db_name !== "" &&
+			account.database !== "" &&
 			account.username !== "" &&
-			account.friendly_name !== "" &&
+			account.connectionName !== "" &&
 			account.password !== ""
 		) {
 			setBtnEnable(false);
@@ -58,20 +58,20 @@ function FormDialog({
 	const handleonTest = async () => {
 		if (
 			account.vendor !== "" &&
-			account.url !== "" &&
+			account.server !== "" &&
 			account.port !== "" &&
-			account.db_name !== "" &&
+			account.database !== "" &&
 			account.username !== "" &&
-			account.friendly_name !== "" &&
+			account.connectionName !== "" &&
 			account.password &&
 			(account.password !== "" || account.password !== undefined)
 		) {
 			let data = {
-				connectionName: account.friendly_name,
+				connectionName: account.connectionName,
 				vendor: account.vendor,
-				server: account.url,
+				server: account.server,
 				port: account.port,
-				database: account.db_name,
+				database: account.database,
 				username: account.username,
 				password: account.password,
 			};
@@ -84,7 +84,7 @@ function FormDialog({
 				data: data,
 			});
 
-			if (response.status && response.data.message === "Test Seems OK") {
+			if (response.status === 200 && response.data.message === "Connection OK!") {
 				setSeverity("success");
 				setOpenAlert(true);
 				setTestMessage("Test Connection successfull");
@@ -95,7 +95,7 @@ function FormDialog({
 			} else {
 				setSeverity("error");
 				setOpenAlert(true);
-				setTestMessage(response.data.detail);
+				setTestMessage(response.data.message);
 				setTimeout(() => {
 					setOpenAlert(false);
 					setTestMessage("");
@@ -152,7 +152,7 @@ function FormDialog({
 		var result = await FetchData({
 			requestType: "noData",
 			method: "DELETE",
-			url: "dc/delete-dc/" + dataConnId,
+			url: "database-connection/" + dataConnId,
 			headers: { Authorization: `Bearer ${token}` },
 		});
 		if (result.status) {
@@ -185,11 +185,11 @@ function FormDialog({
 	const onSubmit = () => {
 		if (
 			account.vendor !== "" &&
-			account.url !== "" &&
+			account.server !== "" &&
 			account.port !== "" &&
-			account.db_name !== "" &&
+			account.database !== "" &&
 			account.username !== "" &&
-			account.friendly_name !== "" &&
+			account.connectionName !== "" &&
 			account.password !== ""
 		) {
 			if (regOrUpdate === "Update") {
@@ -267,7 +267,7 @@ function FormDialog({
 									setAccount({
 										...account,
 										vendor: e.target.value,
-										url: "localhost",
+										server: "localhost",
 										port: setUrlAndPort(e.target.value),
 									});
 									btnEnabelDisable();
@@ -291,22 +291,22 @@ function FormDialog({
 						<small style={{ color: "red" }}>{account.vendorError}</small>
 						<TextFieldComponent
 							onChange={(e) => {
-								setAccount({ ...account, url: e.target.value });
+								setAccount({ ...account, server: e.target.value });
 								btnEnabelDisable();
 							}}
-							onFocus={() => setAccount({ ...account, urlError: "" })}
+							onFocus={() => setAccount({ ...account, serverError: "" })}
 							onBlur={() => {
-								if (account.url.length === 0) {
+								if (account.server.length === 0) {
 									setAccount({
 										...account,
-										urlError: "url should not be Empty",
+										serverError: "Url should not be Empty",
 									});
 									btnEnabelDisable();
 								}
 							}}
-							{...{ viewMode, value: account.url, lable: "Url" }}
+							{...{ viewMode, value: account.server, lable: "Url" }}
 						/>
-						<small style={{ color: "red" }}>{account.urlError}</small>
+						<small style={{ color: "red" }}>{account.serverError}</small>
 						<TextFieldComponent
 							onChange={(e) => {
 								setAccount({ ...account, port: e.target.value });
@@ -327,45 +327,45 @@ function FormDialog({
 						<small style={{ color: "red" }}>{account.portError}</small>
 						<TextFieldComponent
 							onChange={(e) => {
-								setAccount({ ...account, db_name: e.target.value });
+								setAccount({ ...account, database: e.target.value });
 								btnEnabelDisable();
 							}}
-							onFocus={() => setAccount({ ...account, db_nameError: "" })}
+							onFocus={() => setAccount({ ...account, databaseError: "" })}
 							onBlur={() => {
-								if (account.db_name.length === 0) {
+								if (account.database.length === 0) {
 									setAccount({
 										...account,
-										db_nameError: "Database should not be Empty",
+										databaseError: "Database should not be Empty",
 									});
 									btnEnabelDisable();
 								}
 							}}
-							{...{ viewMode, value: account.db_name, lable: "Database" }}
+							{...{ viewMode, value: account.database, lable: "Database" }}
 						/>
-						<small style={{ color: "red" }}>{account.db_nameError}</small>
+						<small style={{ color: "red" }}>{account.databaseError}</small>
 
 						<TextFieldComponent
 							onChange={(e) => {
-								setAccount({ ...account, friendly_name: e.target.value });
+								setAccount({ ...account, connectionName: e.target.value });
 								btnEnabelDisable();
 							}}
-							onFocus={() => setAccount({ ...account, friendly_nameError: "" })}
+							onFocus={() => setAccount({ ...account, connectionNameError: "" })}
 							onBlur={() => {
-								if (account.friendly_name.length === 0) {
+								if (account.connectionName.length === 0) {
 									setAccount({
 										...account,
-										friendly_nameError: "Connection Name should not be Empty",
+										connectionNameError: "Connection Name should not be Empty",
 									});
 									btnEnabelDisable();
 								}
 							}}
 							{...{
 								viewMode,
-								value: account.friendly_name,
+								value: account.connectionName,
 								lable: "Connection name",
 							}}
 						/>
-						<small style={{ color: "red" }}>{account.friendly_nameError}</small>
+						<small style={{ color: "red" }}>{account.connectionNameError}</small>
 						<TextFieldComponent
 							onChange={(e) => {
 								setAccount({ ...account, username: e.target.value });
