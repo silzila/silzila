@@ -1,0 +1,124 @@
+.dataViewer {
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	color: #333;
+}
+
+.dataViewerMenu {
+	background-color: rgb(211, 211, 211);
+	height: 2rem;
+	width: 100%;
+	align-self: center;
+	display: flex;
+}
+
+/* ========================================================================================== */
+/* Menu items styling */
+.menuHome {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 2rem;
+	width: 3rem;
+	cursor: pointer;
+}
+.menuHome:hover {
+	background-color: rgb(238, 238, 238);
+}
+
+.menuItemsGroup {
+	flex: 1;
+	display: flex;
+}
+.menuItem {
+	border-radius: 2px;
+	cursor: pointer;
+	transition: 0.2s;
+	line-height: 2rem;
+	padding: 0 12px;
+}
+.menuItem:hover {
+	transition: 0.2s;
+	background-color: rgb(238, 238, 238);
+}
+.playbookName {
+	flex: 2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 600;
+	color: #666;
+}
+.userInfo {
+	flex: 1;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+.menuPopover {
+	font-size: 12px;
+}
+
+/* ========================================================================================== */
+/* TabRibbon styling */
+
+.tabArea {
+	display: flex;
+	background-color: rgb(238, 238, 238);
+	/* padding: 2px 2px 0 0; */
+}
+.tabItems {
+	flex: 1;
+	height: 1.75rem;
+	font-size: 12px;
+	margin: 0;
+	padding: 2px 0 0 0;
+	text-align: left;
+
+	/* border-bottom: 1px solid rgb(211, 211, 211); */
+}
+
+/* ========================================================================================== */
+/* TileRibbon Styling */
+.tilearea {
+	width: 100%;
+	background-color: rgb(238, 238, 238);
+	display: flex;
+}
+.tileItems {
+	height: 1.75rem;
+	font-size: 12px;
+	width: 100%;
+	flex: 1;
+	margin: 0;
+	padding: 0 0 2px 0;
+	text-align: left;
+	/* border-top: 1px solid rgb(211, 211, 211); */
+}
+
+.showTableColumns {
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	/* margin: 0 2px; */
+}
+
+.showTableColumns:hover {
+	background-color: rgb(211, 211, 211);
+}
+
+.tableDisplayToggle {
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	/* margin: 0 2px; */
+}
+.tableDisplayToggle:hover {
+	background-color: rgb(211, 211, 211);
+}

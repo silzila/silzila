@@ -1,0 +1,82 @@
+.canvas {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	background-color: white;
+}
+
+.canvasStyle {
+	flex: 1;
+	position: relative;
+	overflow: auto;
+	display: flex;
+	height: 100%;
+	flex-wrap: wrap;
+}
+
+.draggableBox {
+	border: 1px solid #d7d9db;
+	max-width: 300px;
+	margin: 20px;
+	display: inline-block;
+	font-size: 14px;
+	/* height: fit-content; */
+}
+
+.bottomBar {
+	height: 3.5rem;
+	background-color: #f0f0f0;
+	border-top: 1px solid #e4e4e4;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}
+
+.draggableTable {
+	display: inline-block;
+	margin: 20px;
+}
+
+.draggableBoxTitle {
+	/* text-align: center; */
+	cursor: move;
+	background-color: #d7d9db;
+	padding: 5px 0;
+	display: flex;
+}
+
+.columnBox {
+	position: relative;
+	padding: 5px;
+	border-top: 1px solid #d7d9db;
+	display: flex;
+}
+
+.columnItem {
+	padding: auto;
+	cursor: pointer;
+}
+
+.ellip {
+	flex: 1;
+	padding: auto 10px;
+	text-align: left;
+}
+
+.ellip:hover {
+	white-space: normal;
+	/* overflow: hidden; */
+	text-overflow: unset;
+	width: fit-content;
+	text-align: left;
+	/* background-color: white; */
+}
+.connectPoint {
+	opacity: 0.5;
+	background-color: grey;
+}
+.connectPoint:hover {
+	background-color: rgb(95, 95, 95);
+	opacity: 1;
+}
