@@ -90,7 +90,7 @@ const Sidebar = ({
 		var res = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: "dc/get-all-dc",
+			url: "database-connection",
 			headers: { Authorization: `Bearer ${token}` },
 		});
 
@@ -113,7 +113,7 @@ const Sidebar = ({
 		var res = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: `dc/connect-dc/${dc_uid}`,
+			url: `database-connection/${dc_uid}`,
 			headers: { Authorization: `Bearer ${token}` },
 			token: token,
 		});
@@ -123,7 +123,7 @@ const Sidebar = ({
 				var res2 = await FetchData({
 					requestType: "noData",
 					method: "GET",
-					url: `dc/schemas/${dc_uid}`,
+					url: `metadata-schemas/${dc_uid}`,
 					headers: { Authorization: `Bearer ${token}` },
 					token: token,
 				});
@@ -148,7 +148,7 @@ const Sidebar = ({
 		var res = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: `dc/tables/${connectionId}/${schema}`,
+			url: `metadata-tables/${connectionId}?schema=${schema}`,
 			headers: { Authorization: `Bearer ${token}` },
 			token: token,
 		});

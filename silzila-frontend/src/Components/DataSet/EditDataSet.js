@@ -31,7 +31,7 @@ const EditDataSet = ({
 		var res = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: "ds/get-ds/" + dsId,
+			url: "dataset/" + dsId,
 			headers: { Authorization: `Bearer ${token}` },
 		});
 
@@ -223,8 +223,8 @@ const EditDataSet = ({
 	const getColumns = async (connection, schema, tableName) => {
 		var result = await FetchData({
 			requestType: "noData",
-			method: "GET",
-			url: "dc/columns/" + connection + "/" + schema + "/" + tableName,
+			method: "POST",
+			url: "metadata-columns/" + connection + "?schema=" + schema + "&table=" + tableName,
 			headers: { Authorization: `Bearer ${token}` },
 		});
 		if (result.status) {
