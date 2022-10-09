@@ -225,8 +225,8 @@ const Sidebar = ({
 								return (
 									<MenuItem
 										title={
-											connection.db_name +
-											" ".concat("(" + connection.friendly_name + ")")
+											connection.database +
+											" ".concat("(" + connection.connectionName + ")")
 										}
 										value={connection.dc_uid}
 										key={connection.dc_uid}
@@ -239,7 +239,7 @@ const Sidebar = ({
 												fontSize: "14px",
 											}}
 										>
-											{connection.db_name} ({connection.friendly_name})
+											{connection.database} ({connection.connectionName})
 										</Typography>
 									</MenuItem>
 								);

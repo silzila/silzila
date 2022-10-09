@@ -5,16 +5,10 @@
 
 import React from "react";
 import { connect } from "react-redux";
-import ChartAxes from "../ChartAxes/ChartAxes";
-import GraphArea from "../GraphArea/GraphArea";
 import "./dataViewerMiddle.css";
 import chartControlIcon from "../../assets/chart-control-icon.svg";
 import settingsIcon from "../../assets/charts_theme_settings_icon.svg";
-import ChartControlObjects from "../ChartOptions/ChartControlObjects";
-import ControlDetail from "../ChartOptions/ControlDetail";
-// import ChartTypes from "../ChartOptions/ChartTypes";
 import { setSelectedControlMenu } from "../../redux/TabTile/actionsTabTile";
-import ChartTypes2 from "../ChartOptions/ChartTypes2";
 
 const DataViewerMiddle = ({
 	// props
@@ -61,23 +55,9 @@ const DataViewerMiddle = ({
 
 	const controlDisplayed = () => {
 		switch (tabTileProps.selectedControlMenu) {
-			case "Charts":
-				return (
-					<div className="rightColumnControlsAndFilters">
-						<div className="axisTitle">Charts</div>
-						{/* <ChartTypes propKey={propKey} /> */}
-						<ChartTypes2 propKey={propKey} />
-					</div>
-				);
+			
 
-			case "Chart controls":
-				return (
-					<div className="rightColumnControlsAndFilters">
-						<div className="axisTitle">Charts Controls</div>
-						<ChartControlObjects />
-						<ControlDetail />
-					</div>
-				);
+			
 
 			case "Filter":
 				return (
@@ -92,12 +72,6 @@ const DataViewerMiddle = ({
 
 	return (
 		<div className="dataViewerMiddle" style={{ height: "300px" }}>
-			{chartProp.properties[propKey].chartType === "richText" ? null : (
-				<ChartAxes tabId={tabId} tileId={tileId} />
-			)}
-
-			<GraphArea />
-
 			<div className="rightColumn">
 				{controlDisplayed()}
 				<div className="rightColumnMenu">{renderMenu}</div>

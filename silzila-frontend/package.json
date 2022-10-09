@@ -16,12 +16,17 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
+    "react-draggable": "^4.4.5",
+    "react-quill": "^2.0.0",
     "react-redux": "^8.0.4",
+    "react-rnd": "^10.3.7",
     "react-router-dom": "^6.4.1",
     "react-scripts": "5.0.1",
+    "react-xarrows": "^2.0.2",
     "redux": "^4.2.0",
     "redux-devtools-extension": "^2.13.9",
     "redux-thunk": "^2.4.1",
+    "short-unique-id": "^4.4.4",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
