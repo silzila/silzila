@@ -14,23 +14,17 @@
 import React, { useState } from "react";
 import "./dataViewer.css";
 import { connect } from "react-redux";
-import TabRibbon from "../TabsAndTiles/TabRibbon";
 import {
 	setShowDashBoard,
 	toggleColumnsOnlyDisplay,
 	toggleShowDataViewerBottom,
 } from "../../redux/TabTile/actionsTabTile";
-import DataViewerMiddle from "./DataViewerMiddle.js";
-import DataViewerBottom from "./DataViewerBottom";
 import TableViewIcon from "@mui/icons-material/TableView";
 import TableRowsIcon from "@mui/icons-material/TableRows";
 import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
-import TileRibbon from "../TabsAndTiles/TileRibbon";
-import DashBoard from "../DashBoard/DashBoard";
 import listOfTilesIcon from "../../assets/listoftilesIcon.svg";
 import dashbordSizeIcon from "../../assets/screenSize.png";
 import MenuBar from "./MenuBar";
-import { SaveRichText } from "../Charts/TextEditor";
 
 function DataViewer({
 	// state
@@ -78,7 +72,6 @@ function DataViewer({
 		<div className="dataViewer">
 			<MenuBar from="dataViewer" />
 			<div className="tabArea">
-				<TabRibbon />
 				{tabTileProps.showDash || tabTileProps.dashMode === "Present" ? (
 					<div style={{ display: "flex", alignItems: "center" }}>
 						{tabTileProps.dashMode === "Edit" ? (
@@ -122,22 +115,7 @@ function DataViewer({
 				) : null}
 			</div>
 
-			{/* Show tile page or Dashboard */}
-			{tabTileProps.showDash ? (
-				<DashBoard
-					showListofTileMenu={showListofTileMenu}
-					dashboardResizeColumn={dashboardResizeColumn}
-				/>
-			) : (
-				<React.Fragment>
-					<DataViewerMiddle
-						tabId={tabTileProps.selectedTabId}
-						tileId={tabTileProps.selectedTileId}
-					/>
-
-					{tabTileProps.showDataViewerBottom ? <DataViewerBottom /> : null}
-				</React.Fragment>
-			)}
+		
 
 			{/* Dashboard present and edit mode related UI */}
 			{tabTileProps.dashMode === "Edit" ? (
@@ -157,7 +135,6 @@ function DataViewer({
 							Dashboard
 						</span>
 
-						<TileRibbon />
 					</div>
 
 					{!tabTileProps.showDash ? (
