@@ -302,8 +302,8 @@ const CanvasTables = ({
 							<CanvasTableColumns
 								key={item.uid}
 								dragRef={dragRef}
-								columnName={item.column_name}
-								itemType={item.data_type}
+								columnName={item.columnName}
+								itemType={item.dataType}
 								itemId={item.uid}
 								tableName={tableData.tableName}
 								table_uid={tableData.table_uid}
