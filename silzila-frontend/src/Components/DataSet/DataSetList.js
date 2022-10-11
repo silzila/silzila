@@ -109,7 +109,7 @@ const DataSetList = ({
 					dataSetList.map((dc) => {
 						return (
 							<SelectListItem
-								key={dc.friendly_name}
+								key={dc.datasetName}
 								render={(xprops) => (
 									<div
 										className={
@@ -117,11 +117,11 @@ const DataSetList = ({
 												? "dataConnectionListSelected"
 												: "dataConnectionList"
 										}
-										onClick={() => editDs(dc.ds_uid)}
+										onClick={() => editDs(dc.id)}
 										onMouseOver={() => xprops.setOpen(true)}
 										onMouseLeave={() => xprops.setOpen(false)}
 									>
-										<div className="dataConnectionName">{dc.friendly_name}</div>
+										<div className="dataConnectionName">{dc.datasetName}</div>
 
 										{xprops.open ? (
 											<Tooltip
@@ -138,7 +138,7 @@ const DataSetList = ({
 															"Are you sure you want to Delete this Dataset?"
 														);
 														if (yes) {
-															deleteDs(dc.ds_uid);
+															deleteDs(dc.id);
 														}
 													}}
 												>
