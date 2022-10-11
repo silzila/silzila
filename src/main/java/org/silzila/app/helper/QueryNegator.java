@@ -6,19 +6,20 @@ public class QueryNegator {
 
     // AT Expression level,
     // check if Negative match or Positive match when contructing WHERE Clause
-    public static String makeNagateExpression(Boolean shouldExclude, List<String> userSelection) {
-        String excludeString = "";
+    public static String makeNagateExpression(Boolean shouldExclude, String expression) {
+        String excludeString = " ";
         if (shouldExclude) {
             // a. exclude single value, eg. city != 'Paris'
-            if (userSelection.size() == 1) {
-                excludeString = "!";
+            if (expression.equals("EQUAL_TO")) {
+                excludeString = " !";
             }
             // b. exclude multiple values, eg. city NOT IN ('Paris', 'Chennai')
-            else if (userSelection.size() > 1) {
-                excludeString = "NOT";
+            else if (expression.equals("IN")) {
+                excludeString = " NOT ";
             }
         }
         return excludeString;
+
     }
 
     // AT Condition level,

@@ -22,9 +22,6 @@ public class QueryComposer {
 
         QueryClauseFieldListMap qMap = new QueryClauseFieldListMap();
         String finalQuery = "";
-        String selectClause = "";
-        String groupByClause = "";
-        String orderByClause = "";
 
         /*
          * builds JOIN Clause of SQL - same for all dialects
@@ -50,15 +47,17 @@ public class QueryComposer {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
 
-        selectClause = "\n\t" + qMap.getSelectList().stream().collect(Collectors.joining(",\n\t"));
-        groupByClause = "\n\t" + qMap.getGroupByList().stream().collect(Collectors.joining(",\n\t"));
-        orderByClause = "\n\t" + qMap.getOrderByList().stream().collect(Collectors.joining(",\n\t"));
+        String selectClause = "\n\t" + qMap.getSelectList().stream().collect(Collectors.joining(",\n\t"));
+        String groupByClause = "\n\t" + qMap.getGroupByList().stream().collect(Collectors.joining(",\n\t"));
+        String orderByClause = "\n\t" + qMap.getOrderByList().stream().collect(Collectors.joining(",\n\t"));
+        String whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName);
 
         if (!req.getDimensions().isEmpty()) {
-            finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause + "\nGROUP BY" + groupByClause + "\nORDER BY"
+            finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause + whereClause + "\nGROUP BY" + groupByClause
+                    + "\nORDER BY"
                     + orderByClause;
         } else if (!req.getMeasures().isEmpty()) {
-            finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause;
+            finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause + whereClause;
         }
 
         return finalQuery;

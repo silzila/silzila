@@ -113,6 +113,21 @@ public class ConnectionPoolService {
         }
     }
 
+    /*
+     * this function is called during app shut down to close all DB connections
+     */
+    public void clearAllConnectionPoolsInShutDown() {
+        connectionPool.forEach((id, conn) -> {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                System.out.println("Error while closing all Connection Pools......");
+                e.printStackTrace();
+            }
+        });
+        System.out.println("clearAllConnectionPoolsInShutDown Fn Called..................");
+    }
+
     public JSONArray checkSqlServer() throws SQLException, RecordNotFoundException {
         String connectionUrl = "jdbc:sqlserver://3.7.39.222:1433;databaseName=landmark;user=balu;password=Marina!1234;encrypt=false";
         System.out.println("Connection String ==========" + connectionUrl);
@@ -163,6 +178,7 @@ public class ConnectionPoolService {
             // System.out.println("after statement declaration ----------------");
             resultSet = statement.executeQuery(query); // select 1 as x, 2 as y
             JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
+            statement.close();
             return jsonArray;
         } catch (Exception e) {
             System.out.println("runQuery Exception ----------------");

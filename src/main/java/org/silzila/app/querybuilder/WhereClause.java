@@ -6,10 +6,12 @@ import org.silzila.app.helper.QueryNegator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.silzila.app.payload.request.Filter;
 import org.silzila.app.payload.request.FilterPanel;
+// import org.silzila.app.querybuilder.WhereClauseDatePostgres;
 
 // to build where clause in Query construction
 public class WhereClause {
@@ -20,10 +22,13 @@ public class WhereClause {
      * "WHERE" key word should be kept only if there is Where condition expression.
      * it is Dialect specific and each dialect is handled as separate sections below
      */
-    public static void buildWhereClause(List<FilterPanel> filterPanels, String vendorName) throws BadRequestException {
+    public static String buildWhereClause(List<FilterPanel> filterPanels, String vendorName)
+            throws BadRequestException {
 
-        String where = "";
-        List<String> whereList = new ArrayList<>();
+        String whereClause = "";
+
+        List<String> wherePanelList = new ArrayList<>();
+
         // comparsion operator name to symbol mapping
         Map<String, String> comparisonOperatorMap = Map.of("GREATER_THAN", " > ", "LESS_THAN", " < ",
                 "GREATER_THAN_OR_EQUAL_TO", " >= ",
@@ -31,50 +36,61 @@ public class WhereClause {
 
         // iterate filter panels to get individual filter panel
         for (int i = 0; i < filterPanels.size(); i++) {
+
+            List<String> whereList = new ArrayList<>();
+
             // iterate filter panel to get individual filter
             for (int j = 0; j < filterPanels.get(i).getFilters().size(); j++) {
+
+                // holds individual column filter condition
+                String where = "";
                 // individual filter column
                 Filter filter = filterPanels.get(i).getFilters().get(j);
+                // System.out.println("Filter =========== " + filter.toString());
 
                 // check if Negative match or Positive match
                 String excludeSymbol = QueryNegator.makeNagateExpression(filter.getShouldExclude(),
-                        filter.getUserSelection());
+                        filter.getOperator().name());
                 String excludeOperator = QueryNegator.makeNegateCondition(filter.getShouldExclude());
 
                 /*
                  * TEXT Data Type
                  */
-                if (filter.getOperator().name().equals("TEXT")) {
+                if (filter.getDataType().name().equals("TEXT")) {
                     // single value exact match
-                    if (filter.getOperator().name().equals("EQUALS") && filter.getUserSelection().size() == 1) {
+                    if (filter.getOperator().name().equals("EQUAL_TO")) {
+                        // System.out.println("----------- Text EQUAL_TO");
                         where = filter.getTableId() + "." + filter.getFieldName() + excludeSymbol + "= '"
                                 + filter.getUserSelection().get(0) + "'";
 
                     }
                     // multiple values (any one value) exact match
-                    else if (filter.getOperator().name().equals("IN") && filter.getUserSelection().size() > 1) {
+                    else if (filter.getOperator().name().equals("IN")) {
+                        // System.out.println("----------- Text IN");
                         String options = "";
                         options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
-                        where = filter.getTableId() + "." + filter.getFieldName() + excludeSymbol + " IN (" + options
+                        where = filter.getTableId() + "." + filter.getFieldName() + excludeSymbol + "IN (" + options
                                 + ")";
                     }
                     // Wildcard - begins with a particular string
                     else if (filter.getOperator().name().equals("BEGINS_WITH")) {
-                        where = excludeOperator + filter.getTableId() + "." + filter.getFieldName() + " LIKE "
-                                + filter.getUserSelection().get(0) + "%";
+                        where = excludeOperator + filter.getTableId() + "." + filter.getFieldName() + " LIKE '"
+                                + filter.getUserSelection().get(0) + "%'";
 
                     }
                     // Wildcard - ends with a particular string
                     else if (filter.getOperator().name().equals("ENDS_WITH")) {
-                        where = excludeOperator + filter.getTableId() + "." + filter.getFieldName() + " LIKE "
-                                + "%" + filter.getUserSelection().get(0);
+                        where = excludeOperator + filter.getTableId() + "." + filter.getFieldName() + " LIKE '"
+                                + "%" + filter.getUserSelection().get(0) + "'";
 
                     }
                     // Wildcard - contains a particular string
                     else if (filter.getOperator().name().equals("CONTAINS")) {
-                        where = excludeOperator + filter.getTableId() + "." + filter.getFieldName() + " LIKE "
-                                + "%" + filter.getUserSelection().get(0) + "%";
-                    } else {
+                        where = excludeOperator + filter.getTableId() + "." + filter.getFieldName() + " LIKE '"
+                                + "%" + filter.getUserSelection().get(0) + "%'";
+                    }
+                    // throw error for non compatable opertor for TEXT field
+                    else {
                         throw new BadRequestException("Error: Operator " + filter.getOperator().name()
                                 + " is not correct for the Text field! " + filter.getFieldName());
                     }
@@ -85,16 +101,16 @@ public class WhereClause {
                  */
                 else if (List.of("INTEGER", "DECIMAL", "BOOLEAN").contains(filter.getDataType().name())) {
                     // single value exact match
-                    if (filter.getOperator().name().equals("EQUALS") && filter.getUserSelection().size() == 1) {
+                    if (filter.getOperator().name().equals("EQUAL_TO")) {
                         where = filter.getTableId() + "." + filter.getFieldName() + excludeSymbol + "= "
                                 + filter.getUserSelection().get(0);
 
                     }
                     // multiple values (any one value) exact match
-                    else if (filter.getOperator().name().equals("IN") && filter.getUserSelection().size() > 1) {
+                    else if (filter.getOperator().name().equals("IN")) {
                         String options = "";
                         options = filter.getUserSelection().stream().collect(Collectors.joining(", "));
-                        where = filter.getTableId() + "." + filter.getFieldName() + excludeSymbol + " IN (" + options
+                        where = filter.getTableId() + "." + filter.getFieldName() + excludeSymbol + "IN (" + options
                                 + ")";
                     }
                     // the following comparison matches are for NUMBERS only
@@ -131,17 +147,52 @@ public class WhereClause {
 
                     }
                 }
+
                 /*
                  * DATE & TIMESTAMP Data Type
+                 * Date fields filter query differs vary across SQL Dialects.
+                 * Each dialect is handled at different file
                  */
-                else if (List.of("INTEGER", "DECIMAL", "BOOLEAN").contains(filter.getDataType().name())) {
-                    // if (filter.getTimeGrain().name()) {
-
-                    // }
+                else if (List.of("DATE", "TIMESTAMP").contains(filter.getDataType().name())) {
+                    if (!Objects.isNull(filter.getTimeGrain())) {
+                        if (vendorName.equals("postgresql")) {
+                            where = WhereClauseDatePostgres.buildWhereClauseDate(filter);
+                        }
+                    }
+                    // throw error if time grain is not supplied
+                    else {
+                        throw new BadRequestException("Error: Time Grain is not provided for the field "
+                                + filter.getFieldName() + " in Filter!");
+                    }
                 }
 
+                whereList.add(where);
+
             }
+            /*
+             * one filter panel may contain multiple condtions and
+             * are joined by 'AND' or 'OR' based on user preference
+             */
+            String panelAllConditionMatchOperator = " AND";
+            if (!filterPanels.get(i).getShouldAllConditionsMatch()) {
+                panelAllConditionMatchOperator = " OR";
+            }
+            // SINGLE PANEL Conditions
+            String singlePanelWhereString = "(\n\t\t"
+                    + whereList.stream().collect(Collectors.joining(panelAllConditionMatchOperator + "\n\t\t"))
+                    + "\n\t)";
+
+            wherePanelList.add(singlePanelWhereString);
+
         }
+
+        // COMBINING MULTIPLE Filter Panels
+        // will be always joined by AND condition
+        if (wherePanelList.size() > 0) {
+            whereClause = "\nWHERE\n\t" + wherePanelList.stream().collect(Collectors.joining(" AND\n\t"));
+        }
+
+        return whereClause;
 
     }
 
