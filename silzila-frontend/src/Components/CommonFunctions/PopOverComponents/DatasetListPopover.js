@@ -50,7 +50,7 @@ const DatasetListPopover = ({
 								onClick={() => setSelectedDataset(ds)}
 								key={ds.ds_uid}
 							>
-								{ds.friendly_name}
+								{ds.connectionName}
 							</div>
 						);
 					})}

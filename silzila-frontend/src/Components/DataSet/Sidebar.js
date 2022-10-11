@@ -119,10 +119,10 @@ const Sidebar = ({
 		});
 
 		if (res.status) {
-			if (res.data.message === "success") {
+			if (res.data) {
 				var res2 = await FetchData({
 					requestType: "noData",
-					method: "GET",
+					method: "POST",
 					url: `metadata-schemas/${dc_uid}`,
 					headers: { Authorization: `Bearer ${token}` },
 					token: token,
@@ -147,7 +147,7 @@ const Sidebar = ({
 
 		var res = await FetchData({
 			requestType: "noData",
-			method: "GET",
+			method: "POST",
 			url: `metadata-tables/${connectionId}?schema=${schema}`,
 			headers: { Authorization: `Bearer ${token}` },
 			token: token,
@@ -155,7 +155,7 @@ const Sidebar = ({
 
 		if (res.status) {
 			const uid = new ShortUniqueId({ length: 8 });
-			const userTable = res.data.map((el) => {
+			const userTable = res.data.tables.map((el) => {
 				var id = "";
 				var bool = false;
 
@@ -228,8 +228,8 @@ const Sidebar = ({
 											connection.database +
 											" ".concat("(" + connection.connectionName + ")")
 										}
-										value={connection.dc_uid}
-										key={connection.dc_uid}
+										value={connection.id}
+										key={connection.id}
 									>
 										<Typography
 											sx={{
@@ -260,7 +260,7 @@ const Sidebar = ({
 						value={selectedSchema}
 					>
 						{schemaList &&
-							schemaList.map((schema) => {
+							schemaList.map(({schema}) => {
 								return (
 									<MenuItem value={schema} key={schema}>
 										<Typography

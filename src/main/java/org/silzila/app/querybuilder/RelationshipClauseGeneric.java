@@ -126,8 +126,10 @@ public class RelationshipClauseGeneric {
             }
         });
         // take list of unique filter tables & another list on all unique tables
-        if (!req.getFilterPanels().isEmpty()) {
-            req.getFilterPanels().get(0).getFilters().forEach((filter) -> {
+        req.getFilterPanels().forEach((panel) -> {
+            panel.getFilters().forEach((filter) -> {
+                // System.out.println("----------------");
+                // System.out.println(filter.toString());
                 if (!filterList.contains(filter.getTableId())) {
                     filterList.add(filter.getTableId());
                 }
@@ -135,7 +137,7 @@ public class RelationshipClauseGeneric {
                     allColumnList.add(filter.getTableId());
                 }
             });
-        }
+        });
 
         // System.out.println("-----------------------------------");
         // System.out.println("allColumnList = " + allColumnList);

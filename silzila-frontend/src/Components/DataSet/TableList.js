@@ -27,8 +27,9 @@ const TableList = (props) => {
 
 		var result = await FetchData({
 			requestType: "noData",
-			method: "GET",
-			url: "dc/columns/" + props.connectionId + "/" + props.schema + "/" + tableName,
+			method: "POST",
+			url: "metadata-columns/" + props.connectionId + "?schema=" + props.schema + "&table=" + tableName,
+
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
 		if (result.status) {
@@ -39,7 +40,7 @@ const TableList = (props) => {
 				if (el.tableName === tableName && el.isSelected === true) {
 					const arrayWithUid = result.data.map((data) => {
 						return {
-							uid: props.schema.concat(tableName).concat(data.column_name),
+							uid: props.schema.concat(tableName).concat(data.columnName),
 							...data,
 						};
 					});

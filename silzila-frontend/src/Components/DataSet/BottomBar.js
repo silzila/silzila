@@ -51,10 +51,10 @@ const BottomBar = ({
 	const checkTableRelationShip = async (tablesSelectedInSidebar, tablesWithRelation) => {
 		if (tablesSelectedInSidebar.length > 1) {
 			tablesSelectedInSidebar.map((el) => {
-				if (tablesWithRelation.includes(el.table_name)) {
+				if (tablesWithRelation.includes(el.table)) {
 					// console.log("----");
 				} else {
-					tablesWithoutRelation.push(el.table_name);
+					tablesWithoutRelation.push(el.table);
 				}
 			});
 		}
@@ -116,10 +116,10 @@ const BottomBar = ({
 			var apiurl;
 			if (editMode) {
 				meth = "PUT";
-				apiurl = "ds/update-ds/" + dsId;
+				apiurl = "dataset/" + dsId;
 			} else {
 				meth = "POST";
-				apiurl = "ds/create-ds";
+				apiurl = "dataset";
 			}
 
 			var options = await FetchData({
@@ -128,9 +128,10 @@ const BottomBar = ({
 				url: apiurl,
 				headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
 				data: {
-					dc_uid: connection,
-					friendly_name: fname,
-					data_schema: {
+					connectionId: connection,
+					datasetName: fname,
+					isFlatFileData : false,
+					dataSchema: {
 						tables: [...tablesSelectedInSidebar],
 						relationships: relationshipServerObj,
 					},
@@ -182,14 +183,12 @@ const BottomBar = ({
 		if (fname !== "") {
 			const tablesSelectedInSidebar = tempTable.map((el) => {
 				return {
-					table_name: el.tableName,
-					schema_name: el.schema,
+					table: el.tableName,
+					schema: el.schema,
 					id: el.id,
 					alias: el.alias,
-					table_position: {
-						x: el.table_position.x,
-						y: el.table_position.y,
-					},
+					tablePositionX: el.table_position.x,
+					tablePositionY: el.table_position.y,
 				};
 			});
 			//console.log(tablesSelectedInSidebar);
