@@ -25,7 +25,7 @@ public class MetadataColumn {
             this.dataType = "Integer";
         } else if (dataType.matches("2|3|6|7|8")) {
             this.dataType = "Decimal";
-        } else if (dataType.matches("-1|1|12|7|8")) {
+        } else if (dataType.matches("-1|1|12|7|8|-9")) {
             this.dataType = "Text";
         } else if (dataType.matches("91")) {
             this.dataType = "Date";

@@ -1,45 +1,34 @@
 package org.silzila.app.controller;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
-// import org.silzila.app.converter.DBConnectionConverter;
 import org.silzila.app.dto.DBConnectionDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.RecordNotFoundException;
-import org.silzila.app.model.DBConnection;
 import org.silzila.app.payload.request.DBConnectionRequest;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.payload.response.MetadataColumn;
-import org.silzila.app.payload.response.MetadataDatabase;
-import org.silzila.app.payload.response.MetadataSchema;
 import org.silzila.app.payload.response.MetadataTable;
 import org.silzila.app.repository.DBConnectionRepository;
 import org.silzila.app.service.ConnectionPoolService;
 import org.silzila.app.service.DBConnectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-
 import javax.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -59,8 +48,6 @@ public class DBConnectionController {
 
     @GetMapping("/database-connection/test")
     public ResponseEntity<?> protectedRoute(@RequestHeader Map<String, String> reqHeder) {
-        String userId = reqHeder.get("requesterUserId");
-        // System.out.println("logged in user id ========= " + userId);
         return ResponseEntity.ok(new MessageResponse("test protected route!"));
     }
 
@@ -124,6 +111,23 @@ public class DBConnectionController {
         return ResponseEntity.ok().body(new MessageResponse("Connection OK!"));
     }
 
+    // test connect a given database with provided connection parameters
+    @PostMapping("/sqlserver-database-connection-test")
+    public ResponseEntity<?> testSqlserverDBConnection()
+            throws SQLException, BadRequestException {
+        JSONArray jsonArray = connectionPoolService.testSqlserverDBConnection();
+        List<String> schemaList = new ArrayList<>();
+        if (jsonArray != null) {
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject rec = jsonArray.getJSONObject(i);
+                String schema = rec.getString("schema_name");
+                System.out.println("######## " + jsonArray.get(i).toString());
+                schemaList.add(schema);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(schemaList);
+    }
+
     // @PostMapping(value = "/run-query/{id}")
     // public ResponseEntity<String> runQuery(@RequestHeader Map<String, String>
     // reqHeader,
@@ -141,7 +145,8 @@ public class DBConnectionController {
         return ResponseEntity.ok().body(jsonArray.toString());
     }
 
-    @PostMapping(value = "/metadata-databases/{id}")
+    // Metadata discovery - get List of databases
+    @GetMapping(value = "/metadata-databases/{id}")
     ResponseEntity<ArrayList<String>> getDatabase(@RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id)
             throws RecordNotFoundException, SQLException {
@@ -150,45 +155,38 @@ public class DBConnectionController {
         return ResponseEntity.status(HttpStatus.OK).body(databases);
     }
 
-    @PostMapping(value = "/metadata-schemas/{id}")
-    ResponseEntity<ArrayList<MetadataSchema>> getSchema(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id)
-            throws RecordNotFoundException, SQLException {
+    // Metadata discovery - get List of schemas
+    @GetMapping(value = "/metadata-schemas/{id}")
+    ResponseEntity<List<String>> getSchema(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id,
+            @RequestParam(name = "database", required = false) String databaseName)
+            throws RecordNotFoundException, SQLException, BadRequestException {
         String userId = reqHeader.get("requesterUserId");
-        ArrayList<MetadataSchema> schema = connectionPoolService.getSchema(id, userId);
+        List<String> schema = connectionPoolService.getSchema(id, userId, databaseName);
         return ResponseEntity.status(HttpStatus.OK).body(schema);
     }
 
-    @PostMapping("/metadata-tables/{id}")
+    // Metadata discovery - get List of tables
+    @GetMapping("/metadata-tables/{id}")
     ResponseEntity<?> getTable(@RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id,
             @RequestParam(name = "database", required = false) String databaseName,
             @RequestParam(name = "schema", required = false) String schemaName)
-            throws RecordNotFoundException, SQLException {
+            throws RecordNotFoundException, SQLException, BadRequestException {
         String userId = reqHeader.get("requesterUserId");
-
-        if (databaseName == null && schemaName == null) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Database Name or Schema Name is not provided"));
-        }
         MetadataTable metadataTable = connectionPoolService.getTable(id, userId, databaseName, schemaName);
         return ResponseEntity.status(HttpStatus.OK).body(metadataTable);
     }
 
-    @PostMapping("/metadata-columns/{id}")
+    // Metadata discovery - get List of fields
+    @GetMapping("/metadata-columns/{id}")
     public ResponseEntity<?> getColumn(@RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id,
             @RequestParam(name = "database", required = false) String databaseName,
             @RequestParam(name = "schema", required = false) String schemaName,
             @RequestParam(name = "table") String tableName)
-            throws RecordNotFoundException, SQLException {
+            throws RecordNotFoundException, SQLException, BadRequestException {
         String userId = reqHeader.get("requesterUserId");
-
-        if (databaseName == null && schemaName == null) {
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Error: Database Name or Schema Name is not provided"));
-        }
         ArrayList<MetadataColumn> metadataColumns = connectionPoolService.getColumn(id, userId, databaseName,
                 schemaName, tableName);
         return ResponseEntity.status(HttpStatus.OK).body(metadataColumns);
