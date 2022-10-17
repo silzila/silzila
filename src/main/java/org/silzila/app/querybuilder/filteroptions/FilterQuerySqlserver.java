@@ -82,12 +82,12 @@ public class FilterQuerySqlserver {
                     String field = "CONVERT(DATE, " + req.getFieldName() + ")";
                     query = "SELECT DISTINCT " + field + " AS Date" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    String sortField = "DATEPART(WEEKDAY," + req.getFieldName() + ")";
-                    String field = "DATENAME(WEEKDAY," + req.getFieldName() + ")";
+                    String sortField = "DATEPART(WEEKDAY, " + req.getFieldName() + ")";
+                    String field = "DATENAME(WEEKDAY, " + req.getFieldName() + ")";
                     query = "SELECT " + field + " AS DayOfWeek" + fromClause + "GROUP BY " + sortField + ", "
                             + field + " ORDER BY " + sortField;
                 } else if (req.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    String field = "DATEPART(DAY," + req.getFieldName() + ")";
+                    String field = "DATEPART(DAY, " + req.getFieldName() + ")";
                     query = "SELECT DISTINCT " + field + " AS DayOfMonth" + fromClause + "ORDER BY 1";
                 }
             }

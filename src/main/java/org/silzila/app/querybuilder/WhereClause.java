@@ -167,6 +167,8 @@ public class WhereClause {
                         where = WhereClauseDatePostgres.buildWhereClauseDate(filter);
                     } else if (vendorName.equals("mysql")) {
                         where = WhereClauseDateMysql.buildWhereClauseDate(filter);
+                    } else if (vendorName.equals("sqlserver")) {
+                        where = WhereClauseDateSqlserver.buildWhereClauseDate(filter);
                     }
                 }
 
