@@ -66,7 +66,7 @@ const Canvas = ({
 				<Xwrapper>
 					{tempTable &&
 						tempTable.map((table) => {
-							return <CanvasTables tableData={table} key={table.table_uid} />;
+							return <CanvasTables tableData={table} key={table.id} />;
 						})}
 					<RenderArrows />
 				</Xwrapper>
