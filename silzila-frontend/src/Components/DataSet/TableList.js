@@ -55,10 +55,8 @@ const TableList = (props) => {
 						dcId: props.connectionId,
 						schema: props.schema,
 						isNewTable: el.isNewTable,
-						table_position: {
-							x: 0,
-							y: 0,
-						},
+						tablePositionX : 0,
+						tablePositionY : 0
 					};
 				}
 			});

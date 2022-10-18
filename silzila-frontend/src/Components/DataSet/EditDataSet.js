@@ -40,23 +40,20 @@ const EditDataSet = ({
 			// const uid = new ShortUniqueId({ length: 8 });
 
 			const canvasTables = await Promise.all(
-				res.data.data_schema.tables.map(async (tbl) => {
+
+				res.data.dataSchema.tables?.map(async (tbl) => {
 					return {
-						table_uid: tbl.schema_name.concat(tbl.table_name),
-						tableName: tbl.table_name,
+						table_uid: tbl.schema.concat(tbl.table),
+						tableName: tbl.table,
 						alias: tbl.alias,
-						dcId: res.data.dc_uid,
-						schema: tbl.schema_name,
-						columns: await getColumns(res.data.dc_uid, tbl.schema_name, tbl.table_name),
+						dcId: res.data.id,
+						schema: tbl.schema,
+						columns: await getColumns(res.data.connectionId, tbl.schema, tbl.table),
 						isSelected: true,
 						id: tbl.id,
-
 						isNewTable: false,
-
-						table_position: {
-							x: tbl.table_position ? tbl.table_position.x : "",
-							y: tbl.table_position ? tbl.table_position.y : "",
-						},
+						tablePositionX: tbl.tablePositionX ? tbl.tablePositionX : "",
+						tablePositionY: tbl.tablePositionY ? tbl.tablePositionY : "",						
 					};
 				})
 			);
@@ -65,8 +62,8 @@ const EditDataSet = ({
 
 			// ======================== set tables & schema ====================================================
 
-			var schema_list = res.data.data_schema.tables.map((el) => {
-				return el.schema_name;
+			var schema_list = res.data.dataSchema.tables.map((el) => {
+				return el.schema;
 			});
 
 			var uniqueSchema = Array.from(new Set(schema_list));
@@ -77,8 +74,8 @@ const EditDataSet = ({
 			const getTables = async () => {
 				var res1 = await FetchData({
 					requestType: "noData",
-					method: "GET",
-					url: `dc/tables/${res.data.dc_uid}/${uniqueSchema[0]}`,
+					method: "POST",
+					url: `metadata-tables/${res.data.connectionId}?schema=${uniqueSchema[0]}`,
 					headers: { Authorization: `Bearer ${token}` },
 					token: token,
 				});
@@ -86,7 +83,7 @@ const EditDataSet = ({
 				if (res1.status) {
 					const uid = new ShortUniqueId({ length: 8 });
 
-					userTable = res1.data.map((el) => {
+					userTable = res1.data.tables.map((el) => {
 						var id = "";
 						var tableAlreadyChecked = canvasTables.filter(
 							(tbl) =>
@@ -135,26 +132,26 @@ const EditDataSet = ({
 			let arrowObj = [];
 			let relObject = [];
 
-			res.data.data_schema.relationships.map((obj) => {
+			res.data.dataSchema.relationships.map((obj) => {
 				const uid = new ShortUniqueId({ length: 8 });
 
 				const valuesForshowHeadAndshowTail = FindShowHeadAndShowTail(obj.cardinality);
 
 				// x  - array of start tables
-				const x = res.data.data_schema.tables.filter((el) => {
+				const x = res.data.dataSchema.tables.filter((el) => {
 					return el.id === obj.table1;
 				});
 
 				// y - array of endTables
-				const y = res.data.data_schema.tables.filter((el) => {
+				const y = res.data.dataSchema.tables.filter((el) => {
 					return el.id === obj.table2;
 				});
 
 				let columns_in_relationships = [];
 				let relationUniqueId = "";
 
-				obj.table1_columns.map((el, index) => {
-					var table2_col = obj.table2_columns[index];
+				obj.table1Columns.map((el, index) => {
+					var table2_col = obj.table2Columns[index];
 					let rel = { tab1: el, tab2: table2_col };
 					columns_in_relationships.push(rel);
 					relationUniqueId = uid();
@@ -166,21 +163,21 @@ const EditDataSet = ({
 					return {
 						isSelected: false,
 
-						start: x[0].schema_name.concat(x[0].table_name).concat(el.tab1),
-						table1_uid: x[0].schema_name.concat(x[0].table_name),
-						startTableName: x[0].table_name,
+						start: x[0].schema.concat(x[0].table).concat(el.tab1),
+						table1_uid: x[0].schema.concat(x[0].table),
+						startTableName: x[0].table,
 						startColumnName: el.tab1,
-						startSchema: x[0].schema_name,
+						startSchema: x[0].schema,
 						startId: x[0].id,
 
-						end: y[0].schema_name.concat(y[0].table_name).concat(el.tab2),
-						table2_uid: y[0].schema_name.concat(y[0].table_name),
-						endTableName: y[0].table_name,
+						end: y[0].schema.concat(y[0].table).concat(el.tab2),
+						table2_uid: y[0].schema.concat(y[0].table),
+						endTableName: y[0].table,
 						endColumnName: el.tab2,
-						endSchema: y[0].schema_name,
+						endSchema: y[0].schema,
 						endId: y[0].id,
 
-						integrity: obj.ref_integrity,
+						integrity: obj.refIntegrity,
 						cardinality: obj.cardinality,
 						showHead: valuesForshowHeadAndshowTail.showHead,
 						showTail: valuesForshowHeadAndshowTail.showTail,
@@ -195,7 +192,7 @@ const EditDataSet = ({
 				relObject = {
 					startId: x[0].id,
 					endId: y[0].id,
-					integrity: obj.ref_integrity,
+					integrity: obj.refIntegrity,
 					cardinality: obj.cardinality,
 					showHead: valuesForshowHeadAndshowTail.showHead,
 					showTail: valuesForshowHeadAndshowTail.showTail,
@@ -207,8 +204,8 @@ const EditDataSet = ({
 			// ====================================================================================
 
 			setValuesToState(
-				res.data.dc_uid,
-				res.data.friendly_name,
+				res.data.connectionId,
+				res.data.datasetName,
 				canvasTables,
 				uniqueSchema[0],
 				relationshipsArray,
@@ -229,7 +226,7 @@ const EditDataSet = ({
 		});
 		if (result.status) {
 			const arrayWithUid = result.data.map((data) => {
-				return { uid: schema.concat(tableName).concat(data.column_name), ...data };
+				return { uid: schema.concat(tableName).concat(data.columnName), ...data };
 			});
 			return arrayWithUid;
 		}

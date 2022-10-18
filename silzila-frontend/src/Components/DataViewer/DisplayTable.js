@@ -31,7 +31,7 @@ const DisplayTable = ({
 				_fieldsData.push({
 					fieldname: tableKeys[i],
 					displayname: tableKeys[i],
-					dataType: dataType.filter((sc) => sc.column_name === tableKeys[i])[0].data_type,
+					dataType: dataType.filter((sc) => sc.columnName === tableKeys[i])[0].dataType,
 					tableId: table,
 				});
 			}
