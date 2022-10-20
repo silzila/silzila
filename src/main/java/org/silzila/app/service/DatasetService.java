@@ -156,7 +156,7 @@ public class DatasetService {
         Optional<Dataset> dOptional = datasetRepository.findByIdAndUserId(id, userId);
         // if no connection details inside optional warpper, then send NOT FOUND Error
         if (!dOptional.isPresent()) {
-            throw new RecordNotFoundException("Error: No such Dataset Id exists");
+            throw new RecordNotFoundException("Error: No such Dataset Id exists!");
         }
         // if dataset name already exists, send error
         List<Dataset> datasets = datasetRepository.findByIdNotAndUserIdAndDatasetName(id, userId,
@@ -202,7 +202,7 @@ public class DatasetService {
         Optional<Dataset> dOptional = datasetRepository.findByIdAndUserId(id, userId);
         // if no connection details inside optional warpper, then send NOT FOUND Error
         if (!dOptional.isPresent()) {
-            throw new RecordNotFoundException("Error: No such Dataset Id exists");
+            throw new RecordNotFoundException("Error: No such Dataset Id exists!");
         }
         // get object from optional wrapper object
         Dataset dataset = dOptional.get();

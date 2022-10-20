@@ -213,8 +213,8 @@ const CanvasTables = ({
 				handle={`#${tableData.tableName}`}
 				bounds="#canvasTableArea"
 				position={{
-					x: tableData.table_position ? tableData.table_position.x : x,
-					y: tableData.table_position ? tableData.table_position.y : y,
+					x: tableData.tablePositionX ? tableData.tablePositionX : x,
+					y: tableData.tablePositionY ? tableData.tablePositionY : y,
 				}}
 				onDrag={() => {
 					updateXarrow();
@@ -225,8 +225,8 @@ const CanvasTables = ({
 					console.log(dataSetState.tempTable);
 					const newTable = [...dataSetState.tempTable].map((tab) => {
 						if (tab.table_uid === tableData.table_uid) {
-							tab.table_position.x = x;
-							tab.table_position.y = y;
+							tableData.tablePositionX = x;
+							tableData.tablePositionY = y;
 						}
 						return tab;
 					});

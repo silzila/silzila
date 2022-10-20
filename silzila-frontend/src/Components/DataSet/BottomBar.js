@@ -87,9 +87,9 @@ const BottomBar = ({
 					table1: relation.startId,
 					table2: relation.endId,
 					cardinality: relation.cardinality,
-					ref_integrity: relation.integrity,
-					table1_columns: [],
-					table2_columns: [],
+					refIntegrity: relation.integrity,
+					table1Columns: [],
+					table2Columns: [],
 				};
 
 				var arrowsForRelation = [];
@@ -103,8 +103,8 @@ const BottomBar = ({
 				});
 
 				//console.log(tbl1, tbl2);
-				relationObj.table1_columns = tbl1;
-				relationObj.table2_columns = tbl2;
+				relationObj.table1Columns = tbl1;
+				relationObj.table2Columns = tbl2;
 
 				//console.log(relationObj);
 				relationshipServerObj.push(relationObj);
@@ -112,19 +112,17 @@ const BottomBar = ({
 
 			//console.log(relationshipServerObj);
 
-			var meth;
 			var apiurl;
+
 			if (editMode) {
-				meth = "PUT";
 				apiurl = "dataset/" + dsId;
 			} else {
-				meth = "POST";
 				apiurl = "dataset";
 			}
 
 			var options = await FetchData({
 				requestType: "withData",
-				method: meth,
+				method: editMode ? "PUT":"POST",
 				url: apiurl,
 				headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
 				data: {
@@ -133,7 +131,7 @@ const BottomBar = ({
 					isFlatFileData : false,
 					dataSchema: {
 						tables: [...tablesSelectedInSidebar],
-						relationships: relationshipServerObj,
+						relationships: [...relationshipServerObj],
 					},
 				},
 			});
@@ -187,8 +185,8 @@ const BottomBar = ({
 					schema: el.schema,
 					id: el.id,
 					alias: el.alias,
-					tablePositionX: el.table_position.x,
-					tablePositionY: el.table_position.y,
+					tablePositionX: el.tablePositionX,
+					tablePositionY: el.tablePositionY,
 				};
 			});
 			//console.log(tablesSelectedInSidebar);
@@ -304,6 +302,7 @@ const mapStateToProps = (state) => {
 		connection: state.dataSetState.connection,
 		friendly_name: state.dataSetState.friendly_name,
 		dsId: state.dataSetState.dsId,
+		database:state.dataSetState.friendly_name,
 	};
 };
 

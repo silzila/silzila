@@ -26,7 +26,7 @@ public class QueryComposer {
         /*
          * builds JOIN Clause of SQL - same for all dialects
          */
-        String fromClause = RelationshipClauseGeneric.buildRelationship(req, ds.getDataSchema());
+        String fromClause = RelationshipClauseGeneric.buildRelationship(req, ds.getDataSchema(), vendorName);
 
         /*
          * builds SELECT Clause of SQL
@@ -43,6 +43,9 @@ public class QueryComposer {
         } else if (vendorName.equals("mysql")) {
             System.out.println("------ inside mysql block");
             qMap = SelectClauseMysql.buildSelectClause(req);
+        } else if (vendorName.equals("sqlserver")) {
+            System.out.println("------ inside sql server block");
+            qMap = SelectClauseSqlserver.buildSelectClause(req);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }

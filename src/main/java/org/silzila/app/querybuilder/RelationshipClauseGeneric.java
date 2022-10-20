@@ -88,7 +88,7 @@ public class RelationshipClauseGeneric {
      * if we add a to c then there are two ways of joining a to c.
      * a to c directly and via b.
      */
-    public static String buildRelationship(Query req, DataSchema ds)
+    public static String buildRelationship(Query req, DataSchema ds, String vendorName)
             throws BadRequestException {
 
         // declare lists to save incoming query requested tables accordingly
@@ -150,7 +150,9 @@ public class RelationshipClauseGeneric {
         String fromClause = "";
         List<Relationship> relationships = new ArrayList<>();
 
-        // Build relationship - when only one table in qry
+        /*
+         * Build relationship - when ONLY ONE TABLE in qry
+         */
         if (allColumnList.size() == 1) {
             // System.out.println("---------------- allColumnList.size = 1");
             Optional<Table> tOptional = ds.getTables().stream()
@@ -159,10 +161,24 @@ public class RelationshipClauseGeneric {
                 throw new BadRequestException("Error: Table Id" + allColumnList.get(0) + "is not present in Dataset!");
             }
             Table table = tOptional.get();
-            fromClause = "\n\t" + table.getSchema() + "." + table.getTable() + " AS " + table.getId();
-            // System.out.println("fromClause = " + fromClause);
+            // Postgres has the format of Schema_name.Table_name
+            if (vendorName.equals("postgresql")) {
+                fromClause = "\n\t" + table.getSchema() + "." + table.getTable() + " AS " + table.getId();
+            }
+            // MySQL has the format of Database_name.Table_name
+            else if (vendorName.equals("mysql")) {
+                fromClause = "\n\t" + table.getDatabase() + "." + table.getTable() + " AS " + table.getId();
+            }
+            // SQL Server has the format of Database_name.Schema_name.Table_name
+            else if (vendorName.equals("sqlserver")) {
+                fromClause = "\n\t" + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + " AS "
+                        + table.getId();
+            }
         }
-        // Build relationship - when many tables in qry
+
+        /*
+         * Build relationship - when MANY TABLES in qry
+         */
         else if (allColumnList.size() > 1) {
             // System.out.println("---------------- allColumnList.size > 1");
             for (int i = 0; i < ds.getRelationships().size(); i++) {
@@ -295,43 +311,143 @@ public class RelationshipClauseGeneric {
             }
             String joinString = joinList.stream().collect(Collectors.joining(" AND\n\t"));
 
-            if (i == 0) {
-                fromClause += "\n\t" + fromTable.getSchema() + "." + fromTable.getTable() + " AS " + fromTable.getId()
-                        + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getSchema() + "."
-                        + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
-            } else if (i > 0) {
-                if (_rship.getTable1().equals(_relationships.get(i - 1).getTable1()) ||
-                        _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
-                    fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
-                            + toTable.getSchema() + "."
+            /*
+             * Postgres has the format of Schema_name.Table_name
+             */
+            if (vendorName.equals("postgresql")) {
+                if (i == 0) {
+                    fromClause += "\n\t" + fromTable.getSchema() + "." + fromTable.getTable() + " AS "
+                            + fromTable.getId()
+                            + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getSchema() + "."
                             + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
-                } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
-                        _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
-                    fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
-                            + fromTable.getSchema() + "."
-                            + fromTable.getTable() + " AS " + fromTable.getId() + " ON \n\t\t " + joinString;
-                }
-                // when not matching with one level above - need to check the whole list
-                else {
-                    List<String> existingTables = new ArrayList<>();
-                    for (int k = 0; k <= i; k++) {
-                        existingTables.add(_relationships.get(k).getTable1());
-                        existingTables.add(_relationships.get(k).getTable2());
-                    }
-                    if (existingTables.contains(_rship.getTable1())) {
-                        Optional<Table> _tbl2Optional = ds.getTables().stream()
-                                .filter(_r -> _r.getId().equals(_rship.getTable2())).findFirst();
-                        Table _to = _tbl2Optional.get();
+                } else if (i > 0) {
+                    if (_rship.getTable1().equals(_relationships.get(i - 1).getTable1()) ||
+                            _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
                         fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
-                                + _to.getSchema() + "."
-                                + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t " + joinString;
-                    } else if (existingTables.contains(_rship.getTable2())) {
-                        Optional<Table> _tbl1Optional = ds.getTables().stream()
-                                .filter(_r -> _r.getId().equals(_rship.getTable1())).findFirst();
-                        Table _from = _tbl1Optional.get();
+                                + toTable.getSchema() + "."
+                                + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                    } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
+                            _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
                         fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
-                                + _from.getSchema() + "."
-                                + _from.getTable() + " AS " + _from.getId() + " ON \n\t\t " + joinString;
+                                + fromTable.getSchema() + "."
+                                + fromTable.getTable() + " AS " + fromTable.getId() + " ON \n\t\t " + joinString;
+                    }
+                    // when not matching with one level above - need to check the whole list
+                    else {
+                        List<String> existingTables = new ArrayList<>();
+                        for (int k = 0; k <= i; k++) {
+                            existingTables.add(_relationships.get(k).getTable1());
+                            existingTables.add(_relationships.get(k).getTable2());
+                        }
+                        if (existingTables.contains(_rship.getTable1())) {
+                            Optional<Table> _tbl2Optional = ds.getTables().stream()
+                                    .filter(_r -> _r.getId().equals(_rship.getTable2())).findFirst();
+                            Table _to = _tbl2Optional.get();
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
+                                    + _to.getSchema() + "."
+                                    + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t " + joinString;
+                        } else if (existingTables.contains(_rship.getTable2())) {
+                            Optional<Table> _tbl1Optional = ds.getTables().stream()
+                                    .filter(_r -> _r.getId().equals(_rship.getTable1())).findFirst();
+                            Table _from = _tbl1Optional.get();
+                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
+                                    + _from.getSchema() + "."
+                                    + _from.getTable() + " AS " + _from.getId() + " ON \n\t\t " + joinString;
+                        }
+                    }
+                }
+            }
+            /*
+             * MySQL has the format of Database_name.Table_name
+             */
+            else if (vendorName.equals("mysql")) {
+                if (i == 0) {
+                    fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getTable() + " AS "
+                            + fromTable.getId()
+                            + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
+                            + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                } else if (i > 0) {
+                    if (_rship.getTable1().equals(_relationships.get(i - 1).getTable1()) ||
+                            _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
+                        fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
+                                + toTable.getDatabase() + "."
+                                + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                    } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
+                            _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
+                        fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
+                                + fromTable.getDatabase() + "."
+                                + fromTable.getTable() + " AS " + fromTable.getId() + " ON \n\t\t " + joinString;
+                    }
+                    // when not matching with one level above - need to check the whole list
+                    else {
+                        List<String> existingTables = new ArrayList<>();
+                        for (int k = 0; k <= i; k++) {
+                            existingTables.add(_relationships.get(k).getTable1());
+                            existingTables.add(_relationships.get(k).getTable2());
+                        }
+                        if (existingTables.contains(_rship.getTable1())) {
+                            Optional<Table> _tbl2Optional = ds.getTables().stream()
+                                    .filter(_r -> _r.getId().equals(_rship.getTable2())).findFirst();
+                            Table _to = _tbl2Optional.get();
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
+                                    + _to.getDatabase() + "."
+                                    + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t " + joinString;
+                        } else if (existingTables.contains(_rship.getTable2())) {
+                            Optional<Table> _tbl1Optional = ds.getTables().stream()
+                                    .filter(_r -> _r.getId().equals(_rship.getTable1())).findFirst();
+                            Table _from = _tbl1Optional.get();
+                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
+                                    + _from.getDatabase() + "." + _from.getTable() + " AS " + _from.getId()
+                                    + " ON \n\t\t " + joinString;
+                        }
+                    }
+                }
+            }
+            /*
+             * SQL Server has the format of Database_name.Schema_name.Table_name
+             */
+            else if (vendorName.equals("sqlserver")) {
+                if (i == 0) {
+                    fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getSchema() + "."
+                            + fromTable.getTable() + " AS "
+                            + fromTable.getId()
+                            + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
+                            + toTable.getSchema() + "." + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t "
+                            + joinString;
+                } else if (i > 0) {
+                    if (_rship.getTable1().equals(_relationships.get(i - 1).getTable1()) ||
+                            _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
+                        fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
+                                + toTable.getSchema() + "." + toTable.getTable() + " AS " + toTable.getId()
+                                + " ON \n\t\t " + joinString;
+                    } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
+                            _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
+                        fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " " + fromTable.getDatabase()
+                                + "." + fromTable.getSchema() + "." + fromTable.getTable() + " AS " + fromTable.getId()
+                                + " ON \n\t\t " + joinString;
+                    }
+                    // when not matching with one level above - need to check the whole list
+                    else {
+                        List<String> existingTables = new ArrayList<>();
+                        for (int k = 0; k <= i; k++) {
+                            existingTables.add(_relationships.get(k).getTable1());
+                            existingTables.add(_relationships.get(k).getTable2());
+                        }
+                        if (existingTables.contains(_rship.getTable1())) {
+                            Optional<Table> _tbl2Optional = ds.getTables().stream()
+                                    .filter(_r -> _r.getId().equals(_rship.getTable2())).findFirst();
+                            Table _to = _tbl2Optional.get();
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + _to.getDatabase() + "."
+                                    + _to.getSchema() + "." + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t "
+                                    + joinString;
+                        } else if (existingTables.contains(_rship.getTable2())) {
+                            Optional<Table> _tbl1Optional = ds.getTables().stream()
+                                    .filter(_r -> _r.getId().equals(_rship.getTable1())).findFirst();
+                            Table _from = _tbl1Optional.get();
+                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " " + _from.getDatabase()
+                                    + "." + _from.getSchema() + "." + _from.getTable() + " AS " + _from.getId()
+                                    + " ON \n\t\t " + joinString;
+                        }
                     }
                 }
             }

@@ -154,15 +154,21 @@ public class WhereClause {
                  * Each dialect is handled at different file
                  */
                 else if (List.of("DATE", "TIMESTAMP").contains(filter.getDataType().name())) {
-                    if (!Objects.isNull(filter.getTimeGrain())) {
-                        if (vendorName.equals("postgresql")) {
-                            where = WhereClauseDatePostgres.buildWhereClauseDate(filter);
-                        }
-                    }
+
                     // throw error if time grain is not supplied
-                    else {
+                    if (Objects.isNull(filter.getTimeGrain())) {
                         throw new BadRequestException("Error: Time Grain is not provided for the field "
                                 + filter.getFieldName() + " in Filter!");
+
+                    }
+
+                    // Calling Dialect specific methods
+                    if (vendorName.equals("postgresql")) {
+                        where = WhereClauseDatePostgres.buildWhereClauseDate(filter);
+                    } else if (vendorName.equals("mysql")) {
+                        where = WhereClauseDateMysql.buildWhereClauseDate(filter);
+                    } else if (vendorName.equals("sqlserver")) {
+                        where = WhereClauseDateSqlserver.buildWhereClauseDate(filter);
                     }
                 }
 
