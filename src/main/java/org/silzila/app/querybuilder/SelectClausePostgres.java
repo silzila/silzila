@@ -147,13 +147,13 @@ public class SelectClausePostgres {
             String field = "";
             if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
                 // checking ('count', 'countnn', 'countn', 'countu')
-                if (meas.getAggr().name().equals("count")) {
+                if (meas.getAggr().name().equals("COUNT")) {
                     field = "COUNT(*)";
-                } else if (meas.getAggr().name().equals("countnn")) {
+                } else if (meas.getAggr().name().equals("COUNTNN")) {
                     field = "COUNT(" + meas.getTableId() + "." + meas.getFieldName() + ")";
-                } else if (meas.getAggr().name().equals("countu")) {
+                } else if (meas.getAggr().name().equals("COUNTU")) {
                     field = "COUNT(DISTINCT " + meas.getTableId() + "." + meas.getFieldName() + ")";
-                } else if (meas.getAggr().name().equals("countn")) {
+                } else if (meas.getAggr().name().equals("COUNTN")) {
                     field = "SUM(CASE WHEN " + meas.getTableId() + "." + meas.getFieldName()
                             + " IS NULL THEN 1 ELSE 0 END)";
                 } else {
