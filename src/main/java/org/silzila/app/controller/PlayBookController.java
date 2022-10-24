@@ -12,13 +12,16 @@ import org.silzila.app.model.PlayBook;
 import org.silzila.app.payload.request.PlayBookRequest;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.payload.response.PlayBookResponse;
+import org.silzila.app.repository.PlayBookRepository;
 import org.silzila.app.service.PlayBookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,8 +67,31 @@ public class PlayBookController {
             throws RecordNotFoundException, JsonMappingException, JsonProcessingException {
         // get the requester user Id
         String userId = reqHeader.get("requesterUserId");
-        PlayBookResponse playBook = playBookService.geetPlayBookById(id, userId);
+        PlayBookResponse playBook = playBookService.getPlayBookById(id, userId);
         return ResponseEntity.ok(playBook);
+    }
+
+    // update PlayBook
+    @PutMapping("/playbook/{id}")
+    public ResponseEntity<?> updatePlayBook(@RequestHeader Map<String, String> reqHeader,
+            @Valid @RequestBody PlayBookRequest playBookRequest, @PathVariable(value = "id") String id)
+            throws JsonProcessingException, JsonMappingException, BadRequestException, RecordNotFoundException {
+        // get the rquester user id
+        String userId = reqHeader.get("requesterUserId");
+        PlayBook playBook = playBookService.updatePlayBook(playBookRequest, id, userId);
+        return ResponseEntity.ok(playBook);
+
+    }
+
+    // delete PlayBook
+    @DeleteMapping("/playbook/{id}")
+    public ResponseEntity<?> deletePlayBookById(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id) throws RecordNotFoundException {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        // service call to delete
+        playBookService.deletePlayBook(id, userId);
+        return ResponseEntity.ok().body(new MessageResponse("PlayBook is deleted"));
     }
 
 }

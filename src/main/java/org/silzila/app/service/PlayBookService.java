@@ -62,7 +62,7 @@ public class PlayBookService {
         }
 
         // read One PlayBook
-        public PlayBookResponse geetPlayBookById(String id, String userId)
+        public PlayBookResponse getPlayBookById(String id, String userId)
                         throws JsonMappingException, JsonProcessingException, RecordNotFoundException {
                 // if no PlayBook details inside optional warpper, then send NOT FOUND Error
                 Optional<PlayBook> pOptional = playBookRepository.findByIdAndUserId(id,
@@ -85,4 +85,46 @@ public class PlayBookService {
 
         }
 
+        // update PlayBook
+        public PlayBook updatePlayBook(PlayBookRequest playBookRequest, String id, String userId)
+                        throws RecordNotFoundException, JsonProcessingException, JsonMappingException,
+                        BadRequestException {
+
+                Optional<PlayBook> pOptional = playBookRepository.findByIdAndUserId(id, userId);
+                // if no PlayBook inside optional warpper, then send NOT FOUND Error
+                if (!pOptional.isPresent()) {
+                        throw new RecordNotFoundException("Error: No such PlayBook Id exists!");
+                }
+                // if dataset name already exists, send error
+                List<PlayBook> playBooks = playBookRepository.findByIdNotAndUserIdAndName(id, userId,
+                                playBookRequest.getName());
+                if (!playBooks.isEmpty()) {
+                        throw new BadRequestException("Error: PlayBook Name is already taken!");
+                }
+                // seriailze playbook content into json
+                ObjectMapper mapper = new ObjectMapper();
+                JSONObject jsonObject = new JSONObject(mapper.writeValueAsString(playBookRequest.getContent()));
+                // create playbook object to persist in DB
+                PlayBook playBook = new PlayBook(
+                                userId,
+                                playBookRequest.getName(),
+                                playBookRequest.getDescription(),
+                                jsonObject.toString());
+                // add existing id of PlayBook to make it edit intead of save new
+                playBook.setId(id);
+                playBookRepository.save(playBook);
+                return playBook;
+        }
+
+        // delete PlayBook
+        public void deletePlayBook(String id, String userId) throws RecordNotFoundException {
+                // fetch specific PlayBook for the user
+                Optional<PlayBook> pOptional = playBookRepository.findByIdAndUserId(id, userId);
+                // if no PlayBook inside optional warpper, then send NOT FOUND Error
+                if (!pOptional.isPresent()) {
+                        throw new RecordNotFoundException("Error: No such PlayBook Id exists!");
+                }
+                // Delete from DB
+                playBookRepository.deleteById(id);
+        }
 }
