@@ -118,6 +118,13 @@
             <version>20220320</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.vladmihalcea/hibernate-types-60 -->
+        <dependency>
+            <groupId>com.vladmihalcea</groupId>
+            <artifactId>hibernate-types-55</artifactId>
+            <version>2.20.0</version>
+        </dependency>
+
 
     </dependencies>
 
