@@ -1,6 +1,4 @@
 import { RelationObjProps } from "../../Components/DataSet/CanvasInterfaces";
-import { DatasetItem } from "../../Components/DataSet/DatasetListInterfaces";
-import { tableObjProps } from "../../Components/DataSet/SidebarInterfaces";
 
 export interface DatasetProps {
 	dsId: string;
@@ -21,6 +19,7 @@ export interface DataSetStateProps {
 	dataSetState: DatasetProps;
 }
 
+//arrows
 export interface ArrowsProps {
 	cardinality: string;
 	end: string;
@@ -41,7 +40,22 @@ export interface ArrowsProps {
 	table1_uid: string;
 	table2_uid: string;
 }
+//tempTable
+export interface tableObjProps {
+	id: string;
+	table_uid: string;
+	tableName: string;
+	isSelected: boolean;
+	alias: string;
+	columns: any[];
+	dcId: string;
+	schema: string;
+	isNewTable: boolean;
+	tablePositionX: number;
+	tablePositionY: number;
+}
 
+//relationships
 export interface RelationshipsProps {
 	startId: string;
 	endId: string;
@@ -52,6 +66,7 @@ export interface RelationshipsProps {
 	relationId: string;
 }
 
+//tables
 export interface UserTableProps {
 	id: string;
 	isNewTable: boolean;
@@ -60,159 +75,159 @@ export interface UserTableProps {
 	table_uid: string;
 }
 
+//datasetlist (ind item)
+export interface DatasetItem {
+	id: string;
+	connectionId: string;
+	datasetName: string;
+	isFlatFileData: boolean;
+}
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@ action interfaces @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// 1
 interface SetDatabaseNametoState {
 	type: "SET_DATABASE_NAME";
 	payload: string;
 }
-
+// 2
 interface SetServerName {
 	type: "SET_SERVER_NAME";
 	payload: string;
 }
-
+// 3
 interface SetConnectionValue {
 	type: "SET_CONNECTION_VALUE";
 	payload: string;
 }
-
+// 4
 interface SetDsId {
 	type: "SET_DS_ID";
 	payload: string;
 }
-
+// 5
 interface setDatasetName {
 	type: "SET_DATASET_NAME";
 	payload: string;
 }
-
+// 6
 interface SetDataSchema {
 	type: "SET_DATA_SCHEMA";
 	payload: string;
-	// payload:{schemaName:string}
 }
 
-// TODO: need to specify type
-
+// 7
 interface SetUserTable {
 	type: "SET_TABLES";
 	payload: UserTableProps[];
 }
-
+// 8
 interface SetTempTables {
 	type: "SET_TEMP_TABLES";
 	payload: tableObjProps[];
 }
-
-// TODO
-
-interface AddTable {
-	type: "ADD_TABLE";
-	payload: tableObjProps;
-}
-// TODO
+// 9
 interface ToggleOnChecked {
 	type: "ON_CHECKED";
 	payload: string | number;
 }
-// TODO
+// 10
+interface AddTable {
+	type: "ADD_TABLE";
+	payload: tableObjProps;
+}
+// 11
 interface RemoveArrows {
 	type: "REMOVE_ARROWS";
 	payload: string | number;
 }
-interface ResetState {
-	type: "RESET_STATE";
-}
-
-// TODO
-interface AddArrows {
-	type: "ADD_ARROWS";
-	payload: any;
-}
-// TODO
-interface ClickOnArrow {
-	type: "CLICK_ON_ARROW";
-	payload: any;
-}
-
-// interface setArrowType = (payload) => {
-// 	 type: "SET_ARROW_TYPE", payload: payload };
-// };
-
-interface SetArrows {
-	type: "SET_ARROWS";
-	payload: any[];
-}
-interface ResetArrows {
-	type: "RESET_ARROWS_ARRAY";
-}
-
+// 12
 interface RemoveArrowsFromcanvas {
 	type: "REMOVE_ARROWS_FROM_DEL_REL";
 	payload: string | number;
 }
-
-interface RemoveRelationshipFromTableList {
-	type: "DELETE_RELATIONSHIP_FROM_TABLELIST";
-	relationId: string | number;
-}
-
-interface setDatasetList {
-	type: "SET_DATASET_LIST";
-	payload: DatasetItem[];
-}
-
-interface AddNewRelationship {
-	type: "ADD_NEW_RELATIONSHIP";
-	payload: RelationObjProps;
-}
-
+// 13
 interface RemoveIndiArrowFromRelPopover {
 	type: "REMOVE_INDI_ARROW_FROM_REL_POPOVER";
 	payload: { start: string; end: string };
 }
-
+// 14
+interface ResetState {
+	type: "RESET_STATE";
+}
+// 15
+interface AddNewRelationship {
+	type: "ADD_NEW_RELATIONSHIP";
+	payload: RelationObjProps;
+}
+// 16
+interface RemoveRelationshipFromTableList {
+	type: "DELETE_RELATIONSHIP_FROM_TABLELIST";
+	relationId: string | number;
+}
+// 17
 interface RemoveRelationshipFromCanvas {
 	type: "DELETE_RELATIONSHIP_FROM_CANVAS";
 	payload: any;
 }
+// 18
 interface UpdateRelationship {
 	type: "UPDATE_RELATIONSHIP";
 	payload: { relationId: any; relation: any };
 }
-
+// 19
+interface AddArrows {
+	type: "ADD_ARROWS";
+	payload: any;
+}
+// 20
+interface ClickOnArrow {
+	type: "CLICK_ON_ARROW";
+	payload: any;
+}
+// 21
+interface setDatasetList {
+	type: "SET_DATASET_LIST";
+	payload: DatasetItem[];
+}
+// 22
 interface SetRelationship {
 	type: "SET_RELATIONSHIP_ARRAY";
 	payload: any;
 }
+// 23
+interface SetArrows {
+	type: "SET_ARROWS";
+	payload: any[];
+}
 
+// 24
 interface SetArrowType {
 	type: "SET_ARROW_TYPE";
 	payload: any;
 }
 
 export type ActionTypeOfDataSet =
+	| SetDatabaseNametoState
+	| SetServerName
 	| SetConnectionValue
-	| SetArrowType
-	| UpdateRelationship
-	| RemoveRelationshipFromCanvas
+	| SetDsId
+	| setDatasetName
+	| SetDataSchema
+	| SetUserTable
+	| SetTempTables
+	| ToggleOnChecked
+	| AddTable
+	| RemoveArrows
+	| RemoveArrowsFromcanvas
 	| RemoveIndiArrowFromRelPopover
+	| ResetState
 	| AddNewRelationship
 	| RemoveRelationshipFromTableList
-	| SetDsId
-	| SetDataSchema
-	| SetTempTables
-	| SetRelationship
-	| SetUserTable
-	| AddTable
-	| ToggleOnChecked
-	| RemoveArrows
-	| ResetState
-	| setDatasetName
+	| RemoveRelationshipFromCanvas
+	| UpdateRelationship
 	| AddArrows
 	| ClickOnArrow
 	| setDatasetList
+	| SetRelationship
 	| SetArrows
-	| ResetArrows
-	| SetServerName
-	| SetDatabaseNametoState
-	| RemoveArrowsFromcanvas;
+	| SetArrowType;

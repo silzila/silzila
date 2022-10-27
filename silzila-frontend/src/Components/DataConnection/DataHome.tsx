@@ -13,7 +13,7 @@ import "./DataSetup.css";
 const DataHome = () => {
 	return (
 		<div className="dataHome">
-			<MenuBar from="dataHome" />
+			{/* <MenuBar from="dataHome" /> */}
 			<div className="dataSetup">
 				<div className="dcds">
 					<DataConnection />

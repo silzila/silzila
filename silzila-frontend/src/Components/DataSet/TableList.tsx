@@ -13,23 +13,28 @@ import {
 } from "../../redux/DataSet/datasetActions";
 import ShortUniqueId from "short-unique-id";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
-import { DataSetStateProps, UserTableProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import {
+	DataSetStateProps,
+	tableObjProps,
+	UserTableProps,
+} from "../../redux/DataSet/DatasetStateInterfacse";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import TableData from "./TableData";
-import { tableObjProps } from "./SidebarInterfaces";
-import { TableListProps, TblColDt } from "./TableListInterfaces";
+import { TableListProps, tabObj, TblColDt } from "./TableListInterfaces";
 
 const TableList = (props: TableListProps) => {
 	const [selectedTable, setSelectedTable] = useState<string>("");
 	const [showTableData, setShowTableData] = useState<boolean>(false);
 
+	// tableData  will be type of any
 	const [tableData, setTableData] = useState<any[]>([]);
-	const [objKeys, setObjKeys] = useState<any[]>([]);
+	const [objKeys, setObjKeys] = useState<string[]>([]);
 
 	// Get all columns for a given table
 	const getTableColumns = async (tableName: string) => {
-		const uid = new ShortUniqueId({ length: 8 });
+		// TODO: need to specify type
+		const uid: any = new ShortUniqueId({ length: 8 });
 
 		var url: string = "";
 		if (props.serverName === "mysql") {
@@ -39,6 +44,7 @@ const TableList = (props: TableListProps) => {
 		}
 
 		console.log(url);
+		// TODO: need to specify type
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
@@ -46,7 +52,7 @@ const TableList = (props: TableListProps) => {
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
 		if (result.status) {
-			let obj;
+			var obj: tabObj | undefined;
 			props.tableList.map((el: UserTableProps) => {
 				// While in edit mode, we check if this table has already been selected
 				// If selected, set its old parameters UID parameters,
@@ -78,6 +84,7 @@ const TableList = (props: TableListProps) => {
 	};
 
 	// Handles when a table listed in sidebar is checked or unchecked
+	// TODO: need to specify type for e
 	const checkAndUncheck = (e: any, id: string | number) => {
 		props.onChecked(id);
 
@@ -105,6 +112,7 @@ const TableList = (props: TableListProps) => {
 		} else {
 			url = `sample-records/${props.connectionId}/250?database=${props.databaseName}&schema=${props.schema}&table=${table}`;
 		}
+		// TODO:need to specify type
 		var res: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
@@ -116,7 +124,7 @@ const TableList = (props: TableListProps) => {
 			console.log(res.data);
 			setTableData(res.data);
 			setShowTableData(true);
-			var keys = Object.keys(res.data[0]);
+			var keys: string[] = Object.keys(res.data[0]);
 			setObjKeys([...keys]);
 		} else {
 		}

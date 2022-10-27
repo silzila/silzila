@@ -1,3 +1,4 @@
+//initial state (account)
 export interface DataConnectionDetails {
 	vendor: string;
 	vendorError: string;
@@ -15,6 +16,7 @@ export interface DataConnectionDetails {
 	passwordError: string;
 }
 
+// individual connection item in dataconnectionList
 export interface ConnectionItem {
 	id: string;
 	userId: string;
@@ -34,29 +36,24 @@ export interface DataConnectionProps {
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ form interfaces @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 export interface FormProps {
-	//props
 	account: DataConnectionDetails;
 	setAccount: (value: DataConnectionDetails) => void;
 
-	token: string;
-	dataConnId: string;
 	viewMode: boolean;
 	setViewMode: (value: boolean) => void;
+
+	token: string;
+	dataConnId: string;
+	showForm: boolean;
+	regOrUpdate: string;
+
 	setSeverity: (value: string) => void;
 	setOpenAlert: (value: boolean) => void;
 	setTestMessage: (value: string) => void;
-
-	showForm: boolean;
 	showAndHideForm: () => void;
-
-	regOrUpdate: string;
-
-	// TODO need to specify type
+	// TODO:need to specify type
 	handleMode: (e: any) => void;
-	// TODO need to specify type
 	handleRegister: () => Promise<void>;
-	// TODO need to specify type
 	getInformation: () => Promise<void>;
-	// TODO need to specify type
 	handleonUpdate: () => Promise<void>;
 }

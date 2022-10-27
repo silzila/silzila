@@ -1,6 +1,6 @@
 import update from "immutability-helper";
-import { tableObjProps } from "../../Components/DataSet/SidebarInterfaces";
-import { ActionTypeOfDataSet, DatasetProps, UserTableProps } from "./DatasetStateInterfacse";
+import { tableObjProps } from "./DatasetStateInterfacse";
+import { ActionTypeOfDataSet, UserTableProps } from "./DatasetStateInterfacse";
 
 const initialState = {
 	dsId: "",

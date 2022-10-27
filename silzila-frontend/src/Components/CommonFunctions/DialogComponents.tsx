@@ -4,17 +4,26 @@
 
 import { Alert, AlertColor, Button, Dialog } from "@mui/material";
 import { resetState } from "../../redux/DataSet/datasetActions";
-import { ChangeConnectionProps } from "../DataSet/DatasetInterfaces";
 import { useDispatch } from "react-redux";
 
 // Simple alert to display for 2-3 seconds after a user action like deleting, adding items, server CallSharp, etc
 
-type NotificationProps = {
+interface NotificationProps {
 	openAlert: boolean;
 	severity: string;
 	testMessage: string;
 	onCloseAlert?: () => void;
-};
+}
+
+interface ChangeConnectionProps {
+	open: boolean;
+	setOpen: (value: boolean) => void;
+	setReset: any;
+	heading: string;
+	message: string;
+	onChangeOrAddDataset?: any;
+}
+
 export const NotificationDialog = ({
 	openAlert,
 	severity,

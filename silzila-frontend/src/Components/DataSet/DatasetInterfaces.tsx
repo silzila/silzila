@@ -1,15 +1,9 @@
-import { DataSetStateProps, UserTableProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import {
+	DataSetStateProps,
+	tableObjProps,
+	UserTableProps,
+} from "../../redux/DataSet/DatasetStateInterfacse";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
-import { tableObjProps } from "./SidebarInterfaces";
-
-export interface ChangeConnectionProps {
-	open: boolean;
-	setOpen: (value: boolean) => void;
-	setReset: any;
-	heading: string;
-	message: string;
-	onChangeOrAddDataset?: any;
-}
 
 export interface EditDatasetProps {
 	//state

@@ -166,7 +166,7 @@ function FormDialog({
 			url: "database-connection/" + dataConnId,
 			headers: { Authorization: `Bearer ${token}` },
 		});
-		console.log("database-connection/" + dataConnId);
+		// console.log("database-connection/" + dataConnId);
 		if (result.status) {
 			setDcDel(false);
 			setSeverity("success");

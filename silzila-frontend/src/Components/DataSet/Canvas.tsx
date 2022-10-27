@@ -9,8 +9,11 @@ import Xarrow, { Xwrapper } from "react-xarrows";
 import CanvasTables from "./CanvasTables";
 import RelationshipDefiningComponent from "./RelationshipDefiningComponent";
 import BottomBar from "./BottomBar";
-import { ArrowsProps, DataSetStateProps } from "../../redux/DataSet/DatasetStateInterfacse";
-import { tableObjProps } from "./SidebarInterfaces";
+import {
+	ArrowsProps,
+	DataSetStateProps,
+	tableObjProps,
+} from "../../redux/DataSet/DatasetStateInterfacse";
 import { CanvasProps } from "./CanvasInterfaces";
 
 const Canvas = ({
