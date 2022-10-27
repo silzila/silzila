@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mysql.cj.xdevapi.JsonArray;
+
 import java.sql.SQLException;
 import javax.validation.Valid;
 
@@ -190,7 +192,21 @@ public class DBConnectionController {
         ArrayList<MetadataColumn> metadataColumns = connectionPoolService.getColumn(id, userId, databaseName,
                 schemaName, tableName);
         return ResponseEntity.status(HttpStatus.OK).body(metadataColumns);
+    }
 
+    // Metadata discovery - get sample records
+    @GetMapping("/sample-records/{id}/{recordCount}")
+    public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id,
+            @PathVariable(value = "recordCount") Integer recordCount,
+            @RequestParam(name = "database", required = false) String databaseName,
+            @RequestParam(name = "schema", required = false) String schemaName,
+            @RequestParam(name = "table") String tableName)
+            throws RecordNotFoundException, SQLException, BadRequestException {
+        String userId = reqHeader.get("requesterUserId");
+        JSONArray jsonArray = connectionPoolService.getSampleRecords(id, userId, databaseName,
+                schemaName, tableName, recordCount);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
 }

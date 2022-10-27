@@ -337,7 +337,7 @@ public class ConnectionPoolService {
         }
     }
 
-    // Metadata discovery - Get Schema names
+    // Metadata discovery - Get Column names
     public ArrayList<MetadataColumn> getColumn(String id, String userId, String databaseName, String schemaName,
             String tableName)
             throws RecordNotFoundException, SQLException, BadRequestException {
@@ -392,6 +392,62 @@ public class ConnectionPoolService {
                 metadataColumns.add(metadataColumn);
             }
             return metadataColumns;
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    // Metadata discovery - Get Sample Records of table
+    public JSONArray getSampleRecords(String id, String userId, String databaseName, String schemaName,
+            String tableName, Integer recordCount)
+            throws RecordNotFoundException, SQLException, BadRequestException {
+        // set fall back record count
+        if (recordCount == null || recordCount > 250) {
+            recordCount = 250;
+        }
+        // first create connection pool to query DB
+        String vendorName = getVendorNameFromConnectionPool(id, userId);
+        String query = "";
+
+        // based on database dialect, we pass different SELECT * Statement
+        // for POSTGRESQL DB
+        if (vendorName.equals("postgresql")) {
+            // schema name is must for postgres
+            if (schemaName == null || schemaName.trim().isEmpty()) {
+                throw new BadRequestException("Error: Schema name is not provided!");
+            }
+            // construct query
+            query = "SELECT * FROM " + schemaName + "." + tableName + " LIMIT " + recordCount;
+        }
+        // for MYSQL DB
+        else if (vendorName.equals("mysql")) {
+            // DB name is must for MySQL
+            if (databaseName == null || databaseName.trim().isEmpty()) {
+                throw new BadRequestException("Error: Database name is not provided!");
+            }
+            // construct query
+            query = "SELECT * FROM " + databaseName + "." + tableName + " LIMIT " + recordCount;
+
+        }
+        // for SQL Server DB
+        else if (vendorName.equals("sqlserver")) {
+            // DB name & schema name are must for SQL Server
+            if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                    || schemaName.trim().isEmpty()) {
+                throw new BadRequestException("Error: Database & Schema names are not provided!");
+            }
+            // construct query
+            query = "SELECT TOP " + recordCount + " * FROM " + databaseName + "." + schemaName + "." + tableName;
+
+        }
+        // RUN THE 'SELECT *' QUERY
+        try {
+            Connection _connection = connectionPool.get(id);
+            statement = _connection.createStatement();
+            resultSet = statement.executeQuery(query);
+            JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
+            statement.close();
+            return jsonArray;
         } catch (Exception e) {
             throw e;
         }
