@@ -380,7 +380,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			tempTable: tableObjProps[],
 			tables: UserTableProps[],
 			tableId: string
-		) => dispatch(actionsOnRemoveTable({ tempTable, tables, tableId })),
+		) => dispatch(actionsOnRemoveTable(tempTable, tables, tableId)),
 		setTempTables: (table: tableObjProps[]) => dispatch(setTempTables(table)),
 	};
 };

@@ -72,8 +72,8 @@ export interface tablesSelectedInSidebarProps {
 	schema: string;
 	id: string;
 	alias: string;
-	tablePositionX: number;
-	tablePositionY: number;
+	tablePositionX: number | null;
+	tablePositionY: number | null;
 	database: string;
 	flatFileId: string | null;
 }

@@ -1,4 +1,5 @@
 import { RelationObjProps } from "../../Components/DataSet/CanvasInterfaces";
+import { ColumnsWithUid } from "../../Components/DataSet/DatasetInterfaces";
 
 export interface DatasetProps {
 	dsId: string;
@@ -47,12 +48,12 @@ export interface tableObjProps {
 	tableName: string;
 	isSelected: boolean;
 	alias: string;
-	columns: any[];
+	columns: ColumnsWithUid[];
 	dcId: string;
 	schema: string;
 	isNewTable: boolean;
-	tablePositionX: number;
-	tablePositionY: number;
+	tablePositionX: number | null;
+	tablePositionY: number | null;
 }
 
 //relationships
@@ -123,7 +124,7 @@ interface SetUserTable {
 // 8
 interface SetTempTables {
 	type: "SET_TEMP_TABLES";
-	payload: tableObjProps[];
+	payload: any;
 }
 // 9
 interface ToggleOnChecked {
@@ -177,7 +178,7 @@ interface UpdateRelationship {
 // 19
 interface AddArrows {
 	type: "ADD_ARROWS";
-	payload: any;
+	payload: ArrowsProps;
 }
 // 20
 interface ClickOnArrow {
@@ -192,12 +193,12 @@ interface setDatasetList {
 // 22
 interface SetRelationship {
 	type: "SET_RELATIONSHIP_ARRAY";
-	payload: any;
+	payload: RelationshipsProps[];
 }
 // 23
 interface SetArrows {
 	type: "SET_ARROWS";
-	payload: any[];
+	payload: ArrowsProps[];
 }
 
 // 24

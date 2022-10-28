@@ -1,5 +1,11 @@
 import { RelationObjProps } from "../../Components/DataSet/CanvasInterfaces";
-import { DatasetItem, tableObjProps } from "./DatasetStateInterfacse";
+import {
+	ArrowsProps,
+	DatasetItem,
+	RelationshipsProps,
+	tableObjProps,
+	UserTableProps,
+} from "./DatasetStateInterfacse";
 
 // =====================================
 // actions from sodebar
@@ -116,6 +122,7 @@ export const setDatasetList = (datasetList: DatasetItem[]) => {
 // =====================================================================
 // 8
 export const setTempTables = (tables: tableObjProps[]) => {
+	console.log(tables);
 	return { type: "SET_TEMP_TABLES", tables };
 };
 // 23
@@ -123,19 +130,29 @@ export const setRelationship = (payload: any) => {
 	return { type: "SET_RELATIONSHIP_ARRAY", payload };
 };
 
-export const setValuesToState = (payload: any) => {
+export const setValuesToState = (
+	conId: string,
+	fname: string,
+	// canvasTables: tableObjProps[],
+	schema: string,
+	relationshipsArray: RelationshipsProps[],
+	arrowsArray: ArrowsProps[]
+) => {
 	return (dispatch: any) => {
-		dispatch(setConnectionValue(payload.conId));
-		dispatch(setDatasetName(payload.fname));
-		dispatch(setArrows(payload.relationshipArray));
-		dispatch(setDataSchema(payload.schema));
-		dispatch(setTempTables(payload.canvasTables));
-		dispatch(setArrows(payload.arrowsArray));
-		dispatch(setRelationship(payload.relationshipsArray));
+		dispatch(setConnectionValue(conId));
+		dispatch(setDatasetName(fname));
+		// dispatch(setTempTables(canvasTables));
+		dispatch(setDataSchema(schema));
+		dispatch(setArrows(arrowsArray));
+		dispatch(setRelationship(relationshipsArray));
 	};
 };
 
-export const actionsOnRemoveTable = ({ tempTables, tables, tableId }: any) => {
+export const actionsOnRemoveTable = (
+	tempTables: tableObjProps[],
+	tables: UserTableProps[],
+	tableId: string
+) => {
 	//console.log("REMOVE TABLE FROM CANVAS", tempTables, tables, tableId);
 	return (dispatch: any) => {
 		dispatch(setTempTables(tempTables));

@@ -24,7 +24,6 @@ function TableData({
 	setTableData,
 	objKeys,
 }: tableDataComponentProps) {
-	console.log(objKeys);
 	const handleClose = () => {
 		setShowTableData(false);
 		setSelectedTable("");
@@ -32,7 +31,16 @@ function TableData({
 	};
 	return (
 		<>
-			<Dialog open={showTableData}>
+			<Dialog
+				open={showTableData}
+				maxWidth="xl"
+				fullWidth={true}
+				PaperProps={{
+					sx: {
+						minHeight: "90%",
+					},
+				}}
+			>
 				<DialogTitle
 					sx={{
 						display: "flex",
@@ -46,7 +54,11 @@ function TableData({
 					<p>Rows Displayed: {tableData.length}</p>
 					<CloseOutlined onClick={handleClose} style={{ float: "right" }} />
 				</DialogTitle>
-				<DialogContent>
+				<DialogContent
+					sx={{
+						maxWidth: "fit-content",
+					}}
+				>
 					<Table stickyHeader>
 						<TableHead>
 							<TableRow>

@@ -21,7 +21,8 @@ import {
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import TableData from "./TableData";
-import { TableListProps, tabObj, TblColDt } from "./TableListInterfaces";
+import { TableListProps, tabObj } from "./TableListInterfaces";
+import { Columns, ColumnsWithUid } from "./DatasetInterfaces";
 
 const TableList = (props: TableListProps) => {
 	const [selectedTable, setSelectedTable] = useState<string>("");
@@ -57,7 +58,7 @@ const TableList = (props: TableListProps) => {
 				// While in edit mode, we check if this table has already been selected
 				// If selected, set its old parameters UID parameters,
 				if (el.tableName === tableName && el.isSelected === true) {
-					const arrayWithUid = result.data.map((data: TblColDt) => {
+					const arrayWithUid: ColumnsWithUid[] = result.data.map((data: Columns) => {
 						return {
 							uid: props.schema.concat(tableName).concat(data.columnName),
 							...data,

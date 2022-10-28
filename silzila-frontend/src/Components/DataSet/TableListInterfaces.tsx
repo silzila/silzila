@@ -22,10 +22,6 @@ export interface TableListProps {
 	removeRelationship: (id: string | number) => void;
 	addTable: (tabObj: any) => void;
 }
-export interface TblColDt {
-	columnName: string;
-	dataType: string;
-}
 
 export interface tabObj {
 	id: string;

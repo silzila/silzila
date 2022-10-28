@@ -23,6 +23,7 @@ const Canvas = ({
 	//props
 	editMode,
 }: CanvasProps) => {
+	console.log(tempTable, arrows);
 	const [showRelationCard, setShowRelationCard] = useState<boolean>(false);
 	const [existingArrowProp, setExistingArrowProp] = useState<{}>({});
 	const [existingArrow, setExistingArrow] = useState<boolean>(false);
