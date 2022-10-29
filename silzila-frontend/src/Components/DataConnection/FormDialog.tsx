@@ -15,8 +15,8 @@ import { Button } from "@mui/material";
 // import FetchData from "../../ServerCall/FetchData";
 import TextFieldComponent from "../../Components/CommonFunctions/TextFieldComponent";
 import CloseIcon from "@mui/icons-material/Close";
-import FetchDataForIndMethod from "../ServerCall/FetchDataForIndMethod";
 import { FormProps } from "./DataConnectionInterfaces";
+import FetchData from "../ServerCall/FetchData";
 
 function FormDialog({
 	//props
@@ -85,7 +85,7 @@ function FormDialog({
 				password: account.password,
 			};
 
-			var response: any = await FetchDataForIndMethod({
+			var response: any = await FetchData({
 				requestType: "withData",
 				method: "POST",
 				url: "database-connection-test",
@@ -160,13 +160,13 @@ function FormDialog({
 	};
 
 	const deleteDc = async () => {
-		var result: any = await FetchDataForIndMethod({
+		var result: any = await FetchData({
 			requestType: "noData",
 			method: "DELETE",
 			url: "database-connection/" + dataConnId,
 			headers: { Authorization: `Bearer ${token}` },
 		});
-		console.log("database-connection/" + dataConnId);
+		// console.log("database-connection/" + dataConnId);
 		if (result.status) {
 			setDcDel(false);
 			setSeverity("success");

@@ -1,9 +1,9 @@
 import {
 	ArrowsProps,
 	RelationshipsProps,
+	tableObjProps,
 	UserTableProps,
 } from "../../redux/DataSet/DatasetStateInterfacse";
-import { tableObjProps } from "./SidebarInterfaces";
 
 export interface CanvasProps {
 	//state
@@ -31,6 +31,22 @@ export interface ArrowObj {
 	endSchema: string;
 	endId: string;
 }
+export interface newArrowObj {
+	end: string;
+	endColumnName: string;
+	endId: string;
+	endSchema: string;
+	endTableName: string;
+	isSelected: boolean;
+	relationId?: string;
+	start: string;
+	startColumnName: string;
+	startId: string;
+	startSchema: string;
+	startTableName: string;
+	table1_uid: string;
+	table2_uid: string;
+}
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ BottomBar interfaces @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 export interface BottomBarProps {
@@ -45,6 +61,7 @@ export interface BottomBarProps {
 	connection: string;
 	dsId: string;
 	datasetName: string;
+	database: string;
 
 	// dispatch
 	resetState: () => void;
@@ -55,8 +72,10 @@ export interface tablesSelectedInSidebarProps {
 	schema: string;
 	id: string;
 	alias: string;
-	tablePositionX: number;
-	tablePositionY: number;
+	tablePositionX: number | null;
+	tablePositionY: number | null;
+	database: string;
+	flatFileId: string | null;
 }
 
 export interface relationshipServerObjProps {

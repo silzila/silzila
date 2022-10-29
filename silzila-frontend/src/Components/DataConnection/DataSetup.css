@@ -243,6 +243,10 @@ TableData
 }
 
 #TColumn {
-	padding: 3px;
-	height: 28px;
+	/* padding: 3px;
+	height: 28px; */
+	padding: 0px 16px 0 16px;
+		height: 28px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 }

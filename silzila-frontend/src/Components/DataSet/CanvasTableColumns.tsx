@@ -59,6 +59,7 @@ const CanvasTableColumns = ({
 		}
 	};
 
+	// TODO: need to specify type for e
 	const arrowDropped = (e: any) => {
 		// TODO: Priority 10 - Check table arrow loop
 		// Make sure the tables in a new connection doesn't already have a link between them
@@ -98,6 +99,7 @@ const CanvasTableColumns = ({
 		}
 	};
 
+	// TODO: need to specify type for e
 	const setupForRelation = (e: any) => {
 		if (e.dataTransfer.getData("connectItemType") !== itemType) {
 			setOpenAlert(true);

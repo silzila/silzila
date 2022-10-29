@@ -1,5 +1,4 @@
-import { UserTableProps } from "../../redux/DataSet/DatasetStateInterfacse";
-import { tableObjProps } from "./SidebarInterfaces";
+import { tableObjProps, UserTableProps } from "../../redux/DataSet/DatasetStateInterfacse";
 
 export interface TableListProps {
 	//props
@@ -23,9 +22,19 @@ export interface TableListProps {
 	removeRelationship: (id: string | number) => void;
 	addTable: (tabObj: any) => void;
 }
-export interface TblColDt {
-	columnName: string;
-	dataType: string;
+
+export interface tabObj {
+	id: string;
+	table_uid: string;
+	tableName: string;
+	isSelected: boolean;
+	alias: string;
+	columns: any[];
+	dcId: string;
+	schema: string;
+	isNewTable: boolean;
+	tablePositionX: number;
+	tablePositionY: number;
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ tableData component Props interface @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

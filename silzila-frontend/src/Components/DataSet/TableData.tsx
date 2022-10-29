@@ -24,7 +24,6 @@ function TableData({
 	setTableData,
 	objKeys,
 }: tableDataComponentProps) {
-	console.log(objKeys);
 	const handleClose = () => {
 		setShowTableData(false);
 		setSelectedTable("");
@@ -32,7 +31,16 @@ function TableData({
 	};
 	return (
 		<>
-			<Dialog open={showTableData}>
+			<Dialog
+				open={showTableData}
+				maxWidth="xl"
+				fullWidth={true}
+				PaperProps={{
+					sx: {
+						minHeight: "90%",
+					},
+				}}
+			>
 				<DialogTitle
 					sx={{
 						display: "flex",
@@ -46,12 +54,16 @@ function TableData({
 					<p>Rows Displayed: {tableData.length}</p>
 					<CloseOutlined onClick={handleClose} style={{ float: "right" }} />
 				</DialogTitle>
-				<DialogContent>
+				<DialogContent
+					sx={{
+						maxWidth: "fit-content",
+					}}
+				>
 					<Table stickyHeader>
 						<TableHead>
 							<TableRow>
 								{objKeys &&
-									objKeys.map((el, i) => {
+									objKeys.map((el: string, i: number) => {
 										return (
 											<TableCell
 												style={{
@@ -67,10 +79,10 @@ function TableData({
 							</TableRow>
 						</TableHead>
 						<TableBody style={{ width: "auto" }}>
-							{tableData.map((data, i) => {
+							{tableData.map((data: any, i: number) => {
 								return (
 									<TableRow key={i} id="TRow">
-										{objKeys.map(obj => {
+										{objKeys.map((obj: string) => {
 											return <TableCell id="TColumn">{data[obj]}</TableCell>;
 										})}
 									</TableRow>

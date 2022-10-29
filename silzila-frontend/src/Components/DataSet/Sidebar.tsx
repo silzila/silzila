@@ -22,8 +22,12 @@ import TableList from "./TableList";
 import "../DataConnection/DataSetup.css";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { ConnectionItem } from "../DataConnection/DataConnectionInterfaces";
-import { SidebarProps, tableObjProps } from "./SidebarInterfaces";
-import { DataSetStateProps, UserTableProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import { SidebarProps } from "./SidebarInterfaces";
+import {
+	DataSetStateProps,
+	tableObjProps,
+	UserTableProps,
+} from "../../redux/DataSet/DatasetStateInterfacse";
 import { ChangeConnection } from "../CommonFunctions/DialogComponents";
 
 const Sidebar = ({
@@ -101,6 +105,7 @@ const Sidebar = ({
 
 	// Get all data connection available
 	const getAllDc = async () => {
+		// TODO:need to specify type
 		var res: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
@@ -170,6 +175,7 @@ const Sidebar = ({
 	};
 
 	// Fetch list of tables in a particular schema
+	// TODO: need to specify type for e
 	const getTables = async (e: any, vendor?: string | null, dbName?: string | null) => {
 		//when getTables is called from getschemalist e will be hold the value of connectionId else it will hold the event value
 		console.log(e);
@@ -197,16 +203,20 @@ const Sidebar = ({
 
 		if (res.status) {
 			console.log(res.data);
-			const uid = new ShortUniqueId({ length: 8 });
-			const userTable = res.data.tables.map((el: string) => {
+			// TODO:need to specify type for uid
+			const uid: any = new ShortUniqueId({ length: 8 });
+			const userTable: UserTableProps[] = res.data.tables.map((el: string) => {
 				var id = "";
 				var bool = false;
 
 				// Checking if the table is already selected to canvas by user
-				var tableAlreadyChecked = tempTable.filter(
+				// TODO: (p-1) check and mention type
+				var tableAlreadyChecked: any = tempTable.filter(
 					(tbl: tableObjProps) =>
 						tbl.dcId === connectionId && tbl.schema === schema && tbl.tableName === el
 				)[0];
+
+				console.log(tableAlreadyChecked);
 
 				// Checking if the selected table is new or previously added to this dataset
 				// Required as editing a dataset doesn't allow for deleting already added tables
@@ -252,7 +262,7 @@ const Sidebar = ({
 		<div className="sidebar">
 			<div>
 				<FormControl fullWidth size="small">
-					<InputLabel id="dcSelect">Connection</InputLabel>
+					<InputLabel id="dcSelect">Database</InputLabel>
 					<Select
 						labelId="dcSelect"
 						className="selectBar"
@@ -264,7 +274,7 @@ const Sidebar = ({
 						label="Connection"
 					>
 						{connectionList &&
-							connectionList.map((connection, i) => {
+							connectionList.map((connection: ConnectionItem, i: number) => {
 								return (
 									<MenuItem
 										title={
@@ -299,11 +309,12 @@ const Sidebar = ({
 							labelId="schemaSelect"
 							className="selectBar"
 							label="Schema"
-							onChange={(e: any) => getTables(e)}
+							// TODO: need to specify type
+							onChange={(e: any) => getTables(e, null, null)}
 							value={selectedSchema}
 						>
 							{schemaList &&
-								schemaList.map(schema => {
+								schemaList.map((schema: string) => {
 									return (
 										<MenuItem value={schema} key={schema}>
 											<Typography
@@ -326,7 +337,7 @@ const Sidebar = ({
 
 			<div className="sidebarHeading">Tables</div>
 			{tableList ? (
-				tableList.map(tab => {
+				tableList.map((tab: UserTableProps) => {
 					return (
 						<SelectListItem
 							key={tab.tableName}

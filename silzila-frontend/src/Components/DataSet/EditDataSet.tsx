@@ -5,26 +5,49 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import ShortUniqueId from "short-unique-id";
-import { setUserTable, setValuesToState } from "../../redux/DataSet/datasetActions";
+import {
+	setDatabaseNametoState,
+	setServerName,
+	setTempTables,
+	setUserTable,
+	setValuesToState,
+} from "../../redux/DataSet/datasetActions";
 import FetchData from "../ServerCall/FetchData";
 import { FindShowHeadAndShowTail } from "../CommonFunctions/FindIntegrityAndCordinality";
 import MenuBar from "../DataViewer/MenuBar";
 import Canvas from "./Canvas";
 import Sidebar from "./Sidebar";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
-import { DataSetStateProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import {
+	ArrowsProps,
+	DataSetStateProps,
+	RelationshipsProps,
+	tableObjProps,
+	UserTableProps,
+} from "../../redux/DataSet/DatasetStateInterfacse";
 import { Dispatch } from "redux";
-import { CanvasIndividualTableProps, EditDatasetProps } from "./DatasetInterfaces";
+import {
+	CanvasIndividualTableProps,
+	Columns,
+	ColumnsWithUid,
+	EditDatasetProps,
+} from "./DatasetInterfaces";
 
 const EditDataSet = ({
 	//state
 	token,
 	dsId,
+	databaseName,
 
 	//dispatch
 	setValuesToState,
 	setUserTable,
+	setDatabaseNametoState,
+	setServerName,
+	setTempTables,
 }: EditDatasetProps) => {
+	var dbName: string = "";
+	var server: string = "";
 	const [loadPage, setloadPage] = useState<boolean>(false);
 	const [editMode, seteditMode] = useState<boolean>(true);
 	const [connectionList, setConnectionList] = useState<any[]>([]);
@@ -42,10 +65,25 @@ const EditDataSet = ({
 		});
 
 		if (res.status) {
+			var getDc: any = await FetchData({
+				requestType: "noData",
+				method: "GET",
+				url: "database-connection",
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			if (getDc.status) {
+				console.log(getDc.data);
+				getDc.data.map((dc: any) => {
+					if (dc.id === res.data.connectionId) {
+						dbName = dc.database;
+						server = dc.vendor;
+					}
+				});
+			}
 			// console.log(res.data);
 			// const uid = new ShortUniqueId({ length: 8 });
 
-			const canvasTables = await Promise.all(
+			const canvasTables: tableObjProps[] = await Promise.all(
 				res.data.dataSchema.tables?.map(async (tbl: CanvasIndividualTableProps) => {
 					return {
 						table_uid: tbl.schema.concat(tbl.table),
@@ -57,13 +95,13 @@ const EditDataSet = ({
 						isSelected: true,
 						id: tbl.id,
 						isNewTable: false,
-						tablePositionX: tbl.tablePositionX ? tbl.tablePositionX : "",
-						tablePositionY: tbl.tablePositionY ? tbl.tablePositionY : "",
+						tablePositionX: tbl.tablePositionX ? tbl.tablePositionX : null,
+						tablePositionY: tbl.tablePositionY ? tbl.tablePositionY : null,
 					};
 				})
 			);
 
-			// console.log(canvasTables);
+			console.log(canvasTables);
 
 			// ======================== set tables & schema ====================================================
 
@@ -76,13 +114,21 @@ const EditDataSet = ({
 			var uniqueSchema: string[] = Array.from(new Set(schema_list));
 			// console.log(uniqueSchema);
 
-			let userTable: any = [];
+			let userTable: UserTableProps[] = [];
 
 			const getTables = async () => {
+				var url: string = "";
+				if (server === "mysql") {
+					url = `metadata-tables/${res.data.connectionId}?database=${dbName}`;
+				} else {
+					url = `metadata-tables/${res.data.connectionId}?database=${dbName}&schema=${uniqueSchema[0]}`;
+				}
+				// TODO: need to specify type
 				var res1: any = await FetchData({
 					requestType: "noData",
-					method: "POST",
-					url: `metadata-tables/${res.data.connectionId}?database=landmark&schema=${uniqueSchema[0]}`,
+					method: "GET",
+					url: url,
+					// url: `metadata-tables/${res.data.connectionId}?database=landmark&schema=${uniqueSchema[0]}`,
 					headers: { Authorization: `Bearer ${token}` },
 					token: token,
 				});
@@ -209,30 +255,40 @@ const EditDataSet = ({
 			});
 
 			// ====================================================================================
-
-			setValuesToState(
-				res.data.connectionId,
-				res.data.datasetName,
-				canvasTables,
-				uniqueSchema[0],
-				relationshipsArray,
-				arrowsArray
-			);
+			setTempTables(canvasTables);
+			// setValuesToState(
+			// 	res.data.connectionId,
+			// 	res.data.datasetName,
+			// 	// canvasTables,
+			// 	uniqueSchema[0],
+			// 	relationshipsArray,
+			// 	arrowsArray
+			// );
+			setDatabaseNametoState(dbName);
+			setServerName(server);
 			setloadPage(true);
 		} else {
 			// console.log(res.data.detail);
 		}
 	};
 
-	const getColumns = async (connection: any, schema: any, tableName: any) => {
+	const getColumns = async (connection: string, schema: string, tableName: string) => {
+		console.log(dbName, server);
+		var url: string = "";
+		if (server === "mysql") {
+			url = `metadata-columns/${connection}?database=${dbName}&table=${tableName}`;
+		} else {
+			url = `metadata-columns/${connection}?database=${dbName}&schema=${schema}&table=${tableName}`;
+		}
 		var result: any = await FetchData({
 			requestType: "noData",
-			method: "POST",
-			url: "metadata-columns/" + connection + "?schema=" + schema + "&table=" + tableName,
+			method: "GET",
+			// url: "metadata-columns/" + connection + "?schema=" + schema + "&table=" + tableName,
+			url: url,
 			headers: { Authorization: `Bearer ${token}` },
 		});
 		if (result.status) {
-			const arrayWithUid = result.data.map((data: any) => {
+			const arrayWithUid: ColumnsWithUid[] = result.data.map((data: Columns) => {
 				return { uid: schema.concat(tableName).concat(data.columnName), ...data };
 			});
 			return arrayWithUid;
@@ -241,7 +297,7 @@ const EditDataSet = ({
 
 	return (
 		<div className="dataHome">
-			<MenuBar from="dataSet" />
+			{/* <MenuBar from="dataSet" /> */}
 
 			<div className="createDatasetPage">
 				{loadPage ? (
@@ -258,30 +314,34 @@ const mapStateToProps = (state: isLoggedProps & DataSetStateProps) => {
 	return {
 		token: state.isLogged.accessToken,
 		dsId: state.dataSetState.dsId,
+		databaseName: state.dataSetState.databaseName,
 	};
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		setValuesToState: (
-			conId: any,
-			fname: any,
-			canvasTables: any,
-			schema: any,
-			relationshipsArray: any,
-			arrowsArray: any
+			conId: string,
+			fname: string,
+			// canvasTables: tableObjProps[],
+			schema: string,
+			relationshipsArray: RelationshipsProps[],
+			arrowsArray: ArrowsProps[]
 		) =>
 			dispatch(
-				setValuesToState({
+				setValuesToState(
 					conId,
 					fname,
-					canvasTables,
+					// canvasTables,
 					schema,
 					relationshipsArray,
-					arrowsArray,
-				})
+					arrowsArray
+				)
 			),
-		setUserTable: (pl: any) => dispatch(setUserTable(pl)),
+		setServerName: (name: string) => dispatch(setServerName(name)),
+		setDatabaseNametoState: (name: string) => dispatch(setDatabaseNametoState(name)),
+		setUserTable: (payload: UserTableProps[]) => dispatch(setUserTable(payload)),
+		setTempTables: (payload: tableObjProps[]) => dispatch(setTempTables(payload)),
 	};
 };
 

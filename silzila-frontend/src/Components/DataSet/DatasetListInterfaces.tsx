@@ -1,11 +1,6 @@
-export interface DatasetItem {
-	id: string;
-	connectionId: string;
-	datasetName: string;
-	isFlatFileData: boolean;
-}
+import { DatasetItem } from "../../redux/DataSet/DatasetStateInterfacse";
 
-export interface DatasetProps {
+export interface DatasetListProps {
 	accessToken: string;
 	setDsId: (dsId: string) => void;
 	setDataSetListToStore: (datasetList: DatasetItem[]) => void;
