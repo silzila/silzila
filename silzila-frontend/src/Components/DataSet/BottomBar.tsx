@@ -16,8 +16,8 @@ import {
 	ArrowsProps,
 	DataSetStateProps,
 	RelationshipsProps,
+	tableObjProps,
 } from "../../redux/DataSet/DatasetStateInterfacse";
-import { tableObjProps } from "./SidebarInterfaces";
 import {
 	BottomBarProps,
 	relationshipServerObjProps,
@@ -36,6 +36,7 @@ const BottomBar = ({
 	connection,
 	dsId,
 	datasetName,
+	database,
 
 	// dispatch
 	resetState,
@@ -97,8 +98,7 @@ const BottomBar = ({
 			(tablesSelectedInSidebar.length === 1 && relationships.length === 0)
 		) {
 			relationships.forEach((relation: RelationshipsProps) => {
-				// TODO need to specify type
-				var relationObj: any = {
+				var relationObj: relationshipServerObjProps = {
 					table1: relation.startId,
 					table2: relation.endId,
 					cardinality: relation.cardinality,
@@ -129,7 +129,7 @@ const BottomBar = ({
 
 			//console.log(relationshipServerObj);
 
-			var apiurl;
+			var apiurl: string;
 
 			if (editMode) {
 				apiurl = "dataset/" + dsId;
@@ -206,10 +206,8 @@ const BottomBar = ({
 						alias: el.alias,
 						tablePositionX: el.tablePositionX,
 						tablePositionY: el.tablePositionY,
-						// need to add these 3 keys
-						// schema: schema,
-						// database: setDatabaseName,
-						// flatFileId: null,
+						database: database,
+						flatFileId: null,
 					};
 				}
 			);

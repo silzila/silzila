@@ -2,8 +2,8 @@
 // Tables can be given a friendly name by the user
 // These tables are draggable
 
-import React, { DragEvent, useRef, useState } from "react";
-import Draggable, { DraggableCoreProps } from "react-draggable";
+import { useRef, useState } from "react";
+import Draggable from "react-draggable";
 import { connect } from "react-redux";
 import { useXarrow } from "react-xarrows";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -20,13 +20,14 @@ import ActionPopover from "./ActionPopover";
 import { Button, TextField } from "@mui/material";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import {
+	ArrowsProps,
 	DataSetStateProps,
 	RelationshipsProps,
+	tableObjProps,
 	UserTableProps,
 } from "../../redux/DataSet/DatasetStateInterfacse";
 import { Dispatch } from "redux";
-import { tableObjProps } from "./SidebarInterfaces";
-import { CanvasTablesProps, RelationObjProps } from "./CanvasInterfaces";
+import { CanvasTablesProps, newArrowObj, RelationObjProps } from "./CanvasInterfaces";
 
 const CanvasTables = ({
 	// props
@@ -50,7 +51,7 @@ const CanvasTables = ({
 	const updateXarrow = useXarrow();
 
 	const [showRelationCard, setShowRelationCard] = useState<boolean>(false);
-	const [arrowProp, setArrowProp] = useState<[]>([]);
+	const [arrowProp, setArrowProp] = useState<any>([]);
 	const [open, setOpen] = useState<boolean>(false);
 	const [tableId, setTableId] = useState<string>("");
 	// TODO need to specify type
@@ -76,7 +77,9 @@ const CanvasTables = ({
 	// 		- Create new relation id
 	// 		- Save new arrow and new relation
 
+	// TODO: need to specify type for newArrowObj after testing
 	const checkRelationExists = (newArrowObj: any) => {
+		console.log(newArrowObj);
 		// if there are no arrows yet between these two tables, add arrow and show popup to define relationship
 		if (arrows.length === 0) {
 			newArrowObj.relationId = uid();
@@ -101,6 +104,7 @@ const CanvasTables = ({
 					newArrowObj.showTail = rel.showTail;
 					sameRel = true;
 					sameRelObj = newArrowObj;
+					console.log(newArrowObj);
 				} else if (rel.startId === newArrowObj.endId && rel.endId === newArrowObj.startId) {
 					// If it is in reverse assign the start and end table parameters in reverse
 
@@ -152,6 +156,7 @@ const CanvasTables = ({
 	};
 
 	// Remove or rename tables in canvas
+	// TODO: need to specify type
 	const selectAction = (e: any) => {
 		if (open === true) {
 			// Remove table from canvas
@@ -312,7 +317,7 @@ const CanvasTables = ({
 						)}
 					</div>
 
-					{tableData.columns.map((item, index) => {
+					{tableData.columns.map((item: any, index: any) => {
 						return (
 							<CanvasTableColumns
 								key={item.uid}
@@ -375,7 +380,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			tempTable: tableObjProps[],
 			tables: UserTableProps[],
 			tableId: string
-		) => dispatch(actionsOnRemoveTable({ tempTable, tables, tableId })),
+		) => dispatch(actionsOnRemoveTable(tempTable, tables, tableId)),
 		setTempTables: (table: tableObjProps[]) => dispatch(setTempTables(table)),
 	};
 };

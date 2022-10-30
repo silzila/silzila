@@ -1,6 +1,6 @@
 import update from "immutability-helper";
-import { tableObjProps } from "../../Components/DataSet/SidebarInterfaces";
-import { ActionTypeOfDataSet, DatasetProps, UserTableProps } from "./DatasetStateInterfacse";
+import { tableObjProps } from "./DatasetStateInterfacse";
+import { ActionTypeOfDataSet, UserTableProps } from "./DatasetStateInterfacse";
 
 const initialState = {
 	dsId: "",
@@ -46,12 +46,13 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 
 		// sets list of tables for a selected schema to state
 		case "SET_TABLES":
-			console.log(action.payload);
+			// console.log(action.payload);
 			return update(state, { tables: { $set: action.payload } });
 
 		case "SET_TEMP_TABLES":
+			console.log(action.payload);
 			// return update(state, { tempTable: { $set: action } });
-			return update(state, { tempTable: { $set: [...action.payload] } });
+			return update(state, { tempTable: { $set: [action.payload] } });
 
 		// When a table in sidebar is checked / unchecked, update state accordingly
 		case "ON_CHECKED":

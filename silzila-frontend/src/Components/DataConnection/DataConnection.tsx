@@ -72,7 +72,7 @@ const DataConnection = (props: DataConnectionProps) => {
 	// ================================= when newButton clicked ====================
 
 	//=============== set Mode ===============================
-
+	// TODO:need to specify types
 	const handleMode = (e: any) => {
 		if (e.target.value === "New") {
 			setRegOrUpdate("Register");
@@ -253,7 +253,7 @@ const DataConnection = (props: DataConnectionProps) => {
 			</div>
 			<div className="connectionListContainer">
 				{dataConnectionList &&
-					dataConnectionList.map((dc: any) => {
+					dataConnectionList.map((dc: ConnectionItem) => {
 						return (
 							<SelectListItem
 								key={dc.connectionName}

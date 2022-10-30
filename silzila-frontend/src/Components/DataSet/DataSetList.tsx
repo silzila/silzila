@@ -11,9 +11,10 @@ import { Dispatch } from "redux";
 import { resetState, setDatasetList, setDsId } from "../../redux/DataSet/datasetActions";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
-import { DatasetItem, DatasetProps } from "./DatasetListInterfaces";
+import { DatasetListProps } from "./DatasetListInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import FetchData from "../ServerCall/FetchData";
+import { DatasetItem } from "../../redux/DataSet/DatasetStateInterfacse";
 
 const DataSetList = ({
 	// state
@@ -23,7 +24,7 @@ const DataSetList = ({
 	setDataSetListToStore,
 	resetState,
 	setDsId,
-}: DatasetProps) => {
+}: DatasetListProps) => {
 	var navigate = useNavigate();
 
 	var token: string = accessToken;
@@ -41,6 +42,7 @@ const DataSetList = ({
 
 	// Get the list of Datasets
 	const getInformation = async () => {
+		// TODO:need to specify type
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
@@ -66,6 +68,7 @@ const DataSetList = ({
 
 	// Deleting a dataset
 	const deleteDs = async (dsId: string) => {
+		// TODO: need to specify type
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "DELETE",
@@ -115,6 +118,7 @@ const DataSetList = ({
 						return (
 							<SelectListItem
 								key={dc.datasetName}
+								// TODO : need to specify type
 								render={(xprops: any) => (
 									<div
 										className={

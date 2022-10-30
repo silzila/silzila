@@ -1,31 +1,31 @@
-import { DataSetStateProps, UserTableProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import {
+	ArrowsProps,
+	DataSetStateProps,
+	RelationshipsProps,
+	tableObjProps,
+	UserTableProps,
+} from "../../redux/DataSet/DatasetStateInterfacse";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
-import { tableObjProps } from "./SidebarInterfaces";
-
-export interface ChangeConnectionProps {
-	open: boolean;
-	setOpen: (value: boolean) => void;
-	setReset: any;
-	heading: string;
-	message: string;
-	onChangeOrAddDataset?: any;
-}
 
 export interface EditDatasetProps {
 	//state
 	token: string;
 	dsId: string;
+	databaseName: string;
 
 	//dispatch
 	setValuesToState: (
-		conId: any,
-		fname: any,
-		canvasTables: any,
-		schema: any,
-		relationshipsArray: any,
-		arrowsArray: any
+		conId: string,
+		fname: string,
+		// canvasTables: tableObjProps[],
+		schema: string,
+		relationshipsArray: RelationshipsProps[],
+		arrowsArray: ArrowsProps[]
 	) => void;
-	setUserTable: (pl: any) => void;
+	setServerName: (name: string) => void;
+	setDatabaseNametoState: (name: string) => void;
+	setUserTable: (payload: UserTableProps[]) => void;
+	setTempTables: (payload: tableObjProps[]) => void;
 }
 
 export interface CanvasIndividualTableProps {
@@ -44,4 +44,15 @@ export interface ActionPopoverProps {
 	anchorEl: any;
 	selectAction: (e: any) => void;
 	tableData: tableObjProps;
+}
+
+export interface Columns {
+	columnName: string;
+	dataType: string;
+}
+
+export interface ColumnsWithUid {
+	columnName: string;
+	dataType: string;
+	uid: string;
 }

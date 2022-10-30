@@ -1,4 +1,4 @@
-import { UserTableProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import { tableObjProps, UserTableProps } from "../../redux/DataSet/DatasetStateInterfacse";
 
 export interface SidebarProps {
 	//props
@@ -6,7 +6,7 @@ export interface SidebarProps {
 
 	//stateProps
 	token: string;
-	tableList: UserTableProps[] | [];
+	tableList: UserTableProps[];
 	tempTable: tableObjProps[];
 	connectionValue: string;
 	schemaValue: string;
@@ -19,18 +19,4 @@ export interface SidebarProps {
 	setConnection: (connection: string) => void;
 	setServerName: (name: string) => void;
 	setDatabaseNametoState: (name: string) => void;
-}
-
-export interface tableObjProps {
-	id: string;
-	table_uid: string;
-	tableName: string;
-	isSelected: boolean;
-	alias: string;
-	columns: any[];
-	dcId: string;
-	schema: string;
-	isNewTable: boolean;
-	tablePositionX: number;
-	tablePositionY: number;
 }

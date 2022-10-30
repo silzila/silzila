@@ -8,14 +8,13 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import {
-	// resetAllStates,
+	resetAllStates,
 	toggleDashMode,
 	toggleDashModeInTab,
 } from "../../redux/TabTile/actionsTabTile";
 import { Button, Dialog, Menu, MenuItem, Select, TextField } from "@mui/material";
 import { HomeRounded } from "@mui/icons-material";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
-// import FetchData from "../../ServerCall/FetchData";
 import { useNavigate } from "react-router-dom";
 // import { updatePlaybookUid } from "../../redux/Playbook/playbookActions";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -25,11 +24,11 @@ import LaunchRoundedIcon from "@mui/icons-material/LaunchRounded";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PrivacyTipOutlinedIcon from "@mui/icons-material/PrivacyTipOutlined";
-// import {
-// 	githubAddress,
-// 	githubIssueAddress,
-// 	websiteAddress,
-// } from "../../ServerCall/EnvironmentVariables";
+import {
+	githubAddress,
+	githubIssueAddress,
+	websiteAddress,
+} from "../ServerCall/EnvironmentVariables";
 import AboutPopover from "../CommonFunctions/PopOverComponents/AboutPopover";
 import PrivacyPopover from "../CommonFunctions/PopOverComponents/PrivacyPopover";
 import SilzilaLogo from "../../assets/silzila_crop.png";
@@ -38,10 +37,10 @@ import CSS from "csstype";
 import { MapStateProps, MenubarProps } from "./MenubarInterfaces";
 
 const MenuBar = ({
-	// // props
+	// props
 	from,
 
-	// // state
+	// state
 	// token,
 	// tabTileProps,
 	// tabState,
