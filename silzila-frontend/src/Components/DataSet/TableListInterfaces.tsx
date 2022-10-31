@@ -36,14 +36,3 @@ export interface tabObj {
 	tablePositionX: number;
 	tablePositionY: number;
 }
-
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ tableData component Props interface @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-export interface tableDataComponentProps {
-	showTableData: boolean;
-	setShowTableData: React.Dispatch<React.SetStateAction<boolean>>;
-	selectedTable: string;
-	setSelectedTable: React.Dispatch<React.SetStateAction<string>>;
-	tableData: any[];
-	setTableData: React.Dispatch<React.SetStateAction<any[]>>;
-	objKeys: any[];
-}
