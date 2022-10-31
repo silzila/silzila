@@ -22,7 +22,7 @@ import {
 	BottomBarProps,
 	relationshipServerObjProps,
 	tablesSelectedInSidebarProps,
-} from "./CanvasInterfaces";
+} from "./BottomBarInterfaces";
 
 const BottomBar = ({
 	//props
@@ -128,7 +128,7 @@ const BottomBar = ({
 			});
 
 			//console.log(relationshipServerObj);
-
+			console.log(tablesSelectedInSidebar);
 			var apiurl: string;
 
 			if (editMode) {
@@ -197,6 +197,7 @@ const BottomBar = ({
 		// prepare the tables with relations list and
 		// check if table relationships and arrows meet requirements
 		if (fname !== "") {
+			console.log(database);
 			const tablesSelectedInSidebar: tablesSelectedInSidebarProps[] = tempTable.map(
 				(el: tableObjProps) => {
 					return {
@@ -207,7 +208,7 @@ const BottomBar = ({
 						tablePositionX: el.tablePositionX,
 						tablePositionY: el.tablePositionY,
 						database: database,
-						flatFileId: null,
+						// flatFileId: null,
 					};
 				}
 			);
@@ -323,7 +324,7 @@ const mapStateToProps = (state: isLoggedProps & DataSetStateProps) => {
 		connection: state.dataSetState.connection,
 		datasetName: state.dataSetState.datasetName,
 		dsId: state.dataSetState.dsId,
-		database: state.dataSetState.datasetName,
+		database: state.dataSetState.databaseName,
 	};
 };
 

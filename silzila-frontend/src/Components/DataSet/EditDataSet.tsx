@@ -8,7 +8,6 @@ import ShortUniqueId from "short-unique-id";
 import {
 	setDatabaseNametoState,
 	setServerName,
-	setTempTables,
 	setUserTable,
 	setValuesToState,
 } from "../../redux/DataSet/datasetActions";
@@ -26,12 +25,8 @@ import {
 	UserTableProps,
 } from "../../redux/DataSet/DatasetStateInterfacse";
 import { Dispatch } from "redux";
-import {
-	CanvasIndividualTableProps,
-	Columns,
-	ColumnsWithUid,
-	EditDatasetProps,
-} from "./DatasetInterfaces";
+import { CanvasIndividualTableProps, Columns, ColumnsWithUid } from "./DatasetInterfaces";
+import { EditDatasetProps } from "./EditDataSetInterfaces";
 
 const EditDataSet = ({
 	//state
@@ -44,7 +39,6 @@ const EditDataSet = ({
 	setUserTable,
 	setDatabaseNametoState,
 	setServerName,
-	setTempTables,
 }: EditDatasetProps) => {
 	var dbName: string = "";
 	var server: string = "";
@@ -255,15 +249,15 @@ const EditDataSet = ({
 			});
 
 			// ====================================================================================
-			setTempTables(canvasTables);
-			// setValuesToState(
-			// 	res.data.connectionId,
-			// 	res.data.datasetName,
-			// 	// canvasTables,
-			// 	uniqueSchema[0],
-			// 	relationshipsArray,
-			// 	arrowsArray
-			// );
+			// setTempTables(canvasTables);
+			setValuesToState(
+				res.data.connectionId,
+				res.data.datasetName,
+				canvasTables,
+				uniqueSchema[0],
+				relationshipsArray,
+				arrowsArray
+			);
 			setDatabaseNametoState(dbName);
 			setServerName(server);
 			setloadPage(true);
@@ -323,7 +317,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		setValuesToState: (
 			conId: string,
 			fname: string,
-			// canvasTables: tableObjProps[],
+			canvasTables: tableObjProps[],
 			schema: string,
 			relationshipsArray: RelationshipsProps[],
 			arrowsArray: ArrowsProps[]
@@ -332,7 +326,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 				setValuesToState(
 					conId,
 					fname,
-					// canvasTables,
+					canvasTables,
 					schema,
 					relationshipsArray,
 					arrowsArray
@@ -341,7 +335,6 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		setServerName: (name: string) => dispatch(setServerName(name)),
 		setDatabaseNametoState: (name: string) => dispatch(setDatabaseNametoState(name)),
 		setUserTable: (payload: UserTableProps[]) => dispatch(setUserTable(payload)),
-		setTempTables: (payload: tableObjProps[]) => dispatch(setTempTables(payload)),
 	};
 };
 

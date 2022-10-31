@@ -1,4 +1,4 @@
-import { RelationObjProps } from "../../Components/DataSet/CanvasInterfaces";
+import { RelationObjProps } from "../../Components/DataSet/CanvasTablesIntefaces";
 import { ColumnsWithUid } from "../../Components/DataSet/DatasetInterfaces";
 
 export interface DatasetProps {
@@ -8,7 +8,8 @@ export interface DatasetProps {
 	tables: UserTableProps[];
 	arrows: ArrowsProps[];
 	tempTable: tableObjProps[];
-	relationships: RelationshipsProps[];
+	// relationships: RelationshipsProps[];
+	relationships: RelationObjProps[];
 	dataSetList: DatasetItem[];
 	datasetName: string;
 
@@ -41,6 +42,7 @@ export interface ArrowsProps {
 	table1_uid: string;
 	table2_uid: string;
 }
+
 //tempTable
 export interface tableObjProps {
 	id: string;
@@ -124,7 +126,7 @@ interface SetUserTable {
 // 8
 interface SetTempTables {
 	type: "SET_TEMP_TABLES";
-	payload: any;
+	payload: tableObjProps[];
 }
 // 9
 interface ToggleOnChecked {

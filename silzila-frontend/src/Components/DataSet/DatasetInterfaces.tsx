@@ -7,27 +7,6 @@ import {
 } from "../../redux/DataSet/DatasetStateInterfacse";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 
-export interface EditDatasetProps {
-	//state
-	token: string;
-	dsId: string;
-	databaseName: string;
-
-	//dispatch
-	setValuesToState: (
-		conId: string,
-		fname: string,
-		// canvasTables: tableObjProps[],
-		schema: string,
-		relationshipsArray: RelationshipsProps[],
-		arrowsArray: ArrowsProps[]
-	) => void;
-	setServerName: (name: string) => void;
-	setDatabaseNametoState: (name: string) => void;
-	setUserTable: (payload: UserTableProps[]) => void;
-	setTempTables: (payload: tableObjProps[]) => void;
-}
-
 export interface CanvasIndividualTableProps {
 	id: string;
 	database: string;
