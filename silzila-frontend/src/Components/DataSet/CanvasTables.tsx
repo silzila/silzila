@@ -31,6 +31,7 @@ import { CanvasTablesProps, RelationObjProps } from "./CanvasTablesIntefaces";
 import { newArrowObj } from "./CanvasInterfaces";
 import { ColumnsWithUid } from "./DatasetInterfaces";
 
+
 const CanvasTables = ({
 	// props
 	tableData,
@@ -82,6 +83,7 @@ const CanvasTables = ({
 
 	// TODO: need to specify type for newArrowObj after testing
 	const checkRelationExists = (newArrowObj: newArrowObj) => {
+
 		// if there are no arrows yet between these two tables, add arrow and show popup to define relationship
 		if (arrows.length === 0) {
 			newArrowObj.relationId = uid();
@@ -322,6 +324,7 @@ const CanvasTables = ({
 					</div>
 
 					{tableData.columns.map((item: ColumnsWithUid, index: number) => {
+
 						return (
 							<CanvasTableColumns
 								key={item.uid}

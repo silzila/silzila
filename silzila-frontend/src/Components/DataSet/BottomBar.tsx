@@ -128,7 +128,9 @@ const BottomBar = ({
 			});
 
 			//console.log(relationshipServerObj);
+
 			console.log(tablesSelectedInSidebar);
+
 			var apiurl: string;
 
 			if (editMode) {
@@ -208,7 +210,9 @@ const BottomBar = ({
 						tablePositionX: el.tablePositionX,
 						tablePositionY: el.tablePositionY,
 						database: database,
+
 						// flatFileId: null,
+
 					};
 				}
 			);

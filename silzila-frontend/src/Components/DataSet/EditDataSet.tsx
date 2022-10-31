@@ -8,6 +8,7 @@ import ShortUniqueId from "short-unique-id";
 import {
 	setDatabaseNametoState,
 	setServerName,
+
 	setUserTable,
 	setValuesToState,
 } from "../../redux/DataSet/datasetActions";
@@ -28,6 +29,7 @@ import { Dispatch } from "redux";
 import { CanvasIndividualTableProps, Columns, ColumnsWithUid } from "./DatasetInterfaces";
 import { EditDatasetProps } from "./EditDataSetInterfaces";
 
+
 const EditDataSet = ({
 	//state
 	token,
@@ -39,6 +41,7 @@ const EditDataSet = ({
 	setUserTable,
 	setDatabaseNametoState,
 	setServerName,
+
 }: EditDatasetProps) => {
 	var dbName: string = "";
 	var server: string = "";
@@ -258,6 +261,7 @@ const EditDataSet = ({
 				relationshipsArray,
 				arrowsArray
 			);
+
 			setDatabaseNametoState(dbName);
 			setServerName(server);
 			setloadPage(true);
@@ -318,6 +322,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			conId: string,
 			fname: string,
 			canvasTables: tableObjProps[],
+
 			schema: string,
 			relationshipsArray: RelationshipsProps[],
 			arrowsArray: ArrowsProps[]
@@ -326,7 +331,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 				setValuesToState(
 					conId,
 					fname,
-					canvasTables,
+					// canvasTables,
 					schema,
 					relationshipsArray,
 					arrowsArray
@@ -335,6 +340,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		setServerName: (name: string) => dispatch(setServerName(name)),
 		setDatabaseNametoState: (name: string) => dispatch(setDatabaseNametoState(name)),
 		setUserTable: (payload: UserTableProps[]) => dispatch(setUserTable(payload)),
+
 	};
 };
 

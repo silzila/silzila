@@ -23,6 +23,7 @@ export interface TableListProps {
 	addTable: (tabObj: any) => void;
 }
 
+
 export interface tabObj {
 	id: string;
 	table_uid: string;

@@ -1,5 +1,6 @@
 import { ArrowsProps, tableObjProps } from "../../redux/DataSet/DatasetStateInterfacse";
 
+
 export interface CanvasProps {
 	//state
 	tempTable: tableObjProps[];
@@ -30,6 +31,7 @@ export interface newArrowObj {
 	cardinality?: string;
 	end: string;
 	endColumnName: string;
+
 	endId: string;
 	endSchema: string;
 	endTableName: string;

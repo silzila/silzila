@@ -7,6 +7,7 @@ import {
 } from "../../redux/DataSet/DatasetStateInterfacse";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 
+
 export interface CanvasIndividualTableProps {
 	id: string;
 	database: string;
