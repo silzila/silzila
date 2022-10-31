@@ -180,7 +180,7 @@ const RelationshipDefiningComponent = ({
 				showHead: FindShowHead(),
 				showTail: FindShowTail(),
 			};
-			const newRelObj = {
+			const newRelObj: any = {
 				integrity: FindIntegrity(rowMatchId1, rowMatchId2),
 				cardinality: FindCardinality(rowUniqueId1, rowUniqueId2),
 				startId: newArrowObj.startId,
@@ -193,7 +193,7 @@ const RelationshipDefiningComponent = ({
 			};
 			//console.log(newArrowObj);
 			addArrows(newArrowObj);
-			// addRelationship(newRelObj);
+			addRelationship?.(newRelObj);
 			onClose();
 		} else {
 			setSeverity("error");

@@ -23,6 +23,7 @@ export interface TableListProps {
 	addTable: (tabObj: any) => void;
 }
 
+
 export interface tabObj {
 	id: string;
 	table_uid: string;
@@ -35,15 +36,4 @@ export interface tabObj {
 	isNewTable: boolean;
 	tablePositionX: number;
 	tablePositionY: number;
-}
-
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ tableData component Props interface @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-export interface tableDataComponentProps {
-	showTableData: boolean;
-	setShowTableData: React.Dispatch<React.SetStateAction<boolean>>;
-	selectedTable: string;
-	setSelectedTable: React.Dispatch<React.SetStateAction<string>>;
-	tableData: any[];
-	setTableData: React.Dispatch<React.SetStateAction<any[]>>;
-	objKeys: any[];
 }

@@ -1,3 +1,6 @@
+import { ArrowsProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import { ArrowObj } from "./CanvasInterfaces";
+
 interface CanvasTableColumnsPropsFromParent {
 	key: string;
 	dragRef: any;
@@ -8,12 +11,12 @@ interface CanvasTableColumnsPropsFromParent {
 	table_uid: string;
 	index: number;
 	schema: string;
-	checkRelationExists: (value: any) => void;
+	checkRelationExists: (value: ArrowObj | any) => void;
 	table_Id: string;
 }
 
 interface CanvasTableColumnsPropsFromState {
-	arrows: any[];
+	arrows: ArrowsProps[];
 }
 
 export type CanvasTableColumnsProps = CanvasTableColumnsPropsFromState &

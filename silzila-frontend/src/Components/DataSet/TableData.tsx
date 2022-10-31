@@ -13,7 +13,16 @@ import {
 } from "@mui/material";
 import { CloseOutlined } from "@mui/icons-material";
 import "./Dataset.css";
-import { tableDataComponentProps } from "./TableListInterfaces";
+
+export interface tableDataComponentProps {
+	showTableData: boolean;
+	setShowTableData: React.Dispatch<React.SetStateAction<boolean>>;
+	selectedTable: string;
+	setSelectedTable: React.Dispatch<React.SetStateAction<string>>;
+	tableData: any[];
+	setTableData: React.Dispatch<React.SetStateAction<any[]>>;
+	objKeys: any[];
+}
 
 function TableData({
 	showTableData,

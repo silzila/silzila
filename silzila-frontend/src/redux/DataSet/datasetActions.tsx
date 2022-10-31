@@ -1,4 +1,5 @@
-import { RelationObjProps } from "../../Components/DataSet/CanvasInterfaces";
+import { RelationObjProps } from "../../Components/DataSet/CanvasTablesIntefaces";
+
 import {
 	ArrowsProps,
 	DatasetItem,
@@ -123,7 +124,8 @@ export const setDatasetList = (datasetList: DatasetItem[]) => {
 // 8
 export const setTempTables = (tables: tableObjProps[]) => {
 	console.log(tables);
-	return { type: "SET_TEMP_TABLES", tables };
+	return { type: "SET_TEMP_TABLES", payload: tables };
+
 };
 // 23
 export const setRelationship = (payload: any) => {
@@ -133,7 +135,8 @@ export const setRelationship = (payload: any) => {
 export const setValuesToState = (
 	conId: string,
 	fname: string,
-	// canvasTables: tableObjProps[],
+	canvasTables: tableObjProps[],
+
 	schema: string,
 	relationshipsArray: RelationshipsProps[],
 	arrowsArray: ArrowsProps[]
@@ -141,10 +144,11 @@ export const setValuesToState = (
 	return (dispatch: any) => {
 		dispatch(setConnectionValue(conId));
 		dispatch(setDatasetName(fname));
-		// dispatch(setTempTables(canvasTables));
+		dispatch(setTempTables(canvasTables));
 		dispatch(setDataSchema(schema));
-		dispatch(setArrows(arrowsArray));
 		dispatch(setRelationship(relationshipsArray));
+		dispatch(setArrows(arrowsArray));
+
 	};
 };
 

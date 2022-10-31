@@ -7,8 +7,10 @@ import ConnectPointsWrapper from "./ConnectPointsWrapper";
 import { Abc, AccessTime, CalendarToday, PriorityHigh, TagTwoTone } from "@mui/icons-material";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { connect } from "react-redux";
-import { DataSetStateProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import { ArrowsProps, DataSetStateProps } from "../../redux/DataSet/DatasetStateInterfacse";
 import { CanvasTableColumnsProps } from "./CanvasTableColumnsProps";
+import "./Dataset.css";
+import { ArrowObj } from "./CanvasInterfaces";
 
 const CanvasTableColumns = ({
 	// props
@@ -34,25 +36,20 @@ const CanvasTableColumns = ({
 
 	const itemTypeIcon = (type: string) => {
 		switch (type) {
-			case "integer":
-				return (
-					<TagTwoTone
-						fontSize="medium"
-						// fontSize="15px"
-					/>
-				);
+			case "Integer":
+				return <TagTwoTone style={{ height: "15px", width: "15px" }} />;
 
-			case "text":
-				return <Abc fontSize="medium" />;
+			case "Text":
+				return <Abc style={{ height: "15px", width: "15px" }} />;
 
-			case "timestamp":
-				return <AccessTime fontSize="medium" />;
+			case "Timestamp":
+				return <AccessTime style={{ height: "15px", width: "15px" }} />;
 
-			case "date":
-				return <CalendarToday fontSize="medium" />;
+			case "Date":
+				return <CalendarToday style={{ height: "15px", width: "15px" }} />;
 
-			case "decimal":
-				return <PriorityHigh fontSize="medium" />;
+			case "Decimal":
+				return <PriorityHigh style={{ height: "15px", width: "15px" }} />;
 
 			default:
 				return null;
@@ -82,13 +79,13 @@ const CanvasTableColumns = ({
 				setupForRelation(e);
 			}
 		} else {
-			var oldRel = false;
-			arrows.map((arr: any) => {
+			var oldRel: boolean = false;
+			arrows.map((arr: ArrowsProps) => {
 				if (
 					(arr.start === e.dataTransfer.getData("connectItemId") && arr.end === itemId) ||
 					(arr.end === e.dataTransfer.getData("connectItemId") && arr.start === itemId)
 				) {
-					//console.log("RELATION BETWEEN THESE TWO COLUMNS ARE ALREADY EXIST");
+					console.log("RELATION BETWEEN THESE TWO COLUMNS ARE ALREADY EXIST");
 					oldRel = true;
 				}
 			});
@@ -110,7 +107,7 @@ const CanvasTableColumns = ({
 				setTestMessage("");
 			}, 4000);
 		} else {
-			const refs = {
+			const refs: ArrowObj = {
 				isSelected: true,
 
 				startTableName: e.dataTransfer.getData("connectTableName"),
