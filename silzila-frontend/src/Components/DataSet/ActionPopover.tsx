@@ -5,8 +5,16 @@
 
 import { Button, Popover } from "@mui/material";
 import React from "react";
+import { tableObjProps } from "../../redux/DataSet/DatasetStateInterfacse";
 import data from "../DataSet/Data.json";
-import { ActionPopoverProps } from "./DatasetInterfaces";
+
+interface ActionPopoverProps {
+	open: boolean;
+	setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+	anchorEl: any;
+	selectAction: (e: any) => void;
+	tableData: tableObjProps;
+}
 
 const ActionPopover = (props: ActionPopoverProps) => {
 	const { open, setOpen, anchorEl, selectAction, tableData } = props;

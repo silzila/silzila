@@ -27,7 +27,10 @@ import {
 	UserTableProps,
 } from "../../redux/DataSet/DatasetStateInterfacse";
 import { Dispatch } from "redux";
-import { CanvasTablesProps, newArrowObj, RelationObjProps } from "./CanvasInterfaces";
+import { CanvasTablesProps, RelationObjProps } from "./CanvasTablesIntefaces";
+import { newArrowObj } from "./CanvasInterfaces";
+import { ColumnsWithUid } from "./DatasetInterfaces";
+
 
 const CanvasTables = ({
 	// props
@@ -46,6 +49,7 @@ const CanvasTables = ({
 	actionsOnRemoveTable,
 	setTempTables,
 }: CanvasTablesProps) => {
+	console.log(tableData, "tableData");
 	//TODO not sure about ref type,need to specify type
 	const dragRef = useRef<any>();
 	const updateXarrow = useXarrow();
@@ -78,8 +82,8 @@ const CanvasTables = ({
 	// 		- Save new arrow and new relation
 
 	// TODO: need to specify type for newArrowObj after testing
-	const checkRelationExists = (newArrowObj: any) => {
-		console.log(newArrowObj);
+	const checkRelationExists = (newArrowObj: newArrowObj) => {
+
 		// if there are no arrows yet between these two tables, add arrow and show popup to define relationship
 		if (arrows.length === 0) {
 			newArrowObj.relationId = uid();
@@ -95,6 +99,8 @@ const CanvasTables = ({
 			relationships.forEach((rel: RelationshipsProps, i: number) => {
 				// check if the relationship already exist by checking
 				// if the start table and end table matches between the new arrow and existing realtionships
+
+				console.log(rel.startId, newArrowObj.startId, rel.endId, newArrowObj.endId);
 
 				if (rel.startId === newArrowObj.startId && rel.endId === newArrowObj.endId) {
 					newArrowObj.relationId = rel.relationId;
@@ -317,7 +323,8 @@ const CanvasTables = ({
 						)}
 					</div>
 
-					{tableData.columns.map((item: any, index: any) => {
+					{tableData.columns.map((item: ColumnsWithUid, index: number) => {
+
 						return (
 							<CanvasTableColumns
 								key={item.uid}

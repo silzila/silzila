@@ -1,3 +1,5 @@
+import { RelationObjProps } from "./CanvasTablesIntefaces";
+
 export interface RelationshipDefiningComponentProps {
 	// props
 	id?: string;
@@ -9,7 +11,7 @@ export interface RelationshipDefiningComponentProps {
 	setExistingArrow?: any;
 	existingArrowProp?: any;
 	setExistingArrowProp?: any;
-	addRelationship?: (relObj: any) => void;
+	addRelationship?: (relObj: RelationObjProps) => void | undefined;
 	// state
 	arrows?: any;
 
