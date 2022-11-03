@@ -308,10 +308,10 @@ props) => {
 				<div className="containerTitle">Playbooks</div>
 
 				<DatasetListPopover
-				// showCard={openPopOver}
-				// setShowCard={setOpenPopOver}
-				// setSelectedDataset={setSelectedDataset}
-				// popOverTitle="Select a Dataset to use with PlayBook"
+					showCard={openPopOver}
+					setShowCard={setOpenPopOver}
+					setSelectedDataset={setSelectedDataset}
+					popOverTitle="Select a Dataset to use with PlayBook"
 				/>
 				<input
 					className="containerButton"

@@ -15,6 +15,7 @@ import { DatasetListProps } from "./DatasetListInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import FetchData from "../ServerCall/FetchData";
 import { DatasetItem } from "../../redux/DataSet/DatasetStateInterfacse";
+import DataConnectionListPopover from "../CommonFunctions/PopOverComponents/DataConnectionListPopover";
 
 const DataSetList = ({
 	// state
@@ -34,6 +35,8 @@ const DataSetList = ({
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
 	const [severity, setSeverity] = useState<string>("success");
+
+	const [openPopOver, setOpenPopOver] = useState<boolean>(false);
 
 	useEffect(() => {
 		resetState();
@@ -107,7 +110,8 @@ const DataSetList = ({
 					type="button"
 					value="New"
 					onClick={() => {
-						navigate("/newdataset");
+						setOpenPopOver(true);
+						// navigate("/newdataset");
 					}}
 				/>
 			</div>
@@ -172,6 +176,11 @@ const DataSetList = ({
 				openAlert={openAlert}
 				severity={severity}
 				testMessage={testMessage}
+			/>
+			<DataConnectionListPopover
+				showCard={openPopOver}
+				setShowCard={setOpenPopOver}
+				popOverTitle="Select a DataConnection to use with Dataset"
 			/>
 		</div>
 	);

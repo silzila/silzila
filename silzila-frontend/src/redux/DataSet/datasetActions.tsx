@@ -2,6 +2,7 @@ import { RelationObjProps } from "../../Components/DataSet/CanvasTablesIntefaces
 
 import {
 	ArrowsProps,
+	ConnectionItem,
 	DatasetItem,
 	RelationshipsProps,
 	tableObjProps,
@@ -36,7 +37,7 @@ export const setDataSchema = (schemaName: string) => {
 };
 
 // 7
-export const setUserTable = (userTable: any[]) => {
+export const setUserTable = (userTable: UserTableProps[]) => {
 	console.log("setUserTable action called", userTable);
 	return { type: "SET_TABLES", payload: userTable };
 };
@@ -59,6 +60,10 @@ export const resetState = () => {
 // 5
 export const setDatasetName = (datasetName: string) => {
 	return { type: "SET_DATASET_NAME", payload: datasetName };
+};
+
+export const setViews = (views: any[]) => {
+	return { type: "SET_VIEWS", payload: views };
 };
 
 // =============================================================================
@@ -117,6 +122,9 @@ export const removeRelationshipFromCanvas = (payload: any) => {
 export const setDatasetList = (datasetList: DatasetItem[]) => {
 	return { type: "SET_DATASET_LIST", payload: datasetList };
 };
+export const setDataConnectionListToState = (dcList: ConnectionItem[]) => {
+	return { type: "SET_DATACONNECTION_LIST", payload: dcList };
+};
 
 // =====================================================================
 // Actions from EditDs
@@ -125,7 +133,6 @@ export const setDatasetList = (datasetList: DatasetItem[]) => {
 export const setTempTables = (tables: tableObjProps[]) => {
 	console.log(tables);
 	return { type: "SET_TEMP_TABLES", payload: tables };
-
 };
 // 23
 export const setRelationship = (payload: any) => {
@@ -148,7 +155,6 @@ export const setValuesToState = (
 		dispatch(setDataSchema(schema));
 		dispatch(setRelationship(relationshipsArray));
 		dispatch(setArrows(arrowsArray));
-
 	};
 };
 

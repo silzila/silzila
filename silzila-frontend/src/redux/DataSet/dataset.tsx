@@ -11,10 +11,12 @@ const initialState = {
 	tempTable: [],
 	relationships: [],
 	dataSetList: [],
+	dataConnectionList: [],
 	datasetName: "", //friendly_name changed into datasetName
 
 	serverName: "",
 	databaseName: "",
+	views: [],
 };
 
 const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) => {
@@ -192,12 +194,17 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 
 		case "SET_DATASET_LIST":
 			return update(state, { dataSetList: { $set: action.payload } });
+		case "SET_DATACONNECTION_LIST":
+			return update(state, { dataConnectionList: { $set: action.payload } });
 
 		case "SET_RELATIONSHIP_ARRAY":
 			return update(state, { relationships: { $set: action.payload } });
 
 		case "SET_ARROWS":
 			return update(state, { arrows: { $set: action.payload } });
+		case "SET_VIEWS":
+			// console.log(action.payload);
+			return update(state, { views: { $set: action.payload } });
 
 		default:
 			return state;

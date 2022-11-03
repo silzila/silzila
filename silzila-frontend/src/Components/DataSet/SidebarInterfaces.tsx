@@ -1,4 +1,8 @@
-import { tableObjProps, UserTableProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import {
+	ConnectionItem,
+	tableObjProps,
+	UserTableProps,
+} from "../../redux/DataSet/DatasetStateInterfacse";
 
 export interface SidebarProps {
 	//props
@@ -12,6 +16,8 @@ export interface SidebarProps {
 	schemaValue: string;
 	databaseName: string;
 	serverName: string;
+	views: any[];
+	dataConnectionList: ConnectionItem[];
 
 	//dispatchProps
 	setUserTable: (userTable: UserTableProps[]) => void;
@@ -19,4 +25,5 @@ export interface SidebarProps {
 	setConnection: (connection: string) => void;
 	setServerName: (name: string) => void;
 	setDatabaseNametoState: (name: string) => void;
+	setViews: (views: any[]) => void;
 }

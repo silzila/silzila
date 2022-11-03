@@ -15,20 +15,22 @@ import {
 	setDatabaseNametoState,
 	setDataSchema,
 	setUserTable,
+	setViews,
 } from "../../redux/DataSet/datasetActions";
 import FetchData from "../ServerCall/FetchData";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import TableList from "./TableList";
 import "../DataConnection/DataSetup.css";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
-import { ConnectionItem } from "../DataConnection/DataConnectionInterfaces";
 import { SidebarProps } from "./SidebarInterfaces";
 import {
+	ConnectionItem,
 	DataSetStateProps,
 	tableObjProps,
 	UserTableProps,
 } from "../../redux/DataSet/DatasetStateInterfacse";
 import { ChangeConnection } from "../CommonFunctions/DialogComponents";
+import { idText } from "typescript";
 
 const Sidebar = ({
 	//props
@@ -42,6 +44,8 @@ const Sidebar = ({
 	schemaValue,
 	databaseName,
 	serverName,
+	views,
+	dataConnectionList,
 
 	// dispatch
 	setConnection,
@@ -49,6 +53,7 @@ const Sidebar = ({
 	setUserTable,
 	setServerName,
 	setDatabaseNametoState,
+	setViews,
 }: SidebarProps) => {
 	const [selectedConnection, setSelectedConnection] = useState<String>("");
 	const [connectionList, setConnectionList] = useState<ConnectionItem[]>([]);
@@ -62,33 +67,35 @@ const Sidebar = ({
 
 	const [dcToResetTo, setDcToResetTo] = useState<string>("");
 
+	const [databaseList, setDatabaseList] = useState<string[]>([]);
+	const [selectedDb, setSelectedDb] = useState<string>("");
+
 	// Actions performed when dataConnection is changed
 	// If user already selected some tables from another dataset
 	// 		to display in canvas, provide a warning to reset data
 
 	const onConnectionChange = (e: string) => {
-		console.log(e);
-		if (tempTable.length > 0) {
-			setDcToResetTo(e);
-			setOpenDlg(true);
+		// console.log(e);
+		setSelectedDb(e);
+		setDatabaseNametoState(e);
+		if (serverName === "mysql") {
+			// getTables()
 		} else {
-			setSelectedConnection(e);
-			setDataSchema("");
+			console.log(e);
 			getSchemaList(e);
-			setSelectedSchema("");
 		}
 	};
 
 	useEffect(() => {
 		// If Dataset is opened in edit mode, set all required values to state
 		if (editMode) {
-			getAllDc();
+			getAllMetaDb();
 			setSelectedConnection(connectionValue);
 			setConnectionId(connectionValue);
 			getSchemaList(connectionValue);
 			setSelectedSchema(schemaValue);
 		} else {
-			getAllDc();
+			getAllMetaDb();
 		}
 	}, []);
 
@@ -103,96 +110,63 @@ const Sidebar = ({
 		}
 	}, [resetDataset]);
 
-	// Get all data connection available
-	const getAllDc = async () => {
-		// TODO:need to specify type
+	const getAllMetaDb = async () => {
+		if (serverName === "mysql") {
+			setIsSchemaAvailable(false);
+		} else {
+			setIsSchemaAvailable(true);
+		}
 		var res: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: "database-connection",
+			url: `metadata-databases/${connectionValue}`,
 			headers: { Authorization: `Bearer ${token}` },
 		});
 
 		if (res.status) {
-			console.log("database Connection List", res.data);
-			setConnectionList(res.data);
+			// console.log("database List", res.data);
+			setDatabaseList(res.data);
 		} else {
-			console.log("database connection error", res.data.detail);
+			// console.log("database List error", res.data.detail);
 		}
 	};
 
 	// Get all schemas of a particular data connection
-	const getSchemaList = async (uid: string) => {
-		const dc_uid = uid;
+	const getSchemaList = async (db: string) => {
 		if (!editMode) {
-			setConnectionId(dc_uid);
-			setConnection(dc_uid);
 			setUserTable([]);
 		}
-		// TODO: need to specify type
 		var res: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: `database-connection/${dc_uid}`,
+			url: `metadata-schemas/${connectionValue}?database=${db}`,
 			headers: { Authorization: `Bearer ${token}` },
 			token: token,
 		});
-
-		console.log(res);
 		if (res.status) {
-			if (res.data) {
-				setServerName(res.data.vendor);
-				setDatabaseNametoState(res.data.database);
-				if (res.data.vendor === "mysql") {
-					setIsSchemaAvailable(false);
-					setSchemaList([]);
-					setDataSchema("");
-					setSelectedSchema("");
-					getTables(dc_uid, res.data.vendor, res.data.database);
-				} else {
-					setIsSchemaAvailable(true);
-
-					// TODO: need to specify type
-
-					var res2: any = await FetchData({
-						requestType: "noData",
-						method: "GET",
-						url: `metadata-schemas/${dc_uid}?database=${res.data.database}`,
-						headers: { Authorization: `Bearer ${token}` },
-						token: token,
-					});
-
-					if (res2.status) {
-						setSchemaList(res2.data);
-					} else {
-						// console.log(res2.data.detail);
-					}
-				}
-			}
+			// console.log(res.data);
+			setSchemaList(res.data);
 		} else {
 			// console.log(res.data.detail);
 		}
 	};
 
 	// Fetch list of tables in a particular schema
-	// TODO: need to specify type for e
+
 	const getTables = async (e: any, vendor?: string | null, dbName?: string | null) => {
-		//when getTables is called from getschemalist e will be hold the value of connectionId else it will hold the event value
-		console.log(e);
-		console.log(vendor);
 		var url: string = "";
 		var schema: string = "";
 
-		if (vendor) {
-			schema = "";
-			url = `metadata-tables/${e}?database=${dbName}`;
+		if (serverName === "mysql") {
+			url = `metadata-tables/${e}?database=${selectedDb}`;
 		} else {
 			schema = e.target.value;
-			url = `metadata-tables/${connectionId}?database=${databaseName}&schema=${schema}`;
+			url = `metadata-tables/${connectionValue}?database=${selectedDb}&schema=${schema}`;
 		}
+
 		setSelectedSchema(schema);
 		setDataSchema(schema);
-		// TODO: need to specify type
+
 		var res: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
@@ -202,8 +176,8 @@ const Sidebar = ({
 		});
 
 		if (res.status) {
-			console.log(res.data);
-			// TODO:need to specify type for uid
+			setViews(res.data.views);
+			// console.log(res.data);
 			const uid: any = new ShortUniqueId({ length: 8 });
 			const userTable: UserTableProps[] = res.data.tables.map((el: string) => {
 				var id = "";
@@ -216,7 +190,7 @@ const Sidebar = ({
 						tbl.dcId === connectionId && tbl.schema === schema && tbl.tableName === el
 				)[0];
 
-				console.log(tableAlreadyChecked);
+				// console.log(tableAlreadyChecked);
 
 				// Checking if the selected table is new or previously added to this dataset
 				// Required as editing a dataset doesn't allow for deleting already added tables
@@ -258,9 +232,47 @@ const Sidebar = ({
 		}
 	};
 
+	const getConnectionName = (id: string) => {
+		var name: string = "";
+		dataConnectionList.map((el: ConnectionItem) => {
+			if (el.id === id) {
+				name = el.connectionName;
+			}
+		});
+		return name;
+	};
+
 	return (
-		<div className="sidebar">
-			<div>
+		<div style={{ display: "flex", flexDirection: "column" }} className="sidebar">
+			<div
+				style={{
+					fontSize: "16px",
+					textAlign: "left",
+					marginLeft: "2px",
+					color: "#666",
+					fontWeight: "bold",
+					padding: "0 1rem 0 1rem",
+				}}
+			>
+				Data Connection:
+			</div>
+			<div
+				style={{
+					fontSize: "16px",
+					float: "left",
+					textAlign: "left",
+
+					marginLeft: "2px",
+					marginTop: "5px",
+					color: "#666",
+					marginBottom: "10px",
+					padding: "0 1rem 0 1rem",
+				}}
+			>
+				{getConnectionName(connectionValue)}
+			</div>
+
+			<div style={{ padding: "0 1rem 0 1rem" }}>
 				<FormControl fullWidth size="small">
 					<InputLabel id="dcSelect">Database</InputLabel>
 					<Select
@@ -270,20 +282,13 @@ const Sidebar = ({
 						onChange={(e: any) => {
 							onConnectionChange(e.target.value);
 						}}
-						value={selectedConnection}
+						value={selectedDb}
 						label="Connection"
 					>
-						{connectionList &&
-							connectionList.map((connection: ConnectionItem, i: number) => {
+						{databaseList &&
+							databaseList.map((db: string) => {
 								return (
-									<MenuItem
-										title={
-											connection.database +
-											" ".concat("(" + connection.connectionName + ")")
-										}
-										value={connection.id}
-										key={connection.id}
-									>
+									<MenuItem value={db} key={db} title={db}>
 										<Typography
 											sx={{
 												width: "auto",
@@ -292,7 +297,7 @@ const Sidebar = ({
 												fontSize: "14px",
 											}}
 										>
-											{connection.database} ({connection.connectionName})
+											{db}
 										</Typography>
 									</MenuItem>
 								);
@@ -302,7 +307,7 @@ const Sidebar = ({
 			</div>
 
 			{isSchemaAvailable ? (
-				<div>
+				<div style={{ padding: "0 1rem 0 1rem" }}>
 					<FormControl fullWidth size="small">
 						<InputLabel id="schemaSelect">Schema</InputLabel>
 						<Select
@@ -335,34 +340,114 @@ const Sidebar = ({
 				</div>
 			) : null}
 
-			<div className="sidebarHeading">Tables</div>
-			{tableList ? (
-				tableList.map((tab: UserTableProps) => {
-					return (
-						<SelectListItem
-							key={tab.tableName}
-							// TODO: need to specify type
-							render={(xprops: any) => (
-								<div
-									className="tableListStyle"
-									onMouseOver={() => xprops.setOpen(true)}
-									onMouseLeave={() => xprops.setOpen(false)}
-								>
-									<TableList
-										key={tab.tableName}
-										className="tableListElement"
-										table={tab}
-										tableId={tab.tableName}
-										xprops={xprops}
-									/>
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					height: "70%",
+					// padding: 0,
+					margin: 0,
+				}}
+			>
+				<div
+					style={{
+						fontSize: "16px",
+						color: "#666",
+						margin: "5px 0 10px 0",
+						textAlign: "left",
+						padding: "0 1rem 0 1rem",
+					}}
+				>
+					Tables
+				</div>
+				<div
+					style={{
+						flex: 1,
+						height: "70%",
+						overflowY: "scroll",
+						overflowX: "hidden",
+						paddingLeft: "1rem",
+					}}
+				>
+					{tableList ? (
+						tableList.map((tab: UserTableProps) => {
+							return (
+								<SelectListItem
+									key={tab.tableName}
+									// TODO: need to specify type
+									render={(xprops: any) => (
+										<div
+											className="tableListStyle"
+											onMouseOver={() => xprops.setOpen(true)}
+											onMouseLeave={() => xprops.setOpen(false)}
+										>
+											<TableList
+												key={tab.tableName}
+												className="tableListElement"
+												table={tab}
+												tableId={tab.tableName}
+												xprops={xprops}
+											/>
+										</div>
+									)}
+								/>
+							);
+						})
+					) : (
+						<div
+							style={{
+								marginTop: "10px",
+								fontStyle: "italic",
+								padding: "0 1rem 0 1rem",
+							}}
+						>
+							No Tables
+						</div>
+					)}
+				</div>
+
+				<div
+					style={{
+						fontSize: "16px",
+						color: "#666",
+						margin: "5px 0 10px 0",
+						textAlign: "left",
+						padding: "0 1rem 0 1rem",
+					}}
+				>
+					Views
+				</div>
+
+				<div
+					style={{
+						flex: 1,
+						height: "10%",
+						overflowY: "auto",
+						overflowX: "hidden",
+						padding: "0 1rem 0 0",
+					}}
+				>
+					{views.length !== 0 ? (
+						views.map((view: any) => {
+							return (
+								<div>
+									<p>view</p>
 								</div>
-							)}
-						/>
-					);
-				})
-			) : (
-				<div style={{ marginTop: "10px", fontStyle: "italic" }}>No Tables</div>
-			)}
+							);
+						})
+					) : (
+						<div
+							style={{
+								marginTop: "10px",
+								fontStyle: "italic",
+								padding: "0 1rem 0 1rem",
+							}}
+						>
+							No Views
+						</div>
+					)}
+				</div>
+			</div>
 
 			<ChangeConnection
 				open={openDlg}
@@ -380,11 +465,13 @@ const mapStateToProps = (state: isLoggedProps & DataSetStateProps) => {
 	return {
 		token: state.isLogged.accessToken,
 		tableList: state.dataSetState.tables,
+		views: state.dataSetState.views,
 		databaseName: state.dataSetState.databaseName,
 		serverName: state.dataSetState.serverName,
 		tempTable: state.dataSetState.tempTable,
 		connectionValue: state.dataSetState.connection,
 		schemaValue: state.dataSetState.schema,
+		dataConnectionList: state.dataSetState.dataConnectionList,
 	};
 };
 
@@ -395,6 +482,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		setUserTable: (userTable: UserTableProps[]) => dispatch(setUserTable(userTable)),
 		setServerName: (name: string) => dispatch(setServerName(name)),
 		setDatabaseNametoState: (name: string) => dispatch(setDatabaseNametoState(name)),
+		setViews: (views: any[]) => dispatch(setViews(views)),
 	};
 };
 

@@ -1,6 +1,5 @@
 import update from "immutability-helper";
-import { ActionsOfTabState } from "./ActionTypes";
-import { StateProp } from "./TypesOfInitialStates";
+import { ActionsOfTabState, StateProp } from "./tabStateInterfaces";
 
 const initialTabState = {
 	tabs: {
@@ -29,7 +28,7 @@ const initialTabState = {
 	tabList: [1],
 };
 
-const tabStateReducer = (state:StateProp = initialTabState, action:ActionsOfTabState) => {
+const tabStateReducer = (state: StateProp = initialTabState, action: ActionsOfTabState) => {
 	switch (action.type) {
 		// ==================================================================
 		// Tab Properties
@@ -333,8 +332,7 @@ const tabStateReducer = (state:StateProp = initialTabState, action:ActionsOfTabS
 				},
 			});
 
-
-        // TODO:need to uncommand and specify type 
+		// TODO:need to uncommand and specify type
 		// case "LOAD_TAB_STATE_FROM_PLAYBOOK":
 		// 	return action.payload;
 

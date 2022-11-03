@@ -16,6 +16,20 @@ export interface DatasetProps {
 
 	databaseName: string;
 	serverName: string;
+	dataConnectionList: ConnectionItem[];
+	views: any[];
+}
+
+// individual connection item in dataconnectionList
+export interface ConnectionItem {
+	id: string;
+	userId: string;
+	vendor: string;
+	server: string;
+	port: string;
+	database: string;
+	username: string;
+	connectionName: string;
 }
 
 export interface DataSetStateProps {
@@ -72,7 +86,6 @@ export interface tableObjProps {
 	tablePositionX: number | null;
 	tablePositionY: number | null;
 }
-
 
 //relationships
 export interface RelationshipsProps {
@@ -143,7 +156,6 @@ interface SetUserTable {
 interface SetTempTables {
 	type: "SET_TEMP_TABLES";
 	payload: tableObjProps[];
-
 }
 // 9
 interface ToggleOnChecked {
@@ -226,6 +238,17 @@ interface SetArrowType {
 	payload: any;
 }
 
+interface setDataConnectionListToState {
+	type: "SET_DATACONNECTION_LIST";
+	payload: any[];
+}
+
+//26
+interface setViews {
+	type: "SET_VIEWS";
+	payload: any[];
+}
+
 export type ActionTypeOfDataSet =
 	| SetDatabaseNametoState
 	| SetServerName
@@ -250,4 +273,6 @@ export type ActionTypeOfDataSet =
 	| setDatasetList
 	| SetRelationship
 	| SetArrows
-	| SetArrowType;
+	| SetArrowType
+	| setDataConnectionListToState
+	| setViews;

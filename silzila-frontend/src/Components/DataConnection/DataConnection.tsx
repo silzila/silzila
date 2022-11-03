@@ -11,13 +11,11 @@ import { Dispatch } from "redux";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { resetAllStates } from "../../redux/TabTile/actionsTabTile";
 import FormDialog from "./FormDialog";
-import {
-	ConnectionItem,
-	DataConnectionDetails,
-	DataConnectionProps,
-} from "./DataConnectionInterfaces";
+import { DataConnectionDetails, DataConnectionProps } from "./DataConnectionInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import FetchData from "../ServerCall/FetchData";
+import { setDataConnectionListToState } from "../../redux/DataSet/datasetActions";
+import { ConnectionItem } from "../../redux/DataSet/DatasetStateInterfacse";
 
 const initialState = {
 	vendor: "",
@@ -63,7 +61,10 @@ const DataConnection = (props: DataConnectionProps) => {
 		});
 
 		if (result.status) {
+			console.log("dc");
+
 			setDataConnectionList(result.data);
+			props.setDataConnectionListToState(result.data);
 		} else {
 			// console.log("result.data.detail");
 		}
@@ -318,6 +319,8 @@ const mapStateToProps = (state: isLoggedProps) => {
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		resetAllStates: () => dispatch(resetAllStates()),
+		setDataConnectionListToState: (list: ConnectionItem[]) =>
+			dispatch(setDataConnectionListToState(list)),
 	};
 };
 export default connect(mapStateToProps, mapDispatchToProps)(DataConnection);

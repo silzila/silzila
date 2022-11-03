@@ -1,5 +1,5 @@
 import update from "immutability-helper";
-import { ActionsOfTileState } from "./ActionTypes";
+import { ActionsOfTileState, StateProp } from "./tileStateInterfaces";
 
 const initialTileState = {
 	tiles: {
@@ -12,13 +12,8 @@ const initialTileState = {
 	},
 	tileList: { 1: ["1.1"] },
 };
-// TODO: need to specify type
-type StateProp ={
-    tiles:any
-	tileList: any,
-}
 
-const tileStateReducer = (state: StateProp = initialTileState, action:ActionsOfTileState) => {
+const tileStateReducer = (state: StateProp = initialTileState, action: ActionsOfTileState) => {
 	switch (action.type) {
 		case "ADD_TILE":
 			let tileKey = `${action.payload.tabId}.${action.payload.tileId}`;
