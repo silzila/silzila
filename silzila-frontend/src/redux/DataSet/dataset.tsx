@@ -52,7 +52,7 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 		case "SET_TEMP_TABLES":
 			console.log(action.payload);
 			// return update(state, { tempTable: { $set: action } });
-			return update(state, { tempTable: { $set: [action.payload] } });
+			return update(state, { tempTable: { $set: action.payload } });
 
 		// When a table in sidebar is checked / unchecked, update state accordingly
 		case "ON_CHECKED":

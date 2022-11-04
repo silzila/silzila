@@ -331,7 +331,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 				setValuesToState(
 					conId,
 					fname,
-					// canvasTables,
+					canvasTables,
 					schema,
 					relationshipsArray,
 					arrowsArray
