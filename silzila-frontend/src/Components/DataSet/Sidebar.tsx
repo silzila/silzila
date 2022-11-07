@@ -4,7 +4,15 @@
 // 	- Select Schema
 // 	- Select tables in a schema
 
-import { FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
+import {
+	FormControl,
+	InputLabel,
+	MenuItem,
+	Select,
+	TextField,
+	Tooltip,
+	Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -28,9 +36,11 @@ import {
 	DataSetStateProps,
 	tableObjProps,
 	UserTableProps,
-} from "../../redux/DataSet/DatasetStateInterfacse";
+} from "../../redux/DataSet/DatasetStateInterfaces";
 import { ChangeConnection } from "../CommonFunctions/DialogComponents";
 import { idText } from "typescript";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 
 const Sidebar = ({
 	//props
@@ -69,35 +79,54 @@ const Sidebar = ({
 
 	const [databaseList, setDatabaseList] = useState<string[]>([]);
 	const [selectedDb, setSelectedDb] = useState<string>("");
+	const [tableExpand, setTableExpand] = useState<boolean>(true);
+	const [viewExpand, setViewExpand] = useState<boolean>(true);
+
+	const [disableDb, setDisableDb] = useState<boolean>(false);
 
 	// Actions performed when dataConnection is changed
 	// If user already selected some tables from another dataset
 	// 		to display in canvas, provide a warning to reset data
 
 	const onConnectionChange = (e: string) => {
-		// console.log(e);
+		// //console.log(e);
 		setSelectedDb(e);
 		setDatabaseNametoState(e);
 		if (serverName === "mysql") {
 			// getTables()
 		} else {
-			console.log(e);
+			//console.log(e);
 			getSchemaList(e);
 		}
 	};
 
 	useEffect(() => {
+		if (serverName === "postgresql" && tempTable.length > 0) {
+			setDisableDb(true);
+		}
 		// If Dataset is opened in edit mode, set all required values to state
 		if (editMode) {
+			//console.log(schemaValue);
 			getAllMetaDb();
+			setSelectedDb(databaseName);
+			setSelectedSchema(schemaValue);
 			setSelectedConnection(connectionValue);
 			setConnectionId(connectionValue);
-			getSchemaList(connectionValue);
-			setSelectedSchema(schemaValue);
+			// getSchemaList(connectionValue);
+			getSchemaList(databaseName);
 		} else {
 			getAllMetaDb();
 		}
 	}, []);
+
+	useEffect(() => {
+		if (serverName === "postgresql" && tempTable.length > 0) {
+			setDisableDb(true);
+		}
+		if (serverName === "postgresql" && tempTable.length === 0) {
+			setDisableDb(false);
+		}
+	}, [tempTable]);
 
 	// Reset all the values in store
 	useEffect(() => {
@@ -124,10 +153,10 @@ const Sidebar = ({
 		});
 
 		if (res.status) {
-			// console.log("database List", res.data);
+			// //console.log("database List", res.data);
 			setDatabaseList(res.data);
 		} else {
-			// console.log("database List error", res.data.detail);
+			// //console.log("database List error", res.data.detail);
 		}
 	};
 
@@ -135,7 +164,10 @@ const Sidebar = ({
 	const getSchemaList = async (db: string) => {
 		if (!editMode) {
 			setUserTable([]);
+			setViews([]);
 		}
+		//console.log(`metadata-schemas/${connectionValue}?database=${db}`);
+
 		var res: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
@@ -144,10 +176,10 @@ const Sidebar = ({
 			token: token,
 		});
 		if (res.status) {
-			// console.log(res.data);
+			// //console.log(res.data);
 			setSchemaList(res.data);
 		} else {
-			// console.log(res.data.detail);
+			// //console.log(res.data.detail);
 		}
 	};
 
@@ -176,9 +208,19 @@ const Sidebar = ({
 		});
 
 		if (res.status) {
-			setViews(res.data.views);
-			// console.log(res.data);
 			const uid: any = new ShortUniqueId({ length: 8 });
+			const viewArray = res.data.views.map((el: string) => {
+				return {
+					isView: true,
+					tableName: el,
+					isSelected: false,
+					table_uid: schema.concat(el),
+					id: uid(),
+					isNewTable: true,
+				};
+			});
+			setViews(viewArray);
+			// //console.log(res.data);
 			const userTable: UserTableProps[] = res.data.tables.map((el: string) => {
 				var id = "";
 				var bool = false;
@@ -190,7 +232,7 @@ const Sidebar = ({
 						tbl.dcId === connectionId && tbl.schema === schema && tbl.tableName === el
 				)[0];
 
-				// console.log(tableAlreadyChecked);
+				// //console.log(tableAlreadyChecked);
 
 				// Checking if the selected table is new or previously added to this dataset
 				// Required as editing a dataset doesn't allow for deleting already added tables
@@ -225,10 +267,10 @@ const Sidebar = ({
 					isNewTable: true,
 				};
 			});
-			console.log(userTable);
+			//console.log(userTable);
 			setUserTable(userTable);
 		} else {
-			// console.log(res);
+			// //console.log(res);
 		}
 	};
 
@@ -244,32 +286,26 @@ const Sidebar = ({
 
 	return (
 		<div style={{ display: "flex", flexDirection: "column" }} className="sidebar">
-			<div
-				style={{
-					fontSize: "16px",
-					textAlign: "left",
-					marginLeft: "2px",
-					color: "#666",
-					fontWeight: "bold",
-					padding: "0 1rem 0 1rem",
-				}}
-			>
-				Data Connection:
-			</div>
-			<div
-				style={{
-					fontSize: "16px",
-					float: "left",
-					textAlign: "left",
-
-					marginLeft: "2px",
-					marginTop: "5px",
-					color: "#666",
-					marginBottom: "10px",
-					padding: "0 1rem 0 1rem",
-				}}
-			>
-				{getConnectionName(connectionValue)}
+			<div style={{ padding: "0 1rem 0 1rem", margin: "15px 0px 15px 0px" }}>
+				<FormControl fullWidth size="small">
+					<TextField
+						label="DataConnection"
+						className="selectBar"
+						// InputLabelProps={{
+						// 	sx: {
+						// 		fontSize: "30px",
+						// 	},
+						// }}
+						InputProps={{
+							sx: {
+								height: "2.5rem",
+								fontSize: "13.5px",
+							},
+						}}
+						disabled={true}
+						value={getConnectionName(connectionValue)}
+					/>
+				</FormControl>
 			</div>
 
 			<div style={{ padding: "0 1rem 0 1rem" }}>
@@ -282,6 +318,7 @@ const Sidebar = ({
 						onChange={(e: any) => {
 							onConnectionChange(e.target.value);
 						}}
+						disabled={disableDb}
 						value={selectedDb}
 						label="Connection"
 					>
@@ -356,55 +393,69 @@ const Sidebar = ({
 						margin: "5px 0 10px 0",
 						textAlign: "left",
 						padding: "0 1rem 0 1rem",
+						display: "flex",
 					}}
 				>
-					Tables
+					<Typography>Tables</Typography>
+					<div>
+						{tableExpand ? (
+							<Tooltip title="Collapse">
+								<ArrowRightIcon onClick={() => setTableExpand(!tableExpand)} />
+							</Tooltip>
+						) : (
+							<Tooltip title="Expand">
+								<ArrowDropDownIcon onClick={() => setTableExpand(!tableExpand)} />
+							</Tooltip>
+						)}
+					</div>
 				</div>
-				<div
-					style={{
-						flex: 1,
-						height: "70%",
-						overflowY: "scroll",
-						overflowX: "hidden",
-						paddingLeft: "1rem",
-					}}
-				>
-					{tableList ? (
-						tableList.map((tab: UserTableProps) => {
-							return (
-								<SelectListItem
-									key={tab.tableName}
-									// TODO: need to specify type
-									render={(xprops: any) => (
-										<div
-											className="tableListStyle"
-											onMouseOver={() => xprops.setOpen(true)}
-											onMouseLeave={() => xprops.setOpen(false)}
-										>
-											<TableList
-												key={tab.tableName}
-												className="tableListElement"
-												table={tab}
-												tableId={tab.tableName}
-												xprops={xprops}
-											/>
-										</div>
-									)}
-								/>
-							);
-						})
-					) : (
-						<div
-							style={{
-								marginTop: "10px",
-								fontStyle: "italic",
-								padding: "0 1rem 0 1rem",
-							}}
-						>
-							No Tables
-						</div>
-					)}
-				</div>
+				{tableExpand ? (
+					<div
+						style={{
+							flex: 1,
+							height: "70%",
+							overflowY: "auto",
+							overflowX: "hidden",
+							paddingLeft: "1rem",
+						}}
+					>
+						{tableList ? (
+							tableList.map((tab: UserTableProps) => {
+								return (
+									<SelectListItem
+										key={tab.tableName}
+										// TODO: need to specify type
+										render={(xprops: any) => (
+											<div
+												className="tableListStyle"
+												onMouseOver={() => xprops.setOpen(true)}
+												onMouseLeave={() => xprops.setOpen(false)}
+											>
+												<TableList
+													key={tab.tableName}
+													className="tableListElement"
+													table={tab}
+													tableId={tab.tableName}
+													xprops={xprops}
+												/>
+											</div>
+										)}
+									/>
+								);
+							})
+						) : (
+							<div
+								style={{
+									marginTop: "10px",
+									fontStyle: "italic",
+									padding: "0 1rem 0 1rem",
+								}}
+							>
+								No Tables
+							</div>
+						)}
+					</div>
+				) : null}
 
 				<div
 					style={{
@@ -413,40 +464,71 @@ const Sidebar = ({
 						margin: "5px 0 10px 0",
 						textAlign: "left",
 						padding: "0 1rem 0 1rem",
+						display: "flex",
 					}}
 				>
-					Views
+					<Typography>Views</Typography>
+					<div>
+						{viewExpand ? (
+							<Tooltip title="Collapse">
+								<ArrowRightIcon onClick={() => setViewExpand(!viewExpand)} />
+							</Tooltip>
+						) : (
+							<Tooltip title="Expand">
+								<ArrowDropDownIcon onClick={() => setViewExpand(!viewExpand)} />
+							</Tooltip>
+						)}
+					</div>
 				</div>
 
-				<div
-					style={{
-						flex: 1,
-						height: "10%",
-						overflowY: "auto",
-						overflowX: "hidden",
-						padding: "0 1rem 0 0",
-					}}
-				>
-					{views.length !== 0 ? (
-						views.map((view: any) => {
-							return (
-								<div>
-									<p>view</p>
-								</div>
-							);
-						})
-					) : (
-						<div
-							style={{
-								marginTop: "10px",
-								fontStyle: "italic",
-								padding: "0 1rem 0 1rem",
-							}}
-						>
-							No Views
-						</div>
-					)}
-				</div>
+				{viewExpand ? (
+					<div
+						style={{
+							flex: 1,
+							height: "10%",
+							overflowY: "auto",
+							overflowX: "hidden",
+							paddingLeft: "1rem",
+						}}
+					>
+						{views ? (
+							views.map((tab: any) => {
+								return (
+									<SelectListItem
+										key={tab.tableName}
+										// TODO: need to specify type
+										render={(xprops: any) => (
+											<div
+												className="tableListStyle"
+												onMouseOver={() => xprops.setOpen(true)}
+												onMouseLeave={() => xprops.setOpen(false)}
+											>
+												{/* {view} */}
+												<TableList
+													key={tab.tableName}
+													className="tableListElement"
+													table={tab}
+													tableId={tab.tableName}
+													xprops={xprops}
+												/>
+											</div>
+										)}
+									/>
+								);
+							})
+						) : (
+							<div
+								style={{
+									marginTop: "10px",
+									fontStyle: "italic",
+									padding: "0 1rem 0 1rem",
+								}}
+							>
+								No Views
+							</div>
+						)}
+					</div>
+				) : null}
 			</div>
 
 			<ChangeConnection

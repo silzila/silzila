@@ -1,4 +1,4 @@
-import { tableObjProps, UserTableProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import { tableObjProps, UserTableProps } from "../../redux/DataSet/DatasetStateInterfaces";
 
 export interface TableListProps {
 	//props
@@ -15,16 +15,18 @@ export interface TableListProps {
 	schema: string;
 	databaseName: string;
 	serverName: string;
+	viewList: any[];
 
 	//dispatch
 	onChecked: (id: string | number) => void;
+	toggleOnCheckedOnView: (id: string | number) => void;
 	removeArrows: (id: string | number) => void;
 	removeRelationship: (id: string | number) => void;
 	addTable: (tabObj: any) => void;
 }
 
-
 export interface tabObj {
+	isView?: boolean;
 	id: string;
 	table_uid: string;
 	tableName: string;

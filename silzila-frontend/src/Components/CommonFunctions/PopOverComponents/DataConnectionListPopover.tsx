@@ -7,7 +7,7 @@ import { Popover } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { connect } from "react-redux";
 import "./Popover.css";
-import { ConnectionItem, DataSetStateProps } from "../../../redux/DataSet/DatasetStateInterfacse";
+import { ConnectionItem, DataSetStateProps } from "../../../redux/DataSet/DatasetStateInterfaces";
 import { Dispatch } from "redux";
 import { setConnectionValue, setServerName } from "../../../redux/DataSet/datasetActions";
 import { useNavigate } from "react-router-dom";
@@ -34,7 +34,7 @@ const DataConnectionListPopover = ({
 }: Props) => {
 	var navigate = useNavigate();
 
-	console.log(dataConnectionList);
+	//console.log(dataConnectionList);
 	return (
 		<Popover
 			open={showCard}

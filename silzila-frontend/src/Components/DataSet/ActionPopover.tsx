@@ -5,7 +5,7 @@
 
 import { Button, Popover } from "@mui/material";
 import React from "react";
-import { tableObjProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import { tableObjProps } from "../../redux/DataSet/DatasetStateInterfaces";
 import data from "../DataSet/Data.json";
 
 interface ActionPopoverProps {

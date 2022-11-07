@@ -17,7 +17,7 @@ import {
 	DataSetStateProps,
 	RelationshipsProps,
 	tableObjProps,
-} from "../../redux/DataSet/DatasetStateInterfacse";
+} from "../../redux/DataSet/DatasetStateInterfaces";
 import {
 	BottomBarProps,
 	relationshipServerObjProps,
@@ -67,7 +67,7 @@ const BottomBar = ({
 		if (tablesSelectedInSidebar.length > 1) {
 			tablesSelectedInSidebar.map((el: tablesSelectedInSidebarProps) => {
 				if (tablesWithRelation.includes(el.table)) {
-					// console.log("----");
+					// //console.log("----");
 				} else {
 					tablesWithoutRelation.push(el.table);
 				}
@@ -111,7 +111,7 @@ const BottomBar = ({
 				arrowsForRelation = arrows.filter(
 					(arr: ArrowsProps) => arr.relationId === relation.relationId
 				);
-				//console.log(arrowsForRelation);
+				////console.log(arrowsForRelation);
 				var tbl1: string[] = [];
 				var tbl2: string[] = [];
 				arrowsForRelation.forEach((arr: ArrowsProps) => {
@@ -119,17 +119,17 @@ const BottomBar = ({
 					tbl2.push(arr.endColumnName);
 				});
 
-				//console.log(tbl1, tbl2);
+				////console.log(tbl1, tbl2);
 				relationObj.table1Columns = tbl1;
 				relationObj.table2Columns = tbl2;
 
-				//console.log(relationObj);
+				////console.log(relationObj);
 				relationshipServerObj.push(relationObj);
 			});
 
-			//console.log(relationshipServerObj);
+			////console.log(relationshipServerObj);
 
-			console.log(tablesSelectedInSidebar);
+			//console.log(tablesSelectedInSidebar);
 
 			var apiurl: string;
 
@@ -156,7 +156,7 @@ const BottomBar = ({
 				},
 			});
 			if (options.status) {
-				// console.log(options.data);
+				// //console.log(options.data);
 				setSeverity("success");
 				setOpenAlert(true);
 				setTestMessage("Saved Successfully!");
@@ -166,7 +166,7 @@ const BottomBar = ({
 					navigate("/datahome");
 				}, 2000);
 			} else {
-				//console.log(options.data.detail);
+				////console.log(options.data.detail);
 				setSeverity("error");
 				setOpenAlert(true);
 				setTestMessage(options.data.detail);
@@ -199,7 +199,7 @@ const BottomBar = ({
 		// prepare the tables with relations list and
 		// check if table relationships and arrows meet requirements
 		if (fname !== "") {
-			console.log(database);
+			//console.log(database);
 			const tablesSelectedInSidebar: tablesSelectedInSidebarProps[] = tempTable.map(
 				(el: tableObjProps) => {
 					return {
@@ -212,11 +212,10 @@ const BottomBar = ({
 						database: database,
 
 						// flatFileId: null,
-
 					};
 				}
 			);
-			//console.log(tablesSelectedInSidebar);
+			////console.log(tablesSelectedInSidebar);
 			const listOfStartTableNames: string[] = [];
 			const listOfEndTableNames: string[] = [];
 			arrows.forEach((el: ArrowsProps) => {
@@ -225,7 +224,7 @@ const BottomBar = ({
 			});
 			const tablesWithRelation: string[] = [...listOfStartTableNames, ...listOfEndTableNames];
 
-			//console.log(tablesSelectedInSidebar, tablesWithRelation);
+			////console.log(tablesSelectedInSidebar, tablesWithRelation);
 			checkTableRelationShip(tablesSelectedInSidebar, tablesWithRelation);
 		} else {
 			// If dataSet name is not provided, show error

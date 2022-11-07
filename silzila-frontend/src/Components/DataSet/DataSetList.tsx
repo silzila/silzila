@@ -14,7 +14,7 @@ import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { DatasetListProps } from "./DatasetListInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import FetchData from "../ServerCall/FetchData";
-import { DatasetItem } from "../../redux/DataSet/DatasetStateInterfacse";
+import { DatasetItem } from "../../redux/DataSet/DatasetStateInterfaces";
 import DataConnectionListPopover from "../CommonFunctions/PopOverComponents/DataConnectionListPopover";
 
 const DataSetList = ({
@@ -57,7 +57,7 @@ const DataSetList = ({
 			setDataSetList(result.data);
 			setDataSetListToStore(result.data);
 		} else {
-			// console.log(result.data.detail);
+			// //console.log(result.data.detail);
 		}
 	};
 
@@ -88,7 +88,7 @@ const DataSetList = ({
 				setTestMessage("");
 			}, 2000);
 		} else {
-			// console.log(result.data.detail);
+			// //console.log(result.data.detail);
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage(result.data.detail);

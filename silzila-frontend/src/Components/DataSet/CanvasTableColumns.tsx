@@ -7,7 +7,7 @@ import ConnectPointsWrapper from "./ConnectPointsWrapper";
 import { Abc, AccessTime, CalendarToday, PriorityHigh, TagTwoTone } from "@mui/icons-material";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { connect } from "react-redux";
-import { ArrowsProps, DataSetStateProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import { ArrowsProps, DataSetStateProps } from "../../redux/DataSet/DatasetStateInterfaces";
 import { CanvasTableColumnsProps } from "./CanvasTableColumnsProps";
 import "./Dataset.css";
 import { ArrowObj } from "./CanvasInterfaces";
@@ -70,9 +70,9 @@ const CanvasTableColumns = ({
 				e.dataTransfer.getData("connectItemId") === itemId ||
 				e.dataTransfer.getData("connectTableName") === tableName
 			) {
-				//console.log("same table names");
+				////console.log("same table names");
 				if (e.dataTransfer.getData("schema") !== schema) {
-					//console.log("same table Diff schema, new rel");
+					////console.log("same table Diff schema, new rel");
 					setupForRelation(e);
 				}
 			} else {
@@ -85,7 +85,7 @@ const CanvasTableColumns = ({
 					(arr.start === e.dataTransfer.getData("connectItemId") && arr.end === itemId) ||
 					(arr.end === e.dataTransfer.getData("connectItemId") && arr.start === itemId)
 				) {
-					console.log("RELATION BETWEEN THESE TWO COLUMNS ARE ALREADY EXIST");
+					//console.log("RELATION BETWEEN THESE TWO COLUMNS ARE ALREADY EXIST");
 					oldRel = true;
 				}
 			});

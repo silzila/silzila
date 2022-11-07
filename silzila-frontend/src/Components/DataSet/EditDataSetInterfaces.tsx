@@ -3,7 +3,7 @@ import {
 	RelationshipsProps,
 	tableObjProps,
 	UserTableProps,
-} from "../../redux/DataSet/DatasetStateInterfacse";
+} from "../../redux/DataSet/DatasetStateInterfaces";
 
 export interface EditDatasetProps {
 	//state
@@ -23,4 +23,5 @@ export interface EditDatasetProps {
 	setServerName: (name: string) => void;
 	setDatabaseNametoState: (name: string) => void;
 	setUserTable: (payload: UserTableProps[]) => void;
+	setViews: (payload: any[]) => void;
 }

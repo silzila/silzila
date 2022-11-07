@@ -8,7 +8,7 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import React from "react";
 import { connect } from "react-redux";
 import "./Popover.css";
-import { ConnectionItem, DataSetStateProps } from "../../../redux/DataSet/DatasetStateInterfacse";
+import { ConnectionItem, DataSetStateProps } from "../../../redux/DataSet/DatasetStateInterfaces";
 
 interface Props {
 	popOverTitle: string;
@@ -28,6 +28,7 @@ const DatasetListPopover = ({
 	// state
 	dataSetList,
 }: Props) => {
+	//console.log(dataSetList);
 	return (
 		<Popover
 			open={showCard}
@@ -57,9 +58,9 @@ const DatasetListPopover = ({
 							<div
 								className="dataSetNameIndi"
 								onClick={() => setSelectedDataset(ds)}
-								key={ds.ds_uid}
+								key={ds.id}
 							>
-								{ds.connectionName}
+								{ds.datasetName}
 							</div>
 						);
 					})}

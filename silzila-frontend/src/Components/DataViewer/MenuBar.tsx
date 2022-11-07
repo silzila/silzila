@@ -49,7 +49,7 @@ const MenuBar = ({
 	// chartControl,
 	// playBookState,
 
-	// // dispatch
+	//dispatch
 	// toggleDashMode,
 	// toggleDashModeInTab,
 	// updatePlayBookId,
@@ -58,7 +58,7 @@ const MenuBar = ({
 }: MenubarProps) => {
 	var showSaveWarning: boolean = false;
 
-	// // Check if the current state of playbook is the same as old state or not
+	//Check if the current state of playbook is the same as old state or not
 	// if (from === "dataViewer" && playBookState.oldContent) {
 	// 	if (
 	// 		JSON.stringify(tabState) === JSON.stringify(playBookState.oldContent.tabState) &&
@@ -111,10 +111,10 @@ const MenuBar = ({
 
 	var navigate = useNavigate();
 
-	// // The below function can be called from 3 different user actions
-	// // 		1. Save playbook
-	// // 		2. Home button clicked
-	// // 		3. Logout clicked
+	//The below function can be called from 3 different user actions
+	//		1. Save playbook
+	//		2. Home button clicked
+	//		3. Logout clicked
 	// const handleSave = async () => {
 	// 	setOpenFileMenu(false);
 
@@ -134,7 +134,7 @@ const MenuBar = ({
 	// 		});
 
 	// 		if (!result.status) {
-	// 			// console.log(result.data.detail);
+	// 			// //console.log(result.data.detail);
 	// 		} else {
 	// 			setSeverity("success");
 	// 			setOpenAlert(true);
@@ -165,7 +165,7 @@ const MenuBar = ({
 	// 	}
 	// };
 
-	// // Format the data to be saved under this playbook
+	//Format the data to be saved under this playbook
 	// const formatPlayBookData = () => {
 	// 	var playBookObj = {
 	// 		name: playBookName.trim(),
@@ -186,7 +186,7 @@ const MenuBar = ({
 	var fileMenuStyle: CSS.Properties = { fontSize: "12px", padding: "2px 1rem", display: "flex" };
 	var menuIconStyle: CSS.Properties = { fontSize: "14px" };
 
-	// // Save playbook with a new name
+	//Save playbook with a new name
 	// const savePlaybook = async () => {
 	// 	if (playBookName) {
 	// 		var playBookObj = formatPlayBookData();
@@ -249,7 +249,7 @@ const MenuBar = ({
 	// 		url: "dc/close-all-dc",
 	// 		headers: { Authorization: `Bearer ${token}` },
 	// 	});
-	// 	console.log(result.data);
+	// 	//console.log(result.data);
 	// };
 
 	const LogOutMenu = () => {
@@ -468,7 +468,7 @@ const MenuBar = ({
 					<div
 						className="menuHome"
 						// onClick={() => {
-						// 	// console.log(showSaveWarning);
+						// 	// //console.log(showSaveWarning);
 						// 	if (showSaveWarning || playBookState.playBookUid === null) {
 						// 		setSaveFromHomeIcon(true);
 						// 		setSaveModal(true);

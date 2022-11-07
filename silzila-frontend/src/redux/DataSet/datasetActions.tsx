@@ -7,7 +7,7 @@ import {
 	RelationshipsProps,
 	tableObjProps,
 	UserTableProps,
-} from "./DatasetStateInterfacse";
+} from "./DatasetStateInterfaces";
 
 // =====================================
 // actions from sodebar
@@ -23,7 +23,7 @@ export const setServerName = (name: string) => {
 };
 // 3
 export const setConnectionValue = (connectionId: string) => {
-	console.log("set connection value action called");
+	//console.log("set connection value action called");
 	return { type: "SET_CONNECTION_VALUE", payload: connectionId };
 };
 
@@ -38,7 +38,7 @@ export const setDataSchema = (schemaName: string) => {
 
 // 7
 export const setUserTable = (userTable: UserTableProps[]) => {
-	console.log("setUserTable action called", userTable);
+	//console.log("setUserTable action called", userTable);
 	return { type: "SET_TABLES", payload: userTable };
 };
 // 10
@@ -131,7 +131,7 @@ export const setDataConnectionListToState = (dcList: ConnectionItem[]) => {
 // =====================================================================
 // 8
 export const setTempTables = (tables: tableObjProps[]) => {
-	console.log(tables);
+	//console.log(tables);
 	return { type: "SET_TEMP_TABLES", payload: tables };
 };
 // 23
@@ -139,6 +139,9 @@ export const setRelationship = (payload: any) => {
 	return { type: "SET_RELATIONSHIP_ARRAY", payload };
 };
 
+export const toggleOnCheckedOnView = (tableId: string | number) => {
+	return { type: "ON_CHECKED_ON_VIEW", payload: tableId };
+};
 export const setValuesToState = (
 	conId: string,
 	fname: string,
@@ -163,11 +166,16 @@ export const actionsOnRemoveTable = (
 	tables: UserTableProps[],
 	tableId: string
 ) => {
-	//console.log("REMOVE TABLE FROM CANVAS", tempTables, tables, tableId);
+	////console.log("REMOVE TABLE FROM CANVAS", tempTables, tables, tableId);
+
 	return (dispatch: any) => {
 		dispatch(setTempTables(tempTables));
-		dispatch(setUserTable(tables));
 		dispatch(removeRelationshipFromTableList(tableId));
 		dispatch(removeArrows(tableId));
+		if (tables[0]["isView"]) {
+			dispatch(setViews(tables));
+		} else {
+			dispatch(setUserTable(tables));
+		}
 	};
 };

@@ -1,4 +1,4 @@
-import { ConnectionItem } from "../../redux/DataSet/DatasetStateInterfacse";
+import { ConnectionItem } from "../../redux/DataSet/DatasetStateInterfaces";
 
 //initial state (account)
 export interface DataConnectionDetails {

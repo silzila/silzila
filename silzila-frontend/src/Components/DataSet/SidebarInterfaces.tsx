@@ -2,7 +2,7 @@ import {
 	ConnectionItem,
 	tableObjProps,
 	UserTableProps,
-} from "../../redux/DataSet/DatasetStateInterfacse";
+} from "../../redux/DataSet/DatasetStateInterfaces";
 
 export interface SidebarProps {
 	//props

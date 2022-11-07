@@ -10,6 +10,7 @@ import {
 	removeArrows,
 	removeRelationshipFromTableList,
 	toggleOnChecked,
+	toggleOnCheckedOnView,
 } from "../../redux/DataSet/datasetActions";
 import ShortUniqueId from "short-unique-id";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
@@ -17,7 +18,7 @@ import {
 	DataSetStateProps,
 	tableObjProps,
 	UserTableProps,
-} from "../../redux/DataSet/DatasetStateInterfacse";
+} from "../../redux/DataSet/DatasetStateInterfaces";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import TableData from "./TableData";
@@ -33,8 +34,7 @@ const TableList = (props: TableListProps) => {
 	const [objKeys, setObjKeys] = useState<string[]>([]);
 
 	// Get all columns for a given table
-	const getTableColumns = async (tableName: string) => {
-		// TODO: need to specify type
+	const getTableColumns = async (tableName: string, isView: boolean) => {
 		const uid: any = new ShortUniqueId({ length: 8 });
 
 		var url: string = "";
@@ -44,8 +44,6 @@ const TableList = (props: TableListProps) => {
 			url = `metadata-columns/${props.connectionId}?database=${props.databaseName}&schema=${props.schema}&table=${tableName}`;
 		}
 
-		console.log(url);
-		// TODO: need to specify type
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
@@ -54,43 +52,78 @@ const TableList = (props: TableListProps) => {
 		});
 		if (result.status) {
 			var obj: tabObj | undefined;
-			props.tableList.map((el: UserTableProps) => {
-				// While in edit mode, we check if this table has already been selected
-				// If selected, set its old parameters UID parameters,
-				if (el.tableName === tableName && el.isSelected === true) {
-					const arrayWithUid: ColumnsWithUid[] = result.data.map((data: Columns) => {
-						return {
-							uid: props.schema.concat(tableName).concat(data.columnName),
-							...data,
+			if (isView) {
+				props.viewList.map((el: any) => {
+					//console.log(el.tableName, tableName, el.isSelected);
+					// While in edit mode, we check if this table has already been selected
+					// If selected, set its old parameters UID parameters,
+					if (el.tableName === tableName && el.isSelected === true && el.isView) {
+						const arrayWithUid: ColumnsWithUid[] = result.data.map((data: Columns) => {
+							return {
+								uid: props.schema.concat(tableName).concat(data.columnName),
+								...data,
+							};
+						});
+						//console.log(arrayWithUid);
+						obj = {
+							isView: true,
+							id: el.id,
+							table_uid: el.table_uid,
+							tableName: tableName,
+							isSelected: el.isSelected,
+							alias: tableName,
+							columns: arrayWithUid,
+							dcId: props.connectionId,
+							schema: props.schema,
+							isNewTable: el.isNewTable,
+							tablePositionX: 0,
+							tablePositionY: 0,
 						};
-					});
+					}
+				});
+			} else {
+				props.tableList.map((el: UserTableProps) => {
+					// While in edit mode, we check if this table has already been selected
+					// If selected, set its old parameters UID parameters,
+					if (el.tableName === tableName && el.isSelected === true) {
+						const arrayWithUid: ColumnsWithUid[] = result.data.map((data: Columns) => {
+							return {
+								uid: props.schema.concat(tableName).concat(data.columnName),
+								...data,
+							};
+						});
 
-					obj = {
-						id: el.id,
-						table_uid: el.table_uid,
-						tableName: tableName,
-						isSelected: el.isSelected,
-						alias: tableName,
-						columns: arrayWithUid,
-						dcId: props.connectionId,
-						schema: props.schema,
-						isNewTable: el.isNewTable,
-						tablePositionX: 0,
-						tablePositionY: 0,
-					};
-				}
-			});
+						obj = {
+							id: el.id,
+							table_uid: el.table_uid,
+							tableName: tableName,
+							isSelected: el.isSelected,
+							alias: tableName,
+							columns: arrayWithUid,
+							dcId: props.connectionId,
+							schema: props.schema,
+							isNewTable: el.isNewTable,
+							tablePositionX: 0,
+							tablePositionY: 0,
+						};
+					}
+				});
+			}
 			props.addTable(obj);
 		}
 	};
 
 	// Handles when a table listed in sidebar is checked or unchecked
 	// TODO: need to specify type for e
-	const checkAndUncheck = (e: any, id: string | number) => {
-		props.onChecked(id);
+	const checkAndUncheck = (e: any, id: string | number, table: any) => {
+		if (table["isView"]) {
+			props.toggleOnCheckedOnView(id);
+		} else {
+			props.onChecked(id);
+		}
 
 		if (e.target.checked) {
-			getTableColumns(e.target.value);
+			getTableColumns(e.target.value, table["isView"]);
 		} else {
 			if (props.tempTable.length !== 0) {
 				props.tempTable.map((el: tableObjProps) => {
@@ -122,7 +155,7 @@ const TableList = (props: TableListProps) => {
 		});
 
 		if (res.status) {
-			console.log(res.data);
+			//console.log(res.data);
 			setTableData(res.data);
 			setShowTableData(true);
 			var keys: string[] = Object.keys(res.data[0]);
@@ -151,7 +184,7 @@ const TableList = (props: TableListProps) => {
 				// size="1rem"
 				disabled={props.table.isNewTable ? false : true}
 				checked={props.table.isSelected ? true : false}
-				onClick={e => checkAndUncheck(e, props.table.id)}
+				onClick={e => checkAndUncheck(e, props.table.id, props.table)}
 				value={props.table.tableName}
 			/>
 
@@ -190,12 +223,15 @@ const mapStateToProps = (state: isLoggedProps & DataSetStateProps) => {
 		schema: state.dataSetState.schema,
 		databaseName: state.dataSetState.databaseName,
 		serverName: state.dataSetState.serverName,
+		viewList: state.dataSetState.views,
 	};
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		onChecked: (tableId: string | number) => dispatch(toggleOnChecked(tableId)),
+		toggleOnCheckedOnView: (tableId: string | number) =>
+			dispatch(toggleOnCheckedOnView(tableId)),
 		addTable: (tableObj: tableObjProps) => dispatch(addTable(tableObj)),
 		removeArrows: (arrowId: string | number) => dispatch(removeArrows(arrowId)),
 		removeRelationship: (relationId: string | number) =>

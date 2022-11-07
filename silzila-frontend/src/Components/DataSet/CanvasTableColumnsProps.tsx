@@ -1,4 +1,4 @@
-import { ArrowsProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import { ArrowsProps } from "../../redux/DataSet/DatasetStateInterfaces";
 import { ArrowObj } from "./CanvasInterfaces";
 
 interface CanvasTableColumnsPropsFromParent {

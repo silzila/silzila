@@ -25,12 +25,11 @@ import {
 	RelationshipsProps,
 	tableObjProps,
 	UserTableProps,
-} from "../../redux/DataSet/DatasetStateInterfacse";
+} from "../../redux/DataSet/DatasetStateInterfaces";
 import { Dispatch } from "redux";
 import { CanvasTablesProps, RelationObjProps } from "./CanvasTablesIntefaces";
 import { newArrowObj } from "./CanvasInterfaces";
 import { ColumnsWithUid } from "./DatasetInterfaces";
-
 
 const CanvasTables = ({
 	// props
@@ -42,6 +41,7 @@ const CanvasTables = ({
 	tempTable,
 	relationships,
 	tables,
+	views,
 
 	// dispatch
 	addNewRelationship,
@@ -49,7 +49,7 @@ const CanvasTables = ({
 	actionsOnRemoveTable,
 	setTempTables,
 }: CanvasTablesProps) => {
-	console.log(tableData, "tableData");
+	//console.log(tableData, "tableData");
 	//TODO not sure about ref type,need to specify type
 	const dragRef = useRef<any>();
 	const updateXarrow = useXarrow();
@@ -70,7 +70,7 @@ const CanvasTables = ({
 	const [x, setX] = useState<number>(0);
 	const [y, setY] = useState<number>(0);
 
-	console.log(tableData);
+	//console.log(tableData);
 
 	var uid = new ShortUniqueId({ length: 8 });
 
@@ -83,7 +83,6 @@ const CanvasTables = ({
 
 	// TODO: need to specify type for newArrowObj after testing
 	const checkRelationExists = (newArrowObj: newArrowObj) => {
-
 		// if there are no arrows yet between these two tables, add arrow and show popup to define relationship
 		if (arrows.length === 0) {
 			newArrowObj.relationId = uid();
@@ -100,7 +99,7 @@ const CanvasTables = ({
 				// check if the relationship already exist by checking
 				// if the start table and end table matches between the new arrow and existing realtionships
 
-				console.log(rel.startId, newArrowObj.startId, rel.endId, newArrowObj.endId);
+				//console.log(rel.startId, newArrowObj.startId, rel.endId, newArrowObj.endId);
 
 				if (rel.startId === newArrowObj.startId && rel.endId === newArrowObj.endId) {
 					newArrowObj.relationId = rel.relationId;
@@ -110,7 +109,7 @@ const CanvasTables = ({
 					newArrowObj.showTail = rel.showTail;
 					sameRel = true;
 					sameRelObj = newArrowObj;
-					console.log(newArrowObj);
+					//console.log(newArrowObj);
 				} else if (rel.startId === newArrowObj.endId && rel.endId === newArrowObj.startId) {
 					// If it is in reverse assign the start and end table parameters in reverse
 
@@ -140,8 +139,8 @@ const CanvasTables = ({
 				}
 			});
 
-			//console.log(sameRel);
-			//console.log(sameRelInv);
+			////console.log(sameRel);
+			////console.log(sameRelInv);
 			if (sameRel) {
 				addArrows(sameRelObj);
 			}
@@ -179,7 +178,13 @@ const CanvasTables = ({
 					}
 					return tab;
 				});
-
+				const views1: any[] = [...views].map((tab: any) => {
+					if (tab.id === tableId) {
+						tab.isSelected = false;
+					}
+					return tab;
+				});
+				var table3 = tableData["isView"] ? views1 : tables1;
 				// Remove this table's info from Relationship information
 				var is_in_relationship: any = relationships.filter(
 					(obj: RelationshipsProps) => obj.startId === tableId || obj.endId === tableId
@@ -187,10 +192,10 @@ const CanvasTables = ({
 				if (is_in_relationship) {
 					var yes = window.confirm("are you sure you want to remove this table?");
 					if (yes) {
-						actionsOnRemoveTable(tempTables, tables1, tableId);
+						actionsOnRemoveTable(tempTables, table3, tableId);
 					}
 				} else {
-					actionsOnRemoveTable(tempTables, tables1, tableId);
+					actionsOnRemoveTable(tempTables, table3, tableId);
 				}
 			} else if (parseInt(e.target.id) === 2) {
 				// Rename table alias in canvas
@@ -313,6 +318,7 @@ const CanvasTables = ({
 									<MoreVertIcon
 										style={{ float: "right" }}
 										onClick={e => {
+											//console.log(tableData);
 											setTableId(tableData.id);
 											setOpen(true);
 											setAnchorEl(e.currentTarget);
@@ -324,7 +330,6 @@ const CanvasTables = ({
 					</div>
 
 					{tableData.columns.map((item: ColumnsWithUid, index: number) => {
-
 						return (
 							<CanvasTableColumns
 								key={item.uid}
@@ -376,6 +381,7 @@ const mapStateToProps = (state: DataSetStateProps, ownProps: any) => {
 		arrows: state.dataSetState.arrows,
 		relationships: state.dataSetState.relationships,
 		tables: state.dataSetState.tables,
+		views: state.dataSetState.views,
 	};
 };
 

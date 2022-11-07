@@ -1,6 +1,5 @@
-
-export const userAuthentication = (payload:{}) => {
-	console.log(payload)
+export const userAuthentication = (payload: {}) => {
+	//console.log(payload)
 	return { type: "USER_AUTHENTICATED", payload: payload };
 };
 

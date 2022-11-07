@@ -4,9 +4,8 @@ import {
 	RelationshipsProps,
 	tableObjProps,
 	UserTableProps,
-} from "../../redux/DataSet/DatasetStateInterfacse";
+} from "../../redux/DataSet/DatasetStateInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
-
 
 export interface CanvasIndividualTableProps {
 	id: string;

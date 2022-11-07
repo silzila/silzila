@@ -2,7 +2,7 @@ import {
 	ArrowsProps,
 	RelationshipsProps,
 	tableObjProps,
-} from "../../redux/DataSet/DatasetStateInterfacse";
+} from "../../redux/DataSet/DatasetStateInterfaces";
 
 export interface BottomBarProps {
 	//props
