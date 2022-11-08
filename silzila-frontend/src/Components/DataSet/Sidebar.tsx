@@ -89,9 +89,17 @@ const Sidebar = ({
 	// 		to display in canvas, provide a warning to reset data
 
 	const onConnectionChange = (e: string) => {
-		// //console.log(e);
+		//console.log(e);
 		setSelectedDb(e);
 		setDatabaseNametoState(e);
+
+		setDataSchema("");
+		setSchemaList([]);
+		setSelectedSchema("");
+
+		setUserTable([]);
+		setViews([]);
+
 		if (serverName === "mysql") {
 			// getTables()
 		} else {
@@ -209,18 +217,65 @@ const Sidebar = ({
 
 		if (res.status) {
 			const uid: any = new ShortUniqueId({ length: 8 });
-			const viewArray = res.data.views.map((el: string) => {
+			// const viewArray = res.data.views.map((el: string) => {
+			// 	return {
+			// 		schema: schema,
+			// 		database:selectedDb,
+			// 		isView: true,
+			// 		tableName: el,
+			// 		isSelected: false,
+			// 		table_uid: schema.concat(el),
+			// 		id: uid(),
+			// 		isNewTable: true,
+			// 	};
+			// });
+			// setViews(viewArray);
+			// //console.log(res.data);
+			const views = res.data.views.map((el: any) => {
+				var id = "";
+				var bool = false;
+
+				var tableAlreadyChecked = tempTable.filter(
+					tbl =>
+						tbl.dcId === connectionValue &&
+						tbl.schema === schema &&
+						tbl.tableName === el
+				)[0];
+				console.log(tableAlreadyChecked);
+				tempTable.forEach((tbl: any) => {
+					if (
+						tbl.dcId === connectionValue &&
+						tbl.schema === schema &&
+						tbl.tableName === el
+					) {
+						id = tbl.id;
+						bool = tbl.isNewTable;
+					}
+				});
+				if (tableAlreadyChecked) {
+					return {
+						schema: schema,
+						database: databaseName,
+						isView: true,
+						tableName: el,
+						isSelected: true,
+						table_uid: schema.concat(el),
+						id: id,
+						isNewTable: bool,
+					};
+				}
 				return {
+					schema: schema,
+					database: databaseName,
 					isView: true,
 					tableName: el,
 					isSelected: false,
-					table_uid: schema.concat(el),
+					table_uid: schema[0].concat(el),
 					id: uid(),
 					isNewTable: true,
 				};
 			});
-			setViews(viewArray);
-			// //console.log(res.data);
+
 			const userTable: UserTableProps[] = res.data.tables.map((el: string) => {
 				var id = "";
 				var bool = false;
@@ -229,7 +284,10 @@ const Sidebar = ({
 				// TODO: (p-1) check and mention type
 				var tableAlreadyChecked: any = tempTable.filter(
 					(tbl: tableObjProps) =>
-						tbl.dcId === connectionId && tbl.schema === schema && tbl.tableName === el
+						// tbl.dcId === connectionId && tbl.schema === schema && tbl.tableName === el
+						tbl.dcId === connectionValue &&
+						tbl.schema === schema &&
+						tbl.tableName === el
 				)[0];
 
 				// //console.log(tableAlreadyChecked);
@@ -238,7 +296,8 @@ const Sidebar = ({
 				// Required as editing a dataset doesn't allow for deleting already added tables
 				tempTable.forEach((tbl: tableObjProps) => {
 					if (
-						tbl.dcId === connectionId &&
+						// tbl.dcId === connectionId &&
+						tbl.dcId === connectionValue &&
 						tbl.schema === schema &&
 						tbl.tableName === el
 					) {
@@ -250,6 +309,8 @@ const Sidebar = ({
 				// Already selected table in canvas has an ID.
 				if (tableAlreadyChecked) {
 					return {
+						schema: schema,
+						database: databaseName,
 						tableName: el,
 						isSelected: true,
 						table_uid: schema.concat(el),
@@ -260,6 +321,8 @@ const Sidebar = ({
 
 				// New tables need to be assigned a uid
 				return {
+					schema: schema,
+					database: databaseName,
 					tableName: el,
 					isSelected: false,
 					table_uid: schema.concat(el),
@@ -269,6 +332,7 @@ const Sidebar = ({
 			});
 			//console.log(userTable);
 			setUserTable(userTable);
+			setViews(views);
 		} else {
 			// //console.log(res);
 		}

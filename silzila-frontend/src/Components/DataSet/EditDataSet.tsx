@@ -26,14 +26,13 @@ import {
 	UserTableProps,
 } from "../../redux/DataSet/DatasetStateInterfaces";
 import { Dispatch } from "redux";
-import { CanvasIndividualTableProps, Columns, ColumnsWithUid } from "./DatasetInterfaces";
-import { EditDatasetProps } from "./EditDataSetInterfaces";
+import { Columns, ColumnsWithUid } from "./DatasetInterfaces";
+import { CanvasIndividualTableProps, EditDatasetProps } from "./EditDataSetInterfaces";
 
 const EditDataSet = ({
 	//state
 	token,
 	dsId,
-	databaseName,
 
 	//dispatch
 	setValuesToState,
@@ -44,15 +43,15 @@ const EditDataSet = ({
 }: EditDatasetProps) => {
 	var dbName: string = "";
 	var server: string = "";
+
 	const [loadPage, setloadPage] = useState<boolean>(false);
 	const [editMode, seteditMode] = useState<boolean>(true);
-	const [connectionList, setConnectionList] = useState<any[]>([]);
+
 	useEffect(() => {
 		setAllInfo();
 	}, []);
 
 	const setAllInfo = async () => {
-		// TODO:need to specify type
 		var res: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
@@ -61,42 +60,43 @@ const EditDataSet = ({
 		});
 
 		if (res.status) {
-			// var getDc: any = await FetchData({
-			// 	requestType: "noData",
-			// 	method: "GET",
-			// 	url: "database-connection",
-			// 	headers: { Authorization: `Bearer ${token}` },
-			// });
-			// if (getDc.status) {
-			// 	//console.log(getDc.data);
-			// 	getDc.data.map((dc: any) => {
-			// 		if (dc.id === res.data.connectionId) {
-			// 			dbName = dc.database;
-			// 			server = dc.vendor;
-			// 		}
-			// 		console.log(dbName);
-			// 	});
-			// }
-			dbName = res.data.dataSchema.tables[0].database;
-			server = res.data.dataSchema.tables[0].schema;
-			// //console.log(res.data);
-			// const uid = new ShortUniqueId({ length: 8 });
+			var getDc: any = await FetchData({
+				requestType: "noData",
+				method: "GET",
+				url: "database-connection",
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			if (getDc.status) {
+				getDc.data.map((dc: any) => {
+					if (dc.id === res.data.connectionId) {
+						server = dc.vendor;
+					}
+				});
+			}
 
+			dbName = res.data.dataSchema.tables[0].database;
+
+			// canvasTables - tables that are droped & used in canvas for creating dataset
 			const canvasTables: tableObjProps[] = await Promise.all(
 				res.data.dataSchema.tables?.map(async (tbl: CanvasIndividualTableProps) => {
 					return {
 						table_uid: tbl.schema.concat(tbl.table),
 						tableName: tbl.table,
 						alias: tbl.alias,
-						// dcId: res.data.id,
 						dcId: res.data.connectionId,
-						schema: tbl.schema,
-						columns: await getColumns(res.data.connectionId, tbl.schema, tbl.table),
+						columns: await getColumns(
+							res.data.connectionId,
+							tbl.schema,
+							tbl.table,
+							tbl.database
+						),
 						isSelected: true,
 						id: tbl.id,
 						isNewTable: false,
 						tablePositionX: tbl.tablePositionX ? tbl.tablePositionX : null,
 						tablePositionY: tbl.tablePositionY ? tbl.tablePositionY : null,
+						schema: tbl.schema,
+						databaseName: tbl.database,
 					};
 				})
 			);
@@ -111,77 +111,86 @@ const EditDataSet = ({
 				}
 			);
 
+			// getting unique schema used in dataset
 			var uniqueSchema: string[] = Array.from(new Set(schema_list));
-			// //console.log(uniqueSchema);
 
 			let userTable: UserTableProps[] = [];
 			let views: any[] = [];
 
 			const getTables = async () => {
-				//console.log(dbName, server);
 				var url: string = "";
 				if (server === "mysql") {
 					url = `metadata-tables/${res.data.connectionId}?database=${dbName}`;
 				} else {
 					url = `metadata-tables/${res.data.connectionId}?database=${dbName}&schema=${uniqueSchema[0]}`;
 				}
-				//console.log(url);
-				// TODO: need to specify type
+
 				var res1: any = await FetchData({
 					requestType: "noData",
 					method: "GET",
 					url: url,
-					// url: `metadata-tables/${res.data.connectionId}?database=landmark&schema=${uniqueSchema[0]}`,
 					headers: { Authorization: `Bearer ${token}` },
 					token: token,
 				});
 
-				//console.log(res1);
 				if (res1.status) {
 					const uid = new ShortUniqueId({ length: 8 });
-					views = res1.data.views.map((el: any) => {
-						var id = "";
-						var tableAlreadyChecked = canvasTables.filter(
-							tbl =>
-								tbl.dcId === res.data.connectionId &&
-								tbl.schema === uniqueSchema[0] &&
-								tbl.tableName === el
-						)[0];
-						console.log(tableAlreadyChecked);
-						canvasTables.forEach((tbl: any) => {
-							if (
-								tbl.dcId === res.data.connectionId &&
-								tbl.schema === uniqueSchema[0] &&
-								tbl.tableName === el
-							) {
-								id = tbl.id;
+					if (res1.data.views.length > 0) {
+						views = res1.data.views.map((el: any) => {
+							var id = "";
+							var schema = "";
+							var databaseName = "";
+							var tableAlreadyChecked = canvasTables.filter(
+								tbl =>
+									tbl.dcId === res.data.connectionId &&
+									tbl.schema === uniqueSchema[0] &&
+									tbl.tableName === el
+							)[0];
+							console.log(tableAlreadyChecked);
+							canvasTables.forEach((tbl: any) => {
+								if (
+									tbl.dcId === res.data.connectionId &&
+									tbl.schema === uniqueSchema[0] &&
+									tbl.tableName === el
+								) {
+									id = tbl.id;
+									schema = tbl.schema;
+									databaseName = tbl.databaseName;
+								}
+							});
+							if (tableAlreadyChecked) {
+								return {
+									isView: true,
+									tableName: el,
+									isSelected: true,
+									table_uid: uniqueSchema[0].concat(el),
+									id: id,
+									isNewTable: false,
+									schema: schema,
+									database: databaseName,
+								};
 							}
-						});
-						if (tableAlreadyChecked) {
 							return {
 								isView: true,
 								tableName: el,
-								isSelected: true,
+								isSelected: false,
 								table_uid: uniqueSchema[0].concat(el),
-								id: id,
-								isNewTable: false,
+								id: uid(),
+								isNewTable: true,
+								schema: uniqueSchema[0],
+								database: dbName,
 							};
-						}
-						return {
-							isView: true,
-							tableName: el,
-							isSelected: false,
-							table_uid: uniqueSchema[0].concat(el),
-							id: uid(),
-							isNewTable: true,
-						};
-					});
+						});
+					}
 
 					userTable = res1.data.tables.map((el: any) => {
 						var id = "";
+						var schema = "";
+						var databaseName = "";
+
 						var tableAlreadyChecked1 = canvasTables.filter(
 							tbl =>
-								tbl.dcId === res.data.connectoinId &&
+								tbl.dcId === res.data.connectionId &&
 								tbl.schema === uniqueSchema[0] &&
 								tbl.tableName === el
 						)[0];
@@ -192,11 +201,15 @@ const EditDataSet = ({
 								tbl.tableName === el
 							) {
 								id = tbl.id;
+								schema = tbl.schema;
+								databaseName = tbl.databaseName;
 							}
 						});
 						console.log(tableAlreadyChecked1);
 						if (tableAlreadyChecked1) {
 							return {
+								schema: schema,
+								database: databaseName,
 								tableName: el,
 								isSelected: true,
 								table_uid: uniqueSchema[0].concat(el),
@@ -205,6 +218,8 @@ const EditDataSet = ({
 							};
 						}
 						return {
+							schema: uniqueSchema[0],
+							database: dbName,
 							tableName: el,
 							isSelected: false,
 							table_uid: uniqueSchema[0].concat(el),
@@ -212,7 +227,7 @@ const EditDataSet = ({
 							isNewTable: true,
 						};
 					});
-					// console.log(userTable, views);
+					console.log(userTable, views);
 					setUserTable(userTable);
 					setViews(views);
 				}
@@ -253,8 +268,6 @@ const EditDataSet = ({
 					relationUniqueId = uid();
 				});
 
-				// //console.log(columns_in_relationships);
-
 				arrowObj = columns_in_relationships.map((el: any) => {
 					return {
 						isSelected: false,
@@ -281,8 +294,8 @@ const EditDataSet = ({
 					};
 				});
 
-				// //console.log(arrowObj);
-				// //console.log(arrowsArray);
+				//console.log(arrowObj);
+				//console.log(arrowsArray);
 				arrowsArray.push(...arrowObj);
 
 				relObject = {
@@ -298,7 +311,6 @@ const EditDataSet = ({
 			});
 
 			// ====================================================================================
-			// setTempTables(canvasTables);
 			setValuesToState(
 				res.data.connectionId,
 				res.data.datasetName,
@@ -312,23 +324,27 @@ const EditDataSet = ({
 			setServerName(server);
 			setloadPage(true);
 		} else {
-			// //console.log(res.data.detail);
+			//console.log(res.data.detail);
 		}
 	};
 
-	const getColumns = async (connection: string, schema: string, tableName: string) => {
+	const getColumns = async (
+		connection: string,
+		schema: string,
+		tableName: string,
+		databaseName: string
+	) => {
 		//console.log(dbName, server);
 		var url: string = "";
 		if (server === "mysql") {
-			url = `metadata-columns/${connection}?database=${dbName}&table=${tableName}`;
+			url = `metadata-columns/${connection}?database=${databaseName}&table=${tableName}`;
 		} else {
-			url = `metadata-columns/${connection}?database=${dbName}&schema=${schema}&table=${tableName}`;
+			url = `metadata-columns/${connection}?database=${databaseName}&schema=${schema}&table=${tableName}`;
 		}
 		//console.log(url);
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			// url: "metadata-columns/" + connection + "?schema=" + schema + "&table=" + tableName,
 			url: url,
 			headers: { Authorization: `Bearer ${token}` },
 		});
@@ -359,7 +375,6 @@ const mapStateToProps = (state: isLoggedProps & DataSetStateProps) => {
 	return {
 		token: state.isLogged.accessToken,
 		dsId: state.dataSetState.dsId,
-		databaseName: state.dataSetState.databaseName,
 	};
 };
 

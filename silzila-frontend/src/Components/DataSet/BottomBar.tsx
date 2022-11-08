@@ -200,8 +200,9 @@ const BottomBar = ({
 		// check if table relationships and arrows meet requirements
 		if (fname !== "") {
 			//console.log(database);
-			const tablesSelectedInSidebar: tablesSelectedInSidebarProps[] = tempTable.map(
-				(el: tableObjProps) => {
+			const tablesSelectedInSidebar: any[] =
+				// tablesSelectedInSidebarProps[]
+				tempTable.map((el: tableObjProps) => {
 					return {
 						table: el.tableName,
 						schema: el.schema,
@@ -209,12 +210,11 @@ const BottomBar = ({
 						alias: el.alias,
 						tablePositionX: el.tablePositionX,
 						tablePositionY: el.tablePositionY,
-						database: database,
+						database: el.databaseName,
 
 						// flatFileId: null,
 					};
-				}
-			);
+				});
 			////console.log(tablesSelectedInSidebar);
 			const listOfStartTableNames: string[] = [];
 			const listOfEndTableNames: string[] = [];

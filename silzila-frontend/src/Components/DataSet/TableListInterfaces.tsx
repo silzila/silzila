@@ -35,6 +35,7 @@ export interface tabObj {
 	columns: any[];
 	dcId: string;
 	schema: string;
+	databaseName: string;
 	isNewTable: boolean;
 	tablePositionX: number;
 	tablePositionY: number;

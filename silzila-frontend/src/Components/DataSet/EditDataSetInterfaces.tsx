@@ -9,7 +9,6 @@ export interface EditDatasetProps {
 	//state
 	token: string;
 	dsId: string;
-	databaseName: string;
 
 	//dispatch
 	setValuesToState: (
@@ -24,4 +23,13 @@ export interface EditDatasetProps {
 	setDatabaseNametoState: (name: string) => void;
 	setUserTable: (payload: UserTableProps[]) => void;
 	setViews: (payload: any[]) => void;
+}
+export interface CanvasIndividualTableProps {
+	id: string;
+	database: string;
+	schema: string;
+	table: string;
+	alias: string;
+	tablePositionX: number;
+	tablePositionY: number;
 }

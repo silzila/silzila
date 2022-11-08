@@ -67,25 +67,11 @@ export interface tableObjProps {
 	alias: string;
 	columns: ColumnsWithUid[];
 	dcId: string;
-	schema: string;
 	isNewTable: boolean;
 	tablePositionX: number | null;
 	tablePositionY: number | null;
-}
-
-//tempTable
-export interface tableObjProps {
-	id: string;
-	table_uid: string;
-	tableName: string;
-	isSelected: boolean;
-	alias: string;
-	columns: ColumnsWithUid[];
-	dcId: string;
 	schema: string;
-	isNewTable: boolean;
-	tablePositionX: number | null;
-	tablePositionY: number | null;
+	databaseName?: string;
 }
 
 //relationships
@@ -101,6 +87,8 @@ export interface RelationshipsProps {
 
 //tables
 export interface UserTableProps {
+	schema: string;
+	databaseName: string;
 	isView?: boolean;
 	id: string;
 	isNewTable: boolean;
