@@ -30,7 +30,6 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 
 		// sets DC id to state
 		case "SET_CONNECTION_VALUE":
-			// //console.log("set connection value action called", action.payload);
 			return update(state, { connection: { $set: action.payload } });
 
 		// sets DS id to state
@@ -53,7 +52,7 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 		case "SET_TEMP_TABLES":
 			//console.log(action.payload);
 			// return update(state, { tempTable: { $set: action } });
-			return update(state, { tempTable: { $set: [...action.payload] } });
+			return update(state, { tempTable: { $set: action.payload } });
 
 		// When a table in sidebar is checked / unchecked, update state accordingly
 		case "ON_CHECKED":
@@ -202,7 +201,7 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 		case "SET_ARROWS":
 			return update(state, { arrows: { $set: action.payload } });
 		case "SET_VIEWS":
-			// //console.log(action.payload);
+			// console.log(action);
 			return update(state, { views: { $set: action.payload } });
 
 		case "ON_CHECKED_ON_VIEW":
@@ -243,8 +242,8 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 			});
 
 			return update(state, {
-				views: { $set: [...x1] },
-				tempTable: { $set: [...tempArray1] },
+				views: { $set: x1 },
+				tempTable: { $set: tempArray1 },
 			});
 
 		default:

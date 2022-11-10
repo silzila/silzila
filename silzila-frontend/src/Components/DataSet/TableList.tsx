@@ -35,6 +35,7 @@ const TableList = (props: TableListProps) => {
 
 	// Get all columns for a given table
 	const getTableColumns = async (tableName: string, isView: boolean) => {
+		console.log("get Columns from tableList");
 		const uid: any = new ShortUniqueId({ length: 8 });
 
 		var url: string = "";

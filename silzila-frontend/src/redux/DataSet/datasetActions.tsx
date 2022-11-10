@@ -63,6 +63,7 @@ export const setDatasetName = (datasetName: string) => {
 };
 
 export const setViews = (views: any[]) => {
+	// console.log(views);
 	return { type: "SET_VIEWS", payload: views };
 };
 

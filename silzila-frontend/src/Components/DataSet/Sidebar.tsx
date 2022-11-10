@@ -114,13 +114,11 @@ const Sidebar = ({
 		}
 		// If Dataset is opened in edit mode, set all required values to state
 		if (editMode) {
-			//console.log(schemaValue);
 			getAllMetaDb();
 			setSelectedDb(databaseName);
 			setSelectedSchema(schemaValue);
 			setSelectedConnection(connectionValue);
 			setConnectionId(connectionValue);
-			// getSchemaList(connectionValue);
 			getSchemaList(databaseName);
 		} else {
 			getAllMetaDb();
@@ -161,10 +159,9 @@ const Sidebar = ({
 		});
 
 		if (res.status) {
-			// //console.log("database List", res.data);
 			setDatabaseList(res.data);
 		} else {
-			// //console.log("database List error", res.data.detail);
+			console.log("database List error", res.data.detail);
 		}
 	};
 
@@ -174,7 +171,6 @@ const Sidebar = ({
 			setUserTable([]);
 			setViews([]);
 		}
-		//console.log(`metadata-schemas/${connectionValue}?database=${db}`);
 
 		var res: any = await FetchData({
 			requestType: "noData",
@@ -184,10 +180,9 @@ const Sidebar = ({
 			token: token,
 		});
 		if (res.status) {
-			// //console.log(res.data);
 			setSchemaList(res.data);
 		} else {
-			// //console.log(res.data.detail);
+			//console.log(res.data.detail);
 		}
 	};
 
@@ -216,66 +211,54 @@ const Sidebar = ({
 		});
 
 		if (res.status) {
+			var views: any = [];
 			const uid: any = new ShortUniqueId({ length: 8 });
-			// const viewArray = res.data.views.map((el: string) => {
-			// 	return {
-			// 		schema: schema,
-			// 		database:selectedDb,
-			// 		isView: true,
-			// 		tableName: el,
-			// 		isSelected: false,
-			// 		table_uid: schema.concat(el),
-			// 		id: uid(),
-			// 		isNewTable: true,
-			// 	};
-			// });
-			// setViews(viewArray);
-			// //console.log(res.data);
-			const views = res.data.views.map((el: any) => {
-				var id = "";
-				var bool = false;
+			if (res.data.views.length > 0) {
+				views = res.data.views.map((el: any) => {
+					var id = "";
+					var bool = false;
 
-				var tableAlreadyChecked = tempTable.filter(
-					tbl =>
-						tbl.dcId === connectionValue &&
-						tbl.schema === schema &&
-						tbl.tableName === el
-				)[0];
-				console.log(tableAlreadyChecked);
-				tempTable.forEach((tbl: any) => {
-					if (
-						tbl.dcId === connectionValue &&
-						tbl.schema === schema &&
-						tbl.tableName === el
-					) {
-						id = tbl.id;
-						bool = tbl.isNewTable;
+					var tableAlreadyChecked = tempTable.filter(
+						tbl =>
+							tbl.dcId === connectionValue &&
+							tbl.schema === schema &&
+							tbl.tableName === el
+					)[0];
+					console.log(tableAlreadyChecked);
+					tempTable.forEach((tbl: any) => {
+						if (
+							tbl.dcId === connectionValue &&
+							tbl.schema === schema &&
+							tbl.tableName === el
+						) {
+							id = tbl.id;
+							bool = tbl.isNewTable;
+						}
+					});
+					if (tableAlreadyChecked) {
+						return {
+							schema: schema,
+							database: databaseName,
+							isView: true,
+							tableName: el,
+							isSelected: true,
+							table_uid: schema.concat(el),
+							id: id,
+							isNewTable: bool,
+						};
 					}
-				});
-				if (tableAlreadyChecked) {
 					return {
 						schema: schema,
 						database: databaseName,
 						isView: true,
 						tableName: el,
-						isSelected: true,
-						table_uid: schema.concat(el),
-						id: id,
-						isNewTable: bool,
+						isSelected: false,
+						table_uid: schema[0].concat(el),
+						id: uid(),
+						isNewTable: true,
 					};
-				}
-				return {
-					schema: schema,
-					database: databaseName,
-					isView: true,
-					tableName: el,
-					isSelected: false,
-					table_uid: schema[0].concat(el),
-					id: uid(),
-					isNewTable: true,
-				};
-			});
-
+				});
+			}
 			const userTable: UserTableProps[] = res.data.tables.map((el: string) => {
 				var id = "";
 				var bool = false;

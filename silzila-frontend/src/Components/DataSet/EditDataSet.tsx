@@ -46,6 +46,7 @@ const EditDataSet = ({
 
 	const [loadPage, setloadPage] = useState<boolean>(false);
 	const [editMode, seteditMode] = useState<boolean>(true);
+	var count: number = 0;
 
 	useEffect(() => {
 		setAllInfo();
@@ -70,38 +71,46 @@ const EditDataSet = ({
 				getDc.data.map((dc: any) => {
 					if (dc.id === res.data.connectionId) {
 						server = dc.vendor;
+						setServerName(server);
 					}
 				});
 			}
 
 			dbName = res.data.dataSchema.tables[0].database;
 
+			console.log(res.data.dataSchema.tables);
+
 			// canvasTables - tables that are droped & used in canvas for creating dataset
 			const canvasTables: tableObjProps[] = await Promise.all(
-				res.data.dataSchema.tables?.map(async (tbl: CanvasIndividualTableProps) => {
-					return {
-						table_uid: tbl.schema.concat(tbl.table),
-						tableName: tbl.table,
-						alias: tbl.alias,
-						dcId: res.data.connectionId,
-						columns: await getColumns(
-							res.data.connectionId,
-							tbl.schema,
-							tbl.table,
-							tbl.database
-						),
-						isSelected: true,
-						id: tbl.id,
-						isNewTable: false,
-						tablePositionX: tbl.tablePositionX ? tbl.tablePositionX : null,
-						tablePositionY: tbl.tablePositionY ? tbl.tablePositionY : null,
-						schema: tbl.schema,
-						databaseName: tbl.database,
-					};
+				res.data.dataSchema.tables?.map(async (tbl: any) => {
+					console.log(tbl);
+					console.log(count);
+					count++;
+					if (tbl) {
+						return {
+							table_uid: tbl.schema.concat(tbl.table),
+							tableName: tbl.table,
+							alias: tbl.alias,
+							dcId: res.data.connectionId,
+							columns: await getColumns(
+								res.data.connectionId,
+								tbl.schema,
+								tbl.table,
+								tbl.database
+							),
+							isSelected: true,
+							id: tbl.id,
+							isNewTable: false,
+							tablePositionX: tbl.tablePositionX ? tbl.tablePositionX : null,
+							tablePositionY: tbl.tablePositionY ? tbl.tablePositionY : null,
+							schema: tbl.schema,
+							databaseName: tbl.database,
+						};
+					}
 				})
 			);
 
-			//console.log(canvasTables);
+			console.log(canvasTables);
 
 			// ======================== set tables & schema ====================================================
 
@@ -113,9 +122,6 @@ const EditDataSet = ({
 
 			// getting unique schema used in dataset
 			var uniqueSchema: string[] = Array.from(new Set(schema_list));
-
-			let userTable: UserTableProps[] = [];
-			let views: any[] = [];
 
 			const getTables = async () => {
 				var url: string = "";
@@ -134,6 +140,8 @@ const EditDataSet = ({
 				});
 
 				if (res1.status) {
+					let userTable: UserTableProps[] = [];
+					let views: any[] = [];
 					const uid = new ShortUniqueId({ length: 8 });
 					if (res1.data.views.length > 0) {
 						views = res1.data.views.map((el: any) => {
@@ -141,7 +149,7 @@ const EditDataSet = ({
 							var schema = "";
 							var databaseName = "";
 							var tableAlreadyChecked = canvasTables.filter(
-								tbl =>
+								(tbl: any) =>
 									tbl.dcId === res.data.connectionId &&
 									tbl.schema === uniqueSchema[0] &&
 									tbl.tableName === el
@@ -189,7 +197,7 @@ const EditDataSet = ({
 						var databaseName = "";
 
 						var tableAlreadyChecked1 = canvasTables.filter(
-							tbl =>
+							(tbl: any) =>
 								tbl.dcId === res.data.connectionId &&
 								tbl.schema === uniqueSchema[0] &&
 								tbl.tableName === el
@@ -205,7 +213,7 @@ const EditDataSet = ({
 								databaseName = tbl.databaseName;
 							}
 						});
-						console.log(tableAlreadyChecked1);
+						// console.log(tableAlreadyChecked1);
 						if (tableAlreadyChecked1) {
 							return {
 								schema: schema,
@@ -229,6 +237,7 @@ const EditDataSet = ({
 					});
 					console.log(userTable, views);
 					setUserTable(userTable);
+
 					setViews(views);
 				}
 			};
@@ -311,6 +320,7 @@ const EditDataSet = ({
 			});
 
 			// ====================================================================================
+			setDatabaseNametoState(dbName);
 			setValuesToState(
 				res.data.connectionId,
 				res.data.datasetName,
@@ -320,8 +330,7 @@ const EditDataSet = ({
 				arrowsArray
 			);
 
-			setDatabaseNametoState(dbName);
-			setServerName(server);
+			// setServerName(server);
 			setloadPage(true);
 		} else {
 			//console.log(res.data.detail);
@@ -334,7 +343,7 @@ const EditDataSet = ({
 		tableName: string,
 		databaseName: string
 	) => {
-		//console.log(dbName, server);
+		console.log("get Columns from editDataset");
 		var url: string = "";
 		if (server === "mysql") {
 			url = `metadata-columns/${connection}?database=${databaseName}&table=${tableName}`;
