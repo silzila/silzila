@@ -332,21 +332,26 @@ const Sidebar = ({
 	};
 
 	return (
-		<div style={{ display: "flex", flexDirection: "column" }} className="sidebar">
-			<div style={{ padding: "0 1rem 0 1rem", margin: "15px 0px 15px 0px" }}>
+		<div className="sidebar">
+			<div
+			// style={{ padding: "0 1rem 0 1rem", margin: "15px 0px 15px 0px" }}
+			>
 				<FormControl fullWidth size="small">
 					<TextField
 						label="DataConnection"
-						className="selectBar"
-						// InputLabelProps={{
-						// 	sx: {
-						// 		fontSize: "30px",
-						// 	},
-						// }}
+						InputLabelProps={{
+							sx: {
+								fontSize: "14.5px",
+							},
+						}}
 						InputProps={{
 							sx: {
 								height: "2.5rem",
 								fontSize: "13.5px",
+								borderRadius: "5px",
+								backgroundColor: "white",
+								marginBottom: "1.5rem",
+								textAlign: "left",
 							},
 						}}
 						disabled={true}
@@ -355,13 +360,12 @@ const Sidebar = ({
 				</FormControl>
 			</div>
 
-			<div style={{ padding: "0 1rem 0 1rem" }}>
+			<div>
 				<FormControl fullWidth size="small">
 					<InputLabel id="dcSelect">Database</InputLabel>
 					<Select
 						labelId="dcSelect"
 						className="selectBar"
-						// TODO:need to specify type
 						onChange={(e: any) => {
 							onConnectionChange(e.target.value);
 						}}
@@ -391,14 +395,13 @@ const Sidebar = ({
 			</div>
 
 			{isSchemaAvailable ? (
-				<div style={{ padding: "0 1rem 0 1rem" }}>
+				<div>
 					<FormControl fullWidth size="small">
 						<InputLabel id="schemaSelect">Schema</InputLabel>
 						<Select
 							labelId="schemaSelect"
 							className="selectBar"
 							label="Schema"
-							// TODO: need to specify type
 							onChange={(e: any) => getTables(e, null, null)}
 							value={selectedSchema}
 						>
@@ -427,156 +430,128 @@ const Sidebar = ({
 			<div
 				style={{
 					display: "flex",
-					flexDirection: "column",
-					height: "70%",
-					// padding: 0,
-					margin: 0,
+					borderRadius: "5px",
+					marginBottom: "0.5rem",
+					textAlign: "left",
 				}}
 			>
-				<div
-					style={{
-						fontSize: "16px",
-						color: "#666",
-						margin: "5px 0 10px 0",
-						textAlign: "left",
-						padding: "0 1rem 0 1rem",
-						display: "flex",
-					}}
-				>
-					<Typography>Tables</Typography>
-					<div>
-						{tableExpand ? (
-							<Tooltip title="Collapse">
-								<ArrowRightIcon onClick={() => setTableExpand(!tableExpand)} />
-							</Tooltip>
-						) : (
-							<Tooltip title="Expand">
-								<ArrowDropDownIcon onClick={() => setTableExpand(!tableExpand)} />
-							</Tooltip>
-						)}
-					</div>
+				<Typography>Tables</Typography>
+				<div>
+					{tableExpand ? (
+						<Tooltip title="Collapse">
+							<ArrowDropDownIcon onClick={() => setTableExpand(!tableExpand)} />
+						</Tooltip>
+					) : (
+						<Tooltip title="Expand">
+							<ArrowRightIcon onClick={() => setTableExpand(!tableExpand)} />
+						</Tooltip>
+					)}
 				</div>
-				{tableExpand ? (
-					<div
-						style={{
-							flex: 1,
-							height: "70%",
-							overflowY: "auto",
-							overflowX: "hidden",
-							paddingLeft: "1rem",
-						}}
-					>
-						{tableList ? (
-							tableList.map((tab: UserTableProps) => {
-								return (
-									<SelectListItem
-										key={tab.tableName}
-										// TODO: need to specify type
-										render={(xprops: any) => (
-											<div
-												className="tableListStyle"
-												onMouseOver={() => xprops.setOpen(true)}
-												onMouseLeave={() => xprops.setOpen(false)}
-											>
-												<TableList
-													key={tab.tableName}
-													className="tableListElement"
-													table={tab}
-													tableId={tab.tableName}
-													xprops={xprops}
-												/>
-											</div>
-										)}
-									/>
-								);
-							})
-						) : (
-							<div
-								style={{
-									marginTop: "10px",
-									fontStyle: "italic",
-									padding: "0 1rem 0 1rem",
-								}}
-							>
-								No Tables
-							</div>
-						)}
-					</div>
-				) : null}
-
-				<div
-					style={{
-						fontSize: "16px",
-						color: "#666",
-						margin: "5px 0 10px 0",
-						textAlign: "left",
-						padding: "0 1rem 0 1rem",
-						display: "flex",
-					}}
-				>
-					<Typography>Views</Typography>
-					<div>
-						{viewExpand ? (
-							<Tooltip title="Collapse">
-								<ArrowRightIcon onClick={() => setViewExpand(!viewExpand)} />
-							</Tooltip>
-						) : (
-							<Tooltip title="Expand">
-								<ArrowDropDownIcon onClick={() => setViewExpand(!viewExpand)} />
-							</Tooltip>
-						)}
-					</div>
-				</div>
-
-				{viewExpand ? (
-					<div
-						style={{
-							flex: 1,
-							height: "10%",
-							overflowY: "auto",
-							overflowX: "hidden",
-							paddingLeft: "1rem",
-						}}
-					>
-						{views ? (
-							views.map((tab: any) => {
-								return (
-									<SelectListItem
-										key={tab.tableName}
-										// TODO: need to specify type
-										render={(xprops: any) => (
-											<div
-												className="tableListStyle"
-												onMouseOver={() => xprops.setOpen(true)}
-												onMouseLeave={() => xprops.setOpen(false)}
-											>
-												{/* {view} */}
-												<TableList
-													key={tab.tableName}
-													className="tableListElement"
-													table={tab}
-													tableId={tab.tableName}
-													xprops={xprops}
-												/>
-											</div>
-										)}
-									/>
-								);
-							})
-						) : (
-							<div
-								style={{
-									marginTop: "10px",
-									fontStyle: "italic",
-									padding: "0 1rem 0 1rem",
-								}}
-							>
-								No Views
-							</div>
-						)}
-					</div>
-				) : null}
 			</div>
+			{tableExpand ? (
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						borderRadius: "5px",
+						marginBottom: "1rem",
+						textAlign: "left",
+						maxHeight: "330px",
+						overflowY: "auto",
+						overflowX: "hidden",
+					}}
+				>
+					{tableList ? (
+						tableList.map((tab: UserTableProps) => {
+							return (
+								<SelectListItem
+									key={tab.tableName}
+									render={(xprops: any) => (
+										<div
+											className="tableListStyle"
+											onMouseOver={() => xprops.setOpen(true)}
+											onMouseLeave={() => xprops.setOpen(false)}
+										>
+											<TableList
+												key={tab.tableName}
+												className="tableListElement"
+												table={tab}
+												tableId={tab.tableName}
+												xprops={xprops}
+											/>
+										</div>
+									)}
+								/>
+							);
+						})
+					) : (
+						<div>No Tables</div>
+					)}
+				</div>
+			) : null}
+
+			<div
+				style={{
+					display: "flex",
+					borderRadius: "5px",
+					marginBottom: "0.5rem",
+					textAlign: "left",
+					maxHeight: "330px",
+					overflowY: "auto",
+				}}
+			>
+				<Typography>Views</Typography>
+				<div>
+					{viewExpand ? (
+						<Tooltip title="Collapse">
+							<ArrowDropDownIcon onClick={() => setViewExpand(!viewExpand)} />
+						</Tooltip>
+					) : (
+						<Tooltip title="Expand">
+							<ArrowRightIcon onClick={() => setViewExpand(!viewExpand)} />
+						</Tooltip>
+					)}
+				</div>
+			</div>
+
+			{viewExpand ? (
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						borderRadius: "5px",
+						marginBottom: "1rem",
+						textAlign: "left",
+					}}
+				>
+					{views ? (
+						views.map((tab: any) => {
+							return (
+								<SelectListItem
+									key={tab.tableName}
+									render={(xprops: any) => (
+										<div
+											className="tableListStyle"
+											onMouseOver={() => xprops.setOpen(true)}
+											onMouseLeave={() => xprops.setOpen(false)}
+										>
+											<TableList
+												key={tab.tableName}
+												className="tableListElement"
+												table={tab}
+												tableId={tab.tableName}
+												xprops={xprops}
+											/>
+										</div>
+									)}
+								/>
+							);
+						})
+					) : (
+						<div>No Views</div>
+					)}
+				</div>
+			) : null}
 
 			<ChangeConnection
 				open={openDlg}

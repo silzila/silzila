@@ -1,4 +1,4 @@
-interface Tiles {
+export interface TilesProps {
 	[key: number]: {
 		tabId: number;
 		tileId: number;
@@ -6,15 +6,17 @@ interface Tiles {
 		graphSizeFull: boolean;
 	};
 }
-interface TileList {
+export interface TileListProps {
 	[key: number]: string[];
 }
 
-export interface StateProp {
-	// tiles: Tiles;
-	// tileList: TileList;
-	tiles: any;
-	tileList: any;
+export interface TileStateProps {
+	tiles: TilesProps;
+	tileList: TileListProps;
+}
+
+export interface TileStateProps2 {
+	tileState: TileStateProps;
 }
 
 interface AddTile {

@@ -1,5 +1,5 @@
 import update from "immutability-helper";
-import { ActionsOfTabTileProps, StateProps } from "./tabTilePropsInterfaces";
+import { ActionsOfTabTileProps, TabTileStateProps } from "./tabTilePropsInterfaces";
 
 const initialProperties = {
 	selectedTabName: "Tab - 1",
@@ -27,7 +27,7 @@ const initialProperties = {
 };
 
 const tabTilePropsReducer = (
-	state: StateProps = initialProperties,
+	state: TabTileStateProps = initialProperties,
 	action: ActionsOfTabTileProps
 ) => {
 	switch (action.type) {

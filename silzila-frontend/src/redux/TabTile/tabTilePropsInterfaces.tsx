@@ -1,4 +1,4 @@
-export interface StateProps {
+export interface TabTileStateProps {
 	selectedTabName: string;
 	selectedTabId: number;
 	nextTabId: number;
@@ -13,17 +13,18 @@ export interface StateProps {
 	chartPropUpdated: boolean;
 	showDash: boolean;
 	dashMode: string;
-	// TODO:need to specify type
 	dashGridSize: any;
-	// dashGridSize: { x: null, y: null },
 
 	columnsOnlyDisplay: boolean;
 	showDataViewerBottom: boolean;
 	selectedControlMenu: string;
 
-	// TODO:need to specify type
 	selectedDataSetList: any[];
 	tablesForSelectedDataSets: {};
+}
+
+export interface TabTileStateProps2 {
+	tabTileProps: TabTileStateProps;
 }
 interface UpdateNextTabId {
 	type: "UPDATE_NEXT_TAB_ID";

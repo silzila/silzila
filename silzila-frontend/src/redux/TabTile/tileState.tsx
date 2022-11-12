@@ -1,5 +1,5 @@
 import update from "immutability-helper";
-import { ActionsOfTileState, StateProp } from "./tileStateInterfaces";
+import { ActionsOfTileState, TilesProps, TileStateProps } from "./tileStateInterfaces";
 
 const initialTileState = {
 	tiles: {
@@ -13,7 +13,7 @@ const initialTileState = {
 	tileList: { 1: ["1.1"] },
 };
 
-const tileStateReducer = (state: StateProp = initialTileState, action: ActionsOfTileState) => {
+const tileStateReducer = (state: TileStateProps = initialTileState, action: ActionsOfTileState) => {
 	switch (action.type) {
 		case "ADD_TILE":
 			let tileKey = `${action.payload.tabId}.${action.payload.tileId}`;
@@ -52,31 +52,31 @@ const tileStateReducer = (state: StateProp = initialTileState, action: ActionsOf
 			};
 
 		case "REMOVE_TILES_OF_TAB":
-			let tilesToRemove = state.tileList[action.payload.tabId];
-			return update(state, {
-				tiles: { $unset: tilesToRemove },
-				tileList: { $unset: [action.payload.tabId] },
-			});
+		// let tilesToRemove: number = state.tileList[action.payload.tabId];
+		// return update(state, {
+		// 	tiles: { $unset: tilesToRemove },
+		// 	tileList: { $unset: [action.payload.tabId] },
+		// });
 
 		case "RENAME_TILE":
-			let tileKey2 = `${action.payload.tabId}.${action.payload.tileId}`;
-			return update(state, {
-				tiles: { [tileKey2]: { tileName: { $set: action.payload.renameValue } } },
-			});
+		// let tileKey2 = `${action.payload.tabId}.${action.payload.tileId}`;
+		// return update(state, {
+		// 	tiles: { [tileKey2]: { tileName: { $set: action.payload.renameValue } } },
+		// });
 
 		case "REMOVE_TILE":
-			let tileKey4 = `${action.payload.tabId}.${action.payload.tileId}`;
-			return update(state, {
-				tiles: { $unset: [tileKey4] },
-				tileList: { [action.payload.tabId]: { $splice: [[action.payload.tileIndex, 1]] } },
-			});
+		// let tileKey4: number = `${action.payload.tabId}.${action.payload.tileId}`;
+		// return update(state, {
+		// 	tiles: { $unset: [tileKey4] },
+		// 	tileList: { [action.payload.tabId]: { $splice: [[action.payload.tileIndex, 1]] } },
+		// });
 
 		case "TOGGLE_GRAPH_SIZE":
-			return update(state, {
-				tiles: {
-					[action.payload.tileKey]: { graphSizeFull: { $set: action.payload.graphSize } },
-				},
-			});
+		// return update(state, {
+		// 	// tiles: {
+		// 	// 	[action.payload.tileKey]: { graphSizeFull: { $set: action.payload.graphSize } },
+		// 	// },
+		// });
 
 		// case "LOAD_TILE_STATE_FROM_PLAYBOOK":
 		// 	return action.payload;

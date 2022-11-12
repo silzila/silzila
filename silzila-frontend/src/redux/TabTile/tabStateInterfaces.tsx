@@ -21,9 +21,13 @@ export interface Tabs {
 		dashTilesDetails: Object;
 	};
 }
-export interface StateProp {
+export interface TabStateProps {
 	tabs: Tabs;
 	tabList: number[];
+}
+
+export interface TabStateProps2 {
+	tabState: TabStateProps;
 }
 
 interface AddingTab {
@@ -89,7 +93,6 @@ interface ActionsWithTabIdAndValueofNumber {
 	payload: { tabId: number; value: number };
 }
 
-//
 interface SetDashLayout {
 	type: "SET_DASHLAYOUT";
 	payload: { tabId: number; value: string };

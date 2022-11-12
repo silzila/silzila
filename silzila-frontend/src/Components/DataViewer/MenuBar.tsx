@@ -16,7 +16,7 @@ import { Button, Dialog, Menu, MenuItem, Select, TextField } from "@mui/material
 import { HomeRounded } from "@mui/icons-material";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { useNavigate } from "react-router-dom";
-// import { updatePlaybookUid } from "../../redux/Playbook/playbookActions";
+import { updatePlaybookUid } from "../../redux/PlayBook/PlayBookActions";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CloseRounded from "@mui/icons-material/CloseRounded";
 import { resetUser } from "../../redux/UserInfo/isLoggedActions";
@@ -36,44 +36,47 @@ import { Dispatch } from "redux";
 import CSS from "csstype";
 import { MapStateProps, MenubarProps } from "./MenubarInterfaces";
 
+import FetchData from "../ServerCall/FetchData";
+import "./dataViewer.css";
+
 const MenuBar = ({
 	// props
 	from,
 
 	// state
-	// token,
-	// tabTileProps,
-	// tabState,
-	// tileState,
-	// chartProperty,
-	// chartControl,
-	// playBookState,
+	token,
+	tabTileProps,
+	tabState,
+	tileState,
+	playBookState,
+	chartProperty,
+	chartControl,
 
 	//dispatch
 	// toggleDashMode,
 	// toggleDashModeInTab,
-	// updatePlayBookId,
+	updatePlayBookId,
 	// resetAllStates,
 	resetUser,
 }: MenubarProps) => {
 	var showSaveWarning: boolean = false;
 
-	//Check if the current state of playbook is the same as old state or not
-	// if (from === "dataViewer" && playBookState.oldContent) {
-	// 	if (
-	// 		JSON.stringify(tabState) === JSON.stringify(playBookState.oldContent.tabState) &&
-	// 		JSON.stringify(tileState) === JSON.stringify(playBookState.oldContent.tileState) &&
-	// 		JSON.stringify(tabTileProps) ===
-	// 			JSON.stringify(playBookState.oldContent.tabTileProps) &&
-	// 		JSON.stringify(chartProperty) ===
-	// 			JSON.stringify(playBookState.oldContent.chartProperty) &&
-	// 		JSON.stringify(chartControl) === JSON.stringify(playBookState.oldContent.chartControl)
-	// 	) {
-	// 		showSaveWarning = false;
-	// 	} else {
-	// 		showSaveWarning = true;
-	// 	}
-	// }
+	// Check if the current state of playbook is the same as old state or not
+	if (from === "dataViewer" && playBookState.oldContent) {
+		if (
+			JSON.stringify(tabState) === JSON.stringify(playBookState.oldContent.tabState) &&
+			JSON.stringify(tileState) === JSON.stringify(playBookState.oldContent.tileState) &&
+			JSON.stringify(tabTileProps) ===
+				JSON.stringify(playBookState.oldContent.tabTileProps) &&
+			JSON.stringify(chartProperty) ===
+				JSON.stringify(playBookState.oldContent.chartProperty) &&
+			JSON.stringify(chartControl) === JSON.stringify(playBookState.oldContent.chartControl)
+		) {
+			showSaveWarning = false;
+		} else {
+			showSaveWarning = true;
+		}
+	}
 
 	const menuStyle: CSS.Properties = { fontSize: "12px", padding: "2px 8px", margin: 0 };
 
@@ -97,8 +100,10 @@ const MenuBar = ({
 
 	// Save dataset modal Open / Close , playbook name and description
 	const [saveModal, setSaveModal] = useState<boolean>(false);
-	// const [playBookName, setPlayBookName] = useState(playBookState.playBookName);
-	// const [playBookDescription, setPlayBookDescription] = useState(playBookState.description);
+	const [playBookName, setPlayBookName] = useState<string>(playBookState.playBookName);
+	const [playBookDescription, setPlayBookDescription] = useState<string>(
+		playBookState.description
+	);
 
 	// Success / Failure alert modal
 	const [severity, setSeverity] = useState<string>("success");
@@ -115,132 +120,133 @@ const MenuBar = ({
 	//		1. Save playbook
 	//		2. Home button clicked
 	//		3. Logout clicked
-	// const handleSave = async () => {
-	// 	setOpenFileMenu(false);
+	const handleSave = async () => {
+		setOpenFileMenu(false);
 
-	// 	// check if this playbook already has a name / id
-	// 	// 		if Yes, save in the same name
-	// 	// 		if No, open modal to save in a new name
-	// 	if (playBookState.playBookUid !== null) {
-	// 		setSaveModal(false);
-	// 		var playBookObj = formatPlayBookData();
-	// 		/*	PRS	11/JUN/2022	Removed extra '/'	*/
-	// 		var result = await FetchData({
-	// 			requestType: "withData",
-	// 			method: "PUT",
-	// 			url: `pb/update-pb/${playBookState.playBookUid}`,
-	// 			data: playBookObj,
-	// 			headers: { Authorization: `Bearer ${token}` },
-	// 		});
+		// check if this playbook already has a name / id
+		// 		if Yes, save in the same name
+		// 		if No, open modal to save in a new name
+		if (playBookState.playBookUid !== null) {
+			setSaveModal(false);
+			var playBookObj = formatPlayBookData();
+			/*	PRS	11/JUN/2022	Removed extra '/'	*/
+			var result: any = await FetchData({
+				requestType: "withData",
+				method: "PUT",
+				url: `playbook/${playBookState.playBookUid}`,
+				data: playBookObj,
+				headers: { Authorization: `Bearer ${token}` },
+			});
 
-	// 		if (!result.status) {
-	// 			// //console.log(result.data.detail);
-	// 		} else {
-	// 			setSeverity("success");
-	// 			setOpenAlert(true);
-	// 			setTestMessage("Successfully saved playbook");
+			if (!result.status) {
+				//console.log(result.data.detail);
+			} else {
+				setSeverity("success");
+				setOpenAlert(true);
+				setTestMessage("Successfully saved playbook");
 
-	// 			updatePlayBookId({
-	// 				name: result.data.name,
-	// 				pb_uid: result.data.pb_uid,
-	// 				description: result.data.description,
-	// 				oldContent: result.data.content,
-	// 			});
+				updatePlayBookId(
+					result.data.name,
+					result.data.pb_uid,
+					result.data.description,
+					result.data.content
+				);
 
-	// 			setTimeout(() => {
-	// 				setOpenAlert(false);
-	// 				if (saveFromHomeIcon) {
-	// 					navigate("/datahome");
-	// 					resetAllStates();
-	// 				}
+				setTimeout(() => {
+					setOpenAlert(false);
+					if (saveFromHomeIcon) {
+						navigate("/datahome");
+						resetAllStates();
+					}
 
-	// 				if (saveFromLogoutIcon) {
-	// 					resetUser();
-	// 					navigate("/login");
-	// 				}
-	// 			}, 2000);
-	// 		}
-	// 	} else {
-	// 		setSaveModal(true);
-	// 	}
-	// };
+					if (saveFromLogoutIcon) {
+						resetUser();
+						navigate("/login");
+					}
+				}, 2000);
+			}
+		} else {
+			setSaveModal(true);
+		}
+	};
 
 	//Format the data to be saved under this playbook
-	// const formatPlayBookData = () => {
-	// 	var playBookObj = {
-	// 		name: playBookName.trim(),
-	// 		content: {
-	// 			tabState,
-	// 			tileState,
-	// 			tabTileProps,
-	// 			chartProperty,
-	// 			chartControl,
-	// 		},
-	// 	};
+	const formatPlayBookData = () => {
+		var playBookObj = {
+			name: playBookName.trim(),
+			description: "",
+			content: {
+				tabState,
+				tileState,
+				tabTileProps,
+				chartProperty,
+				chartControl,
+			},
+		};
 
-	// 	if (playBookDescription) playBookObj.description = playBookDescription;
+		if (playBookDescription) playBookObj.description = playBookDescription;
 
-	// 	return playBookObj;
-	// };
+		return playBookObj;
+	};
 
 	var fileMenuStyle: CSS.Properties = { fontSize: "12px", padding: "2px 1rem", display: "flex" };
 	var menuIconStyle: CSS.Properties = { fontSize: "14px" };
 
-	//Save playbook with a new name
-	// const savePlaybook = async () => {
-	// 	if (playBookName) {
-	// 		var playBookObj = formatPlayBookData();
+	// Save playbook with a new name
+	const savePlaybook = async () => {
+		if (playBookName) {
+			var playBookObj = formatPlayBookData();
 
-	// 		var result = await FetchData({
-	// 			requestType: "withData",
-	// 			method: "POST",
-	// 			url: "pb/create-pb",
-	// 			data: playBookObj,
-	// 			headers: { Authorization: `Bearer ${token}` },
-	// 		});
+			var result: any = await FetchData({
+				requestType: "withData",
+				method: "POST",
+				url: "playbook/",
+				data: playBookObj,
+				headers: { Authorization: `Bearer ${token}` },
+			});
 
-	// 		if (result.status) {
-	// 			updatePlayBookId({
-	// 				name: result.data.name,
-	// 				pb_uid: result.data.pb_uid,
-	// 				description: result.data.description,
-	// 				oldContent: result.data.content,
-	// 			});
+			if (result.status) {
+				updatePlayBookId(
+					result.data.name,
+					result.data.pb_uid,
+					result.data.description,
+					result.data.content
+				);
 
-	// 			setSaveModal(false);
+				setSaveModal(false);
 
-	// 			setSeverity("success");
-	// 			setOpenAlert(true);
-	// 			setTestMessage("Successfully saved playbook");
-	// 			setTimeout(() => {
-	// 				if (saveFromHomeIcon) {
-	// 					navigate("/datahome");
-	// 					resetAllStates();
-	// 				}
-	// 				if (saveFromLogoutIcon) {
-	// 					navigate("/login");
-	// 					resetUser();
-	// 				}
-	// 				setOpenAlert(false);
-	// 			}, 2000);
-	// 		} else {
-	// 			setSeverity("error");
-	// 			setOpenAlert(true);
-	// 			setTestMessage(result.data.detail);
-	// 			setTimeout(() => {
-	// 				setOpenAlert(false);
-	// 			}, 2000);
-	// 		}
-	// 	} else {
-	// 		setSeverity("error");
-	// 		setOpenAlert(true);
-	// 		setTestMessage("Provide a Playbook name");
+				setSeverity("success");
+				setOpenAlert(true);
+				setTestMessage("Successfully saved playbook");
+				setTimeout(() => {
+					if (saveFromHomeIcon) {
+						navigate("/datahome");
+						resetAllStates();
+					}
+					if (saveFromLogoutIcon) {
+						navigate("/login");
+						resetUser();
+					}
+					setOpenAlert(false);
+				}, 2000);
+			} else {
+				setSeverity("error");
+				setOpenAlert(true);
+				setTestMessage(result.data.detail);
+				setTimeout(() => {
+					setOpenAlert(false);
+				}, 2000);
+			}
+		} else {
+			setSeverity("error");
+			setOpenAlert(true);
+			setTestMessage("Provide a Playbook name");
 
-	// 		setTimeout(() => {
-	// 			setOpenAlert(false);
-	// 		}, 2000);
-	// 	}
-	// };
+			setTimeout(() => {
+				setOpenAlert(false);
+			}, 2000);
+		}
+	};
 
 	// const closeDc = async () => {
 	// 	var result = await FetchData({
@@ -266,34 +272,34 @@ const MenuBar = ({
 					vertical: "top",
 					horizontal: "left",
 				}}
-				// onClose={() => {
-				// 	setAnchorEl(null);
-				// 	setLogoutModal(false);
-				// }}
+				onClose={() => {
+					setAnchorEl(null);
+					setLogoutModal(false);
+				}}
 			>
 				<MenuItem
 					sx={fileMenuStyle}
-					// onClick={() => {
-					// 	if (from === "dataViewer") {
-					// 		if (showSaveWarning || playBookState.playBookUid === null) {
-					// 			setSaveFromLogoutIcon(true);
-					// 			setSaveModal(true);
-					// 			//closeDc();
-					// 		} else {
-					// 			//closeDc();
+					onClick={() => {
+						if (from === "dataViewer") {
+							if (showSaveWarning || playBookState.playBookUid === null) {
+								setSaveFromLogoutIcon(true);
+								setSaveModal(true);
+								//closeDc();
+							} else {
+								//closeDc();
 
-					// 			resetUser();
-					// 			navigate("/login");
-					// 		}
-					// 	}
+								resetUser();
+								navigate("/login");
+							}
+						}
 
-					// 	if (from === "dataHome" || from === "dataSet") {
-					// 		//closeDc();
+						if (from === "dataHome" || from === "dataSet") {
+							//closeDc();
 
-					// 		resetUser();
-					// 		navigate("/login");
-					// 	}
-					// }}
+							resetUser();
+							navigate("/login");
+						}
+					}}
 				>
 					Logout
 				</MenuItem>
@@ -315,27 +321,27 @@ const MenuBar = ({
 					vertical: "top",
 					horizontal: "left",
 				}}
-				// onClose={() => {
-				// 	setAnchorEl(null);
-				// 	setOpenFileMenu(false);
-				// }}
+				onClose={() => {
+					setAnchorEl(null);
+					setOpenFileMenu(false);
+				}}
 			>
 				<MenuItem
 					sx={fileMenuStyle}
-					// onClick={() => {
-					// 	setSaveFromHomeIcon(false);
-					// 	handleSave();
-					// }}
+					onClick={() => {
+						setSaveFromHomeIcon(false);
+						handleSave();
+					}}
 				>
 					Save PlayBook
 				</MenuItem>
 				<MenuItem
 					sx={fileMenuStyle}
-					// onClick={() => {
-					// 	setOpenFileMenu(false);
-					// 	setSaveModal(true);
-					// 	playBookState.playBookUid = null; /*	PRS	11/JUN/2022	*/
-					// }}
+					onClick={() => {
+						setOpenFileMenu(false);
+						setSaveModal(true);
+						playBookState.playBookUid = null; /*	PRS	11/JUN/2022	*/
+					}}
 				>
 					Save Playbook As
 				</MenuItem>
@@ -357,37 +363,37 @@ const MenuBar = ({
 					vertical: "top",
 					horizontal: "left",
 				}}
-				// onClose={() => {
-				// 	setHelpAnchorEl(null);
-				// 	setOpenHelpMenu(false);
-				// }}
+				onClose={() => {
+					setHelpAnchorEl(null);
+					setOpenHelpMenu(false);
+				}}
 			>
 				<MenuItem
 					sx={fileMenuStyle}
-					// onClick={() => {
-					// 	window.open(websiteAddress, "_blank");
-					// 	setOpenHelpMenu(false);
-					// }}
+					onClick={() => {
+						window.open(websiteAddress, "_blank");
+						setOpenHelpMenu(false);
+					}}
 				>
 					<span style={{ flex: 1, marginRight: "1rem" }}>Visit Silzila</span>
 					<LaunchRoundedIcon sx={menuIconStyle} />
 				</MenuItem>
 				<MenuItem
 					sx={fileMenuStyle}
-					// onClick={() => {
-					// 	window.open(githubAddress, "_blank");
-					// 	setOpenHelpMenu(false);
-					// }}
+					onClick={() => {
+						window.open(githubAddress, "_blank");
+						setOpenHelpMenu(false);
+					}}
 				>
 					<span style={{ flex: 1, marginRight: "1rem" }}>View Github</span>
 					<LaunchRoundedIcon sx={menuIconStyle} />
 				</MenuItem>
 				<MenuItem
 					sx={fileMenuStyle}
-					// onClick={() => {
-					// 	window.open(githubIssueAddress, "_blank");
-					// 	setOpenHelpMenu(false);
-					// }}
+					onClick={() => {
+						window.open(githubIssueAddress, "_blank");
+						setOpenHelpMenu(false);
+					}}
 				>
 					<span style={{ flex: 1, marginRight: "1rem" }}>Report Bug</span>
 					<LaunchRoundedIcon sx={menuIconStyle} />
@@ -467,35 +473,35 @@ const MenuBar = ({
 				<>
 					<div
 						className="menuHome"
-						// onClick={() => {
-						// 	// //console.log(showSaveWarning);
-						// 	if (showSaveWarning || playBookState.playBookUid === null) {
-						// 		setSaveFromHomeIcon(true);
-						// 		setSaveModal(true);
-						// 	} else {
-						// 		resetAllStates();
-						// 		navigate("/dataHome");
-						// 	}
-						// }}
+						onClick={() => {
+							// //console.log(showSaveWarning);
+							if (showSaveWarning || playBookState.playBookUid === null) {
+								setSaveFromHomeIcon(true);
+								setSaveModal(true);
+							} else {
+								resetAllStates();
+								navigate("/dataHome");
+							}
+						}}
 					>
 						<HomeRounded sx={{ color: "#666" }} />
 					</div>
 					<div className="menuItemsGroup">
 						<div
 							className="menuItem"
-							// onClick={e => {
-							// 	setOpenFileMenu(!openFileMenu);
-							// 	setAnchorEl(e.currentTarget);
-							// }}
+							onClick={e => {
+								setOpenFileMenu(!openFileMenu);
+								setAnchorEl(e.currentTarget);
+							}}
 						>
 							File
 						</div>
 						<div
 							className="menuItem"
-							// onClick={e => {
-							// 	setOpenHelpMenu(!openHelpMenu);
-							// 	setHelpAnchorEl(e.currentTarget);
-							// }}
+							onClick={e => {
+								setOpenHelpMenu(!openHelpMenu);
+								setHelpAnchorEl(e.currentTarget);
+							}}
 						>
 							Help
 						</div>
@@ -503,15 +509,15 @@ const MenuBar = ({
 
 					<div
 						className="playbookName"
-						// title={`Playbook Name: ${playBookState.playBookName}\n${
-						// 	playBookState.description !== null ? playBookState.description : ""
-						// }`}
+						title={`Playbook Name: ${playBookState.playBookName}\n${
+							playBookState.description !== null ? playBookState.description : ""
+						}`}
 					>
-						{/* {playBookState.playBookName} */}
+						{playBookState.playBookName}
 					</div>
 
 					<div className="userInfo">
-						{/* {tabState.tabs[tabTileProps.selectedTabId].showDash ||
+						{tabState.tabs[tabTileProps.selectedTabId].showDash ||
 						tabTileProps.showDash ? (
 							<Select
 								size="small"
@@ -521,11 +527,11 @@ const MenuBar = ({
 									width: "6rem",
 									margin: "auto 0.5rem",
 								}}
-								// value={tabTileProps.dashMode}
-								// onChange={(e) => {
-								// 	toggleDashMode(e.target.value);
-								// 	toggleDashModeInTab(tabTileProps.selectedTabId, e.target.value);
-								// }}
+								value={tabTileProps.dashMode}
+								onChange={e => {
+									toggleDashMode(e.target.value);
+									toggleDashModeInTab(tabTileProps.selectedTabId, e.target.value);
+								}}
 							>
 								<MenuItem sx={menuStyle} value="Edit">
 									Edit
@@ -534,17 +540,17 @@ const MenuBar = ({
 									Present
 								</MenuItem>
 							</Select>
-						) : null} */}
+						) : null}
 					</div>
 				</>
 			) : null}
 			{from === "dataViewer" ? <div style={{ width: "3rem" }}>&nbsp;</div> : null}
 			<div
 				className="menuHome"
-				// onClick={(e) => {
-				// 	setLogoutAnchor(e.currentTarget);
-				// 	setLogoutModal(!logoutModal);
-				// }}
+				onClick={e => {
+					setLogoutAnchor(e.currentTarget);
+					setLogoutModal(!logoutModal);
+				}}
 			>
 				<AccountCircleIcon sx={{ padding: "auto 1rem", color: "#666" }} />
 			</div>
@@ -583,7 +589,7 @@ const MenuBar = ({
 						</div>
 						<p></p>
 
-						{/* {(saveFromHomeIcon || saveFromLogoutIcon) &&
+						{(saveFromHomeIcon || saveFromLogoutIcon) &&
 						playBookState.playBookUid !== null ? null : (
 							<div style={{ padding: "0 50px" }}>
 								<TextField
@@ -592,8 +598,8 @@ const MenuBar = ({
 									fullWidth
 									label="Playbook Name"
 									variant="outlined"
-									onChange={(e) => setPlayBookName(e.target.value)}
-									onKeyDown={(e) => {
+									onChange={e => setPlayBookName(e.target.value)}
+									onKeyDown={e => {
 										if (e.key === "Enter") {
 											savePlaybook();
 										}
@@ -606,15 +612,15 @@ const MenuBar = ({
 									label="Description"
 									size="small"
 									fullWidth
-									onChange={(e) => setPlayBookDescription(e.target.value)}
-									onKeyDown={(e) => {
+									onChange={e => setPlayBookDescription(e.target.value)}
+									onKeyDown={e => {
 										if (e.key === "Enter") {
 											savePlaybook();
 										}
 									}}
 								/>
 							</div>
-						)} */}
+						)}
 					</div>
 					<div
 						style={{ padding: "15px", justifyContent: "space-around", display: "flex" }}
@@ -648,20 +654,20 @@ const MenuBar = ({
 						<Button
 							style={{ backgroundColor: "rgb(0,123,255)" }}
 							variant="contained"
-							// onClick={() => {
-							// 	if (saveFromLogoutIcon) setLogoutModal(false);
-							// 	// When save button is clicked after a prompt from Home icon or logout action,
-							// 	// 	call handleSave function, which uses the old pb_uid to save the state
-							// 	// 	Else call savePlaybook function which will create a new playbook
+							onClick={() => {
+								if (saveFromLogoutIcon) setLogoutModal(false);
+								// When save button is clicked after a prompt from Home icon or logout action,
+								// 	call handleSave function, which uses the old pb_uid to save the state
+								// 	Else call savePlaybook function which will create a new playbook
 
-							// 	if (playBookState.playBookUid !== null) {
-							// 		handleSave();
-							// 		// closeDc();
-							// 	} else {
-							// 		savePlaybook();
-							// 		// close
-							// 	}
-							// }}
+								if (playBookState.playBookUid !== null) {
+									handleSave();
+									// closeDc();
+								} else {
+									savePlaybook();
+									// close
+								}
+							}}
 						>
 							Save
 						</Button>
@@ -677,20 +683,20 @@ const MenuBar = ({
 					setTestMessage("");
 				}}
 			/>
-			render Menu
+			{/* render Menu */}
 		</div>
 	);
 };
 
 const mapStateToProps = (state: MapStateProps, ownProps: any) => {
 	return {
-		// playBookState: state.playBookState,
+		playBookState: state.playBookState,
 		token: state.isLogged.accessToken,
-		// tabTileProps: state.tabTileProps,
-		// tabState: state.tabState,
-		// tileState: state.tileState,
-		// chartProperty: state.chartProperties,
-		// chartControl: state.chartControls,
+		tabTileProps: state.tabTileProps,
+		tabState: state.tabState,
+		tileState: state.tileState,
+		chartProperty: state.chartProperties,
+		chartControl: state.chartControls,
 	};
 };
 
@@ -699,7 +705,12 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		toggleDashMode: (dashMode: string) => dispatch(toggleDashMode(dashMode)),
 		toggleDashModeInTab: (tabId: number, dashMode: string) =>
 			dispatch(toggleDashModeInTab(tabId, dashMode)),
-		// 	updatePlayBookId: (pbUid) => dispatch(updatePlaybookUid(pbUid)),
+		updatePlayBookId: (
+			playBookName: string,
+			playBookUid: string,
+			description: string,
+			oldContent: string | any
+		) => dispatch(updatePlaybookUid(playBookName, playBookUid, description, oldContent)),
 		// 	resetAllStates: () => dispatch(resetAllStates()),
 		resetUser: () => dispatch(resetUser()),
 	};

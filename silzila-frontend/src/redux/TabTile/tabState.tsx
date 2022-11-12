@@ -1,5 +1,5 @@
 import update from "immutability-helper";
-import { ActionsOfTabState, StateProp } from "./tabStateInterfaces";
+import { ActionsOfTabState, TabStateProps } from "./tabStateInterfaces";
 
 const initialTabState = {
 	tabs: {
@@ -28,7 +28,7 @@ const initialTabState = {
 	tabList: [1],
 };
 
-const tabStateReducer = (state: StateProp = initialTabState, action: ActionsOfTabState) => {
+const tabStateReducer = (state: TabStateProps = initialTabState, action: ActionsOfTabState) => {
 	switch (action.type) {
 		// ==================================================================
 		// Tab Properties
