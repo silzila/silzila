@@ -13,7 +13,7 @@ import {
 	ArrowsProps,
 	DataSetStateProps,
 	tableObjProps,
-} from "../../redux/DataSet/DatasetStateInterfacse";
+} from "../../redux/DataSet/DatasetStateInterfaces";
 import { CanvasProps } from "./CanvasInterfaces";
 
 const Canvas = ({
@@ -23,7 +23,7 @@ const Canvas = ({
 	//props
 	editMode,
 }: CanvasProps) => {
-	console.log(tempTable, arrows);
+	//console.log(tempTable, arrows);
 	const [showRelationCard, setShowRelationCard] = useState<boolean>(false);
 	const [existingArrowProp, setExistingArrowProp] = useState<{}>({});
 	const [existingArrow, setExistingArrow] = useState<boolean>(false);
@@ -31,11 +31,11 @@ const Canvas = ({
 	// When arrow is clicked, open relationship Popover
 	const clickOnArrowfunc = (index: number) => {
 		setExistingArrow(true);
-		//console.log(index);
+		////console.log(index);
 		const temp = arrows.filter((el: ArrowsProps, i: number) => {
 			return i === index;
 		})[0];
-		//console.log(temp);
+		////console.log(temp);
 		setExistingArrowProp(temp);
 		setShowRelationCard(true);
 	};

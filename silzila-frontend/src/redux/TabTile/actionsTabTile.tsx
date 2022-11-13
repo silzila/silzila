@@ -28,25 +28,25 @@
 // 	resetSampleRecords,
 // } from "../SampleTableRecords/sampleTableRecordsActions";
 
-// //  *************************************************************
-// //  to tab state reducer
-// //  *************************************************************
+// *************************************************************
+// to tab state reducer
+// *************************************************************
 
-export const addTab = (tabId:number) => {
+export const addTab = (tabId: number) => {
 	return {
 		type: "ADD_TAB",
 		payload: tabId,
 	};
 };
 
-export const removeTab = (tabName:string, tabId:number, tabToRemoveIndex:number) => {
+export const removeTab = (tabName: string, tabId: number, tabToRemoveIndex: number) => {
 	return {
 		type: "REMOVE_TAB",
 		payload: { tabName: tabName, tabId: tabId, tabToRemoveIndex: tabToRemoveIndex },
 	};
 };
 
-export const renameTab = (renameValue:string, tabId:number) => {
+export const renameTab = (renameValue: string, tabId: number) => {
 	return {
 		type: "RENAME_TAB",
 		payload: {
@@ -56,7 +56,7 @@ export const renameTab = (renameValue:string, tabId:number) => {
 	};
 };
 
-export const updateNextTileId = (nextTileId:number, tabId:number) => {
+export const updateNextTileId = (nextTileId: number, tabId: number) => {
 	return {
 		type: "UPDATE_NEXT_TILE_ID",
 		payload: {
@@ -66,7 +66,7 @@ export const updateNextTileId = (nextTileId:number, tabId:number) => {
 	};
 };
 
-export const updateSelectedTileToTab = (tabId:number, tileName:string, tileId:number) => {
+export const updateSelectedTileToTab = (tabId: number, tileName: string, tileId: number) => {
 	return {
 		type: "SELECTED_TILE_IN_TAB",
 		payload: {
@@ -77,11 +77,11 @@ export const updateSelectedTileToTab = (tabId:number, tileName:string, tileId:nu
 	};
 };
 
-export const showDashboardInTab = (tabId:number, showDash:boolean) => {
+export const showDashboardInTab = (tabId: number, showDash: boolean) => {
 	return { type: "SHOW_DASHBOARD_IN_TAB", payload: { tabId, showDash } };
 };
 
-export const toggleDashModeInTab = (tabId:number, dashMode:string) => {
+export const toggleDashModeInTab = (tabId: number, dashMode: string) => {
 	return { type: "TOGGLE_DASH_MODE_IN_TAB", payload: { tabId, dashMode } };
 };
 
@@ -92,55 +92,51 @@ export const toggleDashModeInTab = (tabId:number, dashMode:string) => {
 // 	};
 // };
 
-
-export const setDashLayout = (tabId:number, value:string) => {
+export const setDashLayout = (tabId: number, value: string) => {
 	return { type: "SET_DASHLAYOUT", payload: { tabId, value } };
 };
 
-
-export const setDashLayoutSelectedOptionForAuto = (tabId:number, value:string) => {
+export const setDashLayoutSelectedOptionForAuto = (tabId: number, value: string) => {
 	return { type: "SET_DASHLAYOUT_SELECTEDOPTION_FOR_AUTO", payload: { tabId, value } };
 };
-export const setDashLayoutSelectedOptionForFixed = (tabId:number, value:string) => {
+export const setDashLayoutSelectedOptionForFixed = (tabId: number, value: string) => {
 	return { type: "SET_DASHLAYOUT_SELECTEDOPTION_FOR_FIXED", payload: { tabId, value } };
 };
 
-export const setAspectRatioHeight = (tabId:number, value:number) => {
+export const setAspectRatioHeight = (tabId: number, value: number) => {
 	return { type: "SET_ASPECTRATIO_HEIGHT", payload: { tabId, value } };
 };
 
-export const setAspectRatioWidth = (tabId:number, value:number) => {
+export const setAspectRatioWidth = (tabId: number, value: number) => {
 	return { type: "SET_ASPECTRATIO_WIDTH", payload: { tabId, value } };
 };
 
-export const setCustomHeight = (tabId:number, value:number) => {
+export const setCustomHeight = (tabId: number, value: number) => {
 	return { type: "SET_CUSTOM_HEIGHT", payload: { tabId, value } };
 };
 
-export const setCustomWidth = (tabId:number, value:number) => {
+export const setCustomWidth = (tabId: number, value: number) => {
 	return { type: "SET_CUSTOM_WIDTH", payload: { tabId, value } };
 };
 
-export const setCustomRMaxHeight = (tabId:number, value:number) => {
+export const setCustomRMaxHeight = (tabId: number, value: number) => {
 	return { type: "SET_CR_MAX_HEIGHT", payload: { tabId, value } };
 };
-export const setCustomRMaxWidth = (tabId:number, value:number) => {
+export const setCustomRMaxWidth = (tabId: number, value: number) => {
 	return { type: "SET_CR_MAX_WIDTH", payload: { tabId, value } };
 };
-export const setCustomRMinHeight = (tabId:number, value:number) => {
+export const setCustomRMinHeight = (tabId: number, value: number) => {
 	return { type: "SET_CR_MIN_HEIGHT", payload: { tabId, value } };
 };
-export const setCustomRMinWidth = (tabId:number, value:number) => {
+export const setCustomRMinWidth = (tabId: number, value: number) => {
 	return { type: "SET_CR_MIN_WIDTH", payload: { tabId, value } };
 };
-
-
 
 //  *************************************************************
 //  to tile state reducer
 //  *************************************************************
 
-export const addTile = (tabId:number, tileId:number, newTab:boolean) => {
+export const addTile = (tabId: number, tileId: number, newTab: boolean) => {
 	if (!newTab) {
 		return { type: "ADD_TILE", payload: { tabId, tileId } };
 	} else {
@@ -158,7 +154,7 @@ export const addTile = (tabId:number, tileId:number, newTab:boolean) => {
 // 	};
 // };
 
-export const removeTilesOfTab = (tabName:string, tabId:number) => {
+export const removeTilesOfTab = (tabName: string, tabId: number) => {
 	return {
 		type: "REMOVE_TILES_OF_TAB",
 		payload: {
@@ -175,21 +171,21 @@ export const removeTilesOfTab = (tabName:string, tabId:number) => {
 // 	};
 // };
 
-export const renameTile = (tabId:number, tileId:number, renameValue:string) => {
+export const renameTile = (tabId: number, tileId: number, renameValue: string) => {
 	return {
 		type: "RENAME_TILE",
 		payload: { tabId: tabId, tileId: tileId, renameValue: renameValue },
 	};
 };
 
-export const removeTile = (tabId:number, tileId:number, tileIndex:number ) => {
+export const removeTile = (tabId: number, tileId: number, tileIndex: number) => {
 	return {
 		type: "REMOVE_TILE",
 		payload: { tabId: tabId, tileId: tileId, tileIndex },
 	};
 };
 
-export const toggleGraphSize = (tileKey:number, graphSize:boolean) => {
+export const toggleGraphSize = (tileKey: number, graphSize: boolean) => {
 	return {
 		type: "TOGGLE_GRAPH_SIZE",
 		payload: { tileKey, graphSize },
@@ -204,14 +200,19 @@ export const updateNextTabId = () => {
 	return { type: "UPDATE_NEXT_TAB_ID" };
 };
 
-export const updateSelectedTab = (tabName:string, tabId:number, showDash:boolean, dashMode:string) => {
+export const updateSelectedTab = (
+	tabName: string,
+	tabId: number,
+	showDash: boolean,
+	dashMode: string
+) => {
 	return {
 		type: "SELECTED_TAB",
 		payload: { tabName: tabName, tabId: tabId, showDash, dashMode },
 	};
 };
 
-export const updateSelectedTile = (tileName:string, tileId:number, nextTileId:number) => {
+export const updateSelectedTile = (tileName: string, tileId: number, nextTileId: number) => {
 	return {
 		type: "SELECTED_TILE",
 		payload: {
@@ -222,11 +223,11 @@ export const updateSelectedTile = (tileName:string, tileId:number, nextTileId:nu
 	};
 };
 
-export const toggleEditingTab = (isTrue:boolean) => {
+export const toggleEditingTab = (isTrue: boolean) => {
 	return { type: "EDITING_TAB", payload: isTrue };
 };
 
-export const toggleEditingTile = (isTrue:boolean) => {
+export const toggleEditingTile = (isTrue: boolean) => {
 	return { type: "EDITING_TILE", payload: isTrue };
 };
 
@@ -238,40 +239,40 @@ export const toggleEditingTile = (isTrue:boolean) => {
 // 	return { type: "TABLES_FOR_SELECTED_DATASETS", payload };
 // };
 
-export const setDragging = (dragging:boolean) => {
+export const setDragging = (dragging: boolean) => {
 	return { type: "SET_DRAGGING", payload: dragging };
 };
 
-export const selectedTable = (id:number) => {
+export const selectedTable = (id: number) => {
 	return { type: "SET_TABLE", payload: id };
 };
 
-export const chartPropsLeftUpdated = (updated:boolean) => {
+export const chartPropsLeftUpdated = (updated: boolean) => {
 	return { type: "CHART_PROP_UPDATED", payload: updated };
 };
 
-export const showDashBoard = (showDash:boolean) => {
+export const showDashBoard = (showDash: boolean) => {
 	return { type: "SHOW_DASHBOARD", payload: showDash };
 };
 
-export const toggleDashMode = (dashMode:string) => {
+export const toggleDashMode = (dashMode: string) => {
 	return { type: "TOGGLE_DASH_MODE", payload: dashMode };
 };
 
-export const setDashGridSize = (gridSize:any )=> {
+export const setDashGridSize = (gridSize: any) => {
 	return { type: "SET_DASH_GRID_SIZE", payload: gridSize };
 };
 
-export const toggleColumnsOnlyDisplay = (columns:boolean) => {
+export const toggleColumnsOnlyDisplay = (columns: boolean) => {
 	return { type: "TOGGLE_COLUMNS_ONLY_DISPLAY", payload: columns };
 };
 
-export const toggleShowDataViewerBottom = (show:boolean) => {
+export const toggleShowDataViewerBottom = (show: boolean) => {
 	return { type: "TOGGLE_SHOW_DATA_VIEWER_BOTTOM", payload: show };
 };
 
-export const setSelectedControlMenu = (menu:string) => {
-	return { type: "SET_SELECTED_CONTROL_MENU", payload: {menu} };
+export const setSelectedControlMenu = (menu: string) => {
+	return { type: "SET_SELECTED_CONTROL_MENU", payload: { menu } };
 };
 
 // export const updateDashGraphPosition = (tabId, propKey, x, y) => {
@@ -286,7 +287,7 @@ export const setSelectedControlMenu = (menu:string) => {
 // 	return { type: "SET_GRAPH_BORDER_HIGHLIGHT", payload: { tabId, propKey, highlight } };
 // };
 
-export const resetGraphHighlight = (tabId:number) => {
+export const resetGraphHighlight = (tabId: number) => {
 	return { type: "RESET_GRAPH_BORDER_HIGHLIGHT", payload: { tabId } };
 };
 
@@ -375,7 +376,7 @@ export const resetGraphHighlight = (tabId:number) => {
 // }) => {
 // 	//let tileName = tileName ? tileName : `Tile - ${nextTileId}`;
 // 	// let tileName = `Tile - ${nextTileId}`;
-// 	// console.log(table);
+// 	// //console.log(table);
 // 	let tileName;
 // 	return dispatch => {
 // 		dispatch(addProp(tabId, nextTileId, table, newTab, selectedDs, selectedTablesInDs));
@@ -482,7 +483,7 @@ export const resetTabTileState = () => {
 };
 // TODO
 export const resetAllStates = () => {
-	return (dispatch:any) => {
+	return (dispatch: any) => {
 		// dispatch(resetChartControls());
 		// dispatch(resetChartProperties());
 		// dispatch(resetSampleRecords());
@@ -504,7 +505,7 @@ export const resetAllStates = () => {
 // }) => {
 // 	//let tileName = tileName ? tileName : `Tile - ${nextTileId}`;
 // 	// let tileName = `Tile - ${nextTileId}`;
-// 	// console.log(table);
+// 	// //console.log(table);
 // 	let tileName;
 // 	return dispatch => {
 // 		dispatch(addProp(tabId, nextTileId, table, newTab, selectedDs, selectedTablesInDs));
@@ -517,7 +518,7 @@ export const resetAllStates = () => {
 // 		// dispatch(setChartTitle(`${tabId}.${nextTileId}`, chartName));
 // 		dispatch(changeChartType(`${tabId}.${nextTileId}`, chartName));
 // 		// if (chartName === "richText") {
-// 		// 	console.log(chartName);
+// 		// 	//console.log(chartName);
 // 		// }
 // 	};
 // };

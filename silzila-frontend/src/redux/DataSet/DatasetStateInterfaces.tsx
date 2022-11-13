@@ -16,6 +16,20 @@ export interface DatasetProps {
 
 	databaseName: string;
 	serverName: string;
+	dataConnectionList: ConnectionItem[];
+	views: any[];
+}
+
+// individual connection item in dataconnectionList
+export interface ConnectionItem {
+	id: string;
+	userId: string;
+	vendor: string;
+	server: string;
+	port: string;
+	database: string;
+	username: string;
+	connectionName: string;
 }
 
 export interface DataSetStateProps {
@@ -44,22 +58,8 @@ export interface ArrowsProps {
 	table2_uid: string;
 }
 //tempTable
-// export interface tableObjProps {
-// 	id: string;
-// 	table_uid: string;
-// 	tableName: string;
-// 	isSelected: boolean;
-// 	alias: string;
-// 	columns: ColumnsWithUid[];
-// 	dcId: string;
-// 	schema: string;
-// 	isNewTable: boolean;
-// 	tablePositionX: number | null;
-// 	tablePositionY: number | null;
-// }
-
-//tempTable
 export interface tableObjProps {
+	isView?: boolean;
 	id: string;
 	table_uid: string;
 	tableName: string;
@@ -67,12 +67,12 @@ export interface tableObjProps {
 	alias: string;
 	columns: ColumnsWithUid[];
 	dcId: string;
-	schema: string;
 	isNewTable: boolean;
 	tablePositionX: number | null;
 	tablePositionY: number | null;
+	schema: string;
+	databaseName?: string;
 }
-
 
 //relationships
 export interface RelationshipsProps {
@@ -87,6 +87,9 @@ export interface RelationshipsProps {
 
 //tables
 export interface UserTableProps {
+	schema: string;
+	databaseName: string;
+	isView?: boolean;
 	id: string;
 	isNewTable: boolean;
 	isSelected: boolean;
@@ -143,7 +146,6 @@ interface SetUserTable {
 interface SetTempTables {
 	type: "SET_TEMP_TABLES";
 	payload: tableObjProps[];
-
 }
 // 9
 interface ToggleOnChecked {
@@ -226,6 +228,21 @@ interface SetArrowType {
 	payload: any;
 }
 
+interface setDataConnectionListToState {
+	type: "SET_DATACONNECTION_LIST";
+	payload: any[];
+}
+
+//26
+interface setViews {
+	type: "SET_VIEWS";
+	payload: any[];
+}
+interface ToggleOnCheckedOnView {
+	type: "ON_CHECKED_ON_VIEW";
+	payload: string | number;
+}
+
 export type ActionTypeOfDataSet =
 	| SetDatabaseNametoState
 	| SetServerName
@@ -250,4 +267,7 @@ export type ActionTypeOfDataSet =
 	| setDatasetList
 	| SetRelationship
 	| SetArrows
-	| SetArrowType;
+	| SetArrowType
+	| setDataConnectionListToState
+	| setViews
+	| ToggleOnCheckedOnView;

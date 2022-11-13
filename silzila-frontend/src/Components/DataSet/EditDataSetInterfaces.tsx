@@ -3,13 +3,12 @@ import {
 	RelationshipsProps,
 	tableObjProps,
 	UserTableProps,
-} from "../../redux/DataSet/DatasetStateInterfacse";
+} from "../../redux/DataSet/DatasetStateInterfaces";
 
 export interface EditDatasetProps {
 	//state
 	token: string;
 	dsId: string;
-	databaseName: string;
 
 	//dispatch
 	setValuesToState: (
@@ -23,4 +22,14 @@ export interface EditDatasetProps {
 	setServerName: (name: string) => void;
 	setDatabaseNametoState: (name: string) => void;
 	setUserTable: (payload: UserTableProps[]) => void;
+	setViews: (payload: any[]) => void;
+}
+export interface CanvasIndividualTableProps {
+	id: string;
+	database: string;
+	schema: string;
+	table: string;
+	alias: string;
+	tablePositionX: number;
+	tablePositionY: number;
 }

@@ -31,7 +31,7 @@ import data from "./Data.json";
 import "./RelationshipDefining.css";
 import CSS from "csstype";
 import { Dispatch } from "redux";
-import { ArrowsProps, DataSetStateProps } from "../../redux/DataSet/DatasetStateInterfacse";
+import { ArrowsProps, DataSetStateProps } from "../../redux/DataSet/DatasetStateInterfaces";
 import {
 	RelationshipDefiningComponentProps,
 	rowMat,
@@ -91,7 +91,7 @@ const RelationshipDefiningComponent = ({
 		if (existingArrow) {
 			let uniqueId: any = FindRowUniqueId(existingArrowProp.cardinality);
 			let MatchId: any = FindRowMatchId(existingArrowProp.integrity);
-			// console.log(uniqueId, MatchId);
+			// //console.log(uniqueId, MatchId);
 			setRowUniqueId1(uniqueId.rowUniqueId1);
 			setRowUniqueId2(uniqueId.rowUniqueId2);
 			setRowMatchId1(MatchId.rowMatchId1);
@@ -191,7 +191,7 @@ const RelationshipDefiningComponent = ({
 				showHead: FindShowHead(),
 				showTail: FindShowTail(),
 			};
-			//console.log(newArrowObj);
+			////console.log(newArrowObj);
 			addArrows(newArrowObj);
 			addRelationship?.(newRelObj);
 			onClose();
@@ -208,7 +208,7 @@ const RelationshipDefiningComponent = ({
 	};
 
 	const onDelete = () => {
-		//console.log("Deleting Relation", existingArrowProp.relationId);
+		////console.log("Deleting Relation", existingArrowProp.relationId);
 		removeRelationship(existingArrowProp.relationId);
 		removeArrows(existingArrowProp.relationId);
 
@@ -216,8 +216,8 @@ const RelationshipDefiningComponent = ({
 	};
 
 	const onUpdate = () => {
-		//console.log("update the relations now");
-		//console.log(existingArrowProp.relationId);
+		////console.log("update the relations now");
+		////console.log(existingArrowProp.relationId);
 
 		const newRelObj = {
 			...existingArrowProp,
@@ -228,14 +228,14 @@ const RelationshipDefiningComponent = ({
 			showHead: FindShowHead(),
 			showTail: FindShowTail(),
 		};
-		//console.log(newRelObj);
+		////console.log(newRelObj);
 
 		updateRelationship(existingArrowProp.relationId, newRelObj);
 		onClose();
 	};
 
 	const deleteSingleArrow = (arrow: ArrowsProps) => {
-		//console.log("Deleting arrow from Rel Popover", arrow.start, arrow.end);
+		////console.log("Deleting arrow from Rel Popover", arrow.start, arrow.end);
 		removeIndiArrow(arrow.start, arrow.end);
 	};
 

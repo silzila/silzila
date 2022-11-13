@@ -5,30 +5,36 @@
 
 import { Popover } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import React from "react";
 import { connect } from "react-redux";
 import "./Popover.css";
 import { ConnectionItem, DataSetStateProps } from "../../../redux/DataSet/DatasetStateInterfaces";
+import { Dispatch } from "redux";
+import { setConnectionValue, setServerName } from "../../../redux/DataSet/datasetActions";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
 	popOverTitle: string;
 	showCard: boolean;
 	setShowCard: (value: boolean) => void;
-	setSelectedDataset: (value: string) => void;
-	// state
-	dataSetList: any[];
+	setConnection: (value: string) => void;
+	dataConnectionList: ConnectionItem[];
+	setServerName: (name: string) => void;
 }
 
-const DatasetListPopover = ({
+const DataConnectionListPopover = ({
 	// props
 	popOverTitle,
 	showCard,
 	setShowCard,
-	setSelectedDataset,
 	// state
-	dataSetList,
+	dataConnectionList,
+	//dispatch
+	setConnection,
+	setServerName,
 }: Props) => {
-	//console.log(dataSetList);
+	var navigate = useNavigate();
+
+	//console.log(dataConnectionList);
 	return (
 		<Popover
 			open={showCard}
@@ -53,14 +59,18 @@ const DatasetListPopover = ({
 					/>
 				</div>
 				<div>
-					{dataSetList.map((ds: any) => {
+					{dataConnectionList.map((dc: ConnectionItem) => {
 						return (
 							<div
 								className="dataSetNameIndi"
-								onClick={() => setSelectedDataset(ds)}
-								key={ds.id}
+								onClick={() => {
+									setConnection(dc.id);
+									setServerName(dc.vendor);
+									navigate("/newdataset");
+								}}
+								key={dc.id}
 							>
-								{ds.datasetName}
+								{dc.connectionName}
 							</div>
 						);
 					})}
@@ -72,8 +82,14 @@ const DatasetListPopover = ({
 
 const mapStateToProps = (state: DataSetStateProps, ownProps: any) => {
 	return {
-		dataSetList: state.dataSetState.dataSetList,
+		dataConnectionList: state.dataSetState.dataConnectionList,
+	};
+};
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+	return {
+		setConnection: (connection: string) => dispatch(setConnectionValue(connection)),
+		setServerName: (name: string) => dispatch(setServerName(name)),
 	};
 };
 
-export default connect(mapStateToProps, null)(DatasetListPopover);
+export default connect(mapStateToProps, mapDispatchToProps)(DataConnectionListPopover);

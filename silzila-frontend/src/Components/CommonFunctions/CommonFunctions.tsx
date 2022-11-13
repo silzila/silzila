@@ -9,7 +9,7 @@ export const validateMandatory = (value: string) => {
 	if (value) {
 		return value.length >= 1 ? true : false;
 	} else {
-		// console.log("Some mandatory field is missing");
+		//console.log("Some mandatory field is missing");
 		return false;
 	}
 };

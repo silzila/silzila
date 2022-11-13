@@ -11,13 +11,11 @@ import { Dispatch } from "redux";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { resetAllStates } from "../../redux/TabTile/actionsTabTile";
 import FormDialog from "./FormDialog";
-import {
-	ConnectionItem,
-	DataConnectionDetails,
-	DataConnectionProps,
-} from "./DataConnectionInterfaces";
+import { DataConnectionDetails, DataConnectionProps } from "./DataConnectionInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import FetchData from "../ServerCall/FetchData";
+import { setDataConnectionListToState } from "../../redux/DataSet/datasetActions";
+import { ConnectionItem } from "../../redux/DataSet/DatasetStateInterfaces";
 
 const initialState = {
 	vendor: "",
@@ -63,9 +61,12 @@ const DataConnection = (props: DataConnectionProps) => {
 		});
 
 		if (result.status) {
+			//console.log("dc");
+
 			setDataConnectionList(result.data);
+			props.setDataConnectionListToState(result.data);
 		} else {
-			// console.log("result.data.detail");
+			// //console.log("result.data.detail");
 		}
 	};
 
@@ -103,7 +104,7 @@ const DataConnection = (props: DataConnectionProps) => {
 	// when Visibility icon Clicked
 	// ==================================================
 	const ViewOrEditDc = async (dcuid: string) => {
-		console.log("click");
+		//console.log("click");
 
 		setDataConnId(dcuid);
 		// TODO need to specify type
@@ -113,14 +114,14 @@ const DataConnection = (props: DataConnectionProps) => {
 			url: "database-connection/" + dcuid,
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
-		console.log(result);
+		//console.log(result);
 
 		if (result.status) {
 			setAccount({ ...result.data, password: "*******" });
 			setShowForm(true);
 			setViewMode(true);
 		} else {
-			// console.log(result.data.detail);
+			// //console.log(result.data.detail);
 		}
 	};
 
@@ -165,7 +166,7 @@ const DataConnection = (props: DataConnectionProps) => {
 				}, 3000);
 			}
 		} else {
-			// console.log(response);
+			// //console.log(response);
 		}
 	};
 
@@ -202,7 +203,7 @@ const DataConnection = (props: DataConnectionProps) => {
 				getInformation();
 			}, 3000);
 		} else {
-			// console.log("Update Dc error", response);
+			// //console.log("Update Dc error", response);
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage(response.data.detail);
@@ -318,6 +319,8 @@ const mapStateToProps = (state: isLoggedProps) => {
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		resetAllStates: () => dispatch(resetAllStates()),
+		setDataConnectionListToState: (list: ConnectionItem[]) =>
+			dispatch(setDataConnectionListToState(list)),
 	};
 };
 export default connect(mapStateToProps, mapDispatchToProps)(DataConnection);

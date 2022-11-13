@@ -121,9 +121,9 @@ function FormDialog({
 		}
 	};
 
-	// // ==============================================================
-	// // Delete Dc
-	// // ==============================================================
+	//==============================================================
+	//Delete Dc
+	//==============================================================
 	// const dslistitem = () => {
 	// 	if (dsList.length !== 0) {
 	// 		return (
@@ -152,7 +152,7 @@ function FormDialog({
 	const deleteDcWarning = () => {
 		var delDataSet = window.confirm("Delete Data Connection?");
 		if (delDataSet) {
-			console.log("database-connection/" + dataConnId);
+			//console.log("database-connection/" + dataConnId);
 
 			showAndHideForm();
 			deleteDc();
@@ -166,7 +166,7 @@ function FormDialog({
 			url: "database-connection/" + dataConnId,
 			headers: { Authorization: `Bearer ${token}` },
 		});
-		// console.log("database-connection/" + dataConnId);
+		// //console.log("database-connection/" + dataConnId);
 		if (result.status) {
 			setDcDel(false);
 			setSeverity("success");
@@ -180,7 +180,7 @@ function FormDialog({
 				getInformation();
 			}, 3000);
 		} else {
-			// console.log("Delete Dc", result.data.detail);
+			// //console.log("Delete Dc", result.data.detail);
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage(result.data.detail);
@@ -275,7 +275,7 @@ function FormDialog({
 								variant="outlined"
 								value={account.vendor}
 								onChange={e => {
-									console.log(e.target.value);
+									//console.log(e.target.value);
 
 									setAccount({
 										...account,

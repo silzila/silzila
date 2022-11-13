@@ -1,3 +1,5 @@
+import { ConnectionItem } from "../../redux/DataSet/DatasetStateInterfaces";
+
 //initial state (account)
 export interface DataConnectionDetails {
 	vendor: string;
@@ -16,21 +18,10 @@ export interface DataConnectionDetails {
 	passwordError: string;
 }
 
-// individual connection item in dataconnectionList
-export interface ConnectionItem {
-	id: string;
-	userId: string;
-	vendor: string;
-	server: string;
-	port: string;
-	database: string;
-	username: string;
-	connectionName: string;
-}
-
 export interface DataConnectionProps {
 	token: string;
 	resetAllStates: () => void;
+	setDataConnectionListToState: (list: ConnectionItem[]) => void;
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ form interfaces @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

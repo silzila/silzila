@@ -1,5 +1,5 @@
 import update from "immutability-helper";
-import { ActionsOfTabTileProps } from "./ActionTypes";
+import { ActionsOfTabTileProps, StateProps } from "./tabTilePropsInterfaces";
 
 const initialProperties = {
 	selectedTabName: "Tab - 1",
@@ -26,35 +26,10 @@ const initialProperties = {
 	tablesForSelectedDataSets: {},
 };
 
-type StateProps = {
-  selectedTabName: string,
-	selectedTabId: number,
-	nextTabId: number,
-	editTabName: boolean,
-
-	selectedTileName: string,
-	selectedTileId: number,
-	nextTileId: number,
-	editTileName: boolean,
-
-	dragging: boolean,
-	chartPropUpdated: boolean,
-	showDash: boolean,
-	dashMode: string,
-    // TODO:need to specify type
-	dashGridSize: any,
-	// dashGridSize: { x: null, y: null },
-
-	columnsOnlyDisplay: boolean,
-	showDataViewerBottom: boolean,
-	selectedControlMenu: string,
-
-    // TODO:need to specify type
-	selectedDataSetList: any[],
-	tablesForSelectedDataSets: {},  
-}
-
-const tabTilePropsReducer = (state: StateProps = initialProperties, action:ActionsOfTabTileProps) => {
+const tabTilePropsReducer = (
+	state: StateProps = initialProperties,
+	action: ActionsOfTabTileProps
+) => {
 	switch (action.type) {
 		case "UPDATE_NEXT_TAB_ID":
 			return { ...state, nextTabId: state.nextTabId + 1 };
@@ -121,9 +96,9 @@ const tabTilePropsReducer = (state: StateProps = initialProperties, action:Actio
 
 		// case "SET_SELECTED_CONTROL_MENU":
 		// 	return update(state,
-        //          {
-        //              selectedControlMenu: { $set: action.payload }
-        //          });
+		//          {
+		//              selectedControlMenu: { $set: action.payload }
+		//          });
 
 		// case "LOAD_TAB_TILE_PROPS_FROM_PLAYBOOK":
 		// 	return action.payload;
