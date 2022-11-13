@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -14,17 +13,17 @@ public class FileUploadResponse {
 
     private String fileId;
     private String fileDataName;
-    private Map<String, String> columnDataType;
+    private List<FileUploadColumnInfo> columnInfos;
     private List<JsonNode> sampleRecords;
 
     public FileUploadResponse() {
     }
 
-    public FileUploadResponse(String fileId, String fileDataName, Map<String, String> columnDataType,
+    public FileUploadResponse(String fileId, String fileDataName, List<FileUploadColumnInfo> columnInfos,
             List<JsonNode> sampleRecords) {
         this.fileId = fileId;
         this.fileDataName = fileDataName;
-        this.columnDataType = columnDataType;
+        this.columnInfos = columnInfos;
         this.sampleRecords = sampleRecords;
     }
 
