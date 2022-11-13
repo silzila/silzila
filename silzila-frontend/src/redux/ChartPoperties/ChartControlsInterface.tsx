@@ -1,30 +1,31 @@
-export interface ChartControlProperties {
-	[key: number]: {
-		chartData: string;
-		isRichText: boolean;
-		richText: string;
-		colorScheme: string;
-		areaBackgroundColor: string;
-		areaOpacity: number;
+export interface ChartControlsProps {
+	chartData: string;
+	isRichText: boolean;
+	richText: string;
+	colorScheme: string;
+	areaBackgroundColor: string;
+	areaOpacity: number;
 
-		colorScale: ChartConColorScale;
-		legendOptions: ChartConLegendOptions;
-		chartMargin: ChartConChartMargin;
-		calendarStyleOptions: ChartConCalenderStyleOptions;
-		boxPlotChartControls: ChartConBoxPlotChartControls;
-		treeMapChartControls: ChartConTreeMapChartControls;
-		sankeyControls: ChartConSankeyControls;
-		crossTabStyleOptions: ChartConCrossTabStyleOptions;
-		crossTabHeaderLabelOptions: ChartConCrosstabHeaderLabelOptions;
-		crossTabCellLabelOptions: ChartConCrossTabCellLabelOptions;
-		labelOptions: ChartConLabelOptions;
-		formatOptions: ChartConFormateOptions;
-		axisOptions: ChartConAxisOptions;
+	colorScale: ChartConColorScale;
+	legendOptions: ChartConLegendOptions;
+	chartMargin: ChartConChartMargin;
+	calendarStyleOptions: ChartConCalenderStyleOptions;
+	boxPlotChartControls: ChartConBoxPlotChartControls;
+	treeMapChartControls: ChartConTreeMapChartControls;
+	sankeyControls: ChartConSankeyControls;
+	crossTabStyleOptions: ChartConCrossTabStyleOptions;
+	crossTabHeaderLabelOptions: ChartConCrosstabHeaderLabelOptions;
+	crossTabCellLabelOptions: ChartConCrossTabCellLabelOptions;
+	labelOptions: ChartConLabelOptions;
+	formatOptions: ChartConFormateOptions;
+	axisOptions: ChartConAxisOptions;
 
-		mouseOver: {
-			enable: boolean;
-		};
+	mouseOver: {
+		enable: boolean;
 	};
+}
+export interface ChartControlProperties {
+	[key: number | string]: ChartControlsProps;
 }
 
 interface ChartConColorScale {
