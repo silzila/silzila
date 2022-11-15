@@ -9,10 +9,11 @@ import {
 	resetGraphHighlight,
 	setDashGridSize,
 	toggleGraphSize,
-	// updateGraphHighlight,
-	// updateTabDashDetails,
+	updateGraphHighlight,
 } from "../../redux/TabTile/actionsTabTile";
-import "./DashBoard.css";
+import { updateTabDashDetails } from "../../redux/TabTile/TabActions";
+
+import { DashBoardProps, DashBoardStateProps } from "./DashBoardInterfaces";
 import DashBoardLayoutControl from "./DashBoardLayoutControl";
 import GraphRNDDash from "./GraphRNDDash";
 
@@ -32,7 +33,7 @@ const DashBoard = ({
 	setGridSize,
 	graphHighlight,
 	resetHighlight,
-}: any) => {
+}: DashBoardProps) => {
 	var targetRef = useRef<any>();
 	const [mouseDownOutsideGraphs, setmouseDownOutsideGraphs] = useState<boolean>(false);
 	const [dimensions, setDimensions] = useState<any>({});
@@ -210,7 +211,7 @@ const DashBoard = ({
 
 	let tileList = tilesForSelectedTab.map((tile: any, index: number) => {
 		let currentObj = tileState.tiles[tile];
-		var propKey = `${currentObj.tabId}.${currentObj.tileId}`;
+		var propKey: number = parseFloat(`${currentObj.tabId}.${currentObj.tileId}`);
 
 		const dashSpecs = {
 			name: currentObj.tileName,
@@ -223,17 +224,17 @@ const DashBoard = ({
 			y: 6,
 		};
 
-		var propIndex = tabState.tabs[currentObj.tabId].tilesInDashboard.indexOf(propKey);
+		var propIndex: number = tabState.tabs[currentObj.tabId].tilesInDashboard.indexOf(propKey);
 		var indexOfProps = tabState.tabs[currentObj.tabId].tilesInDashboard.includes(propKey);
-		var checked = indexOfProps ? true : false;
+		var checked: boolean = indexOfProps ? true : false;
 
 		return (
 			<div
-				className={
-					tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]?.highlight
-						? "listOfGraphsHighlighted"
-						: "listOfGraphs"
-				}
+			// className={
+			// 	tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]?.highlight
+			// 		? "listOfGraphsHighlighted"
+			// 		: "listOfGraphs"
+			// }
 			>
 				<input
 					type="checkbox"
@@ -257,29 +258,30 @@ const DashBoard = ({
 	});
 
 	useEffect(() => {
-		renderGraphs();
+		// renderGraphs();
 	}, [tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails, dashStyle]);
 
-	const renderGraphs = () => {
-		return tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.map(
-			(box: any, index: number) => {
-				var boxDetails = tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[box];
+	// const renderGraphs = () => {
+	// 	return tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.map(
+	// 		(box: number | string | {}, index: number) => {
+	// 			var boxDetails: any =
+	// 				tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[box];
 
-				return;
-				// <GraphRNDDash
-				// 	key={index}
-				// 	mouseDownOutsideGraphs={mouseDownOutsideGraphs}
-				// 	tabId={tabTileProps.selectedTabId}
-				// 	boxDetails={boxDetails}
-				// 	style={style}
-				// 	setStyle={setStyle}
-				// 	style2={style2}
-				// 	setStyle2={setStyle2}
-				// 	gridSize={{ x: dashStyle.width, y: dashStyle.height }}
-				// />
-			}
-		);
-	};
+	// 			return;
+	// 			// <GraphRNDDash
+	// 			// 	key={index}
+	// 			// 	mouseDownOutsideGraphs={mouseDownOutsideGraphs}
+	// 			// 	tabId={tabTileProps.selectedTabId}
+	// 			// 	boxDetails={boxDetails}
+	// 			// 	style={style}
+	// 			// 	setStyle={setStyle}
+	// 			// 	style2={style2}
+	// 			// 	setStyle2={setStyle2}
+	// 			// 	gridSize={{ x: dashStyle.width, y: dashStyle.height }}
+	// 			// />
+	// 		}
+	// 	);
+	// };
 
 	return (
 		<div
@@ -313,7 +315,8 @@ const DashBoard = ({
 			<div className="dashboardOuter" ref={targetRef}>
 				<div className="dashboardArea" style={dashStyle}>
 					{tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.length > 0 ? (
-						renderGraphs()
+						// renderGraphs()
+						""
 					) : (
 						<div
 							style={{
@@ -356,7 +359,7 @@ const DashBoard = ({
 	);
 };
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: DashBoardStateProps) => {
 	return {
 		tabState: state.tabState,
 		tabTileProps: state.tabTileProps,
@@ -366,16 +369,21 @@ const mapStateToProps = (state: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		// updateDashDetails: (checked:any, propKey: any, dashSpecs:any, tabId:any, propIndex:any) =>
-		// 	dispatch(updateTabDashDetails(checked, propKey, dashSpecs, tabId, propIndex)),
+		updateDashDetails: (
+			checked: boolean,
+			propKey: number,
+			dashSpecs: any,
+			tabId: number,
+			propIndex: number
+		) => dispatch(updateTabDashDetails(checked, propKey, dashSpecs, tabId, propIndex)),
 
-		toggleGraphSize: (tileKey: any, graphSize: any) =>
+		toggleGraphSize: (tileKey: number, graphSize: boolean) =>
 			dispatch(toggleGraphSize(tileKey, graphSize)),
 
-		// graphHighlight: (tabId:any, propKey:any, highlight:any) =>
-		// 	dispatch(updateGraphHighlight(tabId, propKey, highlight)),
-		resetHighlight: (tabId: any) => dispatch(resetGraphHighlight(tabId)),
-		setGridSize: (gridSize: any) => dispatch(setDashGridSize(gridSize)),
+		graphHighlight: (tabId: number, propKey: number, highlight: boolean | any) =>
+			dispatch(updateGraphHighlight(tabId, propKey, highlight)),
+		resetHighlight: (tabId: number) => dispatch(resetGraphHighlight(tabId)),
+		setGridSize: (gridSize: any) => dispatch(setDashGridSize(gridSize)), //gridSize{ x: null | number | string; y: null | number | string }
 	};
 };
 export default connect(mapStateToProps, mapDispatchToProps)(DashBoard);

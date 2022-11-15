@@ -19,6 +19,6 @@ export const resetPlayBookData = () => {
 	return { type: "RESET_PLAYBOOK_DATA" };
 };
 
-export const storePlayBookCopy = (pb: any) => {
-	return { type: "STORE_PLAYBOOK_COPY", payload: pb };
+export const storePlayBookCopy = (PlayBookOldContent: any | string) => {
+	return { type: "STORE_PLAYBOOK_COPY", payload: PlayBookOldContent };
 };

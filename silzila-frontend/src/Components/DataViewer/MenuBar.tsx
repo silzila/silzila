@@ -7,11 +7,6 @@
 
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import {
-	resetAllStates,
-	toggleDashMode,
-	toggleDashModeInTab,
-} from "../../redux/TabTile/actionsTabTile";
 import { Button, Dialog, Menu, MenuItem, Select, TextField } from "@mui/material";
 import { HomeRounded } from "@mui/icons-material";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
@@ -38,6 +33,11 @@ import { MapStateProps, MenubarProps } from "./MenubarInterfaces";
 
 import FetchData from "../ServerCall/FetchData";
 import "./dataViewer.css";
+import {
+	resetAllStates,
+	toggleDashMode,
+	toggleDashModeInTab,
+} from "../../redux/TabTile/actionsTabTile";
 
 const MenuBar = ({
 	// props
@@ -53,10 +53,10 @@ const MenuBar = ({
 	chartControl,
 
 	//dispatch
-	// toggleDashMode,
-	// toggleDashModeInTab,
+	toggleDashMode,
+	toggleDashModeInTab,
 	updatePlayBookId,
-	// resetAllStates,
+	resetAllStates,
 	resetUser,
 }: MenubarProps) => {
 	var showSaveWarning: boolean = false;
@@ -711,7 +711,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			description: string,
 			oldContent: string | any
 		) => dispatch(updatePlaybookUid(playBookName, playBookUid, description, oldContent)),
-		// 	resetAllStates: () => dispatch(resetAllStates()),
+		resetAllStates: () => dispatch(resetAllStates()),
 		resetUser: () => dispatch(resetUser()),
 	};
 };

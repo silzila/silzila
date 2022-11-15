@@ -40,4 +40,7 @@ export interface MenubarProps {
 		description: string,
 		oldContent: string | any
 	) => void;
+	resetAllStates: () => void;
+	toggleDashMode: (dashMode: string) => void;
+	toggleDashModeInTab: (tabId: number, dashMode: string) => void;
 }

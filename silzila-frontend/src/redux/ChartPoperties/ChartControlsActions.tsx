@@ -19,11 +19,7 @@ export const setAreaColorOptions = (
 	return { type: "AREA_COLOR_OPTIONS", payload: { propKey, option, value } };
 };
 
-export const addControl = (
-	tabId: string | number,
-	nextTileId: number | string,
-	newTab: any | boolean
-) => {
+export const addControl = (tabId: number, nextTileId: number, newTab: boolean) => {
 	if (newTab) {
 		return {
 			type: "ADD_NEW_CONTROL_FROM_TAB",
@@ -54,7 +50,7 @@ export const removeChartControls = (
 	return { type: "DELETE_CONTROLS", payload: { tabId, tileId, propKey, tileIndex } };
 };
 
-export const removeMultipleChartControls = (tabId: number | string) => {
+export const removeMultipleChartControls = (tabId: number) => {
 	return { type: "DELETE_CONTROLS_OF_TAB", payload: tabId };
 };
 

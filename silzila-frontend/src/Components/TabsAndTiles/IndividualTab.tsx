@@ -2,7 +2,21 @@
 // Each tab has actions to rename the tab & delete the tab
 
 import React, { useState } from "react";
-import "./individualTab.css";
+import "./IndividualTab.css";
+
+interface IndividualTabProps {
+	tabName: string;
+	editing: boolean;
+	selectedTab: number;
+	tabId: number;
+	showDash: boolean;
+	dashMode: string;
+
+	selectTab: (tabName: string, tabId: number) => void;
+	removeTab: (tabName: string, tabId: number) => void;
+	renameTabBegin: (tabId: number) => void;
+	renameTabComplete: (renameValue: string, tabId: number) => void;
+}
 
 function IndividualTab({
 	// props from Parent
@@ -18,8 +32,8 @@ function IndividualTab({
 	removeTab,
 	renameTabBegin,
 	renameTabComplete,
-}: any) {
-	const [renameValue, setRenameValue] = useState(tabName);
+}: IndividualTabProps) {
+	const [renameValue, setRenameValue] = useState<string>(tabName);
 
 	const handleTabNameValue = (e: any) => {
 		setRenameValue(e.target.value);

@@ -1,5 +1,5 @@
 import update from "immutability-helper";
-import { ActionsOfTabState, TabStateProps } from "./tabStateInterfaces";
+import { TabStateProps } from "./tabStateInterfaces";
 
 const initialTabState = {
 	tabs: {
@@ -28,7 +28,7 @@ const initialTabState = {
 	tabList: [1],
 };
 
-const tabStateReducer = (state: TabStateProps = initialTabState, action: ActionsOfTabState) => {
+const tabStateReducer = (state: TabStateProps = initialTabState, action: any) => {
 	switch (action.type) {
 		// ==================================================================
 		// Tab Properties
@@ -127,37 +127,38 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 		// 				},
 		// 			},
 		// 		});
-		// 	} else {
-		// 		return update(state, {
-		// 			tabs: {
-		// 				[action.payload.tabId]: {
-		// 					tilesInDashboard: { $push: [action.payload.propKey] },
-		// 					dashTilesDetails: {
-		// 						[action.payload.propKey]: { $set: action.payload.dashSpecs },
-		// 					},
-		// 				},
-		// 			},
-		// 		});
 		// 	}
-
-		// case "REMOVE_TILES_IN_DASH_DURING_DELETE_TILE":
-		// 	var indexOfDeletedTile = state.tabs[action.payload.tabId].tilesInDashboard.indexOf(
-		// 		action.payload.propKey
-		// 	);
-
-		// 	var dashTilesDetailsCopy = Object.assign(
-		// 		state.tabs[action.payload.tabId].dashTilesDetails
-		// 	);
-		// 	delete dashTilesDetailsCopy[action.payload.propKey];
-
+		// else {
 		// 	return update(state, {
 		// 		tabs: {
 		// 			[action.payload.tabId]: {
-		// 				tilesInDashboard: { $splice: [[indexOfDeletedTile, 1]] },
-		// 				dashTilesDetails: { $set: dashTilesDetailsCopy },
+		// 				tilesInDashboard: { $push: [action.payload.propKey] },
+		// 				dashTilesDetails: {
+		// 					[action.payload.propKey]: { $set: action.payload.dashSpecs },
+		// 				},
 		// 			},
 		// 		},
 		// 	});
+		// }
+
+		case "REMOVE_TILES_IN_DASH_DURING_DELETE_TILE":
+			var indexOfDeletedTile = state.tabs[action.payload.tabId].tilesInDashboard.indexOf(
+				action.payload.propKey
+			);
+
+			var dashTilesDetailsCopy = Object.assign(
+				state.tabs[action.payload.tabId].dashTilesDetails
+			);
+			delete dashTilesDetailsCopy[action.payload.propKey];
+
+			return update(state, {
+				tabs: {
+					[action.payload.tabId]: {
+						tilesInDashboard: { $splice: [[indexOfDeletedTile, 1]] },
+						dashTilesDetails: { $set: dashTilesDetailsCopy },
+					},
+				},
+			});
 
 		// case "UPDATE_DASH_GRAPH_POSITION":
 		// 	return update(state, {
@@ -193,7 +194,7 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 		// 	var copyOfDetails = state.tabs[action.payload.tabId].dashTilesDetails;
 		// 	var items = Object.keys(copyOfDetails);
 
-		// 	items.map((item) => {
+		// 	items.map(item => {
 		// 		if (item === action.payload.propKey) {
 		// 			copyOfDetails[item].highlight = true;
 		// 		} else {
@@ -209,7 +210,7 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 		// 	var copyOfDetails = state.tabs[action.payload.tabId].dashTilesDetails;
 		// 	var items = Object.keys(copyOfDetails);
 
-		// 	items.map((item) => {
+		// 	items.map(item => {
 		// 		copyOfDetails[item].highlight = false;
 		// 	});
 
@@ -226,7 +227,6 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 					},
 				},
 			});
-
 		case "SET_DASHLAYOUT_SELECTEDOPTION_FOR_AUTO":
 			return update(state, {
 				tabs: {
@@ -238,7 +238,6 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 					},
 				},
 			});
-
 		case "SET_ASPECTRATIO_HEIGHT":
 			return update(state, {
 				tabs: {
@@ -249,7 +248,6 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 					},
 				},
 			});
-
 		case "SET_ASPECTRATIO_WIDTH":
 			return update(state, {
 				tabs: {
@@ -332,9 +330,8 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 				},
 			});
 
-		// TODO:need to uncommand and specify type
-		// case "LOAD_TAB_STATE_FROM_PLAYBOOK":
-		// 	return action.payload;
+		case "LOAD_TAB_STATE_FROM_PLAYBOOK":
+			return action.payload;
 
 		case "RESET_TAB_STATE":
 			return initialTabState;

@@ -9,13 +9,13 @@ import { Tooltip } from "@mui/material";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import { Dispatch } from "redux";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
-import { resetAllStates } from "../../redux/TabTile/actionsTabTile";
 import FormDialog from "./FormDialog";
 import { DataConnectionDetails, DataConnectionProps } from "./DataConnectionInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import FetchData from "../ServerCall/FetchData";
 import { setDataConnectionListToState } from "../../redux/DataSet/datasetActions";
 import { ConnectionItem } from "../../redux/DataSet/DatasetStateInterfaces";
+import { resetAllStates } from "../../redux/TabTile/actionsTabTile";
 
 const initialState = {
 	vendor: "",

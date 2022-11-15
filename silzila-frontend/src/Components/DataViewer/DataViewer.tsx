@@ -15,35 +15,49 @@ import React, { useState } from "react";
 import "./dataViewer.css";
 import { connect } from "react-redux";
 import TabRibbon from "../TabsAndTiles/TabRibbon";
-import {
-	// setShowDashBoard,
-	toggleColumnsOnlyDisplay,
-	toggleShowDataViewerBottom,
-} from "../../redux/TabTile/actionsTabTile";
-import DataViewerMiddle from "./DataViewerMiddle.js";
-import DataViewerBottom from "./DataViewerBottom";
+import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/tabTilePropsInterfaces";
+// import {
+// 	// setShowDashBoard,
+// 	toggleColumnsOnlyDisplay,
+// 	toggleShowDataViewerBottom,
+// } from "../../redux/TabTile/actionsTabTile";
+// import DataViewerMiddle from "./DataViewerMiddle.js";
+// import DataViewerBottom from "./DataViewerBottom";
 import TableViewIcon from "@mui/icons-material/TableView";
 import TableRowsIcon from "@mui/icons-material/TableRows";
 import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
 import TileRibbon from "../TabsAndTiles/TileRibbon";
-import DashBoard from "../DashBoard/DashBoard";
+// import DashBoard from "../DashBoard/DashBoard";
 import listOfTilesIcon from "../../assets/listoftilesIcon.svg";
 import dashbordSizeIcon from "../../assets/screenSize.png";
-import MenuBar from "./MenuBar";
-// import { SaveRichText } from "../Charts/TextEditor";
+import DashBoard from "../DashBoard/DashBoard";
 import { Dispatch } from "redux";
+import {
+	setShowDashBoard,
+	toggleColumnsOnlyDisplay,
+	toggleShowDataViewerBottom,
+} from "../../redux/TabTile/actionsTabTile";
+import { Tooltip } from "@mui/material";
+// import MenuBar from "./MenuBar";
+// // import { SaveRichText } from "../Charts/TextEditor";
+// import { Dispatch } from "redux";
 
+interface DataViewerProps {
+	tabTileProps: TabTileStateProps;
+	showDashBoard: (tabId: number, showDash: boolean) => void;
+	toggleDataViewerBottom: (show: boolean) => void;
+	toggleColumns: (displayOnlyCol: boolean) => void;
+}
 function DataViewer({
-	// state
+	//state
 	tabTileProps,
-
 	// dispatch
 	showDashBoard,
-	toggleColumns,
 	toggleDataViewerBottom,
-}: any) {
-	const [showListofTileMenu, setShowListofTileMenu] = useState(true);
-	const [dashboardResizeColumn, setDashboardResizeColumn] = useState(false);
+	toggleColumns,
+}: DataViewerProps) {
+	const [showListofTileMenu, setShowListofTileMenu] = useState<boolean>(true);
+	const [dashboardResizeColumn, setDashboardResizeColumn] = useState<boolean>(false);
 
 	// Whether to show table at the bottom of page or not
 	const handleTableDisplayToggle = () => {
@@ -51,8 +65,8 @@ function DataViewer({
 	};
 
 	// switching between Table with all sample records Or just list the columns of selected table
-	const handleColumnsOnlyDisplay = (col: any) => {
-		toggleColumns(col);
+	const handleColumnsOnlyDisplay = (displayOnlyCol: boolean) => {
+		toggleColumns(displayOnlyCol);
 	};
 
 	// ===========================================================================================
@@ -77,7 +91,7 @@ function DataViewer({
 
 	return (
 		<div className="dataViewer">
-			<MenuBar from="dataViewer" />
+			{/* <MenuBar from="dataViewer" /> */}
 			<div className="tabArea">
 				<TabRibbon />
 				{tabTileProps.showDash || tabTileProps.dashMode === "Present" ? (
@@ -122,9 +136,8 @@ function DataViewer({
 					</div>
 				) : null}
 			</div>
-
 			{/* Show tile page or Dashboard */}
-			{tabTileProps.showDash ? (
+			{/* {tabTileProps.showDash ? (
 				<DashBoard
 					showListofTileMenu={showListofTileMenu}
 					dashboardResizeColumn={dashboardResizeColumn}
@@ -138,7 +151,7 @@ function DataViewer({
 
 					{tabTileProps.showDataViewerBottom ? <DataViewerBottom /> : null}
 				</React.Fragment>
-			)}
+			)} */}
 
 			{/* Dashboard present and edit mode related UI */}
 			{tabTileProps.dashMode === "Edit" ? (
@@ -166,17 +179,19 @@ function DataViewer({
 							<>
 								<div className="showTableColumns">
 									{tabTileProps.columnsOnlyDisplay ? (
-										<TableChartOutlinedIcon
-										// style={{ fontSize: "20px", color: "#404040" }}
-										// onClick={() => handleColumnsOnlyDisplay(false)}
-										// title="Show full table"
-										/>
+										<Tooltip title="Show full table">
+											<TableChartOutlinedIcon
+												style={{ fontSize: "20px", color: "#404040" }}
+												onClick={() => handleColumnsOnlyDisplay(false)}
+											/>
+										</Tooltip>
 									) : (
-										<TableRowsIcon
-										// style={{ fontSize: "20px", color: "#404040" }}
-										// onClick={() => handleColumnsOnlyDisplay(true)}
-										// title="Show Column Headers only"
-										/>
+										<Tooltip title="Show Column Headers only">
+											<TableRowsIcon
+												style={{ fontSize: "20px", color: "#404040" }}
+												onClick={() => handleColumnsOnlyDisplay(true)}
+											/>
+										</Tooltip>
 									)}
 								</div>
 								<div
@@ -207,7 +222,7 @@ function DataViewer({
 //                                 REDUX MAPPING STATE AND DISPATCH TO PROPS
 // ===========================================================================================
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: TabTileStateProps2, ownProps: any) => {
 	return {
 		tabTileProps: state.tabTileProps,
 	};
@@ -215,9 +230,11 @@ const mapStateToProps = (state: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		// showDashBoard: (tabId: any, showDash: any) => dispatch(setShowDashBoard(tabId, showDash)),
-		toggleColumns: (columns: any) => dispatch(toggleColumnsOnlyDisplay(columns)),
-		toggleDataViewerBottom: (show: any) => dispatch(toggleShowDataViewerBottom(show)),
+		showDashBoard: (tabId: number, showDash: boolean) =>
+			dispatch(setShowDashBoard(tabId, showDash)),
+		toggleColumns: (displayOnlyCol: boolean) =>
+			dispatch(toggleColumnsOnlyDisplay(displayOnlyCol)),
+		toggleDataViewerBottom: (show: boolean) => dispatch(toggleShowDataViewerBottom(show)),
 	};
 };
 

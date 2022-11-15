@@ -3,13 +3,14 @@
 // ==============================================================
 
 import { Dispatch } from "redux";
+import { TabTilPropsSelectedDatasetList } from "../TabTile/tabTilePropsInterfaces";
 
 export const addProp = (
-	tabId: string | number,
-	nextTileId: number | string,
-	table: string | number,
-	newTab: any,
-	selectedDs: any,
+	tabId: number,
+	nextTileId: number,
+	table: any,
+	newTab: boolean,
+	selectedDs: TabTilPropsSelectedDatasetList,
 	selectedTablesInDs: any
 ) => {
 	if (newTab) {

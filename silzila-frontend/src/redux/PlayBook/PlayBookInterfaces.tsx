@@ -2,7 +2,7 @@ export interface PlayBookProps {
 	playBookName: null | string;
 	playBookUid: null | string;
 	description: null | string;
-	oldContent: null | any;
+	oldContent: null | any | string;
 }
 
 export interface PlayBookStateProps {
@@ -25,6 +25,6 @@ interface resetPlayBookData {
 
 interface storePlayBookCopy {
 	type: "STORE_PLAYBOOK_COPY";
-	payload: any;
+	payload: any | string;
 }
 export type ActionType = UpdatePlaybookUid | resetPlayBookData | storePlayBookCopy;

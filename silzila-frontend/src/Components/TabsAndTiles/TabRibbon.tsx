@@ -3,8 +3,20 @@
 import React from "react";
 import { connect } from "react-redux";
 import IndividualTab from "./IndividualTab";
-import * as actions from "../../redux/TabTile/actionsTabTile";
 import { Dispatch } from "redux";
+import { TabTilPropsSelectedDatasetList } from "../../redux/TabTile/tabTilePropsInterfaces";
+
+import { TabRibbonProps, TabRibbonStateProps } from "./TabRibbonInterfaces";
+import { IndTabs, Tabs } from "../../redux/TabTile/tabStateInterfaces";
+import { IndChartPropProperties } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import {
+	actionsToAddTab,
+	actionsToEnableRenameTab,
+	actionsToRemoveTab,
+	actionsToRenameTab,
+	actionsToSelectTab,
+	actionsToUpdateSelectedTile,
+} from "../../redux/TabTile/actionsTabTile";
 
 const TabRibbon = ({
 	// state
@@ -21,11 +33,13 @@ const TabRibbon = ({
 	enableRenameTab,
 	completeRenameTab,
 	selectTile,
-}: any) => {
+}: TabRibbonProps) => {
 	const handleAddTab = () => {
-		let tabId = tabTileProps.nextTabId;
+		let tabId: number = tabTileProps.nextTabId;
 
-		var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
+		var propKey: number = parseFloat(
+			`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
+		);
 
 		addTab(
 			tabId,
@@ -35,9 +49,9 @@ const TabRibbon = ({
 		);
 	};
 
-	const handleSelectTab = (tabName: any, tabId: any) => {
+	const handleSelectTab = (tabName: string, tabId: number) => {
 		// handle how to get selected tile for the switching tab and update it in two places - tabTileProps and tabState
-		let tabObj = tabState.tabs[tabId];
+		let tabObj: IndTabs = tabState.tabs[tabId];
 
 		// changes:
 		//  added showDashBoard(tabObj.tabId, tabObj.showDash); in dataviewer comp under onchange
@@ -51,27 +65,35 @@ const TabRibbon = ({
 			selectTab(tabName, tabId, tabObj.showDash, tabObj.dashMode);
 		}
 
-		let tileName = tabObj.selectedTileName;
-		let tileId = tabObj.selectedTileId;
-		let nextTileId = tabObj.nextTileId;
+		let tileName: string = tabObj.selectedTileName;
+		let tileId: number = tabObj.selectedTileId;
+		let nextTileId: number = tabObj.nextTileId;
 
-		let propKey = `${tabId}.${tileId}`;
-		let chartObj = chartProp.properties[propKey];
-		selectTile(tabId, tileName, tileId, nextTileId, chartObj.fileId, true);
+		// let propKey: number = parseFloat(`${tabId}.${tileId}`);
+		// let chartObj: IndChartPropProperties = chartProp.properties[propKey];
+
+		selectTile(
+			tabId,
+			tileName,
+			tileId,
+			nextTileId,
+			// chartObj.fileId,
+			true
+		);
 	};
 
-	const handleRemoveTab = (tabName: any, tabId: any) => {
+	const handleRemoveTab = (tabName: string, tabId: number) => {
 		// getting params to pass for removeTab dispatch
-		let tabToRemoveIndex = tabState.tabList.findIndex((item: any) => item === tabId);
-		let selectedTab = tabTileProps.selectedTabId;
-		let addingNewTab = false;
+		let tabToRemoveIndex: number = tabState.tabList.findIndex((item: number) => item === tabId);
+		let selectedTab: number = tabTileProps.selectedTabId;
+		let addingNewTab: boolean = false;
 
 		// Selecting which tab to highlight next
 		// if we are removing a tab that is currently selected, pick another tab before or after to highlight.
 		// Else no change in highlighting tabs
 		if (tabId === selectedTab) {
 			// choosing next selection, move left
-			let nextSelection = tabToRemoveIndex - 1;
+			let nextSelection: number = tabToRemoveIndex - 1;
 
 			// if this is the first tab, move right
 			if (nextSelection < 0) {
@@ -91,8 +113,8 @@ const TabRibbon = ({
 			if (addingNewTab) {
 				removeTab(tabName, tabId, tabToRemoveIndex);
 			} else {
-				let newTabId = tabState.tabList[nextSelection];
-				let newObj = tabState.tabs[newTabId];
+				let newTabId: number = tabState.tabList[nextSelection];
+				let newObj: IndTabs = tabState.tabs[newTabId];
 
 				removeTab(tabName, tabId, tabToRemoveIndex, newObj);
 			}
@@ -102,18 +124,18 @@ const TabRibbon = ({
 	};
 
 	// called when tabName is doubleClicked
-	const handleRenameTabBegin = (tabId: any) => {
+	const handleRenameTabBegin = (tabId: number) => {
 		enableRenameTab(tabId, true);
 	};
 
 	// called when renaming tab is complete
-	const handleRenameTabComplete = (renameValue: any, tabId: any) => {
+	const handleRenameTabComplete = (renameValue: string, tabId: number) => {
 		// enableRenameTab(tabId, false);
 		completeRenameTab(renameValue, tabId);
 	};
 
-	const tablist = tabState.tabList.map((tab: any) => {
-		let currentObj = tabState.tabs[tab];
+	const tablist = tabState.tabList.map((tab: number) => {
+		let currentObj: IndTabs = tabState.tabs[tab];
 		return (
 			<IndividualTab
 				key={currentObj.tabId}
@@ -150,7 +172,7 @@ const TabRibbon = ({
 	);
 };
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: TabRibbonStateProps) => {
 	return {
 		tabTileProps: state.tabTileProps,
 		tabState: state.tabState,
@@ -163,37 +185,31 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		// ###########################################################
 		// Tab related dispatch methods
 		// ###########################################################
-		// addTab: (tabId: any, table: any, selectedDs: any, selectedTablesInDs: any) =>
-		// 	dispatch(actions.actionsToAddTab({ tabId, table, selectedDs, selectedTablesInDs })),
-		// selectTab: (tabName: any, tabId: any, showDash: any, dashMode: any) =>
-		// 	dispatch(actions.actionsToSelectTab({ tabName, tabId, showDash, dashMode })),
-		// removeTab: (tabName: any, tabId: any, tabToRemoveIndex: any, newObj: any) =>
-		// 	dispatch(actions.actionsToRemoveTab({ tabName, tabId, tabToRemoveIndex, newObj })),
-		// enableRenameTab: (tabId: any, isTrue: any) =>
-		// 	dispatch(actions.actionsToEnableRenameTab({ tabId, isTrue })),
-		// completeRenameTab: (renameValue: any, tabId: any) =>
-		// 	dispatch(actions.actionsToRenameTab({ renameValue, tabId })),
+		addTab: (
+			tabId: number,
+			table: any,
+			selectedDs: TabTilPropsSelectedDatasetList,
+			selectedTablesInDs: any
+		) => dispatch(actionsToAddTab({ tabId, table, selectedDs, selectedTablesInDs })),
+		selectTab: (tabName: string, tabId: number, showDash: boolean, dashMode: string) =>
+			dispatch(actionsToSelectTab(tabName, tabId, showDash, dashMode)),
+		removeTab: (tabName: string, tabId: number, tabToRemoveIndex: number, newObj?: any) =>
+			dispatch(actionsToRemoveTab(tabName, tabId, tabToRemoveIndex, newObj)),
+		enableRenameTab: (tabId: number, isTrue: boolean) =>
+			dispatch(actionsToEnableRenameTab(tabId, isTrue)),
+		completeRenameTab: (renameValue: string, tabId: number) =>
+			dispatch(actionsToRenameTab(renameValue, tabId)),
 		// ###########################################################
 		// Tile related dispatch methods
 		// ###########################################################
-		// selectTile: (
-		// 	tabId: any,
-		// 	tileName: any,
-		// 	tileId: any,
-		// 	nextTileId: any,
-		// 	fileId: any,
-		// 	fromTab: any
-		// ) =>
-		// 	dispatch(
-		// 		actions.actionsToUpdateSelectedTile({
-		// 			tabId,
-		// 			tileName,
-		// 			tileId,
-		// 			nextTileId,
-		// 			fileId,
-		// 			fromTab,
-		// 		})
-		// 	),
+		selectTile: (
+			tabId: number,
+			tileName: string,
+			tileId: number,
+			nextTileId: number,
+			// fileId: number,
+			fromTab: boolean
+		) => dispatch(actionsToUpdateSelectedTile(tabId, tileName, tileId, nextTileId, fromTab)),
 	};
 };
 

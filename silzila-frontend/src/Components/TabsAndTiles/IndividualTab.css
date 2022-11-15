@@ -1,0 +1,62 @@
+.commonTab {
+	transition: 0.2s;
+	display: inline-block;
+	height: 1.5rem;
+	line-height: 1.5rem;
+	margin-left: 2px;
+	padding: 0 5px 0 5px;
+	cursor: pointer;
+	background-color: rgb(211, 211, 211);
+}
+.commonTab:hover {
+	color: rgb(64, 64, 64);
+	background: white;
+}
+.plusTab {
+	color: rgb(96, 96, 96);
+	padding: 0 10px;
+	background: rgb(211, 211, 211);
+	border-bottom: 2px solid transparent;
+}
+.indiItemTab {
+	color: rgb(128, 128, 128);
+	border-bottom: 2px solid transparent;
+}
+.indiItemHighlightTab {
+	transition: 0.2s;
+	border-bottom: 2px solid rgb(0, 123, 255);
+	background: white;
+}
+.tabText {
+	/* display: inline-block; */
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.editTabSelected {
+	transition: 0.2s;
+	display: inline-block;
+	height: 1.5rem;
+	line-height: 1.5rem;
+	margin-left: 2px;
+	padding: 0 0 0 10px;
+	border-bottom: 2px solid rgb(0, 123, 255);
+	border: none;
+	background-color: white;
+	font-size: 12px;
+}
+.editTabSelected:focus {
+	outline: none;
+	border-bottom: 2px solid rgb(0, 123, 255);
+}
+.closeTab {
+	border-radius: 2px;
+	margin-left: 5px;
+	padding: 0px 5px;
+	color: rgb(96, 96, 96);
+}
+.closeTab:hover {
+	background-color: rgb(238, 238, 238);
+	color: rgb(255, 0, 0);
+}

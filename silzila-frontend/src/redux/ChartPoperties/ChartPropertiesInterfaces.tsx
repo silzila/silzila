@@ -1,24 +1,41 @@
+import { TabTilPropsSelectedDatasetList } from "../TabTile/tabTilePropsInterfaces";
+
+export interface IndChartPropProperties {
+	tabId: number;
+	tileId: number;
+
+	chartType: string;
+
+	axesEdited: boolean;
+	filterRunState: boolean;
+	chartAxes: ChartPropChartAxes[];
+	chartFilters: any[];
+	selectedDs: TabTilPropsSelectedDatasetList; //{}
+	selectedTable: any; //{"key":"jfj"}
+	titleOptions: ChartPropTitleOptions;
+	chartOptionSelected: string;
+	reUseData?: boolean;
+}
 export interface ChartPropProperties {
-	[key: number]: {
-		tabId: number;
-		tileId: number;
+	[key: number]: IndChartPropProperties;
+}
 
-		chartType: string;
-
-		axesEdited: boolean;
-		filterRunState: boolean;
-		chartAxes: ChartPropChartAxes[];
-		chartFilters: any[];
-		selectedDs: any; //{}
-		selectedTable: any; //{}
-		titleOptions: ChartPropTitleOptions;
-		chartOptionSelected: string;
-	};
+interface ChartPropChartAxesFieldsProps {
+	fieldname: string;
+	displayname: string;
+	dataType: string;
+	tableId: string;
+	uId: string;
+	includeexclude: string;
+	fieldtypeoption: string;
+	isCollapsed: boolean;
+	rawselectmembers: string[];
+	userSelection: string[];
 }
 
 interface ChartPropChartAxes {
 	name: string;
-	fields: any[];
+	fields: ChartPropChartAxesFieldsProps[];
 	isCollapsed: boolean;
 	any_condition_match?: boolean;
 	is_auto_filter_enabled?: boolean;

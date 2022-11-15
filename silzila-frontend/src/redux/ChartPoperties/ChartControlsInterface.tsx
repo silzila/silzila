@@ -25,7 +25,7 @@ export interface ChartControlsProps {
 	};
 }
 export interface ChartControlProperties {
-	[key: number | string]: ChartControlsProps;
+	[key: number]: ChartControlsProps;
 }
 
 interface ChartConColorScale {
@@ -85,9 +85,9 @@ interface ChartConCalenderStyleOptions {
 
 interface ChartConBoxPlotChartControls {
 	colorBy: string;
-	minBoxWidth: number | string; // px or %,
-	maxBoxWidth: number | string;
-	boxborderWidth: string | number; //px
+	minBoxWidth: number; // px or %,
+	maxBoxWidth: number;
+	boxborderWidth: number; //px
 	flipAxis: boolean;
 }
 
