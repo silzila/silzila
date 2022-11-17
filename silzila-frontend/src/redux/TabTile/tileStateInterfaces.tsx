@@ -1,4 +1,4 @@
-interface Tiles {
+export interface TilesProps {
 	[key: number]: {
 		tabId: number;
 		tileId: number;
@@ -6,21 +6,31 @@ interface Tiles {
 		graphSizeFull: boolean;
 	};
 }
-interface TileList {
+export interface TileListProps {
 	[key: number]: string[];
 }
 
-export interface StateProp {
-	// tiles: Tiles;
-	// tileList: TileList;
-	tiles: any;
-	tileList: any;
+export interface TileStateProps {
+	tiles: TilesProps;
+	tileList: TileListProps;
 }
 
-interface AddTile {
-	type: "ADD_TILE" | "ADD_TILE_FROM_TAB";
-	payload: { tabId: number; tileId: number; newTab: boolean };
+export interface TileStateProps2 {
+	tileState: TileStateProps;
 }
+
+//1
+interface AddTile {
+	type: "ADD_TILE";
+	payload: { tabId: number; tileId: number };
+}
+//2
+interface AddTileFromTab {
+	type: "ADD_TILE_FROM_TAB";
+	payload: { tabId: number; tileId: number };
+}
+
+//3
 interface RemoveTilesOfTab {
 	type: "REMOVE_TILES_OF_TAB";
 	payload: {
@@ -28,25 +38,40 @@ interface RemoveTilesOfTab {
 		tabId: number;
 	};
 }
-
+//4
 interface RenameTile {
 	type: "RENAME_TILE";
 	payload: { tabId: number; tileId: number; renameValue: string };
 }
 
+//5
 interface RemoveTile {
 	type: "REMOVE_TILE";
 	payload: { tabId: number; tileId: number; tileIndex: number };
 }
 
+//6
 interface ToggleGraphSize {
 	type: "TOGGLE_GRAPH_SIZE";
 	payload: { tileKey: number; graphSize: boolean };
 }
 
+//7;
+interface LoadTileState {
+	type: "LOAD_TILE_STATE_FROM_PLAYBOOK";
+	payload: any;
+}
+//8
+interface ResetTileState {
+	type: "RESET_TILE_STATE";
+}
+
 export type ActionsOfTileState =
+	| AddTileFromTab
 	| AddTile
 	| RemoveTilesOfTab
 	| RenameTile
 	| RemoveTile
-	| ToggleGraphSize;
+	| ToggleGraphSize
+	| LoadTileState
+	| ResetTileState;

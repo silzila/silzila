@@ -182,7 +182,7 @@ const TableList = (props: TableListProps) => {
 	return (
 		<React.Fragment>
 			<Checkbox
-				style={{ width: "1rem", height: "1rem", margin: "auto 5px auto 0" }}
+				style={{ width: "0.5rem", height: "0.5rem", margin: "auto 5px auto 0" }}
 				size="small"
 				// size="1rem"
 				disabled={props.table.isNewTable ? false : true}

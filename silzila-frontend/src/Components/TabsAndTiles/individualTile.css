@@ -1,0 +1,67 @@
+.commonTile {
+	transition: 0.2s;
+	/* box-sizing: border-box; */
+	display: inline-block;
+	height: 1.5rem;
+	line-height: 1.25rem;
+	margin-left: 2px;
+	padding: 0 0 0 10px;
+	cursor: pointer;
+	background-color: rgb(211, 211, 211);
+}
+.commonTile:hover {
+	color: #404040;
+	/* border-bottom: 1px solid gray;
+	border-left: 1px solid gray;
+	border-right: 1px solid gray; */
+	background: #fff;
+}
+.plusTile {
+	padding: 0 10px;
+	border-top: 2px solid transparent;
+	/* border-bottom: 1px solid #a9a9a9;
+	border-left: 1px solid #a9a9a9;
+	border-right: 1px solid #a9a9a9; */
+}
+.indiItemTile {
+	color: gray;
+	border-top: 2px solid transparent;
+	/* border-bottom: 1px solid #a9a9a9;
+	border-left: 1px solid #a9a9a9;
+	border-right: 1px solid #a9a9a9; */
+}
+.indiItemHighlightTile {
+	border-top: 2px solid #007bff;
+	/* border-bottom: 1px solid gray;
+	border-left: 1px solid #a9a9a9;
+	border-right: 1px solid #a9a9a9; */
+	background: white;
+}
+.closeTile {
+	border-radius: 2px;
+	margin-left: 10px;
+	margin-right: 5px;
+	padding: 0px 5px;
+	color: #606060;
+}
+.closeTile:hover {
+	background-color: #eee;
+	color: red;
+}
+.editTileSelected {
+	transition: 0.2s;
+	display: inline-block;
+	height: 1.5rem;
+	line-height: 1.5rem;
+	margin-left: 5px;
+	padding: 0 0 0 10px;
+	border-top: 2px solid #007bff;
+	border: none;
+	background-color: white;
+	font-size: 12px;
+}
+.editTileSelected:focus {
+	outline: none;
+	border-top: 2px solid rgb(0, 123, 255);
+	margin: 0 0 0 5px;
+}

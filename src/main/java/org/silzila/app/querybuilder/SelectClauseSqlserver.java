@@ -130,7 +130,7 @@ public class SelectClauseSqlserver {
         for (int i = 0; i < req.getMeasures().size(); i++) {
             Measure meas = req.getMeasures().get(i);
 
-            // // if aggr is null then throw error
+            //if aggr is null then throw error
             // if (meas.getAggr() == null || meas.getAggr().isBlank()) {
             // throw new BadRequestException(
             // "Error: Aggregation is not specified for measure " + meas.getFieldName());

@@ -18,7 +18,7 @@ interface NotificationProps {
 interface ChangeConnectionProps {
 	open: boolean;
 	setOpen: (value: boolean) => void;
-	setReset: any;
+	setReset?: any;
 	heading: string;
 	message: string;
 	onChangeOrAddDataset?: any;

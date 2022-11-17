@@ -1,5 +1,5 @@
 import update from "immutability-helper";
-import { ActionsOfTabTileProps, StateProps } from "./tabTilePropsInterfaces";
+import { TabTileStateProps } from "./TabTilePropsInterfaces";
 
 const initialProperties = {
 	selectedTabName: "Tab - 1",
@@ -26,10 +26,7 @@ const initialProperties = {
 	tablesForSelectedDataSets: {},
 };
 
-const tabTilePropsReducer = (
-	state: StateProps = initialProperties,
-	action: ActionsOfTabTileProps
-) => {
+const tabTilePropsReducer = (state: TabTileStateProps = initialProperties, action: any) => {
 	switch (action.type) {
 		case "UPDATE_NEXT_TAB_ID":
 			return { ...state, nextTabId: state.nextTabId + 1 };
@@ -76,35 +73,32 @@ const tabTilePropsReducer = (
 		case "SET_DASH_GRID_SIZE":
 			return { ...state, dashGridSize: action.payload };
 
-		// case "SET_SELECTED_DATASET_LIST":
-		// 	return {
-		// 		...state,
-		// 		selectedDataSetList: [...state.selectedDataSetList, action.payload],
-		// 	};
+		case "SET_SELECTED_DATASET_LIST":
+			return {
+				...state,
+				selectedDataSetList: [...state.selectedDataSetList, action.payload],
+			};
 
-		// case "TABLES_FOR_SELECTED_DATASETS":
-		// 	return update(state, { tablesForSelectedDataSets: { $merge: action.payload } });
+		case "TABLES_FOR_SELECTED_DATASETS":
+			return update(state, { tablesForSelectedDataSets: { $merge: action.payload } });
 
-		// case "TOGGLE_COLUMNS_ONLY_DISPLAY":
-		// 	return update(state, { columnsOnlyDisplay: { $set: action.payload } });
+		case "TOGGLE_COLUMNS_ONLY_DISPLAY":
+			return update(state, { columnsOnlyDisplay: { $set: action.payload } });
 
-		// case "TOGGLE_SHOW_DATA_VIEWER_BOTTOM":
-		// 	return update(state, { showDataViewerBottom: { $set: action.payload } });
+		case "TOGGLE_SHOW_DATA_VIEWER_BOTTOM":
+			return update(state, { showDataViewerBottom: { $set: action.payload } });
 
-		// case "TOGGLE_DASH_MODE":
-		// 	return update(state, { dashMode: { $set: action.payload } });
+		case "TOGGLE_DASH_MODE":
+			return update(state, { dashMode: { $set: action.payload } });
 
-		// case "SET_SELECTED_CONTROL_MENU":
-		// 	return update(state,
-		//          {
-		//              selectedControlMenu: { $set: action.payload }
-		//          });
+		case "SET_SELECTED_CONTROL_MENU":
+			return update(state, { selectedControlMenu: { $set: action.payload } });
 
-		// case "LOAD_TAB_TILE_PROPS_FROM_PLAYBOOK":
-		// 	return action.payload;
+		case "LOAD_TAB_TILE_PROPS_FROM_PLAYBOOK":
+			return action.payload;
 
-		// case "RESET_TABTILE_PROPS":
-		// 	return initialProperties;
+		case "RESET_TABTILE_PROPS":
+			return initialProperties;
 
 		default:
 			return state;
