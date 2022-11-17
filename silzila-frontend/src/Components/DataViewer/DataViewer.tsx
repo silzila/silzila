@@ -15,7 +15,7 @@ import React, { useState } from "react";
 import "./dataViewer.css";
 import { connect } from "react-redux";
 import TabRibbon from "../TabsAndTiles/TabRibbon";
-import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/tabTilePropsInterfaces";
+import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 // import {
 // 	// setShowDashBoard,
 // 	toggleColumnsOnlyDisplay,
@@ -32,12 +32,14 @@ import listOfTilesIcon from "../../assets/listoftilesIcon.svg";
 import dashbordSizeIcon from "../../assets/screenSize.png";
 import DashBoard from "../DashBoard/DashBoard";
 import { Dispatch } from "redux";
+import { Tooltip } from "@mui/material";
+import DataViewerMiddle from "./DataViewerMiddle";
+import DataViewerBottom from "./DataViewerBottom";
 import {
 	setShowDashBoard,
 	toggleColumnsOnlyDisplay,
 	toggleShowDataViewerBottom,
-} from "../../redux/TabTile/actionsTabTile";
-import { Tooltip } from "@mui/material";
+} from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 // import MenuBar from "./MenuBar";
 // // import { SaveRichText } from "../Charts/TextEditor";
 // import { Dispatch } from "redux";
@@ -137,21 +139,22 @@ function DataViewer({
 				) : null}
 			</div>
 			{/* Show tile page or Dashboard */}
-			{/* {tabTileProps.showDash ? (
-				<DashBoard
-					showListofTileMenu={showListofTileMenu}
-					dashboardResizeColumn={dashboardResizeColumn}
-				/>
+			{tabTileProps.showDash ? (
+				"kkj"
 			) : (
+				// <DashBoard
+				// 	showListofTileMenu={showListofTileMenu}
+				// 	dashboardResizeColumn={dashboardResizeColumn}
+				// />
 				<React.Fragment>
 					<DataViewerMiddle
-					// tabId={tabTileProps.selectedTabId}
-					// tileId={tabTileProps.selectedTileId}
+						tabId={tabTileProps.selectedTabId}
+						tileId={tabTileProps.selectedTileId}
 					/>
 
 					{tabTileProps.showDataViewerBottom ? <DataViewerBottom /> : null}
 				</React.Fragment>
-			)} */}
+			)}
 
 			{/* Dashboard present and edit mode related UI */}
 			{tabTileProps.dashMode === "Edit" ? (

@@ -1,7 +1,25 @@
-import React from "react";
+import {
+	ChartPropertiesProps,
+	ChartPropertiesStateProps,
+} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 
-const DataViewerMiddleInterfaces = () => {
-	return <div>DataViewerMiddleInterfaces</div>;
-};
+export interface DataViewerMiddleProps {
+	// props
+	tabId: number;
+	tileId: number;
 
-export default DataViewerMiddleInterfaces;
+	// state
+	tabTileProps: TabTileStateProps;
+	chartProp: ChartPropertiesProps;
+
+	// dispatch
+	setMenu: (menu: string) => void;
+}
+
+export type DataViewerMiddleStateProps = ChartPropertiesStateProps & TabTileStateProps2;
+
+export interface RenderMenuItems {
+	name: string;
+	icon: any;
+}

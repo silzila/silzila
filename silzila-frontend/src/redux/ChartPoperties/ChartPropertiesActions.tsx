@@ -3,7 +3,7 @@
 // ==============================================================
 
 import { Dispatch } from "redux";
-import { TabTilPropsSelectedDatasetList } from "../TabTile/tabTilePropsInterfaces";
+import { TabTilPropsSelectedDatasetList } from "../TabTile/TabTilePropsInterfaces";
 
 export const addProp = (
 	tabId: number,

@@ -2,12 +2,12 @@ import {
 	ChartPropertiesProps,
 	ChartPropertiesStateProps,
 } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
-import { TabStateProps, TabStateProps2 } from "../../redux/TabTile/tabStateInterfaces";
+import { TabStateProps, TabStateProps2 } from "../../redux/TabTile/TabStateInterfaces";
 import {
 	TabTileStateProps,
 	TabTileStateProps2,
 	TabTilPropsSelectedDatasetList,
-} from "../../redux/TabTile/tabTilePropsInterfaces";
+} from "../../redux/TabTile/TabTilePropsInterfaces";
 
 export type TabRibbonStateProps = TabTileStateProps2 & TabStateProps2 & ChartPropertiesStateProps;
 

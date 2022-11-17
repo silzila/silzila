@@ -15,12 +15,13 @@ import {
 	ChartPropertiesProps,
 	ChartPropertiesStateProps,
 } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
-import { actionsToAddTile, renameTile } from "../../redux/TabTile/actionsTabTile";
-import { TabStateProps, TabStateProps2 } from "../../redux/TabTile/tabStateInterfaces";
-import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/tabTilePropsInterfaces";
-import { TileStateProps, TileStateProps2 } from "../../redux/TabTile/tileStateInterfaces";
+import { TabStateProps, TabStateProps2 } from "../../redux/TabTile/TabStateInterfaces";
+import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
+import { TileStateProps, TileStateProps2 } from "../../redux/TabTile/TileStateInterfaces";
 import "./individualTile.css";
 import { connect } from "react-redux";
+import { renameTile } from "../../redux/TabTile/TileActions";
+import { actionsToAddTile } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 
 type IndTileStateProps = TabStateProps2 &
 	TileStateProps2 &

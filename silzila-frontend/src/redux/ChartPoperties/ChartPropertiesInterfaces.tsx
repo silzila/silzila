@@ -1,4 +1,4 @@
-import { TabTilPropsSelectedDatasetList } from "../TabTile/tabTilePropsInterfaces";
+import { TabTilPropsSelectedDatasetList } from "../TabTile/TabTilePropsInterfaces";
 
 export interface IndChartPropProperties {
 	tabId: number;

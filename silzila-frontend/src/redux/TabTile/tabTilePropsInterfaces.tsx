@@ -45,77 +45,127 @@ export interface TabTileStateProps2 {
 	tabTileProps: TabTileStateProps;
 }
 
+//1
 interface UpdateNextTabId {
 	type: "UPDATE_NEXT_TAB_ID";
 }
 
+//2
 interface UpdateSelectedTab {
 	type: "SELECTED_TAB";
-	payload: { tabName: string; tabId: number; showDash: boolean; dashMode: string };
+	payload: { tabName: string; tabId: number; showDash?: boolean; dashMode?: string };
 }
 
-// interface UpdateSelectedTile {
-// 	type: "SELECTED_TILE";
-// 	payload: {
-// 		tileName: string;
-// 		tileId: number;
-// 		nextTileId: number;
-// 	};
-// }
+//3
+interface ToggleEditingTab {
+	type: "EDITING_TAB";
+	payload: boolean;
+}
+//4
+interface ToggleEditingTile {
+	type: "EDITING_TILE";
+	payload: boolean;
+}
 
-// interface ToggleEditingTab {
-// 	type: "EDITING_TAB";
-// 	payload: { isTrue: boolean };
-// }
+//5
+interface UpdateSelectedTile {
+	type: "SELECTED_TILE";
+	payload: {
+		tileName: string;
+		tileId: number;
+		nextTileId: number;
+	};
+}
 
-// interface ToggleEditingTile {
-// 	type: "EDITING_TILE";
-// 	payload: { isTrue: boolean };
-// }
+//6
 
-// interface SetDragging {
-// 	type: "SET_DRAGGING";
-// 	payload: { dragging: boolean };
-// }
+interface SetDragging {
+	type: "SET_DRAGGING";
+	payload: boolean | any;
+}
 
-// interface SelectedTable {
-// 	type: "SET_TABLE";
-// 	payload: { id: number };
-// }
+//7
+interface SelectedTable {
+	type: "SET_TABLE";
+	payload: any;
+}
 
-// interface ChartPropsLeftUpdated {
-// 	type: "CHART_PROP_UPDATED";
-// 	payload: { updated: boolean };
-// }
+//8
+interface ChartPropsLeftUpdated {
+	type: "CHART_PROP_UPDATED";
+	payload: any;
+}
+//9
+interface ShowDashBoard {
+	type: "SHOW_DASHBOARD";
+	payload: boolean;
+}
 
-// interface ShowDashBoard {
-// 	type: "SHOW_DASHBOARD";
-// 	payload: { showDash: boolean };
-// }
+//10
+interface SetDashGridSize {
+	type: "SET_DASH_GRID_SIZE";
+	payload: any;
+}
+//11
+interface SetSelectedDataSetList {
+	type: "SET_SELECTED_DATASET_LIST";
+	payload: string;
+}
+//12
+interface SetTablesForSelectedDataSets {
+	type: "TABLES_FOR_SELECTED_DATASETS";
+	payload: any;
+}
+//13
+interface ToggleColumnsOnlyDisplay {
+	type: "TOGGLE_COLUMNS_ONLY_DISPLAY";
+	payload: boolean;
+}
 
-// interface ToggleDashMode {
-// 	type: "TOGGLE_DASH_MODE";
-// 	payload: { dashMode: string };
-// }
+//14
+interface ToggleShowDataViewerBottom {
+	type: "TOGGLE_SHOW_DATA_VIEWER_BOTTOM";
+	payload: boolean;
+}
+//15
+interface ToggleDashMode {
+	type: "TOGGLE_DASH_MODE";
+	payload: string;
+}
+//16
+interface SetSelectedControlMenu {
+	type: "SET_SELECTED_CONTROL_MENU";
+	payload: string;
+}
 
-// interface SetDashGridSize {
-// 	type: "SET_DASH_GRID_SIZE";
-// 	payload: { gridSize: any };
-// }
+//17
+interface LoadTabTileProps {
+	type: "LOAD_TAB_TILE_PROPS_FROM_PLAYBOOK";
+	payload: any;
+}
 
-// interface ToggleColumnsOnlyDisplay {
-// 	type: "TOGGLE_COLUMNS_ONLY_DISPLAY";
-// 	payload: { columns: boolean };
-// }
+//18
+interface ResetTabTileState {
+	type: "RESET_TABTILE_PROPS";
+}
 
-// interface ToggleShowDataViewerBottom {
-// 	type: "TOGGLE_SHOW_DATA_VIEWER_BOTTOM";
-// 	payload: { show: boolean };
-// }
-
-// interface SetSelectedControlMenu {
-// 	type: "SET_SELECTED_CONTROL_MENU";
-// 	payload: { menu: string };
-// }
-
-export type ActionsOfTabTileProps = UpdateNextTabId | UpdateSelectedTab;
+export type ActionsOfTabTileProps =
+	| UpdateNextTabId
+	| UpdateSelectedTab
+	| ToggleEditingTab
+	| ToggleEditingTile
+	| UpdateSelectedTile
+	| SetDragging
+	| SelectedTable
+	| ChartPropsLeftUpdated
+	| ShowDashBoard
+	| SetDashGridSize
+	| SetSelectedDataSetList
+	| SetTablesForSelectedDataSets
+	| SetTablesForSelectedDataSets
+	| ToggleColumnsOnlyDisplay
+	| ToggleShowDataViewerBottom
+	| ToggleDashMode
+	| SetSelectedControlMenu
+	| LoadTabTileProps
+	| ResetTabTileState;

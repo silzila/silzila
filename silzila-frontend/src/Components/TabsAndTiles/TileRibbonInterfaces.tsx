@@ -2,9 +2,9 @@ import {
 	ChartPropertiesProps,
 	ChartPropertiesStateProps,
 } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
-import { TabStateProps, TabStateProps2 } from "../../redux/TabTile/tabStateInterfaces";
-import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/tabTilePropsInterfaces";
-import { TileStateProps, TileStateProps2 } from "../../redux/TabTile/tileStateInterfaces";
+import { TabStateProps, TabStateProps2 } from "../../redux/TabTile/TabStateInterfaces";
+import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
+import { TileStateProps, TileStateProps2 } from "../../redux/TabTile/TileStateInterfaces";
 
 export interface TileRibbonProps {
 	//state

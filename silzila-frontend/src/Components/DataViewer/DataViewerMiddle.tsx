@@ -5,17 +5,20 @@
 
 import React from "react";
 import { connect } from "react-redux";
-// import ChartAxes from "../ChartAxes/ChartAxes";
-// import GraphArea from "../GraphArea/GraphArea";
+
 import "./dataViewerMiddle.css";
 import chartControlIcon from "../../assets/chart-control-icon.svg";
 import settingsIcon from "../../assets/charts_theme_settings_icon.svg";
-// import ChartControlObjects from "../ChartOptions/ChartControlObjects";
-// import ControlDetail from "../ChartOptions/ControlDetail";
-// import ChartTypes from "../ChartOptions/ChartTypes";
-// import { setSelectedControlMenu } from "../../redux/TabTile/actionsTabTile";
+
 import { Dispatch } from "redux";
-import { setSelectedControlMenu } from "../../redux/TabTile/actionsTabTile";
+import {
+	DataViewerMiddleProps,
+	DataViewerMiddleStateProps,
+	RenderMenuItems,
+} from "./DataViewerMiddleInterfaces";
+import { setSelectedControlMenu } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
+import ChartTypes from "../ChartOptions/ChartTypes";
+import ControlDetail from "../ChartOptions/ControlDetail";
 
 const DataViewerMiddle = ({
 	// props
@@ -28,19 +31,18 @@ const DataViewerMiddle = ({
 
 	// dispatch
 	setMenu,
-}: any) => {
+}: DataViewerMiddleProps) => {
 	// console.log(chartProp);
 	var propKey: number = parseFloat(`${tabId}.${tileId}`);
-	const rmenu: any[] = [
+	const rmenu: RenderMenuItems[] = [
 		{ name: "Charts", icon: chartControlIcon },
 		{ name: "Chart controls", icon: settingsIcon },
 	];
 
-	const renderMenu = rmenu.map((rm: any, i: number) => {
+	const renderMenu = rmenu.map((rm: RenderMenuItems, i: number) => {
 		return (
 			<img
-				key={i}
-				// key={rm.name}
+				key={rm.name}
 				className={
 					rm.name === tabTileProps.selectedControlMenu
 						? "controlsIcon selectedIcon"
@@ -66,7 +68,7 @@ const DataViewerMiddle = ({
 				return (
 					<div className="rightColumnControlsAndFilters">
 						<div className="axisTitle">Charts</div>
-						{/* <ChartTypes propKey={propKey} /> */}
+						<ChartTypes propKey={propKey} />
 					</div>
 				);
 
@@ -75,7 +77,7 @@ const DataViewerMiddle = ({
 					<div className="rightColumnControlsAndFilters">
 						<div className="axisTitle">Charts Controls</div>
 						{/* <ChartControlObjects /> */}
-						{/* <ControlDetail /> */}
+						<ControlDetail />
 					</div>
 				);
 
@@ -107,7 +109,7 @@ const DataViewerMiddle = ({
 	);
 };
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: DataViewerMiddleStateProps) => {
 	return {
 		chartProp: state.chartProperties,
 		tabTileProps: state.tabTileProps,
@@ -116,7 +118,7 @@ const mapStateToProps = (state: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		setMenu: (menu: any) => dispatch(setSelectedControlMenu(menu)),
+		setMenu: (menu: string) => dispatch(setSelectedControlMenu(menu)),
 	};
 };
 

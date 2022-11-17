@@ -23,8 +23,24 @@ import DatasetListPopover from "../CommonFunctions/PopOverComponents/DatasetList
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import "./dataViewerBottom.css";
 import DisplayTable from "./DisplayTable";
+import {
+	setSelectedDsInTile,
+	setSelectedTableInTile,
+} from "../../redux/ChartPoperties/ChartPropertiesActions";
+import { addTableRecords } from "../../redux/SampleTableRecords/SampleTableRecordsActions";
+import { DataViewerBottomProps, DataViewerBottomStateProps } from "./DataViewerBottomInterfaces";
+import {
+	actionsToAddTile,
+	setSelectedDataSetList,
+	setTablesForSelectedDataSets,
+} from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 
-export const getTableData = async (dc_uid: any, schema_name: any, table_name: any, token: any) => {
+export const getTableData = async (
+	dc_uid: string,
+	schema_name: string,
+	table_name: string,
+	token: string
+) => {
 	var res: any = await FetchData({
 		requestType: "noData",
 		method: "GET",
@@ -40,10 +56,10 @@ export const getTableData = async (dc_uid: any, schema_name: any, table_name: an
 };
 
 export const getColumnTypes = async (
-	dc_uid: any,
-	schema_name: any,
-	table_name: any,
-	token: any
+	dc_uid: string,
+	schema_name: string,
+	table_name: string,
+	token: string
 ) => {
 	var res: any = await FetchData({
 		requestType: "noData",
@@ -64,7 +80,7 @@ const DataViewerBottom = ({
 	token,
 	tabTileProps,
 	chartProps,
-	sampleRecords,
+	// sampleRecords,
 	tabState,
 
 	// dispatch
@@ -74,8 +90,10 @@ const DataViewerBottom = ({
 	setTablesForDs,
 	addRecords,
 	addTile,
-}: any) => {
-	var propKey: string | number = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
+}: DataViewerBottomProps) => {
+	var propKey: number = parseFloat(
+		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
+	);
 	var selectedChartProp: any = chartProps.properties[propKey];
 	var tables: any =
 		tabTileProps?.tablesForSelectedDataSets?.[selectedChartProp?.selectedDs?.ds_uid];
@@ -153,53 +171,53 @@ const DataViewerBottom = ({
 		if (table.id !== selectedChartProp.selectedTable) {
 			setSelectedTable(propKey, { [selectedChartProp.selectedDs.ds_uid]: table.id });
 
-			if (sampleRecords?.[selectedChartProp.selectedDs?.ds_uid]?.[table.id]) {
-			} else {
-				setLoading(true);
-				var dc_uid = selectedChartProp.selectedDs?.dc_uid;
-				var ds_uid = selectedChartProp.selectedDs?.ds_uid;
-				var tableRecords = await getTableData(
-					dc_uid,
-					table.schema_name,
-					table.table_name,
-					token
-				);
-				var recordsType = await getColumnTypes(
-					dc_uid,
-					table.schema_name,
-					table.table_name,
-					token
-				);
+			// if (sampleRecords?.[selectedChartProp.selectedDs?.ds_uid]?.[table.id]) {
+			// } else {
+			// 	setLoading(true);
+			// 	var dc_uid = selectedChartProp.selectedDs?.dc_uid;
+			// 	var ds_uid = selectedChartProp.selectedDs?.ds_uid;
+			// 	var tableRecords = await getTableData(
+			// 		dc_uid,
+			// 		table.schema_name,
+			// 		table.table_name,
+			// 		token
+			// 	);
+			// 	var recordsType = await getColumnTypes(
+			// 		dc_uid,
+			// 		table.schema_name,
+			// 		table.table_name,
+			// 		token
+			// 	);
 
-				addRecords(ds_uid, table.id, tableRecords, recordsType);
-				setLoading(false);
-			}
+			// 	addRecords(ds_uid, table.id, tableRecords, recordsType);
+			// 	setLoading(false);
+			// }
 		}
 	};
 
 	// List of tables for a dataset, displayed
-	const TableListForDs = () => {
-		if (tables !== undefined) {
-			return tables.map((table: any) => {
-				return (
-					<div
-						className={
-							table.id ===
-							selectedChartProp.selectedTable?.[selectedChartProp.selectedDs?.ds_uid]
-								? "dsIndiTableInTileSelected"
-								: "dsIndiTableInTile"
-						}
-						key={table.id}
-						onClick={() => {
-							handleTableChange(table);
-						}}
-					>
-						{table.alias}
-					</div>
-				);
-			});
-		} else return null;
-	};
+	// const TableListForDs: any = () => {
+	// 	if (tables !== undefined) {
+	// 		return tables.map((table: any) => {
+	// 			return (
+	// 				<div
+	// 					className={
+	// 						table.id ===
+	// 						selectedChartProp.selectedTable?.[selectedChartProp.selectedDs?.ds_uid]
+	// 							? "dsIndiTableInTileSelected"
+	// 							: "dsIndiTableInTile"
+	// 					}
+	// 					key={table.id}
+	// 					onClick={() => {
+	// 						handleTableChange(table);
+	// 					}}
+	// 				>
+	// 					{table.alias}
+	// 				</div>
+	// 			);
+	// 		});
+	// 	} else return null;
+	// };
 
 	var selectInput = { fontSize: "12px", padding: "2px 1rem" };
 
@@ -261,7 +279,7 @@ const DataViewerBottom = ({
 			var dsObj = tabTileProps.selectedDataSetList.filter(
 				(ds: any) => ds.ds_uid === addNewOrChooseExistingDS
 			)[0];
-			setSelectedDs(`${tabObj.tabId}.${tabObj.nextTileId}`, dsObj);
+			setSelectedDs(parseFloat(`${tabObj.tabId}.${tabObj.nextTileId}`), dsObj);
 		}
 	};
 	return (
@@ -325,7 +343,7 @@ const DataViewerBottom = ({
 
 						<div className="tileTableList">
 							<div style={{ flex: 1, overflow: "auto", padding: "0 0.5rem" }}>
-								<TableListForDs />
+								{/* <TableListForDs /> */}
 							</div>
 						</div>
 						<DatasetListPopover
@@ -373,47 +391,43 @@ const DataViewerBottom = ({
 	);
 };
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: DataViewerBottomStateProps) => {
 	return {
 		token: state.isLogged.accessToken,
 		tabTileProps: state.tabTileProps,
 		chartProps: state.chartProperties,
-		sampleRecords: state.sampleRecords,
+		// sampleRecords: state.sampleRecords,
 		tabState: state.tabState,
 	};
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		// setSelectedDataSetList: (dataset: any[]) => dispatch(setSelectedDataSetList(dataset)),
-		// setTablesForDs: (tablesObj: any) => dispatch(setTablesForSelectedDataSets(tablesObj)),
-		// setSelectedDs: (propKey: string | number, selectedDs: any) =>
-		// 	dispatch(setSelectedDsInTile(propKey, selectedDs)),
-		// setSelectedTable: (propKey: string | number, selectedTable: any) =>
-		// 	dispatch(setSelectedTableInTile(propKey, selectedTable)),
-		// addRecords: (
-		// 	ds_uid: string,
-		// 	tableId: string | number,
-		// 	tableRecords: any,
-		// 	columnType: any
-		// ) => dispatch(addTableRecords(ds_uid, tableId, tableRecords, columnType)),
-		// addTile: (
-		// 	tabId: any,
-		// 	nextTileId: number | string,
-		// 	table: any,
-		// 	selectedDataset: any,
-		// 	selectedTables: any
-		// ) =>
-		// 	dispatch(
-		// 		actionsToAddTile({
-		// 			tabId,
-		// 			nextTileId,
-		// 			table,
-		// 			fromTab: false,
-		// 			selectedDs: selectedDataset,
-		// 			selectedTablesInDs: selectedTables,
-		// 		})
-		// 	),
+		setSelectedDataSetList: (dataset: string) => dispatch(setSelectedDataSetList(dataset)),
+		setTablesForDs: (tablesObj: any) => dispatch(setTablesForSelectedDataSets(tablesObj)),
+		setSelectedDs: (propKey: number, selectedDs: any) =>
+			dispatch(setSelectedDsInTile(propKey, selectedDs)),
+		setSelectedTable: (propKey: number, selectedTable: any) =>
+			dispatch(setSelectedTableInTile(propKey, selectedTable)),
+		addRecords: (ds_uid: string, tableId: string, tableRecords: any, columnType: any) =>
+			dispatch(addTableRecords(ds_uid, tableId, tableRecords, columnType)),
+		addTile: (
+			tabId: number,
+			nextTileId: number,
+			table: any,
+			selectedDataset: any,
+			selectedTables: any
+		) =>
+			dispatch(
+				actionsToAddTile({
+					tabId,
+					nextTileId,
+					table,
+					fromTab: false,
+					selectedDs: selectedDataset,
+					selectedTablesInDs: selectedTables,
+				})
+			),
 	};
 };
 

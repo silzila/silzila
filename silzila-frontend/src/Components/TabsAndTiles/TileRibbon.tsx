@@ -9,7 +9,8 @@ import {
 	actionsToEnableRenameTile,
 	actionsToRemoveTile,
 	actionsToUpdateSelectedTile,
-} from "../../redux/TabTile/actionsTabTile";
+} from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
+
 import IndividualTile from "./IndividualTile";
 import { TileRibbonProps, TileRibbonStateProps } from "./TileRibbonInterfaces";
 

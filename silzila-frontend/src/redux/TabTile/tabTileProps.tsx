@@ -1,5 +1,5 @@
 import update from "immutability-helper";
-import { TabTileStateProps } from "./tabTilePropsInterfaces";
+import { TabTileStateProps } from "./TabTilePropsInterfaces";
 
 const initialProperties = {
 	selectedTabName: "Tab - 1",

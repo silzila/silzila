@@ -15,7 +15,7 @@ import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import FetchData from "../ServerCall/FetchData";
 import { setDataConnectionListToState } from "../../redux/DataSet/datasetActions";
 import { ConnectionItem } from "../../redux/DataSet/DatasetStateInterfaces";
-import { resetAllStates } from "../../redux/TabTile/actionsTabTile";
+import { resetAllStates } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 
 const initialState = {
 	vendor: "",

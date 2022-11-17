@@ -33,11 +33,11 @@ import { MapStateProps, MenubarProps } from "./MenubarInterfaces";
 
 import FetchData from "../ServerCall/FetchData";
 import "./dataViewer.css";
+import { toggleDashModeInTab } from "../../redux/TabTile/TabActions";
 import {
 	resetAllStates,
 	toggleDashMode,
-	toggleDashModeInTab,
-} from "../../redux/TabTile/actionsTabTile";
+} from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 
 const MenuBar = ({
 	// props

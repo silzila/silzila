@@ -4,19 +4,21 @@ import React from "react";
 import { connect } from "react-redux";
 import IndividualTab from "./IndividualTab";
 import { Dispatch } from "redux";
-import { TabTilPropsSelectedDatasetList } from "../../redux/TabTile/tabTilePropsInterfaces";
+import { TabTilPropsSelectedDatasetList } from "../../redux/TabTile/TabTilePropsInterfaces";
 
 import { TabRibbonProps, TabRibbonStateProps } from "./TabRibbonInterfaces";
-import { IndTabs, Tabs } from "../../redux/TabTile/tabStateInterfaces";
+import { IndTabs, Tabs } from "../../redux/TabTile/TabStateInterfaces";
 import { IndChartPropProperties } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import {
-	actionsToAddTab,
 	actionsToEnableRenameTab,
 	actionsToRemoveTab,
 	actionsToRenameTab,
 	actionsToSelectTab,
-	actionsToUpdateSelectedTile,
 } from "../../redux/TabTile/actionsTabTile";
+import {
+	actionsToAddTab,
+	actionsToUpdateSelectedTile,
+} from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 
 const TabRibbon = ({
 	// state

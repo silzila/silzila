@@ -5,13 +5,9 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import {
-	resetGraphHighlight,
-	setDashGridSize,
-	toggleGraphSize,
-	updateGraphHighlight,
-} from "../../redux/TabTile/actionsTabTile";
 import { updateTabDashDetails } from "../../redux/TabTile/TabActions";
+import { setDashGridSize } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
+import { toggleGraphSize } from "../../redux/TabTile/TileActions";
 
 import { DashBoardProps, DashBoardStateProps } from "./DashBoardInterfaces";
 import DashBoardLayoutControl from "./DashBoardLayoutControl";
@@ -230,11 +226,12 @@ const DashBoard = ({
 
 		return (
 			<div
-			// className={
-			// 	tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]?.highlight
-			// 		? "listOfGraphsHighlighted"
-			// 		: "listOfGraphs"
-			// }
+				className={
+					// tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]?.highlight
+					// ? "listOfGraphsHighlighted"
+					// :
+					"listOfGraphs"
+				}
 			>
 				<input
 					type="checkbox"
@@ -380,9 +377,9 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		toggleGraphSize: (tileKey: number, graphSize: boolean) =>
 			dispatch(toggleGraphSize(tileKey, graphSize)),
 
-		graphHighlight: (tabId: number, propKey: number, highlight: boolean | any) =>
-			dispatch(updateGraphHighlight(tabId, propKey, highlight)),
-		resetHighlight: (tabId: number) => dispatch(resetGraphHighlight(tabId)),
+		// graphHighlight: (tabId: number, propKey: number, highlight: boolean | any) =>
+		// 	dispatch(updateGraphHighlight(tabId, propKey, highlight)),
+		// resetHighlight: (tabId: number) => dispatch(resetGraphHighlight(tabId)),
 		setGridSize: (gridSize: any) => dispatch(setDashGridSize(gridSize)), //gridSize{ x: null | number | string; y: null | number | string }
 	};
 };

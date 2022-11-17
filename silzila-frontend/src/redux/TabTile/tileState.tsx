@@ -1,5 +1,5 @@
 import update from "immutability-helper";
-import { TileStateProps } from "./tileStateInterfaces";
+import { ActionsOfTileState, TileStateProps } from "./TileStateInterfaces";
 
 const initialTileState = {
 	tiles: {
@@ -13,10 +13,10 @@ const initialTileState = {
 	tileList: { 1: ["1.1"] },
 };
 
-const tileStateReducer = (state: TileStateProps = initialTileState, action: any) => {
+const tileStateReducer = (state: TileStateProps = initialTileState, action: ActionsOfTileState) => {
 	switch (action.type) {
 		case "ADD_TILE":
-			let tileKey = `${action.payload.tabId}.${action.payload.tileId}`;
+			let tileKey: number = parseFloat(`${action.payload.tabId}.${action.payload.tileId}`);
 			return {
 				tiles: {
 					...state.tiles,
@@ -34,7 +34,7 @@ const tileStateReducer = (state: TileStateProps = initialTileState, action: any)
 			};
 
 		case "ADD_TILE_FROM_TAB":
-			let tileKey3 = `${action.payload.tabId}.${action.payload.tileId}`;
+			let tileKey3: number = parseFloat(`${action.payload.tabId}.${action.payload.tileId}`);
 			return {
 				tiles: {
 					...state.tiles,
@@ -51,25 +51,25 @@ const tileStateReducer = (state: TileStateProps = initialTileState, action: any)
 				},
 			};
 
-		// case "REMOVE_TILES_OF_TAB":
-		// 	let tilesToRemove = state.tileList[action.payload.tabId];
-		// 	return update(state, {
-		// 		tiles: { $unset: tilesToRemove },
-		// 		tileList: { $unset: [action.payload.tabId] },
-		// 	});
+		case "REMOVE_TILES_OF_TAB":
+			let tilesToRemove: any = state.tileList[action.payload.tabId];
+			return update(state, {
+				tiles: { $unset: tilesToRemove },
+				tileList: { $unset: [action.payload.tabId] },
+			});
 
 		case "RENAME_TILE":
-			let tileKey2 = `${action.payload.tabId}.${action.payload.tileId}`;
+			let tileKey2: number = parseFloat(`${action.payload.tabId}.${action.payload.tileId}`);
 			return update(state, {
 				tiles: { [tileKey2]: { tileName: { $set: action.payload.renameValue } } },
 			});
 
-		// case "REMOVE_TILE":
-		// 	let tileKey4 = `${action.payload.tabId}.${action.payload.tileId}`;
-		// 	return update(state, {
-		// 		tiles: { $unset: [tileKey4] },
-		// 		tileList: { [action.payload.tabId]: { $splice: [[action.payload.tileIndex, 1]] } },
-		// 	});
+		case "REMOVE_TILE":
+			let tileKey4: number = parseFloat(`${action.payload.tabId}.${action.payload.tileId}`);
+			return update(state, {
+				tiles: { $unset: [tileKey4] },
+				tileList: { [action.payload.tabId]: { $splice: [[action.payload.tileIndex, 1]] } },
+			});
 
 		case "TOGGLE_GRAPH_SIZE":
 			return update(state, {
