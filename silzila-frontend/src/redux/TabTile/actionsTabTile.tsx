@@ -126,10 +126,6 @@ export const actionsToRenameTab = (renameValue: string, tabId: number) => {
 };
 
 // //  *************************************************************
-// //  Tile actions for multiple dispatches
-// //  *************************************************************
-
-// //  *************************************************************
 // //  Load Playbook data to many different reducers
 // //  *************************************************************
 
@@ -159,7 +155,7 @@ export const actionsToRenameTab = (renameValue: string, tabId: number) => {
 // }) => {
 // 	//let tileName = tileName ? tileName : `Tile - ${nextTileId}`;
 // 	// let tileName = `Tile - ${nextTileId}`;
-// 	// console.log(table);
+// 	// //console.log(table);
 // 	let tileName;
 // 	return dispatch => {
 // 		dispatch(addProp(tabId, nextTileId, table, newTab, selectedDs, selectedTablesInDs));
@@ -172,7 +168,7 @@ export const actionsToRenameTab = (renameValue: string, tabId: number) => {
 // 		// dispatch(setChartTitle(`${tabId}.${nextTileId}`, chartName));
 // 		dispatch(changeChartType(`${tabId}.${nextTileId}`, chartName));
 // 		// if (chartName === "richText") {
-// 		// 	console.log(chartName);
+// 		// 	//console.log(chartName);
 // 		// }
 // 	};
 // };

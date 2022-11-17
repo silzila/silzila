@@ -395,7 +395,7 @@ const Sidebar = ({
 			</div>
 
 			{isSchemaAvailable ? (
-				<div>
+				<div style={{ padding: "0 1rem 0 1rem" }}>
 					<FormControl fullWidth size="small">
 						<InputLabel id="schemaSelect">Schema</InputLabel>
 						<Select
