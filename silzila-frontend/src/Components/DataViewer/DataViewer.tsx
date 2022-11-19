@@ -16,18 +16,11 @@ import "./dataViewer.css";
 import { connect } from "react-redux";
 import TabRibbon from "../TabsAndTiles/TabRibbon";
 import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
-// import {
-// 	// setShowDashBoard,
-// 	toggleColumnsOnlyDisplay,
-// 	toggleShowDataViewerBottom,
-// } from "../../redux/TabTile/actionsTabTile";
-// import DataViewerMiddle from "./DataViewerMiddle.js";
-// import DataViewerBottom from "./DataViewerBottom";
+
 import TableViewIcon from "@mui/icons-material/TableView";
 import TableRowsIcon from "@mui/icons-material/TableRows";
 import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
 import TileRibbon from "../TabsAndTiles/TileRibbon";
-// import DashBoard from "../DashBoard/DashBoard";
 import listOfTilesIcon from "../../assets/listoftilesIcon.svg";
 import dashbordSizeIcon from "../../assets/screenSize.png";
 import DashBoard from "../DashBoard/DashBoard";
@@ -41,8 +34,6 @@ import {
 	toggleShowDataViewerBottom,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 // import MenuBar from "./MenuBar";
-// // import { SaveRichText } from "../Charts/TextEditor";
-// import { Dispatch } from "redux";
 
 interface DataViewerProps {
 	tabTileProps: TabTileStateProps;

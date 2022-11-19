@@ -2,20 +2,26 @@ import React from "react";
 import { Dispatch } from "redux";
 import {
 	addControl,
+	loadChartControls,
 	removeChartControls,
 	removeMultipleChartControls,
 	resetChartControls,
 } from "../ChartPoperties/ChartControlsActions";
 import {
 	addProp,
+	loadChartProperties,
 	removeChartProperties,
 	removeMultipleChartProperties,
 	resetChartProperties,
 } from "../ChartPoperties/ChartPropertiesActions";
 import { resetPlayBookData } from "../PlayBook/PlayBookActions";
-import { resetSampleRecords } from "../SampleTableRecords/SampleTableRecordsActions";
+import {
+	loadSampleRecords,
+	resetSampleRecords,
+} from "../SampleTableRecords/SampleTableRecordsActions";
 import {
 	addTab,
+	loadTabState,
 	removeTab,
 	removeTilesInDashDuringDeleteTile,
 	renameTab,
@@ -25,12 +31,20 @@ import {
 	updateSelectedTileToTab,
 } from "./TabActions";
 import {
+	loadTabTileProps,
 	toggleEditingTile,
 	updateNextTabId,
 	updateSelectedTab,
 	updateSelectedTile,
 } from "./TabTileActionsAndMultipleDispatches";
-import { addTile, removeTile, removeTilesOfTab, renameTile, resetTileState } from "./TileActions";
+import {
+	addTile,
+	loadTileState,
+	removeTile,
+	removeTilesOfTab,
+	renameTile,
+	resetTileState,
+} from "./TileActions";
 
 // //  *************************************************************
 // //  to tile state reducer
@@ -86,30 +100,6 @@ export const actionsToSelectTab = (
 	};
 };
 
-export const actionsToRemoveTab = (
-	tabName: string,
-	tabId: number,
-	tabToRemoveIndex: number,
-	newObj: any
-) => {
-	return (dispatch: Dispatch<any>) => {
-		dispatch(removeTab(tabName, tabId, tabToRemoveIndex));
-		dispatch(removeTilesOfTab(tabName, tabId));
-		dispatch(removeMultipleChartProperties(tabId));
-		dispatch(removeMultipleChartControls(tabId));
-		if (newObj) {
-			dispatch(updateSelectedTab(newObj.tabName, newObj.tabId));
-			dispatch(
-				updateSelectedTile(
-					newObj.selectedTileName,
-					newObj.selectedTileId,
-					newObj.nextTileId
-				)
-			);
-		}
-	};
-};
-
 export const actionsToEnableRenameTab = (tabId: number, isTrue: boolean) => {
 	return (dispatch: Dispatch<any>) => {
 		dispatch(toggleEditingTab(isTrue));
@@ -129,16 +119,16 @@ export const actionsToRenameTab = (renameValue: string, tabId: number) => {
 // //  Load Playbook data to many different reducers
 // //  *************************************************************
 
-// export const loadPlaybook = playbook => {
-// 	return dispatch => {
-// 		dispatch(loadTabState(playbook.tabState));
-// 		dispatch(loadTileState(playbook.tileState));
-// 		dispatch(loadTabTileProps(playbook.tabTileProps));
-// 		dispatch(loadChartControls(playbook.chartControl));
-// 		dispatch(loadChartProperties(playbook.chartProperty));
-// 		dispatch(loadSampleRecords(playbook.sampleRecords));
-// 	};
-// };
+export const loadPlaybook = (playbook: any) => {
+	return (dispatch: Dispatch<any>) => {
+		dispatch(loadTabState(playbook.tabState));
+		dispatch(loadTileState(playbook.tileState));
+		dispatch(loadTabTileProps(playbook.tabTileProps));
+		dispatch(loadChartControls(playbook.chartControl));
+		dispatch(loadChartProperties(playbook.chartProperty));
+		dispatch(loadSampleRecords(playbook.sampleRecords));
+	};
+};
 
 // //  *************************************************************
 // //  Reset states

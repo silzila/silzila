@@ -1,0 +1,171 @@
+button,
+button:active,
+button:focus {
+	outline: none;
+}
+
+/* ======================================== */
+/* Button groups used in Chart Title */
+.radioButtons {
+	margin: 0 5%;
+	width: 90%;
+	display: flex;
+	font-size: 12px;
+	padding-bottom: 10px;
+	color: #404040;
+	cursor: pointer;
+}
+
+.radioButtons :first-child {
+	border-radius: 5px 0 0 5px;
+}
+.radioButtons :last-child {
+	border-radius: 0 5px 5px 0;
+}
+
+.radioButton {
+	height: 1.5rem;
+	flex: 1;
+	border: 1px solid lightgray;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgb(238, 238, 238);
+	transition: 0.2s;
+	text-transform: capitalize;
+}
+
+.radioButtonSelected {
+	height: 1.5rem;
+	flex: 1;
+	border: 1px solid lightgray;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #fff;
+	transition: 0.2s;
+	text-transform: capitalize;
+}
+
+.optionsInfo {
+	width: 100%;
+	padding: 10px 0 0 0;
+	font-size: 12px;
+	display: flex;
+	flex-direction: column;
+	transition: ease-in 0.3s linear;
+	overflow: auto;
+}
+
+.optionDescription {
+	padding: 0 6% 5px 6%;
+	/* width: 88%; */
+	text-align: left;
+	color: rgb(96, 96, 96);
+	font-weight: 600;
+	display: flex;
+}
+.enableDisableLabel {
+	padding-left: 5px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* ======================================== */
+/* Color theme MUI Select style */
+.custom-option {
+	position: relative;
+	display: block;
+	padding: 8px 5px 8px 5px;
+	font-size: 12px;
+	color: #3b3b3b;
+	cursor: pointer;
+	transition: all 0.5s;
+	border: 1px solid lightgray;
+	flex: 1;
+	background-color: rgb(238, 238, 238);
+}
+
+.color-name {
+	text-transform: capitalize;
+	text-align: start;
+	width: 100%;
+	display: block;
+}
+
+.color-palette {
+	flex: 1;
+	display: flex;
+	/* border: 1px solid white; */
+	/* padding: 0.2rem; */
+}
+
+.indi-color {
+	flex: 1;
+}
+
+/* ======================================== */
+/* Button groups used in Chart Legend */
+
+.radioButtons2 {
+	place-content: center;
+	margin: 0 5%;
+	width: 90%;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-gap: 2px;
+	font-size: 11px;
+	padding-bottom: 10px;
+	cursor: pointer;
+	white-space: nowrap;
+	color: #404040;
+}
+
+button,
+button:active,
+button:focus {
+	outline: none;
+}
+
+/* .radioButtons2 :first-child {
+    border-radius: 5px 0 0 5px;
+}
+.radioButtons2 :last-child {
+    border-radius: 0 5px 5px 0;
+} */
+
+.radioButton2 {
+	border-radius: 5px;
+	height: 1.5rem;
+	flex: 1;
+	border: 1px solid darkgray;
+	transition: 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.radioButtonSelected2 {
+	border-radius: 5px;
+	height: 1.5rem;
+	flex: 1;
+	border: 1px solid darkgray;
+	background-color: #fff;
+	transition: 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* box-shadow: inset 1px 1px 1px gray, inset -1px -1px 1px #008080; */
+}
+
+.resetLegendOptions {
+	margin: 0 20% 8px 20%;
+	height: 1.5rem;
+	font-weight: bold;
+	border-radius: 5px;
+	background-color: rgb(214, 214, 214);
+	width: 60%;
+}

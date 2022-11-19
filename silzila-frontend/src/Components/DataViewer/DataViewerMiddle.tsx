@@ -19,6 +19,8 @@ import {
 import { setSelectedControlMenu } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import ChartTypes from "../ChartOptions/ChartTypes";
 import ControlDetail from "../ChartOptions/ControlDetail";
+import ChartAxes from "../ChartAxes/ChartAxes";
+import GraphArea from "../GraphArea/GraphArea";
 
 const DataViewerMiddle = ({
 	// props
@@ -94,12 +96,11 @@ const DataViewerMiddle = ({
 
 	return (
 		<div className="dataViewerMiddle" style={{ height: "300px" }}>
-			{
-				chartProp.properties[propKey].chartType === "richText" ? null : ""
-				// <ChartAxes tabId={tabId} tileId={tileId} />
-			}
+			{chartProp.properties[propKey].chartType === "richText" ? null : (
+				<ChartAxes tabId={tabId} tileId={tileId} />
+			)}
 
-			{/* <GraphArea /> */}
+			<GraphArea />
 
 			<div className="rightColumn">
 				{controlDisplayed()}
