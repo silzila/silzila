@@ -7,7 +7,7 @@ import Sidebar from "./Sidebar";
 const NewDataSet = () => {
 	return (
 		<div className="dataHome">
-			{/* <MenuBar from="dataSet" /> */}
+			<MenuBar from="dataSet" />
 			<div className="createDatasetPage">
 				<Sidebar />
 				<Canvas />

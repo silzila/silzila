@@ -3,7 +3,7 @@ import {
 	RelationshipsProps,
 	tableObjProps,
 	UserTableProps,
-} from "../../redux/DataSet/DatasetStateInterfacse";
+} from "../../redux/DataSet/DatasetStateInterfaces";
 
 export interface CanvasTablesProps {
 	// props
@@ -15,6 +15,7 @@ export interface CanvasTablesProps {
 	arrows: ArrowsProps[];
 	relationships: RelationshipsProps[];
 	tables: UserTableProps[];
+	views: any[];
 
 	// dispatch
 	addNewRelationship: (payload: RelationObjProps) => void;

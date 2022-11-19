@@ -2,7 +2,7 @@ import {
 	ArrowsProps,
 	RelationshipsProps,
 	tableObjProps,
-} from "../../redux/DataSet/DatasetStateInterfacse";
+} from "../../redux/DataSet/DatasetStateInterfaces";
 
 export interface BottomBarProps {
 	//props
@@ -25,11 +25,11 @@ export interface BottomBarProps {
 export interface tablesSelectedInSidebarProps {
 	table: string;
 	schema: string;
+	database: string;
 	id: string;
 	alias: string;
 	tablePositionX: number | null;
 	tablePositionY: number | null;
-	database: string;
 	// flatFileId: string | null;
 }
 

@@ -1,16 +1,17 @@
 import React from "react";
 import { connect } from "react-redux";
-import { HashRouter as Router, Route ,Routes} from "react-router-dom";
+import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import DataHome from "./DataConnection/DataHome";
 import Login from "./LoginSignUp/Login";
 import SignUp from "./LoginSignUp/SignUp";
 import NewDataSet from "./DataSet/NewDataSet";
 import EditDataSet from "./DataSet/EditDataSet";
 import { isLoggedProps, LoggedDetailsType } from "../redux/UserInfo/IsLoggedInterfaces";
+import DataViewer from "./DataViewer/DataViewer";
 // import { Item } from "../redux/UserInfo/types";
 // import Redirect from "./Redirect";
 
-const Home = (props:LoggedDetailsType) => {
+const Home = (props: LoggedDetailsType) => {
 	return (
 		// TODO: Priority 10 - Capture Browser's navigation clicks
 		// Pressing back or forward in browser navigation brings to different Pages.
@@ -21,13 +22,14 @@ const Home = (props:LoggedDetailsType) => {
 		<React.Fragment>
 			{props.isUserLogged ? (
 				<Router>
-				 	<Routes>
-				 		<Route  path="/" element={<Login/>} />
-				 		<Route  path="/login" element={<Login/>} />
-						<Route  path="/signup" element={<SignUp />} />
-				 		<Route  path="/newdataset" element={<NewDataSet />} />
-				 		<Route  path="/editdataset" element={<EditDataSet />} />
-				        <Route  path="/datahome" element={<DataHome />} />
+					<Routes>
+						<Route path="/" element={<Login />} />
+						<Route path="/login" element={<Login />} />
+						<Route path="/signup" element={<SignUp />} />
+						<Route path="/newdataset" element={<NewDataSet />} />
+						<Route path="/editdataset" element={<EditDataSet />} />
+						<Route path="/datahome" element={<DataHome />} />
+						<Route path="/dataviewer" element={<DataViewer />} />
 					</Routes>
 				</Router>
 			) : (
@@ -35,15 +37,15 @@ const Home = (props:LoggedDetailsType) => {
 					<Routes>
 						{/* <Route path="*" element={<Redirect />} />
 				 		<Route exact path="/" element={<Login />} /> */}
-						<Route  path="/login" element={<Login />} />
-						<Route  path="/signup" element={<SignUp />} />
+						<Route path="/login" element={<Login />} />
+						<Route path="/signup" element={<SignUp />} />
 					</Routes>
 				</Router>
 			)}
 		</React.Fragment>
 	);
 };
-const mapStateToProps = (state:isLoggedProps,ownProps:any) => {
+const mapStateToProps = (state: isLoggedProps, ownProps: any) => {
 	return {
 		isUserLogged: state.isLogged.isUserLogged,
 	};

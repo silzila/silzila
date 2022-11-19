@@ -4,7 +4,15 @@
 // 	- Select Schema
 // 	- Select tables in a schema
 
-import { FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
+import {
+	FormControl,
+	InputLabel,
+	MenuItem,
+	Select,
+	TextField,
+	Tooltip,
+	Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -15,20 +23,24 @@ import {
 	setDatabaseNametoState,
 	setDataSchema,
 	setUserTable,
+	setViews,
 } from "../../redux/DataSet/datasetActions";
 import FetchData from "../ServerCall/FetchData";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import TableList from "./TableList";
 import "../DataConnection/DataSetup.css";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
-import { ConnectionItem } from "../DataConnection/DataConnectionInterfaces";
 import { SidebarProps } from "./SidebarInterfaces";
 import {
+	ConnectionItem,
 	DataSetStateProps,
 	tableObjProps,
 	UserTableProps,
-} from "../../redux/DataSet/DatasetStateInterfacse";
+} from "../../redux/DataSet/DatasetStateInterfaces";
 import { ChangeConnection } from "../CommonFunctions/DialogComponents";
+import { idText } from "typescript";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 
 const Sidebar = ({
 	//props
@@ -42,6 +54,8 @@ const Sidebar = ({
 	schemaValue,
 	databaseName,
 	serverName,
+	views,
+	dataConnectionList,
 
 	// dispatch
 	setConnection,
@@ -49,6 +63,7 @@ const Sidebar = ({
 	setUserTable,
 	setServerName,
 	setDatabaseNametoState,
+	setViews,
 }: SidebarProps) => {
 	const [selectedConnection, setSelectedConnection] = useState<String>("");
 	const [connectionList, setConnectionList] = useState<ConnectionItem[]>([]);
@@ -62,35 +77,62 @@ const Sidebar = ({
 
 	const [dcToResetTo, setDcToResetTo] = useState<string>("");
 
+	const [databaseList, setDatabaseList] = useState<string[]>([]);
+	const [selectedDb, setSelectedDb] = useState<string>("");
+	const [tableExpand, setTableExpand] = useState<boolean>(true);
+	const [viewExpand, setViewExpand] = useState<boolean>(true);
+
+	const [disableDb, setDisableDb] = useState<boolean>(false);
+
 	// Actions performed when dataConnection is changed
 	// If user already selected some tables from another dataset
 	// 		to display in canvas, provide a warning to reset data
 
 	const onConnectionChange = (e: string) => {
-		console.log(e);
-		if (tempTable.length > 0) {
-			setDcToResetTo(e);
-			setOpenDlg(true);
+		//console.log(e);
+		setSelectedDb(e);
+		setDatabaseNametoState(e);
+
+		setDataSchema("");
+		setSchemaList([]);
+		setSelectedSchema("");
+
+		setUserTable([]);
+		setViews([]);
+
+		if (serverName === "mysql") {
+			// getTables()
 		} else {
-			setSelectedConnection(e);
-			setDataSchema("");
+			//console.log(e);
 			getSchemaList(e);
-			setSelectedSchema("");
 		}
 	};
 
 	useEffect(() => {
+		if (serverName === "postgresql" && tempTable.length > 0) {
+			setDisableDb(true);
+		}
 		// If Dataset is opened in edit mode, set all required values to state
 		if (editMode) {
-			getAllDc();
+			getAllMetaDb();
+			setSelectedDb(databaseName);
+			setSelectedSchema(schemaValue);
 			setSelectedConnection(connectionValue);
 			setConnectionId(connectionValue);
-			getSchemaList(connectionValue);
-			setSelectedSchema(schemaValue);
+			getSchemaList(databaseName);
 		} else {
-			getAllDc();
+			getAllMetaDb();
 		}
 	}, []);
+
+	useEffect(() => {
+		if (serverName === "postgresql" && tempTable.length > 0) {
+			setDisableDb(true);
+		}
+		if (serverName === "postgresql" && tempTable.length === 0) {
+			setDisableDb(false);
+		}
+	}, [tempTable]);
 
 	// Reset all the values in store
 	useEffect(() => {
@@ -103,96 +145,63 @@ const Sidebar = ({
 		}
 	}, [resetDataset]);
 
-	// Get all data connection available
-	const getAllDc = async () => {
-		// TODO:need to specify type
+	const getAllMetaDb = async () => {
+		if (serverName === "mysql") {
+			setIsSchemaAvailable(false);
+		} else {
+			setIsSchemaAvailable(true);
+		}
 		var res: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: "database-connection",
+			url: `metadata-databases/${connectionValue}`,
 			headers: { Authorization: `Bearer ${token}` },
 		});
 
 		if (res.status) {
-			console.log("database Connection List", res.data);
-			setConnectionList(res.data);
+			setDatabaseList(res.data);
 		} else {
-			console.log("database connection error", res.data.detail);
+			console.log("database List error", res.data.detail);
 		}
 	};
 
 	// Get all schemas of a particular data connection
-	const getSchemaList = async (uid: string) => {
-		const dc_uid = uid;
+	const getSchemaList = async (db: string) => {
 		if (!editMode) {
-			setConnectionId(dc_uid);
-			setConnection(dc_uid);
 			setUserTable([]);
+			setViews([]);
 		}
-		// TODO: need to specify type
+
 		var res: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: `database-connection/${dc_uid}`,
+			url: `metadata-schemas/${connectionValue}?database=${db}`,
 			headers: { Authorization: `Bearer ${token}` },
 			token: token,
 		});
-
-		console.log(res);
 		if (res.status) {
-			if (res.data) {
-				setServerName(res.data.vendor);
-				setDatabaseNametoState(res.data.database);
-				if (res.data.vendor === "mysql") {
-					setIsSchemaAvailable(false);
-					setSchemaList([]);
-					setDataSchema("");
-					setSelectedSchema("");
-					getTables(dc_uid, res.data.vendor, res.data.database);
-				} else {
-					setIsSchemaAvailable(true);
-
-					// TODO: need to specify type
-
-					var res2: any = await FetchData({
-						requestType: "noData",
-						method: "GET",
-						url: `metadata-schemas/${dc_uid}?database=${res.data.database}`,
-						headers: { Authorization: `Bearer ${token}` },
-						token: token,
-					});
-
-					if (res2.status) {
-						setSchemaList(res2.data);
-					} else {
-						// console.log(res2.data.detail);
-					}
-				}
-			}
+			setSchemaList(res.data);
 		} else {
-			// console.log(res.data.detail);
+			//console.log(res.data.detail);
 		}
 	};
 
 	// Fetch list of tables in a particular schema
-	// TODO: need to specify type for e
+
 	const getTables = async (e: any, vendor?: string | null, dbName?: string | null) => {
-		//when getTables is called from getschemalist e will be hold the value of connectionId else it will hold the event value
-		console.log(e);
-		console.log(vendor);
 		var url: string = "";
 		var schema: string = "";
 
-		if (vendor) {
-			schema = "";
-			url = `metadata-tables/${e}?database=${dbName}`;
+		if (serverName === "mysql") {
+			url = `metadata-tables/${e}?database=${selectedDb}`;
 		} else {
 			schema = e.target.value;
-			url = `metadata-tables/${connectionId}?database=${databaseName}&schema=${schema}`;
+			url = `metadata-tables/${connectionValue}?database=${selectedDb}&schema=${schema}`;
 		}
+
 		setSelectedSchema(schema);
 		setDataSchema(schema);
-		// TODO: need to specify type
+
 		var res: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
@@ -202,9 +211,54 @@ const Sidebar = ({
 		});
 
 		if (res.status) {
-			console.log(res.data);
-			// TODO:need to specify type for uid
+			var views: any = [];
 			const uid: any = new ShortUniqueId({ length: 8 });
+			if (res.data.views.length > 0) {
+				views = res.data.views.map((el: any) => {
+					var id = "";
+					var bool = false;
+
+					var tableAlreadyChecked = tempTable.filter(
+						tbl =>
+							tbl.dcId === connectionValue &&
+							tbl.schema === schema &&
+							tbl.tableName === el
+					)[0];
+					console.log(tableAlreadyChecked);
+					tempTable.forEach((tbl: any) => {
+						if (
+							tbl.dcId === connectionValue &&
+							tbl.schema === schema &&
+							tbl.tableName === el
+						) {
+							id = tbl.id;
+							bool = tbl.isNewTable;
+						}
+					});
+					if (tableAlreadyChecked) {
+						return {
+							schema: schema,
+							database: databaseName,
+							isView: true,
+							tableName: el,
+							isSelected: true,
+							table_uid: schema.concat(el),
+							id: id,
+							isNewTable: bool,
+						};
+					}
+					return {
+						schema: schema,
+						database: databaseName,
+						isView: true,
+						tableName: el,
+						isSelected: false,
+						table_uid: schema[0].concat(el),
+						id: uid(),
+						isNewTable: true,
+					};
+				});
+			}
 			const userTable: UserTableProps[] = res.data.tables.map((el: string) => {
 				var id = "";
 				var bool = false;
@@ -213,16 +267,20 @@ const Sidebar = ({
 				// TODO: (p-1) check and mention type
 				var tableAlreadyChecked: any = tempTable.filter(
 					(tbl: tableObjProps) =>
-						tbl.dcId === connectionId && tbl.schema === schema && tbl.tableName === el
+						// tbl.dcId === connectionId && tbl.schema === schema && tbl.tableName === el
+						tbl.dcId === connectionValue &&
+						tbl.schema === schema &&
+						tbl.tableName === el
 				)[0];
 
-				console.log(tableAlreadyChecked);
+				// //console.log(tableAlreadyChecked);
 
 				// Checking if the selected table is new or previously added to this dataset
 				// Required as editing a dataset doesn't allow for deleting already added tables
 				tempTable.forEach((tbl: tableObjProps) => {
 					if (
-						tbl.dcId === connectionId &&
+						// tbl.dcId === connectionId &&
+						tbl.dcId === connectionValue &&
 						tbl.schema === schema &&
 						tbl.tableName === el
 					) {
@@ -234,6 +292,8 @@ const Sidebar = ({
 				// Already selected table in canvas has an ID.
 				if (tableAlreadyChecked) {
 					return {
+						schema: schema,
+						database: databaseName,
 						tableName: el,
 						isSelected: true,
 						table_uid: schema.concat(el),
@@ -244,6 +304,8 @@ const Sidebar = ({
 
 				// New tables need to be assigned a uid
 				return {
+					schema: schema,
+					database: databaseName,
 					tableName: el,
 					isSelected: false,
 					table_uid: schema.concat(el),
@@ -251,39 +313,70 @@ const Sidebar = ({
 					isNewTable: true,
 				};
 			});
-			console.log(userTable);
+			//console.log(userTable);
 			setUserTable(userTable);
+			setViews(views);
 		} else {
-			// console.log(res);
+			// //console.log(res);
 		}
+	};
+
+	const getConnectionName = (id: string) => {
+		var name: string = "";
+		dataConnectionList.map((el: ConnectionItem) => {
+			if (el.id === id) {
+				name = el.connectionName;
+			}
+		});
+		return name;
 	};
 
 	return (
 		<div className="sidebar">
+			<div
+			// style={{ padding: "0 1rem 0 1rem", margin: "15px 0px 15px 0px" }}
+			>
+				<FormControl fullWidth size="small">
+					<TextField
+						label="DataConnection"
+						InputLabelProps={{
+							sx: {
+								fontSize: "14.5px",
+							},
+						}}
+						InputProps={{
+							sx: {
+								height: "2.5rem",
+								fontSize: "13.5px",
+								borderRadius: "5px",
+								backgroundColor: "white",
+								marginBottom: "1.5rem",
+								textAlign: "left",
+							},
+						}}
+						disabled={true}
+						value={getConnectionName(connectionValue)}
+					/>
+				</FormControl>
+			</div>
+
 			<div>
 				<FormControl fullWidth size="small">
 					<InputLabel id="dcSelect">Database</InputLabel>
 					<Select
 						labelId="dcSelect"
 						className="selectBar"
-						// TODO:need to specify type
 						onChange={(e: any) => {
 							onConnectionChange(e.target.value);
 						}}
-						value={selectedConnection}
+						disabled={disableDb}
+						value={selectedDb}
 						label="Connection"
 					>
-						{connectionList &&
-							connectionList.map((connection: ConnectionItem, i: number) => {
+						{databaseList &&
+							databaseList.map((db: string) => {
 								return (
-									<MenuItem
-										title={
-											connection.database +
-											" ".concat("(" + connection.connectionName + ")")
-										}
-										value={connection.id}
-										key={connection.id}
-									>
+									<MenuItem value={db} key={db} title={db}>
 										<Typography
 											sx={{
 												width: "auto",
@@ -292,7 +385,7 @@ const Sidebar = ({
 												fontSize: "14px",
 											}}
 										>
-											{connection.database} ({connection.connectionName})
+											{db}
 										</Typography>
 									</MenuItem>
 								);
@@ -302,14 +395,13 @@ const Sidebar = ({
 			</div>
 
 			{isSchemaAvailable ? (
-				<div>
+				<div style={{ padding: "0 1rem 0 1rem" }}>
 					<FormControl fullWidth size="small">
 						<InputLabel id="schemaSelect">Schema</InputLabel>
 						<Select
 							labelId="schemaSelect"
 							className="selectBar"
 							label="Schema"
-							// TODO: need to specify type
 							onChange={(e: any) => getTables(e, null, null)}
 							value={selectedSchema}
 						>
@@ -335,34 +427,131 @@ const Sidebar = ({
 				</div>
 			) : null}
 
-			<div className="sidebarHeading">Tables</div>
-			{tableList ? (
-				tableList.map((tab: UserTableProps) => {
-					return (
-						<SelectListItem
-							key={tab.tableName}
-							// TODO: need to specify type
-							render={(xprops: any) => (
-								<div
-									className="tableListStyle"
-									onMouseOver={() => xprops.setOpen(true)}
-									onMouseLeave={() => xprops.setOpen(false)}
-								>
-									<TableList
-										key={tab.tableName}
-										className="tableListElement"
-										table={tab}
-										tableId={tab.tableName}
-										xprops={xprops}
-									/>
-								</div>
-							)}
-						/>
-					);
-				})
-			) : (
-				<div style={{ marginTop: "10px", fontStyle: "italic" }}>No Tables</div>
-			)}
+			<div
+				style={{
+					display: "flex",
+					borderRadius: "5px",
+					marginBottom: "0.5rem",
+					textAlign: "left",
+				}}
+			>
+				<Typography>Tables</Typography>
+				<div>
+					{tableExpand ? (
+						<Tooltip title="Collapse">
+							<ArrowDropDownIcon onClick={() => setTableExpand(!tableExpand)} />
+						</Tooltip>
+					) : (
+						<Tooltip title="Expand">
+							<ArrowRightIcon onClick={() => setTableExpand(!tableExpand)} />
+						</Tooltip>
+					)}
+				</div>
+			</div>
+			{tableExpand ? (
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						borderRadius: "5px",
+						marginBottom: "1rem",
+						textAlign: "left",
+						maxHeight: "330px",
+						overflowY: "auto",
+						overflowX: "hidden",
+					}}
+				>
+					{tableList ? (
+						tableList.map((tab: UserTableProps) => {
+							return (
+								<SelectListItem
+									key={tab.tableName}
+									render={(xprops: any) => (
+										<div
+											className="tableListStyle"
+											onMouseOver={() => xprops.setOpen(true)}
+											onMouseLeave={() => xprops.setOpen(false)}
+										>
+											<TableList
+												key={tab.tableName}
+												className="tableListElement"
+												table={tab}
+												tableId={tab.tableName}
+												xprops={xprops}
+											/>
+										</div>
+									)}
+								/>
+							);
+						})
+					) : (
+						<div>No Tables</div>
+					)}
+				</div>
+			) : null}
+
+			<div
+				style={{
+					display: "flex",
+					borderRadius: "5px",
+					marginBottom: "0.5rem",
+					textAlign: "left",
+					maxHeight: "330px",
+					overflowY: "auto",
+				}}
+			>
+				<Typography>Views</Typography>
+				<div>
+					{viewExpand ? (
+						<Tooltip title="Collapse">
+							<ArrowDropDownIcon onClick={() => setViewExpand(!viewExpand)} />
+						</Tooltip>
+					) : (
+						<Tooltip title="Expand">
+							<ArrowRightIcon onClick={() => setViewExpand(!viewExpand)} />
+						</Tooltip>
+					)}
+				</div>
+			</div>
+
+			{viewExpand ? (
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						borderRadius: "5px",
+						marginBottom: "1rem",
+						textAlign: "left",
+					}}
+				>
+					{views ? (
+						views.map((tab: any) => {
+							return (
+								<SelectListItem
+									key={tab.tableName}
+									render={(xprops: any) => (
+										<div
+											className="tableListStyle"
+											onMouseOver={() => xprops.setOpen(true)}
+											onMouseLeave={() => xprops.setOpen(false)}
+										>
+											<TableList
+												key={tab.tableName}
+												className="tableListElement"
+												table={tab}
+												tableId={tab.tableName}
+												xprops={xprops}
+											/>
+										</div>
+									)}
+								/>
+							);
+						})
+					) : (
+						<div>No Views</div>
+					)}
+				</div>
+			) : null}
 
 			<ChangeConnection
 				open={openDlg}
@@ -380,11 +569,13 @@ const mapStateToProps = (state: isLoggedProps & DataSetStateProps) => {
 	return {
 		token: state.isLogged.accessToken,
 		tableList: state.dataSetState.tables,
+		views: state.dataSetState.views,
 		databaseName: state.dataSetState.databaseName,
 		serverName: state.dataSetState.serverName,
 		tempTable: state.dataSetState.tempTable,
 		connectionValue: state.dataSetState.connection,
 		schemaValue: state.dataSetState.schema,
+		dataConnectionList: state.dataSetState.dataConnectionList,
 	};
 };
 
@@ -395,6 +586,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		setUserTable: (userTable: UserTableProps[]) => dispatch(setUserTable(userTable)),
 		setServerName: (name: string) => dispatch(setServerName(name)),
 		setDatabaseNametoState: (name: string) => dispatch(setDatabaseNametoState(name)),
+		setViews: (views: any[]) => dispatch(setViews(views)),
 	};
 };
 

@@ -1,6 +1,5 @@
 import update from "immutability-helper";
-import { ActionsOfTabState } from "./ActionTypes";
-import { StateProp } from "./TypesOfInitialStates";
+import { ActionsOfTabState, TabStateProps, TabStateProps2 } from "./TabStateInterfaces";
 
 const initialTabState = {
 	tabs: {
@@ -29,7 +28,7 @@ const initialTabState = {
 	tabList: [1],
 };
 
-const tabStateReducer = (state:StateProp = initialTabState, action:ActionsOfTabState) => {
+const tabStateReducer = (state: TabStateProps = initialTabState, action: ActionsOfTabState) => {
 	switch (action.type) {
 		// ==================================================================
 		// Tab Properties
@@ -87,7 +86,7 @@ const tabStateReducer = (state:StateProp = initialTabState, action:ActionsOfTabS
 		case "UPDATE_NEXT_TILE_ID":
 			return update(state, {
 				tabs: {
-					[action.payload.tabId]: { nextTileId: { $set: action.payload.tileId + 1 } },
+					[action.payload.tabId]: { nextTileId: { $set: action.payload.nextTileId + 1 } },
 				},
 			});
 
@@ -115,86 +114,86 @@ const tabStateReducer = (state:StateProp = initialTabState, action:ActionsOfTabS
 				tabs: { [action.payload.tabId]: { dashMode: { $set: action.payload.dashMode } } },
 			});
 
-		// case "UPDATE_DASH_GRAPH_DETAILS":
-		// 	if (action.payload.checked) {
-		// 		var index = state.tabs[action.payload.tabId].tilesInDashboard.indexOf(
-		// 			action.payload.propKey
-		// 		);
-		// 		return update(state, {
-		// 			tabs: {
-		// 				[action.payload.tabId]: {
-		// 					tilesInDashboard: { $splice: [[action.payload.propIndex, 1]] },
-		// 					dashTilesDetails: { $unset: [action.payload.propKey] },
-		// 				},
-		// 			},
-		// 		});
-		// 	} else {
-		// 		return update(state, {
-		// 			tabs: {
-		// 				[action.payload.tabId]: {
-		// 					tilesInDashboard: { $push: [action.payload.propKey] },
-		// 					dashTilesDetails: {
-		// 						[action.payload.propKey]: { $set: action.payload.dashSpecs },
-		// 					},
-		// 				},
-		// 			},
-		// 		});
-		// 	}
+		case "UPDATE_DASH_GRAPH_DETAILS":
+			if (action.payload.checked) {
+				var index = state.tabs[action.payload.tabId].tilesInDashboard.indexOf(
+					action.payload.propKey
+				);
+				return update(state, {
+					tabs: {
+						[action.payload.tabId]: {
+							tilesInDashboard: { $splice: [[action.payload.propIndex, 1]] },
+							dashTilesDetails: { $unset: [action.payload.propKey] },
+						},
+					},
+				});
+			} else {
+				return update(state, {
+					tabs: {
+						[action.payload.tabId]: {
+							tilesInDashboard: { $push: [action.payload.propKey] },
+							dashTilesDetails: {
+								[action.payload.propKey]: { $set: action.payload.dashSpecs },
+							},
+						},
+					},
+				});
+			}
 
-		// case "REMOVE_TILES_IN_DASH_DURING_DELETE_TILE":
-		// 	var indexOfDeletedTile = state.tabs[action.payload.tabId].tilesInDashboard.indexOf(
-		// 		action.payload.propKey
-		// 	);
+		case "REMOVE_TILES_IN_DASH_DURING_DELETE_TILE":
+			var indexOfDeletedTile = state.tabs[action.payload.tabId].tilesInDashboard.indexOf(
+				action.payload.propKey
+			);
 
-		// 	var dashTilesDetailsCopy = Object.assign(
-		// 		state.tabs[action.payload.tabId].dashTilesDetails
-		// 	);
-		// 	delete dashTilesDetailsCopy[action.payload.propKey];
+			var dashTilesDetailsCopy = Object.assign(
+				state.tabs[action.payload.tabId].dashTilesDetails
+			);
+			delete dashTilesDetailsCopy[action.payload.propKey];
 
-		// 	return update(state, {
-		// 		tabs: {
-		// 			[action.payload.tabId]: {
-		// 				tilesInDashboard: { $splice: [[indexOfDeletedTile, 1]] },
-		// 				dashTilesDetails: { $set: dashTilesDetailsCopy },
-		// 			},
-		// 		},
-		// 	});
+			return update(state, {
+				tabs: {
+					[action.payload.tabId]: {
+						tilesInDashboard: { $splice: [[indexOfDeletedTile, 1]] },
+						dashTilesDetails: { $set: dashTilesDetailsCopy },
+					},
+				},
+			});
 
-		// case "UPDATE_DASH_GRAPH_POSITION":
-		// 	return update(state, {
-		// 		tabs: {
-		// 			[action.payload.tabId]: {
-		// 				dashTilesDetails: {
-		// 					[action.payload.propKey]: {
-		// 						x: { $set: action.payload.x },
-		// 						y: { $set: action.payload.y },
-		// 					},
-		// 				},
-		// 			},
-		// 		},
-		// 	});
+		case "UPDATE_DASH_GRAPH_POSITION":
+			return update(state, {
+				tabs: {
+					[action.payload.tabId]: {
+						dashTilesDetails: {
+							[action.payload.propKey]: {
+								x: { $set: action.payload.x },
+								y: { $set: action.payload.y },
+							},
+						},
+					},
+				},
+			});
 
-		// case "UPDATE_DASH_GRAPH_SIZE":
-		// 	return update(state, {
-		// 		tabs: {
-		// 			[action.payload.tabId]: {
-		// 				dashTilesDetails: {
-		// 					[action.payload.propKey]: {
-		// 						x: { $set: action.payload.x },
-		// 						y: { $set: action.payload.y },
-		// 						width: { $set: action.payload.width },
-		// 						height: { $set: action.payload.height },
-		// 					},
-		// 				},
-		// 			},
-		// 		},
-		// 	});
+		case "UPDATE_DASH_GRAPH_SIZE":
+			return update(state, {
+				tabs: {
+					[action.payload.tabId]: {
+						dashTilesDetails: {
+							[action.payload.propKey]: {
+								x: { $set: action.payload.x },
+								y: { $set: action.payload.y },
+								width: { $set: action.payload.width },
+								height: { $set: action.payload.height },
+							},
+						},
+					},
+				},
+			});
 
 		// case "SET_GRAPH_BORDER_HIGHLIGHT":
 		// 	var copyOfDetails = state.tabs[action.payload.tabId].dashTilesDetails;
 		// 	var items = Object.keys(copyOfDetails);
 
-		// 	items.map((item) => {
+		// 	items.map(item => {
 		// 		if (item === action.payload.propKey) {
 		// 			copyOfDetails[item].highlight = true;
 		// 		} else {
@@ -210,7 +209,7 @@ const tabStateReducer = (state:StateProp = initialTabState, action:ActionsOfTabS
 		// 	var copyOfDetails = state.tabs[action.payload.tabId].dashTilesDetails;
 		// 	var items = Object.keys(copyOfDetails);
 
-		// 	items.map((item) => {
+		// 	items.map(item => {
 		// 		copyOfDetails[item].highlight = false;
 		// 	});
 
@@ -227,7 +226,6 @@ const tabStateReducer = (state:StateProp = initialTabState, action:ActionsOfTabS
 					},
 				},
 			});
-
 		case "SET_DASHLAYOUT_SELECTEDOPTION_FOR_AUTO":
 			return update(state, {
 				tabs: {
@@ -239,7 +237,6 @@ const tabStateReducer = (state:StateProp = initialTabState, action:ActionsOfTabS
 					},
 				},
 			});
-
 		case "SET_ASPECTRATIO_HEIGHT":
 			return update(state, {
 				tabs: {
@@ -250,7 +247,6 @@ const tabStateReducer = (state:StateProp = initialTabState, action:ActionsOfTabS
 					},
 				},
 			});
-
 		case "SET_ASPECTRATIO_WIDTH":
 			return update(state, {
 				tabs: {
@@ -333,10 +329,8 @@ const tabStateReducer = (state:StateProp = initialTabState, action:ActionsOfTabS
 				},
 			});
 
-
-        // TODO:need to uncommand and specify type 
-		// case "LOAD_TAB_STATE_FROM_PLAYBOOK":
-		// 	return action.payload;
+		case "LOAD_TAB_STATE_FROM_PLAYBOOK":
+			return action.payload;
 
 		case "RESET_TAB_STATE":
 			return initialTabState;

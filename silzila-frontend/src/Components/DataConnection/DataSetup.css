@@ -172,8 +172,8 @@ Datasets
 	background-color: rgb(238, 238, 238);
 	border-right: 1px solid #e4e4e4;
 	padding: 1rem;
-	overflow-y: auto;
-	overflow-x: hidden;
+	/* overflow-y: auto; */
+	/* overflow-x: hidden; */
 }
 
 .selectBar {

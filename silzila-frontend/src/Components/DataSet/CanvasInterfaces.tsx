@@ -1,5 +1,4 @@
-import { ArrowsProps, tableObjProps } from "../../redux/DataSet/DatasetStateInterfacse";
-
+import { ArrowsProps, tableObjProps } from "../../redux/DataSet/DatasetStateInterfaces";
 
 export interface CanvasProps {
 	//state

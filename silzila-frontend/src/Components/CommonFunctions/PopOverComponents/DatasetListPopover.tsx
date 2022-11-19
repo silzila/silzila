@@ -8,34 +8,42 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import React from "react";
 import { connect } from "react-redux";
 import "./Popover.css";
+import { ConnectionItem, DataSetStateProps } from "../../../redux/DataSet/DatasetStateInterfaces";
 
-const DatasetListPopover = (
-	{
-		// // props
-		// popOverTitle,
-		// showCard,
-		// setShowCard,
-		// setSelectedDataset,
-		// // state
-		// dataSetList,
-	}
-) => {
+interface Props {
+	popOverTitle: string;
+	showCard: boolean;
+	setShowCard: (value: boolean) => void;
+	setSelectedDataset: (value: string) => void;
+	// state
+	dataSetList: any[];
+}
+
+const DatasetListPopover = ({
+	// props
+	popOverTitle,
+	showCard,
+	setShowCard,
+	setSelectedDataset,
+	// state
+	dataSetList,
+}: Props) => {
+	//console.log(dataSetList);
 	return (
 		<Popover
-			// open={showCard}
-			open={false}
-			// onClose={setShowCard}
-			// anchorReference="anchorEl"
-			// anchorOrigin={{
-			// 	vertical: "center",
-			// 	horizontal: "center",
-			// }}
-			// transformOrigin={{
-			// 	vertical: "center",
-			// 	horizontal: "center",
-			// }}
+			open={showCard}
+			onClose={setShowCard}
+			anchorReference="anchorEl"
+			anchorOrigin={{
+				vertical: "center",
+				horizontal: "center",
+			}}
+			transformOrigin={{
+				vertical: "center",
+				horizontal: "center",
+			}}
 		>
-			{/* <div className="datasetListPopover">
+			<div className="datasetListPopover">
 				<div className="datasetListPopoverHeading">
 					<div style={{ flex: 1 }}>{popOverTitle}</div>
 
@@ -45,29 +53,27 @@ const DatasetListPopover = (
 					/>
 				</div>
 				<div>
-					{dataSetList.map((ds) => {
+					{dataSetList.map((ds: any) => {
 						return (
 							<div
 								className="dataSetNameIndi"
 								onClick={() => setSelectedDataset(ds)}
-								key={ds.ds_uid}
+								key={ds.id}
 							>
-								{ds.connectionName}
+								{ds.datasetName}
 							</div>
 						);
 					})}
 				</div>
-			</div> */}
-			<div>hi</div>
+			</div>
 		</Popover>
 	);
 };
 
-// const mapStateToProps = (state) => {
-// 	return {
-// 		dataSetList: state.dataSetState.dataSetList,
-// 	};
-// };
+const mapStateToProps = (state: DataSetStateProps, ownProps: any) => {
+	return {
+		dataSetList: state.dataSetState.dataSetList,
+	};
+};
 
-// export default connect(mapStateToProps, null)(DatasetListPopover);
-export default DatasetListPopover;
+export default connect(mapStateToProps, null)(DatasetListPopover);

@@ -1,4 +1,4 @@
-import { DatasetItem } from "../../redux/DataSet/DatasetStateInterfacse";
+import { DatasetItem } from "../../redux/DataSet/DatasetStateInterfaces";
 
 export interface DatasetListProps {
 	accessToken: string;

@@ -51,7 +51,7 @@ public class SelectClausePostgres {
             }
             // for date fields, need to Parse as year, month, etc.. to aggreate
             else if (List.of("DATE", "TIMESTAMP").contains(dim.getDataType().name())) {
-                // // if time grain is null then assign default value 'year'
+                //if time grain is null then assign default value 'year'
                 // if (dim.getTimeGrain() == null || dim.getTimeGrain().isBlank()) {
                 // dim.setTimeGrain("year");
                 // }
@@ -135,7 +135,7 @@ public class SelectClausePostgres {
         for (int i = 0; i < req.getMeasures().size(); i++) {
             Measure meas = req.getMeasures().get(i);
 
-            // // if aggr is null then throw error
+            //if aggr is null then throw error
             // if (meas.getAggr() == null || meas.getAggr().isBlank()) {
             // throw new BadRequestException(
             // "Error: Aggregation is not specified for measure " + meas.getFieldName());

@@ -9,11 +9,10 @@ import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 // import { setSelectedDsInTile } from "../../redux/ChartProperties/actionsChartProperties";
 // import { storePlayBookCopy, updatePlaybookUid } from "../../redux/Playbook/playbookActions";
-// import {
-// 	loadPlaybook,
-// 	setSelectedDataSetList,
+// import // 	loadPlaybook,
+// setSelectedDataSetList,
 // 	setTablesForSelectedDataSets,
-// } from "../../redux/TabTile/actionsTabTile";
+// "../../redux/TabTile/actionsTabTile";
 // //import { checkMinRequiredCards, getChartData } from "../ChartAxes/ChartAxes";
 // import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 // import DatasetListPopover from "../CommonFunctions/PopOverComponents/DatasetListPopover";
@@ -29,9 +28,7 @@ import DatasetListPopover from "../CommonFunctions/PopOverComponents/DatasetList
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import FetchData from "../ServerCall/FetchData";
-interface props {
-	token: any;
-}
+import { PlayBookProps } from "./PlayBookInterfaces";
 
 const PlayBookList = ({
 	// state
@@ -43,7 +40,7 @@ const PlayBookList = ({
 // loadPlayBook,
 // updatePlayBookId,
 // storePlayBookCopy,
-props) => {
+PlayBookProps) => {
 	const [playBookList, setPlayBookList] = useState<any[]>([]);
 
 	const [openPopOver, setOpenPopOver] = useState<boolean>(false);
@@ -57,7 +54,7 @@ props) => {
 	var navigate = useNavigate();
 
 	useEffect(() => {
-		//getInformation();
+		// getInformation();
 		// eslint-disable-next-line
 	}, []);
 
@@ -73,7 +70,7 @@ props) => {
 		if (result.status) {
 			setPlayBookList(result.data);
 		} else {
-			// console.log(result.data.detail);
+			// //console.log(result.data.detail);
 		}
 	};
 
@@ -108,7 +105,7 @@ props) => {
 	// 	if (result.status) {
 	// 		return result.data;
 	// 	} else {
-	// 		// console.log(result.data.detail);
+	// 		// //console.log(result.data.detail);
 	// 	}
 	// };
 
@@ -190,7 +187,7 @@ props) => {
 	// 						combinedValues2.fields = allValues2;
 	// 						axesValue.splice(1, 2, combinedValues2);
 	// 					}
-	// 					//console.log(axesValue);
+	// 					////console.log(axesValue);
 	// 					getChartData(axesValue, pb.content.chartProperty, property, token).then(
 	// 						(data) => {
 	// 							newChartControl.properties[property].chartData = data;
@@ -298,7 +295,7 @@ props) => {
 	// 			setTestMessage("");
 	// 		}, 2000);
 	// 	} else {
-	// 		// console.log(result.detail);
+	// 		// //console.log(result.detail);
 	// 	}
 	// };
 
@@ -308,10 +305,10 @@ props) => {
 				<div className="containerTitle">Playbooks</div>
 
 				<DatasetListPopover
-				// showCard={openPopOver}
-				// setShowCard={setOpenPopOver}
-				// setSelectedDataset={setSelectedDataset}
-				// popOverTitle="Select a Dataset to use with PlayBook"
+					showCard={openPopOver}
+					setShowCard={setOpenPopOver}
+					setSelectedDataset={setSelectedDataset}
+					popOverTitle="Select a Dataset to use with PlayBook"
 				/>
 				<input
 					className="containerButton"
@@ -338,7 +335,7 @@ props) => {
 										onMouseOver={() => xprops.setOpen(true)}
 										onMouseLeave={() => xprops.setOpen(false)}
 										onClick={() => {
-											/*getPlayBookDataFromServer(pb.pb_uid)*/
+											// getPlayBookDataFromServer(pb.pb_uid)
 										}}
 									>
 										<div className="dataConnectionName">{pb.name}</div>
@@ -401,7 +398,7 @@ const mapStateToProps = (state: isLoggedProps) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		// setSelectedDataSetList: dataset => dispatch(setSelectedDataSetList(dataset)),
+		// setSelectedDataSetList: (dataset: any) => dispatch(setSelectedDataSetList(dataset)),
 		// setTablesForDs: tablesObj => dispatch(setTablesForSelectedDataSets(tablesObj)),
 		// setSelectedDs: selectedDs => dispatch(setSelectedDsInTile("1.1", selectedDs)),
 		// loadPlayBook: playBook => dispatch(loadPlaybook(playBook)),

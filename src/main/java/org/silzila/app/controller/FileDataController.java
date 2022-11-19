@@ -1,8 +1,12 @@
 package org.silzila.app.controller;
 
 import java.util.List;
+import java.util.Map;
+
+import javax.validation.Valid;
 
 import org.silzila.app.exception.ExpectationFailedException;
+import org.silzila.app.payload.request.FileUploadRevisedInfoRequest;
 import org.silzila.app.payload.response.FileUploadResponse;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.service.FileDataService;
@@ -11,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,12 +34,26 @@ public class FileDataController {
     FileDataService fileDataService;
 
     // upload CSV File
-    @PostMapping("/file-data")
+    @PostMapping("/file-upload")
     public ResponseEntity<?> uploadFileData(@RequestParam("file") MultipartFile file)
             throws ExpectationFailedException, JsonMappingException, JsonProcessingException {
         // calling Service function
-        FileUploadResponse fileUploadResponse = fileDataService.uploadFileData(file);
+        FileUploadResponse fileUploadResponse = fileDataService.uploadFile(file);
         return ResponseEntity.status(HttpStatus.OK).body(fileUploadResponse);
 
     }
+
+    // save data frame from upload file
+    @PostMapping("/file-data-save")
+    public ResponseEntity<?> schemaFileData(@RequestHeader Map<String, String> reqHeader,
+            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
+            throws JsonMappingException, JsonProcessingException {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        // calling Service function
+        fileDataService.fileDataSave(revisedInfoRequest, userId);
+        return ResponseEntity.status(HttpStatus.OK).body("OKKK");
+
+    }
+
 }
