@@ -11,12 +11,12 @@ import { IndTabs, Tabs } from "../../redux/TabTile/TabStateInterfaces";
 import { IndChartPropProperties } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import {
 	actionsToEnableRenameTab,
-	actionsToRemoveTab,
 	actionsToRenameTab,
 	actionsToSelectTab,
 } from "../../redux/TabTile/actionsTabTile";
 import {
 	actionsToAddTab,
+	actionsToRemoveTab,
 	actionsToUpdateSelectedTile,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 

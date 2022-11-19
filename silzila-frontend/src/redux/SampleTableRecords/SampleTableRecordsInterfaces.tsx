@@ -1,7 +1,17 @@
-import React from "react";
+export interface SampleRecordsStateProp {
+	recordsColumnType: any;
+}
 
-const SampleTableRecordsInterfaces = () => {
-	return <div>SampleTableRecordsInterfaces</div>;
-};
+export interface AddTableRecords {
+	type: "ADD_TABLE_RECORDS";
+	payload: { ds_uid: string | number; tableId: any; tableRecords: any; columnType: any };
+}
 
-export default SampleTableRecordsInterfaces;
+export interface ResetSampleRecords {
+	type: "RESET_SAMPLE_RECORDS";
+}
+
+export interface LoadSampleRecords {
+	type: "LOAD_SAMPLE_RECORDS_FROM_PLAYBOOK";
+	payload: any;
+}
