@@ -2,24 +2,27 @@ import { Dispatch } from "redux";
 import {
 	addControl,
 	removeChartControls,
+	removeMultipleChartControls,
 	resetChartControls,
 } from "../ChartPoperties/ChartControlsActions";
 import {
 	addProp,
 	removeChartProperties,
+	removeMultipleChartProperties,
 	resetChartProperties,
 } from "../ChartPoperties/ChartPropertiesActions";
 import { resetPlayBookData } from "../PlayBook/PlayBookActions";
 import { resetSampleRecords } from "../SampleTableRecords/SampleTableRecordsActions";
 import {
 	addTab,
+	removeTab,
 	removeTilesInDashDuringDeleteTile,
 	resetTabState,
 	showDashboardInTab,
 	updateNextTileId,
 	updateSelectedTileToTab,
 } from "./TabActions";
-import { addTile, removeTile, renameTile, resetTileState } from "./TileActions";
+import { addTile, removeTile, removeTilesOfTab, renameTile, resetTileState } from "./TileActions";
 
 //1
 export const updateNextTabId = () => {
@@ -85,7 +88,7 @@ export const setDashGridSize = (gridSize: any) => {
 	return { type: "SET_DASH_GRID_SIZE", payload: gridSize };
 };
 //11
-export const setSelectedDataSetList = (dataset: string) => {
+export const setSelectedDataSetList = (dataset: any) => {
 	return { type: "SET_SELECTED_DATASET_LIST", payload: dataset };
 };
 //12
@@ -250,5 +253,29 @@ export const setShowDashBoard = (tabId: number, showDash: boolean) => {
 	return (dispatch: Dispatch<any>) => {
 		dispatch(showDashBoard(showDash));
 		dispatch(showDashboardInTab(tabId, showDash));
+	};
+};
+
+export const actionsToRemoveTab = (
+	tabName: string,
+	tabId: number,
+	tabToRemoveIndex: number,
+	newObj: any
+) => {
+	return (dispatch: Dispatch<any>) => {
+		dispatch(removeTab(tabName, tabId, tabToRemoveIndex));
+		dispatch(removeTilesOfTab(tabName, tabId));
+		// dispatch(removeMultipleChartProperties(tabId));
+		// dispatch(removeMultipleChartControls(tabId));
+		// if (newObj) {
+		// 	dispatch(updateSelectedTab(newObj.tabName, newObj.tabId));
+		// 	dispatch(
+		// 		updateSelectedTile(
+		// 			newObj.selectedTileName,
+		// 			newObj.selectedTileId,
+		// 			newObj.nextTileId
+		// 		)
+		// 	);
+		// }
 	};
 };
