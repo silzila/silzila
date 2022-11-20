@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -35,7 +36,7 @@ public class FileDataController {
 
     // upload CSV File
     @PostMapping("/file-upload")
-    public ResponseEntity<?> uploadFileData(@RequestParam("file") MultipartFile file)
+    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file)
             throws ExpectationFailedException, JsonMappingException, JsonProcessingException {
         // calling Service function
         FileUploadResponse fileUploadResponse = fileDataService.uploadFile(file);
@@ -44,15 +45,15 @@ public class FileDataController {
     }
 
     // save data frame from upload file
-    @PostMapping("/file-data-save")
-    public ResponseEntity<?> schemaFileData(@RequestHeader Map<String, String> reqHeader,
+    @PostMapping("/file-data-change-schema")
+    public ResponseEntity<?> changeSchema(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
             throws JsonMappingException, JsonProcessingException {
         // get the requester user Id
         String userId = reqHeader.get("requesterUserId");
         // calling Service function
-        fileDataService.fileDataSave(revisedInfoRequest, userId);
-        return ResponseEntity.status(HttpStatus.OK).body("OKKK");
+        List<JsonNode> jsonNodes = fileDataService.fileDataChangeSchema(revisedInfoRequest, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonNodes);
 
     }
 

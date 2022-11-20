@@ -73,35 +73,67 @@ public class SparkService {
     }
 
     // save file data from alreay uploaded file
-    public void savefileData() {
-        String filePath = "/home/balu/Desktop/pyspark_different_datatypes.csv";
+    public List<JsonNode> savefileData(String fileName, String query)
+            throws JsonMappingException, JsonProcessingException {
+        // String filePath = "/home/balu/Desktop/pyspark_different_datatypes.csv";
+        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads"
+                + "/" + "tmp" + "/" + fileName;
 
         // read csv file
-        Dataset<Row> dataset = spark.read().option("header", "true").option("inferSchema", "true").csv(filePath);
+        Dataset<Row> dataset = spark.read().option("header", "true").option("inferSchema", "true")
+                .option("samplingRatio", "0.2").csv(filePath);
 
         dataset.createOrReplaceTempView("ds_view");
 
-        String query = """
-                    SELECT BOOLEAN(`yes_no`) as `yn`, `num_int`, `num_big_int`,
-                `pi_float`, `percent`, `name`, `big_float`, DATE(`cur_date`) as `dt`,
-                TIMESTAMP(`cur_time`) as `time1`, TIMESTAMP(`time2`) as `time2`,
-                TO_DATE(`simple_date`, 'MM/dd/yyyy') as `simple_date` FROM ds_view""";
+        // query = """
+        // "cast(yes_no as boolean) as yn", "CAST(num_int as integer) as num_intt",
+        // "CAST(num_big_int as boolean) as new_bool",
+        // "pi_float", "percent", "name", "big_float", "cast(cur_date as date) as dt",
+        // "cast(cur_time as TIMESTAMP) as time1", "cast(time2 as TIMESTAMP) as time2",
+        // "cast(simple_date as date) as simple_date\"""";
 
+        // query = """
+        // select BOOLEAN(yes_no) as yes_no,
+        // CAST(num_int as string) as num_intt, num_big_int,
+        // CAST(pi_float as double) as pi_float, percent, name, big_float, cur_date,
+        // cur_time, time2,
+        // to_date(simple_date, 'dd/MM/yyyy') as `to date` from ds_view
+        // """;
+
+        // Dataset<Row> _dataset = dataset.selectExpr(query);
         Dataset<Row> _dataset = spark.sql(query);
-
-        // // get Field Name + Data Type mapping
-        // Map<String, String> dataTypeMap = new HashMap<>();
-        // StructField[] fields = _dataset.schema().fields();
-        // for (StructField field : fields) {
-        // // spark has different data types and converted to Silzila data types
-        // String silzilaDataType =
-        // ConvertSparkDataType.toSilzilaDataType(field.dataType().typeName());
-        // dataTypeMap.put(field.name(), silzilaDataType);
-        // }
-        dataset.printSchema();
-        _dataset.printSchema();
-        dataset.show(2);
         _dataset.show(2);
+        _dataset.printSchema();
+
+        // query = """
+        // SELECT
+        // TO_INTEGER(`yes_no`) AS `yes_no_i`,
+        // `num_int` AS `num_int`,
+        // DECIMAL(`num_big_int`) AS `num_big_dec`,
+        // `pi_float` AS `pi_float`,
+        // `percent` AS `percent`,
+        // `name` AS `emp_name`,
+        // `big_float` AS `big_float`,
+        // `cur_date` AS `cur_date`,
+        // `cur_time` AS `cur_time`,
+        // TO_TIMESTAMP(`time2`, 'MM/dd/yyyy hh:MM:SS') AS `time2`,
+        // TO_DATE(`simple_date`, 'MM/dd/yyyy') AS `simple_date_dt`""";
+
+        // get Sample Records from spark DF
+        ObjectMapper mapper = new ObjectMapper();
+        List<JsonNode> jsonNodes = new ArrayList<JsonNode>();
+        // fetch 100 records as sample records
+        List<String> datasetString = _dataset.limit(100).toJSON().collectAsList();
+        for (String str : datasetString) {
+            JsonNode row = mapper.readTree(str);
+            jsonNodes.add(row);
+        }
+
+        return jsonNodes;
+
+        // dataset.printSchema();
+        // dataset.show(2);
+        // _dataset.show(2);
     }
 
 }

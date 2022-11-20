@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -77,7 +78,8 @@ public class FileDataService {
     }
 
     // set schema for uploaded file
-    public void fileDataSave(FileUploadRevisedInfoRequest revisedInfoRequest, String userId) {
+    public List<JsonNode> fileDataChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+            throws JsonMappingException, JsonProcessingException {
         String filePath = SILZILA_DIR + "/tmp/" + revisedInfoRequest.getFileId();
         String query = "";
         String alias = "";
@@ -96,11 +98,11 @@ public class FileDataService {
                 if (col.getNewDataType().name().equals("BOOLEAN")) {
                     colString = "BOOLEAN(`" + col.getFieldName() + "`)";
                 } else if (col.getNewDataType().name().equals("INTEGER")) {
-                    colString = "INTEGER(`" + col.getFieldName() + "`)";
+                    colString = "CAST(`" + col.getFieldName() + "` AS INTEGER)";
                 } else if (col.getNewDataType().name().equals("STRING")) {
-                    colString = "STRING(`" + col.getFieldName() + "`)";
+                    colString = "CAST(`" + col.getFieldName() + "` AS STRING)";
                 } else if (col.getNewDataType().name().equals("DECIMAL")) {
-                    colString = "DECIMAL(`" + col.getFieldName() + "`)";
+                    colString = "CAST(`" + col.getFieldName() + "` AS DOUBLE)";
                 } else if (col.getNewDataType().name().equals("DATE")) {
                     if (!Objects.isNull(col.getFormat())) {
                         colString = "TO_DATE(`" + col.getFieldName() + "`, '" + col.getFormat() + "')";
@@ -132,10 +134,11 @@ public class FileDataService {
         }
 
         query = "SELECT \n\t" + columnList.stream().collect(Collectors.joining(",\n\t"));
-        System.out.println("Query ========================== \n" + query);
+        System.out.println("built Query ========================== \n" + query);
         // first, start spark session
         sparkService.startSparkSession();
-        sparkService.savefileData();
+        List<JsonNode> jsonNodes = sparkService.savefileData(revisedInfoRequest.getFileId(), query);
+        return jsonNodes;
 
     }
 
