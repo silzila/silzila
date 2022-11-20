@@ -245,7 +245,7 @@ export const setTitleAlignment = (propKey: string | number, align: string) => {
 		payload: { propKey, align },
 	};
 };
-export const setTitleSize = (propKey: string | number, value: any) => {
+export const setTitleSize = (propKey: string | number, value: number) => {
 	return {
 		type: "SET_TITLE_SIZE",
 		payload: { propKey, value },

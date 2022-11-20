@@ -52,7 +52,7 @@ interface ChartPropTitleOptions {
 export interface ChartPropertiesProps {
 	properties: ChartPropProperties;
 
-	propList: { [key: number]: string[] };
+	propList: { [key: number | string]: string[] };
 }
 
 export interface ChartPropertiesStateProps {

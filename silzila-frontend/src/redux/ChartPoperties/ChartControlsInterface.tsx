@@ -25,7 +25,7 @@ export interface ChartControlsProps {
 	};
 }
 export interface ChartControlProperties {
-	[key: number]: ChartControlsProps;
+	[key: number | string]: ChartControlsProps;
 }
 
 interface ChartConColorScale {

@@ -21,7 +21,7 @@ export interface IndTabs {
 }
 
 export interface Tabs {
-	[key: number]: IndTabs;
+	[key: number | string]: IndTabs;
 }
 
 export interface TabStateProps {
