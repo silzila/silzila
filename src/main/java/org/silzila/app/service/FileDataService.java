@@ -77,24 +77,29 @@ public class FileDataService {
         return fileUploadResponse;
     }
 
-    // set schema for uploaded file
+    // update schema for uploaded file
     public List<JsonNode> fileDataChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
             throws JsonMappingException, JsonProcessingException {
-        String filePath = SILZILA_DIR + "/tmp/" + revisedInfoRequest.getFileId();
         String query = "";
         String alias = "";
         List<String> columnList = new ArrayList<>();
 
+        // iterate colummns list to check if any data type or column name change
         for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
             FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
 
             String colString = "";
 
-            // data type conversion
+            /*
+             * data type conversion
+             */
+
+            // if not data type change then use column as is
             if (Objects.isNull(col.getNewDataType())) {
                 colString = "`" + col.getFieldName() + "`";
-            } else if (!Objects.isNull(col.getNewDataType())) {
-                System.out.println("------ " + col.getNewDataType().name());
+            }
+            // when new data type is provided
+            else if (!Objects.isNull(col.getNewDataType())) {
                 if (col.getNewDataType().name().equals("BOOLEAN")) {
                     colString = "BOOLEAN(`" + col.getFieldName() + "`)";
                 } else if (col.getNewDataType().name().equals("INTEGER")) {
@@ -104,25 +109,42 @@ public class FileDataService {
                 } else if (col.getNewDataType().name().equals("DECIMAL")) {
                     colString = "CAST(`" + col.getFieldName() + "` AS DOUBLE)";
                 } else if (col.getNewDataType().name().equals("DATE")) {
-                    if (!Objects.isNull(col.getFormat())) {
-                        colString = "TO_DATE(`" + col.getFieldName() + "`, '" + col.getFormat() + "')";
-                    } else {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                "Error: Date conversion needs date format for the column: " + col.getFieldName() + "!");
+                    // timestamp to date
+                    if (col.getDataType().name().equals("TIMESTAMP")) {
+                        colString = "CAST(`" + col.getFieldName() + "` AS DATE)";
+                    }
+                    // other types to date
+                    else {
+                        if (!Objects.isNull(col.getFormat())) {
+                            colString = "TO_DATE(`" + col.getFieldName() + "`, '" + col.getFormat() + "')";
+                        } else {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                    "Error: Date conversion needs date format for the column: " + col.getFieldName()
+                                            + "!");
+                        }
                     }
                 } else if (col.getNewDataType().name().equals("TIMESTAMP")) {
-                    if (!Objects.isNull(col.getFormat())) {
-                        colString = "TO_TIMESTAMP(`" + col.getFieldName() + "`, '" + col.getFormat() + "')";
-                    } else {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                "Error: Timestamp conversion needs Timestamp format for the column: "
-                                        + col.getFieldName()
-                                        + "!");
+                    // date to timestamp
+                    if (col.getDataType().name().equals("DATE")) {
+                        colString = "CAST(`" + col.getFieldName() + "` AS TIMESTAMP)";
+                    }
+                    // other types to timestamp
+                    else {
+                        if (!Objects.isNull(col.getFormat())) {
+                            colString = "TO_TIMESTAMP(`" + col.getFieldName() + "`, '" + col.getFormat() + "')";
+                        } else {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                    "Error: Timestamp conversion needs Timestamp format for the column: "
+                                            + col.getFieldName()
+                                            + "!");
+                        }
                     }
                 }
             }
-
-            // Alias
+            /*
+             * Alias for column
+             * if not alias is given then use column name as alias
+             */
             if (!Objects.isNull(col.getNewFieldName())) {
                 alias = "`" + col.getNewFieldName() + "`";
             } else {
@@ -134,12 +156,10 @@ public class FileDataService {
         }
 
         query = "SELECT \n\t" + columnList.stream().collect(Collectors.joining(",\n\t"));
-        System.out.println("built Query ========================== \n" + query);
+
         // first, start spark session
         sparkService.startSparkSession();
-        List<JsonNode> jsonNodes = sparkService.savefileData(revisedInfoRequest.getFileId(), query);
+        List<JsonNode> jsonNodes = sparkService.changeSchema(revisedInfoRequest.getFileId(), query);
         return jsonNodes;
-
     }
-
 }

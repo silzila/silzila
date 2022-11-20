@@ -73,51 +73,31 @@ public class SparkService {
     }
 
     // save file data from alreay uploaded file
-    public List<JsonNode> savefileData(String fileName, String query)
+    public List<JsonNode> changeSchema(String fileName, String query)
             throws JsonMappingException, JsonProcessingException {
         // String filePath = "/home/balu/Desktop/pyspark_different_datatypes.csv";
         final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads"
                 + "/" + "tmp" + "/" + fileName;
 
-        // read csv file
+        // read csv file with auto infer schema
         Dataset<Row> dataset = spark.read().option("header", "true").option("inferSchema", "true")
                 .option("samplingRatio", "0.2").csv(filePath);
 
         dataset.createOrReplaceTempView("ds_view");
-
-        // query = """
-        // "cast(yes_no as boolean) as yn", "CAST(num_int as integer) as num_intt",
-        // "CAST(num_big_int as boolean) as new_bool",
-        // "pi_float", "percent", "name", "big_float", "cast(cur_date as date) as dt",
-        // "cast(cur_time as TIMESTAMP) as time1", "cast(time2 as TIMESTAMP) as time2",
-        // "cast(simple_date as date) as simple_date\"""";
+        query = query + " from ds_view";
 
         // query = """
         // select BOOLEAN(yes_no) as yes_no,
         // CAST(num_int as string) as num_intt, num_big_int,
         // CAST(pi_float as double) as pi_float, percent, name, big_float, cur_date,
-        // cur_time, time2,
+        // cur_time, CAST(CAST(time2 as date) as TIMESTAMP) as time2,
         // to_date(simple_date, 'dd/MM/yyyy') as `to date` from ds_view
         // """;
 
-        // Dataset<Row> _dataset = dataset.selectExpr(query);
+        // create another DF with changed schema
         Dataset<Row> _dataset = spark.sql(query);
-        _dataset.show(2);
-        _dataset.printSchema();
-
-        // query = """
-        // SELECT
-        // TO_INTEGER(`yes_no`) AS `yes_no_i`,
-        // `num_int` AS `num_int`,
-        // DECIMAL(`num_big_int`) AS `num_big_dec`,
-        // `pi_float` AS `pi_float`,
-        // `percent` AS `percent`,
-        // `name` AS `emp_name`,
-        // `big_float` AS `big_float`,
-        // `cur_date` AS `cur_date`,
-        // `cur_time` AS `cur_time`,
-        // TO_TIMESTAMP(`time2`, 'MM/dd/yyyy hh:MM:SS') AS `time2`,
-        // TO_DATE(`simple_date`, 'MM/dd/yyyy') AS `simple_date_dt`""";
+        // _dataset.show(2);
+        // _dataset.printSchema();
 
         // get Sample Records from spark DF
         ObjectMapper mapper = new ObjectMapper();
@@ -128,12 +108,9 @@ public class SparkService {
             JsonNode row = mapper.readTree(str);
             jsonNodes.add(row);
         }
-
+        _dataset.unpersist();
+        dataset.unpersist();
         return jsonNodes;
-
-        // dataset.printSchema();
-        // dataset.show(2);
-        // _dataset.show(2);
     }
 
 }
