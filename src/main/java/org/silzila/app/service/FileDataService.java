@@ -12,7 +12,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -76,51 +78,74 @@ public class FileDataService {
         return fileUploadResponse;
     }
 
-    // set schema for uploaded file
-    public void fileDataSave(FileUploadRevisedInfoRequest revisedInfoRequest, String userId) {
-        String filePath = SILZILA_DIR + "/tmp/" + revisedInfoRequest.getFileId();
+    // helper function to build query from revised columns for meta data changes
+    // like change of data type or column name
+    public String buildQueryWithChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest) {
         String query = "";
         String alias = "";
         List<String> columnList = new ArrayList<>();
 
+        // iterate colummns list to check if any data type or column name change
         for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
             FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
 
             String colString = "";
 
-            // data type conversion
+            /*
+             * data type conversion
+             */
+
+            // if not data type change then use column as is
             if (Objects.isNull(col.getNewDataType())) {
                 colString = "`" + col.getFieldName() + "`";
-            } else if (!Objects.isNull(col.getNewDataType())) {
-                System.out.println("------ " + col.getNewDataType().name());
+            }
+            // when new data type is provided
+            else if (!Objects.isNull(col.getNewDataType())) {
                 if (col.getNewDataType().name().equals("BOOLEAN")) {
                     colString = "BOOLEAN(`" + col.getFieldName() + "`)";
                 } else if (col.getNewDataType().name().equals("INTEGER")) {
-                    colString = "INTEGER(`" + col.getFieldName() + "`)";
+                    colString = "CAST(`" + col.getFieldName() + "` AS INTEGER)";
                 } else if (col.getNewDataType().name().equals("STRING")) {
-                    colString = "STRING(`" + col.getFieldName() + "`)";
+                    colString = "CAST(`" + col.getFieldName() + "` AS STRING)";
                 } else if (col.getNewDataType().name().equals("DECIMAL")) {
-                    colString = "DECIMAL(`" + col.getFieldName() + "`)";
+                    colString = "CAST(`" + col.getFieldName() + "` AS DOUBLE)";
                 } else if (col.getNewDataType().name().equals("DATE")) {
-                    if (!Objects.isNull(col.getFormat())) {
-                        colString = "TO_DATE(`" + col.getFieldName() + "`, '" + col.getFormat() + "')";
-                    } else {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                "Error: Date conversion needs date format for the column: " + col.getFieldName() + "!");
+                    // timestamp to date
+                    if (col.getDataType().name().equals("TIMESTAMP")) {
+                        colString = "CAST(`" + col.getFieldName() + "` AS DATE)";
+                    }
+                    // other types to date
+                    else {
+                        if (!Objects.isNull(col.getFormat())) {
+                            colString = "TO_DATE(`" + col.getFieldName() + "`, '" + col.getFormat() + "')";
+                        } else {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                    "Error: Date conversion needs date format for the column: " + col.getFieldName()
+                                            + "!");
+                        }
                     }
                 } else if (col.getNewDataType().name().equals("TIMESTAMP")) {
-                    if (!Objects.isNull(col.getFormat())) {
-                        colString = "TO_TIMESTAMP(`" + col.getFieldName() + "`, '" + col.getFormat() + "')";
-                    } else {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                "Error: Timestamp conversion needs Timestamp format for the column: "
-                                        + col.getFieldName()
-                                        + "!");
+                    // date to timestamp
+                    if (col.getDataType().name().equals("DATE")) {
+                        colString = "CAST(`" + col.getFieldName() + "` AS TIMESTAMP)";
+                    }
+                    // other types to timestamp
+                    else {
+                        if (!Objects.isNull(col.getFormat())) {
+                            colString = "TO_TIMESTAMP(`" + col.getFieldName() + "`, '" + col.getFormat() + "')";
+                        } else {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                    "Error: Timestamp conversion needs Timestamp format for the column: "
+                                            + col.getFieldName()
+                                            + "!");
+                        }
                     }
                 }
             }
-
-            // Alias
+            /*
+             * Alias for column
+             * if not alias is given then use column name as alias
+             */
             if (!Objects.isNull(col.getNewFieldName())) {
                 alias = "`" + col.getNewFieldName() + "`";
             } else {
@@ -132,11 +157,56 @@ public class FileDataService {
         }
 
         query = "SELECT \n\t" + columnList.stream().collect(Collectors.joining(",\n\t"));
-        System.out.println("Query ========================== \n" + query);
-        // first, start spark session
-        sparkService.startSparkSession();
-        sparkService.savefileData();
-
+        return query;
     }
 
+    // update schema for uploaded file
+    public List<JsonNode> fileDataChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+            throws JsonMappingException, JsonProcessingException {
+
+        // construct query by using helper function
+        String query = buildQueryWithChangeSchema(revisedInfoRequest);
+
+        // first, start spark session
+        sparkService.startSparkSession();
+        List<JsonNode> jsonNodes = sparkService.changeSchema(revisedInfoRequest.getFileId(), query);
+        return jsonNodes;
+    }
+
+    // persist uploaded file (with/witout changed schema) as parquet file to disk
+    // Steps: read uploaded file + change metadata if needed
+    // + save the data as Parquet file + delete uploaded file
+    public void saveFileData(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+            throws JsonMappingException, JsonProcessingException {
+
+        // construct query by using helper function
+        String query = buildQueryWithChangeSchema(revisedInfoRequest);
+
+        // if not exists, create folder for user - to save file
+        Path path = Paths.get(SILZILA_DIR, userId);
+        try {
+            Files.createDirectories(path);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Could not initialize folder for upload. Errorr: " + e.getMessage());
+        }
+
+        final String readFile = System.getProperty("user.home") + "/" + "silzila-uploads"
+                + "/" + "tmp" + "/" + revisedInfoRequest.getFileId();
+        final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
+                + "/" + revisedInfoRequest.getFileId() + ".parquet";
+
+        // first, start spark session
+        sparkService.startSparkSession();
+        // write to Parquet file
+        sparkService.saveFileData(readFile, writeFile, query);
+
+        // delete the read file which was uploaded by user
+        try {
+            Files.deleteIfExists(Paths.get(readFile));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 }

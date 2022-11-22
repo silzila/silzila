@@ -72,36 +72,66 @@ public class SparkService {
         return fileUploadResponse;
     }
 
-    // save file data from alreay uploaded file
-    public void savefileData() {
-        String filePath = "/home/balu/Desktop/pyspark_different_datatypes.csv";
+    // edit schema of alreay uploaded file
+    public List<JsonNode> changeSchema(String fileName, String query)
+            throws JsonMappingException, JsonProcessingException {
+        // String filePath = "/home/balu/Desktop/pyspark_different_datatypes.csv";
+        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads"
+                + "/" + "tmp" + "/" + fileName;
 
-        // read csv file
-        Dataset<Row> dataset = spark.read().option("header", "true").option("inferSchema", "true").csv(filePath);
+        // read csv file with auto infer schema
+        Dataset<Row> dataset = spark.read().option("header", "true").option("inferSchema", "true")
+                .option("samplingRatio", "0.2").csv(filePath);
 
         dataset.createOrReplaceTempView("ds_view");
+        query = query + " from ds_view";
 
-        String query = """
-                    SELECT BOOLEAN(`yes_no`) as `yn`, `num_int`, `num_big_int`,
-                `pi_float`, `percent`, `name`, `big_float`, DATE(`cur_date`) as `dt`,
-                TIMESTAMP(`cur_time`) as `time1`, TIMESTAMP(`time2`) as `time2`,
-                TO_DATE(`simple_date`, 'MM/dd/yyyy') as `simple_date` FROM ds_view""";
+        // query = """
+        // select BOOLEAN(yes_no) as yes_no,
+        // CAST(num_int as string) as num_intt, num_big_int,
+        // CAST(pi_float as double) as pi_float, percent, name, big_float, cur_date,
+        // cur_time, CAST(CAST(time2 as date) as TIMESTAMP) as time2,
+        // to_date(simple_date, 'dd/MM/yyyy') as `to date` from ds_view
+        // """;
 
+        // create another DF with changed schema
+        Dataset<Row> _dataset = spark.sql(query);
+        // _dataset.show(2);
+        // _dataset.printSchema();
+
+        // get Sample Records from spark DF
+        ObjectMapper mapper = new ObjectMapper();
+        List<JsonNode> jsonNodes = new ArrayList<JsonNode>();
+        // fetch 100 records as sample records
+        List<String> datasetString = _dataset.limit(100).toJSON().collectAsList();
+        for (String str : datasetString) {
+            JsonNode row = mapper.readTree(str);
+            jsonNodes.add(row);
+        }
+        _dataset.unpersist();
+        dataset.unpersist();
+        return jsonNodes;
+    }
+
+    // save file data from alreay uploaded file
+    public void saveFileData(String readFile, String writeFile, String query)
+            throws JsonMappingException, JsonProcessingException {
+
+        // read csv file with auto infer schema
+        Dataset<Row> dataset = spark.read().option("header", "true").option("inferSchema", "true")
+                .option("samplingRatio", "0.2").csv(readFile);
+
+        dataset.createOrReplaceTempView("ds_view");
+        query = query + " from ds_view";
+
+        // create another DF with changed schema
         Dataset<Row> _dataset = spark.sql(query);
 
-        // // get Field Name + Data Type mapping
-        // Map<String, String> dataTypeMap = new HashMap<>();
-        // StructField[] fields = _dataset.schema().fields();
-        // for (StructField field : fields) {
-        // // spark has different data types and converted to Silzila data types
-        // String silzilaDataType =
-        // ConvertSparkDataType.toSilzilaDataType(field.dataType().typeName());
-        // dataTypeMap.put(field.name(), silzilaDataType);
-        // }
-        dataset.printSchema();
-        _dataset.printSchema();
-        dataset.show(2);
-        _dataset.show(2);
+        _dataset.write().mode("overwrite").parquet(writeFile);
+
+        _dataset.unpersist();
+        dataset.unpersist();
+        // return jsonNodes;
     }
 
 }
