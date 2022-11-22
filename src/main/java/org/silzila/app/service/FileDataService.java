@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -77,9 +78,9 @@ public class FileDataService {
         return fileUploadResponse;
     }
 
-    // update schema for uploaded file
-    public List<JsonNode> fileDataChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
-            throws JsonMappingException, JsonProcessingException {
+    // helper function to build query from revised columns for meta data changes
+    // like change of data type or column name
+    public String buildQueryWithChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest) {
         String query = "";
         String alias = "";
         List<String> columnList = new ArrayList<>();
@@ -156,10 +157,56 @@ public class FileDataService {
         }
 
         query = "SELECT \n\t" + columnList.stream().collect(Collectors.joining(",\n\t"));
+        return query;
+    }
+
+    // update schema for uploaded file
+    public List<JsonNode> fileDataChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+            throws JsonMappingException, JsonProcessingException {
+
+        // construct query by using helper function
+        String query = buildQueryWithChangeSchema(revisedInfoRequest);
 
         // first, start spark session
         sparkService.startSparkSession();
         List<JsonNode> jsonNodes = sparkService.changeSchema(revisedInfoRequest.getFileId(), query);
         return jsonNodes;
+    }
+
+    // persist uploaded file (with/witout changed schema) as parquet file to disk
+    // Steps: read uploaded file + change metadata if needed
+    // + save the data as Parquet file + delete uploaded file
+    public void saveFileData(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+            throws JsonMappingException, JsonProcessingException {
+
+        // construct query by using helper function
+        String query = buildQueryWithChangeSchema(revisedInfoRequest);
+
+        // if not exists, create folder for user - to save file
+        Path path = Paths.get(SILZILA_DIR, userId);
+        try {
+            Files.createDirectories(path);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Could not initialize folder for upload. Errorr: " + e.getMessage());
+        }
+
+        final String readFile = System.getProperty("user.home") + "/" + "silzila-uploads"
+                + "/" + "tmp" + "/" + revisedInfoRequest.getFileId();
+        final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
+                + "/" + revisedInfoRequest.getFileId() + ".parquet";
+
+        // first, start spark session
+        sparkService.startSparkSession();
+        // write to Parquet file
+        sparkService.saveFileData(readFile, writeFile, query);
+
+        // delete the read file which was uploaded by user
+        try {
+            Files.deleteIfExists(Paths.get(readFile));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

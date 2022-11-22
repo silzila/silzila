@@ -34,6 +34,7 @@ public class FileDataController {
     @Autowired
     FileDataService fileDataService;
 
+    // step 1:
     // upload CSV File
     @PostMapping("/file-upload")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file)
@@ -44,8 +45,10 @@ public class FileDataController {
 
     }
 
-    // save data frame from upload file
-    @PostMapping("/file-data-change-schema")
+    // step 2:
+    // (this step repeats until user is satisfied with col data types & col names)
+    // edit schema of upload file
+    @PostMapping("/file-upload-change-schema")
     public ResponseEntity<?> changeSchema(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
             throws JsonMappingException, JsonProcessingException {
@@ -54,7 +57,19 @@ public class FileDataController {
         // calling Service function
         List<JsonNode> jsonNodes = fileDataService.fileDataChangeSchema(revisedInfoRequest, userId);
         return ResponseEntity.status(HttpStatus.OK).body(jsonNodes);
+    }
 
+    // step 3:
+    // save file data
+    @PostMapping("/file-upload-save-data")
+    public ResponseEntity<?> saveData(@RequestHeader Map<String, String> reqHeader,
+            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
+            throws JsonMappingException, JsonProcessingException {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        // calling Service function
+        fileDataService.saveFileData(revisedInfoRequest, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("File Data saved!"));
     }
 
 }

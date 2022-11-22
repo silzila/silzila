@@ -72,7 +72,7 @@ public class SparkService {
         return fileUploadResponse;
     }
 
-    // save file data from alreay uploaded file
+    // edit schema of alreay uploaded file
     public List<JsonNode> changeSchema(String fileName, String query)
             throws JsonMappingException, JsonProcessingException {
         // String filePath = "/home/balu/Desktop/pyspark_different_datatypes.csv";
@@ -111,6 +111,27 @@ public class SparkService {
         _dataset.unpersist();
         dataset.unpersist();
         return jsonNodes;
+    }
+
+    // save file data from alreay uploaded file
+    public void saveFileData(String readFile, String writeFile, String query)
+            throws JsonMappingException, JsonProcessingException {
+
+        // read csv file with auto infer schema
+        Dataset<Row> dataset = spark.read().option("header", "true").option("inferSchema", "true")
+                .option("samplingRatio", "0.2").csv(readFile);
+
+        dataset.createOrReplaceTempView("ds_view");
+        query = query + " from ds_view";
+
+        // create another DF with changed schema
+        Dataset<Row> _dataset = spark.sql(query);
+
+        _dataset.write().mode("overwrite").parquet(writeFile);
+
+        _dataset.unpersist();
+        dataset.unpersist();
+        // return jsonNodes;
     }
 
 }
