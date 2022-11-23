@@ -5,7 +5,9 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.ExpectationFailedException;
+import org.silzila.app.model.FileData;
 import org.silzila.app.payload.request.FileUploadRevisedInfoRequest;
 import org.silzila.app.payload.response.FileUploadResponse;
 import org.silzila.app.payload.response.MessageResponse;
@@ -64,12 +66,12 @@ public class FileDataController {
     @PostMapping("/file-upload-save-data")
     public ResponseEntity<?> saveData(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
-            throws JsonMappingException, JsonProcessingException {
+            throws JsonMappingException, JsonProcessingException, BadRequestException {
         // get the requester user Id
         String userId = reqHeader.get("requesterUserId");
         // calling Service function
-        fileDataService.saveFileData(revisedInfoRequest, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("File Data saved!"));
+        FileData fileData = fileDataService.saveFileData(revisedInfoRequest, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(fileData);
     }
 
 }
