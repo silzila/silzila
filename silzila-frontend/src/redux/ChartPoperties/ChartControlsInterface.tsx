@@ -151,7 +151,7 @@ interface ChartConCrossTabCellLabelOptions {
 	fontWeight: number | string;
 }
 
-interface ChartConLabelOptions {
+export interface ChartConLabelOptions {
 	showLabel: boolean;
 	labelColorManual: boolean;
 	labelColor: string;
@@ -165,26 +165,31 @@ interface ChartConLabelOptions {
 	fontFamily: string;
 }
 
+export interface ChartConLabelFormates {
+	formatValue: string;
+	currencySymbol: any;
+	enableRounding: boolean;
+	roundingDigits: number;
+	numberSeparator: string | any;
+}
+
+export interface ChartConYAxisFormats {
+	enableRounding: boolean;
+	roundingDigits: number;
+	numberSeparator: string | any;
+}
+export interface ChartConXAxisFormats {
+	enableRounding: boolean;
+	roundingDigits: number;
+	numberSeparator: string | any;
+}
+
 interface ChartConFormateOptions {
-	labelFormats: {
-		formatValue: string;
-		currencySymbol: string | any;
-		enableRounding: string | boolean;
-		roundingDigits: number;
-		numberSeparator: string | any;
-	};
+	labelFormats: ChartConLabelFormates;
 
-	yAxisFormats: {
-		enableRounding: string | boolean;
-		roundingDigits: number;
-		numberSeparator: string | any;
-	};
+	yAxisFormats: ChartConYAxisFormats;
 
-	xAxisFormats: {
-		enableRounding: string | boolean;
-		roundingDigits: number;
-		numberSeparator: string | any;
-	};
+	xAxisFormats: ChartConXAxisFormats;
 }
 
 interface ChartConGaugeAxisOptions {
@@ -217,7 +222,7 @@ interface ChartConPieAxisOptions {
 	clockWise: boolean;
 }
 
-interface ChartConYAxis {
+export interface ChartConYAxis {
 	position: string;
 	onZero: boolean;
 
@@ -227,7 +232,7 @@ interface ChartConYAxis {
 	nameLocation: string;
 	nameGap: number;
 	nameColor: string;
-	nameSize: string;
+	nameSize: number;
 
 	tickSizeLeft: number;
 	tickPaddingLeft: number;
@@ -238,7 +243,7 @@ interface ChartConYAxis {
 	tickRotationRight: number;
 }
 
-interface ChartConXAxis {
+export interface ChartConXAxis {
 	position: string;
 	onZero: boolean;
 
@@ -248,7 +253,7 @@ interface ChartConXAxis {
 	nameLocation: string;
 	nameGap: number;
 	nameColor: string;
-	nameSize: string;
+	nameSize: number;
 
 	tickSizeBottom: number;
 	tickPaddingBottom: number;
@@ -277,7 +282,7 @@ interface ChartConAxisMinMax {
 	maxValue: number;
 }
 
-interface ChartConAxisOptions {
+export interface ChartConAxisOptions {
 	xSplitLine: boolean;
 	ySplitLine: boolean;
 	inverse: boolean;
@@ -293,7 +298,7 @@ interface ChartConAxisOptions {
 
 export interface ChartControl {
 	properties: ChartControlProperties;
-	propList: { [key: number]: string[] };
+	propList: { [key: number | string]: string[] };
 }
 
 export interface ChartControlStateProps {

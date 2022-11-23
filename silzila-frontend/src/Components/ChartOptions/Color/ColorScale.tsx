@@ -14,17 +14,9 @@ import { SketchPicker } from "react-color";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { setColorScaleOption } from "../../../redux/ChartPoperties/ChartControlsActions";
-import {
-	ChartControl,
-	ChartControlStateProps,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
 
 import { NotificationDialog } from "../../CommonFunctions/DialogComponents";
-import ChartColors from "./ChartColors";
+import { ColorScaleProps, ColorScaleStateProps } from "./ColorComponentInterfaces";
 import "./ColorSteps.css";
 
 const textFieldInputProps = {
@@ -36,14 +28,6 @@ const textFieldInputProps = {
 		fontSize: "14px",
 	},
 };
-
-interface ColorScaleProps {
-	chartControls: ChartControl;
-	tabTileProps: TabTileStateProps;
-
-	// dispatch
-	setColorScaleOption: (option: string, value: any, propKey: string | number) => void;
-}
 
 const ColorScale = ({
 	// state
@@ -260,7 +244,7 @@ const ColorScale = ({
 	);
 };
 
-const mapStateToProps = (state: ChartControlStateProps & TabTileStateProps2) => {
+const mapStateToProps = (state: ColorScaleStateProps) => {
 	return {
 		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,

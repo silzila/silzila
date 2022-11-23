@@ -50,8 +50,6 @@ const PlayBookList = ({
 
 	var navigate = useNavigate();
 
-	console.log(selectedDataset);
-
 	useEffect(() => {
 		getInformation();
 		// eslint - disable - next - line;
@@ -67,8 +65,6 @@ const PlayBookList = ({
 		});
 
 		if (result.status) {
-			console.log(result.data, "Playbook list");
-
 			setPlayBookList(result.data);
 		} else {
 			//console.log(result.data.detail);
@@ -119,33 +115,33 @@ const PlayBookList = ({
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: `pb/get-pb/${pbUid}`,
+			url: `playbook/${pbUid}`,
 			headers: { Authorization: `Bearer ${token}` },
 		});
 
 		if (result.status) {
+			console.log(result.data);
 			setLoading(true);
 
 			var pb = result.data;
-
 			var selectedDatasetsInPlaybook = pb.content.tabTileProps.selectedDataSetList;
 
 			// Get list of tables for a given dataset and save here
 			var tablesForSelectedDatasetsCopy = {};
-			await Promise.all(
-				selectedDatasetsInPlaybook.map(async (sampleDs: any) => {
-					var result2: any = await FetchData({
-						requestType: "noData",
-						method: "GET",
-						url: `ds/get-ds-tables/${sampleDs.ds_uid}`,
-						headers: { Authorization: `Bearer ${token}` },
-					});
+			// await Promise.all(
+			// 	selectedDatasetsInPlaybook.map(async (sampleDs: any) => {
+			// 		var result2: any = await FetchData({
+			// 			requestType: "noData",
+			// 			method: "GET",
+			// 			url: `ds/get-ds-tables/${sampleDs.ds_uid}`,
+			// 			headers: { Authorization: `Bearer ${token}` },
+			// 		});
 
-					if (result2.status) {
-						// tablesForSelectedDatasetsCopy[sampleDs.ds_uid] = result2.data;
-					}
-				})
-			);
+			// 		if (result2.status) {
+			// 			// tablesForSelectedDatasetsCopy[sampleDs.ds_uid] = result2.data;
+			// 		}
+			// 	})
+			// );
 			pb.content.tabTileProps.tablesForSelectedDataSets = tablesForSelectedDatasetsCopy;
 
 			// for each tile in playbook, if it has minimum required cards in dropzones, get chart data from server
@@ -337,7 +333,7 @@ const PlayBookList = ({
 										onMouseOver={() => xprops.setOpen(true)}
 										onMouseLeave={() => xprops.setOpen(false)}
 										onClick={() => {
-											getPlayBookDataFromServer(pb.pb_uid);
+											getPlayBookDataFromServer(pb.id);
 										}}
 									>
 										<div className="dataConnectionName">{pb.name}</div>

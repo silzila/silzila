@@ -45,39 +45,39 @@ const ControlDetail = ({ chartProp, tabTileProps }: ControlDetailProps) => {
 			case "Title":
 				return <ChartTitle />;
 			case "Colors":
-				if (chartType === "heatmap") {
-					return <ColorScale />;
-				} else if (chartType === "gauge") {
-					return (
-						<>
-							<ColorSteps />
-						</>
-					);
-				} else if (chartType === "sankey") {
-					return <SankeyColorControls />;
-				} else {
-					// if (
-					// 	[
-					// 		"multibar",
-					// 		"stackedBar",
-					// 		"horizontalBar",
-					// 		"horizontalStacked",
-					// 		"line",
-					// 		"area",
-					// 		"pie",
-					// 		"donut",
-					// 		"rose",
-					// 		"geoChart",
-					// 		"stackedArea",
-					// 	].includes(chartType)
-					// ) {
-					return <ChartColors />;
-					// }
-				}
+				// if (chartType === "heatmap") {
+				// 	return <ColorScale />;
+				// } else if (chartType === "gauge") {
+				// 	return (
+				// 		<>
+				// 			<ColorSteps />
+				// 		</>
+				// );
+				// } else if (chartType === "sankey") {
+				// return <SankeyColorControls />;
+				// } else {
+				// if (
+				// 	[
+				// 		"multibar",
+				// 		"stackedBar",
+				// 		"horizontalBar",
+				// 		"horizontalStacked",
+				// 		"line",
+				// 		"area",
+				// 		"pie",
+				// 		"donut",
+				// 		"rose",
+				// 		"geoChart",
+				// 		"stackedArea",
+				// 	].includes(chartType)
+				// ) {
+				return <ChartColors />;
+			// }
+			// }
 			case "Legend":
-				if (chartType === "treeMap") {
-					return <TreeMapLegend />;
-				}
+				// if (chartType === "treeMap") {
+				// 	return <TreeMapLegend />;
+				// }
 				// if (
 				// [
 				// 	"multibar",
@@ -93,9 +93,9 @@ const ControlDetail = ({ chartProp, tabTileProps }: ControlDetailProps) => {
 				// 	"stackedArea",
 				// ].includes(chartType)
 				// )
-				else {
-					return <ChartLegend />;
-				}
+				// else {
+				return <ChartLegend />;
+			// }
 			case "Margin":
 				return <ChartMargin />;
 			case "Tooltip":
@@ -103,23 +103,23 @@ const ControlDetail = ({ chartProp, tabTileProps }: ControlDetailProps) => {
 			case "Grid/Axes":
 				return <GridAndAxes />;
 			case "Labels":
-				if (chartType === "calendar") {
-					return <CalendarLabels />;
-				} else {
-					return <ChartLabels />;
-				}
+				// if (chartType === "calendar") {
+				// 	return <CalendarLabels />;
+				// } else {
+				return <ChartLabels />;
+			// }
 			case "Axis":
 				return <AxisControls />;
 			case "Style":
-				if (chartType === "calendar") {
-					return <CalendarChartStyles />;
-				} else if (chartType === "boxPlot") {
-					return <BoxPlotChartStyles />;
-				} else if (chartType === "treeMap") {
-					return <TreeMapStyles />;
-				} else if (chartType === "sankey") {
-					return <SankeyStyles />;
-				}
+				// if (chartType === "calendar") {
+				// return <CalendarChartStyles />;
+				// } else if (chartType === "boxPlot") {
+				// return <BoxPlotChartStyles />;
+				// } else if (chartType === "treeMap") {
+				// return <TreeMapStyles />;
+				// } else if (chartType === "sankey") {
+				// return <SankeyStyles />;
+				// }
 				// 	if (
 				// 	[
 				// 		"multibar",
@@ -135,9 +135,9 @@ const ControlDetail = ({ chartProp, tabTileProps }: ControlDetailProps) => {
 				// 		"stackedArea",
 				// 	].includes(chartType)
 				// )
-				else {
-					return <ChartStyle />;
-				}
+				// else {
+				return <ChartStyle />;
+			// }
 			case "Format":
 				return <ChartFormat chartType={chartType} />;
 			default:

@@ -52,8 +52,8 @@ const ChartTitle = ({
 		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
 	);
 
-	var generateTitle = chartProp.properties[propKey].titleOptions.generateTitle;
-	var titleAlignment = chartProp.properties[propKey].titleOptions.titleAlign;
+	var generateTitle: string = chartProp.properties[propKey].titleOptions.generateTitle;
+	var titleAlignment: string = chartProp.properties[propKey].titleOptions.titleAlign;
 
 	var titleOptions: TitleOptions[] = [
 		{ type: "Auto" },

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 
-interface InputPositiveNumberProps {
-	value: number;
-	updateValue: (value: number) => void;
-	disabled?: any;
-}
-
-const InputPositiveNumber = ({ value, updateValue, disabled }: InputPositiveNumberProps) => {
-	const [inputValue, setInputValue] = useState<number | string>(value);
+const InputPositiveNumber = ({
+	value,
+	updateValue,
+	disabled,
+}: {
+	value: any;
+	updateValue: any;
+	disabled?: boolean;
+}) => {
+	const [inputValue, setInputValue] = useState<any>(value);
 
 	useEffect(() => {
 		checkInput();
@@ -15,7 +17,10 @@ const InputPositiveNumber = ({ value, updateValue, disabled }: InputPositiveNumb
 
 	const checkInput = () => {
 		if (Number.isInteger(Number(inputValue))) {
-			updateValue(Number(inputValue));
+			//for preventing unnecessary dispatch
+			if (Number(value) !== Number(inputValue)) {
+				updateValue(Number(inputValue));
+			}
 		} else {
 			setInputValue("");
 		}
@@ -33,7 +38,7 @@ const InputPositiveNumber = ({ value, updateValue, disabled }: InputPositiveNumb
 				className="inputValue"
 				type="number"
 				value={inputValue}
-				onBlur={checkInput}
+				onBlur={() => checkInput()}
 				onChange={e => {
 					if (Number(e.target.value) >= 0) setInputValue(e.target.value);
 					else setInputValue(0);

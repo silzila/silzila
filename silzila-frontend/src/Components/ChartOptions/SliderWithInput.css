@@ -1,0 +1,37 @@
+.sliderWithInput {
+    width: 90%;
+    display: flex;
+    margin: 0 5% 10px 5%;
+    height: 1.5rem;
+    color: black;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    padding: 0 5px;
+    /* box-shadow: inset 1px 1px 1px lightgray, inset -1px -1px 1px lightgray; */
+    background-color: white;
+}
+
+.inputValue {
+    border: 1px solid lightgray;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    max-width: 70px;
+    line-height: 1rem;
+    margin-right: 5px;
+    color: rgb(128, 128, 128);
+}
+
+.textValue {
+    border-right: 1px solid lightgray;
+    flex: 1;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    margin-right: 5px;
+    color: rgb(128, 128, 128);
+}
+
+
+
+
+
+
