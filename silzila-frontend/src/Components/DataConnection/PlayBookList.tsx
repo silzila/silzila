@@ -84,7 +84,7 @@ const PlayBookList = ({
 				setSelectedDataSetList(selectedDataset);
 
 				var datasetFromServer: any = await getTables(selectedDataset.id);
-				setTablesForDs({ [selectedDataset.id]: datasetFromServer });
+				setTablesForDs({ [selectedDataset.id]: datasetFromServer.dataSchema.tables });
 				setSelectedDs(1.1, selectedDataset);
 
 				navigate("/dataviewer");
@@ -99,7 +99,7 @@ const PlayBookList = ({
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: `ds/get-ds-tables/${uid}`,
+			url: `dataset/${uid}`,
 			headers: { Authorization: `Bearer ${token}` },
 		});
 
@@ -137,7 +137,7 @@ const PlayBookList = ({
 					var result2: any = await FetchData({
 						requestType: "noData",
 						method: "GET",
-						url: `ds/get-ds-tables/${sampleDs.ds_uid}`,
+						url: `dataset/${sampleDs.ds_uid}`,
 						headers: { Authorization: `Bearer ${token}` },
 					});
 
@@ -206,7 +206,7 @@ const PlayBookList = ({
 					var tableInfo = pb.content.chartProperty.properties[prop];
 
 					var dc_uid = tableInfo.selectedDs?.dc_uid;
-					var ds_uid = tableInfo.selectedDs?.ds_uid;
+					var ds_uid = tableInfo.selectedDs?.id;
 
 					var selectedTableForThisDataset =
 						pb.content.tabTileProps.tablesForSelectedDataSets[ds_uid].filter(
@@ -216,50 +216,52 @@ const PlayBookList = ({
 					if (selectedTableForThisDataset) {
 						var tableRecords = await getTableData(
 							dc_uid,
-							selectedTableForThisDataset.schema_name,
-							selectedTableForThisDataset.table_name,
+							selectedTableForThisDataset.schema,
+							selectedTableForThisDataset.database,
+							selectedTableForThisDataset.table,
 							token
 						);
 
 						var recordsType = await getColumnTypes(
 							dc_uid,
-							selectedTableForThisDataset.schema_name,
-							selectedTableForThisDataset.table_name,
+							selectedTableForThisDataset.schema,
+							selectedTableForThisDataset.database,
+							selectedTableForThisDataset.table,
 							token
 						);
 
 						// Format the data retrieved to required JSON for saving in store
-						// if (sampleRecords[ds_uid] !== undefined) {
-						// 	sampleRecords = update(sampleRecords, {
-						// 		recordsColumnType: {
-						// 			[ds_uid]: {
-						// 				[selectedTableForThisDataset.id]: { $set: recordsType },
-						// 			},
-						// 		},
-						// 		[ds_uid]: {
-						// 			[selectedTableForThisDataset.id]: { $set: tableRecords },
-						// 		},
-						// 	});
-						// } else {
-						// 	var recordsCopy = JSON.parse(JSON.stringify(sampleRecords));
-						// 	var dsObj = { [ds_uid]: {} };
+						if (sampleRecords[ds_uid] !== undefined) {
+							sampleRecords = update(sampleRecords, {
+								recordsColumnType: {
+									[ds_uid]: {
+										[selectedTableForThisDataset.id]: { $set: recordsType },
+									},
+								},
+								[ds_uid]: {
+									[selectedTableForThisDataset.id]: { $set: tableRecords },
+								},
+							});
+						} else {
+							var recordsCopy = JSON.parse(JSON.stringify(sampleRecords));
+							var dsObj = { [ds_uid]: {} };
 
-						// 	recordsCopy = update(recordsCopy, {
-						// 		$merge: dsObj,
-						// 		recordsColumnType: { $merge: dsObj },
-						// 	});
+							recordsCopy = update(recordsCopy, {
+								$merge: dsObj,
+								recordsColumnType: { $merge: dsObj },
+							});
 
-						// 	sampleRecords = update(recordsCopy, {
-						// 		recordsColumnType: {
-						// 			[ds_uid]: {
-						// 				[selectedTableForThisDataset.id]: { $set: recordsType },
-						// 			},
-						// 		},
-						// 		[ds_uid]: {
-						// 			[selectedTableForThisDataset.id]: { $set: tableRecords },
-						// 		},
-						// 	});
-						// }
+							sampleRecords = update(recordsCopy, {
+								recordsColumnType: {
+									[ds_uid]: {
+										[selectedTableForThisDataset.id]: { $set: recordsType },
+									},
+								},
+								[ds_uid]: {
+									[selectedTableForThisDataset.id]: { $set: tableRecords },
+								},
+							});
+						}
 					}
 				})
 			);

@@ -11,7 +11,7 @@ export interface DataViewerBottomProps {
 	token: string;
 	tabTileProps: TabTileStateProps;
 	chartProps: ChartPropertiesProps;
-	// sampleRecords: any;
+	sampleRecords: any;
 	tabState: TabStateProps;
 	//Dispatch
 	setSelectedDataSetList: (dataset: string) => void;
