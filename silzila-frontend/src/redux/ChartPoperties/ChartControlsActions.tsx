@@ -236,7 +236,7 @@ export const resetChartControls = () => {
 	return { type: "RESET_CHART_CONTROLS" };
 };
 
-export const updateReverse = (propKey: string | number, value: string | number) => {
+export const updateReverse = (propKey: string | number, value: boolean) => {
 	return { type: "UPDATE_REVERSE", payload: { propKey, value } };
 };
 

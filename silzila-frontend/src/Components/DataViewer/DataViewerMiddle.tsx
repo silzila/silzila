@@ -21,6 +21,7 @@ import ChartTypes from "../ChartOptions/ChartTypes";
 import ControlDetail from "../ChartOptions/ControlDetail";
 import ChartAxes from "../ChartAxes/ChartAxes";
 import GraphArea from "../GraphArea/GraphArea";
+import ChartControlObjects from "../ChartOptions/ChartControlObjects";
 
 const DataViewerMiddle = ({
 	// props
@@ -78,7 +79,7 @@ const DataViewerMiddle = ({
 				return (
 					<div className="rightColumnControlsAndFilters">
 						<div className="axisTitle">Charts Controls</div>
-						{/* <ChartControlObjects /> */}
+						<ChartControlObjects />
 						<ControlDetail />
 					</div>
 				);

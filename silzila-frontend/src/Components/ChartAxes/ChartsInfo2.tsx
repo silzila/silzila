@@ -1,4 +1,10 @@
-const ChartsInfo = {
+interface ChartsInfoProps {
+	[key: string]: {
+		dropZones: any[];
+		showSwap: boolean;
+	};
+}
+const ChartsInfo: ChartsInfoProps = {
 	multibar: {
 		dropZones: [
 			{ name: "Filter", allowedNumbers: 64, min: 0 },
