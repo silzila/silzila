@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.silzila.app.dto.FileDataDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.ExpectationFailedException;
 import org.silzila.app.model.FileData;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -70,8 +72,17 @@ public class FileDataController {
         // get the requester user Id
         String userId = reqHeader.get("requesterUserId");
         // calling Service function
-        FileData fileData = fileDataService.saveFileData(revisedInfoRequest, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(fileData);
+        FileDataDTO fileDataDTO = fileDataService.saveFileData(revisedInfoRequest, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(fileDataDTO);
+    }
+
+    // list file datas
+    @GetMapping("/file-data")
+    public List<FileDataDTO> getAllFileDatas(@RequestHeader Map<String, String> reqHeader) {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        List<FileDataDTO> fileDataDTOs = fileDataService.getAllFileDatas(userId);
+        return fileDataDTOs;
     }
 
 }

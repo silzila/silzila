@@ -1,5 +1,6 @@
 package org.silzila.app.service;
 
+import org.silzila.app.dto.FileDataDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.ExpectationFailedException;
 import org.silzila.app.model.FileData;
@@ -182,7 +183,7 @@ public class FileDataService {
     // persist uploaded file (with/witout changed schema) as parquet file to disk
     // Steps: read uploaded file + change metadata if needed
     // + save the data as Parquet file + delete uploaded file
-    public FileData saveFileData(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+    public FileDataDTO saveFileData(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
             throws JsonMappingException, JsonProcessingException, BadRequestException {
 
         // check if file data name is already taken
@@ -222,6 +223,11 @@ public class FileDataService {
                 fileNameToBeSaved);
         fileDataRepository.save(fileData);
 
+        FileDataDTO fileDataDTO = new FileDataDTO(
+                fileData.getId(),
+                fileData.getUserId(),
+                fileData.getName());
+
         // delete the read file which was uploaded by user
         try {
             Files.deleteIfExists(Paths.get(readFile));
@@ -229,7 +235,25 @@ public class FileDataService {
             e.printStackTrace();
         }
 
-        return fileData;
+        return fileDataDTO;
 
     }
+
+    // read all file datas
+    public List<FileDataDTO> getAllFileDatas(String userId) {
+        // read all file data for the user from DB
+        List<FileData> fileDatas = fileDataRepository.findByUserId(userId);
+        // re-map to DTO list of object - (to hide file name)
+        List<FileDataDTO> fDataDTOs = new ArrayList<>();
+        fileDatas.forEach((fd) -> {
+            FileDataDTO dto = new FileDataDTO(
+                    fd.getId(),
+                    fd.getUserId(),
+                    fd.getName());
+            fDataDTOs.add(dto);
+        });
+        return fDataDTOs;
+
+    }
+
 }
