@@ -119,15 +119,15 @@ const PlayBookList = ({
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: `pb/get-pb/${pbUid}`,
+			url: `playbook/${pbUid}`,
 			headers: { Authorization: `Bearer ${token}` },
 		});
 
 		if (result.status) {
+			console.log(result.data);
 			setLoading(true);
 
 			var pb = result.data;
-
 			var selectedDatasetsInPlaybook = pb.content.tabTileProps.selectedDataSetList;
 
 			// Get list of tables for a given dataset and save here
@@ -339,7 +339,7 @@ const PlayBookList = ({
 										onMouseOver={() => xprops.setOpen(true)}
 										onMouseLeave={() => xprops.setOpen(false)}
 										onClick={() => {
-											getPlayBookDataFromServer(pb.pb_uid);
+											getPlayBookDataFromServer(pb.id);
 										}}
 									>
 										<div className="dataConnectionName">{pb.name}</div>

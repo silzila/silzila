@@ -1,5 +1,5 @@
 export interface TilesProps {
-	[key: number]: {
+	[key: number | string]: {
 		tabId: number;
 		tileId: number;
 		tileName: string;
@@ -7,7 +7,7 @@ export interface TilesProps {
 	};
 }
 export interface TileListProps {
-	[key: number]: string[];
+	[key: number | string]: string[];
 }
 
 export interface TileStateProps {
