@@ -12,17 +12,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class FileUploadRevisedInfoRequest {
 
     private String fileId;
-    private String fileDataName;
+    private String name;
     private List<FileUploadRevisedColumnInfo> revisedColumnInfos;
 
     public FileUploadRevisedInfoRequest() {
     }
 
-    public FileUploadRevisedInfoRequest(String fileId, String fileDataName,
+    public FileUploadRevisedInfoRequest(String fileId, String name,
             List<FileUploadRevisedColumnInfo> revisedColumnInfos,
             List<JsonNode> sampleRecords) {
         this.fileId = fileId;
-        this.fileDataName = fileDataName;
+        this.name = name;
         this.revisedColumnInfos = revisedColumnInfos;
     }
 

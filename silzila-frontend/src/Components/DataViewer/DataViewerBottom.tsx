@@ -37,14 +37,15 @@ import {
 
 export const getTableData = async (
 	dc_uid: string,
-	schema_name: string,
-	table_name: string,
+	schema: string,
+	database: string,
+	table : string,
 	token: string
 ) => {
 	var res: any = await FetchData({
 		requestType: "noData",
 		method: "GET",
-		url: "dc/sample-records/" + dc_uid + "/" + schema_name + "/" + table_name,
+		url: "sample-records/" + dc_uid + "/20?database=" + database + "&schema=" + schema + "&table=" + table,
 		headers: { Authorization: `Bearer ${token}` },
 	});
 
@@ -58,13 +59,14 @@ export const getTableData = async (
 export const getColumnTypes = async (
 	dc_uid: string,
 	schema_name: string,
+	database:string,
 	table_name: string,
 	token: string
 ) => {
 	var res: any = await FetchData({
 		requestType: "noData",
 		method: "GET",
-		url: "dc/columns/" + dc_uid + "/" + schema_name + "/" + table_name,
+		url: "metadata-columns/" + dc_uid + "?database=" + database + "&schema=" + schema_name + "&table=" + table_name,
 		headers: { Authorization: `Bearer ${token}` },
 	});
 
@@ -80,7 +82,7 @@ const DataViewerBottom = ({
 	token,
 	tabTileProps,
 	chartProps,
-	// sampleRecords,
+	sampleRecords,
 	tabState,
 
 	// dispatch
@@ -96,7 +98,7 @@ const DataViewerBottom = ({
 	);
 	var selectedChartProp: any = chartProps.properties[propKey];
 	var tables: any =
-		tabTileProps?.tablesForSelectedDataSets?.[selectedChartProp?.selectedDs?.ds_uid];
+		tabTileProps?.tablesForSelectedDataSets?.[selectedChartProp?.selectedDs?.id];
 	// console.log(chartProps.properties[propKey].chartType);
 
 	const [open, setOpen] = useState<boolean>(false);
@@ -128,23 +130,27 @@ const DataViewerBottom = ({
 	// If not, get it from server and save in store
 	// useEffect(async() => {
 	useEffect(() => {
-		if (
-			tabTileProps?.tablesForSelectedDataSets?.[selectedChartProp?.selectedDs?.ds_uid] ===
-			undefined
-		) {
-			setLoading(true);
-			// var tablesFromServer = await getTables(selectedChartProp.selectedDs?.ds_uid);
-			var tablesFromServer = getTables(selectedChartProp.selectedDs?.ds_uid);
-			setTablesForDs({ [selectedDataset.ds_uid]: tablesFromServer });
-			setLoading(false);
-		}
+		const fetchData = async () => {
+			if (
+				tabTileProps?.tablesForSelectedDataSets?.[selectedChartProp?.selectedDs?.id] ===
+				undefined
+			) {
+				setLoading(true);
+				// var tablesFromServer = await getTables(selectedChartProp.selectedDs?.ds_uid);
+				var tablesFromServer:any = await getTables(selectedChartProp.selectedDs?.id);
+				setTablesForDs({ [selectedDataset.id]: tablesFromServer?.dataSchema?.tables });
+				setLoading(false);
+			};
+		};
+
+		fetchData();
 	}, [selectedChartProp.selectedDs]);
 
 	const getTables = async (uid: any) => {
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: `ds/get-ds-tables/${uid}`,
+			url: `dataset/${uid}`,
 			headers: { Authorization: `Bearer ${token}` },
 		});
 
@@ -169,55 +175,59 @@ const DataViewerBottom = ({
 	// if yes,display them. If no, get the table records and save in store
 	const handleTableChange = async (table: any, dsUid?: any) => {
 		if (table.id !== selectedChartProp.selectedTable) {
-			setSelectedTable(propKey, { [selectedChartProp.selectedDs.ds_uid]: table.id });
+			setSelectedTable(propKey, { [selectedChartProp.selectedDs.id]: table.id });
 
-			// if (sampleRecords?.[selectedChartProp.selectedDs?.ds_uid]?.[table.id]) {
-			// } else {
-			// 	setLoading(true);
-			// 	var dc_uid = selectedChartProp.selectedDs?.dc_uid;
-			// 	var ds_uid = selectedChartProp.selectedDs?.ds_uid;
-			// 	var tableRecords = await getTableData(
-			// 		dc_uid,
-			// 		table.schema_name,
-			// 		table.table_name,
-			// 		token
-			// 	);
-			// 	var recordsType = await getColumnTypes(
-			// 		dc_uid,
-			// 		table.schema_name,
-			// 		table.table_name,
-			// 		token
-			// 	);
+			if (sampleRecords?.[selectedChartProp.selectedDs?.id]?.[table.id]) {
+			} else {
+				setLoading(true);
+				var dc_uid = selectedChartProp.selectedDs?.connectionId;
+				var id = selectedChartProp.selectedDs?.id;
+				
+				var tableRecords = await getTableData(
+					dc_uid,
+					table.schema,
+					table.database,
+					table.table,
+					token
+				);
 
-			// 	addRecords(ds_uid, table.id, tableRecords, recordsType);
-			// 	setLoading(false);
-			// }
+				var recordsType = await getColumnTypes(
+					dc_uid,
+					table.schema,
+					table.database,
+					table.table,
+					token
+				);
+
+				addRecords(id, table.id, tableRecords, recordsType);
+				setLoading(false);
+			}
 		}
 	};
 
 	// List of tables for a dataset, displayed
-	// const TableListForDs: any = () => {
-	// 	if (tables !== undefined) {
-	// 		return tables.map((table: any) => {
-	// 			return (
-	// 				<div
-	// 					className={
-	// 						table.id ===
-	// 						selectedChartProp.selectedTable?.[selectedChartProp.selectedDs?.ds_uid]
-	// 							? "dsIndiTableInTileSelected"
-	// 							: "dsIndiTableInTile"
-	// 					}
-	// 					key={table.id}
-	// 					onClick={() => {
-	// 						handleTableChange(table);
-	// 					}}
-	// 				>
-	// 					{table.alias}
-	// 				</div>
-	// 			);
-	// 		});
-	// 	} else return null;
-	// };
+	const TableListForDs: any = () => {
+		if (tables !== undefined) {
+			return tables.map((table: any) => {
+				return (
+					<div
+						className={
+							table.id ===
+							selectedChartProp.selectedTable?.[selectedChartProp.selectedDs?.id]
+								? "dsIndiTableInTileSelected"
+								: "dsIndiTableInTile"
+						}
+						key={table.id}
+						onClick={() => {
+							handleTableChange(table);
+						}}
+					>
+						{table.alias}
+					</div>
+				);
+			});
+		} else return null;
+	};
 
 	var selectInput = { fontSize: "12px", padding: "2px 1rem" };
 
@@ -252,7 +262,7 @@ const DataViewerBottom = ({
 				setOpenChangeDatasetDlg(true);
 			} else {
 				var dsObj = tabTileProps.selectedDataSetList.filter(
-					(ds: any) => ds.ds_uid === value
+					(ds: any) => ds.id === value
 				)[0];
 				setSelectedDs(propKey, dsObj);
 				//console.log(dsObj);
@@ -277,7 +287,7 @@ const DataViewerBottom = ({
 			setOpen(true);
 		} else {
 			var dsObj = tabTileProps.selectedDataSetList.filter(
-				(ds: any) => ds.ds_uid === addNewOrChooseExistingDS
+				(ds: any) => ds.id === addNewOrChooseExistingDS
 			)[0];
 			setSelectedDs(parseFloat(`${tabObj.tabId}.${tabObj.nextTileId}`), dsObj);
 		}
@@ -307,7 +317,7 @@ const DataViewerBottom = ({
 								<Select
 									label="DataSet"
 									labelId="selectDataSet"
-									value={selectedChartProp.selectedDs?.ds_uid}
+									value={selectedChartProp.selectedDs?.id}
 									variant="outlined"
 									onChange={e => {
 										handleDataSetChange(e.target.value);
@@ -330,10 +340,10 @@ const DataViewerBottom = ({
 										return (
 											<MenuItem
 												sx={selectInput}
-												value={ds.ds_uid}
-												key={ds.ds_uid}
+												value={ds.id}
+												key={ds.id}
 											>
-												{ds.friendly_name}
+												{ds.datasetName}
 											</MenuItem>
 										);
 									})}
@@ -343,7 +353,7 @@ const DataViewerBottom = ({
 
 						<div className="tileTableList">
 							<div style={{ flex: 1, overflow: "auto", padding: "0 0.5rem" }}>
-								{/* <TableListForDs /> */}
+								 <TableListForDs />
 							</div>
 						</div>
 						<DatasetListPopover
@@ -353,15 +363,15 @@ const DataViewerBottom = ({
 							setSelectedDataset={setSelectedDataset}
 						/>
 					</div>
-					{selectedChartProp.selectedTable?.[selectedChartProp.selectedDs.ds_uid] ? (
+					{selectedChartProp.selectedTable?.[selectedChartProp.selectedDs.id] ? (
 						<div className="tileTableView">
 							<DisplayTable
-							// dsId={selectedChartProp.selectedDs?.ds_uid}
-							// table={
-							// 	selectedChartProp.selectedTable[
-							// 		selectedChartProp.selectedDs?.ds_uid
-							// 	]
-							// }
+							 dsId={selectedChartProp.selectedDs?.id}
+							 table={
+							 	selectedChartProp.selectedTable[
+							 		selectedChartProp.selectedDs?.id
+							 	]
+							 }
 							/>
 						</div>
 					) : (
@@ -396,7 +406,7 @@ const mapStateToProps = (state: DataViewerBottomStateProps) => {
 		token: state.isLogged.accessToken,
 		tabTileProps: state.tabTileProps,
 		chartProps: state.chartProperties,
-		// sampleRecords: state.sampleRecords,
+		 sampleRecords: state.sampleRecords,
 		tabState: state.tabState,
 	};
 };
@@ -409,8 +419,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(setSelectedDsInTile(propKey, selectedDs)),
 		setSelectedTable: (propKey: number, selectedTable: any) =>
 			dispatch(setSelectedTableInTile(propKey, selectedTable)),
-		addRecords: (ds_uid: string, tableId: string, tableRecords: any, columnType: any) =>
-			dispatch(addTableRecords(ds_uid, tableId, tableRecords, columnType)),
+		addRecords: (id: string, tableId: string, tableRecords: any, columnType: any) =>
+			dispatch(addTableRecords(id, tableId, tableRecords, columnType)),
 		addTile: (
 			tabId: number,
 			nextTileId: number,

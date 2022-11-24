@@ -1,9 +1,12 @@
 package org.silzila.app.service;
 
+import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.ExpectationFailedException;
+import org.silzila.app.model.FileData;
 import org.silzila.app.payload.request.FileUploadRevisedColumnInfo;
 import org.silzila.app.payload.request.FileUploadRevisedInfoRequest;
 import org.silzila.app.payload.response.FileUploadResponse;
+import org.silzila.app.repository.FileDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,9 @@ public class FileDataService {
 
     @Autowired
     SparkService sparkService;
+
+    @Autowired
+    FileDataRepository fileDataRepository;
 
     // all uploads are initially saved in tmp
     final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
@@ -74,7 +80,7 @@ public class FileDataService {
 
         // also pass file name & dataframe name to the response
         fileUploadResponse.setFileId(savedFileName);
-        fileUploadResponse.setFileDataName(uploadedFileNameWithoutExtn);
+        fileUploadResponse.setName(uploadedFileNameWithoutExtn);
         return fileUploadResponse;
     }
 
@@ -176,8 +182,15 @@ public class FileDataService {
     // persist uploaded file (with/witout changed schema) as parquet file to disk
     // Steps: read uploaded file + change metadata if needed
     // + save the data as Parquet file + delete uploaded file
-    public void saveFileData(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
-            throws JsonMappingException, JsonProcessingException {
+    public FileData saveFileData(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+            throws JsonMappingException, JsonProcessingException, BadRequestException {
+
+        // check if file data name is already taken
+        List<FileData> fileDatas = fileDataRepository.findByUserIdAndName(
+                userId, revisedInfoRequest.getName());
+        if (!fileDatas.isEmpty()) {
+            throw new BadRequestException("Error: File Data Name is already taken!");
+        }
 
         // construct query by using helper function
         String query = buildQueryWithChangeSchema(revisedInfoRequest);
@@ -201,12 +214,22 @@ public class FileDataService {
         // write to Parquet file
         sparkService.saveFileData(readFile, writeFile, query);
 
+        // save metadata to DB and return as response
+        String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
+        FileData fileData = new FileData(
+                userId,
+                revisedInfoRequest.getName(),
+                fileNameToBeSaved);
+        fileDataRepository.save(fileData);
+
         // delete the read file which was uploaded by user
         try {
             Files.deleteIfExists(Paths.get(readFile));
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return fileData;
 
     }
 }

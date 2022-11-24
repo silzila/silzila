@@ -3,7 +3,7 @@ import { combineReducers } from "redux";
 import loggedReducer from "./UserInfo/isLogged";
 
 import DataSetReducer from "./DataSet/dataset";
-// import SampleRecordsReducer from "./SampleTableRecords/sampleTableRecords";
+import SampleRecordsReducer from "./SampleTableRecords/SampleTableRecords";
 import chartPropertiesState from "./ChartPoperties/ChartProperties";
 import PlayBookReducer from "./PlayBook/PlayBook";
 import chartControlsReducer from "./ChartPoperties/ChartControls";
@@ -21,7 +21,7 @@ const allReducers = combineReducers({
 
 	chartProperties: chartPropertiesState,
 	chartControls: chartControlsReducer,
-	// sampleRecords: SampleRecordsReducer,
+	sampleRecords: SampleRecordsReducer,
 	playBookState: PlayBookReducer,
 });
 
