@@ -96,8 +96,8 @@ export const clearDropZoneFieldsChartPropLeft = (
 };
 
 export const updateChartPropLeft = (
-	propKey: string | number,
-	bIndex: number | string,
+	propKey: number,
+	bIndex: number,
 	item: any,
 	allowedNumbers: any
 ) => {
@@ -105,7 +105,7 @@ export const updateChartPropLeft = (
 };
 
 export const moveItemChartProp = (
-	propKey: string | number,
+	propKey: number,
 	fromBIndex: any,
 	fromUID: any,
 	item: any,
@@ -118,11 +118,7 @@ export const moveItemChartProp = (
 	};
 };
 
-export const deleteItemInChartProp = (
-	propKey: string | number,
-	binIndex: number | string,
-	itemIndex: string | number
-) => {
+export const deleteItemInChartProp = (propKey: number, binIndex: number, itemIndex: number) => {
 	return {
 		type: "DELETE_ITEM_FROM_PROP",
 		payload: {
@@ -134,9 +130,9 @@ export const deleteItemInChartProp = (
 };
 
 export const updateAxesQueryParam = (
-	propKey: string | number,
-	binIndex: number | string,
-	itemIndex: number | string,
+	propKey: number,
+	binIndex: number,
+	itemIndex: number,
 	item: any
 ) => {
 	return { type: "UPDATE_AXES_QUERY_PARAM", payload: { propKey, binIndex, itemIndex, item } };
@@ -245,7 +241,7 @@ export const setTitleAlignment = (propKey: string | number, align: string) => {
 		payload: { propKey, align },
 	};
 };
-export const setTitleSize = (propKey: string | number, value: any) => {
+export const setTitleSize = (propKey: string | number, value: number) => {
 	return {
 		type: "SET_TITLE_SIZE",
 		payload: { propKey, value },
@@ -253,8 +249,8 @@ export const setTitleSize = (propKey: string | number, value: any) => {
 };
 
 export const sortAxes = (
-	propKey: string | number,
-	bIndex: number | string,
+	propKey: number,
+	bIndex: number,
 	dragUId: string | number,
 	dropUId: string | number
 ) => {
@@ -265,8 +261,8 @@ export const sortAxes = (
 };
 
 export const revertAxes = (
-	propKey: string | number,
-	bIndex: number | string,
+	propKey: number,
+	bIndex: number,
 	uId: string | number,
 	originalIndex: any
 ) => {
@@ -298,12 +294,7 @@ export const resetChartProperties = () => {
 	return { type: "RESET_CHART_PROPERTY" };
 };
 
-export const updateLeftFilterItem = (
-	propKey: string | number,
-	bIndex: number | string,
-	item: any
-) => {
-	console.log("UPDATE_LEFT_FILTER_ITEM");
+export const updateLeftFilterItem = (propKey: number, bIndex: number, item: any) => {
 	return { type: "UPDATE_LEFT_FILTER_ITEM", payload: { propKey, bIndex, item } };
 };
 export const updtateFilterExpandeCollapse = (

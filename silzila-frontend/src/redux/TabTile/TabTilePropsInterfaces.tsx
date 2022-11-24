@@ -31,7 +31,7 @@ export interface TabTilPropsSelectedDatasetList {
 }
 
 interface TabRilePropsTablesForSelectedDatasets {
-	[key: string]: IndTabRilePropsTablesForSelectedDatasets[];
+	[key: string | number]: IndTabRilePropsTablesForSelectedDatasets[];
 }
 interface IndTabRilePropsTablesForSelectedDatasets {
 	table_name: string;

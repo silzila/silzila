@@ -124,9 +124,9 @@ const ChartTypes = ({
 	const switchAxesForCharts = (oldChart: string, newChart: string) => {
 		var oldChartAxes = chartProp.properties[propKey].chartAxes;
 		var newChartAxes: any = [];
-		// for (let i = 0; i < ChartsInfo[newChart].dropZones.length; i++) {
-		// 	newChartAxes.push({ name: ChartsInfo[newChart].dropZones[i].name, fields: [] });
-		// }
+		for (let i = 0; i < ChartsInfo[newChart].dropZones.length; i++) {
+			newChartAxes.push({ name: ChartsInfo[newChart].dropZones[i].name, fields: [] });
+		}
 
 		switch (oldChart) {
 			case "multibar":

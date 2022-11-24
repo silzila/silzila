@@ -2,8 +2,9 @@
 // need not result in rerender of the chart immediately
 
 import update from "immutability-helper";
+import { ChartPropertiesActionsProps, ChartPropertiesProps } from "./ChartPropertiesInterfaces";
 
-const chartProperties = {
+const chartProperties: ChartPropertiesProps = {
 	properties: {
 		1.1: {
 			// General Tab Info
@@ -59,7 +60,10 @@ const chartProperties = {
 	propList: { 1: ["1.1"] },
 };
 
-const chartPropertiesState = (state: any = chartProperties, action: any) => {
+const chartPropertiesState = (
+	state: ChartPropertiesProps = chartProperties,
+	action: ChartPropertiesActionsProps
+) => {
 	const findCardIndex = (propKey: any, fromBIndex: any, fromUid: any) => {
 		var removeIndex = state.properties[propKey].chartAxes[fromBIndex].fields.findIndex(
 			(obj: any) => obj.uId === fromUid
@@ -85,7 +89,7 @@ const chartPropertiesState = (state: any = chartProperties, action: any) => {
 		// Left Column properties CRUD Operation
 
 		case "ADD_NEW_PROP":
-			let tileKey = `${action.payload.tabId}.${action.payload.tileId}`;
+			let tileKey: string = `${action.payload.tabId}.${action.payload.tileId}`;
 
 			return {
 				properties: {
@@ -146,7 +150,7 @@ const chartPropertiesState = (state: any = chartProperties, action: any) => {
 			};
 
 		case "ADD_NEW_PROP_FROM_TAB":
-			let tileKey2 = `${action.payload.tabId}.${action.payload.tileId}`;
+			let tileKey2: string = `${action.payload.tabId}.${action.payload.tileId}`;
 
 			return {
 				properties: {

@@ -1,0 +1,103 @@
+.ShowDataPopup {
+	width: auto;
+	min-width: 300px;
+	height: auto;
+	z-index: 100;
+	background-color: rgb(235, 245, 240);
+	position: absolute;
+	color: black;
+	box-shadow: 5px 5px #adacac;
+	overflow-y: auto;
+	border: #949393 0.2px solid;
+}
+
+.ShowDataPopup div {
+	display: flex;
+	flex-direction: row;
+}
+
+.ShowDataPopup span {
+	padding: 3px 5px 2px 2px;
+	font-size: 11px;
+}
+
+.ShowDataPopupKey {
+	font-weight: bold;
+	width: 45%;
+	text-align: right;
+	word-wrap: break-word;
+}
+
+.ShowDataPopupValue {
+	width: 60%;
+	word-wrap: normal;
+	text-overflow: ellipsis;
+	text-align: left;
+}
+
+.CrossTab {
+	height: 95%;
+	overflow: auto;
+}
+
+.CrossTabTable {
+	display: table;
+	table-layout: fixed;
+	width: max-content;
+}
+
+
+.CrossTabHeader,
+.CrossTabLeftColumnHeader {
+	border: 1px solid rgb(222, 222, 222);
+	background-color: rgb(247, 247, 247);
+	cursor: default;
+	font-weight: bold;
+	font-size: 12px;
+	white-space: nowrap;
+	padding-left: 6px;
+	padding-right: 3px;
+	text-align: center;
+	text-overflow: ellipsis;
+}
+
+.CrossTabLeftColumnHeader {
+	left: 0;
+	top: auto;
+	text-align: left;
+}
+
+.CrossTabRow {
+	line-height: 1.2em;
+}
+
+.CrossTabCell {
+	border: 1px solid rgb(222, 222, 222);
+	font-size: 11px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	padding-left: 3px;
+	padding-right: 3px;
+	text-align: right;
+	height: auto;
+	width: auto;
+}
+
+.EmptyHeaderCell {
+	background-color: #fff;
+	cursor: default;
+}
+
+.UserClickedCell {
+	background-color: red;
+}
+
+.UserClickedCellChildren {
+	background-color: #f7e8fa;
+	opacity: 1;
+	font-weight: bold;
+}
+
+.UserClickedCellRemainingChildren {
+	opacity: 0.2;
+}
