@@ -134,4 +134,45 @@ public class SparkService {
         // return jsonNodes;
     }
 
+    // get Sample Records from File Data
+    public List<JsonNode> getSampleRecords(String parquetFilePath)
+            throws JsonMappingException, JsonProcessingException {
+
+        // read saved Parquet file
+        Dataset<Row> dataset = spark.read().parquet(parquetFilePath);
+
+        // get Sample Records from spark DF
+        ObjectMapper mapper = new ObjectMapper();
+        List<JsonNode> jsonNodes = new ArrayList<JsonNode>();
+        // fetch 100 records as sample records
+        List<String> datasetString = dataset.limit(100).toJSON().collectAsList();
+        for (String str : datasetString) {
+            JsonNode row = mapper.readTree(str);
+            jsonNodes.add(row);
+        }
+        dataset.unpersist();
+        return jsonNodes;
+    }
+
+    // get Column Details from File Data
+    public List<FileUploadColumnInfo> getColumns(String parquetFilePath)
+            throws JsonMappingException, JsonProcessingException {
+
+        // read saved Parquet file
+        Dataset<Row> dataset = spark.read().parquet(parquetFilePath);
+
+        // get Column Name + Data Type mapping from spark DF
+        List<FileUploadColumnInfo> columnInfos = new ArrayList<>();
+        StructField[] fields = dataset.schema().fields();
+        for (StructField field : fields) {
+            // spark has different data types and converted to Silzila data types
+            String silzilaDataType = ConvertSparkDataType.toSilzilaDataType(field.dataType().typeName());
+            FileUploadColumnInfo columnInfo = new FileUploadColumnInfo(field.name(), silzilaDataType);
+            columnInfos.add(columnInfo);
+        }
+
+        dataset.unpersist();
+        return columnInfos;
+    }
+
 }

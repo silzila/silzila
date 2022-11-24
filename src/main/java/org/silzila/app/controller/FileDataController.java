@@ -8,8 +8,10 @@ import javax.validation.Valid;
 import org.silzila.app.dto.FileDataDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.ExpectationFailedException;
+import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.model.FileData;
 import org.silzila.app.payload.request.FileUploadRevisedInfoRequest;
+import org.silzila.app.payload.response.FileUploadColumnInfo;
 import org.silzila.app.payload.response.FileUploadResponse;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.service.FileDataService;
@@ -17,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -83,6 +87,39 @@ public class FileDataController {
         String userId = reqHeader.get("requesterUserId");
         List<FileDataDTO> fileDataDTOs = fileDataService.getAllFileDatas(userId);
         return fileDataDTOs;
+    }
+
+    // file data - sample records
+    @GetMapping("/file-data-sample-records/{id}")
+    public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id)
+            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        List<JsonNode> jsonNodes = fileDataService.getSampleRecords(id, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonNodes);
+    }
+
+    // file data - Column details
+    @GetMapping("/file-data-column-details/{id}")
+    public ResponseEntity<?> getColumnDetails(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id)
+            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        List<FileUploadColumnInfo> fileUploadColumnInfos = fileDataService.getColumns(id, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(fileUploadColumnInfos);
+    }
+
+    // Delete File Data
+    @DeleteMapping("/file-data/{id}")
+    public ResponseEntity<?> deleteFileData(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id) throws RecordNotFoundException {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        fileDataService.deleteFileData(id, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("File Data is deleted"));
+
     }
 
 }

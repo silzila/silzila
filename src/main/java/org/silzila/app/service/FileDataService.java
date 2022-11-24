@@ -3,9 +3,11 @@ package org.silzila.app.service;
 import org.silzila.app.dto.FileDataDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.ExpectationFailedException;
+import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.model.FileData;
 import org.silzila.app.payload.request.FileUploadRevisedColumnInfo;
 import org.silzila.app.payload.request.FileUploadRevisedInfoRequest;
+import org.silzila.app.payload.response.FileUploadColumnInfo;
 import org.silzila.app.payload.response.FileUploadResponse;
 import org.silzila.app.repository.FileDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +20,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -253,7 +258,81 @@ public class FileDataService {
             fDataDTOs.add(dto);
         });
         return fDataDTOs;
-
     }
 
+    // get sample records
+    public List<JsonNode> getSampleRecords(String id, String userId)
+            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, BadRequestException {
+        // if no file data inside optional wrapper, then send NOT FOUND Error
+        Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
+        if (!fdOptional.isPresent()) {
+            throw new RecordNotFoundException("Error: No such File Data Id exists!");
+        }
+        FileData fileData = fdOptional.get();
+
+        // if file not exists, throw error:
+        final String parquetFilePath = System.getProperty("user.home") + "/" + "silzila-uploads"
+                + "/" + userId + "/" + fileData.getFileName();
+        if (Files.notExists(Paths.get(parquetFilePath))) {
+            throw new BadRequestException("Error: File not exists!");
+        }
+
+        // first, start spark session
+        sparkService.startSparkSession();
+        List<JsonNode> jsonNodes = sparkService.getSampleRecords(parquetFilePath);
+        return jsonNodes;
+    }
+
+    // get sample records
+    public List<FileUploadColumnInfo> getColumns(String id, String userId)
+            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, BadRequestException {
+        // if no file data inside optional wrapper, then send NOT FOUND Error
+        Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
+        if (!fdOptional.isPresent()) {
+            throw new RecordNotFoundException("Error: No such File Data Id exists!");
+        }
+        FileData fileData = fdOptional.get();
+
+        // if file not exists, throw error:
+        final String parquetFilePath = System.getProperty("user.home") + "/" + "silzila-uploads"
+                + "/" + userId + "/" + fileData.getFileName();
+        if (Files.notExists(Paths.get(parquetFilePath))) {
+            throw new BadRequestException("Error: File not exists!");
+        }
+
+        // first, start spark session
+        sparkService.startSparkSession();
+        List<FileUploadColumnInfo> columnInfos = sparkService.getColumns(parquetFilePath);
+        return columnInfos;
+    }
+
+    // Delete File Data
+    public void deleteFileData(String id, String userId) throws RecordNotFoundException {
+        // if no file data inside optional wrapper, then send NOT FOUND Error
+        // meaning if no file id in the DB, send error
+        Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
+        if (!fdOptional.isPresent()) {
+            throw new RecordNotFoundException("Error: No such File Data Id exists!");
+        }
+        FileData fileData = fdOptional.get();
+
+        // delete the Parquet File from file system
+        final String parquetFilePath = System.getProperty("user.home") + "/" + "silzila-uploads"
+                + "/" + userId + "/" + fileData.getFileName();
+        try {
+            // if Parquet folder exists then delete contents and the folder
+            if (Files.exists(Paths.get(parquetFilePath))) {
+                // traverse the folder and delete
+                Files.walk(Paths.get(parquetFilePath))
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // remove the record from DB
+        fileDataRepository.deleteById(id);
+
+    }
 }
