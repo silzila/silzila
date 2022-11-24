@@ -32,6 +32,7 @@ interface ChartPropChartAxesFieldsProps {
 	rawselectmembers: string[];
 	userSelection: string[];
 	time_grain?: string;
+	agg?: string;
 }
 
 interface ChartPropChartAxes {

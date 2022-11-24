@@ -1,174 +1,177 @@
-// import ReactEcharts from "echarts-for-react";
-// import React, { useEffect, useState } from "react";
-// import { connect } from "react-redux";
-// import { updateChartMargins } from "../../redux/ChartProperties/actionsChartControls";
-// import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
+import ReactEcharts from "echarts-for-react";
+import React, { useEffect, useState } from "react";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
+import {
+	ChartControl,
+	ChartControlsProps,
+	ChartControlStateProps,
+} from "../../redux/ChartPoperties/ChartControlsInterface";
+import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 
-// const GaugeChart = ({
-// 	//props
-// 	propKey,
-// 	graphDimension,
-// 	chartArea,
+interface GaugeChartProps {
+	propKey: string | number;
+	graphDimension: any;
+	chartArea?: any;
+	graphTileSize: number;
 
-// 	//state
-// 	chartControls,
-// 	graphTileSize,
+	//state
+	chartControls: ChartControl;
+}
 
-// 	//dispatch
-// 	updateChartMargins,
-// }) => {
-// 	var chartControl = chartControls.properties[propKey];
-// 	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
-// 	const [newData, setNewData] = useState([]);
+interface NewData {
+	name: string;
+	value: any;
+}
 
-// 	var carr = [];
+const GaugeChart = ({
+	//props
+	propKey,
+	graphDimension,
+	chartArea,
+	graphTileSize,
 
-// 	const getColors = () => {
-// 		for (let i = 0; i < chartControl.axisOptions.gaugeChartControls.stepcolor.length; i++) {
-// 			carr.push([
-// 				parseFloat(chartControl.axisOptions.gaugeChartControls.stepcolor[i].per),
-// 				chartControl.axisOptions.gaugeChartControls.stepcolor[i].color,
-// 			]);
-// 		}
-// 	};
+	//state
+	chartControls,
+}: GaugeChartProps) => {
+	var chartControl: ChartControlsProps = chartControls.properties[propKey];
+	let chartData: any = chartControl.chartData ? chartControl.chartData.result : "";
+	const [newData, setNewData] = useState<NewData[]>([]);
 
-// 	getColors();
+	var carr: any = [];
 
-// 	useEffect(() => {
-// 		if (chartData) {
-// 			var newTempData = [];
-// 			Object.keys(chartData[0]).map((key) => {
-// 				newTempData.push({
-// 					name: key,
-// 					value: chartData[0][key],
-// 				});
-// 			});
-// 			setNewData(newTempData);
-// 		}
-// 	}, [chartData]);
+	const getColors = () => {
+		for (let i = 0; i < chartControl.axisOptions.gaugeChartControls.stepcolor.length; i++) {
+			carr.push([
+				chartControl.axisOptions.gaugeChartControls.stepcolor[i].per,
+				chartControl.axisOptions.gaugeChartControls.stepcolor[i].color,
+			]);
+		}
+	};
 
-// 	const RenderChart = () => {
-// 		return (
-// 			<ReactEcharts
-// 				theme={chartControl.colorScheme}
-// 				style={{
-// 					padding: "1rem",
-// 					width: graphDimension.width,
-// 					height: graphDimension.height,
-// 					overflow: "hidden",
-// 					margin: "auto",
-// 					border: chartArea
-// 						? "none"
-// 						: graphTileSize
-// 						? "none"
-// 						: "1px solid rgb(238,238,238)",
-// 				}}
-// 				option={{
-// 					animation: chartArea ? false : true,
-// 					legend: {
-// 						type: "scroll",
-// 						show: chartControl.legendOptions?.showLegend,
-// 						itemHeight:
-// 							chartArea === "dashboard"
-// 								? chartControl.legendOptions?.symbolHeight / 2
-// 								: chartControl.legendOptions?.symbolHeight,
-// 						itemWidth:
-// 							chartArea === "dashboard"
-// 								? chartControl.legendOptions?.symbolWidth / 2
-// 								: chartControl.legendOptions?.symbolWidth,
-// 						itemGap: chartControl.legendOptions?.itemGap,
+	getColors();
 
-// 						left: chartControl.legendOptions?.position?.left,
-// 						top: chartControl.legendOptions?.position?.top,
-// 						orient: chartControl.legendOptions?.orientation,
-// 					},
-// 					tooltip: { show: chartControl.mouseOver.enable },
+	useEffect(() => {
+		if (chartData) {
+			var newTempData: NewData[] = [];
+			Object.keys(chartData[0]).map(key => {
+				newTempData.push({
+					name: key,
+					value: chartData[0][key],
+				});
+			});
+			setNewData(newTempData);
+		}
+	}, [chartData]);
 
-// 					series: [
-// 						{
-// 							type: "gauge",
-// 							radius: chartControl.chartMargin.radius + "%",
+	const RenderChart = () => {
+		return (
+			<ReactEcharts
+				theme={chartControl.colorScheme}
+				style={{
+					padding: "1rem",
+					width: graphDimension.width,
+					height: graphDimension.height,
+					overflow: "hidden",
+					margin: "auto",
+					border: chartArea
+						? "none"
+						: graphTileSize
+						? "none"
+						: "1px solid rgb(238,238,238)",
+				}}
+				option={{
+					animation: chartArea ? false : true,
+					legend: {
+						type: "scroll",
+						show: chartControl.legendOptions?.showLegend,
+						itemHeight:
+							chartArea === "dashboard"
+								? chartControl.legendOptions?.symbolHeight / 2
+								: chartControl.legendOptions?.symbolHeight,
+						itemWidth:
+							chartArea === "dashboard"
+								? chartControl.legendOptions?.symbolWidth / 2
+								: chartControl.legendOptions?.symbolWidth,
+						itemGap: chartControl.legendOptions?.itemGap,
 
-// 							max: newData[0]
-// 								? chartControl.axisOptions.gaugeAxisOptions.isMaxAuto
-// 									? newData[0].value * 2
-// 									: parseInt(chartControl.axisOptions.gaugeAxisOptions.max)
-// 								: 0,
+						left: chartControl.legendOptions?.position?.left,
+						top: chartControl.legendOptions?.position?.top,
+						orient: chartControl.legendOptions?.orientation,
+					},
+					tooltip: { show: chartControl.mouseOver.enable },
 
-// 							min: chartControl.axisOptions.gaugeAxisOptions.min,
+					series: [
+						{
+							type: "gauge",
+							radius: chartControl.chartMargin.radius + "%",
 
-// 							data: newData,
+							max: newData[0]
+								? chartControl.axisOptions.gaugeAxisOptions.isMaxAuto
+									? newData[0].value * 2
+									: chartControl.axisOptions.gaugeAxisOptions.max
+								: 0,
 
-// 							axisLine: {
-// 								lineStyle: {
-// 									width: 10,
-// 									color: [...carr],
-// 								},
+							min: chartControl.axisOptions.gaugeAxisOptions.min,
 
-// 								roundCap: true,
-// 							},
-// 							pointer: {
-// 								itemStyle: {
-// 									color: "auto",
-// 								},
-// 							},
-// 							startAngle: chartControl.axisOptions.gaugeAxisOptions.startAngle,
-// 							endAngle: chartControl.axisOptions.gaugeAxisOptions.endAngle,
-// 							axisTick: {
-// 								show: chartControl.axisOptions.gaugeAxisOptions.showTick,
-// 								length: chartControl.axisOptions.gaugeAxisOptions.tickSize,
-// 								distance: chartControl.axisOptions.gaugeAxisOptions.tickPadding,
-// 							},
-// 							detail: {
-// 								formatter: (value) => {
-// 									var formattedValue = value;
-// 									formattedValue = formatChartLabelValue(
-// 										chartControl,
-// 										formattedValue
-// 									);
-// 									return formattedValue;
-// 								},
-// 							},
-// 							axisLabel: {
-// 								show: chartControl.axisOptions.gaugeAxisOptions.showAxisLabel,
-// 								distance: chartControl.axisOptions.gaugeAxisOptions.labelPadding,
-// 								formatter: (value) => {
-// 									var formattedValue = value;
-// 									formattedValue = formatChartLabelValue(
-// 										chartControl,
-// 										formattedValue
-// 									);
-// 									return formattedValue;
-// 								},
-// 							},
-// 						},
-// 					],
-// 				}}
-// 			/>
-// 		);
-// 	};
+							data: newData,
 
-// 	return chartData ? <RenderChart /> : null;
-// };
+							axisLine: {
+								lineStyle: {
+									width: 10,
+									color: [...carr],
+								},
 
-// const mapStateToProps = (state) => {
-// 	return {
-// 		chartControls: state.chartControls,
-// 	};
-// };
+								roundCap: true,
+							},
+							pointer: {
+								itemStyle: {
+									color: "auto",
+								},
+							},
+							startAngle: chartControl.axisOptions.gaugeAxisOptions.startAngle,
+							endAngle: chartControl.axisOptions.gaugeAxisOptions.endAngle,
+							axisTick: {
+								show: chartControl.axisOptions.gaugeAxisOptions.showTick,
+								length: chartControl.axisOptions.gaugeAxisOptions.tickSize,
+								distance: chartControl.axisOptions.gaugeAxisOptions.tickPadding,
+							},
+							detail: {
+								formatter: (value: any) => {
+									var formattedValue = value;
+									formattedValue = formatChartLabelValue(
+										chartControl,
+										formattedValue
+									);
+									return formattedValue;
+								},
+							},
+							axisLabel: {
+								show: chartControl.axisOptions.gaugeAxisOptions.showAxisLabel,
+								distance: chartControl.axisOptions.gaugeAxisOptions.labelPadding,
+								formatter: (value: any) => {
+									var formattedValue = value;
+									formattedValue = formatChartLabelValue(
+										chartControl,
+										formattedValue
+									);
+									return formattedValue;
+								},
+							},
+						},
+					],
+				}}
+			/>
+		);
+	};
 
-// const mapDispatchToProps = (dispatch) => {
-// 	return {
-// 		updateChartMargins: (propKey, option, value) =>
-// 			dispatch(updateChartMargins(propKey, option, value)),
-// 	};
-// };
-
-// export default connect(mapStateToProps, mapDispatchToProps)(GaugeChart);
-import React from "react";
-
-const GaugeChart = () => {
-	return <div>GaugeChart</div>;
+	return chartData ? <RenderChart /> : null;
 };
 
-export default GaugeChart;
+const mapStateToProps = (state: ChartControlStateProps) => {
+	return {
+		chartControls: state.chartControls,
+	};
+};
+
+export default connect(mapStateToProps, null)(GaugeChart);

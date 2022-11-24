@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 import {
 	ChartControl,
-	ChartControlProperties,
 	ChartControlStateProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
 import {

@@ -1,12 +1,8 @@
 // This is a conainer component that renders appropriate chart control component based on user selection
 
-import React from "react";
 import { connect } from "react-redux";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
-import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
+import { ChartPropertiesProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { TabTileStateProps } from "../../redux/TabTile/TabTilePropsInterfaces";
 import ChartColors from "./Color/ChartColors";
 import ColorScale from "./Color/ColorScale";
 import ColorSteps from "./Color/ColorSteps";
@@ -21,11 +17,11 @@ import ChartLegend from "./Legend/ChartLegend";
 import TreeMapLegend from "./Legend/TreeMapLegend";
 import ChartMargin from "./Margin/ChartMargin";
 import ChartMouseOver from "./MouseOver/ChartMouseOver";
-import BoxPlotChartStyles from "./Style/BoxPlotChartStyles";
-import CalendarChartStyles from "./Style/CalendarChartStyles";
-import ChartStyle from "./Style/ChartStyle";
-import SankeyStyles from "./Style/SankeyStyles";
-import TreeMapStyles from "./Style/TreeMapStyles";
+import BoxPlotChartStyles from "./ChartStyle/BoxPlotChartStyles";
+import CalendarChartStyles from "./ChartStyle/CalendarChartStyles";
+import ChartStyle from "./ChartStyle/ChartStyle";
+import SankeyStyles from "./ChartStyle/SankeyStyles";
+import TreeMapStyles from "./ChartStyle/TreeMapStyles";
 import ChartTitle from "./Title/ChartTitle";
 
 interface ControlDetailProps {
@@ -45,57 +41,21 @@ const ControlDetail = ({ chartProp, tabTileProps }: ControlDetailProps) => {
 			case "Title":
 				return <ChartTitle />;
 			case "Colors":
-				// if (chartType === "heatmap") {
-				// 	return <ColorScale />;
-				// } else if (chartType === "gauge") {
-				// 	return (
-				// 		<>
-				// 			<ColorSteps />
-				// 		</>
-				// );
-				// } else if (chartType === "sankey") {
-				// return <SankeyColorControls />;
-				// } else {
-				// if (
-				// 	[
-				// 		"multibar",
-				// 		"stackedBar",
-				// 		"horizontalBar",
-				// 		"horizontalStacked",
-				// 		"line",
-				// 		"area",
-				// 		"pie",
-				// 		"donut",
-				// 		"rose",
-				// 		"geoChart",
-				// 		"stackedArea",
-				// 	].includes(chartType)
-				// ) {
-				return <ChartColors />;
-			// }
-			// }
+				if (chartType === "heatmap") {
+					return <ColorScale />;
+				} else if (chartType === "gauge") {
+					return <ColorSteps />;
+				} else if (chartType === "sankey") {
+					return <SankeyColorControls />;
+				} else {
+					return <ChartColors />;
+				}
 			case "Legend":
-				// if (chartType === "treeMap") {
-				// 	return <TreeMapLegend />;
-				// }
-				// if (
-				// [
-				// 	"multibar",
-				// 	"stackedBar",
-				// 	"horizontalBar",
-				// 	"horizontalStacked",
-				// 	"line",
-				// 	"area",
-				// 	"pie",
-				// 	"donut",
-				// 	"rose",
-				// 	"geoChart",
-				// 	"stackedArea",
-				// ].includes(chartType)
-				// )
-				// else {
-				return <ChartLegend />;
-			// }
+				if (chartType === "treeMap") {
+					return <TreeMapLegend />;
+				} else {
+					return <ChartLegend />;
+				}
 			case "Margin":
 				return <ChartMargin />;
 			case "Tooltip":
@@ -103,41 +63,25 @@ const ControlDetail = ({ chartProp, tabTileProps }: ControlDetailProps) => {
 			case "Grid/Axes":
 				return <GridAndAxes />;
 			case "Labels":
-				// if (chartType === "calendar") {
-				// 	return <CalendarLabels />;
-				// } else {
-				return <ChartLabels />;
-			// }
+				if (chartType === "calendar") {
+					return <CalendarLabels />;
+				} else {
+					return <ChartLabels />;
+				}
 			case "Axis":
 				return <AxisControls />;
 			case "Style":
-				// if (chartType === "calendar") {
-				// return <CalendarChartStyles />;
-				// } else if (chartType === "boxPlot") {
-				// return <BoxPlotChartStyles />;
-				// } else if (chartType === "treeMap") {
-				// return <TreeMapStyles />;
-				// } else if (chartType === "sankey") {
-				// return <SankeyStyles />;
-				// }
-				// 	if (
-				// 	[
-				// 		"multibar",
-				// 		"stackedBar",
-				// 		"horizontalBar",
-				// 		"horizontalStacked",
-				// 		"line",
-				// 		"area",
-				// 		"pie",
-				// 		"donut",
-				// 		"rose",
-				// 		"geoChart",
-				// 		"stackedArea",
-				// 	].includes(chartType)
-				// )
-				// else {
-				return <ChartStyle />;
-			// }
+				if (chartType === "calendar") {
+					return <CalendarChartStyles />;
+				} else if (chartType === "boxPlot") {
+					return <BoxPlotChartStyles />;
+				} else if (chartType === "treeMap") {
+					return <TreeMapStyles />;
+				} else if (chartType === "sankey") {
+					return <SankeyStyles />;
+				} else {
+					return <ChartStyle />;
+				}
 			case "Format":
 				return <ChartFormat chartType={chartType} />;
 			default:

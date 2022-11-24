@@ -1,219 +1,232 @@
-// import ReactEcharts from "echarts-for-react";
-// import { useEffect, useState } from "react";
-// import { connect } from "react-redux";
-// import {
-// 	formatChartLabelValue,
-// 	formatChartYAxisValue,
-// } from "../ChartOptions/Format/NumberFormatter";
+import ReactEcharts from "echarts-for-react";
+import { useEffect, useState } from "react";
+import { connect } from "react-redux";
+import {
+	ChartControl,
+	ChartControlsProps,
+	ChartControlStateProps,
+} from "../../redux/ChartPoperties/ChartControlsInterface";
+import {
+	ChartPropertiesProps,
+	ChartPropertiesStateProps,
+} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import {
+	formatChartLabelValue,
+	formatChartYAxisValue,
+} from "../ChartOptions/Format/NumberFormatter";
 
-// const StackedBar = ({
-// 	//props
-// 	propKey,
-// 	graphDimension,
-// 	chartArea,
-// 	graphTileSize,
+interface StackedBarChartProps {
+	propKey: string | number;
+	graphDimension: any;
+	chartArea?: any;
+	graphTileSize: number;
 
-// 	//state
-// 	chartControlState,
-// 	chartProperties,
-// }) => {
-// 	var chartControl = chartControlState.properties[propKey];
+	//state
+	chartControlState: ChartControl;
+	chartProperties: ChartPropertiesProps;
+}
 
-// 	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
+const StackedBar = ({
+	//props
+	propKey,
+	graphDimension,
+	chartArea,
+	graphTileSize,
 
-// 	const [seriesData, setSeriesData] = useState([]);
+	//state
+	chartControlState,
+	chartProperties,
+}: StackedBarChartProps) => {
+	var chartControl: ChartControlsProps = chartControlState.properties[propKey];
 
-// 	useEffect(() => {
-// 		var seriesDataTemp = [];
-// 		if (chartData) {
-// 			var chartDataKeys = Object.keys(chartData[0]);
+	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
 
-// 			for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
-// 				var seriesObj = {
-// 					type: "bar",
-// 					stack: chartProperties.properties[propKey]?.chartAxes[1]?.fields[0]?.fieldname,
-// 					emphasis: {
-// 						focus: "series",
-// 					},
-// 					label: {
-// 						show: chartControl.labelOptions.showLabel,
-// 						fontSize: chartControl.labelOptions.fontSize,
-// 						color: chartControl.labelOptions.labelColorManual
-// 							? chartControl.labelOptions.labelColor
-// 							: null,
+	const [seriesData, setSeriesData] = useState<any>([]);
 
-// 						formatter: (value) => {
-// 							var formattedValue = value.value[chartDataKeys[i + 1]];
-// 							formattedValue = formatChartLabelValue(chartControl, formattedValue);
-// 							return formattedValue;
-// 						},
-// 					},
-// 				};
+	useEffect(() => {
+		var seriesDataTemp = [];
+		if (chartData) {
+			var chartDataKeys = Object.keys(chartData[0]);
 
-// 				seriesDataTemp.push(seriesObj);
-// 			}
-// 			setSeriesData(seriesDataTemp);
-// 		}
-// 	}, [chartData, chartControl.formatOptions]);
+			for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
+				var seriesObj = {
+					type: "bar",
+					stack: chartProperties.properties[propKey]?.chartAxes[1]?.fields[0]?.fieldname,
+					emphasis: {
+						focus: "series",
+					},
+					label: {
+						show: chartControl.labelOptions.showLabel,
+						fontSize: chartControl.labelOptions.fontSize,
+						color: chartControl.labelOptions.labelColorManual
+							? chartControl.labelOptions.labelColor
+							: null,
 
-// 	const RenderChart = () => {
-// 		return (
-// 			<ReactEcharts
-// 				theme={chartControl.colorScheme}
-// 				style={{
-// 					padding: "1rem",
-// 					width: graphDimension.width,
-// 					height: graphDimension.height,
-// 					overflow: "hidden",
-// 					margin: "auto",
-// 					border: chartArea
-// 						? "none"
-// 						: graphTileSize
-// 						? "none"
-// 						: "1px solid rgb(238,238,238)",
-// 				}}
-// 				option={{
-// 					animation: false,
-// 					// chartArea ? false : true,
-// 					legend: {
-// 						type: "scroll",
-// 						show: chartControl.legendOptions?.showLegend,
-// 						itemHeight: chartControl.legendOptions?.symbolHeight,
-// 						itemWidth: chartControl.legendOptions?.symbolWidth,
-// 						itemGap: chartControl.legendOptions?.itemGap,
+						formatter: (value: any) => {
+							var formattedValue = value.value[chartDataKeys[i + 1]];
+							formattedValue = formatChartLabelValue(chartControl, formattedValue);
+							return formattedValue;
+						},
+					},
+				};
 
-// 						left: chartControl.legendOptions?.position?.left,
-// 						top: chartControl.legendOptions?.position?.top,
-// 						orient: chartControl.legendOptions?.orientation,
-// 					},
-// 					grid: {
-// 						left: chartControl.chartMargin.left + "%",
-// 						right: chartControl.chartMargin.right + "%",
-// 						top: chartControl.chartMargin.top + "%",
-// 						bottom: chartControl.chartMargin.bottom + "%",
-// 					},
+				seriesDataTemp.push(seriesObj);
+			}
+			setSeriesData(seriesDataTemp);
+		}
+	}, [chartData, chartControl.formatOptions]);
 
-// 					tooltip: { show: chartControl.mouseOver.enable },
+	const RenderChart = () => {
+		return (
+			<ReactEcharts
+				theme={chartControl.colorScheme}
+				style={{
+					padding: "1rem",
+					width: graphDimension.width,
+					height: graphDimension.height,
+					overflow: "hidden",
+					margin: "auto",
+					border: chartArea
+						? "none"
+						: graphTileSize
+						? "none"
+						: "1px solid rgb(238,238,238)",
+				}}
+				option={{
+					animation: false,
+					// chartArea ? false : true,
+					legend: {
+						type: "scroll",
+						show: chartControl.legendOptions?.showLegend,
+						itemHeight: chartControl.legendOptions?.symbolHeight,
+						itemWidth: chartControl.legendOptions?.symbolWidth,
+						itemGap: chartControl.legendOptions?.itemGap,
 
-// 					dataset: {
-// 						dimensions: Object.keys(chartData[0]),
-// 						source: chartData,
-// 					},
+						left: chartControl.legendOptions?.position?.left,
+						top: chartControl.legendOptions?.position?.top,
+						orient: chartControl.legendOptions?.orientation,
+					},
+					grid: {
+						left: chartControl.chartMargin.left + "%",
+						right: chartControl.chartMargin.right + "%",
+						top: chartControl.chartMargin.top + "%",
+						bottom: chartControl.chartMargin.bottom + "%",
+					},
 
-// 					xAxis: {
-// 						splitLine: {
-// 							show: chartControl.axisOptions?.xSplitLine,
-// 						},
-// 						type: "category",
-// 						position: chartControl.axisOptions.xAxis.position,
-// 						show: chartControl.axisOptions.xAxis.showLabel,
+					tooltip: { show: chartControl.mouseOver.enable },
 
-// 						name: chartControl.axisOptions.xAxis.name,
-// 						nameLocation: chartControl.axisOptions.xAxis.nameLocation,
-// 						nameGap: chartControl.axisOptions.xAxis.nameGap,
-// 						nameTextStyle: {
-// 							fontSize: chartControl.axisOptions.xAxis.nameSize,
-// 							color: chartControl.axisOptions.xAxis.nameColor,
-// 						},
+					dataset: {
+						dimensions: Object.keys(chartData[0]),
+						source: chartData,
+					},
 
-// 						axisLine: {
-// 							onZero: chartControl.axisOptions.xAxis.onZero,
-// 						},
+					xAxis: {
+						splitLine: {
+							show: chartControl.axisOptions?.xSplitLine,
+						},
+						type: "category",
+						position: chartControl.axisOptions.xAxis.position,
+						show: chartControl.axisOptions.xAxis.showLabel,
 
-// 						axisTick: {
-// 							alignWithLabel: true,
-// 							length:
-// 								chartControl.axisOptions.xAxis.position === "top"
-// 									? chartControl.axisOptions.xAxis.tickSizeTop
-// 									: chartControl.axisOptions.xAxis.tickSizeBottom,
-// 						},
-// 						axisLabel: {
-// 							rotate:
-// 								chartControl.axisOptions.xAxis.position === "top"
-// 									? chartControl.axisOptions.xAxis.tickRotationTop
-// 									: chartControl.axisOptions.xAxis.tickRotationBottom,
-// 							margin:
-// 								chartControl.axisOptions.xAxis.position === "top"
-// 									? chartControl.axisOptions.xAxis.tickPaddingTop
-// 									: chartControl.axisOptions.xAxis.tickPaddingBottom,
-// 						},
-// 					},
+						name: chartControl.axisOptions.xAxis.name,
+						nameLocation: chartControl.axisOptions.xAxis.nameLocation,
+						nameGap: chartControl.axisOptions.xAxis.nameGap,
+						nameTextStyle: {
+							fontSize: chartControl.axisOptions.xAxis.nameSize,
+							color: chartControl.axisOptions.xAxis.nameColor,
+						},
 
-// 					yAxis: {
-// 						splitLine: {
-// 							show: chartControl.axisOptions?.ySplitLine,
-// 						},
+						axisLine: {
+							onZero: chartControl.axisOptions.xAxis.onZero,
+						},
 
-// 						min: chartControl.axisOptions.axisMinMax.enableMin
-// 							? chartControl.axisOptions.axisMinMax.minValue
-// 							: null,
-// 						max: chartControl.axisOptions.axisMinMax.enableMax
-// 							? chartControl.axisOptions.axisMinMax.maxValue
-// 							: null,
+						axisTick: {
+							alignWithLabel: true,
+							length:
+								chartControl.axisOptions.xAxis.position === "top"
+									? chartControl.axisOptions.xAxis.tickSizeTop
+									: chartControl.axisOptions.xAxis.tickSizeBottom,
+						},
+						axisLabel: {
+							rotate:
+								chartControl.axisOptions.xAxis.position === "top"
+									? chartControl.axisOptions.xAxis.tickRotationTop
+									: chartControl.axisOptions.xAxis.tickRotationBottom,
+							margin:
+								chartControl.axisOptions.xAxis.position === "top"
+									? chartControl.axisOptions.xAxis.tickPaddingTop
+									: chartControl.axisOptions.xAxis.tickPaddingBottom,
+						},
+					},
 
-// 						inverse: chartControl.axisOptions.inverse,
+					yAxis: {
+						splitLine: {
+							show: chartControl.axisOptions?.ySplitLine,
+						},
 
-// 						position: chartControl.axisOptions.yAxis.position,
+						min: chartControl.axisOptions.axisMinMax.enableMin
+							? chartControl.axisOptions.axisMinMax.minValue
+							: null,
+						max: chartControl.axisOptions.axisMinMax.enableMax
+							? chartControl.axisOptions.axisMinMax.maxValue
+							: null,
 
-// 						show: chartControl.axisOptions.yAxis.showLabel,
+						inverse: chartControl.axisOptions.inverse,
 
-// 						name: chartControl.axisOptions.yAxis.name,
-// 						nameLocation: chartControl.axisOptions.yAxis.nameLocation,
-// 						nameGap: chartControl.axisOptions.yAxis.nameGap,
-// 						nameTextStyle: {
-// 							fontSize: chartControl.axisOptions.yAxis.nameSize,
-// 							color: chartControl.axisOptions.yAxis.nameColor,
-// 						},
+						position: chartControl.axisOptions.yAxis.position,
 
-// 						axisLine: {
-// 							onZero: chartControl.axisOptions.yAxis.onZero,
-// 						},
+						show: chartControl.axisOptions.yAxis.showLabel,
 
-// 						axisTick: {
-// 							alignWithLabel: true,
-// 							length:
-// 								chartControl.axisOptions.yAxis.position === "left"
-// 									? chartControl.axisOptions.yAxis.tickSizeLeft
-// 									: chartControl.axisOptions.yAxis.tickSizeRight,
-// 						},
+						name: chartControl.axisOptions.yAxis.name,
+						nameLocation: chartControl.axisOptions.yAxis.nameLocation,
+						nameGap: chartControl.axisOptions.yAxis.nameGap,
+						nameTextStyle: {
+							fontSize: chartControl.axisOptions.yAxis.nameSize,
+							color: chartControl.axisOptions.yAxis.nameColor,
+						},
 
-// 						axisLabel: {
-// 							rotate:
-// 								chartControl.axisOptions.yAxis.position === "left"
-// 									? chartControl.axisOptions.yAxis.tickRotationLeft
-// 									: chartControl.axisOptions.yAxis.tickRotationRight,
-// 							margin:
-// 								chartControl.axisOptions.yAxis.position === "left"
-// 									? chartControl.axisOptions.yAxis.tickPaddingLeft
-// 									: chartControl.axisOptions.yAxis.tickPaddingRight,
+						axisLine: {
+							onZero: chartControl.axisOptions.yAxis.onZero,
+						},
 
-// 							formatter: (value) => {
-// 								var formattedValue = formatChartYAxisValue(chartControl, value);
-// 								return formattedValue;
-// 							},
-// 						},
-// 					},
+						axisTick: {
+							alignWithLabel: true,
+							length:
+								chartControl.axisOptions.yAxis.position === "left"
+									? chartControl.axisOptions.yAxis.tickSizeLeft
+									: chartControl.axisOptions.yAxis.tickSizeRight,
+						},
 
-// 					series: seriesData,
-// 				}}
-// 			/>
-// 		);
-// 	};
+						axisLabel: {
+							rotate:
+								chartControl.axisOptions.yAxis.position === "left"
+									? chartControl.axisOptions.yAxis.tickRotationLeft
+									: chartControl.axisOptions.yAxis.tickRotationRight,
+							margin:
+								chartControl.axisOptions.yAxis.position === "left"
+									? chartControl.axisOptions.yAxis.tickPaddingLeft
+									: chartControl.axisOptions.yAxis.tickPaddingRight,
 
-// 	return <>{chartData ? <RenderChart /> : ""}</>;
-// };
-// const mapStateToProps = (state) => {
-// 	return {
-// 		chartProperties: state.chartProperties,
-// 		chartControlState: state.chartControls,
-// 	};
-// };
+							formatter: (value: any) => {
+								var formattedValue = formatChartYAxisValue(chartControl, value);
+								return formattedValue;
+							},
+						},
+					},
 
-// export default connect(mapStateToProps, null)(StackedBar);
-import React from "react";
+					series: seriesData,
+				}}
+			/>
+		);
+	};
 
-const StackedBar = () => {
-	return <div>StackedBar</div>;
+	return <>{chartData ? <RenderChart /> : ""}</>;
+};
+const mapStateToProps = (state: ChartControlStateProps & ChartPropertiesStateProps) => {
+	return {
+		chartProperties: state.chartProperties,
+		chartControlState: state.chartControls,
+	};
 };
 
-export default StackedBar;
+export default connect(mapStateToProps, null)(StackedBar);

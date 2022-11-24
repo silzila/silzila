@@ -1,5 +1,5 @@
 export interface ChartControlsProps {
-	chartData: string;
+	chartData: any;
 	isRichText: boolean;
 	richText: string;
 	colorScheme: string;
@@ -98,7 +98,7 @@ interface ChartConTreeMapChartControls {
 	labelPosition: string;
 	labelRotate: number;
 	horizondalAlign: string;
-	verticleAlign: string;
+	verticalAlign: string;
 	overFlow: string;
 	borderWidth: number;
 	gapWidth: number;

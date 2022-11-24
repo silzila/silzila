@@ -1,5 +1,5 @@
 import update from "immutability-helper";
-import { ActionsOfTabState, TabStateProps, TabStateProps2 } from "./TabStateInterfaces";
+import { ActionsOfTabState, TabStateProps } from "./TabStateInterfaces";
 
 const initialTabState = {
 	tabs: {
