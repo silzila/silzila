@@ -7,7 +7,6 @@ import ChartColors from "./Color/ChartColors";
 import ColorScale from "./Color/ColorScale";
 import ColorSteps from "./Color/ColorSteps";
 import SankeyColorControls from "./Color/SankeyColorControls";
-import { ControlDetailStateProps } from "./CommonInterfacesForChartOptions";
 import ChartFormat from "./Format/ChartFormat";
 import AxisControls from "./GridAndAxes/AxisControls";
 import GridAndAxes from "./GridAndAxes/GridAndAxes";
@@ -23,21 +22,22 @@ import ChartStyle from "./ChartStyle/ChartStyle";
 import SankeyStyles from "./ChartStyle/SankeyStyles";
 import TreeMapStyles from "./ChartStyle/TreeMapStyles";
 import ChartTitle from "./Title/ChartTitle";
+import { ChartOptionsStateProps } from "./CommonInterfaceForChartOptions";
 
 interface ControlDetailProps {
-	chartProp: ChartPropertiesProps;
+	chartProperties: ChartPropertiesProps;
 	tabTileProps: TabTileStateProps;
 }
 
-const ControlDetail = ({ chartProp, tabTileProps }: ControlDetailProps) => {
+const ControlDetail = ({ chartProperties, tabTileProps }: ControlDetailProps) => {
 	var propKey: number = parseFloat(
 		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
 	);
 
-	var chartType: string = chartProp.properties[propKey].chartType;
+	var chartType: string = chartProperties.properties[propKey].chartType;
 
 	const RenderControlDetail = () => {
-		switch (chartProp.properties[propKey].chartOptionSelected) {
+		switch (chartProperties.properties[propKey].chartOptionSelected) {
 			case "Title":
 				return <ChartTitle />;
 			case "Colors":
@@ -87,7 +87,7 @@ const ControlDetail = ({ chartProp, tabTileProps }: ControlDetailProps) => {
 			default:
 				return (
 					<span>
-						{chartProp.properties[propKey].chartOptionSelected} properties Under
+						{chartProperties.properties[propKey].chartOptionSelected} properties Under
 						Construction
 					</span>
 				);
@@ -95,9 +95,9 @@ const ControlDetail = ({ chartProp, tabTileProps }: ControlDetailProps) => {
 	};
 	return <RenderControlDetail />;
 };
-const mapStateToProps = (state: ControlDetailStateProps) => {
+const mapStateToProps = (state: ChartOptionsStateProps) => {
 	return {
-		chartProp: state.chartProperties,
+		chartProperties: state.chartProperties,
 		tabTileProps: state.tabTileProps,
 	};
 };

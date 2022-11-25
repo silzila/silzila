@@ -7,7 +7,16 @@
 
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
+import { SampleRecordsState } from "../../redux/SampleTableRecords/SampleTableRecordsInterfaces";
+import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { Box } from "./Box";
+
+interface DisplayTableProps {
+	dsId: string;
+	table: any;
+	tableRecords: any;
+	tabTileProps: TabTileStateProps;
+}
 
 const DisplayTable = ({
 	// props
@@ -17,7 +26,7 @@ const DisplayTable = ({
 	// state
 	tableRecords,
 	tabTileProps,
-}: any) => {
+}: DisplayTableProps) => {
 	var SampleRecords: any = tableRecords?.[dsId]?.[table];
 	const [columnsData, setColumnsData] = useState<any[]>([]);
 
@@ -142,7 +151,7 @@ const DisplayTable = ({
 	);
 };
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: SampleRecordsState & TabTileStateProps2, ownProps: any) => {
 	return { tableRecords: state.sampleRecords, tabTileProps: state.tabTileProps };
 };
 

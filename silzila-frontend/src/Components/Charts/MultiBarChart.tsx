@@ -6,6 +6,7 @@ import {
 	formatChartLabelValue,
 	formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
+import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 const MultiBar = ({
 	// props
@@ -15,10 +16,9 @@ const MultiBar = ({
 	graphTileSize,
 
 	//state
-	chartControlState,
-	chartProperty,
-}: any) => {
-	var chartControl = chartControlState.properties[propKey];
+	chartControls,
+}: ChartsReduxStateProps) => {
+	var chartControl = chartControls.properties[propKey];
 	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
 
 	const [seriesData, setSeriesData] = useState([]);
@@ -204,10 +204,9 @@ const MultiBar = ({
 
 	return <>{chartData ? <RenderChart /> : ""}</>;
 };
-const mapStateToProps = (state: any, ownProps: any) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
-		chartControlState: state.chartControls,
-		chartProperty: state.chartProperties,
+		chartControls: state.chartControls,
 	};
 };
 

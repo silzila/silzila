@@ -11,17 +11,8 @@ import {
 	formatChartLabelValue,
 	formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
+import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
-interface HorizontalBarProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
-
-	//state
-	chartControlState: ChartControl;
-	// chartProperty: ChartPropertiesProps;
-}
 const HorizontalBar = ({
 	// props
 	propKey,
@@ -30,9 +21,9 @@ const HorizontalBar = ({
 	graphTileSize,
 
 	//state
-	chartControlState,
-}: HorizontalBarProps) => {
-	var chartControl: ChartControlsProps = chartControlState.properties[propKey];
+	chartControls,
+}: ChartsReduxStateProps) => {
+	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
 
 	const [seriesData, setSeriesData] = useState<any>([]);
@@ -220,10 +211,9 @@ const HorizontalBar = ({
 	return <>{chartData ? <RenderChart /> : ""}</>;
 };
 
-const mapStateToProps = (state: ChartControlStateProps & ChartPropertiesStateProps) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
-		chartControlState: state.chartControls,
-		chartProperty: state.chartProperties,
+		chartControls: state.chartControls,
 	};
 };
 

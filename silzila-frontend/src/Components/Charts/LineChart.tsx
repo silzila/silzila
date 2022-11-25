@@ -6,23 +6,12 @@ import {
 	ChartControlsProps,
 	ChartControlStateProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+
 import {
 	formatChartLabelValue,
 	formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
-interface LineChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
-
-	//state
-	chartControls: ChartControl;
-}
+import { ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 const LineChart = ({
 	//props
@@ -33,7 +22,7 @@ const LineChart = ({
 
 	//state
 	chartControls,
-}: LineChartProps) => {
+}: ChartsReduxStateProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
@@ -208,7 +197,7 @@ const LineChart = ({
 
 	return <>{chartData ? <RenderChart /> : ""}</>;
 };
-const mapStateToProps = (state: ChartControlStateProps) => {
+const mapStateToProps = (state: ChartControlStateProps, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
 	};

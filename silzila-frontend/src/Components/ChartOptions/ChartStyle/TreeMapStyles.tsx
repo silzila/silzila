@@ -2,21 +2,10 @@ import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import "./chartStyle.css";
 import SliderWithInput from "../SliderWithInput";
-import { FormControl, MenuItem, Select, Switch, TextField } from "@mui/material";
+import { FormControl, MenuItem, Select } from "@mui/material";
 import { updateTreeMapStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
-import {
-	ChartControl,
-	ChartControlStateProps,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { Dispatch } from "redux";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
 const textFieldStyleProps = {
 	style: {
@@ -31,34 +20,28 @@ const textFieldStyleProps = {
 
 const TreeMapStyles = ({
 	// state
-	chartProp,
+	chartControls,
 	tabTileProps,
-	chartDetail,
+	chartProperties,
 
 	// dispatch
 	updateTreeMapStyleOptions,
-}: {
-	//State
-	chartProp: ChartControl;
-	tabTileProps: TabTileStateProps;
-	chartDetail: ChartPropertiesProps;
-	//Dispatch
-
+}: ChartOptionsProps & {
 	updateTreeMapStyleOptions: (propKey: string | number, option: string, value: any) => void;
 }) => {
 	var propKey: number = parseFloat(
 		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
 	);
-	const treemapStyle = chartProp.properties[propKey].treeMapChartControls;
-	let chartData = chartProp.properties[propKey].chartData
-		? chartProp.properties[propKey].chartData.result
+	const treemapStyle = chartControls.properties[propKey].treeMapChartControls;
+	let chartData = chartControls.properties[propKey].chartData
+		? chartControls.properties[propKey].chartData.result
 		: "";
 	var treeMapLeafDepthOptions: any = [];
 	// console.log(chartDetail.properties[propKey].chartType);
 
 	useEffect(() => {
 		if (chartData) {
-			treeMapLeafDepthOptions = chartDetail.properties[propKey].chartAxes[1].fields.map(
+			treeMapLeafDepthOptions = chartProperties.properties[propKey].chartAxes[1].fields.map(
 				(el, i) => {
 					return { name: el.fieldname, value: i + 1 };
 				}
@@ -69,7 +52,7 @@ const TreeMapStyles = ({
 			// 	chartDetail[propKey].chartAxes[1].fields.length
 			// );
 		}
-	}, [chartData, chartProp]);
+	}, [chartData, chartControls]);
 	// useEffect(() => {
 	// 	if (chartData) {
 	// 		updateTreeMapStyleOptions(
@@ -80,9 +63,11 @@ const TreeMapStyles = ({
 	// 	}
 	// }, [chartDetail[propKey].chartType]);
 
-	treeMapLeafDepthOptions = chartDetail.properties[propKey].chartAxes[1].fields.map((el, i) => {
-		return { name: el.fieldname, value: i + 1 };
-	});
+	treeMapLeafDepthOptions = chartProperties.properties[propKey].chartAxes[1].fields.map(
+		(el, i) => {
+			return { name: el.fieldname, value: i + 1 };
+		}
+	);
 	console.log(treeMapLeafDepthOptions);
 
 	return (
@@ -139,13 +124,11 @@ const TreeMapStyles = ({
 		</div>
 	);
 };
-const mapStateToProps = (
-	state: ChartControlStateProps & TabTileStateProps2 & ChartPropertiesStateProps
-) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartProp: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
-		chartDetail: state.chartProperties,
+		chartProperties: state.chartProperties,
 	};
 };
 

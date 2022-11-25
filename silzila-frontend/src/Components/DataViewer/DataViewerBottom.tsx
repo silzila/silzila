@@ -34,18 +34,27 @@ import {
 	setSelectedDataSetList,
 	setTablesForSelectedDataSets,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
+import { IndChartPropProperties } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 
 export const getTableData = async (
 	dc_uid: string,
 	schema: string,
 	database: string,
-	table : string,
+	table: string,
 	token: string
 ) => {
 	var res: any = await FetchData({
 		requestType: "noData",
 		method: "GET",
-		url: "sample-records/" + dc_uid + "/20?database=" + database + "&schema=" + schema + "&table=" + table,
+		url:
+			"sample-records/" +
+			dc_uid +
+			"/20?database=" +
+			database +
+			"&schema=" +
+			schema +
+			"&table=" +
+			table,
 		headers: { Authorization: `Bearer ${token}` },
 	});
 
@@ -59,14 +68,22 @@ export const getTableData = async (
 export const getColumnTypes = async (
 	dc_uid: string,
 	schema_name: string,
-	database:string,
+	database: string,
 	table_name: string,
 	token: string
 ) => {
 	var res: any = await FetchData({
 		requestType: "noData",
 		method: "GET",
-		url: "metadata-columns/" + dc_uid + "?database=" + database + "&schema=" + schema_name + "&table=" + table_name,
+		url:
+			"metadata-columns/" +
+			dc_uid +
+			"?database=" +
+			database +
+			"&schema=" +
+			schema_name +
+			"&table=" +
+			table_name,
 		headers: { Authorization: `Bearer ${token}` },
 	});
 
@@ -96,9 +113,8 @@ const DataViewerBottom = ({
 	var propKey: number = parseFloat(
 		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
 	);
-	var selectedChartProp: any = chartProps.properties[propKey];
-	var tables: any =
-		tabTileProps?.tablesForSelectedDataSets?.[selectedChartProp?.selectedDs?.id];
+	var selectedChartProp: IndChartPropProperties = chartProps.properties[propKey];
+	var tables: any = tabTileProps?.tablesForSelectedDataSets?.[selectedChartProp?.selectedDs?.id];
 	// console.log(chartProps.properties[propKey].chartType);
 
 	const [open, setOpen] = useState<boolean>(false);
@@ -137,10 +153,10 @@ const DataViewerBottom = ({
 			) {
 				setLoading(true);
 				// var tablesFromServer = await getTables(selectedChartProp.selectedDs?.ds_uid);
-				var tablesFromServer:any = await getTables(selectedChartProp.selectedDs?.id);
+				var tablesFromServer: any = await getTables(selectedChartProp.selectedDs?.id);
 				setTablesForDs({ [selectedDataset.id]: tablesFromServer?.dataSchema?.tables });
 				setLoading(false);
-			};
+			}
 		};
 
 		fetchData();
@@ -182,7 +198,7 @@ const DataViewerBottom = ({
 				setLoading(true);
 				var dc_uid = selectedChartProp.selectedDs?.connectionId;
 				var id = selectedChartProp.selectedDs?.id;
-				
+
 				var tableRecords = await getTableData(
 					dc_uid,
 					table.schema,
@@ -338,11 +354,7 @@ const DataViewerBottom = ({
 
 									{tabTileProps.selectedDataSetList.map((ds: any) => {
 										return (
-											<MenuItem
-												sx={selectInput}
-												value={ds.id}
-												key={ds.id}
-											>
+											<MenuItem sx={selectInput} value={ds.id} key={ds.id}>
 												{ds.datasetName}
 											</MenuItem>
 										);
@@ -353,7 +365,7 @@ const DataViewerBottom = ({
 
 						<div className="tileTableList">
 							<div style={{ flex: 1, overflow: "auto", padding: "0 0.5rem" }}>
-								 <TableListForDs />
+								<TableListForDs />
 							</div>
 						</div>
 						<DatasetListPopover
@@ -366,12 +378,12 @@ const DataViewerBottom = ({
 					{selectedChartProp.selectedTable?.[selectedChartProp.selectedDs.id] ? (
 						<div className="tileTableView">
 							<DisplayTable
-							 dsId={selectedChartProp.selectedDs?.id}
-							 table={
-							 	selectedChartProp.selectedTable[
-							 		selectedChartProp.selectedDs?.id
-							 	]
-							 }
+								dsId={selectedChartProp.selectedDs?.id}
+								table={
+									selectedChartProp.selectedTable[
+										selectedChartProp.selectedDs?.id
+									]
+								}
 							/>
 						</div>
 					) : (
@@ -406,7 +418,7 @@ const mapStateToProps = (state: DataViewerBottomStateProps) => {
 		token: state.isLogged.accessToken,
 		tabTileProps: state.tabTileProps,
 		chartProps: state.chartProperties,
-		 sampleRecords: state.sampleRecords,
+		sampleRecords: state.sampleRecords,
 		tabState: state.tabState,
 	};
 };

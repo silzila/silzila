@@ -8,20 +8,10 @@ import {
 	updateCalendarStyleOptions,
 	updateChartMargins,
 } from "../../../redux/ChartPoperties/ChartControlsActions";
-import {
-	ChartControl,
-	ChartControlStateProps,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../../redux/ChartPoperties/ChartPropertiesInterfaces";
-
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
-import { MinMaxProps } from "../Legend/ChartLegend";
+import { ChartControl } from "../../../redux/ChartPoperties/ChartControlsInterface";
+import { ChartPropertiesProps } from "../../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { TabTileStateProps } from "../../../redux/TabTile/TabTilePropsInterfaces";
+import { ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import SliderWithInput from "../SliderWithInput";
 
 interface ChartMarginProps {
@@ -47,7 +37,7 @@ const ChartMargin = ({
 		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
 	);
 
-	const marginMinMax: MinMaxProps = { min: 0, max: 50, step: 1 };
+	const marginMinMax: any = { min: 0, max: 50, step: 1 };
 
 	const marginOptionsForCharts = () => {
 		switch (chartProperties.properties[propKey].chartType) {
@@ -226,11 +216,9 @@ const ChartMargin = ({
 	return <div className="optionsInfo">{marginOptionsForCharts()}</div>;
 };
 
-const mapStateToProps = (
-	state: ChartControlStateProps & TabTileStateProps2 & ChartPropertiesStateProps
-) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartControl: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
 		chartProperties: state.chartProperties,
 	};

@@ -1,31 +1,24 @@
-import styled from "@emotion/styled";
 import { Popover } from "@mui/material";
 import React, { useState } from "react";
 import { ColorResult, SketchPicker } from "react-color";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { updateTreeMapStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
-import {
-	ChartControl,
-	ChartControlStateProps,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
+import { ChartControl } from "../../../redux/ChartPoperties/ChartControlsInterface";
+import { TabTileStateProps } from "../../../redux/TabTile/TabTilePropsInterfaces";
+import { ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import SliderWithInput from "../SliderWithInput";
 import SwitchWithInput from "../SwitchWithInput";
-import { MinMaxProps } from "./ChartLegend";
 
 const TreeMapLegend = ({
 	// state
 	tabTileProps,
-	chartControl,
+	chartControls,
 
 	// dispatch
 	updateTreeMapStyleOptions,
 }: {
-	chartControl: ChartControl;
+	chartControls: ChartControl;
 	tabTileProps: TabTileStateProps;
 
 	// dispatch
@@ -33,11 +26,11 @@ const TreeMapLegend = ({
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
-	const treeLegend = chartControl.properties[propKey].treeMapChartControls;
+	const treeLegend = chartControls.properties[propKey].treeMapChartControls;
 	const [isColorPopoverOpen, setColorPopOverOpen] = useState<boolean>(false);
 
-	const itemWidthMinMax: MinMaxProps = { min: 25, max: 50, step: 1 };
-	const itemHeightMinMax: MinMaxProps = { min: 25, max: 50, step: 1 };
+	const itemWidthMinMax: any = { min: 25, max: 50, step: 1 };
+	const itemHeightMinMax: any = { min: 25, max: 50, step: 1 };
 
 	return (
 		<div className="optionsInfo">
@@ -133,9 +126,9 @@ const TreeMapLegend = ({
 	);
 };
 
-const mapStateToProps = (state: ChartControlStateProps & TabTileStateProps2) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartControl: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
 	};
 };

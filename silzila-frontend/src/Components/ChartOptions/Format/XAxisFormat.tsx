@@ -2,28 +2,18 @@ import React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { updateFormatOption } from "../../../redux/ChartPoperties/ChartControlsActions";
-import {
-	ChartControl,
-	ChartControlStateProps,
-	ChartConXAxisFormats,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
+import { ChartConXAxisFormats } from "../../../redux/ChartPoperties/ChartControlsInterface";
 import InputPositiveNumber from "../CommonFunctions/InputPositiveNumber";
-import { ArrayWithValueAndType } from "../CommonInterfaces";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
 const XAxisFormat = ({
 	// state
 	tabTileProps,
-	chartControl,
+	chartControls,
 
 	// dispatch
 	updateFormat,
-}: {
-	tabTileProps: TabTileStateProps;
-	chartControl: ChartControl;
+}: ChartOptionsProps & {
 	updateFormat: (
 		propKey: string | number,
 		formatType: string | any,
@@ -33,9 +23,9 @@ const XAxisFormat = ({
 }) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	let formatObject: ChartConXAxisFormats =
-		chartControl.properties[propKey].formatOptions.xAxisFormats;
+		chartControls.properties[propKey].formatOptions.xAxisFormats;
 
-	const separatorOptions: ArrayWithValueAndType[] = [
+	const separatorOptions: any[] = [
 		{ type: "None", value: "None" },
 		{ type: "Comma", value: "Comma" },
 		{ type: "Abbrev", value: "Abbrev" },
@@ -110,9 +100,9 @@ const XAxisFormat = ({
 	);
 };
 
-const mapStateToProps = (state: ChartControlStateProps & TabTileStateProps2) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartControl: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
 	};
 };
