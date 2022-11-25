@@ -13,22 +13,21 @@ import {
 	TabTileStateProps,
 	TabTileStateProps2,
 } from "../../../redux/TabTile/TabTilePropsInterfaces";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import SwitchWithInput from "../SwitchWithInput";
 
 interface ChartMarginProps {
-	chartControl: ChartControl;
-	tabTileProps: TabTileStateProps;
 	setMouseOver: (propKey: number | string, enable: boolean) => void;
 }
 
 const ChartMouseOver = ({
 	// state
-	chartControl,
+	chartControls,
 	tabTileProps,
 
 	// dispatch
 	setMouseOver,
-}: ChartMarginProps) => {
+}: ChartOptionsProps & ChartMarginProps) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
 	return (
@@ -43,9 +42,9 @@ const ChartMouseOver = ({
 				</label>
 
 				<SwitchWithInput
-					isChecked={chartControl.properties[propKey].mouseOver.enable}
+					isChecked={chartControls.properties[propKey].mouseOver.enable}
 					onSwitch={() => {
-						setMouseOver(propKey, !chartControl.properties[propKey].mouseOver.enable);
+						setMouseOver(propKey, !chartControls.properties[propKey].mouseOver.enable);
 					}}
 				/>
 			</div>
@@ -53,13 +52,12 @@ const ChartMouseOver = ({
 	);
 };
 
-const mapStateToProps = (state: ChartControlStateProps & TabTileStateProps2) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartControl: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
 	};
 };
-
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		setMouseOver: (propKey: number | string, enable: boolean) =>

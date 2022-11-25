@@ -5,48 +5,32 @@
 // 		- Match Dashboard size
 // 		- Full screen view
 // 	- Also provides the sql query used to generate data for this graph
-
-import React, { useEffect, useLayoutEffect, useState } from "react";
 import { connect } from "react-redux";
-// import AreaChart from "../Charts/AreaChart";
-// import DoughnutChart from "../Charts/DoughnutChart";
-// import LineChart from "../Charts/LineChart";
-import PieChart from "../Charts/PieChart";
-// import ScatterChart from "../Charts/ScatterChart";
-// import StackedBar from "../Charts/StackedBar";
-import MultiBar from "../Charts/MultiBarChart";
-// import CrossTabChart from "../Charts/CrossTab/CrossTabChart";
-// import {
-// 	setChartTitle,
-// 	setGenerateTitle,
-// } from "../../redux/ChartProperties/actionsChartProperties";
-// import ChartThemes from "../ChartThemes/ChartThemes";
-import CodeIcon from "@mui/icons-material/Code";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-// import SyntaxHighlighter from "react-syntax-highlighter";
-// import { a11yLight } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import CloseRounded from "@mui/icons-material/CloseRounded";
-// import FunnelChart from "../Charts/FunnelChart";
-// import GaugeChart from "../Charts/GaugeChart";
-// import HeatMap from "../Charts/HeatMap";
-
-import FullscreenIcon from "@mui/icons-material/Fullscreen";
-import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
+import { useLayoutEffect, useState } from "react";
 import { Dispatch } from "redux";
 import { setChartTitle, setGenerateTitle } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { toggleGraphSize } from "../../redux/TabTile/TileActions";
-// import { toggleGraphSize } from "../../redux/TabTile/actionsTabTile";
-// import HorizontalBar from "../Charts/HorizontalBar";
-// import Horizontalstacked from "../Charts/Horizontalstacked";
-// import RoseChart from "../Charts/RoseChart";
-// import GeoChart from "../Charts/GeoChart";
-// import StackedAreaChart from "../Charts/StackedAreaChart";
-// import CalendarChart from "../Charts/CalendarChart";
-// import BoxPlotChart from "../Charts/BoxPlotChart";
-// import TreeMap from "../Charts/TreeMap";
-// import TextEditor from "../Charts/TextEditor";
-// import Sankey from "../Charts/Sankey";
+import AreaChart from "../Charts/AreaChart";
+import DoughnutChart from "../Charts/DoughnutChart";
+import FunnelChart from "../Charts/FunnelChart";
+import GaugeChart from "../Charts/GaugeChart";
+import HeatMap from "../Charts/HeatMap";
+import HorizontalBar from "../Charts/HorizontalBar";
+import Horizontalstacked from "../Charts/Horizontalstacked";
+import LineChart from "../Charts/LineChart";
+import MultiBar from "../Charts/MultiBarChart";
+import PieChart from "../Charts/PieChart";
+import RoseChart from "../Charts/RoseChart";
+import ScatterChart from "../Charts/ScatterChart";
+import StackedBar from "../Charts/StackedBar";
+import { CloseRounded } from "@mui/icons-material";
+import CodeIcon from "@mui/icons-material/Code";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import Sankey from "../Charts/Sankey";
+import TreeMap from "../Charts/TreeMap";
+import BoxPlotChart from "../Charts/BoxPlotChart";
+import CalendarChart from "../Charts/CalendarChart";
+import StackedAreaChart from "../Charts/StackedAreaChart";
 
 const GraphArea = ({
 	// state
@@ -72,49 +56,51 @@ const GraphArea = ({
 	const [showSqlCode, setShowSqlCode] = useState<boolean>(false);
 	const [fullScreen, setFullScreen] = useState<boolean>(false);
 
-	// const graphDimensionCompute = () => {
-	// 	if (tileState.tiles[propKey].graphSizeFull) {
-	// 		const height = document.getElementById("graphContainer").clientHeight;
-	// 		const width = document.getElementById("graphContainer").clientWidth;
-	// 		setGraphDimension({
-	// 			height,
-	// 			width,
-	// 		});
-	// 	} else {
-	// 		setGraphDimension({
-	// 			height:
-	// 				tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey].height *
-	// 				tabTileProps.dashGridSize.y,
-	// 			width:
-	// 				tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey].width *
-	// 				tabTileProps.dashGridSize.x,
-	// 		});
-	// 	}
-	// };
+	const graphDimensionCompute = () => {
+		if (tileState.tiles[propKey].graphSizeFull) {
+			const height = (document.getElementById("graphContainer") as HTMLElement).clientHeight;
+			// const height = document.getElementById("graphContainer").clientHeight;
+			const width = (document.getElementById("graphContainer") as HTMLElement).clientWidth;
 
-	// const graphDimensionCompute2 = () => {
-	// 	const height = document.getElementById("graphFullScreen").clientHeight;
-	// 	const width = document.getElementById("graphFullScreen").clientWidth;
-	// 	setGraphDimension2({
-	// 		height,
-	// 		width,
-	// 	});
-	// };
+			setGraphDimension({
+				height,
+				width,
+			});
+		} else {
+			setGraphDimension({
+				height:
+					tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey].height *
+					tabTileProps.dashGridSize.y,
+				width:
+					tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey].width *
+					tabTileProps.dashGridSize.x,
+			});
+		}
+	};
 
-	// useLayoutEffect(() => {
-	// 	function updateSize() {
-	// 		graphDimensionCompute();
-	// 		if (fullScreen) graphDimensionCompute2();
-	// 	}
-	// 	window.addEventListener("resize", updateSize);
-	// 	updateSize();
-	// 	return () => window.removeEventListener("resize", updateSize);
-	// }, [
-	// 	fullScreen,
-	// 	tabTileProps.showDataViewerBottom,
-	// 	tabTileProps.selectedControlMenu,
-	// 	tileState.tiles[propKey].graphSizeFull,
-	// ]);
+	const graphDimensionCompute2 = () => {
+		const height = (document.getElementById("graphFullScreen") as HTMLElement).clientHeight;
+		const width = (document.getElementById("graphFullScreen") as HTMLElement).clientWidth;
+		setGraphDimension2({
+			height,
+			width,
+		});
+	};
+
+	useLayoutEffect(() => {
+		function updateSize() {
+			graphDimensionCompute();
+			if (fullScreen) graphDimensionCompute2();
+		}
+		window.addEventListener("resize", updateSize);
+		updateSize();
+		return () => window.removeEventListener("resize", updateSize);
+	}, [
+		fullScreen,
+		tabTileProps.showDataViewerBottom,
+		tabTileProps.selectedControlMenu,
+		tileState.tiles[propKey].graphSizeFull,
+	]);
 
 	// const removeFullScreen = e => {
 	// 	//console.log(e.keyCode);
@@ -134,32 +120,32 @@ const GraphArea = ({
 					/>
 				);
 
-			// case "stackedBar":
-			// 	return (
-			// 		<StackedBar
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
+			case "stackedBar":
+				return (
+					<StackedBar
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
 
-			// case "horizontalBar":
-			// 	return (
-			// 		<HorizontalBar
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
+			case "horizontalBar":
+				return (
+					<HorizontalBar
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
 
-			// case "horizontalStacked":
-			// 	return (
-			// 		<Horizontalstacked
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
+			case "horizontalStacked":
+				return (
+					<Horizontalstacked
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
 
 			// case "crossTab":
 			// 	return (
@@ -170,22 +156,22 @@ const GraphArea = ({
 			// 		/>
 			// 	);
 
-			// case "scatterPlot":
-			// 	return (
-			// 		<ScatterChart
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
-			// case "area":
-			// 	return (
-			// 		<AreaChart
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
+			case "scatterPlot":
+				return (
+					<ScatterChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
+			case "area":
+				return (
+					<AreaChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
 			case "pie":
 				return (
 					<PieChart
@@ -194,56 +180,56 @@ const GraphArea = ({
 						graphTileSize={tileState.tiles[propKey].graphSizeFull}
 					/>
 				);
-			// case "donut":
-			// 	return (
-			// 		<DoughnutChart
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
-			// case "rose":
-			// 	return (
-			// 		<RoseChart
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
-			// case "line":
-			// 	return (
-			// 		<LineChart
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
-			// case "funnel":
-			// 	return (
-			// 		<FunnelChart
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
+			case "donut":
+				return (
+					<DoughnutChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
+			case "rose":
+				return (
+					<RoseChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
+			case "line":
+				return (
+					<LineChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
+			case "funnel":
+				return (
+					<FunnelChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
 
-			// case "gauge":
-			// 	return (
-			// 		<GaugeChart
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
+			case "gauge":
+				return (
+					<GaugeChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
 
-			// case "heatmap":
-			// 	return (
-			// 		<HeatMap
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
+			case "heatmap":
+				return (
+					<HeatMap
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
 
 			// case "geoChart":
 			// 	return (
@@ -253,46 +239,46 @@ const GraphArea = ({
 			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
 			// 		/>
 			// 	);
-			// case "stackedArea":
-			// 	return (
-			// 		<StackedAreaChart
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
-			// case "calendar":
-			// 	return (
-			// 		<CalendarChart
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
-			// case "boxPlot":
-			// 	return (
-			// 		<BoxPlotChart
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
-			// case "treeMap":
-			// 	return (
-			// 		<TreeMap
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
-			// case "sankey":
-			// 	return (
-			// 		<Sankey
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
+			case "stackedArea":
+				return (
+					<StackedAreaChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
+			case "calendar":
+				return (
+					<CalendarChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
+			case "boxPlot":
+				return (
+					<BoxPlotChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
+			case "treeMap":
+				return (
+					<TreeMap
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
+			case "sankey":
+				return (
+					<Sankey
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
 			// case "richText":
 			// 	return (
 			// 		<TextEditor

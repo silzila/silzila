@@ -11,12 +11,17 @@ import {
 	switchAutotoManualinSteps,
 	updateBoxPlotStyleOptions,
 } from "../../../redux/ChartPoperties/ChartControlsActions";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
 import SliderWithInput from "../SliderWithInput";
 import SwitchWithInput from "../SwitchWithInput";
-import { ChartColorProps, ChartColorsStateProps } from "./ColorComponentInterfaces";
 import { ColorSchemes, ColorSchemesProps } from "./ColorScheme";
-
+interface ChartColorsActions {
+	setColorScheme: (propKey: string | number, color: string) => void;
+	switchAutotoManualinSteps: (propKey: string | number, value: any) => void;
+	setAreaColorOptions: (propKey: string | number, option: string, value: any) => void;
+	updateBoxPlotStyleOptions: (propKey: string | number, option: string, value: any) => void;
+}
 const ChartColors = ({
 	// state
 	chartControls,
@@ -28,7 +33,7 @@ const ChartColors = ({
 	setAreaColorOptions,
 	switchAutotoManualinSteps,
 	updateBoxPlotStyleOptions,
-}: ChartColorProps) => {
+}: ChartOptionsProps & ChartColorsActions) => {
 	var propKey: number = parseFloat(
 		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
 	);
@@ -182,7 +187,7 @@ const ChartColors = ({
 	);
 };
 
-const mapStateToProps = (state: ChartColorsStateProps) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,

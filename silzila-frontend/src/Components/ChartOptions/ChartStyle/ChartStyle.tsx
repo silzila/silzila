@@ -10,25 +10,33 @@ import "./chartStyle.css";
 
 import { SketchPicker } from "react-color";
 import SliderWithInput from "../SliderWithInput";
-import { FormControl, MenuItem, Popover, Select } from "@mui/material";
+import { Popover } from "@mui/material";
 import { Dispatch } from "redux";
 import {
 	updateCrossTabCellLabelOptions,
 	updateCrossTabHeaderLabelOptions,
 	updateCrossTabStyleOptions,
 } from "../../../redux/ChartPoperties/ChartControlsActions";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
 const ChartStyle = ({
 	// state
-	chartProp,
+	chartControls,
 	tabTileProps,
-	chartDetail,
 
 	// dispatch
 	updateCrossTabHeaderLabelOptions,
 	updateCrossTabCellLabelOptions,
 	updateCrossTabStyleOptions,
-}: any) => {
+}: ChartOptionsProps & {
+	updateCrossTabHeaderLabelOptions: (
+		propKey: string | number,
+		option: string,
+		value: any
+	) => void;
+	updateCrossTabCellLabelOptions: (propKey: string | number, option: string, value: any) => void;
+	updateCrossTabStyleOptions: (propKey: string | number, option: string, value: any) => void;
+}) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
 	const [isColorPopoverOpen, setColorPopOverOpen] = useState<boolean>(false);
@@ -42,9 +50,9 @@ const ChartStyle = ({
 	];
 
 	if (optionName === "Header") {
-		options = chartProp.properties[propKey].crossTabHeaderLabelOptions;
+		options = chartControls.properties[propKey].crossTabHeaderLabelOptions;
 	} else {
-		options = chartProp.properties[propKey].crossTabCellLabelOptions;
+		options = chartControls.properties[propKey].crossTabCellLabelOptions;
 	}
 
 	const renderLabels = () => {
@@ -67,7 +75,7 @@ const ChartStyle = ({
 			<div className="optionDescription">BORDER WIDTH</div>
 			<SliderWithInput
 				percent={false}
-				sliderValue={chartProp.properties[propKey].crossTabStyleOptions.borderWidth}
+				sliderValue={chartControls.properties[propKey].crossTabStyleOptions.borderWidth}
 				sliderMinMax={{ min: 1, max: 15, step: 1 }}
 				changeValue={value => {
 					updateCrossTabStyleOptions(propKey, "borderWidth", value);
@@ -77,7 +85,7 @@ const ChartStyle = ({
 			<div className="optionDescription">LINE HEIGHT</div>
 			<SliderWithInput
 				percent={false}
-				sliderValue={chartProp.properties[propKey].crossTabStyleOptions.lineHeight}
+				sliderValue={chartControls.properties[propKey].crossTabStyleOptions.lineHeight}
 				sliderMinMax={{ min: 1, max: 20, step: 0.5 }}
 				changeValue={value => {
 					updateCrossTabStyleOptions(propKey, "lineHeight", value);
@@ -197,11 +205,10 @@ const ChartStyle = ({
 		</div>
 	);
 };
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartProp: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
-		chartDetail: state.chartProperties.properties,
 	};
 };
 

@@ -1,37 +1,26 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { connect } from "react-redux";
 import "./chartStyle.css";
 import { SketchPicker } from "react-color";
 import SliderWithInput from "../SliderWithInput";
-import { FormControl, MenuItem, Popover, Select, Switch } from "@mui/material";
+import { FormControl, MenuItem, Popover, Select } from "@mui/material";
 import SwitchWithInput from "../SwitchWithInput";
 import { Dispatch } from "redux";
-import {
-	ChartControl,
-	ChartControlStateProps,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
 import { updateCalendarStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
 const CalendarChartStyles = ({
 	// state
-	chartProp,
+	chartControls,
 	tabTileProps,
 
 	// dispatch
 	updateCalendarStyleOptions,
-}: {
-	//State
-	chartProp: ChartControl;
-	tabTileProps: TabTileStateProps;
-
+}: ChartOptionsProps & {
 	updateCalendarStyleOptions: (propKey: string | number, option: string, value: any) => void;
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
-	var calStyle = chartProp.properties[propKey].calendarStyleOptions;
+	var calStyle = chartControls.properties[propKey].calendarStyleOptions;
 	const [isColorPopoverOpen, setColorPopOverOpen] = useState(false);
 
 	return (
@@ -150,9 +139,9 @@ const CalendarChartStyles = ({
 		</div>
 	);
 };
-const mapStateToProps = (state: ChartControlStateProps & TabTileStateProps2) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartProp: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
 	};
 };

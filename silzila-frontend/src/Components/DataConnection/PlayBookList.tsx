@@ -200,7 +200,7 @@ const PlayBookList = ({
 			);
 
 			// Get all tables for selected Dataset and display them here
-			var sampleRecords = { recordsColumnType: {} };
+			var sampleRecords: any = { recordsColumnType: {} };
 			await Promise.all(
 				Object.keys(pb.content.chartProperty.properties).map(async prop => {
 					var tableInfo = pb.content.chartProperty.properties[prop];

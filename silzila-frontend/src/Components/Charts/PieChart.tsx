@@ -2,27 +2,11 @@ import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
-import {
-	ChartControl,
-	ChartControlStateProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { Dispatch } from "redux";
 import { updateChartMargins } from "../../redux/ChartPoperties/ChartControlsActions";
+import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+
 interface PieChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
-
-	//state
-	chartProp: ChartPropertiesProps;
-	chartControls: ChartControl;
-
-	// dispatch
 	updateChartMargins: (propKey: number | string, option: string, value: any) => void;
 }
 const PieChart = ({
@@ -33,12 +17,12 @@ const PieChart = ({
 	graphTileSize,
 
 	//state
-	chartProp,
+	chartProperties,
 	chartControls,
 
 	// dispatch
 	updateChartMargins,
-}: PieChartProps) => {
+}: ChartsReduxStateProps & PieChartProps) => {
 	var chartControl: any = chartControls.properties[propKey];
 	let chartData: any =
 		chartControl.chartData &&
@@ -53,14 +37,14 @@ const PieChart = ({
 			setChartDataKeys(Object.keys(chartData[0]));
 
 			var objKey: any;
-			if (chartProp.properties[propKey].chartAxes[1].fields[0]) {
-				if ("time_grain" in chartProp.properties[propKey].chartAxes[1].fields[0]) {
+			if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
+				if ("time_grain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
 					objKey =
-						chartProp.properties[propKey].chartAxes[1].fields[0].fieldname +
+						chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname +
 						"__" +
-						chartProp.properties[propKey].chartAxes[1].fields[0].time_grain;
+						chartProperties.properties[propKey].chartAxes[1].fields[0].time_grain;
 				} else {
-					objKey = chartProp.properties[propKey].chartAxes[1].fields[0].fieldname;
+					objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				}
 				chartControl.chartData.result.map((el: any) => {
 					if (objKey in el) {
@@ -164,9 +148,9 @@ const PieChart = ({
 	return <>{chartData ? <RenderChart /> : ""}</>;
 };
 
-const mapStateToProps = (state: ChartControlStateProps & ChartPropertiesStateProps) => {
+const mapStateToProps = (state: ChartsMapStateToProps) => {
 	return {
-		chartProp: state.chartProperties,
+		chartProperties: state.chartProperties,
 		chartControls: state.chartControls,
 	};
 };

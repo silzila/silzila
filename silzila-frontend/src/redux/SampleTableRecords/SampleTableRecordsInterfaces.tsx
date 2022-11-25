@@ -2,6 +2,10 @@ export interface SampleRecordsStateProp {
 	recordsColumnType: any;
 }
 
+export interface SampleRecordsState {
+	sampleRecords: SampleRecordsStateProp;
+}
+
 export interface AddTableRecords {
 	type: "ADD_TABLE_RECORDS";
 	payload: { ds_uid: string | number; tableId: any; tableRecords: any; columnType: any };

@@ -19,30 +19,9 @@ import {
 	updateLabelPadding,
 	updateLabelPosition,
 } from "../../../redux/ChartPoperties/ChartControlsActions";
-import {
-	ChartConLabelOptions,
-	ChartControl,
-	ChartControlStateProps,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
-import {
-	ChartPropertiesStateProps,
-	ChartPropProperties,
-} from "../../../redux/ChartPoperties/ChartPropertiesInterfaces";
-
-interface OptionsInterface {
-	name: string;
-	value: string | boolean;
-}
-
+import { ChartConLabelOptions } from "../../../redux/ChartPoperties/ChartControlsInterface";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 interface ChartLabelsProps {
-	chartControl: ChartControl;
-	tabTileProps: TabTileStateProps;
-	chartProp: ChartPropProperties;
-
 	updateLabelOption: (propKey: number | string, option: string, value: any) => void;
 	updateLabelPosition: (propKey: number | string, value: any) => void;
 	updateLabelPadding: (propKey: number | string, value: any) => void;
@@ -50,40 +29,40 @@ interface ChartLabelsProps {
 
 const ChartLabels = ({
 	// state
-	chartControl,
+	chartControls,
 	tabTileProps,
-	chartProp,
+	chartProperties,
 
 	// dispatch
 	updateLabelOption,
 	updateLabelPosition,
 	updateLabelPadding,
-}: ChartLabelsProps) => {
+}: ChartOptionsProps & ChartLabelsProps) => {
 	var propKey: number = parseFloat(
 		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
 	);
 
-	console.log(chartControl.properties[propKey].labelOptions.fontSize);
+	console.log(chartControls.properties[propKey].labelOptions.fontSize);
 
 	const [isColorPopoverOpen, setColorPopOverOpen] = useState<boolean>(false);
 	const [anchorEl, setAnchorEl] = useState<string | any>("");
 
-	const showLabel: boolean = chartControl.properties[propKey].labelOptions.showLabel;
-	var labelOptions: ChartConLabelOptions = chartControl.properties[propKey].labelOptions;
+	const showLabel: boolean = chartControls.properties[propKey].labelOptions.showLabel;
+	var labelOptions: ChartConLabelOptions = chartControls.properties[propKey].labelOptions;
 
 	console.log(labelOptions);
 
-	const labelPositionOptions: OptionsInterface[] = [
+	const labelPositionOptions: any[] = [
 		{ name: "Outside", value: "outside" },
 		{ name: "Inside", value: "inside" },
 	];
 
-	const labelOptionsList: OptionsInterface[] = [
+	const labelOptionsList: any[] = [
 		{ name: "Show", value: true },
 		{ name: "Hide", value: false },
 	];
 	const renderLabels = () => {
-		return labelOptionsList.map((item: OptionsInterface, i: number) => {
+		return labelOptionsList.map((item: any, i: number) => {
 			return (
 				<button
 					onClick={() => updateLabelOption(propKey, "showLabel", item.value)}
@@ -102,8 +81,8 @@ const ChartLabels = ({
 			{showLabel === true ? (
 				<React.Fragment>
 					<div style={{ display: "flex", paddingBottom: "8px", flexDirection: "column" }}>
-						{chartProp[propKey].chartType === "pie" ||
-						chartProp[propKey].chartType === "donut" ? (
+						{chartProperties.properties[propKey].chartType === "pie" ||
+						chartProperties.properties[propKey].chartType === "donut" ? (
 							<React.Fragment>
 								<div className="optionDescription">Label Position</div>
 								<FormControl
@@ -127,7 +106,7 @@ const ChartLabels = ({
 											color: "#404040",
 										}}
 									>
-										{labelPositionOptions.map((position: OptionsInterface) => {
+										{labelPositionOptions.map((position: any) => {
 											return (
 												<MenuItem
 													// value={position.value}
@@ -163,7 +142,9 @@ const ChartLabels = ({
 							<div className="optionDescription">Label Size</div>
 							<SliderWithInput
 								percent={false}
-								sliderValue={chartControl.properties[propKey].labelOptions.fontSize}
+								sliderValue={
+									chartControls.properties[propKey].labelOptions.fontSize
+								}
 								sliderMinMax={{ min: 8, max: 50, step: 1 }}
 								changeValue={(value: number) => {
 									console.log(value);
@@ -182,29 +163,29 @@ const ChartLabels = ({
 								</label>
 								<SwitchWithInput
 									isChecked={
-										chartControl.properties[propKey].labelOptions
+										chartControls.properties[propKey].labelOptions
 											.labelColorManual
 									}
 									onSwitch={() => {
 										updateLabelOption(
 											propKey,
 											"labelColorManual",
-											!chartControl.properties[propKey].labelOptions
+											!chartControls.properties[propKey].labelOptions
 												.labelColorManual
 										);
 									}}
 								/>
 
-								{chartControl.properties[propKey].labelOptions.labelColorManual ? (
+								{chartControls.properties[propKey].labelOptions.labelColorManual ? (
 									<div
 										style={{
 											height: "1.25rem",
 											width: "50%",
 											marginLeft: "20px",
 											backgroundColor:
-												chartControl.properties[propKey].labelOptions
+												chartControls.properties[propKey].labelOptions
 													.labelColor,
-											color: chartControl.properties[propKey].labelOptions
+											color: chartControls.properties[propKey].labelOptions
 												.labelColor,
 											border: "2px solid darkgray",
 											margin: "auto",
@@ -218,7 +199,7 @@ const ChartLabels = ({
 									</div>
 								) : null}
 							</div>
-							{chartProp[propKey].chartType === "treeMap" ? (
+							{chartProperties.properties[propKey].chartType === "treeMap" ? (
 								<>
 									<div
 										style={{
@@ -229,7 +210,7 @@ const ChartLabels = ({
 									<TreeMapLabelOptions />
 								</>
 							) : null}
-							{chartProp[propKey].chartType === "sankey" ? (
+							{chartProperties.properties[propKey].chartType === "sankey" ? (
 								<>
 									<div
 										style={{
@@ -253,7 +234,7 @@ const ChartLabels = ({
 			>
 				<div>
 					<SketchPicker
-						color={chartControl.properties[propKey].labelOptions.labelColor}
+						color={chartControls.properties[propKey].labelOptions.labelColor}
 						className="sketchPicker"
 						width="16rem"
 						onChangeComplete={(color: ColorResult) => {
@@ -269,13 +250,11 @@ const ChartLabels = ({
 		</div>
 	);
 };
-const mapStateToProps = (
-	state: ChartControlStateProps & TabTileStateProps2 & ChartPropertiesStateProps
-) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartControl: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
-		chartProp: state.chartProperties.properties,
+		chartProperties: state.chartProperties,
 	};
 };
 

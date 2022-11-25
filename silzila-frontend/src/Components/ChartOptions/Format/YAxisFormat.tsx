@@ -2,31 +2,21 @@ import React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { updateFormatOption } from "../../../redux/ChartPoperties/ChartControlsActions";
-import {
-	ChartControl,
-	ChartControlStateProps,
-	ChartConYAxisFormats,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
+import { ChartConYAxisFormats } from "../../../redux/ChartPoperties/ChartControlsInterface";
 import InputPositiveNumber from "../CommonFunctions/InputPositiveNumber";
-import { ArrayWithValueAndType } from "../CommonInterfaces";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
 const YAxisFormat = ({
 	//props
 	chartType,
 	// state
 	tabTileProps,
-	chartControl,
+	chartControls,
 
 	// dispatch
 	updateFormat,
-}: {
+}: ChartOptionsProps & {
 	chartType: string;
-	tabTileProps: TabTileStateProps;
-	chartControl: ChartControl;
 	updateFormat: (
 		propKey: string | number,
 		formatType: string | any,
@@ -36,9 +26,9 @@ const YAxisFormat = ({
 }) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	let formatObject: ChartConYAxisFormats =
-		chartControl.properties[propKey].formatOptions.yAxisFormats;
+		chartControls.properties[propKey].formatOptions.yAxisFormats;
 
-	const separatorOptions: ArrayWithValueAndType[] = [
+	const separatorOptions: any[] = [
 		{ type: "None", value: "None" },
 		{ type: "Comma", value: "Comma" },
 		{ type: "Abbrev", value: "Abbrev" },
@@ -115,9 +105,9 @@ const YAxisFormat = ({
 	);
 };
 
-const mapStateToProps = (state: ChartControlStateProps & TabTileStateProps2) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartControl: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
 	};
 };

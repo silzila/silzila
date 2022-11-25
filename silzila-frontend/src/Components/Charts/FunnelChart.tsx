@@ -2,25 +2,12 @@ import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import {
-	ChartControl,
 	ChartControlsProps,
 	ChartControlStateProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
-interface FunnelChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
+import { ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
-	//state
-	chartControls: ChartControl;
-}
-
-interface NewData {
-	name: string;
-	value: any;
-}
 const FunnelChart = ({
 	//props
 	propKey,
@@ -30,15 +17,15 @@ const FunnelChart = ({
 
 	//state
 	chartControls,
-}: FunnelChartProps) => {
+}: ChartsReduxStateProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData: any = chartControl.chartData ? chartControl.chartData.result : "";
 
-	const [newData, setNewData] = useState<NewData[]>([]);
+	const [newData, setNewData] = useState<any[]>([]);
 
 	useEffect(() => {
 		if (chartData) {
-			var newData: NewData[] = [];
+			var newData: any[] = [];
 			Object.keys(chartData[0]).map(key => {
 				newData.push({
 					name: key,
@@ -121,7 +108,7 @@ const FunnelChart = ({
 
 	return chartData ? <RenderChart /> : null;
 };
-const mapStateToProps = (state: ChartControlStateProps) => {
+const mapStateToProps = (state: ChartControlStateProps, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
 	};
