@@ -1,284 +1,406 @@
-// // This component represent each individual table field dropped inside dropzone
-// // Each card has some aggregate values and option to select different aggregate and/or timeGrain values
+// This component represent each individual table field dropped inside dropzone
+// Each card has some aggregate values and option to select different aggregate and/or timeGrain values
 
-// import React, { useCallback, useState } from "react";
-// import "./Card.css";
-// import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-// import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
-// import { connect } from "react-redux";
-// import {
-// 	editChartPropItem,
-// 	revertAxes,
-// 	sortAxes,
-// } from "../../redux/ChartProperties/actionsChartProperties";
-// import { Divider, Menu, MenuItem } from "@mui/material";
-// import Aggregators, { AggregatorKeys } from "./Aggregators";
-// import { useDrag, useDrop } from "react-dnd";
+import React, { useCallback, useState } from "react";
+import "./Card.css";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
+import { connect } from "react-redux";
+import {
+	editChartPropItem,
+	revertAxes,
+	sortAxes,
+} from "../../redux/ChartPoperties/ChartPropertiesActions";
+import { Divider, Menu, MenuItem } from "@mui/material";
+//import Aggregators, { AggregatorKeys } from "./Aggregators";
+import { useDrag, useDrop } from "react-dnd";
 
-// const Card = ({
-// 	// props
-// 	field,
-// 	bIndex,
-// 	itemIndex,
-// 	propKey,
-// 	axisTitle,
+const Card = ({
+	// props
+	field,
+	bIndex,
+	itemIndex,
+	propKey,
+	axisTitle,
 
-// 	// state
-// 	tabTileProps,
-// 	chartProp,
+	// state
+	tabTileProps,
+	chartProp,
 
-// 	// dispatch
-// 	deleteDropZoneItems,
-// 	updateQueryParam,
-// 	sortAxes,
-// 	revertAxes,
-// 	// chartPropUpdated,
-// }) => {
-// 	const originalIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
-// 		item => item.uId === field.uId
-// 	);
+	// dispatch
+	deleteDropZoneItems,
+	updateQueryParam,
+	sortAxes,
+	revertAxes,
+	// chartPropUpdated,
+}) => {
 
-// 	const deleteItem = () => {
-// 		deleteDropZoneItems(propKey, bIndex, itemIndex);
-// 		// chartPropUpdated(true);
-// 	};
+	const dimensionPrefixes : any = {
+		Integer: [],
+		Decimal: [],
+		Text: [],
+		Date: {
+			time_grain: [
+				{ name: "Year", id: "year" },
+				{ name: "Quarter", id: "quarter" },
+				{ name: "Month", id: "month" },
+				{ name: "Year Quarter", id: "yearquarter" },
+				{ name: "Year Month", id: "yearmonth" },
+				{ name: "Date", id: "date" },
+				{ name: "Day of Month", id: "dayofmonth" },
+				{ name: "Day of Week", id: "dayofweek" },
+			],
+		},
+		Timestamp: {
+			time_grain: [
+				{ name: "Year", id: "year" },
+				{ name: "Quarter", id: "quarter" },
+				{ name: "Month", id: "month" },
+				{ name: "Year Quarter", id: "yearquarter" },
+				{ name: "Year Month", id: "yearmonth" },
+				{ name: "Date", id: "date" },
+				{ name: "Day of Month", id: "dayofmonth" },
+				{ name: "Day of Week", id: "dayofweek" },
+			],
+		},
+	};
+	
+	const measurePrefixes : any = {
+		Integer: [
+			{ name: "Sum", id: "sum" },
+			{ name: "Avg", id: "avg" },
+			{ name: "Min", id: "min" },
+			{ name: "Max", id: "max" },
+			{ name: "Count", id: "count" },
+			{ name: "Count Non Null", id: "countnn" },
+			{ name: "Count Null", id: "countn" },
+			{ name: "Count Unique", id: "countu" },
+		],
+		Decimal: [
+			{ name: "Sum", id: "sum" },
+			{ name: "Avg", id: "avg" },
+			{ name: "Min", id: "min" },
+			{ name: "Max", id: "max" },
+			{ name: "Count", id: "count" },
+			{ name: "Count Non Null", id: "countnn" },
+			{ name: "Count Null", id: "countn" },
+			{ name: "Count Unique", id: "countu" },
+		],
+		Text: [
+			{ name: "Count", id: "count" },
+			{ name: "Count Non Null", id: "countnn" },
+			{ name: "Count Null", id: "countn" },
+			{ name: "Count Unique", id: "countu" },
+		],
+		Date: {
+			aggr: [
+				{ name: "Min", id: "min" },
+				{ name: "Max", id: "max" },
+				{ name: "Count", id: "count" },
+				{ name: "Count Non Null", id: "countnn" },
+				{ name: "Count Null", id: "countn" },
+				{ name: "Count Unique", id: "countu" },
+			],
+			time_grain: [
+				{ name: "Year", id: "year" },
+				{ name: "Quarter", id: "quarter" },
+				{ name: "Month", id: "month" },
+				{ name: "Date", id: "date" },
+				{ name: "Day of Month", id: "dayofmonth" },
+				{ name: "Day of Week", id: "dayofweek" },
+			],
+		},
+		Timestamp: {
+			aggr: [
+				{ name: "Min", id: "min" },
+				{ name: "Max", id: "max" },
+				{ name: "Count", id: "count" },
+				{ name: "Count Non Null", id: "countnn" },
+				{ name: "Count Null", id: "countn" },
+				{ name: "Count Unique", id: "countu" },
+			],
+			time_grain: [
+				{ name: "Year", id: "year" },
+				{ name: "Quarter", id: "quarter" },
+				{ name: "Month", id: "month" },
+				{ name: "Date", id: "date" },
+				{ name: "Day of Month", id: "dayofmonth" },
+				{ name: "Day of Week", id: "dayofweek" },
+			],
+		},
+	};
+	
+	const Aggregators = {
+		Dimension: dimensionPrefixes,
+		Row: dimensionPrefixes,
+		Column: dimensionPrefixes,
+		Measure: measurePrefixes,
+		X: measurePrefixes,
+		Y: measurePrefixes,
+		Distribution: dimensionPrefixes,
+	};
+	
+	 const AggregatorKeys = {
+		sum: "Sum",
+		avg: "Avg",
+		min: "Min",
+		max: "Max",
+		count: "Count",
+		countnn: "Count NN",
+		countn: "Count Null",
+		countu: "Count Unique",
+	
+		year: "Year",
+		yearquarter: "Year Qtr",
+		yearmonth: "Year Mth",
+		month: "Month",
+		quarter: "Quarter",
+		dayofmonth: "Day Mn",
+		dayofweek: "Day Wk",
+		date: "Date",
+	};
+	
+	//export default Aggregators;
 
-// 	const [showOptions, setShowOptions] = useState(false);
+	
+	const originalIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
+		item => item.uId === field.uId
+	);
 
-// 	const [anchorEl, setAnchorEl] = useState(null);
-// 	const open = Boolean(anchorEl);
+	const deleteItem = () => {
+		deleteDropZoneItems(propKey, bIndex, itemIndex);
+		// chartPropUpdated(true);
+	};
 
-// 	const handleClick = event => {
-// 		setAnchorEl(event.currentTarget);
-// 	};
+	const [showOptions, setShowOptions] = useState(false);
 
-// 	const handleClose = (closeFrom, queryParam) => {
-// 		// console.log(closeFrom);
-// 		setAnchorEl(null);
-// 		setShowOptions(false);
+	const [anchorEl, setAnchorEl] = useState(null);
+	const open = Boolean(anchorEl);
 
-// 		if (closeFrom === "agg" || closeFrom === "time_grain") {
-// 			var field2 = JSON.parse(JSON.stringify(field));
+	const handleClick = event => {
+		setAnchorEl(event.currentTarget);
+	};
 
-// 			if (closeFrom === "agg") {
-// 				// console.log("Aggregate Choice selected", queryParam);
-// 				field2.agg = queryParam;
-// 			} else if (closeFrom === "time_grain") {
-// 				// console.log("Time Grain Choice selected", queryParam);
-// 				field2.time_grain = queryParam;
-// 			}
-// 			// console.log(propKey, bIndex, itemIndex, field2);
-// 			updateQueryParam(propKey, bIndex, itemIndex, field2);
-// 		}
-// 	};
+	const handleClose = (closeFrom, queryParam) => {
+		// console.log(closeFrom);
+		setAnchorEl(null);
+		setShowOptions(false);
 
-// 	var menuStyle = { fontSize: "12px", padding: "2px 1rem" };
-// 	var menuSelectedStyle = {
-// 		fontSize: "12px",
-// 		padding: "2px 1rem",
-// 		backgroundColor: "rgba(25, 118, 210, 0.08)",
-// 	};
+		if (closeFrom === "agg" || closeFrom === "time_grain") {
+			var field2 = JSON.parse(JSON.stringify(field));
 
-// 	// Properties and behaviour when a card is dragged
-// 	const [, drag] = useDrag({
-// 		item: {
-// 			uId: field.uId,
-// 			fieldname: field.fieldname,
-// 			displayname: field.fieldname,
-// 			dataType: field.dataType,
-// 			prefix: field.prefix,
-// 			tableId: field.tableId,
-// 			// type: "card",
-// 			bIndex,
-// 			originalIndex,
-// 		},
-// 		type: "card",
+			if (closeFrom === "agg") {
+				// console.log("Aggregate Choice selected", queryParam);
+				field2.agg = queryParam;
+			} else if (closeFrom === "time_grain") {
+				// console.log("Time Grain Choice selected", queryParam);
+				field2.time_grain = queryParam;
+			}
+			// console.log(propKey, bIndex, itemIndex, field2);
+			updateQueryParam(propKey, bIndex, itemIndex, field2);
+		}
+	};
 
-// 		end: (dropResult, monitor) => {
-// 			// console.log("***************on DRAG END**************");
-// 			const { uId, bIndex, originalIndex } = monitor.getItem();
-// 			// console.log("uId = ", uId);
+	var menuStyle = { fontSize: "12px", padding: "2px 1rem" };
+	var menuSelectedStyle = {
+		fontSize: "12px",
+		padding: "2px 1rem",
+		backgroundColor: "rgba(25, 118, 210, 0.08)",
+	};
 
-// 			const didDrop = monitor.didDrop();
-// 			// console.log("didDrop = ", didDrop);
+	// Properties and behaviour when a card is dragged
+	const [, drag] = useDrag({
+		item: {
+			uId: field.uId,
+			fieldname: field.fieldname,
+			displayname: field.fieldname,
+			dataType: field.dataType,
+			prefix: field.prefix,
+			tableId: field.tableId,
+			// type: "card",
+			bIndex,
+			originalIndex,
+		},
+		type: "card",
 
-// 			if (!didDrop) {
-// 				revertAxes(propKey, bIndex, uId, originalIndex);
-// 			}
-// 		},
-// 	});
+		end: (dropResult, monitor) => {
+			// console.log("***************on DRAG END**************");
+			const { uId, bIndex, originalIndex } = monitor.getItem();
+			// console.log("uId = ", uId);
 
-// 	// Properties and behaviours when another card is dropped over this card
-// 	const [, drop] = useDrop({
-// 		accept: "card",
-// 		canDrop: () => false,
-// 		collect: monitor => ({
-// 			backgroundColor1: monitor.isOver({ shallow: true }) ? 1 : 0,
-// 		}),
-// 		hover({ uId: dragUId, bIndex: fromBIndex }) {
-// 			if (fromBIndex === bIndex && dragUId !== field.uId) {
-// 				sortAxes(propKey, bIndex, dragUId, field.uId);
-// 				console.log("============HOVER BLOCK END ==============");
-// 			}
-// 		},
-// 	});
+			const didDrop = monitor.didDrop();
+			// console.log("didDrop = ", didDrop);
 
-// 	// List of options to show at the end of each card
-// 	// (like, year, month, day, or Count, sum, avg etc)
-// 	const RenderMenu = useCallback(() => {
-// 		var options = [];
-// 		var options2 = [];
+			if (!didDrop) {
+				revertAxes(propKey, bIndex, uId, originalIndex);
+			}
+		},
+	});
 
-// 		if (axisTitle === "Measure" || axisTitle === "X" || axisTitle === "Y") {
-// 			if (field.dataType === "date" || field.dataType === "timestamp") {
-// 				options = options.concat(Aggregators[axisTitle][field.dataType].aggr);
-// 				options2 = options2.concat(Aggregators[axisTitle][field.dataType].time_grain);
-// 			} else {
-// 				options = options.concat(Aggregators[axisTitle][field.dataType]);
-// 			}
-// 		}
+	// Properties and behaviours when another card is dropped over this card
+	const [, drop] = useDrop({
+		accept: "card",
+		canDrop: () => false,
+		collect: monitor => ({
+			backgroundColor1: monitor.isOver({ shallow: true }) ? 1 : 0,
+		}),
+		hover({ uId: dragUId, bIndex: fromBIndex }) {
+			if (fromBIndex === bIndex && dragUId !== field.uId) {
+				sortAxes(propKey, bIndex, dragUId, field.uId);
+				console.log("============HOVER BLOCK END ==============");
+			}
+		},
+	});
 
-// 		if (
-// 			axisTitle === "Dimension" ||
-// 			axisTitle === "Row" ||
-// 			axisTitle === "Column" ||
-// 			axisTitle === "Distribution"
-// 		) {
-// 			if (field.dataType === "date" || field.dataType === "timestamp") {
-// 				options2 = options2.concat(Aggregators[axisTitle][field.dataType].time_grain);
-// 			} else {
-// 				options = options.concat(Aggregators[axisTitle][field.dataType]);
-// 			}
-// 		}
+	// List of options to show at the end of each card
+	// (like, year, month, day, or Count, sum, avg etc)
+	const RenderMenu = useCallback(() => {
+		var options = [];
+		var options2 = [];
 
-// 		return (
-// 			<Menu
-// 				id="basic-menu"
-// 				anchorEl={anchorEl}
-// 				open={open}
-// 				onClose={() => handleClose("clickOutside")}
-// 				MenuListProps={{
-// 					"aria-labelledby": "basic-button",
-// 				}}
-// 			>
-// 				{options.length > 0
-// 					? options.map(opt => {
-// 							return (
-// 								<MenuItem
-// 									onClick={() => handleClose("agg", opt.id)}
-// 									sx={opt.id === field.agg ? menuSelectedStyle : menuStyle}
-// 									key={opt.id}
-// 								>
-// 									{opt.name}
-// 								</MenuItem>
-// 							);
-// 					  })
-// 					: null}
+		if (axisTitle === "Measure" || axisTitle === "X" || axisTitle === "Y") {
+			if (field.dataType === "date" || field.dataType === "timestamp") {
+				options = options.concat(Aggregators[axisTitle][field.dataType].aggr);
+				options2 = options2.concat(Aggregators[axisTitle][field.dataType].time_grain);
+			} else {
+				options = options.concat(Aggregators[axisTitle][field.dataType]);
+			}
+		}
 
-// 				{options.length > 0 && options2.length > 0 ? <Divider /> : null}
+		if (
+			axisTitle === "Dimension" ||
+			axisTitle === "Row" ||
+			axisTitle === "Column" ||
+			axisTitle === "Distribution"
+		) {
+			if (field.dataType === "date" || field.dataType === "timestamp") {
+				options2 = options2.concat(Aggregators[axisTitle][field.dataType].time_grain);
+			} else {
+				options = options.concat(Aggregators[axisTitle][field.dataType]);
+			}
+		}
 
-// 				{options2.length > 0
-// 					? options2.map(opt2 => {
-// 							return (
-// 								<MenuItem
-// 									onClick={() => handleClose("time_grain", opt2.id)}
-// 									sx={
-// 										opt2.id === field.time_grain ? menuSelectedStyle : menuStyle
-// 									}
-// 									key={opt2.id}
-// 								>
-// 									{opt2.name}
-// 								</MenuItem>
-// 							);
-// 					  })
-// 					: null}
+		return (
+			<Menu
+				id="basic-menu"
+				anchorEl={anchorEl}
+				open={open}
+				onClose={() => handleClose("clickOutside")}
+				MenuListProps={{
+					"aria-labelledby": "basic-button",
+				}}
+			>
+				{options.length > 0
+					? options.map(opt => {
+							return (
+								<MenuItem
+									onClick={() => handleClose("agg", opt.id)}
+									sx={opt.id === field.agg ? menuSelectedStyle : menuStyle}
+									key={opt.id}
+								>
+									{opt.name}
+								</MenuItem>
+							);
+					  })
+					: null}
 
-// 				{options.length === 0 && options2.length === 0 ? (
-// 					<MenuItem onClick={handleClose} sx={menuStyle} key="optNa">
-// 						<i>-- No options --</i>
-// 					</MenuItem>
-// 				) : null}
-// 			</Menu>
-// 		);
-// 	});
+				{options.length > 0 && options2.length > 0 ? <Divider /> : null}
 
-// 	return field ? (
-// 		<div
-// 			ref={node => drag(drop(node))}
-// 			className="axisField"
-// 			onMouseOver={() => setShowOptions(true)}
-// 			onMouseLeave={() => {
-// 				if (!open) {
-// 					setShowOptions(false);
-// 				}
-// 			}}
-// 		>
-// 			<button
-// 				type="button"
-// 				className="buttonCommon columnClose"
-// 				onClick={deleteItem}
-// 				title="Remove field"
-// 				style={showOptions ? { visibility: "visible" } : { visibility: "hidden" }}
-// 			>
-// 				<CloseRoundedIcon style={{ fontSize: "13px", margin: "auto" }} />
-// 			</button>
+				{options2.length > 0
+					? options2.map(opt2 => {
+							return (
+								<MenuItem
+									onClick={() => handleClose("time_grain", opt2.id)}
+									sx={
+										opt2.id === field.time_grain ? menuSelectedStyle : menuStyle
+									}
+									key={opt2.id}
+								>
+									{opt2.name}
+								</MenuItem>
+							);
+					  })
+					: null}
 
-// 			<span className="columnName ">{field.fieldname}</span>
-// 			<span className="columnPrefix">
-// 				{field.agg ? AggregatorKeys[field.agg] : null}
+				{options.length === 0 && options2.length === 0 ? (
+					<MenuItem onClick={handleClose} sx={menuStyle} key="optNa">
+						<i>-- No options --</i>
+					</MenuItem>
+				) : null}
+			</Menu>
+		);
+	});
 
-// 				{field.time_grain && field.agg ? <React.Fragment>, </React.Fragment> : null}
-// 				{field.time_grain ? AggregatorKeys[field.time_grain] : null}
-// 			</span>
-// 			<span className="columnPrefix"> {field.prefix ? `${field.prefix}` : null}</span>
-// 			<button
-// 				type="button"
-// 				className="buttonCommon columnDown"
-// 				title="Remove field"
-// 				style={showOptions ? { visibility: "visible" } : { visibility: "hidden" }}
-// 				onClick={handleClick}
-// 			>
-// 				<KeyboardArrowDownRoundedIcon style={{ fontSize: "14px", margin: "auto" }} />
-// 			</button>
-// 			<RenderMenu />
-// 		</div>
-// 	) : null;
-// };
+	return field ? (
+		<div
+			ref={node => drag(drop(node))}
+			className="axisField"
+			onMouseOver={() => setShowOptions(true)}
+			onMouseLeave={() => {
+				if (!open) {
+					setShowOptions(false);
+				}
+			}}
+		>
+			<button
+				type="button"
+				className="buttonCommon columnClose"
+				onClick={deleteItem}
+				title="Remove field"
+				style={showOptions ? { visibility: "visible" } : { visibility: "hidden" }}
+			>
+				<CloseRoundedIcon style={{ fontSize: "13px", margin: "auto" }} />
+			</button>
 
-// const mapStateToProps = state => {
-// 	return {
-// 		tabTileProps: state.tabTileProps,
-// 		chartProp: state.chartProperties,
-// 	};
-// };
+			<span className="columnName ">{field.fieldname}</span>
+			<span className="columnPrefix">
+				{field.agg ? AggregatorKeys[field.agg] : null}
 
-// const mapDispatchToProps = dispatch => {
-// 	return {
-// 		deleteDropZoneItems: (propKey, binIndex, itemIndex) =>
-// 			dispatch(
-// 				editChartPropItem({ action: "delete", details: { propKey, binIndex, itemIndex } })
-// 			),
-
-// 		updateQueryParam: (propKey, binIndex, itemIndex, item) =>
-// 			dispatch(
-// 				editChartPropItem({
-// 					action: "updateQuery",
-// 					details: { propKey, binIndex, itemIndex, item },
-// 				})
-// 			),
-
-// 		sortAxes: (propKey, bIndex, dragUId, uId) =>
-// 			dispatch(sortAxes(propKey, bIndex, dragUId, uId)),
-// 		revertAxes: (propKey, bIndex, uId, originalIndex) =>
-// 			dispatch(revertAxes(propKey, bIndex, uId, originalIndex)),
-// 	};
-// };
-
-// export default connect(mapStateToProps, mapDispatchToProps)(Card);
-import React from "react";
-
-const Card = () => {
-	return <div>Card</div>;
+				{field.time_grain && field.agg ? <React.Fragment>, </React.Fragment> : null}
+				{field.time_grain ? AggregatorKeys[field.time_grain] : null}
+			</span>
+			<span className="columnPrefix"> {field.prefix ? `${field.prefix}` : null}</span>
+			<button
+				type="button"
+				className="buttonCommon columnDown"
+				title="Remove field"
+				style={showOptions ? { visibility: "visible" } : { visibility: "hidden" }}
+				onClick={handleClick}
+			>
+				<KeyboardArrowDownRoundedIcon style={{ fontSize: "14px", margin: "auto" }} />
+			</button>
+			<RenderMenu />
+		</div>
+	) : null;
 };
 
-export default Card;
+const mapStateToProps = state => {
+	return {
+		tabTileProps: state.tabTileProps,
+		chartProp: state.chartProperties,
+	};
+};
+
+const mapDispatchToProps = dispatch => {
+	return {
+		deleteDropZoneItems: (propKey, binIndex, itemIndex) =>
+			dispatch(
+				editChartPropItem("delete", { propKey, binIndex, itemIndex } )
+			),
+
+		updateQueryParam: (propKey, binIndex, itemIndex, item) =>
+			dispatch(
+				editChartPropItem("updateQuery",
+					 { propKey, binIndex, itemIndex, item },
+				)
+			),
+
+		sortAxes: (propKey, bIndex, dragUId, uId) =>
+			dispatch(sortAxes(propKey, bIndex, dragUId, uId)),
+		revertAxes: (propKey, bIndex, uId, originalIndex) =>
+			dispatch(revertAxes(propKey, bIndex, uId, originalIndex)),
+	};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Card);
+
