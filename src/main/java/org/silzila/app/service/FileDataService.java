@@ -5,6 +5,7 @@ import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.ExpectationFailedException;
 import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.model.FileData;
+import org.silzila.app.payload.request.FileDataUpdateRequest;
 import org.silzila.app.payload.request.FileUploadRevisedColumnInfo;
 import org.silzila.app.payload.request.FileUploadRevisedInfoRequest;
 import org.silzila.app.payload.response.FileUploadColumnInfo;
@@ -45,8 +46,8 @@ public class FileDataService {
     // all uploads are initially saved in tmp
     final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
 
-    // upload File Data
-    public FileUploadResponse uploadFile(MultipartFile file)
+    // 1. upload File Data
+    public FileUploadResponse fileUpload(MultipartFile file)
             throws ExpectationFailedException, JsonMappingException, JsonProcessingException {
         Path path = Paths.get(SILZILA_DIR, "tmp");
         String uploadedFileNameWithoutExtn = "";
@@ -82,7 +83,7 @@ public class FileDataService {
         sparkService.startSparkSession();
         // calling spark service function,
         // this will have sample records & column name and type
-        FileUploadResponse fileUploadResponse = sparkService.readFile(savedFileName);
+        FileUploadResponse fileUploadResponse = sparkService.readCsv(savedFileName);
 
         // also pass file name & dataframe name to the response
         fileUploadResponse.setFileId(savedFileName);
@@ -117,8 +118,8 @@ public class FileDataService {
                     colString = "BOOLEAN(`" + col.getFieldName() + "`)";
                 } else if (col.getNewDataType().name().equals("INTEGER")) {
                     colString = "CAST(`" + col.getFieldName() + "` AS INTEGER)";
-                } else if (col.getNewDataType().name().equals("STRING")) {
-                    colString = "CAST(`" + col.getFieldName() + "` AS STRING)";
+                } else if (col.getNewDataType().name().equals("TEXT")) {
+                    colString = "STRING(`" + col.getFieldName() + "`)";
                 } else if (col.getNewDataType().name().equals("DECIMAL")) {
                     colString = "CAST(`" + col.getFieldName() + "` AS DOUBLE)";
                 } else if (col.getNewDataType().name().equals("DATE")) {
@@ -172,23 +173,25 @@ public class FileDataService {
         return query;
     }
 
-    // update schema for uploaded file
-    public List<JsonNode> fileDataChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+    // 2. update schema for uploaded file
+    public List<JsonNode> fileUploadChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
             throws JsonMappingException, JsonProcessingException {
 
         // construct query by using helper function
         String query = buildQueryWithChangeSchema(revisedInfoRequest);
+        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads"
+                + "/" + "tmp" + "/" + revisedInfoRequest.getFileId();
 
         // first, start spark session
         sparkService.startSparkSession();
-        List<JsonNode> jsonNodes = sparkService.changeSchema(revisedInfoRequest.getFileId(), query);
+        List<JsonNode> jsonNodes = sparkService.readCsvChangeSchema(filePath, query);
         return jsonNodes;
     }
 
-    // persist uploaded file (with/witout changed schema) as parquet file to disk
+    // 3. persist uploaded file (with/witout changed schema) as parquet file to disk
     // Steps: read uploaded file + change metadata if needed
     // + save the data as Parquet file + delete uploaded file
-    public FileDataDTO saveFileData(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+    public FileDataDTO fileUploadSave(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
             throws JsonMappingException, JsonProcessingException, BadRequestException {
 
         // check if file data name is already taken
@@ -333,6 +336,99 @@ public class FileDataService {
         }
         // remove the record from DB
         fileDataRepository.deleteById(id);
+    }
+
+    // 1. update schema of file data
+    // same request json of file upload change schema
+    // but file data id instead of actual file id
+    public List<JsonNode> fileDataChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
+
+        // get the physical file id from file data id
+        // if no file data inside optional wrapper, then send NOT FOUND Error
+        Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(revisedInfoRequest.getFileId(), userId);
+        if (!fdOptional.isPresent()) {
+            throw new RecordNotFoundException("Error: No such File Data Id exists!");
+        }
+        FileData fileData = fdOptional.get();
+
+        // if file not exists, throw error:
+        final String parquetFilePath = System.getProperty("user.home") + "/" + "silzila-uploads"
+                + "/" + userId + "/" + fileData.getFileName();
+        if (Files.notExists(Paths.get(parquetFilePath))) {
+            throw new BadRequestException("Error: File not exists!");
+        }
+
+        // construct query by using helper function
+        String query = buildQueryWithChangeSchema(revisedInfoRequest);
+        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads"
+                + "/" + userId + "/" + fileData.getFileName();
+
+        // first, start spark session
+        sparkService.startSparkSession();
+        // get temp. updated schema
+        List<JsonNode> jsonNodes = sparkService.readParquetChangeSchema(filePath, query);
+        return jsonNodes;
+    }
+
+    // 2. Udate Parque file with the changed Schema
+    // this creates new Parquet file with changed schema and deletes old file
+    public FileDataDTO fileDataSaveWithSchemaUpdate(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
+
+        // get the physical file id from file data id
+        // if no file data inside optional wrapper, then send NOT FOUND Error
+        Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(revisedInfoRequest.getFileId(), userId);
+        if (!fdOptional.isPresent()) {
+            throw new RecordNotFoundException("Error: No such File Data Id exists!");
+        }
+        FileData fileData = fdOptional.get();
+
+        final String readFilePath = System.getProperty("user.home") + "/" + "silzila-uploads"
+                + "/" + userId + "/" + fileData.getFileName();
+        final String newFileName = UUID.randomUUID().toString() + ".parquet";
+        final String writeFilePath = System.getProperty("user.home") + "/" + "silzila-uploads"
+                + "/" + userId + "/" + newFileName;
+
+        // if file not exists, throw error:
+        if (Files.notExists(Paths.get(readFilePath))) {
+            throw new BadRequestException("Error: File not exists!");
+        }
+
+        // construct query by using helper function
+        String query = buildQueryWithChangeSchema(revisedInfoRequest);
+
+        // first, start spark session
+        sparkService.startSparkSession();
+        // write to new Parquet file
+        sparkService.updateParquetChangeSchema(readFilePath, writeFilePath, query);
+
+        // delete the Old Parquet File from file system
+        try {
+            // if Parquet folder exists then delete contents and the folder
+            if (Files.exists(Paths.get(readFilePath))) {
+                // traverse the folder and delete
+                Files.walk(Paths.get(readFilePath))
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Update the new file name & new physical file name in DB
+        fileData.setName(revisedInfoRequest.getName());
+        fileData.setFileName(newFileName);
+        fileDataRepository.save(fileData);
+
+        // return response
+        FileDataDTO fileDataDTO = new FileDataDTO(
+                fileData.getId(),
+                fileData.getUserId(),
+                fileData.getName());
+        return fileDataDTO;
 
     }
+
 }
