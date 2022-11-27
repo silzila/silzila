@@ -12,6 +12,7 @@ import { Dispatch } from "redux";
 import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
 import { canReUseData, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import FetchData from "../ServerCall/FetchData";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 // format the chartAxes into the way it is needed for api call
 export const getChartData = async (
@@ -116,10 +117,10 @@ export const getChartData = async (
 		/*	Iterate through each fileds added in the Filter Dropzone	*/
 		_chartProp.fields.forEach((item: any) => {
 			let _filter: any = {};
-			_filter.filter_type = _getFilterType(item);
-			_filter.table_id = item.tableId;
-			_filter.field_name = item.fieldname;
-			_filter.data_type = item.dataType;
+			_filter.filterType = _getFilterType(item);
+			_filter.tableId = item.tableId;
+			_filter.fieldName = item.fieldname;
+			_filter.dataType = item.dataType;
 			_filter.exclude = item.includeexclude === "Exclude";
 
 			if (item.fieldtypeoption === "Search Condition") {
@@ -155,6 +156,10 @@ export const getChartData = async (
 				break;
 
 			case "Dimension":
+				dim = "dimensions";
+				break;
+
+			case "Location":
 				dim = "dims";
 				break;
 
@@ -175,10 +180,10 @@ export const getChartData = async (
 
 		axis.fields.forEach((field: any) => {
 			var formattedField: any = {
-				table_id: field.tableId,
-				display_name: field.displayname,
-				field_name: field.fieldname,
-				data_type: field.dataType,
+				tableId: field.tableId,
+				displayName: field.displayname,
+				fieldName: field.fieldname,
+				dataType: field.dataType,
 			};
 			if (field.dataType === "date" || field.dataType === "timestamp") {
 				formattedField.time_grain = field.time_grain;
@@ -199,7 +204,7 @@ export const getChartData = async (
 		chartProp.properties[propKey].chartType === "funnel" ||
 		chartProp.properties[propKey].chartType === "gauge"
 	) {
-		formattedAxes.dims = [];
+		formattedAxes.dimensions = [];
 	}
 
 	formattedAxes.filters = [];
@@ -226,10 +231,10 @@ export const getChartData = async (
 			requestType: "withData",
 			method: "POST",
 			url:
-				"ds/query/" +
-				chartProp.properties[propKey].selectedDs.dc_uid +
-				"/" +
-				chartProp.properties[propKey].selectedDs.ds_uid,
+				"query?dbconnectionid=" +
+				chartProp.properties[propKey].selectedDs.connectionId +
+				"&datasetid=" +
+				chartProp.properties[propKey].selectedDs.id,
 			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
 			data: formattedAxes,
 		});
@@ -249,13 +254,13 @@ export const getChartData = async (
 // given chart type, check if the dropzones have required number of fields
 export const checkMinRequiredCards = (chartProp: any, propKey: number) => {
 	var minReqMet = [];
-	// ChartsInfo[chartProp.properties[propKey].chartType].dropZones.forEach(
-	// 	(zone: any, zoneI: number) => {
-	// 		chartProp.properties[propKey].chartAxes[zoneI].fields.length >= zone.min
-	// 			? minReqMet.push(true)
-	// 			: minReqMet.push(false);
-	// 	}
-	// );
+	ChartsInfo[chartProp.properties[propKey].chartType].dropZones.forEach(
+		(zone: any, zoneI: number) => {
+			chartProp.properties[propKey].chartAxes[zoneI].fields.length >= zone.min
+				? minReqMet.push(true)
+				: minReqMet.push(false);
+		}
+	);
 
 	if (chartProp.properties[propKey].chartType === "crossTab") {
 		if (
@@ -289,14 +294,15 @@ const ChartAxes = ({
 	updateChartData,
 	toggleAxesEdit,
 	reUseOldData,
+	changeLocation
 }: any) => {
 	const [loading, setLoading] = useState<boolean>(false);
 
 	var propKey: number = parseFloat(`${tabId}.${tileId}`);
 	var dropZones: any = [];
-	// for (let i = 0; i < ChartsInfo[chartProp.properties[propKey].chartType].dropZones.length; i++) {
-	// 	dropZones.push(ChartsInfo[chartProp.properties[propKey].chartType].dropZones[i].name);
-	// }
+	for (let i = 0; i < ChartsInfo[chartProp.properties[propKey].chartType].dropZones.length; i++) {
+		dropZones.push(ChartsInfo[chartProp.properties[propKey].chartType].dropZones[i].name);
+	}
 
 	// const usePrevious = (value) => {
 	// 	const ref = useRef();
@@ -375,11 +381,72 @@ const ChartAxes = ({
 		reUseOldData(propKey);
 	};
 
+	var menuItemStyle = {
+		fontSize: "12px",
+		padding: "2px 1rem",
+		// borderBottom: "1px solid lightgray",
+	};
+
 	return (
 		<div className="charAxesArea">
-			{dropZones.map((zone: any, zoneI: number) => (
-				<div>dropzone</div>
-				// <DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} />
+			{chartProp.properties[propKey].chartType === "geoChart" && (
+				<div
+					style={{ backgroundColor: "#d3d3d3", display: "flex", flexDirection: "column" }}
+				>
+					<span className="axisTitle"></span>
+					<FormControl size="small" sx={{ margin: "0.5rem" }}>
+						<InputLabel sx={{ fontSize: "12px", lineHeight: "1.5rem" }}>
+							Select Map
+						</InputLabel>
+						<Select
+							sx={{ fontSize: "14px", height: "1.5rem", backgroundColor: "white" }}
+							label="Select Map"
+							value={chartProp.properties[propKey].geoLocation}
+							onChange={(e) => {
+								console.log(e.target.value);
+								changeLocation(propKey, e.target.value);
+							}}
+						>
+							<MenuItem sx={menuItemStyle} value="world">
+								World
+							</MenuItem>
+
+							<MenuItem sx={menuItemStyle} value="brazil">
+								Brazil
+							</MenuItem>
+							<MenuItem sx={menuItemStyle} value="china">
+								China
+							</MenuItem>
+							<MenuItem sx={menuItemStyle} value="france">
+								France
+							</MenuItem>
+							<MenuItem sx={menuItemStyle} value="germany">
+								Germany
+							</MenuItem>
+							<MenuItem sx={menuItemStyle} value="india">
+								India
+							</MenuItem>
+							<MenuItem sx={menuItemStyle} value="japan">
+								Japan
+							</MenuItem>
+							<MenuItem sx={menuItemStyle} value="nigeria">
+								Nigeria
+							</MenuItem>
+							<MenuItem sx={menuItemStyle} value="southAfrica">
+								South Africa
+							</MenuItem>
+							<MenuItem sx={menuItemStyle} value="uk">
+								United Kingdom
+							</MenuItem>
+							<MenuItem sx={menuItemStyle} value="usa">
+								USA
+							</MenuItem>
+						</Select>
+					</FormControl>
+				</div>
+			)}
+			{dropZones.map((zone:any, zoneI:any) => (
+				<DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} />
 			))}
 			{loading ? <LoadingPopover /> : null}
 		</div>
