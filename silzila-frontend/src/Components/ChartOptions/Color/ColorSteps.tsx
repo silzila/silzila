@@ -1,7 +1,7 @@
 // Used for setting color scale in Gauge chart
 
 import { TextField, Tooltip, Popover } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { connect } from "react-redux";
 
 import { NotificationDialog } from "../../CommonFunctions/DialogComponents";
@@ -13,15 +13,13 @@ import ChartColors from "./ChartColors";
 import { ColorSchemes } from "./ColorScheme";
 import "./ColorSteps.css";
 import { Dispatch } from "redux";
-import { ColorScaleStateProps } from "./ColorComponentInterfaces";
 import {
 	addingNewStep,
 	changingValuesofSteps,
 	switchAutotoManualinSteps,
 	updateGaugeAxisOptions,
 } from "../../../redux/ChartPoperties/ChartControlsActions";
-import { ChartControl } from "../../../redux/ChartPoperties/ChartControlsInterface";
-import { TabTileStateProps } from "../../../redux/TabTile/TabTilePropsInterfaces";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
 const textFieldStyleProps = {
 	style: {
@@ -33,9 +31,16 @@ const textFieldStyleProps = {
 	},
 };
 
+interface ColorStepsActions {
+	changingValuesofSteps: (propKey: number | string, value: any) => void;
+	switchAutotoManualinSteps: (propKey: number | string, value: any) => void;
+	addingNewStep: (propKey: number | string, index: number, value: any) => void;
+	updateGaugeAxisOptions: (propKey: number | string, option: string, value: any) => void;
+}
+
 const ColorSteps = ({
 	// state
-	chartProp,
+	chartControls,
 	tabTileProps,
 
 	// dispatch
@@ -43,15 +48,7 @@ const ColorSteps = ({
 	changingValuesofSteps,
 	updateGaugeAxisOptions,
 	switchAutotoManualinSteps,
-}: {
-	chartProp: ChartControl;
-	tabTileProps: TabTileStateProps;
-
-	changingValuesofSteps: (propKey: number | string, value: any) => void;
-	switchAutotoManualinSteps: (propKey: number | string, value: any) => void;
-	addingNewStep: (propKey: number | string, index: number, value: any) => void;
-	updateGaugeAxisOptions: (propKey: number | string, option: string, value: any) => void;
-}) => {
+}: ChartOptionsProps & ColorStepsActions) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
 	const [severity, setSeverity] = useState<string>("success");
@@ -63,8 +60,8 @@ const ColorSteps = ({
 
 	const [colorsOfScheme, setColorsOfScheme] = useState<any>([]);
 
-	let chartData = chartProp.properties[propKey].chartData
-		? chartProp.properties[propKey].chartData.result
+	let chartData = chartControls.properties[propKey].chartData
+		? chartControls.properties[propKey].chartData.result
 		: "";
 
 	// TODO: Priority 1 - Color steps value keeps changing every time we come back to it
@@ -75,18 +72,18 @@ const ColorSteps = ({
 	useEffect(() => {
 		var col: any = [];
 		ColorSchemes.map(el => {
-			if (el.name === chartProp.properties[propKey].colorScheme) {
+			if (el.name === chartControls.properties[propKey].colorScheme) {
 				setColorsOfScheme(el.colors);
 				col.push(...el.colors);
 				// console.log(el.colors);
 			}
 		});
-		if (chartProp.properties[propKey].axisOptions.gaugeChartControls.isStepsAuto) {
+		if (chartControls.properties[propKey].axisOptions.gaugeChartControls.isStepsAuto) {
 			// when theme change  'isColorAuto' prop of all steps set to 'ture' to show the colors of selected theme
 
 			const ArrayOfStepsWithSchemaColors = JSON.parse(
 				JSON.stringify(
-					chartProp.properties[propKey].axisOptions.gaugeChartControls.stepcolor
+					chartControls.properties[propKey].axisOptions.gaugeChartControls.stepcolor
 				)
 			).map((element: any, index: number) => {
 				var id = index >= col.length ? index % col.length : index;
@@ -97,7 +94,7 @@ const ColorSteps = ({
 
 			changingValuesofSteps(propKey, ArrayOfStepsWithSchemaColors);
 		}
-	}, [chartProp.properties[propKey].colorScheme]);
+	}, [chartControls.properties[propKey].colorScheme]);
 
 	useEffect(() => {
 		var newTempData: any = [];
@@ -109,11 +106,11 @@ const ColorSteps = ({
 					value: chartData[0][key],
 				});
 			});
-			if (chartProp.properties[propKey].axisOptions.gaugeChartControls.isStepsAuto) {
+			if (chartControls.properties[propKey].axisOptions.gaugeChartControls.isStepsAuto) {
 				total = newTempData[0].value * 2;
 				const stepsWithValues = JSON.parse(
 					JSON.stringify(
-						chartProp.properties[propKey].axisOptions.gaugeChartControls.stepcolor
+						chartControls.properties[propKey].axisOptions.gaugeChartControls.stepcolor
 					)
 				).map((el: any) => {
 					el.value = Math.ceil((el.stepValue * total) / 100);
@@ -132,7 +129,9 @@ const ColorSteps = ({
 		updateGaugeAxisOptions(propKey, "isMaxAuto", false);
 
 		const reminingSteps = JSON.parse(
-			JSON.stringify(chartProp.properties[propKey].axisOptions.gaugeChartControls.stepcolor)
+			JSON.stringify(
+				chartControls.properties[propKey].axisOptions.gaugeChartControls.stepcolor
+			)
 		).filter((el: any, i: number) => {
 			return i !== index;
 		});
@@ -150,7 +149,9 @@ const ColorSteps = ({
 		updateGaugeAxisOptions(propKey, "isMaxAuto", false);
 
 		const stepWithChangedValue = JSON.parse(
-			JSON.stringify(chartProp.properties[propKey].axisOptions.gaugeChartControls.stepcolor)
+			JSON.stringify(
+				chartControls.properties[propKey].axisOptions.gaugeChartControls.stepcolor
+			)
 		).map((el: any, i: number) => {
 			if (index === i) {
 				el.value = parseInt(value);
@@ -173,7 +174,9 @@ const ColorSteps = ({
 		addingNewStep(propKey, idx, obj);
 
 		const newStepAddedArray = JSON.parse(
-			JSON.stringify(chartProp.properties[propKey].axisOptions.gaugeChartControls.stepcolor)
+			JSON.stringify(
+				chartControls.properties[propKey].axisOptions.gaugeChartControls.stepcolor
+			)
 		);
 
 		newStepAddedArray.splice(idx, 0, obj);
@@ -262,7 +265,7 @@ const ColorSteps = ({
 				STEPS:
 			</div>
 			<div className=" colorStepsList">
-				{chartProp.properties[propKey].axisOptions.gaugeChartControls.stepcolor.map(
+				{chartControls.properties[propKey].axisOptions.gaugeChartControls.stepcolor.map(
 					(el: any, index: number) => {
 						return (
 							<SelectListItem
@@ -345,7 +348,7 @@ const ColorSteps = ({
 																onClick={() => {
 																	// console.log("removing steps");
 																	if (
-																		chartProp.properties[
+																		chartControls.properties[
 																			propKey
 																		].axisOptions
 																			.gaugeChartControls
@@ -424,7 +427,7 @@ const ColorSteps = ({
 						onChangeComplete={color => {
 							switchAutotoManualinSteps(propKey, false);
 
-							const stepsWithUserSelectedColor = chartProp.properties[
+							const stepsWithUserSelectedColor = chartControls.properties[
 								propKey
 							].axisOptions.gaugeChartControls.stepcolor.map((element, index) => {
 								if (index === selectedStepIndex) {
@@ -439,7 +442,7 @@ const ColorSteps = ({
 						onChange={color => {
 							switchAutotoManualinSteps(propKey, false);
 
-							const stepsWithUserSelectedColor = chartProp.properties[
+							const stepsWithUserSelectedColor = chartControls.properties[
 								propKey
 							].axisOptions.gaugeChartControls.stepcolor.map((element, index) => {
 								if (index === selectedStepIndex) {
@@ -459,9 +462,9 @@ const ColorSteps = ({
 	);
 };
 
-const mapStateToProps = (state: ColorScaleStateProps) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownprops: any) => {
 	return {
-		chartProp: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
 	};
 };

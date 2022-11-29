@@ -1,22 +1,13 @@
 // Used for setting color scale in Heatmap
 
-import {
-	FormControlLabel,
-	Radio,
-	RadioGroup,
-	TextField,
-	Typography,
-	Switch,
-	Popover,
-} from "@mui/material";
-import React, { useState } from "react";
+import { FormControlLabel, Radio, RadioGroup, TextField, Typography, Popover } from "@mui/material";
+import { useState } from "react";
 import { SketchPicker } from "react-color";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { setColorScaleOption } from "../../../redux/ChartPoperties/ChartControlsActions";
-
 import { NotificationDialog } from "../../CommonFunctions/DialogComponents";
-import { ColorScaleProps, ColorScaleStateProps } from "./ColorComponentInterfaces";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import "./ColorSteps.css";
 
 const textFieldInputProps = {
@@ -36,7 +27,9 @@ const ColorScale = ({
 
 	// dispatch
 	setColorScaleOption,
-}: ColorScaleProps) => {
+}: ChartOptionsProps & {
+	setColorScaleOption: (option: string, value: any, propKey: string | number) => void;
+}) => {
 	var propKey: number = parseFloat(
 		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
 	);
@@ -244,7 +237,7 @@ const ColorScale = ({
 	);
 };
 
-const mapStateToProps = (state: ColorScaleStateProps) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,

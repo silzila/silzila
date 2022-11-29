@@ -2,18 +2,11 @@ import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import "./chartStyle.css";
 import SliderWithInput from "../SliderWithInput";
-import { FormControl, MenuItem, Select, Switch, TextField } from "@mui/material";
+import { FormControl, MenuItem, Select } from "@mui/material";
 import SwitchWithInput from "../SwitchWithInput";
-import {
-	ChartControl,
-	ChartControlStateProps,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
 import { Dispatch } from "redux";
 import { updateSankeyStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
 const textFieldStyleProps = {
 	style: {
@@ -28,23 +21,19 @@ const textFieldStyleProps = {
 
 const SankeyStyles = ({
 	// state
-	chartProp,
+	chartControls,
 	tabTileProps,
 
 	// dispatch
 	updateSankeyStyleOptions,
-}: {
-	//State
-	chartProp: ChartControl;
-	tabTileProps: TabTileStateProps;
-
+}: ChartOptionsProps & {
 	updateSankeyStyleOptions: (propKey: string | number, option: string, value: any) => void;
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
-	const sankeyStyle = chartProp.properties[propKey].sankeyControls;
+	const sankeyStyle = chartControls.properties[propKey].sankeyControls;
 	console.log(sankeyStyle);
-	let chartData = chartProp.properties[propKey].chartData
-		? chartProp.properties[propKey].chartData.result
+	let chartData = chartControls.properties[propKey].chartData
+		? chartControls.properties[propKey].chartData.result
 		: "";
 	// var treeMapLeafDepthOptions = [];
 	// console.log(chartDetail[propKey].chartType);
@@ -60,7 +49,7 @@ const SankeyStyles = ({
 			// 	chartDetail[propKey].chartAxes[1].fields.length
 			// );
 		}
-	}, [chartData, chartProp]);
+	}, [chartData, chartControls]);
 	// useEffect(() => {
 	// 	if (chartData) {
 	// 		updateSankeyStyleOptions(
@@ -181,9 +170,9 @@ const SankeyStyles = ({
 		</div>
 	);
 };
-const mapStateToProps = (state: ChartControlStateProps & TabTileStateProps2) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartProp: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
 	};
 };

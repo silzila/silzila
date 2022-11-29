@@ -83,7 +83,7 @@ interface ChartConCalenderStyleOptions {
 	calendarGap: number;
 }
 
-interface ChartConBoxPlotChartControls {
+export interface ChartConBoxPlotChartControls {
 	colorBy: string;
 	minBoxWidth: number; // px or %,
 	maxBoxWidth: number;

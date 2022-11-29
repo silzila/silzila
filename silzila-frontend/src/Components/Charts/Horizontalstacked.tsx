@@ -1,30 +1,14 @@
 import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import {
-	ChartControl,
-	ChartControlsProps,
-	ChartControlStateProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
+
 import {
 	formatChartLabelValue,
 	formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
+import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
-interface HorizontalstackedProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
-
-	//state
-	chartControlState: ChartControl;
-	chartProperties: ChartPropertiesProps;
-}
 const Horizontalstacked = ({
 	//props
 	propKey,
@@ -33,10 +17,10 @@ const Horizontalstacked = ({
 	graphTileSize,
 
 	//state
-	chartControlState,
+	chartControls,
 	chartProperties,
-}: HorizontalstackedProps) => {
-	var chartControl: ChartControlsProps = chartControlState.properties[propKey];
+}: ChartsReduxStateProps) => {
+	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
 
@@ -222,10 +206,10 @@ const Horizontalstacked = ({
 	return <>{chartData ? <RenderChart /> : ""}</>;
 };
 
-const mapStateToProps = (state: ChartControlStateProps & ChartPropertiesStateProps) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
 		chartProperties: state.chartProperties,
-		chartControlState: state.chartControls,
+		chartControls: state.chartControls,
 	};
 };
 export default connect(mapStateToProps, null)(Horizontalstacked);

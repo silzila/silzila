@@ -1,28 +1,10 @@
-import { getInitColorSchemeScript } from "@mui/material";
 import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import {
-	ChartControl,
-	ChartControlsProps,
-	ChartControlStateProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
+import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
-interface SankeyChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
-
-	//state
-	chartControlState: ChartControl;
-	chartProperty: ChartPropertiesProps;
-}
 const Sankey = ({
 	// props
 	propKey,
@@ -31,10 +13,10 @@ const Sankey = ({
 	graphTileSize,
 
 	//state
-	chartControlState,
-	chartProperty,
-}: SankeyChartProps) => {
-	var chartControl: ChartControlsProps = chartControlState.properties[propKey];
+	chartControls,
+	chartProperties,
+}: ChartsReduxStateProps) => {
+	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	var colorSchems: string[] = ColorSchemes[6].colors;
 
 	let chartData: any = chartControl.chartData ? chartControl.chartData.result : "";
@@ -51,14 +33,14 @@ const Sankey = ({
 
 			console.log();
 
-			dimensionsKeys = chartProperty.properties[propKey].chartAxes[1].fields.map(el => {
+			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map(el => {
 				return el.fieldname;
 			});
 			console.log(dimensionsKeys);
 
 			//getting measure value as string since allowed numof measure is 1 for this chart
 
-			chartProperty.properties[propKey].chartAxes[2].fields.map(el => {
+			chartProperties.properties[propKey].chartAxes[2].fields.map(el => {
 				measure = `${el.fieldname}__${el.agg}`;
 			});
 
@@ -319,10 +301,10 @@ const Sankey = ({
 
 	return <>{chartData ? <RenderChart /> : <RenderChart />}</>;
 };
-const mapStateToProps = (state: ChartControlStateProps & ChartPropertiesStateProps) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
 		chartControlState: state.chartControls,
-		chartProperty: state.chartProperties,
+		chartProperties: state.chartProperties,
 	};
 };
 

@@ -10,58 +10,29 @@ import React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { updateLegendOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
-import {
-	ChartControl,
-	ChartControlStateProps,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import SliderWithInput from "../SliderWithInput";
 import SwitchWithInput from "../SwitchWithInput";
-
-interface OrientationProps {
-	name: string;
-	key: string;
-}
-
-interface PositionsProps {
-	pos: string;
-	top: string;
-	left: string;
-}
-
-export interface MinMaxProps {
-	min: number;
-	max: number;
-	step: number;
-}
-
 const ChartLegend = ({
 	// state
 	tabTileProps,
-	chartControl,
+	chartControls,
 
 	// dispatch
 	updateLegendOption,
-}: {
-	chartControl: ChartControl;
-	tabTileProps: TabTileStateProps;
-
-	// dispatch
+}: ChartOptionsProps & {
 	updateLegendOption: (propKey: number | string, option: string, value: any) => void;
 }) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
-	const showLegend: boolean = chartControl.properties[propKey].legendOptions.showLegend;
+	const showLegend: boolean = chartControls.properties[propKey].legendOptions.showLegend;
 
-	const orientation: string = chartControl.properties[propKey].legendOptions.orientation;
+	const orientation: string = chartControls.properties[propKey].legendOptions.orientation;
 
 	const setOrient = (item: string) => {
 		updateLegendOption(propKey, "orientation", item);
 	};
-	const orientOption: OrientationProps[] = [
+	const orientOption: any[] = [
 		{ name: "Horizontal", key: "horizontal" },
 		{ name: "Vertical", key: "vertical" },
 	];
@@ -79,7 +50,7 @@ const ChartLegend = ({
 		});
 	};
 
-	const positions: PositionsProps[] = [
+	const positions: any[] = [
 		{ pos: "Top Left", top: "top", left: "left" },
 		{ pos: "Top", top: "top", left: "center" },
 		{ pos: "Top Right", top: "top", left: "right" },
@@ -90,8 +61,7 @@ const ChartLegend = ({
 		{ pos: "Bottom", top: "bottom", left: "center" },
 		{ pos: "Bottom Right", top: "bottom", left: "right" },
 	];
-	const selectedPosition: PositionsProps =
-		chartControl.properties[propKey].legendOptions.position;
+	const selectedPosition: any = chartControls.properties[propKey].legendOptions.position;
 
 	const updateSelectedPosition = (selectedValue: string) => {
 		var positionSelected = positions.filter(pos => pos.pos === selectedValue)[0];
@@ -99,9 +69,9 @@ const ChartLegend = ({
 		updateLegendOption(propKey, "position", positionSelected);
 	};
 
-	const itemWidthMinMax: MinMaxProps = { min: 5, max: 200, step: 1 };
-	const itemHeightMinMax: MinMaxProps = { min: 5, max: 200, step: 1 };
-	const itemSpacingMinMax: MinMaxProps = { min: 0, max: 60, step: 1 };
+	const itemWidthMinMax: any = { min: 5, max: 200, step: 1 };
+	const itemHeightMinMax: any = { min: 5, max: 200, step: 1 };
+	const itemSpacingMinMax: any = { min: 0, max: 60, step: 1 };
 
 	return (
 		<div className="optionsInfo" style={{ overflowX: "hidden" }}>
@@ -167,7 +137,7 @@ const ChartLegend = ({
 					<div className="optionDescription">RESIZE:</div>
 					<div className="optionDescription">Width</div>
 					<SliderWithInput
-						sliderValue={chartControl.properties[propKey].legendOptions.symbolWidth}
+						sliderValue={chartControls.properties[propKey].legendOptions.symbolWidth}
 						sliderMinMax={itemWidthMinMax}
 						changeValue={(value: number) =>
 							updateLegendOption(propKey, "symbolWidth", value)
@@ -175,7 +145,7 @@ const ChartLegend = ({
 					/>
 					<div className="optionDescription">Height</div>
 					<SliderWithInput
-						sliderValue={chartControl.properties[propKey].legendOptions.symbolHeight}
+						sliderValue={chartControls.properties[propKey].legendOptions.symbolHeight}
 						sliderMinMax={itemHeightMinMax}
 						changeValue={(value: number) =>
 							updateLegendOption(propKey, "symbolHeight", value)
@@ -183,7 +153,7 @@ const ChartLegend = ({
 					/>
 					<div className="optionDescription">Item Gap</div>
 					<SliderWithInput
-						sliderValue={chartControl.properties[propKey].legendOptions.itemGap}
+						sliderValue={chartControls.properties[propKey].legendOptions.itemGap}
 						sliderMinMax={itemSpacingMinMax}
 						changeValue={(value: number) =>
 							updateLegendOption(propKey, "itemGap", value)
@@ -195,9 +165,9 @@ const ChartLegend = ({
 	);
 };
 
-const mapStateToProps = (state: ChartControlStateProps & TabTileStateProps2) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownprops: any) => {
 	return {
-		chartControl: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
 	};
 };

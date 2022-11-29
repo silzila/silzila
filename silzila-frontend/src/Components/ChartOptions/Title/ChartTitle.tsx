@@ -11,56 +11,37 @@ import {
 	setTitleAlignment,
 	setTitleSize,
 } from "../../../redux/ChartPoperties/ChartPropertiesActions";
-import { ChartPropertiesProps } from "../../../redux/ChartPoperties/ChartPropertiesInterfaces";
-
-import { TabTileStateProps } from "../../../redux/TabTile/TabTilePropsInterfaces";
 import InputPositiveNumber from "../CommonFunctions/InputPositiveNumber";
-import { ControlDetailStateProps } from "../CommonInterfacesForChartOptions";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
 interface ChartTitleProps {
-	// state
-	chartProp: ChartPropertiesProps;
-	tabTileProps: TabTileStateProps;
-
-	// dispatch
 	setGenerateTitleToStore: (propKey: number | string, option: string) => void;
 	setTitleAlignment: (propKey: number | string, align: string) => void;
 	setTitleSize: (propKey: number | string, value: number) => void;
 }
-
-interface TitleOptions {
-	type: string;
-	hintTitle?: string;
-}
-
-interface titleAlignOptions {
-	name: string;
-	value: string;
-}
-
 const ChartTitle = ({
 	// state
-	chartProp,
+	chartProperties,
 	tabTileProps,
 
 	// dispatch
 	setGenerateTitleToStore,
 	setTitleAlignment,
 	setTitleSize,
-}: ChartTitleProps) => {
+}: ChartOptionsProps & ChartTitleProps) => {
 	var propKey: number = parseFloat(
 		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
 	);
 
-	var generateTitle: string = chartProp.properties[propKey].titleOptions.generateTitle;
-	var titleAlignment: string = chartProp.properties[propKey].titleOptions.titleAlign;
+	var generateTitle: string = chartProperties.properties[propKey].titleOptions.generateTitle;
+	var titleAlignment: string = chartProperties.properties[propKey].titleOptions.titleAlign;
 
-	var titleOptions: TitleOptions[] = [
+	var titleOptions: any[] = [
 		{ type: "Auto" },
 		{ type: "Manual", hintTitle: "Double click on title to edit" },
 	];
 
-	var titleAlignOptions: titleAlignOptions[] = [
+	var titleAlignOptions: any[] = [
 		{ name: "Left", value: "left" },
 		{ name: "Center", value: "center" },
 	];
@@ -70,7 +51,7 @@ const ChartTitle = ({
 	};
 
 	const renderTitleOptions = () =>
-		titleOptions.map((option: TitleOptions) => {
+		titleOptions.map((option: any) => {
 			return (
 				<div
 					key={option.type}
@@ -86,7 +67,7 @@ const ChartTitle = ({
 		});
 
 	const renderTitleAlignOptions = () =>
-		titleAlignOptions.map((option: titleAlignOptions) => {
+		titleAlignOptions.map((option: any) => {
 			return (
 				<div
 					key={option.value}
@@ -111,7 +92,7 @@ const ChartTitle = ({
 				<div className="optionDescription">TITLE FONT SIZE</div>
 				<div className="optionDescription">
 					<InputPositiveNumber
-						value={chartProp.properties[propKey].titleOptions.fontSize}
+						value={chartProperties.properties[propKey].titleOptions.fontSize}
 						updateValue={(value: number) => setTitleSize(propKey, value)}
 					/>
 				</div>
@@ -120,9 +101,9 @@ const ChartTitle = ({
 	);
 };
 
-const mapStateToProps = (state: ControlDetailStateProps) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartProp: state.chartProperties,
+		chartProperties: state.chartProperties,
 		tabTileProps: state.tabTileProps,
 	};
 };
