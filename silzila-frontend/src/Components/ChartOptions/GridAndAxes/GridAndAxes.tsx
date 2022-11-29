@@ -36,6 +36,7 @@ import {
 	updateAxisOptions,
 	updateReverse,
 } from "../../../redux/ChartPoperties/ChartControlsActions";
+import { ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
 const textFieldStyleProps = {
 	style: {
@@ -763,13 +764,11 @@ const GridAndAxes = ({
 	);
 };
 
-const mapStateToProps = (
-	state: ChartControlStateProps & TabTileStateProps2 & ChartPropertiesStateProps
-) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartControl: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
-		chartProp: state.chartProperties.properties,
+		chartProperties: state.chartProperties,
 	};
 };
 

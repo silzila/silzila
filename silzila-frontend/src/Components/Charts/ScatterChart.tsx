@@ -1,25 +1,14 @@
 import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import {
-	ChartControl,
-	ChartControlsProps,
-	ChartControlStateProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import {
 	formatChartLabelValue,
 	formatChartXAxisValue,
 	formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
-interface ScatterChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
+import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
-	//state
-	chartControls: ChartControl;
-}
 const ScatterChart = ({
 	//props
 	propKey,
@@ -29,7 +18,7 @@ const ScatterChart = ({
 
 	//state
 	chartControls,
-}: ScatterChartProps) => {
+}: ChartsReduxStateProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
@@ -219,7 +208,7 @@ const ScatterChart = ({
 	return <>{chartData ? <RenderChart /> : ""}</>;
 };
 
-const mapStateToProps = (state: ChartControlStateProps) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
 	};

@@ -5,10 +5,13 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.silzila.app.dto.FileDataDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.ExpectationFailedException;
+import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.model.FileData;
 import org.silzila.app.payload.request.FileUploadRevisedInfoRequest;
+import org.silzila.app.payload.response.FileUploadColumnInfo;
 import org.silzila.app.payload.response.FileUploadResponse;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.service.FileDataService;
@@ -16,6 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -42,7 +48,7 @@ public class FileDataController {
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file)
             throws ExpectationFailedException, JsonMappingException, JsonProcessingException {
         // calling Service function
-        FileUploadResponse fileUploadResponse = fileDataService.uploadFile(file);
+        FileUploadResponse fileUploadResponse = fileDataService.fileUpload(file);
         return ResponseEntity.status(HttpStatus.OK).body(fileUploadResponse);
 
     }
@@ -51,9 +57,76 @@ public class FileDataController {
     // (this step repeats until user is satisfied with col data types & col names)
     // edit schema of upload file
     @PostMapping("/file-upload-change-schema")
-    public ResponseEntity<?> changeSchema(@RequestHeader Map<String, String> reqHeader,
+    public ResponseEntity<?> fileUploadChangeSchema(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
             throws JsonMappingException, JsonProcessingException {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        // calling Service function
+        List<JsonNode> jsonNodes = fileDataService.fileUploadChangeSchema(revisedInfoRequest, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonNodes);
+    }
+
+    // step 3:
+    // save file data
+    @PostMapping("/file-upload-save-data")
+    public ResponseEntity<?> fileUploadSaveData(@RequestHeader Map<String, String> reqHeader,
+            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
+            throws JsonMappingException, JsonProcessingException, BadRequestException {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        // calling Service function
+        FileDataDTO fileDataDTO = fileDataService.fileUploadSave(revisedInfoRequest, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(fileDataDTO);
+    }
+
+    // list file datas
+    @GetMapping("/file-data")
+    public List<FileDataDTO> getAllFileDatas(@RequestHeader Map<String, String> reqHeader) {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        List<FileDataDTO> fileDataDTOs = fileDataService.getAllFileDatas(userId);
+        return fileDataDTOs;
+    }
+
+    // file data - sample records
+    @GetMapping("/file-data-sample-records/{id}")
+    public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id)
+            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        List<JsonNode> jsonNodes = fileDataService.getSampleRecords(id, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonNodes);
+    }
+
+    // file data - Column details
+    @GetMapping("/file-data-column-details/{id}")
+    public ResponseEntity<?> getColumnDetails(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id)
+            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        List<FileUploadColumnInfo> fileUploadColumnInfos = fileDataService.getColumns(id, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(fileUploadColumnInfos);
+    }
+
+    // Delete File Data
+    @DeleteMapping("/file-data/{id}")
+    public ResponseEntity<?> deleteFileData(@RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id) throws RecordNotFoundException {
+        // get the requester user Id
+        String userId = reqHeader.get("requesterUserId");
+        fileDataService.deleteFileData(id, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("File Data is deleted"));
+
+    }
+
+    // 1. update Parquet - show temp changed schema
+    @PostMapping("/file-data-change-schema")
+    public ResponseEntity<?> fileDataChangeSchema(@RequestHeader Map<String, String> reqHeader,
+            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
+            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
         // get the requester user Id
         String userId = reqHeader.get("requesterUserId");
         // calling Service function
@@ -61,17 +134,16 @@ public class FileDataController {
         return ResponseEntity.status(HttpStatus.OK).body(jsonNodes);
     }
 
-    // step 3:
-    // save file data
-    @PostMapping("/file-upload-save-data")
-    public ResponseEntity<?> saveData(@RequestHeader Map<String, String> reqHeader,
+    // 2. update Parquet - save schema changes
+    @PostMapping("/file-data-change-schema-save")
+    public ResponseEntity<?> fileDataChangeSchemaSave(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
-            throws JsonMappingException, JsonProcessingException, BadRequestException {
+            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
         // get the requester user Id
         String userId = reqHeader.get("requesterUserId");
         // calling Service function
-        FileData fileData = fileDataService.saveFileData(revisedInfoRequest, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(fileData);
+        FileDataDTO fileDataDTO = fileDataService.fileDataSaveWithSchemaUpdate(revisedInfoRequest, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(fileDataDTO);
     }
 
 }

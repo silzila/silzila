@@ -1,10 +1,33 @@
 export interface SampleRecordsStateProp {
-	recordsColumnType: any;
+	recordsColumnType: StateType;
+	// [key: string]: {
+	// 	[key: string]: any[];
+	// };
+}
+
+export interface StateType {
+	[key: string]: {
+		[key: string]: SampleRecordesColumnType[];
+	};
+}
+
+export interface SampleRecordsState {
+	sampleRecords: SampleRecordsStateProp;
+}
+
+export interface SampleRecordesColumnType {
+	columnName: string;
+	dataType: string;
 }
 
 export interface AddTableRecords {
 	type: "ADD_TABLE_RECORDS";
-	payload: { ds_uid: string | number; tableId: any; tableRecords: any; columnType: any };
+	payload: {
+		ds_uid: string;
+		tableId: string;
+		tableRecords: any[];
+		columnType: SampleRecordesColumnType[];
+	};
 }
 
 export interface ResetSampleRecords {

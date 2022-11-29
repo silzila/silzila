@@ -1,27 +1,9 @@
 import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import {
-	ChartControl,
-	ChartControlsProps,
-	ChartControlStateProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
-
-interface RoseChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
-
-	//state
-	chartControls: ChartControl;
-	chartProp: ChartPropertiesProps;
-}
+import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 const RoseChart = ({
 	//props
@@ -31,9 +13,9 @@ const RoseChart = ({
 	graphTileSize,
 
 	//state
-	chartProp,
+	chartProperties,
 	chartControls,
-}: RoseChartProps) => {
+}: ChartsReduxStateProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
 	const [chartDataKeys, setChartDataKeys] = useState<any>([]);
@@ -42,14 +24,14 @@ const RoseChart = ({
 		if (chartControl.chartData !== "") {
 			setChartDataKeys(Object.keys(chartData[0]));
 			var objKey: any;
-			if (chartProp.properties[propKey].chartAxes[1].fields[0]) {
-				if ("time_grain" in chartProp.properties[propKey].chartAxes[1].fields[0]) {
+			if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
+				if ("time_grain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
 					objKey =
-						chartProp.properties[propKey].chartAxes[1].fields[0].fieldname +
+						chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname +
 						"__" +
-						chartProp.properties[propKey].chartAxes[1].fields[0].time_grain;
+						chartProperties.properties[propKey].chartAxes[1].fields[0].time_grain;
 				} else {
-					objKey = chartProp.properties[propKey].chartAxes[1].fields[0].fieldname;
+					objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				}
 
 				chartControl.chartData.result.map((el: any) => {
@@ -162,9 +144,9 @@ const RoseChart = ({
 	return <>{chartData ? <RenderChart /> : ""}</>;
 };
 
-const mapStateToProps = (state: ChartControlStateProps & ChartPropertiesStateProps) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
-		chartProp: state.chartProperties,
+		chartProperties: state.chartProperties,
 		chartControls: state.chartControls,
 	};
 };

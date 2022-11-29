@@ -1,26 +1,10 @@
 import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import {
-	ChartControl,
-	ChartControlsProps,
-	ChartControlStateProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
-interface DoughnutChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
+import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
-	//state
-	chartProp: ChartPropertiesProps;
-	chartControls: ChartControl;
-}
 const DoughnutChart = ({
 	//props
 	propKey,
@@ -29,9 +13,9 @@ const DoughnutChart = ({
 	graphTileSize,
 
 	//state
-	chartProp,
+	chartProperties,
 	chartControls,
-}: DoughnutChartProps) => {
+}: ChartsReduxStateProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData: any = chartControl.chartData ? chartControl.chartData.result : "";
 
@@ -41,14 +25,14 @@ const DoughnutChart = ({
 		if (chartControl.chartData) {
 			setchartDataKeys(Object.keys(chartData[0]));
 			var objKey: string;
-			if (chartProp.properties[propKey].chartAxes[1].fields[0]) {
-				if ("time_grain" in chartProp.properties[propKey].chartAxes[1].fields[0]) {
+			if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
+				if ("time_grain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
 					objKey =
-						chartProp.properties[propKey].chartAxes[1].fields[0].fieldname +
+						chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname +
 						"__" +
-						chartProp.properties[propKey].chartAxes[1].fields[0].time_grain;
+						chartProperties.properties[propKey].chartAxes[1].fields[0].time_grain;
 				} else {
-					objKey = chartProp.properties[propKey].chartAxes[1].fields[0].fieldname;
+					objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				}
 				chartControl.chartData.result.map((el: any) => {
 					if (objKey in el) {
@@ -142,9 +126,9 @@ const DoughnutChart = ({
 	};
 	return <>{chartData ? <RenderChart /> : ""}</>;
 };
-const mapStateToProps = (state: ChartControlStateProps & ChartPropertiesStateProps) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
-		chartProp: state.chartProperties,
+		chartProperties: state.chartProperties,
 		chartControls: state.chartControls,
 	};
 };

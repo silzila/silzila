@@ -50,7 +50,7 @@ const PlayBookList = ({
 
 	var navigate = useNavigate();
 
-	console.log(selectedDataset);
+	// console.log(selectedDataset);
 
 	useEffect(() => {
 		getInformation();
@@ -67,7 +67,7 @@ const PlayBookList = ({
 		});
 
 		if (result.status) {
-			console.log(result.data, "Playbook list");
+			// console.log(result.data, "Playbook list");
 
 			setPlayBookList(result.data);
 		} else {
@@ -200,7 +200,7 @@ const PlayBookList = ({
 			);
 
 			// Get all tables for selected Dataset and display them here
-			var sampleRecords = { recordsColumnType: {} };
+			var sampleRecords: any = { recordsColumnType: {} };
 			await Promise.all(
 				Object.keys(pb.content.chartProperty.properties).map(async prop => {
 					var tableInfo = pb.content.chartProperty.properties[prop];

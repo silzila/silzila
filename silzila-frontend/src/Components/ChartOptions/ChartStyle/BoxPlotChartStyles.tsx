@@ -1,19 +1,13 @@
-import React from "react";
 import { connect } from "react-redux";
 import "./chartStyle.css";
 import SliderWithInput from "../SliderWithInput";
-import { Switch, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import SwitchWithInput from "../SwitchWithInput";
 import { Dispatch } from "redux";
-import {
-	ChartControl,
-	ChartControlStateProps,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
 import { updateBoxPlotStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
+import { ChartConBoxPlotChartControls } from "../../../redux/ChartPoperties/ChartControlsInterface";
+// import CSS from "csstype";
 
 const textFieldInputProps = {
 	style: {
@@ -25,22 +19,21 @@ const textFieldInputProps = {
 	},
 };
 
+interface BoxPlotChartAction {
+	updateBoxPlotStyleOptions: (propKey: string | number, option: string, value: any) => void;
+}
+
 const BoxPlotChartStyles = ({
 	// state
-	chartProp,
+	chartControls,
 	tabTileProps,
 
 	// dispatch
 	updateBoxPlotStyleOptions,
-}: {
-	//State
-	chartProp: ChartControl;
-	tabTileProps: TabTileStateProps;
-
-	updateBoxPlotStyleOptions: (propKey: string | number, option: string, value: any) => void;
-}) => {
-	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
-	var boxStyle = chartProp.properties[propKey].boxPlotChartControls;
+}: ChartOptionsProps & BoxPlotChartAction) => {
+	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
+	var boxStyle: ChartConBoxPlotChartControls =
+		chartControls.properties[propKey].boxPlotChartControls;
 
 	return (
 		<div className="optionsInfo">
@@ -95,9 +88,9 @@ const BoxPlotChartStyles = ({
 		</div>
 	);
 };
-const mapStateToProps = (state: ChartControlStateProps & TabTileStateProps2) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartProp: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
 	};
 };

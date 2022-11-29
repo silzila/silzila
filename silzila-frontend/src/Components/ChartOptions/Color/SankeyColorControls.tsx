@@ -1,43 +1,26 @@
 import { Popover } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { SketchPicker } from "react-color";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { updateSankeyStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
-import {
-	ChartControl,
-	ChartControlStateProps,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../../redux/ChartPoperties/ChartPropertiesInterfaces";
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import { ColorSchemes } from "./ColorScheme";
 
 const SankeyColorControls = ({
 	// state
-	chartProp,
+	chartControls,
 	tabTileProps,
 	chartProperties,
 
 	// dispatch
 	updateSankeyStyleOptions,
-}: {
-	//State
-	chartProp: ChartControl;
-	tabTileProps: TabTileStateProps;
-	chartProperties: ChartPropertiesProps;
-	//Dispatch
-
+}: ChartOptionsProps & {
 	updateSankeyStyleOptions: (propKey: string | number, option: string, value: any) => void;
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
-	let chartData = chartProp.properties[propKey].chartData
-		? chartProp.properties[propKey].chartData.result
+	let chartData = chartControls.properties[propKey].chartData
+		? chartControls.properties[propKey].chartData.result
 		: "";
 
 	var colorSchemes = ColorSchemes[6].colors;
@@ -50,7 +33,7 @@ const SankeyColorControls = ({
 
 	useEffect(() => {
 		if (chartData) {
-			if (chartProp.properties[propKey].sankeyControls.nodesAndColors.length === 0) {
+			if (chartControls.properties[propKey].sankeyControls.nodesAndColors.length === 0) {
 				let values = [];
 				values = chartProperties.properties[propKey].chartAxes[1].fields.map((el, i) => {
 					console.log(i);
@@ -60,7 +43,7 @@ const SankeyColorControls = ({
 				console.log("🚀 ~ file: SankeyColorControls.js ~ line 30 ~ useEffect ~ dims", dims);
 				updateSankeyStyleOptions(propKey, "nodesAndColors", values);
 			} else {
-				setdims(chartProp.properties[propKey].sankeyControls.nodesAndColors);
+				setdims(chartControls.properties[propKey].sankeyControls.nodesAndColors);
 			}
 		}
 	}, [chartData]);
@@ -96,7 +79,7 @@ const SankeyColorControls = ({
 	};
 
 	const setColorsToIndNodes = (color: string) => {
-		var values = chartProp.properties[propKey].sankeyControls.nodesAndColors;
+		var values = chartControls.properties[propKey].sankeyControls.nodesAndColors;
 		values = values.map((el, i) => {
 			if (el.nodeName === nameOfNode && i === indexOfNode) {
 				el.nodeColor = color;
@@ -120,8 +103,8 @@ const SankeyColorControls = ({
 						height: "1.25rem",
 						width: "50%",
 						marginLeft: "20px",
-						backgroundColor: chartProp.properties[propKey].sankeyControls.linkColor,
-						color: chartProp.properties[propKey].sankeyControls.linkColor,
+						backgroundColor: chartControls.properties[propKey].sankeyControls.linkColor,
+						color: chartControls.properties[propKey].sankeyControls.linkColor,
 						border: "2px solid darkgray",
 						margin: "auto",
 					}}
@@ -166,11 +149,9 @@ const SankeyColorControls = ({
 	);
 };
 
-const mapStateToProps = (
-	state: ChartControlStateProps & TabTileStateProps2 & ChartPropertiesStateProps
-) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartProp: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
 		chartProperties: state.chartProperties,
 	};

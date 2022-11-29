@@ -1,28 +1,12 @@
 import ReactEcharts from "echarts-for-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { Dispatch } from "redux";
 import {
-	ChartControl,
 	ChartControlsProps,
 	ChartControlStateProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
-
-interface GaugeChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
-
-	//state
-	chartControls: ChartControl;
-}
-
-interface NewData {
-	name: string;
-	value: any;
-}
+import { ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 const GaugeChart = ({
 	//props
@@ -33,10 +17,10 @@ const GaugeChart = ({
 
 	//state
 	chartControls,
-}: GaugeChartProps) => {
+}: ChartsReduxStateProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData: any = chartControl.chartData ? chartControl.chartData.result : "";
-	const [newData, setNewData] = useState<NewData[]>([]);
+	const [newData, setNewData] = useState<any>([]);
 
 	var carr: any = [];
 
@@ -53,7 +37,7 @@ const GaugeChart = ({
 
 	useEffect(() => {
 		if (chartData) {
-			var newTempData: NewData[] = [];
+			var newTempData: any[] = [];
 			Object.keys(chartData[0]).map(key => {
 				newTempData.push({
 					name: key,
@@ -168,7 +152,7 @@ const GaugeChart = ({
 	return chartData ? <RenderChart /> : null;
 };
 
-const mapStateToProps = (state: ChartControlStateProps) => {
+const mapStateToProps = (state: ChartControlStateProps, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
 	};

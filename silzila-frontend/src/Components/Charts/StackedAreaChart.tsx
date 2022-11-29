@@ -2,7 +2,6 @@ import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import {
-	ChartControl,
 	ChartControlsProps,
 	ChartControlStateProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
@@ -10,15 +9,7 @@ import {
 	formatChartLabelValue,
 	formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
-interface StackedAreaChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
-
-	//state
-	chartControls: ChartControl;
-}
+import { ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 const StackedAreaChart = ({
 	//props
@@ -29,7 +20,7 @@ const StackedAreaChart = ({
 
 	//state
 	chartControls,
-}: StackedAreaChartProps) => {
+}: ChartsReduxStateProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
@@ -188,7 +179,7 @@ const StackedAreaChart = ({
 
 	return <>{chartData ? <RenderChart /> : ""}</>;
 };
-const mapStateToProps = (state: ChartControlStateProps) => {
+const mapStateToProps = (state: ChartControlStateProps, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
 	};

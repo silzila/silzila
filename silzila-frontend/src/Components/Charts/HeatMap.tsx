@@ -2,26 +2,9 @@ import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
-import {
-	ChartControl,
-	ChartControlsProps,
-	ChartControlStateProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
+import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
-interface HeatMapChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
-
-	//state
-	chartControls: ChartControl;
-	chartProperty: ChartPropertiesProps;
-}
 const HeatMap = ({
 	//props
 	propKey,
@@ -31,8 +14,8 @@ const HeatMap = ({
 
 	//state
 	chartControls,
-	chartProperty,
-}: HeatMapChartProps) => {
+	chartProperties,
+}: ChartsReduxStateProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
 	const [chartDataKeys, setChartDataKeys] = useState<any>([]);
@@ -44,7 +27,7 @@ const HeatMap = ({
 		if (chartData) {
 			setChartDataKeys(Object.keys(chartData[0]));
 
-			var measureField = chartProperty.properties[propKey].chartAxes[3].fields[0];
+			var measureField = chartProperties.properties[propKey].chartAxes[3].fields[0];
 			if (measureField) {
 				var maxFieldName = `${measureField.fieldname}__${measureField.agg}`;
 
@@ -233,10 +216,10 @@ const HeatMap = ({
 
 	return chartData ? <RenderChart /> : null;
 };
-const mapStateToProps = (state: ChartControlStateProps & ChartPropertiesStateProps) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
-		chartProperty: state.chartProperties,
+		chartProperties: state.chartProperties,
 	};
 };
 export default connect(mapStateToProps, null)(HeatMap);

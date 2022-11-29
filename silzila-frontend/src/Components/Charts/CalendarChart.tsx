@@ -1,27 +1,8 @@
 import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-
-import {
-	ChartControl,
-	ChartControlsProps,
-	ChartControlStateProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
-
-interface CalendarChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
-
-	//state
-	chartControls: ChartControl;
-	chartProperty: ChartPropertiesProps;
-}
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
+import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 const CalendarChart = ({
 	//props
@@ -32,8 +13,8 @@ const CalendarChart = ({
 
 	//state
 	chartControls,
-	chartProperty,
-}: CalendarChartProps) => {
+	chartProperties,
+}: ChartsReduxStateProps) => {
 	var yearsArray: string[] | number[] | any = [];
 	var uniqueYears: string[] | number[] | any = [];
 
@@ -47,13 +28,13 @@ const CalendarChart = ({
 
 	useEffect(() => {
 		if (chartData) {
-			if (chartProperty.properties[propKey].chartAxes[1].fields.length > 0) {
+			if (chartProperties.properties[propKey].chartAxes[1].fields.length > 0) {
 				setChartDataKeys(Object.keys(chartData[0]));
 
 				let objKey =
-					chartProperty.properties[propKey].chartAxes[1].fields[0].fieldname +
+					chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname +
 					"__" +
-					chartProperty.properties[propKey].chartAxes[1].fields[0].time_grain;
+					chartProperties.properties[propKey].chartAxes[1].fields[0].time_grain;
 
 				// getting years of dates
 				chartData.map((el: any) => {
@@ -134,9 +115,9 @@ const CalendarChart = ({
 
 	function getVirtulData(year: string | number) {
 		let objKey =
-			chartProperty.properties[propKey].chartAxes[1].fields[0].fieldname +
+			chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname +
 			"__" +
-			chartProperty.properties[propKey].chartAxes[1].fields[0].time_grain;
+			chartProperties.properties[propKey].chartAxes[1].fields[0].time_grain;
 		var virtualData: any[] = [];
 
 		// getting measure value as day value for individual year
@@ -192,10 +173,10 @@ const CalendarChart = ({
 
 	return chartData ? <RenderChart /> : null;
 };
-const mapStateToProps = (state: ChartControlStateProps & ChartPropertiesStateProps) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
-		chartProperty: state.chartProperties,
+		chartProperties: state.chartProperties,
 	};
 };
 export default connect(mapStateToProps, null)(CalendarChart);

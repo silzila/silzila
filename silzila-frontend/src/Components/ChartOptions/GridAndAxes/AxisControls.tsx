@@ -11,20 +11,8 @@ import {
 	updateGaugeAxisOptions,
 	updatePieAxisOptions,
 } from "../../../redux/ChartPoperties/ChartControlsActions";
-import {
-	ChartConAxisOptions,
-	ChartControl,
-	ChartControlStateProps,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../../redux/ChartPoperties/ChartPropertiesInterfaces";
-
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
+import { ChartConAxisOptions } from "../../../redux/ChartPoperties/ChartControlsInterface";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import SliderWithInput from "../SliderWithInput";
 import SwitchWithInput from "../SwitchWithInput";
 
@@ -40,32 +28,27 @@ const textFieldStyleProps = {
 };
 
 interface GridControlsProps {
-	//State
-	chartControl: ChartControl;
-	tabTileProps: TabTileStateProps;
-	chartProps: ChartPropertiesProps;
-	//Dispatch
 	updateGaugeAxisOptions: (propKey: number | string, option: string, value: any) => void;
 	updatePieAxisOptions: (propKey: number | string, option: string, value: any) => void;
 }
 const GridControls = ({
 	// state
-	chartControl,
+	chartControls,
 	tabTileProps,
-	chartProps,
+	chartProperties,
 
 	// dispatch
 	updateGaugeAxisOptions,
 	updatePieAxisOptions,
-}: GridControlsProps) => {
+}: ChartOptionsProps & GridControlsProps) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
-	var property: ChartConAxisOptions = chartControl.properties[propKey].axisOptions;
+	var property: ChartConAxisOptions = chartControls.properties[propKey].axisOptions;
 
 	return (
 		<div className="optionsInfo">
 			<div className="optionDescription">Start Angle</div>
-			{chartProps.properties[propKey].chartType === "gauge" ? (
+			{chartProperties.properties[propKey].chartType === "gauge" ? (
 				<React.Fragment>
 					<div className="optionDescription">Start Angle</div>
 					<TextField
@@ -80,9 +63,9 @@ const GridControls = ({
 				</React.Fragment>
 			) : (
 				<React.Fragment>
-					{chartProps.properties[propKey].chartType === "pie" ||
-					chartProps.properties[propKey].chartType === "donut" ||
-					chartProps.properties[propKey].chartType === "rose" ? (
+					{chartProperties.properties[propKey].chartType === "pie" ||
+					chartProperties.properties[propKey].chartType === "donut" ||
+					chartProperties.properties[propKey].chartType === "rose" ? (
 						<React.Fragment>
 							<TextField
 								value={property.pieAxisOptions.pieStartAngle}
@@ -128,7 +111,7 @@ const GridControls = ({
 				</React.Fragment>
 			)}
 
-			{chartProps.properties[propKey].chartType === "gauge" ? (
+			{chartProperties.properties[propKey].chartType === "gauge" ? (
 				<React.Fragment>
 					<div className="optionDescription">End Angle</div>
 
@@ -219,13 +202,11 @@ const GridControls = ({
 	);
 };
 
-const mapStateToProps = (
-	state: ChartControlStateProps & TabTileStateProps2 & ChartPropertiesStateProps
-) => {
+const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
-		chartControl: state.chartControls,
+		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
-		chartProps: state.chartProperties,
+		chartProperties: state.chartProperties,
 	};
 };
 

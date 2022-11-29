@@ -3,27 +3,10 @@ import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import * as echarts from "echarts";
 import { Dispatch } from "redux";
-import {
-	ChartControl,
-	ChartControlsProps,
-	ChartControlStateProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { updateTreeMapStyleOptions } from "../../redux/ChartPoperties/ChartControlsActions";
+import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 interface TreemapChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
-
-	//state
-	chartControlState: ChartControl;
-	chartProperty: ChartPropertiesProps;
-
-	//Dispatch
 	updateTreeMapStyleOptions: (propKey: number | string, option: string, value: any) => void;
 }
 const Treemap = ({
@@ -34,13 +17,13 @@ const Treemap = ({
 	graphTileSize,
 
 	//state
-	chartControlState,
-	chartProperty,
+	chartControls,
+	chartProperties,
 
 	//dispatch
 	updateTreeMapStyleOptions,
-}: TreemapChartProps) => {
-	var chartControl: ChartControlsProps = chartControlState.properties[propKey];
+}: ChartsReduxStateProps & TreemapChartProps) => {
+	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
 	const [sourceData, setsourceData] = useState<any>([]);
@@ -102,7 +85,7 @@ const Treemap = ({
 			var formattedData: any = []; // Final data structure to feed to the map
 
 			// columns in dimension
-			dimensionsKeys = chartProperty.properties[propKey].chartAxes[1].fields.map(el => {
+			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map(el => {
 				if (el.dataType === "date" || el.dataType === "timeStamp") {
 					return `${el.fieldname}__${el.time_grain}`;
 				} else {
@@ -112,7 +95,7 @@ const Treemap = ({
 			});
 
 			// column in measure
-			chartProperty.properties[propKey].chartAxes[2].fields.map(el => {
+			chartProperties.properties[propKey].chartAxes[2].fields.map(el => {
 				measure = `${el.fieldname}__${el.agg}`;
 			});
 
@@ -157,10 +140,10 @@ const Treemap = ({
 	useEffect(() => {
 		// console.log(dimensionsKeys);
 		updateTreeMapStyleOptions(propKey, "leafDepth", dimensionsKeys.length);
-	}, [chartControlState.properties[propKey], chartData]);
+	}, [chartControls.properties[propKey], chartData]);
 
 	function getTooltipData(treePath: any, value: any, info: any) {
-		const dimsLength = chartProperty.properties[propKey].chartAxes[1].fields.map(el => {
+		const dimsLength = chartProperties.properties[propKey].chartAxes[1].fields.map(el => {
 			return el.fieldname;
 		});
 
@@ -169,7 +152,7 @@ const Treemap = ({
 				'<div class="tooltip-title">' +
 					formatUtil.encodeHTML(treePath.join(">")) +
 					"</div>",
-				`${chartProperty.properties[propKey].chartAxes[2].fields[0].fieldname} ` +
+				`${chartProperties.properties[propKey].chartAxes[2].fields[0].fieldname} ` +
 					formatUtil.addCommas(value),
 			].join("");
 		} else {
@@ -268,10 +251,10 @@ const Treemap = ({
 
 	return <>{chartData ? <RenderChart /> : ""}</>;
 };
-const mapStateToProps = (state: ChartControlStateProps & ChartPropertiesStateProps) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
-		chartControlState: state.chartControls,
-		chartProperty: state.chartProperties,
+		chartControls: state.chartControls,
+		chartProperties: state.chartProperties,
 	};
 };
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {

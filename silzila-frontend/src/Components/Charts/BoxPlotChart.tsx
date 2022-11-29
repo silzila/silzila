@@ -1,26 +1,9 @@
 import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import {
-	ChartControl,
-	ChartControlsProps,
-	ChartControlStateProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { formatChartYAxisValue } from "../ChartOptions/Format/NumberFormatter";
-interface BoxPlotChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
-
-	//state
-	chartControlState: ChartControl;
-	chartProperty: ChartPropertiesProps;
-}
+import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 const BoxPlotChart = ({
 	// props
@@ -30,10 +13,10 @@ const BoxPlotChart = ({
 	graphTileSize,
 
 	//state
-	chartControlState,
-	chartProperty,
-}: BoxPlotChartProps) => {
-	var chartControl: ChartControlsProps = chartControlState.properties[propKey];
+	chartControls,
+	chartProperties,
+}: ChartsReduxStateProps) => {
+	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData: any = chartControl.chartData ? chartControl.chartData.result : "";
 
@@ -48,14 +31,14 @@ const BoxPlotChart = ({
 		if (chartData) {
 			// distribution value
 			var dimValue: string =
-				chartProperty.properties[propKey].chartAxes[1].fields[0].fieldname;
+				chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 
 			var dimArray = chartData.map((el: any) => {
 				return el[dimValue];
 			});
 			// setDimensionData([...new Set(dimArray)]);
 
-			var measureValue = `${chartProperty.properties[propKey].chartAxes[3].fields[0].fieldname}__${chartProperty.properties[propKey].chartAxes[3].fields[0].agg}`;
+			var measureValue = `${chartProperties.properties[propKey].chartAxes[3].fields[0].fieldname}__${chartProperties.properties[propKey].chartAxes[3].fields[0].agg}`;
 
 			var arrayPoints: any[] = [];
 
@@ -297,10 +280,10 @@ const BoxPlotChart = ({
 
 	return <>{chartData ? <RenderChart /> : ""}</>;
 };
-const mapStateToProps = (state: ChartControlStateProps & ChartPropertiesStateProps) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
-		chartControlState: state.chartControls,
-		chartProperty: state.chartProperties,
+		chartControls: state.chartControls,
+		chartProperties: state.chartProperties,
 	};
 };
 
