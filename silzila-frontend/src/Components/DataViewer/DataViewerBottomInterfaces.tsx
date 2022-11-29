@@ -2,7 +2,10 @@ import {
 	ChartPropertiesProps,
 	ChartPropertiesStateProps,
 } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
-import { SampleRecordsState } from "../../redux/SampleTableRecords/SampleTableRecordsInterfaces";
+import {
+	SampleRecordesColumnType,
+	SampleRecordsState,
+} from "../../redux/SampleTableRecords/SampleTableRecordsInterfaces";
 import { TabStateProps, TabStateProps2 } from "../../redux/TabTile/TabStateInterfaces";
 import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
@@ -19,7 +22,12 @@ export interface DataViewerBottomProps {
 	setTablesForDs: (tablesObj: any) => void;
 	setSelectedDs: (propKey: number, selectedDs: any) => void;
 	setSelectedTable: (propKey: number, selectedTable: any) => void;
-	addRecords: (ds_uid: string, tableId: string, tableRecords: any, columnType: any) => void;
+	addRecords: (
+		ds_uid: string,
+		tableId: string,
+		tableRecords: any[],
+		columnType: SampleRecordesColumnType[]
+	) => void;
 	addTile: (
 		tabId: number,
 		nextTileId: number,

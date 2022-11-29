@@ -1,5 +1,11 @@
-export const setPrefix = (fieldData, binName, chartType, geoLocation = "world") => {
-	console.log(fieldData, binName, chartType, geoLocation);
+import { SetPrefixFieldData } from "./ChartAxesInterfaces";
+
+export const setPrefix = (
+	fieldData: SetPrefixFieldData,
+	binName: string,
+	chartType: string,
+	geoLocation: string = "world"
+) => {
 	if (!fieldData) {
 		return fieldData;
 	}
