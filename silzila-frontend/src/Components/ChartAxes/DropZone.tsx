@@ -28,6 +28,9 @@ import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
 import { Menu, MenuItem, Divider, Tooltip } from "@mui/material";
+import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { Dispatch } from "redux";
+import { DropZoneDropItem, DropZoneProps } from "./ChartAxesInterfaces";
 //import { StyledEngineProvider } from '@mui/material/styles';
 
 const DropZone = ({
@@ -47,12 +50,12 @@ const DropZone = ({
 	updateDropZoneItems,
 	moveItemChartProp,
 	toggleFilterRunState,
-}) => {
-	var geoLocation = chartProp.properties[propKey].geoLocation;
+}: DropZoneProps) => {
+	// var geoLocation = chartProp.properties[propKey].geoLocation;
 
-	const [severity, setSeverity] = useState("success");
-	const [openAlert, setOpenAlert] = useState(false);
-	const [testMessage, setTestMessage] = useState("Testing alert");
+	const [severity, setSeverity] = useState<string>("success");
+	const [openAlert, setOpenAlert] = useState<boolean>(false);
+	const [testMessage, setTestMessage] = useState<string>("Testing alert");
 
 	const [, drop] = useDrop({
 		accept: "card",
@@ -71,7 +74,8 @@ const DropZone = ({
 
 	var chartType = chartProp.properties[propKey].chartType;
 
-	const handleDrop = (item, bIndex) => {
+	// DropZoneDropItem
+	const handleDrop = (item: any, bIndex: number) => {
 		var allowedNumbers = ChartsInfo[chartType].dropZones[bIndex].allowedNumbers;
 		let newFieldData = {};
 
@@ -99,12 +103,14 @@ const DropZone = ({
 							setTestMessage("");
 						}, 3000);
 					}
-				} else if (chartType === "geoChart") {
-					let newFieldData = JSON.parse(
-						JSON.stringify(setPrefix(fieldData, name, chartType, geoLocation))
-					);
-					updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
-				} else {
+				}
+				// else if (chartType === "geoChart") {
+				// 	let newFieldData = JSON.parse(
+				// 		JSON.stringify(setPrefix(fieldData, name, chartType, geoLocation))
+				// 	);
+				// 	updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
+				// }
+				else {
 					let newFieldData = JSON.parse(
 						JSON.stringify(setPrefix(fieldData, name, chartType))
 					);
@@ -182,7 +188,7 @@ const DropZone = ({
 	const [anchorEl, setAnchorEl] = useState(null);
 	const open = Boolean(anchorEl);
 
-	const handleClose = async (closeFrom, queryParam) => {
+	const handleClose = async (closeFrom: any, queryParam?: any) => {
 		// console.log(closeFrom);
 		setAnchorEl(null);
 		//setShowOptions(false);
@@ -194,10 +200,10 @@ const DropZone = ({
 		// updateLeftFilterItem(propKey,0,constructChartAxesFieldObject());
 	};
 
-	const RenderMenu = ({ name }) => {
+	const RenderMenu = ({ name }: { name: string }) => {
 		var options = ["Clear"];
-		var options1 = [];
-		var options2 = [];
+		var options1: string[] = [];
+		var options2: string[] = [];
 
 		if (bIndex === 0) {
 			options1 = ["All Conditions Met", "Any Condition Met"];
@@ -208,6 +214,7 @@ const DropZone = ({
 
 		return (
 			<Menu
+				key={name}
 				id="basic-menu"
 				anchorEl={anchorEl}
 				open={open}
@@ -301,9 +308,9 @@ const DropZone = ({
 		);
 	};
 
-	const [modalData, setModalData] = useState(null);
+	const [modalData, setModalData] = useState<any>(null);
 
-	const handleClick = event => {
+	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);
 	};
 
@@ -460,12 +467,10 @@ const DropZone = ({
 				) : null */}
 				{bIndex == 0
 					? chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
-							(field, index) => (
-								<div key={index}></div>
-							)
+							(field: any, index: number) => <div key={index}></div>
 					  )
 					: chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
-							(field, index) => (
+							(field: any, index: number) => (
 								<Card
 									field={field}
 									bIndex={bIndex}
@@ -505,37 +510,57 @@ const DropZone = ({
 	);
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: ChartPropertiesStateProps) => {
 	return {
 		chartProp: state.chartProperties,
 	};
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		clearDropZoneFieldsChartPropLeft: (propKey, bIndex) =>
+		clearDropZoneFieldsChartPropLeft: (propKey: number | string, bIndex: number) =>
 			dispatch(clearDropZoneFieldsChartPropLeft(propKey, bIndex)),
-		updateDropZoneExpandCollapsePropLeft: (propKey, bIndex, isCollapsed) =>
-			dispatch(updateDropZoneExpandCollapsePropLeft(propKey, bIndex, isCollapsed)),
-		updateFilterAnyContidionMatchPropLeft: (propKey, bIndex, any_condition_match) =>
-			dispatch(updateFilterAnyContidionMatchPropLeft(propKey, 0, any_condition_match)),
-		updateIsAutoFilterEnabledPropLeft: (propKey, bIndex, is_auto_filter_enabled) =>
-			dispatch(updateIsAutoFilterEnabledPropLeft(propKey, 0, is_auto_filter_enabled)),
-		toggleFilterRunState: (propKey, runState) =>
+		updateDropZoneExpandCollapsePropLeft: (
+			propKey: number | string,
+			bIndex: number,
+			isCollapsed: boolean
+		) => dispatch(updateDropZoneExpandCollapsePropLeft(propKey, bIndex, isCollapsed)),
+		updateFilterAnyContidionMatchPropLeft: (
+			propKey: number | string,
+			bIndex: number,
+			any_condition_match: any
+		) => dispatch(updateFilterAnyContidionMatchPropLeft(propKey, 0, any_condition_match)),
+		updateIsAutoFilterEnabledPropLeft: (
+			propKey: number | string,
+			bIndex: number,
+			is_auto_filter_enabled: any
+		) => dispatch(updateIsAutoFilterEnabledPropLeft(propKey, 0, is_auto_filter_enabled)),
+		toggleFilterRunState: (propKey: number | string, runState: any) =>
 			dispatch(toggleFilterRunState(propKey, runState)),
-		updateDropZoneItems: (propKey, bIndex, item, allowedNumbers) =>
-			dispatch(
-				editChartPropItem(
-					 "update",
-					 { propKey, bIndex, item, allowedNumbers },
-				)
-			),
+		updateDropZoneItems: (
+			propKey: number | string,
+			bIndex: number,
+			item: any,
+			allowedNumbers: any
+		) => dispatch(editChartPropItem("update", { propKey, bIndex, item, allowedNumbers })),
 
-		moveItemChartProp: (propKey, fromBIndex, fromUID, item, toBIndex, allowedNumbers) =>
+		moveItemChartProp: (
+			propKey: number | string,
+			fromBIndex: any,
+			fromUID: any,
+			item: any,
+			toBIndex: any,
+			allowedNumbers: any
+		) =>
 			dispatch(
-				editChartPropItem("move",
-					 { propKey, fromBIndex, fromUID, item, toBIndex, allowedNumbers },
-				)
+				editChartPropItem("move", {
+					propKey,
+					fromBIndex,
+					fromUID,
+					item,
+					toBIndex,
+					allowedNumbers,
+				})
 			),
 	};
 };

@@ -17,7 +17,7 @@ const BoxPlotChart = ({
 	chartProperties,
 }: ChartsReduxStateProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
-	console.log(chartControl);
+
 	let chartData: any = chartControl.chartData ? chartControl.chartData.result : "";
 
 	const [dimensionData, setDimensionData] = useState<any>([]);

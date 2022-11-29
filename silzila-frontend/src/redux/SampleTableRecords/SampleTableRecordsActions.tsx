@@ -1,9 +1,12 @@
+import { SampleRecordesColumnType } from "./SampleTableRecordsInterfaces";
+
 export const addTableRecords = (
-	ds_uid: string | number,
-	tableId: any,
-	tableRecords: any,
-	columnType: any
+	ds_uid: string,
+	tableId: string,
+	tableRecords: any[],
+	columnType: SampleRecordesColumnType[]
 ) => {
+	// console.log(typeof ds_uid, tableId, tableRecords, columnType);
 	return { type: "ADD_TABLE_RECORDS", payload: { ds_uid, tableId, tableRecords, columnType } };
 };
 

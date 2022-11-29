@@ -50,7 +50,7 @@ const PlayBookList = ({
 
 	var navigate = useNavigate();
 
-	console.log(selectedDataset);
+	// console.log(selectedDataset);
 
 	useEffect(() => {
 		getInformation();
@@ -67,7 +67,7 @@ const PlayBookList = ({
 		});
 
 		if (result.status) {
-			console.log(result.data, "Playbook list");
+			// console.log(result.data, "Playbook list");
 
 			setPlayBookList(result.data);
 		} else {
