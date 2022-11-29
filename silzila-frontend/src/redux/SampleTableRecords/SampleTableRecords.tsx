@@ -6,30 +6,29 @@ import {
 	SampleRecordsStateProp,
 } from "./SampleTableRecordsInterfaces";
 
-const initialRecords = {
-	recordsColumnType: {},
-};
+const initialRecords = { recordsColumnType: {} };
 
 const SampleRecordsReducer = (
 	state: SampleRecordsStateProp = initialRecords,
-	action: AddTableRecords | ResetSampleRecords | LoadSampleRecords 
+	action: AddTableRecords | ResetSampleRecords | LoadSampleRecords
 ) => {
 	switch (action.type) {
-		// case "ADD_TABLE_RECORDS":
-		// 	if (state[action.payload.ds_uid] !== undefined) {
-		// 		return update(state, {
-		// 			[action.payload.ds_uid]: {
-		// 				[action.payload.tableId]: { $set: action.payload.tableRecords },
-		// 			},
-		// 			recordsColumnType: {
-		// 				[action.payload.ds_uid]: {
-		// 					[action.payload.tableId]: { $set: action.payload.columnType },
-		// 				},
-		// 			},
-		// 		});
-		// 	} else {
-		// 		var stateCopy = Object.assign(state);
-		// 		var dsObj = { [action.payload.ds_uid]: {} };
+		case "ADD_TABLE_RECORDS":
+			if (state[action.payload.ds_uid] !== undefined) {
+				console.log(state);
+				return update(state, {
+					[action.payload.ds_uid]: {
+						[action.payload.tableId]: { $set: action.payload.tableRecords },
+					},
+					recordsColumnType: {
+						[action.payload.ds_uid]: {
+							[action.payload.tableId]: { $set: action.payload.columnType },
+						},
+					},
+				});
+			} else {
+				var stateCopy = Object.assign(state);
+				var dsObj = { [action.payload.ds_uid]: {} };
 
 				//console.log(dsObj);
 		//		stateCopy = update(stateCopy, { $merge: dsObj });
