@@ -6,7 +6,7 @@
 // 		- Full screen view
 // 	- Also provides the sql query used to generate data for this graph
 import { connect } from "react-redux";
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { Dispatch } from "redux";
 import { setChartTitle, setGenerateTitle } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { toggleGraphSize } from "../../redux/TabTile/TileActions";
@@ -18,7 +18,6 @@ import HeatMap from "../Charts/HeatMap";
 import HorizontalBar from "../Charts/HorizontalBar";
 import Horizontalstacked from "../Charts/Horizontalstacked";
 import LineChart from "../Charts/LineChart";
-import MultiBar from "../Charts/MultiBarChart";
 import PieChart from "../Charts/PieChart";
 import RoseChart from "../Charts/RoseChart";
 import ScatterChart from "../Charts/ScatterChart";
@@ -31,6 +30,11 @@ import TreeMap from "../Charts/TreeMap";
 import BoxPlotChart from "../Charts/BoxPlotChart";
 import CalendarChart from "../Charts/CalendarChart";
 import StackedAreaChart from "../Charts/StackedAreaChart";
+import MultiBarChart from "../Charts/MultiBarChart";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import FullscreenIcon from "@mui/icons-material/Fullscreen";
+import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
+import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 
 const GraphArea = ({
 	// state
@@ -102,18 +106,18 @@ const GraphArea = ({
 		tileState.tiles[propKey].graphSizeFull,
 	]);
 
-	// const removeFullScreen = e => {
-	// 	//console.log(e.keyCode);
-	// 	if (e.keyCode === 27) {
-	// 		setFullScreen(false);
-	// 	}
-	// };
+	const removeFullScreen = (e: any) => {
+		//console.log(e.keyCode);
+		if (e.keyCode === 27) {
+			setFullScreen(false);
+		}
+	};
 
 	const chartDisplayed = () => {
 		switch (chartProperties.properties[propKey].chartType) {
 			case "multibar":
 				return (
-					<MultiBar
+					<MultiBarChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
 						graphTileSize={tileState.tiles[propKey].graphSizeFull}
@@ -293,175 +297,173 @@ const GraphArea = ({
 		}
 	};
 
-	// // ############################################
-	// // Setting title automatically
-	// // ############################################
+	// ############################################
+	// Setting title automatically
+	// ############################################
 
-	// const graphTitle = () => {
-	// 	if (chartProperties.properties[propKey].titleOptions.generateTitle === "Auto") {
-	// 		const chartAxes = chartProperties.properties[propKey].chartAxes;
+	const graphTitle = () => {
+		if (chartProperties.properties[propKey].titleOptions.generateTitle === "Auto") {
+			const chartAxes = chartProperties.properties[propKey].chartAxes;
 
-	// 		var dims = [];
-	// 		var measures = [];
+			var dims: any[] = [];
+			var measures: any[] = [];
 
-	// 		// Compile dimensions and measures of different chart types in one format
-	// 		switch (chartProperties.properties[propKey].chartType) {
-	// 			case "crossTab":
-	// 			case "heatmap":
-	// 				dims = dims.concat(chartAxes[1].fields);
-	// 				dims = dims.concat(chartAxes[2].fields);
-	// 				measures = measures.concat(chartAxes[3].fields);
-	// 				break;
+			// Compile dimensions and measures of different chart types in one format
+			switch (chartProperties.properties[propKey].chartType) {
+				case "crossTab":
+				case "heatmap":
+					dims = dims.concat(chartAxes[1].fields);
+					dims = dims.concat(chartAxes[2].fields);
+					measures = measures.concat(chartAxes[3].fields);
+					break;
 
-	// 			case "scatterPlot":
-	// 				dims = dims.concat(chartAxes[1].fields);
-	// 				measures = measures.concat(chartAxes[2].fields);
-	// 				measures = measures.concat(chartAxes[3].fields);
-	// 				break;
+				case "scatterPlot":
+					dims = dims.concat(chartAxes[1].fields);
+					measures = measures.concat(chartAxes[2].fields);
+					measures = measures.concat(chartAxes[3].fields);
+					break;
 
-	// 			case "gauge":
-	// 			case "funnel":
-	// 				measures = measures.concat(chartAxes[1].fields);
-	// 				break;
+				case "gauge":
+				case "funnel":
+					measures = measures.concat(chartAxes[1].fields);
+					break;
 
-	// 			default:
-	// 				dims = dims.concat(chartAxes[1].fields);
-	// 				measures = measures.concat(chartAxes[2].fields);
-	// 				break;
-	// 		}
+				default:
+					dims = dims.concat(chartAxes[1].fields);
+					measures = measures.concat(chartAxes[2].fields);
+					break;
+			}
 
-	// 		var title = "";
+			var title = "";
 
-	// 		// Concatenate field names in dims / measures
-	// 		const concatenateFields = fields => {
-	// 			if (fields.length > 0) {
-	// 				var tempTitle = "";
-	// 				fields.forEach((element, index) => {
-	// 					if (index === 0) {
-	// 						var titlePart = element.fieldname;
-	// 						tempTitle = tempTitle + titlePart;
-	// 					}
-	// 					if (index > 0) {
-	// 						var titlePart = `, ${element.fieldname}`;
-	// 						tempTitle = tempTitle + titlePart;
-	// 					}
-	// 				});
+			// Concatenate field names in dims / measures
+			const concatenateFields = (fields: any) => {
+				if (fields.length > 0) {
+					var tempTitle = "";
+					fields.forEach((element: any, index: number) => {
+						if (index === 0) {
+							var titlePart = element.fieldname;
+							tempTitle = tempTitle + titlePart;
+						}
+						if (index > 0) {
+							var titlePart: any = `, ${element.fieldname}`;
+							tempTitle = tempTitle + titlePart;
+						}
+					});
 
-	// 				return tempTitle;
-	// 			}
-	// 		};
+					return tempTitle;
+				}
+			};
 
-	// 		var dimTitle = concatenateFields(dims);
-	// 		var measureTitle = concatenateFields(measures);
+			var dimTitle = concatenateFields(dims);
+			var measureTitle = concatenateFields(measures);
 
-	// 		if (
-	// 			chartProperties.properties[propKey].chartType === "gauge" ||
-	// 			chartProperties.properties[propKey].chartType === "funnel"
-	// 		) {
-	// 			title = measureTitle ? measureTitle : "";
-	// 		} else if (chartProperties.properties[propKey].chartType === "richText") {
-	// 			title = "Rich Text Editor Title";
-	// 		} else {
-	// 			title = measureTitle ? measureTitle : "";
-	// 			title = dimTitle ? title + ` by ${dimTitle}` : "";
-	// 		}
+			if (
+				chartProperties.properties[propKey].chartType === "gauge" ||
+				chartProperties.properties[propKey].chartType === "funnel"
+			) {
+				title = measureTitle ? measureTitle : "";
+			} else if (chartProperties.properties[propKey].chartType === "richText") {
+				title = "Rich Text Editor Title";
+			} else {
+				title = measureTitle ? measureTitle : "";
+				title = dimTitle ? title + ` by ${dimTitle}` : "";
+			}
 
-	// 		title = title.charAt(0).toUpperCase() + title.slice(1);
+			title = title.charAt(0).toUpperCase() + title.slice(1);
 
-	// 		setChartTitle(propKey, title);
-	// 	}
-	// };
+			setChartTitle(propKey, title);
+		}
+	};
 
-	// useEffect(() => {
-	// 	graphTitle();
-	// }, [
-	// 	chartProperties.properties[propKey].chartAxes,
-	// 	chartProperties.properties[propKey].titleOptions.generateTitle,
-	// ]);
+	useEffect(() => {
+		graphTitle();
+	}, [
+		chartProperties.properties[propKey].chartAxes,
+		chartProperties.properties[propKey].titleOptions.generateTitle,
+	]);
 
-	// // ############################################
-	// // Manual title entry
-	// // ############################################
+	// ############################################
+	// Manual title entry
+	// ############################################
 
-	// const editTitleText = () => {
-	// 	// if (chartProperties.properties[propKey].generateTitle === "Manual") {
-	// 	setEditTitle(true);
-	// 	setGenerateTitleToStore(propKey, "Manual");
-	// 	// }
-	// };
+	const editTitleText = () => {
+		// if (chartProperties.properties[propKey].generateTitle === "Manual") {
+		setEditTitle(true);
+		setGenerateTitleToStore(propKey, "Manual");
+		// }
+	};
 
-	// useEffect(() => {
-	// 	setTitleText(chartProperties.properties[propKey].titleOptions.chartTitle);
-	// }, [chartProperties.properties[propKey].titleOptions.chartTitle]);
+	useEffect(() => {
+		setTitleText(chartProperties.properties[propKey].titleOptions.chartTitle);
+	}, [chartProperties.properties[propKey].titleOptions.chartTitle]);
 
-	// const [inputTitleText, setTitleText] = useState("");
-	// const handleTitleChange = e => {
-	// 	setTitleText(e.target.value);
-	// };
+	const [inputTitleText, setTitleText] = useState<string>("");
+	const handleTitleChange = (e: any) => {
+		setTitleText(e.target.value);
+	};
 
-	// const completeRename = () => {
-	// 	setChartTitle(propKey, inputTitleText);
-	// 	setEditTitle(false);
-	// };
+	const completeRename = () => {
+		setChartTitle(propKey, inputTitleText);
+		setEditTitle(false);
+	};
 
-	// const ShowFormattedQuery = () => {
-	// 	var query = chartControlState.properties[propKey].chartData?.query;
+	const ShowFormattedQuery = () => {
+		var query = chartControlState.properties[propKey].chartData?.query;
 
-	// 	return (
-	// 		<SyntaxHighlighter
-	// 			className="syntaxHighlight"
-	// 			language="sql"
-	// 			style={a11yLight}
-	// 			showLineNumbers={true}
-	// 		>
-	// 			{query ? query : null}
-	// 		</SyntaxHighlighter>
-	// 	);
-	// };
+		return (
+			<SyntaxHighlighter
+				className="syntaxHighlight"
+				language="sql"
+				// style={a11yLight}
+				showLineNumbers={true}
+			>
+				{query ? query : null}
+			</SyntaxHighlighter>
+		);
+	};
 
-	// const RenderScreenOption = () => {
-	// 	return (
-	// 		<>
-	// 			<div
-	// 				className={
-	// 					// !tileState.tiles[propKey].graphSizeFull
-	// 						// ? "graphAreaIconsSelected"
-	// 						// :
-	// 						"graphAreaIcons"
-	// 				}
-	// 				title="Match Dashboard Size"
-	// 				// style={
-	// 				// 	tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(propKey)
-	// 				// 		? {}
-	// 				// 		: { cursor: "not-allowed" }
-	// 				// }
-	// 				// onClick={() => {
-	// 				// 	if (
-	// 				// 		tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(
-	// 				// 			propKey
-	// 				// 		)
-	// 				// 	)
-	// 				// 		toggleGraphSize(propKey, false);
-	// 				// }}
-	// 			>
-	// 				<FullscreenExitIcon />
-	// 			</div>
+	const RenderScreenOption = () => {
+		return (
+			<>
+				<div
+					className={
+						!tileState.tiles[propKey].graphSizeFull
+							? "graphAreaIconsSelected"
+							: "graphAreaIcons"
+					}
+					title="Match Dashboard Size"
+					style={
+						tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(propKey)
+							? {}
+							: { cursor: "not-allowed" }
+					}
+					onClick={() => {
+						if (
+							tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(
+								propKey
+							)
+						)
+							toggleGraphSize(propKey, false);
+					}}
+				>
+					<FullscreenExitIcon />
+				</div>
 
-	// 			<div
-	// 				className={
-	// 					// tileState.tiles[propKey].graphSizeFull
-	// 						// ? "graphAreaIconsSelected"
-	// 						// :
-	// 			"graphAreaIcons"
-	// 				}
-	// 				title="Fit Tile Size"
-	// 				// onClick={() => toggleGraphSize(propKey, true)}
-	// 			>
-	// 				<FullscreenIcon />
-	// 			</div>
-	// 		</>
-	// 	);
-	// };
+				<div
+					className={
+						tileState.tiles[propKey].graphSizeFull
+							? "graphAreaIconsSelected"
+							: "graphAreaIcons"
+					}
+					title="Fit Tile Size"
+					onClick={() => toggleGraphSize(propKey, true)}
+				>
+					<FullscreenIcon />
+				</div>
+			</>
+		);
+	};
 
 	return (
 		<div className="centerColumn">
@@ -469,47 +471,47 @@ const GraphArea = ({
 				{editTitle ? (
 					<form
 						style={{ width: "100%" }}
-						// onSubmit={evt => {
-						// 	evt.currentTarget.querySelector("input").blur();
-						// 	evt.preventDefault();
-						// }}
+						onSubmit={(evt: any) => {
+							evt.currentTarget.querySelector("input").blur();
+							evt.preventDefault();
+						}}
 					>
 						<input
 							autoFocus
-							// style={{
-							// 	fontSize: chartProperties.properties[propKey].titleOptions.fontSize,
+							style={{
+								fontSize: chartProperties.properties[propKey].titleOptions.fontSize,
 
-							// 	textAlign:
-							// 		chartProperties.properties[propKey].titleOptions.titleAlign,
-							// }}
-							// type="text"
-							// className="editTitle"
-							// value={inputTitleText}
-							// onChange={handleTitleChange}
-							// onBlur={() => completeRename()}
+								textAlign:
+									chartProperties.properties[propKey].titleOptions.titleAlign,
+							}}
+							type="text"
+							className="editTitle"
+							value={inputTitleText}
+							onChange={handleTitleChange}
+							onBlur={() => completeRename()}
 						/>
 					</form>
 				) : (
 					<>
 						<div
 							className="graphTitle"
-							// style={{
-							// 	fontSize: chartProperties.properties[propKey].titleOptions.fontSize,
-							// 	textAlign:
-							// 		chartProperties.properties[propKey].titleOptions.titleAlign,
-							// 	paddingLeft:
-							// 		chartProperties.properties[propKey].titleOptions
-							// 			.titleLeftPadding,
-							// }}
-							// onDoubleClick={() => editTitleText()}
+							style={{
+								fontSize: chartProperties.properties[propKey].titleOptions.fontSize,
+								textAlign:
+									chartProperties.properties[propKey].titleOptions.titleAlign,
+								paddingLeft:
+									chartProperties.properties[propKey].titleOptions
+										.titleLeftPadding,
+							}}
+							onDoubleClick={() => editTitleText()}
 							title="Double click to set title manually"
 						>
-							{/* {chartProperties.properties[propKey].titleOptions.chartTitle} */}
+							{chartProperties.properties[propKey].titleOptions.chartTitle}
 						</div>
 					</>
 				)}
 
-				{/* {!showSqlCode ? (
+				{!showSqlCode ? (
 					tabState.tabs[tabTileProps.selectedTabId].showDash ? null : (
 						<>
 							<RenderScreenOption />
@@ -522,7 +524,7 @@ const GraphArea = ({
 							</div>
 						</>
 					)
-				) : null} */}
+				) : null}
 				<div
 					style={{
 						borderRight: "1px solid rgb(211,211,211)",
@@ -551,33 +553,30 @@ const GraphArea = ({
 			<div
 				id="graphContainer"
 				className="graphContainer"
-				// style={{ margin: tileState.tiles[propKey].graphSizeFull ? "0" : "1rem" }}
+				style={{ margin: tileState.tiles[propKey].graphSizeFull ? "0" : "1rem" }}
 			>
-				{/* {
-						showSqlCode ? <ShowFormattedQuery /> : 
-						// chartDisplayed()
-					} */}
+				{showSqlCode ? <ShowFormattedQuery /> : chartDisplayed()}
 			</div>
 			{/* <ChartThemes /> */}
 			{fullScreen ? (
 				<div
-					// tabIndex="0"
+					tabIndex={0}
 					id="graphFullScreen"
 					className="graphFullScreen"
-					// onKeyDown={e => {
-					// 	//console.log("Key pressed");
-					// 	removeFullScreen(e);
-					// }}
+					onKeyDown={e => {
+						//console.log("Key pressed");
+						removeFullScreen(e);
+					}}
 				>
 					<div style={{ display: "flex" }}>
 						<span
 							className="graphTitle"
-							// style={{
-							// 	fontSize: chartProperties.properties[propKey].titleOptions.fontSize,
-							// }}
-							// onDoubleClick={() => editTitleText()}
+							style={{
+								fontSize: chartProperties.properties[propKey].titleOptions.fontSize,
+							}}
+							onDoubleClick={() => editTitleText()}
 						>
-							{/* {chartProperties.properties[propKey].titleOptions.chartTitle} */}
+							{chartProperties.properties[propKey].titleOptions.chartTitle}
 						</span>
 						<CloseRounded
 							style={{ margin: "0.25rem" }}

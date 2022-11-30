@@ -1,4 +1,11 @@
-const dimensionPrefixes : any = {
+import {
+	AggregatorKeysProps,
+	AggregatorsProps,
+	DimensionPrefixesProps,
+	MeasurePrefixes,
+} from "./ChartAxesInterfaces";
+
+const dimensionPrefixes: DimensionPrefixesProps = {
 	integer: [],
 	decimal: [],
 	text: [],
@@ -28,7 +35,7 @@ const dimensionPrefixes : any = {
 	},
 };
 
-const measurePrefixes : any = {
+const measurePrefixes: MeasurePrefixes = {
 	integer: [
 		{ name: "Sum", id: "sum" },
 		{ name: "Avg", id: "avg" },
@@ -93,7 +100,7 @@ const measurePrefixes : any = {
 	},
 };
 
-const Aggregators = {
+const Aggregators: AggregatorsProps = {
 	Dimension: dimensionPrefixes,
 	Row: dimensionPrefixes,
 	Column: dimensionPrefixes,
@@ -103,7 +110,7 @@ const Aggregators = {
 	Distribution: dimensionPrefixes,
 };
 
-export const AggregatorKeys = {
+export const AggregatorKeys: AggregatorKeysProps = {
 	sum: "Sum",
 	avg: "Avg",
 	min: "Min",

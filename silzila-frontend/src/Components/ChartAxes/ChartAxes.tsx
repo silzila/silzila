@@ -13,14 +13,21 @@ import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions
 import { canReUseData, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import FetchData from "../ServerCall/FetchData";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { AxesValuProps, ChartAxesFormattedAxes, ChartAxesProps } from "./ChartAxesInterfaces";
+import {
+	ChartPropertiesProps,
+	ChartPropertiesStateProps,
+} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 
 // format the chartAxes into the way it is needed for api call
 export const getChartData = async (
-	axesValues: any,
-	chartProp: any,
+	axesValues: AxesValuProps[],
+	chartProp: ChartPropertiesProps,
 	propKey: number,
 	token: string
 ) => {
+	console.log(axesValues, chartProp);
 	/*	PRS 21/07/2022	Construct filter object for service call */
 	const getChartLeftFilter = () => {
 		let _type: any = {};
@@ -120,7 +127,7 @@ export const getChartData = async (
 			_filter.filterType = _getFilterType(item);
 			_filter.tableId = item.tableId;
 			_filter.fieldName = item.fieldname;
-			_filter.dataType = item.dataType;
+			_filter.dataType = item.dataType.toLowerCase();
 			_filter.exclude = item.includeexclude === "Exclude";
 
 			if (item.fieldtypeoption === "Search Condition") {
@@ -147,8 +154,8 @@ export const getChartData = async (
 
 	/*	PRS 21/07/2022 */
 
-	var formattedAxes: any = {};
-	axesValues.forEach((axis: any) => {
+	var formattedAxes: ChartAxesFormattedAxes = {};
+	axesValues.forEach((axis: AxesValuProps) => {
 		var dim = "";
 		switch (axis.name) {
 			case "Filter":
@@ -183,7 +190,7 @@ export const getChartData = async (
 				tableId: field.tableId,
 				displayName: field.displayname,
 				fieldName: field.fieldname,
-				dataType: field.dataType,
+				dataType: field.dataType.toLowerCase(),
 			};
 			if (field.dataType === "date" || field.dataType === "timestamp") {
 				formattedField.time_grain = field.time_grain;
@@ -207,7 +214,7 @@ export const getChartData = async (
 		formattedAxes.dimensions = [];
 	}
 
-	formattedAxes.filters = [];
+	formattedAxes.filterPanels = [];
 
 	/*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
 
@@ -220,27 +227,24 @@ export const getChartData = async (
 		let _filterObj = getChartLeftFilter();
 
 		if (_filterObj.filters.length > 0) {
-			formattedAxes.filters.push(_filterObj);
+			formattedAxes.filterPanels.push(_filterObj);
 		}
 
-		console.log(JSON.stringify(formattedAxes));
+		// console.log(JSON.stringify(formattedAxes));
 
 		/*	PRS 21/07/2022	*/
-
 		var res: any = await FetchData({
 			requestType: "withData",
 			method: "POST",
-			url:
-				"query?dbconnectionid=" +
-				chartProp.properties[propKey].selectedDs.connectionId +
-				"&datasetid=" +
-				chartProp.properties[propKey].selectedDs.id,
+			url: `query?dbconnectionid=${chartProp.properties[propKey].selectedDs.connectionId}&datasetid=${chartProp.properties[propKey].selectedDs.id}`,
 			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
 			data: formattedAxes,
 		});
 
 		if (res.status) {
-			if (res.data && res.data.result.length > 0) {
+			console.log(res);
+			// if (res.data && res.data.result.length > 0) {
+			if (res.data && res.data.length > 0) {
 				return res.data;
 			} else {
 				console.log("Change filter conditions.");
@@ -294,8 +298,8 @@ const ChartAxes = ({
 	updateChartData,
 	toggleAxesEdit,
 	reUseOldData,
-	changeLocation
-}: any) => {
+	changeLocation,
+}: ChartAxesProps) => {
 	const [loading, setLoading] = useState<boolean>(false);
 
 	var propKey: number = parseFloat(`${tabId}.${tileId}`);
@@ -402,7 +406,7 @@ const ChartAxes = ({
 							sx={{ fontSize: "14px", height: "1.5rem", backgroundColor: "white" }}
 							label="Select Map"
 							value={chartProp.properties[propKey].geoLocation}
-							onChange={(e) => {
+							onChange={e => {
 								console.log(e.target.value);
 								changeLocation(propKey, e.target.value);
 							}}
@@ -445,7 +449,7 @@ const ChartAxes = ({
 					</FormControl>
 				</div>
 			)}
-			{dropZones.map((zone:any, zoneI:any) => (
+			{dropZones.map((zone: any, zoneI: any) => (
 				<DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} />
 			))}
 			{loading ? <LoadingPopover /> : null}
@@ -453,10 +457,10 @@ const ChartAxes = ({
 	);
 };
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: ChartPropertiesStateProps & isLoggedProps, ownProps: any) => {
 	return {
-		tabTileProps: state.tabTileProps,
-		userFilterGroup: state.userFilterGroup,
+		// tabTileProps: state.tabTileProps,
+		// userFilterGroup: state.userFilterGroup,
 		chartProp: state.chartProperties,
 		token: state.isLogged.accessToken,
 	};
@@ -464,7 +468,7 @@ const mapStateToProps = (state: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateChartData: (propKey: number, chartData: string) =>
+		updateChartData: (propKey: number, chartData: any) =>
 			dispatch(updateChartData(propKey, chartData)),
 		toggleAxesEdit: (propKey: number) => dispatch(toggleAxesEdited(propKey, false)),
 		reUseOldData: (propKey: number) => dispatch(canReUseData(propKey, false)),

@@ -8,7 +8,7 @@ import {
 } from "../ChartOptions/Format/NumberFormatter";
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
-const MultiBar = ({
+const MultiBarChart = ({
 	// props
 	propKey,
 	graphDimension,
@@ -59,6 +59,8 @@ const MultiBar = ({
 			setSeriesData(seriesDataTemp);
 		}
 	}, [chartData, chartControl]);
+
+	console.log(chartData);
 
 	const RenderChart = () => {
 		return chartData ? (
@@ -210,4 +212,4 @@ const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	};
 };
 
-export default connect(mapStateToProps, null)(MultiBar);
+export default connect(mapStateToProps, null)(MultiBarChart);

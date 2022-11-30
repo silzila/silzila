@@ -6,15 +6,18 @@ import {
 	SampleRecordsStateProp,
 } from "./SampleTableRecordsInterfaces";
 
-const initialRecords = { recordsColumnType: {} };
+const initialRecords = {
+	recordsColumnType: {},
+};
 
 const SampleRecordsReducer = (
-	state: SampleRecordsStateProp = initialRecords,
+	state: any = initialRecords,
 	action: AddTableRecords | ResetSampleRecords | LoadSampleRecords
 ) => {
 	switch (action.type) {
 		case "ADD_TABLE_RECORDS":
 			if (state[action.payload.ds_uid] !== undefined) {
+				console.log(state);
 				return update(state, {
 					[action.payload.ds_uid]: {
 						[action.payload.tableId]: { $set: action.payload.tableRecords },

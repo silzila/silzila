@@ -12,8 +12,12 @@ import {
 	sortAxes,
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { Divider, Menu, MenuItem } from "@mui/material";
-//import Aggregators, { AggregatorKeys } from "./Aggregators";
+import Aggregators, { AggregatorKeys } from "./Aggregators";
 import { useDrag, useDrop } from "react-dnd";
+import { Dispatch } from "redux";
+import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
+import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import {  CardProps } from "./ChartAxesInterfaces";
 
 const Card = ({
 	// props
@@ -28,143 +32,17 @@ const Card = ({
 	chartProp,
 
 	// dispatch
+	// chartPropUpdated,
 	deleteDropZoneItems,
 	updateQueryParam,
 	sortAxes,
 	revertAxes,
-	// chartPropUpdated,
-}) => {
+}: CardProps) => {
+	console.log(field);
+	field.dataType = field.dataType.toLowerCase();
 
-	const dimensionPrefixes : any = {
-		Integer: [],
-		Decimal: [],
-		Text: [],
-		Date: {
-			time_grain: [
-				{ name: "Year", id: "year" },
-				{ name: "Quarter", id: "quarter" },
-				{ name: "Month", id: "month" },
-				{ name: "Year Quarter", id: "yearquarter" },
-				{ name: "Year Month", id: "yearmonth" },
-				{ name: "Date", id: "date" },
-				{ name: "Day of Month", id: "dayofmonth" },
-				{ name: "Day of Week", id: "dayofweek" },
-			],
-		},
-		Timestamp: {
-			time_grain: [
-				{ name: "Year", id: "year" },
-				{ name: "Quarter", id: "quarter" },
-				{ name: "Month", id: "month" },
-				{ name: "Year Quarter", id: "yearquarter" },
-				{ name: "Year Month", id: "yearmonth" },
-				{ name: "Date", id: "date" },
-				{ name: "Day of Month", id: "dayofmonth" },
-				{ name: "Day of Week", id: "dayofweek" },
-			],
-		},
-	};
-	
-	const measurePrefixes : any = {
-		Integer: [
-			{ name: "Sum", id: "sum" },
-			{ name: "Avg", id: "avg" },
-			{ name: "Min", id: "min" },
-			{ name: "Max", id: "max" },
-			{ name: "Count", id: "count" },
-			{ name: "Count Non Null", id: "countnn" },
-			{ name: "Count Null", id: "countn" },
-			{ name: "Count Unique", id: "countu" },
-		],
-		Decimal: [
-			{ name: "Sum", id: "sum" },
-			{ name: "Avg", id: "avg" },
-			{ name: "Min", id: "min" },
-			{ name: "Max", id: "max" },
-			{ name: "Count", id: "count" },
-			{ name: "Count Non Null", id: "countnn" },
-			{ name: "Count Null", id: "countn" },
-			{ name: "Count Unique", id: "countu" },
-		],
-		Text: [
-			{ name: "Count", id: "count" },
-			{ name: "Count Non Null", id: "countnn" },
-			{ name: "Count Null", id: "countn" },
-			{ name: "Count Unique", id: "countu" },
-		],
-		Date: {
-			aggr: [
-				{ name: "Min", id: "min" },
-				{ name: "Max", id: "max" },
-				{ name: "Count", id: "count" },
-				{ name: "Count Non Null", id: "countnn" },
-				{ name: "Count Null", id: "countn" },
-				{ name: "Count Unique", id: "countu" },
-			],
-			time_grain: [
-				{ name: "Year", id: "year" },
-				{ name: "Quarter", id: "quarter" },
-				{ name: "Month", id: "month" },
-				{ name: "Date", id: "date" },
-				{ name: "Day of Month", id: "dayofmonth" },
-				{ name: "Day of Week", id: "dayofweek" },
-			],
-		},
-		Timestamp: {
-			aggr: [
-				{ name: "Min", id: "min" },
-				{ name: "Max", id: "max" },
-				{ name: "Count", id: "count" },
-				{ name: "Count Non Null", id: "countnn" },
-				{ name: "Count Null", id: "countn" },
-				{ name: "Count Unique", id: "countu" },
-			],
-			time_grain: [
-				{ name: "Year", id: "year" },
-				{ name: "Quarter", id: "quarter" },
-				{ name: "Month", id: "month" },
-				{ name: "Date", id: "date" },
-				{ name: "Day of Month", id: "dayofmonth" },
-				{ name: "Day of Week", id: "dayofweek" },
-			],
-		},
-	};
-	
-	const Aggregators = {
-		Dimension: dimensionPrefixes,
-		Row: dimensionPrefixes,
-		Column: dimensionPrefixes,
-		Measure: measurePrefixes,
-		X: measurePrefixes,
-		Y: measurePrefixes,
-		Distribution: dimensionPrefixes,
-	};
-	
-	 const AggregatorKeys = {
-		sum: "Sum",
-		avg: "Avg",
-		min: "Min",
-		max: "Max",
-		count: "Count",
-		countnn: "Count NN",
-		countn: "Count Null",
-		countu: "Count Unique",
-	
-		year: "Year",
-		yearquarter: "Year Qtr",
-		yearmonth: "Year Mth",
-		month: "Month",
-		quarter: "Quarter",
-		dayofmonth: "Day Mn",
-		dayofweek: "Day Wk",
-		date: "Date",
-	};
-	
-	//export default Aggregators;
-
-	
 	const originalIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
-		item => item.uId === field.uId
+		(item: any) => item.uId === field.uId
 	);
 
 	const deleteItem = () => {
@@ -172,16 +50,16 @@ const Card = ({
 		// chartPropUpdated(true);
 	};
 
-	const [showOptions, setShowOptions] = useState(false);
+	const [showOptions, setShowOptions] = useState<boolean>(false);
 
-	const [anchorEl, setAnchorEl] = useState(null);
-	const open = Boolean(anchorEl);
+	const [anchorEl, setAnchorEl] = useState<any | null>(null);
+	const open: boolean = Boolean(anchorEl);
 
-	const handleClick = event => {
+	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);
 	};
 
-	const handleClose = (closeFrom, queryParam) => {
+	const handleClose = (closeFrom: any, queryParam?: any) => {
 		// console.log(closeFrom);
 		setAnchorEl(null);
 		setShowOptions(false);
@@ -244,7 +122,7 @@ const Card = ({
 		collect: monitor => ({
 			backgroundColor1: monitor.isOver({ shallow: true }) ? 1 : 0,
 		}),
-		hover({ uId: dragUId, bIndex: fromBIndex }) {
+		hover: ({ uId: dragUId, bIndex: fromBIndex }: { uId: string; bIndex: number }) => {
 			if (fromBIndex === bIndex && dragUId !== field.uId) {
 				sortAxes(propKey, bIndex, dragUId, field.uId);
 				console.log("============HOVER BLOCK END ==============");
@@ -255,14 +133,16 @@ const Card = ({
 	// List of options to show at the end of each card
 	// (like, year, month, day, or Count, sum, avg etc)
 	const RenderMenu = useCallback(() => {
-		var options = [];
-		var options2 = [];
+		var options: any[] = [];
+		var options2: any[] = [];
 
 		if (axisTitle === "Measure" || axisTitle === "X" || axisTitle === "Y") {
 			if (field.dataType === "date" || field.dataType === "timestamp") {
 				options = options.concat(Aggregators[axisTitle][field.dataType].aggr);
 				options2 = options2.concat(Aggregators[axisTitle][field.dataType].time_grain);
-			} else {
+			} else {			
+				console.log(Aggregators[axisTitle][field.dataType]);
+
 				options = options.concat(Aggregators[axisTitle][field.dataType]);
 			}
 		}
@@ -329,7 +209,7 @@ const Card = ({
 				) : null}
 			</Menu>
 		);
-	});
+	},[field]);
 
 	return field ? (
 		<div
@@ -374,33 +254,30 @@ const Card = ({
 	) : null;
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: TabTileStateProps2 & ChartPropertiesStateProps) => {
 	return {
 		tabTileProps: state.tabTileProps,
 		chartProp: state.chartProperties,
 	};
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		deleteDropZoneItems: (propKey, binIndex, itemIndex) =>
-			dispatch(
-				editChartPropItem("delete", { propKey, binIndex, itemIndex } )
-			),
+		deleteDropZoneItems: (propKey: number | string, binIndex: number, itemIndex: number) =>
+			dispatch(editChartPropItem("delete", { propKey, binIndex, itemIndex })),
 
-		updateQueryParam: (propKey, binIndex, itemIndex, item) =>
-			dispatch(
-				editChartPropItem("updateQuery",
-					 { propKey, binIndex, itemIndex, item },
-				)
-			),
+		updateQueryParam: (
+			propKey: number | string,
+			binIndex: number,
+			itemIndex: number,
+			item: any
+		) => dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item })),
 
-		sortAxes: (propKey, bIndex, dragUId, uId) =>
+		sortAxes: (propKey: number, bIndex: number, dragUId: string, uId: string) =>
 			dispatch(sortAxes(propKey, bIndex, dragUId, uId)),
-		revertAxes: (propKey, bIndex, uId, originalIndex) =>
+		revertAxes: (propKey: number, bIndex: number, uId: string, originalIndex: number) =>
 			dispatch(revertAxes(propKey, bIndex, uId, originalIndex)),
 	};
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Card);
-

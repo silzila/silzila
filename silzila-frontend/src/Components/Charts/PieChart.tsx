@@ -26,19 +26,22 @@ const PieChart = ({
 	var chartControl: any = chartControls.properties[propKey];
 	let chartData: any =
 		chartControl.chartData &&
-		chartControl.chartData.result &&
-		chartControl.chartData.result.length > 0
-			? chartControl.chartData.result
-			: "";
+		chartControl.chartData.length > 0
+			? chartControl.chartData
+			: [];
+
 	const [chartDataKeys, setChartDataKeys] = useState<string[]>([]);
 
 	useEffect(() => {
-		if (chartControl.chartData) {
-			setChartDataKeys(Object.keys(chartData[0]));
+		if (chartData) {
+
+			if(typeof chartData == 'object' && chartData.length > 0){
+				setChartDataKeys(Object.keys(chartData[0]));
+			}
 
 			var objKey: any;
 			if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
-				if ("time_grain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
+				if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
 					objKey =
 						chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname +
 						"__" +
@@ -46,14 +49,15 @@ const PieChart = ({
 				} else {
 					objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				}
-				chartControl.chartData.result.map((el: any) => {
-					if (objKey in el) {
-						let agg = el[objKey];
-						//console.log(agg);
-						if (agg) el[objKey] = agg.toString();
-					}
-					return el;
-				});
+
+				// chartData.map((el: any) => {
+				// 	if (objKey in el) {
+				// 		let agg = el[objKey];
+				// 		//console.log(agg);
+				// 		if (agg) el[objKey] = agg.toString();
+				// 	}
+				// 	return el;
+				// });
 				//console.log(chartControl.chartData.result);
 			}
 		}
@@ -103,7 +107,7 @@ const PieChart = ({
 
 						tooltip: { show: chartControl.mouseOver.enable },
 						dataset: {
-							dimensions: Object.keys(chartData[0]),
+							dimensions: chartDataKeys,
 							source: chartData,
 						},
 
