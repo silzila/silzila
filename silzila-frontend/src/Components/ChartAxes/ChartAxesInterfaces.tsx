@@ -11,7 +11,7 @@ export interface ChartAxesProps {
 	chartProp: any;
 
 	// dispatch
-	updateChartData: (propKey: number, chartData: string) => void;
+	updateChartData: (propKey: number, chartData: any) => void;
 	toggleAxesEdit: (propKey: number) => void;
 	reUseOldData: (propKey: number) => void;
 	changeLocation: any;
