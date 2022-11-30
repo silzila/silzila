@@ -415,7 +415,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			oldContent: string | any
 		) => dispatch(updatePlaybookUid(playBookName, playBookUid, description, oldContent)),
 		storePlayBookCopy: (pb: any) => dispatch(storePlayBookCopy(pb)),
-		updateChartData: (propKey: number, chartData: string) =>
+		updateChartData: (propKey: number, chartData: string | any) =>
 			dispatch(updateChartData(propKey, chartData)),
 	};
 };

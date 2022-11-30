@@ -127,7 +127,7 @@ export const getChartData = async (
 			_filter.filterType = _getFilterType(item);
 			_filter.tableId = item.tableId;
 			_filter.fieldName = item.fieldname;
-			_filter.dataType = item.dataType;
+			_filter.dataType = item.dataType.toLowerCase();
 			_filter.exclude = item.includeexclude === "Exclude";
 
 			if (item.fieldtypeoption === "Search Condition") {
@@ -190,7 +190,7 @@ export const getChartData = async (
 				tableId: field.tableId,
 				displayName: field.displayname,
 				fieldName: field.fieldname,
-				dataType: field.dataType,
+				dataType: field.dataType.toLowerCase(),
 			};
 			if (field.dataType === "date" || field.dataType === "timestamp") {
 				formattedField.time_grain = field.time_grain;
@@ -214,7 +214,7 @@ export const getChartData = async (
 		formattedAxes.dimensions = [];
 	}
 
-	formattedAxes.filters = [];
+	formattedAxes.filterPanels = [];
 
 	/*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
 
@@ -227,7 +227,7 @@ export const getChartData = async (
 		let _filterObj = getChartLeftFilter();
 
 		if (_filterObj.filters.length > 0) {
-			formattedAxes.filters.push(_filterObj);
+			formattedAxes.filterPanels.push(_filterObj);
 		}
 
 		// console.log(JSON.stringify(formattedAxes));
@@ -468,7 +468,7 @@ const mapStateToProps = (state: ChartPropertiesStateProps & isLoggedProps, ownPr
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateChartData: (propKey: number, chartData: string) =>
+		updateChartData: (propKey: number, chartData: any) =>
 			dispatch(updateChartData(propKey, chartData)),
 		toggleAxesEdit: (propKey: number) => dispatch(toggleAxesEdited(propKey, false)),
 		reUseOldData: (propKey: number) => dispatch(canReUseData(propKey, false)),

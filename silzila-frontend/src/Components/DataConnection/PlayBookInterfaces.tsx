@@ -6,7 +6,7 @@ export interface PlayBookProps {
 	setSelectedDs: (propKey: number, selectedDs: any) => void;
 	loadPlayBook: (playBook: any) => void;
 	storePlayBookCopy: (pb: any) => void;
-	updateChartData: (propKey: number, chartData: string) => void;
+	updateChartData: (propKey: number, chartData: string | any) => void;
 	updatePlayBookId: (
 		playBookName: string,
 		playBookUid: string,

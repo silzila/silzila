@@ -12,12 +12,12 @@ import {
 	sortAxes,
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { Divider, Menu, MenuItem } from "@mui/material";
-//import Aggregators, { AggregatorKeys } from "./Aggregators";
+import Aggregators, { AggregatorKeys } from "./Aggregators";
 import { useDrag, useDrop } from "react-dnd";
 import { Dispatch } from "redux";
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
-import { AggregatorKeysProps, CardProps, DimensionPrefixesProps } from "./ChartAxesInterfaces";
+import {  CardProps } from "./ChartAxesInterfaces";
 
 const Card = ({
 	// props
@@ -39,132 +39,7 @@ const Card = ({
 	revertAxes,
 }: CardProps) => {
 	console.log(field);
-	const dimensionPrefixes: any = {
-		Integer: [],
-		Decimal: [],
-		Text: [],
-		Date: {
-			time_grain: [
-				{ name: "Year", id: "year" },
-				{ name: "Quarter", id: "quarter" },
-				{ name: "Month", id: "month" },
-				{ name: "Year Quarter", id: "yearquarter" },
-				{ name: "Year Month", id: "yearmonth" },
-				{ name: "Date", id: "date" },
-				{ name: "Day of Month", id: "dayofmonth" },
-				{ name: "Day of Week", id: "dayofweek" },
-			],
-		},
-		Timestamp: {
-			time_grain: [
-				{ name: "Year", id: "year" },
-				{ name: "Quarter", id: "quarter" },
-				{ name: "Month", id: "month" },
-				{ name: "Year Quarter", id: "yearquarter" },
-				{ name: "Year Month", id: "yearmonth" },
-				{ name: "Date", id: "date" },
-				{ name: "Day of Month", id: "dayofmonth" },
-				{ name: "Day of Week", id: "dayofweek" },
-			],
-		},
-	};
-
-	const measurePrefixes: any = {
-		Integer: [
-			{ name: "Sum", id: "sum" },
-			{ name: "Avg", id: "avg" },
-			{ name: "Min", id: "min" },
-			{ name: "Max", id: "max" },
-			{ name: "Count", id: "count" },
-			{ name: "Count Non Null", id: "countnn" },
-			{ name: "Count Null", id: "countn" },
-			{ name: "Count Unique", id: "countu" },
-		],
-		Decimal: [
-			{ name: "Sum", id: "sum" },
-			{ name: "Avg", id: "avg" },
-			{ name: "Min", id: "min" },
-			{ name: "Max", id: "max" },
-			{ name: "Count", id: "count" },
-			{ name: "Count Non Null", id: "countnn" },
-			{ name: "Count Null", id: "countn" },
-			{ name: "Count Unique", id: "countu" },
-		],
-		Text: [
-			{ name: "Count", id: "count" },
-			{ name: "Count Non Null", id: "countnn" },
-			{ name: "Count Null", id: "countn" },
-			{ name: "Count Unique", id: "countu" },
-		],
-		Date: {
-			aggr: [
-				{ name: "Min", id: "min" },
-				{ name: "Max", id: "max" },
-				{ name: "Count", id: "count" },
-				{ name: "Count Non Null", id: "countnn" },
-				{ name: "Count Null", id: "countn" },
-				{ name: "Count Unique", id: "countu" },
-			],
-			time_grain: [
-				{ name: "Year", id: "year" },
-				{ name: "Quarter", id: "quarter" },
-				{ name: "Month", id: "month" },
-				{ name: "Date", id: "date" },
-				{ name: "Day of Month", id: "dayofmonth" },
-				{ name: "Day of Week", id: "dayofweek" },
-			],
-		},
-		Timestamp: {
-			aggr: [
-				{ name: "Min", id: "min" },
-				{ name: "Max", id: "max" },
-				{ name: "Count", id: "count" },
-				{ name: "Count Non Null", id: "countnn" },
-				{ name: "Count Null", id: "countn" },
-				{ name: "Count Unique", id: "countu" },
-			],
-			time_grain: [
-				{ name: "Year", id: "year" },
-				{ name: "Quarter", id: "quarter" },
-				{ name: "Month", id: "month" },
-				{ name: "Date", id: "date" },
-				{ name: "Day of Month", id: "dayofmonth" },
-				{ name: "Day of Week", id: "dayofweek" },
-			],
-		},
-	};
-
-	const Aggregators = {
-		Dimension: dimensionPrefixes,
-		Row: dimensionPrefixes,
-		Column: dimensionPrefixes,
-		Measure: measurePrefixes,
-		X: measurePrefixes,
-		Y: measurePrefixes,
-		Distribution: dimensionPrefixes,
-	};
-
-	const AggregatorKeys: AggregatorKeysProps = {
-		sum: "Sum",
-		avg: "Avg",
-		min: "Min",
-		max: "Max",
-		count: "Count",
-		countnn: "Count NN",
-		countn: "Count Null",
-		countu: "Count Unique",
-
-		year: "Year",
-		yearquarter: "Year Qtr",
-		yearmonth: "Year Mth",
-		month: "Month",
-		quarter: "Quarter",
-		dayofmonth: "Day Mn",
-		dayofweek: "Day Wk",
-		date: "Date",
-	};
-
-	//export default Aggregators;
+	field.dataType = field.dataType.toLowerCase();
 
 	const originalIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
 		(item: any) => item.uId === field.uId
@@ -265,7 +140,9 @@ const Card = ({
 			if (field.dataType === "date" || field.dataType === "timestamp") {
 				options = options.concat(Aggregators[axisTitle][field.dataType].aggr);
 				options2 = options2.concat(Aggregators[axisTitle][field.dataType].time_grain);
-			} else {
+			} else {			
+				console.log(Aggregators[axisTitle][field.dataType]);
+
 				options = options.concat(Aggregators[axisTitle][field.dataType]);
 			}
 		}
@@ -332,7 +209,7 @@ const Card = ({
 				) : null}
 			</Menu>
 		);
-	});
+	},[field]);
 
 	return field ? (
 		<div
