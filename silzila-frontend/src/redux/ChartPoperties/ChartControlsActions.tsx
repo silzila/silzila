@@ -1,6 +1,6 @@
 import { ChartControlsProps } from "./ChartControlsInterface";
 
-export const updateChartData = (propKey: string | number, chartData: string) => {
+export const updateChartData = (propKey: string | number, chartData: string | any) => {
 	return {
 		type: "UPDATE_CHART_DATA",
 		payload: { propKey, chartData },
