@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
-import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+import {
+	ChartsMapStateToProps,
+	ChartsReduxStateProps,
+	FormatterValueProps,
+} from "./ChartsCommonInterfaces";
 
 const RoseChart = ({
 	//props
@@ -17,13 +21,13 @@ const RoseChart = ({
 	chartControls,
 }: ChartsReduxStateProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
-	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
+	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 	const [chartDataKeys, setChartDataKeys] = useState<any>([]);
 
 	useEffect(() => {
-		if (chartControl.chartData !== "") {
+		if (chartData.length >= 1) {
 			setChartDataKeys(Object.keys(chartData[0]));
-			var objKey: any;
+			var objKey: string;
 			if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
 				if ("time_grain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
 					objKey =
@@ -34,7 +38,7 @@ const RoseChart = ({
 					objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				}
 
-				chartControl.chartData.result.map((el: any) => {
+				chartControl.chartData.map((el: any) => {
 					if (objKey in el) {
 						let agg = el[objKey];
 						//console.log(agg);
@@ -46,21 +50,6 @@ const RoseChart = ({
 			}
 		}
 	}, [chartData, chartControl]);
-
-	// //console.log(chartData);
-
-	var seriesObj = {
-		type: "pie",
-		roseType: "area",
-		label: {
-			position: "outSide",
-			show: chartControl.labelOptions.showLabel,
-			fontSize: chartControl.labelOptions.fontSize,
-			color: chartControl.labelOptions.labelColorManual
-				? chartControl.labelOptions.labelColor
-				: null,
-		},
-	};
 
 	const RenderChart = () => {
 		return (
@@ -116,7 +105,8 @@ const RoseChart = ({
 										chartControl.labelOptions.pieLabel.labelPadding,
 									],
 
-									formatter: (value: any) => {
+									formatter: (value: FormatterValueProps) => {
+										console.log(value);
 										if (chartDataKeys) {
 											var formattedValue = value.value[chartDataKeys[1]];
 											formattedValue = formatChartLabelValue(
@@ -141,7 +131,7 @@ const RoseChart = ({
 			</>
 		);
 	};
-	return <>{chartData ? <RenderChart /> : ""}</>;
+	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
 
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {

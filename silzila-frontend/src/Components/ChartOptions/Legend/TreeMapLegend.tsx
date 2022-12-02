@@ -4,9 +4,7 @@ import { ColorResult, SketchPicker } from "react-color";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { updateTreeMapStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
-import { ChartControl } from "../../../redux/ChartPoperties/ChartControlsInterface";
-import { TabTileStateProps } from "../../../redux/TabTile/TabTilePropsInterfaces";
-import { ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import SliderWithInput from "../SliderWithInput";
 import SwitchWithInput from "../SwitchWithInput";
 
@@ -17,11 +15,7 @@ const TreeMapLegend = ({
 
 	// dispatch
 	updateTreeMapStyleOptions,
-}: {
-	chartControls: ChartControl;
-	tabTileProps: TabTileStateProps;
-
-	// dispatch
+}: ChartOptionsProps & {
 	updateTreeMapStyleOptions: (propKey: number | string, option: string, value: any) => void;
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;

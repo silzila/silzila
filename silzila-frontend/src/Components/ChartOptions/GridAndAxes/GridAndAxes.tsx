@@ -16,19 +16,10 @@ import SwitchWithInput from "../SwitchWithInput";
 import { Dispatch } from "redux";
 import {
 	ChartConAxisOptions,
-	ChartControl,
-	ChartControlStateProps,
 	ChartConXAxis,
 	ChartConYAxis,
 } from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
-import {
-	ChartPropertiesStateProps,
-	ChartPropProperties,
-} from "../../../redux/ChartPoperties/ChartPropertiesInterfaces";
+
 import {
 	enableGrid,
 	updateAxisMinMax,
@@ -36,7 +27,7 @@ import {
 	updateAxisOptions,
 	updateReverse,
 } from "../../../redux/ChartPoperties/ChartControlsActions";
-import { ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
 const textFieldStyleProps = {
 	style: {
@@ -50,10 +41,6 @@ const textFieldStyleProps = {
 };
 
 interface GridAndAxisProps {
-	chartControl: ChartControl;
-	tabTileProps: TabTileStateProps;
-	chartProp: ChartPropProperties;
-
 	setAxisMinMax: (propKey: number | string, axisKey: string, axisValue: any) => void;
 	updateAxisMinMaxforScatter: (propKey: number | string, axisKey: string, axisValue: any) => void;
 	setReverse: (propKey: number | string, value: boolean) => void;
@@ -69,9 +56,9 @@ interface PositionsProps {
 
 const GridAndAxes = ({
 	// state
-	chartControl,
+	chartControls,
 	tabTileProps,
-	chartProp,
+	chartProperties,
 
 	//dispatch
 	setAxisMinMax,
@@ -79,11 +66,11 @@ const GridAndAxes = ({
 	enableGrids,
 	updateAxisOptions,
 	updateAxisMinMaxforScatter,
-}: GridAndAxisProps) => {
+}: ChartOptionsProps & GridAndAxisProps) => {
 	var propKey: number = parseFloat(
 		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
 	);
-	var property: ChartConAxisOptions = chartControl.properties[propKey].axisOptions;
+	var property: ChartConAxisOptions = chartControls.properties[propKey].axisOptions;
 
 	const [isXColorPopoverOpen, setXColorPopOverOpen] = useState<boolean>(false);
 	const [isYColorPopoverOpen, setYColorPopOverOpen] = useState<boolean>(false);
@@ -157,7 +144,7 @@ const GridAndAxes = ({
 			                                        GRID PROPS
 			====================================================================================================== */}
 
-			{chartProp[propKey].chartType !== "scatterPlot" ? (
+			{chartProperties.properties[propKey].chartType !== "scatterPlot" ? (
 				<>
 					<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
 						<label
@@ -225,10 +212,10 @@ const GridAndAxes = ({
 				style={{ borderTop: "1px solid rgb(211,211,211)", margin: "0.5rem 6% 1rem" }}
 			></div>
 			<div className="optionDescription">Dimension-Axis</div>
-			{chartProp[propKey].chartType === "multibar" ||
-			chartProp[propKey].chartType === "stackedBar" ||
-			chartProp[propKey].chartType === "horizontalBar" ||
-			chartProp[propKey].chartType === "horizontalStacked" ? (
+			{chartProperties.properties[propKey].chartType === "multibar" ||
+			chartProperties.properties[propKey].chartType === "stackedBar" ||
+			chartProperties.properties[propKey].chartType === "horizontalBar" ||
+			chartProperties.properties[propKey].chartType === "horizontalStacked" ? (
 				<>
 					<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
 						<label
@@ -265,7 +252,7 @@ const GridAndAxes = ({
 			</div>
 			{xAxisProps.showLabel ? (
 				<React.Fragment>
-					{chartProp[propKey].chartType === "scatterPlot" ? (
+					{chartProperties.properties[propKey].chartType === "scatterPlot" ? (
 						<React.Fragment>
 							<div className="optionDescription">MIN VALUE</div>
 							<div className="optionDescription">
@@ -474,10 +461,10 @@ const GridAndAxes = ({
 			></div>
 			<div className="optionDescription">Measure-Axis</div>
 
-			{chartProp[propKey].chartType === "multibar" ||
-			chartProp[propKey].chartType === "stackedBar" ||
-			chartProp[propKey].chartType === "horizontalBar" ||
-			chartProp[propKey].chartType === "horizontalStacked" ? (
+			{chartProperties.properties[propKey].chartType === "multibar" ||
+			chartProperties.properties[propKey].chartType === "stackedBar" ||
+			chartProperties.properties[propKey].chartType === "horizontalBar" ||
+			chartProperties.properties[propKey].chartType === "horizontalStacked" ? (
 				<>
 					<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
 						<label
@@ -513,7 +500,7 @@ const GridAndAxes = ({
 			</div>
 			{yAxisProps.showLabel ? (
 				<React.Fragment>
-					{chartProp[propKey].chartType === "scatterPlot" ? (
+					{chartProperties.properties[propKey].chartType === "scatterPlot" ? (
 						<>
 							<div className="optionDescription">MIN VALUE</div>
 							<div className="optionDescription">

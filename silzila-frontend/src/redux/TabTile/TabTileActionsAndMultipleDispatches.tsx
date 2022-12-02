@@ -7,6 +7,7 @@ import {
 } from "../ChartPoperties/ChartControlsActions";
 import {
 	addProp,
+	changeChartType,
 	removeChartProperties,
 	removeMultipleChartProperties,
 	resetChartProperties,
@@ -276,6 +277,43 @@ export const actionsToRemoveTab = (
 		// 			newObj.nextTileId
 		// 		)
 		// 	);
+		// }
+	};
+};
+
+export const actionsToAddTileForRichText = ({
+	tabId,
+	nextTileId,
+	table,
+	fromTab: newTab,
+	selectedDs,
+	selectedTablesInDs,
+	chartName,
+}: {
+	tabId: number;
+	nextTileId: number;
+	table: any;
+	fromTab: any;
+	selectedDs: any;
+	selectedTablesInDs: any;
+	chartName: string;
+}) => {
+	//let tileName = tileName ? tileName : `Tile - ${nextTileId}`;
+	// let tileName = `Tile - ${nextTileId}`;
+	// //console.log(table);
+	let tileName: any;
+	return (dispatch: Dispatch<any>) => {
+		dispatch(addProp(tabId, nextTileId, table, newTab, selectedDs, selectedTablesInDs));
+		dispatch(addControl(tabId, nextTileId, newTab));
+		dispatch(addTile(tabId, nextTileId, newTab));
+		dispatch(updateNextTileId(nextTileId, tabId));
+		dispatch(updateSelectedTile(tileName, nextTileId, nextTileId + 1));
+		dispatch(updateSelectedTileToTab(tabId, tileName, nextTileId));
+		dispatch(showDashBoard(false));
+		// dispatch(setChartTitle(`${tabId}.${nextTileId}`, chartName));
+		dispatch(changeChartType(`${tabId}.${nextTileId}`, chartName));
+		// if (chartName === "richText") {
+		// 	//console.log(chartName);
 		// }
 	};
 };
