@@ -15,12 +15,13 @@ const CalendarChart = ({
 	chartControls,
 	chartProperties,
 }: ChartsReduxStateProps) => {
+	// TODO: showing alert with the message of "only can drop data tatatype columns" even its a data type column
 	var yearsArray: string[] | number[] | any = [];
 	var uniqueYears: string[] | number[] | any = [];
 
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
-	let chartData: any = chartControl.chartData ? chartControl.chartData.result : "";
+	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
 	const [calendarArray, setCalendarArray] = useState<any[]>([]);
 	const [seriesArray, setSeriesArray] = useState<any[]>([]);

@@ -6,7 +6,7 @@ import {
 	ChartControlStateProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
-import { ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+import { ChartsReduxStateProps, FormatterValueProps } from "./ChartsCommonInterfaces";
 
 const FunnelChart = ({
 	//props
@@ -18,15 +18,16 @@ const FunnelChart = ({
 	//state
 	chartControls,
 }: ChartsReduxStateProps) => {
+	// TODO: problem in Apply filters
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
-	let chartData: any = chartControl.chartData ? chartControl.chartData.result : "";
+	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
 	const [newData, setNewData] = useState<any[]>([]);
 
 	useEffect(() => {
-		if (chartData) {
+		if (chartData.length >= 1) {
 			var newData: any[] = [];
-			Object.keys(chartData[0]).map(key => {
+			Object.keys(chartData[0]).map((key: string) => {
 				newData.push({
 					name: key,
 					value: chartData[0][key],
@@ -86,7 +87,7 @@ const FunnelChart = ({
 								color: chartControl.labelOptions.labelColorManual
 									? chartControl.labelOptions.labelColor
 									: null,
-								formatter: (value: any) => {
+								formatter: (value: FormatterValueProps) => {
 									var formattedValue = value.value.value;
 									formattedValue = formatChartLabelValue(
 										chartControl,
@@ -106,7 +107,7 @@ const FunnelChart = ({
 		);
 	};
 
-	return chartData ? <RenderChart /> : null;
+	return chartData.length >= 1 ? <RenderChart /> : null;
 };
 const mapStateToProps = (state: ChartControlStateProps, ownProps: any) => {
 	return {

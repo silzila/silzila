@@ -16,9 +16,10 @@ const BoxPlotChart = ({
 	chartControls,
 	chartProperties,
 }: ChartsReduxStateProps) => {
+	// TODO: chart not render properly
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
-	let chartData: any = chartControl.chartData ? chartControl.chartData.result : "";
+	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
 	const [dimensionData, setDimensionData] = useState<any>([]);
 	const [sourceData, setSourceData] = useState<any[]>([]);
@@ -28,7 +29,7 @@ const BoxPlotChart = ({
 	const axisName2: string = !chartControl.boxPlotChartControls.flipAxis ? "yAxis" : "xAxis";
 
 	useEffect(() => {
-		if (chartData) {
+		if (chartData.length >= 1) {
 			// distribution value
 			var dimValue: string =
 				chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
@@ -236,7 +237,7 @@ const BoxPlotChart = ({
 									? chartControl.axisOptions.yAxis.tickPaddingLeft
 									: chartControl.axisOptions.yAxis.tickPaddingRight,
 
-							formatter: (value: any) => {
+							formatter: (value: number) => {
 								var formattedValue = formatChartYAxisValue(chartControl, value);
 								return formattedValue;
 							},
@@ -278,7 +279,7 @@ const BoxPlotChart = ({
 		);
 	};
 
-	return <>{chartData ? <RenderChart /> : ""}</>;
+	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {

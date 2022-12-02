@@ -2,7 +2,6 @@ import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
-import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 const Sankey = ({
@@ -17,9 +16,8 @@ const Sankey = ({
 	chartProperties,
 }: ChartsReduxStateProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
-	var colorSchems: string[] = ColorSchemes[6].colors;
 
-	let chartData: any = chartControl.chartData ? chartControl.chartData.result : "";
+	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
 	const [nodes, setNodes] = useState<any>([]);
 	const [links, setLinks] = useState<any>([]);

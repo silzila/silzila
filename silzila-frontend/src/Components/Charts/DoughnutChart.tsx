@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
-import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+import {
+	ChartsMapStateToProps,
+	ChartsReduxStateProps,
+	FormatterValueProps,
+} from "./ChartsCommonInterfaces";
 
 const DoughnutChart = ({
 	//props
@@ -16,13 +20,14 @@ const DoughnutChart = ({
 	chartProperties,
 	chartControls,
 }: ChartsReduxStateProps) => {
+	// TODO: conde breaks when apply filters
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
-	let chartData: any = chartControl.chartData ? chartControl.chartData.result : "";
+	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
 	const [chartDataKeys, setchartDataKeys] = useState<string[]>([]);
 
 	useEffect(() => {
-		if (chartControl.chartData) {
+		if (chartControl.chartData.length >= 1) {
 			setchartDataKeys(Object.keys(chartData[0]));
 			var objKey: string;
 			if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
@@ -34,7 +39,7 @@ const DoughnutChart = ({
 				} else {
 					objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				}
-				chartControl.chartData.result.map((el: any) => {
+				chartControl.chartData.map((el: any) => {
 					if (objKey in el) {
 						let agg = el[objKey];
 						//console.log(agg);
@@ -102,7 +107,7 @@ const DoughnutChart = ({
 										chartControl.labelOptions.pieLabel.labelPadding,
 									],
 
-									formatter: (value: any) => {
+									formatter: (value: FormatterValueProps) => {
 										if (chartDataKeys) {
 											var formattedValue = value.value[chartDataKeys[1]];
 											formattedValue = formatChartLabelValue(
@@ -124,7 +129,7 @@ const DoughnutChart = ({
 			</>
 		);
 	};
-	return <>{chartData ? <RenderChart /> : ""}</>;
+	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {

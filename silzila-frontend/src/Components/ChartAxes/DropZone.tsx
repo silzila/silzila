@@ -227,6 +227,7 @@ const DropZone = ({
 					? options.map((opt, index) => {
 							return (
 								<div
+									key={index}
 									style={{ display: "flex" }}
 									onClick={() => handleClose("opt1", opt)}
 								>
@@ -242,6 +243,7 @@ const DropZone = ({
 					? options1.map((opt, index) => {
 							return (
 								<div
+									key={index}
 									style={{ display: "flex" }}
 									onClick={() => {
 										setAnchorEl(null);
@@ -276,6 +278,7 @@ const DropZone = ({
 					? options2.map((opt, index) => {
 							return (
 								<div
+									key={index}
 									style={{ display: "flex" }}
 									onClick={() => {
 										setAnchorEl(null);

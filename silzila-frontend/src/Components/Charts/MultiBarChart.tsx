@@ -2,11 +2,16 @@ import ReactEcharts from "echarts-for-react";
 
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import {
 	formatChartLabelValue,
 	formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
-import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+import {
+	ChartsMapStateToProps,
+	ChartsReduxStateProps,
+	FormatterValueProps,
+} from "./ChartsCommonInterfaces";
 
 const MultiBarChart = ({
 	// props
@@ -18,18 +23,18 @@ const MultiBarChart = ({
 	//state
 	chartControls,
 }: ChartsReduxStateProps) => {
-	var chartControl = chartControls.properties[propKey];
-	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
+	var chartControl: ChartControlsProps = chartControls.properties[propKey];
+	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
-	const [seriesData, setSeriesData] = useState([]);
+	const [seriesData, setSeriesData] = useState<any[]>([]);
 
 	useEffect(() => {
 		var seriesDataTemp: any = [];
-		if (chartData) {
-			var chartDataKeys = Object.keys(chartData[0]);
+		if (chartData.length >= 1) {
+			var chartDataKeys: string[] = Object.keys(chartData[0]);
 
 			for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
-				var seriesObj = {
+				var seriesObj: any = {
 					type: "bar",
 					stack: "",
 					emphasis: {
@@ -42,7 +47,7 @@ const MultiBarChart = ({
 							? chartControl.labelOptions.labelColor
 							: null,
 
-						formatter: (value: any) => {
+						formatter: (value: FormatterValueProps) => {
 							var formattedValue = value.value[chartDataKeys[i + 1]];
 							var formattedValue = formatChartLabelValue(
 								chartControl,
@@ -60,12 +65,11 @@ const MultiBarChart = ({
 		}
 	}, [chartData, chartControl]);
 
-	console.log(chartData);
-
 	const RenderChart = () => {
 		return chartData ? (
 			<ReactEcharts
 				opts={{ renderer: "svg" }}
+				// TODO: color theme not working
 				theme={chartControl.colorScheme}
 				style={{
 					padding: "5px",
@@ -182,7 +186,7 @@ const MultiBarChart = ({
 									? chartControl.axisOptions.yAxis.tickPaddingLeft
 									: chartControl.axisOptions.yAxis.tickPaddingRight,
 
-							formatter: (value: any) => {
+							formatter: (value: number) => {
 								var formattedValue = formatChartYAxisValue(chartControl, value);
 								return formattedValue;
 							},
@@ -204,7 +208,7 @@ const MultiBarChart = ({
 		) : null;
 	};
 
-	return <>{chartData ? <RenderChart /> : ""}</>;
+	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {

@@ -104,10 +104,10 @@ const Aggregators: AggregatorsProps = {
 	Dimension: dimensionPrefixes,
 	Row: dimensionPrefixes,
 	Column: dimensionPrefixes,
+	Distribution: dimensionPrefixes,
 	Measure: measurePrefixes,
 	X: measurePrefixes,
 	Y: measurePrefixes,
-	Distribution: dimensionPrefixes,
 };
 
 export const AggregatorKeys: AggregatorKeysProps = {

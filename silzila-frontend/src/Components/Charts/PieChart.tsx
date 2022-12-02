@@ -4,7 +4,15 @@ import { connect } from "react-redux";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 import { Dispatch } from "redux";
 import { updateChartMargins } from "../../redux/ChartPoperties/ChartControlsActions";
-import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+import {
+	ChartsMapStateToProps,
+	ChartsReduxStateProps,
+	FormatterValueProps,
+} from "./ChartsCommonInterfaces";
+import {
+	ChartControlProperties,
+	ChartControlsProps,
+} from "../../redux/ChartPoperties/ChartControlsInterface";
 
 interface PieChartProps {
 	updateChartMargins: (propKey: number | string, option: string, value: any) => void;
@@ -23,23 +31,19 @@ const PieChart = ({
 	// dispatch
 	updateChartMargins,
 }: ChartsReduxStateProps & PieChartProps) => {
-	var chartControl: any = chartControls.properties[propKey];
-	let chartData: any =
-		chartControl.chartData &&
-		chartControl.chartData.length > 0
-			? chartControl.chartData
-			: [];
+	var chartControl: ChartControlsProps = chartControls.properties[propKey];
+	let chartData: any[] =
+		chartControl.chartData && chartControl.chartData.length > 0 ? chartControl.chartData : [];
 
 	const [chartDataKeys, setChartDataKeys] = useState<string[]>([]);
 
 	useEffect(() => {
-		if (chartData) {
-
-			if(typeof chartData == 'object' && chartData.length > 0){
+		if (chartData.length >= 1) {
+			if (typeof chartData == "object" && chartData.length > 0) {
 				setChartDataKeys(Object.keys(chartData[0]));
 			}
 
-			var objKey: any;
+			var objKey: string;
 			if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
 				if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
 					objKey =
@@ -49,16 +53,6 @@ const PieChart = ({
 				} else {
 					objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				}
-
-				// chartData.map((el: any) => {
-				// 	if (objKey in el) {
-				// 		let agg = el[objKey];
-				// 		//console.log(agg);
-				// 		if (agg) el[objKey] = agg.toString();
-				// 	}
-				// 	return el;
-				// });
-				//console.log(chartControl.chartData.result);
 			}
 		}
 	}, [chartData, chartControl]);
@@ -130,7 +124,7 @@ const PieChart = ({
 										chartControl.labelOptions.pieLabel.labelPadding,
 									],
 
-									formatter: (value: any) => {
+									formatter: (value: FormatterValueProps) => {
 										if (chartDataKeys) {
 											var formattedValue = value.value[chartDataKeys[1]];
 											formattedValue = formatChartLabelValue(
@@ -149,7 +143,7 @@ const PieChart = ({
 			</>
 		);
 	};
-	return <>{chartData ? <RenderChart /> : ""}</>;
+	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
 
 const mapStateToProps = (state: ChartsMapStateToProps) => {

@@ -35,6 +35,7 @@ import SyntaxHighlighter from "react-syntax-highlighter";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
+import TextEditor from "../Charts/TextEditor";
 
 const GraphArea = ({
 	// state
@@ -283,14 +284,14 @@ const GraphArea = ({
 						graphTileSize={tileState.tiles[propKey].graphSizeFull}
 					/>
 				);
-			// case "richText":
-			// 	return (
-			// 		<TextEditor
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
+			case "richText":
+				return (
+					<TextEditor
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
 
 			default:
 				return <h2>Work in progress</h2>;

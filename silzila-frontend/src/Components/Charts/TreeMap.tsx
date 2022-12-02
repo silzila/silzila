@@ -25,7 +25,7 @@ const Treemap = ({
 }: ChartsReduxStateProps & TreemapChartProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
-	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
+	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 	const [sourceData, setsourceData] = useState<any>([]);
 
 	var dimensionsKeys: string[] | any = [];
@@ -59,6 +59,7 @@ const Treemap = ({
 				var formattedData: any = [];
 				var total = 0;
 				uniqueDimValues.forEach(val => {
+					console.log(val);
 					var parentObj = { name: val, value: 0, children: [] }; // Define parent structure (second,third,... dimension)
 					var filteredData = data.filter((dt: any) => dt[dimensionsKeys[i]] === val); // Filter data only for this parent
 
@@ -80,7 +81,7 @@ const Treemap = ({
 	};
 
 	useEffect(() => {
-		if (chartData) {
+		if (chartData.length >= 1) {
 			console.log("useEffect called");
 			var formattedData: any = []; // Final data structure to feed to the map
 
@@ -249,7 +250,7 @@ const Treemap = ({
 		);
 	};
 
-	return <>{chartData ? <RenderChart /> : ""}</>;
+	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
