@@ -2,6 +2,7 @@ import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
+import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 const Sankey = ({
@@ -15,7 +16,9 @@ const Sankey = ({
 	chartControls,
 	chartProperties,
 }: ChartsReduxStateProps) => {
+	console.log(chartControls);
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
+	var colorSchems = ColorSchemes[6].colors;
 
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
@@ -26,7 +29,7 @@ const Sankey = ({
 	var measure: string = "";
 
 	useEffect(() => {
-		if (chartData) {
+		if (chartData.length >= 1) {
 			console.log(chartData);
 
 			console.log();
@@ -59,40 +62,40 @@ const Sankey = ({
 			dimensionsKeys.forEach((element: any, i: number) => {
 				var allValues = chartData.map((dt: any) => dt[element]);
 				// TODO: getting error in uniqueValues
-				// var uniqueValues = [...new Set(allValues)];
+				var uniqueValues = [...new Set(allValues)];
 
-				// uniqueValues = uniqueValues.map(el => {
-				// 	return {
-				// 		name: el,
-				// 		label: {
-				// 			position:
-				// 				chartControl.sankeyControls.labelPosition === "inside"
-				// 					? i / 2 === 0
-				// 						? [30 + chartControl.sankeyControls.labelDistance, 50]
-				// 						: [-8 - chartControl.sankeyControls.labelDistance, 50]
-				// 					: i / 2 === 0
-				// 					? [-8 - chartControl.sankeyControls.labelDistance, 50]
-				// 					: [30 + chartControl.sankeyControls.labelDistance, 50],
-				// 			show: chartControl.labelOptions.showLabel,
-				// 			fontSize: chartControl.labelOptions.fontSize,
-				// 			color: chartControl.labelOptions.labelColorManual
-				// 				? chartControl.labelOptions.labelColor
-				// 				: "black",
+				uniqueValues = uniqueValues.map(el => {
+					return {
+						name: el,
+						label: {
+							position:
+								chartControl.sankeyControls.labelPosition === "inside"
+									? i / 2 === 0
+										? [30 + chartControl.sankeyControls.labelDistance, 50]
+										: [-8 - chartControl.sankeyControls.labelDistance, 50]
+									: i / 2 === 0
+									? [-8 - chartControl.sankeyControls.labelDistance, 50]
+									: [30 + chartControl.sankeyControls.labelDistance, 50],
+							show: chartControl.labelOptions.showLabel,
+							fontSize: chartControl.labelOptions.fontSize,
+							color: chartControl.labelOptions.labelColorManual
+								? chartControl.labelOptions.labelColor
+								: "black",
 
-				// 			overflow: chartControl.sankeyControls.overFlow,
-				// 			distance: chartControl.sankeyControls.labelDistance,
-				// 			rotate: chartControl.sankeyControls.labelRotate,
-				// 		},
-				// 		itemStyle: {
-				// 			color:
-				// 				chartControl.sankeyControls.nodesAndColors.length !== 0
-				// 					? getColorOfNode(element)
-				// 					: colorSchems[i],
-				// 		},
-				// 	};
-				// });
+							overflow: chartControl.sankeyControls.overFlow,
+							distance: chartControl.sankeyControls.labelDistance,
+							rotate: chartControl.sankeyControls.labelRotate,
+						},
+						itemStyle: {
+							color:
+								chartControl.sankeyControls.nodesAndColors.length !== 0
+									? getColorOfNode(element)
+									: colorSchems[i],
+						},
+					};
+				});
 
-				// finalValuesOfNode.push(...uniqueValues);
+				finalValuesOfNode.push(...uniqueValues);
 			});
 
 			// finalValuesOfNode = finalValuesOfNode.map(el => {
@@ -297,11 +300,11 @@ const Sankey = ({
 		);
 	};
 
-	return <>{chartData ? <RenderChart /> : <RenderChart />}</>;
+	return <>{chartData.length >= 1 ? <RenderChart /> : <RenderChart />}</>;
 };
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
-		chartControlState: state.chartControls,
+		chartControls: state.chartControls,
 		chartProperties: state.chartProperties,
 	};
 };

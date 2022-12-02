@@ -53,8 +53,7 @@ const Treemap = ({
 				var dimValues = data.map((dt: any) => dt[dimensionsKeys[i]]); // All values of next dimension
 				// TODO:getting error in new Set(...)
 
-				var uniqueDimValues = [""];
-				// [...new Set(dimValues)]; // Unique values of next dimension. These are the parent objects
+				var uniqueDimValues = [...new Set(dimValues)]; // Unique values of next dimension. These are the parent objects
 
 				var formattedData: any = [];
 				var total = 0;
@@ -102,9 +101,7 @@ const Treemap = ({
 
 			var dimValues = chartData.map((dt: any) => dt[dimensionsKeys[0]]); // All values of first dimension
 			// TODO:getting error in new Set(...)
-			var uniqueDimValues = [""];
-
-			// [...new Set(dimValues)]; // Unique values of first dimension. These are the parent objects
+			var uniqueDimValues = [...new Set(dimValues)]; // Unique values of first dimension. These are the parent objects
 
 			if (dimensionsKeys.length === 1) {
 				console.log("only one Dimenstion");

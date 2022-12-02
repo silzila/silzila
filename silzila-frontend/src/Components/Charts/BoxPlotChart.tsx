@@ -21,7 +21,7 @@ const BoxPlotChart = ({
 
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
-	const [dimensionData, setDimensionData] = useState<any>([]);
+	const [dimensionData, setDimensionData] = useState<string[]>([]);
 	const [sourceData, setSourceData] = useState<any[]>([]);
 
 	// to track  the axis swap and assign axis name accordingly
@@ -33,10 +33,11 @@ const BoxPlotChart = ({
 			// distribution value
 			var dimValue: string =
 				chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
-
-			var dimArray = chartData.map((el: any) => {
+			var dimArray: string[] = chartData.map((el: any) => {
+				console.log(el);
 				return el[dimValue];
 			});
+			setDimensionData([...new Set(dimArray)]);
 			// setDimensionData([...new Set(dimArray)]);
 
 			var measureValue = `${chartProperties.properties[propKey].chartAxes[3].fields[0].fieldname}__${chartProperties.properties[propKey].chartAxes[3].fields[0].agg}`;
@@ -45,17 +46,17 @@ const BoxPlotChart = ({
 
 			// getting array points
 
-			// [...new Set(dimArray)].map(el => {
-			// 	var temp = [];
-			// 	chartData.map(elm => {
-			// 		if (el === elm[dimValue]) {
-			// 			// console.log(elm[measureValue], el);
-			// 			temp.push(elm[measureValue]);
-			// 		}
-			// 	});
+			[...new Set(dimArray)].map((el: string) => {
+				var temp: string[] = [];
+				chartData.map((elm: any) => {
+					if (el === elm[dimValue]) {
+						// console.log(elm[measureValue], el);
+						temp.push(elm[measureValue]);
+					}
+				});
 
-			// 	arrayPoints.push(temp);
-			// });
+				arrayPoints.push(temp);
+			});
 
 			setSourceData(arrayPoints);
 		}
@@ -103,6 +104,7 @@ const BoxPlotChart = ({
 						trigger: "item",
 						// just formating data to shown in tooltiop in required formate
 						formatter: function (params: any) {
+							console.log(params);
 							if (params.seriesName === "boxplot") {
 								return `${params.name} <br/> ${params.seriesName} <br/> <table>
 								<th>

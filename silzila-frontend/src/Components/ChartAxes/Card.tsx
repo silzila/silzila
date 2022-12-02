@@ -38,7 +38,6 @@ const Card = ({
 	sortAxes,
 	revertAxes,
 }: CardProps) => {
-	console.log(field);
 	field.dataType = field.dataType.toLowerCase();
 
 	const originalIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
@@ -141,8 +140,6 @@ const Card = ({
 				options = options.concat(Aggregators[axisTitle][field.dataType].aggr);
 				options2 = options2.concat(Aggregators[axisTitle][field.dataType].time_grain);
 			} else {
-				console.log(Aggregators[axisTitle][field.dataType]);
-
 				options = options.concat(Aggregators[axisTitle][field.dataType]);
 			}
 		}

@@ -22,6 +22,7 @@ const AreaChart = ({
 	//state
 	chartControls,
 }: ChartsReduxStateProps) => {
+	// TODO: neecd to change style in colors control( background Color)
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
@@ -39,6 +40,7 @@ const AreaChart = ({
 						color: chartControl.areaBackgroundColor,
 						opacity: chartControl.areaOpacity,
 					},
+					color: chartControl.colorScheme,
 					label: {
 						show: chartControl.labelOptions.showLabel,
 						fontSize: chartControl.labelOptions.fontSize,
@@ -87,6 +89,9 @@ const AreaChart = ({
 						dimensions: Object.keys(chartData[0]),
 						source: chartData,
 					},
+					// graph: {
+					// 	color: chartControl.colorScheme,
+					// },
 					xAxis: {
 						type: "category",
 						position: chartControl.axisOptions.xAxis.position,

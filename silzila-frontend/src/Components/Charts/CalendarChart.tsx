@@ -28,7 +28,7 @@ const CalendarChart = ({
 	const [chartDataKeys, setChartDataKeys] = useState<any[]>([]);
 
 	useEffect(() => {
-		if (chartData) {
+		if (chartData.length >= 1) {
 			if (chartProperties.properties[propKey].chartAxes[1].fields.length > 0) {
 				setChartDataKeys(Object.keys(chartData[0]));
 
@@ -45,7 +45,7 @@ const CalendarChart = ({
 				});
 
 				// getting unique values
-				// uniqueYears = [...new Set(yearsArray)];
+				uniqueYears = [...new Set(yearsArray)];
 
 				// setting props for each value
 				const calendarArrayValues = uniqueYears.map((yr: string | number, i: number) => {
@@ -172,7 +172,7 @@ const CalendarChart = ({
 		);
 	};
 
-	return chartData ? <RenderChart /> : null;
+	return chartData.length >= 1 ? <RenderChart /> : null;
 };
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
