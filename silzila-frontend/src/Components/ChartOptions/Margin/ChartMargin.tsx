@@ -8,31 +8,24 @@ import {
 	updateCalendarStyleOptions,
 	updateChartMargins,
 } from "../../../redux/ChartPoperties/ChartControlsActions";
-import { ChartControl } from "../../../redux/ChartPoperties/ChartControlsInterface";
-import { ChartPropertiesProps } from "../../../redux/ChartPoperties/ChartPropertiesInterfaces";
-import { TabTileStateProps } from "../../../redux/TabTile/TabTilePropsInterfaces";
-import { ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
+import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import SliderWithInput from "../SliderWithInput";
 
 interface ChartMarginProps {
-	chartControl: ChartControl;
-	tabTileProps: TabTileStateProps;
-	chartProperties: ChartPropertiesProps;
-
 	updateMargin: (propKey: number | string, option: string, value: any) => void;
 	updateCalendarStyleOptions: (propKey: number | string, option: string, value: any) => void;
 }
 
 const ChartMargin = ({
 	// state
-	chartControl,
+	chartControls,
 	tabTileProps,
 	chartProperties,
 
 	// dispatch
 	updateMargin,
 	updateCalendarStyleOptions,
-}: ChartMarginProps) => {
+}: ChartOptionsProps & ChartMarginProps) => {
 	var propKey: number = parseFloat(
 		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
 	);
@@ -48,7 +41,7 @@ const ChartMargin = ({
 						<div className="optionDescription">RADIUS:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.radius}
+							sliderValue={chartControls.properties[propKey].chartMargin.radius}
 							sliderMinMax={{
 								min: 10,
 								max: 100,
@@ -68,7 +61,7 @@ const ChartMargin = ({
 						<div className="optionDescription">INNER RADIUS:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.innerRadius}
+							sliderValue={chartControls.properties[propKey].chartMargin.innerRadius}
 							sliderMinMax={{
 								min: 0,
 								max: 90,
@@ -81,7 +74,7 @@ const ChartMargin = ({
 						<div className="optionDescription">OUTER RADIUS:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.outerRadius}
+							sliderValue={chartControls.properties[propKey].chartMargin.outerRadius}
 							sliderMinMax={{
 								min: 10,
 								max: 100,
@@ -101,28 +94,28 @@ const ChartMargin = ({
 						<div className="optionDescription">Top:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.top}
+							sliderValue={chartControls.properties[propKey].chartMargin.top}
 							sliderMinMax={marginMinMax}
 							changeValue={value => updateMargin(propKey, "top", value)}
 						/>
 						<div className="optionDescription">Bottom:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.bottom}
+							sliderValue={chartControls.properties[propKey].chartMargin.bottom}
 							sliderMinMax={marginMinMax}
 							changeValue={value => updateMargin(propKey, "bottom", value)}
 						/>
 						<div className="optionDescription">Left:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.funnelLeft}
+							sliderValue={chartControls.properties[propKey].chartMargin.funnelLeft}
 							sliderMinMax={marginMinMax}
 							changeValue={value => updateMargin(propKey, "funnelLeft", value)}
 						/>
 						<div className="optionDescription">Right:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.funnelRight}
+							sliderValue={chartControls.properties[propKey].chartMargin.funnelRight}
 							sliderMinMax={marginMinMax}
 							changeValue={value => updateMargin(propKey, "funnelRight", value)}
 						/>
@@ -135,7 +128,7 @@ const ChartMargin = ({
 						<div className="optionDescription">Calender Height:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.top}
+							sliderValue={chartControls.properties[propKey].chartMargin.top}
 							sliderMinMax={{ min: 10, max: 80, step: 1 }}
 							changeValue={value => updateMargin(propKey, "top", value)}
 						/>
@@ -143,14 +136,14 @@ const ChartMargin = ({
 						<div className="optionDescription">Right:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.right}
+							sliderValue={chartControls.properties[propKey].chartMargin.right}
 							sliderMinMax={{ min: 10, max: 100, step: 1 }}
 							changeValue={value => updateMargin(propKey, "right", value)}
 						/>
 						<div className="optionDescription">Left:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.left}
+							sliderValue={chartControls.properties[propKey].chartMargin.left}
 							sliderMinMax={{ min: 10, max: 100, step: 1 }}
 							changeValue={value => updateMargin(propKey, "left", value)}
 						/>
@@ -158,7 +151,7 @@ const ChartMargin = ({
 						<SliderWithInput
 							percent={true}
 							sliderValue={
-								chartControl.properties[propKey].calendarStyleOptions.calendarGap
+								chartControls.properties[propKey].calendarStyleOptions.calendarGap
 							}
 							sliderMinMax={{ min: 10, max: 80, step: 1 }}
 							changeValue={value =>
@@ -183,28 +176,28 @@ const ChartMargin = ({
 						<div className="optionDescription">Top:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.top}
+							sliderValue={chartControls.properties[propKey].chartMargin.top}
 							sliderMinMax={marginMinMax}
 							changeValue={(value: number) => updateMargin(propKey, "top", value)}
 						/>
 						<div className="optionDescription">Right:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.right}
+							sliderValue={chartControls.properties[propKey].chartMargin.right}
 							sliderMinMax={marginMinMax}
 							changeValue={(value: number) => updateMargin(propKey, "right", value)}
 						/>
 						<div className="optionDescription"> Bottom:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.bottom}
+							sliderValue={chartControls.properties[propKey].chartMargin.bottom}
 							sliderMinMax={marginMinMax}
 							changeValue={(value: number) => updateMargin(propKey, "bottom", value)}
 						/>
 						<div className="optionDescription">Left:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControl.properties[propKey].chartMargin.left}
+							sliderValue={chartControls.properties[propKey].chartMargin.left}
 							sliderMinMax={marginMinMax}
 							changeValue={(value: number) => updateMargin(propKey, "left", value)}
 						/>

@@ -17,7 +17,7 @@ import { useDrag, useDrop } from "react-dnd";
 import { Dispatch } from "redux";
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
-import {  CardProps } from "./ChartAxesInterfaces";
+import { CardProps } from "./ChartAxesInterfaces";
 
 const Card = ({
 	// props
@@ -38,7 +38,6 @@ const Card = ({
 	sortAxes,
 	revertAxes,
 }: CardProps) => {
-	console.log(field);
 	field.dataType = field.dataType.toLowerCase();
 
 	const originalIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
@@ -140,9 +139,7 @@ const Card = ({
 			if (field.dataType === "date" || field.dataType === "timestamp") {
 				options = options.concat(Aggregators[axisTitle][field.dataType].aggr);
 				options2 = options2.concat(Aggregators[axisTitle][field.dataType].time_grain);
-			} else {			
-				console.log(Aggregators[axisTitle][field.dataType]);
-
+			} else {
 				options = options.concat(Aggregators[axisTitle][field.dataType]);
 			}
 		}
@@ -209,7 +206,7 @@ const Card = ({
 				) : null}
 			</Menu>
 		);
-	},[field]);
+	}, [field]);
 
 	return field ? (
 		<div

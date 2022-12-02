@@ -133,32 +133,3 @@ export const loadPlaybook = (playbook: any) => {
 // //  *************************************************************
 // //  Reset states
 // //  *************************************************************
-
-// export const actionsToAddTileForRichText = ({
-// 	tabId,
-// 	nextTileId,
-// 	table,
-// 	fromTab: newTab,
-// 	selectedDs,
-// 	selectedTablesInDs,
-// 	chartName,
-// }) => {
-// 	//let tileName = tileName ? tileName : `Tile - ${nextTileId}`;
-// 	// let tileName = `Tile - ${nextTileId}`;
-// 	// //console.log(table);
-// 	let tileName;
-// 	return dispatch => {
-// 		dispatch(addProp(tabId, nextTileId, table, newTab, selectedDs, selectedTablesInDs));
-// 		dispatch(addControl(tabId, nextTileId, newTab));
-// 		dispatch(addTile(tabId, nextTileId, newTab));
-// 		dispatch(updateNextTileId(nextTileId, tabId));
-// 		dispatch(updateSelectedTile(tileName, nextTileId, nextTileId + 1));
-// 		dispatch(updateSelectedTileToTab(tabId, tileName, nextTileId));
-// 		dispatch(showDashBoard(false));
-// 		// dispatch(setChartTitle(`${tabId}.${nextTileId}`, chartName));
-// 		dispatch(changeChartType(`${tabId}.${nextTileId}`, chartName));
-// 		// if (chartName === "richText") {
-// 		// 	//console.log(chartName);
-// 		// }
-// 	};
-// };

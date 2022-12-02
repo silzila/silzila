@@ -86,7 +86,13 @@ const DropZone = ({
 
 			if (bIndex === 1) {
 				if (chartType === "calendar") {
-					if (fieldData.dataType === "date" || fieldData.dataType === "timestamp") {
+					if (
+						fieldData.dataType === "date" ||
+						fieldData.dataType === "timestamp" ||
+						// TODO:/* adding these two cases because the datatype of field is in capitalletter(frist), need to fix this or convert to lowercase*/
+						fieldData.dataType === "Date" ||
+						fieldData.dataType === "Timestamp"
+					) {
 						let newFieldData = JSON.parse(
 							JSON.stringify(setPrefix(fieldData, name, chartType))
 						);
@@ -227,6 +233,7 @@ const DropZone = ({
 					? options.map((opt, index) => {
 							return (
 								<div
+									key={index}
 									style={{ display: "flex" }}
 									onClick={() => handleClose("opt1", opt)}
 								>
@@ -242,6 +249,7 @@ const DropZone = ({
 					? options1.map((opt, index) => {
 							return (
 								<div
+									key={index}
 									style={{ display: "flex" }}
 									onClick={() => {
 										setAnchorEl(null);
@@ -276,6 +284,7 @@ const DropZone = ({
 					? options2.map((opt, index) => {
 							return (
 								<div
+									key={index}
 									style={{ display: "flex" }}
 									onClick={() => {
 										setAnchorEl(null);

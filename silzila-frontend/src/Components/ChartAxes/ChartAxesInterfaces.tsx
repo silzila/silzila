@@ -21,29 +21,32 @@ interface TimeGrain {
 	id: string;
 }
 export interface DimensionPrefixesProps {
-	integer: any[];
-	decimal: any[];
-	text: any[];
-	date: {
-		time_grain: TimeGrain[];
-	};
-	timestamp: {
-		time_grain: TimeGrain[];
-	};
+	[key: string]: any;
+	// integer: any;
+	// decimal: any[];
+	// text: any[];
+	// date: {
+	// 	time_grain: TimeGrain[];
+	// };
+	// timestamp: {
+	// 	time_grain: TimeGrain[];
+	// };
 }
 
 export interface MeasurePrefixes {
-	integer: TimeGrain[];
-	decimal: TimeGrain[];
-	text: TimeGrain[];
-	date: {
-		aggr: TimeGrain[];
-		time_grain: TimeGrain[];
-	};
-	timestamp: {
-		aggr: TimeGrain[];
-		time_grain: TimeGrain[];
-	};
+	[key: string]: any;
+
+	// integer: TimeGrain[];
+	// decimal: TimeGrain[];
+	// text: TimeGrain[];
+	// date: {
+	// 	aggr: TimeGrain[];
+	// 	time_grain: TimeGrain[];
+	// };
+	// timestamp: {
+	// 	aggr: TimeGrain[];
+	// 	time_grain: TimeGrain[];
+	// };
 }
 
 export interface AggregatorsProps {
@@ -145,7 +148,7 @@ export interface CardProps {
 		uId?: string;
 		fieldname?: string;
 		displayname?: string;
-		dataType?: string | any;
+		dataType: string;
 		prefix?: any;
 		tableId?: string;
 		agg?: any;
