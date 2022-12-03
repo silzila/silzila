@@ -16,7 +16,6 @@ const BoxPlotChart = ({
 	chartControls,
 	chartProperties,
 }: ChartsReduxStateProps) => {
-	// TODO: chart not render properly
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
@@ -27,6 +26,8 @@ const BoxPlotChart = ({
 	// to track  the axis swap and assign axis name accordingly
 	const axisName1: string = chartControl.boxPlotChartControls.flipAxis ? "yAxis" : "xAxis";
 	const axisName2: string = !chartControl.boxPlotChartControls.flipAxis ? "yAxis" : "xAxis";
+	var minimumValueOfYaxis: number;
+	var maximumValueOfYaxis: number;
 
 	useEffect(() => {
 		if (chartData.length >= 1) {
@@ -34,27 +35,32 @@ const BoxPlotChart = ({
 			var dimValue: string =
 				chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 			var dimArray: string[] = chartData.map((el: any) => {
-				console.log(el);
 				return el[dimValue];
 			});
-			setDimensionData([...new Set(dimArray)]);
-			// setDimensionData([...new Set(dimArray)]);
 
-			var measureValue = `${chartProperties.properties[propKey].chartAxes[3].fields[0].fieldname}__${chartProperties.properties[propKey].chartAxes[3].fields[0].agg}`;
+			setDimensionData([...new Set(dimArray)]);
+
+			var measureValue = `${chartProperties.properties[propKey].chartAxes[3].fields[0].fieldname}`;
+			console.log(measureValue);
+			var allMeasureValue: number[] = [];
+			allMeasureValue = chartData.map(el => {
+				return el[measureValue];
+			});
+
+			minimumValueOfYaxis = Math.min(...allMeasureValue);
+			maximumValueOfYaxis = Math.max(...allMeasureValue);
 
 			var arrayPoints: any[] = [];
 
 			// getting array points
-
 			[...new Set(dimArray)].map((el: string) => {
 				var temp: string[] = [];
+
 				chartData.map((elm: any) => {
 					if (el === elm[dimValue]) {
-						// console.log(elm[measureValue], el);
 						temp.push(elm[measureValue]);
 					}
 				});
-
 				arrayPoints.push(temp);
 			});
 
@@ -207,10 +213,10 @@ const BoxPlotChart = ({
 						},
 						min: chartControl.axisOptions.axisMinMax.enableMin
 							? chartControl.axisOptions.axisMinMax.minValue
-							: null,
+							: minimumValueOfYaxis,
 						max: chartControl.axisOptions.axisMinMax.enableMax
 							? chartControl.axisOptions.axisMinMax.maxValue
-							: null,
+							: maximumValueOfYaxis,
 						inverse: chartControl.axisOptions.inverse,
 						position: chartControl.axisOptions.yAxis.position,
 						show: chartControl.axisOptions.yAxis.showLabel,

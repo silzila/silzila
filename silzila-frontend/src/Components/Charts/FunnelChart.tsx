@@ -18,22 +18,21 @@ const FunnelChart = ({
 	//state
 	chartControls,
 }: ChartsReduxStateProps) => {
-	// TODO: problem in Apply filters
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
-	const [newData, setNewData] = useState<any[]>([]);
+	const [funnelChartData, setFunnelChartData] = useState<any[]>([]);
 
 	useEffect(() => {
 		if (chartData.length >= 1) {
-			var newData: any[] = [];
+			var funnelChartData: any[] = [];
 			Object.keys(chartData[0]).map((key: string) => {
-				newData.push({
+				funnelChartData.push({
 					name: key,
 					value: chartData[0][key],
 				});
 			});
-			setNewData(newData);
+			setFunnelChartData(funnelChartData);
 		}
 	}, [chartData]);
 
@@ -75,7 +74,7 @@ const FunnelChart = ({
 
 					tooltip: { show: chartControl.mouseOver.enable },
 					dataset: {
-						source: newData,
+						source: funnelChartData,
 					},
 
 					series: [
