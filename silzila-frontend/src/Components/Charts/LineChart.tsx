@@ -11,17 +11,7 @@ import {
 	formatChartLabelValue,
 	formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
-
-interface LineChartProps {
-	propKey: string | number;
-	graphDimension: any;
-	chartArea?: any;
-	graphTileSize: number;
-
-	//state
-	chartControls: ChartControl;
-}
-
+import { ChartsReduxStateProps, FormatterValueProps } from "./ChartsCommonInterfaces";
 
 const LineChart = ({
 	//props
@@ -37,13 +27,13 @@ const LineChart = ({
 
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
-	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
+	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
 	const [seriesData, setSeriesData] = useState<any>([]);
 
 	useEffect(() => {
 		var seriesDataTemp = [];
-		if (chartData) {
+		if (chartData.length >= 1) {
 			var chartDataKeys = Object.keys(chartData[0]);
 			for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
 				var seriesObj = {
@@ -55,7 +45,7 @@ const LineChart = ({
 							? chartControl.labelOptions.labelColor
 							: null,
 
-						formatter: (value: any) => {
+						formatter: (value: FormatterValueProps) => {
 							var formattedValue = value.value[chartDataKeys[i + 1]];
 							var formattedValue = formatChartLabelValue(
 								chartControl,
@@ -195,8 +185,11 @@ const LineChart = ({
 									? chartControl.axisOptions.yAxis.tickPaddingLeft
 									: chartControl.axisOptions.yAxis.tickPaddingRight,
 
-							formatter: (value: any) => {
-								var formattedValue = formatChartYAxisValue(chartControl, value);
+							formatter: (value: number) => {
+								var formattedValue: string = formatChartYAxisValue(
+									chartControl,
+									value
+								);
 								return formattedValue;
 							},
 						},
@@ -207,7 +200,7 @@ const LineChart = ({
 		);
 	};
 
-	return <>{chartData ? <RenderChart /> : ""}</>;
+	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
 
 const mapStateToProps = (state: ChartControlStateProps, ownProps: any) => {

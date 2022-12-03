@@ -40,7 +40,10 @@ import {
 	changeChartTypeAndAxes,
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
-import { actionsToUpdateSelectedTile } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
+import {
+	actionsToAddTileForRichText,
+	actionsToUpdateSelectedTile,
+} from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import ChartsInfo from "../ChartAxes/ChartsInfo2";
 // import {
 // 	actionsToAddTile,
@@ -1437,25 +1440,25 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(canReUseData(propKey, reUseData)),
 		updateChartData: (propKey: number, chartData: string | any) =>
 			dispatch(updateChartData(propKey, chartData)),
-		// addTile: (
-		// 	tabId: number,
-		// 	nextTileId: number,
-		// 	table: any,
-		// 	selectedDataset: any,
-		// 	selectedTables: any,
-		// 	chartName: string
-		// ) =>
-		// 	dispatch(
-		// 		actionsToAddTileForRichText({
-		// 			tabId,
-		// 			nextTileId,
-		// 			table,
-		// 			fromTab: false,
-		// 			selectedDs: selectedDataset,
-		// 			selectedTablesInDs: selectedTables,
-		// 			chartName,
-		// 		})
-		// 	),
+		addTile: (
+			tabId: number,
+			nextTileId: number,
+			table: any,
+			selectedDataset: any,
+			selectedTables: any,
+			chartName: string
+		) =>
+			dispatch(
+				actionsToAddTileForRichText({
+					tabId,
+					nextTileId,
+					table,
+					fromTab: false,
+					selectedDs: selectedDataset,
+					selectedTablesInDs: selectedTables,
+					chartName,
+				})
+			),
 		selectTile: (
 			tabId: number,
 			tileName: string,
@@ -1471,10 +1474,3 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChartTypes);
-// import React from "react";
-
-// const ChartTypes = (props: any) => {
-// 	return <div>ChartTypes</div>;
-// };
-
-// export default ChartTypes;

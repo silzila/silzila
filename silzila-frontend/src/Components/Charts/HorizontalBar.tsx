@@ -11,7 +11,11 @@ import {
 	formatChartLabelValue,
 	formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
-import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+import {
+	ChartsMapStateToProps,
+	ChartsReduxStateProps,
+	FormatterValueProps,
+} from "./ChartsCommonInterfaces";
 
 const HorizontalBar = ({
 	// props
@@ -23,14 +27,15 @@ const HorizontalBar = ({
 	//state
 	chartControls,
 }: ChartsReduxStateProps) => {
+	// TODO: proplem in applying filters
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
-	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
+	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
 	const [seriesData, setSeriesData] = useState<any>([]);
 
 	useEffect(() => {
 		var seriesDataTemp = [];
-		if (chartData) {
+		if (chartData.length >= 1) {
 			var chartDataKeys = Object.keys(chartData[0]);
 			for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
 				var seriesObj = {
@@ -46,7 +51,7 @@ const HorizontalBar = ({
 							? chartControl.labelOptions.labelColor
 							: null,
 
-						formatter: (value: any) => {
+						formatter: (value: FormatterValueProps) => {
 							var formattedValue = value.value[chartDataKeys[i + 1]];
 							var formattedValue = formatChartLabelValue(
 								chartControl,
@@ -153,8 +158,11 @@ const HorizontalBar = ({
 									? chartControl.axisOptions.xAxis.tickPaddingTop
 									: chartControl.axisOptions.xAxis.tickPaddingBottom,
 
-							formatter: (value: any) => {
-								var formattedValue = formatChartYAxisValue(chartControl, value);
+							formatter: (value: number) => {
+								var formattedValue: string = formatChartYAxisValue(
+									chartControl,
+									value
+								);
 								return formattedValue;
 							},
 						},
@@ -208,7 +216,7 @@ const HorizontalBar = ({
 		) : null;
 	};
 
-	return <>{chartData ? <RenderChart /> : ""}</>;
+	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
 
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {

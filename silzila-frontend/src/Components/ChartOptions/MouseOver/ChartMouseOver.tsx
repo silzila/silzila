@@ -1,18 +1,9 @@
 // This component is used to enable / disable tooltip option for charts
 
 import { Switch } from "@mui/material";
-import React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { enableMouseOver } from "../../../redux/ChartPoperties/ChartControlsActions";
-import {
-	ChartControl,
-	ChartControlStateProps,
-} from "../../../redux/ChartPoperties/ChartControlsInterface";
-import {
-	TabTileStateProps,
-	TabTileStateProps2,
-} from "../../../redux/TabTile/TabTilePropsInterfaces";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import SwitchWithInput from "../SwitchWithInput";
 

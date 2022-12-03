@@ -15,19 +15,20 @@ const CalendarChart = ({
 	chartControls,
 	chartProperties,
 }: ChartsReduxStateProps) => {
+	// TODO: showing alert with the message of "only can drop data tatatype columns" even its a data type column
 	var yearsArray: string[] | number[] | any = [];
 	var uniqueYears: string[] | number[] | any = [];
 
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
-	let chartData: any = chartControl.chartData ? chartControl.chartData.result : "";
+	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
 	const [calendarArray, setCalendarArray] = useState<any[]>([]);
 	const [seriesArray, setSeriesArray] = useState<any[]>([]);
 	const [chartDataKeys, setChartDataKeys] = useState<any[]>([]);
 
 	useEffect(() => {
-		if (chartData) {
+		if (chartData.length >= 1) {
 			if (chartProperties.properties[propKey].chartAxes[1].fields.length > 0) {
 				setChartDataKeys(Object.keys(chartData[0]));
 
@@ -44,7 +45,7 @@ const CalendarChart = ({
 				});
 
 				// getting unique values
-				// uniqueYears = [...new Set(yearsArray)];
+				uniqueYears = [...new Set(yearsArray)];
 
 				// setting props for each value
 				const calendarArrayValues = uniqueYears.map((yr: string | number, i: number) => {
@@ -171,7 +172,7 @@ const CalendarChart = ({
 		);
 	};
 
-	return chartData ? <RenderChart /> : null;
+	return chartData.length >= 1 ? <RenderChart /> : null;
 };
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {

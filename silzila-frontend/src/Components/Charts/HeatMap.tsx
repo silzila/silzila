@@ -3,7 +3,12 @@ import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
-import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+import {
+	ChartDataFieldProps,
+	ChartsMapStateToProps,
+	ChartsReduxStateProps,
+	FormatterValueProps,
+} from "./ChartsCommonInterfaces";
 
 const HeatMap = ({
 	//props
@@ -16,34 +21,37 @@ const HeatMap = ({
 	chartControls,
 	chartProperties,
 }: ChartsReduxStateProps) => {
+	// TODO: cant apply filters
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
-	let chartData = chartControl.chartData ? chartControl.chartData.result : "";
-	const [chartDataKeys, setChartDataKeys] = useState<any>([]);
+	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
+	const [chartDataKeys, setChartDataKeys] = useState<any[]>([]);
 
 	const [maxValue, setMaxValue] = useState<number>(0);
 	const [minValue, setMinValue] = useState<number>(0);
 
 	useEffect(() => {
-		if (chartData) {
+		if (chartData.length >= 1) {
 			setChartDataKeys(Object.keys(chartData[0]));
 
-			var measureField = chartProperties.properties[propKey].chartAxes[3].fields[0];
-			if (measureField) {
-				var maxFieldName = `${measureField.fieldname}__${measureField.agg}`;
+			var measureField: ChartDataFieldProps =
+				chartProperties.properties[propKey].chartAxes[3].fields[0];
+			// if (measureField) {
+			// 	var maxFieldName: string = `${measureField.fieldname}__${measureField.agg}`;
+			// 	console.log(maxFieldName);
 
-				var max = 0;
-				var min = 100000000;
-				chartData.forEach((element: any) => {
-					if (element[maxFieldName] > max) {
-						max = element[maxFieldName];
-					}
-					if (element[maxFieldName] < min) {
-						min = element[maxFieldName];
-					}
-				});
-				setMaxValue(max);
-				setMinValue(min);
-			}
+			// 	var max: number = 0;
+			// 	var min: number = 100000000;
+			// 	chartData.forEach((element: any) => {
+			// 		if (element[maxFieldName] > max) {
+			// 			max = element[maxFieldName];
+			// 		}
+			// 		if (element[maxFieldName] < min) {
+			// 			min = element[maxFieldName];
+			// 		}
+			// 	});
+			// 	setMaxValue(max);
+			// 	setMinValue(min);
+			// }
 		}
 	}, [chartData]);
 
@@ -185,27 +193,22 @@ const HeatMap = ({
 						{
 							type: "heatmap",
 							label: {
-								normal: {
-									show: chartControl.labelOptions.showLabel,
-									// formatter helps to show measure values as labels(inside each block)
-									formatter: (value: any) => {
-										//console.log(value, chartDataKeys);
-
-										if (chartDataKeys) {
-											var formattedValue = value.value[chartDataKeys[2]];
-											formattedValue = formatChartLabelValue(
-												chartControl,
-												formattedValue
-											);
-											return formattedValue;
-										}
-									},
-									fontSize: chartControl.labelOptions.fontSize,
-									color: chartControl.labelOptions.labelColorManual
-										? chartControl.labelOptions.labelColor
-										: null,
+								show: chartControl.labelOptions.showLabel,
+								/* formatter helps to show measure values as labels(inside each block) */
+								formatter: (value: FormatterValueProps) => {
+									if (chartDataKeys) {
+										var formattedValue = value.value[chartDataKeys[2]];
+										formattedValue = formatChartLabelValue(
+											chartControl,
+											formattedValue
+										);
+										return formattedValue;
+									}
 								},
-								// show: chartControl.labelOptions.showLabel,
+								fontSize: chartControl.labelOptions.fontSize,
+								color: chartControl.labelOptions.labelColorManual
+									? chartControl.labelOptions.labelColor
+									: null,
 							},
 						},
 					],
@@ -214,7 +217,7 @@ const HeatMap = ({
 		);
 	};
 
-	return chartData ? <RenderChart /> : null;
+	return chartData.length >= 1 ? <RenderChart /> : null;
 };
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {
