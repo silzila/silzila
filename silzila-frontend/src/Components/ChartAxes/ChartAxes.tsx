@@ -27,7 +27,6 @@ export const getChartData = async (
 	propKey: number,
 	token: string
 ) => {
-	console.log(axesValues, chartProp);
 	/*	PRS 21/07/2022	Construct filter object for service call */
 	const getChartLeftFilter = () => {
 		let _type: any = {};

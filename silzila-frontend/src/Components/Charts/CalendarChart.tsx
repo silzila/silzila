@@ -40,7 +40,7 @@ const CalendarChart = ({
 				// getting years of dates
 				chartData.map((el: any) => {
 					const timestampformate = new Date(el[objKey]);
-					const year: any = timestampformate.getFullYear();
+					const year: number = timestampformate.getFullYear();
 					yearsArray.push(JSON.stringify(year));
 				});
 

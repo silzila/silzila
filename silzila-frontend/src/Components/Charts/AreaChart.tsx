@@ -22,7 +22,6 @@ const AreaChart = ({
 	//state
 	chartControls,
 }: ChartsReduxStateProps) => {
-	// TODO: neecd to change style in colors control( background Color)
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
@@ -32,7 +31,8 @@ const AreaChart = ({
 	useEffect(() => {
 		var seriesDataTemp: any[] = [];
 		if (chartData.length >= 1) {
-			var chartDataKeys = Object.keys(chartData[0]);
+			var chartDataKeys: string[] = Object.keys(chartData[0]);
+			/* generating seriesObj for individual category */
 			for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
 				var seriesObj = {
 					type: "line",
@@ -48,13 +48,13 @@ const AreaChart = ({
 							? chartControl.labelOptions.labelColor
 							: null,
 
+						/* getting label value*/
 						formatter: (value: FormatterValueProps) => {
 							var formattedValue = value.value[chartDataKeys[i + 1]];
 							var formattedValue = formatChartLabelValue(
 								chartControl,
 								formattedValue
 							);
-
 							return formattedValue;
 						},
 					},
@@ -83,15 +83,28 @@ const AreaChart = ({
 				}}
 				option={{
 					animation: chartArea ? false : true,
-					legend: {},
-					tooltip: {},
+					legend: {
+						show: chartControl.legendOptions?.showLegend,
+						left: chartControl.legendOptions?.position?.left,
+						top: chartControl.legendOptions?.position?.top,
+						orient: chartControl.legendOptions?.orientation,
+						itemHeight: chartControl.legendOptions?.symbolHeight,
+						itemWidth: chartControl.legendOptions?.symbolWidth,
+						itemGap: chartControl.legendOptions?.itemGap,
+					},
+					tooltip: {
+						show: chartControl.mouseOver.enable,
+					},
+					grid: {
+						left: chartControl.chartMargin.left + "%",
+						right: chartControl.chartMargin.right + "%",
+						top: chartControl.chartMargin.top + "%",
+						bottom: chartControl.chartMargin.bottom + "%",
+					},
 					dataset: {
 						dimensions: Object.keys(chartData[0]),
 						source: chartData,
 					},
-					// graph: {
-					// 	color: chartControl.colorScheme,
-					// },
 					xAxis: {
 						type: "category",
 						position: chartControl.axisOptions.xAxis.position,
