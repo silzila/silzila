@@ -32,17 +32,43 @@ public class SparkService {
     public void startSparkSession() {
         if (Objects.isNull(spark)) {
             spark = SparkSession.builder().master("local").appName("silzila_spark_session").getOrCreate();
+            // to keep null values in the json result set
+            spark.conf().set("spark.sql.jsonGenerator.ignoreNullFields", false);
         }
     }
 
     // read csv file and get metadata
-    public FileUploadResponse readCsv(String fileName) throws JsonMappingException, JsonProcessingException {
+    public FileUploadResponse readCsv(String filePath) throws JsonMappingException, JsonProcessingException {
 
-        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/"
-                + fileName;
+        // // set default formats if formats are not given
+        // String dateFormat = "MM/dd/yyyy";
+        // String timestampFormat = "yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]";
+        // String timestampNTZFormat = "yyyy-MM-dd'T'HH:mm:ss[.SSS]";
+
         // Spark read csv file
-        Dataset<Row> dataset = spark.read().option("header", "true").option("inferSchema", "true")
-                .option("samplingRatio", "0.2").csv(filePath);
+
+        Dataset<Row> dataset = spark.read().option("header", "true")
+                .option("inferSchema", "true")
+                // .schema(structType)
+                // .schema("pos_id_2 double, order_date date, order_timestamp timestamp,
+                // delivery_date date, store_id integer, order_id integer, order_line_id string,
+                // product_id integer, quantity integer, discount double, unit_price double,
+                // sales double, profit double, payment_method_id integer, customer_type_id
+                // integer, delivery_mode_id integer")
+                // .schema("yes_no_int integer, num_int integer, num_big_int integer, pi_float
+                // double, percent double, name string, big_float double, cur_date date,
+                // cur_time timestamp,time2 timestamp, simple_date date")
+                .option("samplingRatio", "0.2")
+                // .option("enforceSchema", "true")
+                // .option("dateFormat", dateFormat)
+                // .option("timestampFormat", timestampFormat)
+                // .option("timestampNTZFormat", timestampNTZFormat)
+                .csv(filePath);
+
+        // dataset.show(2);
+        // System.out.println("dateFormat ==== " + dateFormat);
+        // System.out.println("timestampFormat ==== " + timestampFormat);
+        // System.out.println("timestampNTZFormat ==== " + timestampNTZFormat);
 
         // get Column Name + Data Type mapping from spark DF
         List<FileUploadColumnInfo> columnInfos = new ArrayList<>();
@@ -63,6 +89,7 @@ public class SparkService {
             JsonNode row = mapper.readTree(str);
             jsonNodes.add(row);
         }
+        // System.out.println("Json Data ================\n" + jsonNodes.toString());
 
         // assemble Response Obj.
         // file id & file data name is added in the main service fn
@@ -73,64 +100,58 @@ public class SparkService {
     }
 
     // edit schema of alreay uploaded file
-    public List<JsonNode> readCsvChangeSchema(String filePath, String query)
+    public List<JsonNode> readCsvChangeSchema(String filePath, String schemaString,
+            String dateFormat, String timestampFormat, String timestampNTZFormat)
             throws JsonMappingException, JsonProcessingException {
-        // String filePath = "/home/balu/Desktop/pyspark_different_datatypes.csv";
-        // final String filePath = System.getProperty("user.home") + "/" +
-        // "silzila-uploads"
-        // + "/" + "tmp" + "/" + fileName;
 
-        // read csv file with auto infer schema
-        Dataset<Row> dataset = spark.read().option("header", "true").option("inferSchema", "true")
-                .option("samplingRatio", "0.2").csv(filePath);
+        Dataset<Row> dataset = spark.read().option("header", "true")
+                // .option("inferSchema", "true")
+                .schema(schemaString)
+                // .option("samplingRatio", "0.2")
+                .option("enforceSchema", "true")
+                .option("dateFormat", dateFormat)
+                .option("timestampFormat", timestampFormat)
+                .option("timestampNTZFormat", timestampNTZFormat)
+                .csv(filePath);
 
-        dataset.createOrReplaceTempView("ds_view");
-        query = query + " from ds_view";
-
-        // query = """
-        // select BOOLEAN(yes_no) as yes_no,
-        // CAST(num_int as string) as num_intt, num_big_int,
-        // CAST(pi_float as double) as pi_float, percent, name, big_float, cur_date,
-        // cur_time, CAST(CAST(time2 as date) as TIMESTAMP) as time2,
-        // to_date(simple_date, 'dd/MM/yyyy') as `to date` from ds_view
-        // """;
-
-        // create another DF with changed schema
-        Dataset<Row> _dataset = spark.sql(query);
-        // _dataset.show(2);
+        dataset.show(2);
         // _dataset.printSchema();
 
         // get Sample Records from spark DF
         ObjectMapper mapper = new ObjectMapper();
         List<JsonNode> jsonNodes = new ArrayList<JsonNode>();
         // fetch 100 records as sample records
-        List<String> datasetString = _dataset.limit(100).toJSON().collectAsList();
+        List<String> datasetString = dataset.limit(100).toJSON().collectAsList();
         for (String str : datasetString) {
             JsonNode row = mapper.readTree(str);
             jsonNodes.add(row);
         }
-        _dataset.unpersist();
+        // _dataset.unpersist();
         dataset.unpersist();
         return jsonNodes;
     }
 
     // save file data from alreay uploaded file
-    public void saveFileData(String readFile, String writeFile, String query)
+    public void saveFileData(String readFile, String writeFile, String schemaString,
+            String dateFormat, String timestampFormat, String timestampNTZFormat)
             throws JsonMappingException, JsonProcessingException {
 
-        // read csv file with auto infer schema
-        Dataset<Row> dataset = spark.read().option("header", "true").option("inferSchema", "true")
-                .option("samplingRatio", "0.2").csv(readFile);
+        // read dataset from uploaded csv with the given schema
+        Dataset<Row> dataset = spark.read().option("header", "true")
+                // .option("inferSchema", "true")
+                .schema(schemaString)
+                // .option("samplingRatio", "0.2")
+                .option("enforceSchema", "true")
+                .option("dateFormat", dateFormat)
+                .option("timestampFormat", timestampFormat)
+                .option("timestampNTZFormat", timestampNTZFormat)
+                .csv(readFile);
 
-        dataset.createOrReplaceTempView("ds_view");
-        query = query + " from ds_view";
+        // dataset.show(2);
+        // dataset.printSchema();
 
-        // create another DF with changed schema
-        Dataset<Row> _dataset = spark.sql(query);
-
-        _dataset.write().mode("overwrite").parquet(writeFile);
-
-        _dataset.unpersist();
+        // write to parquet file
+        dataset.write().mode("overwrite").parquet(writeFile);
         dataset.unpersist();
         // return jsonNodes;
     }

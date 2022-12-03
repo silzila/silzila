@@ -4,6 +4,7 @@ import org.silzila.app.dto.FileDataDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.ExpectationFailedException;
 import org.silzila.app.exception.RecordNotFoundException;
+import org.silzila.app.helper.ConvertSparkDataType;
 import org.silzila.app.model.FileData;
 import org.silzila.app.payload.request.FileDataUpdateRequest;
 import org.silzila.app.payload.request.FileUploadRevisedColumnInfo;
@@ -53,7 +54,7 @@ public class FileDataService {
         String uploadedFileNameWithoutExtn = "";
         String savedFileName = "";
 
-        // TODO: create tmp folder - can be moved into main function as one time call.
+        // TODO: creating tmp folder - can be moved into main function as one time call.
         // create tmp folder
         try {
             Files.createDirectories(path);
@@ -78,12 +79,15 @@ public class FileDataService {
             throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
         }
 
+        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/"
+                + savedFileName;
+
         // Open file in spark to get metadata
         // first, start spark session
         sparkService.startSparkSession();
         // calling spark service function,
         // this will have sample records & column name and type
-        FileUploadResponse fileUploadResponse = sparkService.readCsv(savedFileName);
+        FileUploadResponse fileUploadResponse = sparkService.readCsv(filePath);
 
         // also pass file name & dataframe name to the response
         fileUploadResponse.setFileId(savedFileName);
@@ -173,18 +177,45 @@ public class FileDataService {
         return query;
     }
 
+    // helper function to create Schema String for given list of columns
+    // to change data type or col name while reading CSV
+    public String makeSchemaString(FileUploadRevisedInfoRequest revisedInfoRequest) {
+        List<String> schemList = new ArrayList<>();
+        String schemaString = "";
+        // iterate list of columns
+        for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
+            FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
+
+            String colName = Objects.isNull(col.getNewFieldName()) ? col.getFieldName() : col.getNewFieldName();
+            String silzilaDataType = Objects.isNull(col.getNewDataType()) ? col.getDataType().name().toLowerCase()
+                    : col.getNewDataType().name().toLowerCase();
+            String sparkDataType = ConvertSparkDataType.toSparkDataType(silzilaDataType);
+            // construct for every column. eg. "column_name data_type"
+            schemList.add("`" + colName + "` `" + sparkDataType + "`");
+        }
+        // concatenate per column schema into a comma separated string
+        schemaString = schemList.stream().collect(Collectors.joining(", "));
+        return schemaString;
+
+    }
+
     // 2. update schema for uploaded file
     public List<JsonNode> fileUploadChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
             throws JsonMappingException, JsonProcessingException {
 
+        String schemaString = makeSchemaString(revisedInfoRequest);
+        // System.out.println("SCHEMA ===================== " + schemaString);
+
         // construct query by using helper function
-        String query = buildQueryWithChangeSchema(revisedInfoRequest);
+        // String query = buildQueryWithChangeSchema(revisedInfoRequest);
         final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads"
                 + "/" + "tmp" + "/" + revisedInfoRequest.getFileId();
 
         // first, start spark session
         sparkService.startSparkSession();
-        List<JsonNode> jsonNodes = sparkService.readCsvChangeSchema(filePath, query);
+        List<JsonNode> jsonNodes = sparkService.readCsvChangeSchema(filePath, schemaString,
+                revisedInfoRequest.getDateFormat(),
+                revisedInfoRequest.getTimestampFormat(), revisedInfoRequest.getTimestampNTZFormat());
         return jsonNodes;
     }
 
@@ -194,15 +225,12 @@ public class FileDataService {
     public FileDataDTO fileUploadSave(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
             throws JsonMappingException, JsonProcessingException, BadRequestException {
 
-        // check if file data name is already taken
+        // check in DB if file data name is already taken
         List<FileData> fileDatas = fileDataRepository.findByUserIdAndName(
                 userId, revisedInfoRequest.getName());
         if (!fileDatas.isEmpty()) {
             throw new BadRequestException("Error: File Data Name is already taken!");
         }
-
-        // construct query by using helper function
-        String query = buildQueryWithChangeSchema(revisedInfoRequest);
 
         // if not exists, create folder for user - to save file
         Path path = Paths.get(SILZILA_DIR, userId);
@@ -213,6 +241,8 @@ public class FileDataService {
             throw new RuntimeException("Could not initialize folder for upload. Errorr: " + e.getMessage());
         }
 
+        String schemaString = makeSchemaString(revisedInfoRequest);
+
         final String readFile = System.getProperty("user.home") + "/" + "silzila-uploads"
                 + "/" + "tmp" + "/" + revisedInfoRequest.getFileId();
         final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
@@ -221,7 +251,9 @@ public class FileDataService {
         // first, start spark session
         sparkService.startSparkSession();
         // write to Parquet file
-        sparkService.saveFileData(readFile, writeFile, query);
+        sparkService.saveFileData(readFile, writeFile, schemaString,
+                revisedInfoRequest.getDateFormat(),
+                revisedInfoRequest.getTimestampFormat(), revisedInfoRequest.getTimestampNTZFormat());
 
         // save metadata to DB and return as response
         String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
