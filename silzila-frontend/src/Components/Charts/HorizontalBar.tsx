@@ -27,7 +27,6 @@ const HorizontalBar = ({
 	//state
 	chartControls,
 }: ChartsReduxStateProps) => {
-	// TODO: proplem in applying filters
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
@@ -88,7 +87,6 @@ const HorizontalBar = ({
 				}}
 				option={{
 					animation: false,
-					// chartArea ? false : true,
 					legend: {
 						type: "scroll",
 						show: chartControl.legendOptions?.showLegend,

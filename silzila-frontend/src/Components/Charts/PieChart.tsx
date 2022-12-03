@@ -53,6 +53,14 @@ const PieChart = ({
 				} else {
 					objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				}
+				/* converting dimentions value to string (specifically for when it is in a year aggregate)  */
+				chartControl.chartData.map((el: any) => {
+					if (objKey in el) {
+						let agg = el[objKey];
+						if (agg) el[objKey] = agg.toString();
+					}
+					return el;
+				});
 			}
 		}
 	}, [chartData, chartControl]);

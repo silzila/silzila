@@ -51,7 +51,6 @@ const Treemap = ({
 			// On all other conditions
 			else {
 				var dimValues = data.map((dt: any) => dt[dimensionsKeys[i]]); // All values of next dimension
-				// TODO:getting error in new Set(...)
 
 				var uniqueDimValues = [...new Set(dimValues)]; // Unique values of next dimension. These are the parent objects
 
@@ -91,7 +90,6 @@ const Treemap = ({
 				} else {
 					return el.fieldname;
 				}
-				// return el.fieldname;
 			});
 
 			// column in measure
@@ -100,7 +98,6 @@ const Treemap = ({
 			});
 
 			var dimValues = chartData.map((dt: any) => dt[dimensionsKeys[0]]); // All values of first dimension
-			// TODO:getting error in new Set(...)
 			var uniqueDimValues = [...new Set(dimValues)]; // Unique values of first dimension. These are the parent objects
 
 			if (dimensionsKeys.length === 1) {
@@ -133,10 +130,7 @@ const Treemap = ({
 		}
 	}, [chartData, chartControl]);
 
-	// console.log(sourceData);
-
 	useEffect(() => {
-		// console.log(dimensionsKeys);
 		updateTreeMapStyleOptions(propKey, "leafDepth", dimensionsKeys.length);
 	}, [chartControls.properties[propKey], chartData]);
 
@@ -184,7 +178,6 @@ const Treemap = ({
 					tooltip: {
 						show: chartControl.mouseOver.enable,
 						formatter: function (info: any) {
-							// console.log(info);
 							var value = info.value;
 							var treePathInfo = info.treePathInfo;
 							var treePath = [];
@@ -204,7 +197,6 @@ const Treemap = ({
 							right: chartControl.chartMargin.right + "%",
 							top: chartControl.chartMargin.top + "%",
 							bottom: chartControl.chartMargin.bottom + "%",
-							// width: chartControl.treeMapChartControls.treeMapWidth + "%",
 							width:
 								100 -
 								(chartControl.chartMargin.left + chartControl.chartMargin.right) +

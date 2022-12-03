@@ -85,7 +85,6 @@ const MultiBarChart = ({
 				}}
 				option={{
 					animation: false,
-					// chartArea ? false : true,
 					legend: {
 						type: "scroll",
 						show: chartControl.legendOptions?.showLegend,

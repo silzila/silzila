@@ -96,7 +96,6 @@ const DropZone = ({
 						let newFieldData = JSON.parse(
 							JSON.stringify(setPrefix(fieldData, name, chartType))
 						);
-						console.log(propKey, bIndex, newFieldData, allowedNumbers);
 						updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
 					} else {
 						setSeverity("error");

@@ -109,7 +109,7 @@ const ChartLabels = ({
 										{labelPositionOptions.map((position: any) => {
 											return (
 												<MenuItem
-													// value={position.value}
+													value={position.value}
 													key={position.name}
 													sx={{
 														padding: "2px 10px",

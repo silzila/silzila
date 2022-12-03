@@ -154,8 +154,6 @@ const ScatterChart = ({
 							},
 						},
 						yAxis: {
-							// inverse: chartControl.axisOptions.inverse,
-
 							position: chartControl.axisOptions.yAxis.position,
 
 							axisLine: {
