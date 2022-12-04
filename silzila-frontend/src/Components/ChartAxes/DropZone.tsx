@@ -18,7 +18,7 @@ import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import Card from "./Card";
 import ChartsInfo from "./ChartsInfo2";
 import { setPrefix } from "./SetPrefix";
-//import UserFilterCard from "../ChartFieldFilter/UserFilterCard";
+import UserFilterCard from "../ChartFieldFilter/UserFilterCard";
 import expandIcon from "../../assets/expand.png";
 import collapseIcon from "../../assets/collapse.png";
 import dotIcon from "../../assets/dot.png";
@@ -475,7 +475,16 @@ const DropZone = ({
 				) : null */}
 				{bIndex == 0
 					? chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
-							(field: any, index: number) => <div key={index}></div>
+							(field: any, index: number) => (
+								<UserFilterCard
+									field={field}
+									bIndex={bIndex}
+									axisTitle={name}
+									key={index}
+									itemIndex={index}
+									propKey={propKey}
+								/>
+							)
 					  )
 					: chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
 							(field: any, index: number) => (

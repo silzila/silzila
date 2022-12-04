@@ -143,7 +143,7 @@ export interface ChartAxesFormattedAxes {
 	// fields?: any[];
 }
 
-export interface CardProps {
+export interface Card{
 	field: {
 		uId?: string;
 		fieldname?: string;
@@ -162,7 +162,10 @@ export interface CardProps {
 	// state
 	tabTileProps: TabTileStateProps;
 	chartProp: ChartPropertiesProps;
+}
 
+export interface CardProps extends Card {
+	
 	// dispatch
 	deleteDropZoneItems: (propKey: number | string, binIndex: number, itemIndex: number) => void;
 
