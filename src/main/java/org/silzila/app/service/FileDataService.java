@@ -177,6 +177,29 @@ public class FileDataService {
         return query;
     }
 
+    // helper function to check if file data name is alreay taken
+    // used to check while creating new File Data
+    public void isFileDataNameAlreadyTaken(String userId, String fileDataName) throws BadRequestException {
+        // check in DB if file data name is already taken
+        List<FileData> fileDatas = fileDataRepository.findByUserIdAndName(
+                userId, fileDataName);
+        if (!fileDatas.isEmpty()) {
+            throw new BadRequestException("Error: File Data Name is already taken!");
+        }
+    }
+
+    // helper function to check if file data name is alreay taken other than self
+    // used to check while editing File Data
+    public void isFileDataNameTakenOtherThanSelf(String id, String userId, String fileDataName)
+            throws BadRequestException {
+        // check in DB if file data name is already taken
+        List<FileData> fileDatas = fileDataRepository.findByIdNotAndUserIdAndName(id,
+                userId, fileDataName);
+        if (!fileDatas.isEmpty()) {
+            throw new BadRequestException("Error: File Data Name is already taken!");
+        }
+    }
+
     // helper function to create Schema String for given list of columns
     // to change data type or col name while reading CSV
     public String makeSchemaString(FileUploadRevisedInfoRequest revisedInfoRequest) {
@@ -201,7 +224,10 @@ public class FileDataService {
 
     // 2. update schema for uploaded file
     public List<JsonNode> fileUploadChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
-            throws JsonMappingException, JsonProcessingException {
+            throws JsonMappingException, JsonProcessingException, BadRequestException {
+
+        // check in DB if file data name is already taken
+        isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName());
 
         String schemaString = makeSchemaString(revisedInfoRequest);
         // System.out.println("SCHEMA ===================== " + schemaString);
@@ -226,11 +252,12 @@ public class FileDataService {
             throws JsonMappingException, JsonProcessingException, BadRequestException {
 
         // check in DB if file data name is already taken
-        List<FileData> fileDatas = fileDataRepository.findByUserIdAndName(
-                userId, revisedInfoRequest.getName());
-        if (!fileDatas.isEmpty()) {
-            throw new BadRequestException("Error: File Data Name is already taken!");
-        }
+        isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName());
+        // List<FileData> fileDatas = fileDataRepository.findByUserIdAndName(
+        // userId, revisedInfoRequest.getName());
+        // if (!fileDatas.isEmpty()) {
+        // throw new BadRequestException("Error: File Data Name is already taken!");
+        // }
 
         // if not exists, create folder for user - to save file
         Path path = Paths.get(SILZILA_DIR, userId);
@@ -370,7 +397,7 @@ public class FileDataService {
         fileDataRepository.deleteById(id);
     }
 
-    // 1. update schema of file data
+    // A. update schema of file data
     // same request json of file upload change schema
     // but file data id instead of actual file id
     public List<JsonNode> fileDataChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
@@ -391,6 +418,9 @@ public class FileDataService {
             throw new BadRequestException("Error: File not exists!");
         }
 
+        // check if file data name is already taken other than self
+        isFileDataNameTakenOtherThanSelf(fileData.getId(), userId, revisedInfoRequest.getName());
+
         // construct query by using helper function
         String query = buildQueryWithChangeSchema(revisedInfoRequest);
         final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads"
@@ -403,7 +433,7 @@ public class FileDataService {
         return jsonNodes;
     }
 
-    // 2. Udate Parque file with the changed Schema
+    // B. Udate Parque file with the changed Schema
     // this creates new Parquet file with changed schema and deletes old file
     public FileDataDTO fileDataSaveWithSchemaUpdate(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
             throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
@@ -416,6 +446,9 @@ public class FileDataService {
         }
         FileData fileData = fdOptional.get();
 
+        // check if file data name is already taken other than self
+        isFileDataNameTakenOtherThanSelf(fileData.getId(), userId, revisedInfoRequest.getName());
+
         final String readFilePath = System.getProperty("user.home") + "/" + "silzila-uploads"
                 + "/" + userId + "/" + fileData.getFileName();
         final String newFileName = UUID.randomUUID().toString() + ".parquet";
@@ -426,6 +459,9 @@ public class FileDataService {
         if (Files.notExists(Paths.get(readFilePath))) {
             throw new BadRequestException("Error: File not exists!");
         }
+
+        // check in DB if file data name is already taken
+        isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName());
 
         // construct query by using helper function
         String query = buildQueryWithChangeSchema(revisedInfoRequest);

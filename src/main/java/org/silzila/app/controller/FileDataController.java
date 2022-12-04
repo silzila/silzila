@@ -61,7 +61,7 @@ public class FileDataController {
     @PostMapping("/file-upload-change-schema")
     public ResponseEntity<?> fileUploadChangeSchema(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
-            throws JsonMappingException, JsonProcessingException {
+            throws JsonMappingException, JsonProcessingException, BadRequestException {
         // get the requester user Id
         String userId = reqHeader.get("requesterUserId");
         // calling Service function
