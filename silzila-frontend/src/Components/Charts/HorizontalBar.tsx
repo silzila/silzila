@@ -7,6 +7,7 @@ import {
 	ChartControlStateProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import {
 	formatChartLabelValue,
 	formatChartYAxisValue,
@@ -67,12 +68,15 @@ const HorizontalBar = ({
 			setSeriesData(seriesDataTemp);
 		}
 	}, [chartData, chartControl]);
+	var chartThemes: any[] = ColorSchemes.filter(el => {
+		return el.name === chartControl.colorScheme;
+	});
 
 	const RenderChart = () => {
 		return chartData ? (
 			<ReactEcharts
 				opts={{ renderer: "svg" }}
-				theme={chartControl.colorScheme}
+				// theme={chartControl.colorScheme}
 				style={{
 					padding: "5px",
 					width: graphDimension.width,
@@ -86,6 +90,8 @@ const HorizontalBar = ({
 						: "1px solid rgb(238,238,238)",
 				}}
 				option={{
+					color: chartThemes[0].colors,
+					backgroundColor: chartThemes[0].background,
 					animation: false,
 					legend: {
 						type: "scroll",

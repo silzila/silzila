@@ -1,6 +1,6 @@
 import React from "react";
 
-const GraphRNDDash = () => {
+const GraphRNDDash = (props: any) => {
 	return <div>GraphRNDDash</div>;
 };
 
