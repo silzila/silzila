@@ -2,6 +2,7 @@ import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
+import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 const CalendarChart = ({
@@ -32,11 +33,11 @@ const CalendarChart = ({
 			if (chartProperties.properties[propKey].chartAxes[1].fields.length > 0) {
 				setChartDataKeys(Object.keys(chartData[0]));
 
-				let objKey =
-					chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname +
-					"__" +
-					chartProperties.properties[propKey].chartAxes[1].fields[0].time_grain;
-
+				let objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
+				// +
+				// 	"__" +
+				// 	chartProperties.properties[propKey].chartAxes[1].fields[0].time_grain;
+				// console.log(objKey);
 				// getting years of dates
 				chartData.map((el: any) => {
 					const timestampformate = new Date(el[objKey]);
@@ -53,12 +54,10 @@ const CalendarChart = ({
 						top:
 							i * (chartControl.chartMargin.top * 7) +
 							30 +
-							i * chartControl.calendarStyleOptions.calendarGap, //10 - calendar gap
-						// (i*( celHeight*7)+30px) + (i*30px)
+							i * chartControl.calendarStyleOptions.calendarGap,
+
 						left: chartControl.chartMargin.left,
 						right: chartControl.chartMargin.right,
-						// bottom: chartControl.chartMargin.bottom,
-						// bottom: i * (chartControl.chartMargin.bottom * 7) + 30 + i * 30,
 
 						range: yr,
 						cellSize: ["auto", chartControl.chartMargin.top],
@@ -108,8 +107,6 @@ const CalendarChart = ({
 					};
 				});
 				setSeriesArray(seriesArrayValues);
-
-				// console.log(calendarArray, seriesArray);
 			}
 		}
 	}, [chartControl, chartControl.chartData]);
@@ -133,10 +130,13 @@ const CalendarChart = ({
 		return virtualData;
 	}
 
+	var chartThemes: any[] = ColorSchemes.filter(el => {
+		return el.name === chartControl.colorScheme;
+	});
 	const RenderChart = () => {
 		return (
 			<ReactEcharts
-				theme={chartControl.colorScheme}
+				// theme={chartControl.colorScheme}
 				style={{
 					padding: "1rem",
 					width: graphDimension.width,
@@ -150,6 +150,8 @@ const CalendarChart = ({
 						: "1px solid rgb(238,238,238)",
 				}}
 				option={{
+					color: chartThemes[0].colors,
+					backgroundColor: chartThemes[0].background,
 					animation: chartArea ? false : true,
 					legend: {},
 

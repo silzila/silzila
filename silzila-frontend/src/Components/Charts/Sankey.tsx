@@ -42,7 +42,8 @@ const Sankey = ({
 			//getting measure value as string since allowed numof measure is 1 for this chart
 
 			chartProperties.properties[propKey].chartAxes[2].fields.map(el => {
-				measure = `${el.fieldname}__${el.agg}`;
+				// measure = `${el.fieldname}__${el.agg}`;
+				measure = `${el.fieldname}`;
 			});
 
 			const getColorOfNode = (nodeName: string) => {
@@ -148,13 +149,16 @@ const Sankey = ({
 			setLinks(valuesOfLink);
 		}
 	}, [chartData, chartControl]);
+	var chartThemes: any[] = ColorSchemes.filter(el => {
+		return el.name === chartControl.colorScheme;
+	});
 
 	const RenderChart = () => {
 		// console.log(nodes, links);
 		return (
 			<ReactEcharts
 				opts={{ renderer: "svg" }}
-				theme={chartControl.colorScheme}
+				// theme={chartControl.colorScheme}
 				style={{
 					padding: "5px",
 					width: graphDimension.width,
@@ -206,6 +210,8 @@ const Sankey = ({
 					// title: {
 					// 	text: "Sankey Diagram",
 					// },
+					color: chartThemes[0].colors,
+					backgroundColor: chartThemes[0].background,
 					tooltip: {
 						show: chartControl.mouseOver.enable,
 						trigger: "item",

@@ -30,9 +30,7 @@ const ColorScale = ({
 }: ChartOptionsProps & {
 	setColorScaleOption: (option: string, value: any, propKey: string | number) => void;
 }) => {
-	var propKey: number = parseFloat(
-		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
-	);
+	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
 	const [severity, setSeverity] = useState<string>("success");
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
@@ -64,11 +62,11 @@ const ColorScale = ({
 
 	const checkMinMaxValue = () => {
 		console.log(min, max);
+		console.log(typeof min, typeof max);
 		console.log(Number(min), Number(max));
 		if (Number(max) === 0) {
 			setOpenAlert(true);
 			setSeverity("error");
-
 			setTestMessage("Max value can't be zero");
 			setTimeout(() => {
 				setOpenAlert(false);

@@ -6,6 +6,7 @@ import { Dispatch } from "redux";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { updateTreeMapStyleOptions } from "../../redux/ChartPoperties/ChartControlsActions";
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 interface TreemapChartProps {
 	updateTreeMapStyleOptions: (propKey: number | string, option: string, value: any) => void;
 }
@@ -80,22 +81,18 @@ const Treemap = ({
 
 	useEffect(() => {
 		if (chartData.length >= 1) {
-			console.log("useEffect called");
 			var formattedData: any = []; // Final data structure to feed to the map
 
 			// columns in dimension
 			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map(el => {
-				if (el.dataType === "date" || el.dataType === "timeStamp") {
-					return `${el.fieldname}__${el.time_grain}`;
-				} else {
-					return el.fieldname;
-				}
+				return el.fieldname;
 			});
 
 			// column in measure
 			chartProperties.properties[propKey].chartAxes[2].fields.map(el => {
-				measure = `${el.fieldname}__${el.agg}`;
+				measure = `${el.fieldname}`;
 			});
+			console.log(measure);
 
 			var dimValues = chartData.map((dt: any) => dt[dimensionsKeys[0]]); // All values of first dimension
 			var uniqueDimValues = [...new Set(dimValues)]; // Unique values of first dimension. These are the parent objects
@@ -156,12 +153,15 @@ const Treemap = ({
 		console.log(sourceData);
 		return sourceData;
 	};
+	var chartThemes: any[] = ColorSchemes.filter(el => {
+		return el.name === chartControl.colorScheme;
+	});
 
 	const RenderChart = () => {
 		return (
 			<ReactEcharts
 				opts={{ renderer: "svg" }}
-				theme={chartControl.colorScheme}
+				// theme={chartControl.colorScheme}
 				style={{
 					padding: "5px",
 					width: graphDimension.width,
@@ -175,6 +175,8 @@ const Treemap = ({
 						: "1px solid rgb(238,238,238)",
 				}}
 				option={{
+					color: chartThemes[0].colors,
+					backgroundColor: chartThemes[0].background,
 					tooltip: {
 						show: chartControl.mouseOver.enable,
 						formatter: function (info: any) {

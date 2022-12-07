@@ -23,7 +23,6 @@ import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
 import TileRibbon from "../TabsAndTiles/TileRibbon";
 import listOfTilesIcon from "../../assets/listoftilesIcon.svg";
 import dashbordSizeIcon from "../../assets/screenSize.png";
-import DashBoard from "../DashBoard/DashBoard";
 import { Dispatch } from "redux";
 import { Tooltip } from "@mui/material";
 import DataViewerMiddle from "./DataViewerMiddle";
@@ -33,7 +32,8 @@ import {
 	toggleColumnsOnlyDisplay,
 	toggleShowDataViewerBottom,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
-// import MenuBar from "./MenuBar";
+import MenuBar from "./MenuBar";
+import DashBoard from "../DashBoard/DashBoard";
 
 interface DataViewerProps {
 	tabTileProps: TabTileStateProps;
@@ -84,7 +84,7 @@ function DataViewer({
 
 	return (
 		<div className="dataViewer">
-			{/* <MenuBar from="dataViewer" /> */}
+			<MenuBar from="dataViewer" />
 			<div className="tabArea">
 				<TabRibbon />
 				{tabTileProps.showDash || tabTileProps.dashMode === "Present" ? (
@@ -131,12 +131,11 @@ function DataViewer({
 			</div>
 			{/* Show tile page or Dashboard */}
 			{tabTileProps.showDash ? (
-				"kkj"
+				<DashBoard
+					showListofTileMenu={showListofTileMenu}
+					dashboardResizeColumn={dashboardResizeColumn}
+				/>
 			) : (
-				// <DashBoard
-				// 	showListofTileMenu={showListofTileMenu}
-				// 	dashboardResizeColumn={dashboardResizeColumn}
-				// />
 				<React.Fragment>
 					<DataViewerMiddle
 						tabId={tabTileProps.selectedTabId}

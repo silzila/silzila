@@ -227,10 +227,9 @@ const DashBoard = ({
 		return (
 			<div
 				className={
-					// tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]?.highlight
-					// ? "listOfGraphsHighlighted"
-					// :
-					"listOfGraphs"
+					tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]?.highlight
+						? "listOfGraphsHighlighted"
+						: "listOfGraphs"
 				}
 			>
 				<input
@@ -255,30 +254,28 @@ const DashBoard = ({
 	});
 
 	useEffect(() => {
-		// renderGraphs();
+		renderGraphs();
 	}, [tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails, dashStyle]);
 
-	// const renderGraphs = () => {
-	// 	return tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.map(
-	// 		(box: number | string | {}, index: number) => {
-	// 			var boxDetails: any =
-	// 				tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[box];
+	const renderGraphs = () => {
+		return tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.map((box, index) => {
+			var boxDetails = tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[box];
 
-	// 			return;
-	// 			// <GraphRNDDash
-	// 			// 	key={index}
-	// 			// 	mouseDownOutsideGraphs={mouseDownOutsideGraphs}
-	// 			// 	tabId={tabTileProps.selectedTabId}
-	// 			// 	boxDetails={boxDetails}
-	// 			// 	style={style}
-	// 			// 	setStyle={setStyle}
-	// 			// 	style2={style2}
-	// 			// 	setStyle2={setStyle2}
-	// 			// 	gridSize={{ x: dashStyle.width, y: dashStyle.height }}
-	// 			// />
-	// 		}
-	// 	);
-	// };
+			return (
+				<GraphRNDDash
+					key={index}
+					mouseDownOutsideGraphs={mouseDownOutsideGraphs}
+					tabId={tabTileProps.selectedTabId}
+					boxDetails={boxDetails}
+					style={style}
+					setStyle={setStyle}
+					style2={style2}
+					setStyle2={setStyle2}
+					gridSize={{ x: dashStyle.width, y: dashStyle.height }}
+				/>
+			);
+		});
+	};
 
 	return (
 		<div
@@ -312,8 +309,7 @@ const DashBoard = ({
 			<div className="dashboardOuter" ref={targetRef}>
 				<div className="dashboardArea" style={dashStyle}>
 					{tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.length > 0 ? (
-						// renderGraphs()
-						""
+						renderGraphs()
 					) : (
 						<div
 							style={{
@@ -356,7 +352,7 @@ const DashBoard = ({
 	);
 };
 
-const mapStateToProps = (state: DashBoardStateProps) => {
+const mapStateToProps = (state: DashBoardStateProps, ownProps: any) => {
 	return {
 		tabState: state.tabState,
 		tabTileProps: state.tabTileProps,

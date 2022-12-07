@@ -2,6 +2,7 @@ import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
+import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import {
 	formatChartLabelValue,
 	formatChartYAxisValue,
@@ -65,10 +66,14 @@ const AreaChart = ({
 		}
 	}, [chartData, chartControl]);
 
+	var chartThemes: any[] = ColorSchemes.filter(el => {
+		return el.name === chartControl.colorScheme;
+	});
+
 	const RenderChart = () => {
 		return (
 			<ReactEcharts
-				theme={chartControl.colorScheme}
+				// theme={chartControl.colorScheme}
 				style={{
 					padding: "1rem",
 					width: graphDimension.width,
@@ -82,6 +87,8 @@ const AreaChart = ({
 						: "1px solid rgb(238,238,238)",
 				}}
 				option={{
+					color: chartThemes[0].colors,
+					backgroundColor: chartThemes[0].background,
 					animation: chartArea ? false : true,
 					legend: {
 						show: chartControl.legendOptions?.showLegend,
