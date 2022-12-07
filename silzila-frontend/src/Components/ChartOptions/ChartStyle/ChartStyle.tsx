@@ -37,7 +37,7 @@ const ChartStyle = ({
 	updateCrossTabCellLabelOptions: (propKey: string | number, option: string, value: any) => void;
 	updateCrossTabStyleOptions: (propKey: string | number, option: string, value: any) => void;
 }) => {
-	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
+	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
 	const [isColorPopoverOpen, setColorPopOverOpen] = useState<boolean>(false);
 	const [anchorEl, setAnchorEl] = useState<string>("");
@@ -59,8 +59,7 @@ const ChartStyle = ({
 		return labelOptionsList.map((item, i) => {
 			return (
 				<button
-					// value={item.value}
-					onClick={e => setOptionName(item.name)}
+					onClick={() => setOptionName(item.name)}
 					className={item.name === optionName ? "radioButtonSelected" : "radioButton"}
 					key={i}
 				>
@@ -132,7 +131,7 @@ const ChartStyle = ({
 										border: "2px solid darkgray",
 										margin: "auto",
 									}}
-									onClick={e => {
+									onClick={() => {
 										setColorPopOverOpen(!isColorPopoverOpen);
 										//setAnchorEl(e.currentTarget);
 									}}
@@ -183,7 +182,7 @@ const ChartStyle = ({
 						color={options.labelColor}
 						className="sketchPicker"
 						width="16rem"
-						// styles={{ padding: "0" }}
+						// styles={{ padding: 0 }}
 						onChangeComplete={color => {
 							if (optionName === "Header") {
 								updateCrossTabHeaderLabelOptions(propKey, "labelColor", color.hex);

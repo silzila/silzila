@@ -6,12 +6,10 @@ import {
 	SampleRecordsStateProp,
 } from "./SampleTableRecordsInterfaces";
 
-const initialRecords = {
-	recordsColumnType: {},
-};
+const initialRecords = { recordsColumnType: {} };
 
 const SampleRecordsReducer = (
-	state: any = initialRecords,
+	state: SampleRecordsStateProp = initialRecords,
 	action: AddTableRecords | ResetSampleRecords | LoadSampleRecords
 ) => {
 	switch (action.type) {

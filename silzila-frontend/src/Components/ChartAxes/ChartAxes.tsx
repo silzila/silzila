@@ -27,15 +27,14 @@ export const getChartData = async (
 	propKey: number,
 	token: string
 ) => {
-	console.log(axesValues, chartProp);
 	/*	PRS 21/07/2022	Construct filter object for service call */
 	const getChartLeftFilter = () => {
 		let _type: any = {};
 
 		let _chartProp = chartProp.properties[propKey].chartAxes[0];
 
-		_type.panel_name = "chart_filters";
-		_type.any_condition_match = _chartProp.any_condition_match || false;
+		_type.panelName = "chartFilters";
+		_type.shouldAllConditionsMatch = _chartProp.any_condition_match || false;
 		_type.filters = [];
 
 		/*	To determine filter type	*/
@@ -90,7 +89,12 @@ export const getChartData = async (
 
 		/*	Determine whether to add a particular field	*/
 		const _getIsFilterValidToAdd = (item: any) => {
-			if (item.fieldtypeoption === "Pick List" && item.userSelection) {
+
+			if(!item.fieldtypeoption){
+				return false;
+			}
+
+			if (item.fieldtypeoption === "Pick List" && item.userSelection && item.userSelection.length > 0) {
 				return !item.userSelection.includes("(All)");
 			} else if (item.fieldtypeoption === "Search Condition") {
 				//   if (
@@ -117,6 +121,9 @@ export const getChartData = async (
 					return false;
 				}
 			}
+			else{
+				return false;
+			}
 
 			return true;
 		};
@@ -128,21 +135,25 @@ export const getChartData = async (
 			_filter.tableId = item.tableId;
 			_filter.fieldName = item.fieldname;
 			_filter.dataType = item.dataType.toLowerCase();
-			_filter.exclude = item.includeexclude === "Exclude";
+			_filter.shouldExclude = item.includeexclude === "Exclude";
+			
 
 			if (item.fieldtypeoption === "Search Condition") {
 				if (item.exprType) {
-					_filter.condition = item.exprType;
+					_filter.operator = item.exprType;
 				} else {
-					_filter.condition = item.dataType === "text" ? "begins_with" : "greater_than";
+					_filter.operator = item.dataType === "text" ? "begins_with" : "greater_than";
 				}
+			}
+			else{
+				_filter.operator = "in";
 			}
 
 			if (item.dataType === "timestamp" || item.dataType === "date") {
-				_filter.time_grain = item.prefix;
+				_filter.timeGrain = item.prefix;
 			}
 
-			_filter.user_selection = _getUserSelection(item);
+			_filter.userSelection = _getUserSelection(item);
 
 			if (_getIsFilterValidToAdd(item)) {
 				_type.filters.push(_filter);
@@ -193,7 +204,7 @@ export const getChartData = async (
 				dataType: field.dataType.toLowerCase(),
 			};
 			if (field.dataType === "date" || field.dataType === "timestamp") {
-				formattedField.time_grain = field.time_grain;
+				formattedField.timeGrain = field.time_grain;
 			}
 
 			if (axis.name === "Measure") {
@@ -229,8 +240,12 @@ export const getChartData = async (
 		if (_filterObj.filters.length > 0) {
 			formattedAxes.filterPanels.push(_filterObj);
 		}
+		else{
+			formattedAxes.filterPanels = [];
+		}
 
-		// console.log(JSON.stringify(formattedAxes));
+		console.log("Axis");
+		 console.log(JSON.stringify(formattedAxes));
 
 		/*	PRS 21/07/2022	*/
 		var res: any = await FetchData({
@@ -250,7 +265,7 @@ export const getChartData = async (
 				console.log("Change filter conditions.");
 			}
 		} else {
-			console.log("Get Table Data Error", res.data.detail);
+			console.error("Get Table Data Error", res.data.message);
 		}
 	}
 };

@@ -13,6 +13,7 @@ import {
 	ChartControlProperties,
 	ChartControlsProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
+import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 
 interface PieChartProps {
 	updateChartMargins: (propKey: number | string, option: string, value: any) => void;
@@ -36,6 +37,7 @@ const PieChart = ({
 		chartControl.chartData && chartControl.chartData.length > 0 ? chartControl.chartData : [];
 
 	const [chartDataKeys, setChartDataKeys] = useState<string[]>([]);
+	var chartThemes: any[];
 
 	useEffect(() => {
 		if (chartData.length >= 1) {
@@ -53,11 +55,21 @@ const PieChart = ({
 				} else {
 					objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				}
+				/* converting dimentions value to string (specifically for when it is in a year aggregate)  */
+				chartControl.chartData.map((el: any) => {
+					if (objKey in el) {
+						let agg = el[objKey];
+						if (agg) el[objKey] = agg.toString();
+					}
+					return el;
+				});
 			}
 		}
 	}, [chartData, chartControl]);
 
-	//console.log(chartData);
+	chartThemes = ColorSchemes.filter(el => {
+		return el.name === chartControl.colorScheme;
+	});
 
 	var radius: number = chartControl.chartMargin.radius;
 	useEffect(() => {
@@ -71,7 +83,7 @@ const PieChart = ({
 		return (
 			<>
 				<ReactEcharts
-					theme={chartControl.colorScheme}
+					// theme={chartControl.colorScheme}
 					style={{
 						padding: "1rem",
 						width: graphDimension.width,
@@ -85,6 +97,8 @@ const PieChart = ({
 							: "1px solid rgb(238,238,238)",
 					}}
 					option={{
+						color: chartThemes[0].colors,
+						backgroundColor: chartThemes[0].background,
 						animation: false,
 						//  chartArea ? false : true,
 						legend: {

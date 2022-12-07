@@ -5,8 +5,9 @@ import {
 	ChartControlsProps,
 	ChartControlStateProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
+import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
-import { ChartsReduxStateProps, FormatterValueProps } from "./ChartsCommonInterfaces";
+import { ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 const GaugeChart = ({
 	//props
@@ -18,41 +19,42 @@ const GaugeChart = ({
 	//state
 	chartControls,
 }: ChartsReduxStateProps) => {
-	// TODO: error in getting chart Data
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
-	const [newData, setNewData] = useState<any>([]);
+	const [gaugeChartData, setGaugeChartData] = useState<any>([]);
 
-	var carr: any = [];
+	var colorArray: any[] = [];
 
 	const getColors = () => {
 		for (let i = 0; i < chartControl.axisOptions.gaugeChartControls.stepcolor.length; i++) {
-			carr.push([
+			colorArray.push([
 				chartControl.axisOptions.gaugeChartControls.stepcolor[i].per,
 				chartControl.axisOptions.gaugeChartControls.stepcolor[i].color,
 			]);
 		}
+		console.log(colorArray);
 	};
 
 	getColors();
 
 	useEffect(() => {
 		if (chartData.length >= 1) {
-			var newTempData: any[] = [];
-			Object.keys(chartData[0]).map(key => {
-				newTempData.push({
-					name: key,
-					value: chartData[0][key],
-				});
-			});
-			setNewData(newTempData);
+			setGaugeChartData([
+				{
+					name: Object.keys(chartData[0])[0],
+					value: Object.values(chartData[0])[0],
+				},
+			]);
 		}
 	}, [chartData]);
+	var chartThemes: any[] = ColorSchemes.filter(el => {
+		return el.name === chartControl.colorScheme;
+	});
 
 	const RenderChart = () => {
 		return (
 			<ReactEcharts
-				theme={chartControl.colorScheme}
+				// theme={chartControl.colorScheme}
 				style={{
 					padding: "1rem",
 					width: graphDimension.width,
@@ -66,6 +68,8 @@ const GaugeChart = ({
 						: "1px solid rgb(238,238,238)",
 				}}
 				option={{
+					color: chartThemes[0].colors,
+					backgroundColor: chartThemes[0].background,
 					animation: chartArea ? false : true,
 					legend: {
 						type: "scroll",
@@ -91,20 +95,20 @@ const GaugeChart = ({
 							type: "gauge",
 							radius: chartControl.chartMargin.radius + "%",
 
-							max: newData[0]
+							max: gaugeChartData[0]
 								? chartControl.axisOptions.gaugeAxisOptions.isMaxAuto
-									? newData[0].value * 2
+									? gaugeChartData[0].value * 2
 									: chartControl.axisOptions.gaugeAxisOptions.max
 								: 0,
 
 							min: chartControl.axisOptions.gaugeAxisOptions.min,
 
-							data: newData,
+							data: gaugeChartData,
 
 							axisLine: {
 								lineStyle: {
 									width: 10,
-									color: [...carr],
+									color: [...colorArray],
 								},
 
 								roundCap: true,
@@ -122,7 +126,8 @@ const GaugeChart = ({
 								distance: chartControl.axisOptions.gaugeAxisOptions.tickPadding,
 							},
 							detail: {
-								formatter: (value: FormatterValueProps) => {
+								/* holds the value that display in the center of the gauge*/
+								formatter: (value: number) => {
 									var formattedValue = value;
 									formattedValue = formatChartLabelValue(
 										chartControl,
@@ -134,7 +139,8 @@ const GaugeChart = ({
 							axisLabel: {
 								show: chartControl.axisOptions.gaugeAxisOptions.showAxisLabel,
 								distance: chartControl.axisOptions.gaugeAxisOptions.labelPadding,
-								formatter: (value: FormatterValueProps) => {
+								/* holds the value that display when user mouseover on the needle of chart*/
+								formatter: (value: number) => {
 									var formattedValue = value;
 									formattedValue = formatChartLabelValue(
 										chartControl,

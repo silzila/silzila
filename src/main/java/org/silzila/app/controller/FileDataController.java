@@ -45,7 +45,8 @@ public class FileDataController {
     // step 1:
     // upload CSV File
     @PostMapping("/file-upload")
-    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file)
+    public ResponseEntity<?> fileUpload(
+            @RequestParam("file") MultipartFile file)
             throws ExpectationFailedException, JsonMappingException, JsonProcessingException {
         // calling Service function
         FileUploadResponse fileUploadResponse = fileDataService.fileUpload(file);
@@ -54,12 +55,13 @@ public class FileDataController {
     }
 
     // step 2:
-    // (this step repeats until user is satisfied with col data types & col names)
+    // (this step can be repeated by user
+    // until user is satisfied with col data types & col names)
     // edit schema of upload file
     @PostMapping("/file-upload-change-schema")
     public ResponseEntity<?> fileUploadChangeSchema(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
-            throws JsonMappingException, JsonProcessingException {
+            throws JsonMappingException, JsonProcessingException, BadRequestException {
         // get the requester user Id
         String userId = reqHeader.get("requesterUserId");
         // calling Service function

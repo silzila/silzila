@@ -9,6 +9,7 @@ import {
 	ChartsReduxStateProps,
 	FormatterValueProps,
 } from "./ChartsCommonInterfaces";
+import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 
 const HeatMap = ({
 	//props
@@ -35,30 +36,34 @@ const HeatMap = ({
 
 			var measureField: ChartDataFieldProps =
 				chartProperties.properties[propKey].chartAxes[3].fields[0];
-			// if (measureField) {
-			// 	var maxFieldName: string = `${measureField.fieldname}__${measureField.agg}`;
-			// 	console.log(maxFieldName);
+			if (measureField) {
+				// var maxFieldName: string = `${measureField.fieldname}__${measureField.agg}`;
+				var maxFieldName: string = `${measureField.fieldname}`;
+				console.log(maxFieldName);
 
-			// 	var max: number = 0;
-			// 	var min: number = 100000000;
-			// 	chartData.forEach((element: any) => {
-			// 		if (element[maxFieldName] > max) {
-			// 			max = element[maxFieldName];
-			// 		}
-			// 		if (element[maxFieldName] < min) {
-			// 			min = element[maxFieldName];
-			// 		}
-			// 	});
-			// 	setMaxValue(max);
-			// 	setMinValue(min);
-			// }
+				var max: number = 0;
+				var min: number = 100000000;
+				chartData.forEach((element: any) => {
+					if (element[maxFieldName] > max) {
+						max = element[maxFieldName];
+					}
+					if (element[maxFieldName] < min) {
+						min = element[maxFieldName];
+					}
+				});
+				setMaxValue(max);
+				setMinValue(min);
+			}
 		}
 	}, [chartData]);
+	var chartThemes: any[] = ColorSchemes.filter(el => {
+		return el.name === chartControl.colorScheme;
+	});
 
 	const RenderChart = () => {
 		return (
 			<ReactEcharts
-				theme={chartControl.colorScheme}
+				// theme={chartControl.colorScheme}
 				style={{
 					padding: "1rem",
 					width: graphDimension.width,
@@ -72,6 +77,8 @@ const HeatMap = ({
 						: "1px solid rgb(238,238,238)",
 				}}
 				option={{
+					color: chartThemes[0].colors,
+					backgroundColor: chartThemes[0].background,
 					animation: chartArea ? false : true,
 					legend: {},
 					grid: {
@@ -81,7 +88,6 @@ const HeatMap = ({
 						bottom: chartControl.chartMargin.bottom + "%",
 					},
 
-					// label: { show: true, fontSize: 14 },
 					tooltip: { show: chartControl.mouseOver.enable },
 
 					dataset: {
