@@ -41,7 +41,40 @@ public class ConvertSparkDataType {
                 break;
         }
         return silzilaDataType;
+    }
 
+    public static String toSparkDataType(String silzilaDataType) {
+        String sparkDataType;
+        switch (silzilaDataType) {
+
+            case "boolean":
+                sparkDataType = "boolean";
+                break;
+
+            case "integer":
+                sparkDataType = "integer";
+                break;
+
+            case "decimal":
+                sparkDataType = "double";
+                break;
+
+            case "date":
+                sparkDataType = "date";
+                break;
+            case "timestamp":
+                sparkDataType = "timestamp";
+                break;
+
+            case "text":
+                sparkDataType = "string";
+                break;
+
+            default:
+                sparkDataType = "string";
+                break;
+        }
+        return sparkDataType;
     }
 
 }

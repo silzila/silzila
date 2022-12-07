@@ -1,0 +1,301 @@
+.UserFilterCard{
+    display: block; 
+    /* width: auto; */
+    width:100%;
+    max-height: 15em;
+    /* min-height: 1000rem; */
+    /* border: 1px solid lightblue; */
+    /* padding: 5px; */
+}
+
+.UserSelectionDiv{
+    display: block;
+    position: relative;
+    max-height: 12em;
+    background-color:#eee;
+    /* overflow-y: auto; */
+    font-size: 12px;
+}
+
+.axisFilterField {
+	width: 90%;
+	margin: 4px 5px;
+	align-content: center;
+	font-size: 12px;
+	text-align: start;
+	display: flex;
+	cursor: move;
+	border-radius: 4px;
+	background-color: white;
+	border: 1px solid rgb(211, 211, 211);
+	color: rgb(51, 51, 51);
+}
+
+
+.radioButton {
+	height: 1.5rem;
+	flex: 1;
+	border: 1px solid lightgray;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgb(238, 238, 238);
+	transition: 0.2s;
+	text-transform: capitalize;
+}
+
+.radioButtonSelected {
+	height: 1.5rem;
+	flex: 1;
+	border: 1px solid lightgray;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #fff;
+	transition: 0.2s;
+	text-transform: capitalize;
+}
+
+.UserFilterCheckboxes{
+    display: flex;
+    width: 90%;
+    margin-left: 4px;
+    float: left;
+    text-align: left;
+}
+
+.UserFilterCheckboxes:nth-child(2n+2){
+    background-color:rgb(248, 248, 248);
+}
+
+.UserFilterCheckboxes span{
+    /* padding: 0 5px; */
+padding:0 5px 0 0;
+    color: black;
+}
+
+
+.ErrorText{
+    float: left;
+    color: red;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+
+
+/*
+.UserFilterCard{
+    width: 100%;
+    margin: 6px 2px;
+}
+
+.filterTitle {
+    background-color: #aaaaaa;
+    color: white;
+    font-weight: bold;
+    width: calc(100%-10px);
+    display: flex;
+    margin-top: 1px;
+    max-height: 2em;
+    display: flex;
+    flex:1;
+}
+
+.filterSelectionArea{
+    max-height: 14em;
+    background-color:#eee;
+    overflow-y: auto;
+    font-size: 12px;
+}
+
+.filterSelectionAreaScroll{
+    overflow-y: auto;
+}
+
+.UserFilterRadioButtons {
+    padding-top: 5px;
+    margin: 0 5%;
+    width: 90%;
+    display: flex;
+    font-size: 12px;
+}
+
+.UserFilterRadioButton {
+    border-radius: 5px;
+    background-color: #eee;
+    height: 1.5rem;
+    flex: 1 1;
+    border: 1px solid #a9a9a9;
+    color: #606060;
+    transition: 0.2s;
+    text-transform: capitalize;
+}
+
+.UserFilterRadioButtonSelected {
+    border-radius: 5px;
+    height: 1.5rem;
+    flex: 1 1;
+    border: 1px solid #a9a9a9;
+    color: #606060;
+    background-color: #fff;
+    transition: 0.2s;
+    text-transform: capitalize;
+}
+
+.UserFilterCheckboxes{
+    width: 100%;
+    float: left;
+    text-align: left;
+}
+
+.UserFilterCheckboxes:nth-child(2n+2){
+    background-color:rgb(248, 248, 248);
+}
+
+.UserFilterCheckboxes span{
+    padding: 0 5px;
+    color: black;
+}
+
+.CustomRequiredField{
+    float: left;
+    height: auto;
+    width: 90%;
+    margin: 1% 5%;
+}
+
+.CustomRequiredField .CustomInputValue {
+    border: 1px solid gray;
+    height: 1.5rem;
+    width: 100%;
+    line-height: 1.5rem;
+    line-height: 1rem;
+    margin-right: 5px;
+    color: rgb(128, 128, 128);
+    padding: 0 5px;
+    margin-top:5px;
+    float: left;
+    text-align: left;
+}
+
+.CustomRequiredField select {
+    color: black;
+    width: 100%;
+    float: left;
+}
+
+
+.react-date-picker {
+    display: block;
+    position: relative;
+}
+
+.customDatePickerWidth, 
+.customDatePickerWidth > div.react-datepicker__wrapper, 
+.customDatePickerWidth > div > div.react-datepicker__input-container
+.customDatePickerWidth > div > div.react-datepicker__input-container input {
+    width: inherit;
+    width: 100%;
+}
+
+.react-date-picker__wrapper {
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 0;
+    border: 1px solid gray;
+    margin-top: 5px;
+    width: 100%;
+    float: left;
+    margin-left: 0.5%;
+    height: 1.6rem;
+    line-height: 1rem;
+    background-color:rgb(248, 248, 248);
+}
+
+.SelectionMembersCheckBoxArea{
+    float: left;
+    height: auto;
+    width: 90%;
+    margin: 1% 5%;
+}
+
+.SelectionMembersCheckBoxArea select {
+    color: black;
+    width: 100%;
+    float: left;
+}
+
+
+.UserFilterButtonCommon {
+    height: 2rem;
+    line-height: 1.6rem;
+    font-size: 13px;
+    padding: 0 5px;
+    margin: 0;
+    border: none;
+    cursor: move;
+}
+
+.dropdownArrowUserFilter {
+    border-top: 1px solid rgb(0, 123, 255);
+    border-right: 1px solid rgb(0, 123, 255);
+    border-bottom: 1px solid rgb(0, 123, 255);
+    border-left: none;
+    border-radius: 4px 0;
+    cursor: pointer;
+    background-color:none;
+}
+
+.UserFilterColumnName {
+    flex: 1;
+    text-align: left;
+    padding: 0 5px;
+    color: rgb(0, 123, 255);
+    border-top: 1px solid rgb(0, 123, 255);
+    border-bottom: 1px solid rgb(0, 123, 255);
+    background-color: #f4f4f4;
+}
+
+
+.UserFilterColumnClose {
+    color: #999999;
+    padding: 0 6px;
+    font-size: 14px;
+    border-left: 1px solid rgb(0, 123, 255);
+    border-top: 1px solid rgb(0, 123, 255);
+    border-bottom: 1px solid rgb(0, 123, 255);
+    background-color: #f4f4f4;
+    border-radius: 0 3px 3px 0;
+    cursor: pointer;
+}
+
+.UserFilterColumnClose:hover {
+    color: red;
+    border: 1px solid #6c757d;
+    background-color: lightgray;
+}
+
+
+.UserFilterOptionsCollapse {
+    padding-right: 10px;
+    padding-left: 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transform: rotate(0deg);
+    transition: transform 0.3s linear;
+}
+
+.UserFilterOptionsCollapse.open {
+    padding-right: 10px;
+    padding-left: 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transform: rotate(180deg);
+    transition: transform 0.3s linear;
+}
+
+
+*/
