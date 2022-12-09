@@ -7,17 +7,6 @@ import { updateTreeMapStyleOptions } from "../../../redux/ChartPoperties/ChartCo
 import { Dispatch } from "redux";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
-const textFieldStyleProps = {
-	style: {
-		fontSize: "12px",
-		width: "90%",
-		margin: "0 auto 0.5rem auto",
-		backgroundColor: "white",
-		height: "1.5rem",
-		color: "#404040",
-	},
-};
-
 const TreeMapStyles = ({
 	// state
 	chartControls,
@@ -34,10 +23,9 @@ const TreeMapStyles = ({
 	);
 	const treemapStyle = chartControls.properties[propKey].treeMapChartControls;
 	let chartData = chartControls.properties[propKey].chartData
-		? chartControls.properties[propKey].chartData.result
-		: "";
+		? chartControls.properties[propKey].chartData
+		: [];
 	var treeMapLeafDepthOptions: any = [];
-	// console.log(chartDetail.properties[propKey].chartType);
 
 	useEffect(() => {
 		if (chartData) {
@@ -46,22 +34,8 @@ const TreeMapStyles = ({
 					return { name: el.fieldname, value: i + 1 };
 				}
 			);
-			// updateTreeMapStyleOptions(
-			// 	propKey,
-			// 	"leafDepth",
-			// 	chartDetail[propKey].chartAxes[1].fields.length
-			// );
 		}
 	}, [chartData, chartControls]);
-	// useEffect(() => {
-	// 	if (chartData) {
-	// 		updateTreeMapStyleOptions(
-	// 			propKey,
-	// 			"leafDepth",
-	// 			chartDetail[propKey].chartAxes[1].fields.length
-	// 		);
-	// 	}
-	// }, [chartDetail[propKey].chartType]);
 
 	treeMapLeafDepthOptions = chartProperties.properties[propKey].chartAxes[1].fields.map(
 		(el, i) => {

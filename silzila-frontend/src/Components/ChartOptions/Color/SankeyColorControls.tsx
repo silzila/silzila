@@ -20,7 +20,7 @@ const SankeyColorControls = ({
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	let chartData = chartControls.properties[propKey].chartData
-		? chartControls.properties[propKey].chartData.result
+		? chartControls.properties[propKey].chartData
 		: "";
 
 	var colorSchemes = ColorSchemes[6].colors;
@@ -123,7 +123,7 @@ const SankeyColorControls = ({
 			>
 				<div>
 					<SketchPicker
-						// color={chartProp.properties[propKey].sankeyControls[selectedItem]}
+						// color={chartControls.properties[propKey].sankeyControls[selectedItem]}
 						className="sketchPicker"
 						width="16rem"
 						// styles={{ padding: "0" }}

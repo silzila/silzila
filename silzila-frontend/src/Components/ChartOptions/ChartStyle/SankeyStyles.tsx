@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import "./chartStyle.css";
 import SliderWithInput from "../SliderWithInput";
@@ -7,17 +6,6 @@ import SwitchWithInput from "../SwitchWithInput";
 import { Dispatch } from "redux";
 import { updateSankeyStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
-
-const textFieldStyleProps = {
-	style: {
-		fontSize: "12px",
-		width: "90%",
-		margin: "0 auto 0.5rem auto",
-		backgroundColor: "white",
-		height: "1.5rem",
-		color: "#404040",
-	},
-};
 
 const SankeyStyles = ({
 	// state
@@ -32,38 +20,6 @@ const SankeyStyles = ({
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	const sankeyStyle = chartControls.properties[propKey].sankeyControls;
 	console.log(sankeyStyle);
-	let chartData = chartControls.properties[propKey].chartData
-		? chartControls.properties[propKey].chartData.result
-		: "";
-	// var treeMapLeafDepthOptions = [];
-	// console.log(chartDetail[propKey].chartType);
-
-	useEffect(() => {
-		if (chartData) {
-			// treeMapLeafDepthOptions = chartDetail[propKey].chartAxes[1].fields.map((el, i) => {
-			// 	return { name: el.fieldname, value: i + 1 };
-			// });
-			// updateSankeyStyleOptions(
-			// 	propKey,
-			// 	"leafDepth",
-			// 	chartDetail[propKey].chartAxes[1].fields.length
-			// );
-		}
-	}, [chartData, chartControls]);
-	// useEffect(() => {
-	// 	if (chartData) {
-	// 		updateSankeyStyleOptions(
-	// 			propKey,
-	// 			"leafDepth",
-	// 			chartDetail[propKey].chartAxes[1].fields.length
-	// 		);
-	// 	}
-	// }, [chartDetail[propKey].chartType]);
-
-	// treeMapLeafDepthOptions = chartDetail[propKey].chartAxes[1].fields.map((el, i) => {
-	// 	return { name: el.fieldname, value: i + 1 };
-	// });
-	// console.log(treeMapLeafDepthOptions);
 
 	return (
 		<div className="optionsInfo">

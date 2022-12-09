@@ -6,6 +6,7 @@ import {
 	ChartControlsProps,
 	ChartControlStateProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
+import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 
 import {
 	formatChartLabelValue,
@@ -61,11 +62,14 @@ const LineChart = ({
 			setSeriesData(seriesDataTemp);
 		}
 	}, [chartData, chartControl]);
+	var chartThemes: any[] = ColorSchemes.filter(el => {
+		return el.name === chartControl.colorScheme;
+	});
 
 	const RenderChart = () => {
 		return (
 			<ReactEcharts
-				theme={chartControl.colorScheme}
+				// theme={chartControl.colorScheme}
 				style={{
 					padding: "1rem",
 					width: graphDimension.width,
@@ -79,6 +83,8 @@ const LineChart = ({
 						: "1px solid rgb(238,238,238)",
 				}}
 				option={{
+					color: chartThemes[0].colors,
+					backgroundColor: chartThemes[0].background,
 					animation: chartArea ? false : true,
 					legend: {
 						type: "scroll",
