@@ -176,7 +176,7 @@ const ChartTypes = ({
 							oldChartAxes[1].fields[0].dataType === "date" ||
 							oldChartAxes[1].fields[0].dataType === "timestamp"
 						) {
-							if (oldChartAxes[1].fields[0].time_grain === "date") {
+							if (oldChartAxes[1].fields[0].timeGrain === "date") {
 								keepOldData(propKey, true);
 								return oldChartAxes;
 							} else {
@@ -192,7 +192,7 @@ const ChartTypes = ({
 										fieldname: oldChartAxes[1].fields[0].fieldname,
 										tableId: oldChartAxes[1].fields[0].tableId,
 										uId: oldChartAxes[1].fields[0].uId,
-										time_grain: "date",
+										timeGrain: "date",
 									},
 								];
 								newChartAxes[2].fields = oldChartAxes[2].fields;
@@ -498,7 +498,7 @@ const ChartTypes = ({
 							oldChartAxes[1].fields[0].dataType === "date" ||
 							oldChartAxes[1].fields[0].dataType === "timestamp"
 						) {
-							if (oldChartAxes[1].fields[0].time_grain === "date") {
+							if (oldChartAxes[1].fields[0].timeGrain === "date") {
 								keepOldData(propKey, true);
 								return oldChartAxes;
 							} else {
@@ -514,7 +514,7 @@ const ChartTypes = ({
 										fieldname: oldChartAxes[1].fields[0].fieldname,
 										tableId: oldChartAxes[1].fields[0].tableId,
 										uId: oldChartAxes[1].fields[0].uId,
-										time_grain: "date",
+										timeGrain: "date",
 									},
 								];
 								newChartAxes[2].fields = oldChartAxes[2].fields;
@@ -688,7 +688,7 @@ const ChartTypes = ({
 							oldChartAxes[1].fields[0].dataType === "timestamp"
 						) {
 							newChartAxes[1].fields = oldChartAxes[1].fields;
-							newChartAxes[1].fields[0].time_grain = "date";
+							newChartAxes[1].fields[0].timeGrain = "date";
 						} else {
 							newChartAxes[1].fields = [];
 						}
@@ -995,7 +995,7 @@ const ChartTypes = ({
 							...row,
 							...column,
 						]);
-						newChartAxes[1].fields[0].time_grain = "date";
+						newChartAxes[1].fields[0].timeGrain = "date";
 					}
 					console.log(newChartAxes[1]);
 
@@ -1139,7 +1139,7 @@ const ChartTypes = ({
 							...row,
 							...column,
 						]);
-						newChartAxes[1].fields[0].time_grain = "date";
+						newChartAxes[1].fields[0].timeGrain = "date";
 					}
 					// console.log(newChartAxes[1]);
 

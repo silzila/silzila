@@ -36,7 +36,7 @@ const CalendarChart = ({
 				let objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				// +
 				// 	"__" +
-				// 	chartProperties.properties[propKey].chartAxes[1].fields[0].time_grain;
+				// 	chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain;
 				// console.log(objKey);
 				// getting years of dates
 				chartData.map((el: any) => {
@@ -115,7 +115,7 @@ const CalendarChart = ({
 		let objKey =
 			chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname +
 			"__" +
-			chartProperties.properties[propKey].chartAxes[1].fields[0].time_grain;
+			chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain;
 		var virtualData: any[] = [];
 
 		// getting measure value as day value for individual year

@@ -31,7 +31,7 @@ interface ChartPropChartAxesFieldsProps {
 	isCollapsed: boolean;
 	rawselectmembers: string[];
 	userSelection: string[];
-	time_grain?: string;
+	timeGrain?: string;
 	agg?: string;
 }
 

@@ -14,7 +14,7 @@
 //     switch (item.dataType) {
 //       case "date":
 //       case "timestamp":
-//         return `${item.fieldname}__${item.time_grain}_${item.agg}`;
+//         return `${item.fieldname}__${item.timeGrain}_${item.agg}`;
 //       case "decimal":
 //       case "integer":
 //         return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;
@@ -27,7 +27,7 @@
 //     switch (item.dataType) {
 //       case "date":
 //       case "timestamp":
-//         return `${item.fieldname}__${item.agg ? item.agg : item.time_grain}`;
+//         return `${item.fieldname}__${item.agg ? item.agg : item.timeGrain}`;
 //       case "decimal":
 //       case "integer":
 //         return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;

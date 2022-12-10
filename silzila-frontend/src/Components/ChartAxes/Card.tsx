@@ -63,15 +63,15 @@ const Card = ({
 		setAnchorEl(null);
 		setShowOptions(false);
 
-		if (closeFrom === "agg" || closeFrom === "time_grain") {
+		if (closeFrom === "agg" || closeFrom === "timeGrain") {
 			var field2 = JSON.parse(JSON.stringify(field));
 
 			if (closeFrom === "agg") {
 				// console.log("Aggregate Choice selected", queryParam);
 				field2.agg = queryParam;
-			} else if (closeFrom === "time_grain") {
+			} else if (closeFrom === "timeGrain") {
 				// console.log("Time Grain Choice selected", queryParam);
-				field2.time_grain = queryParam;
+				field2.timeGrain = queryParam;
 			}
 			// console.log(propKey, bIndex, itemIndex, field2);
 			updateQueryParam(propKey, bIndex, itemIndex, field2);
@@ -131,14 +131,14 @@ const Card = ({
 
 	// List of options to show at the end of each card
 	// (like, year, month, day, or Count, sum, avg etc)
-	const RenderMenu = useCallback(() => {
+	const RenderMenu = () => {
 		var options: any[] = [];
 		var options2: any[] = [];
 
 		if (axisTitle === "Measure" || axisTitle === "X" || axisTitle === "Y") {
 			if (field.dataType === "date" || field.dataType === "timestamp") {
 				options = options.concat(Aggregators[axisTitle][field.dataType].aggr);
-				options2 = options2.concat(Aggregators[axisTitle][field.dataType].time_grain);
+				options2 = options2.concat(Aggregators[axisTitle][field.dataType].timeGrain);
 			} else {
 				options = options.concat(Aggregators[axisTitle][field.dataType]);
 			}
@@ -151,7 +151,7 @@ const Card = ({
 			axisTitle === "Distribution"
 		) {
 			if (field.dataType === "date" || field.dataType === "timestamp") {
-				options2 = options2.concat(Aggregators[axisTitle][field.dataType].time_grain);
+				options2 = options2.concat(Aggregators[axisTitle][field.dataType].timeGrain);
 			} else {
 				options = options.concat(Aggregators[axisTitle][field.dataType]);
 			}
@@ -187,9 +187,9 @@ const Card = ({
 					? options2.map(opt2 => {
 							return (
 								<MenuItem
-									onClick={() => handleClose("time_grain", opt2.id)}
+									onClick={() => handleClose("timeGrain", opt2.id)}
 									sx={
-										opt2.id === field.time_grain ? menuSelectedStyle : menuStyle
+										opt2.id === field.timeGrain ? menuSelectedStyle : menuStyle
 									}
 									key={opt2.id}
 								>
@@ -206,7 +206,7 @@ const Card = ({
 				) : null}
 			</Menu>
 		);
-	}, [field]);
+	};
 
 	return field ? (
 		<div
@@ -233,8 +233,8 @@ const Card = ({
 			<span className="columnPrefix">
 				{field.agg ? AggregatorKeys[field.agg] : null}
 
-				{field.time_grain && field.agg ? <React.Fragment>, </React.Fragment> : null}
-				{field.time_grain ? AggregatorKeys[field.time_grain] : null}
+				{field.timeGrain && field.agg ? <React.Fragment>, </React.Fragment> : null}
+				{field.timeGrain ? AggregatorKeys[field.timeGrain] : null}
 			</span>
 			<span className="columnPrefix"> {field.prefix ? `${field.prefix}` : null}</span>
 			<button

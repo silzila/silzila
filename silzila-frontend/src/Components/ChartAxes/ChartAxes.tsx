@@ -204,7 +204,7 @@ export const getChartData = async (
 				dataType: field.dataType.toLowerCase(),
 			};
 			if (field.dataType === "date" || field.dataType === "timestamp") {
-				formattedField.timeGrain = field.time_grain;
+				formattedField.timeGrain = field.timeGrain;
 			}
 
 			if (axis.name === "Measure") {
