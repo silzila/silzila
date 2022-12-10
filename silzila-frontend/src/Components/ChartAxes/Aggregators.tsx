@@ -10,7 +10,7 @@ const dimensionPrefixes: DimensionPrefixesProps = {
 	decimal: [],
 	text: [],
 	date: {
-		time_grain: [
+		timeGrain: [
 			{ name: "Year", id: "year" },
 			{ name: "Quarter", id: "quarter" },
 			{ name: "Month", id: "month" },
@@ -22,7 +22,7 @@ const dimensionPrefixes: DimensionPrefixesProps = {
 		],
 	},
 	timestamp: {
-		time_grain: [
+		timeGrain: [
 			{ name: "Year", id: "year" },
 			{ name: "Quarter", id: "quarter" },
 			{ name: "Month", id: "month" },
@@ -71,7 +71,7 @@ const measurePrefixes: MeasurePrefixes = {
 			{ name: "Count Null", id: "countn" },
 			{ name: "Count Unique", id: "countu" },
 		],
-		time_grain: [
+		timeGrain: [
 			{ name: "Year", id: "year" },
 			{ name: "Quarter", id: "quarter" },
 			{ name: "Month", id: "month" },
@@ -89,7 +89,7 @@ const measurePrefixes: MeasurePrefixes = {
 			{ name: "Count Null", id: "countn" },
 			{ name: "Count Unique", id: "countu" },
 		],
-		time_grain: [
+		timeGrain: [
 			{ name: "Year", id: "year" },
 			{ name: "Quarter", id: "quarter" },
 			{ name: "Month", id: "month" },
