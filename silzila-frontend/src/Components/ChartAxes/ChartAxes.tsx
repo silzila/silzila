@@ -377,7 +377,12 @@ const ChartAxes = ({
 				let _initialChartDataObject = JSON.parse(JSON.stringify(chartDataObject));
 
 				Object.keys(item).forEach(key=>{
-					_initialChartDataObject[key] = item[key].toString();
+					if(item[key]){
+						_initialChartDataObject[key] = item[key].toString();
+					}
+					else{
+						_initialChartDataObject[key] = '';
+					}
 				});
 
 				result.push(_initialChartDataObject);
