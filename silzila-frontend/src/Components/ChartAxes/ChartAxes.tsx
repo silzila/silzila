@@ -339,10 +339,57 @@ const ChartAxes = ({
 	// check for minimum requirements in each dropzone for the given chart type
 	// if not reset the data
 
+	
+
 	useEffect(() => {
 		const axesValues = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes));
 
 		//console.log(prevFilter);
+
+		const sortChartData    = (chartData: any[]) : any[] =>{
+			let result : any[] = [];
+			let chartDataObject:any = {};
+
+			const findFieldName=(name : string, i : number = 2): string=>{
+				
+				if(chartDataObject[name + "_" + i] !== undefined){
+					i++;
+					return findFieldName(name, i);
+				}
+				else{
+					return name + "_" + i;
+				}
+			}
+	
+			for(let zoneIndex = 1; zoneIndex < axesValues.length ; zoneIndex++ ) {
+				axesValues[zoneIndex].fields.forEach((field:any, index : number)=>{
+					if(chartDataObject[field.fieldname] !== undefined){
+						let _name = findFieldName(field.fieldname);
+						chartDataObject[_name] = "";
+					}
+					else{
+						chartDataObject[field.fieldname] = "";
+					}
+				});
+			}
+	
+			chartData.forEach((item:any)=>{
+				let _initialChartDataObject = JSON.parse(JSON.stringify(chartDataObject));
+
+				Object.keys(item).forEach(key=>{
+					if(item[key]){
+						_initialChartDataObject[key] = item[key].toString();
+					}
+					else{
+						_initialChartDataObject[key] = '';
+					}
+				});
+
+				result.push(_initialChartDataObject);
+			})
+	
+			return result;
+		}
 
 		let serverCall = false;
 
@@ -385,7 +432,7 @@ const ChartAxes = ({
 		if (serverCall) {
 			setLoading(true);
 			getChartData(axesValues, chartProp, propKey, token).then(data => {
-				updateChartData(propKey, data);
+				updateChartData(propKey, sortChartData(data));
 				setLoading(false);
 			});
 		}
