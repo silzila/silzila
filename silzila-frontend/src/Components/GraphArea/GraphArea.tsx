@@ -63,9 +63,11 @@ const GraphArea = ({
 
 	const graphDimensionCompute = () => {
 		if (tileState.tiles[propKey].graphSizeFull) {
-			const height = (document.getElementById("graphContainer") as HTMLElement).clientHeight;
+			const height =
+				(document.getElementById("graphContainer") as HTMLElement).clientHeight - 30;
 			// const height = document.getElementById("graphContainer").clientHeight;
-			const width = (document.getElementById("graphContainer") as HTMLElement).clientWidth;
+			const width =
+				(document.getElementById("graphContainer") as HTMLElement).clientWidth - 30;
 
 			setGraphDimension({
 				height,

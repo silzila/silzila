@@ -27,10 +27,15 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
-import { Menu, MenuItem, Divider, Tooltip } from "@mui/material";
+import { Menu, MenuItem, Divider, Tooltip, Typography } from "@mui/material";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { Dispatch } from "redux";
 import { DropZoneDropItem, DropZoneProps } from "./ChartAxesInterfaces";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import DoneIcon from "@mui/icons-material/Done";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 //import { StyledEngineProvider } from '@mui/material/styles';
 
 const DropZone = ({
@@ -233,10 +238,20 @@ const DropZone = ({
 							return (
 								<div
 									key={index}
-									style={{ display: "flex" }}
+									style={{
+										display: "flex",
+										width: "auto",
+										padding: "0.2rem 0.5rem 0.2rem 0",
+									}}
 									onClick={() => handleClose("opt1", opt)}
 								>
-									<MenuItem key={index}>{opt + " " + name}</MenuItem>
+									<span style={{ width: "2rem" }}></span>
+									<MenuItem
+										style={{ flex: 1, padding: 0, fontSize: "14px" }}
+										key={index}
+									>
+										{opt + " " + name}
+									</MenuItem>
 								</div>
 							);
 					  })
@@ -249,7 +264,11 @@ const DropZone = ({
 							return (
 								<div
 									key={index}
-									style={{ display: "flex" }}
+									style={{
+										display: "flex",
+										width: "auto",
+										padding: "0.2rem 0.5rem 0.2rem 0",
+									}}
 									onClick={() => {
 										setAnchorEl(null);
 										updateFilterAnyContidionMatchPropLeft(
@@ -260,18 +279,29 @@ const DropZone = ({
 										);
 									}}
 								>
-									<MenuItem key={index}>{opt}</MenuItem>
-									{opt ===
-									(chartProp.properties[propKey].chartAxes[0].any_condition_match
-										? "Any Condition Met"
-										: "All Conditions Met") ? (
-										<img
-											src={tickIcon}
-											alt="Selected"
-											style={{ height: "16px", width: "16px" }}
-											title="Selected"
-										/>
-									) : null}
+									<span style={{ width: "2rem", paddingLeft: "5px" }}>
+										{opt ===
+										(chartProp.properties[propKey].chartAxes[0]
+											.any_condition_match
+											? "Any Condition Met"
+											: "All Conditions Met") ? (
+											<Tooltip title="Selected">
+												<DoneIcon
+													style={{
+														height: "16px",
+														width: "16px",
+														fontWeight: "10px",
+													}}
+												/>
+											</Tooltip>
+										) : null}
+									</span>
+									<MenuItem
+										style={{ flex: 1, padding: 0, fontSize: "14px" }}
+										key={index}
+									>
+										{opt}
+									</MenuItem>
 								</div>
 							);
 					  })
@@ -284,7 +314,11 @@ const DropZone = ({
 							return (
 								<div
 									key={index}
-									style={{ display: "flex" }}
+									style={{
+										display: "flex",
+										width: "auto",
+										padding: "0.2rem 0.5rem 0.2rem 0",
+									}}
 									onClick={() => {
 										setAnchorEl(null);
 										updateIsAutoFilterEnabledPropLeft(
@@ -295,19 +329,29 @@ const DropZone = ({
 										);
 									}}
 								>
-									<MenuItem key={index}>{opt}</MenuItem>
-									{opt ===
-									(chartProp.properties[propKey].chartAxes[0]
-										.is_auto_filter_enabled
-										? "Auto Refresh"
-										: "Manual Run") ? (
-										<img
-											src={tickIcon}
-											alt="Selected"
-											style={{ height: "16px", width: "16px" }}
-											title="Selected"
-										/>
-									) : null}
+									<span style={{ width: "2rem", paddingLeft: "5px" }}>
+										{opt ===
+										(chartProp.properties[propKey].chartAxes[0]
+											.is_auto_filter_enabled
+											? "Auto Refresh"
+											: "Manual Run") ? (
+											<Tooltip title="Selected">
+												<DoneIcon
+													style={{
+														height: "16px",
+														width: "16px",
+														fontWeight: "10px",
+													}}
+												/>
+											</Tooltip>
+										) : null}
+									</span>
+									<MenuItem
+										style={{ flex: 1, padding: 0, fontSize: "14px" }}
+										key={index}
+									>
+										{opt}
+									</MenuItem>
 								</div>
 							);
 					  })
@@ -329,57 +373,85 @@ const DropZone = ({
 	return (
 		<div ref={drop} className="chartAxis mt-2">
 			<div
-				style={{ display: "flex", backgroundColor: "#d3d3d3" }}
+				style={{
+					display: "flex",
+					// backgroundColor: "#d3d3d3"
+				}}
 				className="chartAxisHeader"
 			>
-				<span className="axisTitle" style={{ flex: 1, paddingBottom: "2px" }}>
+				<span
+					className="axisTitle"
+					style={
+						name === "Filter"
+							? {
+									flex: 1,
+									paddingBottom: "2px",
+							  }
+							: {
+									borderTop: "2px solid rgba(224, 224, 224, 1)",
+									flex: 1,
+									paddingBottom: "2px",
+							  }
+					}
+				>
 					{name}
-				</span>
-				{name === "Filter" ? (
-					<div style={{ float: "right", borderTop: "2px solid #d3d3d3" }}>
-						{!chartProp.properties[propKey].chartAxes[bIndex].isCollapsed ? (
-							<Tooltip title="Expand">
-								<UnfoldMoreIcon
-									style={{
-										height: "16px",
-										width: "16px",
-										color: "#878786",
-									}}
-									onClick={() => {
-										updateDropZoneExpandCollapsePropLeft(
-											propKey,
-											bIndex,
-											!chartProp.properties[propKey].chartAxes[bIndex]
-												.isCollapsed
-										);
-									}}
-								/>
-							</Tooltip>
-						) : (
-							<Tooltip title="Collapse">
-								<UnfoldLessIcon
-									style={{
-										height: "16px",
-										width: "16px",
-										color: "#878786",
-									}}
-									onClick={() => {
-										updateDropZoneExpandCollapsePropLeft(
-											propKey,
-											bIndex,
-											!chartProp.properties[propKey].chartAxes[bIndex]
-												.isCollapsed
-										);
-									}}
-								/>
-							</Tooltip>
-						)}
-						<MoreVertIcon
-							onClick={handleClick}
-							style={{ height: "16px", width: "16px", color: "#878786" }}
-						/>
 
-						{/* <img
+					<span style={{ marginLeft: "5px" }} className="axisInfo">
+						({chartProp.properties[propKey].chartAxes[bIndex].fields.length} / {""}
+						{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
+					</span>
+
+					{name === "Filter" ? (
+						<div
+							style={{
+								float: "right",
+
+								// borderTop: "2px solid #d3d3d3"
+							}}
+						>
+							<MoreVertIcon
+								onClick={handleClick}
+								style={{ height: "16px", width: "16px", color: "#878786" }}
+							/>
+							{!chartProp.properties[propKey].chartAxes[bIndex].isCollapsed ? (
+								<Tooltip title="Collapse">
+									<ExpandMoreIcon
+										style={{
+											height: "17px",
+											width: "17px",
+											color: "#878786",
+										}}
+										onClick={() => {
+											updateDropZoneExpandCollapsePropLeft(
+												propKey,
+												bIndex,
+												!chartProp.properties[propKey].chartAxes[bIndex]
+													.isCollapsed
+											);
+										}}
+									/>
+								</Tooltip>
+							) : (
+								<Tooltip title="Expand">
+									<KeyboardArrowRightIcon
+										style={{
+											height: "17px",
+											width: "17px",
+											color: "#878786",
+										}}
+										onClick={() => {
+											updateDropZoneExpandCollapsePropLeft(
+												propKey,
+												bIndex,
+												!chartProp.properties[propKey].chartAxes[bIndex]
+													.isCollapsed
+											);
+										}}
+									/>
+								</Tooltip>
+							)}
+
+							{/* <img
 						src={
 							chartProp.properties[propKey].chartAxes[bIndex].isCollapsed
 								? expandIcon
@@ -396,38 +468,38 @@ const DropZone = ({
 							);
 						}}
 					/> */}
-						{/* <img
+							{/* <img
 						src={dotIcon}
 						onClick={handleClick}
 						alt="Menu"
 						style={{ height: "16px", width: "16px" }}
 						title="Mune"
 					/> */}
-						{bIndex === 0 &&
-						chartProp.properties[propKey].chartAxes[0].is_auto_filter_enabled ===
-							false ? (
-							<button
-								onClick={e =>
-									toggleFilterRunState(
-										propKey,
-										!chartProp.properties[propKey].filterRunState
-									)
-								}
-							>
-								Run
-							</button>
-						) : null}
-					</div>
-				) : null}
+							{bIndex === 0 &&
+							chartProp.properties[propKey].chartAxes[0].is_auto_filter_enabled ===
+								false ? (
+								<button
+									onClick={e =>
+										toggleFilterRunState(
+											propKey,
+											!chartProp.properties[propKey].filterRunState
+										)
+									}
+								>
+									Run
+								</button>
+							) : null}
+						</div>
+					) : null}
+				</span>
 			</div>
 
 			{/* {!chartProp.properties[propKey].chartAxes[bIndex].isCollapsed ? ( */}
 			<div className="chartAxisBody">
 				{/* The subtext displayed under each dropzone  */}
 				{/* How many minimum fields required & maximum allowed  */}
-				{bIndex === 0 ? (
+				{/* {bIndex === 0 ? (
 					<span className="axisInfo">
-						{" "}
 						Drop (0 - max {ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
 						field(s) here
 					</span>
@@ -437,7 +509,6 @@ const DropZone = ({
 				) : null}
 				{bIndex === 1 && ChartsInfo[chartType]?.dropZones[bIndex]?.allowedNumbers > 1 ? (
 					<span className="axisInfo">
-						{" "}
 						Drop (atleast {ChartsInfo[chartType].dropZones[bIndex]?.min} - max{" "}
 						{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers}) field(s) here
 					</span>
@@ -447,25 +518,23 @@ const DropZone = ({
 				) : null}
 				{bIndex === 2 && ChartsInfo[chartType]?.dropZones[bIndex]?.allowedNumbers > 1 ? (
 					<span className="axisInfo">
-						{" "}
 						Drop (atleast {ChartsInfo[chartType].dropZones[bIndex]?.min} - max{" "}
 						{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers}) field(s) here
 					</span>
-				) : null}
-				{bIndex === 3 &&
+				) : null} */}
+				{/* {bIndex === 3 &&
 				ChartsInfo[chartType].dropZones[bIndex] &&
 				ChartsInfo[chartType].dropZones[bIndex].min === 0 ? (
 					<span className="axisInfo">
-						{" "}
 						Drop (atleast {ChartsInfo[chartType].dropZones[bIndex]?.min} - max{" "}
 						{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers}) here
 					</span>
-				) : null}
-				{bIndex === 3 &&
+				) : null} */}
+				{/* {bIndex === 3 &&
 				ChartsInfo[chartType].dropZones[bIndex] &&
 				ChartsInfo[chartType].dropZones[bIndex].allowedNumbers === 1 ? (
 					<span className="axisInfo"> Drop (1) field(s) here</span>
-				) : null}
+				) : null} */}
 				{/* ChartsInfo[chartType].dropZones[bIndex].allowedNumbers === 1 && ChartsInfo[chartType].dropZones[bIndex].min === 1 ? (
 					<span className="axisInfo"> Drop (1) field(s) here</span>
 				) : ChartsInfo[chartType].dropZones[bIndex].allowedNumbers > 1 && ChartsInfo[chartType].dropZones[bIndex].min === 1 ? (

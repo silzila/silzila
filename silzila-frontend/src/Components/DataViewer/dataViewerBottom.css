@@ -3,7 +3,9 @@
 	width: 100%;
 	display: flex;
 	overflow: hidden;
-	background-color: rgb(238, 238, 238);
+	/* background-color: rgb(238, 238, 238); */
+	background-color: white;
+	border-top: 2px solid rgba(224, 224, 224, 1);
 }
 
 .bottomHeader {
@@ -18,40 +20,59 @@
 	flex-direction: column;
 	overflow: hidden;
 	font-size: 14px;
+	/* border-right: 2px solid rgba(224, 224, 224, 1); */
 }
 
 .dataSetSelect {
-	padding: 0.5rem;
-	background-color: rgb(211, 211, 211);
+	width: 92%;
+	padding: 0.5rem 0 .5rem .5rem;
+	/* background-color: rgb(211, 211, 211); */
 }
 
 .tileTableList {
-	padding: 0.5rem 0;
-	background-color: rgb(238, 238, 238);
+	/* padding: 0.5rem 0; */
+	background-color: white;
 	overflow: hidden;
 	display: flex;
 }
+.tablescontainerinDataviewerBottom{
+	flex: 1;
+	overflow: hidden;
+	padding: 0 0.5rem
+}
+.tablescontainerinDataviewerBottom:hover{
+	overflow: auto;
+}
+
+
+
 .dsIndiTableInTile {
 	border-radius: 2px;
-	padding: 1px 0 1px 0.5rem;
+	/* padding: 1px 0 1px 0.5rem;*/
+	padding: 1px 0 1px 0;
 	text-align: left;
 	cursor: pointer;
-	background-color: white;
+	/* background-color: white; */
 }
 .dsIndiTableInTile:hover {
 	background-color: rgb(238, 238, 238);
 }
 .dsIndiTableInTileSelected {
 	border-radius: 2px;
-	background-color: white;
+	/* background-color: white; */
 	font-weight: 600;
 	color: rgb(0, 123, 255);
-	padding: 1px 0 1px 0.5rem;
+	/* padding: 1px 0 1px 0.5rem; */
+	padding: 1px 0 1px 0;
 	text-align: left;
 	cursor: pointer;
 }
 
 .tileTableView {
+	overflow: hidden;
+	/* border-top: 2px solid rgba(224, 224, 224, 1); */
+}
+.tileTableView:hover{
 	overflow: auto;
 }
 .displayTable {
@@ -103,7 +124,7 @@
 .showColumnsOnly {
 	font-size: 11px;
 	padding: 8px;
-
+/* background-color: white; */
 	display: grid;
 	grid-gap: 0.25rem;
 	grid-template-columns: repeat(10, 1fr);
@@ -133,9 +154,10 @@
 }
 
 .styleForTableHeader{
-padding:9px 9px 9px 0px;
+/* padding:9px 9px 9px 0px; */
 display: flex;
 cursor: move;
+
 }
 .styleForTableHeader:hover{
 	background-color: rgb(211, 211, 211);

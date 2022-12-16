@@ -34,7 +34,7 @@ import { fi } from "date-fns/locale";
 // import { UnCheckedIcon } from "material-ui/svg-icons/toggle/check-box-outline-blank";
 // import { CheckedIcon } from "material-ui/svg-icons/toggle/check-box";
 
-import {PatternCollectionType} from './UserFilterCardInterface';
+import { PatternCollectionType } from "./UserFilterCardInterface";
 import { Dispatch } from "redux";
 import {
 	ChartPropertiesProps,
@@ -42,9 +42,11 @@ import {
 } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
-import {UserFilterCardProps} from './UserFilterCardInterface';
+import { UserFilterCardProps } from "./UserFilterCardInterface";
 import { number } from "echarts";
-
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 const UserFilterCard = ({
 	propKey,
@@ -63,7 +65,7 @@ const UserFilterCard = ({
 	sortAxes,
 	revertAxes,
 	updtateFilterExpandeCollapse,
-}:UserFilterCardProps) => {
+}: UserFilterCardProps) => {
 	field.dataType = field.dataType.toLowerCase();
 
 	const [indeterminate, setindeterminate] = useState<boolean>(false);
@@ -93,14 +95,14 @@ const UserFilterCard = ({
 	const [anchorEl, setAnchorEl] = useState(null);
 	const open = Boolean(anchorEl);
 
-	const withPatternCollections : PatternCollectionType[] = [
+	const withPatternCollections: PatternCollectionType[] = [
 		{ key: "beginsWith", value: "Start With" },
 		{ key: "endsWith", value: "Ends With" },
 		{ key: "contains", value: "Contains" },
 		{ key: "exactMatch", value: "Exact Match" },
 	];
 
-	const datePatternCollections : PatternCollectionType[] = [
+	const datePatternCollections: PatternCollectionType[] = [
 		{ key: "year", value: "Year" },
 		{ key: "quarter", value: "Quarter" },
 		{ key: "month", value: "Month" },
@@ -111,7 +113,7 @@ const UserFilterCard = ({
 		{ key: "dayofweek", value: "Day Of Week" },
 	];
 
-	const datePatternSearchConditionCollections : PatternCollectionType[] = [
+	const datePatternSearchConditionCollections: PatternCollectionType[] = [
 		{ key: "year", value: "Year" },
 		{ key: "quarter", value: "Quarter" },
 		{ key: "month", value: "Month" },
@@ -119,7 +121,7 @@ const UserFilterCard = ({
 		{ key: "dayofmonth", value: "Day Of Month" },
 		{ key: "dayofweek", value: "Day Of Week" },
 	];
-	const equalPatternCollections : PatternCollectionType[] = [
+	const equalPatternCollections: PatternCollectionType[] = [
 		{ key: "greaterThan", value: "> Greater than" },
 		{ key: "lessThan", value: "< Less than" },
 		{ key: "greaterThanOrEqualTo", value: ">= Greater than or Equal to" },
@@ -132,7 +134,7 @@ const UserFilterCard = ({
 	let filterFieldData = JSON.parse(JSON.stringify(field));
 	// console.log(filterFieldData);
 
-	var includeExcludeOptions : PatternCollectionType[] = [
+	var includeExcludeOptions: PatternCollectionType[] = [
 		{ name: "Include", value: "Include" },
 		{ name: "Exclude", value: "Exclude" },
 	];
@@ -225,12 +227,12 @@ const UserFilterCard = ({
 	};
 
 	///Fech Field data for Pick List
-	const fetchFieldData = (type:string) => {
-		let bodyData : any = {
+	const fetchFieldData = (type: string) => {
+		let bodyData: any = {
 			tableId: tableId,
 			fieldName: displayname,
 			dataType: dataType,
-			"filterOption": "allValues"
+			filterOption: "allValues",
 		};
 
 		if (dataType === "timestamp" || dataType === "date") {
@@ -269,11 +271,11 @@ const UserFilterCard = ({
 
 	///To fetch Pick list items
 	const GetPickListItems = async () => {
-		let result : any = await fetchFieldData(_getFilterType());
+		let result: any = await fetchFieldData(_getFilterType());
 
 		if (result) {
-			if(result.data && result.data.length > 0){
-				result = result.data.map((item:any)=>item[Object.keys(result.data[0])[0]]);
+			if (result.data && result.data.length > 0) {
+				result = result.data.map((item: any) => item[Object.keys(result.data[0])[0]]);
 			}
 
 			let tempResult = ["(All)", ...result];
@@ -328,7 +330,7 @@ const UserFilterCard = ({
 	});
 
 	///Pick list CB change
-	const handleCBChange = (event:any) => {
+	const handleCBChange = (event: any) => {
 		if (event.target.name === "(All)") {
 			if (event.target.checked) {
 				filterFieldData["userSelection"] = [...filterFieldData.rawselectmembers];
@@ -354,12 +356,12 @@ const UserFilterCard = ({
 				}
 			} else {
 				let idx = filterFieldData.userSelection.findIndex(
-					(item:any) => item === event.target.name
+					(item: any) => item === event.target.name
 				);
 				filterFieldData.userSelection.splice(idx, 1);
 			}
 
-			let AllIdx = filterFieldData.userSelection.findIndex((item:any) => item === "(All)");
+			let AllIdx = filterFieldData.userSelection.findIndex((item: any) => item === "(All)");
 
 			if (AllIdx >= 0) {
 				filterFieldData.userSelection.splice(AllIdx, 1);
@@ -379,7 +381,7 @@ const UserFilterCard = ({
 		// console.log(filterFieldData);
 
 		if (filterFieldData && filterFieldData.rawselectmembers) {
-			_selectionMembers = filterFieldData.rawselectmembers.map((item : any, index : number) => {
+			_selectionMembers = filterFieldData.rawselectmembers.map((item: any, index: number) => {
 				return (
 					<label className="UserFilterCheckboxes" key={index}>
 						{filterFieldData.includeexclude === "Include" ? (
@@ -477,7 +479,7 @@ const UserFilterCard = ({
 	};
 
 	///Menu close event handler
-	const handleClose = async (closeFrom : any, queryParam? : any) => {
+	const handleClose = async (closeFrom: any, queryParam?: any) => {
 		console.log(closeFrom, queryParam);
 		setAnchorEl(null);
 		//setShowOptions(false);
@@ -529,7 +531,7 @@ const UserFilterCard = ({
 				}}
 			>
 				{options.length > 0
-					? options.map((opt,index) => {
+					? options.map((opt, index) => {
 							return (
 								<div
 									style={{ display: "flex" }}
@@ -627,14 +629,14 @@ const UserFilterCard = ({
 	};
 
 	///Search condition Silder on change handler
-	const handleSliderRangeOnChange = (event : any, newValue : any) => {
+	const handleSliderRangeOnChange = (event: any, newValue: any) => {
 		filterFieldData["greaterThanOrEqualTo"] = newValue[0];
 		filterFieldData["lessThanOrEqualTo"] = newValue[1];
 		sliderRange = newValue;
 		updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
 	};
 
-	const checkValidDate = (val:any) => {
+	const checkValidDate = (val: any) => {
 		if (
 			["date", "timestamp"].includes(dataType) &&
 			filterFieldData.prefix === "date" &&
@@ -646,7 +648,7 @@ const UserFilterCard = ({
 		return false;
 	};
 
-	const setDefaultDate = (key: string, value:any) => {
+	const setDefaultDate = (key: string, value: any) => {
 		if (filterFieldData[key]) {
 			filterFieldData[key] = value ? value : new Date();
 		}
@@ -668,7 +670,7 @@ const UserFilterCard = ({
 	};
 
 	///Search Condition Dropdown list on change handler
-	const handleDropDownForPatternOnChange = async (event:any) => {
+	const handleDropDownForPatternOnChange = async (event: any) => {
 		// let filterObj = userFilterGroup[propName].chartUserFilters.find((usrfilter) => usrfilter.uId == data.uid);
 
 		filterFieldData["exprType"] = event.target.value;
@@ -687,11 +689,11 @@ const UserFilterCard = ({
 	};
 
 	///Handle Menu button on click
-	const handleClick = (event:any) => {
+	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);
 	};
 
-	const handleExpandCollapse = (e:any) => {
+	const handleExpandCollapse = (e: any) => {
 		console.log(e.uId);
 		// filterFieldData.isCollapsed = e;
 	};
@@ -702,7 +704,7 @@ const UserFilterCard = ({
 	};
 
 	///Handle Date time grain dropdown list change
-	const handleDropDownForDatePatternOnChange = async (event:any) => {
+	const handleDropDownForDatePatternOnChange = async (event: any) => {
 		filterFieldData["prefix"] = event.target.value;
 		filterFieldData["greaterThanOrEqualTo"] = "";
 		filterFieldData["lessThanOrEqualTo"] = "";
@@ -743,7 +745,7 @@ const UserFilterCard = ({
 	};
 
 	///Search Condition user input change handler
-	const handleCustomRequiredValueOnBlur = (val: number | string, key?:string) => {
+	const handleCustomRequiredValueOnBlur = (val: number | string, key?: string) => {
 		key = key || "exprInput";
 		if (!filterFieldData[key] || filterFieldData[key] !== val) {
 			filterFieldData[key] = val;
@@ -765,7 +767,7 @@ const UserFilterCard = ({
 	};
 
 	///Render Search Condition Custom Input Control
-	const SearchConditionCustomInputControl = ({ type }:any) => {
+	const SearchConditionCustomInputControl = ({ type }: any) => {
 		// // console.log(type);
 		return (
 			<>
@@ -936,14 +938,14 @@ const UserFilterCard = ({
 	};
 
 	///Dropdown list to select Time grain
-	const DropDownForDatePattern = ({ items }:any) => {
+	const DropDownForDatePattern = ({ items }: any) => {
 		return (
 			<select
 				onChange={e => {
 					handleDropDownForDatePatternOnChange(e);
 				}}
 			>
-				{items.map((item:any) => {
+				{items.map((item: any) => {
 					return (
 						<option
 							key={item.key}
@@ -959,7 +961,7 @@ const UserFilterCard = ({
 	};
 
 	///Search Condition Dropdown list to select condition
-	const DropDownForPattern = ({ items }:any) => {
+	const DropDownForPattern = ({ items }: any) => {
 		return (
 			<Select
 				sx={{ height: "1.5rem", fontSize: "14px", width: "90%", textAlign: "left" }}
@@ -969,7 +971,7 @@ const UserFilterCard = ({
 				}}
 				value={filterFieldData.exprType}
 			>
-				{items.map((item:any) => {
+				{items.map((item: any) => {
 					return (
 						<MenuItem
 							key={item.key}
@@ -1032,7 +1034,7 @@ const UserFilterCard = ({
 	///Expand Collapse Icon switch
 	const ExpandCollaseIconSwitch = () => {
 		return filterFieldData.isCollapsed ? (
-			<UnfoldMoreIcon
+			<ChevronRightIcon
 				style={{ height: "18px", width: "18px", color: "#999999" }}
 				onClick={e => {
 					filterFieldData.isCollapsed = false;
@@ -1040,7 +1042,7 @@ const UserFilterCard = ({
 				}}
 			/>
 		) : (
-			<UnfoldLessIcon
+			<KeyboardArrowDownIcon
 				style={{ height: "18px", width: "18px", color: "#999999" }}
 				onClick={e => {
 					filterFieldData.isCollapsed = true;
@@ -1091,24 +1093,24 @@ const UserFilterCard = ({
 				>
 					{field.fieldname}
 				</span>
+				{/* down arrow icon */}
+				<button
+					type="button"
+					className="buttonCommon"
+					style={{ backgroundColor: "transparent" }}
+					title="More Options"
+					onClick={handleClick}
+				>
+					<MoreVertIcon style={{ fontSize: "16px", color: "#999999" }} />
+				</button>
 
 				{/* expand colapse icon */}
 				<button
 					type="button"
-					className="buttonCommon"
+					className="buttonCommon columnDown"
 					title={filterFieldData.isCollapsed ? "Expand" : "Collapse"}
 				>
 					<ExpandCollaseIconSwitch />
-				</button>
-
-				{/* down arrow icon */}
-				<button
-					type="button"
-					className="buttonCommon columnDown"
-					title="More Options"
-					onClick={handleClick}
-				>
-					<KeyboardArrowDownRoundedIcon style={{ fontSize: "13px" }} />
 				</button>
 
 				<RenderMenu />
@@ -1150,7 +1152,10 @@ const UserFilterCard = ({
 	);
 };
 
-const mapStateToProps = (state: TabTileStateProps2 & ChartPropertiesStateProps & isLoggedProps, ownProps: any) => {
+const mapStateToProps = (
+	state: TabTileStateProps2 & ChartPropertiesStateProps & isLoggedProps,
+	ownProps: any
+) => {
 	return {
 		tabTileProps: state.tabTileProps,
 		chartProp: state.chartProperties,
@@ -1160,18 +1165,16 @@ const mapStateToProps = (state: TabTileStateProps2 & ChartPropertiesStateProps &
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateLeftFilterItem: (propKey:number, bIndex:number, item:any) =>
+		updateLeftFilterItem: (propKey: number, bIndex: number, item: any) =>
 			dispatch(updateLeftFilterItem(propKey, bIndex, item)),
-		updtateFilterExpandeCollapse: (propKey:number | string, bIndex:number, item:any) =>
+		updtateFilterExpandeCollapse: (propKey: number | string, bIndex: number, item: any) =>
 			dispatch(updtateFilterExpandeCollapse(propKey, bIndex, item)),
-		deleteDropZoneItems: (propKey:number | string, binIndex:number, itemIndex:any) =>
-			dispatch(
-				editChartPropItem( "delete", { propKey, binIndex, itemIndex } )
-			),
+		deleteDropZoneItems: (propKey: number | string, binIndex: number, itemIndex: any) =>
+			dispatch(editChartPropItem("delete", { propKey, binIndex, itemIndex })),
 
-		sortAxes: (propKey:number , bIndex:number, dragUId:any, uId:any) =>
+		sortAxes: (propKey: number, bIndex: number, dragUId: any, uId: any) =>
 			dispatch(sortAxes(propKey, bIndex, dragUId, uId)),
-		revertAxes: (propKey:number, bIndex:number, uId:any, originalIndex:any) =>
+		revertAxes: (propKey: number, bIndex: number, uId: any, originalIndex: any) =>
 			dispatch(revertAxes(propKey, bIndex, uId, originalIndex)),
 	};
 };

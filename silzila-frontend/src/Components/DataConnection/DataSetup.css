@@ -53,6 +53,10 @@ Data Setup Page
 .connectionListContainer {
 	display: flex;
 	flex-direction: column;
+	overflow:hidden
+}
+
+.connectionListContainer:hover{
 	overflow: auto;
 }
 

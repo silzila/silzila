@@ -9,7 +9,7 @@ import {
 const initialRecords = { recordsColumnType: {} };
 
 const SampleRecordsReducer = (
-	state: SampleRecordsStateProp = initialRecords,
+	state: any = initialRecords,
 	action: AddTableRecords | ResetSampleRecords | LoadSampleRecords
 ) => {
 	switch (action.type) {

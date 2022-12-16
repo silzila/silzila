@@ -262,7 +262,7 @@ const ChartControlObjects = ({
 
 	return (
 		<>
-			<div className="axisInfo">
+			<div className="axisInfo" style={{ marginTop: "5px" }}>
 				for {chartTypes.filter(chart => chart.name === selectedChart)[0].value}
 			</div>
 			<div className="chartOptionImagesContainer">

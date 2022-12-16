@@ -1,6 +1,5 @@
 .chartIconsContainer {
 	width: 100%;
-	background-color: #eee;
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr 1fr;
 	padding-bottom: 10px;
@@ -9,10 +8,8 @@
 
 .chartIcon {
 	padding: 8px;
-	/* width: 50px; */
-	/* height: 50px; */
-	width: 40px;
-	height: 40px;
+	width: 50px;
+	height: 50px;
 	margin: 10px auto;
 	border: 1px solid transparent;
 	border-radius: 4px;
@@ -20,20 +17,20 @@
 	text-transform: capitalize;
 }
 .chartIcon:hover {
-	border: 1px solid #007bff;
+	border: 2px solid rgba(224,224,224,1);
 	transition: 0.1s;
 }
 
 .selected {
-	border: 1px solid #007bff;
+	border: 2px solid  rgba(224,224,224,1);
 	border-radius: 4px;
-	background-color: #fff;
+	/* background-color: rgba(224,224,224,1); */
 }
 
 .chartOptionImagesContainer {
 	padding: 10px 2.5%;
 	width: 100%;
-	background-color: #eee;
+	/* background-color: #eee; */
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	padding-bottom: 10px;
@@ -48,8 +45,10 @@
 	margin-bottom: 10px;
 	margin: auto;
 	padding: 4px 0;
-	background-color: rgb(211, 211, 211);
-	border: 1px solid rgb(199, 199, 199);
+	background-color: transparent;
+	border: 2px solid rgba(224,224,224,1);
+	/* background-color: rgb(211, 211, 211); */
+	/* border: 1px solid rgb(199, 199, 199); */
 	border-radius: 4px;
 	cursor: pointer;
 }
@@ -63,9 +62,11 @@
 	padding: 4px 0;
 	border-radius: 4px;
 	cursor: pointer;
+	background-color: rgba(224,224,224,1);
+	border: 2px solid rgba(224,224,224,1);
 
-	border: 1px solid rgb(199, 199, 199);
-	background-color: #fff;
+	/* border: 1px solid rgb(199, 199, 199);
+	background-color: #fff; */
 }
 .optionImage:hover {
 	box-shadow: 0px 0px 2px 1px rgb(199, 199, 199);

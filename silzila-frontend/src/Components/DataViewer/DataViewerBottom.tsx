@@ -364,7 +364,7 @@ const DataViewerBottom = ({
 						</div>
 
 						<div className="tileTableList">
-							<div style={{ flex: 1, overflow: "auto", padding: "0 0.5rem" }}>
+							<div className="tablescontainerinDataviewerBottom">
 								<TableListForDs />
 							</div>
 						</div>
