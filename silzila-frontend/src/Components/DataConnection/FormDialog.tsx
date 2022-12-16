@@ -64,6 +64,27 @@ function FormDialog({
 	// =================================================
 	// Test DataConnection
 	// =================================================
+
+	const getDatabaseConnectionTest = () => {
+		let data = {
+			connectionName: account.connectionName,
+			vendor: account.vendor,
+			server: account.server,
+			port: account.port,
+			database: account.database,
+			username: account.username,
+			password: account.password,
+		};
+
+		return FetchData({
+			requestType: "withData",
+			method: "POST",
+			url: "database-connection-test",
+			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+			data: data,
+		});
+	};
+
 	const handleonTest = async () => {
 		if (
 			account.vendor !== "" &&
@@ -75,23 +96,9 @@ function FormDialog({
 			account.password &&
 			(account.password !== "" || account.password !== undefined)
 		) {
-			let data = {
-				connectionName: account.connectionName,
-				vendor: account.vendor,
-				server: account.server,
-				port: account.port,
-				database: account.database,
-				username: account.username,
-				password: account.password,
-			};
+			
 
-			var response: any = await FetchData({
-				requestType: "withData",
-				method: "POST",
-				url: "database-connection-test",
-				headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-				data: data,
-			});
+			var response: any = await getDatabaseConnectionTest();
 
 			if (response.status === 200 && response.data.message === "Connection OK!") {
 				setSeverity("success");
@@ -194,7 +201,7 @@ function FormDialog({
 	// On Form Submit (register Or update)
 	// =========================================================================
 
-	const onSubmit = () => {
+	const onSubmit = async () => {
 		if (
 			account.vendor !== "" &&
 			account.server !== "" &&
@@ -202,14 +209,37 @@ function FormDialog({
 			account.database !== "" &&
 			account.username !== "" &&
 			account.connectionName !== "" &&
-			account.password !== ""
+			account.password &&
+			(account.password !== "" || account.password !== undefined)
 		) {
-			if (regOrUpdate === "Update") {
-				handleonUpdate();
+
+			var response: any = await getDatabaseConnectionTest();
+
+			if (response.status === 200 && response.data.message === "Connection OK!") {
+				if (regOrUpdate === "Update") {
+					handleonUpdate();
+				}
+				if (regOrUpdate === "Register") {
+					handleRegister();
+				}
+			} else {
+				setSeverity("error");
+				setOpenAlert(true);
+				setTestMessage(response.data.message);
+				setTimeout(() => {
+					setOpenAlert(false);
+					setTestMessage("");
+				}, 4000);
 			}
-			if (regOrUpdate === "Register") {
-				handleRegister();
-			}
+		}
+		else {
+			setSeverity("error");
+			setOpenAlert(true);
+			setTestMessage("Please Fillout All the fields");
+			setTimeout(() => {
+				setOpenAlert(false);
+				setTestMessage("");
+			}, 4000);
 		}
 	};
 
@@ -298,7 +328,7 @@ function FormDialog({
 							>
 								<MenuItem value="postgresql">Postgresql</MenuItem>
 								<MenuItem value="mysql">Mysql</MenuItem>
-								<MenuItem value="mssql">Mssql</MenuItem>
+								<MenuItem value="sqlserver">Mssql</MenuItem>
 							</Select>
 						</FormControl>
 						<small style={{ color: "red" }}>{account.vendorError}</small>

@@ -330,8 +330,10 @@ const UserFilterCard = ({
 	});
 
 	///Pick list CB change
-	const handleCBChange = (event: any) => {
-		if (event.target.name === "(All)") {
+
+	const handleCBChange = (event:any) => {
+		if (event.target.name.toString() === "(All)") {
+
 			if (event.target.checked) {
 				filterFieldData["userSelection"] = [...filterFieldData.rawselectmembers];
 			} else {
@@ -356,12 +358,16 @@ const UserFilterCard = ({
 				}
 			} else {
 				let idx = filterFieldData.userSelection.findIndex(
-					(item: any) => item === event.target.name
+
+					(item:any) => item.toString() === event.target.name.toString()
+
 				);
 				filterFieldData.userSelection.splice(idx, 1);
 			}
 
-			let AllIdx = filterFieldData.userSelection.findIndex((item: any) => item === "(All)");
+
+			let AllIdx = filterFieldData.userSelection.findIndex((item:any) => item.toString() === "(All)");
+
 
 			if (AllIdx >= 0) {
 				filterFieldData.userSelection.splice(AllIdx, 1);
@@ -607,7 +613,7 @@ const UserFilterCard = ({
 	///set Search condition condition initiallize slider control
 	const setSliderRange = () => {
 		if (
-			["float", "double", "integer"].includes(dataType) &&
+			["float","decimal", "double", "integer"].includes(dataType) &&
 			filterFieldData.exprType === "between"
 		) {
 			if (
@@ -745,8 +751,15 @@ const UserFilterCard = ({
 	};
 
 	///Search Condition user input change handler
-	const handleCustomRequiredValueOnBlur = (val: number | string, key?: string) => {
+
+	const handleCustomRequiredValueOnBlur = (val: number | string, key?:string, type?:string) => {
+
 		key = key || "exprInput";
+		
+		if(type && type === "date"){
+			val = moment(val).format("yyyy-MM-DD")
+		}
+
 		if (!filterFieldData[key] || filterFieldData[key] !== val) {
 			filterFieldData[key] = val;
 			filterFieldData["isInValidData"] = false;
@@ -771,24 +784,12 @@ const UserFilterCard = ({
 		// // console.log(type);
 		return (
 			<>
-				<TextField
-					sx={{ width: "100%", margin: "8px 0 3px 0" }}
+				<input
 					placeholder="Value"
-					// className="CustomInputValue"
-					// defaultValue={filterFieldData.exprInput}
-					value={filterFieldData.exprInput}
+					defaultValue={filterFieldData.exprInput}
 					type={type}
 					onBlur={e => handleCustomRequiredValueOnBlur(e.target.value)}
-					InputProps={{
-						style: {
-							fontSize: "12px",
-							width: "90%",
-							margin: "0 auto 0.5rem auto",
-							backgroundColor: "transparent",
-							height: "1.5rem",
-							color: "#404040",
-						},
-					}}
+					
 				/>
 
 				{filterFieldData.isInValidData ? (
@@ -852,7 +853,7 @@ const UserFilterCard = ({
 				<LocalizationProvider dateAdapter={AdapterDateFns}>
 					<DatePicker
 						value={filterFieldData.greaterThanOrEqualTo}
-						onChange={e => handleCustomRequiredValueOnBlur(e, "greaterThanOrEqualTo")}
+						onChange={e => handleCustomRequiredValueOnBlur(e, "greaterThanOrEqualTo", "date")}
 						renderInput={params => <TextField {...params} />}
 					/>
 				</LocalizationProvider>
@@ -860,7 +861,7 @@ const UserFilterCard = ({
 				<LocalizationProvider dateAdapter={AdapterDateFns}>
 					<DatePicker
 						value={filterFieldData.lessThanOrEqualTo}
-						onChange={e => handleCustomRequiredValueOnBlur(e, "lessThanOrEqualTo")}
+						onChange={e => handleCustomRequiredValueOnBlur(e, "lessThanOrEqualTo","date")}
 						renderInput={params => <TextField {...params} />}
 					/>
 				</LocalizationProvider>
@@ -877,6 +878,7 @@ const UserFilterCard = ({
 
 		if (dataType) {
 			switch (dataType) {
+				case "decimal":
 				case "float":
 				case "double":
 				case "integer":
@@ -905,7 +907,7 @@ const UserFilterCard = ({
 										<DatePicker
 											value={filterFieldData.exprInput}
 											onChange={e =>
-												handleCustomRequiredValueOnBlur(e, "exprInput")
+												handleCustomRequiredValueOnBlur(e, "exprInput","date")
 											}
 											renderInput={params => <TextField {...params} />}
 										/>
