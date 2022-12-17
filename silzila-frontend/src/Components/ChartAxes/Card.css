@@ -1,7 +1,7 @@
 .axisField {
-	/* width: 90%; */
-	width:95%;
-	margin: 4px 6px;
+	width: 90%;
+	/* width:95%; */
+	margin: 6px;
 	align-content: center;
 	font-size: 12px;
 	text-align: start;
@@ -27,7 +27,7 @@
 
 .columnClose {
 	color: #999999;
-	background-color: #f4f4f4;
+	background-color: transparent;
 	border-radius: 3px 0 0 3px;
 	/* border-radius: 4px 0 0 4px; */
 	cursor: pointer;
@@ -38,12 +38,12 @@
 
 .columnClose:hover {
 	color: red;
-	background-color: lightgray;
+	/* background-color: lightgray; */
 }
 
 .columnDown {
 	color: #999999;
-	background-color: #f4f4f4;
+	background-color: transparent;
 	border-radius: 0 4px 4px 0;
 
 	cursor: pointer;
@@ -54,7 +54,7 @@
 
 .columnDown:hover {
 	color: rgb(97, 97, 97);
-	background-color: lightgray;
+	/* background-color: #f4f4f4; */
 }
 
 .columnName {

@@ -267,7 +267,7 @@ const IndividualTile = ({
 					handleClick(e);
 				}}
 			>
-				<span>{tileName}</span>
+				<span className="tabText">{tileName}</span>
 				<span
 					title="Delete Tile"
 					className="closeTile"

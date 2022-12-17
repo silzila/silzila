@@ -56,8 +56,12 @@ button:focus {
 	display: flex;
 	flex-direction: column;
 	transition: ease-in 0.3s linear;
+	overflow: hidden;
+}
+
+.optionsInfo:hover{
 	overflow-y: auto;
-	overflow-x: hidden;
+
 }
 
 .optionDescription {

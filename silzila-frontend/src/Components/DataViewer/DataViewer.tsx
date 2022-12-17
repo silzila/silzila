@@ -17,7 +17,6 @@ import { connect } from "react-redux";
 import TabRibbon from "../TabsAndTiles/TabRibbon";
 import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 
-import TableViewIcon from "@mui/icons-material/TableView";
 import TableRowsIcon from "@mui/icons-material/TableRows";
 import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
 import TileRibbon from "../TabsAndTiles/TileRibbon";
@@ -28,18 +27,30 @@ import { Tooltip } from "@mui/material";
 import DataViewerMiddle from "./DataViewerMiddle";
 import DataViewerBottom from "./DataViewerBottom";
 import {
+	setSelectedControlMenu,
 	setShowDashBoard,
 	toggleColumnsOnlyDisplay,
 	toggleShowDataViewerBottom,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import MenuBar from "./MenuBar";
 import DashBoard from "../DashBoard/DashBoard";
+import chartControlIcon from "../../assets/chart-control-icon.svg";
+import settingsIcon from "../../assets/settingIcon.svg";
+import filterIcon from "../../assets/filter_icon.svg";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 interface DataViewerProps {
 	tabTileProps: TabTileStateProps;
 	showDashBoard: (tabId: number, showDash: boolean) => void;
 	toggleDataViewerBottom: (show: boolean) => void;
 	toggleColumns: (displayOnlyCol: boolean) => void;
+	setMenu: (menu: string) => void;
+}
+
+interface RenderMenuItems {
+	name: string;
+	icon: any;
+	style: any;
 }
 function DataViewer({
 	//state
@@ -48,6 +59,7 @@ function DataViewer({
 	showDashBoard,
 	toggleDataViewerBottom,
 	toggleColumns,
+	setMenu,
 }: DataViewerProps) {
 	const [showListofTileMenu, setShowListofTileMenu] = useState<boolean>(true);
 	const [dashboardResizeColumn, setDashboardResizeColumn] = useState<boolean>(false);
@@ -82,11 +94,65 @@ function DataViewer({
 		borderBottom: "2px solid rgb(0,128,255)",
 	};
 
+	const rmenu: RenderMenuItems[] = [
+		{
+			name: "Charts",
+			icon: chartControlIcon,
+			style: {
+				height: "2rem",
+				width: "3rem",
+			},
+		},
+		{
+			name: "Chart controls",
+			icon: settingsIcon,
+			style: { height: "2rem", width: "3rem", padding: "4px 5px" },
+		},
+		{
+			name: "chart Filters",
+			icon: filterIcon,
+			style: { height: "2rem", width: "3rem", padding: "3px 2px" },
+		},
+	];
+
+	const renderMenu = rmenu.map((rm: RenderMenuItems, i: number) => {
+		return (
+			<img
+				key={rm.name}
+				className={
+					rm.name === tabTileProps.selectedControlMenu
+						? "controlsIcon selectedIcon"
+						: "controlsIcon"
+				}
+				style={rm.style}
+				src={rm.icon}
+				alt={rm.name}
+				onClick={() => {
+					if (tabTileProps.selectedControlMenu !== rm.name) {
+						setMenu(rm.name);
+					}
+				}}
+				title={rm.name}
+			/>
+		);
+	});
+
 	return (
 		<div className="dataViewer">
 			<MenuBar from="dataViewer" />
 			<div className="tabArea">
 				<TabRibbon />
+				<div
+					style={{
+						display: "flex",
+						alignItems: "right",
+						justifyContent: "center",
+						height: "2rem",
+						// cursor: "pointer",
+					}}
+				>
+					{renderMenu}
+				</div>
 				{tabTileProps.showDash || tabTileProps.dashMode === "Present" ? (
 					<div style={{ display: "flex", alignItems: "center" }}>
 						{tabTileProps.dashMode === "Edit" ? (
@@ -174,14 +240,14 @@ function DataViewer({
 									{tabTileProps.columnsOnlyDisplay ? (
 										<Tooltip title="Show full table">
 											<TableChartOutlinedIcon
-												style={{ fontSize: "20px", color: "#404040" }}
+												sx={{ fontSize: "20px", color: "#383837" }}
 												onClick={() => handleColumnsOnlyDisplay(false)}
 											/>
 										</Tooltip>
 									) : (
 										<Tooltip title="Show Column Headers only">
 											<TableRowsIcon
-												style={{ fontSize: "20px", color: "#404040" }}
+												style={{ fontSize: "20px", color: "#666" }}
 												onClick={() => handleColumnsOnlyDisplay(true)}
 											/>
 										</Tooltip>
@@ -192,7 +258,9 @@ function DataViewer({
 									onClick={handleTableDisplayToggle}
 									title="Show / Hide table"
 								>
-									<TableViewIcon style={{ fontSize: "20px" }} />
+									<KeyboardArrowUpIcon
+										style={{ fontSize: "20px", color: "#383837" }}
+									/>
 								</div>
 							</>
 						) : (
@@ -201,7 +269,9 @@ function DataViewer({
 								onClick={handleTableDisplayToggle}
 								title="Show / Hide table"
 							>
-								<TableViewIcon style={{ fontSize: "20px", color: "#808080" }} />
+								<KeyboardArrowUpIcon
+									style={{ fontSize: "20px", color: "#808080" }}
+								/>
 							</div>
 						)
 					) : null}
@@ -228,6 +298,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		toggleColumns: (displayOnlyCol: boolean) =>
 			dispatch(toggleColumnsOnlyDisplay(displayOnlyCol)),
 		toggleDataViewerBottom: (show: boolean) => dispatch(toggleShowDataViewerBottom(show)),
+		setMenu: (menu: string) => dispatch(setSelectedControlMenu(menu)),
 	};
 };
 

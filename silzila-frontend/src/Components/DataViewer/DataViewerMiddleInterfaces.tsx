@@ -18,8 +18,3 @@ export interface DataViewerMiddleProps {
 }
 
 export type DataViewerMiddleStateProps = ChartPropertiesStateProps & TabTileStateProps2;
-
-export interface RenderMenuItems {
-	name: string;
-	icon: any;
-}

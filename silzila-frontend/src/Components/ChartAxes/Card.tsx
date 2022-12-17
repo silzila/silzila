@@ -1,7 +1,7 @@
 // This component represent each individual table field dropped inside dropzone
 // Each card has some aggregate values and option to select different aggregate and/or timeGrain values
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import "./Card.css";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
@@ -52,10 +52,12 @@ const Card = ({
 	const [showOptions, setShowOptions] = useState<boolean>(false);
 
 	const [anchorEl, setAnchorEl] = useState<any | null>(null);
+
 	const open: boolean = Boolean(anchorEl);
 
 	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);
+		console.log(open);
 	};
 
 	const handleClose = (closeFrom: any, queryParam?: any) => {
@@ -131,9 +133,11 @@ const Card = ({
 
 	// List of options to show at the end of each card
 	// (like, year, month, day, or Count, sum, avg etc)
+
 	const RenderMenu = () => {
 		var options: any[] = [];
 		var options2: any[] = [];
+
 
 		if (axisTitle === "Measure" || axisTitle === "X" || axisTitle === "Y") {
 			if (field.dataType === "date" || field.dataType === "timestamp") {
@@ -156,7 +160,6 @@ const Card = ({
 				options = options.concat(Aggregators[axisTitle][field.dataType]);
 			}
 		}
-
 		return (
 			<Menu
 				id="basic-menu"
@@ -208,6 +211,8 @@ const Card = ({
 		);
 	};
 
+	console.log(field, "kjh");
+
 	return field ? (
 		<div
 			ref={node => drag(drop(node))}
@@ -242,7 +247,9 @@ const Card = ({
 				className="buttonCommon columnDown"
 				title="Remove field"
 				style={showOptions ? { visibility: "visible" } : { visibility: "hidden" }}
-				onClick={handleClick}
+				onClick={(e: any) => {
+					handleClick(e);
+				}}
 			>
 				<KeyboardArrowDownRoundedIcon style={{ fontSize: "14px", margin: "auto" }} />
 			</button>

@@ -36,8 +36,10 @@ import "./dataViewer.css";
 import { toggleDashModeInTab } from "../../redux/TabTile/TabActions";
 import {
 	resetAllStates,
+	setSelectedControlMenu,
 	toggleDashMode,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
+import { SelectListItem } from "../CommonFunctions/SelectListItem";
 
 const MenuBar = ({
 	// props
@@ -435,26 +437,16 @@ const MenuBar = ({
 		);
 	};
 
-	return (
-		<div className="dataViewerMenu">
-			<img
-				src={SilzilaLogo}
-				style={{ padding: "4px 8px", width: "3rem", backgroundColor: "white" }}
-				alt="Silzila Home"
-			/>
-			{/* Render the following components depending upon the page in which home is rendered */}
-			{/* In Data Home page, just show icon */}
-			{from === "dataHome" ? (
-				<>
+	const getHomeIcon = () => {
+		switch (from) {
+			case "dataHome":
+				return (
 					<div className="menuHome">
 						<HomeRounded sx={{ color: "#666" }} />
 					</div>
-					<div className="menuItemsGroup">&nbsp;</div>
-				</>
-			) : null}
-			{/* in Dataset page, Clicking home will navigate to dataHome */}
-			{from === "dataSet" ? (
-				<>
+				);
+			case "dataSet":
+				return (
 					<div
 						className="menuHome"
 						onClick={() => {
@@ -463,18 +455,12 @@ const MenuBar = ({
 					>
 						<HomeRounded sx={{ color: "#666" }} />
 					</div>
-					<div className="menuItemsGroup">&nbsp;</div>
-				</>
-			) : null}
-			{/* In dataviewer page, clicking Home will prompt a warning to save playbook if there are any changes */}
-			{/* Additionally, file and about menu are displayed here */}
-			{/* If Dashboard is shown, Edit and Present mode selection is also displayed here */}
-			{from === "dataViewer" ? (
-				<>
+				);
+			case "dataViewer":
+				return (
 					<div
 						className="menuHome"
 						onClick={() => {
-							// //console.log(showSaveWarning);
 							if (showSaveWarning || playBookState.playBookUid === null) {
 								setSaveFromHomeIcon(true);
 								setSaveModal(true);
@@ -486,6 +472,88 @@ const MenuBar = ({
 					>
 						<HomeRounded sx={{ color: "#666" }} />
 					</div>
+				);
+		}
+	};
+
+	return (
+		<div className="dataViewerMenu">
+			<SelectListItem
+				render={(xprops: any) => (
+					<div
+						onMouseOver={() => xprops.setOpen(true)}
+						onMouseLeave={() => xprops.setOpen(false)}
+					>
+						{xprops.open ? (
+							<>{getHomeIcon()}</>
+						) : (
+							<>
+								<img
+									src={SilzilaLogo}
+									style={{
+										padding: "4px 8px",
+										width: "3rem",
+										backgroundColor: "white",
+									}}
+									alt="Silzila Home"
+								/>
+							</>
+						)}
+					</div>
+				)}
+			/>
+			{/* <img
+				src={SilzilaLogo}
+				style={{ padding: "4px 8px", width: "3rem", backgroundColor: "white" }}
+				alt="Silzila Home"
+			/> */}
+
+			{/* Render the following components depending upon the page in which home is rendered 
+			 In Data Home page, just show icon */}
+			{/* {from === "dataHome" ? (
+				<>
+					<div className="menuHome">
+						<HomeRounded sx={{ color: "#666" }} />
+					</div>
+					<div className="menuItemsGroup">&nbsp;</div>
+				</>
+			) : null} */}
+
+			{/* in Dataset page, Clicking home will navigate to dataHome */}
+
+			{/* {from === "dataSet" ? (
+				<>
+					<div
+						className="menuHome"
+						onClick={() => {
+							navigate("/dataHome");
+						}}
+					>
+						<HomeRounded sx={{ color: "#666" }} />
+					</div>
+					<div className="menuItemsGroup">&nbsp;</div>
+				</>
+			) : null} */}
+			{/* In dataviewer page, clicking Home will prompt a warning to save playbook if there are any changes 
+			 Additionally, file and about menu are displayed here
+		If Dashboard is shown, Edit and Present mode selection is also displayed here */}
+
+			{from === "dataViewer" ? (
+				<>
+					{/* <div
+						className="menuHome"
+						onClick={() => {
+							if (showSaveWarning || playBookState.playBookUid === null) {
+								setSaveFromHomeIcon(true);
+								setSaveModal(true);
+							} else {
+								resetAllStates();
+								navigate("/dataHome");
+							}
+						}}
+					>
+						<HomeRounded sx={{ color: "#666" }} />
+					</div> */}
 					<div className="menuItemsGroup">
 						<div
 							className="menuItem"
@@ -545,14 +613,18 @@ const MenuBar = ({
 				</>
 			) : null}
 			{from === "dataViewer" ? <div style={{ width: "3rem" }}>&nbsp;</div> : null}
+
 			<div
+				style={{ flex: 1 }}
 				className="menuHome"
 				onClick={e => {
 					setLogoutAnchor(e.currentTarget);
 					setLogoutModal(!logoutModal);
 				}}
 			>
-				<AccountCircleIcon sx={{ padding: "auto 1rem", color: "#666" }} />
+				<AccountCircleIcon
+					sx={{ padding: "auto 1rem", color: "#666", float: "right", display: "flex" }}
+				/>
 			</div>
 			<FileMenu />
 			<HelpMenu />

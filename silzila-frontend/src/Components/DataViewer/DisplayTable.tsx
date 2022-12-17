@@ -10,6 +10,7 @@ import { connect } from "react-redux";
 import { SampleRecordsState } from "../../redux/SampleTableRecords/SampleTableRecordsInterfaces";
 import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { Box } from "./Box";
+import { TableContainer, Table, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
 
 interface DisplayTableProps {
 	dsId: string;
@@ -40,7 +41,8 @@ const DisplayTable = ({
 				_fieldsData.push({
 					fieldname: tableKeys[i],
 					displayname: tableKeys[i],
-					dataType: dataType.filter((sc: any) => sc.columnName === tableKeys[i])[0].dataType,
+					dataType: dataType.filter((sc: any) => sc.columnName === tableKeys[i])[0]
+						.dataType,
 					tableId: table,
 				});
 			}
@@ -70,14 +72,14 @@ const DisplayTable = ({
 			var keys = getKeys(SampleRecords[0]);
 			return keys.map((key: any, index: number) => {
 				return (
-					<th key={`${index}_${key}`} className="tableHeadings">
+					<TableCell key={`${index}_${key}`}>
 						<Box
 							name={key}
 							type="card"
 							fieldData={columnsData[index]}
 							colsOnly={false}
 						/>
-					</th>
+					</TableCell>
 				);
 			});
 		} else return null;
@@ -86,11 +88,7 @@ const DisplayTable = ({
 	// Render a single row of the table
 	const RenderRow = (props: any) => {
 		return props.keys.map((key: any, index: number) => {
-			return (
-				<td className="tableValues" key={`${index}_${key}`}>
-					{props.data[key]}
-				</td>
-			);
+			return <TableCell key={`${index}_${key}`}>{props.data[key]}</TableCell>;
 		});
 	};
 
@@ -101,9 +99,16 @@ const DisplayTable = ({
 
 			return SampleRecords.map((row: any, index: number) => {
 				return (
-					<tr key={index} className="tableRows">
+					<TableRow
+						sx={{
+							"& .MuiTableCell-root": {
+								borderBottom: "0px",
+							},
+						}}
+						key={index}
+					>
 						<RenderRow key={index} data={row} keys={keys} />
-					</tr>
+					</TableRow>
 				);
 			});
 		} else return null;
@@ -138,14 +143,62 @@ const DisplayTable = ({
 		</div>
 	) : (
 		<>
-			<table className="displayTable">
-				<thead>
-					<tr>
+			<Table
+				sx={{
+					marginTop: "0px",
+					// borderTop: "0px",
+				}}
+				stickyHeader={true}
+			>
+				<TableHead
+					sx={{
+						"& .MuiTableCell-root": {
+							fontSize: "12px",
+							fontWeight: "600",
+							color: "rgb(51, 51, 51)",
+							padding: "9px 9px 9px 0px ",
+							backgroundColor: "white",
+							lineHeight: "normal",
+							letterSpacing: "normal",
+							fontFamily:
+								" -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;",
+						},
+					}}
+				>
+					<TableRow
+						sx={{
+							"& .MuiTableCell-root": {
+								borderBottom: "0px",
+							},
+						}}
+					>
 						<GetHeaders />
-					</tr>
-				</thead>
-				<tbody>{getRowsData()}</tbody>
-			</table>
+					</TableRow>
+				</TableHead>
+				<TableBody
+					sx={{
+						"& .MuiTableCell-root": {
+							fontSize: "12px",
+							// fontWeight: "600",
+							// color: "rgb(51, 51, 51)",
+							// borderRight: "0.5px solid rgba(224, 224, 224, 1)",
+							padding: "0px 10px 0px 20px ",
+							whiteSpace: "nowrap",
+							maxWidth: "250px",
+							minWidth: "75px",
+							textOverflow: "ellipsis",
+							overflow: "hidden",
+							backgroundColor: "white",
+							// lineHeight: "normal",
+							// letterSpacing: "normal",
+							fontFamily:
+								" -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;",
+						},
+					}}
+				>
+					{getRowsData()}
+				</TableBody>
+			</Table>
 		</>
 	);
 };

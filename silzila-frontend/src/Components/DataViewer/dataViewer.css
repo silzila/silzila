@@ -6,26 +6,28 @@
 }
 
 .dataViewerMenu {
-	background-color: rgb(211, 211, 211);
-	height: 2rem;
+	background-color: white;
+	height: 2.5rem;
 	width: 100%;
 	align-self: center;
 	display: flex;
+	padding-right: 0.5rem;
+	/* border-bottom: 2px solid rgba(224,224,224,1); */
 }
 
 /* ========================================================================================== */
 /* Menu items styling */
 .menuHome {
-	display: flex;
+	/* display: flex; */
 	align-items: center;
 	justify-content: center;
 	height: 2rem;
 	width: 3rem;
 	cursor: pointer;
 }
-.menuHome:hover {
+/* .menuHome:hover {
 	background-color: rgb(238, 238, 238);
-}
+} */
 
 .menuItemsGroup {
 	flex: 1;
@@ -66,8 +68,11 @@
 
 .tabArea {
 	display: flex;
-	background-color: rgb(238, 238, 238);
-	/* padding: 2px 2px 0 0; */
+	background-color: white;
+	border-bottom: 2px solid rgba(224,224,224,1);
+	height:2.5rem;
+	/* background-color: rgb(238, 238, 238); */
+	padding-left: 4px ;
 }
 .tabItems {
 	flex: 1;
@@ -83,19 +88,23 @@
 /* ========================================================================================== */
 /* TileRibbon Styling */
 .tilearea {
-	width: 100%;
-	background-color: rgb(238, 238, 238);
+    width: 100%;
+	/* background-color: rgb(238, 238, 238); */
 	display: flex;
+
+	background-color: white;
+	border-top: 2px solid rgba(224, 224, 224, 1);
+	height: 2rem;
+	padding: 3px 0 3px 4px;
 }
 .tileItems {
-	height: 1.75rem;
-	font-size: 12px;
-	width: 100%;
-	flex: 1;
-	margin: 0;
-	padding: 0 0 2px 0;
+	display: flex;
 	text-align: left;
-	/* border-top: 1px solid rgb(211, 211, 211); */
+	flex: 1;
+	font-size: 12px;
+	/* padding-left: 0.5rem; */
+	
+	
 }
 
 .showTableColumns {
