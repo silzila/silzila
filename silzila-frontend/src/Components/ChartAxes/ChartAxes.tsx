@@ -348,6 +348,59 @@ const ChartAxes = ({
 
 		const sortChartData    = (chartData: any[]) : any[] =>{
 			let result : any[] = [];
+
+			if (chartData && chartData.length > 0) {
+				let _zones:any = axesValues.filter((zones: any) => zones.name !== "Filter");
+				let _zonesFields:any = [];
+				let _fieldTempObject:any = {};
+			
+				_zones.forEach((zone:any)=>{
+					_zonesFields = [..._zonesFields, ...zone.fields]
+				});
+
+				const findFieldName=(name : string, i : number = 2): string=>{
+				
+					if(_fieldTempObject[name + "_" + i] !== undefined){
+						i++;
+						return findFieldName(name, i);
+					}
+					else{
+						return name + "_" + i;
+					}
+				}
+
+				_zonesFields.forEach((field:any, index : number)=>{					
+					if(_fieldTempObject[field.fieldname] !== undefined){
+						let _name = findFieldName(field.fieldname);
+						_fieldTempObject[_name] = "";
+
+						let _nameWithAgg: string = field.agg ? `${field.agg} of ${_name}`: _name;
+
+						field["NameWithAgg"] = _nameWithAgg;
+					}
+					else{
+						_fieldTempObject[field.fieldname] = "";
+						let _nameWithAgg: string = field.agg ? `${field.agg} of ${field.fieldname}`: field.fieldname;
+						field["NameWithAgg"] = _nameWithAgg;
+					}
+				})
+			
+				chartData.forEach((data: any) => {
+					let _chartDataObj:any = {};
+			
+					_zonesFields.forEach((field: any) => {
+						_chartDataObj[field.NameWithAgg] = data[field.fieldname];
+					});
+			
+					result.push(_chartDataObj);
+				});
+		}
+
+		return result;
+	}
+
+		const __sortChartData    = (chartData: any[]) : any[] =>{
+			let result : any[] = [];
 			let chartDataObject:any = {};
 
 			const findFieldName=(name : string, i : number = 2): string=>{
