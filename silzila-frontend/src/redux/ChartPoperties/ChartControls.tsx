@@ -28,7 +28,7 @@ const chartControl = {
 				symbolWidth: 20,
 				symbolHeight: 20,
 				itemGap: 10,
-				position: { pos: "Top", top: "top", left: "center" },
+				position: { pos: "Bottom", top: "bottom", left: "center" },
 				orientation: "horizontal",
 			},
 
@@ -45,7 +45,7 @@ const chartControl = {
 				selectedMargin: "top",
 				top: 5,
 				right: 5,
-				bottom: 5,
+				bottom: 12,
 				left: 5,
 			},
 

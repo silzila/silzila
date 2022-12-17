@@ -13,6 +13,7 @@ import {
 
 import IndividualTile from "./IndividualTile";
 import { TileRibbonProps, TileRibbonStateProps } from "./TileRibbonInterfaces";
+import AddIcon from "@mui/icons-material/Add";
 
 const TileRibbon = ({
 	// state
@@ -146,10 +147,11 @@ const TileRibbon = ({
 
 			<span
 				title="Create a new tile"
-				className="plusTile commonTile"
+				// className="plusTile commonTile"
+				className="plusTile"
 				onClick={() => handleAddTile()}
 			>
-				+
+				<AddIcon sx={{ fontSize: "16px", marginTop: "2px" }} />
 			</span>
 		</React.Fragment>
 	);

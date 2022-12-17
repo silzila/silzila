@@ -26,10 +26,10 @@ export interface DimensionPrefixesProps {
 	// decimal: any[];
 	// text: any[];
 	// date: {
-	// 	time_grain: TimeGrain[];
+	// 	timeGrain: TimeGrain[];
 	// };
 	// timestamp: {
-	// 	time_grain: TimeGrain[];
+	// 	timeGrain: TimeGrain[];
 	// };
 }
 
@@ -41,11 +41,11 @@ export interface MeasurePrefixes {
 	// text: TimeGrain[];
 	// date: {
 	// 	aggr: TimeGrain[];
-	// 	time_grain: TimeGrain[];
+	// 	timeGrain: TimeGrain[];
 	// };
 	// timestamp: {
 	// 	aggr: TimeGrain[];
-	// 	time_grain: TimeGrain[];
+	// 	timeGrain: TimeGrain[];
 	// };
 }
 
@@ -152,7 +152,7 @@ export interface Card{
 		prefix?: any;
 		tableId?: string;
 		agg?: any;
-		time_grain?: any;
+		timeGrain?: any;
 	};
 	bIndex: number;
 	itemIndex: number;

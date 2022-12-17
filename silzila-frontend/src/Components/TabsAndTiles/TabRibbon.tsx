@@ -19,6 +19,7 @@ import {
 	actionsToRemoveTab,
 	actionsToUpdateSelectedTile,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
+import AddIcon from "@mui/icons-material/Add";
 
 const TabRibbon = ({
 	// state
@@ -158,16 +159,12 @@ const TabRibbon = ({
 	});
 
 	return (
-		<div className="tabItems">
+		<div className="tabItems" style={{ display: "flex" }}>
 			{tablist}
 			{/* If dashboard in the presentation mode the '+'(adding new tab) will be disappear */}
 			{tabTileProps.dashMode !== "Present" ? (
-				<span
-					title="Create a new tab"
-					className="plusTab commonTab"
-					onClick={() => handleAddTab()}
-				>
-					+
+				<span title="Create a new tab" className="plusTab" onClick={() => handleAddTab()}>
+					<AddIcon sx={{ fontSize: "16px", marginTop: "3px" }} />
 				</span>
 			) : null}
 		</div>

@@ -30,11 +30,11 @@ const RoseChart = ({
 			setChartDataKeys(Object.keys(chartData[0]));
 			var objKey: string;
 			if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
-				if ("time_grain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
+				if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
 					objKey =
 						chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname +
 						"__" +
-						chartProperties.properties[propKey].chartAxes[1].fields[0].time_grain;
+						chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain;
 				} else {
 					objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				}
