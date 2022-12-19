@@ -34,7 +34,7 @@ export const getChartData = async (
 		let _chartProp = chartProp.properties[propKey].chartAxes[0];
 
 		_type.panelName = "chartFilters";
-		_type.shouldAllConditionsMatch = _chartProp.any_condition_match || false;
+		_type.shouldAllConditionsMatch = !_chartProp.any_condition_match;
 		_type.filters = [];
 
 		/*	To determine filter type	*/
@@ -369,19 +369,19 @@ const ChartAxes = ({
 					}
 				}
 
-				_zonesFields.forEach((field:any, index : number)=>{					
-					if(_fieldTempObject[field.fieldname] !== undefined){
-						let _name = findFieldName(field.fieldname);
+				_zonesFields.forEach((field:any, index : number)=>{		
+					let _nameWithAgg: string = field.agg ? `${field.agg} of ${field.fieldname}`: field.fieldname;
+
+					if(_fieldTempObject[_nameWithAgg] !== undefined){
+						let _name = findFieldName(_nameWithAgg);
+						//_nameWithAgg = field.agg ? `${field.agg} of ${_name}`: _name;
+
+						field["NameWithAgg"] = _name;
 						_fieldTempObject[_name] = "";
-
-						let _nameWithAgg: string = field.agg ? `${field.agg} of ${_name}`: _name;
-
-						field["NameWithAgg"] = _nameWithAgg;
 					}
 					else{
-						_fieldTempObject[field.fieldname] = "";
-						let _nameWithAgg: string = field.agg ? `${field.agg} of ${field.fieldname}`: field.fieldname;
 						field["NameWithAgg"] = _nameWithAgg;
+						_fieldTempObject[_nameWithAgg] = "";
 					}
 				})
 			
