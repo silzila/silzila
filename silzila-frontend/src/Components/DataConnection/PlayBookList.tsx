@@ -26,6 +26,7 @@ import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import { getColumnTypes, getTableData } from "../DataViewer/DataViewerBottom";
 import FetchData from "../ServerCall/FetchData";
 import { PbSelectedDataset, PlayBookProps } from "./PlayBookInterfaces";
+import AddIcon from "@mui/icons-material/Add";
 
 const PlayBookList = ({
 	// state
@@ -314,14 +315,14 @@ const PlayBookList = ({
 					setSelectedDataset={setSelectedDataset}
 					popOverTitle="Select a Dataset to use with PlayBook"
 				/>
-				<input
+				<div
 					className="containerButton"
-					type="button"
-					value="New"
 					onClick={e => {
 						setOpenPopOver(true);
 					}}
-				/>
+				>
+					<AddIcon />
+				</div>
 			</div>
 			<div className="connectionListContainer">
 				{playBookList &&

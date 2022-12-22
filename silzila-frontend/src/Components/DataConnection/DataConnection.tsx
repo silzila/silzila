@@ -16,6 +16,7 @@ import FetchData from "../ServerCall/FetchData";
 import { setDataConnectionListToState } from "../../redux/DataSet/datasetActions";
 import { ConnectionItem } from "../../redux/DataSet/DatasetStateInterfaces";
 import { resetAllStates } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
+import AddIcon from "@mui/icons-material/Add";
 
 const initialState = {
 	vendor: "",
@@ -241,16 +242,24 @@ const DataConnection = (props: DataConnectionProps) => {
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
 				<div className="containerTitle">Data Connections</div>
-
-				<input
+				<div
 					className="containerButton"
-					type="button"
-					value="New"
 					onClick={(e: any) => {
 						handleMode(e);
 						showAndHideForm();
 					}}
-				/>
+				>
+					<AddIcon />
+				</div>
+				{/* <input
+					className="containerButton"
+					type="button"
+					value="+"
+					onClick={(e: any) => {
+						handleMode(e);
+						showAndHideForm();
+					}}
+				/> */}
 			</div>
 			<div className="connectionListContainer">
 				{dataConnectionList &&
@@ -270,7 +279,7 @@ const DataConnection = (props: DataConnectionProps) => {
 										// onClick={() => ViewOrEditDc(dc.id)}
 									>
 										<div className="dataConnectionName">
-											{dc.connectionName} (<i className="">{dc.database}</i>){" "}
+											{dc.connectionName}
 										</div>
 										{xprops.open ? (
 											<Tooltip

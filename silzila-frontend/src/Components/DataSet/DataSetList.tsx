@@ -16,6 +16,7 @@ import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import FetchData from "../ServerCall/FetchData";
 import { DatasetItem } from "../../redux/DataSet/DatasetStateInterfaces";
 import DataConnectionListPopover from "../CommonFunctions/PopOverComponents/DataConnectionListPopover";
+import AddIcon from "@mui/icons-material/Add";
 
 const DataSetList = ({
 	// state
@@ -104,16 +105,15 @@ const DataSetList = ({
 		<div className="dataSetContainer">
 			<div className="containersHead">
 				<div className="containerTitle">Datasets</div>
-
-				<input
+				<div
 					className="containerButton"
-					type="button"
-					value="New"
 					onClick={() => {
 						setOpenPopOver(true);
 						// navigate("/newdataset");
 					}}
-				/>
+				>
+					<AddIcon />
+				</div>
 			</div>
 
 			<div className="connectionListContainer">

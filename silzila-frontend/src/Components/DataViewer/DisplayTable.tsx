@@ -155,7 +155,7 @@ const DisplayTable = ({
 						"& .MuiTableCell-root": {
 							fontSize: "12px",
 							fontWeight: "600",
-							color: "rgb(51, 51, 51)",
+							color: "rgb(87, 87, 87)",
 							padding: "9px 9px 9px 0px ",
 							backgroundColor: "white",
 							lineHeight: "normal",
