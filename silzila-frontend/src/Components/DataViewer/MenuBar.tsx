@@ -92,7 +92,7 @@ const MenuBar = ({
 
 	// values for opening Logout menu and setting its anchor position
 	const [logoutModal, setLogoutModal] = useState<boolean>(false);
-	const [logoutAnchor, setLogoutAnchor] = useState<any>(null);
+	const [logoutAnchor, setLogoutAnchor] = useState<any | null>(null);
 
 	// Open / Close about popOver
 	const [aboutPopover, setAboutPopover] = useState<boolean>(false);
@@ -266,16 +266,17 @@ const MenuBar = ({
 				open={logoutModal}
 				className="menuPopover"
 				anchorEl={logoutAnchor}
-				anchorOrigin={{
-					vertical: "bottom",
-					horizontal: "left",
-				}}
-				transformOrigin={{
-					vertical: "top",
-					horizontal: "left",
-				}}
+				// anchorOrigin={{
+				// 	vertical: "bottom",
+				// 	horizontal: "left",
+				// }}
+				// transformOrigin={{
+				// 	vertical: "top",
+				// 	horizontal: "left",
+				// }}
 				onClose={() => {
-					setAnchorEl(null);
+					setLogoutAnchor(null);
+					// setAnchorEl(null);
 					setLogoutModal(false);
 				}}
 			>
@@ -615,16 +616,14 @@ const MenuBar = ({
 			{from === "dataViewer" ? <div style={{ width: "3rem" }}>&nbsp;</div> : null}
 
 			<div
-				style={{ flex: 1 }}
 				className="menuHome"
 				onClick={e => {
+					console.log(e.currentTarget);
 					setLogoutAnchor(e.currentTarget);
 					setLogoutModal(!logoutModal);
 				}}
 			>
-				<AccountCircleIcon
-					sx={{ padding: "auto 1rem", color: "#666", float: "right", display: "flex" }}
-				/>
+				<AccountCircleIcon sx={{ color: "#666", float: "right" }} />
 			</div>
 			<FileMenu />
 			<HelpMenu />
