@@ -315,6 +315,11 @@ const DataViewerBottom = ({
 					<div className="dataSetAndTableList">
 						<div className="dataSetSelect">
 							<FormControl
+								sx={{
+									"& .MuiInputBase-root": {
+										borderRadius: "0px",
+									},
+								}}
 								fullWidth
 								size="small"
 								style={{

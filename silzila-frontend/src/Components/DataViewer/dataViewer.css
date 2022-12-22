@@ -11,14 +11,15 @@
 	width: 100%;
 	align-self: center;
 	display: flex;
-	padding-right: 0.5rem;
+	/* padding-right: 0.5rem; */
 	/* border-bottom: 2px solid rgba(224,224,224,1); */
+	justify-content: space-between;
 }
 
 /* ========================================================================================== */
 /* Menu items styling */
 .menuHome {
-	/* display: flex; */
+	display: flex;
 	align-items: center;
 	justify-content: center;
 	height: 2rem;

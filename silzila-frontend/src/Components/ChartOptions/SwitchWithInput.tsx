@@ -17,7 +17,7 @@ const SwitchWithInput = ({ isChecked, onSwitch }: { isChecked: boolean; onSwitch
 		},
 	}));
 	return (
-		<FormControlLabel control={<SwitchComponent checked={isChecked} onClick={onSwitch} />} />
+		<FormControlLabel label="" control={<SwitchComponent checked={isChecked} onClick={onSwitch} />} />
 	);
 };
 

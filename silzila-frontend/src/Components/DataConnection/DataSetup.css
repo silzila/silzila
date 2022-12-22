@@ -8,7 +8,7 @@ Data Setup Page
 	display: flex;
 	height: 100vh;
 	flex-direction: column;
-	background-color: rgb(238, 238, 238);
+	/* background-color: rgb(238, 238, 238); */
 }
 
 .dataSetup {
@@ -19,14 +19,19 @@ Data Setup Page
 	max-width: 1400px;
 	margin: auto;
 	display: flex;
+	border-top:2px solid rgba(224,224,224,1)
 }
 
 .dcds {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	margin-right: 1rem;
+	/* margin-right: 1rem; */
 	overflow: hidden;
+	justify-content: space-between;
+	padding-right: 1rem;
+	border-right:2px solid rgba(224,224,224,1)
+	
 }
 
 .dataConnectionContainer {
@@ -62,7 +67,7 @@ Data Setup Page
 
 .dashboardsContainer {
 	flex: 1;
-	margin-left: 1rem;
+	/* margin-left: 1rem; */
 	padding: 1rem;
 	border-radius: 0.5rem;
 	background-color: #fff;
@@ -76,7 +81,7 @@ Data Setup Page
 	overflow: hidden;
 	padding-left: 10px;
 	padding-right: 10px;
-	border-bottom: 1px solid rgb(192, 192, 192);
+	/* border-bottom: 1px solid rgb(192, 192, 192); */
 }
 
 .containerTitle {
@@ -93,7 +98,7 @@ Data Setup Page
 	border-radius: 3px;
 	color: #666;
 	height: 35px;
-	padding: 0 25px;
+	padding: 5px 25px;
 	font-size: 16px;
 	cursor: pointer;
 }
@@ -112,11 +117,11 @@ Data Connections
 
 .dataConnectionList {
 	margin: 8px 5px 0 0;
-	background-color: rgb(250, 250, 250);
+	/* background-color: rgb(250, 250, 250); */
 	border-radius: 5px;
 	display: flex;
-	padding: 5px 20px;
-	border: 1px solid rgb(238, 238, 238);
+	padding:5px 20px 5px 30px;
+	border: 1px solid rgba(224,224,224,1);
 }
 
 .dataConnectionListSelected {
