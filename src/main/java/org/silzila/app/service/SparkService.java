@@ -280,38 +280,38 @@ public class SparkService {
             String viewName = "vw_" + tableObjList.get(i).getAlias().replaceAll("[^a-zA-Z0-9_]", "_") + "_"
                     + flatFileId.substring(0, 8);
             if (!views.get(userId).get(flatFileId).contains(viewName)) {
+                /*
+                 * check if DF is already existing
+                 * else create
+                 */
+                // cerate user
+                if (!dataframes.containsKey(userId)) {
+                    HashMap<String, Dataset<Row>> userHashMap = new HashMap<String, Dataset<Row>>();
+                    dataframes.put(userId, userHashMap);
+                }
+                // create DF for flat file id key
+                // there may be a chance of DF is already created
+                // for the same flat file id used in another DS
+                // so check if DF already exists before creating
+                if (!dataframes.get(userId).containsKey(flatFileId)) {
+                    // iterate flat file list and get flat file name corresponding to file id
+                    for (int j = 0; j < fileDataList.size(); j++) {
+                        if (flatFileId.equals(fileDataList.get(j).getId())) {
+                            final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/"
+                                    + userId
+                                    + "/" + fileDataList.get(j).getFileName();
+                            // create DF
+                            startSparkSession();
+                            dataframes.get(userId).put(flatFileId,
+                                    spark.read().parquet(filePath));
+                        }
+                    }
+                }
+                // create view on DF and maintain the view name to know if view is already there
+                dataframes.get(userId).get(flatFileId).createOrReplaceTempView(viewName);
                 views.get(userId).get(flatFileId).add(viewName);
             }
 
-            /*
-             * check if DF is already existing
-             * else create
-             */
-            // cerate user
-            if (!dataframes.containsKey(userId)) {
-                HashMap<String, Dataset<Row>> userHashMap = new HashMap<String, Dataset<Row>>();
-                dataframes.put(userId, userHashMap);
-            }
-            // create DF for flat file id key
-            if (!dataframes.get(userId).containsKey(flatFileId)) {
-                // iterate flat file list and get flat file name corresponding to file id
-                for (int j = 0; j < fileDataList.size(); j++) {
-                    if (flatFileId.equals(fileDataList.get(j).getId())) {
-                        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId
-                                + "/" + fileDataList.get(j).getFileName();
-                        // create DF
-                        startSparkSession();
-                        dataframes.get(userId).put(flatFileId,
-                                spark.read().parquet(filePath));
-                        dataframes.get(userId).get(flatFileId).createOrReplaceTempView(viewName);
-                        System.out.println("========== creating DF");
-                        dataframes.get(userId).get(flatFileId).limit(10).show();
-                    }
-                }
-            } else {
-                System.out.println("========== DF already exists");
-                dataframes.get(userId).get(flatFileId).limit(10).show();
-            }
         }
     }
 

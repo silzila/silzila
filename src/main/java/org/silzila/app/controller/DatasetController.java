@@ -114,7 +114,7 @@ public class DatasetController {
     @PostMapping("/query")
     public ResponseEntity<?> runQuery(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody Query query,
-            @RequestParam(name = "dbconnectionid") String dBConnectionId,
+            @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
             @RequestParam(name = "datasetid") String datasetId)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
             BadRequestException {
