@@ -52,6 +52,9 @@ public class FilterOptionsQueryComposer {
         } else if (vendorName.equals("sqlserver")) {
             System.out.println("------ inside sql server block");
             finalQuery = FilterQuerySqlserver.getFilterOptions(cf, table);
+        } else if (vendorName.equals("spark")) {
+            System.out.println("------ inside spark block");
+            finalQuery = FilterQuerySpark.getFilterOptions(cf, table);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }

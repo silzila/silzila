@@ -346,22 +346,55 @@ public class DatasetService {
     }
 
     // Populate filter Options
-    public JSONArray filterOptions(String userId, String dBConnectionId, String datasetId, ColumnFilter columnFilter)
+    public Object filterOptions(String userId, String dBConnectionId, String datasetId, ColumnFilter columnFilter)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
             BadRequestException {
 
-        System.out.println("========================");
-        // load connection details in buffer & create connection pool (if not) and then
-        // get vendor name.
-        // SQL Dialect will be different based on vendor name
-        String vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
-        System.out.println("Dialect *****************" + vendorName);
-        // get dataset details to compose query
+        String vendorName = "";
         DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
-        String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, vendorName);
-        System.out.println("\n******* QUERY **********\n" + query);
-        JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
-        return jsonArray;
+        // for DB based datasets, connection id is must
+        if (ds.getIsFlatFileData() == false) {
+            if (dBConnectionId == null || dBConnectionId.isEmpty()) {
+                throw new BadRequestException("Error: DB Connection Id can't be empty!");
+            }
+            /*
+             * load connection details in buffer.
+             * create connection pool (if not) and then get vendor name.
+             * SQL Dialect will be different based on vendor name
+             */
+            vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
+            // System.out.println("Dialect *****************" + vendorName);
+            String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, vendorName);
+            System.out.println("\n******* QUERY **********\n" + query);
+            JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
+            return jsonArray;
+        }
+
+        /* Flat file based dataset, create DFs for necessary files used in query */
+        // get table Id -> file Id -> file name
+        else {
+
+            String tableId = columnFilter.getTableId();
+
+            // get all file Ids (which is inside table obj)
+            List<Table> tableObjList = ds.getDataSchema().getTables().stream()
+                    .filter(table -> table.getId().equals(tableId))
+                    .collect(Collectors.toList());
+
+            // throw error when requested table id is not in dataset
+            if (tableObjList.size() != 1) {
+                throw new BadRequestException("Error: table id is not present in Dataset!");
+            }
+
+            // get files names from file ids and load the files as DF
+            fileDataService.getFileNameFromFileId(userId, tableObjList);
+            // build query
+            String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, "spark");
+            System.out.println("\n******* QUERY **********\n" + query);
+            List<JsonNode> jsonNodes = sparkService.runQuery(query);
+            return jsonNodes;
+        }
+
     }
 
 }

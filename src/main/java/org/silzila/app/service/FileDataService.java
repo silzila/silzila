@@ -522,9 +522,9 @@ public class FileDataService {
 
     }
 
-    // creates DF of all files used in chart data request Query
-    public void loadFilesAsDfForQuery(Query req, DatasetDTO ds) {
+    // // creates DF of all files used in chart data request Query
+    // public void loadFilesAsDfForQuery(Query req, DatasetDTO ds) {
 
-    }
+    // }
 
 }
