@@ -169,6 +169,8 @@ public class WhereClause {
                         where = WhereClauseDateMysql.buildWhereClauseDate(filter);
                     } else if (vendorName.equals("sqlserver")) {
                         where = WhereClauseDateSqlserver.buildWhereClauseDate(filter);
+                    } else if (vendorName.equals("spark")) {
+                        where = WhereClauseDateSpark.buildWhereClauseDate(filter);
                     }
                 }
 

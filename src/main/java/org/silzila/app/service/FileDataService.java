@@ -1,5 +1,6 @@
 package org.silzila.app.service;
 
+import org.silzila.app.dto.DatasetDTO;
 import org.silzila.app.dto.FileDataDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.ExpectationFailedException;
@@ -9,6 +10,8 @@ import org.silzila.app.model.FileData;
 import org.silzila.app.payload.request.FileDataUpdateRequest;
 import org.silzila.app.payload.request.FileUploadRevisedColumnInfo;
 import org.silzila.app.payload.request.FileUploadRevisedInfoRequest;
+import org.silzila.app.payload.request.Query;
+import org.silzila.app.payload.request.Table;
 import org.silzila.app.payload.response.FileUploadColumnInfo;
 import org.silzila.app.payload.response.FileUploadResponse;
 import org.silzila.app.repository.FileDataRepository;
@@ -29,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -37,6 +41,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class FileDataService {
+
+    public static HashMap<String, ArrayList<FileData>> usersFileDatas = new HashMap<String, ArrayList<FileData>>();
 
     @Autowired
     SparkService sparkService;
@@ -69,7 +75,7 @@ public class FileDataService {
         // upload file
         try {
             // rename to random id while saving file
-            savedFileName = UUID.randomUUID().toString();
+            savedFileName = UUID.randomUUID().toString().substring(0, 8);
             // trim file name without file extension - used for naming data frame
             uploadedFileNameWithoutExtn = file.getOriginalFilename().substring(0,
                     file.getOriginalFilename().lastIndexOf("."));
@@ -496,6 +502,28 @@ public class FileDataService {
                 fileData.getUserId(),
                 fileData.getName());
         return fileDataDTO;
+
+    }
+
+    // HELPER FUNCTION - read all file datas with file name
+    public void getFileNameFromFileId(String userId, List<Table> tableObjList)
+            throws BadRequestException {
+        List<FileData> fileDataList;
+        // first try to get all file datas for a user from cache
+        if (usersFileDatas.containsKey(userId)) {
+            fileDataList = usersFileDatas.get(userId);
+        }
+        // if no cache, read all file data for the user from DB
+        else {
+            fileDataList = fileDataRepository.findByUserId(userId);
+        }
+
+        sparkService.createDfForFlatFiles(userId, tableObjList, fileDataList);
+
+    }
+
+    // creates DF of all files used in chart data request Query
+    public void loadFilesAsDfForQuery(Query req, DatasetDTO ds) {
 
     }
 

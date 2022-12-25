@@ -120,8 +120,8 @@ public class DatasetController {
             BadRequestException {
         String userId = reqHeader.get("requesterUserId");
 
-        JSONArray jsonArray = datasetService.runQuery(userId, dBConnectionId, datasetId, query);
-        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+        Object jsonArrayOrJsonNodeList = datasetService.runQuery(userId, dBConnectionId, datasetId, query);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonArrayOrJsonNodeList.toString());
     }
 
     @PostMapping("/filter-options")
