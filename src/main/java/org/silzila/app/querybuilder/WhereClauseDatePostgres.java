@@ -104,7 +104,7 @@ public class WhereClauseDatePostgres {
             if (List.of("YEAR", "QUARTER", "MONTH", "DAYOFMONTH").contains(filter.getTimeGrain().name())) {
                 field = "EXTRACT(" + timeGrainMap.get(filter.getTimeGrain().name()) + " FROM " + filter.getTableId()
                         + "." + filter.getFieldName() + ")::INTEGER";
-            } else if (filter.getOperator().name().equals("DATE")) {
+            } else if (filter.getTimeGrain().name().equals("DATE")) {
                 field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
             }
             // In postgres, dayofweek starts at 0 not 1, so need to add 1 to the function
