@@ -38,14 +38,17 @@ public class QueryComposer {
          */
 
         if (vendorName.equals("postgresql")) {
-            System.out.println("------ inside postges block");
+            // System.out.println("------ inside postges block");
             qMap = SelectClausePostgres.buildSelectClause(req);
         } else if (vendorName.equals("mysql")) {
-            System.out.println("------ inside mysql block");
+            // System.out.println("------ inside mysql block");
             qMap = SelectClauseMysql.buildSelectClause(req);
         } else if (vendorName.equals("sqlserver")) {
-            System.out.println("------ inside sql server block");
+            // System.out.println("------ inside sql server block");
             qMap = SelectClauseSqlserver.buildSelectClause(req);
+        } else if (vendorName.equals("spark")) {
+            // System.out.println("------ inside spark block");
+            qMap = SelectClauseSpark.buildSelectClause(req);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }

@@ -114,26 +114,26 @@ public class DatasetController {
     @PostMapping("/query")
     public ResponseEntity<?> runQuery(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody Query query,
-            @RequestParam(name = "dbconnectionid") String dBConnectionId,
+            @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
             @RequestParam(name = "datasetid") String datasetId)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
             BadRequestException {
         String userId = reqHeader.get("requesterUserId");
 
-        JSONArray jsonArray = datasetService.runQuery(userId, dBConnectionId, datasetId, query);
-        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+        Object jsonArrayOrJsonNodeList = datasetService.runQuery(userId, dBConnectionId, datasetId, query);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonArrayOrJsonNodeList.toString());
     }
 
     @PostMapping("/filter-options")
     public ResponseEntity<?> filterOptions(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody ColumnFilter columnFilter,
-            @RequestParam(name = "dbconnectionid") String dBConnectionId,
+            @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
             @RequestParam(name = "datasetid") String datasetId)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
             BadRequestException {
         String userId = reqHeader.get("requesterUserId");
-        JSONArray jsonArray = datasetService.filterOptions(userId, dBConnectionId, datasetId, columnFilter);
-        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+        Object jsonArrayOrJsonNodeList = datasetService.filterOptions(userId, dBConnectionId, datasetId, columnFilter);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonArrayOrJsonNodeList.toString());
 
     }
 

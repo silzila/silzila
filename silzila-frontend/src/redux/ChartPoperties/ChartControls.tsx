@@ -324,7 +324,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 							symbolWidth: 20,
 							symbolHeight: 20,
 							itemGap: 10,
-							position: { pos: "Top", top: "top", left: "center" },
+							position: { pos: "Bottom", top: "bottom", left: "center" },
 							orientation: "horizontal",
 						},
 
@@ -621,7 +621,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 							symbolWidth: 20,
 							symbolHeight: 20,
 							itemGap: 10,
-							position: { pos: "Top", top: "top", left: "center" },
+							position: { pos: "Bottom", top: "bottom", left: "center" },
 							orientation: "horizontal",
 						},
 

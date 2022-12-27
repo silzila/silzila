@@ -36,6 +36,7 @@ import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import TextEditor from "../Charts/TextEditor";
+import CrossTabChart from '../Charts/CrossTab/CrossTabChart'
 
 const GraphArea = ({
 	// state
@@ -154,14 +155,14 @@ const GraphArea = ({
 					/>
 				);
 
-			// case "crossTab":
-			// 	return (
-			// 		<CrossTabChart
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
-			// 		/>
-			// 	);
+			case "crossTab":
+				return (
+					<CrossTabChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
 
 			case "scatterPlot":
 				return (
