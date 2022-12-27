@@ -23,6 +23,7 @@
     "echarts": "^5.4.0",
     "echarts-for-react": "^3.0.2",
     "immutability-helper": "^3.1.1",
+    "lodash.debounce": "^4.0.8",
     "moment": "^2.29.4",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
@@ -70,6 +71,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.190",
+    "@types/lodash.debounce": "^4.0.7",
     "@types/react-color": "^3.0.6",
     "@types/react-syntax-highlighter": "^15.5.5"
   }
