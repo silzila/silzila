@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -16,8 +18,10 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructField;
-
+import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.helper.ConvertSparkDataType;
+import org.silzila.app.model.FileData;
+import org.silzila.app.payload.request.Table;
 import org.silzila.app.payload.response.FileUploadColumnInfo;
 import org.silzila.app.payload.response.FileUploadResponse;
 
@@ -26,7 +30,15 @@ import org.apache.spark.sql.types.*;
 @Service
 public class SparkService {
 
+    // Home folder for saved flat files
+    final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
+
+    // holds single spark session to query for all file datasets
     private static SparkSession spark;
+    // holds DFs for the files used in query. Not cached
+    public static HashMap<String, HashMap<String, Dataset<Row>>> dataframes = new HashMap<String, HashMap<String, Dataset<Row>>>();
+    // holds view name of DFs used in query
+    public static HashMap<String, HashMap<String, ArrayList<String>>> views = new HashMap<String, HashMap<String, ArrayList<String>>>();
 
     // helper function - start spark session
     public void startSparkSession() {
@@ -243,7 +255,108 @@ public class SparkService {
         // clear memory
         _dataset.unpersist();
         dataset.unpersist();
-
     }
+
+    // create DF for flat files
+    public void createDfForFlatFiles(String userId, List<Table> tableObjList, List<FileData> fileDataList) {
+        // iterate file table list and create DF & SQL view if not already created
+        for (int i = 0; i < tableObjList.size(); i++) {
+            /*
+             * check if the view name is already existing
+             * else create
+             */
+            String flatFileId = tableObjList.get(i).getFlatFileId();
+            // create user
+            if (!views.containsKey(userId)) {
+                HashMap<String, ArrayList<String>> userHashMap = new HashMap<String, ArrayList<String>>();
+                views.put(userId, userHashMap);
+            }
+            // create empty view list for the flatFileId for the user
+            if (!views.get(userId).containsKey(flatFileId)) { // flatFileId
+                ArrayList<String> viewList = new ArrayList<>();
+                views.get(userId).put(flatFileId, viewList);
+            }
+            // add view name for the flatFileId
+            String viewName = "vw_" + tableObjList.get(i).getAlias().replaceAll("[^a-zA-Z0-9_]", "_") + "_"
+                    + flatFileId.substring(0, 8);
+            if (!views.get(userId).get(flatFileId).contains(viewName)) {
+                /*
+                 * check if DF is already existing
+                 * else create
+                 */
+                // cerate user
+                if (!dataframes.containsKey(userId)) {
+                    HashMap<String, Dataset<Row>> userHashMap = new HashMap<String, Dataset<Row>>();
+                    dataframes.put(userId, userHashMap);
+                }
+                // create DF for flat file id key
+                // there may be a chance of DF is already created
+                // for the same flat file id used in another DS
+                // so check if DF already exists before creating
+                if (!dataframes.get(userId).containsKey(flatFileId)) {
+                    // iterate flat file list and get flat file name corresponding to file id
+                    for (int j = 0; j < fileDataList.size(); j++) {
+                        if (flatFileId.equals(fileDataList.get(j).getId())) {
+                            final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/"
+                                    + userId
+                                    + "/" + fileDataList.get(j).getFileName();
+                            // create DF
+                            startSparkSession();
+                            dataframes.get(userId).put(flatFileId,
+                                    spark.read().parquet(filePath));
+                        }
+                    }
+                }
+                // create view on DF and maintain the view name to know if view is already there
+                dataframes.get(userId).get(flatFileId).createOrReplaceTempView(viewName);
+                views.get(userId).get(flatFileId).add(viewName);
+            }
+
+        }
+    }
+
+    // run the user drag n drop query on views of DF
+    public List<JsonNode> runQuery(String query) throws JsonMappingException, JsonProcessingException {
+
+        // create another DF with changed schema
+        Dataset<Row> dataset = spark.sql(query);
+
+        // get Sample Records from spark DF
+        ObjectMapper mapper = new ObjectMapper();
+        List<JsonNode> jsonNodes = new ArrayList<JsonNode>();
+        // fetch 100 records as sample records
+        List<String> datasetString = dataset.toJSON().collectAsList();
+        for (String str : datasetString) {
+            JsonNode row = mapper.readTree(str);
+            jsonNodes.add(row);
+        }
+        dataset.unpersist();
+        return jsonNodes;
+    }
+
+    // public void loadFilesToDfForQuery(List<Table> tables, Set<String> tableIds,
+    // String userId)
+    // throws BadRequestException {
+
+    // // filter only necessary tables from dataset which are used in query
+    // List<Table> filteredTableList = tables.stream()
+    // .filter(table -> tableIds.contains(table.getId()))
+    // .collect(Collectors.toList());
+    // // throw error when any requested table id is not in dataset
+    // if (tableIds.size() != filteredTableList.size()) {
+    // throw new BadRequestException("Error: some table id is not present in
+    // Dataset!");
+    // }
+
+    // for (int i = 0; i < filteredTableList.size(); i++) {
+    // if (!dataframes.containsKey(userId)) {
+    // dataframes.put(userId, null);
+    // }
+    // if (dataframes.get(userId).containsKey(filteredTableList.get(i)))
+    // ;
+
+    // }
+
+    // }
 
 }

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("jsonschema2pojo")
 public class DatasetRequest implements Serializable {
 
-    @NotNull
+    // @NotNull
     @Size(min = 1)
     @JsonProperty("connectionId")
     private String connectionId;
@@ -54,14 +54,14 @@ public class DatasetRequest implements Serializable {
     public DatasetRequest(String connectionId, String datasetName, Boolean isFlatFileData,
             DataSchema dataSchema) throws BadRequestException {
         super();
-        if (connectionId == null || connectionId.length() == 0) {
-            throw new BadRequestException("Error: Connection Id Field cannot be empty!");
-        }
         if (datasetName == null || datasetName.length() == 0) {
             throw new BadRequestException("Error: DataSet Name Field cannot be empty!");
         }
         if (isFlatFileData == null) {
             throw new BadRequestException("Error: Is Flat File Data Field cannot be empty!");
+        }
+        if (isFlatFileData == false && (connectionId == null || connectionId.length() == 0)) {
+            throw new BadRequestException("Error: Connection Id Field cannot be empty!");
         }
         this.connectionId = connectionId;
         this.datasetName = datasetName;
