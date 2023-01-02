@@ -485,7 +485,7 @@ const MenuBar = ({
 						onMouseOver={() => xprops.setOpen(true)}
 						onMouseLeave={() => xprops.setOpen(false)}
 					>
-						{xprops.open ? (
+						{xprops.open && from !== "dataHome" ? (
 							<>{getHomeIcon()}</>
 						) : (
 							<>
