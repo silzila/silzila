@@ -229,7 +229,7 @@ const CrossTabChart = ({
 				} else {
 					/*  Feature added to include Column field to the column header  */
 					if (row == dustbinRows.length - 1) {
-						tempColumnObj.displayData = dustbinColumns[i]?.fieldname;
+						tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[i], "row");
 					}
 				}
 
