@@ -9,7 +9,7 @@ import MenuBar from "../DataViewer/MenuBar";
 import DataConnection from "./DataConnection";
 import PlayBookList from "./PlayBookList";
 import "./DataSetup.css";
-import FlatFile from "./FlatFile";
+import FlatFile from "./FlatFileList";
 
 const DataHome = () => {
 	return (
