@@ -369,7 +369,11 @@ const GraphArea = ({
 				title = measureTitle ? measureTitle : "";
 			} else if (chartProperties.properties[propKey].chartType === "richText") {
 				title = "Rich Text Editor Title";
-			} else {
+			}
+			else if (chartProperties.properties[propKey].chartType === "crossTab") {
+				title = "Cross Tab Title";
+			}
+			else {
 				title = measureTitle ? measureTitle : "";
 				title = dimTitle ? title + ` by ${dimTitle}` : "";
 			}

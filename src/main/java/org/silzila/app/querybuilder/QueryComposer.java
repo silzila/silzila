@@ -54,8 +54,11 @@ public class QueryComposer {
         }
 
         String selectClause = "\n\t" + qMap.getSelectList().stream().collect(Collectors.joining(",\n\t"));
-        String groupByClause = "\n\t" + qMap.getGroupByList().stream().collect(Collectors.joining(",\n\t"));
-        String orderByClause = "\n\t" + qMap.getOrderByList().stream().collect(Collectors.joining(",\n\t"));
+        // distinct in group by and order by as SQL Server will take only unique expr in
+        // group by and order by. this prevents error when dropping
+        // same col twice in dimension
+        String groupByClause = "\n\t" + qMap.getGroupByList().stream().distinct().collect(Collectors.joining(",\n\t"));
+        String orderByClause = "\n\t" + qMap.getOrderByList().stream().distinct().collect(Collectors.joining(",\n\t"));
         String whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName);
 
         if (!req.getDimensions().isEmpty()) {

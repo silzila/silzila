@@ -264,7 +264,7 @@ public class DatasetService {
     }
 
     // RUN QUERY
-    public Object runQuery(String userId, String dBConnectionId, String datasetId,
+    public String runQuery(String userId, String dBConnectionId, String datasetId, Boolean isSqlOnly,
             Query req)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
             BadRequestException {
@@ -298,8 +298,15 @@ public class DatasetService {
 
             String query = queryComposer.composeQuery(req, ds, vendorName);
             System.out.println("\n******* QUERY **********\n" + query);
-            JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
-            return jsonArray;
+            // when the request is just Raw SQL query Text
+            if (isSqlOnly != null && isSqlOnly) {
+                return query;
+            }
+            // when the request is for query result
+            else {
+                JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
+                return jsonArray.toString();
+            }
         }
 
         /* Flat file based dataset, create DFs for necessary files used in query */
@@ -339,8 +346,15 @@ public class DatasetService {
             fileDataService.getFileNameFromFileId(userId, tableObjList);
             String query = queryComposer.composeQuery(req, ds, "spark");
             System.out.println("\n******* QUERY **********\n" + query);
-            List<JsonNode> jsonNodes = sparkService.runQuery(query);
-            return jsonNodes;
+            // when the request is just Raw SQL query Text
+            if (isSqlOnly != null && isSqlOnly) {
+                return query;
+            }
+            // when the request is for query result
+            else {
+                List<JsonNode> jsonNodes = sparkService.runQuery(query);
+                return jsonNodes.toString();
+            }
         }
 
     }

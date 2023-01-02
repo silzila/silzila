@@ -115,13 +115,14 @@ public class DatasetController {
     public ResponseEntity<?> runQuery(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody Query query,
             @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
-            @RequestParam(name = "datasetid") String datasetId)
+            @RequestParam(name = "datasetid") String datasetId,
+            @RequestParam(name = "sql", required = false) Boolean isSqlOnly)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
             BadRequestException {
         String userId = reqHeader.get("requesterUserId");
 
-        Object jsonArrayOrJsonNodeList = datasetService.runQuery(userId, dBConnectionId, datasetId, query);
-        return ResponseEntity.status(HttpStatus.OK).body(jsonArrayOrJsonNodeList.toString());
+        String queryResultOrQueryText = datasetService.runQuery(userId, dBConnectionId, datasetId, isSqlOnly, query);
+        return ResponseEntity.status(HttpStatus.OK).body(queryResultOrQueryText);
     }
 
     @PostMapping("/filter-options")
