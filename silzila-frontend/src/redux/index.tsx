@@ -10,6 +10,7 @@ import chartControlsReducer from "./ChartPoperties/ChartControls";
 import tabStateReducer from "./TabTile/TabState";
 import tileStateReducer from "./TabTile/TileState";
 import tabTilePropsReducer from "./TabTile/TabTileProps";
+import FlatFileReducer from "./FlatFile/FlatFileState";
 
 const allReducers = combineReducers({
 	isLogged: loggedReducer,
@@ -23,6 +24,7 @@ const allReducers = combineReducers({
 	chartControls: chartControlsReducer,
 	sampleRecords: SampleRecordsReducer,
 	playBookState: PlayBookReducer,
+	flatFileState: FlatFileReducer,
 });
 
 export default allReducers;
