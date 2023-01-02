@@ -20,21 +20,26 @@ const findFieldName=(name : string, fieldTempObject:any, i : number = 2): string
 /*
     Get display data("JSON object") from fields with prefix
   */
-export const getKeyWithPrefix = (item : any, dustbinName? :string, fieldTempObject:any = {}) => {
+export const getKeyWithPrefix = (item : any = {}, dustbinName? :string, fieldTempObject:any = {}) => {
   let _nameWithAgg: string =  "";
 
-  if(item.dataType.toLowerCase() !== "date" && item.dataType.toLowerCase() !== "timestamp"){
-    _nameWithAgg =	item.agg ? `${item.agg} of ${item.fieldname}`: item.fieldname;
-  }
-  else{
-    let _timeGrain:string = item.timeGrain || "";
-    _nameWithAgg = 	item.agg ? `${item.agg} ${_timeGrain} of ${item.fieldname}`: item.fieldname;
-  }
-
   if(dustbinName === "val"){
+    if(item.dataType.toLowerCase() !== "date" && item.dataType.toLowerCase() !== "timestamp"){
+      _nameWithAgg =	item.agg ? `${item.agg} of ${item.fieldname}`: item.fieldname;
+    }
+    else{
+      let _timeGrain:string = item.timeGrain || "";
+      _nameWithAgg = 	item.agg ? `${item.agg} ${_timeGrain} of ${item.fieldname}`: item.fieldname;
+    }
+
+ 
     if(fieldTempObject[_nameWithAgg] !== undefined){
       _nameWithAgg = findFieldName(_nameWithAgg,fieldTempObject);
     }  
+  }
+  else{
+    let _timeGrain:string = item.timeGrain || "";
+    _nameWithAgg = 	_timeGrain ? `${_timeGrain} of ${item.fieldname}`: item.fieldname;
   }
 
   return _nameWithAgg;

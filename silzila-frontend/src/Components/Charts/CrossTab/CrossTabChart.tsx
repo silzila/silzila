@@ -83,7 +83,7 @@ const CrossTabChart = ({
 							chartDataKeys[i].includes(field.fieldname)
 						);
 						/*  Need to format Measure dustbin fields */
-						if (_isMeasureField) {
+						if (_isMeasureField && chartDataKeys[i].includes('of')) {
 							formattedValue[chartDataKeys[i]] = formatChartLabelValue(
 								property,
 								item[chartDataKeys[i]]
@@ -247,6 +247,31 @@ const CrossTabChart = ({
 				tempColumns.push(tempColumnObj);
 			}
 
+			crossTabData[i].columnItems = [...tempColumns, ...crossTabData[i].columnItems];
+		}
+	};
+
+	const appendRowsFieldsAsColumnsForColumnOnly = () => {
+		for (let i = crossTabData.length - 1; i >= 0; i--) {
+			let tempColumns = [];
+
+		///	for (let row = 0; row < dustbinColumns.length; row++) {
+				let tempColumnObj = CrossTab.cloneData(columnObj);
+
+				// if (i === crossTabData.length - 1) {
+				// 	tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[row], "col");
+				// } else {
+				// 	/*  Feature added to include Column field to the column header  */
+				// 	if (row == dustbinColumns.length - 1) {
+						tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[i], "col");;
+				// 	}
+				// }
+
+				tempColumnObj.isRowField = true;
+				tempColumnObj.isHeaderField = true;
+				tempColumns.push(tempColumnObj);
+		///	}
+		
 			crossTabData[i].columnItems = [...tempColumns, ...crossTabData[i].columnItems];
 		}
 	};
@@ -588,8 +613,8 @@ const CrossTabChart = ({
 	/*  Construct crossTabData object to show chart with column fields only  */
 	const showColumnsOnlyChart = () => {
 		constructColumnHeaderArea();
-		updateColSpan();
-		defaultTemplate = false;
+		updateColSpan(true);
+		appendRowsFieldsAsColumnsForColumnOnly();
 	};
 
 	/*  Construct crossTabData object to show chart with row fields only  */
@@ -706,7 +731,9 @@ const CrossTabChart = ({
 		constructColumnHeaderArea();
 		updateColSpan();
 		populateTableBodydataWithoutRow();
-		defaultTemplate = false;
+		appendRowsFieldsAsColumnsForColumnOnly();
+		
+		//defaultTemplate = false;
 	};
 
 	const addColumnItemsFromRowBoj = (dustbinList:any, tempRowObj1:any, dusbinName:string) => {
