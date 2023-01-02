@@ -8,6 +8,9 @@ import NewDataSet from "./DataSet/NewDataSet";
 import EditDataSet from "./DataSet/EditDataSet";
 import { isLoggedProps, LoggedDetailsType } from "../redux/UserInfo/IsLoggedInterfaces";
 import DataViewer from "./DataViewer/DataViewer";
+import EditFlatFileData from "./DataConnection/EditFlatFileData";
+import FlatFileUpload from "./DataConnection/FlatFileUpload";
+import ConfirmFlatFileData from "./DataConnection/ConfirmFlatFileData";
 // import { Item } from "../redux/UserInfo/types";
 // import Redirect from "./Redirect";
 
@@ -30,6 +33,9 @@ const Home = (props: LoggedDetailsType) => {
 						<Route path="/editdataset" element={<EditDataSet />} />
 						<Route path="/datahome" element={<DataHome />} />
 						<Route path="/dataviewer" element={<DataViewer />} />
+						<Route path="/flatfileupload" element={<FlatFileUpload />} />
+						<Route path="/editflatfile" element={<EditFlatFileData />} />
+						<Route path="/confirmflatfile" element={<ConfirmFlatFileData />} />
 					</Routes>
 				</Router>
 			) : (
