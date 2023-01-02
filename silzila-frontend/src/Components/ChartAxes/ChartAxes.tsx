@@ -352,13 +352,13 @@ const ChartAxes = ({
 
 			if (chartData && chartData.length > 0) {
 				let _zones:any = axesValues.filter((zones: any) => zones.name !== "Filter");
-				let _zonesFields:any = [];
+				//let _zonesFields:any = [];
 				let _fieldTempObject:any = {};
 				let _chartFieldTempObject:any = {};
 			
-				_zones.forEach((zone:any)=>{
-					_zonesFields = [..._zonesFields, ...zone.fields]
-				});
+				// _zones.forEach((zone:any)=>{
+				// 	_zonesFields = [..._zonesFields, ...zone.fields]
+				// });
 
 				/*	Find and return field's new name	*/
 				const findFieldName=(name : string, i : number = 2): string=>{
@@ -384,45 +384,63 @@ const ChartAxes = ({
 					}
 				}
 
-				_zonesFields.forEach((field:any, index : number)=>{		
-					let _nameWithAgg: string =  "";
+				_zones.forEach((zoneItem:any)=>{
+					zoneItem.fields.forEach((field:any, index : number)=>{		
+						let _nameWithAgg: string =  "";
+	
+						if(zoneItem.name ==="Measure"){
+							if(field.dataType !== "date" && field.dataType !== "timestamp"){
+								_nameWithAgg =	field.agg ? `${field.agg} of ${field.fieldname}`: field.fieldname;
+							}
+							else{
+								let _timeGrain:string = field.timeGrain || "";
+								_nameWithAgg = 	field.agg ? `${field.agg} ${_timeGrain} of ${field.fieldname}`: field.fieldname;
+							}
+						}
+						else{
+							if(field.dataType !== "date" && field.dataType !== "timestamp"){
+								_nameWithAgg =	field.agg ? `${field.agg} of ${field.fieldname}`: field.fieldname;
+							}
+							else{
+								let _timeGrain:string = field.timeGrain || "";
+								_nameWithAgg = 	_timeGrain ? `${_timeGrain} of ${field.fieldname}`: field.fieldname;
+							}
+						}
 
-					if(field.dataType !== "Date" && field.dataType !== "timestamp"){
-						_nameWithAgg =	field.agg ? `${field.agg} of ${field.fieldname}`: field.fieldname;
-					}
-					else{
-						let _timeGrain:string = field.timeGrain || "";
-						_nameWithAgg = 	field.agg ? `${field.agg} ${_timeGrain} of ${field.fieldname}`: field.fieldname;
-					}
-
-					if(_chartFieldTempObject[field.fieldname] !== undefined){
-						let _name = findFieldIndexName(field.fieldname);
-
-						field["NameWithIndex"] = _name;
-						_chartFieldTempObject[_name] = "";
-					}
-					else{
-						field["NameWithIndex"] = field.fieldname;
-						_chartFieldTempObject[field.fieldname] = "";
-					}
-
-					if(_fieldTempObject[_nameWithAgg] !== undefined){
-						let _name = findFieldName(_nameWithAgg);
-
-						field["NameWithAgg"] = _name;
-						_fieldTempObject[_name] = "";
-					}
-					else{
-						field["NameWithAgg"] = _nameWithAgg;
-						_fieldTempObject[_nameWithAgg] = "";
-					}
+					
+	
+						if(_chartFieldTempObject[field.fieldname] !== undefined){
+							let _name = findFieldIndexName(field.fieldname);
+	
+							field["NameWithIndex"] = _name;
+							_chartFieldTempObject[_name] = "";
+						}
+						else{
+							field["NameWithIndex"] = field.fieldname;
+							_chartFieldTempObject[field.fieldname] = "";
+						}
+	
+						if(_fieldTempObject[_nameWithAgg] !== undefined){
+							let _name = findFieldName(_nameWithAgg);
+	
+							field["NameWithAgg"] = _name;
+							_fieldTempObject[_name] = "";
+						}
+						else{
+							field["NameWithAgg"] = _nameWithAgg;
+							_fieldTempObject[_nameWithAgg] = "";
+						}
+					})
 				})
+				
 			
 				chartData.forEach((data: any) => {
 					let _chartDataObj:any = {};
 			
-					_zonesFields.forEach((field: any) => {
-						_chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
+					_zones.forEach((zoneItem:any)=>{
+						zoneItem.fields.forEach((field: any) => {
+							_chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
+						});
 					});
 			
 					result.push(_chartDataObj);
