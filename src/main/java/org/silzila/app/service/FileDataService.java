@@ -467,7 +467,7 @@ public class FileDataService {
         }
 
         // check in DB if file data name is already taken
-        isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName());
+        // isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName());
 
         // construct query by using helper function
         String query = buildQueryWithChangeSchema(revisedInfoRequest);
