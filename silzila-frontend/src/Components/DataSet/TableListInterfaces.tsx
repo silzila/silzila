@@ -6,6 +6,7 @@ export interface TableListProps {
 	table: UserTableProps;
 	tableId: string;
 	xprops: any;
+	isFlatFile: boolean;
 
 	//state
 	tempTable: tableObjProps[];

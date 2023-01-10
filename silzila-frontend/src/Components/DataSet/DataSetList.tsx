@@ -3,41 +3,58 @@
 // Creating new and editing existing dataset are handled in other child components
 
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Tooltip } from "@mui/material";
+import { Button, MenuItem, Popover, TextField, Tooltip } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Dispatch } from "redux";
-import { resetState, setDatasetList, setDsId } from "../../redux/DataSet/datasetActions";
+import {
+	resetState,
+	setCreateDsFromFlatFile,
+	setDatasetList,
+	setDsId,
+	setUserTable,
+} from "../../redux/DataSet/datasetActions";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { DatasetListProps } from "./DatasetListInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import FetchData from "../ServerCall/FetchData";
-import { DatasetItem } from "../../redux/DataSet/DatasetStateInterfaces";
+import { DatasetItem, UserTableProps } from "../../redux/DataSet/DatasetStateInterfaces";
 import DataConnectionListPopover from "../CommonFunctions/PopOverComponents/DataConnectionListPopover";
 import AddIcon from "@mui/icons-material/Add";
+import SchemaOutlinedIcon from "@mui/icons-material/SchemaOutlined";
+import { SaveButtons } from "../DataConnection/ConfirmFlatFileData";
+import ShortUniqueId from "short-unique-id";
 
 const DataSetList = ({
 	// state
 	accessToken,
+	tempTable,
 
 	// dispatch
 	setDataSetListToStore,
 	resetState,
 	setDsId,
+	setCreateDsFromFlatFile,
+	setUserTable,
 }: DatasetListProps) => {
+	const classes = SaveButtons();
 	var navigate = useNavigate();
 
 	var token: string = accessToken;
 
 	const [dataSetList, setDataSetList] = useState<DatasetItem[]>([]);
+	const [selectedButton, setSelectedButton] = useState<string>("flatFile");
 
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
 	const [severity, setSeverity] = useState<string>("success");
+	const [showOpnMenu, setShowOpnMenu] = useState<boolean>(false);
 
 	const [openPopOver, setOpenPopOver] = useState<boolean>(false);
+	const [open, setOpen] = useState<boolean>(false);
+	const [anchorEl, setAnchorEl] = useState<any>();
 
 	useEffect(() => {
 		resetState();
@@ -101,18 +118,92 @@ const DataSetList = ({
 		}
 	};
 
+	const setFlatFilesListAsTables = async () => {
+		var res: any = await FetchData({
+			requestType: "noData",
+			method: "GET",
+			url: "file-data/",
+			headers: { Authorization: `Bearer ${token}` },
+		});
+
+		if (res.status) {
+			const uid: any = new ShortUniqueId({ length: 8 });
+
+			const userTable: UserTableProps[] = res.data.map((el: any) => {
+				var id = "";
+				var bool = false;
+
+				var tableAlreadyChecked: any = tempTable.filter(
+					(tbl: any) => tbl.table_uid === el.id
+				)[0];
+
+				tempTable.forEach((tbl: any) => {
+					if (tbl.table_uid === el.id) {
+						id = tbl.id;
+						bool = tbl.isNewTable;
+					}
+				});
+
+				if (tableAlreadyChecked) {
+					return {
+						schema: "",
+						database: "",
+						tableName: el.name,
+						isSelected: true,
+						table_uid: el.id,
+						id: id,
+						isNewTable: bool,
+					};
+				}
+
+				return {
+					schema: "",
+					database: "",
+					tableName: el.name,
+					isSelected: false,
+					table_uid: el.id,
+					id: uid(),
+					isNewTable: true,
+				};
+			});
+			console.log(userTable);
+			setUserTable(userTable);
+		} else {
+		}
+	};
+
 	return (
 		<div className="dataSetContainer">
-			<div className="containersHead">
-				<div className="containerTitle">Datasets</div>
-				<div
-					className="containerButton"
-					onClick={() => {
-						setOpenPopOver(true);
-						// navigate("/newdataset");
-					}}
-				>
-					<AddIcon />
+			<div
+				style={{
+					// paddingBottom: "1rem",
+					fontWeight: "600",
+					display: "flex",
+					flexDirection: "column",
+					// paddingLeft: "10px",
+					// paddingRight: "10px",
+					overflow: "hidden",
+				}}
+			>
+				<div className="containersHead" style={{ flex: 1 }}>
+					<div className="containerTitle">
+						<SchemaOutlinedIcon style={{ marginRight: "10px", color: " #555555" }} />
+						Datasets
+					</div>
+					<div
+						title="Click to Add New Dataset"
+						className="containerButton"
+						onClick={() => {
+							setShowOpnMenu(true);
+						}}
+					>
+						<AddIcon
+							onClick={e => {
+								setAnchorEl(e.currentTarget);
+								setOpen(true);
+							}}
+						/>
+					</div>
 				</div>
 			</div>
 
@@ -182,13 +273,55 @@ const DataSetList = ({
 				setShowCard={setOpenPopOver}
 				popOverTitle="Select a DataConnection to use with Dataset"
 			/>
+			<Popover
+				open={open}
+				anchorEl={anchorEl}
+				anchorOrigin={{
+					vertical: "bottom",
+					horizontal: "left",
+				}}
+				onClose={() => setOpen(false)}
+			>
+				<Button
+					sx={{
+						textTransform: "none",
+						color: "grey",
+						display: "block",
+					}}
+					value="flatFile"
+					onClick={() => {
+						setSelectedButton("flatFile");
+						setCreateDsFromFlatFile(true);
+						setFlatFilesListAsTables();
+						navigate("/newdataset");
+						setOpen(false);
+					}}
+				>
+					Flat Files
+				</Button>
+				<Button
+					sx={{
+						textTransform: "none",
+						color: "grey",
+						display: "block",
+					}}
+					value="dbConnections"
+					onClick={() => {
+						setOpenPopOver(true);
+						setOpen(false);
+					}}
+				>
+					DB Connections
+				</Button>
+			</Popover>
 		</div>
 	);
 };
 
-const mapStateToProps = (state: isLoggedProps) => {
+const mapStateToProps = (state: any) => {
 	return {
 		accessToken: state.isLogged.accessToken,
+		tempTable: state.dataSetState.tempTable,
 	};
 };
 
@@ -198,6 +331,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		setDsId: (id: string) => dispatch(setDsId(id)),
 		setDataSetListToStore: (dataSetList: DatasetItem[]) =>
 			dispatch(setDatasetList(dataSetList)),
+		setCreateDsFromFlatFile: (value: boolean) => dispatch(setCreateDsFromFlatFile(value)),
+		setUserTable: (userTable: any) => dispatch(setUserTable(userTable)),
 	};
 };
 

@@ -40,6 +40,7 @@ import {
 	toggleDashMode,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
+import { resetFlatFileState } from "../../redux/FlatFile/FlatFileStateActions";
 
 const MenuBar = ({
 	// props
@@ -60,6 +61,7 @@ const MenuBar = ({
 	updatePlayBookId,
 	resetAllStates,
 	resetUser,
+	resetFlatFileState,
 }: MenubarProps) => {
 	var showSaveWarning: boolean = false;
 
@@ -457,6 +459,20 @@ const MenuBar = ({
 						<HomeRounded sx={{ color: "#666" }} />
 					</div>
 				);
+			case "fileUpload":
+			case "editFlatFile":
+			case "saveFlaFile":
+				return (
+					<div
+						className="menuHome"
+						onClick={() => {
+							resetFlatFileState();
+							navigate("/dataHome");
+						}}
+					>
+						<HomeRounded sx={{ color: "#666" }} />
+					</div>
+				);
 			case "dataViewer":
 				return (
 					<div
@@ -503,58 +519,9 @@ const MenuBar = ({
 					</div>
 				)}
 			/>
-			{/* <img
-				src={SilzilaLogo}
-				style={{ padding: "4px 8px", width: "3rem", backgroundColor: "white" }}
-				alt="Silzila Home"
-			/> */}
-
-			{/* Render the following components depending upon the page in which home is rendered 
-			 In Data Home page, just show icon */}
-			{/* {from === "dataHome" ? (
-				<>
-					<div className="menuHome">
-						<HomeRounded sx={{ color: "#666" }} />
-					</div>
-					<div className="menuItemsGroup">&nbsp;</div>
-				</>
-			) : null} */}
-
-			{/* in Dataset page, Clicking home will navigate to dataHome */}
-
-			{/* {from === "dataSet" ? (
-				<>
-					<div
-						className="menuHome"
-						onClick={() => {
-							navigate("/dataHome");
-						}}
-					>
-						<HomeRounded sx={{ color: "#666" }} />
-					</div>
-					<div className="menuItemsGroup">&nbsp;</div>
-				</>
-			) : null} */}
-			{/* In dataviewer page, clicking Home will prompt a warning to save playbook if there are any changes 
-			 Additionally, file and about menu are displayed here
-		If Dashboard is shown, Edit and Present mode selection is also displayed here */}
 
 			{from === "dataViewer" ? (
 				<>
-					{/* <div
-						className="menuHome"
-						onClick={() => {
-							if (showSaveWarning || playBookState.playBookUid === null) {
-								setSaveFromHomeIcon(true);
-								setSaveModal(true);
-							} else {
-								resetAllStates();
-								navigate("/dataHome");
-							}
-						}}
-					>
-						<HomeRounded sx={{ color: "#666" }} />
-					</div> */}
 					<div className="menuItemsGroup">
 						<div
 							className="menuItem"
@@ -784,6 +751,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		) => dispatch(updatePlaybookUid(playBookName, playBookUid, description, oldContent)),
 		resetAllStates: () => dispatch(resetAllStates()),
 		resetUser: () => dispatch(resetUser()),
+		resetFlatFileState: () => dispatch(resetFlatFileState()),
 	};
 };
 

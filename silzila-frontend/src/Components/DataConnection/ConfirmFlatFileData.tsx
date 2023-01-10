@@ -10,19 +10,26 @@ import {
 	TextField,
 	Typography,
 	MenuItem,
+	TableContainer,
+	Tooltip,
 } from "@mui/material";
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Dispatch } from "redux";
 import { FlatFileStateProps } from "../../redux/FlatFile/FlatFileInterfaces";
-import { resetFlatFileState } from "../../redux/FlatFile/FlatFileStateActions";
+import {
+	resetFlatFileState,
+	setEditApiResponseProp,
+} from "../../redux/FlatFile/FlatFileStateActions";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import FetchData from "../ServerCall/FetchData";
 import { ConfirmFlatFileProps } from "./FlatFileInterfaces";
 import { makeStyles } from "@mui/styles";
 import createStyles from "@mui/styles/createStyles";
 import "./FlatFile.css";
+import { styles, TextFieldBorderStyle } from "./EditFlatFileData";
+import MenuBar from "../DataViewer/MenuBar";
 const FormLabelStyle = {
 	fontSize: "14px",
 	margin: "5px",
@@ -36,6 +43,43 @@ const TextFieldStyle = {
 		fontSize: "12px",
 	},
 };
+
+export const SaveButtons = makeStyles({
+	root: {
+		width: 200,
+
+		"& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+			borderColor: "rgb(0, 123, 255)",
+		},
+
+		"&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+			borderColor: "rgb(0, 123, 255)",
+		},
+
+		"& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+			borderColor: "rgb(0, 123, 255)",
+		},
+		// "& .MuiOutlinedInput-input": {
+		// 	color: "green",
+		// 	marginRigth: "10px",
+		// },
+		"& .css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.MuiSelect-select":
+			{
+				padding: "2px 4px ",
+				marginRight: "10px",
+			},
+		"& .MuiOutlinedInput-root": {
+			fontSize: "14px",
+			padding: "2px 5px",
+			textAlign: "left",
+			height: "40px",
+			marginRight: "10px",
+			textOverflow: "ellipsis",
+			whiteSpace: "nowrap",
+			color: "rgb(0, 123, 255)",
+		},
+	},
+});
 
 const useStyles: any = makeStyles(() =>
 	createStyles({
@@ -52,7 +96,7 @@ const useStyles: any = makeStyles(() =>
 				padding: "8px",
 				borderRight: "1px solid rgba(224,224,224,1)",
 				borderTop: "1px solid rgba(224,224,224,1)",
-				textAlign: "center",
+				textAlign: "left",
 				color: "#4a4a4a",
 			},
 			"& .MuiTableRow-root": {
@@ -78,16 +122,26 @@ const useStyles: any = makeStyles(() =>
 const ConfirmFlatFileData = ({
 	token,
 	modifiedResponse,
+	editApiResponse,
+	editMode,
 
 	resetFlatFileState,
+	setEditApiResponse,
 }: ConfirmFlatFileProps) => {
 	const classes = useStyles();
+	const classes2 = styles();
+	const classes3 = SaveButtons();
 	const navigate = useNavigate();
-	console.log(modifiedResponse.sampleRecordes[0]);
 	const columnHeaders: any[] = Object.keys(modifiedResponse.sampleRecordes[0]);
-	const [selectedButton, setselectedButton] = useState<string>("Select Option");
+	const [selectedButton, setselectedButton] = useState<string>("save");
 
 	const handleOnConfirm = async () => {
+		var url: string = "";
+		if (editMode) {
+			url = `file-data-change-schema-save/`;
+		} else {
+			url = `file-upload-save-data/`;
+		}
 		var formObj = {
 			fileId: modifiedResponse.fileId,
 			name: modifiedResponse.name,
@@ -97,11 +151,18 @@ const ConfirmFlatFileData = ({
 			revisedColumnInfos: modifiedResponse.revisedColumnInfos,
 		};
 
+		var formObjForUpdate = {
+			fileId: modifiedResponse.fileId,
+			name: modifiedResponse.name,
+			revisedColumnInfos: modifiedResponse.revisedColumnInfos,
+		};
+		console.log(formObjForUpdate);
+
 		var result: any = await FetchData({
 			requestType: "withData",
 			method: "POST",
-			url: "file-upload-save-data/",
-			data: formObj,
+			url: url,
+			data: editMode ? formObjForUpdate : formObj,
 			headers: {
 				Authorization: `Bearer ${token}`,
 				"Content-Type": "application/json",
@@ -110,119 +171,114 @@ const ConfirmFlatFileData = ({
 		if (result.status) {
 			window.alert("flat file saved successfully");
 			console.log("success");
+			navigate("/datahome");
+			resetFlatFileState();
 		} else {
 			console.log("error");
 		}
 	};
 
 	return (
-		<React.Fragment>
+		<div style={{ height: "100vh" }}>
+			<MenuBar from="saveFlaFile" />
 			<div className="editFlatFileContainer">
 				<div className="editFlatFileHeader">
-					<span className="flat-file-name">
-						{modifiedResponse ? (
+					<div
+						style={{
+							width: "50%",
+							textAlign: "left",
+						}}
+					>
+						<Tooltip title="Click to Edit">
 							<TextField
-								// style={{ padding: "5px 10px", width: "60%" }}
+								InputProps={TextFieldBorderStyle}
 								inputProps={{
 									style: {
-										height: "fit-content",
-										width: "60%",
+										height: "40px",
+										padding: "0px 10px",
+										fontSize: "20px",
+										fontWeight: "bold",
+										color: "#3B3C36",
 									},
 								}}
-								// onChange={e => {
-								// 	e.preventDefault();
-								// 	setEditApiResponse("name", e.target.value);
-								// }}
-								// onBlur={() => {
-								// 	if (modifiedResponse.name) {
-								// 		setEditFileName(false);
-								// 	} else {
-								// 		window.alert("file name cant be empty");
-								// 		setEditFileName(true);
-								// 	}
-								// }}
+								onChange={e => {
+									e.preventDefault();
+									setEditApiResponse("name", e.target.value);
+								}}
+								onBlur={() => {
+									if (!modifiedResponse.name) {
+										window.alert("file name cant be empty");
+									}
+								}}
 								value={modifiedResponse.name}
 							/>
-						) : (
-							<p
-								className="tableName-style"
-								title="Click to Edit"
-								// onClick={() => setEditFileName(true)}
-							>
-								{modifiedResponse.name}
-							</p>
-						)}
-					</span>
-					{/* <div className="format-elm-container">
-						<div className="formatElm">
-							<FormLabel sx={{ ...FormLabelStyle }}>Date Format:</FormLabel>
-							<TextField
-								inputProps={TextFieldStyle}
-								value={modifiedResponse.dateFormat}
-								disabled
-							/>
-						</div>
-						<div className="formatElm">
-							<FormLabel sx={{ ...FormLabelStyle }}>Timestamp Format:</FormLabel>
-							<TextField
-								inputProps={TextFieldStyle}
-								disabled
-								value={modifiedResponse.timestampFormat}
-							/>
-						</div>
-						<div className="formatElm">
-							<FormLabel sx={{ ...FormLabelStyle }}>Timestamp NTZ Format:</FormLabel>
-							<TextField
-								inputProps={TextFieldStyle}
-								disabled
-								value={modifiedResponse.timestampNTZFormat}
-							/>
-						</div>
-					</div> */}
+						</Tooltip>
+					</div>
 				</div>
 				<div
 					style={{
 						flex: 1,
-						minHeight: "450px",
 						maxHeight: "480px",
 						maxWidth: "90%",
-						margin: "1rem auto 1rem auto",
+						margin: "1rem 2rem",
 					}}
 				>
-					<Table
+					<TableContainer
 						style={{
-							width: "auto",
+							// height: "100%",
+							// width: "100%",
+							// overflow: "auto",
+							height: "400px",
+							width: "fit-content",
+							maxWidth: "100%",
+							// maxWidth: "100%",
+							// minWidth: "200px",
+							overflow: "auto",
 						}}
-						sx={{
-							borderLeft: "1px solid rgba(224,224,224,1)",
-						}}
-						stickyHeader={true}
 					>
-						<TableHead className={classes.tableHeader}>
-							<TableRow>
-								{columnHeaders.map((ch: string) => {
-									return (
-										<TableCell>
-											<p>dataType</p>
+						<Table
+							style={{
+								width: "auto",
+							}}
+							sx={{
+								borderLeft: "1px solid rgba(224,224,224,1)",
+							}}
+							stickyHeader={true}
+						>
+							<TableHead className={classes.tableHeader}>
+								<TableRow>
+									{editApiResponse.columnInfos.map((ch: any) => {
+										return (
+											<TableCell>
+												<div
+													style={{
+														fontSize: "12px",
+														textAlign: "left",
+														fontWeight: "400",
+													}}
+												>
+													{ch.newDataType}
+												</div>
 
-											{ch}
-										</TableCell>
+												{ch.newFieldName}
+											</TableCell>
+										);
+									})}
+								</TableRow>
+							</TableHead>
+							<TableBody className={classes.tableBody}>
+								{modifiedResponse.sampleRecordes.map((mr: any) => {
+									return (
+										<TableRow>
+											{columnHeaders.map((ch: string) => {
+												return <TableCell>{mr[ch]}</TableCell>;
+											})}
+										</TableRow>
 									);
 								})}
-							</TableRow>
-						</TableHead>
-						<TableBody className={classes.tableBody}>
-							{modifiedResponse.sampleRecordes.map((mr: any) => {
-								return (
-									<TableRow>
-										{columnHeaders.map((ch: string) => {
-											return <TableCell>{mr[ch]}</TableCell>;
-										})}
-									</TableRow>
-								);
-							})}
-						</TableBody>
-					</Table>
+							</TableBody>
+						</Table>
+					</TableContainer>
 				</div>
 				<div
 					style={{
@@ -230,69 +286,54 @@ const ConfirmFlatFileData = ({
 					}}
 					className="buttonContainer"
 				>
-					<Select value={selectedButton}>
+					<TextField
+						SelectProps={{
+							MenuProps: {
+								anchorOrigin: {
+									vertical: "top",
+									horizontal: "left",
+								},
+							},
+						}}
+						className={classes3.root}
+						value={selectedButton}
+						variant="outlined"
+						select
+					>
 						<MenuItem
 							value="save"
-							onClick={(e: any) => {
-								setselectedButton(e.target.value);
+							onClick={() => {
+								setselectedButton("save");
 								handleOnConfirm();
 							}}
 						>
-							Save
+							{editMode ? "Update" : "Save"}
 						</MenuItem>
 						<MenuItem
 							value="resetChanges"
-							onClick={(e: any) => {
-								setselectedButton(e.target.value);
+							onClick={() => {
+								setselectedButton("resetChanges");
 								navigate("/editflatfile");
 							}}
 						>
 							Reset Changes
 						</MenuItem>
-						<MenuItem
-							value="reupload"
-							onClick={(e: any) => {
-								setselectedButton(e.target.value);
-								resetFlatFileState();
-								navigate("/flatfileupload");
-							}}
-						>
-							ReUpload
-						</MenuItem>
-						<MenuItem
-							value="cancel"
-							onClick={(e: any) => {
-								setselectedButton(e.target.value);
-								resetFlatFileState();
-								navigate("/datahome");
-							}}
-						>
-							Cancel
-						</MenuItem>
-					</Select>
-					{/* <Button className={classes.uploadButton} onClick={handleOnConfirm}>
-						Confirm
-					</Button>
-					<Button
-						className={classes.uploadButton}
-						onClick={() => {
-							navigate("/editflatfile");
-						}}
-					>
-						Discard
-					</Button>
-					<Button
-						className={classes.uploadButton}
-						onClick={() => {
-							resetFlatFileState();
-							navigate("/flatfileupload");
-						}}
-					>
-						cancel
-					</Button> */}
+						{editMode ? null : (
+							<MenuItem
+								value="reupload"
+								onClick={() => {
+									setselectedButton("reupload");
+									resetFlatFileState();
+									navigate("/flatfileupload");
+								}}
+							>
+								Reupload
+							</MenuItem>
+						)}
+					</TextField>
 				</div>
 			</div>
-		</React.Fragment>
+		</div>
 	);
 };
 
@@ -300,11 +341,14 @@ const mapStateToProps = (state: isLoggedProps & FlatFileStateProps, ownProps: an
 	return {
 		token: state.isLogged.accessToken,
 		modifiedResponse: state.flatFileState.confirmModifiedResponse,
+		editApiResponse: state.flatFileState.editApiResponse,
+		editMode: state.flatFileState.editMode,
 	};
 };
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		resetFlatFileState: () => dispatch(resetFlatFileState()),
+		setEditApiResponse: (key: string, file: any) => dispatch(setEditApiResponseProp(key, file)),
 	};
 };
 

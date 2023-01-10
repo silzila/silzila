@@ -7,6 +7,13 @@ import { connect } from "react-redux";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import { Tooltip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import {
+	setApiResponse,
+	setEditApiResponse,
+	toggleEditMode,
+} from "../../redux/FlatFile/FlatFileStateActions";
+import { Dispatch } from "redux";
 
 const FlatFileList = (props: any) => {
 	const [fileList, setFileList] = useState<any>([]);
@@ -53,12 +60,66 @@ const FlatFileList = (props: any) => {
 			//console.log(result.detail);
 		}
 	};
+	const getColumnInfos = (data: any) => {
+		const mappedColumnInfos = data.map((el: any) => {
+			return {
+				fieldName: el.fieldName,
+				dataType: el.dataType,
+				newFieldName: el.fieldName,
+				newDataType: el.dataType,
+				columnExcluded: false,
+			};
+		});
+		return mappedColumnInfos;
+	};
+	const onEditFlatFile = async (file: any) => {
+		var result: any = await FetchData({
+			requestType: "noData",
+			method: "GET",
+			url: `file-data-column-details/${file.id}`,
+			headers: { Authorization: `Bearer ${props.token}` },
+		});
+		if (result.status) {
+			var result2: any = await FetchData({
+				requestType: "noData",
+				method: "GET",
+				url: `file-data-sample-records/${file.id}`,
+				headers: {
+					Authorization: `Bearer ${props.token}`,
+				},
+			});
+			if (result2.status) {
+				var fileObj = {
+					fileId: file.id,
+					name: file.name,
+					dateFormat: "yyyy-MM-dd",
+					timestampFormat: "yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]",
+					timestampNTZFormat: "yyyy-MM-dd'T'HH:mm:ss[.SSS]",
+					columnInfos: getColumnInfos(result.data),
+					sampleRecords: result2.data,
+				};
+				console.log(fileObj);
+				props.setApiResponse(fileObj);
+				props.setEditApiResponse(fileObj);
+				navigate("/editflatfile");
+			} else {
+				console.log(result2);
+			}
+		} else {
+			console.log(result);
+		}
+		props.setEditMode(true);
+	};
 	return (
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
-				<div className="containerTitle">Flat File</div>
+				<div className="containerTitle">
+					<DescriptionOutlinedIcon style={{ marginRight: "10px", color: " #555555" }} />
+					Flat File
+				</div>
 
 				<div
+					title="Click to Add New Flatfile"
 					className="containerButton"
 					onClick={() => {
 						navigate("/flatfileupload");
@@ -79,6 +140,7 @@ const FlatFileList = (props: any) => {
 												? "dataConnectionListSelected"
 												: "dataConnectionList"
 										}
+										onClick={() => onEditFlatFile(fi)}
 										onMouseOver={() => xprops.setOpen(true)}
 										onMouseLeave={() => xprops.setOpen(false)}
 									>
@@ -126,4 +188,11 @@ const mapStateToProps = (state: isLoggedProps, ownProps: any) => {
 		token: state.isLogged.accessToken,
 	};
 };
-export default connect(mapStateToProps, null)(FlatFileList);
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+	return {
+		setEditMode: (mode: boolean) => dispatch(toggleEditMode(mode)),
+		setApiResponse: (file: any) => dispatch(setApiResponse(file)),
+		setEditApiResponse: (file: any) => dispatch(setEditApiResponse(file)),
+	};
+};
+export default connect(mapStateToProps, mapDispatchToProps)(FlatFileList);

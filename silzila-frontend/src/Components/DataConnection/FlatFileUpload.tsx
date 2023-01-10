@@ -12,15 +12,16 @@ import { FlatFileUploadProps } from "./FlatFileInterfaces";
 import { FlatFileProp } from "../../redux/FlatFile/FlatFileInterfaces";
 import { makeStyles } from "@mui/styles";
 import createStyles from "@mui/styles/createStyles";
+import MenuBar from "../DataViewer/MenuBar";
 
 const useStyles: any = makeStyles(() =>
 	createStyles({
 		uploadButton: {
 			textTransform: "none",
 			color: "#303030",
-			border: "2px solid rgba(224,224,224,1)",
+			border: "2px solid #bababa",
 			padding: "5px 20px",
-			borderRadius: "0px",
+			borderRadius: "5px",
 		},
 	})
 );
@@ -47,7 +48,7 @@ const FlatFileUpload = ({ token, setApiResponse, setEditApiResponse }: FlatFileU
 		var fileObj = {
 			fileId: data.fileId,
 			name: data.name,
-			dateFormat: "yyyy/MM/dd",
+			dateFormat: "yyyy-MM-dd",
 			timestampFormat: "yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]",
 			timestampNTZFormat: "yyyy-MM-dd'T'HH:mm:ss[.SSS]",
 			columnInfos: getColumnInfos(data.columnInfos),
@@ -87,16 +88,26 @@ const FlatFileUpload = ({ token, setApiResponse, setEditApiResponse }: FlatFileU
 	};
 
 	return (
-		<div className="FileUploadContainer">
-			<div className="uploadFileTitle">Upload File</div>
-			<FileDropZone setSelectedFile={setSelectedFile} selectedFile={selectedFile} />
-			<div className="file-upload-button-container">
-				<Button className={classes.uploadButton} onClick={handleSubmit}>
-					Upload
-				</Button>
-				<Button className={classes.uploadButton} onClick={() => navigate("/datahome")}>
-					Cancel
-				</Button>
+		<div>
+			<MenuBar from="fileUpload" />
+			<div className="FileUploadContainer">
+				<div className="uploadFileTitle">Upload File</div>
+				<FileDropZone setSelectedFile={setSelectedFile} selectedFile={selectedFile} />
+				<div className="file-upload-button-container">
+					<div></div>
+					<Button
+						style={{
+							textTransform: "none",
+							color: "rgb(0, 123, 255)",
+							border: "2px solid 	rgb(0, 123, 255)",
+							padding: "5px 20px",
+							borderRadius: "5px",
+						}}
+						onClick={handleSubmit}
+					>
+						Upload
+					</Button>
+				</div>
 			</div>
 		</div>
 	);

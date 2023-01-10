@@ -6,6 +6,12 @@ export const updateChartData = (propKey: string | number, chartData: string | an
 		payload: { propKey, chartData },
 	};
 };
+export const updateQueryResult = (propKey: string | number, query: string | any) => {
+	return {
+		type: "UPDATE_QUERY_DATA",
+		payload: { propKey, query },
+	};
+};
 
 export const setColorScheme = (propKey: string | number, color: string) => {
 	return { type: "CHANGE_COLOR_SCHEME", payload: { propKey, color } };

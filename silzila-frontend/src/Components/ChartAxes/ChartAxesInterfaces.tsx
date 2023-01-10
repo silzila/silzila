@@ -9,12 +9,13 @@ export interface ChartAxesProps {
 	// state
 	token: string;
 	chartProp: any;
+	changeLocation: any;
 
 	// dispatch
 	updateChartData: (propKey: number, chartData: any) => void;
 	toggleAxesEdit: (propKey: number) => void;
 	reUseOldData: (propKey: number) => void;
-	changeLocation: any;
+	updateQueryResult: (propKey: string | number, query: string | any) => void;
 }
 interface TimeGrain {
 	name: string;
@@ -143,7 +144,7 @@ export interface ChartAxesFormattedAxes {
 	// fields?: any[];
 }
 
-export interface Card{
+export interface Card {
 	field: {
 		uId?: string;
 		fieldname?: string;
@@ -165,7 +166,6 @@ export interface Card{
 }
 
 export interface CardProps extends Card {
-	
 	// dispatch
 	deleteDropZoneItems: (propKey: number | string, binIndex: number, itemIndex: number) => void;
 

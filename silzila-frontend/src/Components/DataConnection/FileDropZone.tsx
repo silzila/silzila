@@ -26,7 +26,9 @@ const useStyles: any = makeStyles(() =>
 		},
 		closeIcon: {
 			margin: "auto 0px auto 5px",
-			fontSize: "14px",
+			// fontSize: "4px",
+			maxHeight: "14px",
+			maxWidth: "12px",
 			"&:hover": {
 				color: "red",
 			},
@@ -96,9 +98,7 @@ const FileDropZone = ({ setSelectedFile, selectedFile }: FileDropZoneProps) => {
 					{selectedFile.name}
 					<CloseIcon className={classes.closeIcon} onClick={() => setSelectedFile()} />
 				</div>
-			) : (
-				""
-			)}
+			) : null}
 
 			{dragActive && (
 				<div

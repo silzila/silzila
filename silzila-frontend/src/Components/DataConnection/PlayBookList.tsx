@@ -27,6 +27,7 @@ import { getColumnTypes, getTableData } from "../DataViewer/DataViewerBottom";
 import FetchData from "../ServerCall/FetchData";
 import { PbSelectedDataset, PlayBookProps } from "./PlayBookInterfaces";
 import AddIcon from "@mui/icons-material/Add";
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 
 const PlayBookList = ({
 	// state
@@ -307,7 +308,10 @@ const PlayBookList = ({
 	return (
 		<div className="dashboardsContainer">
 			<div className="containersHead">
-				<div className="containerTitle">Playbooks</div>
+				<div className="containerTitle">
+					<DashboardOutlinedIcon style={{ marginRight: "10px", color: "#555555" }} />
+					Playbooks
+				</div>
 
 				<DatasetListPopover
 					showCard={openPopOver}
@@ -316,6 +320,7 @@ const PlayBookList = ({
 					popOverTitle="Select a Dataset to use with PlayBook"
 				/>
 				<div
+					title="Click to Add New Playbook"
 					className="containerButton"
 					onClick={e => {
 						setOpenPopOver(true);
@@ -344,35 +349,37 @@ const PlayBookList = ({
 										}}
 									>
 										<div className="dataConnectionName">{pb.name}</div>
-										{xprops.open ? (
-											<Tooltip
-												title="Delete playbook"
-												arrow
-												placement="right-start"
-											>
-												<div
-													className="dataHomeDeleteIcon"
-													onClick={e => {
-														e.stopPropagation();
-
-														var yes = window.confirm(
-															"Are you sure you want to Delete this Playbook?"
-														);
-														if (yes) {
-															deletePlayBook(pb.pb_uid);
-														}
-													}}
+										<div>
+											{xprops.open ? (
+												<Tooltip
+													title="Delete playbook"
+													arrow
+													placement="right-start"
 												>
-													<DeleteIcon
-														style={{
-															width: "1rem",
-															height: "1rem",
-															margin: "auto",
+													<div
+														className="dataHomeDeleteIcon"
+														onClick={e => {
+															e.stopPropagation();
+
+															var yes = window.confirm(
+																"Are you sure you want to Delete this Playbook?"
+															);
+															if (yes) {
+																deletePlayBook(pb.pb_uid);
+															}
 														}}
-													/>
-												</div>
-											</Tooltip>
-										) : null}
+													>
+														<DeleteIcon
+															style={{
+																width: "1rem",
+																height: "1rem",
+																margin: "auto",
+															}}
+														/>
+													</div>
+												</Tooltip>
+											) : null}
+										</div>
 									</div>
 								)}
 							/>

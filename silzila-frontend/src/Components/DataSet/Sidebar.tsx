@@ -41,6 +41,7 @@ import { ChangeConnection } from "../CommonFunctions/DialogComponents";
 import { idText } from "typescript";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import FlatFileList from "../DataConnection/FlatFileList";
 
 const Sidebar = ({
 	//props
@@ -56,6 +57,7 @@ const Sidebar = ({
 	serverName,
 	views,
 	dataConnectionList,
+	isFlatFile,
 
 	// dispatch
 	setConnection,
@@ -83,6 +85,7 @@ const Sidebar = ({
 	const [viewExpand, setViewExpand] = useState<boolean>(true);
 
 	const [disableDb, setDisableDb] = useState<boolean>(false);
+	const [flatFileList, setflatFileList] = useState<any>([]);
 
 	// Actions performed when dataConnection is changed
 	// If user already selected some tables from another dataset
@@ -109,28 +112,32 @@ const Sidebar = ({
 	};
 
 	useEffect(() => {
-		if (serverName === "postgresql" && tempTable.length > 0) {
-			setDisableDb(true);
-		}
-		// If Dataset is opened in edit mode, set all required values to state
-		if (editMode) {
-			getAllMetaDb();
-			setSelectedDb(databaseName);
-			setSelectedSchema(schemaValue);
-			setSelectedConnection(connectionValue);
-			setConnectionId(connectionValue);
-			getSchemaList(databaseName);
-		} else {
-			getAllMetaDb();
+		if (!isFlatFile) {
+			if (serverName === "postgresql" && tempTable.length > 0) {
+				setDisableDb(true);
+			}
+			// If Dataset is opened in edit mode, set all required values to state
+			if (editMode) {
+				getAllMetaDb();
+				setSelectedDb(databaseName);
+				setSelectedSchema(schemaValue);
+				setSelectedConnection(connectionValue);
+				setConnectionId(connectionValue);
+				getSchemaList(databaseName);
+			} else {
+				getAllMetaDb();
+			}
 		}
 	}, []);
 
 	useEffect(() => {
-		if (serverName === "postgresql" && tempTable.length > 0) {
-			setDisableDb(true);
-		}
-		if (serverName === "postgresql" && tempTable.length === 0) {
-			setDisableDb(false);
+		if (!isFlatFile) {
+			if (serverName === "postgresql" && tempTable.length > 0) {
+				setDisableDb(true);
+			}
+			if (serverName === "postgresql" && tempTable.length === 0) {
+				setDisableDb(false);
+			}
 		}
 	}, [tempTable]);
 
@@ -330,137 +337,12 @@ const Sidebar = ({
 		});
 		return name;
 	};
+	console.log(tableList);
 
 	return (
 		<div className="sidebar">
-			<div
-			// style={{ padding: "0 1rem 0 1rem", margin: "15px 0px 15px 0px" }}
-			>
-				<FormControl fullWidth size="small">
-					<TextField
-						label="DataConnection"
-						InputLabelProps={{
-							sx: {
-								fontSize: "14.5px",
-							},
-						}}
-						InputProps={{
-							sx: {
-								height: "2.5rem",
-								fontSize: "13.5px",
-								borderRadius: "5px",
-								backgroundColor: "white",
-								marginBottom: "1.5rem",
-								textAlign: "left",
-							},
-						}}
-						disabled={true}
-						value={getConnectionName(connectionValue)}
-					/>
-				</FormControl>
-			</div>
-
-			<div>
-				<FormControl fullWidth size="small">
-					<InputLabel id="dcSelect">Database</InputLabel>
-					<Select
-						labelId="dcSelect"
-						className="selectBar"
-						onChange={(e: any) => {
-							onConnectionChange(e.target.value);
-						}}
-						disabled={disableDb}
-						value={selectedDb}
-						label="Connection"
-					>
-						{databaseList &&
-							databaseList.map((db: string) => {
-								return (
-									<MenuItem value={db} key={db} title={db}>
-										<Typography
-											sx={{
-												width: "auto",
-												overflow: "hidden",
-												textOverflow: "ellipsis",
-												fontSize: "14px",
-											}}
-										>
-											{db}
-										</Typography>
-									</MenuItem>
-								);
-							})}
-					</Select>
-				</FormControl>
-			</div>
-
-			{isSchemaAvailable ? (
-				<div style={{ padding: "0 1rem 0 1rem" }}>
-					<FormControl fullWidth size="small">
-						<InputLabel id="schemaSelect">Schema</InputLabel>
-						<Select
-							labelId="schemaSelect"
-							className="selectBar"
-							label="Schema"
-							onChange={(e: any) => getTables(e, null, null)}
-							value={selectedSchema}
-						>
-							{schemaList &&
-								schemaList.map((schema: string) => {
-									return (
-										<MenuItem value={schema} key={schema}>
-											<Typography
-												sx={{
-													width: "auto",
-													overflow: "hidden",
-													textOverflow: "ellipsis",
-													fontSize: "14px",
-												}}
-											>
-												{schema}
-											</Typography>
-										</MenuItem>
-									);
-								})}
-						</Select>
-					</FormControl>
-				</div>
-			) : null}
-
-			<div
-				style={{
-					display: "flex",
-					borderRadius: "5px",
-					marginBottom: "0.5rem",
-					textAlign: "left",
-				}}
-			>
-				<Typography>Tables</Typography>
+			{isFlatFile ? (
 				<div>
-					{tableExpand ? (
-						<Tooltip title="Collapse">
-							<ArrowDropDownIcon onClick={() => setTableExpand(!tableExpand)} />
-						</Tooltip>
-					) : (
-						<Tooltip title="Expand">
-							<ArrowRightIcon onClick={() => setTableExpand(!tableExpand)} />
-						</Tooltip>
-					)}
-				</div>
-			</div>
-			{tableExpand ? (
-				<div
-					style={{
-						display: "flex",
-						flexDirection: "column",
-						borderRadius: "5px",
-						marginBottom: "1rem",
-						textAlign: "left",
-						maxHeight: "330px",
-						overflowY: "auto",
-						overflowX: "hidden",
-					}}
-				>
 					{tableList ? (
 						tableList.map((tab: UserTableProps) => {
 							return (
@@ -476,8 +358,9 @@ const Sidebar = ({
 												key={tab.tableName}
 												className="tableListElement"
 												table={tab}
-												tableId={tab.tableName}
+												tableId={tab.table_uid}
 												xprops={xprops}
+												isFlatFile={isFlatFile}
 											/>
 										</div>
 									)}
@@ -488,79 +371,242 @@ const Sidebar = ({
 						<div>No Tables</div>
 					)}
 				</div>
-			) : null}
-
-			<div
-				style={{
-					display: "flex",
-					borderRadius: "5px",
-					marginBottom: "0.5rem",
-					textAlign: "left",
-					maxHeight: "330px",
-					overflowY: "auto",
-				}}
-			>
-				<Typography>Views</Typography>
+			) : (
 				<div>
+					<div
+					// style={{ padding: "0 1rem 0 1rem", margin: "15px 0px 15px 0px" }}
+					>
+						<FormControl fullWidth size="small">
+							<TextField
+								label="DataConnection"
+								InputLabelProps={{
+									sx: {
+										fontSize: "14.5px",
+									},
+								}}
+								InputProps={{
+									sx: {
+										height: "2.5rem",
+										fontSize: "13.5px",
+										borderRadius: "5px",
+										backgroundColor: "white",
+										marginBottom: "1.5rem",
+										textAlign: "left",
+									},
+								}}
+								disabled={true}
+								value={getConnectionName(connectionValue)}
+							/>
+						</FormControl>
+					</div>
+
+					<div>
+						<FormControl fullWidth size="small">
+							<InputLabel id="dcSelect">Database</InputLabel>
+							<Select
+								labelId="dcSelect"
+								className="selectBar"
+								onChange={(e: any) => {
+									onConnectionChange(e.target.value);
+								}}
+								disabled={disableDb}
+								value={selectedDb}
+								label="Connection"
+							>
+								{databaseList &&
+									databaseList.map((db: string) => {
+										return (
+											<MenuItem value={db} key={db} title={db}>
+												<Typography
+													sx={{
+														width: "auto",
+														overflow: "hidden",
+														textOverflow: "ellipsis",
+														fontSize: "14px",
+													}}
+												>
+													{db}
+												</Typography>
+											</MenuItem>
+										);
+									})}
+							</Select>
+						</FormControl>
+					</div>
+
+					{isSchemaAvailable ? (
+						<div style={{ padding: "0 1rem 0 1rem" }}>
+							<FormControl fullWidth size="small">
+								<InputLabel id="schemaSelect">Schema</InputLabel>
+								<Select
+									labelId="schemaSelect"
+									className="selectBar"
+									label="Schema"
+									onChange={(e: any) => getTables(e, null, null)}
+									value={selectedSchema}
+								>
+									{schemaList &&
+										schemaList.map((schema: string) => {
+											return (
+												<MenuItem value={schema} key={schema}>
+													<Typography
+														sx={{
+															width: "auto",
+															overflow: "hidden",
+															textOverflow: "ellipsis",
+															fontSize: "14px",
+														}}
+													>
+														{schema}
+													</Typography>
+												</MenuItem>
+											);
+										})}
+								</Select>
+							</FormControl>
+						</div>
+					) : null}
+
+					<div
+						style={{
+							display: "flex",
+							borderRadius: "5px",
+							marginBottom: "0.5rem",
+							textAlign: "left",
+						}}
+					>
+						<Typography>Tables</Typography>
+						<div>
+							{tableExpand ? (
+								<Tooltip title="Collapse">
+									<ArrowDropDownIcon
+										onClick={() => setTableExpand(!tableExpand)}
+									/>
+								</Tooltip>
+							) : (
+								<Tooltip title="Expand">
+									<ArrowRightIcon onClick={() => setTableExpand(!tableExpand)} />
+								</Tooltip>
+							)}
+						</div>
+					</div>
+					{tableExpand ? (
+						<div
+							style={{
+								display: "flex",
+								flexDirection: "column",
+								borderRadius: "5px",
+								marginBottom: "1rem",
+								textAlign: "left",
+								maxHeight: "330px",
+								overflowY: "auto",
+								overflowX: "hidden",
+							}}
+						>
+							{tableList ? (
+								tableList.map((tab: UserTableProps) => {
+									return (
+										<SelectListItem
+											key={tab.tableName}
+											render={(xprops: any) => (
+												<div
+													className="tableListStyle"
+													onMouseOver={() => xprops.setOpen(true)}
+													onMouseLeave={() => xprops.setOpen(false)}
+												>
+													<TableList
+														key={tab.tableName}
+														className="tableListElement"
+														table={tab}
+														tableId={tab.tableName}
+														xprops={xprops}
+														isFlatFile={isFlatFile}
+													/>
+												</div>
+											)}
+										/>
+									);
+								})
+							) : (
+								<div>No Tables</div>
+							)}
+						</div>
+					) : null}
+
+					<div
+						style={{
+							display: "flex",
+							borderRadius: "5px",
+							marginBottom: "0.5rem",
+							textAlign: "left",
+							maxHeight: "330px",
+							overflowY: "auto",
+						}}
+					>
+						<Typography>Views</Typography>
+						<div>
+							{viewExpand ? (
+								<Tooltip title="Collapse">
+									<ArrowDropDownIcon onClick={() => setViewExpand(!viewExpand)} />
+								</Tooltip>
+							) : (
+								<Tooltip title="Expand">
+									<ArrowRightIcon onClick={() => setViewExpand(!viewExpand)} />
+								</Tooltip>
+							)}
+						</div>
+					</div>
+
 					{viewExpand ? (
-						<Tooltip title="Collapse">
-							<ArrowDropDownIcon onClick={() => setViewExpand(!viewExpand)} />
-						</Tooltip>
-					) : (
-						<Tooltip title="Expand">
-							<ArrowRightIcon onClick={() => setViewExpand(!viewExpand)} />
-						</Tooltip>
-					)}
-				</div>
-			</div>
+						<div
+							style={{
+								display: "flex",
+								flexDirection: "column",
+								borderRadius: "5px",
+								marginBottom: "1rem",
+								textAlign: "left",
+							}}
+						>
+							{views ? (
+								views.map((tab: any) => {
+									return (
+										<SelectListItem
+											key={tab.tableName}
+											render={(xprops: any) => (
+												<div
+													className="tableListStyle"
+													onMouseOver={() => xprops.setOpen(true)}
+													onMouseLeave={() => xprops.setOpen(false)}
+												>
+													<TableList
+														key={tab.tableName}
+														className="tableListElement"
+														table={tab}
+														tableId={tab.tableName}
+														xprops={xprops}
+														isFlatFile={isFlatFile}
+													/>
+												</div>
+											)}
+										/>
+									);
+								})
+							) : (
+								<div>No Views</div>
+							)}
+						</div>
+					) : null}
 
-			{viewExpand ? (
-				<div
-					style={{
-						display: "flex",
-						flexDirection: "column",
-						borderRadius: "5px",
-						marginBottom: "1rem",
-						textAlign: "left",
-					}}
-				>
-					{views ? (
-						views.map((tab: any) => {
-							return (
-								<SelectListItem
-									key={tab.tableName}
-									render={(xprops: any) => (
-										<div
-											className="tableListStyle"
-											onMouseOver={() => xprops.setOpen(true)}
-											onMouseLeave={() => xprops.setOpen(false)}
-										>
-											<TableList
-												key={tab.tableName}
-												className="tableListElement"
-												table={tab}
-												tableId={tab.tableName}
-												xprops={xprops}
-											/>
-										</div>
-									)}
-								/>
-							);
-						})
-					) : (
-						<div>No Views</div>
-					)}
-				</div>
-			) : null}
-
-			<ChangeConnection
-				open={openDlg}
-				setOpen={setOpenDlg}
-				setReset={setResetDataset}
-				heading="RESET DATASET"
-				message="Changing connection will reset this dataset creation. Do you want to discard
+					<ChangeConnection
+						open={openDlg}
+						setOpen={setOpenDlg}
+						setReset={setResetDataset}
+						heading="RESET DATASET"
+						message="Changing connection will reset this dataset creation. Do you want to discard
 						the progress?"
-			/>
+					/>
+				</div>
+			)}
 		</div>
 	);
 };
@@ -576,6 +622,7 @@ const mapStateToProps = (state: isLoggedProps & DataSetStateProps) => {
 		connectionValue: state.dataSetState.connection,
 		schemaValue: state.dataSetState.schema,
 		dataConnectionList: state.dataSetState.dataConnectionList,
+		isFlatFile: state.dataSetState.isFlatFile,
 	};
 };
 
