@@ -55,6 +55,7 @@ const DataSetList = ({
 	const [openPopOver, setOpenPopOver] = useState<boolean>(false);
 	const [open, setOpen] = useState<boolean>(false);
 	const [anchorEl, setAnchorEl] = useState<any>();
+	const uid: any = new ShortUniqueId({ length: 8 });
 
 	useEffect(() => {
 		resetState();
@@ -75,7 +76,7 @@ const DataSetList = ({
 			setDataSetList(result.data);
 			setDataSetListToStore(result.data);
 		} else {
-			// //console.log(result.data.detail);
+			// ////console.log(result.data.detail);
 		}
 	};
 
@@ -106,7 +107,7 @@ const DataSetList = ({
 				setTestMessage("");
 			}, 2000);
 		} else {
-			// //console.log(result.data.detail);
+			// ////console.log(result.data.detail);
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage(result.data.detail);
@@ -127,35 +128,7 @@ const DataSetList = ({
 		});
 
 		if (res.status) {
-			const uid: any = new ShortUniqueId({ length: 8 });
-
 			const userTable: UserTableProps[] = res.data.map((el: any) => {
-				var id = "";
-				var bool = false;
-
-				var tableAlreadyChecked: any = tempTable.filter(
-					(tbl: any) => tbl.table_uid === el.id
-				)[0];
-
-				tempTable.forEach((tbl: any) => {
-					if (tbl.table_uid === el.id) {
-						id = tbl.id;
-						bool = tbl.isNewTable;
-					}
-				});
-
-				if (tableAlreadyChecked) {
-					return {
-						schema: "",
-						database: "",
-						tableName: el.name,
-						isSelected: true,
-						table_uid: el.id,
-						id: id,
-						isNewTable: bool,
-					};
-				}
-
 				return {
 					schema: "",
 					database: "",
@@ -166,7 +139,6 @@ const DataSetList = ({
 					isNewTable: true,
 				};
 			});
-			console.log(userTable);
 			setUserTable(userTable);
 		} else {
 		}
@@ -176,12 +148,9 @@ const DataSetList = ({
 		<div className="dataSetContainer">
 			<div
 				style={{
-					// paddingBottom: "1rem",
 					fontWeight: "600",
 					display: "flex",
 					flexDirection: "column",
-					// paddingLeft: "10px",
-					// paddingRight: "10px",
 					overflow: "hidden",
 				}}
 			>

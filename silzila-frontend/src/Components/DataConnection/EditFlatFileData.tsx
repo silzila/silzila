@@ -96,7 +96,7 @@ export const styles = makeStyles({
 			height: "20px",
 			fontSize: "12px",
 			padding: "2px 5px",
-			textAlign: "left",
+			textAlign: "center",
 			marginRight: "10px",
 			textOverflow: "ellipsis",
 			whiteSpace: "nowrap",

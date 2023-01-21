@@ -73,6 +73,6 @@
 }
 .editTileSelected:focus {
 	outline: none;
-	border-top: 2px solid rgb(0, 123, 255);
+	border-top: 2px solid #0076f6;
 	margin: 0 0 0 5px;
 }

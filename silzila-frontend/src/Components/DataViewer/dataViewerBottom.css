@@ -25,7 +25,7 @@
 
 .dataSetSelect {
 	width: 92%;
-	padding: 0.5rem 0 .5rem .5rem;
+	padding: 1.2rem 0 .5rem .5rem;
 	/* background-color: rgb(211, 211, 211); */
 }
 
@@ -61,7 +61,7 @@
 	border-radius: 2px;
 	/* background-color: white; */
 	font-weight: 600;
-	color: rgb(0, 123, 255);
+	color: #0076f6;
 	/* padding: 1px 0 1px 0.5rem; */
 	padding: 1px 0 1px 0;
 	text-align: left;

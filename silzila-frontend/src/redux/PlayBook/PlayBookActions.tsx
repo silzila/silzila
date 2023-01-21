@@ -2,7 +2,7 @@ export const updatePlaybookUid = (
 	playBookName: string,
 	playBookUid: string,
 	description: string,
-	oldContent: string | any
+	oldContent?: string | any
 ) => {
 	return {
 		type: "ADD_PLAYBOOK_UID",

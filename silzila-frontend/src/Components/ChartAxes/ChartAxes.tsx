@@ -247,32 +247,33 @@ export const getChartData = async (
 			formattedAxes.filterPanels = [];
 		}
 
-		console.log("Axis");
-		console.log(JSON.stringify(formattedAxes));
+		var url: string = "";
+		if (chartProp.properties[propKey].selectedDs.isFlatFileData) {
+			url = `query?datasetid=${chartProp.properties[propKey].selectedDs.id}`;
+		} else {
+			url = `query?dbconnectionid=${chartProp.properties[propKey].selectedDs.connectionId}&datasetid=${chartProp.properties[propKey].selectedDs.id}`;
+		}
 
 		/*	PRS 21/07/2022	*/
 		var res: any = await FetchData({
 			requestType: "withData",
 			method: "POST",
-			url: `query?dbconnectionid=${chartProp.properties[propKey].selectedDs.connectionId}&datasetid=${chartProp.properties[propKey].selectedDs.id}`,
+			url: url,
 			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
 			data: formattedAxes,
 		});
 
 		if (res.status) {
-			console.log(res);
 			var res2: any = await FetchData({
 				requestType: "withData",
 				method: "POST",
-				url: `query?dbconnectionid=${chartProp.properties[propKey].selectedDs.connectionId}&datasetid=${chartProp.properties[propKey].selectedDs.id}&sql=true`,
+				url: `${url}&sql=true`,
 				headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
 				data: formattedAxes,
 			});
 			if (res2.status) {
-				console.log(res2.data);
 				updateQueryResult(propKey, res2.data);
 			}
-			// if (res.data && res.data.result.length > 0) {
 			if (res.data && res.data.length > 0) {
 				return res.data;
 			} else {

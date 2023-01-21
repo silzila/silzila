@@ -49,15 +49,15 @@ export const SaveButtons = makeStyles({
 		width: 200,
 
 		"& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
-			borderColor: "rgb(0, 123, 255)",
+			borderColor: "#0076f6",
 		},
 
 		"&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
-			borderColor: "rgb(0, 123, 255)",
+			borderColor: "#0076f6",
 		},
 
 		"& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
-			borderColor: "rgb(0, 123, 255)",
+			borderColor: "#0076f6",
 		},
 		// "& .MuiOutlinedInput-input": {
 		// 	color: "green",
@@ -71,12 +71,12 @@ export const SaveButtons = makeStyles({
 		"& .MuiOutlinedInput-root": {
 			fontSize: "14px",
 			padding: "2px 5px",
-			textAlign: "left",
+			textAlign: "center",
 			height: "40px",
 			marginRight: "10px",
 			textOverflow: "ellipsis",
 			whiteSpace: "nowrap",
-			color: "rgb(0, 123, 255)",
+			color: "#0076f6",
 		},
 	},
 });
@@ -174,7 +174,12 @@ const ConfirmFlatFileData = ({
 			navigate("/datahome");
 			resetFlatFileState();
 		} else {
-			console.log("error");
+			// console.log(result.data.message);
+			if (result.data.message === "Job aborted.") {
+				window.alert(
+					"Upload failed: Please make sure all the dataTypes(like date,timestamp) are correct"
+				);
+			}
 		}
 	};
 

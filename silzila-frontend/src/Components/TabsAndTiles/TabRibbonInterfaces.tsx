@@ -33,7 +33,6 @@ export interface TabRibbonProps {
 		tileName: string,
 		tileId: number,
 		nextTileId: number,
-		// fileId: number,
 		fromTab: boolean
 	) => void;
 }

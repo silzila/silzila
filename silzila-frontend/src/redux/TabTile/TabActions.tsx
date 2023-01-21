@@ -28,7 +28,7 @@ export const updateNextTileId = (nextTileId: number, tabId: number) => {
 	return {
 		type: "UPDATE_NEXT_TILE_ID",
 		payload: {
-			tileId: nextTileId,
+			nextTileId: nextTileId,
 			tabId: tabId,
 		},
 	};
@@ -58,7 +58,7 @@ export const toggleDashModeInTab = (tabId: number, dashMode: string) => {
 //8
 export const updateTabDashDetails = (
 	checked: boolean,
-	propKey: number,
+	propKey: string,
 	dashSpecs: any,
 	tabId: number,
 	propIndex: number
@@ -70,17 +70,17 @@ export const updateTabDashDetails = (
 };
 
 //9
-export const removeTilesInDashDuringDeleteTile = (tabId: number, propKey: number) => {
+export const removeTilesInDashDuringDeleteTile = (tabId: number, propKey: string) => {
 	return { type: "REMOVE_TILES_IN_DASH_DURING_DELETE_TILE", payload: { tabId, propKey } };
 };
 //10
-export const updateDashGraphPosition = (tabId: number, propKey: number, x: any, y: any) => {
+export const updateDashGraphPosition = (tabId: number, propKey: string, x: any, y: any) => {
 	return { type: "UPDATE_DASH_GRAPH_POSITION", payload: { tabId, propKey, x, y } };
 };
 //11
 export const updateDashGraphSize = (
 	tabId: number,
-	propKey: number,
+	propKey: string,
 	x: any,
 	y: any,
 	width: any,

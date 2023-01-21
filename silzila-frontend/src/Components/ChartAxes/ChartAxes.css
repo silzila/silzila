@@ -40,12 +40,10 @@
 }
 
 .axisTitle {
-	/* background-color:#d3d3d3; */
+	
 	color: #404040;
 	font-weight: 600;
-	padding: 0 0.5rem;
-	/* border-top: 2px solid rgba(224, 224, 224, 1); */
-	/* border-top:1px solid rgba(224, 224, 224, 1) */
+	padding: 10px 0.5rem 0 0.5rem;
 	text-align: left;
 }
 

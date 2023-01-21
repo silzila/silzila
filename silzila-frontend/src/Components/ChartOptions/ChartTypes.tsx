@@ -19,7 +19,7 @@ import areaChartIcon from "../../assets/area-chart.svg";
 import pieChartIcon from "../../assets/pie_chart.svg";
 import donutChartIcon from "../../assets/donut_chart.svg";
 import scatterPlotIcon from "../../assets/scatter.svg";
-import funnelChartIcon from "../../assets/FunnelChart.svg";
+import funnelChartIcon from "../../assets/new_Funnel.svg";
 import gaugeChartIcon from "../../assets/GaugeChart.svg";
 import heatMapIcon from "../../assets/HeatMapChart.svg";
 // import ChartsInfo from "../ChartAxes/ChartsInfo2";
@@ -1464,11 +1464,11 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			tileName: string,
 			tileId: number,
 			nextTileId: number,
-			fileId: any,
-			fromTab: any
+			fromTab: boolean,
+			fileId: any
 		) =>
 			dispatch(
-				actionsToUpdateSelectedTile(tabId, tileName, tileId, nextTileId, fileId, fromTab)
+				actionsToUpdateSelectedTile(tabId, tileName, tileId, nextTileId, fromTab, fileId)
 			),
 	};
 };

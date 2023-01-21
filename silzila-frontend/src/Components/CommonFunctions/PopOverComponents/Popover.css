@@ -40,7 +40,7 @@
 	justify-content: center;
 	align-items: center;
 	border: 3px solid #dbdbdb; /* Light grey */
-	border-top: 3px solid rgb(0, 123, 255); /* Blue */
+	border-top: 3px solid #0076f6; /* Blue */
 	border-radius: 50%;
 	width: 2.5rem;
 	height: 2.5rem;

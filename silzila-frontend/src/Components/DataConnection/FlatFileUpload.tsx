@@ -98,8 +98,8 @@ const FlatFileUpload = ({ token, setApiResponse, setEditApiResponse }: FlatFileU
 					<Button
 						style={{
 							textTransform: "none",
-							color: "rgb(0, 123, 255)",
-							border: "2px solid 	rgb(0, 123, 255)",
+							color: "#0076f6",
+							border: "2px solid 	#0076f6",
 							padding: "5px 20px",
 							borderRadius: "5px",
 						}}

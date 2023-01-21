@@ -125,6 +125,7 @@ const MenuBar = ({
 	//		2. Home button clicked
 	//		3. Logout clicked
 	const handleSave = async () => {
+		console.log(playBookState);
 		setOpenFileMenu(false);
 
 		// check if this playbook already has a name / id
@@ -444,14 +445,14 @@ const MenuBar = ({
 		switch (from) {
 			case "dataHome":
 				return (
-					<div className="menuHome">
+					<div className="menuHomeIcon">
 						<HomeRounded sx={{ color: "#666" }} />
 					</div>
 				);
 			case "dataSet":
 				return (
 					<div
-						className="menuHome"
+						className="menuHomeIcon"
 						onClick={() => {
 							navigate("/dataHome");
 						}}
@@ -464,7 +465,7 @@ const MenuBar = ({
 			case "saveFlaFile":
 				return (
 					<div
-						className="menuHome"
+						className="menuHomeIcon"
 						onClick={() => {
 							resetFlatFileState();
 							navigate("/dataHome");
@@ -476,7 +477,7 @@ const MenuBar = ({
 			case "dataViewer":
 				return (
 					<div
-						className="menuHome"
+						className="menuHomeIcon"
 						onClick={() => {
 							if (showSaveWarning || playBookState.playBookUid === null) {
 								setSaveFromHomeIcon(true);
@@ -508,8 +509,12 @@ const MenuBar = ({
 								<img
 									src={SilzilaLogo}
 									style={{
-										padding: "4px 8px",
-										width: "3rem",
+										// height: "100%",
+										height: "70%",
+										// width: "3rem",
+										width: "2.5rem",
+										padding: "4px",
+										margin: "4px 0px 0px 6px",
 										backgroundColor: "white",
 									}}
 									alt="Silzila Home"
@@ -707,7 +712,7 @@ const MenuBar = ({
 								}
 							}}
 						>
-							Save
+							Savee
 						</Button>
 					</div>
 				</div>

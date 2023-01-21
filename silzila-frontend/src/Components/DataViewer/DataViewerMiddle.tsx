@@ -33,7 +33,8 @@ const DataViewerMiddle = ({
 	setMenu,
 }: DataViewerMiddleProps) => {
 	// console.log(chartProp);
-	var propKey: number = parseFloat(`${tabId}.${tileId}`);
+	var propKey: string = `${tabId}.${tileId}`;
+	console.log(propKey, "DataViewerMiddle");
 
 	const controlDisplayed = () => {
 		switch (tabTileProps.selectedControlMenu) {
@@ -44,8 +45,7 @@ const DataViewerMiddle = ({
 							style={{
 								color: " #404040",
 								fontWeight: "600",
-								// padding: "0 0.5rem",
-								padding: "0 0 0 0.5rem",
+								padding: "10px 0 0 0.5rem",
 							}}
 						>
 							Charts

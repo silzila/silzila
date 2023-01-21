@@ -51,7 +51,7 @@ const BottomBar = ({
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
 	const [severity, setSeverity] = useState<string>("success");
-	const [selectedButton, setselectedButton] = useState<string>(sendOrUpdate);
+	const [selectedButton, setselectedButton] = useState<string>(editMode ? "Update" : "Save");
 
 	const navigate = useNavigate();
 
@@ -215,8 +215,7 @@ const BottomBar = ({
 						tablePositionX: el.tablePositionX,
 						tablePositionY: el.tablePositionY,
 						database: el.databaseName,
-
-						// flatFileId: null,
+						flatFileId: isFlatFile ? el.table_uid : null,
 					};
 				});
 			////console.log(tablesSelectedInSidebar);
@@ -253,17 +252,27 @@ const BottomBar = ({
 				{editMode ? "Back" : "Cancel"}
 			</Button> */}
 
-			<div>
+			<div style={{ flex: 1, display: "flex", justifyContent: "space-between" }}>
 				<Tooltip title="Click to Edit">
 					<TextField
+						sx={{
+							flex: 1,
+							margin: "auto 20px",
+							maxWidth: "200px",
+						}}
 						InputProps={TextFieldBorderStyle}
 						inputProps={{
 							style: {
-								height: "40px",
+								height: "35px",
+
 								padding: "0px 10px",
-								fontSize: "20px",
-								fontWeight: "bold",
+								fontSize: "14px",
 								color: "#3B3C36",
+							},
+						}}
+						InputLabelProps={{
+							sx: {
+								fontSize: "12px",
 							},
 						}}
 						onChange={e => {
@@ -276,6 +285,10 @@ const BottomBar = ({
 				</Tooltip>
 
 				<TextField
+					sx={{
+						flex: 1,
+						maxWidth: "150px",
+					}}
 					SelectProps={{
 						MenuProps: {
 							anchorOrigin: {
@@ -285,15 +298,21 @@ const BottomBar = ({
 						},
 					}}
 					className={classes.root}
-					value={selectedButton}
+					value={"Save"}
 					variant="outlined"
 					select
 				>
-					<MenuItem value={sendOrUpdate} onClick={onSendData}>
-						{sendOrUpdate}
+					<MenuItem value={"Save"} onClick={onSendData}>
+						Save
 					</MenuItem>
 
-					<MenuItem value={editMode ? "Back" : "Cancel"} onClick={onCancelOnDataset}>
+					<MenuItem
+						value={editMode ? "Back" : "Cancel"}
+						onClick={(e: any) => {
+							setselectedButton(e.target.value);
+							onCancelOnDataset;
+						}}
+					>
 						{editMode ? "Back" : "Cancel"}
 					</MenuItem>
 				</TextField>
