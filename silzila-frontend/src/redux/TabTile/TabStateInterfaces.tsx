@@ -89,7 +89,7 @@ interface UpdateTabDashDetails {
 	type: "UPDATE_DASH_GRAPH_DETAILS";
 	payload: {
 		checked: boolean;
-		propKey: number;
+		propKey: string;
 		dashSpecs: any;
 		tabId: number;
 		propIndex: number;
@@ -99,17 +99,17 @@ interface UpdateTabDashDetails {
 //9
 interface RemoveTilesInDashDuringDeleteTile {
 	type: "REMOVE_TILES_IN_DASH_DURING_DELETE_TILE";
-	payload: { tabId: number; propKey: number };
+	payload: { tabId: number; propKey: string };
 }
 //10
 interface UpdateDashGraphPosition {
 	type: "UPDATE_DASH_GRAPH_POSITION";
-	payload: { tabId: number; propKey: number; x: any; y: any };
+	payload: { tabId: number; propKey: string; x: any; y: any };
 }
 //11
 interface UpdateDashGraphSize {
 	type: "UPDATE_DASH_GRAPH_SIZE";
-	payload: { tabId: number; propKey: number; x: any; y: any; width: any; height: any };
+	payload: { tabId: number; propKey: string; x: any; y: any; width: any; height: any };
 }
 
 //14

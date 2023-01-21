@@ -3,6 +3,7 @@ import { RelationObjProps } from "../../Components/DataSet/CanvasTablesIntefaces
 import { ColumnsWithUid } from "../../Components/DataSet/DatasetInterfaces";
 
 export interface DatasetProps {
+	isFlatFile: boolean;
 	dsId: string;
 	connection: string;
 	schema: string;
@@ -106,6 +107,12 @@ export interface DatasetItem {
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@ action interfaces @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+// 0
+interface setCreateDsFromFlatFile {
+	type: "SET_CREATE_DS_FROM_FLATFILE";
+	payload: boolean;
+}
 // 1
 interface SetDatabaseNametoState {
 	type: "SET_DATABASE_NAME";
@@ -270,4 +277,5 @@ export type ActionTypeOfDataSet =
 	| SetArrowType
 	| setDataConnectionListToState
 	| setViews
-	| ToggleOnCheckedOnView;
+	| ToggleOnCheckedOnView
+	| setCreateDsFromFlatFile;

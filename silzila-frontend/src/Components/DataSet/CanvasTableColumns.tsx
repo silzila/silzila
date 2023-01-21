@@ -37,18 +37,23 @@ const CanvasTableColumns = ({
 	const itemTypeIcon = (type: string) => {
 		switch (type) {
 			case "Integer":
+			case "integer":
 				return <TagTwoTone style={{ height: "15px", width: "15px" }} />;
 
 			case "Text":
+			case "text":
 				return <Abc style={{ height: "15px", width: "15px" }} />;
 
 			case "Timestamp":
+			case "timestamp":
 				return <AccessTime style={{ height: "15px", width: "15px" }} />;
 
 			case "Date":
+			case "date":
 				return <CalendarToday style={{ height: "15px", width: "15px" }} />;
 
 			case "Decimal":
+			case "decimal":
 				return <PriorityHigh style={{ height: "15px", width: "15px" }} />;
 
 			default:

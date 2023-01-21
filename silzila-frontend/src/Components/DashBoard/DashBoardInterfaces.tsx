@@ -15,10 +15,10 @@ export interface DashBoardProps {
 	toggleGraphSize: (tileKey: number, graphSize: boolean) => void;
 	resetHighlight: (tabId: number) => void;
 	setGridSize: (gridSize: any) => void;
-	graphHighlight: (tabId: number, propKey: number, highlight: boolean | any) => void;
+	graphHighlight: (tabId: number, propKey: string, highlight: boolean | any) => void;
 	updateDashDetails: (
 		checked: boolean,
-		propKey: number,
+		propKey: string,
 		dashSpecs: any,
 		tabId: number,
 		propIndex: number

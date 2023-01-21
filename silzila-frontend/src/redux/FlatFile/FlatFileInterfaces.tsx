@@ -10,6 +10,7 @@ export interface FlatFileProp {
 }
 
 export interface FlatFileState {
+	editMode: boolean;
 	initialApiResponse: FlatFileProp | {};
 	editApiResponse: FlatFileProp | {};
 	confirmModifiedResponse: FlatFileProp | {};
@@ -42,10 +43,15 @@ interface setEditApiResponseProp {
 interface resetFlatFileState {
 	type: "RESET_STATE";
 }
+interface toggleEditMode {
+	type: "TOGGLE_EDIT_MODE";
+	payload: boolean;
+}
 
 export type FlatFileActions =
 	| setApiResponse
 	| setEditApiResponse
 	| setModifiedApiResponse
 	| setEditApiResponseProp
-	| resetFlatFileState;
+	| resetFlatFileState
+	| toggleEditMode;

@@ -40,9 +40,7 @@ const TabRibbon = ({
 	const handleAddTab = () => {
 		let tabId: number = tabTileProps.nextTabId;
 
-		var propKey: number = parseFloat(
-			`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
-		);
+		var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
 		addTab(
 			tabId,
@@ -75,14 +73,7 @@ const TabRibbon = ({
 		// let propKey: number = parseFloat(`${tabId}.${tileId}`);
 		// let chartObj: IndChartPropProperties = chartProp.properties[propKey];
 
-		selectTile(
-			tabId,
-			tileName,
-			tileId,
-			nextTileId,
-			// chartObj.fileId,
-			true
-		);
+		selectTile(tabId, tileName, tileId, nextTileId, true);
 	};
 
 	const handleRemoveTab = (tabName: string, tabId: number) => {
@@ -206,7 +197,6 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			tileName: string,
 			tileId: number,
 			nextTileId: number,
-			// fileId: number,
 			fromTab: boolean
 		) => dispatch(actionsToUpdateSelectedTile(tabId, tileName, tileId, nextTileId, fromTab)),
 	};

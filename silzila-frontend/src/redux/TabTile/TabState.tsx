@@ -148,12 +148,12 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 			var dashTilesDetailsCopy = Object.assign(
 				state.tabs[action.payload.tabId].dashTilesDetails
 			);
+
 			delete dashTilesDetailsCopy[action.payload.propKey];
 
 			return update(state, {
 				tabs: {
 					[action.payload.tabId]: {
-						tilesInDashboard: { $splice: [[indexOfDeletedTile, 1]] },
 						dashTilesDetails: { $set: dashTilesDetailsCopy },
 					},
 				},

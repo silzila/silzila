@@ -19,12 +19,24 @@
 /* ========================================================================================== */
 /* Menu items styling */
 .menuHome {
+	
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	height: 2rem;
+	/* height: 2rem; */
 	width: 3rem;
 	cursor: pointer;
+
+	
+	
+}
+
+.menuHomeIcon{
+	
+	height:70%;
+	width: 2.5rem;
+	padding:4px;
+	margin: 0 0 6px 6px;
 }
 /* .menuHome:hover {
 	background-color: rgb(238, 238, 238);

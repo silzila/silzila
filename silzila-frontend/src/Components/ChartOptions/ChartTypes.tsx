@@ -19,9 +19,9 @@ import areaChartIcon from "../../assets/area-chart.svg";
 import pieChartIcon from "../../assets/pie_chart.svg";
 import donutChartIcon from "../../assets/donut_chart.svg";
 import scatterPlotIcon from "../../assets/scatter.svg";
-import funnelChartIcon from "../../assets/funnel.png";
-import gaugeChartIcon from "../../assets/gauge.png";
-import heatMapIcon from "../../assets/heat_map.png";
+import funnelChartIcon from "../../assets/new_Funnel.svg";
+import gaugeChartIcon from "../../assets/GaugeChart.svg";
+import heatMapIcon from "../../assets/HeatMapChart.svg";
 // import ChartsInfo from "../ChartAxes/ChartsInfo2";
 import CrossTabIcon from "../../assets/crosstab.png";
 import roseChartIcon from "../../assets/rose_chart.svg";
@@ -33,7 +33,7 @@ import "./ChartOptions.css";
 import boxPlotIcon from "../../assets/box_plot.svg";
 import TreeMapIcon from "../../assets/treemap.svg";
 import TextEditorIcon from "../../assets/text_editor.svg";
-import Sankey from "../../assets/sankey.svg";
+import Sankey from "../../assets/SankeyChart.svg";
 import { Dispatch } from "redux";
 import {
 	canReUseData,
@@ -1464,11 +1464,11 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			tileName: string,
 			tileId: number,
 			nextTileId: number,
-			fileId: any,
-			fromTab: any
+			fromTab: boolean,
+			fileId: any
 		) =>
 			dispatch(
-				actionsToUpdateSelectedTile(tabId, tileName, tileId, nextTileId, fileId, fromTab)
+				actionsToUpdateSelectedTile(tabId, tileName, tileId, nextTileId, fromTab, fileId)
 			),
 	};
 };

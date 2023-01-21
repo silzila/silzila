@@ -138,7 +138,6 @@ const Card = ({
 		var options: any[] = [];
 		var options2: any[] = [];
 
-
 		if (axisTitle === "Measure" || axisTitle === "X" || axisTitle === "Y") {
 			if (field.dataType === "date" || field.dataType === "timestamp") {
 				options = options.concat(Aggregators[axisTitle][field.dataType].aggr);
@@ -191,9 +190,7 @@ const Card = ({
 							return (
 								<MenuItem
 									onClick={() => handleClose("timeGrain", opt2.id)}
-									sx={
-										opt2.id === field.timeGrain ? menuSelectedStyle : menuStyle
-									}
+									sx={opt2.id === field.timeGrain ? menuSelectedStyle : menuStyle}
 									key={opt2.id}
 								>
 									{opt2.name}
@@ -210,8 +207,6 @@ const Card = ({
 			</Menu>
 		);
 	};
-
-	console.log(field, "kjh");
 
 	return field ? (
 		<div

@@ -189,7 +189,7 @@ export const actionsToAddTile = ({
 	//let tileName = tileName ? tileName : `Tile - ${nextTileId}`;
 	// let tileName = `Tile - ${nextTileId}`;
 	// console.log(table);
-	let tileName: string = "";
+	let tileName: string = `Tile - ${nextTileId}`;
 	return (dispatch: Dispatch<any>) => {
 		dispatch(addProp(tabId, nextTileId, table, newTab, selectedDs, selectedTablesInDs));
 		dispatch(addControl(tabId, nextTileId, newTab));
@@ -209,6 +209,7 @@ export const actionsToUpdateSelectedTile = (
 	fromTab: boolean,
 	fileId?: any
 ) => {
+	console.log(tabId, tileName, tileId, nextTileId, fromTab, fileId);
 	return (dispatch: Dispatch<any>) => {
 		dispatch(updateSelectedTileToTab(tabId, tileName, tileId));
 		dispatch(updateSelectedTile(tileName, tileId, nextTileId));
@@ -241,7 +242,7 @@ export const actionsToCompleteRenameTile = (
 };
 
 export const actionsToRemoveTile = (tabId: number, tileId: number, tileIndex: number) => {
-	var propKey = parseFloat(`${tabId}.${tileId}`);
+	var propKey: string = `${tabId}.${tileId}`;
 	return (dispatch: Dispatch<any>) => {
 		dispatch(removeTilesInDashDuringDeleteTile(tabId, propKey));
 		dispatch(removeTile(tabId, tileId, tileIndex));
@@ -266,18 +267,18 @@ export const actionsToRemoveTab = (
 	return (dispatch: Dispatch<any>) => {
 		dispatch(removeTab(tabName, tabId, tabToRemoveIndex));
 		dispatch(removeTilesOfTab(tabName, tabId));
-		// dispatch(removeMultipleChartProperties(tabId));
-		// dispatch(removeMultipleChartControls(tabId));
-		// if (newObj) {
-		// 	dispatch(updateSelectedTab(newObj.tabName, newObj.tabId));
-		// 	dispatch(
-		// 		updateSelectedTile(
-		// 			newObj.selectedTileName,
-		// 			newObj.selectedTileId,
-		// 			newObj.nextTileId
-		// 		)
-		// 	);
-		// }
+		dispatch(removeMultipleChartProperties(tabId));
+		dispatch(removeMultipleChartControls(tabId));
+		if (newObj) {
+			dispatch(updateSelectedTab(newObj.tabName, newObj.tabId));
+			dispatch(
+				updateSelectedTile(
+					newObj.selectedTileName,
+					newObj.selectedTileId,
+					newObj.nextTileId
+				)
+			);
+		}
 	};
 };
 
