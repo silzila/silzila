@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import ShortUniqueId from "short-unique-id";
 import {
+	setCreateDsFromFlatFile,
 	setDatabaseNametoState,
 	setServerName,
 	setUserTable,
@@ -33,6 +34,7 @@ const EditDataSet = ({
 	//state
 	token,
 	dsId,
+	isFlatFile,
 
 	//dispatch
 	setValuesToState,
@@ -40,6 +42,7 @@ const EditDataSet = ({
 	setDatabaseNametoState,
 	setServerName,
 	setViews,
+	setCreateDsFromFlatFile,
 }: EditDatasetProps) => {
 	var dbName: string = "";
 	var server: string = "";
@@ -61,34 +64,38 @@ const EditDataSet = ({
 		});
 
 		if (res.status) {
-			var getDc: any = await FetchData({
-				requestType: "noData",
-				method: "GET",
-				url: "database-connection",
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (getDc.status) {
-				getDc.data.map((dc: any) => {
-					if (dc.id === res.data.connectionId) {
-						server = dc.vendor;
-						setServerName(server);
-					}
-				});
+			// console.log(res.data);
+			if (res.data.isFlatFileData) {
+				setCreateDsFromFlatFile(true);
 			}
 
+			if (!res.data.isFlatFileData) {
+				var getDc: any = await FetchData({
+					requestType: "noData",
+					method: "GET",
+					url: "database-connection",
+					headers: { Authorization: `Bearer ${token}` },
+				});
+				if (getDc.status) {
+					getDc.data.map((dc: any) => {
+						if (dc.id === res.data.connectionId) {
+							server = dc.vendor;
+							setServerName(server);
+						}
+					});
+				}
+			}
 			dbName = res.data.dataSchema.tables[0].database;
-
-			console.log(res.data.dataSchema.tables);
 
 			// canvasTables - tables that are droped & used in canvas for creating dataset
 			const canvasTables: tableObjProps[] = await Promise.all(
 				res.data.dataSchema.tables?.map(async (tbl: any) => {
-					console.log(tbl);
-					console.log(count);
 					count++;
 					if (tbl) {
 						return {
-							table_uid: tbl.schema.concat(tbl.table),
+							table_uid: res.data.isFlatFileData
+								? tbl.flatFileId
+								: tbl.schema.concat(tbl.table),
 							tableName: tbl.table,
 							alias: tbl.alias,
 							dcId: res.data.connectionId,
@@ -96,7 +103,8 @@ const EditDataSet = ({
 								res.data.connectionId,
 								tbl.schema,
 								tbl.table,
-								tbl.database
+								tbl.database,
+								tbl.flatFileId
 							),
 							isSelected: true,
 							id: tbl.id,
@@ -125,10 +133,14 @@ const EditDataSet = ({
 
 			const getTables = async () => {
 				var url: string = "";
-				if (server === "mysql") {
-					url = `metadata-tables/${res.data.connectionId}?database=${dbName}`;
+				if (res.data.isFlatFileData) {
+					url = `file-data/`;
 				} else {
-					url = `metadata-tables/${res.data.connectionId}?database=${dbName}&schema=${uniqueSchema[0]}`;
+					if (server === "mysql") {
+						url = `metadata-tables/${res.data.connectionId}?database=${dbName}`;
+					} else {
+						url = `metadata-tables/${res.data.connectionId}?database=${dbName}&schema=${uniqueSchema[0]}`;
+					}
 				}
 
 				var res1: any = await FetchData({
@@ -138,23 +150,72 @@ const EditDataSet = ({
 					headers: { Authorization: `Bearer ${token}` },
 					token: token,
 				});
+				console.log(res1);
 
 				if (res1.status) {
 					let userTable: UserTableProps[] = [];
 					let views: any[] = [];
 					const uid = new ShortUniqueId({ length: 8 });
-					if (res1.data.views.length > 0) {
-						views = res1.data.views.map((el: any) => {
+					if (!res.data.isFlatFileData) {
+						if (res1.data.views.length > 0) {
+							views = res1.data.views.map((el: any) => {
+								var id = "";
+								var schema = "";
+								var databaseName = "";
+								var tableAlreadyChecked = canvasTables.filter(
+									(tbl: any) =>
+										tbl.dcId === res.data.connectionId &&
+										tbl.schema === uniqueSchema[0] &&
+										tbl.tableName === el
+								)[0];
+								//console.log(tableAlreadyChecked);
+								canvasTables.forEach((tbl: any) => {
+									if (
+										tbl.dcId === res.data.connectionId &&
+										tbl.schema === uniqueSchema[0] &&
+										tbl.tableName === el
+									) {
+										id = tbl.id;
+										schema = tbl.schema;
+										databaseName = tbl.databaseName;
+									}
+								});
+								if (tableAlreadyChecked) {
+									return {
+										isView: true,
+										tableName: el,
+										isSelected: true,
+										table_uid: uniqueSchema[0].concat(el),
+										id: id,
+										isNewTable: false,
+										schema: schema,
+										database: databaseName,
+									};
+								}
+								return {
+									isView: true,
+									tableName: el,
+									isSelected: false,
+									table_uid: uniqueSchema[0].concat(el),
+									id: uid(),
+									isNewTable: true,
+									schema: uniqueSchema[0],
+									database: dbName,
+								};
+							});
+						}
+
+						userTable = res1.data.tables.map((el: any) => {
 							var id = "";
 							var schema = "";
 							var databaseName = "";
-							var tableAlreadyChecked = canvasTables.filter(
+
+							var tableAlreadyChecked1 = canvasTables.filter(
 								(tbl: any) =>
 									tbl.dcId === res.data.connectionId &&
 									tbl.schema === uniqueSchema[0] &&
 									tbl.tableName === el
 							)[0];
-							console.log(tableAlreadyChecked);
 							canvasTables.forEach((tbl: any) => {
 								if (
 									tbl.dcId === res.data.connectionId &&
@@ -166,79 +227,73 @@ const EditDataSet = ({
 									databaseName = tbl.databaseName;
 								}
 							});
-							if (tableAlreadyChecked) {
+							// //console.log(tableAlreadyChecked1);
+							if (tableAlreadyChecked1) {
 								return {
-									isView: true,
+									schema: schema,
+									database: databaseName,
 									tableName: el,
 									isSelected: true,
 									table_uid: uniqueSchema[0].concat(el),
 									id: id,
 									isNewTable: false,
-									schema: schema,
-									database: databaseName,
 								};
 							}
 							return {
-								isView: true,
+								schema: uniqueSchema[0],
+								database: dbName,
 								tableName: el,
 								isSelected: false,
 								table_uid: uniqueSchema[0].concat(el),
 								id: uid(),
 								isNewTable: true,
-								schema: uniqueSchema[0],
-								database: dbName,
+							};
+						});
+					} else {
+						userTable = res1.data.map((el: any) => {
+							var id = "";
+							var bool = false;
+
+							var tableAlreadyChecked: any = canvasTables.filter(
+								(tbl: any) => tbl.table_uid === el.id
+							)[0];
+
+							canvasTables.forEach((tbl: any) => {
+								if (tbl.table_uid === el.id) {
+									id = tbl.id;
+									bool = tbl.isNewTable;
+								}
+							});
+
+							if (tableAlreadyChecked) {
+								return {
+									schema: "",
+									database: "",
+									tableName: el.name,
+									isSelected: true,
+									table_uid: el.id,
+									id: id,
+									isNewTable: bool,
+								};
+							}
+
+							return {
+								schema: "",
+								database: "",
+								tableName: el.name,
+								isSelected: false,
+								table_uid: el.id,
+								id: uid(),
+								isNewTable: true,
 							};
 						});
 					}
 
-					userTable = res1.data.tables.map((el: any) => {
-						var id = "";
-						var schema = "";
-						var databaseName = "";
-
-						var tableAlreadyChecked1 = canvasTables.filter(
-							(tbl: any) =>
-								tbl.dcId === res.data.connectionId &&
-								tbl.schema === uniqueSchema[0] &&
-								tbl.tableName === el
-						)[0];
-						canvasTables.forEach((tbl: any) => {
-							if (
-								tbl.dcId === res.data.connectionId &&
-								tbl.schema === uniqueSchema[0] &&
-								tbl.tableName === el
-							) {
-								id = tbl.id;
-								schema = tbl.schema;
-								databaseName = tbl.databaseName;
-							}
-						});
-						// console.log(tableAlreadyChecked1);
-						if (tableAlreadyChecked1) {
-							return {
-								schema: schema,
-								database: databaseName,
-								tableName: el,
-								isSelected: true,
-								table_uid: uniqueSchema[0].concat(el),
-								id: id,
-								isNewTable: false,
-							};
-						}
-						return {
-							schema: uniqueSchema[0],
-							database: dbName,
-							tableName: el,
-							isSelected: false,
-							table_uid: uniqueSchema[0].concat(el),
-							id: uid(),
-							isNewTable: true,
-						};
-					});
 					console.log(userTable, views);
 					setUserTable(userTable);
-
-					setViews(views);
+					if (!res.data.isFlatFileData) {
+						setViews(views);
+					}
 				}
 			};
 
@@ -267,6 +322,9 @@ const EditDataSet = ({
 					return el.id === obj.table2;
 				});
 
+				var startTableName = "";
+				var endTableName = "";
+
 				let columns_in_relationships: any = [];
 				let relationUniqueId: any = "";
 
@@ -276,20 +334,32 @@ const EditDataSet = ({
 					columns_in_relationships.push(rel);
 					relationUniqueId = uid();
 				});
-
+				console.log(columns_in_relationships);
 				arrowObj = columns_in_relationships.map((el: any) => {
+					startTableName = x[0].table;
+					endTableName = y[0].table;
+
+					console.log(el);
 					return {
 						isSelected: false,
 
-						start: x[0].schema.concat(x[0].table).concat(el.tab1),
-						table1_uid: x[0].schema.concat(x[0].table),
+						start: res.data.isFlatFileData
+							? x[0].table.concat(el.tab1)
+							: x[0].schema.concat(x[0].table).concat(el.tab1),
+						table1_uid: res.data.isFlatFileData
+							? x[0].flatFileId
+							: x[0].schema.concat(x[0].table),
 						startTableName: x[0].table,
 						startColumnName: el.tab1,
 						startSchema: x[0].schema,
 						startId: x[0].id,
 
-						end: y[0].schema.concat(y[0].table).concat(el.tab2),
-						table2_uid: y[0].schema.concat(y[0].table),
+						end: res.data.isFlatFileData
+							? y[0].table.concat(el.tab2)
+							: y[0].schema.concat(y[0].table).concat(el.tab2),
+						table2_uid: res.data.isFlatFileData
+							? y[0].flatFileId
+							: y[0].schema.concat(y[0].table),
 						endTableName: y[0].table,
 						endColumnName: el.tab2,
 						endSchema: y[0].schema,
@@ -303,9 +373,8 @@ const EditDataSet = ({
 					};
 				});
 
-				//console.log(arrowObj);
-				//console.log(arrowsArray);
 				arrowsArray.push(...arrowObj);
+				console.log(obj);
 
 				relObject = {
 					startId: x[0].id,
@@ -315,6 +384,8 @@ const EditDataSet = ({
 					showHead: valuesForshowHeadAndshowTail.showHead,
 					showTail: valuesForshowHeadAndshowTail.showTail,
 					relationId: relationUniqueId,
+					startTableName: startTableName,
+					endTableName: endTableName,
 				};
 				relationshipsArray.push(relObject);
 			});
@@ -330,10 +401,9 @@ const EditDataSet = ({
 				arrowsArray
 			);
 
-			// setServerName(server);
 			setloadPage(true);
 		} else {
-			//console.log(res.data.detail);
+			console.log(res, "********ERROR********");
 		}
 	};
 
@@ -341,16 +411,22 @@ const EditDataSet = ({
 		connection: string,
 		schema: string,
 		tableName: string,
-		databaseName: string
+		databaseName: string,
+		flatFileId: string
 	) => {
-		console.log("get Columns from editDataset");
+		console.log(flatFileId);
+		const uid: any = new ShortUniqueId({ length: 8 });
 		var url: string = "";
-		if (server === "mysql") {
-			url = `metadata-columns/${connection}?database=${databaseName}&table=${tableName}`;
+		if (!flatFileId) {
+			if (server === "mysql") {
+				url = `metadata-columns/${connection}?database=${databaseName}&table=${tableName}`;
+			} else {
+				url = `metadata-columns/${connection}?database=${databaseName}&schema=${schema}&table=${tableName}`;
+			}
 		} else {
-			url = `metadata-columns/${connection}?database=${databaseName}&schema=${schema}&table=${tableName}`;
+			url = `file-data-column-details/${flatFileId}`;
 		}
-		//console.log(url);
+
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
@@ -358,9 +434,20 @@ const EditDataSet = ({
 			headers: { Authorization: `Bearer ${token}` },
 		});
 		if (result.status) {
-			const arrayWithUid: ColumnsWithUid[] = result.data.map((data: Columns) => {
-				return { uid: schema.concat(tableName).concat(data.columnName), ...data };
-			});
+			let arrayWithUid: ColumnsWithUid[] = [];
+			if (flatFileId) {
+				arrayWithUid = result.data.map((data: any) => {
+					return {
+						uid: uid(),
+						columnName: data.fieldName,
+						dataType: data.dataType,
+					};
+				});
+			} else {
+				arrayWithUid = result.data.map((data: Columns) => {
+					return { uid: schema.concat(tableName).concat(data.columnName), ...data };
+				});
+			}
 			return arrayWithUid;
 		}
 	};
@@ -384,6 +471,7 @@ const mapStateToProps = (state: isLoggedProps & DataSetStateProps) => {
 	return {
 		token: state.isLogged.accessToken,
 		dsId: state.dataSetState.dsId,
+		isFlatFile: state.dataSetState.isFlatFile,
 	};
 };
 
@@ -412,6 +500,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		setDatabaseNametoState: (name: string) => dispatch(setDatabaseNametoState(name)),
 		setViews: (views: any[]) => dispatch(setViews(views)),
 		setUserTable: (payload: UserTableProps[]) => dispatch(setUserTable(payload)),
+		setCreateDsFromFlatFile: (value: boolean) => dispatch(setCreateDsFromFlatFile(value)),
 	};
 };
 

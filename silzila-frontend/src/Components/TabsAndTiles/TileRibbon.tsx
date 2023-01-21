@@ -34,9 +34,7 @@ const TileRibbon = ({
 	const handleAddTile = () => {
 		let tabObj = tabState.tabs[tabTileProps.selectedTabId];
 
-		var propKey: number = parseFloat(
-			`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
-		);
+		var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
 		addTile(
 			tabObj.tabId,
@@ -51,9 +49,9 @@ const TileRibbon = ({
 		let tabObj = tabState.tabs[tabTileProps.selectedTabId];
 		let nextTileId = tabObj.nextTileId;
 
-		let propKey: number = parseFloat(`${tabId}.${tileId}`);
+		let propKey: string = `${tabId}.${tileId}`;
 		let chartObj: any = chartProp.properties[propKey];
-		selectTile(tabId, tileName, tileId, nextTileId, chartObj.fileId, false);
+		selectTile(tabId, tileName, tileId, nextTileId, false, chartObj.fileId);
 	};
 
 	const handleRenameTileBegin = (tabId: number, tileId: number) => {
@@ -78,43 +76,72 @@ const TileRibbon = ({
 
 		let prevSelectedTile = tabTileProps.selectedTileId;
 		if (tileId === prevSelectedTile) {
+			console.log("case 1");
 			// handle selecting a new tile
 			let nextTileId = tabTileProps.nextTileId;
 			if (numTiles === 1) {
+				console.log("case 1.1");
 				handleAddTile();
 				removeTile(tabId, tileId, tileIndex);
 			} else {
+				console.log("case 1.2");
 				// if there are more than one tiles
 				let selectedTileName = "";
 				let selectedTileId = 0;
 
 				if (tileIndex !== 0) {
-					let newTileKey: any = tilesForSelectedTab[tileIndex - 1];
-
+					console.log("case 1.2.1");
+					let newTileKey: string = tilesForSelectedTab[tileIndex - 1];
 					let newTileObj = tileState.tiles[newTileKey];
 					selectedTileName = newTileObj.tileName;
 					selectedTileId = newTileObj.tileId;
+					console.log(newTileKey, newTileObj, selectedTileName, selectedTileId);
+					let propKey: string = `${tabId}.${tileId}`;
+					let chartObj: any = chartProp.properties[propKey];
+
+					selectTile(
+						tabId,
+						selectedTileName,
+						selectedTileId,
+						nextTileId,
+						false,
+						chartObj.fileId
+					);
 					removeTile(tabId, tileId, tileIndex);
 				} else {
-					let newTileKey: number = parseInt(tilesForSelectedTab[tileIndex + 1]);
-
+					console.log("case 1.2.2");
+					let newTileKey: string = tilesForSelectedTab[tileIndex + 1];
 					let newTileObj = tileState.tiles[newTileKey];
 					selectedTileName = newTileObj.tileName;
 					selectedTileId = newTileObj.tileId;
+					let propKey: string = `${tabId}.${tileId}`;
+					let chartObj: any = chartProp.properties[propKey];
+
+					selectTile(
+						tabId,
+						selectedTileName,
+						selectedTileId,
+						nextTileId,
+						false,
+						chartObj.fileId
+					);
 					removeTile(tabId, tileId, tileIndex);
 				}
-				let propKey: number = parseFloat(`${tabId}.${tileId}`);
-				let chartObj: any = chartProp.properties[propKey];
-				selectTile(
-					tabId,
-					selectedTileName,
-					selectedTileId,
-					nextTileId,
-					chartObj.fileId,
-					false
-				);
+				// let propKey: string = `${tabId}.${tileId}`;
+				// let chartObj: any = chartProp.properties[propKey];
+				// console.log(chartObj);
+
+				// selectTile(
+				// 	tabId,
+				// 	selectedTileName,
+				// 	selectedTileId,
+				// 	nextTileId,
+				// 	false,
+				// 	chartObj.fileId
+				// );
 			}
 		} else {
+			console.log("case 2");
 			removeTile(tabId, tileId, tileIndex);
 		}
 	};

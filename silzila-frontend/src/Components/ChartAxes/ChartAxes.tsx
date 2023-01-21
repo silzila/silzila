@@ -9,7 +9,10 @@ import "./ChartAxes.css";
 import DropZone from "./DropZone";
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import { Dispatch } from "redux";
-import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
+import {
+	updateChartData,
+	updateQueryResult,
+} from "../../redux/ChartPoperties/ChartControlsActions";
 import { canReUseData, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import FetchData from "../ServerCall/FetchData";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
@@ -25,7 +28,8 @@ export const getChartData = async (
 	axesValues: AxesValuProps[],
 	chartProp: ChartPropertiesProps,
 	propKey: number,
-	token: string
+	token: string,
+	updateQueryResult: any
 ) => {
 	/*	PRS 21/07/2022	Construct filter object for service call */
 	const getChartLeftFilter = () => {
@@ -89,12 +93,15 @@ export const getChartData = async (
 
 		/*	Determine whether to add a particular field	*/
 		const _getIsFilterValidToAdd = (item: any) => {
-
-			if(!item.fieldtypeoption){
+			if (!item.fieldtypeoption) {
 				return false;
 			}
 
-			if (item.fieldtypeoption === "Pick List" && item.userSelection && item.userSelection.length > 0) {
+			if (
+				item.fieldtypeoption === "Pick List" &&
+				item.userSelection &&
+				item.userSelection.length > 0
+			) {
 				return !item.userSelection.includes("(All)");
 			} else if (item.fieldtypeoption === "Search Condition") {
 				//   if (
@@ -120,8 +127,7 @@ export const getChartData = async (
 				} else if (item.exprType !== "between" && _isInvalidValue(item.exprInput)) {
 					return false;
 				}
-			}
-			else{
+			} else {
 				return false;
 			}
 
@@ -136,7 +142,6 @@ export const getChartData = async (
 			_filter.fieldName = item.fieldname;
 			_filter.dataType = item.dataType.toLowerCase();
 			_filter.shouldExclude = item.includeexclude === "Exclude";
-			
 
 			if (item.fieldtypeoption === "Search Condition") {
 				if (item.exprType) {
@@ -144,8 +149,7 @@ export const getChartData = async (
 				} else {
 					_filter.operator = item.dataType === "text" ? "begins_with" : "greater_than";
 				}
-			}
-			else{
+			} else {
 				_filter.operator = "in";
 			}
 
@@ -239,26 +243,37 @@ export const getChartData = async (
 
 		if (_filterObj.filters.length > 0) {
 			formattedAxes.filterPanels.push(_filterObj);
-		}
-		else{
+		} else {
 			formattedAxes.filterPanels = [];
 		}
 
-		console.log("Axis");
-		 console.log(JSON.stringify(formattedAxes));
+		var url: string = "";
+		if (chartProp.properties[propKey].selectedDs.isFlatFileData) {
+			url = `query?datasetid=${chartProp.properties[propKey].selectedDs.id}`;
+		} else {
+			url = `query?dbconnectionid=${chartProp.properties[propKey].selectedDs.connectionId}&datasetid=${chartProp.properties[propKey].selectedDs.id}`;
+		}
 
 		/*	PRS 21/07/2022	*/
 		var res: any = await FetchData({
 			requestType: "withData",
 			method: "POST",
-			url: `query?dbconnectionid=${chartProp.properties[propKey].selectedDs.connectionId}&datasetid=${chartProp.properties[propKey].selectedDs.id}`,
+			url: url,
 			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
 			data: formattedAxes,
 		});
 
 		if (res.status) {
-			console.log(res);
-			// if (res.data && res.data.result.length > 0) {
+			var res2: any = await FetchData({
+				requestType: "withData",
+				method: "POST",
+				url: `${url}&sql=true`,
+				headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+				data: formattedAxes,
+			});
+			if (res2.status) {
+				updateQueryResult(propKey, res2.data);
+			}
 			if (res.data && res.data.length > 0) {
 				return res.data;
 			} else {
@@ -308,12 +323,13 @@ const ChartAxes = ({
 	// state
 	token,
 	chartProp,
+	changeLocation,
 
 	// dispatch
 	updateChartData,
 	toggleAxesEdit,
 	reUseOldData,
-	changeLocation,
+	updateQueryResult,
 }: ChartAxesProps) => {
 	const [loading, setLoading] = useState<boolean>(false);
 
@@ -339,117 +355,111 @@ const ChartAxes = ({
 	// check for minimum requirements in each dropzone for the given chart type
 	// if not reset the data
 
-	
-
 	useEffect(() => {
 		const axesValues = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes));
 
 		//console.log(prevFilter);
 
 		/*	To sort chart data	based on field name	*/
-		const sortChartData    = (chartData: any[]) : any[] =>{
-			let result : any[] = [];
+		const sortChartData = (chartData: any[]): any[] => {
+			let result: any[] = [];
 
 			if (chartData && chartData.length > 0) {
-				let _zones:any = axesValues.filter((zones: any) => zones.name !== "Filter");
+				let _zones: any = axesValues.filter((zones: any) => zones.name !== "Filter");
 				//let _zonesFields:any = [];
-				let _fieldTempObject:any = {};
-				let _chartFieldTempObject:any = {};
-			
+				let _fieldTempObject: any = {};
+				let _chartFieldTempObject: any = {};
+
 				// _zones.forEach((zone:any)=>{
 				// 	_zonesFields = [..._zonesFields, ...zone.fields]
 				// });
 
 				/*	Find and return field's new name	*/
-				const findFieldName=(name : string, i : number = 2): string=>{
-				
-					if(_fieldTempObject[`${name}(${i})`] !== undefined){
+				const findFieldName = (name: string, i: number = 2): string => {
+					if (_fieldTempObject[`${name}(${i})`] !== undefined) {
 						i++;
 						return findFieldName(name, i);
-					}
-					else{
+					} else {
 						return `${name}(${i})`;
 					}
-				}
+				};
 
 				/*	Find and return field's new name	*/
-				const findFieldIndexName=(name : string, i : number = 2): string=>{
-				
-					if(_chartFieldTempObject[`${name}_${i}`] !== undefined){
+				const findFieldIndexName = (name: string, i: number = 2): string => {
+					if (_chartFieldTempObject[`${name}_${i}`] !== undefined) {
 						i++;
 						return findFieldIndexName(name, i);
-					}
-					else{
+					} else {
 						return `${name}_${i}`;
 					}
-				}
+				};
 
-				_zones.forEach((zoneItem:any)=>{
-					zoneItem.fields.forEach((field:any, index : number)=>{		
-						let _nameWithAgg: string =  "";
-	
-						if(zoneItem.name ==="Measure"){
-							if(field.dataType !== "date" && field.dataType !== "timestamp"){
-								_nameWithAgg =	field.agg ? `${field.agg} of ${field.fieldname}`: field.fieldname;
+				_zones.forEach((zoneItem: any) => {
+					zoneItem.fields.forEach((field: any, index: number) => {
+						let _nameWithAgg: string = "";
+
+						if (zoneItem.name === "Measure") {
+							if (field.dataType !== "date" && field.dataType !== "timestamp") {
+								_nameWithAgg = field.agg
+									? `${field.agg} of ${field.fieldname}`
+									: field.fieldname;
+							} else {
+								let _timeGrain: string = field.timeGrain || "";
+								_nameWithAgg = field.agg
+									? `${field.agg} ${_timeGrain} of ${field.fieldname}`
+									: field.fieldname;
 							}
-							else{
-								let _timeGrain:string = field.timeGrain || "";
-								_nameWithAgg = 	field.agg ? `${field.agg} ${_timeGrain} of ${field.fieldname}`: field.fieldname;
+						} else {
+							if (field.dataType !== "date" && field.dataType !== "timestamp") {
+								_nameWithAgg = field.agg
+									? `${field.agg} of ${field.fieldname}`
+									: field.fieldname;
+							} else {
+								let _timeGrain: string = field.timeGrain || "";
+								_nameWithAgg = _timeGrain
+									? `${_timeGrain} of ${field.fieldname}`
+									: field.fieldname;
 							}
 						}
-						else{
-							if(field.dataType !== "date" && field.dataType !== "timestamp"){
-								_nameWithAgg =	field.agg ? `${field.agg} of ${field.fieldname}`: field.fieldname;
-							}
-							else{
-								let _timeGrain:string = field.timeGrain || "";
-								_nameWithAgg = 	_timeGrain ? `${_timeGrain} of ${field.fieldname}`: field.fieldname;
-							}
-						}
 
-					
-	
-						if(_chartFieldTempObject[field.fieldname] !== undefined){
+						if (_chartFieldTempObject[field.fieldname] !== undefined) {
 							let _name = findFieldIndexName(field.fieldname);
-	
+
 							field["NameWithIndex"] = _name;
 							_chartFieldTempObject[_name] = "";
-						}
-						else{
+						} else {
 							field["NameWithIndex"] = field.fieldname;
 							_chartFieldTempObject[field.fieldname] = "";
 						}
-	
-						if(_fieldTempObject[_nameWithAgg] !== undefined){
+
+						if (_fieldTempObject[_nameWithAgg] !== undefined) {
 							let _name = findFieldName(_nameWithAgg);
-	
+
 							field["NameWithAgg"] = _name;
 							_fieldTempObject[_name] = "";
-						}
-						else{
+						} else {
 							field["NameWithAgg"] = _nameWithAgg;
 							_fieldTempObject[_nameWithAgg] = "";
 						}
-					})
-				})
-				
-			
+					});
+				});
+
 				chartData.forEach((data: any) => {
-					let _chartDataObj:any = {};
-			
-					_zones.forEach((zoneItem:any)=>{
+					let _chartDataObj: any = {};
+
+					_zones.forEach((zoneItem: any) => {
 						zoneItem.fields.forEach((field: any) => {
 							_chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
 						});
 					});
-			
+
 					result.push(_chartDataObj);
 				});
-		}
+			}
 
-		return result;
-	}
-	
+			return result;
+		};
+
 		let serverCall = false;
 
 		if (chartProp.properties[propKey].axesEdited) {
@@ -490,7 +500,7 @@ const ChartAxes = ({
 
 		if (serverCall) {
 			setLoading(true);
-			getChartData(axesValues, chartProp, propKey, token).then(data => {
+			getChartData(axesValues, chartProp, propKey, token, updateQueryResult).then(data => {
 				updateChartData(propKey, sortChartData(data));
 				setLoading(false);
 			});
@@ -593,6 +603,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(updateChartData(propKey, chartData)),
 		toggleAxesEdit: (propKey: number) => dispatch(toggleAxesEdited(propKey, false)),
 		reUseOldData: (propKey: number) => dispatch(canReUseData(propKey, false)),
+		updateQueryResult: (propKey: string | number, query: string | any) =>
+			dispatch(updateQueryResult(propKey, query)),
 	};
 };
 

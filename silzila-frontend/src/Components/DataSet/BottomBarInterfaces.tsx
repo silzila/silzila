@@ -17,6 +17,7 @@ export interface BottomBarProps {
 	dsId: string;
 	datasetName: string;
 	database: string;
+	isFlatFile: boolean;
 
 	// dispatch
 	resetState: () => void;

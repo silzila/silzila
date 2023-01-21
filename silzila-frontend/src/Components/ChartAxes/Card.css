@@ -13,8 +13,8 @@
 	color: rgb(87, 87, 87);
 }
 .axisField:hover {
-	border: 1px solid rgb(0, 123, 255);
-	color: rgb(0, 123, 255);
+	border: 1px solid #0076f6;
+	color: #0076f6;
 	/* font-weight: 600; */
 }
 
@@ -70,6 +70,8 @@
 
 	overflow: hidden;
 	text-overflow: ellipsis;
+	line-height: 10px;
+	text-align: center;
 }
 .columnPrefix {
 	color: #d25e00;

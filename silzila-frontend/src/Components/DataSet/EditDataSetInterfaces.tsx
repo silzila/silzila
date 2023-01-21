@@ -9,6 +9,7 @@ export interface EditDatasetProps {
 	//state
 	token: string;
 	dsId: string;
+	isFlatFile: boolean;
 
 	//dispatch
 	setValuesToState: (
@@ -23,6 +24,7 @@ export interface EditDatasetProps {
 	setDatabaseNametoState: (name: string) => void;
 	setUserTable: (payload: UserTableProps[]) => void;
 	setViews: (payload: any[]) => void;
+	setCreateDsFromFlatFile: (value: boolean) => void;
 }
 export interface CanvasIndividualTableProps {
 	id: string;

@@ -239,9 +239,9 @@ padding:0 5px 0 0;
 }
 
 .dropdownArrowUserFilter {
-    border-top: 1px solid rgb(0, 123, 255);
-    border-right: 1px solid rgb(0, 123, 255);
-    border-bottom: 1px solid rgb(0, 123, 255);
+    border-top: 1px solid #0076f6;
+    border-right: 1px solid #0076f6;
+    border-bottom: 1px solid #0076f6;
     border-left: none;
     border-radius: 4px 0;
     cursor: pointer;
@@ -252,9 +252,9 @@ padding:0 5px 0 0;
     flex: 1;
     text-align: left;
     padding: 0 5px;
-    color: rgb(0, 123, 255);
-    border-top: 1px solid rgb(0, 123, 255);
-    border-bottom: 1px solid rgb(0, 123, 255);
+    color: #0076f6;
+    border-top: 1px solid #0076f6;
+    border-bottom: 1px solid #0076f6;
     background-color: #f4f4f4;
 }
 
@@ -263,9 +263,9 @@ padding:0 5px 0 0;
     color: #999999;
     padding: 0 6px;
     font-size: 14px;
-    border-left: 1px solid rgb(0, 123, 255);
-    border-top: 1px solid rgb(0, 123, 255);
-    border-bottom: 1px solid rgb(0, 123, 255);
+    border-left: 1px solid #0076f6;
+    border-top: 1px solid #0076f6;
+    border-bottom: 1px solid #0076f6;
     background-color: #f4f4f4;
     border-radius: 0 3px 3px 0;
     cursor: pointer;

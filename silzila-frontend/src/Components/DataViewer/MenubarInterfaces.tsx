@@ -43,4 +43,5 @@ export interface MenubarProps {
 	resetAllStates: () => void;
 	toggleDashMode: (dashMode: string) => void;
 	toggleDashModeInTab: (tabId: number, dashMode: string) => void;
+	resetFlatFileState: () => void;
 }

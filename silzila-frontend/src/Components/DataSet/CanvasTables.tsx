@@ -54,6 +54,16 @@ const CanvasTables = ({
 	const dragRef = useRef<any>();
 	const updateXarrow = useXarrow();
 
+	console.log(
+		tableData,
+
+		arrows,
+		tempTable,
+		relationships,
+		tables,
+		views
+	);
+
 	const [showRelationCard, setShowRelationCard] = useState<boolean>(false);
 	const [arrowProp, setArrowProp] = useState<any>([]);
 	const [open, setOpen] = useState<boolean>(false);

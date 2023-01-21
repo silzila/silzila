@@ -40,7 +40,6 @@ const DataHome = () => {
 				<div
 					style={{
 						borderBottom: "2px solid  rgba(224,224,224,1)",
-						paddingBottom: "1rem",
 					}}
 				>
 					<DataSetList />
@@ -53,16 +52,6 @@ const DataHome = () => {
 				</div>
 			</div>
 		</div>
-		// <div className="dataHome">
-		// 	<MenuBar from="dataHome" />
-		// 	<div className="dataSetup">
-		// 		<div className="dcds">
-		// 			<DataConnection />
-		// 			<DataSetList />
-		// 		</div>
-		// 		<PlayBookList />
-		// 	</div>
-		// </div>
 	);
 };
 

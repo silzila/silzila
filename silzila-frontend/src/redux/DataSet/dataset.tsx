@@ -3,6 +3,7 @@ import { tableObjProps } from "./DatasetStateInterfaces";
 import { ActionTypeOfDataSet, UserTableProps } from "./DatasetStateInterfaces";
 
 const initialState = {
+	isFlatFile: false,
 	dsId: "",
 	connection: "",
 	schema: "",
@@ -20,6 +21,8 @@ const initialState = {
 
 const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) => {
 	switch (action.type) {
+		case "SET_CREATE_DS_FROM_FLATFILE":
+			return update(state, { isFlatFile: { $set: action.payload } });
 		// sets databaseName to state
 		case "SET_DATABASE_NAME":
 			return update(state, { databaseName: { $set: action.payload } });

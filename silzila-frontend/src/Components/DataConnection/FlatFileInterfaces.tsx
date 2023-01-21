@@ -9,6 +9,7 @@ export interface FlatFileUploadProps {
 export interface EditFlatFileProps {
 	token: string;
 	editApiResponse: any;
+	editMode: boolean;
 
 	setEditApiResponse: (key: string, file: any) => void;
 	setModifiedApiResponse: (file: any) => void;
@@ -18,6 +19,9 @@ export interface EditFlatFileProps {
 export interface ConfirmFlatFileProps {
 	token: string;
 	modifiedResponse: any;
+	editApiResponse: any;
+	editMode: boolean;
 
 	resetFlatFileState: () => void;
+	setEditApiResponse: (key: string, file: any) => void;
 }

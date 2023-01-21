@@ -86,7 +86,7 @@ public class DatasetService {
             // split alias name to list. eg. sub_category will be split into ['sub',
             // 'category']
             // split by underscore or space
-            String[] splitStrings = table.getAlias().split("_| ");
+            String[] splitStrings = table.getAlias().toLowerCase().split("_| ");
             String aliasName = "";
 
             // ################ To take one or multiple letters #################
