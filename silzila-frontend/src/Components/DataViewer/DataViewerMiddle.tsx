@@ -32,9 +32,7 @@ const DataViewerMiddle = ({
 	// dispatch
 	setMenu,
 }: DataViewerMiddleProps) => {
-	// console.log(chartProp);
 	var propKey: string = `${tabId}.${tileId}`;
-	console.log(propKey, "DataViewerMiddle");
 
 	const controlDisplayed = () => {
 		switch (tabTileProps.selectedControlMenu) {

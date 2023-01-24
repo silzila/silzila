@@ -33,7 +33,6 @@ const FlatFileList = (props: any) => {
 		});
 
 		if (result.status) {
-			console.log(result.data);
 			setFileList(result.data);
 		} else {
 		}
@@ -114,7 +113,7 @@ const FlatFileList = (props: any) => {
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
 				<div className="containerTitle">
-					<DescriptionOutlinedIcon style={{ marginRight: "10px", color: " #555555" }} />
+					<DescriptionOutlinedIcon style={{ marginRight: "10px", color: " #0076f6" }} />
 					Flat File
 				</div>
 
@@ -133,8 +132,10 @@ const FlatFileList = (props: any) => {
 					fileList.map((fi: any) => {
 						return (
 							<SelectListItem
+								key={fi.name}
 								render={(xprops: any) => (
 									<div
+										key={fi.name}
 										className={
 											xprops.open
 												? "dataConnectionListSelected"

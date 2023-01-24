@@ -12,8 +12,8 @@
 .UserSelectionDiv{
     display: block;
     position: relative;
-    max-height: 12em;
-    background-color:#eee;
+    max-height: 12em;margin-top: 10px;
+    /* background-color:#eee; */
     /* overflow-y: auto; */
     font-size: 12px;
 }
@@ -81,6 +81,34 @@ padding:0 5px 0 0;
     color: red;
     font-weight: bold;
     font-size: 14px;
+}
+
+.CustomRequiredField {
+     float: left;
+    height: auto;
+    width: 90%;
+    margin-left: 4px;
+    /* margin: 1% 5%;  */
+}
+
+.CustomRequiredField .CustomInputValue {
+    border: 1px solid gray;
+    height: 1.5rem;
+    width: 100%;
+    line-height: 1.5rem;
+    line-height: 1rem;
+    margin-right: 5px;
+    color: rgb(128, 128, 128);
+    padding: 0 5px;
+    margin-top: 5px;
+    float: left;
+    text-align: left;
+}
+
+.CustomRequiredField select {
+    color: black;
+    width: 100%;
+    float: left;
 }
 
 
@@ -159,32 +187,6 @@ padding:0 5px 0 0;
     color: black;
 }
 
-.CustomRequiredField{
-    float: left;
-    height: auto;
-    width: 90%;
-    margin: 1% 5%;
-}
-
-.CustomRequiredField .CustomInputValue {
-    border: 1px solid gray;
-    height: 1.5rem;
-    width: 100%;
-    line-height: 1.5rem;
-    line-height: 1rem;
-    margin-right: 5px;
-    color: rgb(128, 128, 128);
-    padding: 0 5px;
-    margin-top:5px;
-    float: left;
-    text-align: left;
-}
-
-.CustomRequiredField select {
-    color: black;
-    width: 100%;
-    float: left;
-}
 
 
 .react-date-picker {

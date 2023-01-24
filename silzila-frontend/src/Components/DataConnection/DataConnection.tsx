@@ -243,7 +243,7 @@ const DataConnection = (props: DataConnectionProps) => {
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
 				<div className="containerTitle">
-					<StorageOutlinedIcon style={{ marginRight: "10px", color: " #555555" }} />
+					<StorageOutlinedIcon style={{ marginRight: "10px", color: " #0076f6" }} />
 					Data Connections
 				</div>
 				<div

@@ -44,7 +44,7 @@ export const getTableData = async (dc_uid: string, tableObj: any, token: string)
 	if (tableObj.flatFileId) {
 		url = `file-data-sample-records/${tableObj.flatFileId}`;
 	} else {
-		url = `sample-records/${dc_uid}?database=${database}&schema=${schema}&table=${table}`;
+		url = `sample-records/${dc_uid}/20?database=${database}&schema=${schema}&table=${table}`;
 	}
 
 	var res: any = await FetchData({
@@ -69,7 +69,7 @@ export const getColumnTypes = async (dc_uid: string, tableObj: any, token: strin
 	if (tableObj.flatFileId) {
 		url = `file-data-column-details/${tableObj.flatFileId}`;
 	} else {
-		url = `sample-records/${dc_uid}?database=${database}&schema=${schema}&table=${table}`;
+		url = `metadata-columns/${dc_uid}?database=${database}&schema=${schema}&table=${table}`;
 	}
 
 	var res: any = await FetchData({
@@ -191,7 +191,6 @@ const DataViewerBottom = ({
 	if yes,display them. If no, get the table records and save in store*/
 
 	const handleTableChange = async (table: any, dsUid?: any) => {
-		console.log(table);
 		if (table.flatFileId) {
 		}
 		if (table.id !== selectedChartProp.selectedTable) {

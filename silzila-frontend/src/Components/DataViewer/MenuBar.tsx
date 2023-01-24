@@ -41,6 +41,7 @@ import {
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import { resetFlatFileState } from "../../redux/FlatFile/FlatFileStateActions";
+import silzilaNewLogo from "../../assets/new_silzilaLogo.svg";
 
 const MenuBar = ({
 	// props
@@ -507,7 +508,7 @@ const MenuBar = ({
 						) : (
 							<>
 								<img
-									src={SilzilaLogo}
+									src={silzilaNewLogo}
 									style={{
 										// height: "100%",
 										height: "70%",
@@ -712,7 +713,7 @@ const MenuBar = ({
 								}
 							}}
 						>
-							Savee
+							Save
 						</Button>
 					</div>
 				</div>

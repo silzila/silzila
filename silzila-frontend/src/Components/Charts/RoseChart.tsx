@@ -31,10 +31,7 @@ const RoseChart = ({
 			var objKey: string;
 			if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
 				if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
-					objKey =
-						chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname +
-						"__" +
-						chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain;
+					objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
 				} else {
 					objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				}

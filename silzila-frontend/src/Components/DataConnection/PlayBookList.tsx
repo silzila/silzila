@@ -86,7 +86,6 @@ const PlayBookList = ({
 				setSelectedDataSetList(selectedDataset);
 
 				var datasetFromServer: any = await getTables(selectedDataset.id);
-				console.log(datasetFromServer);
 				setTablesForDs({ [selectedDataset.id]: datasetFromServer.dataSchema.tables });
 				setSelectedDs(1.1, selectedDataset);
 
@@ -315,7 +314,7 @@ const PlayBookList = ({
 		<div className="dashboardsContainer">
 			<div className="containersHead">
 				<div className="containerTitle">
-					<DashboardOutlinedIcon style={{ marginRight: "10px", color: "#555555" }} />
+					<DashboardOutlinedIcon style={{ marginRight: "10px", color: "#0076f6" }} />
 					Playbooks
 				</div>
 
