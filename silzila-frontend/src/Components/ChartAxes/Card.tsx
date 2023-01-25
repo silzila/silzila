@@ -40,6 +40,9 @@ const Card = ({
 }: CardProps) => {
 	field.dataType = field.dataType.toLowerCase();
 
+	console.log(field, bIndex, itemIndex, propKey, axisTitle, tabTileProps, chartProp);
+	console.log(chartProp.properties[propKey].chartType);
+
 	const originalIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
 		(item: any) => item.uId === field.uId
 	);

@@ -37,9 +37,12 @@ const HeatMap = ({
 			var measureField: ChartDataFieldProps =
 				chartProperties.properties[propKey].chartAxes[3].fields[0];
 			if (measureField) {
-				// var maxFieldName: string = `${measureField.fieldname}__${measureField.agg}`;
-				var maxFieldName: string = `${measureField.fieldname}`;
-				console.log(maxFieldName);
+				var maxFieldName: string = "";
+				if ("timeGrain" in measureField) {
+					maxFieldName = `${measureField.timeGrain} of ${measureField.fieldname}`;
+				} else {
+					maxFieldName = `${measureField.agg} of ${measureField.fieldname}`;
+				}
 
 				var max: number = 0;
 				var min: number = 100000000;

@@ -33,7 +33,10 @@ const CalendarChart = ({
 			if (chartProperties.properties[propKey].chartAxes[1].fields.length > 0) {
 				setChartDataKeys(Object.keys(chartData[0]));
 
-				let objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
+				console.log(chartProperties.properties[propKey].chartAxes[1].fields[0]);
+				let objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
+
+				console.log(objKey, chartData);
 				// +
 				// 	"__" +
 				// 	chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain;
@@ -112,10 +115,7 @@ const CalendarChart = ({
 	}, [chartControl, chartControl.chartData]);
 
 	function getVirtulData(year: string | number) {
-		let objKey =
-			chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname +
-			"__" +
-			chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain;
+		let objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
 		var virtualData: any[] = [];
 
 		// getting measure value as day value for individual year
