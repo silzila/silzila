@@ -551,7 +551,10 @@ const GraphArea = ({
 				) : (
 					<div
 						className="graphAreaIcons"
-						onClick={() => setShowSqlCode(true)}
+						onClick={() => {
+							// console.log("sql click");
+							setShowSqlCode(true);
+						}}
 						title="View SQL Code"
 					>
 						<CodeIcon />

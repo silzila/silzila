@@ -33,20 +33,28 @@ const BoxPlotChart = ({
 	useEffect(() => {
 		if (chartData.length >= 1) {
 			// distribution value
-			var dimValue: string =
-				chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
+			var dimValue: string = "";
+
+			if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
+				dimValue = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
+			} else {
+				dimValue = `${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
+			}
 			var dimArray: string[] = chartData.map((el: any) => {
+				console.log(el, dimValue);
 				return el[dimValue];
 			});
+			console.log(dimArray);
 
 			setDimensionData([...new Set(dimArray)]);
 
-			var measureValue = `${chartProperties.properties[propKey].chartAxes[3].fields[0].fieldname}`;
-			console.log(measureValue);
+			var measureValue = `${chartProperties.properties[propKey].chartAxes[3].fields[0].agg} of ${chartProperties.properties[propKey].chartAxes[3].fields[0].fieldname}`;
+
 			var allMeasureValue: number[] = [];
 			allMeasureValue = chartData.map(el => {
 				return el[measureValue];
 			});
+			console.log(allMeasureValue);
 
 			minimumValueOfYaxis = Math.min(...allMeasureValue);
 			maximumValueOfYaxis = Math.max(...allMeasureValue);

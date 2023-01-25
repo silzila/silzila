@@ -156,7 +156,7 @@ const DataSetList = ({
 			>
 				<div className="containersHead" style={{ flex: 1 }}>
 					<div className="containerTitle">
-						<SchemaOutlinedIcon style={{ marginRight: "10px", color: " #555555" }} />
+						<SchemaOutlinedIcon style={{ marginRight: "10px", color: " #0076f6" }} />
 						Datasets
 					</div>
 					<div

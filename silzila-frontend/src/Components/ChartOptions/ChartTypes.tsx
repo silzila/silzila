@@ -5,35 +5,30 @@
 
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
-// import {
-// 	canReUseData,
-// 	changeChartTypeAndAxes,
-// } from "../../redux/ChartProperties/actionsChartProperties";
+
 import "./ChartIconStyles.css";
-import multiBarIcon from "../../assets/bar_chart_grouped.svg";
-import horizontalBar from "../../assets/horizontal_bar_grouped.png";
-import stackedBarIcon from "../../assets/bar_chart_stacked.svg";
-import horizontalStackedBar from "../../assets/horizontal_bar_stacked.png";
-import lineChartIcon from "../../assets/line_chart.svg";
-import areaChartIcon from "../../assets/area-chart.svg";
-import pieChartIcon from "../../assets/pie_chart.svg";
-import donutChartIcon from "../../assets/donut_chart.svg";
-import scatterPlotIcon from "../../assets/scatter.svg";
+import multiBarIcon from "../../assets/new_bar.svg";
+import horizontalBar from "../../assets/new_horizondalBar.svg";
+import stackedBarIcon from "../../assets/new_stackedBar.svg";
+import horizontalStackedBar from "../../assets/new_horizondalStackedBar.svg";
+import lineChartIcon from "../../assets/new_line.svg";
+import areaChartIcon from "../../assets/new_area.svg";
+import pieChartIcon from "../../assets/new_pie.svg";
+import donutChartIcon from "../../assets/new_doughnut.svg";
+import scatterPlotIcon from "../../assets/new_scatterPlot.svg";
 import funnelChartIcon from "../../assets/new_Funnel.svg";
-import gaugeChartIcon from "../../assets/GaugeChart.svg";
-import heatMapIcon from "../../assets/HeatMapChart.svg";
-// import ChartsInfo from "../ChartAxes/ChartsInfo2";
-import CrossTabIcon from "../../assets/crosstab.png";
-import roseChartIcon from "../../assets/rose_chart.svg";
-import geoChartIcon from "../../assets/earth.svg";
-import stackedAreaChartIcon from "../../assets/stacked_Area_Chart.svg";
-import calendarChartIcon from "../../assets/calendar_chart.svg";
+import gaugeChartIcon from "../../assets/new_gauge.svg";
+import heatMapIcon from "../../assets/new_heatMap.svg";
+import CrossTabIcon from "../../assets/new_crossTab.svg";
+import roseChartIcon from "../../assets/new_rose.svg";
+// import geoChartIcon from "../../assets/earth.svg";
+import stackedAreaChartIcon from "../../assets/new_areaStacked.svg";
+import calendarChartIcon from "../../assets/new_calendar.svg";
 import "./ChartOptions.css";
-// import { updateChartData } from "../../redux/ChartProperties/actionsChartControls";
-import boxPlotIcon from "../../assets/box_plot.svg";
-import TreeMapIcon from "../../assets/treemap.svg";
-import TextEditorIcon from "../../assets/text_editor.svg";
-import Sankey from "../../assets/SankeyChart.svg";
+import boxPlotIcon from "../../assets/new_boxPlot.svg";
+import TreeMapIcon from "../../assets/new_treeMap.svg";
+import TextEditorIcon from "../../assets/new_richText.svg";
+import Sankey from "../../assets/new_sankey.svg";
 import { Dispatch } from "redux";
 import {
 	canReUseData,

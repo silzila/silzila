@@ -59,7 +59,7 @@ const tileStateReducer = (state: TileStateProps = initialTileState, action: Acti
 			});
 
 		case "RENAME_TILE":
-			let tileKey2: number = parseFloat(`${action.payload.tabId}.${action.payload.tileId}`);
+			let tileKey2: string = `${action.payload.tabId}.${action.payload.tileId}`;
 			return update(state, {
 				tiles: { [tileKey2]: { tileName: { $set: action.payload.renameValue } } },
 			});

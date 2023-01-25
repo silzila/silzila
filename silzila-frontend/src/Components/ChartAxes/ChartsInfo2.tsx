@@ -234,7 +234,7 @@ const ChartsInfo: ChartsInfoProps = {
 	calendar: {
 		dropZones: [
 			{ name: "Filter", allowedNumbers: 64, min: 0 },
-			{ name: "Dimension", allowedNumbers: 1, min: 1, dataType: ["timestamp"] },
+			{ name: "Date", allowedNumbers: 1, min: 1, dataType: ["timestamp"] },
 			{ name: "Measure", allowedNumbers: 1, min: 1, dataType: ["int", "float", "double"] },
 		],
 		showSwap: false,

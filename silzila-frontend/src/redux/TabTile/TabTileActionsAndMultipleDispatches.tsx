@@ -37,6 +37,7 @@ export const updateSelectedTab = (
 	showDash?: boolean,
 	dashMode?: string
 ) => {
+	console.log(tabName, tabId);
 	return {
 		type: "SELECTED_TAB",
 		payload: { tabName: tabName, tabId: tabId, showDash, dashMode },
@@ -262,15 +263,14 @@ export const actionsToRemoveTab = (
 	tabName: string,
 	tabId: number,
 	tabToRemoveIndex: number,
-	newObj: any
+	newObj?: any
 ) => {
 	return (dispatch: Dispatch<any>) => {
-		dispatch(removeTab(tabName, tabId, tabToRemoveIndex));
-		dispatch(removeTilesOfTab(tabName, tabId));
-		dispatch(removeMultipleChartProperties(tabId));
-		dispatch(removeMultipleChartControls(tabId));
 		if (newObj) {
-			dispatch(updateSelectedTab(newObj.tabName, newObj.tabId));
+			console.log(newObj);
+			dispatch(
+				updateSelectedTab(newObj.tabName, newObj.tabId, newObj.showDash, newObj.dashMode)
+			);
 			dispatch(
 				updateSelectedTile(
 					newObj.selectedTileName,
@@ -279,6 +279,10 @@ export const actionsToRemoveTab = (
 				)
 			);
 		}
+		dispatch(removeTab(tabName, tabId, tabToRemoveIndex));
+		dispatch(removeTilesOfTab(tabName, tabId));
+		dispatch(removeMultipleChartProperties(tabId));
+		dispatch(removeMultipleChartControls(tabId));
 	};
 };
 

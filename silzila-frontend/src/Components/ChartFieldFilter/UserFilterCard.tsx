@@ -331,9 +331,8 @@ const UserFilterCard = ({
 
 	///Pick list CB change
 
-	const handleCBChange = (event:any) => {
+	const handleCBChange = (event: any) => {
 		if (event.target.name.toString() === "(All)") {
-
 			if (event.target.checked) {
 				filterFieldData["userSelection"] = [...filterFieldData.rawselectmembers];
 			} else {
@@ -358,16 +357,14 @@ const UserFilterCard = ({
 				}
 			} else {
 				let idx = filterFieldData.userSelection.findIndex(
-
-					(item:any) => item.toString() === event.target.name.toString()
-
+					(item: any) => item.toString() === event.target.name.toString()
 				);
 				filterFieldData.userSelection.splice(idx, 1);
 			}
 
-
-			let AllIdx = filterFieldData.userSelection.findIndex((item:any) => item.toString() === "(All)");
-
+			let AllIdx = filterFieldData.userSelection.findIndex(
+				(item: any) => item.toString() === "(All)"
+			);
 
 			if (AllIdx >= 0) {
 				filterFieldData.userSelection.splice(AllIdx, 1);
@@ -613,7 +610,7 @@ const UserFilterCard = ({
 	///set Search condition condition initiallize slider control
 	const setSliderRange = () => {
 		if (
-			["float","decimal", "double", "integer"].includes(dataType) &&
+			["float", "decimal", "double", "integer"].includes(dataType) &&
 			filterFieldData.exprType === "between"
 		) {
 			if (
@@ -752,12 +749,11 @@ const UserFilterCard = ({
 
 	///Search Condition user input change handler
 
-	const handleCustomRequiredValueOnBlur = (val: number | string, key?:string, type?:string) => {
-
+	const handleCustomRequiredValueOnBlur = (val: number | string, key?: string, type?: string) => {
 		key = key || "exprInput";
-		
-		if(type && type === "date"){
-			val = moment(val).format("yyyy-MM-DD")
+
+		if (type && type === "date") {
+			val = moment(val).format("yyyy-MM-DD");
 		}
 
 		if (!filterFieldData[key] || filterFieldData[key] !== val) {
@@ -784,13 +780,26 @@ const UserFilterCard = ({
 		// // console.log(type);
 		return (
 			<>
-				<input
+				<TextField
+					InputProps={{
+						style: {
+							height: "25px",
+							width: "12.7rem",
+							fontSize: "13px",
+							marginRight: "30px",
+						},
+					}}
 					placeholder="Value"
 					defaultValue={filterFieldData.exprInput}
 					type={type}
 					onBlur={e => handleCustomRequiredValueOnBlur(e.target.value)}
-					
 				/>
+				{/* <input
+					placeholder="Value"
+					defaultValue={filterFieldData.exprInput}
+					type={type}
+					onBlur={e => handleCustomRequiredValueOnBlur(e.target.value)}
+				/> */}
 
 				{filterFieldData.isInValidData ? (
 					<span className="ErrorText">Please enter valid data.</span>
@@ -821,7 +830,23 @@ const UserFilterCard = ({
           max={filterFieldData.lessThanOrEqualTo}
           marks={_marks}
            />*/}
-				<input
+				<TextField
+					type="number"
+					className="CustomInputValue"
+					defaultValue={filterFieldData.greaterThanOrEqualTo}
+					onBlur={e => {
+						handleCustomRequiredValueOnBlur(e.target.value, "greaterThanOrEqualTo");
+					}}
+				/>
+				<TextField
+					type="number"
+					className="CustomInputValue"
+					defaultValue={filterFieldData.lessThanOrEqualTo}
+					onBlur={e => {
+						handleCustomRequiredValueOnBlur(e.target.value, "lessThanOrEqualTo");
+					}}
+				/>
+				{/* <input
 					placeholder="Greater than or Equal to"
 					type="number"
 					className="CustomInputValue"
@@ -838,7 +863,7 @@ const UserFilterCard = ({
 					onBlur={e => {
 						handleCustomRequiredValueOnBlur(e.target.value, "lessThanOrEqualTo");
 					}}
-				/>
+				/> */}
 				{filterFieldData.isInValidData ? (
 					<span className="ErrorText">Please enter valid data.</span>
 				) : null}
@@ -853,7 +878,9 @@ const UserFilterCard = ({
 				<LocalizationProvider dateAdapter={AdapterDateFns}>
 					<DatePicker
 						value={filterFieldData.greaterThanOrEqualTo}
-						onChange={e => handleCustomRequiredValueOnBlur(e, "greaterThanOrEqualTo", "date")}
+						onChange={e =>
+							handleCustomRequiredValueOnBlur(e, "greaterThanOrEqualTo", "date")
+						}
 						renderInput={params => <TextField {...params} />}
 					/>
 				</LocalizationProvider>
@@ -861,7 +888,9 @@ const UserFilterCard = ({
 				<LocalizationProvider dateAdapter={AdapterDateFns}>
 					<DatePicker
 						value={filterFieldData.lessThanOrEqualTo}
-						onChange={e => handleCustomRequiredValueOnBlur(e, "lessThanOrEqualTo","date")}
+						onChange={e =>
+							handleCustomRequiredValueOnBlur(e, "lessThanOrEqualTo", "date")
+						}
 						renderInput={params => <TextField {...params} />}
 					/>
 				</LocalizationProvider>
@@ -907,7 +936,11 @@ const UserFilterCard = ({
 										<DatePicker
 											value={filterFieldData.exprInput}
 											onChange={e =>
-												handleCustomRequiredValueOnBlur(e, "exprInput","date")
+												handleCustomRequiredValueOnBlur(
+													e,
+													"exprInput",
+													"date"
+												)
 											}
 											renderInput={params => <TextField {...params} />}
 										/>
@@ -942,12 +975,14 @@ const UserFilterCard = ({
 	///Dropdown list to select Time grain
 	const DropDownForDatePattern = ({ items }: any) => {
 		return (
-			<select
+			<Select
+				sx={{ height: "1.5rem", fontSize: "14px", textAlign: "left", width: "100%" }}
 				onChange={e => {
 					handleDropDownForDatePatternOnChange(e);
 				}}
+				value={filterFieldData["prefix"]}
 			>
-				{items.map((item: any) => {
+				{/* {items.map((item: any) => {
 					return (
 						<option
 							key={item.key}
@@ -957,8 +992,45 @@ const UserFilterCard = ({
 							{item.value}
 						</option>
 					);
+				})} */}
+				{items.map((item: any) => {
+					return (
+						<MenuItem
+							key={item.key}
+							value={item.key}
+							selected={item.key === filterFieldData.exprType}
+						>
+							<Typography
+								sx={{
+									width: "auto",
+									overflow: "hidden",
+									textOverflow: "ellipsis",
+									fontSize: "12px",
+								}}
+							>
+								{item.value}
+							</Typography>
+						</MenuItem>
+					);
 				})}
-			</select>
+			</Select>
+			// <select
+			// 	onChange={e => {
+			// 		handleDropDownForDatePatternOnChange(e);
+			// 	}}
+			// >
+			// 	{items.map((item: any) => {
+			// 		return (
+			// 			<option
+			// 				key={item.key}
+			// 				value={item.key}
+			// 				selected={item.key === filterFieldData.prefix}
+			// 			>
+			// 				{item.value}
+			// 			</option>
+			// 		);
+			// 	})}
+			// </select>
 		);
 	};
 
@@ -966,7 +1038,7 @@ const UserFilterCard = ({
 	const DropDownForPattern = ({ items }: any) => {
 		return (
 			<Select
-				sx={{ height: "1.5rem", fontSize: "14px", width: "90%", textAlign: "left" }}
+				sx={{ height: "1.5rem", fontSize: "14px", width: "92.5%", textAlign: "left" }}
 				onChange={e => {
 					// console.log(e);
 					handleDropDownForPatternOnChange(e);
@@ -990,6 +1062,7 @@ const UserFilterCard = ({
 							>
 								{item.value}
 							</Typography>
+							{/* CustomCard */}
 						</MenuItem>
 					);
 				})}
@@ -1026,7 +1099,16 @@ const UserFilterCard = ({
 		}
 
 		return (
-			<div className="CustomRequiredField">
+			<div
+				// className="CustomRequiredField"
+				style={{
+					backgroundColor: "white",
+					display: "flex",
+					flexDirection: "column",
+					rowGap: "8px",
+					marginLeft: "4px",
+				}}
+			>
 				{members}
 				<CustomRequiredField></CustomRequiredField>
 			</div>

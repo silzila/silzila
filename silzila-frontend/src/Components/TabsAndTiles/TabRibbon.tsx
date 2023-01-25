@@ -107,8 +107,10 @@ const TabRibbon = ({
 			if (addingNewTab) {
 				removeTab(tabName, tabId, tabToRemoveIndex);
 			} else {
+				console.log("case");
 				let newTabId: number = tabState.tabList[nextSelection];
 				let newObj: IndTabs = tabState.tabs[newTabId];
+				console.log(newObj);
 
 				removeTab(tabName, tabId, tabToRemoveIndex, newObj);
 			}
