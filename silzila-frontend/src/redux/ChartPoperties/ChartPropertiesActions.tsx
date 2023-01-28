@@ -249,7 +249,7 @@ export const setTitleSize = (propKey: string | number, value: number) => {
 };
 
 export const sortAxes = (
-	propKey: number,
+	propKey: string,
 	bIndex: number,
 	dragUId: string | number,
 	dropUId: string | number
@@ -261,7 +261,7 @@ export const sortAxes = (
 };
 
 export const revertAxes = (
-	propKey: number,
+	propKey: string,
 	bIndex: number,
 	uId: string | number,
 	originalIndex: any
@@ -294,7 +294,7 @@ export const resetChartProperties = () => {
 	return { type: "RESET_CHART_PROPERTY" };
 };
 
-export const updateLeftFilterItem = (propKey: number, bIndex: number, item: any) => {
+export const updateLeftFilterItem = (propKey: string, bIndex: number, item: any) => {
 	return { type: "UPDATE_LEFT_FILTER_ITEM", payload: { propKey, bIndex, item } };
 };
 export const updtateFilterExpandeCollapse = (

@@ -38,20 +38,24 @@ import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import TextEditor from "../Charts/TextEditor";
 import CrossTabChart from "../Charts/CrossTab/CrossTabChart";
 import FetchData from "../ServerCall/FetchData";
+import { getCardUtilityClass } from "@mui/material";
+import { getChartData } from "../ChartAxes/ChartAxes";
+import { updateQueryResult } from "../../redux/ChartPoperties/ChartControlsActions";
 
 const GraphArea = ({
-	// propKey,
 	// state
 	tileState,
 	tabState,
 	tabTileProps,
 	chartProperties,
 	chartControlState,
+	token,
 
 	// dispatch
 	setChartTitle,
 	setGenerateTitleToStore,
 	toggleGraphSize,
+	updateQueryResult,
 }: any) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	// console.log(propKey);
@@ -67,7 +71,8 @@ const GraphArea = ({
 		if (tileState.tiles[propKey].graphSizeFull) {
 			const height =
 				(document.getElementById("graphContainer") as HTMLElement).clientHeight - 30;
-			// const height = document.getElementById("graphContainer").clientHeight;
+			// const height = (document.getElementById("graphContainer") as HTMLElement).clientHeight;
+			// const width = (document.getElementById("graphContainer") as HTMLElement).clientWidth;
 			const width =
 				(document.getElementById("graphContainer") as HTMLElement).clientWidth - 30;
 
@@ -472,6 +477,39 @@ const GraphArea = ({
 		);
 	};
 
+	const getSqlQuery = () => {
+		getChartData(
+			chartProperties.properties[propKey].chartAxes,
+			chartProperties,
+			propKey,
+			token,
+			true
+		).then(async data => {
+			var url: string = "";
+			if (chartProperties.properties[propKey].selectedDs.isFlatFileData) {
+				url = `query?datasetid=${chartProperties.properties[propKey].selectedDs.id}`;
+			} else {
+				url = `query?dbconnectionid=${chartProperties.properties[propKey].selectedDs.connectionId}&datasetid=${chartProperties.properties[propKey].selectedDs.id}`;
+			}
+			var res: any = await FetchData({
+				requestType: "withData",
+				method: "POST",
+				url: `${url}&sql=true`,
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				data: data,
+			});
+			if (res.status) {
+				updateQueryResult(propKey, res.data);
+				setShowSqlCode(true);
+			} else {
+				window.alert("Error in getting sql Query");
+			}
+		});
+	};
+
 	return (
 		<div className="centerColumn">
 			<div className="graphTitleAndEdit">
@@ -549,14 +587,7 @@ const GraphArea = ({
 						<BarChartIcon />
 					</div>
 				) : (
-					<div
-						className="graphAreaIcons"
-						onClick={() => {
-							// console.log("sql click");
-							setShowSqlCode(true);
-						}}
-						title="View SQL Code"
-					>
+					<div className="graphAreaIcons" onClick={getSqlQuery} title="View SQL Code">
 						<CodeIcon />
 					</div>
 				)}
@@ -609,6 +640,7 @@ const mapStateToProps = (state: any) => {
 		tabTileProps: state.tabTileProps,
 		chartControlState: state.chartControls,
 		chartProperties: state.chartProperties,
+		token: state.isLogged.accessToken,
 	};
 };
 
@@ -620,6 +652,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(setGenerateTitle(propKey, option)),
 		toggleGraphSize: (tileKey: number, graphSize: boolean | any) =>
 			dispatch(toggleGraphSize(tileKey, graphSize)),
+		updateQueryResult: (propKey: string, query: string | any) =>
+			dispatch(updateQueryResult(propKey, query)),
 	};
 };
 

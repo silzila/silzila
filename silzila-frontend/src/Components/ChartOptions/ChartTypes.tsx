@@ -19,7 +19,7 @@ import scatterPlotIcon from "../../assets/new_scatterPlot.svg";
 import funnelChartIcon from "../../assets/new_Funnel.svg";
 import gaugeChartIcon from "../../assets/new_gauge.svg";
 import heatMapIcon from "../../assets/new_heatMap.svg";
-import CrossTabIcon from "../../assets/new_crossTab.svg";
+import CrossTabIcon from "../../assets/new_CrossTab.svg";
 import roseChartIcon from "../../assets/new_rose.svg";
 // import geoChartIcon from "../../assets/earth.svg";
 import stackedAreaChartIcon from "../../assets/new_areaStacked.svg";
@@ -97,8 +97,8 @@ const ChartTypes = ({
 		arr1: any,
 		arr2?: any
 	) => {
-		// let allowedNumbers = ChartsInfo[chartName].dropZones[chartAxesIndex].allowedNumbers ?? 1;
-		let allowedNumbers = 10;
+		let allowedNumbers = ChartsInfo[chartName].dropZones[chartAxesIndex].allowedNumbers ?? 1;
+		// let allowedNumbers = 10;
 
 		if (arr1 && arr1.length > 0) {
 			if (allowedNumbers > arr1.length) {
@@ -1433,7 +1433,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(changeChartTypeAndAxes(propKey, chartType, newAxes)),
 		keepOldData: (propKey: number, reUseData: boolean) =>
 			dispatch(canReUseData(propKey, reUseData)),
-		updateChartData: (propKey: number, chartData: string | any) =>
+		updateChartData: (propKey: string, chartData: string | any) =>
 			dispatch(updateChartData(propKey, chartData)),
 		addTile: (
 			tabId: number,

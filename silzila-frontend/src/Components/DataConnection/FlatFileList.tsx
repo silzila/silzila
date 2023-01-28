@@ -114,11 +114,11 @@ const FlatFileList = (props: any) => {
 			<div className="containersHead">
 				<div className="containerTitle">
 					<DescriptionOutlinedIcon style={{ marginRight: "10px", color: " #0076f6" }} />
-					Flat File
+					Flat Files
 				</div>
 
 				<div
-					title="Click to Add New Flatfile"
+					title="Create New Flatfile"
 					className="containerButton"
 					onClick={() => {
 						navigate("/flatfileupload");

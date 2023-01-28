@@ -325,7 +325,7 @@ const PlayBookList = ({
 					popOverTitle="Select a Dataset to use with PlayBook"
 				/>
 				<div
-					title="Click to Add New Playbook"
+					title="Create New Playbook"
 					className="containerButton"
 					onClick={e => {
 						setOpenPopOver(true);
@@ -428,8 +428,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			oldContent?: string | any
 		) => dispatch(updatePlaybookUid(playBookName, playBookUid, description, oldContent)),
 		storePlayBookCopy: (pb: any) => dispatch(storePlayBookCopy(pb)),
-		updateChartData: (propKey: number | string, chartData: string | any) =>
-			dispatch(updateChartData(propKey, chartData)),
+		// updateChartData: (propKey: number | string, chartData: string | any) =>
+		// 	dispatch(updateChartData(propKey, chartData)),
 	};
 };
 

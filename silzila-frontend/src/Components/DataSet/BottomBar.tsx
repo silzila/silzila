@@ -310,7 +310,7 @@ const BottomBar = ({
 						value={editMode ? "Back" : "Cancel"}
 						onClick={(e: any) => {
 							setselectedButton(e.target.value);
-							onCancelOnDataset;
+							onCancelOnDataset();
 						}}
 					>
 						{editMode ? "Back" : "Cancel"}

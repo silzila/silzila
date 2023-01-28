@@ -25,7 +25,7 @@
 
 .dataSetSelect {
 	width: 92%;
-	padding: 1rem 0 .5rem .5rem;
+	padding: 1rem 0 .5rem 10px;
 	/* background-color: rgb(211, 211, 211); */
 }
 
@@ -38,7 +38,7 @@
 .tablescontainerinDataviewerBottom{
 	flex: 1;
 	overflow: hidden;
-	padding: 0 0.5rem
+	padding: 0 0.5rem 0 10px;
 }
 .tablescontainerinDataviewerBottom:hover{
 	overflow: auto;
@@ -135,7 +135,7 @@
 
 .boxContainer {
 	flex: 1;
-	border-radius: 5px;
+	border-radius: 4px;
 	border: 1px solid rgb(211, 211, 211);
 	text-align: left;
 	background-color: #fff;
@@ -146,7 +146,7 @@
 	padding: 3px 4px;
 }
 .boxContainer:hover {
-	background-color: rgb(211, 211, 211);
+	background-color: rgba(224, 224, 224, 1);
 }
 .boxText {
 	display: flex;

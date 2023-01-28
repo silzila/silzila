@@ -141,6 +141,7 @@ const CalendarChart = ({
 					padding: "1rem",
 					width: graphDimension.width,
 					height: graphDimension.height,
+					// overflow:'auto',
 					overflow: "hidden",
 					margin: "auto",
 					border: chartArea

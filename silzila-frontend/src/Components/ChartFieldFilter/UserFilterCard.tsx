@@ -483,12 +483,12 @@ const UserFilterCard = ({
 
 	///Menu close event handler
 	const handleClose = async (closeFrom: any, queryParam?: any) => {
-		console.log(closeFrom, queryParam);
+		// console.log(closeFrom, queryParam);
 		setAnchorEl(null);
 		//setShowOptions(false);
 
 		if (closeFrom === "opt2") {
-			console.log(filterFieldData.rawselectmembers, filterFieldData.fieldtypeoption);
+			// console.log(filterFieldData.rawselectmembers, filterFieldData.fieldtypeoption);
 			if (
 				!filterFieldData.rawselectmembers ||
 				filterFieldData.fieldtypeoption !== queryParam
@@ -784,7 +784,7 @@ const UserFilterCard = ({
 					InputProps={{
 						style: {
 							height: "25px",
-							width: "12.7rem",
+							width: "100%",
 							fontSize: "13px",
 							marginRight: "30px",
 						},
@@ -833,6 +833,9 @@ const UserFilterCard = ({
 				<TextField
 					type="number"
 					className="CustomInputValue"
+					sx={{
+						width: "100%",
+					}}
 					defaultValue={filterFieldData.greaterThanOrEqualTo}
 					onBlur={e => {
 						handleCustomRequiredValueOnBlur(e.target.value, "greaterThanOrEqualTo");
@@ -976,23 +979,38 @@ const UserFilterCard = ({
 	const DropDownForDatePattern = ({ items }: any) => {
 		return (
 			<Select
-				sx={{ height: "1.5rem", fontSize: "14px", textAlign: "left", width: "100%" }}
+				// sx={{ height: "1.5rem", fontSize: "14px", textAlign: "left", width: "100%" }}
+				sx={{
+					height: "1.5rem",
+					fontSize: "14px",
+					textAlign: "left",
+					width: "100%",
+
+					// ".MuiOutlinedInput-notchedOutline": {
+					// 	borderColor: "rgba(228, 219, 233, 0.25)",
+					// },
+					// "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+					// 	borderColor: "rgba(228, 219, 233, 0.25)",
+					// },
+					// "&:hover .MuiOutlinedInput-notchedOutline": {
+					// 	borderColor: "rgba(228, 219, 233, 0.25)",
+					// },
+					".MuiSvgIcon-root ": {
+						fill: "#999999 !important",
+						fontSize: "17px",
+						marginLeft: "20px",
+					},
+					".MuiSelect-icon": {
+						position: "unset",
+						marginRight: "5px",
+					},
+				}}
+				IconComponent={KeyboardArrowDownIcon}
 				onChange={e => {
 					handleDropDownForDatePatternOnChange(e);
 				}}
 				value={filterFieldData["prefix"]}
 			>
-				{/* {items.map((item: any) => {
-					return (
-						<option
-							key={item.key}
-							value={item.key}
-							selected={item.key === filterFieldData.prefix}
-						>
-							{item.value}
-						</option>
-					);
-				})} */}
 				{items.map((item: any) => {
 					return (
 						<MenuItem
@@ -1006,6 +1024,7 @@ const UserFilterCard = ({
 									overflow: "hidden",
 									textOverflow: "ellipsis",
 									fontSize: "12px",
+									lineHeight: "20px",
 								}}
 							>
 								{item.value}
@@ -1014,23 +1033,6 @@ const UserFilterCard = ({
 					);
 				})}
 			</Select>
-			// <select
-			// 	onChange={e => {
-			// 		handleDropDownForDatePatternOnChange(e);
-			// 	}}
-			// >
-			// 	{items.map((item: any) => {
-			// 		return (
-			// 			<option
-			// 				key={item.key}
-			// 				value={item.key}
-			// 				selected={item.key === filterFieldData.prefix}
-			// 			>
-			// 				{item.value}
-			// 			</option>
-			// 		);
-			// 	})}
-			// </select>
 		);
 	};
 
@@ -1038,9 +1040,23 @@ const UserFilterCard = ({
 	const DropDownForPattern = ({ items }: any) => {
 		return (
 			<Select
-				sx={{ height: "1.5rem", fontSize: "14px", width: "92.5%", textAlign: "left" }}
+				sx={{
+					height: "1.5rem",
+					fontSize: "14px",
+					width: "100%",
+					textAlign: "left",
+					".MuiSvgIcon-root ": {
+						fill: "#999999 !important",
+						fontSize: "17px",
+						marginLeft: "20px",
+					},
+					".MuiSelect-icon": {
+						position: "unset",
+						marginRight: "5px",
+					},
+				}}
+				IconComponent={KeyboardArrowDownIcon}
 				onChange={e => {
-					// console.log(e);
 					handleDropDownForPatternOnChange(e);
 				}}
 				value={filterFieldData.exprType}
@@ -1106,7 +1122,8 @@ const UserFilterCard = ({
 					display: "flex",
 					flexDirection: "column",
 					rowGap: "8px",
-					marginLeft: "4px",
+					marginLeft: "6px",
+					width: "94%",
 				}}
 			>
 				{members}
@@ -1171,8 +1188,8 @@ const UserFilterCard = ({
 					className="columnName"
 					style={
 						filterFieldData.includeexclude === "Exclude"
-							? { border: "#ffb74d 1px solid" }
-							: {}
+							? { border: "#ffb74d 1px solid", lineHeight: "15px" }
+							: { lineHeight: "15px" }
 					}
 				>
 					{field.fieldname}
@@ -1249,16 +1266,16 @@ const mapStateToProps = (
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateLeftFilterItem: (propKey: number, bIndex: number, item: any) =>
+		updateLeftFilterItem: (propKey: string, bIndex: number, item: any) =>
 			dispatch(updateLeftFilterItem(propKey, bIndex, item)),
 		updtateFilterExpandeCollapse: (propKey: number | string, bIndex: number, item: any) =>
 			dispatch(updtateFilterExpandeCollapse(propKey, bIndex, item)),
 		deleteDropZoneItems: (propKey: number | string, binIndex: number, itemIndex: any) =>
 			dispatch(editChartPropItem("delete", { propKey, binIndex, itemIndex })),
 
-		sortAxes: (propKey: number, bIndex: number, dragUId: any, uId: any) =>
+		sortAxes: (propKey: string, bIndex: number, dragUId: any, uId: any) =>
 			dispatch(sortAxes(propKey, bIndex, dragUId, uId)),
-		revertAxes: (propKey: number, bIndex: number, uId: any, originalIndex: any) =>
+		revertAxes: (propKey: string, bIndex: number, uId: any, originalIndex: any) =>
 			dispatch(revertAxes(propKey, bIndex, uId, originalIndex)),
 	};
 };

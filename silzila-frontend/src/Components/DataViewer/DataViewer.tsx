@@ -94,28 +94,29 @@ function DataViewer({
 		borderBottom: "2px solid rgb(0,128,255)",
 	};
 
-	const rmenu: RenderMenuItems[] = [
+	const rmenu: any[] = [
 		{
 			name: "Charts",
 			icon: chartControlIcon,
 			style: {
 				height: "2rem",
 				width: "3rem",
+				margin: "0 8px",
 			},
 		},
 		{
 			name: "Chart controls",
 			icon: settingsIcon,
-			style: { height: "2rem", width: "3rem", padding: "4px 5px" },
+			style: { height: "2rem", width: "3rem", padding: "6px 7px", margin: "0 8px" },
 		},
 		{
 			name: "chart Filters",
 			icon: filterIcon,
-			style: { height: "2rem", width: "3rem", padding: "3px 2px" },
+			style: { height: "2rem", width: "3rem", padding: "5px 4px", marginRight: "8px" },
 		},
 	];
 
-	const renderMenu = rmenu.map((rm: RenderMenuItems, i: number) => {
+	const renderMenu = rmenu.map((rm: any, i: number) => {
 		return (
 			<img
 				key={rm.name}
@@ -240,7 +241,7 @@ function DataViewer({
 									{tabTileProps.columnsOnlyDisplay ? (
 										<Tooltip title="Show full table">
 											<TableChartOutlinedIcon
-												sx={{ fontSize: "20px", color: "#383837" }}
+												sx={{ fontSize: "20px", color: "#666" }}
 												onClick={() => handleColumnsOnlyDisplay(false)}
 											/>
 										</Tooltip>
@@ -256,22 +257,24 @@ function DataViewer({
 								<div
 									className="tableDisplayToggle"
 									onClick={handleTableDisplayToggle}
-									title="Show / Hide table"
 								>
-									<KeyboardArrowUpIcon
-										style={{ fontSize: "20px", color: "#383837" }}
-									/>
+									<Tooltip title="Hide">
+										<KeyboardArrowUpIcon
+											style={{
+												fontSize: "20px",
+												color: "#383837",
+											}}
+										/>
+									</Tooltip>
 								</div>
 							</>
 						) : (
-							<div
-								className="tableDisplayToggle"
-								onClick={handleTableDisplayToggle}
-								title="Show / Hide table"
-							>
-								<KeyboardArrowUpIcon
-									style={{ fontSize: "20px", color: "#808080" }}
-								/>
+							<div className="tableDisplayToggle" onClick={handleTableDisplayToggle}>
+								<Tooltip title="Show">
+									<KeyboardArrowUpIcon
+										style={{ fontSize: "20px", color: "#808080" }}
+									/>
+								</Tooltip>
 							</div>
 						)
 					) : null}
