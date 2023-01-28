@@ -1,7 +1,7 @@
 .axisField {
-	width: 90%;
+	width: 94%;
 	/* width:95%; */
-	margin: 6px;
+	margin: 6px 6px 6px 6px;
 	align-content: center;
 	font-size: 12px;
 	text-align: start;
@@ -13,8 +13,8 @@
 	color: rgb(87, 87, 87);
 }
 .axisField:hover {
-	border: 1px solid rgb(0, 123, 255);
-	color: rgb(0, 123, 255);
+	border: 1px solid #0076f6;
+	color: #0076f6;
 	/* font-weight: 600; */
 }
 
@@ -70,6 +70,8 @@
 
 	overflow: hidden;
 	text-overflow: ellipsis;
+	line-height: 10px;
+	text-align: left;
 }
 .columnPrefix {
 	color: #d25e00;

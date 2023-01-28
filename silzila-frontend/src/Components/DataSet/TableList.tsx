@@ -33,16 +33,21 @@ const TableList = (props: TableListProps) => {
 	const [tableData, setTableData] = useState<any[]>([]);
 	const [objKeys, setObjKeys] = useState<string[]>([]);
 
+	console.log(props);
 	// Get all columns for a given table
 	const getTableColumns = async (tableName: string, isView: boolean) => {
 		console.log("get Columns from tableList");
 		const uid: any = new ShortUniqueId({ length: 8 });
 
 		var url: string = "";
-		if (props.serverName === "mysql") {
-			url = `metadata-columns/${props.connectionId}?database=${props.databaseName}&table=${tableName}`;
+		if (props.isFlatFile) {
+			url = `file-data-column-details/${props.table.table_uid}`;
 		} else {
-			url = `metadata-columns/${props.connectionId}?database=${props.databaseName}&schema=${props.schema}&table=${tableName}`;
+			if (props.serverName === "mysql") {
+				url = `metadata-columns/${props.connectionId}?database=${props.databaseName}&table=${tableName}`;
+			} else {
+				url = `metadata-columns/${props.connectionId}?database=${props.databaseName}&schema=${props.schema}&table=${tableName}`;
+			}
 		}
 
 		var result: any = await FetchData({
@@ -52,6 +57,7 @@ const TableList = (props: TableListProps) => {
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
 		if (result.status) {
+			console.log(result.data);
 			var obj: tabObj | undefined;
 			if (isView) {
 				props.viewList.map((el: any) => {
@@ -66,6 +72,7 @@ const TableList = (props: TableListProps) => {
 							};
 						});
 						//console.log(arrayWithUid);
+
 						obj = {
 							isView: true,
 							id: el.id,
@@ -88,13 +95,24 @@ const TableList = (props: TableListProps) => {
 					// While in edit mode, we check if this table has already been selected
 					// If selected, set its old parameters UID parameters,
 					if (el.tableName === tableName && el.isSelected === true) {
-						const arrayWithUid: ColumnsWithUid[] = result.data.map((data: Columns) => {
-							return {
-								uid: props.schema.concat(tableName).concat(data.columnName),
-								...data,
-							};
-						});
-
+						let arrayWithUid: any = [];
+						if (props.isFlatFile) {
+							arrayWithUid = result.data.map((data: any) => {
+								console.log(data);
+								return {
+									uid: uid(),
+									columnName: data.fieldName,
+									dataType: data.dataType,
+								};
+							});
+						} else {
+							arrayWithUid = result.data.map((data: Columns) => {
+								return {
+									uid: props.schema.concat(tableName).concat(data.columnName),
+									...data,
+								};
+							});
+						}
 						obj = {
 							id: el.id,
 							table_uid: el.table_uid,
@@ -122,6 +140,7 @@ const TableList = (props: TableListProps) => {
 		if (table["isView"]) {
 			props.toggleOnCheckedOnView(id);
 		} else {
+			console.log(id);
 			props.onChecked(id);
 		}
 
@@ -138,16 +157,21 @@ const TableList = (props: TableListProps) => {
 			}
 		}
 	};
+	console.log(props.table.tableName);
 
 	// ==============================================================
 	//  get Table Data
 	// ==============================================================
 	const getTableData = async (table: string) => {
 		var url: string = "";
-		if (props.serverName === "mysql") {
-			url = `sample-records/${props.connectionId}/250?database=${props.databaseName}&table=${table}`;
+		if (props.isFlatFile) {
+			url = `file-data-sample-records/${props.table.table_uid}`;
 		} else {
-			url = `sample-records/${props.connectionId}/250?database=${props.databaseName}&schema=${props.schema}&table=${table}`;
+			if (props.serverName === "mysql") {
+				url = `sample-records/${props.connectionId}/250?database=${props.databaseName}&table=${table}`;
+			} else {
+				url = `sample-records/${props.connectionId}/250?database=${props.databaseName}&schema=${props.schema}&table=${table}`;
+			}
 		}
 		// TODO:need to specify type
 		var res: any = await FetchData({

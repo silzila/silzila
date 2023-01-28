@@ -36,18 +36,19 @@ Data Setup Page
 
 .dataConnectionContainer {
 	flex: 2;
-	padding: 1rem;
+	padding: 1rem 10rem;
 	border-radius: 0.5rem;
 	background-color: #fff;
-	margin-bottom: 2rem;
+	/* margin-bottom: 2rem; */
 	overflow: auto;
 	display: flex;
 	flex-direction: column;
+	height:350px
 }
 
 .dataSetContainer {
 	flex: 3;
-	padding: 1rem;
+	padding: 1rem 10rem;
 	border-radius: 0.5rem;
 	background-color: #fff;
 	overflow: auto;
@@ -58,7 +59,8 @@ Data Setup Page
 .connectionListContainer {
 	display: flex;
 	flex-direction: column;
-	overflow:hidden
+	overflow:hidden;
+	margin-left:0.8rem;
 }
 
 .connectionListContainer:hover{
@@ -68,7 +70,7 @@ Data Setup Page
 .dashboardsContainer {
 	flex: 1;
 	/* margin-left: 1rem; */
-	padding: 1rem;
+	padding: 1rem 10rem;
 	border-radius: 0.5rem;
 	background-color: #fff;
 }
@@ -91,22 +93,23 @@ Data Setup Page
 	flex: 1;
 }
 .containerButton {
-	border: 1px solid rgb(192, 192, 192);
+	border: 1px solid #0076f6;
 	background-color: transparent;
 	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 	font-weight: 600;
 	border-radius: 3px;
-	color: #666;
-	height: 35px;
-	padding: 5px 25px;
+	color: #0076f6;
+	height: 30px;
+	padding: 2.5px 20px;
 	font-size: 16px;
 	cursor: pointer;
+	
 }
 
 .containerButton:hover {
-	background-color: #fff;
-	border: 1px solid rgb(0, 123, 255);
-	color: rgb(0, 123, 255);
+	background-color: #0076f6;
+	border: 1px solid #0076f6;
+	color: white;
 }
 
 /* 
@@ -129,10 +132,10 @@ Data Connections
 	background-color: #fff;
 	border-radius: 5px;
 	display: flex;
-	padding: 5px 20px;
-	border: 1px solid rgb(0, 123, 255);
+	padding: 5px 20px 5px 30px;
+	border: 1px solid #0076f6;
 	cursor: pointer;
-	color: rgb(0, 123, 255);
+	color: #0076f6;
 }
 
 .dataHomeDeleteIcon {
@@ -178,9 +181,10 @@ Datasets
 
 .sidebar {
 	width: 16rem;
-	background-color: rgb(238, 238, 238);
-	border-right: 1px solid #e4e4e4;
+	/* background-color: rgb(238, 238, 238); */
+	border-right: 2px solid rgba(224,224,224,1);
 	padding: 1rem;
+	border-top:2px solid rgba(224,224,224,1)
 	/* overflow-y: auto; */
 	/* overflow-x: hidden; */
 }

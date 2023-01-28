@@ -13,3 +13,7 @@ export const setEditApiResponseProp = (key: string, file: any) => {
 export const resetFlatFileState = () => {
 	return { type: "RESET_STATE" };
 };
+
+export const toggleEditMode = (mode: boolean) => {
+	return { type: "TOGGLE_EDIT_MODE", payload: mode };
+};

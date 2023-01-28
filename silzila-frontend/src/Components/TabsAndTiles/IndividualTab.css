@@ -4,7 +4,7 @@
 	/* height: 1.5rem; */
 	line-height: 1.2rem;
 	/* margin-left: 2px; */
-	margin: 0 4px;
+	margin: 0 4px 0 4px;
 	padding: 0 5px 0 5px;
 	cursor: pointer;
 
@@ -32,7 +32,7 @@
 .indiItemHighlightTab {
 	transition: 0.2s;
 	color:black;
-	/* border-bottom: 2px solid rgb(0, 123, 255); */
+	/* border-bottom: 2px solid #0076f6; */
 	border:2px solid rgba(224,224,224,1);
 	background: rgba(224, 224, 224, 1);
 }
@@ -51,14 +51,14 @@
 	line-height: 1.5rem;
 	margin-left: 2px;
 	padding: 0 0 0 10px;
-	border-bottom: 2px solid rgb(0, 123, 255);
+	border-bottom: 2px solid #0076f6;
 	border: none;
 	background-color: white;
 	font-size: 12px;
 }
 .editTabSelected:focus {
 	outline: none;
-	border-bottom: 2px solid rgb(0, 123, 255);
+	border-bottom: 2px solid #0076f6;
 }
 .closeTab {
 	/* border-radius: 2px; */

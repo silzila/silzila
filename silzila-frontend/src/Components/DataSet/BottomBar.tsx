@@ -3,7 +3,7 @@
 // Used for naming the dataset & saving it
 
 import { Close } from "@mui/icons-material";
-import { Button, Dialog, TextField } from "@mui/material";
+import { Button, Dialog, MenuItem, TextField, Tooltip } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { resetState, setDatabaseNametoState } from "../../redux/DataSet/datasetActions";
@@ -23,6 +23,8 @@ import {
 	relationshipServerObjProps,
 	tablesSelectedInSidebarProps,
 } from "./BottomBarInterfaces";
+import { SaveButtons } from "../DataConnection/ConfirmFlatFileData";
+import { TextFieldBorderStyle } from "../DataConnection/EditFlatFileData";
 
 const BottomBar = ({
 	//props
@@ -37,6 +39,7 @@ const BottomBar = ({
 	dsId,
 	datasetName,
 	database,
+	isFlatFile,
 
 	// dispatch
 	resetState,
@@ -48,6 +51,7 @@ const BottomBar = ({
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
 	const [severity, setSeverity] = useState<string>("success");
+	const [selectedButton, setselectedButton] = useState<string>(editMode ? "Update" : "Save");
 
 	const navigate = useNavigate();
 
@@ -146,9 +150,9 @@ const BottomBar = ({
 				url: apiurl,
 				headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
 				data: {
-					connectionId: connection,
+					connectionId: isFlatFile ? null : connection,
 					datasetName: fname,
-					isFlatFileData: false,
+					isFlatFileData: isFlatFile,
 					dataSchema: {
 						tables: [...tablesSelectedInSidebar],
 						relationships: [...relationshipServerObj],
@@ -211,8 +215,7 @@ const BottomBar = ({
 						tablePositionX: el.tablePositionX,
 						tablePositionY: el.tablePositionY,
 						database: el.databaseName,
-
-						// flatFileId: null,
+						flatFileId: isFlatFile ? el.table_uid : null,
 					};
 				});
 			////console.log(tablesSelectedInSidebar);
@@ -241,26 +244,82 @@ const BottomBar = ({
 	const onCancelOnDataset = () => {
 		setOpen(true);
 	};
+	const classes = SaveButtons();
 
 	return (
 		<div className="bottomBar">
-			<Button variant="contained" onClick={onCancelOnDataset} id="cancelButton">
+			{/* <Button variant="contained" onClick={onCancelOnDataset} id="cancelButton">
 				{editMode ? "Back" : "Cancel"}
-			</Button>
+			</Button> */}
 
-			<div>
+			<div style={{ flex: 1, display: "flex", justifyContent: "space-between" }}>
+				<Tooltip title="Click to Edit">
+					<TextField
+						sx={{
+							flex: 1,
+							margin: "auto 20px",
+							maxWidth: "200px",
+						}}
+						InputProps={TextFieldBorderStyle}
+						inputProps={{
+							style: {
+								height: "35px",
+
+								padding: "0px 10px",
+								fontSize: "14px",
+								color: "#3B3C36",
+							},
+						}}
+						InputLabelProps={{
+							sx: {
+								fontSize: "12px",
+							},
+						}}
+						onChange={e => {
+							e.preventDefault();
+							setFname(e.target.value);
+						}}
+						value={fname}
+						label="Dataset Name"
+					/>
+				</Tooltip>
+
 				<TextField
-					size="small"
-					label="Dataset Name"
-					value={fname}
-					onChange={e => setFname(e.target.value)}
+					sx={{
+						flex: 1,
+						maxWidth: "150px",
+					}}
+					SelectProps={{
+						MenuProps: {
+							anchorOrigin: {
+								vertical: "top",
+								horizontal: "left",
+							},
+						},
+					}}
+					className={classes.root}
+					value={"Save"}
 					variant="outlined"
-					sx={{ marginRight: "3rem", backgroundColor: "white" }}
-				/>
+					select
+				>
+					<MenuItem value={"Save"} onClick={onSendData}>
+						Save
+					</MenuItem>
 
-				<Button variant="contained" onClick={onSendData} id="setButton">
+					<MenuItem
+						value={editMode ? "Back" : "Cancel"}
+						onClick={(e: any) => {
+							setselectedButton(e.target.value);
+							onCancelOnDataset();
+						}}
+					>
+						{editMode ? "Back" : "Cancel"}
+					</MenuItem>
+				</TextField>
+
+				{/* <Button variant="contained" onClick={onSendData} id="setButton">
 					{sendOrUpdate}
-				</Button>
+				</Button> */}
 			</div>
 
 			<NotificationDialog
@@ -328,6 +387,7 @@ const mapStateToProps = (state: isLoggedProps & DataSetStateProps) => {
 		datasetName: state.dataSetState.datasetName,
 		dsId: state.dataSetState.dsId,
 		database: state.dataSetState.databaseName,
+		isFlatFile: state.dataSetState.isFlatFile,
 	};
 };
 

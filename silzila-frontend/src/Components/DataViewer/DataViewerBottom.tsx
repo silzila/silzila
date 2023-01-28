@@ -36,61 +36,64 @@ import {
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { IndChartPropProperties } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 
-export const getTableData = async (
-	dc_uid: string,
-	schema: string,
-	database: string,
-	table: string,
-	token: string
-) => {
+export const getTableData = async (dc_uid: string, tableObj: any, token: string) => {
+	var database: string = tableObj.database;
+	var schema: string = tableObj.schema;
+	var table: string = tableObj.table;
+	var url: string = "";
+	if (tableObj.flatFileId) {
+		url = `file-data-sample-records/${tableObj.flatFileId}`;
+	} else {
+		url = `sample-records/${dc_uid}/20?database=${database}&schema=${schema}&table=${table}`;
+	}
+
 	var res: any = await FetchData({
 		requestType: "noData",
 		method: "GET",
-		url:
-			"sample-records/" +
-			dc_uid +
-			"/20?database=" +
-			database +
-			"&schema=" +
-			schema +
-			"&table=" +
-			table,
+		url: url,
 		headers: { Authorization: `Bearer ${token}` },
 	});
 
 	if (res.status) {
 		return res.data;
 	} else {
-		// console.log("Get Table Data Error".res.data.detail);
+		console.log("Get Table Data Error", res);
 	}
 };
 
-export const getColumnTypes = async (
-	dc_uid: string,
-	schema_name: string,
-	database: string,
-	table_name: string,
-	token: string
-) => {
+export const getColumnTypes = async (dc_uid: string, tableObj: any, token: string) => {
+	var database: string = tableObj.database;
+	var schema: string = tableObj.schema;
+	var table: string = tableObj.table;
+	var url: string = "";
+	if (tableObj.flatFileId) {
+		url = `file-data-column-details/${tableObj.flatFileId}`;
+	} else {
+		url = `metadata-columns/${dc_uid}?database=${database}&schema=${schema}&table=${table}`;
+	}
+
 	var res: any = await FetchData({
 		requestType: "noData",
 		method: "GET",
-		url:
-			"metadata-columns/" +
-			dc_uid +
-			"?database=" +
-			database +
-			"&schema=" +
-			schema_name +
-			"&table=" +
-			table_name,
+		url: url,
 		headers: { Authorization: `Bearer ${token}` },
 	});
 
 	if (res.status) {
-		return res.data;
+		let finalResult: any = [];
+		if (tableObj.flatFileId) {
+			finalResult = res.data.map((el: any) => {
+				return {
+					columnName: el.fieldName,
+					dataType: el.dataType,
+				};
+			});
+		} else {
+			finalResult = res.data;
+		}
+		return finalResult;
 	} else {
-		// console.log("Get Table Columns Error".res.data.detail);
+		console.log("Get Table ColumnsType Error", res);
 	}
 };
 
@@ -110,12 +113,10 @@ const DataViewerBottom = ({
 	addRecords,
 	addTile,
 }: DataViewerBottomProps) => {
-	var propKey: number = parseFloat(
-		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
-	);
+	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var selectedChartProp: IndChartPropProperties = chartProps.properties[propKey];
+
 	var tables: any = tabTileProps?.tablesForSelectedDataSets?.[selectedChartProp?.selectedDs?.id];
-	// console.log(chartProps.properties[propKey].chartType);
 
 	const [open, setOpen] = useState<boolean>(false);
 	const [selectedDataset, setSelectedDataset] = useState<string | any>("");
@@ -186,10 +187,13 @@ const DataViewerBottom = ({
 	// 	}
 	// };
 
-	// When a table selected in dataset is changed,
-	// check if this table's sample records are already present
-	// if yes,display them. If no, get the table records and save in store
+	/*When a table selected in dataset is changed,
+	check if this table's sample records are already present
+	if yes,display them. If no, get the table records and save in store*/
+
 	const handleTableChange = async (table: any, dsUid?: any) => {
+		if (table.flatFileId) {
+		}
 		if (table.id !== selectedChartProp.selectedTable) {
 			setSelectedTable(propKey, { [selectedChartProp.selectedDs.id]: table.id });
 
@@ -199,21 +203,9 @@ const DataViewerBottom = ({
 				var dc_uid = selectedChartProp.selectedDs?.connectionId;
 				var id = selectedChartProp.selectedDs?.id;
 
-				var tableRecords = await getTableData(
-					dc_uid,
-					table.schema,
-					table.database,
-					table.table,
-					token
-				);
+				var tableRecords = await getTableData(dc_uid, table, token);
 
-				var recordsType = await getColumnTypes(
-					dc_uid,
-					table.schema,
-					table.database,
-					table.table,
-					token
-				);
+				var recordsType = await getColumnTypes(dc_uid, table, token);
 
 				addRecords(id, table.id, tableRecords, recordsType);
 				setLoading(false);
@@ -247,14 +239,13 @@ const DataViewerBottom = ({
 
 	var selectInput = { fontSize: "12px", padding: "2px 1rem" };
 
-	// when the dataset itself is changed,
-	// if there are no added fields in dropzone, allow the change.
-	// else, open a new tile with the selected dataset
+	/* when the dataset itself is changed,
+	if there are no added fields in dropzone, allow the change.
+	else, open a new tile with the selected dataset*/
 	const handleDataSetChange = (value: any) => {
 		const axes = chartProps.properties[propKey].chartAxes;
 		setAddNewOrChooseExistingDS(value);
 		if (value === "addNewDataset") {
-			//console.log(axes);
 			var count = 0;
 			axes.map((ax: any) => {
 				if (ax.fields.length > 0) {
@@ -281,7 +272,6 @@ const DataViewerBottom = ({
 					(ds: any) => ds.id === value
 				)[0];
 				setSelectedDs(propKey, dsObj);
-				//console.log(dsObj);
 			}
 		}
 	};
@@ -336,6 +326,7 @@ const DataViewerBottom = ({
 									DataSet
 								</InputLabel>
 								<Select
+									title={selectedChartProp.selectedDs.datasetName}
 									label="DataSet"
 									labelId="selectDataSet"
 									value={selectedChartProp.selectedDs?.id}
@@ -343,7 +334,7 @@ const DataViewerBottom = ({
 									onChange={e => {
 										handleDataSetChange(e.target.value);
 									}}
-									sx={{ height: "1.5rem", fontSize: "14px" }}
+									sx={{ height: "1.5rem", fontSize: "13px" }}
 									notched={true}
 								>
 									<MenuItem
@@ -432,9 +423,9 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		setSelectedDataSetList: (dataset: string) => dispatch(setSelectedDataSetList(dataset)),
 		setTablesForDs: (tablesObj: any) => dispatch(setTablesForSelectedDataSets(tablesObj)),
-		setSelectedDs: (propKey: number, selectedDs: any) =>
+		setSelectedDs: (propKey: number | string, selectedDs: any) =>
 			dispatch(setSelectedDsInTile(propKey, selectedDs)),
-		setSelectedTable: (propKey: number, selectedTable: any) =>
+		setSelectedTable: (propKey: number | string, selectedTable: any) =>
 			dispatch(setSelectedTableInTile(propKey, selectedTable)),
 		addRecords: (id: string, tableId: string, tableRecords: any, columnType: any) =>
 			dispatch(addTableRecords(id, tableId, tableRecords, columnType)),

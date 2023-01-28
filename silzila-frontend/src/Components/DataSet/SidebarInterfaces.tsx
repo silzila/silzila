@@ -18,6 +18,7 @@ export interface SidebarProps {
 	serverName: string;
 	views: any[];
 	dataConnectionList: ConnectionItem[];
+	isFlatFile: boolean;
 
 	//dispatchProps
 	setUserTable: (userTable: UserTableProps[]) => void;

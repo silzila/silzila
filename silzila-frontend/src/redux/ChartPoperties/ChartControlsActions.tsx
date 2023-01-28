@@ -1,13 +1,19 @@
 import { ChartControlsProps } from "./ChartControlsInterface";
 
-export const updateChartData = (propKey: string | number, chartData: string | any) => {
+export const updateChartData = (propKey: string, chartData: string | any) => {
 	return {
 		type: "UPDATE_CHART_DATA",
 		payload: { propKey, chartData },
 	};
 };
+export const updateQueryResult = (propKey: string, query: string | any) => {
+	return {
+		type: "UPDATE_QUERY_DATA",
+		payload: { propKey, query },
+	};
+};
 
-export const setColorScheme = (propKey: string | number, color: string) => {
+export const setColorScheme = (propKey: string, color: string) => {
 	return { type: "CHANGE_COLOR_SCHEME", payload: { propKey, color } };
 };
 

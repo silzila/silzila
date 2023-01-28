@@ -16,7 +16,6 @@ const Sankey = ({
 	chartControls,
 	chartProperties,
 }: ChartsReduxStateProps) => {
-	console.log(chartControls);
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	var colorSchems = ColorSchemes[6].colors;
 
@@ -30,31 +29,31 @@ const Sankey = ({
 
 	useEffect(() => {
 		if (chartData.length >= 1) {
-			console.log(chartData);
-
-			console.log();
-
 			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map(el => {
-				return el.fieldname;
+				console.log(el);
+				if ("timeGrain" in el) {
+					return `${el.timeGrain} of ${el.fieldname}`;
+				} else if ("agg" in el) {
+					return `${el.agg} of ${el.fieldname} `;
+				} else {
+					return el.fieldname;
+				}
 			});
-			console.log(dimensionsKeys);
 
 			//getting measure value as string since allowed numof measure is 1 for this chart
 
 			chartProperties.properties[propKey].chartAxes[2].fields.map(el => {
 				// measure = `${el.fieldname}__${el.agg}`;
-				measure = `${el.fieldname}`;
+				measure = `${el.agg} of ${el.fieldname}`;
 			});
 
 			const getColorOfNode = (nodeName: string) => {
-				console.log(nodeName);
 				var color = "";
 				chartControl.sankeyControls.nodesAndColors.map(el => {
 					if (el.nodeName === nodeName) {
 						color = el.nodeColor;
 					}
 				});
-				console.log(color);
 				return color;
 			};
 
@@ -62,7 +61,6 @@ const Sankey = ({
 			var finalValuesOfNode: any = [];
 			dimensionsKeys.forEach((element: any, i: number) => {
 				var allValues = chartData.map((dt: any) => dt[element]);
-				// TODO: getting error in uniqueValues
 				var uniqueValues = [...new Set(allValues)];
 
 				uniqueValues = uniqueValues.map(el => {
@@ -99,42 +97,22 @@ const Sankey = ({
 				finalValuesOfNode.push(...uniqueValues);
 			});
 
-			// finalValuesOfNode = finalValuesOfNode.map(el => {
-			// 	return {
-			// 		name: el,
-			// 		label: {
-			// 			position: chartControl.sankeyControls.labelPosition,
-			// 			show: chartControl.labelOptions.showLabel,
-			// 			fontSize: chartControl.labelOptions.fontSize,
-			// 			color: chartControl.labelOptions.labelColorManual
-			// 				? chartControl.labelOptions.labelColor
-			// 				: "black",
-			// 			align: chartControl.sankeyControls.horizondalAlign,
-			// 			verticalAlign: chartControl.sankeyControls.verticalAlign,
-			// 			overflow: chartControl.sankeyControls.overFlow,
-			// 			distance: chartControl.sankeyControls.labelDistance,
-			// 			rotate: chartControl.sankeyControls.labelRotate,
-			// 		},
-			// 		itemStyle: {
-			// 			color:
-			// 				chartControl.sankeyControls.nodesAndColors.length !== 0
-			// 					? getColorOfNode(el)
-			// 					: chartControl.sankeyControls.nodeColor,
-			// 		},
-			// 	};
-			// });
-			console.log(finalValuesOfNode);
 			setNodes(finalValuesOfNode);
 
 			//getting values for links in series
-			var valuesOfLink = [];
+			let valuesOfLink = [];
 
 			for (var i = 0; i < dimensionsKeys.length - 1; i++) {
-				console.log(i);
 				valuesOfLink = chartData.map((el: any) => {
 					var obj: any = {};
-					obj.source = el[dimensionsKeys[i]];
-					obj.target = el[dimensionsKeys[i + 1]];
+					obj.source =
+						typeof el[dimensionsKeys[i]] === "number"
+							? JSON.stringify(el[dimensionsKeys[i]])
+							: el[dimensionsKeys[i]];
+					obj.target =
+						typeof el[dimensionsKeys[i + 1]] === "number"
+							? JSON.stringify(el[dimensionsKeys[i + 1]])
+							: el[dimensionsKeys[i + 1]];
 					obj.value = el[measure];
 					obj.lineStyle = {
 						color: chartControl.sankeyControls.linkColor,
@@ -154,7 +132,6 @@ const Sankey = ({
 	});
 
 	const RenderChart = () => {
-		// console.log(nodes, links);
 		return (
 			<ReactEcharts
 				opts={{ renderer: "svg" }}
@@ -306,7 +283,14 @@ const Sankey = ({
 		);
 	};
 
-	return <>{chartData.length >= 1 ? <RenderChart /> : <RenderChart />}</>;
+	return (
+		<>
+			{chartData.length >= 1 &&
+			chartProperties.properties[propKey].chartAxes[1].fields.length > 1 ? (
+				<RenderChart />
+			) : null}
+		</>
+	);
 };
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {

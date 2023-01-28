@@ -9,12 +9,12 @@ export interface ChartAxesProps {
 	// state
 	token: string;
 	chartProp: any;
+	changeLocation: any;
 
 	// dispatch
-	updateChartData: (propKey: number, chartData: any) => void;
-	toggleAxesEdit: (propKey: number) => void;
-	reUseOldData: (propKey: number) => void;
-	changeLocation: any;
+	updateChartData: (propKey: string, chartData: any) => void;
+	toggleAxesEdit: (propKey: string) => void;
+	reUseOldData: (propKey: string) => void;
 }
 interface TimeGrain {
 	name: string;
@@ -81,35 +81,30 @@ export interface AggregatorKeysProps {
 export interface DropZoneProps {
 	bIndex: number;
 	name: string;
-	propKey: number;
+	propKey: string;
 
 	// state
 	chartProp: ChartPropertiesProps;
 
 	// dispatch
-	clearDropZoneFieldsChartPropLeft: (propKey: number | string, bIndex: number) => void;
+	clearDropZoneFieldsChartPropLeft: (propKey: string, bIndex: number) => void;
 	updateDropZoneExpandCollapsePropLeft: (
-		propKey: number | string,
+		propKey: string,
 		bIndex: number,
 		isCollapsed: boolean
 	) => void;
 	updateFilterAnyContidionMatchPropLeft: (
-		propKey: number | string,
+		propKey: string,
 		bIndex: number,
 		any_condition_match: any
 	) => void;
 	updateIsAutoFilterEnabledPropLeft: (
-		propKey: number | string,
+		propKey: string,
 		bIndex: number,
 		is_auto_filter_enabled: any
 	) => void;
-	toggleFilterRunState: (propKey: number | string, runState: any) => void;
-	updateDropZoneItems: (
-		propKey: number | string,
-		bIndex: number,
-		item: any,
-		allowedNumbers: any
-	) => void;
+	toggleFilterRunState: (propKey: string, runState: any) => void;
+	updateDropZoneItems: (propKey: string, bIndex: number, item: any, allowedNumbers: any) => void;
 
 	moveItemChartProp: (
 		propKey: number | string,
@@ -143,7 +138,7 @@ export interface ChartAxesFormattedAxes {
 	// fields?: any[];
 }
 
-export interface Card{
+export interface Card {
 	field: {
 		uId?: string;
 		fieldname?: string;
@@ -156,7 +151,7 @@ export interface Card{
 	};
 	bIndex: number;
 	itemIndex: number;
-	propKey: number;
+	propKey: string;
 	axisTitle: string;
 
 	// state
@@ -165,19 +160,13 @@ export interface Card{
 }
 
 export interface CardProps extends Card {
-	
 	// dispatch
-	deleteDropZoneItems: (propKey: number | string, binIndex: number, itemIndex: number) => void;
+	deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: number) => void;
 
-	updateQueryParam: (
-		propKey: number | string,
-		binIndex: number,
-		itemIndex: number,
-		item: any
-	) => void;
+	updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any) => void;
 
-	sortAxes: (propKey: number, bIndex: number, dragUId: any, uId: any) => void;
-	revertAxes: (propKey: number, bIndex: number, uId: any, originalIndex: number) => void;
+	sortAxes: (propKey: string, bIndex: number, dragUId: any, uId: any) => void;
+	revertAxes: (propKey: string, bIndex: number, uId: any, originalIndex: number) => void;
 }
 
 export interface AxesValuProps {

@@ -8,7 +8,7 @@ import { Dispatch } from "redux";
 import { updateTabDashDetails } from "../../redux/TabTile/TabActions";
 import { setDashGridSize } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { toggleGraphSize } from "../../redux/TabTile/TileActions";
-
+import "./DashBoard.css";
 import { DashBoardProps, DashBoardStateProps } from "./DashBoardInterfaces";
 import DashBoardLayoutControl from "./DashBoardLayoutControl";
 import GraphRNDDash from "./GraphRNDDash";
@@ -207,7 +207,7 @@ const DashBoard = ({
 
 	let tileList = tilesForSelectedTab.map((tile: any, index: number) => {
 		let currentObj = tileState.tiles[tile];
-		var propKey: number = parseFloat(`${currentObj.tabId}.${currentObj.tileId}`);
+		var propKey: string = `${currentObj.tabId}.${currentObj.tileId}`;
 
 		const dashSpecs = {
 			name: currentObj.tileName,
@@ -243,7 +243,8 @@ const DashBoard = ({
 							tabTileProps.selectedTabId,
 							propIndex
 						);
-						toggleGraphSize(propKey, checked ? true : false);
+						// toggleGraphSize(propKey, checked ? true : false);
+						toggleGraphSize(propIndex, checked ? true : false);
 					}}
 					checked={checked}
 					key={index}
@@ -364,7 +365,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		updateDashDetails: (
 			checked: boolean,
-			propKey: number,
+			propKey: string,
 			dashSpecs: any,
 			tabId: number,
 			propIndex: number

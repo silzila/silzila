@@ -7,6 +7,7 @@ import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInte
 import { updateTreeMapStyleOptions } from "../../redux/ChartPoperties/ChartControlsActions";
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
+import { TLSSocket } from "tls";
 interface TreemapChartProps {
 	updateTreeMapStyleOptions: (propKey: number | string, option: string, value: any) => void;
 }
@@ -34,6 +35,7 @@ const Treemap = ({
 	const formatUtil = echarts.format;
 
 	const getRecursiveData = ({ data, i, measure }: { data: any; i: number; measure: string }) => {
+		console.log(data, i, measure);
 		if (i !== dimensionsKeys.length) {
 			if (i === dimensionsKeys.length - 1) {
 				//This will be the final level of parsing
@@ -85,14 +87,24 @@ const Treemap = ({
 
 			// columns in dimension
 			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map(el => {
-				return el.fieldname;
+				if ("timeGrain" in el) {
+					return `${el.timeGrain} of ${el.fieldname}`;
+				} else if ("agg" in el) {
+					return `${el.agg} of ${el.fieldname} `;
+				} else {
+					return el.fieldname;
+				}
 			});
 
 			// column in measure
 			chartProperties.properties[propKey].chartAxes[2].fields.map(el => {
-				measure = `${el.fieldname}`;
+				if (el.agg) {
+					measure = `${el.agg} of ${el.fieldname}`;
+				}
+				if (el.timeGrain) {
+					measure = `${el.timeGrain} of ${el.fieldname}`;
+				}
 			});
-			console.log(measure);
 
 			var dimValues = chartData.map((dt: any) => dt[dimensionsKeys[0]]); // All values of first dimension
 			var uniqueDimValues = [...new Set(dimValues)]; // Unique values of first dimension. These are the parent objects
@@ -101,7 +113,13 @@ const Treemap = ({
 				console.log("only one Dimenstion");
 				var childrenArray: any = [];
 				chartData.map((item: any) => {
-					var finalObj = { name: item[dimensionsKeys[0]], value: item[measure] };
+					var finalObj = {
+						name:
+							typeof item[dimensionsKeys[0]] === "number"
+								? JSON.stringify(item[dimensionsKeys[0]])
+								: item[dimensionsKeys[0]],
+						value: item[measure],
+					};
 					childrenArray.push(finalObj);
 				});
 				setsourceData(childrenArray);
@@ -110,8 +128,10 @@ const Treemap = ({
 				// For each of the parent objects, find what are their children
 				uniqueDimValues.forEach(val => {
 					var parentObj = { name: val, value: 0, children: [] }; // Define parent structure
-					var filteredData = chartData.filter((dt: any) => dt[dimensionsKeys[0]] === val); // Filter data only for this parent
-
+					var filteredData = chartData.filter((dt: any) => {
+						return dt[dimensionsKeys[0]] === val;
+					}); // Filter data only for this parent
+					console.log(filteredData);
 					var [children, total]: any = getRecursiveData({
 						data: filteredData,
 						i: 1,

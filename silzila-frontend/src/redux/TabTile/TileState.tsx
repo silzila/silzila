@@ -16,7 +16,7 @@ const initialTileState = {
 const tileStateReducer = (state: TileStateProps = initialTileState, action: ActionsOfTileState) => {
 	switch (action.type) {
 		case "ADD_TILE":
-			let tileKey: number = parseFloat(`${action.payload.tabId}.${action.payload.tileId}`);
+			let tileKey: string = `${action.payload.tabId}.${action.payload.tileId}`;
 			return {
 				tiles: {
 					...state.tiles,
@@ -59,13 +59,13 @@ const tileStateReducer = (state: TileStateProps = initialTileState, action: Acti
 			});
 
 		case "RENAME_TILE":
-			let tileKey2: number = parseFloat(`${action.payload.tabId}.${action.payload.tileId}`);
+			let tileKey2: string = `${action.payload.tabId}.${action.payload.tileId}`;
 			return update(state, {
 				tiles: { [tileKey2]: { tileName: { $set: action.payload.renameValue } } },
 			});
 
 		case "REMOVE_TILE":
-			let tileKey4: number = parseFloat(`${action.payload.tabId}.${action.payload.tileId}`);
+			let tileKey4: string = `${action.payload.tabId}.${action.payload.tileId}`;
 			return update(state, {
 				tiles: { $unset: [tileKey4] },
 				tileList: { [action.payload.tabId]: { $splice: [[action.payload.tileIndex, 1]] } },

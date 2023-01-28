@@ -9,9 +9,9 @@ import {
 
 export interface ChartsReduxStateProps {
 	propKey: string | number;
-	graphDimension: any;
+	graphDimension?: any;
 	chartArea?: any;
-	graphTileSize: number;
+	graphTileSize?: number;
 
 	chartProperties: ChartPropertiesProps;
 	chartControls: ChartControl;

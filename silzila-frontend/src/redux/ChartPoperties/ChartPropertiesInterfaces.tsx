@@ -204,7 +204,7 @@ interface SetTitleSize {
 interface SortAxes {
 	type: "SORT_ITEM";
 	payload: {
-		propKey: number;
+		propKey: string;
 		bIndex: number;
 		dragUId: string | number;
 		dropUId: string | number;
@@ -214,7 +214,7 @@ interface SortAxes {
 interface RevertAxes {
 	type: "REVERT_ITEM";
 	payload: {
-		propKey: number;
+		propKey: string;
 		bIndex: number;
 		uId: string | number;
 		originalIndex: any;
@@ -240,7 +240,7 @@ interface ResetChartProperties {
 
 interface UpdateLeftFilterItem {
 	type: "UPDATE_LEFT_FILTER_ITEM";
-	payload: { propKey: number; bIndex: number; item: any };
+	payload: { propKey: string; bIndex: number; item: any };
 }
 interface UpdtateFilterExpandeCollapse {
 	type: "UPDATE_FILTER_EXPAND_COLLAPSE";

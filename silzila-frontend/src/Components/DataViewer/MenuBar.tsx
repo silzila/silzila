@@ -40,6 +40,8 @@ import {
 	toggleDashMode,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
+import { resetFlatFileState } from "../../redux/FlatFile/FlatFileStateActions";
+import silzilaNewLogo from "../../assets/new_silzilaLogo.svg";
 
 const MenuBar = ({
 	// props
@@ -60,6 +62,7 @@ const MenuBar = ({
 	updatePlayBookId,
 	resetAllStates,
 	resetUser,
+	resetFlatFileState,
 }: MenubarProps) => {
 	var showSaveWarning: boolean = false;
 
@@ -123,6 +126,7 @@ const MenuBar = ({
 	//		2. Home button clicked
 	//		3. Logout clicked
 	const handleSave = async () => {
+		console.log(playBookState);
 		setOpenFileMenu(false);
 
 		// check if this playbook already has a name / id
@@ -442,15 +446,29 @@ const MenuBar = ({
 		switch (from) {
 			case "dataHome":
 				return (
-					<div className="menuHome">
+					<div className="menuHomeIcon">
 						<HomeRounded sx={{ color: "#666" }} />
 					</div>
 				);
 			case "dataSet":
 				return (
 					<div
-						className="menuHome"
+						className="menuHomeIcon"
 						onClick={() => {
+							navigate("/dataHome");
+						}}
+					>
+						<HomeRounded sx={{ color: "#666" }} />
+					</div>
+				);
+			case "fileUpload":
+			case "editFlatFile":
+			case "saveFlaFile":
+				return (
+					<div
+						className="menuHomeIcon"
+						onClick={() => {
+							resetFlatFileState();
 							navigate("/dataHome");
 						}}
 					>
@@ -460,7 +478,7 @@ const MenuBar = ({
 			case "dataViewer":
 				return (
 					<div
-						className="menuHome"
+						className="menuHomeIcon"
 						onClick={() => {
 							if (showSaveWarning || playBookState.playBookUid === null) {
 								setSaveFromHomeIcon(true);
@@ -490,10 +508,14 @@ const MenuBar = ({
 						) : (
 							<>
 								<img
-									src={SilzilaLogo}
+									src={silzilaNewLogo}
 									style={{
-										padding: "4px 8px",
-										width: "3rem",
+										// height: "100%",
+										height: "80%",
+										// width: "3rem",
+										width: "2.5rem",
+										padding: "4px 4px 4px 6px",
+										margin: "4px 0px 0px 2px",
 										backgroundColor: "white",
 									}}
 									alt="Silzila Home"
@@ -503,58 +525,9 @@ const MenuBar = ({
 					</div>
 				)}
 			/>
-			{/* <img
-				src={SilzilaLogo}
-				style={{ padding: "4px 8px", width: "3rem", backgroundColor: "white" }}
-				alt="Silzila Home"
-			/> */}
-
-			{/* Render the following components depending upon the page in which home is rendered 
-			 In Data Home page, just show icon */}
-			{/* {from === "dataHome" ? (
-				<>
-					<div className="menuHome">
-						<HomeRounded sx={{ color: "#666" }} />
-					</div>
-					<div className="menuItemsGroup">&nbsp;</div>
-				</>
-			) : null} */}
-
-			{/* in Dataset page, Clicking home will navigate to dataHome */}
-
-			{/* {from === "dataSet" ? (
-				<>
-					<div
-						className="menuHome"
-						onClick={() => {
-							navigate("/dataHome");
-						}}
-					>
-						<HomeRounded sx={{ color: "#666" }} />
-					</div>
-					<div className="menuItemsGroup">&nbsp;</div>
-				</>
-			) : null} */}
-			{/* In dataviewer page, clicking Home will prompt a warning to save playbook if there are any changes 
-			 Additionally, file and about menu are displayed here
-		If Dashboard is shown, Edit and Present mode selection is also displayed here */}
 
 			{from === "dataViewer" ? (
 				<>
-					{/* <div
-						className="menuHome"
-						onClick={() => {
-							if (showSaveWarning || playBookState.playBookUid === null) {
-								setSaveFromHomeIcon(true);
-								setSaveModal(true);
-							} else {
-								resetAllStates();
-								navigate("/dataHome");
-							}
-						}}
-					>
-						<HomeRounded sx={{ color: "#666" }} />
-					</div> */}
 					<div className="menuItemsGroup">
 						<div
 							className="menuItem"
@@ -784,6 +757,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		) => dispatch(updatePlaybookUid(playBookName, playBookUid, description, oldContent)),
 		resetAllStates: () => dispatch(resetAllStates()),
 		resetUser: () => dispatch(resetUser()),
+		resetFlatFileState: () => dispatch(resetFlatFileState()),
 	};
 };
 

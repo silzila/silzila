@@ -33,7 +33,6 @@ const DatasetListPopover = ({
 		<Popover
 			open={showCard}
 			onClose={setShowCard}
-			anchorReference="anchorEl"
 			anchorOrigin={{
 				vertical: "center",
 				horizontal: "center",

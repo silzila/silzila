@@ -32,8 +32,7 @@ const DataViewerMiddle = ({
 	// dispatch
 	setMenu,
 }: DataViewerMiddleProps) => {
-	// console.log(chartProp);
-	var propKey: number = parseFloat(`${tabId}.${tileId}`);
+	var propKey: string = `${tabId}.${tileId}`;
 
 	const controlDisplayed = () => {
 		switch (tabTileProps.selectedControlMenu) {
@@ -44,8 +43,7 @@ const DataViewerMiddle = ({
 							style={{
 								color: " #404040",
 								fontWeight: "600",
-								// padding: "0 0.5rem",
-								padding: "0 0 0 0.5rem",
+								padding: "10px 0 0 0.5rem",
 							}}
 						>
 							Charts
@@ -54,6 +52,7 @@ const DataViewerMiddle = ({
 									fontSize: "16px",
 									float: "right",
 									marginTop: "5px",
+									marginRight: "1rem",
 								}}
 								onClick={() => setMenu("")}
 							/>
@@ -70,7 +69,7 @@ const DataViewerMiddle = ({
 								color: " #404040",
 								fontWeight: "600",
 								// padding: "0 0.5rem",
-								padding: "0 0 0 0.5rem",
+								padding: "10px 0 0 0.5rem",
 								marginBottom: "3px",
 							}}
 						>
@@ -80,6 +79,7 @@ const DataViewerMiddle = ({
 									fontSize: "16px",
 									float: "right",
 									marginTop: "5px",
+									marginRight: "12px",
 								}}
 								onClick={() => setMenu("")}
 							/>

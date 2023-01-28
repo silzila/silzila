@@ -19,12 +19,26 @@
 /* ========================================================================================== */
 /* Menu items styling */
 .menuHome {
+	
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	height: 2rem;
+	/* height: 2rem; */
 	width: 3rem;
 	cursor: pointer;
+	/* padding-right: 12px; */
+	margin:8px
+
+	
+	
+}
+
+.menuHomeIcon{
+	
+	height:80%;
+	width: 2.5rem;
+	padding:4px 4px 4px 0px;
+	margin: 0 0 6px 2px;
 }
 /* .menuHome:hover {
 	background-color: rgb(238, 238, 238);
@@ -39,7 +53,7 @@
 	cursor: pointer;
 	transition: 0.2s;
 	line-height: 2rem;
-	padding: 0 12px;
+	padding: 0 8px;
 }
 .menuItem:hover {
 	transition: 0.2s;
@@ -73,7 +87,7 @@
 	border-bottom: 2px solid rgba(224,224,224,1);
 	height:2.5rem;
 	/* background-color: rgb(238, 238, 238); */
-	padding-left: 4px ;
+	padding-left: 6px ;
 }
 .tabItems {
 	flex: 1;
@@ -96,7 +110,7 @@
 	background-color: white;
 	border-top: 2px solid rgba(224, 224, 224, 1);
 	height: 2rem;
-	padding: 3px 0 3px 4px;
+	padding: 3px 0 3px 8px;
 }
 .tileItems {
 	display: flex;
@@ -114,6 +128,7 @@
 	align-items: center;
 	justify-content: center;
 	width: 1.5rem;
+	/* color:rgb(102, 102, 102) */
 	/* margin: 0 2px; */
 }
 
@@ -127,8 +142,8 @@
 	align-items: center;
 	justify-content: center;
 	width: 1.5rem;
-	/* margin: 0 2px; */
+	margin: 0 16px 0 2rem;
 }
 .tableDisplayToggle:hover {
-	background-color: rgb(211, 211, 211);
+	border: 1px solid rgba(224,224,224,1)
 }

@@ -5,35 +5,30 @@
 
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
-// import {
-// 	canReUseData,
-// 	changeChartTypeAndAxes,
-// } from "../../redux/ChartProperties/actionsChartProperties";
+
 import "./ChartIconStyles.css";
-import multiBarIcon from "../../assets/bar_chart_grouped.svg";
-import horizontalBar from "../../assets/horizontal_bar_grouped.png";
-import stackedBarIcon from "../../assets/bar_chart_stacked.svg";
-import horizontalStackedBar from "../../assets/horizontal_bar_stacked.png";
-import lineChartIcon from "../../assets/line_chart.svg";
-import areaChartIcon from "../../assets/area-chart.svg";
-import pieChartIcon from "../../assets/pie_chart.svg";
-import donutChartIcon from "../../assets/donut_chart.svg";
-import scatterPlotIcon from "../../assets/scatter.svg";
-import funnelChartIcon from "../../assets/funnel.png";
-import gaugeChartIcon from "../../assets/gauge.png";
-import heatMapIcon from "../../assets/heat_map.png";
-// import ChartsInfo from "../ChartAxes/ChartsInfo2";
-import CrossTabIcon from "../../assets/crosstab.png";
-import roseChartIcon from "../../assets/rose_chart.svg";
-import geoChartIcon from "../../assets/earth.svg";
-import stackedAreaChartIcon from "../../assets/stacked_Area_Chart.svg";
-import calendarChartIcon from "../../assets/calendar_chart.svg";
+import multiBarIcon from "../../assets/new_bar.svg";
+import horizontalBar from "../../assets/new_horizondalBar.svg";
+import stackedBarIcon from "../../assets/new_stackedBar.svg";
+import horizontalStackedBar from "../../assets/new_horizondalStackedBar.svg";
+import lineChartIcon from "../../assets/new_line.svg";
+import areaChartIcon from "../../assets/new_area.svg";
+import pieChartIcon from "../../assets/new_pie.svg";
+import donutChartIcon from "../../assets/new_doughnut.svg";
+import scatterPlotIcon from "../../assets/new_scatterPlot.svg";
+import funnelChartIcon from "../../assets/new_Funnel.svg";
+import gaugeChartIcon from "../../assets/new_gauge.svg";
+import heatMapIcon from "../../assets/new_heatMap.svg";
+import CrossTabIcon from "../../assets/new_CrossTab.svg";
+import roseChartIcon from "../../assets/new_rose.svg";
+// import geoChartIcon from "../../assets/earth.svg";
+import stackedAreaChartIcon from "../../assets/new_areaStacked.svg";
+import calendarChartIcon from "../../assets/new_calendar.svg";
 import "./ChartOptions.css";
-// import { updateChartData } from "../../redux/ChartProperties/actionsChartControls";
-import boxPlotIcon from "../../assets/box_plot.svg";
-import TreeMapIcon from "../../assets/treemap.svg";
-import TextEditorIcon from "../../assets/text_editor.svg";
-import Sankey from "../../assets/sankey.svg";
+import boxPlotIcon from "../../assets/new_boxPlot.svg";
+import TreeMapIcon from "../../assets/new_treeMap.svg";
+import TextEditorIcon from "../../assets/new_richText.svg";
+import Sankey from "../../assets/new_sankey.svg";
 import { Dispatch } from "redux";
 import {
 	canReUseData,
@@ -102,8 +97,8 @@ const ChartTypes = ({
 		arr1: any,
 		arr2?: any
 	) => {
-		// let allowedNumbers = ChartsInfo[chartName].dropZones[chartAxesIndex].allowedNumbers ?? 1;
-		let allowedNumbers = 10;
+		let allowedNumbers = ChartsInfo[chartName].dropZones[chartAxesIndex].allowedNumbers ?? 1;
+		// let allowedNumbers = 10;
 
 		if (arr1 && arr1.length > 0) {
 			if (allowedNumbers > arr1.length) {
@@ -1438,7 +1433,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(changeChartTypeAndAxes(propKey, chartType, newAxes)),
 		keepOldData: (propKey: number, reUseData: boolean) =>
 			dispatch(canReUseData(propKey, reUseData)),
-		updateChartData: (propKey: number, chartData: string | any) =>
+		updateChartData: (propKey: string, chartData: string | any) =>
 			dispatch(updateChartData(propKey, chartData)),
 		addTile: (
 			tabId: number,
@@ -1464,11 +1459,11 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			tileName: string,
 			tileId: number,
 			nextTileId: number,
-			fileId: any,
-			fromTab: any
+			fromTab: boolean,
+			fileId: any
 		) =>
 			dispatch(
-				actionsToUpdateSelectedTile(tabId, tileName, tileId, nextTileId, fileId, fromTab)
+				actionsToUpdateSelectedTile(tabId, tileName, tileId, nextTileId, fromTab, fileId)
 			),
 	};
 };

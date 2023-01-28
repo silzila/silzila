@@ -6,7 +6,7 @@
 	flex-direction: column;
 	overflow:hidden;
 	border-right: 2px solid rgba(224, 224, 224, 1);
-	
+
 }
 .charAxesArea:hover{
 	overflow-y: auto;
@@ -33,19 +33,18 @@
 	flex-direction: column;
 	max-height: auto;
 	min-height: 6em;
-	padding-left: 4px;
+	padding-left: 2px;
 	/* max-height: 100rem; */
 	/* min-height: 100em; */
 
 }
 
 .axisTitle {
-	/* background-color:#d3d3d3; */
+	
 	color: #404040;
 	font-weight: 600;
-	padding: 0 0.5rem;
-	/* border-top: 2px solid rgba(224, 224, 224, 1); */
-	/* border-top:1px solid rgba(224, 224, 224, 1) */
+	/* padding: 10px 0.8rem  0 0.5rem; */
+	padding: 10px 10px 0 10px;
 	text-align: left;
 }
 

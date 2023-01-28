@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="250mm" height="270mm" version="1.1" viewBox="0 0 250 270" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <clipPath id="clipPath10710">
+   <path d="m0 0v270h134.95l-39.239-42.802-39.484 36.197-32.306-35.239 3.5894-3.2908 97.003-88.929 71.546 78.041-61.108 56.022h115.05v-270z" fill="#f600e2" fill-opacity=".89324" stroke="#f600ca" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.202"/>
+  </clipPath>
+  <clipPath id="clipPath2002">
+   <path d="m0 0v270h250v-270zm192.78 56.605 30.276 42.867 7.7003 67.234-41.551 53.553-49.131-67.347 18.476-53.494z" display="none" fill="#cb6a00" fill-opacity=".842" stroke="#0006cb" stroke-linecap="round" stroke-linejoin="round" stroke-width=".366"/>
+   <path class="powerclip" d="m21.94 40.39h206.12v189.22h-206.12zm-21.94-40.39v270h250v-270zm192.78 56.605-34.23 42.812-18.476 53.494 49.131 67.347 41.551-53.553-7.7003-67.234z" fill="#cb6a00" fill-opacity=".842" stroke="#0006cb" stroke-linecap="round" stroke-linejoin="round" stroke-width=".366"/>
+  </clipPath>
+ </defs>
+ <ellipse transform="translate(0 5.3743)" cx="125" cy="135" rx="80.513" ry="72.063" clip-path="url(#clipPath10710)" fill-opacity="0" stroke="#0076f6" stroke-linecap="round" stroke-linejoin="round" stroke-width="35.094"/>
+ <path transform="translate(0 5.3743)" d="m205.51 135a80.513 72.063 0 0 1-80.513 72.063 80.513 72.063 0 0 1-80.513-72.063 80.513 72.063 0 0 1 80.513-72.063 80.513 72.063 0 0 1 80.513 72.063z" clip-path="url(#clipPath2002)" fill-opacity="0" stroke="#f68000" stroke-linecap="round" stroke-linejoin="round" stroke-width="35.094"/>
+ <path d="m125.52 167.7c-3.1336 0.0644-6.7742-0.52864-8.9942-2.7411-1.9072-1.9007-2.381-7.7189-2.381-7.7189l0.0715-3.439 6.1815-92.599s2.0685-1.5193 3.268-1.507c1.1456 0.01176 3.091 1.503 3.091 1.503l8.8461 92.211s0.15499 2.6233 0.19845 3.9364c0.039 1.1783 0.37489 2.4014 0.0559 3.5363-0.43833 1.5595-1.3293 3.0993-2.5971 4.1077-2.1394 1.7018-5.007 2.6548-7.7401 2.711z" fill="#051600" stroke-opacity="0" stroke-width="1.0177"/>
+</svg>

@@ -17,6 +17,7 @@ import { setDataConnectionListToState } from "../../redux/DataSet/datasetActions
 import { ConnectionItem } from "../../redux/DataSet/DatasetStateInterfaces";
 import { resetAllStates } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import AddIcon from "@mui/icons-material/Add";
+import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 
 const initialState = {
 	vendor: "",
@@ -241,25 +242,20 @@ const DataConnection = (props: DataConnectionProps) => {
 	return (
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
-				<div className="containerTitle">Data Connections</div>
+				<div className="containerTitle">
+					<StorageOutlinedIcon style={{ marginRight: "10px", color: " #0076f6" }} />
+					Data Connections
+				</div>
 				<div
 					className="containerButton"
 					onClick={(e: any) => {
 						handleMode(e);
 						showAndHideForm();
 					}}
+					title="Create New DataConnection"
 				>
 					<AddIcon />
 				</div>
-				{/* <input
-					className="containerButton"
-					type="button"
-					value="+"
-					onClick={(e: any) => {
-						handleMode(e);
-						showAndHideForm();
-					}}
-				/> */}
 			</div>
 			<div className="connectionListContainer">
 				{dataConnectionList &&

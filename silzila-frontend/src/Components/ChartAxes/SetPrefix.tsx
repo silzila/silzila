@@ -37,7 +37,8 @@ export const setPrefix = (
 		case "timestamp":
 			// cause calendar chart works proper only with date
 			if (chartType === "calendar") {
-				if (binName === "Dimension") {
+				// if (binName === "Dimension") {
+				if (binName === "Date") {
 					data.timeGrain = "date";
 				} else {
 					data.timeGrain = "year";

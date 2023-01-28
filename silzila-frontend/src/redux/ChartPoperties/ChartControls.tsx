@@ -7,6 +7,7 @@ const chartControl = {
 	properties: {
 		1.1: {
 			chartData: "",
+			queryResult: "",
 			isRichText: false,
 			richText:
 				'<h1 class="ql-align-center ql-indent-2">Content Header</h1><p><span style="background-color: rgb(255, 255, 0);">Paragraph goes here...</span></p><ul><li>This</li><li>is</li><li>List</li></ul><p>Another Paragraph</p><ol><li>Numbered</li><li>List</li><li><a href="https://silzila.org" rel="noopener noreferrer" target="_blank">silzila</a></li></ol>',
@@ -45,7 +46,7 @@ const chartControl = {
 				selectedMargin: "top",
 				top: 5,
 				right: 5,
-				bottom: 12,
+				bottom: 20,
 				left: 5,
 			},
 
@@ -303,6 +304,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 					...state.properties,
 					[tileKey]: {
 						chartData: "",
+						queryResult: "",
 						isRichText: false,
 						richText:
 							'<h1 class="ql-align-center ql-indent-2">Content Header</h1><p><span style="background-color: rgb(255, 255, 0);">Paragraph goes here...</span></p><ul><li>This</li><li>is</li><li>List</li></ul><p>Another Paragraph</p><ol><li>Numbered</li><li>List</li><li><a href="https://silzila.org" rel="noopener noreferrer" target="_blank">silzila</a></li></ol>',
@@ -600,6 +602,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 					...state.properties,
 					[tileKey2]: {
 						chartData: "",
+						queryResult: "",
 						isRichText: false,
 						richText:
 							'<h1 class="ql-align-center ql-indent-2">Content Header</h1><p><span style="background-color: rgb(255, 255, 0);">Paragraph goes here...</span></p><ul><li>This</li><li>is</li><li>List</li></ul><p>Another Paragraph</p><ol><li>Numbered</li><li>List</li><li><a href="https://silzila.org" rel="noopener noreferrer" target="_blank">silzila</a></li></ol>',
@@ -904,6 +907,14 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 				properties: {
 					[action.payload.propKey]: {
 						chartData: { $set: action.payload.chartData },
+					},
+				},
+			});
+		case "UPDATE_QUERY_DATA":
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						queryResult: { $set: action.payload.query },
 					},
 				},
 			});

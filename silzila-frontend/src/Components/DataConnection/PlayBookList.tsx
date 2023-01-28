@@ -27,6 +27,7 @@ import { getColumnTypes, getTableData } from "../DataViewer/DataViewerBottom";
 import FetchData from "../ServerCall/FetchData";
 import { PbSelectedDataset, PlayBookProps } from "./PlayBookInterfaces";
 import AddIcon from "@mui/icons-material/Add";
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 
 const PlayBookList = ({
 	// state
@@ -125,36 +126,43 @@ const PlayBookList = ({
 		});
 
 		if (result.status) {
-			console.log(result.data);
+			// console.log(result.data);
 			setLoading(true);
 
 			var pb = result.data;
-			var selectedDatasetsInPlaybook = pb.content.tabTileProps.selectedDataSetList;
+
+			var selectedDatasetsInPlaybook = pb.content.content.tabTileProps.selectedDataSetList;
 
 			// Get list of tables for a given dataset and save here
-			var tablesForSelectedDatasetsCopy = {};
+			var tablesForSelectedDatasetsCopy: any = {};
 			await Promise.all(
 				selectedDatasetsInPlaybook.map(async (sampleDs: any) => {
 					var result2: any = await FetchData({
 						requestType: "noData",
 						method: "GET",
-						url: `dataset/${sampleDs.ds_uid}`,
+						url: `dataset/${sampleDs.id}`,
 						headers: { Authorization: `Bearer ${token}` },
 					});
 
 					if (result2.status) {
-						// tablesForSelectedDatasetsCopy[sampleDs.ds_uid] = result2.data;
+						// tablesForSelectedDatasetsCopy[sampleDs.id] = result2.data;
+						tablesForSelectedDatasetsCopy[sampleDs.id] = result2.data.dataSchema.tables;
 					}
 				})
 			);
-			pb.content.tabTileProps.tablesForSelectedDataSets = tablesForSelectedDatasetsCopy;
+			console.log(tablesForSelectedDatasetsCopy);
+			pb.content.content.tabTileProps.tablesForSelectedDataSets =
+				tablesForSelectedDatasetsCopy;
 
 			// for each tile in playbook, if it has minimum required cards in dropzones, get chart data from server
-			var newChartControl = JSON.parse(JSON.stringify(pb.content?.chartControl));
+			var newChartControl = JSON.parse(JSON.stringify(pb.content.content?.chartControl));
+			console.log(newChartControl);
 			await Promise.all(
-				Object.keys(pb.content.chartControl.properties).map(async property => {
+				Object.keys(pb.content.content.chartControl.properties).map(async property => {
 					var axesValue = JSON.parse(
-						JSON.stringify(pb.content.chartProperty.properties[property].chartAxes)
+						JSON.stringify(
+							pb.content.content.chartProperty.properties[property].chartAxes
+						)
 					);
 
 					var minReq: any = true;
@@ -168,7 +176,7 @@ const PlayBookList = ({
 
 					if (serverCall) {
 						if (
-							pb.content.chartProperty.properties[property].chartType ===
+							pb.content.content.chartProperty.properties[property].chartType ===
 							"scatterPlot"
 						) {
 							var combinedValues = { name: "Measure", fields: [] };
@@ -180,8 +188,10 @@ const PlayBookList = ({
 						}
 
 						if (
-							pb.content.chartProperty.properties[property].chartType === "heatmap" ||
-							pb.content.chartProperty.properties[property].chartType === "crossTab"
+							pb.content.content.chartProperty.properties[property].chartType ===
+								"heatmap" ||
+							pb.content.content.chartProperty.properties[property].chartType ===
+								"crossTab"
 						) {
 							var combinedValues2 = { name: "Dimension", fields: [] };
 							var values3 = axesValue[1].fields;
@@ -203,31 +213,27 @@ const PlayBookList = ({
 			// Get all tables for selected Dataset and display them here
 			var sampleRecords: any = { recordsColumnType: {} };
 			await Promise.all(
-				Object.keys(pb.content.chartProperty.properties).map(async prop => {
-					var tableInfo = pb.content.chartProperty.properties[prop];
+				Object.keys(pb.content.content.chartProperty.properties).map(async prop => {
+					var tableInfo = pb.content.content.chartProperty.properties[prop];
 
-					var dc_uid = tableInfo.selectedDs?.dc_uid;
+					var dc_uid = tableInfo.selectedDs?.connectionId;
 					var ds_uid = tableInfo.selectedDs?.id;
 
 					var selectedTableForThisDataset =
-						pb.content.tabTileProps.tablesForSelectedDataSets[ds_uid].filter(
+						pb.content.content.tabTileProps.tablesForSelectedDataSets[ds_uid].filter(
 							(tbl: any) => tbl.id === tableInfo.selectedTable[ds_uid]
 						)[0];
 
 					if (selectedTableForThisDataset) {
 						var tableRecords = await getTableData(
 							dc_uid,
-							selectedTableForThisDataset.schema,
-							selectedTableForThisDataset.database,
-							selectedTableForThisDataset.table,
+							selectedTableForThisDataset,
 							token
 						);
 
 						var recordsType = await getColumnTypes(
 							dc_uid,
-							selectedTableForThisDataset.schema,
-							selectedTableForThisDataset.database,
-							selectedTableForThisDataset.table,
+							selectedTableForThisDataset,
 							token
 						);
 
@@ -262,6 +268,7 @@ const PlayBookList = ({
 									[selectedTableForThisDataset.id]: { $set: tableRecords },
 								},
 							});
+							console.log(sampleRecords);
 						}
 					}
 				})
@@ -269,14 +276,13 @@ const PlayBookList = ({
 
 			setLoading(false);
 
-			pb.content.chartControl = newChartControl;
-			pb.content.sampleRecords = sampleRecords;
-			loadPlayBook(pb.content);
-			updatePlayBookId(pb.name, pb.pb_uid, pb.description);
+			pb.content.content.chartControl = newChartControl;
+			pb.content.content.sampleRecords = sampleRecords;
+			loadPlayBook(pb.content.content);
+			updatePlayBookId(pb.name, pb.id, pb.description);
 
-			var pbCopy = pb.content;
+			var pbCopy = pb.content.content;
 			delete pbCopy.sampleRecords;
-			storePlayBookCopy(pbCopy);
 
 			navigate("/dataviewer");
 		}
@@ -307,7 +313,10 @@ const PlayBookList = ({
 	return (
 		<div className="dashboardsContainer">
 			<div className="containersHead">
-				<div className="containerTitle">Playbooks</div>
+				<div className="containerTitle">
+					<DashboardOutlinedIcon style={{ marginRight: "10px", color: "#0076f6" }} />
+					Playbooks
+				</div>
 
 				<DatasetListPopover
 					showCard={openPopOver}
@@ -316,6 +325,7 @@ const PlayBookList = ({
 					popOverTitle="Select a Dataset to use with PlayBook"
 				/>
 				<div
+					title="Create New Playbook"
 					className="containerButton"
 					onClick={e => {
 						setOpenPopOver(true);
@@ -344,35 +354,37 @@ const PlayBookList = ({
 										}}
 									>
 										<div className="dataConnectionName">{pb.name}</div>
-										{xprops.open ? (
-											<Tooltip
-												title="Delete playbook"
-												arrow
-												placement="right-start"
-											>
-												<div
-													className="dataHomeDeleteIcon"
-													onClick={e => {
-														e.stopPropagation();
-
-														var yes = window.confirm(
-															"Are you sure you want to Delete this Playbook?"
-														);
-														if (yes) {
-															deletePlayBook(pb.pb_uid);
-														}
-													}}
+										<div>
+											{xprops.open ? (
+												<Tooltip
+													title="Delete playbook"
+													arrow
+													placement="right-start"
 												>
-													<DeleteIcon
-														style={{
-															width: "1rem",
-															height: "1rem",
-															margin: "auto",
+													<div
+														className="dataHomeDeleteIcon"
+														onClick={e => {
+															e.stopPropagation();
+
+															var yes = window.confirm(
+																"Are you sure you want to Delete this Playbook?"
+															);
+															if (yes) {
+																deletePlayBook(pb.id);
+															}
 														}}
-													/>
-												</div>
-											</Tooltip>
-										) : null}
+													>
+														<DeleteIcon
+															style={{
+																width: "1rem",
+																height: "1rem",
+																margin: "auto",
+															}}
+														/>
+													</div>
+												</Tooltip>
+											) : null}
+										</div>
 									</div>
 								)}
 							/>
@@ -406,18 +418,18 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		setSelectedDataSetList: (dataset: PbSelectedDataset) =>
 			dispatch(setSelectedDataSetList(dataset)),
 		setTablesForDs: (tablesObj: any) => dispatch(setTablesForSelectedDataSets(tablesObj)),
-		setSelectedDs: (propKey: number, selectedDs: any) =>
+		setSelectedDs: (propKey: number | string, selectedDs: any) =>
 			dispatch(setSelectedDsInTile(propKey, selectedDs)),
 		loadPlayBook: (playBook: any) => dispatch(loadPlaybook(playBook)),
 		updatePlayBookId: (
 			playBookName: string,
 			playBookUid: string,
 			description: string,
-			oldContent: string | any
+			oldContent?: string | any
 		) => dispatch(updatePlaybookUid(playBookName, playBookUid, description, oldContent)),
 		storePlayBookCopy: (pb: any) => dispatch(storePlayBookCopy(pb)),
-		updateChartData: (propKey: number, chartData: string | any) =>
-			dispatch(updateChartData(propKey, chartData)),
+		// updateChartData: (propKey: number | string, chartData: string | any) =>
+		// 	dispatch(updateChartData(propKey, chartData)),
 	};
 };
 

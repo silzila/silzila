@@ -12,8 +12,10 @@ import {
 // =====================================
 // actions from sodebar
 // ====================================
-
-// 1
+// 0
+export const setCreateDsFromFlatFile = (value: boolean) => {
+	return { type: "SET_CREATE_DS_FROM_FLATFILE", payload: value };
+}; // 1
 export const setDatabaseNametoState = (name: string) => {
 	return { type: "SET_DATABASE_NAME", payload: name };
 };
