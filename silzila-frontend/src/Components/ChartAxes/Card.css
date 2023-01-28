@@ -71,7 +71,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	line-height: 10px;
-	text-align: center;
+	text-align: left;
 }
 .columnPrefix {
 	color: #d25e00;

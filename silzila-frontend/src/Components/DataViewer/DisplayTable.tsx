@@ -142,64 +142,74 @@ const DisplayTable = ({
 			<RenderButtons />
 		</div>
 	) : (
-		<>
-			<Table
+		// <div
+		// 	style={{
+		// 		backgroundColor: "white",
+		// 		height: "100%",
+		// 		width: "100%",
+		// 		padding: "8px 16px",
+		// 		overflow: "hidden",
+		// 	}}
+		// >
+		// 	<TableContainer
+		// 		sx={{
+		// 			"& .MuiTable-root": {
+		// 				overflow: "auto",
+		// 			},
+		// 		}}
+		// 	>
+		<Table stickyHeader={true}>
+			<TableHead
 				sx={{
-					marginTop: "0px",
-					// borderTop: "0px",
+					"& .MuiTableCell-root": {
+						fontSize: "12px",
+						fontWeight: "600",
+						color: "rgb(87, 87, 87)",
+						padding: "9px 9px 9px 0px ",
+						backgroundColor: "white",
+						lineHeight: "normal",
+						letterSpacing: "normal",
+						fontFamily:
+							" -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;",
+					},
 				}}
-				stickyHeader={true}
 			>
-				<TableHead
+				<TableRow
 					sx={{
 						"& .MuiTableCell-root": {
-							fontSize: "12px",
-							fontWeight: "600",
-							color: "rgb(87, 87, 87)",
-							padding: "9px 9px 9px 0px ",
-							backgroundColor: "white",
-							lineHeight: "normal",
-							letterSpacing: "normal",
-							fontFamily:
-								" -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;",
+							borderBottom: "0px",
 						},
 					}}
 				>
-					<TableRow
-						sx={{
-							"& .MuiTableCell-root": {
-								borderBottom: "0px",
-							},
-						}}
-					>
-						<GetHeaders />
-					</TableRow>
-				</TableHead>
-				<TableBody
-					sx={{
-						"& .MuiTableCell-root": {
-							fontSize: "12px",
-							// fontWeight: "600",
-							// color: "rgb(51, 51, 51)",
-							// borderRight: "0.5px solid rgba(224, 224, 224, 1)",
-							padding: "0px 10px 0px 20px ",
-							whiteSpace: "nowrap",
-							maxWidth: "250px",
-							minWidth: "75px",
-							textOverflow: "ellipsis",
-							overflow: "hidden",
-							backgroundColor: "white",
-							// lineHeight: "normal",
-							// letterSpacing: "normal",
-							fontFamily:
-								" -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;",
-						},
-					}}
-				>
-					{getRowsData()}
-				</TableBody>
-			</Table>
-		</>
+					<GetHeaders />
+				</TableRow>
+			</TableHead>
+			<TableBody
+				sx={{
+					"& .MuiTableCell-root": {
+						fontSize: "12px",
+						// fontWeight: "600",
+						// color: "rgb(51, 51, 51)",
+						// borderRight: "0.5px solid rgba(224, 224, 224, 1)",
+						padding: "0px 10px 0px 20px ",
+						whiteSpace: "nowrap",
+						maxWidth: "250px",
+						minWidth: "75px",
+						textOverflow: "ellipsis",
+						overflow: "hidden",
+						backgroundColor: "white",
+						// lineHeight: "normal",
+						// letterSpacing: "normal",
+						fontFamily:
+							" -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;",
+					},
+				}}
+			>
+				{getRowsData()}
+			</TableBody>
+		</Table>
+		// 	</TableContainer>
+		// </div>
 	);
 };
 

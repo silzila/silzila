@@ -87,7 +87,13 @@ const Treemap = ({
 
 			// columns in dimension
 			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map(el => {
-				return el.fieldname;
+				if ("timeGrain" in el) {
+					return `${el.timeGrain} of ${el.fieldname}`;
+				} else if ("agg" in el) {
+					return `${el.agg} of ${el.fieldname} `;
+				} else {
+					return el.fieldname;
+				}
 			});
 
 			// column in measure
@@ -107,7 +113,13 @@ const Treemap = ({
 				console.log("only one Dimenstion");
 				var childrenArray: any = [];
 				chartData.map((item: any) => {
-					var finalObj = { name: item[dimensionsKeys[0]], value: item[measure] };
+					var finalObj = {
+						name:
+							typeof item[dimensionsKeys[0]] === "number"
+								? JSON.stringify(item[dimensionsKeys[0]])
+								: item[dimensionsKeys[0]],
+						value: item[measure],
+					};
 					childrenArray.push(finalObj);
 				});
 				setsourceData(childrenArray);

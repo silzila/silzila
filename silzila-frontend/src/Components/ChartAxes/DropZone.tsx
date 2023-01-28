@@ -405,7 +405,8 @@ const DropZone = ({
 						<div
 							style={{
 								float: "right",
-
+								display: "flex",
+								columnGap: "8px",
 								// borderTop: "2px solid #d3d3d3"
 							}}
 						>
@@ -495,10 +496,10 @@ const DropZone = ({
 			</div>
 
 			{/* {!chartProp.properties[propKey].chartAxes[bIndex].isCollapsed ? ( */}
-			<div className="chartAxisBody">
-				{/* The subtext displayed under each dropzone  */}
-				{/* How many minimum fields required & maximum allowed  */}
-				{/* {bIndex === 0 ? (
+			{/* <div className="chartAxisBody"> */}
+			{/* The subtext displayed under each dropzone  */}
+			{/* How many minimum fields required & maximum allowed  */}
+			{/* {bIndex === 0 ? (
 					<span className="axisInfo">
 						Drop (0 - max {ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
 						field(s) here
@@ -522,7 +523,7 @@ const DropZone = ({
 						{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers}) field(s) here
 					</span>
 				) : null} */}
-				{/* {bIndex === 3 &&
+			{/* {bIndex === 3 &&
 				ChartsInfo[chartType].dropZones[bIndex] &&
 				ChartsInfo[chartType].dropZones[bIndex].min === 0 ? (
 					<span className="axisInfo">
@@ -530,19 +531,19 @@ const DropZone = ({
 						{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers}) here
 					</span>
 				) : null} */}
-				{/* {bIndex === 3 &&
+			{/* {bIndex === 3 &&
 				ChartsInfo[chartType].dropZones[bIndex] &&
 				ChartsInfo[chartType].dropZones[bIndex].allowedNumbers === 1 ? (
 					<span className="axisInfo"> Drop (1) field(s) here</span>
 				) : null} */}
-				{/* ChartsInfo[chartType].dropZones[bIndex].allowedNumbers === 1 && ChartsInfo[chartType].dropZones[bIndex].min === 1 ? (
+			{/* ChartsInfo[chartType].dropZones[bIndex].allowedNumbers === 1 && ChartsInfo[chartType].dropZones[bIndex].min === 1 ? (
 					<span className="axisInfo"> Drop (1) field(s) here</span>
 				) : ChartsInfo[chartType].dropZones[bIndex].allowedNumbers > 1 && ChartsInfo[chartType].dropZones[bIndex].min === 1 ? (
 					<span className="axisInfo"> Drop (atleast 1 - max {ChartsInfo[chartType].dropZones[bIndex].allowedNumbers}) field(s) here</span>
 				) : ChartsInfo[chartType].dropZones[bIndex].allowedNumbers > 1 && ChartsInfo[chartType].dropZones[bIndex].min === 0 ? (
 					<span className="axisInfo"> Drop (0 - max {ChartsInfo[chartType].dropZones[bIndex].allowedNumbers}) field(s) here</span>
 				) : null */}
-				{bIndex == 0
+			{/* {bIndex == 0
 					? chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
 							(field: any, index: number) => (
 								<UserFilterCard
@@ -566,8 +567,40 @@ const DropZone = ({
 									propKey={propKey}
 								/>
 							)
-					  )}
-			</div>
+					  )} */}
+			{/* </div> */}
+			{/* fggdgdfg */}
+
+			{bIndex == 0 ? (
+				<div style={{ maxHeight: "10px" }}>
+					{chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
+						(field: any, index: number) => (
+							<UserFilterCard
+								field={field}
+								bIndex={bIndex}
+								axisTitle={name}
+								key={index}
+								itemIndex={index}
+								propKey={propKey}
+							/>
+						)
+					)}
+				</div>
+			) : (
+				chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
+					(field: any, index: number) => (
+						<Card
+							field={field}
+							bIndex={bIndex}
+							axisTitle={name}
+							key={index}
+							itemIndex={index}
+							propKey={propKey}
+						/>
+					)
+				)
+			)}
+
 			{/* ) : (
 				chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map((field, index) => (
 					<UserFilterCard

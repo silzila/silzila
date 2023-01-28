@@ -10,7 +10,9 @@
 }
 
 .UserSelectionDiv{
-    display: block;
+    /* display: block; */
+    display: flex;
+    flex-direction: column;row-gap: 6px;
     position: relative;
     max-height: 12em;margin-top: 10px;
     /* background-color:#eee; */
@@ -19,8 +21,9 @@
 }
 
 .axisFilterField {
-	width: 90%;
-	margin: 4px 5px;
+	width: 94%;
+    margin:6px;
+	/* margin: 4px 5px; */
 	align-content: center;
 	font-size: 12px;
 	text-align: start;
@@ -86,8 +89,8 @@ padding:0 5px 0 0;
 .CustomRequiredField {
      float: left;
     height: auto;
-    width: 90%;
-    margin-left: 4px;
+    width: 94%;
+    margin-left: 6px;
     /* margin: 1% 5%;  */
 }
 

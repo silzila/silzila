@@ -17,7 +17,7 @@ import SliderWithInput from "../SliderWithInput";
 import SwitchWithInput from "../SwitchWithInput";
 import { ColorSchemes, ColorSchemesProps } from "./ColorScheme";
 interface ChartColorsActions {
-	setColorScheme: (propKey: string | number, color: string) => void;
+	setColorScheme: (propKey: string, color: string) => void;
 	switchAutotoManualinSteps: (propKey: string | number, value: any) => void;
 	setAreaColorOptions: (propKey: string | number, option: string, value: any) => void;
 	updateBoxPlotStyleOptions: (propKey: string | number, option: string, value: any) => void;
@@ -34,10 +34,7 @@ const ChartColors = ({
 	switchAutotoManualinSteps,
 	updateBoxPlotStyleOptions,
 }: ChartOptionsProps & ChartColorsActions) => {
-	var propKey: number = parseFloat(
-		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
-	);
-
+	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	const [selectedMenu, setSelectedMenu] = useState<string>(
 		chartControls.properties[propKey].colorScheme
 	);
@@ -197,7 +194,7 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		setColorScheme: (propKey: string | number, color: string) =>
+		setColorScheme: (propKey: string, color: string) =>
 			dispatch(setColorScheme(propKey, color)),
 		switchAutotoManualinSteps: (propKey: string | number, value: any) =>
 			dispatch(switchAutotoManualinSteps(propKey, value)),

@@ -511,11 +511,11 @@ const MenuBar = ({
 									src={silzilaNewLogo}
 									style={{
 										// height: "100%",
-										height: "70%",
+										height: "80%",
 										// width: "3rem",
 										width: "2.5rem",
-										padding: "4px",
-										margin: "4px 0px 0px 6px",
+										padding: "4px 4px 4px 6px",
+										margin: "4px 0px 0px 2px",
 										backgroundColor: "white",
 									}}
 									alt="Silzila Home"

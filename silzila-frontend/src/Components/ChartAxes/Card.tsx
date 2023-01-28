@@ -40,9 +40,6 @@ const Card = ({
 }: CardProps) => {
 	field.dataType = field.dataType.toLowerCase();
 
-	console.log(field, bIndex, itemIndex, propKey, axisTitle, tabTileProps, chartProp);
-	console.log(chartProp.properties[propKey].chartType);
-
 	const originalIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
 		(item: any) => item.uId === field.uId
 	);
@@ -265,19 +262,15 @@ const mapStateToProps = (state: TabTileStateProps2 & ChartPropertiesStateProps) 
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		deleteDropZoneItems: (propKey: number | string, binIndex: number, itemIndex: number) =>
+		deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: number) =>
 			dispatch(editChartPropItem("delete", { propKey, binIndex, itemIndex })),
 
-		updateQueryParam: (
-			propKey: number | string,
-			binIndex: number,
-			itemIndex: number,
-			item: any
-		) => dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item })),
+		updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any) =>
+			dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item })),
 
-		sortAxes: (propKey: number, bIndex: number, dragUId: string, uId: string) =>
+		sortAxes: (propKey: string, bIndex: number, dragUId: string, uId: string) =>
 			dispatch(sortAxes(propKey, bIndex, dragUId, uId)),
-		revertAxes: (propKey: number, bIndex: number, uId: string, originalIndex: number) =>
+		revertAxes: (propKey: string, bIndex: number, uId: string, originalIndex: number) =>
 			dispatch(revertAxes(propKey, bIndex, uId, originalIndex)),
 	};
 };

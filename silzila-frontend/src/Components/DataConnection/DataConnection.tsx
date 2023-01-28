@@ -252,7 +252,7 @@ const DataConnection = (props: DataConnectionProps) => {
 						handleMode(e);
 						showAndHideForm();
 					}}
-					title="Click to Add New DataConnection"
+					title="Create New DataConnection"
 				>
 					<AddIcon />
 				</div>
