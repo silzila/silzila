@@ -30,7 +30,14 @@ const Sankey = ({
 	useEffect(() => {
 		if (chartData.length >= 1) {
 			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map(el => {
-				return el.fieldname;
+				console.log(el);
+				if ("timeGrain" in el) {
+					return `${el.timeGrain} of ${el.fieldname}`;
+				} else if ("agg" in el) {
+					return `${el.agg} of ${el.fieldname} `;
+				} else {
+					return el.fieldname;
+				}
 			});
 
 			//getting measure value as string since allowed numof measure is 1 for this chart
@@ -98,8 +105,14 @@ const Sankey = ({
 			for (var i = 0; i < dimensionsKeys.length - 1; i++) {
 				valuesOfLink = chartData.map((el: any) => {
 					var obj: any = {};
-					obj.source = el[dimensionsKeys[i]];
-					obj.target = el[dimensionsKeys[i + 1]];
+					obj.source =
+						typeof el[dimensionsKeys[i]] === "number"
+							? JSON.stringify(el[dimensionsKeys[i]])
+							: el[dimensionsKeys[i]];
+					obj.target =
+						typeof el[dimensionsKeys[i + 1]] === "number"
+							? JSON.stringify(el[dimensionsKeys[i + 1]])
+							: el[dimensionsKeys[i + 1]];
 					obj.value = el[measure];
 					obj.lineStyle = {
 						color: chartControl.sankeyControls.linkColor,
@@ -270,7 +283,14 @@ const Sankey = ({
 		);
 	};
 
-	return <>{chartData.length >= 1 ? <RenderChart /> : <RenderChart />}</>;
+	return (
+		<>
+			{chartData.length >= 1 &&
+			chartProperties.properties[propKey].chartAxes[1].fields.length > 1 ? (
+				<RenderChart />
+			) : null}
+		</>
+	);
 };
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 	return {

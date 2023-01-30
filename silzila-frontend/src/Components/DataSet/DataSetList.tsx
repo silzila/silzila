@@ -160,7 +160,7 @@ const DataSetList = ({
 						Datasets
 					</div>
 					<div
-						title="Click to Add New Dataset"
+						title="Create New Dataset"
 						className="containerButton"
 						onClick={() => {
 							setShowOpnMenu(true);

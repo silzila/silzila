@@ -3,7 +3,8 @@
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr 1fr;
 	padding-bottom: 10px;
-	padding: 0 4px 8px 4px;
+	column-gap: 10px;
+	/* padding: 0 4px 8px 4px; */
 }
 
 .chartIcon {
@@ -24,11 +25,11 @@
 .selected {
 	border: 2px solid  rgba(224,224,224,1);
 	border-radius: 4px;
-	/* background-color: rgba(224,224,224,1); */
+	background-color: rgba(224,224,224,1);
 }
 
 .chartOptionImagesContainer {
-	padding: 10px 2.5%;
+	padding: 10px 8px;
 	width: 100%;
 	/* background-color: #eee; */
 	display: grid;

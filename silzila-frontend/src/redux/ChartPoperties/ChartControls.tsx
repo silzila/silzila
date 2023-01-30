@@ -46,7 +46,7 @@ const chartControl = {
 				selectedMargin: "top",
 				top: 5,
 				right: 5,
-				bottom: 12,
+				bottom: 20,
 				left: 5,
 			},
 

@@ -9,10 +9,7 @@ import "./ChartAxes.css";
 import DropZone from "./DropZone";
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import { Dispatch } from "redux";
-import {
-	updateChartData,
-	updateQueryResult,
-} from "../../redux/ChartPoperties/ChartControlsActions";
+import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
 import { canReUseData, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import FetchData from "../ServerCall/FetchData";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
@@ -27,9 +24,9 @@ import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 export const getChartData = async (
 	axesValues: AxesValuProps[],
 	chartProp: ChartPropertiesProps,
-	propKey: number,
+	propKey: string,
 	token: string,
-	updateQueryResult: any
+	forQueryData?: boolean
 ) => {
 	/*	PRS 21/07/2022	Construct filter object for service call */
 	const getChartLeftFilter = () => {
@@ -178,6 +175,7 @@ export const getChartData = async (
 				break;
 
 			case "Dimension":
+			case "Date":
 				dim = "dimensions";
 				break;
 
@@ -264,18 +262,12 @@ export const getChartData = async (
 		});
 
 		if (res.status) {
-			var res2: any = await FetchData({
-				requestType: "withData",
-				method: "POST",
-				url: `${url}&sql=true`,
-				headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-				data: formattedAxes,
-			});
-			if (res2.status) {
-				updateQueryResult(propKey, res2.data);
-			}
 			if (res.data && res.data.length > 0) {
-				return res.data;
+				if (forQueryData) {
+					return formattedAxes;
+				} else {
+					return res.data;
+				}
 			} else {
 				console.log("Change filter conditions.");
 			}
@@ -286,7 +278,7 @@ export const getChartData = async (
 };
 
 // given chart type, check if the dropzones have required number of fields
-export const checkMinRequiredCards = (chartProp: any, propKey: number) => {
+export const checkMinRequiredCards = (chartProp: any, propKey: string) => {
 	var minReqMet = [];
 	ChartsInfo[chartProp.properties[propKey].chartType].dropZones.forEach(
 		(zone: any, zoneI: number) => {
@@ -329,11 +321,10 @@ const ChartAxes = ({
 	updateChartData,
 	toggleAxesEdit,
 	reUseOldData,
-	updateQueryResult,
 }: ChartAxesProps) => {
 	const [loading, setLoading] = useState<boolean>(false);
 
-	var propKey: number = parseFloat(`${tabId}.${tileId}`);
+	var propKey: string = `${tabId}.${tileId}`;
 	var dropZones: any = [];
 	for (let i = 0; i < ChartsInfo[chartProp.properties[propKey].chartType].dropZones.length; i++) {
 		dropZones.push(ChartsInfo[chartProp.properties[propKey].chartType].dropZones[i].name);
@@ -500,7 +491,7 @@ const ChartAxes = ({
 
 		if (serverCall) {
 			setLoading(true);
-			getChartData(axesValues, chartProp, propKey, token, updateQueryResult).then(data => {
+			getChartData(axesValues, chartProp, propKey, token).then(data => {
 				updateChartData(propKey, sortChartData(data));
 				setLoading(false);
 			});
@@ -599,12 +590,10 @@ const mapStateToProps = (state: ChartPropertiesStateProps & isLoggedProps, ownPr
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateChartData: (propKey: number, chartData: any) =>
+		updateChartData: (propKey: string, chartData: any) =>
 			dispatch(updateChartData(propKey, chartData)),
-		toggleAxesEdit: (propKey: number) => dispatch(toggleAxesEdited(propKey, false)),
-		reUseOldData: (propKey: number) => dispatch(canReUseData(propKey, false)),
-		updateQueryResult: (propKey: string | number, query: string | any) =>
-			dispatch(updateQueryResult(propKey, query)),
+		toggleAxesEdit: (propKey: string) => dispatch(toggleAxesEdited(propKey, false)),
+		reUseOldData: (propKey: string) => dispatch(canReUseData(propKey, false)),
 	};
 };
 

@@ -115,6 +115,7 @@ const DataViewerBottom = ({
 }: DataViewerBottomProps) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var selectedChartProp: IndChartPropProperties = chartProps.properties[propKey];
+
 	var tables: any = tabTileProps?.tablesForSelectedDataSets?.[selectedChartProp?.selectedDs?.id];
 
 	const [open, setOpen] = useState<boolean>(false);
@@ -325,6 +326,7 @@ const DataViewerBottom = ({
 									DataSet
 								</InputLabel>
 								<Select
+									title={selectedChartProp.selectedDs.datasetName}
 									label="DataSet"
 									labelId="selectDataSet"
 									value={selectedChartProp.selectedDs?.id}
@@ -332,7 +334,7 @@ const DataViewerBottom = ({
 									onChange={e => {
 										handleDataSetChange(e.target.value);
 									}}
-									sx={{ height: "1.5rem", fontSize: "14px" }}
+									sx={{ height: "1.5rem", fontSize: "13px" }}
 									notched={true}
 								>
 									<MenuItem
