@@ -49,15 +49,15 @@ export const SaveButtons = makeStyles({
 		width: 200,
 
 		"& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
-			borderColor: "#0076f6",
+			borderColor: "#2bb9bb",
 		},
 
 		"&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
-			borderColor: "#0076f6",
+			borderColor: "#2bb9bb",
 		},
 
 		"& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
-			borderColor: "#0076f6",
+			borderColor: "#2bb9bb",
 		},
 		// "& .MuiOutlinedInput-input": {
 		// 	color: "green",
@@ -76,7 +76,7 @@ export const SaveButtons = makeStyles({
 			marginRight: "10px",
 			textOverflow: "ellipsis",
 			whiteSpace: "nowrap",
-			color: "#0076f6",
+			color: "#2bb9bb",
 		},
 	},
 });
@@ -335,6 +335,16 @@ const ConfirmFlatFileData = ({
 								Reupload
 							</MenuItem>
 						)}
+						<MenuItem
+							value="cancel"
+							onClick={() => {
+								setselectedButton("cancel");
+								navigate("/datahome");
+								resetFlatFileState();
+							}}
+						>
+							Cancel
+						</MenuItem>
 					</TextField>
 				</div>
 			</div>

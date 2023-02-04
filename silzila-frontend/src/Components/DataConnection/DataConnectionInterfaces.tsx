@@ -1,3 +1,4 @@
+import { AlertColor } from "@mui/material/Alert";
 import { ConnectionItem } from "../../redux/DataSet/DatasetStateInterfaces";
 
 //initial state (account)
@@ -38,7 +39,7 @@ export interface FormProps {
 	showForm: boolean;
 	regOrUpdate: string;
 
-	setSeverity: (value: string) => void;
+	setSeverity: (value: AlertColor) => void;
 	setOpenAlert: (value: boolean) => void;
 	setTestMessage: (value: string) => void;
 	showAndHideForm: () => void;

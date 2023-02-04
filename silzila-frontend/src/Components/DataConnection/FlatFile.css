@@ -33,7 +33,7 @@ background-color: rgba(224, 224, 224, 1);
 
 .uploadFileTitle{
     font-size: 16px; font-weight: bold; margin: 10px;
-    color: rgb(67, 66, 66);
+    color: #5d5c5c;
 }
 
 .file-upload-button-container{
@@ -60,7 +60,8 @@ background-color: rgba(224, 224, 224, 1);
 
 
 .upload-button {
-    background-color: rgba(224, 224, 224, 1);
+    background-color: #af99db;
+    color:white;
     padding: 10px;
     border-radius: 5px;
     border-color: transparent;

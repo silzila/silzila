@@ -368,7 +368,7 @@ const Sidebar = ({
 							);
 						})
 					) : (
-						<div>No Tables</div>
+						<div>No Tables Available</div>
 					)}
 				</div>
 			) : (
@@ -404,6 +404,19 @@ const Sidebar = ({
 						<FormControl fullWidth size="small">
 							<InputLabel id="dcSelect">Database</InputLabel>
 							<Select
+								sx={{
+									"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+										borderColor: "#2bb9bb",
+										color: "#2bb9bb",
+									},
+									"&:hover .MuiOutlinedInput-notchedOutline": {
+										borderColor: "#2bb9bb",
+										color: "#2bb9bb",
+									},
+									"&.Mui-focused .MuiSvgIcon-root ": {
+										fill: "#2bb9bb !important",
+									},
+								}}
 								labelId="dcSelect"
 								className="selectBar"
 								onChange={(e: any) => {
@@ -435,37 +448,50 @@ const Sidebar = ({
 					</div>
 
 					{isSchemaAvailable ? (
-						<div style={{ padding: "0 1rem 0 1rem" }}>
-							<FormControl fullWidth size="small">
-								<InputLabel id="schemaSelect">Schema</InputLabel>
-								<Select
-									labelId="schemaSelect"
-									className="selectBar"
-									label="Schema"
-									onChange={(e: any) => getTables(e, null, null)}
-									value={selectedSchema}
-								>
-									{schemaList &&
-										schemaList.map((schema: string) => {
-											return (
-												<MenuItem value={schema} key={schema}>
-													<Typography
-														sx={{
-															width: "auto",
-															overflow: "hidden",
-															textOverflow: "ellipsis",
-															fontSize: "14px",
-														}}
-													>
-														{schema}
-													</Typography>
-												</MenuItem>
-											);
-										})}
-								</Select>
-							</FormControl>
-						</div>
-					) : null}
+						// <div style={{ padding: "0 1rem 0 1rem" }}>
+						<FormControl fullWidth size="small">
+							<InputLabel id="schemaSelect">Schema</InputLabel>
+							<Select
+								sx={{
+									"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+										borderColor: "#2bb9bb",
+										color: "#2bb9bb",
+									},
+									"&:hover .MuiOutlinedInput-notchedOutline": {
+										borderColor: "#2bb9bb",
+										color: "#2bb9bb",
+									},
+									"&.Mui-focused .MuiSvgIcon-root ": {
+										fill: "#2bb9bb !important",
+									},
+								}}
+								labelId="schemaSelect"
+								className="selectBar"
+								label="Schema"
+								onChange={(e: any) => getTables(e, null, null)}
+								value={selectedSchema}
+							>
+								{schemaList &&
+									schemaList.map((schema: string) => {
+										return (
+											<MenuItem value={schema} key={schema}>
+												<Typography
+													sx={{
+														width: "auto",
+														overflow: "hidden",
+														textOverflow: "ellipsis",
+														fontSize: "14px",
+													}}
+												>
+													{schema}
+												</Typography>
+											</MenuItem>
+										);
+									})}
+							</Select>
+						</FormControl>
+					) : // </div>
+					null}
 
 					<div
 						style={{
@@ -473,6 +499,7 @@ const Sidebar = ({
 							borderRadius: "5px",
 							marginBottom: "0.5rem",
 							textAlign: "left",
+							color: "#3F3F3F",
 						}}
 					>
 						<Typography>Tables</Typography>
@@ -503,7 +530,7 @@ const Sidebar = ({
 								overflowX: "hidden",
 							}}
 						>
-							{tableList ? (
+							{tableList && tableList.length > 0 ? (
 								tableList.map((tab: UserTableProps) => {
 									return (
 										<SelectListItem
@@ -528,7 +555,9 @@ const Sidebar = ({
 									);
 								})
 							) : (
-								<div>No Tables</div>
+								<div style={{ fontSize: "12px", textAlign: "center" }}>
+									No Tables Available
+								</div>
 							)}
 						</div>
 					) : null}
@@ -541,6 +570,7 @@ const Sidebar = ({
 							textAlign: "left",
 							maxHeight: "330px",
 							overflowY: "auto",
+							color: "#3F3F3F",
 						}}
 					>
 						<Typography>Views</Typography>
@@ -567,7 +597,7 @@ const Sidebar = ({
 								textAlign: "left",
 							}}
 						>
-							{views ? (
+							{views && views.length > 0 ? (
 								views.map((tab: any) => {
 									return (
 										<SelectListItem
@@ -592,7 +622,9 @@ const Sidebar = ({
 									);
 								})
 							) : (
-								<div>No Views</div>
+								<div style={{ fontSize: "12px", textAlign: "center" }}>
+									No Views Available
+								</div>
 							)}
 						</div>
 					) : null}

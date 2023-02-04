@@ -3,7 +3,7 @@
 // 	- List of tables for selected dataset
 // 	- Tablle for sample records
 
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -320,11 +320,18 @@ const DataViewerBottom = ({
 							>
 								<InputLabel
 									id="selectDataSet"
-									sx={{ fontSize: "12px", lineHeight: "1.5rem" }}
+									sx={{
+										fontSize: "12px",
+										lineHeight: "1.5rem",
+										"&.Mui-focused": {
+											color: "#2bb9bb",
+										},
+									}}
 									shrink={true}
 								>
 									DataSet
 								</InputLabel>
+
 								<Select
 									title={selectedChartProp.selectedDs.datasetName}
 									label="DataSet"
@@ -334,7 +341,23 @@ const DataViewerBottom = ({
 									onChange={e => {
 										handleDataSetChange(e.target.value);
 									}}
-									sx={{ height: "1.5rem", fontSize: "13px" }}
+									sx={{
+										height: "1.5rem",
+										fontSize: "13px",
+										color: "grey",
+
+										"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+											borderColor: "#2bb9bb",
+											color: "#2bb9bb",
+										},
+										"&:hover .MuiOutlinedInput-notchedOutline": {
+											borderColor: "#2bb9bb",
+											color: "#2bb9bb",
+										},
+										"&.Mui-focused .MuiSvgIcon-root ": {
+											fill: "#2bb9bb !important",
+										},
+									}}
 									notched={true}
 								>
 									<MenuItem

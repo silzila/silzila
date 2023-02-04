@@ -37,6 +37,7 @@ import {
 	rowMat,
 	rowUniq,
 } from "./RelationshipDefiningComponentInterfaces";
+import { AlertColor } from "@mui/material/Alert";
 
 const RelationshipDefiningComponent = ({
 	// props
@@ -84,7 +85,7 @@ const RelationshipDefiningComponent = ({
 	const [rowMatchId2, setRowMatchId2] = useState<number>(0);
 
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
-	const [severity, setSeverity] = useState<string>("success");
+	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [testMessage, setTestMessage] = useState<string>("");
 
 	useEffect(() => {
@@ -202,7 +203,7 @@ const RelationshipDefiningComponent = ({
 			setTimeout(() => {
 				setOpenAlert(false);
 				setTestMessage("");
-				setSeverity("");
+				setSeverity("success");
 			}, 3000);
 		}
 	};

@@ -22,7 +22,12 @@
 
 .App {
   text-align: center;
+  overflow: hidden;
+  
 }
+
+
+
 
 body {
   margin: 0;

@@ -96,8 +96,6 @@ function FormDialog({
 			account.password &&
 			(account.password !== "" || account.password !== undefined)
 		) {
-			
-
 			var response: any = await getDatabaseConnectionTest();
 
 			if (response.status === 200 && response.data.message === "Connection OK!") {
@@ -212,7 +210,6 @@ function FormDialog({
 			account.password &&
 			(account.password !== "" || account.password !== undefined)
 		) {
-
 			var response: any = await getDatabaseConnectionTest();
 
 			if (response.status === 200 && response.data.message === "Connection OK!") {
@@ -231,8 +228,7 @@ function FormDialog({
 					setTestMessage("");
 				}, 4000);
 			}
-		}
-		else {
+		} else {
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage("Please Fillout All the fields");
@@ -280,6 +276,7 @@ function FormDialog({
 								gridTemplateColumns: "95% 5%",
 								textAlign: "center",
 								width: "100%",
+								color: "#5d5c5c",
 							}}
 						>
 							{viewMode ? (
@@ -468,6 +465,7 @@ function FormDialog({
 										setBtnEnable(true);
 										handleMode(e);
 									}}
+									style={{ backgroundColor: "#af99db" }}
 								>
 									Edit
 								</Button>
@@ -491,13 +489,22 @@ function FormDialog({
 									variant="contained"
 									onClick={handleonTest}
 									disabled={btnEnable}
+									style={{
+										backgroundColor: btnEnable
+											? "rgba(224,224,224,1)"
+											: "#af99db",
+									}}
 								>
 									Test
 								</Button>
 								<Button
 									type="submit"
 									variant="contained"
-									style={{ backgroundColor: "green" }}
+									style={{
+										backgroundColor: btnEnable
+											? "rgba(224,224,224,1)"
+											: "#2bb9bb",
+									}}
 									onClick={e => {
 										e.preventDefault();
 										onSubmit();

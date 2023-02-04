@@ -36,6 +36,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import DoneIcon from "@mui/icons-material/Done";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import { AlertColor } from "@mui/material/Alert";
 //import { StyledEngineProvider } from '@mui/material/styles';
 
 const DropZone = ({
@@ -58,9 +59,10 @@ const DropZone = ({
 }: DropZoneProps) => {
 	// var geoLocation = chartProp.properties[propKey].geoLocation;
 
-	const [severity, setSeverity] = useState<string>("success");
+	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("Testing alert");
+	const [isFilterCollapsed, setIsFilterCollapsed] = useState<boolean>(false);
 
 	const [, drop] = useDrop({
 		accept: "card",
@@ -371,7 +373,11 @@ const DropZone = ({
 	};
 
 	return (
-		<div ref={drop} className="chartAxis mt-2">
+		<div
+			ref={drop}
+			className="chartAxis mt-2"
+			style={{ flex: bIndex === 0 ? (isFilterCollapsed ? "none" : 1) : 1 }}
+		>
 			<div
 				style={{
 					display: "flex",
@@ -414,8 +420,9 @@ const DropZone = ({
 								onClick={handleClick}
 								style={{ height: "16px", width: "16px", color: "#878786" }}
 							/>
-							{!chartProp.properties[propKey].chartAxes[bIndex].isCollapsed ? (
-								<Tooltip title="Collapse">
+							{!isFilterCollapsed ? (
+								// {!chartProp.properties[propKey].chartAxes[bIndex].isCollapsed ? (
+								<Tooltip title="Expand">
 									<ExpandMoreIcon
 										style={{
 											height: "17px",
@@ -423,17 +430,18 @@ const DropZone = ({
 											color: "#878786",
 										}}
 										onClick={() => {
-											updateDropZoneExpandCollapsePropLeft(
-												propKey,
-												bIndex,
-												!chartProp.properties[propKey].chartAxes[bIndex]
-													.isCollapsed
-											);
+											setIsFilterCollapsed(!isFilterCollapsed);
+											// updateDropZoneExpandCollapsePropLeft(
+											// 	propKey,
+											// 	bIndex,
+											// 	!chartProp.properties[propKey].chartAxes[bIndex]
+											// 		.isCollapsed
+											// );
 										}}
 									/>
 								</Tooltip>
 							) : (
-								<Tooltip title="Expand">
+								<Tooltip title="Collapse">
 									<KeyboardArrowRightIcon
 										style={{
 											height: "17px",
@@ -441,41 +449,20 @@ const DropZone = ({
 											color: "#878786",
 										}}
 										onClick={() => {
-											updateDropZoneExpandCollapsePropLeft(
-												propKey,
-												bIndex,
-												!chartProp.properties[propKey].chartAxes[bIndex]
-													.isCollapsed
-											);
+											setIsFilterCollapsed(!isFilterCollapsed);
+
+											// updateDropZoneExpandCollapsePropLeft(
+											// 	propKey,
+											// 	bIndex,
+											// 	!chartProp.properties[propKey].chartAxes[bIndex]
+											// 		.isCollapsed
+											// );
+											// console.log("Collapse");
 										}}
 									/>
 								</Tooltip>
 							)}
 
-							{/* <img
-						src={
-							chartProp.properties[propKey].chartAxes[bIndex].isCollapsed
-								? expandIcon
-								: collapseIcon
-						}
-						alt="Collapse"
-						style={{ height: "16px", width: "16px" }}
-						title="Collapse"
-						onClick={() => {
-							updateDropZoneExpandCollapsePropLeft(
-								propKey,
-								bIndex,
-								!chartProp.properties[propKey].chartAxes[bIndex].isCollapsed
-							);
-						}}
-					/> */}
-							{/* <img
-						src={dotIcon}
-						onClick={handleClick}
-						alt="Menu"
-						style={{ height: "16px", width: "16px" }}
-						title="Mune"
-					/> */}
 							{bIndex === 0 &&
 							chartProp.properties[propKey].chartAxes[0].is_auto_filter_enabled ===
 								false ? (
@@ -496,10 +483,16 @@ const DropZone = ({
 			</div>
 
 			{/* {!chartProp.properties[propKey].chartAxes[bIndex].isCollapsed ? ( */}
-			{/* <div className="chartAxisBody"> */}
-			{/* The subtext displayed under each dropzone  */}
-			{/* How many minimum fields required & maximum allowed  */}
-			{/* {bIndex === 0 ? (
+			<div
+				className="chartAxisBody"
+				style={{
+					minHeight: bIndex === 0 ? (isFilterCollapsed ? "auto" : "4em") : "4em",
+					display: bIndex === 0 ? (isFilterCollapsed ? "none" : "unset") : "unset",
+				}}
+			>
+				{/* The subtext displayed under each dropzone  */}
+				{/* How many minimum fields required & maximum allowed  */}
+				{/* {bIndex === 0 ? (
 					<span className="axisInfo">
 						Drop (0 - max {ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
 						field(s) here
@@ -523,7 +516,7 @@ const DropZone = ({
 						{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers}) field(s) here
 					</span>
 				) : null} */}
-			{/* {bIndex === 3 &&
+				{/* {bIndex === 3 &&
 				ChartsInfo[chartType].dropZones[bIndex] &&
 				ChartsInfo[chartType].dropZones[bIndex].min === 0 ? (
 					<span className="axisInfo">
@@ -531,21 +524,22 @@ const DropZone = ({
 						{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers}) here
 					</span>
 				) : null} */}
-			{/* {bIndex === 3 &&
+				{/* {bIndex === 3 &&
 				ChartsInfo[chartType].dropZones[bIndex] &&
 				ChartsInfo[chartType].dropZones[bIndex].allowedNumbers === 1 ? (
 					<span className="axisInfo"> Drop (1) field(s) here</span>
 				) : null} */}
-			{/* ChartsInfo[chartType].dropZones[bIndex].allowedNumbers === 1 && ChartsInfo[chartType].dropZones[bIndex].min === 1 ? (
+				{/* ChartsInfo[chartType].dropZones[bIndex].allowedNumbers === 1 && ChartsInfo[chartType].dropZones[bIndex].min === 1 ? (
 					<span className="axisInfo"> Drop (1) field(s) here</span>
 				) : ChartsInfo[chartType].dropZones[bIndex].allowedNumbers > 1 && ChartsInfo[chartType].dropZones[bIndex].min === 1 ? (
 					<span className="axisInfo"> Drop (atleast 1 - max {ChartsInfo[chartType].dropZones[bIndex].allowedNumbers}) field(s) here</span>
 				) : ChartsInfo[chartType].dropZones[bIndex].allowedNumbers > 1 && ChartsInfo[chartType].dropZones[bIndex].min === 0 ? (
 					<span className="axisInfo"> Drop (0 - max {ChartsInfo[chartType].dropZones[bIndex].allowedNumbers}) field(s) here</span>
 				) : null */}
-			{/* {bIndex == 0
+				{bIndex == 0
 					? chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
 							(field: any, index: number) => (
+								// <div style={{ display: "none", height: "0px" }}>
 								<UserFilterCard
 									field={field}
 									bIndex={bIndex}
@@ -554,6 +548,7 @@ const DropZone = ({
 									itemIndex={index}
 									propKey={propKey}
 								/>
+								// </div>
 							)
 					  )
 					: chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
@@ -567,39 +562,8 @@ const DropZone = ({
 									propKey={propKey}
 								/>
 							)
-					  )} */}
-			{/* </div> */}
-			{/* fggdgdfg */}
-
-			{bIndex == 0 ? (
-				<div style={{ maxHeight: "10px" }}>
-					{chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
-						(field: any, index: number) => (
-							<UserFilterCard
-								field={field}
-								bIndex={bIndex}
-								axisTitle={name}
-								key={index}
-								itemIndex={index}
-								propKey={propKey}
-							/>
-						)
-					)}
-				</div>
-			) : (
-				chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
-					(field: any, index: number) => (
-						<Card
-							field={field}
-							bIndex={bIndex}
-							axisTitle={name}
-							key={index}
-							itemIndex={index}
-							propKey={propKey}
-						/>
-					)
-				)
-			)}
+					  )}
+			</div>
 
 			{/* ) : (
 				chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map((field, index) => (
