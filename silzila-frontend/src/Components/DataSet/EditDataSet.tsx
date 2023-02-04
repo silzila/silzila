@@ -454,7 +454,7 @@ const EditDataSet = ({
 
 	return (
 		<div className="dataHome">
-			{/* <MenuBar from="dataSet" /> */}
+			<MenuBar from="dataSet" />
 
 			<div className="createDatasetPage">
 				{loadPage ? (

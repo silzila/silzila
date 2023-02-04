@@ -9,7 +9,10 @@ import { FormControl, MenuItem, Select, Switch } from "@mui/material";
 import React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { updateLegendOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
+import {
+	updateCalendarStyleOptions,
+	updateLegendOptions,
+} from "../../../redux/ChartPoperties/ChartControlsActions";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import SliderWithInput from "../SliderWithInput";
 import SwitchWithInput from "../SwitchWithInput";
@@ -17,20 +20,30 @@ const ChartLegend = ({
 	// state
 	tabTileProps,
 	chartControls,
+	chartProperties,
 
 	// dispatch
 	updateLegendOption,
+	updateCalendarStyleOptions,
 }: ChartOptionsProps & {
 	updateLegendOption: (propKey: number | string, option: string, value: any) => void;
+	updateCalendarStyleOptions: (propKey: string, option: string, value: any) => void;
 }) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
 	const showLegend: boolean = chartControls.properties[propKey].legendOptions.showLegend;
 
-	const orientation: string = chartControls.properties[propKey].legendOptions.orientation;
+	const orientation: string =
+		chartProperties.properties[propKey].chartType === "calendar"
+			? chartControls.properties[propKey].calendarStyleOptions.orientation
+			: chartControls.properties[propKey].legendOptions.orientation;
 
 	const setOrient = (item: string) => {
-		updateLegendOption(propKey, "orientation", item);
+		if (chartProperties.properties[propKey].chartType === "calendar") {
+			updateCalendarStyleOptions(propKey, "orientation", item);
+		} else {
+			updateLegendOption(propKey, "orientation", item);
+		}
 	};
 	const orientOption: any[] = [
 		{ name: "Horizontal", key: "horizontal" },
@@ -132,33 +145,111 @@ const ChartLegend = ({
 							</Select>
 						</FormControl>
 					) : null}
+					{chartProperties.properties[propKey].chartType === "calendar" ? (
+						<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
+							<label
+								htmlFor="enableDisable"
+								className="enableDisableLabel"
+								style={{ marginRight: "10px" }}
+							>
+								PIECEWISE
+							</label>
+							<SwitchWithInput
+								isChecked={
+									chartControls.properties[propKey].calendarStyleOptions.pieceWise
+								}
+								onSwitch={() => {
+									updateCalendarStyleOptions(
+										propKey,
+										"pieceWise",
+										!chartControls.properties[propKey].calendarStyleOptions
+											.pieceWise
+									);
+								}}
+							/>
+						</div>
+					) : null}
 					<div className="optionDescription">ORIENTATION:</div>
 					<div className="radioButtons">{renderOrientation()}</div>
 					<div className="optionDescription">RESIZE:</div>
-					<div className="optionDescription">Width</div>
-					<SliderWithInput
-						sliderValue={chartControls.properties[propKey].legendOptions.symbolWidth}
-						sliderMinMax={itemWidthMinMax}
-						changeValue={(value: number) =>
-							updateLegendOption(propKey, "symbolWidth", value)
-						}
-					/>
-					<div className="optionDescription">Height</div>
-					<SliderWithInput
-						sliderValue={chartControls.properties[propKey].legendOptions.symbolHeight}
-						sliderMinMax={itemHeightMinMax}
-						changeValue={(value: number) =>
-							updateLegendOption(propKey, "symbolHeight", value)
-						}
-					/>
-					<div className="optionDescription">Item Gap</div>
-					<SliderWithInput
-						sliderValue={chartControls.properties[propKey].legendOptions.itemGap}
-						sliderMinMax={itemSpacingMinMax}
-						changeValue={(value: number) =>
-							updateLegendOption(propKey, "itemGap", value)
-						}
-					/>
+					{chartProperties.properties[propKey].chartType === "calendar" ? (
+						<>
+							{chartControls.properties[propKey].calendarStyleOptions.pieceWise ? (
+								<>
+									<div className="optionDescription">Item Gap</div>
+									<SliderWithInput
+										sliderValue={
+											chartControls.properties[propKey].legendOptions.itemGap
+										}
+										sliderMinMax={itemSpacingMinMax}
+										changeValue={(value: number) =>
+											updateLegendOption(propKey, "itemGap", value)
+										}
+									/>
+								</>
+							) : null}
+						</>
+					) : (
+						<>
+							<div className="optionDescription">Item Gap</div>
+							<SliderWithInput
+								sliderValue={
+									chartControls.properties[propKey].legendOptions.itemGap
+								}
+								sliderMinMax={itemSpacingMinMax}
+								changeValue={(value: number) =>
+									updateLegendOption(propKey, "itemGap", value)
+								}
+							/>
+						</>
+					)}
+					{chartProperties.properties[propKey].chartType === "calendar" ? (
+						<>
+							<div className="optionDescription">Width</div>
+							<SliderWithInput
+								sliderValue={
+									chartControls.properties[propKey].calendarStyleOptions.width
+								}
+								sliderMinMax={itemWidthMinMax}
+								changeValue={(value: number) =>
+									updateCalendarStyleOptions(propKey, "width", value)
+								}
+							/>
+							<div className="optionDescription">Height</div>
+							<SliderWithInput
+								sliderValue={
+									chartControls.properties[propKey].calendarStyleOptions.height
+								}
+								sliderMinMax={itemHeightMinMax}
+								changeValue={(value: number) =>
+									updateCalendarStyleOptions(propKey, "height", value)
+								}
+							/>
+						</>
+					) : (
+						<>
+							<div className="optionDescription">Width</div>
+							<SliderWithInput
+								sliderValue={
+									chartControls.properties[propKey].legendOptions.symbolWidth
+								}
+								sliderMinMax={itemWidthMinMax}
+								changeValue={(value: number) =>
+									updateLegendOption(propKey, "symbolWidth", value)
+								}
+							/>
+							<div className="optionDescription">Height</div>
+							<SliderWithInput
+								sliderValue={
+									chartControls.properties[propKey].legendOptions.symbolHeight
+								}
+								sliderMinMax={itemHeightMinMax}
+								changeValue={(value: number) =>
+									updateLegendOption(propKey, "symbolHeight", value)
+								}
+							/>
+						</>
+					)}
 				</React.Fragment>
 			) : null}
 		</div>
@@ -169,6 +260,7 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownprops: any) => {
 	return {
 		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
+		chartProperties: state.chartProperties,
 	};
 };
 
@@ -176,6 +268,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		updateLegendOption: (propKey: number | string, option: string, value: any) =>
 			dispatch(updateLegendOptions(propKey, option, value)),
+		updateCalendarStyleOptions: (propKey: string, option: string, value: any) =>
+			dispatch(updateCalendarStyleOptions(propKey, option, value)),
 	};
 };
 

@@ -26,6 +26,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SchemaOutlinedIcon from "@mui/icons-material/SchemaOutlined";
 import { SaveButtons } from "../DataConnection/ConfirmFlatFileData";
 import ShortUniqueId from "short-unique-id";
+import { AlertColor } from "@mui/material/Alert";
 
 const DataSetList = ({
 	// state
@@ -49,7 +50,7 @@ const DataSetList = ({
 
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
-	const [severity, setSeverity] = useState<string>("success");
+	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [showOpnMenu, setShowOpnMenu] = useState<boolean>(false);
 
 	const [openPopOver, setOpenPopOver] = useState<boolean>(false);
@@ -156,7 +157,7 @@ const DataSetList = ({
 			>
 				<div className="containersHead" style={{ flex: 1 }}>
 					<div className="containerTitle">
-						<SchemaOutlinedIcon style={{ marginRight: "10px", color: " #0076f6" }} />
+						<SchemaOutlinedIcon style={{ marginRight: "10px", color: " #2bb9bb" }} />
 						Datasets
 					</div>
 					<div

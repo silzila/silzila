@@ -37,7 +37,7 @@
 
 .CrossTab {
 	height: 95%;
-	overflow: auto;
+	/* overflow: auto; */
 }
 
 .CrossTabTable {
@@ -55,8 +55,8 @@
 	font-weight: bold;
 	font-size: 12px;
 	white-space: nowrap;
-	padding-left: 6px;
-	padding-right: 3px;
+	padding-left: 8px;
+	padding-right: 4px;
 	text-align: center;
 	text-overflow: ellipsis;
 }
@@ -76,8 +76,9 @@
 	font-size: 11px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	padding-left: 3px;
-	padding-right: 3px;
+	/* padding-left: 3px;
+	padding-right: 3px; */
+	padding: 0 8px 0 4px;	
 	text-align: right;
 	height: auto;
 	width: auto;

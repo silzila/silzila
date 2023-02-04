@@ -28,6 +28,7 @@ import FetchData from "../ServerCall/FetchData";
 import { PbSelectedDataset, PlayBookProps } from "./PlayBookInterfaces";
 import AddIcon from "@mui/icons-material/Add";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import { AlertColor } from "@mui/material/Alert";
 
 const PlayBookList = ({
 	// state
@@ -48,7 +49,7 @@ const PlayBookList = ({
 
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
-	const [severity, setSeverity] = useState<string>("success");
+	const [severity, setSeverity] = useState<AlertColor>("success");
 
 	var navigate = useNavigate();
 
@@ -314,7 +315,7 @@ const PlayBookList = ({
 		<div className="dashboardsContainer">
 			<div className="containersHead">
 				<div className="containerTitle">
-					<DashboardOutlinedIcon style={{ marginRight: "10px", color: "#0076f6" }} />
+					<DashboardOutlinedIcon style={{ marginRight: "10px", color: "#2bb9bb" }} />
 					Playbooks
 				</div>
 

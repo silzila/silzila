@@ -1,6 +1,7 @@
 // Used for setting color scale in Heatmap
 
 import { FormControlLabel, Radio, RadioGroup, TextField, Typography, Popover } from "@mui/material";
+import { AlertColor } from "@mui/material/Alert";
 import { useState } from "react";
 import { SketchPicker } from "react-color";
 import { connect } from "react-redux";
@@ -32,7 +33,7 @@ const ColorScale = ({
 }) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
-	const [severity, setSeverity] = useState<string>("success");
+	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("Testing alert");
 	const [isColorPopoverOpen, setColorPopOverOpen] = useState<boolean>(false);

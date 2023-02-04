@@ -176,6 +176,8 @@ export const getChartData = async (
 
 			case "Dimension":
 			case "Date":
+			case "Row":
+			case "Column":
 				dim = "dimensions";
 				break;
 

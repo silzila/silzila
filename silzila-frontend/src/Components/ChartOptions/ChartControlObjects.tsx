@@ -69,6 +69,7 @@ const ChartControlObjects = ({
 	];
 	const calendarOptionList: string[] = [
 		"Title",
+		"Legend",
 		"Labels",
 		"Margin",
 		"Tooltip",

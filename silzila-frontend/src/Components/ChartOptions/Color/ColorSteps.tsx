@@ -20,6 +20,7 @@ import {
 	updateGaugeAxisOptions,
 } from "../../../redux/ChartPoperties/ChartControlsActions";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
+import { AlertColor } from "@mui/material/Alert";
 
 const textFieldStyleProps = {
 	style: {
@@ -51,7 +52,7 @@ const ColorSteps = ({
 }: ChartOptionsProps & ColorStepsActions) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
-	const [severity, setSeverity] = useState<string>("success");
+	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("Testing alert");
 

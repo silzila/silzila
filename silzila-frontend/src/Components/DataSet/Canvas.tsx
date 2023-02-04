@@ -55,7 +55,7 @@ const Canvas = ({
 						<Xarrow
 							start={ar.start}
 							end={ar.end}
-							color="grey"
+							color="#af99db"
 							strokeWidth={2}
 							showHead={ar.showHead}
 							showTail={ar.showTail}

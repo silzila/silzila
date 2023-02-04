@@ -11,7 +11,7 @@ const chartControl = {
 			isRichText: false,
 			richText:
 				'<h1 class="ql-align-center ql-indent-2">Content Header</h1><p><span style="background-color: rgb(255, 255, 0);">Paragraph goes here...</span></p><ul><li>This</li><li>is</li><li>List</li></ul><p>Another Paragraph</p><ol><li>Numbered</li><li>List</li><li><a href="https://silzila.org" rel="noopener noreferrer" target="_blank">silzila</a></li></ol>',
-			colorScheme: "walden",
+			colorScheme: "peacock",
 			areaBackgroundColor: "#22194D",
 			areaOpacity: 0.1,
 
@@ -72,6 +72,10 @@ const chartControl = {
 				yearLabelColor: "black",
 				yearLabelFontSize: 12,
 				calendarGap: 30,
+				pieceWise: false,
+				height: 30,
+				width: 60,
+				orientation: "horizondal",
 			},
 
 			boxPlotChartControls: {
@@ -308,7 +312,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 						isRichText: false,
 						richText:
 							'<h1 class="ql-align-center ql-indent-2">Content Header</h1><p><span style="background-color: rgb(255, 255, 0);">Paragraph goes here...</span></p><ul><li>This</li><li>is</li><li>List</li></ul><p>Another Paragraph</p><ol><li>Numbered</li><li>List</li><li><a href="https://silzila.org" rel="noopener noreferrer" target="_blank">silzila</a></li></ol>',
-						colorScheme: "walden",
+						colorScheme: "peacock",
 						areaBackgroundColor: "#22194D",
 						areaOpacity: 0.1,
 
@@ -369,6 +373,10 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 							yearLabelColor: "black",
 							yearLabelFontSize: 12,
 							calendarGap: 30,
+							pieceWise: false,
+							height: 30,
+							width: 60,
+							orientation: "horizondal",
 						},
 
 						boxPlotChartControls: {
@@ -606,7 +614,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 						isRichText: false,
 						richText:
 							'<h1 class="ql-align-center ql-indent-2">Content Header</h1><p><span style="background-color: rgb(255, 255, 0);">Paragraph goes here...</span></p><ul><li>This</li><li>is</li><li>List</li></ul><p>Another Paragraph</p><ol><li>Numbered</li><li>List</li><li><a href="https://silzila.org" rel="noopener noreferrer" target="_blank">silzila</a></li></ol>',
-						colorScheme: "walden",
+						colorScheme: "peacock",
 						areaBackgroundColor: "#22194D",
 						areaOpacity: 0.1,
 
@@ -667,6 +675,10 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 							yearLabelColor: "black",
 							yearLabelFontSize: 12,
 							calendarGap: 30,
+							pieceWise: false,
+							height: 30,
+							width: 60,
+							orientation: "horizondal",
 						},
 
 						boxPlotChartControls: {

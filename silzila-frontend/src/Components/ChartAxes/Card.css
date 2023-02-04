@@ -7,14 +7,14 @@
 	text-align: start;
 	display: flex;
 	cursor: move;
-	border-radius: 4px;
+	border-radius: 2px;
 	background-color: white;
 	border: 1px solid rgb(211, 211, 211);
 	color: rgb(87, 87, 87);
 }
 .axisField:hover {
-	border: 1px solid #0076f6;
-	color: #0076f6;
+	border: 1px solid #2bb9bb;
+	color: #2bb9bb;
 	/* font-weight: 600; */
 }
 
@@ -74,7 +74,7 @@
 	text-align: left;
 }
 .columnPrefix {
-	color: #d25e00;
+	color: #5502fb;
 	padding: 5px 1px;
 	white-space: nowrap;
 

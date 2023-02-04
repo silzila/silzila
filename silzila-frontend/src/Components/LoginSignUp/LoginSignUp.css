@@ -1,16 +1,28 @@
 #container1 {
-	background-color: #eeeeee;
 	height: auto;
 	width: 400px;
 	margin: 8rem auto;
 	border-radius: 3px;
 	padding: 20px;
+	border:2px solid #a9a9a9;
+	color:#5d5c5c
 }
 #formElement {
 	display: grid;
 	grid-template-rows: 70% auto;
 	row-gap: 5px;
 	margin: 10px;
+}
+.bgImage{
+	background-image: url("../../assets/silzila_transparent_peacock.png");
+		background-size: cover;
+		background-position: center;
+		background-color: transparent;
+		height:100vh;
+		justify-content: space-around;
+		align-items: center;
+		display: flex;
+		
 }
 #error {
 	color: red;
@@ -27,7 +39,7 @@
 }
 
 #loginSignupButton {
-	background-color: black;
+	background-color: #2bb9bb;
 	width: 40%;
 	margin: 10px;
 }

@@ -11,6 +11,7 @@ import { ArrowsProps, DataSetStateProps } from "../../redux/DataSet/DatasetState
 import { CanvasTableColumnsProps } from "./CanvasTableColumnsProps";
 import "./Dataset.css";
 import { ArrowObj } from "./CanvasInterfaces";
+import { AlertColor } from "@mui/material/Alert";
 
 const CanvasTableColumns = ({
 	// props
@@ -31,7 +32,7 @@ const CanvasTableColumns = ({
 	const boxRef = useRef<HTMLDivElement | null>(null);
 
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
-	const [severity, setseverity] = useState<string>("success");
+	const [severity, setseverity] = useState<AlertColor>("success");
 	const [testMessage, setTestMessage] = useState<string>("");
 
 	const itemTypeIcon = (type: string) => {

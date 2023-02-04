@@ -14,9 +14,14 @@ import {
 	toggleEditMode,
 } from "../../redux/FlatFile/FlatFileStateActions";
 import { Dispatch } from "redux";
+import { NotificationDialog } from "../CommonFunctions/DialogComponents";
+import { AlertColor } from "@mui/material/Alert";
 
 const FlatFileList = (props: any) => {
 	const [fileList, setFileList] = useState<any>([]);
+	const [severity, setSeverity] = useState<AlertColor>("success");
+	const [openAlert, setOpenAlert] = useState<boolean>(false);
+	const [testMessage, setTestMessage] = useState<string>("Testing alert");
 	var navigate = useNavigate();
 	useEffect(() => {
 		getInformation();
@@ -47,14 +52,14 @@ const FlatFileList = (props: any) => {
 		});
 		if (result.status) {
 			console.log(result);
-			// setSeverity("success");
-			// setOpenAlert(true);
-			// setTestMessage("Deleted Successfully!");
-			// getInformation();
-			// setTimeout(() => {
-			// 	setOpenAlert(false);
-			// 	setTestMessage("");
-			// }, 2000);
+			setSeverity("success");
+			setOpenAlert(true);
+			setTestMessage("Deleted Successfully!");
+			getInformation();
+			setTimeout(() => {
+				setOpenAlert(false);
+				setTestMessage("");
+			}, 2000);
 		} else {
 			//console.log(result.detail);
 		}
@@ -113,7 +118,7 @@ const FlatFileList = (props: any) => {
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
 				<div className="containerTitle">
-					<DescriptionOutlinedIcon style={{ marginRight: "10px", color: " #0076f6" }} />
+					<DescriptionOutlinedIcon style={{ marginRight: "10px", color: " #2bb9bb" }} />
 					Flat Files
 				</div>
 
@@ -181,6 +186,15 @@ const FlatFileList = (props: any) => {
 						);
 					})}
 			</div>
+			<NotificationDialog
+				onCloseAlert={() => {
+					setOpenAlert(false);
+					setTestMessage("");
+				}}
+				severity={severity}
+				testMessage={testMessage}
+				openAlert={openAlert}
+			/>
 		</div>
 	);
 };

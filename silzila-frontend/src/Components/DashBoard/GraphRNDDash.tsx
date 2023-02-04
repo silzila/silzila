@@ -68,12 +68,13 @@ const GraphRNDDash = ({
 				setStyle({ ...style, border: "1px solid gray" });
 			}}
 			onDragStop={(e: any, d: any) => {
-				// console.log(gridSize, d);
+				console.log(d.lastY);
 				updateDashGraphPos(
 					tabId,
 					boxDetails.propKey,
 					(d.lastX - 5) / gridSize.x,
-					(d.lastY - 60) / gridSize.y
+					(d.lastY - 80) / gridSize.y
+					// (d.lastY - 60) / gridSize.y
 				);
 				setStyle({ ...style, border: "1px solid transparent" });
 			}}

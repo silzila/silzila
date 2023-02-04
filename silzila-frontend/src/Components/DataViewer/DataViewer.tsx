@@ -20,8 +20,6 @@ import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTi
 import TableRowsIcon from "@mui/icons-material/TableRows";
 import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
 import TileRibbon from "../TabsAndTiles/TileRibbon";
-import listOfTilesIcon from "../../assets/listoftilesIcon.svg";
-import dashbordSizeIcon from "../../assets/screenSize.png";
 import { Dispatch } from "redux";
 import { Tooltip } from "@mui/material";
 import DataViewerMiddle from "./DataViewerMiddle";
@@ -38,6 +36,8 @@ import chartControlIcon from "../../assets/chart-control-icon.svg";
 import settingsIcon from "../../assets/settingIcon.svg";
 import filterIcon from "../../assets/filter_icon.svg";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import GridViewIcon from "@mui/icons-material/GridView";
+import AspectRatioRoundedIcon from "@mui/icons-material/AspectRatioRounded";
 
 interface DataViewerProps {
 	tabTileProps: TabTileStateProps;
@@ -107,12 +107,12 @@ function DataViewer({
 		{
 			name: "Chart controls",
 			icon: settingsIcon,
-			style: { height: "2rem", width: "3rem", padding: "6px 7px", margin: "0 8px" },
+			style: { height: "2rem", width: "3rem", padding: "5px 6px", margin: "0 8px" },
 		},
 		{
 			name: "chart Filters",
 			icon: filterIcon,
-			style: { height: "2rem", width: "3rem", padding: "5px 4px", marginRight: "8px" },
+			style: { height: "2rem", width: "3rem", padding: "4px 3px", marginRight: "8px" },
 		},
 	];
 
@@ -143,55 +143,61 @@ function DataViewer({
 			<MenuBar from="dataViewer" />
 			<div className="tabArea">
 				<TabRibbon />
-				<div
-					style={{
-						display: "flex",
-						alignItems: "right",
-						justifyContent: "center",
-						height: "2rem",
-						// cursor: "pointer",
-					}}
-				>
-					{renderMenu}
-				</div>
+				{!tabTileProps.showDash ? (
+					<div
+						style={{
+							display: "flex",
+							alignItems: "right",
+							justifyContent: "center",
+							height: "2rem",
+							// cursor: "pointer",
+						}}
+					>
+						{renderMenu}
+					</div>
+				) : null}
 				{tabTileProps.showDash || tabTileProps.dashMode === "Present" ? (
 					<div style={{ display: "flex", alignItems: "center" }}>
 						{tabTileProps.dashMode === "Edit" ? (
-							<>
-								<img
-									key="List of Tiles"
-									style={
-										showListofTileMenu ? menuIconSelectedStyle : menuIconStyle
-									}
-									src={listOfTilesIcon}
-									alt="List of Tiles"
-									onClick={() => {
-										if (tabTileProps.dashMode === "Edit") {
-											setDashboardResizeColumn(false);
-											setShowListofTileMenu(!showListofTileMenu);
-										}
-									}}
-									title="List of Tiles"
-								/>
-
-								<img
-									key="dashBoard Size"
-									style={
-										dashboardResizeColumn
-											? menuIconSelectedStyle
-											: menuIconStyle
-									}
-									src={dashbordSizeIcon}
-									alt="dashBoard Size"
-									onClick={() => {
-										if (tabTileProps.dashMode === "Edit") {
-											setShowListofTileMenu(false);
-											setDashboardResizeColumn(!dashboardResizeColumn);
-										}
-									}}
-									title="DashBoard Size"
-								/>
-							</>
+							<div
+								style={{
+									display: "flex",
+									columnGap: "18px",
+									marginRight: "5px",
+									height: "2rem",
+									alignContent: "center",
+									flexWrap: "wrap",
+								}}
+							>
+								<div className="dashboardMenuIconStyle">
+									<Tooltip title="List of Tiles">
+										<GridViewIcon
+											sx={{ fontSize: "20px", marginTop: "2px" }}
+											onClick={() => {
+												if (tabTileProps.dashMode === "Edit") {
+													setDashboardResizeColumn(false);
+													setShowListofTileMenu(!showListofTileMenu);
+												}
+											}}
+										/>
+									</Tooltip>
+								</div>
+								<div className="dashboardMenuIconStyle">
+									<Tooltip title="Dashboard Size">
+										<AspectRatioRoundedIcon
+											sx={{ fontSize: "20px", marginTop: "2px" }}
+											onClick={() => {
+												if (tabTileProps.dashMode === "Edit") {
+													setShowListofTileMenu(false);
+													setDashboardResizeColumn(
+														!dashboardResizeColumn
+													);
+												}
+											}}
+										/>
+									</Tooltip>
+								</div>
+							</div>
 						) : null}
 					</div>
 				) : null}

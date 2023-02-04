@@ -40,7 +40,10 @@ import CrossTabChart from "../Charts/CrossTab/CrossTabChart";
 import FetchData from "../ServerCall/FetchData";
 import { getCardUtilityClass } from "@mui/material";
 import { getChartData } from "../ChartAxes/ChartAxes";
-import { updateQueryResult } from "../../redux/ChartPoperties/ChartControlsActions";
+import {
+	updateChartMargins,
+	updateQueryResult,
+} from "../../redux/ChartPoperties/ChartControlsActions";
 
 const GraphArea = ({
 	// state
@@ -56,6 +59,7 @@ const GraphArea = ({
 	setGenerateTitleToStore,
 	toggleGraphSize,
 	updateQueryResult,
+	updateMargin,
 }: any) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	// console.log(propKey);
@@ -66,6 +70,14 @@ const GraphArea = ({
 
 	const [showSqlCode, setShowSqlCode] = useState<boolean>(false);
 	const [fullScreen, setFullScreen] = useState<boolean>(false);
+
+	useEffect(() => {
+		if (chartProperties.properties[propKey].chartType === "calendar") {
+			if (chartControlState.properties[propKey].chartMargin.top < 13) {
+				updateMargin(propKey, "top", 13);
+			}
+		}
+	}, [0]);
 
 	const graphDimensionCompute = () => {
 		if (tileState.tiles[propKey].graphSizeFull) {
@@ -654,6 +666,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(toggleGraphSize(tileKey, graphSize)),
 		updateQueryResult: (propKey: string, query: string | any) =>
 			dispatch(updateQueryResult(propKey, query)),
+		updateMargin: (propKey: number | string, option: string, value: any) =>
+			dispatch(updateChartMargins(propKey, option, value)),
 	};
 };
 
