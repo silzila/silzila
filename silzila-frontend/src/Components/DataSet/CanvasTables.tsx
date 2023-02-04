@@ -30,6 +30,7 @@ import { Dispatch } from "redux";
 import { CanvasTablesProps, RelationObjProps } from "./CanvasTablesIntefaces";
 import { newArrowObj } from "./CanvasInterfaces";
 import { ColumnsWithUid } from "./DatasetInterfaces";
+import { AlertColor } from "@mui/material/Alert";
 
 const CanvasTables = ({
 	// props
@@ -74,7 +75,7 @@ const CanvasTables = ({
 	const [newName, setNewName] = useState<string>("");
 
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
-	const [severity, setseverity] = useState<string>("success");
+	const [severity, setseverity] = useState<AlertColor>("success");
 	const [testMessage, setTestMessage] = useState<string>("");
 
 	const [x, setX] = useState<number>(0);

@@ -25,6 +25,7 @@ import {
 } from "./BottomBarInterfaces";
 import { SaveButtons } from "../DataConnection/ConfirmFlatFileData";
 import { TextFieldBorderStyle } from "../DataConnection/EditFlatFileData";
+import { AlertColor } from "@mui/material/Alert";
 
 const BottomBar = ({
 	//props
@@ -50,7 +51,7 @@ const BottomBar = ({
 
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
-	const [severity, setSeverity] = useState<string>("success");
+	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [selectedButton, setselectedButton] = useState<string>(editMode ? "Update" : "Save");
 
 	const navigate = useNavigate();

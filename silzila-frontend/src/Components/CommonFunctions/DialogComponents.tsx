@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 
 interface NotificationProps {
 	openAlert: boolean;
-	severity: string;
+	severity: AlertColor;
 	testMessage: string;
 	onCloseAlert?: () => void;
 }
@@ -38,11 +38,7 @@ export const NotificationDialog = ({
 				aria-describedby="alert-dialog-description"
 				onClose={onCloseAlert}
 			>
-				<Alert
-					style={{ padding: "30px" }}
-					// TODO need to specify type for severity
-					// severity={severity}
-				>
+				<Alert style={{ padding: "30px" }} severity={severity}>
 					{testMessage}
 				</Alert>
 			</Dialog>

@@ -115,101 +115,114 @@ const Login = (props: DispatchProps) => {
 	}
 
 	return (
-		<div id="container1">
-			<h2>Welcome to Silzila!</h2>
+		<div className="bgImage">
+			<div id="container1">
+				<h2>Welcome to Silzila!</h2>
 
-			<form
-				onSubmit={e => {
-					e.preventDefault();
-					handleSubmit(e);
-				}}
-				autoComplete="on"
-			>
-				<div id="formElement">
-					<input
-						ref={inputRef}
-						type="text"
-						placeholder="Email"
-						value={account.email}
-						onChange={e =>
-							setAccount({
-								...account,
-								email: e.target.value,
-							})
-						}
-						className="inputElement"
-						onFocus={resetEmailError}
-						onBlur={() => {
-							setLoginError(false);
-							var valid = validateEmail(account.email);
-							if (valid) {
-								setAccount({ ...account, emailError: "" });
-							} else {
-								setAccount({ ...account, emailError: "Enter valid email address" });
+				<form
+					onSubmit={e => {
+						e.preventDefault();
+						handleSubmit(e);
+					}}
+					autoComplete="on"
+				>
+					<div id="formElement">
+						<input
+							ref={inputRef}
+							type="text"
+							placeholder="Email"
+							value={account.email}
+							onChange={e =>
+								setAccount({
+									...account,
+									email: e.target.value,
+								})
 							}
-						}}
-					/>
-					<div id="error">{account.emailError}</div>
-				</div>
+							className="inputElement"
+							onFocus={resetEmailError}
+							onBlur={() => {
+								setLoginError(false);
+								var valid = validateEmail(account.email);
+								if (valid) {
+									setAccount({ ...account, emailError: "" });
+								} else {
+									setAccount({
+										...account,
+										emailError: "Enter valid email address",
+									});
+								}
+							}}
+						/>
+						<div id="error">{account.emailError}</div>
+					</div>
 
-				<div id="formElement">
-					<input
-						type="password"
-						placeholder="Password"
-						value={account.password}
-						onChange={e =>
-							setAccount({
-								...account,
-								password: e.target.value,
-							})
-						}
-						className="inputElement"
-						onFocus={resetPwdError}
-						onBlur={() => {
-							setLoginError(false);
-							var valid = validatePassword(account.password);
-							if (valid) {
-								setAccount({ ...account, passwordError: "" });
-							} else {
-								setAccount({ ...account, passwordError: "Minimum 8 characters" });
+					<div id="formElement">
+						<input
+							type="password"
+							placeholder="Password"
+							value={account.password}
+							onChange={e =>
+								setAccount({
+									...account,
+									password: e.target.value,
+								})
 							}
-						}}
-					/>
-					<div id="error">{account.passwordError}</div>
-				</div>
+							className="inputElement"
+							onFocus={resetPwdError}
+							onBlur={() => {
+								setLoginError(false);
+								var valid = validatePassword(account.password);
+								if (valid) {
+									setAccount({ ...account, passwordError: "" });
+								} else {
+									setAccount({
+										...account,
+										passwordError: "Minimum 8 characters",
+									});
+								}
+							}}
+						/>
+						<div id="error">{account.passwordError}</div>
+					</div>
 
-				<div className="buttonSuccess">
-					{loginStatus ? (
-						<span className="loginSuccess">
-							<h4>Logged in successfully!</h4>
-							<p>Redirecting....</p>
-						</span>
-					) : (
-						<React.Fragment>
-							{loginError ? <p className="loginFail">{serverErrorMessage}</p> : null}
-							<div className="buttonText">
-								<Button
-									id="loginSignupButton"
-									variant="contained"
-									type="submit"
-									value="Login"
-									onClick={e => {
-										e.preventDefault();
-										handleSubmit(e);
-									}}
-								>
-									Login
-								</Button>
-								<br />
-								<span id="emailHelp">
-									Dont have an account yet? <Link to="/signup">Sign Up</Link>
-								</span>
-							</div>
-						</React.Fragment>
-					)}
-				</div>
-			</form>
-			{loading ? <LoadingPopover /> : null}
+					<div className="buttonSuccess">
+						{loginStatus ? (
+							<span className="loginSuccess">
+								<h4>Logged in successfully!</h4>
+								<p>Redirecting....</p>
+							</span>
+						) : (
+							<React.Fragment>
+								{loginError ? (
+									<p className="loginFail">{serverErrorMessage}</p>
+								) : null}
+								<div className="buttonText">
+									<Button
+										id="loginSignupButton"
+										variant="contained"
+										type="submit"
+										value="Login"
+										onClick={e => {
+											e.preventDefault();
+											handleSubmit(e);
+										}}
+									>
+										Login
+									</Button>
+									<br />
+									<span id="emailHelp">
+										Dont have an account yet?{" "}
+										<Link to="/signup" style={{ color: "#5502fb" }}>
+											Sign Up
+										</Link>
+									</span>
+								</div>
+							</React.Fragment>
+						)}
+					</div>
+				</form>
+				{loading ? <LoadingPopover /> : null}
+			</div>
 		</div>
 	);
 };

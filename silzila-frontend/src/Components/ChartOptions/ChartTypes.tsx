@@ -19,7 +19,7 @@ import scatterPlotIcon from "../../assets/new_scatterPlot.svg";
 import funnelChartIcon from "../../assets/new_Funnel.svg";
 import gaugeChartIcon from "../../assets/new_gauge.svg";
 import heatMapIcon from "../../assets/new_heatMap.svg";
-import CrossTabIcon from "../../assets/new_CrossTab.svg";
+import CrossTabIcon from "../../assets/new_crossTab.svg";
 import roseChartIcon from "../../assets/new_rose.svg";
 // import geoChartIcon from "../../assets/earth.svg";
 import stackedAreaChartIcon from "../../assets/new_areaStacked.svg";

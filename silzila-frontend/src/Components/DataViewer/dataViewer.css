@@ -27,10 +27,20 @@
 	width: 3rem;
 	cursor: pointer;
 	/* padding-right: 12px; */
-	margin:8px
+	/* margin:8px */
 
 	
 	
+}
+
+.accountIcon{
+	display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2rem;
+		cursor: pointer;
+		margin-right: 16px;
+		
 }
 
 .menuHomeIcon{
@@ -68,6 +78,7 @@
 	color: #666;
 }
 .userInfo {
+	margin-right: 7px;
 	flex: 1;
 	display: flex;
 	justify-content: flex-end;
@@ -109,14 +120,16 @@
 
 	background-color: white;
 	border-top: 2px solid rgba(224, 224, 224, 1);
-	height: 2rem;
-	padding: 3px 0 3px 8px;
+	height: 2.7rem;
+	padding: 4px 0 0 8px;
 }
 .tileItems {
 	display: flex;
 	text-align: left;
 	flex: 1;
 	font-size: 12px;
+	padding: 4px 0 0 0;
+		height: 1.8rem
 	/* padding-left: 0.5rem; */
 	
 	
@@ -128,6 +141,7 @@
 	align-items: center;
 	justify-content: center;
 	width: 1.5rem;
+	margin-bottom: 5px;
 	/* color:rgb(102, 102, 102) */
 	/* margin: 0 2px; */
 }
@@ -142,8 +156,18 @@
 	align-items: center;
 	justify-content: center;
 	width: 1.5rem;
-	margin: 0 16px 0 2rem;
+	margin: 0 16px 5px 2rem;
 }
 .tableDisplayToggle:hover {
 	border: 1px solid rgba(224,224,224,1)
+}
+.dashboardMenuIconStyle{
+	color:rgb(108, 108, 108);
+	border: 2px solid white;
+	width:2.5rem;
+	height:1.75rem;
+	margin-bottom: 5px;
+}
+.dashboardMenuIconStyle:hover{
+	border:2px solid rgba(224,224,224,1)
 }

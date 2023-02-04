@@ -1,7 +1,7 @@
 // This component is used to set margin for all charts
 // Top, bottom, lift & right margins can be individually changed
 
-import React from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import {
@@ -128,9 +128,15 @@ const ChartMargin = ({
 						<div className="optionDescription">Calender Height:</div>
 						<SliderWithInput
 							percent={true}
-							sliderValue={chartControls.properties[propKey].chartMargin.top}
+							sliderValue={
+								// chartControls.properties[propKey].calendarStyleOptions.marginTop
+								chartControls.properties[propKey].chartMargin.top
+							}
 							sliderMinMax={{ min: 10, max: 80, step: 1 }}
-							changeValue={value => updateMargin(propKey, "top", value)}
+							changeValue={value =>
+								// updateCalendarStyleOptions(propKey, "marginTop", value)
+								updateMargin(propKey, "top", value)
+							}
 						/>
 
 						<div className="optionDescription">Right:</div>

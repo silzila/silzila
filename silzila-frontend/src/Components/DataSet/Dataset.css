@@ -17,7 +17,7 @@
 }
 
 .draggableBox {
-	border: 1px solid #d7d9db;
+	border: 1px solid #2bb9bb;
 	max-width: 300px;
 	margin: 20px;
 	display: inline-block;
@@ -41,8 +41,9 @@
 
 .draggableBoxTitle {
 	/* text-align: center; */
+	color:white;
 	cursor: move;
-	background-color: #d7d9db;
+	background-color: #2bb9bb;
 	padding: 5px 0;
 	display: flex;
 }
@@ -50,7 +51,8 @@
 .columnBox {
 	position: relative;
 	padding: 5px;
-	border-top: 1px solid #d7d9db;
+	border-top: 1px solid #2bb9bb;
+	/* border-top: 1px solid #d7d9db; */
 	display: flex;
 }
 
@@ -75,9 +77,9 @@
 }
 .connectPoint {
 	opacity: 0.5;
-	background-color: grey;
+	background-color: #a9a9a9;
 }
 .connectPoint:hover {
-	background-color: rgb(95, 95, 95);
+	background-color: grey;
 	opacity: 1;
 }

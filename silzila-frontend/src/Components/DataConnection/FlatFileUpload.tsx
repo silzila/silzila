@@ -91,15 +91,15 @@ const FlatFileUpload = ({ token, setApiResponse, setEditApiResponse }: FlatFileU
 		<div>
 			<MenuBar from="fileUpload" />
 			<div className="FileUploadContainer">
-				<div className="uploadFileTitle">Upload File</div>
+				<div className="uploadFileTitle">Upload .csv File</div>
 				<FileDropZone setSelectedFile={setSelectedFile} selectedFile={selectedFile} />
 				<div className="file-upload-button-container">
 					<div></div>
 					<Button
 						style={{
 							textTransform: "none",
-							color: "#0076f6",
-							border: "2px solid 	#0076f6",
+							color: "#2bb9bb",
+							border: "2px solid 	#2bb9bb",
 							padding: "5px 20px",
 							borderRadius: "5px",
 						}}

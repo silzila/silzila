@@ -18,6 +18,7 @@ import { ConnectionItem } from "../../redux/DataSet/DatasetStateInterfaces";
 import { resetAllStates } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import AddIcon from "@mui/icons-material/Add";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
+import { AlertColor } from "@mui/material/Alert";
 
 const initialState = {
 	vendor: "",
@@ -43,7 +44,7 @@ const DataConnection = (props: DataConnectionProps) => {
 	const [account, setAccount] = useState<DataConnectionDetails>(initialState);
 	const [dataConnId, setDataConnId] = useState<string>("");
 	const [viewMode, setViewMode] = useState<boolean>(false);
-	const [severity, setSeverity] = useState<string>("success");
+	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("Testing alert");
 
@@ -243,7 +244,7 @@ const DataConnection = (props: DataConnectionProps) => {
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
 				<div className="containerTitle">
-					<StorageOutlinedIcon style={{ marginRight: "10px", color: " #0076f6" }} />
+					<StorageOutlinedIcon style={{ marginRight: "10px", color: " #2bb9bb" }} />
 					Data Connections
 				</div>
 				<div
@@ -287,7 +288,7 @@ const DataConnection = (props: DataConnectionProps) => {
 													style={{
 														width: "1rem",
 														height: "1rem",
-														margin: "auto",
+														margin: "auto 7px auto auto",
 													}}
 													onClick={() => ViewOrEditDc(dc.id)}
 												/>

@@ -13,7 +13,7 @@
 	height: 50px;
 	margin: 10px auto;
 	border: 1px solid transparent;
-	border-radius: 4px;
+	border-radius: 2px;
 	transition: 0.1s;
 	text-transform: capitalize;
 }
@@ -24,7 +24,7 @@
 
 .selected {
 	border: 2px solid  rgba(224,224,224,1);
-	border-radius: 4px;
+	border-radius: 2px;
 	background-color: rgba(224,224,224,1);
 }
 
@@ -50,7 +50,7 @@
 	border: 2px solid rgba(224,224,224,1);
 	/* background-color: rgb(211, 211, 211); */
 	/* border: 1px solid rgb(199, 199, 199); */
-	border-radius: 4px;
+	border-radius: 2px;
 	cursor: pointer;
 }
 
@@ -61,7 +61,7 @@
 	margin-bottom: 10px;
 	margin: auto;
 	padding: 4px 0;
-	border-radius: 4px;
+	border-radius: 2px;
 	cursor: pointer;
 	background-color: rgba(224,224,224,1);
 	border: 2px solid rgba(224,224,224,1);

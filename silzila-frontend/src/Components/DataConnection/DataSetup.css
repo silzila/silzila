@@ -43,7 +43,7 @@ Data Setup Page
 	overflow: auto;
 	display: flex;
 	flex-direction: column;
-	height:350px
+	height:400px
 }
 
 .dataSetContainer {
@@ -54,6 +54,7 @@ Data Setup Page
 	overflow: auto;
 	display: flex;
 	flex-direction: column;
+	height:400px
 }
 
 .connectionListContainer {
@@ -93,12 +94,12 @@ Data Setup Page
 	flex: 1;
 }
 .containerButton {
-	border: 1px solid #0076f6;
+	border: 1px solid #2bb9bb;
 	background-color: transparent;
 	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 	font-weight: 600;
 	border-radius: 3px;
-	color: #0076f6;
+	color: #2bb9bb;
 	height: 30px;
 	padding: 2.5px 20px;
 	font-size: 16px;
@@ -107,8 +108,8 @@ Data Setup Page
 }
 
 .containerButton:hover {
-	background-color: #0076f6;
-	border: 1px solid #0076f6;
+	background-color: #2bb9bb;
+	border: 1px solid #2bb9bb;
 	color: white;
 }
 
@@ -125,6 +126,7 @@ Data Connections
 	display: flex;
 	padding:5px 20px 5px 30px;
 	border: 1px solid rgba(224,224,224,1);
+	color:rgb(101, 101, 101);
 }
 
 .dataConnectionListSelected {
@@ -133,22 +135,23 @@ Data Connections
 	border-radius: 5px;
 	display: flex;
 	padding: 5px 20px 5px 30px;
-	border: 1px solid #0076f6;
+	border: 1px solid #7b63a6;
 	cursor: pointer;
-	color: #0076f6;
+	color: #7b63a6;
 }
 
 .dataHomeDeleteIcon {
 	width: 1.5rem;
+	margin-right:2px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: #666;
+	color: #7b63a6;
 }
 
 .dataHomeDeleteIcon:hover {
 	color: red;
-	background-color: rgb(238, 238, 238);
+	/* background-color: rgb(238, 238, 238); */
 }
 
 .dataConnectionName {
