@@ -23,10 +23,13 @@ const CalendarChart = ({
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
+	console.log(chartData);
 
 	const [calendarArray, setCalendarArray] = useState<any[]>([]);
 	const [seriesArray, setSeriesArray] = useState<any[]>([]);
 	const [chartDataKeys, setChartDataKeys] = useState<any[]>([]);
+
+	let inChartHeight: number;
 
 	useEffect(() => {
 		if (chartData.length >= 1) {
@@ -36,11 +39,8 @@ const CalendarChart = ({
 				console.log(chartProperties.properties[propKey].chartAxes[1].fields[0]);
 				let objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
 
-				console.log(objKey, chartData);
-				// +
-				// 	"__" +
-				// 	chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain;
-				// console.log(objKey);
+				// console.log(objKey, chartData);
+
 				// getting years of dates
 				chartData.map((el: any) => {
 					const timestampformate = new Date(el[objKey]);
@@ -55,12 +55,15 @@ const CalendarChart = ({
 				const calendarArrayValues = uniqueYears.map((yr: string | number, i: number) => {
 					return {
 						top:
+							// (graphDimension.height * 20) / 100 / (uniqueYears.length - 1) +
+							// ((graphDimension.height * 80) / 100 / uniqueYears.length) * i,
 							i * (chartControl.chartMargin.top * 7) +
 							30 +
 							i * chartControl.calendarStyleOptions.calendarGap,
 
 						left: chartControl.chartMargin.left,
 						right: chartControl.chartMargin.right,
+						// height: (graphDimension.height * 80) / 100 / uniqueYears.length,
 
 						range: yr,
 						cellSize: ["auto", chartControl.chartMargin.top],
@@ -110,6 +113,13 @@ const CalendarChart = ({
 					};
 				});
 				setSeriesArray(seriesArrayValues);
+
+				// console.log((graphDimension.height * 80) / 100);
+				// //ind chart height
+				// console.log((graphDimension.height * 80) / 100 / uniqueYears.length);
+				// inChartHeight = (graphDimension.height * 80) / 100 / uniqueYears.length;
+				// //chart gap
+				// console.log((graphDimension.height * 20) / 100 / (uniqueYears.length - 1));
 			}
 		}
 	}, [chartControl, chartControl.chartData]);
@@ -126,7 +136,7 @@ const CalendarChart = ({
 			}
 		});
 
-		console.log(virtualData);
+		// console.log(virtualData);
 		return virtualData;
 	}
 
@@ -163,7 +173,15 @@ const CalendarChart = ({
 					},
 
 					visualMap: {
-						show: true,
+						type: chartControl.calendarStyleOptions.pieceWise ? "piecewise" : null,
+						show: chartControl.legendOptions?.showLegend,
+						itemHeight: chartControl.calendarStyleOptions?.height,
+						itemWidth: chartControl.calendarStyleOptions?.width,
+						itemGap: chartControl.legendOptions?.itemGap,
+
+						left: chartControl.legendOptions?.position?.left,
+						top: chartControl.legendOptions?.position?.top,
+						orient: chartControl.calendarStyleOptions?.orientation,
 						min: 200,
 						max: 10000,
 					},

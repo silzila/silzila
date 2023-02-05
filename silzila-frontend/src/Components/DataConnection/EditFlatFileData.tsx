@@ -609,6 +609,16 @@ const EditFlatFileData = ({
 								Reupload
 							</MenuItem>
 						)}
+						<MenuItem
+							value="cancel"
+							onClick={() => {
+								setselectedButton("cancel");
+								navigate("/datahome");
+								resetFlatFileState();
+							}}
+						>
+							Cancel
+						</MenuItem>
 					</TextField>
 				</div>
 			</div>

@@ -7,6 +7,22 @@ export interface ColorSchemesProps {
 
 export const ColorSchemes: ColorSchemesProps[] = [
 	{
+		name: "peacock",
+		background: "rgba(252,252,252,0)",
+		colors: [
+			"#2bb9bb",
+			"#af99db",
+			"#5ab1ef",
+			"#ffb980",
+			"#d87a80",
+			"#8d98b3",
+			"#e5cf0d",
+			"#97b552",
+			"#95706d",
+			"#dc69aa",
+		],
+	},
+	{
 		name: "essos",
 		background: "rgba(242,234,191,0.15)",
 		colors: ["#893448", "#d95850", "#eb8146", "#ffb248", "#f2d643", "#ebdba4"],

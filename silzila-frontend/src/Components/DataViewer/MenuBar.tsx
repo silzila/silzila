@@ -19,6 +19,9 @@ import LaunchRoundedIcon from "@mui/icons-material/LaunchRounded";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PrivacyTipOutlinedIcon from "@mui/icons-material/PrivacyTipOutlined";
+import EditIcon from "../../assets/edit.png";
+import ScreenPresentIcon from "../../assets/slideshow.png";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
 	githubAddress,
 	githubIssueAddress,
@@ -42,7 +45,12 @@ import {
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import { resetFlatFileState } from "../../redux/FlatFile/FlatFileStateActions";
 import silzilaNewLogo from "../../assets/new_silzilaLogo.svg";
-
+import Edit from "../../assets/edit.png";
+import Present from "../../assets/slideshow.png";
+import { AlertColor } from "@mui/material/Alert";
+import SwitchWithInput from "../ChartOptions/SwitchWithInput";
+import SlideshowIcon from "@mui/icons-material/Slideshow";
+import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 const MenuBar = ({
 	// props
 	from,
@@ -111,7 +119,7 @@ const MenuBar = ({
 	);
 
 	// Success / Failure alert modal
-	const [severity, setSeverity] = useState<string>("success");
+	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
 
@@ -447,7 +455,7 @@ const MenuBar = ({
 			case "dataHome":
 				return (
 					<div className="menuHomeIcon">
-						<HomeRounded sx={{ color: "#666" }} />
+						<HomeRounded sx={{ color: "grey" }} />
 					</div>
 				);
 			case "dataSet":
@@ -458,7 +466,7 @@ const MenuBar = ({
 							navigate("/dataHome");
 						}}
 					>
-						<HomeRounded sx={{ color: "#666" }} />
+						<HomeRounded sx={{ color: "grey" }} />
 					</div>
 				);
 			case "fileUpload":
@@ -472,7 +480,7 @@ const MenuBar = ({
 							navigate("/dataHome");
 						}}
 					>
-						<HomeRounded sx={{ color: "#666" }} />
+						<ArrowBackIcon sx={{ color: "grey" }} />
 					</div>
 				);
 			case "dataViewer":
@@ -496,14 +504,25 @@ const MenuBar = ({
 	};
 
 	return (
-		<div className="dataViewerMenu">
+		<div
+			className="dataViewerMenu"
+			style={{
+				borderBottom:
+					from === "fileUpload" || from === "editFlatFile" || from === "saveFlaFile"
+						? "2px solid rgba(224,224,224,1)"
+						: "none",
+			}}
+		>
 			<SelectListItem
 				render={(xprops: any) => (
 					<div
 						onMouseOver={() => xprops.setOpen(true)}
 						onMouseLeave={() => xprops.setOpen(false)}
 					>
-						{xprops.open && from !== "dataHome" ? (
+						{(xprops.open && from !== "dataHome") ||
+						from === "fileUpload" ||
+						from === "editFlatFile" ||
+						from === "saveFlaFile" ? (
 							<>{getHomeIcon()}</>
 						) : (
 							<>
@@ -576,9 +595,13 @@ const MenuBar = ({
 								}}
 							>
 								<MenuItem sx={menuStyle} value="Edit">
+									{/* <AppRegistrationIcon
+										sx={{ fontSize: "14px", marginRight: "4px" }}
+									/> */}
 									Edit
 								</MenuItem>
 								<MenuItem sx={menuStyle} value="Present">
+									{/* <SlideshowIcon sx={{ fontSize: "14px", marginRight: "4px" }} /> */}
 									Present
 								</MenuItem>
 							</Select>
@@ -586,10 +609,12 @@ const MenuBar = ({
 					</div>
 				</>
 			) : null}
-			{from === "dataViewer" ? <div style={{ width: "3rem" }}>&nbsp;</div> : null}
+			{/* {from === "dataViewer" ? <div style={{ width: "3rem" }}>&nbsp;</div> : null} */}
 
 			<div
-				className="menuHome"
+				className={
+					!tabTileProps.showDash && from === "dataViewer" ? "accountIcon" : "menuHome"
+				}
 				onClick={e => {
 					console.log(e.currentTarget);
 					setLogoutAnchor(e.currentTarget);
@@ -696,7 +721,7 @@ const MenuBar = ({
 						) : null}
 
 						<Button
-							style={{ backgroundColor: "rgb(0,123,255)" }}
+							style={{ backgroundColor: "#2bb9bb" }}
 							variant="contained"
 							onClick={() => {
 								if (saveFromLogoutIcon) setLogoutModal(false);

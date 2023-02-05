@@ -82,6 +82,10 @@ interface ChartConCalenderStyleOptions {
 	yearLabelColor: string;
 	yearLabelFontSize: number;
 	calendarGap: number;
+	pieceWise: boolean;
+	height: number;
+	width: number;
+	orientation: string;
 }
 
 export interface ChartConBoxPlotChartControls {

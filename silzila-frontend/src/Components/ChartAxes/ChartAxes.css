@@ -32,7 +32,7 @@
 	/* display: flex; */
 	flex-direction: column;
 	max-height: auto;
-	min-height: 6em;
+	/* min-height: 6em; */
 	padding-left: 2px;
 	/* max-height: 100rem; */
 	/* min-height: 100em; */
@@ -41,11 +41,12 @@
 
 .axisTitle {
 	
-	color: #404040;
+	color: #5d5c5c;
 	font-weight: 600;
 	/* padding: 10px 0.8rem  0 0.5rem; */
 	padding: 10px 10px 0 10px;
 	text-align: left;
+	margin-bottom: 6px;
 }
 
 .axisInfo {

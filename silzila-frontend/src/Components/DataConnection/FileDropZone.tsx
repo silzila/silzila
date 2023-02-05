@@ -21,7 +21,7 @@ const useStyles: any = makeStyles(() =>
 		},
 		uploadIcon: {
 			fontSize: "2.5rem",
-			color: "#3b3a3a",
+			color: "#5d5c5c",
 			margin: " 10px auto",
 		},
 		closeIcon: {

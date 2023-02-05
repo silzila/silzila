@@ -10,7 +10,7 @@
 	/* background-color: rgb(211, 211, 211); */
 
 	 padding: 0 5px 0 5px;
-	/*line-height: 1.2rem;*/
+	line-height: 1.3rem;
 	margin: 0 4px ;
 }
 .commonTile:hover {
@@ -21,10 +21,13 @@
 	background: #fff;
 }
 .plusTile {
+
+	color: rgb(96, 96, 96); 
+
 	padding: 0 5px;
 	border: 2px solid rgba(224,224,224,1);
 	background-color: transparent;
-	margin-left: 3px;
+	margin-left: 4px;
 	/* border-bottom: 1px solid #a9a9a9;
 	border-left: 1px solid #a9a9a9;
 	border-right: 1px solid #a9a9a9; */

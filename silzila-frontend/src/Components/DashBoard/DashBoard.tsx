@@ -97,6 +97,7 @@ const DashBoard = ({
 				width: targetRef.current.offsetWidth,
 				height: targetRef.current.offsetHeight,
 			});
+			console.log(targetRef);
 		}
 	};
 
@@ -117,11 +118,14 @@ const DashBoard = ({
 			// Approximately divided the area into 32 sections wide & 18 sections height
 			// var fullWidth = Math.trunc(dimensions.width / 32, 0) * 32;
 			var fullWidth = Math.trunc(dimensions.width / 32) * 32;
+
 			// var fullHeight = Math.trunc(dimensions.height / 18, 0) * 18;
 			var fullHeight = Math.trunc(dimensions.height / 18) * 18;
 
 			// setting dashboard graph area according to above size
 			setinnerDimensions({ width: fullWidth, height: fullHeight });
+			console.log(fullWidth, dimensions.width);
+			console.log(fullHeight, dimensions.height);
 
 			// set grid like background of dashboard accordingly
 			setdashStyle({
@@ -137,6 +141,7 @@ const DashBoard = ({
 			// compute size of each of the grid and save it in store
 			// used by graph area in tile for displaying graph in dashboard size
 			setGridSize({ x: fullWidth / 32, y: fullHeight / 18 });
+			console.log(dashStyle);
 		}
 
 		if (
@@ -200,6 +205,7 @@ const DashBoard = ({
 			}
 		}
 	};
+	console.log(dashStyle);
 
 	// List of tiles to be mapped on the side of dashboard,
 	// allowing users to choose graphs from these tiles

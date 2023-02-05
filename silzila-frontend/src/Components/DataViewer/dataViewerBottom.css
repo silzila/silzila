@@ -25,7 +25,7 @@
 
 .dataSetSelect {
 	width: 92%;
-	padding: 1rem 0 .5rem 10px;
+	padding: 8px 0 6px 10px;
 	/* background-color: rgb(211, 211, 211); */
 }
 
@@ -61,7 +61,7 @@
 	border-radius: 2px;
 	/* background-color: white; */
 	font-weight: 600;
-	color: #0076f6;
+	color: #2bb9bb;
 	/* padding: 1px 0 1px 0.5rem; */
 	padding: 1px 0 1px 0;
 	text-align: left;
@@ -70,6 +70,8 @@
 
 .tileTableView {
 	overflow: hidden;
+	padding: 8px 12px 0px 0px;
+	width: 100%;
 	/* padding-top:10px; */
 	/* border-top: 2px solid rgba(224, 224, 224, 1); */
 }
@@ -135,7 +137,7 @@
 
 .boxContainer {
 	flex: 1;
-	border-radius: 4px;
+	border-radius: 2px;
 	border: 1px solid rgb(211, 211, 211);
 	text-align: left;
 	background-color: #fff;
