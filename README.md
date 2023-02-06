@@ -5,13 +5,12 @@
   <img src="https://user-images.githubusercontent.com/61963881/216836496-3c27c8a9-0947-4157-a6ff-20b6b8f3b8e6.png" alt="silzila logo" width="250" >
 </p>
 
+[Silzila](https://silzila.org/) is an open source desktop/web application which enables you to analyze data, create meaningful charts and present the visuals as dashboard.
+
 ## Preview
 <p align="center">
 <img src="https://user-images.githubusercontent.com/61963881/216865592-d1b009fe-cd4d-4336-9c98-86892cd88f9f.gif" alt="preview" width="1000">
 </p>
-
-
-[Silzila](https://silzila.org/) is an open source desktop/web application which enables you to analyze data, create meaningful charts and present the visuals as dashboard.
 
 ## 1. Connect to your Database
 <p align="center">
