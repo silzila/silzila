@@ -1,6 +1,6 @@
 import { Action, LoggedDetailsType } from "./IsLoggedInterfaces";
 
-const signedInObj = JSON.parse(localStorage.getItem("accountInfo")||"");
+const signedInObj = JSON.parse(localStorage.getItem("accountInfo")||"{}");
 
 const loggedReducer = (
 	state:LoggedDetailsType = signedInObj

@@ -41,8 +41,8 @@ const Home = (props: LoggedDetailsType) => {
 			) : (
 				<Router>
 					<Routes>
-						{/* <Route path="*" element={<Redirect />} />
-				 		<Route exact path="/" element={<Login />} /> */}
+						{/* <Route path="*" element={<Redirect />} /> */}
+				 		<Route path="/" element={<Login />} />
 						<Route path="/login" element={<Login />} />
 						<Route path="/signup" element={<SignUp />} />
 					</Routes>
