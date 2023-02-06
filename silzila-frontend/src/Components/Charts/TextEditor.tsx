@@ -22,10 +22,16 @@ const modules = {
 		["link"],
 		["clean"],
 	],
-	// Clipboard: {
-	// 	matchVisual: false,
-	// },
+	clipboard: {
+		matchVisual: false,
+	},
 };
+
+const dashboardModules= {
+	clipboard: {
+		matchVisual: false,
+	},
+}
 
 const TextEditor = ({
 	propKey,
@@ -43,7 +49,6 @@ const TextEditor = ({
 		updateRichText(propKey, value);
 	}, [value]);
 
-	const optimizedFn = useCallback(debounce(setValue), []);
 
 	const placeHolderContent: any = () => {
 		return (
@@ -76,15 +81,15 @@ const TextEditor = ({
 			{!tabTileProps.showDash ? (
 				<ReactQuill
 					modules={modules}
-					onChange={optimizedFn}
-					// onChange={setValue}
+					onChange={setValue}
 					value={value}
 					style={{ height: "90%" }}
 					theme="snow"
-					placeholder="Content goes here...."
+					placeholder="Content goes here...."					
 				/>
 			) : (
 				<ReactQuill
+				modules={dashboardModules}
 					readOnly={true}
 					value={value}
 					theme="bubble"
