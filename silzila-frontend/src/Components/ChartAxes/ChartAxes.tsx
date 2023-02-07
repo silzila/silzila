@@ -2,7 +2,7 @@
 // Number of dropzones and its name is returned according to the chart type selected.
 // Once minimum number of fields are met for the given chart type, server call is made to get chart data and saved in store
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import ChartsInfo from "./ChartsInfo2";
 import "./ChartAxes.css";
@@ -470,12 +470,12 @@ const ChartAxes = ({
 		}
 
 		if (chartProp.properties[propKey].chartType === "scatterPlot") {
-			var combinedValues = { name: "Measure", fields: [] };
+			var combinedValuesForMeasure = { name: "Measure", fields: [] };
 			var values1 = axesValues[2].fields;
 			var values2 = axesValues[3].fields;
 			var allValues = values1.concat(values2);
-			combinedValues.fields = allValues;
-			axesValues.splice(2, 2, combinedValues);
+			combinedValuesForMeasure.fields = allValues;
+			axesValues.splice(2, 2, combinedValuesForMeasure);
 		}
 
 		if (
@@ -483,12 +483,12 @@ const ChartAxes = ({
 			chartProp.properties[propKey].chartType === "crossTab" ||
 			chartProp.properties[propKey].chartType === "boxPlot"
 		) {
-			var combinedValues = { name: "Dimension", fields: [] };
+			var combinedValuesForDimension = { name: "Dimension", fields: [] };
 			var values1 = axesValues[1].fields;
 			var values2 = axesValues[2].fields;
 			var allValues = values1.concat(values2);
-			combinedValues.fields = allValues;
-			axesValues.splice(1, 2, combinedValues);
+			combinedValuesForDimension.fields = allValues;
+			axesValues.splice(1, 2, combinedValuesForDimension);
 		}
 
 		if (serverCall) {

@@ -25,8 +25,11 @@ import {
 	setDashLayoutSelectedOptionForFixed,
 } from "../../redux/TabTile/TabActions";
 import { DashBoardLayoutProps } from "./DashBoardLayoutControlInterfaces";
+import CloseIcon from "@mui/icons-material/Close";
 
 const DashBoardLayoutControl = ({
+	// props
+	setDashboardResizeColumn,
 	//state
 	tabTileProps,
 	tabState,
@@ -307,7 +310,19 @@ const DashBoardLayoutControl = ({
 
 	return (
 		<div className="dashboardLayoutControl">
-			<div className="axisTitle">Dashboard Size</div>
+			<div className="axisTitle">
+				Dashboard Size
+				<CloseIcon
+					onClick={() => {
+						setDashboardResizeColumn(false);
+					}}
+					sx={{
+						fontSize: "16px",
+						float: "right",
+						marginRight: "2px",
+					}}
+				/>
+			</div>
 			{/* {dashSizeOptionBtn()} */}
 			{whenPageSizeisAuto()}
 

@@ -1,50 +1,10 @@
-import React from "react";
 import { Dispatch } from "redux";
-import {
-	addControl,
-	loadChartControls,
-	removeChartControls,
-	removeMultipleChartControls,
-	resetChartControls,
-} from "../ChartPoperties/ChartControlsActions";
-import {
-	addProp,
-	loadChartProperties,
-	removeChartProperties,
-	removeMultipleChartProperties,
-	resetChartProperties,
-} from "../ChartPoperties/ChartPropertiesActions";
-import { resetPlayBookData } from "../PlayBook/PlayBookActions";
-import {
-	loadSampleRecords,
-	resetSampleRecords,
-} from "../SampleTableRecords/SampleTableRecordsActions";
-import {
-	addTab,
-	loadTabState,
-	removeTab,
-	removeTilesInDashDuringDeleteTile,
-	renameTab,
-	resetTabState,
-	showDashboardInTab,
-	updateNextTileId,
-	updateSelectedTileToTab,
-} from "./TabActions";
-import {
-	loadTabTileProps,
-	toggleEditingTile,
-	updateNextTabId,
-	updateSelectedTab,
-	updateSelectedTile,
-} from "./TabTileActionsAndMultipleDispatches";
-import {
-	addTile,
-	loadTileState,
-	removeTile,
-	removeTilesOfTab,
-	renameTile,
-	resetTileState,
-} from "./TileActions";
+import { loadChartControls } from "../ChartPoperties/ChartControlsActions";
+import { loadChartProperties } from "../ChartPoperties/ChartPropertiesActions";
+import { loadSampleRecords } from "../SampleTableRecords/SampleTableRecordsActions";
+import { loadTabState, renameTab } from "./TabActions";
+import { loadTabTileProps, updateSelectedTab } from "./TabTileActionsAndMultipleDispatches";
+import { loadTileState } from "./TileActions";
 
 // //  *************************************************************
 // //  to tile state reducer

@@ -116,9 +116,6 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 
 		case "UPDATE_DASH_GRAPH_DETAILS":
 			if (action.payload.checked) {
-				var index = state.tabs[action.payload.tabId].tilesInDashboard.indexOf(
-					action.payload.propKey
-				);
 				return update(state, {
 					tabs: {
 						[action.payload.tabId]: {
@@ -141,10 +138,6 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 			}
 
 		case "REMOVE_TILES_IN_DASH_DURING_DELETE_TILE":
-			var indexOfDeletedTile = state.tabs[action.payload.tabId].tilesInDashboard.indexOf(
-				action.payload.propKey
-			);
-
 			var dashTilesDetailsCopy = Object.assign(
 				state.tabs[action.payload.tabId].dashTilesDetails
 			);

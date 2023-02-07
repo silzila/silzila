@@ -22,7 +22,7 @@ import PieChart from "../Charts/PieChart";
 import RoseChart from "../Charts/RoseChart";
 import ScatterChart from "../Charts/ScatterChart";
 import StackedBar from "../Charts/StackedBar";
-import { CloseRounded } from "@mui/icons-material";
+import { CloseRounded, MoreVertOutlined } from "@mui/icons-material";
 import CodeIcon from "@mui/icons-material/Code";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import Sankey from "../Charts/Sankey";
@@ -38,12 +38,12 @@ import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import TextEditor from "../Charts/TextEditor";
 import CrossTabChart from "../Charts/CrossTab/CrossTabChart";
 import FetchData from "../ServerCall/FetchData";
-import { getCardUtilityClass } from "@mui/material";
 import { getChartData } from "../ChartAxes/ChartAxes";
 import {
 	updateChartMargins,
 	updateQueryResult,
 } from "../../redux/ChartPoperties/ChartControlsActions";
+import { Button, Popover } from "@mui/material";
 
 const GraphArea = ({
 	// state
@@ -70,6 +70,8 @@ const GraphArea = ({
 
 	const [showSqlCode, setShowSqlCode] = useState<boolean>(false);
 	const [fullScreen, setFullScreen] = useState<boolean>(false);
+	const [open, setOpen] = useState<boolean>(false);
+	const [anchorEl, setAnchorEl] = useState<any>();
 
 	useEffect(() => {
 		if (chartProperties.properties[propKey].chartType === "calendar") {
@@ -77,7 +79,7 @@ const GraphArea = ({
 				updateMargin(propKey, "top", 13);
 			}
 		}
-	}, [0]);
+	}, []);
 
 	const graphDimensionCompute = () => {
 		if (tileState.tiles[propKey].graphSizeFull) {
@@ -364,11 +366,11 @@ const GraphArea = ({
 					var tempTitle = "";
 					fields.forEach((element: any, index: number) => {
 						if (index === 0) {
-							var titlePart = element.fieldname;
+							let titlePart = element.fieldname;
 							tempTitle = tempTitle + titlePart;
 						}
 						if (index > 0) {
-							var titlePart: any = `, ${element.fieldname}`;
+							let titlePart: any = `, ${element.fieldname}`;
 							tempTitle = tempTitle + titlePart;
 						}
 					});
@@ -599,8 +601,14 @@ const GraphArea = ({
 						<BarChartIcon />
 					</div>
 				) : (
-					<div className="graphAreaIcons" onClick={getSqlQuery} title="View SQL Code">
-						<CodeIcon />
+					<div className="graphAreaIcons">
+						<MoreVertOutlined
+							onClick={(e: any) => {
+								setOpen(true);
+								setAnchorEl(e.currentTarget);
+							}}
+						/>
+						{/* <CodeIcon /> */}
 					</div>
 				)}
 			</div>
@@ -641,6 +649,44 @@ const GraphArea = ({
 					{chartDisplayed()}
 				</div>
 			) : null}
+			<Popover
+				open={open}
+				anchorEl={anchorEl}
+				anchorOrigin={{
+					vertical: "bottom",
+					horizontal: "left",
+				}}
+				onClose={() => setOpen(false)}
+			>
+				<Button
+					sx={{
+						textTransform: "none",
+						color: "grey",
+						display: "block",
+					}}
+					value="flatFile"
+					onClick={() => {
+						getSqlQuery();
+						setOpen(false);
+					}}
+				>
+					View sql code
+				</Button>
+				<Button
+					sx={{
+						textTransform: "none",
+						color: "grey",
+						display: "block",
+					}}
+					value="dbConnections"
+					onClick={() => {
+						console.log("Download");
+						setOpen(false);
+					}}
+				>
+					Download
+				</Button>
+			</Popover>
 		</div>
 	);
 };

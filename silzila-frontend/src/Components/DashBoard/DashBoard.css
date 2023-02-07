@@ -28,6 +28,7 @@
     flex-direction: column;
     background-color: white;
     padding-right:6px;
+    padding-left: 6px;
 }
 
 .tileListContainer {

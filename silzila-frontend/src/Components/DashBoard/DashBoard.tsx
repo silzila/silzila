@@ -12,11 +12,15 @@ import "./DashBoard.css";
 import { DashBoardProps, DashBoardStateProps } from "./DashBoardInterfaces";
 import DashBoardLayoutControl from "./DashBoardLayoutControl";
 import GraphRNDDash from "./GraphRNDDash";
+import CloseIcon from "@mui/icons-material/Close";
+import { Checkbox } from "@mui/material";
 
 const DashBoard = ({
 	// props
 	showListofTileMenu,
 	dashboardResizeColumn,
+	setShowListofTileMenu,
+	setDashboardResizeColumn,
 
 	// state
 	tabState,
@@ -238,7 +242,36 @@ const DashBoard = ({
 						: "listOfGraphs"
 				}
 			>
-				<input
+				<Checkbox
+					size="small"
+					key={index}
+					checked={checked}
+					onChange={() => {
+						updateDashDetails(
+							checked,
+							propKey,
+							dashSpecs,
+							tabTileProps.selectedTabId,
+							propIndex
+						);
+						// toggleGraphSize(propKey, checked ? true : false);
+						toggleGraphSize(propIndex, checked ? true : false);
+					}}
+					style={{
+						transform: "scale(0.8)",
+						margin: "0px 4px",
+					}}
+					sx={{
+						"&.MuiCheckbox-root": {
+							padding: "0px",
+							margin: "0px",
+						},
+						"&.Mui-checked": {
+							color: "#2bb9bb",
+						},
+					}}
+				/>
+				{/* <input
 					type="checkbox"
 					className="graphCheckBox"
 					onChange={() => {
@@ -254,7 +287,7 @@ const DashBoard = ({
 					}}
 					checked={checked}
 					key={index}
-				/>
+				/> */}
 				<span className="graphName">{currentObj.tileName}</span>
 			</div>
 		);
@@ -340,7 +373,17 @@ const DashBoard = ({
 					{showListofTileMenu ? (
 						<div className="dashBoardSideBar">
 							<div className="tileListContainer">
-								<div className="axisTitle">List of Tiles</div>
+								<div className="axisTitle">
+									List of Tiles
+									<CloseIcon
+										onClick={() => setShowListofTileMenu(false)}
+										sx={{
+											fontSize: "16px",
+											float: "right",
+											marginRight: "2px",
+										}}
+									/>
+								</div>
 								{tileList}
 							</div>
 						</div>
@@ -348,7 +391,9 @@ const DashBoard = ({
 						<>
 							{dashboardResizeColumn ? (
 								<div className="dashBoardSideBar">
-									<DashBoardLayoutControl />
+									<DashBoardLayoutControl
+										setDashboardResizeColumn={setDashboardResizeColumn}
+									/>
 								</div>
 							) : null}
 						</>

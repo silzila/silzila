@@ -168,6 +168,14 @@
 	height:1.75rem;
 	margin-bottom: 5px;
 }
+.dashboardMenuIconStyleSelected {
+	color: rgb(108, 108, 108);
+	border: 2px solid rgba(224, 224, 224, 1);
+	width: 2.5rem;
+	height: 1.75rem;
+	margin-bottom: 5px;
+}
+
 .dashboardMenuIconStyle:hover{
 	border:2px solid rgba(224,224,224,1)
 }

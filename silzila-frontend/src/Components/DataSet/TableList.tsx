@@ -206,6 +206,11 @@ const TableList = (props: TableListProps) => {
 	return (
 		<React.Fragment>
 			<Checkbox
+				sx={{
+					"&.Mui-checked": {
+						color: "#2bb9bb",
+					},
+				}}
 				style={{ width: "0.5rem", height: "0.5rem", margin: "auto 5px auto 0" }}
 				size="small"
 				// size="1rem"

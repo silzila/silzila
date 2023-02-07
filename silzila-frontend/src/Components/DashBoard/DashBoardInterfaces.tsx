@@ -23,6 +23,8 @@ export interface DashBoardProps {
 		tabId: number,
 		propIndex: number
 	) => void;
+	setShowListofTileMenu: (value: boolean) => void;
+	setDashboardResizeColumn: (value: boolean) => void;
 }
 
 export type DashBoardStateProps = TabStateProps2 & TabTileStateProps2 & TileStateProps2;

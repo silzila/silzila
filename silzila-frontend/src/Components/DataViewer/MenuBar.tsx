@@ -19,8 +19,6 @@ import LaunchRoundedIcon from "@mui/icons-material/LaunchRounded";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PrivacyTipOutlinedIcon from "@mui/icons-material/PrivacyTipOutlined";
-import EditIcon from "../../assets/edit.png";
-import ScreenPresentIcon from "../../assets/slideshow.png";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
 	githubAddress,
@@ -29,7 +27,6 @@ import {
 } from "../ServerCall/EnvironmentVariables";
 import AboutPopover from "../CommonFunctions/PopOverComponents/AboutPopover";
 import PrivacyPopover from "../CommonFunctions/PopOverComponents/PrivacyPopover";
-import SilzilaLogo from "../../assets/silzila_crop.png";
 import { Dispatch } from "redux";
 import CSS from "csstype";
 import { MapStateProps, MenubarProps } from "./MenubarInterfaces";
@@ -39,18 +36,12 @@ import "./dataViewer.css";
 import { toggleDashModeInTab } from "../../redux/TabTile/TabActions";
 import {
 	resetAllStates,
-	setSelectedControlMenu,
 	toggleDashMode,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import { resetFlatFileState } from "../../redux/FlatFile/FlatFileStateActions";
 import silzilaNewLogo from "../../assets/new_silzilaLogo.svg";
-import Edit from "../../assets/edit.png";
-import Present from "../../assets/slideshow.png";
 import { AlertColor } from "@mui/material/Alert";
-import SwitchWithInput from "../ChartOptions/SwitchWithInput";
-import SlideshowIcon from "@mui/icons-material/Slideshow";
-import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 const MenuBar = ({
 	// props
 	from,
