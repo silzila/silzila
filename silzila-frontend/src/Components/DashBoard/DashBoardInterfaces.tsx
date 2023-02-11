@@ -6,6 +6,8 @@ export interface DashBoardProps {
 	//props
 	showListofTileMenu: boolean;
 	dashboardResizeColumn: boolean;
+	setCallForDownload: (value: boolean) => void;
+	callForDownload: boolean;
 	//state
 	tabState: TabStateProps;
 	tabTileProps: TabTileStateProps;
@@ -23,6 +25,15 @@ export interface DashBoardProps {
 		tabId: number,
 		propIndex: number
 	) => void;
+	setShowListofTileMenu: (value: boolean) => void;
+	setDashboardResizeColumn: (value: boolean) => void;
+
+	//for download page option
+	orientation: any;
+	unit: any;
+	pageSize: any;
+	height: any;
+	width: any;
 }
 
 export type DashBoardStateProps = TabStateProps2 & TabTileStateProps2 & TileStateProps2;

@@ -86,7 +86,10 @@ const LineChart = ({
 					animation: chartArea ? false : true,
 					legend: {
 						type: "scroll",
-						show: chartControl.legendOptions?.showLegend,
+						show:
+							graphDimension.height > 210
+								? chartControl.legendOptions?.showLegend
+								: false,
 						itemHeight: chartControl.legendOptions?.symbolHeight,
 						itemWidth: chartControl.legendOptions?.symbolWidth,
 						itemGap: chartControl.legendOptions?.itemGap,

@@ -7,8 +7,7 @@ import { Dispatch } from "redux";
 import { TabTilPropsSelectedDatasetList } from "../../redux/TabTile/TabTilePropsInterfaces";
 
 import { TabRibbonProps, TabRibbonStateProps } from "./TabRibbonInterfaces";
-import { IndTabs, Tabs } from "../../redux/TabTile/TabStateInterfaces";
-import { IndChartPropProperties } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { IndTabs } from "../../redux/TabTile/TabStateInterfaces";
 import {
 	actionsToEnableRenameTab,
 	actionsToRenameTab,

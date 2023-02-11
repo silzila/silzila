@@ -5,7 +5,7 @@
 // 		- Provide a name for Axis
 // 		- Tick size, padding and rotation
 
-import { FormControl, MenuItem, Popover, Select, Switch, TextField } from "@mui/material";
+import { FormControl, MenuItem, Popover, Select, TextField } from "@mui/material";
 import React, { useState } from "react";
 import { connect } from "react-redux";
 

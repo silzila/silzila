@@ -3,7 +3,6 @@ import {
 	AddTableRecords,
 	LoadSampleRecords,
 	ResetSampleRecords,
-	SampleRecordsStateProp,
 } from "./SampleTableRecordsInterfaces";
 
 const initialRecords = { recordsColumnType: {} };

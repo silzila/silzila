@@ -10,7 +10,6 @@ import {
 	clearDropZoneFieldsChartPropLeft,
 	toggleFilterRunState,
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
-import React from "react";
 import { useState } from "react";
 import { useDrop } from "react-dnd";
 import { connect } from "react-redux";
@@ -19,20 +18,12 @@ import Card from "./Card";
 import ChartsInfo from "./ChartsInfo2";
 import { setPrefix } from "./SetPrefix";
 import UserFilterCard from "../ChartFieldFilter/UserFilterCard";
-import expandIcon from "../../assets/expand.png";
-import collapseIcon from "../../assets/collapse.png";
-import dotIcon from "../../assets/dot.png";
-import tickIcon from "../../assets/tick.png";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
-import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
-import { Menu, MenuItem, Divider, Tooltip, Typography } from "@mui/material";
+import { Menu, MenuItem, Divider, Tooltip } from "@mui/material";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { Dispatch } from "redux";
-import { DropZoneDropItem, DropZoneProps } from "./ChartAxesInterfaces";
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { DropZoneProps } from "./ChartAxesInterfaces";
 import DoneIcon from "@mui/icons-material/Done";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -368,9 +359,9 @@ const DropZone = ({
 		setAnchorEl(event.currentTarget);
 	};
 
-	const handleModalClose = () => {
-		setModalData(null);
-	};
+	// const handleModalClose = () => {
+	// 	setModalData(null);
+	// };
 
 	return (
 		<div
