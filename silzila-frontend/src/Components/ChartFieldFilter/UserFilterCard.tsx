@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import "../ChartAxes/Card.css";
 import "./UserFilterCard.css";
 import { useDrag, useDrop } from "react-dnd";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import { connect } from "react-redux";
 import { Checkbox, Divider, Menu, MenuItem, Select, Tooltip, Typography } from "@mui/material";
 
@@ -22,28 +21,17 @@ import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover"
 import FetchData from "../ServerCall/FetchData";
 import moment from "moment";
 
-import expandIcon from "../../assets/expand.png";
-import collapseIcon from "../../assets/collapse.png";
-import tickIcon from "../../assets/tick.png";
-import { StyledSlider } from "./StyledSlider.js";
-import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
-import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import DoneIcon from "@mui/icons-material/Done";
-import Close from "@mui/icons-material/Close";
-import { fi } from "date-fns/locale";
+
 // import { UnCheckedIcon } from "material-ui/svg-icons/toggle/check-box-outline-blank";
 // import { CheckedIcon } from "material-ui/svg-icons/toggle/check-box";
 
 import { PatternCollectionType } from "./UserFilterCardInterface";
 import { Dispatch } from "redux";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { UserFilterCardProps } from "./UserFilterCardInterface";
-import { number } from "echarts";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -68,8 +56,8 @@ const UserFilterCard = ({
 }: UserFilterCardProps) => {
 	field.dataType = field.dataType.toLowerCase();
 
-	const [indeterminate, setindeterminate] = useState<boolean>(false);
 	const { uId, fieldname, displayname, dataType, tableId } = field;
+	var isCollapsed: boolean = chartProp.properties[propKey].chartAxes[0].isCollapsed;
 	// console.log(field);
 	console.log(chartProp.properties[propKey].chartAxes[0]);
 
@@ -80,7 +68,7 @@ const UserFilterCard = ({
 			return el;
 		});
 		updtateFilterExpandeCollapse(propKey, bIndex, res);
-	}, [chartProp.properties[propKey].chartAxes[0].isCollapsed]);
+	}, [isCollapsed]);
 
 	// console.log(propKey, field, bIndex, itemIndex, token);
 
@@ -217,6 +205,7 @@ const UserFilterCard = ({
 		}
 
 		updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
+		// eslint-disable-next-line
 	}, []);
 
 	var menuStyle = { fontSize: "12px", padding: "2px 1rem" };
@@ -372,11 +361,6 @@ const UserFilterCard = ({
 		}
 		updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
 	};
-
-	// const getStatus = () => {
-	// 	setindeterminate(true);
-	// 	return false;
-	// };
 
 	///Render Pick list card from raw select members
 	const SelecPickListCard = () => {

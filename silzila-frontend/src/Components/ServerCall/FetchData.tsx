@@ -35,7 +35,7 @@ type FetchDataPropType = {
 // };
 
 const FetchData = async (props: FetchDataPropType) => {
-	const { requestType, method, url, headers, data, token } = props;
+	const { requestType, method, url, headers, data } = props;
 
 	// if (token) {
 	//     var token2 = await CheckTokenValidity(token);

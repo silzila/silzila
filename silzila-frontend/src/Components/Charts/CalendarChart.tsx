@@ -184,6 +184,12 @@ const CalendarChart = ({
 						orient: chartControl.calendarStyleOptions?.orientation,
 						min: 200,
 						max: 10000,
+						inRange: {
+							color: [
+								chartControl.colorScale.minColor,
+								chartControl.colorScale.maxColor,
+							],
+						},
 					},
 
 					calendar: calendarArray,

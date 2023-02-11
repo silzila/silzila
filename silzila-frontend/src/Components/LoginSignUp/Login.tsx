@@ -5,7 +5,7 @@ import { validateEmail, validatePassword } from "../CommonFunctions/CommonFuncti
 // import FetchData from "../ServerCall/FetchData";
 import { Link, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
-import { Button, Input } from "@mui/material";
+import { Button } from "@mui/material";
 import "./LoginSignUp.css";
 import { userAuthentication } from "../../redux/UserInfo/isLoggedActions";
 import { LoggedDetailsType } from "../../redux/UserInfo/IsLoggedInterfaces";

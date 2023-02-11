@@ -245,7 +245,10 @@ const Treemap = ({
 								borderColorSaturation: 1,
 							},
 							breadcrumb: {
-								show: chartControl.treeMapChartControls.showBreadCrumb,
+								show:
+									graphDimension.height > 140
+										? chartControl.treeMapChartControls.showBreadCrumb
+										: false,
 								height: chartControl.treeMapChartControls.bcHeight,
 								emptyItemWidth: chartControl.treeMapChartControls.bcWidth,
 								itemStyle: {
