@@ -14,6 +14,8 @@ import DashBoardLayoutControl from "./DashBoardLayoutControl";
 import GraphRNDDash from "./GraphRNDDash";
 import CloseIcon from "@mui/icons-material/Close";
 import { Checkbox } from "@mui/material";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const DashBoard = ({
 	// props
@@ -21,6 +23,8 @@ const DashBoard = ({
 	dashboardResizeColumn,
 	setShowListofTileMenu,
 	setDashboardResizeColumn,
+	setCallForDownload,
+	callForDownload,
 
 	// state
 	tabState,
@@ -33,6 +37,13 @@ const DashBoard = ({
 	setGridSize,
 	graphHighlight,
 	resetHighlight,
+
+	//for download page option
+	orientation,
+	unit,
+	pageSize,
+	height,
+	width,
 }: DashBoardProps) => {
 	var targetRef = useRef<any>();
 	const [mouseDownOutsideGraphs, setmouseDownOutsideGraphs] = useState<boolean>(false);
@@ -69,6 +80,27 @@ const DashBoard = ({
 		boxSizing: "border-box",
 		zIndex: 20,
 	});
+
+	useEffect(() => {
+		if (callForDownload) {
+			const input = document.getElementById("GraphAreaToDownload") as HTMLElement;
+			console.log(input);
+			html2canvas(input).then(canvas => {
+				const imageData = canvas.toDataURL("image/png");
+
+				const pdf = new jsPDF(orientation, unit, pageSize);
+				pdf.addImage(imageData, "JPEG", 100, 0, width, height);
+				const d = new Date();
+				const id = `${d.getDate()}${
+					d.getMonth() + 1
+				}${d.getFullYear()}:${d.getHours()}${d.getMinutes()}${d.getSeconds()}`;
+
+				// console.log(`Dashboard_${id}`);
+				pdf.save(`Dashboard_${id}`);
+			});
+			setCallForDownload(false);
+		}
+	}, [callForDownload]);
 
 	// Every time the dimensions or dashboard layout changes,
 	// recompute the space available for graph
@@ -209,7 +241,6 @@ const DashBoard = ({
 			}
 		}
 	};
-	console.log(dashStyle);
 
 	// List of tiles to be mapped on the side of dashboard,
 	// allowing users to choose graphs from these tiles
@@ -271,23 +302,7 @@ const DashBoard = ({
 						},
 					}}
 				/>
-				{/* <input
-					type="checkbox"
-					className="graphCheckBox"
-					onChange={() => {
-						updateDashDetails(
-							checked,
-							propKey,
-							dashSpecs,
-							tabTileProps.selectedTabId,
-							propIndex
-						);
-						// toggleGraphSize(propKey, checked ? true : false);
-						toggleGraphSize(propIndex, checked ? true : false);
-					}}
-					checked={checked}
-					key={index}
-				/> */}
+
 				<span className="graphName">{currentObj.tileName}</span>
 			</div>
 		);
@@ -347,11 +362,16 @@ const DashBoard = ({
 			}}
 		>
 			<div className="dashboardOuter" ref={targetRef}>
-				<div className="dashboardArea" style={dashStyle}>
+				<div
+					className="dashboardArea"
+					id="GraphAreaToDownload"
+					style={callForDownload ? { ...dashStyle, background: "none" } : dashStyle}
+				>
 					{tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.length > 0 ? (
 						renderGraphs()
 					) : (
 						<div
+							id="GraphAreaToDownload"
 							style={{
 								height: "100%",
 								display: "flex",

@@ -44,8 +44,24 @@ import {
 	updateQueryResult,
 } from "../../redux/ChartPoperties/ChartControlsActions";
 import { Button, Popover } from "@mui/material";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import DownloadPagePopover from "../CommonFunctions/PopOverComponents/DownloadPagePopover";
 
 const GraphArea = ({
+	// props
+	setCallForDownload,
+	callForDownload,
+	orientation,
+	unit,
+	pageSize,
+	height,
+	width,
+	setOrientation,
+	setUnit,
+	setPageSize,
+	setHeight,
+	setWidth,
 	// state
 	tileState,
 	tabState,
@@ -72,6 +88,17 @@ const GraphArea = ({
 	const [fullScreen, setFullScreen] = useState<boolean>(false);
 	const [open, setOpen] = useState<boolean>(false);
 	const [anchorEl, setAnchorEl] = useState<any>();
+
+	const [showCard, setShowCard] = useState<boolean>(false);
+
+	useEffect(() => {
+		if (!tabTileProps.showDash) {
+			if (callForDownload) {
+				onDownload();
+				setCallForDownload(false);
+			}
+		}
+	}, [callForDownload]);
 
 	useEffect(() => {
 		if (chartProperties.properties[propKey].chartType === "calendar") {
@@ -524,6 +551,17 @@ const GraphArea = ({
 		});
 	};
 
+	const onDownload = () => {
+		const input = document.getElementById("graphContainer") as HTMLElement;
+		console.log(input);
+		html2canvas(input).then(canvas => {
+			const imageData = canvas.toDataURL("image/png");
+			const pdf = new jsPDF(orientation, unit, pageSize);
+			pdf.addImage(imageData, "JPEG", 100, 0, width, height);
+			pdf.save(`${chartProperties.properties[propKey].titleOptions.chartTitle}`);
+		});
+	};
+
 	return (
 		<div className="centerColumn">
 			<div className="graphTitleAndEdit">
@@ -612,7 +650,6 @@ const GraphArea = ({
 					</div>
 				)}
 			</div>
-
 			<div
 				id="graphContainer"
 				className="graphContainer"
@@ -670,7 +707,7 @@ const GraphArea = ({
 						setOpen(false);
 					}}
 				>
-					View sql code
+					View sql
 				</Button>
 				<Button
 					sx={{
@@ -680,13 +717,29 @@ const GraphArea = ({
 					}}
 					value="dbConnections"
 					onClick={() => {
-						console.log("Download");
+						setShowCard(true);
+						// onDownload();
 						setOpen(false);
 					}}
 				>
 					Download
 				</Button>
 			</Popover>
+			<DownloadPagePopover
+				showCard={showCard}
+				setShowCard={setShowCard}
+				orientation={orientation}
+				unit={unit}
+				pageSize={pageSize}
+				height={height}
+				width={width}
+				setOrientation={setOrientation}
+				setUnit={setUnit}
+				setPageSize={setPageSize}
+				setHeight={setHeight}
+				setWidth={setWidth}
+				onDownload={onDownload}
+			/>
 		</div>
 	);
 };

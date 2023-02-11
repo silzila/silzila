@@ -42,6 +42,7 @@ import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import { resetFlatFileState } from "../../redux/FlatFile/FlatFileStateActions";
 import silzilaNewLogo from "../../assets/new_silzilaLogo.svg";
 import { AlertColor } from "@mui/material/Alert";
+import DownloadPagePopover from "../CommonFunctions/PopOverComponents/DownloadPagePopover";
 const MenuBar = ({
 	// props
 	from,
@@ -62,6 +63,21 @@ const MenuBar = ({
 	resetAllStates,
 	resetUser,
 	resetFlatFileState,
+	setCallForDownload,
+
+	//for download page option
+	showCard,
+	orientation,
+	unit,
+	pageSize,
+	height,
+	width,
+	setShowCard,
+	setOrientation,
+	setUnit,
+	setPageSize,
+	setHeight,
+	setWidth,
 }: MenubarProps) => {
 	var showSaveWarning: boolean = false;
 
@@ -313,6 +329,12 @@ const MenuBar = ({
 		);
 	};
 
+	const onDownload = () => {
+		if (setCallForDownload) {
+			setCallForDownload(true);
+		}
+	};
+
 	const FileMenu = () => {
 		return (
 			<Menu
@@ -350,6 +372,16 @@ const MenuBar = ({
 					}}
 				>
 					Save Playbook As
+				</MenuItem>
+
+				<MenuItem
+					sx={fileMenuStyle}
+					onClick={() => {
+						setOpenFileMenu(false);
+						setShowCard(true);
+					}}
+				>
+					Download
 				</MenuItem>
 			</Menu>
 		);
@@ -744,6 +776,21 @@ const MenuBar = ({
 				}}
 			/>
 			{/* render Menu */}
+			<DownloadPagePopover
+				showCard={showCard}
+				setShowCard={setShowCard}
+				orientation={orientation}
+				unit={unit}
+				pageSize={pageSize}
+				height={height}
+				width={width}
+				setOrientation={setOrientation}
+				setUnit={setUnit}
+				setPageSize={setPageSize}
+				setHeight={setHeight}
+				setWidth={setWidth}
+				onDownload={onDownload}
+			/>
 		</div>
 	);
 };

@@ -91,7 +91,10 @@ const AreaChart = ({
 					backgroundColor: chartThemes[0].background,
 					animation: chartArea ? false : true,
 					legend: {
-						show: chartControl.legendOptions?.showLegend,
+						show:
+							graphDimension.height > 210
+								? chartControl.legendOptions?.showLegend
+								: false,
 						left: chartControl.legendOptions?.position?.left,
 						top: chartControl.legendOptions?.position?.top,
 						orient: chartControl.legendOptions?.orientation,

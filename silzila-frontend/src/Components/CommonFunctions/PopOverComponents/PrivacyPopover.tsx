@@ -1,7 +1,7 @@
 // Contents for Privacy section under help menu
 
 import { Popover } from "@mui/material";
-import React from "react";
+
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { githubAddress } from "../../ServerCall/EnvironmentVariables";
 
