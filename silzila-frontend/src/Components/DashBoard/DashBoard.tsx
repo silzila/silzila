@@ -16,6 +16,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Checkbox } from "@mui/material";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { toPng } from "html-to-image";
+import { resetPageSettings } from "../../redux/PageSettings/DownloadPageSettingsActions";
 
 const DashBoard = ({
 	// props
@@ -23,13 +25,12 @@ const DashBoard = ({
 	dashboardResizeColumn,
 	setShowListofTileMenu,
 	setDashboardResizeColumn,
-	setCallForDownload,
-	callForDownload,
 
 	// state
 	tabState,
 	tabTileProps,
 	tileState,
+	pageSettings,
 
 	// dispatch
 	updateDashDetails,
@@ -37,13 +38,7 @@ const DashBoard = ({
 	setGridSize,
 	graphHighlight,
 	resetHighlight,
-
-	//for download page option
-	orientation,
-	unit,
-	pageSize,
-	height,
-	width,
+	resetPageSettings,
 }: DashBoardProps) => {
 	var targetRef = useRef<any>();
 	const [mouseDownOutsideGraphs, setmouseDownOutsideGraphs] = useState<boolean>(false);
@@ -82,25 +77,43 @@ const DashBoard = ({
 	});
 
 	useEffect(() => {
-		if (callForDownload) {
+		if (pageSettings.callForDownload) {
 			const input = document.getElementById("GraphAreaToDownload") as HTMLElement;
 			console.log(input);
-			html2canvas(input).then(canvas => {
-				const imageData = canvas.toDataURL("image/png");
+			const d = new Date();
+			const id = `${tabTileProps.selectedTabName}_${d.getDate()}${
+				d.getMonth() + 1
+			}${d.getFullYear()}:${d.getHours()}${d.getMinutes()}${d.getSeconds()}`;
 
-				const pdf = new jsPDF(orientation, unit, pageSize);
-				pdf.addImage(imageData, "JPEG", 100, 0, width, height);
-				const d = new Date();
-				const id = `${d.getDate()}${
-					d.getMonth() + 1
-				}${d.getFullYear()}:${d.getHours()}${d.getMinutes()}${d.getSeconds()}`;
+			if (pageSettings.downloadType === "pdf") {
+				html2canvas(input).then(canvas => {
+					const imageData = canvas.toDataURL("image/png");
+					console.log(imageData);
 
-				// console.log(`Dashboard_${id}`);
-				pdf.save(`Dashboard_${id}`);
-			});
-			setCallForDownload(false);
+					const pdf = new jsPDF(
+						pageSettings.SelectedOrientation,
+						pageSettings.selectedUnit,
+						pageSettings.selectedFormat
+					);
+					pdf.addImage(imageData, "JPEG", 25, 0, 400, 400);
+					pdf.save(`${id}`);
+					resetPageSettings();
+				});
+			} else {
+				toPng(input, { cacheBust: true })
+					.then((dataUrl: any) => {
+						const link = document.createElement("a");
+						link.download = `${id}`;
+						link.href = dataUrl;
+						link.click();
+						resetPageSettings();
+					})
+					.catch((err: any) => {
+						console.log(err);
+					});
+			}
 		}
-	}, [callForDownload]);
+	}, [pageSettings.callForDownload]);
 
 	// Every time the dimensions or dashboard layout changes,
 	// recompute the space available for graph
@@ -365,7 +378,16 @@ const DashBoard = ({
 				<div
 					className="dashboardArea"
 					id="GraphAreaToDownload"
-					style={callForDownload ? { ...dashStyle, background: "none" } : dashStyle}
+					style={
+						pageSettings.callForDownload
+							? {
+									...dashStyle,
+									background: "none",
+									backgroundColor: "white",
+									borderTop: "2px solid rgba(224,224,224,1)",
+							  }
+							: dashStyle
+					}
 				>
 					{tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.length > 0 ? (
 						renderGraphs()
@@ -378,6 +400,9 @@ const DashBoard = ({
 								alignItems: "center",
 								justifyContent: "center",
 								color: "#999999",
+								borderTop: pageSettings.callForDownload
+									? "2px solid rgba(224,224,224,1)"
+									: "0px",
 							}}
 						>
 							<pre style={{ fontFamily: "Monaco", fontSize: "16px" }}>
@@ -424,11 +449,12 @@ const DashBoard = ({
 	);
 };
 
-const mapStateToProps = (state: DashBoardStateProps, ownProps: any) => {
+const mapStateToProps = (state: DashBoardStateProps & any, ownProps: any) => {
 	return {
 		tabState: state.tabState,
 		tabTileProps: state.tabTileProps,
 		tileState: state.tileState,
+		pageSettings: state.pageSettings,
 	};
 };
 
@@ -449,6 +475,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		// 	dispatch(updateGraphHighlight(tabId, propKey, highlight)),
 		// resetHighlight: (tabId: number) => dispatch(resetGraphHighlight(tabId)),
 		setGridSize: (gridSize: any) => dispatch(setDashGridSize(gridSize)), //gridSize{ x: null | number | string; y: null | number | string }
+		resetPageSettings: () => dispatch(resetPageSettings()), //gridSize{ x: null | number | string; y: null | number | string }
 	};
 };
 export default connect(mapStateToProps, mapDispatchToProps)(DashBoard);

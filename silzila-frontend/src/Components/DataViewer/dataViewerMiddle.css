@@ -49,6 +49,12 @@
 	z-index: 2000;
 }
 
+.screenSettingsMenuItems{
+display:flex; 
+column-gap: 5px;
+font-size: 12px;
+}
+
 .graphAreaIcons {
 	display: flex;
 	align-items: center;

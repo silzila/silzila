@@ -63,7 +63,7 @@ const FunnelChart = ({
 					legend: {
 						type: "scroll",
 						show:
-							graphDimension.height > 90
+							graphDimension.height > 130
 								? chartControl.legendOptions?.showLegend
 								: false,
 						itemHeight:
@@ -90,7 +90,10 @@ const FunnelChart = ({
 						{
 							type: "funnel",
 							label: {
-								show: chartControl.labelOptions.showLabel,
+								show:
+									graphDimension.height > 140 && graphDimension.width > 150
+										? chartControl.labelOptions.showLabel
+										: false,
 								fontSize: chartControl.labelOptions.fontSize,
 								color: chartControl.labelOptions.labelColorManual
 									? chartControl.labelOptions.labelColor

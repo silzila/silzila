@@ -43,6 +43,7 @@ import { resetFlatFileState } from "../../redux/FlatFile/FlatFileStateActions";
 import silzilaNewLogo from "../../assets/new_silzilaLogo.svg";
 import { AlertColor } from "@mui/material/Alert";
 import DownloadPagePopover from "../CommonFunctions/PopOverComponents/DownloadPagePopover";
+import { setPageSettings } from "../../redux/PageSettings/DownloadPageSettingsActions";
 const MenuBar = ({
 	// props
 	from,
@@ -63,21 +64,7 @@ const MenuBar = ({
 	resetAllStates,
 	resetUser,
 	resetFlatFileState,
-	setCallForDownload,
-
-	//for download page option
-	showCard,
-	orientation,
-	unit,
-	pageSize,
-	height,
-	width,
-	setShowCard,
-	setOrientation,
-	setUnit,
-	setPageSize,
-	setHeight,
-	setWidth,
+	setPageSettings,
 }: MenubarProps) => {
 	var showSaveWarning: boolean = false;
 
@@ -329,11 +316,11 @@ const MenuBar = ({
 		);
 	};
 
-	const onDownload = () => {
-		if (setCallForDownload) {
-			setCallForDownload(true);
-		}
-	};
+	// const onDownload = () => {
+	// 	if (setCallForDownload) {
+	// 		setCallForDownload(true);
+	// 	}
+	// };
 
 	const FileMenu = () => {
 		return (
@@ -378,10 +365,21 @@ const MenuBar = ({
 					sx={fileMenuStyle}
 					onClick={() => {
 						setOpenFileMenu(false);
-						setShowCard(true);
+						setPageSettings("downloadType", "pdf");
+						setPageSettings("openPageSettingPopover", true);
 					}}
 				>
-					Download
+					Download PDF
+				</MenuItem>
+				<MenuItem
+					sx={fileMenuStyle}
+					onClick={() => {
+						setOpenFileMenu(false);
+						setPageSettings("downloadType", "image");
+						setPageSettings("callForDownload", true);
+					}}
+				>
+					Download Image
 				</MenuItem>
 			</Menu>
 		);
@@ -776,21 +774,7 @@ const MenuBar = ({
 				}}
 			/>
 			{/* render Menu */}
-			<DownloadPagePopover
-				showCard={showCard}
-				setShowCard={setShowCard}
-				orientation={orientation}
-				unit={unit}
-				pageSize={pageSize}
-				height={height}
-				width={width}
-				setOrientation={setOrientation}
-				setUnit={setUnit}
-				setPageSize={setPageSize}
-				setHeight={setHeight}
-				setWidth={setWidth}
-				onDownload={onDownload}
-			/>
+			{/* <DownloadPagePopover /> */}
 		</div>
 	);
 };
@@ -821,6 +805,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		resetAllStates: () => dispatch(resetAllStates()),
 		resetUser: () => dispatch(resetUser()),
 		resetFlatFileState: () => dispatch(resetFlatFileState()),
+		setPageSettings: (option: string, value: any) => dispatch(setPageSettings(option, value)),
 	};
 };
 

@@ -24,26 +24,13 @@ const DataViewerMiddle = ({
 	// props
 	tabId,
 	tileId,
-	setCallForDownload,
-	callForDownload,
+
 	// state
 	tabTileProps,
 	chartProp,
 
 	// dispatch
 	setMenu,
-
-	//for download page option
-	orientation,
-	unit,
-	pageSize,
-	height,
-	width,
-	setOrientation,
-	setUnit,
-	setPageSize,
-	setHeight,
-	setWidth,
 }: DataViewerMiddleProps) => {
 	var propKey: string = `${tabId}.${tileId}`;
 
@@ -119,20 +106,7 @@ const DataViewerMiddle = ({
 				<ChartAxes tabId={tabId} tileId={tileId} />
 			)}
 
-			<GraphArea
-				setCallForDownload={setCallForDownload}
-				callForDownload={callForDownload}
-				orientation={orientation}
-				unit={unit}
-				pageSize={pageSize}
-				height={height}
-				width={width}
-				setOrientation={setOrientation}
-				setUnit={setUnit}
-				setPageSize={setPageSize}
-				setHeight={setHeight}
-				setWidth={setWidth}
-			/>
+			<GraphArea />
 
 			<div className="rightColumn">{controlDisplayed()}</div>
 		</div>

@@ -51,6 +51,7 @@ const ChartControlObjects = ({
 	const gaugeOptionList: string[] = ["Title", "Margin", "Axis", "Tooltip", "Colors", "Format"];
 	const heatmapOptionList: string[] = [
 		"Title",
+		"Legend",
 		"Labels",
 		"Margin",
 		"Colors",
@@ -61,6 +62,7 @@ const ChartControlObjects = ({
 	const crossTabOptionList: string[] = ["Title", "Tooltip", "Style", "Format"];
 	const boxPlotOptionsList: string[] = [
 		"Title",
+		"Legend",
 		"Tooltip",
 		"Margin",
 		"Colors",
@@ -79,6 +81,7 @@ const ChartControlObjects = ({
 	];
 
 	const RenderOptions: any = () => {
+		console.log(selectedChart);
 		switch (selectedChart) {
 			case "multibar":
 			case "stackedBar":
@@ -87,7 +90,7 @@ const ChartControlObjects = ({
 			case "line":
 			case "area":
 			case "scatterPlot":
-			case "stakedArea":
+			case "stackedArea":
 				return barOptionsList.map(option => {
 					return (
 						<div

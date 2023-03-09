@@ -100,7 +100,10 @@ const RoseChart = ({
 								clockwise: chartControl.axisOptions.pieAxisOptions.clockWise,
 								label: {
 									position: chartControl.labelOptions.pieLabel.labelPosition,
-									show: chartControl.labelOptions.showLabel,
+									show:
+										graphDimension.height > 100 && graphDimension.width > 220
+											? chartControl.labelOptions.showLabel
+											: false,
 									fontSize: chartControl.labelOptions.fontSize,
 									color: chartControl.labelOptions.labelColor,
 									padding: [
