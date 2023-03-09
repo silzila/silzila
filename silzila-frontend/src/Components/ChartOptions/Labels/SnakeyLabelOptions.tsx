@@ -34,9 +34,9 @@ const SankeyLabelOptions = ({
 	updateSankeyStyleOptions: (propKey: number | string, option: string, value: any) => void;
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
-	const handleOnSlide = debounce((value: any) => {
-		updateSankeyStyleOptions(propKey, "labelDistance", value);
-	}, 5000);
+	// const handleOnSlide = debounce((value: any) => {
+	// 	updateSankeyStyleOptions(propKey, "labelDistance", value);
+	// }, 5000);
 
 	const sankeyLabelRotationOption = [
 		{ name: "Horizondal", value: 0 },
@@ -70,8 +70,8 @@ const SankeyLabelOptions = ({
 				sliderValue={chartControls.properties[propKey].sankeyControls.labelDistance}
 				sliderMinMax={{ min: 0, max: 50, step: 1 }}
 				changeValue={value => {
-					handleOnSlide(value);
-					// updateSankeyStyleOptions(propKey, "labelDistance", value);
+					// handleOnSlide(value);
+					updateSankeyStyleOptions(propKey, "labelDistance", value);
 				}}
 			/>
 			<div className="optionDescription">Label Rotate</div>

@@ -47,21 +47,24 @@ import { Button, Popover } from "@mui/material";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import DownloadPagePopover from "../CommonFunctions/PopOverComponents/DownloadPagePopover";
+import {
+	resetPageSettings,
+	setPageSettings,
+} from "../../redux/PageSettings/DownloadPageSettingsActions";
+import { toPng } from "html-to-image";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import PhotoSizeSelectActualIcon from "@mui/icons-material/PhotoSizeSelectActual";
+import sqlIcon from "../../assets/sqlCodeIcon.png";
+import DoneIcon from "@mui/icons-material/Done";
+
+const popoverButtonStyle = {
+	textTransform: "none",
+	color: "grey",
+	display: "block",
+	width: "100%",
+};
 
 const GraphArea = ({
-	// props
-	setCallForDownload,
-	callForDownload,
-	orientation,
-	unit,
-	pageSize,
-	height,
-	width,
-	setOrientation,
-	setUnit,
-	setPageSize,
-	setHeight,
-	setWidth,
 	// state
 	tileState,
 	tabState,
@@ -69,6 +72,7 @@ const GraphArea = ({
 	chartProperties,
 	chartControlState,
 	token,
+	pageSettings,
 
 	// dispatch
 	setChartTitle,
@@ -76,6 +80,8 @@ const GraphArea = ({
 	toggleGraphSize,
 	updateQueryResult,
 	updateMargin,
+	setPageSettings,
+	resetPageSettings,
 }: any) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	// console.log(propKey);
@@ -89,16 +95,16 @@ const GraphArea = ({
 	const [open, setOpen] = useState<boolean>(false);
 	const [anchorEl, setAnchorEl] = useState<any>();
 
-	const [showCard, setShowCard] = useState<boolean>(false);
-
 	useEffect(() => {
 		if (!tabTileProps.showDash) {
-			if (callForDownload) {
+			if (pageSettings.callForDownload) {
 				onDownload();
-				setCallForDownload(false);
 			}
 		}
-	}, [callForDownload]);
+	}, [pageSettings.callForDownload]);
+	useEffect(() => {
+		setFullScreen(pageSettings.fullScreen);
+	}, [pageSettings.fullScreen]);
 
 	useEffect(() => {
 		if (chartProperties.properties[propKey].chartType === "calendar") {
@@ -551,19 +557,90 @@ const GraphArea = ({
 		});
 	};
 
-	const onDownload = () => {
-		const input = document.getElementById("graphContainer") as HTMLElement;
-		console.log(input);
-		html2canvas(input).then(canvas => {
-			const imageData = canvas.toDataURL("image/png");
-			const pdf = new jsPDF(orientation, unit, pageSize);
-			pdf.addImage(imageData, "JPEG", 100, 0, width, height);
-			pdf.save(`${chartProperties.properties[propKey].titleOptions.chartTitle}`);
-		});
+	/* 
+	*************************************************
+	ON DOWNLOAD PDF & ON DOWNLOAD IMAGE
+	*************************************************
+	*/
+
+	const getHeightAndWidth = (paperHeight: number, paperWidth: number) => {
+		var graphHeight = graphDimension2.height;
+		var graphWidth = graphDimension2.width;
+
+		const pageHeight = paperHeight - pageSettings.top_margin;
+		const pageWidth = paperWidth - pageSettings.right_margin;
+		var heightRatio = pageHeight / graphHeight;
+		var widthRatio = pageWidth / graphWidth;
+
+		// getting least value
+		var ratio = Math.min(heightRatio, widthRatio);
+
+		var finalHeight = graphHeight * ratio;
+		var finalWidth = graphWidth * ratio;
+
+		return { height: finalHeight, width: finalWidth };
+	};
+
+	// function calls when click on the download button after changing pagesettings(orientation,format,ppi)
+	const onDownload = async () => {
+		// getting  HTML element (chart in fullscreen) as a value in variable
+		const input = document.getElementById("graphFullScreen") as HTMLElement;
+
+		// genaration a date to give as a fileName
+		const d = new Date();
+		const id = `${tabTileProps.selectedTileName}_${d.getDate()}${
+			d.getMonth() + 1
+		}${d.getFullYear()}:${d.getHours()}${d.getMinutes()}${d.getSeconds()}`;
+
+		// this case will run if We clicked on Download PDF
+		if (pageSettings.downloadType === "pdf") {
+			html2canvas(input).then(canvas => {
+				const imageData = canvas.toDataURL("image/png");
+				const pdf = new jsPDF(
+					pageSettings.SelectedOrientation,
+					"px",
+					pageSettings.selectedFormat
+				);
+				var width = pdf.internal.pageSize.getWidth();
+				var height = pdf.internal.pageSize.getHeight();
+				const heightAndWidth = getHeightAndWidth(height, width);
+
+				// console.log(height, width, heightAndWidth);
+				pdf.addImage(
+					imageData,
+					"JPEG",
+					pageSettings.left_margin,
+					pageSettings.top_margin,
+					heightAndWidth.width,
+					heightAndWidth.height
+				);
+				pdf.save(`${id}`);
+				setFullScreen(false);
+				setPageSettings("openPageSettingPopover", false);
+				setTimeout(() => {
+					resetPageSettings();
+				}, 300);
+			});
+		} else {
+			toPng(input, { cacheBust: true })
+				.then((dataUrl: any) => {
+					const link = document.createElement("a");
+					link.download = `${id}`;
+					link.href = dataUrl;
+					link.click();
+					setPageSettings("openPageSettingPopover", false);
+					setTimeout(() => {
+						resetPageSettings();
+					}, 300);
+				})
+				.catch((err: any) => {
+					console.log(err);
+				});
+		}
 	};
 
 	return (
-		<div className="centerColumn">
+		<div className="centerColumn" id="centerColumn">
 			<div className="graphTitleAndEdit">
 				{editTitle ? (
 					<form
@@ -608,26 +685,6 @@ const GraphArea = ({
 					</>
 				)}
 
-				{!showSqlCode ? (
-					tabState.tabs[tabTileProps.selectedTabId].showDash ? null : (
-						<>
-							<RenderScreenOption />
-							<div
-								className="graphAreaIcons"
-								onClick={() => setFullScreen(true)}
-								title="Show full screen"
-							>
-								<OpenInFullIcon />
-							</div>
-						</>
-					)
-				) : null}
-				<div
-					style={{
-						borderRight: "1px solid rgb(211,211,211)",
-						margin: "6px 2px",
-					}}
-				></div>
 				{showSqlCode ? (
 					<div
 						className="graphAreaIcons"
@@ -639,52 +696,66 @@ const GraphArea = ({
 						<BarChartIcon />
 					</div>
 				) : (
-					<div className="graphAreaIcons">
-						<MoreVertOutlined
-							onClick={(e: any) => {
-								setOpen(true);
-								setAnchorEl(e.currentTarget);
-							}}
-						/>
-						{/* <CodeIcon /> */}
-					</div>
+					<>
+						{!pageSettings.callForDownload ? (
+							<div className="graphAreaIcons">
+								<MoreVertOutlined
+									onClick={(e: any) => {
+										setOpen(true);
+										setAnchorEl(e.currentTarget);
+									}}
+								/>
+							</div>
+						) : null}
+					</>
 				)}
 			</div>
 			<div
 				id="graphContainer"
 				className="graphContainer"
-				style={{ margin: tileState.tiles[propKey].graphSizeFull ? "0" : "1rem" }}
+				style={{
+					margin: tileState.tiles[propKey].graphSizeFull ? "0" : "1rem",
+				}}
 			>
 				{showSqlCode ? <ShowFormattedQuery /> : chartDisplayed()}
 			</div>
 			{/* <ChartThemes /> */}
 			{fullScreen ? (
-				<div
-					tabIndex={0}
-					id="graphFullScreen"
-					className="graphFullScreen"
-					onKeyDown={e => {
-						//console.log("Key pressed");
-						removeFullScreen(e);
-					}}
-				>
-					<div style={{ display: "flex" }}>
-						<span
-							className="graphTitle"
-							style={{
-								fontSize: chartProperties.properties[propKey].titleOptions.fontSize,
-							}}
-							onDoubleClick={() => editTitleText()}
-						>
-							{chartProperties.properties[propKey].titleOptions.chartTitle}
-						</span>
-						<CloseRounded
-							style={{ margin: "0.25rem" }}
-							onClick={() => setFullScreen(false)}
-						/>
+				<>
+					<div
+						tabIndex={0}
+						id="graphFullScreen"
+						className="graphFullScreen"
+						style={{ zIndex: 3 }}
+						onKeyDown={e => {
+							//console.log("Key pressed");
+							removeFullScreen(e);
+						}}
+					>
+						<div style={{ display: "flex" }}>
+							<span
+								className="graphTitle"
+								style={{
+									fontSize:
+										chartProperties.properties[propKey].titleOptions.fontSize,
+								}}
+								onDoubleClick={() => editTitleText()}
+							>
+								{chartProperties.properties[propKey].titleOptions.chartTitle}
+							</span>
+
+							<CloseRounded
+								style={{
+									margin: "0.25rem",
+									display: pageSettings.callForDownload ? "none" : "",
+								}}
+								onClick={() => setFullScreen(false)}
+							/>
+						</div>
+
+						{chartDisplayed()}
 					</div>
-					{chartDisplayed()}
-				</div>
+				</>
 			) : null}
 			<Popover
 				open={open}
@@ -696,50 +767,126 @@ const GraphArea = ({
 				onClose={() => setOpen(false)}
 			>
 				<Button
-					sx={{
-						textTransform: "none",
-						color: "grey",
-						display: "block",
+					sx={{ ...popoverButtonStyle }}
+					style={
+						tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(propKey)
+							? {}
+							: { cursor: "not-allowed" }
+					}
+					value="Match Dashboard Size"
+					onClick={() => {
+						if (
+							tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(
+								propKey
+							)
+						)
+							toggleGraphSize(propKey, false);
+						setOpen(false);
 					}}
-					value="flatFile"
+				>
+					<div className="screenSettingsMenuItems">
+						<FullscreenExitIcon sx={{ fontSize: "20px" }} />
+						Match Dashboard Size
+						<div
+							style={{
+								visibility: !tileState.tiles[propKey].graphSizeFull
+									? "visible"
+									: "hidden",
+								marginLeft: "auto",
+								marginRight: "0px",
+							}}
+						>
+							<DoneIcon sx={{ fontSize: "16px" }} />
+						</div>
+					</div>
+				</Button>
+				<Button
+					sx={{ ...popoverButtonStyle }}
+					value="Fit Tile Size"
+					onClick={() => {
+						toggleGraphSize(propKey, true);
+						setOpen(false);
+					}}
+				>
+					<div className="screenSettingsMenuItems">
+						<FullscreenIcon sx={{ fontSize: "20px" }} />
+						Fit Tile Size
+						<div
+							style={{
+								visibility: tileState.tiles[propKey].graphSizeFull
+									? "visible"
+									: "hidden",
+								marginLeft: "auto",
+								marginRight: "0px",
+							}}
+						>
+							<DoneIcon sx={{ fontSize: "16px" }} />
+						</div>
+					</div>
+				</Button>
+
+				<Button
+					sx={{ ...popoverButtonStyle }}
+					value="Full Screen"
+					onClick={() => {
+						setFullScreen(true);
+						setOpen(false);
+					}}
+				>
+					<div className="screenSettingsMenuItems">
+						<OpenInFullIcon sx={{ fontSize: "16px" }} />
+						Show full screen
+					</div>
+				</Button>
+				<Button
+					sx={{ ...popoverButtonStyle }}
+					value="View SQL"
 					onClick={() => {
 						getSqlQuery();
 						setOpen(false);
 					}}
 				>
-					View sql
+					<div className="screenSettingsMenuItems">
+						<img
+							src={sqlIcon}
+							alt=""
+							style={{ height: "16px", width: "16px", color: "grey" }}
+						/>
+						View sql
+					</div>
 				</Button>
 				<Button
-					sx={{
-						textTransform: "none",
-						color: "grey",
-						display: "block",
-					}}
-					value="dbConnections"
+					sx={{ ...popoverButtonStyle }}
+					value="pdf"
 					onClick={() => {
-						setShowCard(true);
-						// onDownload();
+						setPageSettings("downloadType", "pdf");
+						setPageSettings("fullScreen", true);
 						setOpen(false);
+						setPageSettings("openPageSettingPopover", true);
 					}}
 				>
-					Download
+					<div className="screenSettingsMenuItems">
+						<PictureAsPdfIcon sx={{ fontSize: "16px" }} />
+						Download PDF
+					</div>
+				</Button>
+				<Button
+					sx={{ ...popoverButtonStyle }}
+					value="image"
+					onClick={() => {
+						setPageSettings("downloadType", "image");
+						setOpen(false);
+						setPageSettings("fullScreen", true);
+						setPageSettings("openPageSettingPopover", true);
+					}}
+				>
+					<div className="screenSettingsMenuItems">
+						<PhotoSizeSelectActualIcon sx={{ fontSize: "16px" }} />
+						Download Image
+					</div>
 				</Button>
 			</Popover>
-			<DownloadPagePopover
-				showCard={showCard}
-				setShowCard={setShowCard}
-				orientation={orientation}
-				unit={unit}
-				pageSize={pageSize}
-				height={height}
-				width={width}
-				setOrientation={setOrientation}
-				setUnit={setUnit}
-				setPageSize={setPageSize}
-				setHeight={setHeight}
-				setWidth={setWidth}
-				onDownload={onDownload}
-			/>
+			<DownloadPagePopover />
 		</div>
 	);
 };
@@ -752,6 +899,7 @@ const mapStateToProps = (state: any) => {
 		chartControlState: state.chartControls,
 		chartProperties: state.chartProperties,
 		token: state.isLogged.accessToken,
+		pageSettings: state.pageSettings,
 	};
 };
 
@@ -767,6 +915,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(updateQueryResult(propKey, query)),
 		updateMargin: (propKey: number | string, option: string, value: any) =>
 			dispatch(updateChartMargins(propKey, option, value)),
+		setPageSettings: (option: string, value: any) => dispatch(setPageSettings(option, value)),
+		resetPageSettings: () => dispatch(resetPageSettings()),
 	};
 };
 

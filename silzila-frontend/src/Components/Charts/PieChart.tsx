@@ -38,7 +38,6 @@ const PieChart = ({
 
 	const [chartDataKeys, setChartDataKeys] = useState<string[]>([]);
 	var chartThemes: any[];
-	console.log(chartData);
 
 	useEffect(() => {
 		if (chartData.length >= 1) {
@@ -127,7 +126,10 @@ const PieChart = ({
 								clockwise: chartControl.axisOptions.pieAxisOptions.clockWise,
 								label: {
 									position: chartControl.labelOptions.pieLabel.labelPosition,
-									show: chartControl.labelOptions.showLabel,
+									show:
+										graphDimension.height > 100 && graphDimension.width > 220
+											? chartControl.labelOptions.showLabel
+											: false,
 									fontSize: chartControl.labelOptions.fontSize,
 									color: chartControl.labelOptions.labelColorManual
 										? chartControl.labelOptions.labelColor

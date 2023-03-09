@@ -5,58 +5,45 @@
 
 import { MenuItem, Popover, TextField, Button } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import { connect } from "react-redux";
 import "./Popover.css";
-
-const textFieldStyleProps = {
-	style: {
-		fontSize: "12px",
-		width: "70%",
-		margin: "6px auto 0.5rem 0",
-		backgroundColor: "white",
-		height: "1.5rem",
-		color: "#404040",
-	},
-};
-
-interface Props {
-	showCard: boolean;
-	orientation: any;
-	unit: any;
-	pageSize: any;
-	height: any;
-	width: any;
-	setShowCard: (value: boolean) => void;
-	setOrientation: (value: any) => void;
-	setUnit: (value: any) => void;
-	setPageSize: (value: any) => void;
-	setHeight: (value: any) => void;
-	setWidth: (value: any) => void;
-	onDownload: () => void;
-}
+import {
+	resetPageSettings,
+	setPageSettings,
+} from "../../../redux/PageSettings/DownloadPageSettingsActions";
+import { Dispatch } from "redux";
+import { orientations, paperSize } from "./pageSettingsData";
+import { useEffect, useState } from "react";
+import { setCustomHeight } from "../../../redux/TabTile/TabActions";
 
 const DownloadPagePopover = ({
-	showCard,
-	orientation,
-	unit,
-	pageSize,
-	height,
-	width,
-	setShowCard,
-	setOrientation,
-	setUnit,
-	setPageSize,
-	setHeight,
-	setWidth,
-	onDownload,
-}: Props) => {
-	const unitsArray: string[] = ["cm", "mm", "in", "pt", "m", "px"];
-	const paperSize: string[] = ["a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10"];
-	const orientations: string[] = ["landscape", "portrait"];
+	pageSettings,
+	tabTileProps,
+	//
+
+	setPageSettings,
+	resetPageSettings,
+}: any) => {
+	const textFieldStyleProps = {
+		style: {
+			fontSize: "12px",
+			width: pageSettings.downloadType === "pdf" ? "150px" : "70%",
+			margin: "6px auto 0.5rem 0",
+			backgroundColor: "white",
+			height: "1.5rem",
+			color: "#404040",
+		},
+	};
 
 	return (
 		<Popover
-			open={showCard}
-			onClose={setShowCard}
+			open={pageSettings.openPageSettingPopover}
+			onClose={() => {
+				setPageSettings("openPageSettingPopover", false);
+				setTimeout(() => {
+					resetPageSettings();
+				}, 300);
+			}}
 			anchorOrigin={{
 				vertical: "center",
 				horizontal: "center",
@@ -72,146 +59,231 @@ const DownloadPagePopover = ({
 
 					<CloseRoundedIcon
 						style={{ marginLeft: "1rem", color: "grey" }}
-						onClick={() => setShowCard(false)}
+						onClick={() => {
+							setPageSettings("openPageSettingPopover", false);
+							setTimeout(() => {
+								resetPageSettings();
+							}, 300);
+						}}
 					/>
 				</div>
-				<div style={{ display: "grid", gridTemplateColumns: "50% 50%" }}>
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "column",
-						}}
-					>
-						<span style={{ fontSize: "14px" }}>Orientation</span>
-						<TextField
-							value={orientation}
-							variant="outlined"
-							onChange={e => {
-								setOrientation(e.target.value);
-							}}
-							InputProps={{ ...textFieldStyleProps }}
-							select
-						>
-							{orientations.map((ori: string) => {
-								return (
-									<MenuItem value={ori} style={{ textTransform: "capitalize" }}>
-										{ori}
-									</MenuItem>
-								);
-							})}
-						</TextField>
-					</div>
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "column",
-						}}
-					>
-						<span style={{ fontSize: "14px" }}>Unit</span>
-						<TextField
-							value={unit}
-							variant="outlined"
-							onChange={e => {
-								setUnit(e.target.value);
-							}}
-							InputProps={{ ...textFieldStyleProps }}
-							select
-						>
-							{unitsArray.map((unit: string) => {
-								return <MenuItem value={unit}>{unit}</MenuItem>;
-							})}
-						</TextField>
-					</div>
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "column",
-						}}
-					>
-						<span style={{ fontSize: "14px" }}>Format</span>
-						<TextField
-							value={pageSize}
-							variant="outlined"
-							onChange={e => {
-								setPageSize(e.target.value);
-							}}
-							InputProps={{ ...textFieldStyleProps }}
-							select
-						>
-							{paperSize.map((size: string) => {
-								return <MenuItem value={size}>{size}</MenuItem>;
-							})}
-						</TextField>
-					</div>
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "column",
-						}}
-					>
-						<span style={{ fontSize: "14px" }}>Height</span>
-						<TextField
-							value={height}
-							variant="outlined"
-							type="number"
-							onChange={e => {
-								setHeight(e.target.value);
-							}}
-							InputProps={{ ...textFieldStyleProps }}
-						/>
-					</div>
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "column",
-						}}
-					>
-						<span style={{ fontSize: "14px" }}>Width</span>
-						<TextField
-							value={width}
-							variant="outlined"
-							type="number"
-							onChange={e => {
-								setWidth(e.target.value);
-							}}
-							InputProps={{ ...textFieldStyleProps }}
-						/>
-					</div>
-					<div></div>
-					<div>
-						<Button
+				<div style={{ display: "grid", gridTemplateColumns: "50% 50%", columnGap: "10px" }}>
+					{pageSettings.downloadType === "pdf" ? (
+						<>
+							<div
+								style={{
+									display: "flex",
+									flexDirection: "column",
+								}}
+							>
+								<span style={{ fontSize: "14px" }}>Orientation</span>
+								<TextField
+									value={pageSettings.SelectedOrientation}
+									variant="outlined"
+									onChange={e => {
+										setPageSettings("SelectedOrientation", e.target.value);
+									}}
+									InputProps={{
+										...textFieldStyleProps,
+									}}
+									select
+								>
+									{orientations.map((ori: string) => {
+										return (
+											<MenuItem
+												value={ori}
+												style={{ textTransform: "capitalize" }}
+											>
+												{ori}
+											</MenuItem>
+										);
+									})}
+								</TextField>
+							</div>
+
+							<div
+								style={{
+									display: "flex",
+									flexDirection: "column",
+								}}
+							>
+								<span style={{ fontSize: "14px" }}>Format</span>
+								<TextField
+									value={pageSettings.selectedFormat}
+									variant="outlined"
+									onChange={e => {
+										setPageSettings("selectedFormat", e.target.value);
+									}}
+									InputProps={{ ...textFieldStyleProps }}
+									select
+								>
+									{paperSize.map((size: string) => {
+										return <MenuItem value={size}>{size}</MenuItem>;
+									})}
+								</TextField>
+							</div>
+							<div
+								style={{
+									display: "flex",
+									flexDirection: "column",
+								}}
+							>
+								<span style={{ fontSize: "14px" }}>Top margin</span>
+								<TextField
+									type="number"
+									value={pageSettings.top_margin}
+									variant="outlined"
+									onChange={e => {
+										setPageSettings("top_margin", Number(e.target.value));
+									}}
+									InputProps={{
+										...textFieldStyleProps,
+									}}
+								></TextField>
+							</div>
+							<div
+								style={{
+									display: "flex",
+									flexDirection: "column",
+								}}
+							>
+								<span style={{ fontSize: "14px" }}>Bottom margin</span>
+								<TextField
+									type="number"
+									value={pageSettings.bottom_margin}
+									variant="outlined"
+									onChange={e => {
+										setPageSettings("bottom_margin", Number(e.target.value));
+									}}
+									InputProps={{
+										...textFieldStyleProps,
+									}}
+								></TextField>
+							</div>
+							<div
+								style={{
+									display: "flex",
+									flexDirection: "column",
+								}}
+							>
+								<span style={{ fontSize: "14px" }}>Left margin</span>
+								<TextField
+									type="number"
+									value={pageSettings.left_margin}
+									variant="outlined"
+									onChange={e => {
+										setPageSettings("left_margin", Number(e.target.value));
+									}}
+									InputProps={{
+										...textFieldStyleProps,
+									}}
+								></TextField>
+							</div>
+							<div
+								style={{
+									display: "flex",
+									flexDirection: "column",
+								}}
+							>
+								<span style={{ fontSize: "14px" }}>Right margin</span>
+								<TextField
+									type="number"
+									value={pageSettings.right_margin}
+									variant="outlined"
+									onChange={e => {
+										setPageSettings("right_margin", Number(e.target.value));
+									}}
+									InputProps={{
+										...textFieldStyleProps,
+									}}
+								></TextField>
+							</div>
+						</>
+					) : (
+						<>
+							{/* <div
+								style={{
+									display: "flex",
+									flexDirection: "column",
+								}}
+							>
+								<span style={{ fontSize: "14px" }}>Height</span>
+								<TextField
+									value={pageSettings.customHeight}
+									variant="outlined"
+									type="number"
+									onChange={e => {
+										setPageSettings("customHeight", Number(e.target.value));
+									}}
+									InputProps={{ ...textFieldStyleProps }}
+								/>
+							</div>
+							<div
+								style={{
+									display: "flex",
+									flexDirection: "column",
+								}}
+							>
+								<span style={{ fontSize: "14px" }}>Width</span>
+								<TextField
+									value={pageSettings.customWidth}
+									variant="outlined"
+									type="number"
+									onChange={e => {
+										setPageSettings("customWidth", Number(e.target.value));
+									}}
+									InputProps={{ ...textFieldStyleProps }}
+								/>
+							</div> */}
+						</>
+					)}
+				</div>
+				{/* <div> */}
+				{/* <Button
 							style={{
 								textTransform: "none",
 								backgroundColor: "rgba(224,224,224,1)",
 								color: "black",
 								marginTop: "10px",
 							}}
-							onClick={() => setShowCard(false)}
+							onClick={() => {
+								resetPageSettings();
+							}}
 						>
 							Cancel
-						</Button>
-					</div>
-					<div>
-						<Button
-							style={{
-								float: "right",
-								textTransform: "none",
-								backgroundColor: "#2bb9bb",
-								color: "white",
-								marginTop: "10px",
-							}}
-							onClick={() => {
-								setShowCard(false);
-								onDownload();
-							}}
-						>
-							Set & Download
-						</Button>
-					</div>
+						</Button> */}
+				{/* </div> */}
+				<div>
+					<Button
+						style={{
+							float: "right",
+							textTransform: "none",
+							backgroundColor: "#2bb9bb",
+							color: "white",
+							margin: "10px -3px 10px 10px",
+						}}
+						onClick={() => {
+							setPageSettings("callForDownload", true);
+						}}
+					>
+						Set & Download
+					</Button>
 				</div>
 			</div>
 		</Popover>
 	);
 };
+const mapStateToProps = (state: any, ownProps: any) => {
+	return {
+		pageSettings: state.pageSettings,
+		tabTileProps: state.tabTileProps,
+	};
+};
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+	return {
+		setPageSettings: (option: string, value: any) => dispatch(setPageSettings(option, value)),
+		resetPageSettings: () => dispatch(resetPageSettings()),
+	};
+};
 
-export default DownloadPagePopover;
+export default connect(mapStateToProps, mapDispatchToProps)(DownloadPagePopover);

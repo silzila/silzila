@@ -174,7 +174,10 @@ const CalendarChart = ({
 
 					visualMap: {
 						type: chartControl.calendarStyleOptions.pieceWise ? "piecewise" : null,
-						show: chartControl.legendOptions?.showLegend,
+						show:
+							graphDimension.height > 180
+								? chartControl.legendOptions?.showLegend
+								: false,
 						itemHeight: chartControl.calendarStyleOptions?.height,
 						itemWidth: chartControl.calendarStyleOptions?.width,
 						itemGap: chartControl.legendOptions?.itemGap,

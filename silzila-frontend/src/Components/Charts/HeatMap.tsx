@@ -175,6 +175,19 @@ const HeatMap = ({
 					},
 					visualMap: [
 						{
+							type: chartControl.calendarStyleOptions.pieceWise ? "piecewise" : null,
+							show:
+								graphDimension.height > 180
+									? chartControl.legendOptions?.showLegend
+									: false,
+							itemHeight: chartControl.calendarStyleOptions?.height,
+							itemWidth: chartControl.calendarStyleOptions?.width,
+							itemGap: chartControl.legendOptions?.itemGap,
+
+							left: chartControl.legendOptions?.position?.left,
+							top: chartControl.legendOptions?.position?.top,
+							orient: chartControl.calendarStyleOptions?.orientation,
+
 							min:
 								chartControl.colorScale.colorScaleType === "Manual"
 									? chartControl.colorScale.min !== parseInt("")
