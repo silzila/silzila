@@ -75,11 +75,24 @@ const DashBoard = ({
 		boxSizing: "border-box",
 		zIndex: 20,
 	});
+	const getHeightAndWidth = (paperHeight: number, paperWidth: number) => {
+		var graphHeight = dashStyle.height;
+		var graphWidth = dashStyle.width;
+		const pageHeight = paperHeight - (pageSettings.top_margin + pageSettings.bottom_margin);
+		const pageWidth = paperWidth - (pageSettings.right_margin + pageSettings.left_margin);
+		var heightRatio = pageHeight / graphHeight;
+		var widthRatio = pageWidth / graphWidth;
+		// getting least value
+		var ratio = Math.min(heightRatio, widthRatio);
+		var finalHeight = graphHeight * ratio;
+		var finalWidth = graphWidth * ratio;
+		return { height: finalHeight, width: finalWidth };
+	};
 
 	useEffect(() => {
 		if (pageSettings.callForDownload) {
 			const input = document.getElementById("GraphAreaToDownload") as HTMLElement;
-			console.log(input);
+
 			const d = new Date();
 			const id = `${tabTileProps.selectedTabName}_${d.getDate()}${
 				d.getMonth() + 1
@@ -92,10 +105,20 @@ const DashBoard = ({
 
 					const pdf = new jsPDF(
 						pageSettings.SelectedOrientation,
-						pageSettings.selectedUnit,
+						"px",
 						pageSettings.selectedFormat
 					);
-					pdf.addImage(imageData, "JPEG", 25, 0, 400, 400);
+					var width = pdf.internal.pageSize.getWidth();
+					var height = pdf.internal.pageSize.getHeight();
+					const heightAndWidth = getHeightAndWidth(height, width);
+					pdf.addImage(
+						imageData,
+						"JPEG",
+						pageSettings.left_margin,
+						pageSettings.top_margin,
+						heightAndWidth.width,
+						heightAndWidth.height
+					);
 					pdf.save(`${id}`);
 					resetPageSettings();
 				});

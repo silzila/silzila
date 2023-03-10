@@ -3,7 +3,7 @@
 // 	- when a new Playbook button is clicked, this popup will allow to select a dataset to work with in that playbook
 // 	- when changing a dataset from within dataviewerbottom component, this list is presented to 'Add Dataset'
 
-import { MenuItem, Popover, TextField, Button } from "@mui/material";
+import { MenuItem, Popover, TextField, Button, Paper } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { connect } from "react-redux";
 import "./Popover.css";
@@ -53,155 +53,173 @@ const DownloadPagePopover = ({
 				horizontal: "center",
 			}}
 		>
-			<div className="datasetListPopover">
-				<div className="datasetListPopoverHeading">
-					<div style={{ flex: 1, color: "grey" }}>Page settings</div>
+			<Paper
+				sx={{
+					width: pageSettings.downloadType === "pdf" ? "450px" : "auto",
+					height: pageSettings.downloadType === "pdf" ? "300px" : "auto",
+					border: "none",
+					boxShadow: "none",
+				}}
+			>
+				<div className="datasetListPopover">
+					<div className="datasetListPopoverHeading">
+						<div style={{ flex: 1, color: "grey" }}>Page settings</div>
 
-					<CloseRoundedIcon
-						style={{ marginLeft: "1rem", color: "grey" }}
-						onClick={() => {
-							setPageSettings("openPageSettingPopover", false);
-							setTimeout(() => {
-								resetPageSettings();
-							}, 300);
+						<CloseRoundedIcon
+							style={{ marginLeft: "1rem", color: "grey" }}
+							onClick={() => {
+								setPageSettings("openPageSettingPopover", false);
+								setTimeout(() => {
+									resetPageSettings();
+								}, 300);
+							}}
+						/>
+					</div>
+					<div
+						style={{
+							display: "grid",
+							gridTemplateColumns: "50% 50%",
+							columnGap: "10px",
+							rowGap: "10px",
 						}}
-					/>
-				</div>
-				<div style={{ display: "grid", gridTemplateColumns: "50% 50%", columnGap: "10px" }}>
-					{pageSettings.downloadType === "pdf" ? (
-						<>
-							<div
-								style={{
-									display: "flex",
-									flexDirection: "column",
-								}}
-							>
-								<span style={{ fontSize: "14px" }}>Orientation</span>
-								<TextField
-									value={pageSettings.SelectedOrientation}
-									variant="outlined"
-									onChange={e => {
-										setPageSettings("SelectedOrientation", e.target.value);
+					>
+						{pageSettings.downloadType === "pdf" ? (
+							<>
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
 									}}
-									InputProps={{
-										...textFieldStyleProps,
-									}}
-									select
 								>
-									{orientations.map((ori: string) => {
-										return (
-											<MenuItem
-												value={ori}
-												style={{ textTransform: "capitalize" }}
-											>
-												{ori}
-											</MenuItem>
-										);
-									})}
-								</TextField>
-							</div>
+									<span style={{ fontSize: "14px" }}>Orientation</span>
+									<TextField
+										value={pageSettings.SelectedOrientation}
+										variant="outlined"
+										onChange={e => {
+											setPageSettings("SelectedOrientation", e.target.value);
+										}}
+										InputProps={{
+											...textFieldStyleProps,
+										}}
+										select
+									>
+										{orientations.map((ori: string) => {
+											return (
+												<MenuItem
+													value={ori}
+													style={{ textTransform: "capitalize" }}
+												>
+													{ori}
+												</MenuItem>
+											);
+										})}
+									</TextField>
+								</div>
 
-							<div
-								style={{
-									display: "flex",
-									flexDirection: "column",
-								}}
-							>
-								<span style={{ fontSize: "14px" }}>Format</span>
-								<TextField
-									value={pageSettings.selectedFormat}
-									variant="outlined"
-									onChange={e => {
-										setPageSettings("selectedFormat", e.target.value);
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
 									}}
-									InputProps={{ ...textFieldStyleProps }}
-									select
 								>
-									{paperSize.map((size: string) => {
-										return <MenuItem value={size}>{size}</MenuItem>;
-									})}
-								</TextField>
-							</div>
-							<div
-								style={{
-									display: "flex",
-									flexDirection: "column",
-								}}
-							>
-								<span style={{ fontSize: "14px" }}>Top margin</span>
-								<TextField
-									type="number"
-									value={pageSettings.top_margin}
-									variant="outlined"
-									onChange={e => {
-										setPageSettings("top_margin", Number(e.target.value));
+									<span style={{ fontSize: "14px" }}>Format</span>
+									<TextField
+										value={pageSettings.selectedFormat}
+										variant="outlined"
+										onChange={e => {
+											setPageSettings("selectedFormat", e.target.value);
+										}}
+										InputProps={{ ...textFieldStyleProps }}
+										select
+									>
+										{paperSize.map((size: string) => {
+											return <MenuItem value={size}>{size}</MenuItem>;
+										})}
+									</TextField>
+								</div>
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
 									}}
-									InputProps={{
-										...textFieldStyleProps,
+								>
+									<span style={{ fontSize: "14px" }}>Top margin</span>
+									<TextField
+										type="number"
+										value={pageSettings.top_margin}
+										variant="outlined"
+										onChange={e => {
+											setPageSettings("top_margin", Number(e.target.value));
+										}}
+										InputProps={{
+											...textFieldStyleProps,
+										}}
+									></TextField>
+								</div>
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
 									}}
-								></TextField>
-							</div>
-							<div
-								style={{
-									display: "flex",
-									flexDirection: "column",
-								}}
-							>
-								<span style={{ fontSize: "14px" }}>Bottom margin</span>
-								<TextField
-									type="number"
-									value={pageSettings.bottom_margin}
-									variant="outlined"
-									onChange={e => {
-										setPageSettings("bottom_margin", Number(e.target.value));
+								>
+									<span style={{ fontSize: "14px" }}>Bottom margin</span>
+									<TextField
+										type="number"
+										value={pageSettings.bottom_margin}
+										variant="outlined"
+										onChange={e => {
+											setPageSettings(
+												"bottom_margin",
+												Number(e.target.value)
+											);
+										}}
+										InputProps={{
+											...textFieldStyleProps,
+										}}
+									></TextField>
+								</div>
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
 									}}
-									InputProps={{
-										...textFieldStyleProps,
+								>
+									<span style={{ fontSize: "14px" }}>Left margin</span>
+									<TextField
+										type="number"
+										value={pageSettings.left_margin}
+										variant="outlined"
+										onChange={e => {
+											setPageSettings("left_margin", Number(e.target.value));
+										}}
+										InputProps={{
+											...textFieldStyleProps,
+										}}
+									></TextField>
+								</div>
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
 									}}
-								></TextField>
-							</div>
-							<div
-								style={{
-									display: "flex",
-									flexDirection: "column",
-								}}
-							>
-								<span style={{ fontSize: "14px" }}>Left margin</span>
-								<TextField
-									type="number"
-									value={pageSettings.left_margin}
-									variant="outlined"
-									onChange={e => {
-										setPageSettings("left_margin", Number(e.target.value));
-									}}
-									InputProps={{
-										...textFieldStyleProps,
-									}}
-								></TextField>
-							</div>
-							<div
-								style={{
-									display: "flex",
-									flexDirection: "column",
-								}}
-							>
-								<span style={{ fontSize: "14px" }}>Right margin</span>
-								<TextField
-									type="number"
-									value={pageSettings.right_margin}
-									variant="outlined"
-									onChange={e => {
-										setPageSettings("right_margin", Number(e.target.value));
-									}}
-									InputProps={{
-										...textFieldStyleProps,
-									}}
-								></TextField>
-							</div>
-						</>
-					) : (
-						<>
-							{/* <div
+								>
+									<span style={{ fontSize: "14px" }}>Right margin</span>
+									<TextField
+										type="number"
+										value={pageSettings.right_margin}
+										variant="outlined"
+										onChange={e => {
+											setPageSettings("right_margin", Number(e.target.value));
+										}}
+										InputProps={{
+											...textFieldStyleProps,
+										}}
+									></TextField>
+								</div>
+							</>
+						) : (
+							<>
+								{/* <div
 								style={{
 									display: "flex",
 									flexDirection: "column",
@@ -235,11 +253,11 @@ const DownloadPagePopover = ({
 									InputProps={{ ...textFieldStyleProps }}
 								/>
 							</div> */}
-						</>
-					)}
-				</div>
-				{/* <div> */}
-				{/* <Button
+							</>
+						)}
+					</div>
+					{/* <div> */}
+					{/* <Button
 							style={{
 								textTransform: "none",
 								backgroundColor: "rgba(224,224,224,1)",
@@ -252,24 +270,25 @@ const DownloadPagePopover = ({
 						>
 							Cancel
 						</Button> */}
-				{/* </div> */}
-				<div>
-					<Button
-						style={{
-							float: "right",
-							textTransform: "none",
-							backgroundColor: "#2bb9bb",
-							color: "white",
-							margin: "10px -3px 10px 10px",
-						}}
-						onClick={() => {
-							setPageSettings("callForDownload", true);
-						}}
-					>
-						Set & Download
-					</Button>
+					{/* </div> */}
+					<div>
+						<Button
+							style={{
+								float: "right",
+								textTransform: "none",
+								backgroundColor: "#2bb9bb",
+								color: "white",
+								margin: "10px -3px 10px 10px",
+							}}
+							onClick={() => {
+								setPageSettings("callForDownload", true);
+							}}
+						>
+							Set & Download
+						</Button>
+					</div>
 				</div>
-			</div>
+			</Paper>
 		</Popover>
 	);
 };

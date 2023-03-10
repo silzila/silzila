@@ -51,7 +51,7 @@
 
 .screenSettingsMenuItems{
 display:flex; 
-column-gap: 5px;
+column-gap: 10px;
 font-size: 12px;
 }
 
