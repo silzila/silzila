@@ -45,7 +45,7 @@
 Silzila requires Java 17
 
 ### for Dashboard Developers
-Coming soon... for a sinle executable Java .jar file
+Coming soon... for a single executable Java .jar file
 
 ### for Code Contributiors
 Clone the repo and open in VS Code Editor. 

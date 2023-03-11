@@ -118,7 +118,7 @@ const IndividualTile = ({
 		tabId: number,
 		nextTileId: number
 	) {
-		tileState.tileList[tabId].map((tileKey: any) => {
+		tileState.tileList[tabId].forEach((tileKey: any) => {
 			console.log(tileKey);
 			if (tileState.tiles[tileKey].tileName === newName) {
 				count = count + 1;

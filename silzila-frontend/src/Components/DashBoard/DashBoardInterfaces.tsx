@@ -6,10 +6,12 @@ export interface DashBoardProps {
 	//props
 	showListofTileMenu: boolean;
 	dashboardResizeColumn: boolean;
+
 	//state
 	tabState: TabStateProps;
 	tabTileProps: TabTileStateProps;
 	tileState: TileStateProps;
+	pageSettings: any;
 
 	// Dispatch
 	toggleGraphSize: (tileKey: number, graphSize: boolean) => void;
@@ -23,6 +25,9 @@ export interface DashBoardProps {
 		tabId: number,
 		propIndex: number
 	) => void;
+	setShowListofTileMenu: (value: boolean) => void;
+	setDashboardResizeColumn: (value: boolean) => void;
+	resetPageSettings: () => void; //gridSize{ x: null | number | string; y: null | number | string }
 }
 
 export type DashBoardStateProps = TabStateProps2 & TabTileStateProps2 & TileStateProps2;

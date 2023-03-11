@@ -62,7 +62,10 @@ const FunnelChart = ({
 					animation: chartArea ? false : true,
 					legend: {
 						type: "scroll",
-						show: chartControl.legendOptions?.showLegend,
+						show:
+							graphDimension.height > 130
+								? chartControl.legendOptions?.showLegend
+								: false,
 						itemHeight:
 							chartArea === "dashboard"
 								? chartControl.legendOptions?.symbolHeight / 2
@@ -87,7 +90,10 @@ const FunnelChart = ({
 						{
 							type: "funnel",
 							label: {
-								show: chartControl.labelOptions.showLabel,
+								show:
+									graphDimension.height > 140 && graphDimension.width > 150
+										? chartControl.labelOptions.showLabel
+										: false,
 								fontSize: chartControl.labelOptions.fontSize,
 								color: chartControl.labelOptions.labelColorManual
 									? chartControl.labelOptions.labelColor

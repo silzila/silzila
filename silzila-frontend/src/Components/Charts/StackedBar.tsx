@@ -43,7 +43,10 @@ const StackedBar = ({
 						focus: "series",
 					},
 					label: {
-						show: chartControl.labelOptions.showLabel,
+						show:
+							graphDimension.height > 140 && graphDimension.height > 150
+								? chartControl.labelOptions.showLabel
+								: false,
 						fontSize: chartControl.labelOptions.fontSize,
 						color: chartControl.labelOptions.labelColorManual
 							? chartControl.labelOptions.labelColor
@@ -88,7 +91,10 @@ const StackedBar = ({
 					animation: false,
 					legend: {
 						type: "scroll",
-						show: chartControl.legendOptions?.showLegend,
+						show:
+							graphDimension.height > 210
+								? chartControl.legendOptions?.showLegend
+								: false,
 						itemHeight: chartControl.legendOptions?.symbolHeight,
 						itemWidth: chartControl.legendOptions?.symbolWidth,
 						itemGap: chartControl.legendOptions?.itemGap,
@@ -117,7 +123,10 @@ const StackedBar = ({
 						},
 						type: "category",
 						position: chartControl.axisOptions.xAxis.position,
-						show: chartControl.axisOptions.xAxis.showLabel,
+						show:
+							graphDimension.height > 140 && graphDimension.height > 150
+								? chartControl.axisOptions.xAxis.showLabel
+								: false,
 
 						name: chartControl.axisOptions.xAxis.name,
 						nameLocation: chartControl.axisOptions.xAxis.nameLocation,
@@ -166,7 +175,10 @@ const StackedBar = ({
 
 						position: chartControl.axisOptions.yAxis.position,
 
-						show: chartControl.axisOptions.yAxis.showLabel,
+						show:
+							graphDimension.height > 140 && graphDimension.height > 150
+								? chartControl.axisOptions.yAxis.showLabel
+								: false,
 
 						name: chartControl.axisOptions.yAxis.name,
 						nameLocation: chartControl.axisOptions.yAxis.nameLocation,

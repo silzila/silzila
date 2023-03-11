@@ -3,7 +3,7 @@
 // 	- Enable/Disable tick
 // 	- Tick size & padding, label padding
 
-import { Switch, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";

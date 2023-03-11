@@ -19,8 +19,8 @@ const chartControl = {
 				colorScaleType: "Automatic",
 				min: 0,
 				max: 0,
-				minColor: "#ffffb3",
-				maxColor: "#b32d00",
+				minColor: "#2bb9bb",
+				maxColor: "#af99db",
 			},
 
 			legendOptions: {
@@ -164,19 +164,19 @@ const chartControl = {
 					currencySymbol: "₹",
 					enableRounding: "false",
 					roundingDigits: 1,
-					numberSeparator: "None",
+					numberSeparator: "Abbrev",
 				},
 
 				yAxisFormats: {
 					enableRounding: "false",
 					roundingDigits: 1,
-					numberSeparator: "None",
+					numberSeparator: "Abbrev",
 				},
 
 				xAxisFormats: {
 					enableRounding: "false",
 					roundingDigits: 1,
-					numberSeparator: "None",
+					numberSeparator: "Abbrev",
 				},
 			},
 
@@ -203,23 +203,24 @@ const chartControl = {
 
 				gaugeChartControls: {
 					isStepsAuto: true,
+
 					stepcolor: [
 						{
-							color: "#3fb1e3",
+							color: "#2bb9bb",
 							per: 0.4,
 							isColorAuto: true,
 							stepValue: 40,
 							value: 100,
 						},
 						{
-							color: "#6be6c1",
+							color: "#af99db",
 							per: 0.9,
 							isColorAuto: true,
 							stepValue: 40,
 							value: 100,
 						},
 						{
-							color: "#626c91",
+							color: "#5ab1ef",
 							per: 1,
 							isColorAuto: true,
 							stepValue: 20,
@@ -320,8 +321,8 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 							colorScaleType: "Automatic",
 							min: 0,
 							max: 0,
-							minColor: "#ffffb3",
-							maxColor: "#b32d00",
+							minColor: "#2bb9bb",
+							maxColor: "#af99db",
 						},
 
 						legendOptions: {
@@ -465,19 +466,19 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 								currencySymbol: "₹",
 								enableRounding: "false",
 								roundingDigits: 1,
-								numberSeparator: "None",
+								numberSeparator: "Abbrev",
 							},
 
 							yAxisFormats: {
 								enableRounding: "false",
 								roundingDigits: 1,
-								numberSeparator: "None",
+								numberSeparator: "Abbrev",
 							},
 
 							xAxisFormats: {
 								enableRounding: "false",
 								roundingDigits: 1,
-								numberSeparator: "None",
+								numberSeparator: "Abbrev",
 							},
 						},
 
@@ -504,23 +505,24 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 
 							gaugeChartControls: {
 								isStepsAuto: true,
+
 								stepcolor: [
 									{
-										color: "#3fb1e3",
+										color: "#2bb9bb",
 										per: 0.4,
 										isColorAuto: true,
 										stepValue: 40,
 										value: 100,
 									},
 									{
-										color: "#6be6c1",
+										color: "#af99db",
 										per: 0.9,
 										isColorAuto: true,
 										stepValue: 40,
 										value: 100,
 									},
 									{
-										color: "#626c91",
+										color: "#5ab1ef",
 										per: 1,
 										isColorAuto: true,
 										stepValue: 20,
@@ -622,8 +624,8 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 							colorScaleType: "Automatic",
 							min: 0,
 							max: 0,
-							minColor: "#ffffb3",
-							maxColor: "#b32d00",
+							minColor: "#2bb9bb",
+							maxColor: "#af99db",
 						},
 
 						legendOptions: {
@@ -767,19 +769,19 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 								currencySymbol: "₹",
 								enableRounding: "false",
 								roundingDigits: 1,
-								numberSeparator: "None",
+								numberSeparator: "Abbrev",
 							},
 
 							yAxisFormats: {
 								enableRounding: "false",
 								roundingDigits: 1,
-								numberSeparator: "None",
+								numberSeparator: "Abbrev",
 							},
 
 							xAxisFormats: {
 								enableRounding: "false",
 								roundingDigits: 1,
-								numberSeparator: "None",
+								numberSeparator: "Abbrev",
 							},
 						},
 
@@ -806,23 +808,24 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 
 							gaugeChartControls: {
 								isStepsAuto: true,
+
 								stepcolor: [
 									{
-										color: "#3fb1e3",
+										color: "#2bb9bb",
 										per: 0.4,
 										isColorAuto: true,
 										stepValue: 40,
 										value: 100,
 									},
 									{
-										color: "#6be6c1",
+										color: "#af99db",
 										per: 0.9,
 										isColorAuto: true,
 										stepValue: 40,
 										value: 100,
 									},
 									{
-										color: "#626c91",
+										color: "#5ab1ef",
 										per: 1,
 										isColorAuto: true,
 										stepValue: 20,
@@ -1083,39 +1086,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 
 		case "RESET_CHART_CONTROLS":
 			return chartControl;
-
-		case "UPDATE_CROSSTAB_STYLE_OPTIONS":
-			return update(state, {
-				properties: {
-					[action.payload.propKey]: {
-						crossTabStyleOptions: {
-							[action.payload.option]: { $set: action.payload.value },
-						},
-					},
-				},
-			});
-
-		case "UPDATE_CROSSTAB_HEADER_LABEL_OPTIONS":
-			return update(state, {
-				properties: {
-					[action.payload.propKey]: {
-						crossTabHeaderLabelOptions: {
-							[action.payload.option]: { $set: action.payload.value },
-						},
-					},
-				},
-			});
-
-		case "UPDATE_CROSSTAB_CELL_LABEL_OPTIONS":
-			return update(state, {
-				properties: {
-					[action.payload.propKey]: {
-						crossTabCellLabelOptions: {
-							[action.payload.option]: { $set: action.payload.value },
-						},
-					},
-				},
-			});
 
 		case "UPDATE_CROSSTAB_STYLE_OPTIONS":
 			return update(state, {

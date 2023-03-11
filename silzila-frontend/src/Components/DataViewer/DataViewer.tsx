@@ -16,7 +16,6 @@ import "./dataViewer.css";
 import { connect } from "react-redux";
 import TabRibbon from "../TabsAndTiles/TabRibbon";
 import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
-
 import TableRowsIcon from "@mui/icons-material/TableRows";
 import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
 import TileRibbon from "../TabsAndTiles/TileRibbon";
@@ -169,7 +168,13 @@ function DataViewer({
 									flexWrap: "wrap",
 								}}
 							>
-								<div className="dashboardMenuIconStyle">
+								<div
+									className={
+										showListofTileMenu
+											? "dashboardMenuIconStyleSelected"
+											: "dashboardMenuIconStyle"
+									}
+								>
 									<Tooltip title="List of Tiles">
 										<GridViewIcon
 											sx={{ fontSize: "20px", marginTop: "2px" }}
@@ -182,7 +187,13 @@ function DataViewer({
 										/>
 									</Tooltip>
 								</div>
-								<div className="dashboardMenuIconStyle">
+								<div
+									className={
+										dashboardResizeColumn
+											? "dashboardMenuIconStyleSelected"
+											: "dashboardMenuIconStyle"
+									}
+								>
 									<Tooltip title="Dashboard Size">
 										<AspectRatioRoundedIcon
 											sx={{ fontSize: "20px", marginTop: "2px" }}
@@ -207,6 +218,8 @@ function DataViewer({
 				<DashBoard
 					showListofTileMenu={showListofTileMenu}
 					dashboardResizeColumn={dashboardResizeColumn}
+					setShowListofTileMenu={setShowListofTileMenu}
+					setDashboardResizeColumn={setDashboardResizeColumn}
 				/>
 			) : (
 				<React.Fragment>

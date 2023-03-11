@@ -73,7 +73,10 @@ const RoseChart = ({
 						animation: chartArea ? false : true,
 						legend: {
 							type: "scroll",
-							show: chartControl.legendOptions?.showLegend,
+							show:
+								graphDimension.height > 175 && graphDimension.width > 265
+									? chartControl.legendOptions?.showLegend
+									: false,
 							itemHeight: chartControl.legendOptions?.symbolHeight,
 							itemWidth: chartControl.legendOptions?.symbolWidth,
 							itemGap: chartControl.legendOptions?.itemGap,
@@ -97,7 +100,10 @@ const RoseChart = ({
 								clockwise: chartControl.axisOptions.pieAxisOptions.clockWise,
 								label: {
 									position: chartControl.labelOptions.pieLabel.labelPosition,
-									show: chartControl.labelOptions.showLabel,
+									show:
+										graphDimension.height > 100 && graphDimension.width > 220
+											? chartControl.labelOptions.showLabel
+											: false,
 									fontSize: chartControl.labelOptions.fontSize,
 									color: chartControl.labelOptions.labelColor,
 									padding: [

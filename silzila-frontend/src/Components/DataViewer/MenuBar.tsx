@@ -19,8 +19,6 @@ import LaunchRoundedIcon from "@mui/icons-material/LaunchRounded";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PrivacyTipOutlinedIcon from "@mui/icons-material/PrivacyTipOutlined";
-import EditIcon from "../../assets/edit.png";
-import ScreenPresentIcon from "../../assets/slideshow.png";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
 	githubAddress,
@@ -29,7 +27,6 @@ import {
 } from "../ServerCall/EnvironmentVariables";
 import AboutPopover from "../CommonFunctions/PopOverComponents/AboutPopover";
 import PrivacyPopover from "../CommonFunctions/PopOverComponents/PrivacyPopover";
-import SilzilaLogo from "../../assets/silzila_crop.png";
 import { Dispatch } from "redux";
 import CSS from "csstype";
 import { MapStateProps, MenubarProps } from "./MenubarInterfaces";
@@ -39,18 +36,14 @@ import "./dataViewer.css";
 import { toggleDashModeInTab } from "../../redux/TabTile/TabActions";
 import {
 	resetAllStates,
-	setSelectedControlMenu,
 	toggleDashMode,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import { resetFlatFileState } from "../../redux/FlatFile/FlatFileStateActions";
 import silzilaNewLogo from "../../assets/new_silzilaLogo.svg";
-import Edit from "../../assets/edit.png";
-import Present from "../../assets/slideshow.png";
 import { AlertColor } from "@mui/material/Alert";
-import SwitchWithInput from "../ChartOptions/SwitchWithInput";
-import SlideshowIcon from "@mui/icons-material/Slideshow";
-import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
+import DownloadPagePopover from "../CommonFunctions/PopOverComponents/DownloadPagePopover";
+import { setPageSettings } from "../../redux/PageSettings/DownloadPageSettingsActions";
 const MenuBar = ({
 	// props
 	from,
@@ -71,6 +64,7 @@ const MenuBar = ({
 	resetAllStates,
 	resetUser,
 	resetFlatFileState,
+	setPageSettings,
 }: MenubarProps) => {
 	var showSaveWarning: boolean = false;
 
@@ -322,6 +316,12 @@ const MenuBar = ({
 		);
 	};
 
+	// const onDownload = () => {
+	// 	if (setCallForDownload) {
+	// 		setCallForDownload(true);
+	// 	}
+	// };
+
 	const FileMenu = () => {
 		return (
 			<Menu
@@ -359,6 +359,27 @@ const MenuBar = ({
 					}}
 				>
 					Save Playbook As
+				</MenuItem>
+
+				<MenuItem
+					sx={fileMenuStyle}
+					onClick={() => {
+						setOpenFileMenu(false);
+						setPageSettings("downloadType", "pdf");
+						setPageSettings("openPageSettingPopover", true);
+					}}
+				>
+					Download PDF
+				</MenuItem>
+				<MenuItem
+					sx={fileMenuStyle}
+					onClick={() => {
+						setOpenFileMenu(false);
+						setPageSettings("downloadType", "image");
+						setPageSettings("callForDownload", true);
+					}}
+				>
+					Download Image
 				</MenuItem>
 			</Menu>
 		);
@@ -753,6 +774,7 @@ const MenuBar = ({
 				}}
 			/>
 			{/* render Menu */}
+			{/* <DownloadPagePopover /> */}
 		</div>
 	);
 };
@@ -783,6 +805,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		resetAllStates: () => dispatch(resetAllStates()),
 		resetUser: () => dispatch(resetUser()),
 		resetFlatFileState: () => dispatch(resetFlatFileState()),
+		setPageSettings: (option: string, value: any) => dispatch(setPageSettings(option, value)),
 	};
 };
 

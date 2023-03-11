@@ -14,4 +14,5 @@ export interface DashBoardLayoutProps {
 	setCustomRMinHeight: (tabId: number, value: any) => void;
 	setCustomRMaxWidth: (tabId: number, value: any) => void;
 	setCustomRMaxHeight: (tabId: number, value: any) => void;
+	setDashboardResizeColumn: (value: boolean) => void;
 }

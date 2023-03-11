@@ -12,16 +12,25 @@ import "./DashBoard.css";
 import { DashBoardProps, DashBoardStateProps } from "./DashBoardInterfaces";
 import DashBoardLayoutControl from "./DashBoardLayoutControl";
 import GraphRNDDash from "./GraphRNDDash";
+import CloseIcon from "@mui/icons-material/Close";
+import { Checkbox } from "@mui/material";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { toPng } from "html-to-image";
+import { resetPageSettings } from "../../redux/PageSettings/DownloadPageSettingsActions";
 
 const DashBoard = ({
 	// props
 	showListofTileMenu,
 	dashboardResizeColumn,
+	setShowListofTileMenu,
+	setDashboardResizeColumn,
 
 	// state
 	tabState,
 	tabTileProps,
 	tileState,
+	pageSettings,
 
 	// dispatch
 	updateDashDetails,
@@ -29,6 +38,7 @@ const DashBoard = ({
 	setGridSize,
 	graphHighlight,
 	resetHighlight,
+	resetPageSettings,
 }: DashBoardProps) => {
 	var targetRef = useRef<any>();
 	const [mouseDownOutsideGraphs, setmouseDownOutsideGraphs] = useState<boolean>(false);
@@ -65,6 +75,45 @@ const DashBoard = ({
 		boxSizing: "border-box",
 		zIndex: 20,
 	});
+
+	useEffect(() => {
+		if (pageSettings.callForDownload) {
+			const input = document.getElementById("GraphAreaToDownload") as HTMLElement;
+			console.log(input);
+			const d = new Date();
+			const id = `${tabTileProps.selectedTabName}_${d.getDate()}${
+				d.getMonth() + 1
+			}${d.getFullYear()}:${d.getHours()}${d.getMinutes()}${d.getSeconds()}`;
+
+			if (pageSettings.downloadType === "pdf") {
+				html2canvas(input).then(canvas => {
+					const imageData = canvas.toDataURL("image/png");
+					console.log(imageData);
+
+					const pdf = new jsPDF(
+						pageSettings.SelectedOrientation,
+						pageSettings.selectedUnit,
+						pageSettings.selectedFormat
+					);
+					pdf.addImage(imageData, "JPEG", 25, 0, 400, 400);
+					pdf.save(`${id}`);
+					resetPageSettings();
+				});
+			} else {
+				toPng(input, { cacheBust: true })
+					.then((dataUrl: any) => {
+						const link = document.createElement("a");
+						link.download = `${id}`;
+						link.href = dataUrl;
+						link.click();
+						resetPageSettings();
+					})
+					.catch((err: any) => {
+						console.log(err);
+					});
+			}
+		}
+	}, [pageSettings.callForDownload]);
 
 	// Every time the dimensions or dashboard layout changes,
 	// recompute the space available for graph
@@ -205,7 +254,6 @@ const DashBoard = ({
 			}
 		}
 	};
-	console.log(dashStyle);
 
 	// List of tiles to be mapped on the side of dashboard,
 	// allowing users to choose graphs from these tiles
@@ -238,9 +286,10 @@ const DashBoard = ({
 						: "listOfGraphs"
 				}
 			>
-				<input
-					type="checkbox"
-					className="graphCheckBox"
+				<Checkbox
+					size="small"
+					key={index}
+					checked={checked}
 					onChange={() => {
 						updateDashDetails(
 							checked,
@@ -252,9 +301,21 @@ const DashBoard = ({
 						// toggleGraphSize(propKey, checked ? true : false);
 						toggleGraphSize(propIndex, checked ? true : false);
 					}}
-					checked={checked}
-					key={index}
+					style={{
+						transform: "scale(0.8)",
+						margin: "0px 4px",
+					}}
+					sx={{
+						"&.MuiCheckbox-root": {
+							padding: "0px",
+							margin: "0px",
+						},
+						"&.Mui-checked": {
+							color: "#2bb9bb",
+						},
+					}}
 				/>
+
 				<span className="graphName">{currentObj.tileName}</span>
 			</div>
 		);
@@ -314,17 +375,34 @@ const DashBoard = ({
 			}}
 		>
 			<div className="dashboardOuter" ref={targetRef}>
-				<div className="dashboardArea" style={dashStyle}>
+				<div
+					className="dashboardArea"
+					id="GraphAreaToDownload"
+					style={
+						pageSettings.callForDownload
+							? {
+									...dashStyle,
+									background: "none",
+									backgroundColor: "white",
+									borderTop: "2px solid rgba(224,224,224,1)",
+							  }
+							: dashStyle
+					}
+				>
 					{tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.length > 0 ? (
 						renderGraphs()
 					) : (
 						<div
+							id="GraphAreaToDownload"
 							style={{
 								height: "100%",
 								display: "flex",
 								alignItems: "center",
 								justifyContent: "center",
 								color: "#999999",
+								borderTop: pageSettings.callForDownload
+									? "2px solid rgba(224,224,224,1)"
+									: "0px",
 							}}
 						>
 							<pre style={{ fontFamily: "Monaco", fontSize: "16px" }}>
@@ -340,7 +418,17 @@ const DashBoard = ({
 					{showListofTileMenu ? (
 						<div className="dashBoardSideBar">
 							<div className="tileListContainer">
-								<div className="axisTitle">List of Tiles</div>
+								<div className="axisTitle">
+									List of Tiles
+									<CloseIcon
+										onClick={() => setShowListofTileMenu(false)}
+										sx={{
+											fontSize: "16px",
+											float: "right",
+											marginRight: "2px",
+										}}
+									/>
+								</div>
 								{tileList}
 							</div>
 						</div>
@@ -348,7 +436,9 @@ const DashBoard = ({
 						<>
 							{dashboardResizeColumn ? (
 								<div className="dashBoardSideBar">
-									<DashBoardLayoutControl />
+									<DashBoardLayoutControl
+										setDashboardResizeColumn={setDashboardResizeColumn}
+									/>
 								</div>
 							) : null}
 						</>
@@ -359,11 +449,12 @@ const DashBoard = ({
 	);
 };
 
-const mapStateToProps = (state: DashBoardStateProps, ownProps: any) => {
+const mapStateToProps = (state: DashBoardStateProps & any, ownProps: any) => {
 	return {
 		tabState: state.tabState,
 		tabTileProps: state.tabTileProps,
 		tileState: state.tileState,
+		pageSettings: state.pageSettings,
 	};
 };
 
@@ -384,6 +475,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		// 	dispatch(updateGraphHighlight(tabId, propKey, highlight)),
 		// resetHighlight: (tabId: number) => dispatch(resetGraphHighlight(tabId)),
 		setGridSize: (gridSize: any) => dispatch(setDashGridSize(gridSize)), //gridSize{ x: null | number | string; y: null | number | string }
+		resetPageSettings: () => dispatch(resetPageSettings()), //gridSize{ x: null | number | string; y: null | number | string }
 	};
 };
 export default connect(mapStateToProps, mapDispatchToProps)(DashBoard);
