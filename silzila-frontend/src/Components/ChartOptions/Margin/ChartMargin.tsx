@@ -168,6 +168,7 @@ const ChartMargin = ({
 				);
 			case "multibar":
 			case "stackedBar":
+			case "stackedArea":
 			case "line":
 			case "area":
 			case "scatterPlot":

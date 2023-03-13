@@ -17,7 +17,7 @@ public class FilterQueryMysql {
          * ************************************************
          */
         String query = "";
-        String fromClause = " FROM " + table.getSchema() + "." + table.getTable() + " ";
+        String fromClause = " FROM " + table.getDatabase() + "." + table.getTable() + " ";
 
         if (List.of("TEXT", "BOOLEAN").contains(req.getDataType().name())) {
             query = "SELECT DISTINCT " + req.getFieldName() + fromClause + "ORDER BY 1";

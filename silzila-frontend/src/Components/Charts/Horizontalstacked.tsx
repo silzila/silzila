@@ -45,7 +45,10 @@ const Horizontalstacked = ({
 						focus: "series",
 					},
 					label: {
-						show: chartControl.labelOptions.showLabel,
+						show:
+							graphDimension.height > 140 && graphDimension.height > 150
+								? chartControl.labelOptions.showLabel
+								: false,
 						fontSize: chartControl.labelOptions.fontSize,
 						color: chartControl.labelOptions.labelColorManual
 							? chartControl.labelOptions.labelColor
@@ -129,7 +132,10 @@ const Horizontalstacked = ({
 							: null,
 
 						position: chartControl.axisOptions.xAxis.position,
-						show: chartControl.axisOptions.xAxis.showLabel,
+						show:
+							graphDimension.height > 140 && graphDimension.height > 150
+								? chartControl.axisOptions.xAxis.showLabel
+								: false,
 
 						name: chartControl.axisOptions.xAxis.name,
 						nameLocation: chartControl.axisOptions.xAxis.nameLocation,
@@ -179,7 +185,10 @@ const Horizontalstacked = ({
 
 						position: chartControl.axisOptions.yAxis.position,
 
-						show: chartControl.axisOptions.yAxis.showLabel,
+						show:
+							graphDimension.height > 140 && graphDimension.height > 150
+								? chartControl.axisOptions.yAxis.showLabel
+								: false,
 
 						name: chartControl.axisOptions.yAxis.name,
 						nameLocation: chartControl.axisOptions.yAxis.nameLocation,

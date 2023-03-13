@@ -87,8 +87,25 @@ const StackedAreaChart = ({
 					color: chartThemes[0].colors,
 					backgroundColor: chartThemes[0].background,
 					animation: chartArea ? false : true,
-					legend: {},
-					tooltip: {},
+					legend: {
+						show:
+							graphDimension.height > 210
+								? chartControl.legendOptions?.showLegend
+								: false,
+						left: chartControl.legendOptions?.position?.left,
+						top: chartControl.legendOptions?.position?.top,
+						orient: chartControl.legendOptions?.orientation,
+						itemHeight: chartControl.legendOptions?.symbolHeight,
+						itemWidth: chartControl.legendOptions?.symbolWidth,
+						itemGap: chartControl.legendOptions?.itemGap,
+					},
+					tooltip: { show: chartControl.mouseOver.enable },
+					grid: {
+						left: chartControl.chartMargin.left + "%",
+						right: chartControl.chartMargin.right + "%",
+						top: chartControl.chartMargin.top + "%",
+						bottom: chartControl.chartMargin.bottom + "%",
+					},
 					dataset: {
 						dimensions: Object.keys(chartData[0]),
 						source: chartData,

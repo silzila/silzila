@@ -44,18 +44,5 @@ export interface MenubarProps {
 	toggleDashMode: (dashMode: string) => void;
 	toggleDashModeInTab: (tabId: number, dashMode: string) => void;
 	resetFlatFileState: () => void;
-	setCallForDownload?: (value: boolean) => void;
-	//for download page option
-	showCard: boolean;
-	orientation: any;
-	unit: any;
-	pageSize: any;
-	height: any;
-	width: any;
-	setShowCard: (value: boolean) => void;
-	setOrientation: (value: any) => void;
-	setUnit: (value: any) => void;
-	setPageSize: (value: any) => void;
-	setHeight: (value: any) => void;
-	setWidth: (value: any) => void;
+	setPageSettings: (option: string, value: any) => void;
 }

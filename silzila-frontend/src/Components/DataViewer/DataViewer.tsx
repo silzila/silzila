@@ -16,7 +16,6 @@ import "./dataViewer.css";
 import { connect } from "react-redux";
 import TabRibbon from "../TabsAndTiles/TabRibbon";
 import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
-
 import TableRowsIcon from "@mui/icons-material/TableRows";
 import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
 import TileRibbon from "../TabsAndTiles/TileRibbon";
@@ -63,14 +62,6 @@ function DataViewer({
 }: DataViewerProps) {
 	const [showListofTileMenu, setShowListofTileMenu] = useState<boolean>(true);
 	const [dashboardResizeColumn, setDashboardResizeColumn] = useState<boolean>(false);
-
-	const [callForDownload, setCallForDownload] = useState<boolean>(false);
-	const [showCard, setShowCard] = useState<boolean>(false);
-	const [orientation, setOrientation] = useState<any>("portrait");
-	const [unit, setUnit] = useState<any>("px");
-	const [pageSize, setPageSize] = useState<any>("a4");
-	const [height, setHeight] = useState<number>(400);
-	const [width, setWidth] = useState<number>(400);
 
 	// Whether to show table at the bottom of page or not
 	const handleTableDisplayToggle = () => {
@@ -148,22 +139,7 @@ function DataViewer({
 
 	return (
 		<div className="dataViewer">
-			<MenuBar
-				from="dataViewer"
-				setCallForDownload={setCallForDownload}
-				showCard={showCard}
-				setShowCard={setShowCard}
-				orientation={orientation}
-				unit={unit}
-				pageSize={pageSize}
-				height={height}
-				width={width}
-				setOrientation={setOrientation}
-				setUnit={setUnit}
-				setPageSize={setPageSize}
-				setHeight={setHeight}
-				setWidth={setWidth}
-			/>
+			<MenuBar from="dataViewer" />
 			<div className="tabArea">
 				<TabRibbon />
 				{!tabTileProps.showDash ? (
@@ -244,31 +220,12 @@ function DataViewer({
 					dashboardResizeColumn={dashboardResizeColumn}
 					setShowListofTileMenu={setShowListofTileMenu}
 					setDashboardResizeColumn={setDashboardResizeColumn}
-					setCallForDownload={setCallForDownload}
-					callForDownload={callForDownload}
-					orientation={orientation}
-					unit={unit}
-					pageSize={pageSize}
-					height={height}
-					width={width}
 				/>
 			) : (
 				<React.Fragment>
 					<DataViewerMiddle
 						tabId={tabTileProps.selectedTabId}
 						tileId={tabTileProps.selectedTileId}
-						setCallForDownload={setCallForDownload}
-						callForDownload={callForDownload}
-						orientation={orientation}
-						unit={unit}
-						pageSize={pageSize}
-						height={height}
-						width={width}
-						setOrientation={setOrientation}
-						setUnit={setUnit}
-						setPageSize={setPageSize}
-						setHeight={setHeight}
-						setWidth={setWidth}
 					/>
 
 					{tabTileProps.showDataViewerBottom ? <DataViewerBottom /> : null}

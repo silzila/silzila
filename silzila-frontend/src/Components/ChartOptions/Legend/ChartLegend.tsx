@@ -39,7 +39,10 @@ const ChartLegend = ({
 			: chartControls.properties[propKey].legendOptions.orientation;
 
 	const setOrient = (item: string) => {
-		if (chartProperties.properties[propKey].chartType === "calendar") {
+		if (
+			chartProperties.properties[propKey].chartType === "calendar" ||
+			chartProperties.properties[propKey].chartType === "heatmap"
+		) {
 			updateCalendarStyleOptions(propKey, "orientation", item);
 		} else {
 			updateLegendOption(propKey, "orientation", item);
@@ -145,7 +148,8 @@ const ChartLegend = ({
 							</Select>
 						</FormControl>
 					) : null}
-					{chartProperties.properties[propKey].chartType === "calendar" ? (
+					{chartProperties.properties[propKey].chartType === "calendar" ||
+					chartProperties.properties[propKey].chartType === "heatmap" ? (
 						<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
 							<label
 								htmlFor="enableDisable"
@@ -172,7 +176,8 @@ const ChartLegend = ({
 					<div className="optionDescription">ORIENTATION:</div>
 					<div className="radioButtons">{renderOrientation()}</div>
 					<div className="optionDescription">RESIZE:</div>
-					{chartProperties.properties[propKey].chartType === "calendar" ? (
+					{chartProperties.properties[propKey].chartType === "calendar" ||
+					chartProperties.properties[propKey].chartType === "heatmap" ? (
 						<>
 							{chartControls.properties[propKey].calendarStyleOptions.pieceWise ? (
 								<>
@@ -203,7 +208,8 @@ const ChartLegend = ({
 							/>
 						</>
 					)}
-					{chartProperties.properties[propKey].chartType === "calendar" ? (
+					{chartProperties.properties[propKey].chartType === "calendar" ||
+					chartProperties.properties[propKey].chartType === "heatmap" ? (
 						<>
 							<div className="optionDescription">Width</div>
 							<SliderWithInput
