@@ -19,7 +19,7 @@
 /* ========================================================================================== */
 /* Menu items styling */
 .menuHome {
-	
+
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -29,27 +29,28 @@
 	/* padding-right: 12px; */
 	/* margin:8px */
 
-	
-	
+
+
 }
 
-.accountIcon{
+.accountIcon {
 	display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 2rem;
-		cursor: pointer;
-		margin-right: 16px;
-		
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	cursor: pointer;
+	margin-right: 16px;
+
 }
 
-.menuHomeIcon{
-	
-	height:80%;
+.menuHomeIcon {
+
+	height: 80%;
 	width: 2.5rem;
-	padding:4px 4px 4px 0px;
+	padding: 4px 4px 4px 0px;
 	margin: 0 0 6px 2px;
 }
+
 /* .menuHome:hover {
 	background-color: rgb(238, 238, 238);
 } */
@@ -58,6 +59,7 @@
 	flex: 1;
 	display: flex;
 }
+
 .menuItem {
 	border-radius: 2px;
 	cursor: pointer;
@@ -65,10 +67,12 @@
 	line-height: 2rem;
 	padding: 0 8px;
 }
+
 .menuItem:hover {
 	transition: 0.2s;
 	background-color: rgb(238, 238, 238);
 }
+
 .playbookName {
 	flex: 2;
 	display: flex;
@@ -77,6 +81,7 @@
 	font-weight: 600;
 	color: #666;
 }
+
 .userInfo {
 	margin-right: 7px;
 	flex: 1;
@@ -95,11 +100,12 @@
 .tabArea {
 	display: flex;
 	background-color: white;
-	border-bottom: 2px solid rgba(224,224,224,1);
-	height:2.5rem;
+	border-bottom: 2px solid rgba(224, 224, 224, 1);
+	height: 2.5rem;
 	/* background-color: rgb(238, 238, 238); */
-	padding-left: 6px ;
+	padding-left: 6px;
 }
+
 .tabItems {
 	flex: 1;
 	height: 1.75rem;
@@ -114,7 +120,7 @@
 /* ========================================================================================== */
 /* TileRibbon Styling */
 .tilearea {
-    width: 100%;
+	width: 100%;
 	/* background-color: rgb(238, 238, 238); */
 	display: flex;
 
@@ -123,16 +129,17 @@
 	height: 2.7rem;
 	padding: 4px 0 0 8px;
 }
+
 .tileItems {
 	display: flex;
 	text-align: left;
 	flex: 1;
 	font-size: 12px;
 	padding: 4px 0 0 0;
-		height: 1.8rem
-	/* padding-left: 0.5rem; */
-	
-	
+	height: 1.8rem
+		/* padding-left: 0.5rem; */
+
+
 }
 
 .showTableColumns {
@@ -147,7 +154,7 @@
 }
 
 .showTableColumns:hover {
-	background-color: rgb(211, 211, 211);
+	border: 1px solid rgba(224, 224, 224, 1)
 }
 
 .tableDisplayToggle {
@@ -158,16 +165,19 @@
 	width: 1.5rem;
 	margin: 0 16px 5px 2rem;
 }
+
 .tableDisplayToggle:hover {
-	border: 1px solid rgba(224,224,224,1)
+	border: 1px solid rgba(224, 224, 224, 1)
 }
-.dashboardMenuIconStyle{
-	color:rgb(108, 108, 108);
+
+.dashboardMenuIconStyle {
+	color: rgb(108, 108, 108);
 	border: 2px solid white;
-	width:2.5rem;
-	height:1.75rem;
+	width: 2.5rem;
+	height: 1.75rem;
 	margin-bottom: 5px;
 }
+
 .dashboardMenuIconStyleSelected {
 	color: rgb(108, 108, 108);
 	border: 2px solid rgba(224, 224, 224, 1);
@@ -176,6 +186,6 @@
 	margin-bottom: 5px;
 }
 
-.dashboardMenuIconStyle:hover{
-	border:2px solid rgba(224,224,224,1)
+.dashboardMenuIconStyle:hover {
+	border: 2px solid rgba(224, 224, 224, 1)
 }

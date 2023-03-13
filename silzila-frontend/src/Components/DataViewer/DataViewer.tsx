@@ -267,7 +267,7 @@ function DataViewer({
 									) : (
 										<Tooltip title="Show Column Headers only">
 											<TableRowsIcon
-												style={{ fontSize: "20px", color: "#666" }}
+												style={{ fontSize: "20px", color: "#858585" }}
 												onClick={() => handleColumnsOnlyDisplay(true)}
 											/>
 										</Tooltip>
@@ -281,7 +281,7 @@ function DataViewer({
 										<KeyboardArrowUpIcon
 											style={{
 												fontSize: "20px",
-												color: "#383837",
+												color: "#858585",
 											}}
 										/>
 									</Tooltip>

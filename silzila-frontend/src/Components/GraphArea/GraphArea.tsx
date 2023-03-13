@@ -567,8 +567,8 @@ const GraphArea = ({
 		var graphHeight = graphDimension2.height;
 		var graphWidth = graphDimension2.width;
 
-		const pageHeight = paperHeight - pageSettings.top_margin;
-		const pageWidth = paperWidth - pageSettings.right_margin;
+		const pageHeight = paperHeight - (pageSettings.top_margin + pageSettings.bottom_margin);
+		const pageWidth = paperWidth - (pageSettings.right_margin + pageSettings.left_margin);
 		var heightRatio = pageHeight / graphHeight;
 		var widthRatio = pageWidth / graphWidth;
 
@@ -768,6 +768,19 @@ const GraphArea = ({
 			>
 				<Button
 					sx={{ ...popoverButtonStyle }}
+					value="Full Screen"
+					onClick={() => {
+						setFullScreen(true);
+						setOpen(false);
+					}}
+				>
+					<div className="screenSettingsMenuItems">
+						<OpenInFullIcon sx={{ fontSize: "16px" }} />
+						Show full screen
+					</div>
+				</Button>
+				<Button
+					sx={{ ...popoverButtonStyle }}
 					style={
 						tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(propKey)
 							? {}
@@ -824,20 +837,13 @@ const GraphArea = ({
 						</div>
 					</div>
 				</Button>
-
-				<Button
-					sx={{ ...popoverButtonStyle }}
-					value="Full Screen"
-					onClick={() => {
-						setFullScreen(true);
-						setOpen(false);
+				<hr
+					style={{
+						border: "1px solid rgba(224,224,224,1)",
+						margin: "auto 5px",
+						borderRadius: "5px",
 					}}
-				>
-					<div className="screenSettingsMenuItems">
-						<OpenInFullIcon sx={{ fontSize: "16px" }} />
-						Show full screen
-					</div>
-				</Button>
+				></hr>
 				<Button
 					sx={{ ...popoverButtonStyle }}
 					value="View SQL"

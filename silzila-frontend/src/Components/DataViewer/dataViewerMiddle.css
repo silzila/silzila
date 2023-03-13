@@ -7,6 +7,7 @@
 	/* margin-bottom: 0.25rem; */
 	/* border-top: 1px solid rgb(225, 225, 225); */
 }
+
 .centerColumn {
 	flex: 1;
 	overflow: hidden;
@@ -15,6 +16,7 @@
 	transition: all 0.2s cubic-bezier(0, 1.26, 0.8, 1.28);
 	margin: 0 0.5rem;
 }
+
 .graphTitleAndEdit {
 	width: 100%;
 	margin: 0;
@@ -26,6 +28,7 @@
 	line-height: 3rem;
 	background-color: #fff;
 }
+
 .graphTitle {
 	width: 100%;
 	margin: 0;
@@ -36,6 +39,7 @@
 	text-align: center;
 	font-weight: 600;
 }
+
 .graphFullScreen {
 	display: flex;
 	flex-direction: column;
@@ -49,10 +53,10 @@
 	z-index: 2000;
 }
 
-.screenSettingsMenuItems{
-display:flex; 
-column-gap: 5px;
-font-size: 12px;
+.screenSettingsMenuItems {
+	display: flex;
+	column-gap: 10px;
+	font-size: 12px;
 }
 
 .graphAreaIcons {
@@ -62,6 +66,7 @@ font-size: 12px;
 	padding: 0 5px;
 	color: #b6b6b6;
 }
+
 .graphAreaIcons:hover {
 	cursor: pointer;
 	color: #404040;
@@ -89,35 +94,38 @@ font-size: 12px;
 	border-bottom: 1px solid #d3d3d3;
 	font-family: "Segoe UI";
 }
+
 .graphContainer {
 	flex: 1;
 	overflow: auto;
 	background-color: #fff;
 	justify-content: center;
 }
+
 .syntaxHighlight {
 	text-align: left;
 }
 
 .controlsIcon {
-	color:#666;
+	color: #666;
 	cursor: pointer;
 	border: 2px solid white;
 
 }
-.controlsIcon:hover{
+
+.controlsIcon:hover {
 	border: 2px solid rgba(224, 224, 224, 1);
-		background-color: white;
-		height: 100%;
+	background-color: white;
+	height: 100%;
 }
 
 .selectedIcon {
 
-border:2px solid rgba(224,224,224,1);
- background-color: white; 
- height: 100%;
+	border: 2px solid rgba(224, 224, 224, 1);
+	background-color: white;
+	height: 100%;
 
- } 
+}
 
 .rightColumn {
 	padding: 0%;
@@ -126,6 +134,7 @@ border:2px solid rgba(224,224,224,1);
 	display: flex;
 	flex-direction: row;
 }
+
 .rightColumnMenu {
 	height: 100%;
 	width: 3rem;
@@ -135,6 +144,7 @@ border:2px solid rgba(224,224,224,1);
 	/* border-bottom: 1px solid rgb(211, 211, 211);
 	border-top: 1px solid rgb(211, 211, 211); */
 }
+
 .rightColumnControlsAndFilters {
 	flex: 1;
 	height: 100%;
@@ -145,8 +155,8 @@ border:2px solid rgba(224,224,224,1);
 	display: flex;
 	flex-direction: column;
 	padding: 0 8px 0 8px;
-	border-left: 2px solid rgba(224,224,224,1);
+	border-left: 2px solid rgba(224, 224, 224, 1);
 	/* border-top: 2px solid rgba(224, 224, 224, 1); */
 	/* border-collapse: collapse; */
-	
+
 }
