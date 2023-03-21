@@ -1,16 +1,13 @@
 package org.silzila.app.service;
 
-import org.silzila.app.dto.DatasetDTO;
 import org.silzila.app.dto.FileDataDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.ExpectationFailedException;
 import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.helper.ConvertSparkDataType;
 import org.silzila.app.model.FileData;
-import org.silzila.app.payload.request.FileDataUpdateRequest;
 import org.silzila.app.payload.request.FileUploadRevisedColumnInfo;
 import org.silzila.app.payload.request.FileUploadRevisedInfoRequest;
-import org.silzila.app.payload.request.Query;
 import org.silzila.app.payload.request.Table;
 import org.silzila.app.payload.response.FileUploadColumnInfo;
 import org.silzila.app.payload.response.FileUploadResponse;
