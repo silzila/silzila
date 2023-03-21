@@ -77,10 +77,10 @@ const DataConnection = (props: DataConnectionProps) => {
 
 	//=============== set Mode ===============================
 	// TODO:need to specify types
-	const handleMode = (e: any) => {
-		if (e.target.value === "New") {
+	const handleMode = (mode: string) => {
+		if (mode === "New") {
 			setRegOrUpdate("Register");
-		} else if (e.target.value === "Edit") {
+		} else if (mode === "Edit") {
 			setAccount({ ...account, password: "" });
 			setRegOrUpdate("Update");
 		}
@@ -159,6 +159,7 @@ const DataConnection = (props: DataConnectionProps) => {
 				});
 			} else {
 				setOpenAlert(true);
+				setSeverity("success");
 				setTestMessage("Data Connection successful");
 				getInformation();
 				setTimeout(() => {
@@ -245,15 +246,15 @@ const DataConnection = (props: DataConnectionProps) => {
 			<div className="containersHead">
 				<div className="containerTitle">
 					<StorageOutlinedIcon style={{ marginRight: "10px", color: " #2bb9bb" }} />
-					Data Connections
+					DB Connections
 				</div>
 				<div
 					className="containerButton"
 					onClick={(e: any) => {
-						handleMode(e);
+						handleMode("New");
 						showAndHideForm();
 					}}
-					title="Create New DataConnection"
+					title="Create New DB Connection"
 				>
 					<AddIcon />
 				</div>
