@@ -46,3 +46,4 @@ secrets.yml
 .sts4-cache
 node_modules/
 silzila-frontend/package-lock.json
+src/main/resources/static
