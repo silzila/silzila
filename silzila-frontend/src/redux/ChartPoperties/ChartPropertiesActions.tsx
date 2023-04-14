@@ -31,14 +31,14 @@ export const addProp = (
 		};
 	}
 };
-export const duplicateChartProperty = (propKey: string | number, chartProperty: any) => {
+export const duplicateChartProperty = (propKey: string, chartProperty: any) => {
 	return { type: "DUPLICATE_CHART_PROP", payload: { propKey, chartProperty } };
 };
 
 export const removeChartProperties = (
 	tabId: string | number,
 	tileId: string | number,
-	propKey: string | number,
+	propKey: string,
 	tileIndex: string | number
 ) => {
 	return { type: "DELETE_PROP", payload: { tabId, tileId, propKey, tileIndex } };
@@ -48,18 +48,18 @@ export const removeMultipleChartProperties = (tabId: string | number) => {
 	return { type: "DELETE_PROPS_OF_TAB", payload: tabId };
 };
 
-export const setSelectedDsInTile = (propKey: string | number, selectedDs: any) => {
+export const setSelectedDsInTile = (propKey: string, selectedDs: any) => {
 	return { type: "SET_SELECTED_DS_IN_TILE", payload: { propKey, selectedDs } };
 };
 
-export const setSelectedTableInTile = (propKey: string | number, selectedTable: any) => {
+export const setSelectedTableInTile = (propKey: string, selectedTable: any) => {
 	return { type: "SET_SELECTED_TABLE_IN_TILE", payload: { propKey, selectedTable } };
 };
 
 // Actions From Chart Axes Dustbin
 
 export const updateDropZoneExpandCollapsePropLeft = (
-	propKey: string | number,
+	propKey: string,
 	bIndex: string | number,
 	isCollapsed: any
 ) => {
@@ -67,7 +67,7 @@ export const updateDropZoneExpandCollapsePropLeft = (
 };
 
 export const updateFilterAnyContidionMatchPropLeft = (
-	propKey: string | number,
+	propKey: string,
 	bIndex: number | string,
 	any_condition_match: any
 ) => {
@@ -78,7 +78,7 @@ export const updateFilterAnyContidionMatchPropLeft = (
 };
 
 export const updateIsAutoFilterEnabledPropLeft = (
-	propKey: string | number,
+	propKey: string,
 	bIndex: number | string,
 	is_auto_filter_enabled: any
 ) => {
@@ -88,15 +88,12 @@ export const updateIsAutoFilterEnabledPropLeft = (
 	};
 };
 
-export const clearDropZoneFieldsChartPropLeft = (
-	propKey: string | number,
-	bIndex: number | string
-) => {
+export const clearDropZoneFieldsChartPropLeft = (propKey: string, bIndex: number | string) => {
 	return { type: "CLEAR_DROPZONE_FIELDS", payload: { propKey, bIndex } };
 };
 
 export const updateChartPropLeft = (
-	propKey: number,
+	propKey: string,
 	bIndex: number,
 	item: any,
 	allowedNumbers: any
@@ -105,7 +102,7 @@ export const updateChartPropLeft = (
 };
 
 export const moveItemChartProp = (
-	propKey: number,
+	propKey: string,
 	fromBIndex: any,
 	fromUID: any,
 	item: any,
@@ -118,7 +115,7 @@ export const moveItemChartProp = (
 	};
 };
 
-export const deleteItemInChartProp = (propKey: number, binIndex: number, itemIndex: number) => {
+export const deleteItemInChartProp = (propKey: string, binIndex: number, itemIndex: number) => {
 	return {
 		type: "DELETE_ITEM_FROM_PROP",
 		payload: {
@@ -130,7 +127,7 @@ export const deleteItemInChartProp = (propKey: number, binIndex: number, itemInd
 };
 
 export const updateAxesQueryParam = (
-	propKey: number,
+	propKey: string,
 	binIndex: number,
 	itemIndex: number,
 	item: any
@@ -138,11 +135,11 @@ export const updateAxesQueryParam = (
 	return { type: "UPDATE_AXES_QUERY_PARAM", payload: { propKey, binIndex, itemIndex, item } };
 };
 
-export const toggleAxesEdited = (propKey: string | number, axesEdited: any) => {
+export const toggleAxesEdited = (propKey: string, axesEdited: any) => {
 	return { type: "TOGGLE_AXES_EDITED", payload: { propKey, axesEdited } };
 };
 
-export const toggleFilterRunState = (propKey: string | number, filterRunState: any) => {
+export const toggleFilterRunState = (propKey: string, filterRunState: any) => {
 	return { type: "TOGGLE_FILTER_RUN_STATE", payload: { propKey, filterRunState } };
 };
 
@@ -197,22 +194,18 @@ export const editChartPropItem = (action: any, details: any) => {
 	};
 };
 
-export const changeChartType = (propKey: string | number, chartType: string) => {
+export const changeChartType = (propKey: string, chartType: string) => {
 	return {
 		type: "CHANGE_CHART_TYPE",
 		payload: { propKey, chartType },
 	};
 };
 
-export const changeChartAxes = (propKey: string | number, newAxes: any) => {
+export const changeChartAxes = (propKey: string, newAxes: any) => {
 	return { type: "CHANGE_CHART_AXES", payload: { propKey, newAxes } };
 };
 
-export const changeChartTypeAndAxes = (
-	propKey: string | number,
-	chartType: string,
-	newAxes: any
-) => {
+export const changeChartTypeAndAxes = (propKey: string, chartType: string, newAxes: any) => {
 	return (dispatch: Dispatch<any>) => {
 		dispatch(toggleAxesEdited(propKey, true));
 		dispatch(changeChartAxes(propKey, newAxes));
@@ -220,28 +213,28 @@ export const changeChartTypeAndAxes = (
 	};
 };
 
-export const canReUseData = (propKey: string | number, reUseData: boolean | any) => {
+export const canReUseData = (propKey: string, reUseData: boolean | any) => {
 	return { type: "REUSE_DATA", payload: { propKey, reUseData } };
 };
 
-export const setChartTitle = (propKey: string | number, title: string) => {
+export const setChartTitle = (propKey: string, title: string) => {
 	return { type: "SET_CHART_TITLE", payload: { propKey, title } };
 };
 
-export const setGenerateTitle = (propKey: string | number, generateTitle: any) => {
+export const setGenerateTitle = (propKey: string, generateTitle: any) => {
 	return {
 		type: "SET_GENERATE_TITLE",
 		payload: { propKey, generateTitle },
 	};
 };
 
-export const setTitleAlignment = (propKey: string | number, align: string) => {
+export const setTitleAlignment = (propKey: string, align: string) => {
 	return {
 		type: "SET_TITLE_ALIGN",
 		payload: { propKey, align },
 	};
 };
-export const setTitleSize = (propKey: string | number, value: number) => {
+export const setTitleSize = (propKey: string, value: number) => {
 	return {
 		type: "SET_TITLE_SIZE",
 		payload: { propKey, value },
@@ -276,7 +269,7 @@ export const revertAxes = (
 // Chart Options (rightColumn)
 // ==============================================================
 
-export const changeChartOptionSelected = (propKey: string | number, chartOption: any) => {
+export const changeChartOptionSelected = (propKey: string, chartOption: any) => {
 	return {
 		type: "CHANGE_CHART_OPTION",
 		payload: { propKey, chartOption },
@@ -298,7 +291,7 @@ export const updateLeftFilterItem = (propKey: string, bIndex: number, item: any)
 	return { type: "UPDATE_LEFT_FILTER_ITEM", payload: { propKey, bIndex, item } };
 };
 export const updtateFilterExpandeCollapse = (
-	propKey: string | number,
+	propKey: string,
 	bIndex: number | string,
 	item: any
 ) => {

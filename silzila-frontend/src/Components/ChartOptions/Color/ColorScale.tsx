@@ -29,7 +29,7 @@ const ColorScale = ({
 	// dispatch
 	setColorScaleOption,
 }: ChartOptionsProps & {
-	setColorScaleOption: (option: string, value: any, propKey: string | number) => void;
+	setColorScaleOption: (option: string, value: any, propKey: string) => void;
 }) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
@@ -245,7 +245,7 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		setColorScaleOption: (option: string, value: any, propKey: string | number) =>
+		setColorScaleOption: (option: string, value: any, propKey: string) =>
 			dispatch(setColorScaleOption(option, value, propKey)),
 	};
 };

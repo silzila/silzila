@@ -8,7 +8,7 @@ import {
 } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 
 export interface ChartsReduxStateProps {
-	propKey: string | number;
+	propKey: string;
 	graphDimension?: any;
 	chartArea?: any;
 	graphTileSize?: number;

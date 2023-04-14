@@ -29,13 +29,9 @@ const ChartStyle = ({
 	updateCrossTabCellLabelOptions,
 	updateCrossTabStyleOptions,
 }: ChartOptionsProps & {
-	updateCrossTabHeaderLabelOptions: (
-		propKey: string | number,
-		option: string,
-		value: any
-	) => void;
-	updateCrossTabCellLabelOptions: (propKey: string | number, option: string, value: any) => void;
-	updateCrossTabStyleOptions: (propKey: string | number, option: string, value: any) => void;
+	updateCrossTabHeaderLabelOptions: (propKey: string, option: string, value: any) => void;
+	updateCrossTabCellLabelOptions: (propKey: string, option: string, value: any) => void;
+	updateCrossTabStyleOptions: (propKey: string, option: string, value: any) => void;
 }) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
@@ -213,11 +209,11 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateCrossTabHeaderLabelOptions: (propKey: string | number, option: string, value: any) =>
+		updateCrossTabHeaderLabelOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateCrossTabHeaderLabelOptions(propKey, option, value)),
-		updateCrossTabCellLabelOptions: (propKey: string | number, option: string, value: any) =>
+		updateCrossTabCellLabelOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateCrossTabCellLabelOptions(propKey, option, value)),
-		updateCrossTabStyleOptions: (propKey: string | number, option: string, value: any) =>
+		updateCrossTabStyleOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateCrossTabStyleOptions(propKey, option, value)),
 	};
 };

@@ -27,11 +27,11 @@ const modules = {
 	},
 };
 
-const dashboardModules= {
+const dashboardModules = {
 	clipboard: {
 		matchVisual: false,
 	},
-}
+};
 
 const TextEditor = ({
 	propKey,
@@ -48,7 +48,6 @@ const TextEditor = ({
 	useEffect(() => {
 		updateRichText(propKey, value);
 	}, [value]);
-
 
 	const placeHolderContent: any = () => {
 		return (
@@ -85,11 +84,11 @@ const TextEditor = ({
 					value={value}
 					style={{ height: "90%" }}
 					theme="snow"
-					placeholder="Content goes here...."					
+					placeholder="Content goes here...."
 				/>
 			) : (
 				<ReactQuill
-				modules={dashboardModules}
+					modules={dashboardModules}
 					readOnly={true}
 					value={value}
 					theme="bubble"
@@ -122,8 +121,7 @@ const mapStateToProps = (state: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateRichText: (propKey: number | string, value: any) =>
-			dispatch(updateRichText(propKey, value)),
+		updateRichText: (propKey: string, value: any) => dispatch(updateRichText(propKey, value)),
 	};
 };
 

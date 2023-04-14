@@ -21,6 +21,7 @@ import gaugeChartIcon from "../../assets/new_gauge.svg";
 import heatMapIcon from "../../assets/new_heatMap.svg";
 import CrossTabIcon from "../../assets/new_crossTab.svg";
 import roseChartIcon from "../../assets/new_rose.svg";
+import simpleCard from "../../assets/simpleCard.svg";
 // import geoChartIcon from "../../assets/earth.svg";
 import stackedAreaChartIcon from "../../assets/new_areaStacked.svg";
 import calendarChartIcon from "../../assets/new_calendar.svg";
@@ -70,6 +71,7 @@ export const chartTypes = [
 	{ name: "boxPlot", icon: boxPlotIcon, value: "Box Plot Chart" },
 	{ name: "richText", icon: TextEditorIcon, value: "Rich Text" },
 	{ name: "sankey", icon: Sankey, value: "Sankey Chart" },
+	{ name: "simplecard", icon: simpleCard, value: "Simple Card" },
 ];
 
 const ChartTypes = ({
@@ -253,7 +255,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "funnel") {
+				if (newChart === "funnel" || newChart === "simplecard") {
 					//name: "Measure", allowedNumbers: 12,
 					keepOldData(propKey, false);
 
@@ -392,7 +394,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "funnel") {
+				if (newChart === "funnel" || newChart === "simplecard") {
 					//name: "Measure", allowedNumbers: 12,
 					keepOldData(propKey, false);
 
@@ -558,7 +560,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "funnel") {
+				if (newChart === "funnel" || newChart === "simplecard") {
 					//name: "Measure", allowedNumbers: 12,
 					keepOldData(propKey, false);
 
@@ -698,7 +700,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "funnel") {
+				if (newChart === "funnel" || newChart === "simplecard") {
 					keepOldData(propKey, false);
 					newChartAxes[1].fields = getFieldsToChartAllowedNumbers(
 						newChart,
@@ -747,7 +749,8 @@ const ChartTypes = ({
 
 				break;
 			case "funnel":
-				if (newChart === "funnel") {
+			case "simplecard":
+				if (newChart === "funnel" || newChart === "simplecard") {
 					return oldChartAxes;
 				}
 
@@ -893,7 +896,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "funnel") {
+				if (newChart === "funnel" || newChart === "simplecard") {
 					keepOldData(propKey, false);
 
 					return oldChartAxes;
@@ -1028,7 +1031,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "funnel") {
+				if (newChart === "funnel" || newChart === "simplecard") {
 					keepOldData(propKey, false);
 					if (oldChartAxes[0].fields.length > 0)
 						newChartAxes[0].fields = oldChartAxes[0].fields;
@@ -1173,7 +1176,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "funnel") {
+				if (newChart === "funnel" || newChart === "simplecard") {
 					keepOldData(propKey, false);
 					if (oldChartAxes[0].fields.length > 0)
 						newChartAxes[0].fields = oldChartAxes[0].fields;
@@ -1259,7 +1262,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "funnel" || newChart === "gauge") {
+				if (newChart === "funnel" || newChart === "simplecard" || newChart === "gauge") {
 					newChartAxes[0].fields = [];
 					newChartAxes[1].fields = [];
 					return newChartAxes;
@@ -1326,6 +1329,7 @@ const ChartTypes = ({
 							"treeMap",
 							"sankey",
 							"richText",
+							"simplecard",
 						].includes(chart.name)
 					) {
 						console.log(chart.name, " clicked");
@@ -1429,9 +1433,9 @@ const mapStateToProps = (state: any) => {
 };
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateChartTypeAndAxes: (propKey: number, chartType: string, newAxes: any) =>
+		updateChartTypeAndAxes: (propKey: string, chartType: string, newAxes: any) =>
 			dispatch(changeChartTypeAndAxes(propKey, chartType, newAxes)),
-		keepOldData: (propKey: number, reUseData: boolean) =>
+		keepOldData: (propKey: string, reUseData: boolean) =>
 			dispatch(canReUseData(propKey, reUseData)),
 		updateChartData: (propKey: string, chartData: string | any) =>
 			dispatch(updateChartData(propKey, chartData)),

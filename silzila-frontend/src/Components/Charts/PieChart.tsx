@@ -16,7 +16,7 @@ import {
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 
 interface PieChartProps {
-	updateChartMargins: (propKey: number | string, option: string, value: any) => void;
+	updateChartMargins: (propKey: string, option: string, value: any) => void;
 }
 const PieChart = ({
 	//props
@@ -32,6 +32,7 @@ const PieChart = ({
 	// dispatch
 	updateChartMargins,
 }: ChartsReduxStateProps & PieChartProps) => {
+	console.log(graphDimension);
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData: any[] =
 		chartControl.chartData && chartControl.chartData.length > 0 ? chartControl.chartData : [];
@@ -172,7 +173,7 @@ const mapStateToProps = (state: ChartsMapStateToProps) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateChartMargins: (propKey: number | string, option: string, value: any) =>
+		updateChartMargins: (propKey: string, option: string, value: any) =>
 			dispatch(updateChartMargins(propKey, option, value)),
 	};
 };
