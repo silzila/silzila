@@ -8,6 +8,7 @@ export interface ChartControlsProps {
 	areaOpacity: number;
 
 	colorScale: ChartConColorScale;
+	cardControls: CardControls;
 	legendOptions: ChartConLegendOptions;
 	chartMargin: ChartConChartMargin;
 	calendarStyleOptions: ChartConCalenderStyleOptions;
@@ -26,7 +27,7 @@ export interface ChartControlsProps {
 	};
 }
 export interface ChartControlProperties {
-	[key: number | string]: ChartControlsProps;
+	[key: string]: ChartControlsProps;
 }
 
 interface ChartConColorScale {
@@ -285,6 +286,17 @@ interface ChartConAxisMinMax {
 	minValue: number;
 	enableMax: boolean;
 	maxValue: number;
+}
+
+interface CardControls {
+	height: number;
+	width: number;
+	fontSize: number;
+	subtextFontSize: number;
+	isDragging: boolean;
+	mainTextPos: any;
+	subTextPos: any;
+	subText: string;
 }
 
 export interface ChartConAxisOptions {

@@ -182,33 +182,33 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 				},
 			});
 
-		// case "SET_GRAPH_BORDER_HIGHLIGHT":
-		// 	var copyOfDetails = state.tabs[action.payload.tabId].dashTilesDetails;
-		// 	var items = Object.keys(copyOfDetails);
+		case "SET_GRAPH_BORDER_HIGHLIGHT":
+			var copyOfDetails = state.tabs[action.payload.tabId].dashTilesDetails;
+			var items = Object.keys(copyOfDetails);
 
-		// 	items.map(item => {
-		// 		if (item === action.payload.propKey) {
-		// 			copyOfDetails[item].highlight = true;
-		// 		} else {
-		// 			copyOfDetails[item].highlight = false;
-		// 		}
-		// 	});
+			items.map(item => {
+				if (item === action.payload.propKey) {
+					copyOfDetails[item].highlight = true;
+				} else {
+					copyOfDetails[item].highlight = false;
+				}
+			});
 
-		// 	return update(state, {
-		// 		tabs: { [action.payload.tabId]: { dashTilesDetails: { $set: copyOfDetails } } },
-		// 	});
+			return update(state, {
+				tabs: { [action.payload.tabId]: { dashTilesDetails: { $set: copyOfDetails } } },
+			});
 
-		// case "RESET_GRAPH_BORDER_HIGHLIGHT":
-		// 	var copyOfDetails = state.tabs[action.payload.tabId].dashTilesDetails;
-		// 	var items = Object.keys(copyOfDetails);
+		case "RESET_GRAPH_BORDER_HIGHLIGHT":
+			var copyOfDetails: any = state.tabs[action.payload].dashTilesDetails;
+			var items = Object.keys(copyOfDetails);
 
-		// 	items.map(item => {
-		// 		copyOfDetails[item].highlight = false;
-		// 	});
+			items.map(item => {
+				copyOfDetails[item].highlight = false;
+			});
 
-		// 	return update(state, {
-		// 		tabs: { [action.payload.tabId]: { dashTilesDetails: { $set: copyOfDetails } } },
-		// 	});
+			return update(state, {
+				tabs: { [action.payload]: { dashTilesDetails: { $set: copyOfDetails } } },
+			});
 		case "SET_DASHLAYOUT":
 			return update(state, {
 				tabs: {

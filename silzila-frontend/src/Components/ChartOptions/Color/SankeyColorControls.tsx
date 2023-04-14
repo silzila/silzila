@@ -16,7 +16,7 @@ const SankeyColorControls = ({
 	// dispatch
 	updateSankeyStyleOptions,
 }: ChartOptionsProps & {
-	updateSankeyStyleOptions: (propKey: string | number, option: string, value: any) => void;
+	updateSankeyStyleOptions: (propKey: string, option: string, value: any) => void;
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	let chartData = chartControls.properties[propKey].chartData
@@ -159,7 +159,7 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateSankeyStyleOptions: (propKey: number | string, option: string, value: any) =>
+		updateSankeyStyleOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateSankeyStyleOptions(propKey, option, value)),
 	};
 };

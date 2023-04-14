@@ -22,9 +22,9 @@ import {
 import { ChartConLabelOptions } from "../../../redux/ChartPoperties/ChartControlsInterface";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 interface ChartLabelsProps {
-	updateLabelOption: (propKey: number | string, option: string, value: any) => void;
-	updateLabelPosition: (propKey: number | string, value: any) => void;
-	updateLabelPadding: (propKey: number | string, value: any) => void;
+	updateLabelOption: (propKey: string, option: string, value: any) => void;
+	updateLabelPosition: (propKey: string, value: any) => void;
+	updateLabelPadding: (propKey: string, value: any) => void;
 }
 
 const ChartLabels = ({
@@ -38,10 +38,7 @@ const ChartLabels = ({
 	updateLabelPosition,
 	updateLabelPadding,
 }: ChartOptionsProps & ChartLabelsProps) => {
-	var propKey: number = parseFloat(
-		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
-	);
-
+	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	console.log(chartControls.properties[propKey].labelOptions.fontSize);
 
 	const [isColorPopoverOpen, setColorPopOverOpen] = useState<boolean>(false);
@@ -260,12 +257,12 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateLabelOption: (propKey: number | string, option: string, value: any) =>
+		updateLabelOption: (propKey: string, option: string, value: any) =>
 			dispatch(updateLabelOption(propKey, option, value)),
 
-		updateLabelPosition: (propKey: number | string, value: any) =>
+		updateLabelPosition: (propKey: string, value: any) =>
 			dispatch(updateLabelPosition(propKey, value)),
-		updateLabelPadding: (propKey: number | string, value: any) =>
+		updateLabelPadding: (propKey: string, value: any) =>
 			dispatch(updateLabelPadding(propKey, value)),
 	};
 };

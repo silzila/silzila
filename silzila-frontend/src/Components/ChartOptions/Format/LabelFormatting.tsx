@@ -15,7 +15,7 @@ const LabelFormatting = ({
 	// dispatch
 	updateFormat,
 }: ChartOptionsProps & {
-	updateFormat: (propKey: string | number, formatType: any, option: string, value: any) => void;
+	updateFormat: (propKey: string, formatType: any, option: string, value: any) => void;
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	let formatObject: ChartConLabelFormates =
@@ -50,6 +50,7 @@ const LabelFormatting = ({
 
 			case "gauge":
 			case "funnel":
+			case "simplecard":
 				measures = chartAxes[1].fields;
 				break;
 
@@ -189,7 +190,7 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateFormat: (propKey: string | number, formatType: any, option: string, value: any) =>
+		updateFormat: (propKey: string, formatType: any, option: string, value: any) =>
 			dispatch(updateFormatOption(propKey, formatType, option, value)),
 	};
 };

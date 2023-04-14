@@ -1145,7 +1145,7 @@ const UserFilterCard = ({
 
 	return (
 		<div
-			ref={node => drag(drop(node))}
+			ref={(node: any) => drag(drop(node))}
 			className="UserFilterCard"
 			style={
 				filterFieldData.isInValidData
@@ -1252,9 +1252,9 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		updateLeftFilterItem: (propKey: string, bIndex: number, item: any) =>
 			dispatch(updateLeftFilterItem(propKey, bIndex, item)),
-		updtateFilterExpandeCollapse: (propKey: number | string, bIndex: number, item: any) =>
+		updtateFilterExpandeCollapse: (propKey: string, bIndex: number, item: any) =>
 			dispatch(updtateFilterExpandeCollapse(propKey, bIndex, item)),
-		deleteDropZoneItems: (propKey: number | string, binIndex: number, itemIndex: any) =>
+		deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: any) =>
 			dispatch(editChartPropItem("delete", { propKey, binIndex, itemIndex })),
 
 		sortAxes: (propKey: string, bIndex: number, dragUId: any, uId: any) =>
