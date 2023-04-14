@@ -60,7 +60,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 // antMatchers URLs work without Token. Rest of the URLs need Token
-                .authorizeRequests().antMatchers("/api/auth/**", "/h2-ui/**").permitAll()
+                .authorizeRequests().antMatchers("/api/auth/**", "/h2-ui/**", "/**").permitAll()
                 .anyRequest().authenticated();
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -20,8 +20,8 @@ export interface DataViewerBottomProps {
 	//Dispatch
 	setSelectedDataSetList: (dataset: string) => void;
 	setTablesForDs: (tablesObj: any) => void;
-	setSelectedDs: (propKey: number | string, selectedDs: any) => void;
-	setSelectedTable: (propKey: number | string, selectedTable: any) => void;
+	setSelectedDs: (propKey: string, selectedDs: any) => void;
+	setSelectedTable: (propKey: string, selectedTable: any) => void;
 	addRecords: (
 		ds_uid: string,
 		tableId: string,

@@ -8,7 +8,7 @@ import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceFor
 import SwitchWithInput from "../SwitchWithInput";
 
 interface ChartMarginProps {
-	setMouseOver: (propKey: number | string, enable: boolean) => void;
+	setMouseOver: (propKey: string, enable: boolean) => void;
 }
 
 const ChartMouseOver = ({
@@ -51,7 +51,7 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 };
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		setMouseOver: (propKey: number | string, enable: boolean) =>
+		setMouseOver: (propKey: string, enable: boolean) =>
 			dispatch(enableMouseOver(propKey, enable)),
 	};
 };

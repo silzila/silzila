@@ -156,6 +156,8 @@ const DropZone = ({
 						}, 3000);
 					}
 				} else {
+					console.log("******", name);
+
 					let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
 					["type", "bIndex"].forEach(e => delete newFieldData[e]);
 					moveItemChartProp(
@@ -592,34 +594,30 @@ const mapStateToProps = (state: ChartPropertiesStateProps) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		clearDropZoneFieldsChartPropLeft: (propKey: number | string, bIndex: number) =>
+		clearDropZoneFieldsChartPropLeft: (propKey: string, bIndex: number) =>
 			dispatch(clearDropZoneFieldsChartPropLeft(propKey, bIndex)),
 		updateDropZoneExpandCollapsePropLeft: (
-			propKey: number | string,
+			propKey: string,
 			bIndex: number,
 			isCollapsed: boolean
 		) => dispatch(updateDropZoneExpandCollapsePropLeft(propKey, bIndex, isCollapsed)),
 		updateFilterAnyContidionMatchPropLeft: (
-			propKey: number | string,
+			propKey: string,
 			bIndex: number,
 			any_condition_match: any
 		) => dispatch(updateFilterAnyContidionMatchPropLeft(propKey, 0, any_condition_match)),
 		updateIsAutoFilterEnabledPropLeft: (
-			propKey: number | string,
+			propKey: string,
 			bIndex: number,
 			is_auto_filter_enabled: any
 		) => dispatch(updateIsAutoFilterEnabledPropLeft(propKey, 0, is_auto_filter_enabled)),
-		toggleFilterRunState: (propKey: number | string, runState: any) =>
+		toggleFilterRunState: (propKey: string, runState: any) =>
 			dispatch(toggleFilterRunState(propKey, runState)),
-		updateDropZoneItems: (
-			propKey: number | string,
-			bIndex: number,
-			item: any,
-			allowedNumbers: any
-		) => dispatch(editChartPropItem("update", { propKey, bIndex, item, allowedNumbers })),
+		updateDropZoneItems: (propKey: string, bIndex: number, item: any, allowedNumbers: any) =>
+			dispatch(editChartPropItem("update", { propKey, bIndex, item, allowedNumbers })),
 
 		moveItemChartProp: (
-			propKey: number | string,
+			propKey: string,
 			fromBIndex: any,
 			fromUID: any,
 			item: any,

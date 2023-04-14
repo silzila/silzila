@@ -34,7 +34,7 @@ const tileStateReducer = (state: TileStateProps = initialTileState, action: Acti
 			};
 
 		case "ADD_TILE_FROM_TAB":
-			let tileKey3: number = parseFloat(`${action.payload.tabId}.${action.payload.tileId}`);
+			let tileKey3: string = `${action.payload.tabId}.${action.payload.tileId}`;
 			return {
 				tiles: {
 					...state.tiles,

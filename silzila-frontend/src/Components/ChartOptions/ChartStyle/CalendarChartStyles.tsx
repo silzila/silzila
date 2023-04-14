@@ -17,7 +17,7 @@ const CalendarChartStyles = ({
 	// dispatch
 	updateCalendarStyleOptions,
 }: ChartOptionsProps & {
-	updateCalendarStyleOptions: (propKey: string | number, option: string, value: any) => void;
+	updateCalendarStyleOptions: (propKey: string, option: string, value: any) => void;
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var calStyle = chartControls.properties[propKey].calendarStyleOptions;
@@ -148,7 +148,7 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateCalendarStyleOptions: (propKey: number | string, option: string, value: any) =>
+		updateCalendarStyleOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateCalendarStyleOptions(propKey, option, value)),
 	};
 };

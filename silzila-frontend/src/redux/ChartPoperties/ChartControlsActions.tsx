@@ -17,11 +17,7 @@ export const setColorScheme = (propKey: string, color: string) => {
 	return { type: "CHANGE_COLOR_SCHEME", payload: { propKey, color } };
 };
 
-export const setAreaColorOptions = (
-	propKey: number | string,
-	option: string,
-	value: string | number
-) => {
+export const setAreaColorOptions = (propKey: string, option: string, value: string | number) => {
 	return { type: "AREA_COLOR_OPTIONS", payload: { propKey, option, value } };
 };
 
@@ -42,7 +38,7 @@ export const addControl = (tabId: number, nextTileId: number, newTab: boolean) =
 	}
 };
 
-export const duplicateControl = (propKey: string | number, chartControl: ChartControlsProps) => {
+export const duplicateControl = (propKey: string, chartControl: ChartControlsProps) => {
 	console.log(propKey, chartControl);
 	return { type: "DUPLICATE_CHART_CONTROL", payload: { propKey, chartControl } };
 };
@@ -50,7 +46,7 @@ export const duplicateControl = (propKey: string | number, chartControl: ChartCo
 export const removeChartControls = (
 	tabId: number | string,
 	tileId: number | string,
-	propKey: number | string,
+	propKey: string,
 	tileIndex: number | string
 ) => {
 	return { type: "DELETE_CONTROLS", payload: { tabId, tileId, propKey, tileIndex } };
@@ -62,46 +58,38 @@ export const removeMultipleChartControls = (tabId: number) => {
 
 // ===================================
 // Color Scale
-export const setColorScaleOption = (
-	option: string,
-	value: string | number,
-	propKey: number | string
-) => {
+export const setColorScaleOption = (option: string, value: string | number, propKey: string) => {
 	return {
 		type: "SET_COLOR_SCALE_OPTION",
 		payload: { option: option, value: value, propKey: propKey },
 	};
 };
 
-export const addingNewStep = (
-	propkey: string | number,
-	index: string | number,
-	value: number | string
-) => {
+export const addingNewStep = (propKey: string, index: string | number, value: number | string) => {
 	return {
 		type: "ADDING_NEW_STEP",
-		payload: { propKey: propkey, index: index, value: value },
+		payload: { propKey: propKey, index: index, value: value },
 	};
 };
 
-export const changingValuesofSteps = (propkey: number | string, value: number | string) => {
+export const changingValuesofSteps = (propKey: string, value: number | string) => {
 	return {
 		type: "CHANGING_VALUES_OF_STEPS",
-		payload: { propKey: propkey, value: value },
+		payload: { propKey: propKey, value: value },
 	};
 };
 
-export const switchAutotoManualinSteps = (propkey: string | number, value: string | number) => {
+export const switchAutotoManualinSteps = (propKey: string, value: string | number) => {
 	return {
 		type: "SWITCH_STEPS_AUTO_MANUAL",
-		payload: { propKey: propkey, value: value },
+		payload: { propKey: propKey, value: value },
 	};
 };
 // ===================================
 // Labels
 
 export const updateCrossTabStyleOptions = (
-	propKey: string | number,
+	propKey: string,
 	option: string | number,
 	value: string | number
 ) => {
@@ -112,7 +100,7 @@ export const updateCrossTabStyleOptions = (
 };
 
 export const updateCrossTabHeaderLabelOptions = (
-	propKey: string | number,
+	propKey: string,
 	option: string | number,
 	value: string | number
 ) => {
@@ -123,7 +111,7 @@ export const updateCrossTabHeaderLabelOptions = (
 };
 
 export const updateCrossTabCellLabelOptions = (
-	propKey: string | number,
+	propKey: string,
 	option: string | number,
 	value: string | number
 ) => {
@@ -134,7 +122,7 @@ export const updateCrossTabCellLabelOptions = (
 };
 
 export const updateLabelOption = (
-	propKey: string | number,
+	propKey: string,
 	option: string | number,
 	value: string | number
 ) => {
@@ -144,13 +132,13 @@ export const updateLabelOption = (
 	};
 };
 
-export const updateLabelPosition = (propKey: string | number, value: string | number) => {
+export const updateLabelPosition = (propKey: string, value: string | number) => {
 	return {
 		type: "UPDATE_LABEL_POSITION",
 		payload: { propKey: propKey, value: value },
 	};
 };
-export const updateLabelPadding = (propKey: string | number, value: string | number) => {
+export const updateLabelPadding = (propKey: string, value: string | number) => {
 	return {
 		type: "UPDATE_LABEL_PADDING",
 		payload: { propKey: propKey, value: value },
@@ -161,7 +149,7 @@ export const updateLabelPadding = (propKey: string | number, value: string | num
 // Format
 
 export const updateFormatOption = (
-	propKey: string | number,
+	propKey: string,
 	formatType: any,
 	option: string | number,
 	value: string | number
@@ -176,18 +164,14 @@ export const updateFormatOption = (
 // Legend
 
 export const updateLegendOptions = (
-	propKey: string | number,
+	propKey: string,
 	option: string | number,
 	value: string | number
 ) => {
 	return { type: "UPDATE_LEGEND_OPTIONS", payload: { propKey, option, value } };
 };
 
-export const resetLegendOptions = (
-	propKey: string | number,
-	marginValues: any,
-	legendValues: any
-) => {
+export const resetLegendOptions = (propKey: string, marginValues: any, legendValues: any) => {
 	return { type: "RESET_LEGEND_OPTIONS", payload: { propKey, marginValues, legendValues } };
 };
 
@@ -195,39 +179,35 @@ export const resetLegendOptions = (
 // Margin
 
 export const updateChartMargins = (
-	propKey: string | number,
+	propKey: string,
 	option: string | number,
 	value: string | number
 ) => {
 	return { type: "UPDATE_CHART_MARGINS", payload: { propKey, option, value } };
 };
 
-export const setSelectedMargin = (propKey: string | number, margin: any) => {
+export const setSelectedMargin = (propKey: string, margin: any) => {
 	return { type: "SELECTED_MARGIN", payload: { propKey, margin } };
 };
 
 // ==============================
 // MouseOver
 
-export const enableMouseOver = (propKey: string | number, enable: any) => {
+export const enableMouseOver = (propKey: string, enable: any) => {
 	return { type: "ENABLE_MOUSE_OVER", payload: { propKey, enable } };
 };
 
 // ==============================
 // Grid & Axis
 
-export const enableGrid = (propKey: string | number, value: string | number, show: any) => {
+export const enableGrid = (propKey: string, value: string | number, show: any) => {
 	return { type: "ENABLE_GRID", payload: { propKey, value, show } };
 };
 
-export const updateAxisMinMax = (propKey: string | number, axisKey: any, axisValue: any) => {
+export const updateAxisMinMax = (propKey: string, axisKey: any, axisValue: any) => {
 	return { type: "AXIS_MIN_MAX", payload: { propKey, axisKey, axisValue } };
 };
-export const updateAxisMinMaxforScatter = (
-	propKey: string | number,
-	axisKey: any,
-	axisValue: any
-) => {
+export const updateAxisMinMaxforScatter = (propKey: string, axisKey: any, axisValue: any) => {
 	return { type: "AXIS_MIN_MAX_FOR_SCATTER", payload: { propKey, axisKey, axisValue } };
 };
 
@@ -242,12 +222,12 @@ export const resetChartControls = () => {
 	return { type: "RESET_CHART_CONTROLS" };
 };
 
-export const updateReverse = (propKey: string | number, value: boolean) => {
+export const updateReverse = (propKey: string, value: boolean) => {
 	return { type: "UPDATE_REVERSE", payload: { propKey, value } };
 };
 
 export const updatePieAxisOptions = (
-	propKey: string | number,
+	propKey: string,
 	option: string | number,
 	value: string | number
 ) => {
@@ -255,7 +235,7 @@ export const updatePieAxisOptions = (
 };
 
 export const updateAxisOptions = (
-	propKey: string | number,
+	propKey: string,
 	axis: any,
 	option: string | number,
 	value: string | number
@@ -264,7 +244,7 @@ export const updateAxisOptions = (
 };
 
 export const updateGaugeAxisOptions = (
-	propKey: string | number,
+	propKey: string,
 	option: string | number,
 	value: string | number
 ) => {
@@ -274,7 +254,7 @@ export const updateGaugeAxisOptions = (
 //==================== calender chart ======================================
 
 export const updateCalendarStyleOptions = (
-	propKey: string | number,
+	propKey: string,
 	option: string | number,
 	value: string | number
 ) => {
@@ -282,7 +262,7 @@ export const updateCalendarStyleOptions = (
 };
 
 export const updateBoxPlotStyleOptions = (
-	propKey: string | number,
+	propKey: string,
 	option: string | number,
 	value: string | number
 ) => {
@@ -290,7 +270,7 @@ export const updateBoxPlotStyleOptions = (
 };
 
 export const updateTreeMapStyleOptions = (
-	propKey: string | number,
+	propKey: string,
 	option: string | number,
 	value: string | number
 ) => {
@@ -298,13 +278,17 @@ export const updateTreeMapStyleOptions = (
 };
 
 export const updateSankeyStyleOptions = (
-	propKey: string | number,
+	propKey: string,
 	option: string | number,
 	value: string | number
 ) => {
 	return { type: "UPDATE_SANKEY_STYLE_OPTIONS", payload: { propKey, option, value } };
 };
 
-export const updateRichText = (propKey: string | number, value: string | number) => {
+export const updateRichText = (propKey: string, value: string | number) => {
 	return { type: "UPDATE_RICH_TEXT", payload: { propKey, value } };
+};
+
+export const updateCardControls = (propKey: string, option: string, value: any) => {
+	return { type: "UPDATE_CARD_CONTROLS", payload: { propKey, option, value } };
 };

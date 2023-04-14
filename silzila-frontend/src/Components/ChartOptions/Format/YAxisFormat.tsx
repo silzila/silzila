@@ -17,12 +17,7 @@ const YAxisFormat = ({
 	updateFormat,
 }: ChartOptionsProps & {
 	chartType: string;
-	updateFormat: (
-		propKey: string | number,
-		formatType: string | any,
-		option: string,
-		value: any
-	) => void;
+	updateFormat: (propKey: string, formatType: string | any, option: string, value: any) => void;
 }) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	let formatObject: ChartConYAxisFormats =
@@ -114,12 +109,8 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateFormat: (
-			propKey: string | number,
-			formatType: string | number,
-			option: string,
-			value: any
-		) => dispatch(updateFormatOption(propKey, formatType, option, value)),
+		updateFormat: (propKey: string, formatType: string | number, option: string, value: any) =>
+			dispatch(updateFormatOption(propKey, formatType, option, value)),
 	};
 };
 

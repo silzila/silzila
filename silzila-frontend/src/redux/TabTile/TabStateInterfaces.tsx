@@ -200,6 +200,15 @@ interface ShowDashBoard {
 	payload: boolean;
 }
 
+interface ResetGraphHighlight {
+	type: "RESET_GRAPH_BORDER_HIGHLIGHT";
+	payload: number;
+}
+interface UpdateGraphHighlight {
+	type: "SET_GRAPH_BORDER_HIGHLIGHT";
+	payload: { tabId: number; propKey: string; highlight: any };
+}
+
 export type ActionsOfTabState =
 	| AddTab
 	| RemoveTab
@@ -227,4 +236,6 @@ export type ActionsOfTabState =
 	| ResetTabState
 	| UpdateSelectedTile
 	| ToggleEditingTab
-	| ShowDashBoard;
+	| ShowDashBoard
+	| ResetGraphHighlight
+	| UpdateGraphHighlight;

@@ -9,7 +9,7 @@ import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInte
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import { TLSSocket } from "tls";
 interface TreemapChartProps {
-	updateTreeMapStyleOptions: (propKey: number | string, option: string, value: any) => void;
+	updateTreeMapStyleOptions: (propKey: string, option: string, value: any) => void;
 }
 const Treemap = ({
 	// props
@@ -274,7 +274,7 @@ const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
 };
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateTreeMapStyleOptions: (propKey: number | string, option: string, value: any) =>
+		updateTreeMapStyleOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateTreeMapStyleOptions(propKey, option, value)),
 	};
 };

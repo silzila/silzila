@@ -21,6 +21,7 @@ import TreeMap from "../Charts/TreeMap";
 import Sankey from "../Charts/Sankey";
 import StackedAreaChart from "../Charts/StackedAreaChart";
 import PieChart from "../Charts/PieChart";
+import SimpleCard from "../Charts/SimpleCard";
 
 const DashGraph = ({
 	// props
@@ -41,6 +42,7 @@ const DashGraph = ({
 			width:
 				parseInt(tabState.tabs[tabId].dashTilesDetails[propKey].width, 10) * gridSize.x - 4,
 		};
+		console.log(dimensions);
 
 		switch (chartProp?.properties[propKey]?.chartType) {
 			case "multibar":
@@ -201,6 +203,14 @@ const DashGraph = ({
 			case "richText":
 				return (
 					<TextEditor
+						propKey={propKey}
+						graphDimension={dimensions}
+						chartArea="dashboard"
+					/>
+				);
+			case "simplecard":
+				return (
+					<SimpleCard
 						propKey={propKey}
 						graphDimension={dimensions}
 						chartArea="dashboard"

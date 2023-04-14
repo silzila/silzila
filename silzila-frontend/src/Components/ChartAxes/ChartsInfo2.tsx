@@ -307,6 +307,20 @@ const ChartsInfo: ChartsInfoProps = {
 		],
 		showSwap: false,
 	},
+	simplecard: {
+		dropZones: [
+			{ name: "Filter", allowedNumbers: 64, min: 0 },
+			{ name: "Measure", allowedNumbers: 1, min: 1, dataType: ["int", "float", "double"] },
+		],
+		showSwap: false,
+	},
+	multirowcard: {
+		dropZones: [
+			{ name: "Filter", allowedNumbers: 64, min: 0 },
+			{ name: "Measure", allowedNumbers: 12, min: 1, dataType: ["int", "float", "double"] },
+		],
+		showSwap: false,
+	},
 };
 
 export default ChartsInfo;
