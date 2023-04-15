@@ -5,6 +5,7 @@ import { loadSampleRecords } from "../SampleTableRecords/SampleTableRecordsActio
 import { loadTabState, renameTab } from "./TabActions";
 import { loadTabTileProps, updateSelectedTab } from "./TabTileActionsAndMultipleDispatches";
 import { loadTileState } from "./TileActions";
+import {loadReportFilterGroup} from '../ChartFilterGroup/ChartFilterGroupStateActions'
 
 // //  *************************************************************
 // //  to tile state reducer
@@ -86,6 +87,7 @@ export const loadPlaybook = (playbook: any) => {
 		dispatch(loadTabTileProps(playbook.tabTileProps));
 		dispatch(loadChartControls(playbook.chartControl));
 		dispatch(loadChartProperties(playbook.chartProperty));
+		dispatch(loadReportFilterGroup(playbook.chartGroup));
 		dispatch(loadSampleRecords(playbook.sampleRecords));
 	};
 };

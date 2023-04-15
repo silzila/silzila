@@ -56,6 +56,7 @@ const MenuBar = ({
 	playBookState,
 	chartProperty,
 	chartControl,
+	chartGroup,
 
 	//dispatch
 	toggleDashMode,
@@ -77,7 +78,8 @@ const MenuBar = ({
 				JSON.stringify(playBookState.oldContent.tabTileProps) &&
 			JSON.stringify(chartProperty) ===
 				JSON.stringify(playBookState.oldContent.chartProperty) &&
-			JSON.stringify(chartControl) === JSON.stringify(playBookState.oldContent.chartControl)
+			JSON.stringify(chartControl) === JSON.stringify(playBookState.oldContent.chartControl) &&
+			JSON.stringify(chartGroup) === JSON.stringify(playBookState.oldContent.chartGroup)
 		) {
 			showSaveWarning = false;
 		} else {
@@ -189,6 +191,7 @@ const MenuBar = ({
 				tabTileProps,
 				chartProperty,
 				chartControl,
+				chartGroup
 			},
 		};
 
@@ -788,6 +791,7 @@ const mapStateToProps = (state: MapStateProps, ownProps: any) => {
 		tileState: state.tileState,
 		chartProperty: state.chartProperties,
 		chartControl: state.chartControls,
+		chartGroup: state.chartFilterGroup
 	};
 };
 

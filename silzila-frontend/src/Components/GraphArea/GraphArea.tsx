@@ -70,6 +70,7 @@ const GraphArea = ({
 	tabState,
 	tabTileProps,
 	chartProperties,
+	chartGroup,
 	chartControlState,
 	token,
 	pageSettings,
@@ -528,6 +529,7 @@ const GraphArea = ({
 		getChartData(
 			chartProperties.properties[propKey].chartAxes,
 			chartProperties,
+			chartGroup,
 			propKey,
 			token,
 			true
@@ -898,6 +900,7 @@ const mapStateToProps = (state: any) => {
 		tabTileProps: state.tabTileProps,
 		chartControlState: state.chartControls,
 		chartProperties: state.chartProperties,
+		chartGroup: state.chartFilterGroup,
 		token: state.isLogged.accessToken,
 		pageSettings: state.pageSettings,
 	};

@@ -19,6 +19,7 @@ import ChartAxes from "../ChartAxes/ChartAxes";
 import GraphArea from "../GraphArea/GraphArea";
 import ChartControlObjects from "../ChartOptions/ChartControlObjects";
 import { CloseSharp } from "@mui/icons-material";
+import ChartFilterGroupsContainer from "../ChartFilterGroup/ChartFilterGroupsContainer";
 
 const DataViewerMiddle = ({
 	// props
@@ -89,12 +90,32 @@ const DataViewerMiddle = ({
 					</div>
 				);
 
-			case "Filter":
-				return (
-					<div className="rightColumnControlsAndFilters">
-						<div className="axisTitle">Filters</div>
-					</div>
-				);
+				case "chart Filters":
+					return (
+						<div className="rightColumnControlsAndFilters">
+							<div
+								style={{
+									color: " #404040",
+									fontWeight: "600",
+									// padding: "0 0.5rem",
+									padding: "10px 0 0 0.5rem",
+									marginBottom: "3px",
+								}}
+							>
+								Report Filter
+								<CloseSharp
+									sx={{
+										fontSize: "16px",
+										float: "right",
+										marginTop: "5px",
+										marginRight: "12px",
+									}}
+									onClick={() => setMenu("")}
+								/>
+							</div>
+							<ChartFilterGroupsContainer propKey={propKey}></ChartFilterGroupsContainer>
+						</div>
+					);
 			default:
 				return null;
 		}

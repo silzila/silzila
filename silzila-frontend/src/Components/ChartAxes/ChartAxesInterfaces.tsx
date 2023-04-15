@@ -9,12 +9,14 @@ export interface ChartAxesProps {
 	// state
 	token: string;
 	chartProp: any;
+	chartGroup:any;
 	changeLocation: any;
 
 	// dispatch
 	updateChartData: (propKey: string, chartData: any) => void;
 	toggleAxesEdit: (propKey: string) => void;
 	reUseOldData: (propKey: string) => void;
+	chartFilterGroupEdited: (isEdited : boolean)=> void;
 }
 interface TimeGrain {
 	name: string;

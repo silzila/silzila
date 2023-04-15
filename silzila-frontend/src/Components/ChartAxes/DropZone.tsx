@@ -391,7 +391,7 @@ const DropZone = ({
 							  }
 					}
 				>
-					{name}
+					{name === "Filter"? "Chart Filter" : name}
 
 					<span style={{ marginLeft: "5px" }} className="axisInfo">
 						({chartProp.properties[propKey].chartAxes[bIndex].fields.length} / {""}
