@@ -1250,7 +1250,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		updateChartFilterRightGroupsFilters: (groupName: string, filter: any) =>
 			dispatch(updateChartFilterRightGroupsFilters(groupName, filter)),
 
-		updtateFilterExpandeCollapse: (propKey: number | string, bIndex: number, item: any) =>
+		updtateFilterExpandeCollapse: (propKey: string, bIndex: number, item: any) =>
 			dispatch(updtateFilterExpandeCollapse(propKey, bIndex, item)),
 		deleteRightFilterGroupItems: (groupName: string, itemIndex: number) =>
 			dispatch(deleteRightFilterGroupItems(groupName, itemIndex)),
