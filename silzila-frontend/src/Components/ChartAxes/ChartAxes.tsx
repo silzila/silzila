@@ -19,20 +19,24 @@ import {
 	ChartPropertiesStateProps,
 } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
+import {chartFilterGroupEdited} from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
+import {ChartFilterGroupProps, ChartFilterGroupStateProps} from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 
 // format the chartAxes into the way it is needed for api call
 export const getChartData = async (
 	axesValues: AxesValuProps[],
 	chartProp: ChartPropertiesProps,
+	chartGroup:ChartFilterGroupProps,
 	propKey: string,
 	token: string,
 	forQueryData?: boolean
 ) => {
 	/*	PRS 21/07/2022	Construct filter object for service call */
-	const getChartLeftFilter = () => {
+	const getChartLeftFilter = (filters:any) => {
 		let _type: any = {};
 
-		let _chartProp = chartProp.properties[propKey].chartAxes[0];
+		//let _chartProp = chartProp.properties[propKey].chartAxes[0];
+		let _chartProp = filters;
 
 		_type.panelName = "chartFilters";
 		_type.shouldAllConditionsMatch = !_chartProp.any_condition_match;
@@ -131,8 +135,15 @@ export const getChartData = async (
 			return true;
 		};
 
+		let _items = [];
+
+		if(_chartProp.fields)
+			_items = _chartProp.fields
+			else
+			_items = _chartProp
+
 		/*	Iterate through each fileds added in the Filter Dropzone	*/
-		_chartProp.fields.forEach((item: any) => {
+		_items.forEach((item: any) => {
 			let _filter: any = {};
 			_filter.filterType = _getFilterType(item);
 			_filter.tableId = item.tableId;
@@ -240,13 +251,22 @@ export const getChartData = async (
 	if (_filterZoneFields.length > 0 && _hasInvalidFilterData && _hasInvalidFilterData.length > 0) {
 		console.log("Filter has invalid data.");
 	} else {
-		let _filterObj = getChartLeftFilter();
+		let _filterObj = getChartLeftFilter(chartProp.properties[propKey].chartAxes[0]);
 
 		if (_filterObj.filters.length > 0) {
 			formattedAxes.filterPanels.push(_filterObj);
 		} else {
 			formattedAxes.filterPanels = [];
 		}
+
+		//chartGroup
+		chartGroup.tabTile[propKey]?.forEach((grp:any)=>{
+			let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
+
+			if (rightFilterObj.filters.length > 0) {
+				formattedAxes.filterPanels.push(rightFilterObj);
+			}
+		})
 
 		var url: string = "";
 		if (chartProp.properties[propKey].selectedDs.isFlatFileData) {
@@ -318,12 +338,14 @@ const ChartAxes = ({
 	// state
 	token,
 	chartProp,
+	chartGroup,
 	changeLocation,
 
 	// dispatch
 	updateChartData,
 	toggleAxesEdit,
 	reUseOldData,
+	chartFilterGroupEdited
 }: ChartAxesProps) => {
 	const [loading, setLoading] = useState<boolean>(false);
 
@@ -456,7 +478,7 @@ const ChartAxes = ({
 
 		let serverCall = false;
 
-		if (chartProp.properties[propKey].axesEdited) {
+		if (chartProp.properties[propKey].axesEdited || chartGroup.chartFilterGroupEdited) {
 			if (chartProp.properties[propKey].reUseData) {
 				serverCall = false;
 			} else {
@@ -494,7 +516,7 @@ const ChartAxes = ({
 
 		if (serverCall) {
 			setLoading(true);
-			getChartData(axesValues, chartProp, propKey, token).then(data => {
+			getChartData(axesValues, chartProp, chartGroup, propKey, token).then(data => {
 				updateChartData(propKey, sortChartData(data));
 				setLoading(false);
 			});
@@ -503,11 +525,13 @@ const ChartAxes = ({
 		chartProp.properties[propKey].chartAxes,
 		chartProp.properties[propKey].chartType,
 		chartProp.properties[propKey].filterRunState,
+		chartGroup.chartFilterGroupEdited
 	]);
 
 	const resetStore = () => {
 		toggleAxesEdit(propKey);
 		reUseOldData(propKey);
+		chartFilterGroupEdited(false);
 	};
 
 	var menuItemStyle = {
@@ -582,12 +606,14 @@ const ChartAxes = ({
 	);
 };
 
-const mapStateToProps = (state: ChartPropertiesStateProps & isLoggedProps, ownProps: any) => {
+const mapStateToProps = (state: ChartPropertiesStateProps & isLoggedProps & ChartFilterGroupStateProps, ownProps: any) => {
 	return {
 		// tabTileProps: state.tabTileProps,
 		// userFilterGroup: state.userFilterGroup,
 		chartProp: state.chartProperties,
 		token: state.isLogged.accessToken,
+		chartGroup: state.chartFilterGroup
+
 	};
 };
 
@@ -597,6 +623,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(updateChartData(propKey, chartData)),
 		toggleAxesEdit: (propKey: string) => dispatch(toggleAxesEdited(propKey, false)),
 		reUseOldData: (propKey: string) => dispatch(canReUseData(propKey, false)),
+	chartFilterGroupEdited:(isEdited : boolean) =>
+		dispatch(chartFilterGroupEdited(isEdited))
 	};
 };
 
