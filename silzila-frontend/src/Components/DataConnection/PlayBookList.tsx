@@ -88,7 +88,7 @@ const PlayBookList = ({
 
 				var datasetFromServer: any = await getTables(selectedDataset.id);
 				setTablesForDs({ [selectedDataset.id]: datasetFromServer.dataSchema.tables });
-				setSelectedDs(1.1, selectedDataset);
+				setSelectedDs("1.1", selectedDataset);
 
 				navigate("/dataviewer");
 			}
@@ -419,7 +419,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		setSelectedDataSetList: (dataset: PbSelectedDataset) =>
 			dispatch(setSelectedDataSetList(dataset)),
 		setTablesForDs: (tablesObj: any) => dispatch(setTablesForSelectedDataSets(tablesObj)),
-		setSelectedDs: (propKey: number | string, selectedDs: any) =>
+		setSelectedDs: (propKey: string, selectedDs: any) =>
 			dispatch(setSelectedDsInTile(propKey, selectedDs)),
 		loadPlayBook: (playBook: any) => dispatch(loadPlaybook(playBook)),
 		updatePlayBookId: (
@@ -429,7 +429,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			oldContent?: string | any
 		) => dispatch(updatePlaybookUid(playBookName, playBookUid, description, oldContent)),
 		storePlayBookCopy: (pb: any) => dispatch(storePlayBookCopy(pb)),
-		// updateChartData: (propKey: number | string, chartData: string | any) =>
+		// updateChartData: (propKey:string | string, chartData: string | any) =>
 		// 	dispatch(updateChartData(propKey, chartData)),
 	};
 };

@@ -16,7 +16,7 @@ const TreeMapLegend = ({
 	// dispatch
 	updateTreeMapStyleOptions,
 }: ChartOptionsProps & {
-	updateTreeMapStyleOptions: (propKey: number | string, option: string, value: any) => void;
+	updateTreeMapStyleOptions: (propKey: string, option: string, value: any) => void;
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
@@ -129,7 +129,7 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateTreeMapStyleOptions: (propKey: number | string, option: string, value: any) =>
+		updateTreeMapStyleOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateTreeMapStyleOptions(propKey, option, value)),
 	};
 };

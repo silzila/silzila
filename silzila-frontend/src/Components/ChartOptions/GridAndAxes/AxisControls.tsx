@@ -28,8 +28,8 @@ const textFieldStyleProps = {
 };
 
 interface GridControlsProps {
-	updateGaugeAxisOptions: (propKey: number | string, option: string, value: any) => void;
-	updatePieAxisOptions: (propKey: number | string, option: string, value: any) => void;
+	updateGaugeAxisOptions: (propKey: string, option: string, value: any) => void;
+	updatePieAxisOptions: (propKey: string, option: string, value: any) => void;
 }
 const GridControls = ({
 	// state
@@ -212,9 +212,9 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateGaugeAxisOptions: (propKey: number | string, option: string, value: any) =>
+		updateGaugeAxisOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateGaugeAxisOptions(propKey, option, value)),
-		updatePieAxisOptions: (propKey: number | string, option: string, value: any) =>
+		updatePieAxisOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updatePieAxisOptions(propKey, option, value)),
 	};
 };

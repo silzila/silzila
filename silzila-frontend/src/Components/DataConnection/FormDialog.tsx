@@ -44,6 +44,7 @@ function FormDialog({
 	const [dcDel, setDcDel] = useState<boolean>(false);
 	const [dcDelMeg, setDcDelMeg] = useState<string>("");
 	const [btnEnable, setBtnEnable] = useState<boolean>(false);
+	const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 
 	const btnEnabelDisable = () => {
 		if (
@@ -98,7 +99,7 @@ function FormDialog({
 		) {
 			var response: any = await getDatabaseConnectionTest();
 
-			if (response.status === 200 && response.data.message === "Connection OK!") {
+			if (response.status) {
 				setSeverity("success");
 				setOpenAlert(true);
 				setTestMessage("Test Connection successfull");
@@ -155,13 +156,7 @@ function FormDialog({
 	// };
 
 	const deleteDcWarning = () => {
-		var delDataSet = window.confirm("Delete Data Connection?");
-		if (delDataSet) {
-			//console.log("database-connection/" + dataConnId);
-
-			showAndHideForm();
-			deleteDc();
-		}
+		setOpenConfirmDialog(true);
 	};
 
 	const deleteDc = async () => {
@@ -212,7 +207,7 @@ function FormDialog({
 		) {
 			var response: any = await getDatabaseConnectionTest();
 
-			if (response.status === 200 && response.data.message === "Connection OK!") {
+			if (response.status) {
 				if (regOrUpdate === "Update") {
 					handleonUpdate();
 				}
@@ -280,11 +275,11 @@ function FormDialog({
 							}}
 						>
 							{viewMode ? (
-								<h3>Data Connection</h3>
+								<h3>DB Connection</h3>
 							) : regOrUpdate === "Update" ? (
-								<h3>Edit Data Connection</h3>
+								<h3>Edit DB Connection</h3>
 							) : (
-								<h3>Create Data Connection</h3>
+								<h3>Create DB Connection</h3>
 							)}
 
 							<CloseIcon onClick={showAndHideForm} />
@@ -463,7 +458,7 @@ function FormDialog({
 									onClick={(e: any) => {
 										setViewMode(false);
 										setBtnEnable(true);
-										handleMode(e);
+										handleMode("Edit");
 									}}
 									style={{ backgroundColor: "#af99db" }}
 								>
@@ -516,6 +511,51 @@ function FormDialog({
 							</div>
 						)}
 					</form>
+				</div>
+			</Dialog>
+			<Dialog open={openConfirmDialog}>
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						padding: "5px",
+						width: "350px",
+						height: "auto",
+						justifyContent: "center",
+					}}
+				>
+					<div style={{ fontWeight: "bold", textAlign: "center", marginTop: "20px" }}>
+						Delete DB Connection?
+						<br />
+						<br />
+					</div>
+					<div
+						style={{ padding: "15px", justifyContent: "space-around", display: "flex" }}
+					>
+						<Button
+							style={{
+								backgroundColor: "grey",
+								float: "right",
+								textTransform: "none",
+							}}
+							onClick={() => setOpenConfirmDialog(false)}
+							variant="contained"
+						>
+							Cancel
+						</Button>
+
+						<Button
+							style={{ backgroundColor: "red", textTransform: "none" }}
+							variant="contained"
+							onClick={() => {
+								setOpenConfirmDialog(false);
+								showAndHideForm();
+								deleteDc();
+							}}
+						>
+							Delete
+						</Button>
+					</div>
 				</div>
 			</Dialog>
 		</>

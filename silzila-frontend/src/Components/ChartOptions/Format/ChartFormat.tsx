@@ -22,6 +22,7 @@ const ChartFormat = ({ chartType }: { chartType: string }) => {
 			chartType !== "rose" &&
 			chartType !== "crossTab" &&
 			chartType !== "funnel" &&
+			chartType !== "simplecard" &&
 			chartType !== "heatmap" ? (
 				<>
 					<div

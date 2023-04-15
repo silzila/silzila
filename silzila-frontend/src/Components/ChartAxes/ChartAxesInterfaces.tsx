@@ -109,7 +109,7 @@ export interface DropZoneProps {
 	updateDropZoneItems: (propKey: string, bIndex: number, item: any, allowedNumbers: any) => void;
 
 	moveItemChartProp: (
-		propKey: number | string,
+		propKey: string,
 		fromBIndex: any,
 		fromUID: any,
 		item: any,

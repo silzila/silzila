@@ -777,7 +777,7 @@ const MenuBar = ({
 				}}
 			/>
 			{/* render Menu */}
-			{/* <DownloadPagePopover /> */}
+			<DownloadPagePopover />
 		</div>
 	);
 };

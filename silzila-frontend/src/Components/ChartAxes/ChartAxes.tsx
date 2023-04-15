@@ -235,7 +235,8 @@ export const getChartData = async (
 
 	if (
 		chartProp.properties[propKey].chartType === "funnel" ||
-		chartProp.properties[propKey].chartType === "gauge"
+		chartProp.properties[propKey].chartType === "gauge" ||
+		chartProp.properties[propKey].chartType === "simplecard"
 	) {
 		formattedAxes.dimensions = [];
 	}

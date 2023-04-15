@@ -29,7 +29,7 @@ import {
 } from "../../../redux/ChartPoperties/ChartControlsActions";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
-const textFieldStyleProps = {
+export const textFieldStyleProps = {
 	style: {
 		fontSize: "12px",
 		width: "90%",
@@ -41,11 +41,11 @@ const textFieldStyleProps = {
 };
 
 interface GridAndAxisProps {
-	setAxisMinMax: (propKey: number | string, axisKey: string, axisValue: any) => void;
-	updateAxisMinMaxforScatter: (propKey: number | string, axisKey: string, axisValue: any) => void;
-	setReverse: (propKey: number | string, value: boolean) => void;
-	enableGrids: (propKey: number | string, option: any, show: any) => void;
-	updateAxisOptions: (propKey: number | any, axis: any, option: any, value: any) => void;
+	setAxisMinMax: (propKey: string, axisKey: string, axisValue: any) => void;
+	updateAxisMinMaxforScatter: (propKey: string, axisKey: string, axisValue: any) => void;
+	setReverse: (propKey: string, value: boolean) => void;
+	enableGrids: (propKey: string, option: any, show: any) => void;
+	updateAxisOptions: (propKey: string | any, axis: any, option: any, value: any) => void;
 }
 
 interface PositionsProps {
@@ -67,9 +67,7 @@ const GridAndAxes = ({
 	updateAxisOptions,
 	updateAxisMinMaxforScatter,
 }: ChartOptionsProps & GridAndAxisProps) => {
-	var propKey: number = parseFloat(
-		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
-	);
+	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var property: ChartConAxisOptions = chartControls.properties[propKey].axisOptions;
 
 	const [isXColorPopoverOpen, setXColorPopOverOpen] = useState<boolean>(false);
@@ -761,16 +759,15 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		setAxisMinMax: (propKey: number | string, axisKey: string, axisValue: any) =>
+		setAxisMinMax: (propKey: string, axisKey: string, axisValue: any) =>
 			dispatch(updateAxisMinMax(propKey, axisKey, axisValue)),
-		updateAxisMinMaxforScatter: (propKey: number | string, axisKey: string, axisValue: any) =>
+		updateAxisMinMaxforScatter: (propKey: string, axisKey: string, axisValue: any) =>
 			dispatch(updateAxisMinMaxforScatter(propKey, axisKey, axisValue)),
 
-		setReverse: (propKey: number | string, value: boolean) =>
-			dispatch(updateReverse(propKey, value)),
-		enableGrids: (propKey: number | string, option: string, show: boolean) =>
+		setReverse: (propKey: string, value: boolean) => dispatch(updateReverse(propKey, value)),
+		enableGrids: (propKey: string, option: string, show: boolean) =>
 			dispatch(enableGrid(propKey, option, show)),
-		updateAxisOptions: (propKey: number | any, axis: string, option: string, value: any) =>
+		updateAxisOptions: (propKey: string | any, axis: string, option: string, value: any) =>
 			dispatch(updateAxisOptions(propKey, axis, option, value)),
 	};
 };

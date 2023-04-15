@@ -102,3 +102,72 @@
 .UserClickedCellRemainingChildren {
 	opacity: 0.2;
 }
+
+.simpleCardStyle {
+
+	border: 2px solid grey;
+
+}
+
+
+.container {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+
+.resizeable {
+	position: absolute;
+	border: 2px solid grey;
+	max-width: 200px;
+	max-height: 200px;
+	border-radius: 3px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-width: 150px;
+	min-height: 150px;
+}
+
+.resizer {
+	position: absolute;
+	background: rgba(224,224,224,1);
+	/* background: rgb(199, 122, 122); */
+}
+
+.resizer-r {
+	cursor: col-resize;
+	height: 100%;
+	right: 0;
+	top: 0;
+	width: 2px;
+}
+
+.resizer-t {
+	cursor: row-resize;
+	height: 2px;
+	left: 0;
+	top: 0;
+	width: 100%;
+}
+
+.resizer-b {
+	cursor: row-resize;
+	height: 2px;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+}
+
+.resizer-l {
+	cursor: col-resize;
+	height: 100%;
+	left: 0;
+	top: 0;
+	width: 2px;
+}
+
+.simpleCardParentContainer{
+	height:200px;
+	width:200px;
+}

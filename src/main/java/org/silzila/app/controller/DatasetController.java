@@ -6,24 +6,19 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import org.json.JSONArray;
 import org.silzila.app.dto.DatasetDTO;
 import org.silzila.app.dto.DatasetNoSchemaDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.RecordNotFoundException;
-import org.silzila.app.model.Dataset;
 import org.silzila.app.payload.request.ColumnFilter;
-import org.silzila.app.payload.request.DataSchema;
 import org.silzila.app.payload.request.DatasetRequest;
 import org.silzila.app.payload.request.Query;
-import org.silzila.app.payload.request.ColumnFilter.FilterOption;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.service.ConnectionPoolService;
 import org.silzila.app.service.DatasetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController

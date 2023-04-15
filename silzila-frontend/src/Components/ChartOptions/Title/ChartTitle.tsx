@@ -13,26 +13,29 @@ import {
 } from "../../../redux/ChartPoperties/ChartPropertiesActions";
 import InputPositiveNumber from "../CommonFunctions/InputPositiveNumber";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
+import { TextField } from "@mui/material";
+import { textFieldStyleProps } from "../GridAndAxes/GridAndAxes";
+import { updateCardControls } from "../../../redux/ChartPoperties/ChartControlsActions";
 
 interface ChartTitleProps {
-	setGenerateTitleToStore: (propKey: number | string, option: string) => void;
-	setTitleAlignment: (propKey: number | string, align: string) => void;
-	setTitleSize: (propKey: number | string, value: number) => void;
+	setGenerateTitleToStore: (propKey: string, option: string) => void;
+	setTitleAlignment: (propKey: string, align: string) => void;
+	setTitleSize: (propKey: string, value: number) => void;
+	updateCardControls: (propKey: string, option: string, value: number) => void;
 }
 const ChartTitle = ({
 	// state
 	chartProperties,
 	tabTileProps,
+	chartControls,
 
 	// dispatch
 	setGenerateTitleToStore,
 	setTitleAlignment,
 	setTitleSize,
+	updateCardControls,
 }: ChartOptionsProps & ChartTitleProps) => {
-	var propKey: number = parseFloat(
-		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
-	);
-
+	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var generateTitle: string = chartProperties.properties[propKey].titleOptions.generateTitle;
 	var titleAlignment: string = chartProperties.properties[propKey].titleOptions.titleAlign;
 
@@ -83,20 +86,36 @@ const ChartTitle = ({
 
 	return (
 		<React.Fragment>
-			<div className="optionsInfo">
-				<div className="radioButtons">{renderTitleOptions()}</div>
-			</div>
-			<div className="optionsInfo">
-				<div className="optionDescription">TITLE ALIGN</div>
-				<div className="radioButtons">{renderTitleAlignOptions()}</div>
-				<div className="optionDescription">TITLE FONT SIZE</div>
-				<div className="optionDescription">
-					<InputPositiveNumber
-						value={chartProperties.properties[propKey].titleOptions.fontSize}
-						updateValue={(value: number) => setTitleSize(propKey, value)}
+			{chartProperties.properties[propKey].chartType === "simplecard" ? (
+				<div className="optionsInfo">
+					<div className="optionDescription">TITLE ALIGN</div>
+					<TextField
+						value={chartControls.properties[propKey].cardControls.subText}
+						variant="outlined"
+						onChange={(e: any) => {
+							updateCardControls(propKey, "subText", e.target.value);
+						}}
+						InputProps={{ ...textFieldStyleProps }}
 					/>
 				</div>
-			</div>
+			) : (
+				<>
+					<div className="optionsInfo">
+						<div className="radioButtons">{renderTitleOptions()}</div>
+					</div>
+					<div className="optionsInfo">
+						<div className="optionDescription">TITLE ALIGN</div>
+						<div className="radioButtons">{renderTitleAlignOptions()}</div>
+						<div className="optionDescription">TITLE FONT SIZE</div>
+						<div className="optionDescription">
+							<InputPositiveNumber
+								value={chartProperties.properties[propKey].titleOptions.fontSize}
+								updateValue={(value: number) => setTitleSize(propKey, value)}
+							/>
+						</div>
+					</div>
+				</>
+			)}
 		</React.Fragment>
 	);
 };
@@ -105,17 +124,19 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 	return {
 		chartProperties: state.chartProperties,
 		tabTileProps: state.tabTileProps,
+		chartControls: state.chartControls,
 	};
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		setGenerateTitleToStore: (propKey: number | string, option: string) =>
+		setGenerateTitleToStore: (propKey: string, option: string) =>
 			dispatch(setGenerateTitle(propKey, option)),
-		setTitleAlignment: (propKey: number | string, align: string) =>
+		setTitleAlignment: (propKey: string, align: string) =>
 			dispatch(setTitleAlignment(propKey, align)),
-		setTitleSize: (propKey: number | string, value: number) =>
-			dispatch(setTitleSize(propKey, value)),
+		setTitleSize: (propKey: string, value: number) => dispatch(setTitleSize(propKey, value)),
+		updateCardControls: (propKey: string, option: string, value: any) =>
+			dispatch(updateCardControls(propKey, option, value)),
 	};
 };
 
