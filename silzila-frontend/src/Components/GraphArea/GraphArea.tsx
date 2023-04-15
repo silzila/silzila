@@ -56,6 +56,7 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import PhotoSizeSelectActualIcon from "@mui/icons-material/PhotoSizeSelectActual";
 import sqlIcon from "../../assets/sqlCodeIcon.png";
 import DoneIcon from "@mui/icons-material/Done";
+import SimpleCard from "../Charts/SimpleCard";
 
 const popoverButtonStyle = {
 	textTransform: "none",
@@ -348,6 +349,14 @@ const GraphArea = ({
 						graphTileSize={tileState.tiles[propKey].graphSizeFull}
 					/>
 				);
+			case "simplecard":
+				return (
+					<SimpleCard
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					/>
+				);
 
 			default:
 				return <h2>Work in progress</h2>;
@@ -382,6 +391,7 @@ const GraphArea = ({
 
 				case "gauge":
 				case "funnel":
+				case "simplecard":
 					measures = measures.concat(chartAxes[1].fields);
 					break;
 
@@ -417,7 +427,8 @@ const GraphArea = ({
 
 			if (
 				chartProperties.properties[propKey].chartType === "gauge" ||
-				chartProperties.properties[propKey].chartType === "funnel"
+				chartProperties.properties[propKey].chartType === "funnel" ||
+				chartProperties.properties[propKey].chartType === "simplecard"
 			) {
 				title = measureTitle ? measureTitle : "";
 			} else if (chartProperties.properties[propKey].chartType === "richText") {
@@ -567,8 +578,8 @@ const GraphArea = ({
 		var graphHeight = graphDimension2.height;
 		var graphWidth = graphDimension2.width;
 
-		const pageHeight = paperHeight - pageSettings.top_margin;
-		const pageWidth = paperWidth - pageSettings.right_margin;
+		const pageHeight = paperHeight - (pageSettings.top_margin + pageSettings.bottom_margin);
+		const pageWidth = paperWidth - (pageSettings.right_margin + pageSettings.left_margin);
 		var heightRatio = pageHeight / graphHeight;
 		var widthRatio = pageWidth / graphWidth;
 
@@ -641,75 +652,79 @@ const GraphArea = ({
 
 	return (
 		<div className="centerColumn" id="centerColumn">
-			<div className="graphTitleAndEdit">
-				{editTitle ? (
-					<form
-						style={{ width: "100%" }}
-						onSubmit={(evt: any) => {
-							evt.currentTarget.querySelector("input").blur();
-							evt.preventDefault();
-						}}
-					>
-						<input
-							autoFocus
-							style={{
-								fontSize: chartProperties.properties[propKey].titleOptions.fontSize,
-
-								textAlign:
-									chartProperties.properties[propKey].titleOptions.titleAlign,
+			{chartProperties.properties[propKey].chartType !== "simplecard" ? (
+				<div className="graphTitleAndEdit">
+					{editTitle ? (
+						<form
+							style={{ width: "100%" }}
+							onSubmit={(evt: any) => {
+								evt.currentTarget.querySelector("input").blur();
+								evt.preventDefault();
 							}}
-							type="text"
-							className="editTitle"
-							value={inputTitleText}
-							onChange={handleTitleChange}
-							onBlur={() => completeRename()}
-						/>
-					</form>
-				) : (
-					<>
-						<div
-							className="graphTitle"
-							style={{
-								fontSize: chartProperties.properties[propKey].titleOptions.fontSize,
-								textAlign:
-									chartProperties.properties[propKey].titleOptions.titleAlign,
-								paddingLeft:
-									chartProperties.properties[propKey].titleOptions
-										.titleLeftPadding,
-							}}
-							onDoubleClick={() => editTitleText()}
-							title="Double click to set title manually"
 						>
-							{chartProperties.properties[propKey].titleOptions.chartTitle}
-						</div>
-					</>
-				)}
+							<input
+								autoFocus
+								style={{
+									fontSize:
+										chartProperties.properties[propKey].titleOptions.fontSize,
 
-				{showSqlCode ? (
-					<div
-						className="graphAreaIcons"
-						onClick={() => {
-							setShowSqlCode(false);
-						}}
-						title="View graph"
-					>
-						<BarChartIcon />
-					</div>
-				) : (
-					<>
-						{!pageSettings.callForDownload ? (
-							<div className="graphAreaIcons">
-								<MoreVertOutlined
-									onClick={(e: any) => {
-										setOpen(true);
-										setAnchorEl(e.currentTarget);
-									}}
-								/>
+									textAlign:
+										chartProperties.properties[propKey].titleOptions.titleAlign,
+								}}
+								type="text"
+								className="editTitle"
+								value={inputTitleText}
+								onChange={handleTitleChange}
+								onBlur={() => completeRename()}
+							/>
+						</form>
+					) : (
+						<>
+							<div
+								className="graphTitle"
+								style={{
+									fontSize:
+										chartProperties.properties[propKey].titleOptions.fontSize,
+									textAlign:
+										chartProperties.properties[propKey].titleOptions.titleAlign,
+									paddingLeft:
+										chartProperties.properties[propKey].titleOptions
+											.titleLeftPadding,
+								}}
+								onDoubleClick={() => editTitleText()}
+								title="Double click to set title manually"
+							>
+								{chartProperties.properties[propKey].titleOptions.chartTitle}
 							</div>
-						) : null}
-					</>
-				)}
-			</div>
+						</>
+					)}
+
+					{showSqlCode ? (
+						<div
+							className="graphAreaIcons"
+							onClick={() => {
+								setShowSqlCode(false);
+							}}
+							title="View graph"
+						>
+							<BarChartIcon />
+						</div>
+					) : (
+						<>
+							{!pageSettings.callForDownload ? (
+								<div className="graphAreaIcons">
+									<MoreVertOutlined
+										onClick={(e: any) => {
+											setOpen(true);
+											setAnchorEl(e.currentTarget);
+										}}
+									/>
+								</div>
+							) : null}
+						</>
+					)}
+				</div>
+			) : null}
 			<div
 				id="graphContainer"
 				className="graphContainer"
@@ -768,6 +783,19 @@ const GraphArea = ({
 			>
 				<Button
 					sx={{ ...popoverButtonStyle }}
+					value="Full Screen"
+					onClick={() => {
+						setFullScreen(true);
+						setOpen(false);
+					}}
+				>
+					<div className="screenSettingsMenuItems">
+						<OpenInFullIcon sx={{ fontSize: "16px" }} />
+						Show full screen
+					</div>
+				</Button>
+				<Button
+					sx={{ ...popoverButtonStyle }}
 					style={
 						tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(propKey)
 							? {}
@@ -824,20 +852,13 @@ const GraphArea = ({
 						</div>
 					</div>
 				</Button>
-
-				<Button
-					sx={{ ...popoverButtonStyle }}
-					value="Full Screen"
-					onClick={() => {
-						setFullScreen(true);
-						setOpen(false);
+				<hr
+					style={{
+						border: "1px solid rgba(224,224,224,1)",
+						margin: "auto 5px",
+						borderRadius: "5px",
 					}}
-				>
-					<div className="screenSettingsMenuItems">
-						<OpenInFullIcon sx={{ fontSize: "16px" }} />
-						Show full screen
-					</div>
-				</Button>
+				></hr>
 				<Button
 					sx={{ ...popoverButtonStyle }}
 					value="View SQL"
@@ -905,15 +926,14 @@ const mapStateToProps = (state: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		setChartTitle: (propKey: number | string, title: string) =>
-			dispatch(setChartTitle(propKey, title)),
-		setGenerateTitleToStore: (propKey: number | string, option: any) =>
+		setChartTitle: (propKey: string, title: string) => dispatch(setChartTitle(propKey, title)),
+		setGenerateTitleToStore: (propKey: string, option: any) =>
 			dispatch(setGenerateTitle(propKey, option)),
 		toggleGraphSize: (tileKey: number, graphSize: boolean | any) =>
 			dispatch(toggleGraphSize(tileKey, graphSize)),
 		updateQueryResult: (propKey: string, query: string | any) =>
 			dispatch(updateQueryResult(propKey, query)),
-		updateMargin: (propKey: number | string, option: string, value: any) =>
+		updateMargin: (propKey: string, option: string, value: any) =>
 			dispatch(updateChartMargins(propKey, option, value)),
 		setPageSettings: (option: string, value: any) => dispatch(setPageSettings(option, value)),
 		resetPageSettings: () => dispatch(resetPageSettings()),

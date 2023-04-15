@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mysql.cj.xdevapi.JsonArray;
-
 import java.sql.SQLException;
 import javax.validation.Valid;
 

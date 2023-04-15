@@ -12,7 +12,6 @@ import org.silzila.app.model.PlayBook;
 import org.silzila.app.payload.request.PlayBookRequest;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.payload.response.PlayBookResponse;
-import org.silzila.app.repository.PlayBookRepository;
 import org.silzila.app.service.PlayBookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

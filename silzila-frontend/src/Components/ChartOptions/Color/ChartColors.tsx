@@ -18,9 +18,9 @@ import SwitchWithInput from "../SwitchWithInput";
 import { ColorSchemes, ColorSchemesProps } from "./ColorScheme";
 interface ChartColorsActions {
 	setColorScheme: (propKey: string, color: string) => void;
-	switchAutotoManualinSteps: (propKey: string | number, value: any) => void;
-	setAreaColorOptions: (propKey: string | number, option: string, value: any) => void;
-	updateBoxPlotStyleOptions: (propKey: string | number, option: string, value: any) => void;
+	switchAutotoManualinSteps: (propKey: string, value: any) => void;
+	setAreaColorOptions: (propKey: string, option: string, value: any) => void;
+	updateBoxPlotStyleOptions: (propKey: string, option: string, value: any) => void;
 }
 const ChartColors = ({
 	// state
@@ -196,11 +196,11 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		setColorScheme: (propKey: string, color: string) =>
 			dispatch(setColorScheme(propKey, color)),
-		switchAutotoManualinSteps: (propKey: string | number, value: any) =>
+		switchAutotoManualinSteps: (propKey: string, value: any) =>
 			dispatch(switchAutotoManualinSteps(propKey, value)),
-		setAreaColorOptions: (propKey: string | number, option: string, value: any) =>
+		setAreaColorOptions: (propKey: string, option: string, value: any) =>
 			dispatch(setAreaColorOptions(propKey, option, value)),
-		updateBoxPlotStyleOptions: (propKey: string | number, option: string, value: any) =>
+		updateBoxPlotStyleOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateBoxPlotStyleOptions(propKey, option, value)),
 	};
 };

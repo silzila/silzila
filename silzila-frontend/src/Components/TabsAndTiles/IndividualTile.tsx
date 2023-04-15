@@ -61,8 +61,8 @@ interface IndividualTileProps {
 		selectedDs: any,
 		selectedTablesInDs: any
 	) => void;
-	duplicateControl: (propKey: number, chartControl: ChartControlsProps) => void;
-	duplicateChartProperty: (propKey: number, chartProp: any) => void;
+	duplicateControl: (propKey: string, chartControl: ChartControlsProps) => void;
+	duplicateChartProperty: (propKey: string, chartProp: any) => void;
 }
 
 const IndividualTile = ({
@@ -137,11 +137,8 @@ const IndividualTile = ({
 
 		let tabObj: any = tabState.tabs[tabTileProps.selectedTabId];
 
-		var propKey: number = parseFloat(
-			`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
-		);
-
-		var nextPropKey: number = parseFloat(`${tabTileProps.selectedTabId}.${tabObj.nextTileId}`);
+		var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
+		var nextPropKey: string = `${tabTileProps.selectedTabId}.${tabObj.nextTileId}`;
 
 		actionsToAddTile(
 			tabObj.tabId, //tabId
@@ -316,9 +313,9 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 					selectedTablesInDs,
 				})
 			),
-		duplicateControl: (propKey: number, chartControl: ChartControlsProps) =>
+		duplicateControl: (propKey: string, chartControl: ChartControlsProps) =>
 			duplicateControl(propKey, chartControl),
-		duplicateChartProperty: (propKey: number, chartProp: any) =>
+		duplicateChartProperty: (propKey: string, chartProp: any) =>
 			dispatch(duplicateChartProperty(propKey, chartProp)),
 	};
 };

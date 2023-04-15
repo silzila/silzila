@@ -69,7 +69,7 @@ const TabRibbon = ({
 		let tileId: number = tabObj.selectedTileId;
 		let nextTileId: number = tabObj.nextTileId;
 
-		// let propKey: number = parseFloat(`${tabId}.${tileId}`);
+		// let propKey:string = `${tabId}.${tileId}`;
 		// let chartObj: IndChartPropProperties = chartProp.properties[propKey];
 
 		selectTile(tabId, tileName, tileId, nextTileId, true);

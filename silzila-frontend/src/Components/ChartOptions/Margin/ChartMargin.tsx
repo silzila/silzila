@@ -12,8 +12,8 @@ import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceFor
 import SliderWithInput from "../SliderWithInput";
 
 interface ChartMarginProps {
-	updateMargin: (propKey: number | string, option: string, value: any) => void;
-	updateCalendarStyleOptions: (propKey: number | string, option: string, value: any) => void;
+	updateMargin: (propKey: string, option: string, value: any) => void;
+	updateCalendarStyleOptions: (propKey: string, option: string, value: any) => void;
 }
 
 const ChartMargin = ({
@@ -26,10 +26,7 @@ const ChartMargin = ({
 	updateMargin,
 	updateCalendarStyleOptions,
 }: ChartOptionsProps & ChartMarginProps) => {
-	var propKey: number = parseFloat(
-		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
-	);
-
+	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	const marginMinMax: any = { min: 0, max: 50, step: 1 };
 
 	const marginOptionsForCharts = () => {
@@ -177,6 +174,7 @@ const ChartMargin = ({
 			case "boxPlot":
 			case "treeMap":
 			case "sankey":
+			case "simplecard":
 				return (
 					<React.Fragment>
 						<div className="optionDescription">MARGIN RESIZE:</div>
@@ -226,9 +224,9 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateMargin: (propKey: number | string, option: string, value: any) =>
+		updateMargin: (propKey: string, option: string, value: any) =>
 			dispatch(updateChartMargins(propKey, option, value)),
-		updateCalendarStyleOptions: (propKey: number | string, option: string, value: any) =>
+		updateCalendarStyleOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateCalendarStyleOptions(propKey, option, value)),
 	};
 };

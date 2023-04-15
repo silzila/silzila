@@ -20,7 +20,7 @@ const textFieldInputProps = {
 };
 
 interface BoxPlotChartAction {
-	updateBoxPlotStyleOptions: (propKey: string | number, option: string, value: any) => void;
+	updateBoxPlotStyleOptions: (propKey: string, option: string, value: any) => void;
 }
 
 const BoxPlotChartStyles = ({
@@ -97,7 +97,7 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateBoxPlotStyleOptions: (propKey: number | string, option: string, value: any) =>
+		updateBoxPlotStyleOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateBoxPlotStyleOptions(propKey, option, value)),
 	};
 };

@@ -1,7 +1,6 @@
 package org.silzila.app.service;
 
 import org.silzila.app.repository.DBConnectionRepository;
-import org.silzila.app.security.encryption.AES;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,7 +10,6 @@ import org.silzila.app.model.DBConnection;
 import org.silzila.app.payload.request.DBConnectionRequest;
 import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.exception.BadRequestException;
-// import org.silzila.app.security.encryption.AES;
 import org.silzila.app.security.encryption.AESEncryption;
 
 import java.util.ArrayList;

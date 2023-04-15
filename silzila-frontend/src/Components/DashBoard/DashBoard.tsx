@@ -5,7 +5,11 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { updateTabDashDetails } from "../../redux/TabTile/TabActions";
+import {
+	resetGraphHighlight,
+	updateGraphHighlight,
+	updateTabDashDetails,
+} from "../../redux/TabTile/TabActions";
 import { setDashGridSize } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { toggleGraphSize } from "../../redux/TabTile/TileActions";
 import "./DashBoard.css";
@@ -75,11 +79,24 @@ const DashBoard = ({
 		boxSizing: "border-box",
 		zIndex: 20,
 	});
+	const getHeightAndWidth = (paperHeight: number, paperWidth: number) => {
+		var graphHeight = dashStyle.height;
+		var graphWidth = dashStyle.width;
+		const pageHeight = paperHeight - (pageSettings.top_margin + pageSettings.bottom_margin);
+		const pageWidth = paperWidth - (pageSettings.right_margin + pageSettings.left_margin);
+		var heightRatio = pageHeight / graphHeight;
+		var widthRatio = pageWidth / graphWidth;
+		// getting least value
+		var ratio = Math.min(heightRatio, widthRatio);
+		var finalHeight = graphHeight * ratio;
+		var finalWidth = graphWidth * ratio;
+		return { height: finalHeight, width: finalWidth };
+	};
 
 	useEffect(() => {
 		if (pageSettings.callForDownload) {
 			const input = document.getElementById("GraphAreaToDownload") as HTMLElement;
-			console.log(input);
+
 			const d = new Date();
 			const id = `${tabTileProps.selectedTabName}_${d.getDate()}${
 				d.getMonth() + 1
@@ -92,10 +109,20 @@ const DashBoard = ({
 
 					const pdf = new jsPDF(
 						pageSettings.SelectedOrientation,
-						pageSettings.selectedUnit,
+						"px",
 						pageSettings.selectedFormat
 					);
-					pdf.addImage(imageData, "JPEG", 25, 0, 400, 400);
+					var width = pdf.internal.pageSize.getWidth();
+					var height = pdf.internal.pageSize.getHeight();
+					const heightAndWidth = getHeightAndWidth(height, width);
+					pdf.addImage(
+						imageData,
+						"JPEG",
+						pageSettings.left_margin,
+						pageSettings.top_margin,
+						heightAndWidth.width,
+						heightAndWidth.height
+					);
 					pdf.save(`${id}`);
 					resetPageSettings();
 				});
@@ -291,6 +318,7 @@ const DashBoard = ({
 					key={index}
 					checked={checked}
 					onChange={() => {
+						console.log(dashSpecs);
 						updateDashDetails(
 							checked,
 							propKey,
@@ -328,6 +356,9 @@ const DashBoard = ({
 	const renderGraphs = () => {
 		return tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.map((box, index) => {
 			var boxDetails = tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[box];
+			console.log(tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard);
+			console.log(box, index);
+			console.log(boxDetails);
 
 			return (
 				<GraphRNDDash
@@ -354,22 +385,21 @@ const DashBoard = ({
 				var container3 = "rndObject";
 
 				if (e.target.attributes.class) {
+					console.log(e.target.attributes.class.value);
 					if (
 						e.target.attributes.class.value === container ||
 						e.target.attributes.class.value === container2 ||
 						e.target.attributes.class.value === container3
 					) {
 						setmouseDownOutsideGraphs(false);
-
-						graphHighlight(
-							tabTileProps.selectedTabId,
-							e.target.attributes.propkey.value,
-							true
-						);
+						// graphHighlight(
+						// 	tabTileProps.selectedTabId,
+						// 	e.target.attributes.propkey.value,
+						// 	true
+						// );
 					} else {
 						setmouseDownOutsideGraphs(true);
-
-						resetHighlight(tabTileProps.selectedTabId);
+						// resetHighlight(tabTileProps.selectedTabId);
 					}
 				}
 			}}
@@ -471,9 +501,9 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		toggleGraphSize: (tileKey: number, graphSize: boolean) =>
 			dispatch(toggleGraphSize(tileKey, graphSize)),
 
-		// graphHighlight: (tabId: number, propKey: number, highlight: boolean | any) =>
-		// 	dispatch(updateGraphHighlight(tabId, propKey, highlight)),
-		// resetHighlight: (tabId: number) => dispatch(resetGraphHighlight(tabId)),
+		graphHighlight: (tabId: number, propKey: string, highlight: boolean | any) =>
+			dispatch(updateGraphHighlight(tabId, propKey, highlight)),
+		resetHighlight: (tabId: number) => dispatch(resetGraphHighlight(tabId)),
 		setGridSize: (gridSize: any) => dispatch(setDashGridSize(gridSize)), //gridSize{ x: null | number | string; y: null | number | string }
 		resetPageSettings: () => dispatch(resetPageSettings()), //gridSize{ x: null | number | string; y: null | number | string }
 	};

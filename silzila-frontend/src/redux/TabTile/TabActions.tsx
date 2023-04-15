@@ -146,3 +146,11 @@ export const loadTabState = (tabState: any) => {
 export const resetTabState = () => {
 	return { type: "RESET_TAB_STATE" };
 };
+
+export const resetGraphHighlight = (tabId: any) => {
+	return { type: "RESET_GRAPH_BORDER_HIGHLIGHT", payload: { tabId } };
+};
+
+export const updateGraphHighlight = (tabId: number, propKey: string, highlight: any) => {
+	return { type: "SET_GRAPH_BORDER_HIGHLIGHT", payload: { tabId, propKey, highlight } };
+};

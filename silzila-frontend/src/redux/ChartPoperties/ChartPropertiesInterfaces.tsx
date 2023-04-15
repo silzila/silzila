@@ -17,7 +17,7 @@ export interface IndChartPropProperties {
 	reUseData?: boolean;
 }
 export interface ChartPropProperties {
-	[key: number | string]: IndChartPropProperties;
+	[key: string]: IndChartPropProperties;
 }
 
 interface ChartPropChartAxesFieldsProps {
@@ -54,7 +54,7 @@ interface ChartPropTitleOptions {
 export interface ChartPropertiesProps {
 	properties: ChartPropProperties;
 
-	propList: { [key: number | string]: string[] };
+	propList: { [key: string]: string[] };
 }
 
 export interface ChartPropertiesStateProps {
@@ -78,12 +78,12 @@ interface AddProp {
 }
 interface DuplicateChartProperty {
 	type: "DUPLICATE_CHART_PROP";
-	payload: { propKey: string | number; chartProperty: any };
+	payload: { propKey: string; chartProperty: any };
 }
 
 interface RemoveChartProperties {
 	type: "DELETE_PROP";
-	payload: { tabId: number; tileId: number; propKey: string | number; tileIndex: number };
+	payload: { tabId: number; tileId: number; propKey: string; tileIndex: number };
 }
 
 interface RemoveMultipleChartProperties {
@@ -93,43 +93,43 @@ interface RemoveMultipleChartProperties {
 
 interface SetSelectedDsInTile {
 	type: "SET_SELECTED_DS_IN_TILE";
-	payload: { propKey: string | number; selectedDs: any };
+	payload: { propKey: string; selectedDs: any };
 }
 
 interface SetSelectedTableInTile {
 	type: "SET_SELECTED_TABLE_IN_TILE";
-	payload: { propKey: string | number; selectedTable: any };
+	payload: { propKey: string; selectedTable: any };
 }
 
 interface UpdateDropZoneExpandCollapsePropLeft {
 	type: "UPDATE_DROPZONE_EXPAND_COLLAPSE";
-	payload: { propKey: string | number; bIndex: string | number; isCollapsed: boolean };
+	payload: { propKey: string; bIndex: string | number; isCollapsed: boolean };
 }
 
 interface UpdateFilterAnyContidionMatchPropLeft {
 	type: "UPDATE_FILTER_ANY_CONDITION_MATCH";
-	payload: { propKey: string | number; bIndex: number | string; any_condition_match: any };
+	payload: { propKey: string; bIndex: number | string; any_condition_match: any };
 }
 
 interface UpdateIsAutoFilterEnabledPropLeft {
 	type: "UPDATE_IS_AUTO_FILTER_ENABLED";
-	payload: { propKey: string | number; bIndex: number | string; is_auto_filter_enabled: any };
+	payload: { propKey: string; bIndex: number | string; is_auto_filter_enabled: any };
 }
 
 interface ClearDropZoneFieldsChartPropLeft {
 	type: "CLEAR_DROPZONE_FIELDS";
-	payload: { propKey: string | number; bIndex: number | string };
+	payload: { propKey: string; bIndex: number | string };
 }
 
 interface UpdateChartPropLeft {
 	type: "UPDATE_PROP";
-	payload: { propKey: number; bIndex: number; item: any; allowedNumbers: any };
+	payload: { propKey: string; bIndex: number; item: any; allowedNumbers: any };
 }
 
 interface MoveItemChartProp {
 	type: "MOVE_ITEM";
 	payload: {
-		propKey: number;
+		propKey: string;
 		fromBIndex: any;
 		fromUID: any;
 		item: any;
@@ -141,7 +141,7 @@ interface MoveItemChartProp {
 interface DeleteItemInChartProp {
 	type: "DELETE_ITEM_FROM_PROP";
 	payload: {
-		propKey: number;
+		propKey: string;
 		binIndex: number;
 		itemIndex: number;
 	};
@@ -150,7 +150,7 @@ interface DeleteItemInChartProp {
 interface UpdateAxesQueryParam {
 	type: "UPDATE_AXES_QUERY_PARAM";
 	payload: {
-		propKey: number;
+		propKey: string;
 		binIndex: number;
 		itemIndex: number;
 		item: any;
@@ -159,46 +159,46 @@ interface UpdateAxesQueryParam {
 
 interface ToggleAxesEdited {
 	type: "TOGGLE_AXES_EDITED";
-	payload: { propKey: string | number; axesEdited: any };
+	payload: { propKey: string; axesEdited: any };
 }
 
 interface ToggleFilterRunState {
 	type: "TOGGLE_FILTER_RUN_STATE";
-	payload: { propKey: string | number; filterRunState: any };
+	payload: { propKey: string; filterRunState: any };
 }
 
 interface ChangeChartType {
 	type: "CHANGE_CHART_TYPE";
-	payload: { propKey: string | number; chartType: string };
+	payload: { propKey: string; chartType: string };
 }
 
 interface ChangeChartAxes {
 	type: "CHANGE_CHART_AXES";
-	payload: { propKey: string | number; newAxes: any };
+	payload: { propKey: string; newAxes: any };
 }
 
 interface CanReUseData {
 	type: "REUSE_DATA";
-	payload: { propKey: string | number; reUseData: boolean | any };
+	payload: { propKey: string; reUseData: boolean | any };
 }
 
 interface SetChartTitle {
 	type: "SET_CHART_TITLE";
-	payload: { propKey: string | number; title: string };
+	payload: { propKey: string; title: string };
 }
 
 interface SetGenerateTitle {
 	type: "SET_GENERATE_TITLE";
-	payload: { propKey: string | number; generateTitle: any };
+	payload: { propKey: string; generateTitle: any };
 }
 
 interface SetTitleAlignment {
 	type: "SET_TITLE_ALIGN";
-	payload: { propKey: string | number; align: string };
+	payload: { propKey: string; align: string };
 }
 interface SetTitleSize {
 	type: "SET_TITLE_SIZE";
-	payload: { propKey: string | number; value: number };
+	payload: { propKey: string; value: number };
 }
 
 interface SortAxes {
@@ -223,7 +223,7 @@ interface RevertAxes {
 
 interface ChangeChartOptionSelected {
 	type: "CHANGE_CHART_OPTION";
-	payload: { propKey: string | number; chartOption: any };
+	payload: { propKey: string; chartOption: any };
 }
 
 interface LoadChartProperties {
@@ -244,7 +244,7 @@ interface UpdateLeftFilterItem {
 }
 interface UpdtateFilterExpandeCollapse {
 	type: "UPDATE_FILTER_EXPAND_COLLAPSE";
-	payload: { propKey: string | number; bIndex: number | string; item: any };
+	payload: { propKey: string; bIndex: number | string; item: any };
 }
 
 export type ChartPropertiesActionsProps =

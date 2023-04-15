@@ -24,6 +24,7 @@ import SankeyStyles from "./ChartStyle/SankeyStyles";
 import TreeMapStyles from "./ChartStyle/TreeMapStyles";
 import ChartTitle from "./Title/ChartTitle";
 import { ChartOptionsStateProps } from "./CommonInterfaceForChartOptions";
+import CardStyle from "./ChartStyle/CardStyle";
 
 interface ControlDetailProps {
 	chartProperties: ChartPropertiesProps;
@@ -31,10 +32,7 @@ interface ControlDetailProps {
 }
 
 const ControlDetail = ({ chartProperties, tabTileProps }: ControlDetailProps) => {
-	var propKey: number = parseFloat(
-		`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
-	);
-
+	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var chartType: string = chartProperties.properties[propKey].chartType;
 
 	const RenderControlDetail = () => {
@@ -80,6 +78,8 @@ const ControlDetail = ({ chartProperties, tabTileProps }: ControlDetailProps) =>
 					return <TreeMapStyles />;
 				} else if (chartType === "sankey") {
 					return <SankeyStyles />;
+				} else if (chartType === "simplecard") {
+					return <CardStyle />;
 				} else {
 					return <ChartStyle />;
 				}

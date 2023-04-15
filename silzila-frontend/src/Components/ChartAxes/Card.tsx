@@ -210,7 +210,7 @@ const Card = ({
 
 	return field ? (
 		<div
-			ref={node => drag(drop(node))}
+			ref={(node: any) => drag(drop(node))}
 			className="axisField"
 			onMouseOver={() => setShowOptions(true)}
 			onMouseLeave={() => {

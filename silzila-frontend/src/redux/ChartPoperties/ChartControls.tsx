@@ -50,6 +50,16 @@ const chartControl = {
 				left: 5,
 			},
 
+			cardControls: {
+				height: 200,
+				width: 350,
+				fontSize: 35,
+				subtextFontSize: 15,
+				isDragging: false,
+				mainTextPos: { x: 129, y: 60 },
+				subTextPos: { x: 126, y: 110 },
+				subText: "",
+			},
 			calendarStyleOptions: {
 				showSplitLine: true,
 				splitLineColor: "black",
@@ -351,6 +361,16 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 							bottom: 5,
 							left: 5,
 						},
+						cardControls: {
+							height: 200,
+							width: 350,
+							fontSize: 35,
+							subtextFontSize: 15,
+							isDragging: false,
+							mainTextPos: { x: 129, y: 60 },
+							subTextPos: { x: 126, y: 110 },
+							subText: "",
+						},
 
 						calendarStyleOptions: {
 							showSplitLine: true,
@@ -626,6 +646,16 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 							max: 0,
 							minColor: "#2bb9bb",
 							maxColor: "#af99db",
+						},
+						cardControls: {
+							height: 200,
+							width: 350,
+							fontSize: 35,
+							subtextFontSize: 15,
+							isDragging: false,
+							mainTextPos: { x: 129, y: 60 },
+							subTextPos: { x: 126, y: 110 },
+							subText: "",
 						},
 
 						legendOptions: {
@@ -1306,6 +1336,18 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 					[action.payload.propKey]: {
 						richText: {
 							$set: action.payload.value,
+						},
+					},
+				},
+			});
+		case "UPDATE_CARD_CONTROLS":
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						cardControls: {
+							[action.payload.option]: {
+								$set: action.payload.value,
+							},
 						},
 					},
 				},

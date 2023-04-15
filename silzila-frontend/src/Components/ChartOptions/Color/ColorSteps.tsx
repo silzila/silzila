@@ -33,10 +33,10 @@ const textFieldStyleProps = {
 };
 
 interface ColorStepsActions {
-	changingValuesofSteps: (propKey: number | string, value: any) => void;
-	switchAutotoManualinSteps: (propKey: number | string, value: any) => void;
-	addingNewStep: (propKey: number | string, index: number, value: any) => void;
-	updateGaugeAxisOptions: (propKey: number | string, option: string, value: any) => void;
+	changingValuesofSteps: (propKey: string, value: any) => void;
+	switchAutotoManualinSteps: (propKey: string, value: any) => void;
+	addingNewStep: (propKey: string, index: number, value: any) => void;
+	updateGaugeAxisOptions: (propKey: string, option: string, value: any) => void;
 }
 
 const ColorSteps = ({
@@ -459,13 +459,13 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownprops: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		changingValuesofSteps: (propKey: number | string, value: any) =>
+		changingValuesofSteps: (propKey: string, value: any) =>
 			dispatch(changingValuesofSteps(propKey, value)),
-		switchAutotoManualinSteps: (propKey: number | string, value: any) =>
+		switchAutotoManualinSteps: (propKey: string, value: any) =>
 			dispatch(switchAutotoManualinSteps(propKey, value)),
-		addingNewStep: (propKey: number | string, index: number, value: any) =>
+		addingNewStep: (propKey: string, index: number, value: any) =>
 			dispatch(addingNewStep(propKey, index, value)),
-		updateGaugeAxisOptions: (propKey: number | string, option: string, value: any) =>
+		updateGaugeAxisOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateGaugeAxisOptions(propKey, option, value)),
 	};
 };

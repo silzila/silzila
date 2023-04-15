@@ -8,8 +8,8 @@
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.silzila</groupId>
-    <artifactId>app</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>silzila</artifactId>
+    <version>v0.0.1</version>
     <name>app</name>
     <description>Data Visualization App</description>
     <properties>

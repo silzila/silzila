@@ -31,7 +31,7 @@ const SankeyLabelOptions = ({
 
 	updateSankeyStyleOptions,
 }: ChartOptionsProps & {
-	updateSankeyStyleOptions: (propKey: number | string, option: string, value: any) => void;
+	updateSankeyStyleOptions: (propKey: string, option: string, value: any) => void;
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	// const handleOnSlide = debounce((value: any) => {
@@ -124,7 +124,7 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateSankeyStyleOptions: (propKey: number | string, option: string, value: any) =>
+		updateSankeyStyleOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateSankeyStyleOptions(propKey, option, value)),
 	};
 };

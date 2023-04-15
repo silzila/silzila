@@ -26,7 +26,7 @@ const ChartLegend = ({
 	updateLegendOption,
 	updateCalendarStyleOptions,
 }: ChartOptionsProps & {
-	updateLegendOption: (propKey: number | string, option: string, value: any) => void;
+	updateLegendOption: (propKey: string, option: string, value: any) => void;
 	updateCalendarStyleOptions: (propKey: string, option: string, value: any) => void;
 }) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
@@ -272,7 +272,7 @@ const mapStateToProps = (state: ChartOptionsStateProps, ownprops: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateLegendOption: (propKey: number | string, option: string, value: any) =>
+		updateLegendOption: (propKey: string, option: string, value: any) =>
 			dispatch(updateLegendOptions(propKey, option, value)),
 		updateCalendarStyleOptions: (propKey: string, option: string, value: any) =>
 			dispatch(updateCalendarStyleOptions(propKey, option, value)),

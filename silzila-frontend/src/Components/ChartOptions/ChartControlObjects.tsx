@@ -79,6 +79,7 @@ const ChartControlObjects = ({
 		// "Format",
 		"Style",
 	];
+	const simpleCardOptionList: string[] = ["Title", "Colors", "Format", "Style"];
 
 	const RenderOptions: any = () => {
 		console.log(selectedChart);
@@ -258,6 +259,22 @@ const ChartControlObjects = ({
 						</div>
 					);
 				});
+			case "simplecard":
+				return simpleCardOptionList.map(option => {
+					return (
+						<div
+							key={option}
+							className={
+								chartProp.properties[propKey].chartOptionSelected === option
+									? "optionImageSelected"
+									: "optionImage"
+							}
+							onClick={() => changeChartOption(propKey, option)}
+						>
+							{option}
+						</div>
+					);
+				});
 
 			default:
 				return <span> under construction</span>;
@@ -282,7 +299,7 @@ const mapStateToProps = (state: any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		changeChartOption: (propKey: number | string, chartOption: string) =>
+		changeChartOption: (propKey: string, chartOption: string) =>
 			dispatch(changeChartOptionSelected(propKey, chartOption)),
 	};
 };
