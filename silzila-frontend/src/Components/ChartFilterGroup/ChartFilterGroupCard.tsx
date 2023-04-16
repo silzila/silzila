@@ -10,9 +10,6 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import TextField from "@mui/material/TextField";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import {
-	updtateFilterExpandeCollapse,
-} from "../../redux/ChartPoperties/ChartPropertiesActions";
 
 import { updateChartFilterRightGroupsFilters, sortRightFilterGroupItems, revertRightFilterGroupItems, deleteRightFilterGroupItems } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 
@@ -27,15 +24,20 @@ import { Dispatch } from "redux";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import {ChartFilterGroupCardProps} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
+import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
+import {ChartFilterGroupStateProps} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
+
 
 const ChartFilterGroupCard = ({
 	propKey,
-	field,
 	name,
 	itemIndex,
-	token,
+	field,
 
 	// state
+	token,
 	chartProp,
 	chartGroup,
 
@@ -44,8 +46,7 @@ const ChartFilterGroupCard = ({
 	deleteRightFilterGroupItems,
 	sortRightFilterGroupItems,
 	revertRightFilterGroupItems,
-	updtateFilterExpandeCollapse,
-}: any) => {
+}: ChartFilterGroupCardProps) => {
 	field.dataType = field.dataType.toLowerCase();
 
 	//let selectedDatasetID = chartProp.properties[propKey].selectedDs.id;
@@ -53,21 +54,6 @@ const ChartFilterGroupCard = ({
 	let groupList = chartGroup.groups[name].filters || [];
 	let bIndex = 0;
 	const { uId, fieldname, displayname, dataType, tableId } = field;
-
-	//var isCollapsed: boolean = chartProp.properties[propKey].chartAxes[0].isCollapsed;
-	// console.log(field);
-
-	// useEffect(() => {
-	// 	// console.log("useEffect Called");
-	// 	var res = chartProp.properties[propKey].chartAxes[0].fields.map(el => {
-	// 		el.isCollapsed = !chartProp.properties[propKey].chartAxes[0].isCollapsed;
-	// 		return el;
-	// 	});
-	// 	//updtateFilterExpandeCollapse(propKey, bIndex, res);
-	// }, [isCollapsed]);
-
-	// console.log(propKey, field, bIndex, itemIndex, token);
-
 	const originalIndex = groupList.findIndex(
 		(item: any) => item.uId === uId
 	);
@@ -1234,14 +1220,12 @@ const ChartFilterGroupCard = ({
 };
 
 const mapStateToProps = (
-	state: any,
-	ownProps: any
+	state: ChartPropertiesStateProps & isLoggedProps & ChartFilterGroupStateProps
 ) => {
 	return {
-		chartProp: state.chartProperties,
 		token: state.isLogged.accessToken,
+		chartProp: state.chartProperties,
 		chartGroup: state.chartFilterGroup
-
 	};
 };
 
@@ -1249,9 +1233,6 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		updateChartFilterRightGroupsFilters: (groupName: string, filter: any) =>
 			dispatch(updateChartFilterRightGroupsFilters(groupName, filter)),
-
-		updtateFilterExpandeCollapse: (propKey: string, bIndex: number, item: any) =>
-			dispatch(updtateFilterExpandeCollapse(propKey, bIndex, item)),
 		deleteRightFilterGroupItems: (groupName: string, itemIndex: number) =>
 			dispatch(deleteRightFilterGroupItems(groupName, itemIndex)),
 		sortRightFilterGroupItems: (name: string, dragUId: any, uId: any) =>

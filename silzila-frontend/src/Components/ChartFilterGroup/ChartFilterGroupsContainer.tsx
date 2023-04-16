@@ -15,6 +15,9 @@ import {
 } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Checkbox } from "@mui/material";
+import {ChartFilterGroupsContainerProps} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
+import {ChartPropertiesStateProps} from '../../redux/ChartPoperties/ChartPropertiesInterfaces';
+import {ChartFilterGroupStateProps,groupProp} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
 
 const ChartFilterGroupsContainer = ({
 	// props
@@ -31,7 +34,7 @@ const ChartFilterGroupsContainer = ({
 	updateChartFilterGroupsCollapsed,
 	deleteChartFilterSelectedGroup
 
-}: any) => {
+}: ChartFilterGroupsContainerProps) => {
 	let selectedDatasetID = chartProp.properties[propKey].selectedDs.id;
 	let datasetGroupList = chartGroup.datasetGroupsList[selectedDatasetID];
 	let selectedFilterGroups = chartGroup.tabTile[propKey] || [];
@@ -44,7 +47,7 @@ const ChartFilterGroupsContainer = ({
 	let showFilters: any[] = [];
 
 	if (selectedFilterGroups && selectedFilterGroups.length > 0) {
-		selectedFilterGroups.forEach((grp: any) => {
+		selectedFilterGroups.forEach((grp: string) => {
 			showFilters.push({ id: grp, name: chartGroup.groups[grp].name, filters: chartGroup.groups[grp].filters, isCollapsed: chartGroup.groups[grp].isCollapsed });
 		})
 	}
@@ -139,7 +142,7 @@ const ChartFilterGroupsContainer = ({
 			</div>
 			<div>
 				{
-					showFilters.map((group: any, indx: number) =>
+					showFilters.map((group: groupProp, indx: number) =>
 					(
 						<ChartFilterGroups key={indx} propKey={propKey} group={group}></ChartFilterGroups>
 					)
@@ -214,7 +217,7 @@ const ChartFilterGroupsContainer = ({
 	);
 };
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: ChartPropertiesStateProps & ChartFilterGroupStateProps) => {
 	return {
 		chartProp: state.chartProperties,
 		chartGroup: state.chartFilterGroup
