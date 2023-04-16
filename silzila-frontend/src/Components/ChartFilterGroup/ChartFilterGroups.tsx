@@ -11,7 +11,9 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { AlertColor } from "@mui/material/Alert";
-
+import {ChartFilterGroupsProps} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
+import {ChartPropertiesStateProps} from '../../redux/ChartPoperties/ChartPropertiesInterfaces';
+import {ChartFilterGroupStateProps,fieldProps} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
 
 const ChartFilterGroups = ({
 	// props
@@ -27,7 +29,7 @@ const ChartFilterGroups = ({
 	updateChartFilterGroupsCollapsed,
 	updateChartFilterGroupsName
 
-}: any) => {
+}: ChartFilterGroupsProps) => {
 	const [editGroupName, setEditGroupName] = useState<boolean>(false);
 	let selectedDatasetID = chartProp.properties[propKey].selectedDs.id;
 	const [severity, setSeverity] = useState<AlertColor>("success");
@@ -149,17 +151,15 @@ const ChartFilterGroups = ({
 			{
 				!group.isCollapsed ?
 					<>
-						{group && group.filters?.map((field: any, index: number) =>
-
+						{group && group.filters?.map((field: fieldProps, index: number) =>
 							<ChartFilterGroupCard
-								name={group.id}
-								field={field}
-								key={index}
-								itemIndex={index}
 								propKey={propKey}
+								name={group.id}
+								itemIndex={index}
+								key={index}
+								field={field}
 							/>
-
-						)
+							)
 						}
 					</> : null
 			}
@@ -168,7 +168,7 @@ const ChartFilterGroups = ({
 
 };
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: ChartPropertiesStateProps & ChartFilterGroupStateProps) => {
 	return {
 		chartProp: state.chartProperties,
 		chartGroup: state.chartFilterGroup
