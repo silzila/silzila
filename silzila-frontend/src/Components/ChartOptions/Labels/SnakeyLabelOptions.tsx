@@ -8,12 +8,12 @@ import { Dispatch } from "redux";
 import { updateSankeyStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 
-const menuItemStyle = {
+export const menuItemStyle = {
 	padding: "2px 10px",
 	fontSize: "12px",
 };
 
-const SelectComponentStyle = {
+export const SelectComponentStyle = {
 	fontSize: "12px",
 	width: "90%",
 	margin: "0 auto 0.5rem auto",
