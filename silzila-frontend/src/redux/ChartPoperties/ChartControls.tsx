@@ -59,6 +59,11 @@ const chartControl = {
 				mainTextPos: { x: 129, y: 60 },
 				subTextPos: { x: 126, y: 110 },
 				subText: "",
+				borderTickness: 2,
+				borderRadius: 10,
+				borderColor: "rgba(224,224,224,1)",
+				dashStyle: "solid",
+				fontStyle: "normal",
 			},
 			calendarStyleOptions: {
 				showSplitLine: true,
@@ -370,6 +375,11 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 							mainTextPos: { x: 129, y: 60 },
 							subTextPos: { x: 126, y: 110 },
 							subText: "",
+							borderTickness: 2,
+							borderRadius: 10,
+							borderColor: "rgba(224,224,224,1)",
+							dashStyle: "solid",
+							fontStyle: "normal",
 						},
 
 						calendarStyleOptions: {
@@ -656,6 +666,11 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 							mainTextPos: { x: 129, y: 60 },
 							subTextPos: { x: 126, y: 110 },
 							subText: "",
+							borderTickness: 2,
+							borderRadius: 10,
+							borderColor: "rgba(224,224,224,1)",
+							dashStyle: "solid",
+							fontStyle: "normal",
 						},
 
 						legendOptions: {

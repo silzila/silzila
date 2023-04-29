@@ -52,7 +52,6 @@ const SimpleCard = ({
 		return (
 			<div
 				style={{
-					padding: "1rem",
 					width: graphDimension.width,
 					height: graphDimension.height,
 					overflow: "hidden",
@@ -75,11 +74,8 @@ const SimpleCard = ({
 					<div
 						style={{
 							margin: "auto",
-							border:
-								chartArea === "dashboard"
-									? "none"
-									: "2px solid rgba(224,224,224,1)",
-							borderRadius: "10px",
+							border: `${chartControl.cardControls.borderTickness}px ${chartControl.cardControls.dashStyle} ${chartControl.cardControls.borderColor}`,
+							borderRadius: `${chartControl.cardControls.borderRadius}px`,
 							display: "flex",
 							flexDirection: "column",
 							justifyContent: "center",
@@ -88,6 +84,7 @@ const SimpleCard = ({
 							height: `${chartControl.cardControls.height}px`,
 							width: `${chartControl.cardControls.width}px`,
 							overflow: "hidden",
+							fontStyle: ` ${chartControl.cardControls.fontStyle}`,
 						}}
 					>
 						{chartData.length >= 1 ? (
