@@ -134,7 +134,7 @@ const GraphRNDDash = ({
 						className="dragHeader"
 						style={{
 							cursor: "move",
-							border: "2px solid rgba(224,224,224,1)",
+							border: "none",
 							fontWeight: "unset",
 							color: "unset",
 							fontFamily: "unset",
