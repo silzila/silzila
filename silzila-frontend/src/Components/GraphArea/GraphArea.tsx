@@ -75,6 +75,7 @@ const GraphArea = ({
 	chartControlState,
 	token,
 	pageSettings,
+	dashBoardGroup,
 
 	// dispatch
 	setChartTitle,
@@ -541,6 +542,7 @@ const GraphArea = ({
 			chartProperties.properties[propKey].chartAxes,
 			chartProperties,
 			chartGroup,
+			dashBoardGroup,
 			propKey,
 			token,
 			true
@@ -924,6 +926,8 @@ const mapStateToProps = (state: any) => {
 		chartGroup: state.chartFilterGroup,
 		token: state.isLogged.accessToken,
 		pageSettings: state.pageSettings,
+		dashBoardGroup: state.dashBoardFilterGroup,
+
 	};
 };
 

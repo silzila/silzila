@@ -48,6 +48,13 @@ export const updateChartFilterSelectedGroups = ( tabTileName: string, selectedGr
 	};
 };
 
+export const duplicateChartFilterGroups = ( tabTileName: string, selectedGroups: any) => {
+	return {
+		type: "DUPLICATE_CHART_FILTER_GROUPS",
+		payload: { tabTileName, selectedGroups },
+	};
+};
+
 export const deleteChartFilterSelectedGroup = ( tabTileName: string, groupIndex: number) => {
 	return {
 		type: "DELETE_CHART_FILTER_SELECTED_GROUP",

@@ -15,29 +15,53 @@ import {
 } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Checkbox } from "@mui/material";
-import {ChartFilterGroupsContainerProps} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
-import {ChartPropertiesStateProps} from '../../redux/ChartPoperties/ChartPropertiesInterfaces';
-import {ChartFilterGroupStateProps,groupProp} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
+import { ChartFilterGroupsContainerProps } from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
+import { ChartPropertiesStateProps } from '../../redux/ChartPoperties/ChartPropertiesInterfaces';
+import { ChartFilterGroupStateProps, groupProp } from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
+import { updateDashBoardGroups, deleteDashBoardSelectedGroup } from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
+import { addDashBoardFilterGroupTabTiles, setDashBoardFilterGroupsTabTiles } from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
+import { TileRibbonStateProps } from "../../Components/TabsAndTiles/TileRibbonInterfaces";
 
 const ChartFilterGroupsContainer = ({
 	// props
 	propKey,
+	fromDashboard,
 
 	// state
 	chartProp,
 	chartGroup,
+	dashBoardGroup,
+	tileState,
+	tabTileProps,
 
 	// dispatch
 	addChartFilterGroupName,
 	addChartFilterTabTileName,
 	updateChartFilterSelectedGroups,
 	updateChartFilterGroupsCollapsed,
-	deleteChartFilterSelectedGroup
+	deleteChartFilterSelectedGroup,
+	updateDashBoardGroups,
+	deleteDashBoardSelectedGroup,
+	addDashBoardFilterGroupTabTiles,
+	setDashBoardFilterGroupsTabTiles
 
 }: ChartFilterGroupsContainerProps) => {
-	let selectedDatasetID = chartProp.properties[propKey].selectedDs.id;
-	let datasetGroupList = chartGroup.datasetGroupsList[selectedDatasetID];
-	let selectedFilterGroups = chartGroup.tabTile[propKey] || [];
+
+	let selectedDatasetID = "";
+	let datasetGroupList = [];
+	let selectedFilterGroups: any = [];
+
+
+	if (!fromDashboard) {
+		selectedDatasetID = chartProp.properties[propKey].selectedDs.id;
+		datasetGroupList = chartGroup.datasetGroupsList[selectedDatasetID];
+		selectedFilterGroups = chartGroup.tabTile[propKey] || [];
+	}
+	else {
+		selectedFilterGroups = dashBoardGroup.groups;
+		datasetGroupList = Object.keys(chartGroup.groups);
+	}
+
 	const [showPopover, setShowPopover] = useState<boolean>(false);
 	const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 	const open = Boolean(anchorEl);
@@ -46,11 +70,16 @@ const ChartFilterGroupsContainer = ({
 	//const 
 	let showFilters: any[] = [];
 
+	//if (!fromDashboard) {
 	if (selectedFilterGroups && selectedFilterGroups.length > 0) {
 		selectedFilterGroups.forEach((grp: string) => {
-			showFilters.push({ id: grp, name: chartGroup.groups[grp].name, filters: chartGroup.groups[grp].filters, isCollapsed: chartGroup.groups[grp].isCollapsed });
+			showFilters.push({
+				id: grp, name: chartGroup.groups[grp].name,
+				filters: chartGroup.groups[grp].filters, isCollapsed: chartGroup.groups[grp].isCollapsed
+			});
 		})
 	}
+	//}
 
 	const collapseOtherGroups = () => {
 		if (selectedFilterGroups && selectedFilterGroups.length > 0) {
@@ -73,10 +102,33 @@ const ChartFilterGroupsContainer = ({
 
 	const handleCBChange = (event: any) => {
 		if (event.target.checked) {
-			updateChartFilterSelectedGroups(propKey, event.target.name)
+			if (fromDashboard) {
+				addDashBoardFilterGroupTabTiles(event.target.name);
+				updateDashBoardGroups(event.target.name);
+
+
+				let tabTilesList: any = [];
+				let groupDataSetId = chartGroup.groups[event.target.name].dataSetId;
+
+				[...tileState.tileList[tabTileProps.selectedTabId]].forEach((item: any) => {
+					if (chartProp.properties[item].selectedDs.id == groupDataSetId) {
+						tabTilesList.push(item);
+					}
+				});
+
+				setDashBoardFilterGroupsTabTiles(event.target.name, tabTilesList)
+			}
+			else {
+				updateChartFilterSelectedGroups(propKey, event.target.name);
+			}
 		}
 		else {
-			deleteChartFilterSelectedGroup(propKey, selectedFilterGroups.findIndex((name: string) => name == event.target.name))
+			if (fromDashboard) {
+				deleteDashBoardSelectedGroup(selectedFilterGroups.findIndex((name: string) => name == event.target.name))
+			}
+			else {
+				deleteChartFilterSelectedGroup(propKey, selectedFilterGroups.findIndex((name: string) => name == event.target.name))
+			}
 		}
 	}
 
@@ -104,32 +156,33 @@ const ChartFilterGroupsContainer = ({
 	return (
 		<div className="chartFilterGroupContainer">
 			<div className="containersHead">
+				{!fromDashboard ?
+					<div
+						title="Create New Playbook"
+						className="containerButton"
+						onClick={e => {
 
-				<div
-					title="Create New Playbook"
-					className="containerButton"
-					onClick={e => {
+							if (!(selectedFilterGroups && selectedFilterGroups.length > 0)) {
+								addChartFilterTabTileName(selectedDatasetID, propKey);
+							}
 
-						if (!(selectedFilterGroups && selectedFilterGroups.length > 0)) {
-							addChartFilterTabTileName(selectedDatasetID, propKey);
-						}
+							//let newGroupName = "Filter Group " + ((datasetGroupList?.length + 1) || 1);
+							let numOfGroups = 0;
 
-						//let newGroupName = "Filter Group " + ((datasetGroupList?.length + 1) || 1);
-						let numOfGroups = 0;
+							if (Object.keys(chartGroup.groups) && Object.keys(chartGroup.groups).length > 0) {
+								numOfGroups = Object.keys(chartGroup.groups).length;
+							}
 
-						if (Object.keys(chartGroup.groups) && Object.keys(chartGroup.groups).length > 0) {
-							numOfGroups = Object.keys(chartGroup.groups).length;
-						}
-
-						let newGroupName = getNewGroupName(numOfGroups + 1);
-						let groupId = selectedDatasetID + "_" + newGroupName + (new Date().getMilliseconds());
-						addChartFilterGroupName(selectedDatasetID, groupId, newGroupName);
-						collapseOtherGroups();
-						updateChartFilterSelectedGroups(propKey, groupId);
-					}}
-				>
-					<AddIcon />
-				</div>
+							let newGroupName = getNewGroupName(numOfGroups + 1);
+							let groupId = selectedDatasetID + "_" + newGroupName + (new Date().getMilliseconds());
+							addChartFilterGroupName(selectedDatasetID, groupId, newGroupName);
+							collapseOtherGroups();
+							updateChartFilterSelectedGroups(propKey, groupId);
+						}}
+					>
+						<AddIcon />
+					</div>
+					: null}
 				<button
 					type="button"
 					className="buttonCommon"
@@ -144,7 +197,7 @@ const ChartFilterGroupsContainer = ({
 				{
 					showFilters.map((group: groupProp, indx: number) =>
 					(
-						<ChartFilterGroups key={indx} propKey={propKey} group={group}></ChartFilterGroups>
+						<ChartFilterGroups key={indx} propKey={propKey} group={group} fromDashboard={fromDashboard}></ChartFilterGroups>
 					)
 					)
 				}
@@ -217,10 +270,13 @@ const ChartFilterGroupsContainer = ({
 	);
 };
 
-const mapStateToProps = (state: ChartPropertiesStateProps & ChartFilterGroupStateProps) => {
+const mapStateToProps = (state: ChartPropertiesStateProps & ChartFilterGroupStateProps & TileRibbonStateProps) => {
 	return {
 		chartProp: state.chartProperties,
-		chartGroup: state.chartFilterGroup
+		chartGroup: state.chartFilterGroup,
+		dashBoardGroup: state.dashBoardFilterGroup,
+		tileState: state.tileState,
+		tabTileProps: state.tabTileProps,
 	};
 };
 
@@ -240,6 +296,17 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 
 		deleteChartFilterSelectedGroup: (tabTileName: string, groupIndex: number) =>
 			dispatch(deleteChartFilterSelectedGroup(tabTileName, groupIndex)),
+
+		updateDashBoardGroups: (groupIndex: number) =>
+			dispatch(updateDashBoardGroups(groupIndex)),
+
+
+		deleteDashBoardSelectedGroup: (groupIndex: number) =>
+			dispatch(deleteDashBoardSelectedGroup(groupIndex)),
+		addDashBoardFilterGroupTabTiles: (groupId: string) =>
+			dispatch(addDashBoardFilterGroupTabTiles(groupId)),
+		setDashBoardFilterGroupsTabTiles: (groupId: string, selectedTabTiles: any) =>
+			dispatch(setDashBoardFilterGroupsTabTiles(groupId, selectedTabTiles))
 	};
 };
 

@@ -10,6 +10,7 @@ export interface ChartAxesProps {
 	token: string;
 	chartProp: any;
 	chartGroup:any;
+	dashBoardGroup:any;
 	changeLocation: any;
 
 	// dispatch
@@ -17,6 +18,7 @@ export interface ChartAxesProps {
 	toggleAxesEdit: (propKey: string) => void;
 	reUseOldData: (propKey: string) => void;
 	chartFilterGroupEdited: (isEdited : boolean)=> void;
+	dashBoardFilterGroupsEdited:(isEdited : boolean) =>void;
 }
 interface TimeGrain {
 	name: string;

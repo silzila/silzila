@@ -9,7 +9,10 @@ const initialChartFilterGroup = {
     datasetGroupsList: [],
     groups: {
 
-    }
+    },
+    // dashBoard:{
+    //    // {//propKey : []//groups}
+    // }
 }
 
 
@@ -38,7 +41,7 @@ const chartFilterGroupReducer = (state: any = initialChartFilterGroup, action: a
 
     switch (action.type) {
         case "LOAD_REPORT_FILTER_GROUP":
-			return action.payload;
+            return action.payload;
 
         case "ADD_CHART_FILTER_GROUPNAME":
 
@@ -49,7 +52,8 @@ const chartFilterGroupReducer = (state: any = initialChartFilterGroup, action: a
                     [action.payload.groupId]: {
                         filters: [],
                         name: action.payload.groupName,
-                        isCollapsed: false
+                        isCollapsed: false,
+                        dataSetId: action.payload.dataSetName
                     }
                 },
                 datasetGroupsList: {
@@ -74,7 +78,7 @@ const chartFilterGroupReducer = (state: any = initialChartFilterGroup, action: a
                     ...state.datasetGroupsList,
                     [action.payload.dataSetName]: initializeDatasetGroupsList
                 },
-                chartFilterGroupEdited:false
+                chartFilterGroupEdited: false
             }
 
         case "UPDATE_CHART_FILTER_GROUPS_FILTERS":
@@ -85,14 +89,14 @@ const chartFilterGroupReducer = (state: any = initialChartFilterGroup, action: a
                         filters: { $push: [action.payload.filters] },
                     },
                 },
-                chartFilterGroupEdited: {$set:true}
+                chartFilterGroupEdited: { $set: true }
             });
 
-            case "CHART_FILTER_GROUP_EDITED":
-                return update(state, {
-                    chartFilterGroupEdited: {$set:action.payload.isEdited}
-                });
-    
+        case "CHART_FILTER_GROUP_EDITED":
+            return update(state, {
+                chartFilterGroupEdited: { $set: action.payload.isEdited }
+            });
+
 
         case "UPDATE_CHART_FILTER_RIGHT_GROUPS_FILTERS":
             var cardIndex = findCardIndex(
@@ -108,7 +112,7 @@ const chartFilterGroupReducer = (state: any = initialChartFilterGroup, action: a
                         },
                     },
                 },
-                chartFilterGroupEdited: {$set:true}
+                chartFilterGroupEdited: { $set: true }
             });
 
         case "DELETE_RIGHT_FILTER_GROUP_ITEM":
@@ -118,7 +122,7 @@ const chartFilterGroupReducer = (state: any = initialChartFilterGroup, action: a
                         filters: { $splice: [[action.payload.itemIndex, 1]] },
                     },
                 },
-                chartFilterGroupEdited: {$set:true}
+                chartFilterGroupEdited: { $set: true }
             });
 
         case "UPDATE_CHART_FILTER_GROUPS_NAME":
@@ -148,7 +152,17 @@ const chartFilterGroupReducer = (state: any = initialChartFilterGroup, action: a
                         $push: [action.payload.selectedGroups],
                     }
                 },
-                chartFilterGroupEdited: {$set:true}
+                chartFilterGroupEdited: { $set: true }
+            });
+
+        case "DUPLICATE_CHART_FILTER_GROUPS":
+            return update(state, {
+                tabTile: {
+                    [action.payload.tabTileName]: {
+                        $set: [action.payload.selectedGroups],
+                    }
+                },
+                chartFilterGroupEdited: { $set: true }
             });
 
         case "DELETE_CHART_FILTER_SELECTED_GROUP":
@@ -156,7 +170,7 @@ const chartFilterGroupReducer = (state: any = initialChartFilterGroup, action: a
                 tabTile: {
                     [action.payload.tabTileName]: { $splice: [[action.payload.groupIndex, 1]] }
                 },
-                chartFilterGroupEdited: {$set:true}
+                chartFilterGroupEdited: { $set: true }
             });
 
         case "SORT_RIGHT_FILTER_GROUP_ITEMS":

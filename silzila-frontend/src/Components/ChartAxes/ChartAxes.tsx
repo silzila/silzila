@@ -21,12 +21,15 @@ import {
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import {chartFilterGroupEdited} from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 import {ChartFilterGroupProps, ChartFilterGroupStateProps} from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
+import {dashBoardFilterGroupsEdited} from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
+import {DashBoardFilterGroupStateProps} from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupInterface';
 
 // format the chartAxes into the way it is needed for api call
 export const getChartData = async (
 	axesValues: AxesValuProps[],
 	chartProp: ChartPropertiesProps,
 	chartGroup:ChartFilterGroupProps,
+	dashBoardGroup:any,
 	propKey: string,
 	token: string,
 	forQueryData?: boolean
@@ -268,6 +271,16 @@ export const getChartData = async (
 			}
 		})
 
+		dashBoardGroup.groups.forEach((grp:string)=>{
+			if(dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)){
+				let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
+
+				if (rightFilterObj.filters.length > 0) {
+					formattedAxes.filterPanels.push(rightFilterObj);
+				}
+			}
+		});
+
 		var url: string = "";
 		if (chartProp.properties[propKey].selectedDs.isFlatFileData) {
 			url = `query?datasetid=${chartProp.properties[propKey].selectedDs.id}`;
@@ -339,13 +352,15 @@ const ChartAxes = ({
 	token,
 	chartProp,
 	chartGroup,
+	dashBoardGroup,
 	changeLocation,
 
 	// dispatch
 	updateChartData,
 	toggleAxesEdit,
 	reUseOldData,
-	chartFilterGroupEdited
+	chartFilterGroupEdited,
+	dashBoardFilterGroupsEdited
 }: ChartAxesProps) => {
 	const [loading, setLoading] = useState<boolean>(false);
 
@@ -478,7 +493,7 @@ const ChartAxes = ({
 
 		let serverCall = false;
 
-		if (chartProp.properties[propKey].axesEdited || chartGroup.chartFilterGroupEdited) {
+		if (chartProp.properties[propKey].axesEdited || chartGroup.chartFilterGroupEdited || dashBoardGroup.dashBoardGroupEdited) {
 			if (chartProp.properties[propKey].reUseData) {
 				serverCall = false;
 			} else {
@@ -516,7 +531,7 @@ const ChartAxes = ({
 
 		if (serverCall) {
 			setLoading(true);
-			getChartData(axesValues, chartProp, chartGroup, propKey, token).then(data => {
+			getChartData(axesValues, chartProp, chartGroup, dashBoardGroup, propKey, token).then(data => {
 				updateChartData(propKey, sortChartData(data));
 				setLoading(false);
 			});
@@ -525,13 +540,15 @@ const ChartAxes = ({
 		chartProp.properties[propKey].chartAxes,
 		chartProp.properties[propKey].chartType,
 		chartProp.properties[propKey].filterRunState,
-		chartGroup.chartFilterGroupEdited
+		chartGroup.chartFilterGroupEdited,
+		dashBoardGroup.dashBoardGroupEdited
 	]);
 
 	const resetStore = () => {
 		toggleAxesEdit(propKey);
 		reUseOldData(propKey);
 		chartFilterGroupEdited(false);
+		dashBoardFilterGroupsEdited(false);
 	};
 
 	var menuItemStyle = {
@@ -606,14 +623,14 @@ const ChartAxes = ({
 	);
 };
 
-const mapStateToProps = (state: ChartPropertiesStateProps & isLoggedProps & ChartFilterGroupStateProps, ownProps: any) => {
+const mapStateToProps = (state: ChartPropertiesStateProps & isLoggedProps & ChartFilterGroupStateProps & DashBoardFilterGroupStateProps, ownProps: any) => {
 	return {
 		// tabTileProps: state.tabTileProps,
 		// userFilterGroup: state.userFilterGroup,
 		chartProp: state.chartProperties,
 		token: state.isLogged.accessToken,
-		chartGroup: state.chartFilterGroup
-
+		chartGroup: state.chartFilterGroup,
+		dashBoardGroup: state.dashBoardFilterGroup,
 	};
 };
 
@@ -624,7 +641,9 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		toggleAxesEdit: (propKey: string) => dispatch(toggleAxesEdited(propKey, false)),
 		reUseOldData: (propKey: string) => dispatch(canReUseData(propKey, false)),
 	chartFilterGroupEdited:(isEdited : boolean) =>
-		dispatch(chartFilterGroupEdited(isEdited))
+		dispatch(chartFilterGroupEdited(isEdited)),
+		dashBoardFilterGroupsEdited:(isEdited : boolean) =>
+		dispatch(dashBoardFilterGroupsEdited(isEdited))
 	};
 };
 

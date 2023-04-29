@@ -22,12 +22,14 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { toPng } from "html-to-image";
 import { resetPageSettings } from "../../redux/PageSettings/DownloadPageSettingsActions";
+import ChartFilterGroupsContainer from '../ChartFilterGroup/ChartFilterGroupsContainer';
 
 const DashBoard = ({
 	// props
 	showListofTileMenu,
 	dashboardResizeColumn,
 	setShowListofTileMenu,
+	showDashBoardFilterMenu,
 	setDashboardResizeColumn,
 
 	// state
@@ -179,7 +181,7 @@ const DashBoard = ({
 
 	useLayoutEffect(() => {
 		test_dimensions();
-	}, [tabTileProps.showDash, tabTileProps.dashMode, showListofTileMenu, dashboardResizeColumn]);
+	}, [tabTileProps.showDash, tabTileProps.dashMode, showListofTileMenu, dashboardResizeColumn, showDashBoardFilterMenu]);
 
 	// Given the dimension of dashboard area available,
 	// if Fullscreen option or Aspect ratio option selected,
@@ -462,7 +464,7 @@ const DashBoard = ({
 								{tileList}
 							</div>
 						</div>
-					) : (
+					) : dashboardResizeColumn ?(
 						<>
 							{dashboardResizeColumn ? (
 								<div className="dashBoardSideBar">
@@ -472,6 +474,8 @@ const DashBoard = ({
 								</div>
 							) : null}
 						</>
+					):(
+						<ChartFilterGroupsContainer propKey={"0.0"} fromDashboard={true}></ChartFilterGroupsContainer>
 					)}
 				</div>
 			) : null}

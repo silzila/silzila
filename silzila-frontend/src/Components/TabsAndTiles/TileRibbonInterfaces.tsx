@@ -5,6 +5,8 @@ import {
 import { TabStateProps, TabStateProps2 } from "../../redux/TabTile/TabStateInterfaces";
 import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { TileStateProps, TileStateProps2 } from "../../redux/TabTile/TileStateInterfaces";
+import {ChartFilterGroupProps} from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
+import {ChartFilterGroupStateProps} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
 
 export interface TileRibbonProps {
 	//state
@@ -13,6 +15,7 @@ export interface TileRibbonProps {
 	tileState: TileStateProps;
 	tableData: any;
 	chartProp: ChartPropertiesProps;
+	chartGroup:ChartFilterGroupProps;
 	//Dispatch
 	addTile: (
 		tabId: number,
@@ -38,10 +41,12 @@ export interface TileRibbonProps {
 		isTrue: boolean
 	) => void;
 	removeTile: (tabId: number, tileId: number, tileIndex: number) => void;
+	addChartFilterTabTileName: (selectedDatasetID: string, tabTileName: string) => void;
 }
 
 export type TileRibbonStateProps = TabTileStateProps2 &
 	TabStateProps2 &
 	TileStateProps2 &
 	ChartPropertiesStateProps &
+	ChartFilterGroupStateProps &
 	any;
