@@ -37,6 +37,7 @@ import filterIcon from "../../assets/filter_icon.svg";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import GridViewIcon from "@mui/icons-material/GridView";
 import AspectRatioRoundedIcon from "@mui/icons-material/AspectRatioRounded";
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 
 interface DataViewerProps {
 	tabTileProps: TabTileStateProps;
@@ -62,6 +63,8 @@ function DataViewer({
 }: DataViewerProps) {
 	const [showListofTileMenu, setShowListofTileMenu] = useState<boolean>(true);
 	const [dashboardResizeColumn, setDashboardResizeColumn] = useState<boolean>(false);
+	const [showDashboardFilter, setShowDashboardFilter] = useState<boolean>(false);
+
 
 	// Whether to show table at the bottom of page or not
 	const handleTableDisplayToggle = () => {
@@ -109,7 +112,7 @@ function DataViewer({
 			style: { height: "2rem", width: "3rem", padding: "5px 6px", margin: "0 8px" },
 		},
 		{
-			name: "chart Filters",
+			name: "Report Filters",
 			icon: filterIcon,
 			style: { height: "2rem", width: "3rem", padding: "4px 3px", marginRight: "8px" },
 		},
@@ -181,6 +184,7 @@ function DataViewer({
 											onClick={() => {
 												if (tabTileProps.dashMode === "Edit") {
 													setDashboardResizeColumn(false);
+													setShowDashboardFilter(false);
 													setShowListofTileMenu(!showListofTileMenu);
 												}
 											}}
@@ -200,6 +204,7 @@ function DataViewer({
 											onClick={() => {
 												if (tabTileProps.dashMode === "Edit") {
 													setShowListofTileMenu(false);
+													setShowDashboardFilter(false);
 													setDashboardResizeColumn(
 														!dashboardResizeColumn
 													);
@@ -207,6 +212,33 @@ function DataViewer({
 											}}
 										/>
 									</Tooltip>
+
+									
+								</div>
+
+								<div
+									className={
+										showDashboardFilter
+											? "dashboardMenuIconStyleSelected"
+											: "dashboardMenuIconStyle"
+									}
+								>
+									<Tooltip title="Dashboard Filter">
+										<FilterAltIcon
+											sx={{ fontSize: "20px", marginTop: "2px" }}
+											onClick={() => {
+												if (tabTileProps.dashMode === "Edit") {
+													setShowListofTileMenu(false);
+													setDashboardResizeColumn(false);
+													setShowDashboardFilter(
+														!showDashboardFilter
+													);
+												}
+											}}
+										/>
+									</Tooltip>
+
+									
 								</div>
 							</div>
 						) : null}
@@ -218,8 +250,10 @@ function DataViewer({
 				<DashBoard
 					showListofTileMenu={showListofTileMenu}
 					dashboardResizeColumn={dashboardResizeColumn}
+					showDashBoardFilterMenu={showDashboardFilter}
 					setShowListofTileMenu={setShowListofTileMenu}
 					setDashboardResizeColumn={setDashboardResizeColumn}
+					setShowDashBoardFilter={setShowDashboardFilter}
 				/>
 			) : (
 				<React.Fragment>

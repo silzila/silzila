@@ -90,7 +90,7 @@ const DataViewerMiddle = ({
 					</div>
 				);
 
-				case "chart Filters":
+				case "Report Filters":
 					return (
 						<div className="rightColumnControlsAndFilters">
 							<div
@@ -113,7 +113,7 @@ const DataViewerMiddle = ({
 									onClick={() => setMenu("")}
 								/>
 							</div>
-							<ChartFilterGroupsContainer propKey={propKey}></ChartFilterGroupsContainer>
+							<ChartFilterGroupsContainer propKey={propKey} fromDashboard={false}></ChartFilterGroupsContainer>
 						</div>
 					);
 			default:

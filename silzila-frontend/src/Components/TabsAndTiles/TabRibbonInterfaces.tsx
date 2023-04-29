@@ -8,14 +8,17 @@ import {
 	TabTileStateProps2,
 	TabTilPropsSelectedDatasetList,
 } from "../../redux/TabTile/TabTilePropsInterfaces";
+import {ChartFilterGroupProps} from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
+import {ChartFilterGroupStateProps} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
 
-export type TabRibbonStateProps = TabTileStateProps2 & TabStateProps2 & ChartPropertiesStateProps;
+export type TabRibbonStateProps = TabTileStateProps2 & TabStateProps2 & ChartPropertiesStateProps & ChartFilterGroupStateProps;
 
 export interface TabRibbonProps {
 	//state
 	tabTileProps: TabTileStateProps;
 	tabState: TabStateProps;
 	chartProp: ChartPropertiesProps;
+	chartGroup:ChartFilterGroupProps;
 
 	//Dispatch
 	addTab: (
@@ -35,4 +38,6 @@ export interface TabRibbonProps {
 		nextTileId: number,
 		fromTab: boolean
 	) => void;
+	addChartFilterTabTileName: (selectedDatasetID: string, tabTileName: string) => void;
+
 }

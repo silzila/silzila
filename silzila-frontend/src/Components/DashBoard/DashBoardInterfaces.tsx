@@ -6,6 +6,7 @@ export interface DashBoardProps {
 	//props
 	showListofTileMenu: boolean;
 	dashboardResizeColumn: boolean;
+	showDashBoardFilterMenu: boolean;
 
 	//state
 	tabState: TabStateProps;
