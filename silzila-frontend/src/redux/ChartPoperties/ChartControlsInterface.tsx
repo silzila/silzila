@@ -297,6 +297,11 @@ interface CardControls {
 	mainTextPos: any;
 	subTextPos: any;
 	subText: string;
+	borderTickness: number;
+	borderRadius: number;
+	borderColor: string;
+	dashStyle: string;
+	fontStyle: string;
 }
 
 export interface ChartConAxisOptions {
