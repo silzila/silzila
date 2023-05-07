@@ -73,6 +73,7 @@ export const chartTypes = [
 	{ name: "richText", icon: TextEditorIcon, value: "Rich Text" },
 	{ name: "sankey", icon: Sankey, value: "Sankey Chart" },
 	{ name: "simplecard", icon: simpleCard, value: "Simple Card" },
+	{ name: "table", icon: CrossTabIcon, value: "Table" },
 ];
 
 const ChartTypes = ({
@@ -140,6 +141,7 @@ const ChartTypes = ({
 			case "area":
 			case "stackedArea":
 			case "treeMap":
+			case "table":
 			case "sankey":
 				if (
 					[
@@ -153,6 +155,7 @@ const ChartTypes = ({
 						"stackedArea",
 						"treeMap",
 						// "richText",
+						"table",
 						"sankey",
 					].includes(newChart)
 				) {
@@ -213,7 +216,7 @@ const ChartTypes = ({
 					}
 				}
 
-				if (newChart === "pie" || newChart === "donut" || newChart === "rose") {
+				if (newChart === "pie" || newChart === "donut" || newChart === "rose" || newChart === "table") {
 					keepOldData(propKey, false);
 
 					newChartAxes[0].fields = oldChartAxes[0].fields; //Filter
@@ -352,7 +355,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "pie" || newChart === "donut" || newChart === "rose") {
+				if (newChart === "pie" || newChart === "donut" || newChart === "rose" || newChart === "table") {
 					keepOldData(propKey, false);
 
 					newChartAxes[0].fields = oldChartAxes[0].fields; //Filter
@@ -459,6 +462,7 @@ const ChartTypes = ({
 				}
 				break;
 
+			case "table":
 			case "pie":
 			case "donut":
 			case "rose":
@@ -639,6 +643,7 @@ const ChartTypes = ({
 						"line",
 						"area",
 						"pie",
+						"table",
 						"donut",
 						"rose",
 						"stackedArea",
@@ -766,6 +771,7 @@ const ChartTypes = ({
 						"line",
 						"area",
 						"pie",
+						"table",
 						"donut",
 						"rose",
 						"stackedArea",
@@ -854,6 +860,7 @@ const ChartTypes = ({
 						"horizontalStacked",
 						"line",
 						"area",
+						"table",
 						"pie",
 						"donut",
 						"rose",
@@ -942,6 +949,7 @@ const ChartTypes = ({
 						"horizontalStacked",
 						"line",
 						"area",
+						"table",
 						"pie",
 						"donut",
 						"rose",
@@ -1061,6 +1069,7 @@ const ChartTypes = ({
 				}
 
 				break;
+
 			case "crossTab":
 			case "boxPlot":
 				if (newChart === "crossTab" || newChart === "boxPlot") return oldChartAxes;
@@ -1073,6 +1082,7 @@ const ChartTypes = ({
 						"horizontalStacked",
 						"line",
 						"area",
+						"table",
 						"pie",
 						"donut",
 						"rose",
@@ -1243,6 +1253,7 @@ const ChartTypes = ({
 						"calendar",
 						"richText",
 						"pie",
+						"table",
 						"donut",
 						"rose",
 					].includes(newChart)
@@ -1335,6 +1346,7 @@ const ChartTypes = ({
 							"heatmap",
 
 							"crossTab",
+							"table",
 
 							"geoChart",
 							"stackedArea",
