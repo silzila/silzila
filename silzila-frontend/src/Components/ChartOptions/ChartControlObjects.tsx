@@ -227,6 +227,7 @@ const ChartControlObjects = ({
 					);
 				});
 
+			case "table":
 			case "crossTab":
 				return crossTabOptionList.map(option => {
 					return (

@@ -11,7 +11,7 @@ const chartProperties: ChartPropertiesProps = {
 			tabId: 1,
 			tileId: 1,
 
-			chartType: "crossTab",
+			chartType: "table",
 
 			// Left Column
 			axesEdited: false,
@@ -29,11 +29,7 @@ const chartProperties: ChartPropertiesProps = {
 					fields: [],
 					isCollapsed: false,
 				},
-				{
-					name: "Column",
-					fields: [],
-					isCollapsed: false,
-				},
+				
 				{
 					name: "Measure",
 					fields: [],
@@ -98,7 +94,7 @@ const chartPropertiesState = (
 						// General Tab Info
 						tabId: action.payload.tabId,
 						tileId: action.payload.tileId,
-						chartType: "crossTab",
+						chartType: "table",
 
 						// Left Column
 						axesEdited: false,
@@ -116,11 +112,7 @@ const chartPropertiesState = (
 								fields: [],
 								isCollapsed: false,
 							},
-							{
-								name: "Column",
-								fields: [],
-								isCollapsed: false,
-							},
+							
 							{
 								name: "Measure",
 								fields: [],
@@ -159,7 +151,7 @@ const chartPropertiesState = (
 						// General Tab Info
 						tabId: action.payload.tabId,
 						tileId: action.payload.tileId,
-						chartType: "crossTab",
+						chartType: "table",
 
 						// Left Column
 						axesEdited: false,
@@ -177,11 +169,7 @@ const chartPropertiesState = (
 								fields: [],
 								isCollapsed: false,
 							},
-							{
-								name: "Column",
-								fields: [],
-								isCollapsed: false,
-							},
+						
 							{
 								name: "Measure",
 								fields: [],
