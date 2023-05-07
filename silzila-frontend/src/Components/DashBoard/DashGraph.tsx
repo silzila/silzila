@@ -38,8 +38,13 @@ const DashGraph = ({
 	const renderGraph = () => {
 		var dimensions = {
 			height:
-				parseInt(tabState.tabs[tabId].dashTilesDetails[propKey].height, 10) * gridSize.y -
-				32,
+				chartProp.properties[propKey].chartType === "simplecard"
+					? parseInt(tabState.tabs[tabId].dashTilesDetails[propKey].height, 10) *
+							gridSize.y -
+					  2
+					: parseInt(tabState.tabs[tabId].dashTilesDetails[propKey].height, 10) *
+							gridSize.y -
+					  32,
 			width:
 				parseInt(tabState.tabs[tabId].dashTilesDetails[propKey].width, 10) * gridSize.x - 4,
 		};
