@@ -22,6 +22,7 @@ import Sankey from "../Charts/Sankey";
 import StackedAreaChart from "../Charts/StackedAreaChart";
 import PieChart from "../Charts/PieChart";
 import SimpleCard from "../Charts/SimpleCard";
+import TableChart from '../Charts/TableChart/TableChart';
 
 const DashGraph = ({
 	// props
@@ -221,6 +222,12 @@ const DashGraph = ({
 						chartArea="dashboard"
 					/>
 				);
+			case "table":
+				return(<TableChart
+					propKey={propKey}
+					graphDimension={dimensions}
+					chartArea="dashboard"
+				></TableChart>);
 		}
 	};
 	return <React.Fragment>{renderGraph()}</React.Fragment>;

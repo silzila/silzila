@@ -57,6 +57,7 @@ import PhotoSizeSelectActualIcon from "@mui/icons-material/PhotoSizeSelectActual
 import sqlIcon from "../../assets/sqlCodeIcon.png";
 import DoneIcon from "@mui/icons-material/Done";
 import SimpleCard from "../Charts/SimpleCard";
+import TableChart from '../Charts/TableChart/TableChart';
 
 const popoverButtonStyle = {
 	textTransform: "none",
@@ -358,6 +359,14 @@ const GraphArea = ({
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
 						graphTileSize={tileState.tiles[propKey].graphSizeFull}
 					/>
+				);
+			case "table":
+				return(
+					<TableChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					></TableChart>
 				);
 
 			default:

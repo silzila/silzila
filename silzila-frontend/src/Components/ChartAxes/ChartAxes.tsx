@@ -529,6 +529,23 @@ const ChartAxes = ({
 			axesValues.splice(1, 2, combinedValuesForDimension);
 		}
 
+		if (
+			chartProp.properties[propKey].chartType === "table"
+		) {
+			var combinedValuesForDimension = { name: "Dimension", fields: [] };
+			// var values1 = axesValues[1].fields;
+			// var values2 = axesValues[2].fields;
+			// var allValues = values1.concat(values2);
+			combinedValuesForDimension.fields = axesValues[1].fields;
+
+			if(axesValues.length == 4){
+				axesValues.splice(1, 2, combinedValuesForDimension);
+			}
+			else if(axesValues.length == 3){
+				axesValues.splice(1, 1, combinedValuesForDimension);
+			}
+		}
+
 		if (serverCall) {
 			setLoading(true);
 			getChartData(axesValues, chartProp, chartGroup, dashBoardGroup, propKey, token).then(data => {
