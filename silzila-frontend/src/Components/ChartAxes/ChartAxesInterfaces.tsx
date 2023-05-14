@@ -5,7 +5,8 @@ export interface ChartAxesProps {
 	// props
 	tabId: number;
 	tileId: number;
-
+	screenFrom:string;
+	tabTileProps: TabTileStateProps;
 	// state
 	token: string;
 	chartProp: any;

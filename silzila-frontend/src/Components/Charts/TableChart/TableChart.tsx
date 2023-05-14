@@ -71,7 +71,7 @@ const TableChart = ({
   */
 	useEffect(() => {
 		if (tempFormatedChartPropData) {
-			var chartDataKeys = Object.keys(tempFormatedChartPropData[0]);
+			var chartDataKeys = Object.keys(tempFormatedChartPropData[0] || []);
 			let _formChartData:any = [];
 
 			tempFormatedChartPropData.forEach((item:any) => {
