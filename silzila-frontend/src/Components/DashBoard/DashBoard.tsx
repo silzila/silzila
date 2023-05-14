@@ -23,6 +23,7 @@ import jsPDF from "jspdf";
 import { toPng } from "html-to-image";
 import { resetPageSettings } from "../../redux/PageSettings/DownloadPageSettingsActions";
 import ChartFilterGroupsContainer from '../ChartFilterGroup/ChartFilterGroupsContainer';
+import ChartData from "../ChartAxes/ChartData";
 
 const DashBoard = ({
 	// props
@@ -475,7 +476,10 @@ const DashBoard = ({
 							) : null}
 						</>
 					):(
-						<ChartFilterGroupsContainer propKey={"0.0"} fromDashboard={true}></ChartFilterGroupsContainer>
+						<>
+						 <ChartData tabId={tabTileProps.selectedTabId} tileId={tabTileProps.selectedTileId} screenFrom="Dashboard"></ChartData>
+						 <ChartFilterGroupsContainer propKey={"0.0"} fromDashboard={true}></ChartFilterGroupsContainer>
+						</>
 					)}
 				</div>
 			) : null}

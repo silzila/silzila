@@ -121,6 +121,10 @@ export const BuildTable = ({
 
 		_header = rowIndex < dustbinColumns.length ? "CrossTabHeader " : "CrossTabLeftColumnHeader";
 
+		if(chartProperties.properties[propKey].chartType === 'table'){
+			_header = "TableHeader";
+		}
+
 		return col.displayData
 			? _header + _getUserClickedColor(col, rowIndex, colIndex)
 			: "EmptyHeaderCell";
