@@ -13,6 +13,7 @@ import tabTilePropsReducer from "./TabTile/TabTileProps";
 import FlatFileReducer from "./FlatFile/FlatFileState";
 import DownloadPageSettingReducer from "./PageSettings/DownloadPageSettingState";
 import chartFilterGroupReducer from "./ChartFilterGroup/ChartFilterGroupState";
+import DynamicMeasureReducer from "./DynamicMeasures/DynamicMeasureState";
 
 const allReducers = combineReducers({
 	isLogged: loggedReducer,
@@ -28,7 +29,8 @@ const allReducers = combineReducers({
 	playBookState: PlayBookReducer,
 	flatFileState: FlatFileReducer,
 	pageSettings: DownloadPageSettingReducer,
-	chartFilterGroup : chartFilterGroupReducer
+	chartFilterGroup: chartFilterGroupReducer,
+	dynamicMeasuresState: DynamicMeasureReducer,
 });
 
 export default allReducers;

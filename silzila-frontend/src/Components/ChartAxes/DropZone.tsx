@@ -28,6 +28,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { AlertColor } from "@mui/material/Alert";
+import { updateDynamicMeasureAxes } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 //import { StyledEngineProvider } from '@mui/material/styles';
 
 const DropZone = ({
@@ -38,6 +39,7 @@ const DropZone = ({
 
 	// state
 	chartProp,
+	dynamicMeasureState,
 
 	// dispatch
 	clearDropZoneFieldsChartPropLeft,
@@ -47,13 +49,21 @@ const DropZone = ({
 	updateDropZoneItems,
 	moveItemChartProp,
 	toggleFilterRunState,
-}: DropZoneProps) => {
+	updateDynamicMeasureAxes,
+}: DropZoneProps & any) => {
 	// var geoLocation = chartProp.properties[propKey].geoLocation;
 
 	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("Testing alert");
 	const [isFilterCollapsed, setIsFilterCollapsed] = useState<boolean>(false);
+
+	var selectedDynamicMeasureProps =
+		dynamicMeasureState?.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
+			dynamicMeasureState.selectedTileId
+		]?.[
+			`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+		];
 
 	const [, drop] = useDrop({
 		accept: "card",
@@ -117,7 +127,12 @@ const DropZone = ({
 					let newFieldData = JSON.parse(
 						JSON.stringify(setPrefix(fieldData, name, chartType))
 					);
-					updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
+					if (chartType === "richText") {
+						updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
+						true;
+					} else {
+						updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
+					}
 				}
 			}
 			//bindex is not 1 (dimension)
@@ -125,7 +140,12 @@ const DropZone = ({
 				let newFieldData = JSON.parse(
 					JSON.stringify(setPrefix(fieldData, name, chartType))
 				);
-				updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
+				if (chartType === "richText") {
+					updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
+					true;
+				} else {
+					updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
+				}
 			}
 		} else if (item.bIndex !== bIndex) {
 			// console.log("-------moving item from within------");
@@ -251,9 +271,7 @@ const DropZone = ({
 							);
 					  })
 					: null}
-
 				<Divider />
-
 				{bIndex === 0 && options1.length > 0
 					? options1.map((opt, index) => {
 							return (
@@ -301,9 +319,7 @@ const DropZone = ({
 							);
 					  })
 					: null}
-
 				<Divider />
-
 				{bIndex === 0 && options2.length > 0
 					? options2.map((opt, index) => {
 							return (
@@ -361,10 +377,6 @@ const DropZone = ({
 		setAnchorEl(event.currentTarget);
 	};
 
-	// const handleModalClose = () => {
-	// 	setModalData(null);
-	// };
-
 	return (
 		<div
 			ref={drop}
@@ -393,10 +405,10 @@ const DropZone = ({
 							  }
 					}
 				>
-					{name === "Filter"? "Chart Filter" : name}
+					{name === "Filter" ? "Chart Filter" : name}
 
 					<span style={{ marginLeft: "5px" }} className="axisInfo">
-						({chartProp.properties[propKey].chartAxes[bIndex].fields.length} / {""}
+						({chartProp.properties[propKey].chartAxes[bIndex].fields.length} /
 						{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
 					</span>
 
@@ -529,33 +541,64 @@ const DropZone = ({
 				) : ChartsInfo[chartType].dropZones[bIndex].allowedNumbers > 1 && ChartsInfo[chartType].dropZones[bIndex].min === 0 ? (
 					<span className="axisInfo"> Drop (0 - max {ChartsInfo[chartType].dropZones[bIndex].allowedNumbers}) field(s) here</span>
 				) : null */}
-				{bIndex == 0
-					? chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
-							(field: any, index: number) => (
-								// <div style={{ display: "none", height: "0px" }}>
-								<UserFilterCard
-									field={field}
-									bIndex={bIndex}
-									axisTitle={name}
-									key={index}
-									itemIndex={index}
-									propKey={propKey}
-								/>
-								// </div>
-							)
-					  )
-					: chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
-							(field: any, index: number) => (
-								<Card
-									field={field}
-									bIndex={bIndex}
-									axisTitle={name}
-									key={index}
-									itemIndex={index}
-									propKey={propKey}
-								/>
-							)
-					  )}
+
+				{bIndex == 0 ? (
+					<>
+						{chartType === "richText"
+							? selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.map(
+									(field: any, index: number) => (
+										<UserFilterCard
+											field={field}
+											bIndex={bIndex}
+											axisTitle={name}
+											key={index}
+											itemIndex={index}
+											propKey={propKey}
+										/>
+									)
+							  )
+							: chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
+									(field: any, index: number) => (
+										<UserFilterCard
+											field={field}
+											bIndex={bIndex}
+											axisTitle={name}
+											key={index}
+											itemIndex={index}
+											propKey={propKey}
+										/>
+									)
+							  )}
+					</>
+				) : (
+					<>
+						{chartType === "richText"
+							? selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.map(
+									(field: any, index: number) => (
+										<Card
+											field={field}
+											bIndex={bIndex}
+											axisTitle={name}
+											key={index}
+											itemIndex={index}
+											propKey={propKey}
+										/>
+									)
+							  )
+							: chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
+									(field: any, index: number) => (
+										<Card
+											field={field}
+											bIndex={bIndex}
+											axisTitle={name}
+											key={index}
+											itemIndex={index}
+											propKey={propKey}
+										/>
+									)
+							  )}
+					</>
+				)}
 			</div>
 
 			{/* ) : (
@@ -586,9 +629,10 @@ const DropZone = ({
 	);
 };
 
-const mapStateToProps = (state: ChartPropertiesStateProps) => {
+const mapStateToProps = (state: ChartPropertiesStateProps & any) => {
 	return {
 		chartProp: state.chartProperties,
+		dynamicMeasureState: state.dynamicMeasuresState,
 	};
 };
 
@@ -615,6 +659,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(toggleFilterRunState(propKey, runState)),
 		updateDropZoneItems: (propKey: string, bIndex: number, item: any, allowedNumbers: any) =>
 			dispatch(editChartPropItem("update", { propKey, bIndex, item, allowedNumbers })),
+		updateDynamicMeasureAxes: (bIndex: number, allowedNumbers: number, fieldData: any) =>
+			dispatch(updateDynamicMeasureAxes(bIndex, allowedNumbers, fieldData)),
 
 		moveItemChartProp: (
 			propKey: string,

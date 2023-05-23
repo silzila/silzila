@@ -19,20 +19,26 @@ import {
 	ChartPropertiesStateProps,
 } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
-import {chartFilterGroupEdited} from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
-import {ChartFilterGroupProps, ChartFilterGroupStateProps} from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
+import { chartFilterGroupEdited } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
+import {
+	ChartFilterGroupProps,
+	ChartFilterGroupStateProps,
+} from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
+import { updateChartDataForDm } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 
 // format the chartAxes into the way it is needed for api call
 export const getChartData = async (
 	axesValues: AxesValuProps[],
-	chartProp: ChartPropertiesProps,
-	chartGroup:ChartFilterGroupProps,
+	chartProp: any,
+	chartGroup: ChartFilterGroupProps,
 	propKey: string,
 	token: string,
 	forQueryData?: boolean
 ) => {
+	console.log(chartProp);
+	var chartType = chartProp.chartType ? chartProp.chartType : "richText";
 	/*	PRS 21/07/2022	Construct filter object for service call */
-	const getChartLeftFilter = (filters:any) => {
+	const getChartLeftFilter = (filters: any) => {
 		let _type: any = {};
 
 		//let _chartProp = chartProp.properties[propKey].chartAxes[0];
@@ -137,10 +143,8 @@ export const getChartData = async (
 
 		let _items = [];
 
-		if(_chartProp.fields)
-			_items = _chartProp.fields
-			else
-			_items = _chartProp
+		if (_chartProp.fields) _items = _chartProp.fields;
+		else _items = _chartProp;
 
 		/*	Iterate through each fileds added in the Filter Dropzone	*/
 		_items.forEach((item: any) => {
@@ -234,9 +238,10 @@ export const getChartData = async (
 	formattedAxes.fields = [];
 
 	if (
-		chartProp.properties[propKey].chartType === "funnel" ||
-		chartProp.properties[propKey].chartType === "gauge" ||
-		chartProp.properties[propKey].chartType === "simplecard"
+		chartType === "funnel" ||
+		chartType === "gauge" ||
+		chartType === "simplecard" ||
+		chartType === "richText"
 	) {
 		formattedAxes.dimensions = [];
 	}
@@ -245,13 +250,13 @@ export const getChartData = async (
 
 	/*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
 
-	let _filterZoneFields = chartProp.properties[propKey].chartAxes[0].fields;
+	let _filterZoneFields = chartProp.chartAxes[0].fields;
 	let _hasInvalidFilterData = _filterZoneFields.filter((field: any) => field.isInValidData);
 
 	if (_filterZoneFields.length > 0 && _hasInvalidFilterData && _hasInvalidFilterData.length > 0) {
 		console.log("Filter has invalid data.");
 	} else {
-		let _filterObj = getChartLeftFilter(chartProp.properties[propKey].chartAxes[0]);
+		let _filterObj = getChartLeftFilter(chartProp.chartAxes[0]);
 
 		if (_filterObj.filters.length > 0) {
 			formattedAxes.filterPanels.push(_filterObj);
@@ -260,19 +265,19 @@ export const getChartData = async (
 		}
 
 		//chartGroup
-		chartGroup.tabTile[propKey]?.forEach((grp:any)=>{
+		chartGroup.tabTile[propKey]?.forEach((grp: any) => {
 			let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
 
 			if (rightFilterObj.filters.length > 0) {
 				formattedAxes.filterPanels.push(rightFilterObj);
 			}
-		})
+		});
 
 		var url: string = "";
-		if (chartProp.properties[propKey].selectedDs.isFlatFileData) {
-			url = `query?datasetid=${chartProp.properties[propKey].selectedDs.id}`;
+		if (chartProp.selectedDs.isFlatFileData) {
+			url = `query?datasetid=${chartProp.selectedDs.id}`;
 		} else {
-			url = `query?dbconnectionid=${chartProp.properties[propKey].selectedDs.connectionId}&datasetid=${chartProp.properties[propKey].selectedDs.id}`;
+			url = `query?dbconnectionid=${chartProp.selectedDs.connectionId}&datasetid=${chartProp.selectedDs.id}`;
 		}
 
 		/*	PRS 21/07/2022	*/
@@ -301,21 +306,20 @@ export const getChartData = async (
 };
 
 // given chart type, check if the dropzones have required number of fields
-export const checkMinRequiredCards = (chartProp: any, propKey: string) => {
+export const checkMinRequiredCards = (chartProp: any) => {
+	var chartType = chartProp.chartType ? chartProp.chartType : "richText";
 	var minReqMet = [];
-	ChartsInfo[chartProp.properties[propKey].chartType].dropZones.forEach(
-		(zone: any, zoneI: number) => {
-			chartProp.properties[propKey].chartAxes[zoneI].fields.length >= zone.min
-				? minReqMet.push(true)
-				: minReqMet.push(false);
-		}
-	);
+	ChartsInfo[chartType].dropZones.forEach((zone: any, zoneI: number) => {
+		chartProp.chartAxes[zoneI].fields.length >= zone.min
+			? minReqMet.push(true)
+			: minReqMet.push(false);
+	});
 
-	if (chartProp.properties[propKey].chartType === "crossTab") {
+	if (chartType === "crossTab") {
 		if (
-			chartProp.properties[propKey].chartAxes[1].fields.length > 0 ||
-			chartProp.properties[propKey].chartAxes[2].fields.length > 0 ||
-			chartProp.properties[propKey].chartAxes[3].fields.length > 0
+			chartProp.chartAxes[1].fields.length > 0 ||
+			chartProp.chartAxes[2].fields.length > 0 ||
+			chartProp.chartAxes[3].fields.length > 0
 		) {
 			minReqMet.push(true);
 		} else {
@@ -337,24 +341,35 @@ const ChartAxes = ({
 
 	// state
 	token,
-	chartProp,
+	chartProperties,
 	chartGroup,
 	changeLocation,
+	dynamicMeasureState,
 
 	// dispatch
 	updateChartData,
 	toggleAxesEdit,
 	reUseOldData,
-	chartFilterGroupEdited
-}: ChartAxesProps) => {
+	chartFilterGroupEdited,
+	updateChartDataForDm,
+}: ChartAxesProps & any) => {
 	const [loading, setLoading] = useState<boolean>(false);
 
 	var propKey: string = `${tabId}.${tileId}`;
+	var chartType = chartProperties.properties[propKey].chartType;
 	var dropZones: any = [];
-	for (let i = 0; i < ChartsInfo[chartProp.properties[propKey].chartType].dropZones.length; i++) {
-		dropZones.push(ChartsInfo[chartProp.properties[propKey].chartType].dropZones[i].name);
+	for (let i = 0; i < ChartsInfo[chartType].dropZones.length; i++) {
+		dropZones.push(ChartsInfo[chartType].dropZones[i].name);
 	}
 
+	var chartProp: any =
+		chartType === "richText" && chartProperties.properties[propKey].isDynamicMeasureWindowOpened
+			? dynamicMeasureState.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
+					dynamicMeasureState.selectedTileId
+			  ]?.[
+					`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+			  ]
+			: chartProperties.properties[propKey];
 	// const usePrevious = (value) => {
 	// 	const ref = useRef();
 	// 	useEffect(() => {
@@ -372,9 +387,7 @@ const ChartAxes = ({
 	// if not reset the data
 
 	useEffect(() => {
-		const axesValues = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes));
-
-		//console.log(prevFilter);
+		const axesValues = JSON.parse(JSON.stringify(chartProp?.chartAxes));
 
 		/*	To sort chart data	based on field name	*/
 		const sortChartData = (chartData: any[]): any[] => {
@@ -478,11 +491,12 @@ const ChartAxes = ({
 
 		let serverCall = false;
 
-		if (chartProp.properties[propKey].axesEdited || chartGroup.chartFilterGroupEdited) {
-			if (chartProp.properties[propKey].reUseData) {
+		if (chartProp.axesEdited || chartGroup.chartFilterGroupEdited) {
+			if (chartProp.reUseData) {
 				serverCall = false;
 			} else {
-				var minReq = checkMinRequiredCards(chartProp, propKey);
+				console.log("run up to this");
+				var minReq = checkMinRequiredCards(chartProp);
 				if (minReq) {
 					serverCall = true;
 				} else {
@@ -492,7 +506,7 @@ const ChartAxes = ({
 			resetStore();
 		}
 
-		if (chartProp.properties[propKey].chartType === "scatterPlot") {
+		if (chartType === "scatterPlot") {
 			var combinedValuesForMeasure = { name: "Measure", fields: [] };
 			var values1 = axesValues[2].fields;
 			var values2 = axesValues[3].fields;
@@ -501,11 +515,7 @@ const ChartAxes = ({
 			axesValues.splice(2, 2, combinedValuesForMeasure);
 		}
 
-		if (
-			chartProp.properties[propKey].chartType === "heatmap" ||
-			chartProp.properties[propKey].chartType === "crossTab" ||
-			chartProp.properties[propKey].chartType === "boxPlot"
-		) {
+		if (chartType === "heatmap" || chartType === "crossTab" || chartType === "boxPlot") {
 			var combinedValuesForDimension = { name: "Dimension", fields: [] };
 			var values1 = axesValues[1].fields;
 			var values2 = axesValues[2].fields;
@@ -517,15 +527,20 @@ const ChartAxes = ({
 		if (serverCall) {
 			setLoading(true);
 			getChartData(axesValues, chartProp, chartGroup, propKey, token).then(data => {
-				updateChartData(propKey, sortChartData(data));
+				console.log(data);
+				if (chartType === "richText") {
+					updateChartDataForDm(sortChartData(data));
+				} else {
+					updateChartData(propKey, sortChartData(data));
+				}
 				setLoading(false);
 			});
 		}
 	}, [
-		chartProp.properties[propKey].chartAxes,
-		chartProp.properties[propKey].chartType,
-		chartProp.properties[propKey].filterRunState,
-		chartGroup.chartFilterGroupEdited
+		chartProp?.chartAxes,
+		chartType,
+		chartProp?.filterRunState,
+		chartGroup.chartFilterGroupEdited,
 	]);
 
 	const resetStore = () => {
@@ -542,7 +557,7 @@ const ChartAxes = ({
 
 	return (
 		<div className="charAxesArea">
-			{chartProp.properties[propKey].chartType === "geoChart" && (
+			{chartType === "geoChart" && (
 				<div
 					style={{ backgroundColor: "#d3d3d3", display: "flex", flexDirection: "column" }}
 				>
@@ -606,14 +621,15 @@ const ChartAxes = ({
 	);
 };
 
-const mapStateToProps = (state: ChartPropertiesStateProps & isLoggedProps & ChartFilterGroupStateProps, ownProps: any) => {
+const mapStateToProps = (
+	state: ChartPropertiesStateProps & isLoggedProps & ChartFilterGroupStateProps & any,
+	ownProps: any
+) => {
 	return {
-		// tabTileProps: state.tabTileProps,
-		// userFilterGroup: state.userFilterGroup,
-		chartProp: state.chartProperties,
+		chartProperties: state.chartProperties,
 		token: state.isLogged.accessToken,
-		chartGroup: state.chartFilterGroup
-
+		chartGroup: state.chartFilterGroup,
+		dynamicMeasureState: state.dynamicMeasuresState,
 	};
 };
 
@@ -621,10 +637,10 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		updateChartData: (propKey: string, chartData: any) =>
 			dispatch(updateChartData(propKey, chartData)),
+		updateChartDataForDm: (chartData: any) => dispatch(updateChartDataForDm(chartData)),
 		toggleAxesEdit: (propKey: string) => dispatch(toggleAxesEdited(propKey, false)),
 		reUseOldData: (propKey: string) => dispatch(canReUseData(propKey, false)),
-	chartFilterGroupEdited:(isEdited : boolean) =>
-		dispatch(chartFilterGroupEdited(isEdited))
+		chartFilterGroupEdited: (isEdited: boolean) => dispatch(chartFilterGroupEdited(isEdited)),
 	};
 };
 

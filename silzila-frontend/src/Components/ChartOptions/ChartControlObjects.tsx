@@ -3,19 +3,29 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { changeChartOptionSelected } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { chartTypes } from "./ChartTypes";
+import { changeDynamicMeasureOption } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 
 const ChartControlObjects = ({
 	// state
 	chartProp,
 	tabTileProps,
+	dynamicMeasureState,
 
 	// dispatch
 	changeChartOption,
+	changeDynamicMeasureOption,
 }: any) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var selectedChart = chartProp.properties[propKey].chartType;
 
-	const richTextOptionList: string[] = ["Title"];
+	var selectedDynamicMeasureProps =
+		dynamicMeasureState.dynamicMeasureProps?.[`${dynamicMeasureState.selectedTabId}`]?.[
+			`${dynamicMeasureState.selectedTileId}`
+		]?.[
+			`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+		];
+	console.log(selectedDynamicMeasureProps);
+	const richTextOptionList: string[] = ["Title", "Format", "Style", "Conditional Formating"];
 
 	const barOptionsList: string[] = [
 		"Title",
@@ -245,15 +255,16 @@ const ChartControlObjects = ({
 				});
 			case "richText":
 				return richTextOptionList.map(option => {
+					console.log(option, selectedDynamicMeasureProps?.chartOptionSelected);
 					return (
 						<div
 							key={option}
 							className={
-								chartProp.properties[propKey].chartOptionSelected === option
+								selectedDynamicMeasureProps?.chartOptionSelected === option
 									? "optionImageSelected"
 									: "optionImage"
 							}
-							onClick={() => changeChartOption(propKey, option)}
+							onClick={() => changeDynamicMeasureOption(option)}
 						>
 							{option}
 						</div>
@@ -294,13 +305,18 @@ const ChartControlObjects = ({
 };
 
 const mapStateToProps = (state: any) => {
-	return { chartProp: state.chartProperties, tabTileProps: state.tabTileProps };
+	return {
+		chartProp: state.chartProperties,
+		tabTileProps: state.tabTileProps,
+		dynamicMeasureState: state.dynamicMeasuresState,
+	};
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		changeChartOption: (propKey: string, chartOption: string) =>
 			dispatch(changeChartOptionSelected(propKey, chartOption)),
+		changeDynamicMeasureOption: (value: string) => dispatch(changeDynamicMeasureOption(value)),
 	};
 };
 

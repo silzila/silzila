@@ -5,13 +5,15 @@ export interface IndChartPropProperties {
 	tileId: number;
 
 	chartType: string;
+	isDynamicMeasureWindowOpened: boolean;
+	addMeasureInTextEditor: boolean;
 
 	axesEdited: boolean;
 	filterRunState: boolean;
 	chartAxes: ChartPropChartAxes[];
 	chartFilters: any[];
 	selectedDs: TabTilPropsSelectedDatasetList | any; //{}
-	selectedTable: any; //{"key":"jfj"}
+	selectedTable: any;
 	titleOptions: ChartPropTitleOptions;
 	chartOptionSelected: string;
 	reUseData?: boolean;
@@ -223,7 +225,7 @@ interface RevertAxes {
 
 interface ChangeChartOptionSelected {
 	type: "CHANGE_CHART_OPTION";
-	payload: { propKey: string; chartOption: any };
+	payload: { propKey: string; chartOption: any; chartValue: any };
 }
 
 interface LoadChartProperties {

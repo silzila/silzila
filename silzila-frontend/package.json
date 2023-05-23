@@ -31,6 +31,7 @@
     "jspdf": "^2.5.1",
     "lodash.debounce": "^4.0.8",
     "moment": "^2.29.4",
+    "quill-delta": "^5.0.0",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
     "react-date-picker": "^9.1.0",

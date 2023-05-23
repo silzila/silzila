@@ -24,20 +24,39 @@ import TreeMapStyles from "./ChartStyle/TreeMapStyles";
 import ChartTitle from "./Title/ChartTitle";
 import { ChartOptionsStateProps } from "./CommonInterfaceForChartOptions";
 import CardStyle from "./ChartStyle/CardStyle";
+import TitleForDynamicMeasures from "./Title/TitleForDynamicMeasures";
+import ChartFormatForDm from "./Format/ChartFormatForDm";
+import DynamicMeasureStyle from "./ChartStyle/DynamicMeasureStyle";
+import DynamicMeasureConditionalFormating from "./DynamicMeasureConditionalFormating";
 
 interface ControlDetailProps {
 	chartProperties: ChartPropertiesProps;
 	tabTileProps: TabTileStateProps;
 }
 
-const ControlDetail = ({ chartProperties, tabTileProps }: ControlDetailProps) => {
+const ControlDetail = ({
+	chartProperties,
+	tabTileProps,
+	dynamicMeasureState,
+}: ControlDetailProps & any) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var chartType: string = chartProperties.properties[propKey].chartType;
+	var chartOption =
+		chartType === "richText"
+			? dynamicMeasureState.dynamicMeasureProps?.[tabTileProps.selectedTabId]?.[
+					tabTileProps.selectedTileId
+			  ]?.[`${tabTileProps.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`]
+					?.chartOptionSelected
+			: chartProperties.properties[propKey].chartOptionSelected;
 
 	const RenderControlDetail = () => {
-		switch (chartProperties.properties[propKey].chartOptionSelected) {
+		switch (chartOption) {
 			case "Title":
-				return <ChartTitle />;
+				if (chartType === "richText") {
+					return <TitleForDynamicMeasures />;
+				} else {
+					return <ChartTitle />;
+				}
 			case "Colors":
 				if (chartType === "heatmap") {
 					return <ColorScale />;
@@ -79,11 +98,19 @@ const ControlDetail = ({ chartProperties, tabTileProps }: ControlDetailProps) =>
 					return <SankeyStyles />;
 				} else if (chartType === "simplecard") {
 					return <CardStyle />;
+				} else if (chartType === "richText") {
+					return <DynamicMeasureStyle />;
 				} else {
 					return <ChartStyle />;
 				}
 			case "Format":
-				return <ChartFormat chartType={chartType} />;
+				if (chartType === "richText") {
+					return <ChartFormatForDm />;
+				} else {
+					return <ChartFormat chartType={chartType} />;
+				}
+			case "Conditional Formating":
+				return <DynamicMeasureConditionalFormating />;
 			default:
 				return (
 					<span>
@@ -95,10 +122,11 @@ const ControlDetail = ({ chartProperties, tabTileProps }: ControlDetailProps) =>
 	};
 	return <RenderControlDetail />;
 };
-const mapStateToProps = (state: ChartOptionsStateProps) => {
+const mapStateToProps = (state: ChartOptionsStateProps & any) => {
 	return {
 		chartProperties: state.chartProperties,
 		tabTileProps: state.tabTileProps,
+		dynamicMeasureState: state.dynamicMeasuresState,
 	};
 };
 export default connect(mapStateToProps)(ControlDetail);

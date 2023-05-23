@@ -58,19 +58,14 @@ const UserFilterCard = ({
 
 	const { uId, fieldname, displayname, dataType, tableId } = field;
 	var isCollapsed: boolean = chartProp.properties[propKey].chartAxes[0].isCollapsed;
-	// console.log(field);
-	console.log(chartProp.properties[propKey].chartAxes[0]);
 
 	useEffect(() => {
-		// console.log("useEffect Called");
 		var res = chartProp.properties[propKey].chartAxes[0].fields.map(el => {
 			el.isCollapsed = !chartProp.properties[propKey].chartAxes[0].isCollapsed;
 			return el;
 		});
 		updtateFilterExpandeCollapse(propKey, bIndex, res);
 	}, [isCollapsed]);
-
-	// console.log(propKey, field, bIndex, itemIndex, token);
 
 	const originalIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
 		item => item.uId === uId
@@ -1139,7 +1134,6 @@ const UserFilterCard = ({
 
 	///Construct Chart property object
 	const constructChartAxesFieldObject = () => {
-		console.log(filterFieldData);
 		return filterFieldData;
 	};
 

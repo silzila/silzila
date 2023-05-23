@@ -8,7 +8,6 @@ const chartControl = {
 		1.1: {
 			chartData: "",
 			queryResult: "",
-			isRichText: false,
 			richText:
 				'<h1 class="ql-align-center ql-indent-2">Content Header</h1><p><span style="background-color: rgb(255, 255, 0);">Paragraph goes here...</span></p><ul><li>This</li><li>is</li><li>List</li></ul><p>Another Paragraph</p><ol><li>Numbered</li><li>List</li><li><a href="https://silzila.org" rel="noopener noreferrer" target="_blank">silzila</a></li></ol>',
 			colorScheme: "peacock",
@@ -325,7 +324,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 					[tileKey]: {
 						chartData: "",
 						queryResult: "",
-						isRichText: false,
 						richText:
 							'<h1 class="ql-align-center ql-indent-2">Content Header</h1><p><span style="background-color: rgb(255, 255, 0);">Paragraph goes here...</span></p><ul><li>This</li><li>is</li><li>List</li></ul><p>Another Paragraph</p><ol><li>Numbered</li><li>List</li><li><a href="https://silzila.org" rel="noopener noreferrer" target="_blank">silzila</a></li></ol>',
 						colorScheme: "peacock",
@@ -643,7 +641,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 					[tileKey2]: {
 						chartData: "",
 						queryResult: "",
-						isRichText: false,
 						richText:
 							'<h1 class="ql-align-center ql-indent-2">Content Header</h1><p><span style="background-color: rgb(255, 255, 0);">Paragraph goes here...</span></p><ul><li>This</li><li>is</li><li>List</li></ul><p>Another Paragraph</p><ol><li>Numbered</li><li>List</li><li><a href="https://silzila.org" rel="noopener noreferrer" target="_blank">silzila</a></li></ol>',
 						colorScheme: "peacock",
@@ -1363,6 +1360,19 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 							[action.payload.option]: {
 								$set: action.payload.value,
 							},
+						},
+					},
+				},
+			});
+
+		case "UPDATE_RICH_TEXT_ON_ADDING_DYNAMIC_MEASURE":
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						richText: {
+							$set: state.properties[action.payload.propKey].richText.concat(
+								action.payload.value
+							),
 						},
 					},
 				},

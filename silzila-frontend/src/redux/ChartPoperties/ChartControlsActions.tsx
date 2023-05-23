@@ -286,7 +286,13 @@ export const updateSankeyStyleOptions = (
 };
 
 export const updateRichText = (propKey: string, value: string | number) => {
+	console.log(value);
 	return { type: "UPDATE_RICH_TEXT", payload: { propKey, value } };
+};
+
+export const updateRichTextOnAddingDYnamicMeasure = (propKey: string, value: string | number) => {
+	console.log(value);
+	return { type: "UPDATE_RICH_TEXT_ON_ADDING_DYNAMIC_MEASURE", payload: { propKey, value } };
 };
 
 export const updateCardControls = (propKey: string, option: string, value: any) => {

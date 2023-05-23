@@ -57,6 +57,11 @@ import PhotoSizeSelectActualIcon from "@mui/icons-material/PhotoSizeSelectActual
 import sqlIcon from "../../assets/sqlCodeIcon.png";
 import DoneIcon from "@mui/icons-material/Done";
 import SimpleCard from "../Charts/SimpleCard";
+import {
+	renameDynamicMeasure,
+	updateConditionalFormatStyleOptions,
+} from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 
 const popoverButtonStyle = {
 	textTransform: "none",
@@ -75,6 +80,7 @@ const GraphArea = ({
 	chartControlState,
 	token,
 	pageSettings,
+	dynamicMeasureState,
 
 	// dispatch
 	setChartTitle,
@@ -84,6 +90,8 @@ const GraphArea = ({
 	updateMargin,
 	setPageSettings,
 	resetPageSettings,
+	renameDynamicMeasure,
+	updateConditionalFormatStyleOptions,
 }: any) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	// console.log(propKey);
@@ -96,6 +104,51 @@ const GraphArea = ({
 	const [fullScreen, setFullScreen] = useState<boolean>(false);
 	const [open, setOpen] = useState<boolean>(false);
 	const [anchorEl, setAnchorEl] = useState<any>();
+
+	const [isConditionSatisfied, setIsConditionSatisfied] = useState<boolean>(false);
+
+	var selectedDynamicMeasureProp =
+		dynamicMeasureState.dynamicMeasureProps?.[`${dynamicMeasureState.selectedTabId}`]?.[
+			`${dynamicMeasureState.selectedTileId}`
+		]?.[
+			`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+		];
+
+	useEffect(() => {
+		if (selectedDynamicMeasureProp?.conditionalFormatStyleOptions.conditionType === 1) {
+			if (
+				parseInt(selectedDynamicMeasureProp?.conditionalFormatStyleOptions.target) <
+				parseInt(selectedDynamicMeasureProp.dmValue)
+			) {
+				setIsConditionSatisfied(true);
+				updateConditionalFormatStyleOptions("isConditionSatisfied", true);
+			} else {
+				setIsConditionSatisfied(false);
+			}
+		} else if (selectedDynamicMeasureProp?.conditionalFormatStyleOptions.conditionType === 2) {
+			if (
+				parseInt(selectedDynamicMeasureProp?.conditionalFormatStyleOptions.minValue) <
+					parseInt(selectedDynamicMeasureProp.dmValue) &&
+				parseInt(selectedDynamicMeasureProp.dmValue) <
+					parseInt(selectedDynamicMeasureProp?.conditionalFormatStyleOptions.maxValue)
+			) {
+				setIsConditionSatisfied(true);
+			} else {
+				setIsConditionSatisfied(false);
+			}
+		} else if (selectedDynamicMeasureProp?.conditionalFormatStyleOptions.conditionType === 3) {
+			if (
+				parseInt(selectedDynamicMeasureProp?.conditionalFormatStyleOptions.target) >
+				parseInt(selectedDynamicMeasureProp.dmValue)
+			) {
+				setIsConditionSatisfied(true);
+			} else {
+				setIsConditionSatisfied(false);
+			}
+		} else {
+			setIsConditionSatisfied(false);
+		}
+	}, [selectedDynamicMeasureProp?.conditionalFormatStyleOptions]);
 
 	useEffect(() => {
 		if (!tabTileProps.showDash) {
@@ -343,13 +396,58 @@ const GraphArea = ({
 					/>
 				);
 			case "richText":
-				return (
-					<TextEditor
-						propKey={propKey}
-						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
-					/>
-				);
+				if (chartProperties.properties[propKey].isDynamicMeasureWindowOpened) {
+					var prop =
+						dynamicMeasureState.dynamicMeasureProps?.[
+							dynamicMeasureState.selectedTabId
+						]?.[dynamicMeasureState.selectedTileId]?.[
+							`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+						];
+					var data = prop?.dmValue;
+
+					var formattedValue = data;
+					formattedValue = formatChartLabelValue(prop, formattedValue);
+
+					return (
+						<div
+							style={{
+								color: prop?.conditionalFormatStyleOptions
+									.enableConditionalFormatting
+									? isConditionSatisfied
+										? prop?.conditionalFormatStyleOptions.fontColor
+										: prop?.styleOptions.fontColor
+									: prop?.styleOptions.fontColor,
+								backgroundColor: prop?.conditionalFormatStyleOptions
+									.enableConditionalFormatting
+									? isConditionSatisfied
+										? prop?.conditionalFormatStyleOptions.backgroundColor
+										: prop?.styleOptions.backgroundColor
+									: prop?.styleOptions.backgroundColor,
+								fontStyle: prop?.conditionalFormatStyleOptions
+									.enableConditionalFormatting
+									? isConditionSatisfied
+										? prop?.conditionalFormatStyleOptions.fontStyle
+										: prop?.styleOptions.fontStyle
+									: prop?.styleOptions.fontStyle,
+								padding: "5px",
+								width: graphDimension.width - 350,
+								height: graphDimension.height - 200,
+								overflow: "hidden",
+								margin: "auto",
+							}}
+						>
+							{data ? formattedValue : ""}
+						</div>
+					);
+				} else {
+					return (
+						<TextEditor
+							propKey={propKey}
+							graphDimension={fullScreen ? graphDimension2 : graphDimension}
+							graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						/>
+					);
+				}
 			case "simplecard":
 				return (
 					<SimpleCard
@@ -391,6 +489,7 @@ const GraphArea = ({
 					break;
 
 				case "gauge":
+				case "richText":
 				case "funnel":
 				case "simplecard":
 					measures = measures.concat(chartAxes[1].fields);
@@ -466,8 +565,15 @@ const GraphArea = ({
 	};
 
 	useEffect(() => {
-		setTitleText(chartProperties.properties[propKey].titleOptions.chartTitle);
-	}, [chartProperties.properties[propKey].titleOptions.chartTitle]);
+		if (chartProperties.properties[propKey].chartType === "richText") {
+			setTitleText(selectedDynamicMeasureProp?.editedDynamicMeasureName);
+		} else {
+			setTitleText(chartProperties.properties[propKey].titleOptions.chartTitle);
+		}
+	}, [
+		chartProperties.properties[propKey].titleOptions.chartTitle,
+		selectedDynamicMeasureProp?.dynamicMeasureName,
+	]);
 
 	const [inputTitleText, setTitleText] = useState<string>("");
 	const handleTitleChange = (e: any) => {
@@ -475,7 +581,11 @@ const GraphArea = ({
 	};
 
 	const completeRename = () => {
-		setChartTitle(propKey, inputTitleText);
+		if (chartProperties.properties[propKey].chartType === "richText") {
+			renameDynamicMeasure(inputTitleText);
+		} else {
+			setChartTitle(propKey, inputTitleText);
+		}
 		setEditTitle(false);
 	};
 
@@ -539,7 +649,8 @@ const GraphArea = ({
 	const getSqlQuery = () => {
 		getChartData(
 			chartProperties.properties[propKey].chartAxes,
-			chartProperties,
+			chartProperties.properties[propKey],
+			// chartProperties,
 			chartGroup,
 			propKey,
 			token,
@@ -667,11 +778,16 @@ const GraphArea = ({
 							<input
 								autoFocus
 								style={{
-									fontSize:
-										chartProperties.properties[propKey].titleOptions.fontSize,
+									fontSize: chartProperties.properties[propKey]
+										.isDynamicMeasureWindowOpened
+										? "25px"
+										: chartProperties.properties[propKey].titleOptions.fontSize,
 
-									textAlign:
-										chartProperties.properties[propKey].titleOptions.titleAlign,
+									textAlign: chartProperties.properties[propKey]
+										.isDynamicMeasureWindowOpened
+										? "left"
+										: chartProperties.properties[propKey].titleOptions
+												.titleAlign,
 								}}
 								type="text"
 								className="editTitle"
@@ -685,18 +801,27 @@ const GraphArea = ({
 							<div
 								className="graphTitle"
 								style={{
-									fontSize:
-										chartProperties.properties[propKey].titleOptions.fontSize,
-									textAlign:
-										chartProperties.properties[propKey].titleOptions.titleAlign,
-									paddingLeft:
-										chartProperties.properties[propKey].titleOptions
-											.titleLeftPadding,
+									fontSize: chartProperties.properties[propKey]
+										.isDynamicMeasureWindowOpened
+										? selectedDynamicMeasureProp?.fontSize
+										: chartProperties.properties[propKey].titleOptions.fontSize,
+									textAlign: chartProperties.properties[propKey]
+										.isDynamicMeasureWindowOpened
+										? selectedDynamicMeasureProp?.titleAlign
+										: chartProperties.properties[propKey].titleOptions
+												.titleAlign,
+									paddingLeft: chartProperties.properties[propKey]
+										.isDynamicMeasureWindowOpened
+										? selectedDynamicMeasureProp?.titleLeftPadding
+										: chartProperties.properties[propKey].titleOptions
+												.titleLeftPadding,
 								}}
 								onDoubleClick={() => editTitleText()}
 								title="Double click to set title manually"
 							>
-								{chartProperties.properties[propKey].titleOptions.chartTitle}
+								{chartProperties.properties[propKey].isDynamicMeasureWindowOpened
+									? selectedDynamicMeasureProp.dynamicMeasureName
+									: chartProperties.properties[propKey].titleOptions.chartTitle}
 							</div>
 						</>
 					)}
@@ -713,7 +838,8 @@ const GraphArea = ({
 						</div>
 					) : (
 						<>
-							{!pageSettings.callForDownload ? (
+							{!pageSettings.callForDownload &&
+							!chartProperties.properties[propKey].isDynamicMeasureWindowOpened ? (
 								<div className="graphAreaIcons">
 									<MoreVertOutlined
 										onClick={(e: any) => {
@@ -924,12 +1050,14 @@ const mapStateToProps = (state: any) => {
 		chartGroup: state.chartFilterGroup,
 		token: state.isLogged.accessToken,
 		pageSettings: state.pageSettings,
+		dynamicMeasureState: state.dynamicMeasuresState,
 	};
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		setChartTitle: (propKey: string, title: string) => dispatch(setChartTitle(propKey, title)),
+		renameDynamicMeasure: (name: string) => dispatch(renameDynamicMeasure(name)),
 		setGenerateTitleToStore: (propKey: string, option: any) =>
 			dispatch(setGenerateTitle(propKey, option)),
 		toggleGraphSize: (tileKey: number, graphSize: boolean | any) =>
@@ -940,6 +1068,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(updateChartMargins(propKey, option, value)),
 		setPageSettings: (option: string, value: any) => dispatch(setPageSettings(option, value)),
 		resetPageSettings: () => dispatch(resetPageSettings()),
+		updateConditionalFormatStyleOptions: (option: string, value: any) =>
+			dispatch(updateConditionalFormatStyleOptions(option, value)),
 	};
 };
 

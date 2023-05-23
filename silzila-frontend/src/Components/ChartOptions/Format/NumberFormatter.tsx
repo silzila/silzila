@@ -24,6 +24,7 @@ export const formatNumberWithComma = (value: any) => {
 // Function that formats numbers in labels for a chart
 // Rounding off digits, adding commas or abbreviations, add a currency Symbol, etc
 export const formatChartLabelValue = (chartControl: any, value: any) => {
+	console.log(chartControl);
 	// If Rounding enabled, returns a rounded value
 	if (chartControl.formatOptions.labelFormats.enableRounding) {
 		value = Number(value).toFixed(chartControl.formatOptions.labelFormats.roundingDigits);
