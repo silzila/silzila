@@ -74,6 +74,14 @@ const dashBoardFilterGroupReducer = (state: any = initialDashBoardFilterGroup, a
                     dashBoardGroupEdited: { $set: true }
                 });
 
+            case "DELETE_DASHBOARD_SELECTED_GROUP_ALL_TABTILES":
+                return update(state, {
+                    filterGroupTabTiles: {
+                        [action.payload.groupId]: { $set: [] }
+                    },
+                    dashBoardGroupEdited: { $set: true }
+                });
+
         default:
             return state;
     }

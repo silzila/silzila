@@ -3,11 +3,13 @@ export interface TabTileStateProps {
 	selectedTabId: number;
 	nextTabId: number;
 	editTabName: boolean;
+	previousTabId: number;
 
 	selectedTileName: string;
 	selectedTileId: number;
 	nextTileId: number;
 	editTileName: boolean;
+	previousTileId: number;
 
 	dragging: boolean;
 	chartPropUpdated: boolean;

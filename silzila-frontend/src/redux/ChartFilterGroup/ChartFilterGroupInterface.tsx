@@ -64,6 +64,7 @@ export interface ChartFilterGroupsContainerProps {
 	deleteDashBoardSelectedGroup: (groupIndex: number) => void;
 	addDashBoardFilterGroupTabTiles:(groupId: string)=> void;
 	setDashBoardFilterGroupsTabTiles:(groupId: string, selectedTabTiles: any) => void;
+	deleteDashBoardSelectedGroupAllTabTiles:(groupId: string) => void;
 }
 
 export interface ChartFilterGroupsProps {
