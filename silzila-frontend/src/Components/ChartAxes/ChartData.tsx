@@ -24,7 +24,9 @@ import {chartFilterGroupEdited} from "../../redux/ChartFilterGroup/ChartFilterGr
 import {ChartFilterGroupProps, ChartFilterGroupStateProps} from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 import {dashBoardFilterGroupsEdited} from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
 import {DashBoardFilterGroupStateProps} from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupInterface';
+
 import { TileRibbonProps, TileRibbonStateProps } from "../../Components/TabsAndTiles/TileRibbonInterfaces";
+
 
 
 // format the chartAxes into the way it is needed for api call
@@ -277,7 +279,9 @@ export const getChartData = async (
 
 		if(screenFrom === "Dashboard"){
 			dashBoardGroup.groups.forEach((grp:string)=>{
+
 				if(dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)){ ////Check this condition 1. group check if cont 2. propkey
+
 					let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
 
 					if (rightFilterObj.filters.length > 0) {
@@ -320,21 +324,25 @@ export const getChartData = async (
 };
 
 // given chart type, check if the dropzones have required number of fields
+
 export const checkMinRequiredCards = (chartProp: any, _propKey: string) => {
 	var minReqMet = [];
 	ChartsInfo[chartProp.properties[_propKey].chartType].dropZones.forEach(
 		(zone: any, zoneI: number) => {
 			chartProp.properties[_propKey].chartAxes[zoneI].fields.length >= zone.min
+
 				? minReqMet.push(true)
 				: minReqMet.push(false);
 		}
 	);
+
 
 	if (chartProp.properties[_propKey].chartType === "crossTab") {
 		if (
 			chartProp.properties[_propKey].chartAxes[1].fields.length > 0 ||
 			chartProp.properties[_propKey].chartAxes[2].fields.length > 0 ||
 			chartProp.properties[_propKey].chartAxes[3].fields.length > 0
+
 		) {
 			minReqMet.push(true);
 		} else {
@@ -359,8 +367,10 @@ const ChartData = ({
 	// state
 	token,
 	tabTileProps,
+
 	tileState,
 	tabState,
+
 	chartProp,
 	chartGroup,
 	dashBoardGroup,
@@ -371,10 +381,12 @@ const ChartData = ({
 	reUseOldData,
 	chartFilterGroupEdited,
 	dashBoardFilterGroupsEdited
+
 }: ChartAxesProps & TileRibbonStateProps) => {
 	const [loading, setLoading] = useState<boolean>(false);
 
 	var _propKey: string = `${tabId}.${tileId}`;
+
 	
 
 	// every time chartAxes or chartType is changed, check if
@@ -383,6 +395,7 @@ const ChartData = ({
 	// if not reset the data
 
 	useEffect(() => {
+
 
 		let showTabTile = false;
 
@@ -615,14 +628,17 @@ const ChartData = ({
 		chartProp.properties[_propKey].chartAxes,
 		chartProp.properties[_propKey].chartType,
 		chartProp.properties[_propKey].filterRunState,
+
 		chartGroup.chartFilterGroupEdited,
 		dashBoardGroup.dashBoardGroupEdited,
 		tabTileProps.showDash
 	]);
 
 	const resetStore = () => {
+
 		toggleAxesEdit(_propKey);
 		reUseOldData(_propKey);
+
 		chartFilterGroupEdited(false);
 		dashBoardFilterGroupsEdited(false);
 	};
@@ -636,11 +652,13 @@ const ChartData = ({
 	);
 };
 
+
 const mapStateToProps = (state: ChartPropertiesStateProps & TabTileStateProps2 & TileRibbonStateProps & isLoggedProps & ChartFilterGroupStateProps & DashBoardFilterGroupStateProps, ownProps: any) => {
 	return {
 		tabTileProps: state.tabTileProps,
 		tileState: state.tileState,
 		tabState: state.tabState,
+
 		// userFilterGroup: state.userFilterGroup,
 		chartProp: state.chartProperties,
 		token: state.isLogged.accessToken,
