@@ -5,7 +5,6 @@ export const updateDashBoardGroups = ( selectedGroups: any) => {
 	};
 };
 
-
 export const deleteDashBoardSelectedGroup = ( groupIndex: number) => {
 	return {
 		type: "DELETE_DASHBOARD_SELECTED_GROUP",
@@ -38,6 +37,13 @@ export const deleteDashBoardSelectedTabTiles = ( groupId: string, groupIndex: nu
 	return {
 		type: "DELETE_DASHBOARD_SELECTED_TABTILES",
 		payload: { groupId, groupIndex },
+	};
+};
+
+export const deleteDashBoardSelectedGroupAllTabTiles = ( groupId: string) => {
+	return {
+		type: "DELETE_DASHBOARD_SELECTED_GROUP_ALL_TABTILES",
+		payload: { groupId },
 	};
 };
 

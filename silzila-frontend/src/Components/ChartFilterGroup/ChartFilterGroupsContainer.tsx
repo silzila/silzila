@@ -19,7 +19,7 @@ import { ChartFilterGroupsContainerProps } from '../../redux/ChartFilterGroup/Ch
 import { ChartPropertiesStateProps } from '../../redux/ChartPoperties/ChartPropertiesInterfaces';
 import { ChartFilterGroupStateProps, groupProp } from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
 import { updateDashBoardGroups, deleteDashBoardSelectedGroup } from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
-import { addDashBoardFilterGroupTabTiles, setDashBoardFilterGroupsTabTiles } from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
+import { addDashBoardFilterGroupTabTiles, setDashBoardFilterGroupsTabTiles, deleteDashBoardSelectedGroupAllTabTiles } from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
 import { TileRibbonStateProps } from "../../Components/TabsAndTiles/TileRibbonInterfaces";
 
 const ChartFilterGroupsContainer = ({
@@ -43,8 +43,8 @@ const ChartFilterGroupsContainer = ({
 	updateDashBoardGroups,
 	deleteDashBoardSelectedGroup,
 	addDashBoardFilterGroupTabTiles,
-	setDashBoardFilterGroupsTabTiles
-
+	setDashBoardFilterGroupsTabTiles,
+	deleteDashBoardSelectedGroupAllTabTiles
 }: ChartFilterGroupsContainerProps) => {
 
 	let selectedDatasetID = "";
@@ -125,6 +125,7 @@ const ChartFilterGroupsContainer = ({
 		else {
 			if (fromDashboard) {
 				deleteDashBoardSelectedGroup(selectedFilterGroups.findIndex((name: string) => name == event.target.name))
+				deleteDashBoardSelectedGroupAllTabTiles(event.target.name);
 			}
 			else {
 				deleteChartFilterSelectedGroup(propKey, selectedFilterGroups.findIndex((name: string) => name == event.target.name))
@@ -303,6 +304,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 
 		deleteDashBoardSelectedGroup: (groupIndex: number) =>
 			dispatch(deleteDashBoardSelectedGroup(groupIndex)),
+		deleteDashBoardSelectedGroupAllTabTiles:(groupId: string) =>
+			dispatch(deleteDashBoardSelectedGroupAllTabTiles(groupId)),
 		addDashBoardFilterGroupTabTiles: (groupId: string) =>
 			dispatch(addDashBoardFilterGroupTabTiles(groupId)),
 		setDashBoardFilterGroupsTabTiles: (groupId: string, selectedTabTiles: any) =>

@@ -25,6 +25,10 @@ import {ChartFilterGroupProps, ChartFilterGroupStateProps} from "../../redux/Cha
 import {dashBoardFilterGroupsEdited} from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
 import {DashBoardFilterGroupStateProps} from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupInterface';
 
+import { TileRibbonProps, TileRibbonStateProps } from "../../Components/TabsAndTiles/TileRibbonInterfaces";
+
+
+
 // format the chartAxes into the way it is needed for api call
 export const getChartData = async (
 	axesValues: AxesValuProps[],
@@ -275,7 +279,9 @@ export const getChartData = async (
 
 		if(screenFrom === "Dashboard"){
 			dashBoardGroup.groups.forEach((grp:string)=>{
-				if(dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)){
+
+				if(dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)){ ////Check this condition 1. group check if cont 2. propkey
+
 					let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
 
 					if (rightFilterObj.filters.length > 0) {
@@ -318,21 +324,25 @@ export const getChartData = async (
 };
 
 // given chart type, check if the dropzones have required number of fields
-export const checkMinRequiredCards = (chartProp: any, propKey: string) => {
+
+export const checkMinRequiredCards = (chartProp: any, _propKey: string) => {
 	var minReqMet = [];
-	ChartsInfo[chartProp.properties[propKey].chartType].dropZones.forEach(
+	ChartsInfo[chartProp.properties[_propKey].chartType].dropZones.forEach(
 		(zone: any, zoneI: number) => {
-			chartProp.properties[propKey].chartAxes[zoneI].fields.length >= zone.min
+			chartProp.properties[_propKey].chartAxes[zoneI].fields.length >= zone.min
+
 				? minReqMet.push(true)
 				: minReqMet.push(false);
 		}
 	);
 
-	if (chartProp.properties[propKey].chartType === "crossTab") {
+
+	if (chartProp.properties[_propKey].chartType === "crossTab") {
 		if (
-			chartProp.properties[propKey].chartAxes[1].fields.length > 0 ||
-			chartProp.properties[propKey].chartAxes[2].fields.length > 0 ||
-			chartProp.properties[propKey].chartAxes[3].fields.length > 0
+			chartProp.properties[_propKey].chartAxes[1].fields.length > 0 ||
+			chartProp.properties[_propKey].chartAxes[2].fields.length > 0 ||
+			chartProp.properties[_propKey].chartAxes[3].fields.length > 0
+
 		) {
 			minReqMet.push(true);
 		} else {
@@ -347,6 +357,7 @@ export const checkMinRequiredCards = (chartProp: any, propKey: string) => {
 	}
 };
 
+
 const ChartData = ({
 	// props
 	tabId,
@@ -356,6 +367,10 @@ const ChartData = ({
 	// state
 	token,
 	tabTileProps,
+
+	tileState,
+	tabState,
+
 	chartProp,
 	chartGroup,
 	dashBoardGroup,
@@ -366,10 +381,12 @@ const ChartData = ({
 	reUseOldData,
 	chartFilterGroupEdited,
 	dashBoardFilterGroupsEdited
-}: ChartAxesProps) => {
+
+}: ChartAxesProps & TileRibbonStateProps) => {
 	const [loading, setLoading] = useState<boolean>(false);
 
-	var propKey: string = `${tabId}.${tileId}`;
+	var _propKey: string = `${tabId}.${tileId}`;
+
 	
 
 	// every time chartAxes or chartType is changed, check if
@@ -378,184 +395,250 @@ const ChartData = ({
 	// if not reset the data
 
 	useEffect(() => {
-		const axesValues = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes));
 
-		//console.log(prevFilter);
 
-		/*	To sort chart data	based on field name	*/
-		const sortChartData = (chartData: any[]): any[] => {
-			let result: any[] = [];
+		let showTabTile = false;
 
-			if (chartData && chartData.length > 0) {
-				let _zones: any = axesValues.filter((zones: any) => zones.name !== "Filter");
-				//let _zonesFields:any = [];
-				let _fieldTempObject: any = {};
-				let _chartFieldTempObject: any = {};
+		const makeServiceCall = (_tabTile:string)=>{
+			const axesValues = JSON.parse(JSON.stringify(chartProp.properties[_tabTile].chartAxes));
 
-				// _zones.forEach((zone:any)=>{
-				// 	_zonesFields = [..._zonesFields, ...zone.fields]
-				// });
-
-				/*	Find and return field's new name	*/
-				const findFieldName = (name: string, i: number = 2): string => {
-					if (_fieldTempObject[`${name}(${i})`] !== undefined) {
-						i++;
-						return findFieldName(name, i);
-					} else {
-						return `${name}(${i})`;
-					}
-				};
-
-				/*	Find and return field's new name	*/
-				const findFieldIndexName = (name: string, i: number = 2): string => {
-					if (_chartFieldTempObject[`${name}_${i}`] !== undefined) {
-						i++;
-						return findFieldIndexName(name, i);
-					} else {
-						return `${name}_${i}`;
-					}
-				};
-
-				_zones.forEach((zoneItem: any) => {
-					zoneItem.fields.forEach((field: any, index: number) => {
-						let _nameWithAgg: string = "";
-
-						if (zoneItem.name === "Measure") {
-							if (field.dataType !== "date" && field.dataType !== "timestamp") {
-								_nameWithAgg = field.agg
-									? `${field.agg} of ${field.fieldname}`
-									: field.fieldname;
-							} else {
-								let _timeGrain: string = field.timeGrain || "";
-								_nameWithAgg = field.agg
-									? `${field.agg} ${_timeGrain} of ${field.fieldname}`
-									: field.fieldname;
-							}
+			//console.log(prevFilter);
+	
+			/*	To sort chart data	based on field name	*/
+			const sortChartData = (chartData: any[]): any[] => {
+				let result: any[] = [];
+	
+				if (chartData && chartData.length > 0) {
+					let _zones: any = axesValues.filter((zones: any) => zones.name !== "Filter");
+					//let _zonesFields:any = [];
+					let _fieldTempObject: any = {};
+					let _chartFieldTempObject: any = {};
+	
+					// _zones.forEach((zone:any)=>{
+					// 	_zonesFields = [..._zonesFields, ...zone.fields]
+					// });
+	
+					/*	Find and return field's new name	*/
+					const findFieldName = (name: string, i: number = 2): string => {
+						if (_fieldTempObject[`${name}(${i})`] !== undefined) {
+							i++;
+							return findFieldName(name, i);
 						} else {
-							if (field.dataType !== "date" && field.dataType !== "timestamp") {
-								_nameWithAgg = field.agg
-									? `${field.agg} of ${field.fieldname}`
-									: field.fieldname;
-							} else {
-								let _timeGrain: string = field.timeGrain || "";
-								_nameWithAgg = _timeGrain
-									? `${_timeGrain} of ${field.fieldname}`
-									: field.fieldname;
-							}
+							return `${name}(${i})`;
 						}
-
-						if (_chartFieldTempObject[field.fieldname] !== undefined) {
-							let _name = findFieldIndexName(field.fieldname);
-
-							field["NameWithIndex"] = _name;
-							_chartFieldTempObject[_name] = "";
+					};
+	
+					/*	Find and return field's new name	*/
+					const findFieldIndexName = (name: string, i: number = 2): string => {
+						if (_chartFieldTempObject[`${name}_${i}`] !== undefined) {
+							i++;
+							return findFieldIndexName(name, i);
 						} else {
-							field["NameWithIndex"] = field.fieldname;
-							_chartFieldTempObject[field.fieldname] = "";
+							return `${name}_${i}`;
 						}
-
-						if (_fieldTempObject[_nameWithAgg] !== undefined) {
-							let _name = findFieldName(_nameWithAgg);
-
-							field["NameWithAgg"] = _name;
-							_fieldTempObject[_name] = "";
-						} else {
-							field["NameWithAgg"] = _nameWithAgg;
-							_fieldTempObject[_nameWithAgg] = "";
-						}
-					});
-				});
-
-				chartData.forEach((data: any) => {
-					let _chartDataObj: any = {};
-
+					};
+	
 					_zones.forEach((zoneItem: any) => {
-						zoneItem.fields.forEach((field: any) => {
-							_chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
+						zoneItem.fields.forEach((field: any, index: number) => {
+							let _nameWithAgg: string = "";
+	
+							if (zoneItem.name === "Measure") {
+								if (field.dataType !== "date" && field.dataType !== "timestamp") {
+									_nameWithAgg = field.agg
+										? `${field.agg} of ${field.fieldname}`
+										: field.fieldname;
+								} else {
+									let _timeGrain: string = field.timeGrain || "";
+									_nameWithAgg = field.agg
+										? `${field.agg} ${_timeGrain} of ${field.fieldname}`
+										: field.fieldname;
+								}
+							} else {
+								if (field.dataType !== "date" && field.dataType !== "timestamp") {
+									_nameWithAgg = field.agg
+										? `${field.agg} of ${field.fieldname}`
+										: field.fieldname;
+								} else {
+									let _timeGrain: string = field.timeGrain || "";
+									_nameWithAgg = _timeGrain
+										? `${_timeGrain} of ${field.fieldname}`
+										: field.fieldname;
+								}
+							}
+	
+							if (_chartFieldTempObject[field.fieldname] !== undefined) {
+								let _name = findFieldIndexName(field.fieldname);
+	
+								field["NameWithIndex"] = _name;
+								_chartFieldTempObject[_name] = "";
+							} else {
+								field["NameWithIndex"] = field.fieldname;
+								_chartFieldTempObject[field.fieldname] = "";
+							}
+	
+							if (_fieldTempObject[_nameWithAgg] !== undefined) {
+								let _name = findFieldName(_nameWithAgg);
+	
+								field["NameWithAgg"] = _name;
+								_fieldTempObject[_name] = "";
+							} else {
+								field["NameWithAgg"] = _nameWithAgg;
+								_fieldTempObject[_nameWithAgg] = "";
+							}
 						});
 					});
+	
+					chartData.forEach((data: any) => {
+						let _chartDataObj: any = {};
+	
+						_zones.forEach((zoneItem: any) => {
+							zoneItem.fields.forEach((field: any) => {
+								_chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
+							});
+						});
+	
+						result.push(_chartDataObj);
+					});
+				}
+	
+				return result;
+			};
 
-					result.push(_chartDataObj);
-				});
-			}
+			let serverCall = false;
 
-			return result;
-		};
+			if (chartProp.properties[_tabTile].axesEdited || chartGroup.chartFilterGroupEdited || dashBoardGroup.dashBoardGroupEdited || 
+					tabTileProps.showDash || showTabTile) {
 
-		let serverCall = false;
-
-		if (chartProp.properties[propKey].axesEdited || chartGroup.chartFilterGroupEdited || dashBoardGroup.dashBoardGroupEdited || tabTileProps.showDash !== null) {
-			if (chartProp.properties[propKey].reUseData) {
-				serverCall = false;
-			} else {
-				var minReq = checkMinRequiredCards(chartProp, propKey);
-				if (minReq) {
-					serverCall = true;
+				if (chartProp.properties[_tabTile].reUseData) {
+					serverCall = false;
 				} else {
-					updateChartData(propKey, "");
+					var minReq = checkMinRequiredCards(chartProp, _tabTile);
+					if (minReq) {
+						serverCall = true;
+					} else {
+						updateChartData(_tabTile, "");
+					}
 				}
 			}
-			resetStore();
-		}
-
-		if (chartProp.properties[propKey].chartType === "scatterPlot") {
-			var combinedValuesForMeasure = { name: "Measure", fields: [] };
-			var values1 = axesValues[2].fields;
-			var values2 = axesValues[3].fields;
-			var allValues = values1.concat(values2);
-			combinedValuesForMeasure.fields = allValues;
-			axesValues.splice(2, 2, combinedValuesForMeasure);
-		}
-
-		if (
-			chartProp.properties[propKey].chartType === "heatmap" ||
-			chartProp.properties[propKey].chartType === "crossTab" ||
-			chartProp.properties[propKey].chartType === "boxPlot"
-		) {
-			var combinedValuesForDimension = { name: "Dimension", fields: [] };
-			var values1 = axesValues[1].fields;
-			var values2 = axesValues[2].fields;
-			var allValues = values1.concat(values2);
-			combinedValuesForDimension.fields = allValues;
-			axesValues.splice(1, 2, combinedValuesForDimension);
-		}
-
-		if (
-			chartProp.properties[propKey].chartType === "table"
-		) {
-			var combinedValuesForDimension = { name: "Dimension", fields: [] };
-			// var values1 = axesValues[1].fields;
-			// var values2 = axesValues[2].fields;
-			// var allValues = values1.concat(values2);
-			combinedValuesForDimension.fields = axesValues[1].fields;
-
-			if(axesValues.length == 4){
+	
+			if (chartProp.properties[_tabTile].chartType === "scatterPlot") {
+				var combinedValuesForMeasure = { name: "Measure", fields: [] };
+				var values1 = axesValues[2].fields;
+				var values2 = axesValues[3].fields;
+				var allValues = values1.concat(values2);
+				combinedValuesForMeasure.fields = allValues;
+				axesValues.splice(2, 2, combinedValuesForMeasure);
+			}
+	
+			if (
+				chartProp.properties[_tabTile].chartType === "heatmap" ||
+				chartProp.properties[_tabTile].chartType === "crossTab" ||
+				chartProp.properties[_tabTile].chartType === "boxPlot"
+			) {
+				var combinedValuesForDimension = { name: "Dimension", fields: [] };
+				var values1 = axesValues[1].fields;
+				var values2 = axesValues[2].fields;
+				var allValues = values1.concat(values2);
+				combinedValuesForDimension.fields = allValues;
 				axesValues.splice(1, 2, combinedValuesForDimension);
 			}
-			else if(axesValues.length == 3){
-				axesValues.splice(1, 1, combinedValuesForDimension);
+	
+			if (
+				chartProp.properties[_tabTile].chartType === "table"
+			) {
+				var combinedValuesForDimension = { name: "Dimension", fields: [] };
+				// var values1 = axesValues[1].fields;
+				// var values2 = axesValues[2].fields;
+				// var allValues = values1.concat(values2);
+				combinedValuesForDimension.fields = axesValues[1].fields;
+	
+				if(axesValues.length == 4){
+					axesValues.splice(1, 2, combinedValuesForDimension);
+				}
+				else if(axesValues.length == 3){
+					axesValues.splice(1, 1, combinedValuesForDimension);
+				}
+			}
+	
+			if (serverCall) {
+				setLoading(true);
+				getChartData(axesValues, chartProp, chartGroup, dashBoardGroup, _tabTile, screenFrom, token).then(data => {
+					updateChartData(_tabTile, sortChartData(data));
+					setLoading(false);
+					showTabTile = false;
+				});
 			}
 		}
 
-		if (serverCall) {
-			setLoading(true);
-			getChartData(axesValues, chartProp, chartGroup, dashBoardGroup, propKey,screenFrom, token).then(data => {
-				updateChartData(propKey, sortChartData(data));
-				setLoading(false);
+		const _checkGroupsNotSame = (_tabTile:string) => {
+			if(tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(_tabTile) && dashBoardGroup.groups.length > 0){
+				let _tileGroups = chartGroup.tabTile[_tabTile];
+				let _count = 0;
+	
+				if(_tileGroups){
+					_tileGroups.forEach((grp:string)=>{
+						//if(chartGroup.groups[grp].filters.length > 0){
+						let _attachedTabTiles = dashBoardGroup.filterGroupTabTiles[grp];
+	
+						if(_attachedTabTiles){
+							_count += _attachedTabTiles.includes(_tabTile) ? 1 : 0;
+						}
+						else{
+							_count = 999;
+						}
+						// }
+						// else{
+						// 	return true;
+						// }
+					})
+		
+					if(_count > 0){
+						return _count == _tileGroups.length;
+					}
+					else{
+						return true;
+					}
+				}
+				else{
+					return true;
+				}
+			}
+			else{
+				return true;
+			}
+		}
+
+		if(screenFrom === "Dashboard"){
+			[...tileState.tileList[tabTileProps.selectedTabId]].forEach(tile=>{
+				if(!_checkGroupsNotSame(tile) || chartProp.properties[tile].axesEdited || chartGroup.chartFilterGroupEdited || dashBoardGroup.dashBoardGroupEdited){
+					makeServiceCall(tile);
+				}
 			});
 		}
+		else{
+			if(((tabTileProps.previousTabId == 0 || tabTileProps.previousTileId == 0) &&  !_checkGroupsNotSame(_propKey)) 
+				|| chartProp.properties[_propKey].axesEdited || chartGroup.chartFilterGroupEdited || dashBoardGroup.dashBoardGroupEdited){
+				showTabTile = true;
+				makeServiceCall(_propKey);
+			}
+		}
+
+		resetStore();
 	}, [
-		chartProp.properties[propKey].chartAxes,
-		chartProp.properties[propKey].chartType,
-		chartProp.properties[propKey].filterRunState,
+		chartProp.properties[_propKey].chartAxes,
+		chartProp.properties[_propKey].chartType,
+		chartProp.properties[_propKey].filterRunState,
+
 		chartGroup.chartFilterGroupEdited,
 		dashBoardGroup.dashBoardGroupEdited,
 		tabTileProps.showDash
 	]);
 
 	const resetStore = () => {
-		toggleAxesEdit(propKey);
-		reUseOldData(propKey);
+
+		toggleAxesEdit(_propKey);
+		reUseOldData(_propKey);
+
 		chartFilterGroupEdited(false);
 		dashBoardFilterGroupsEdited(false);
 	};
@@ -569,9 +652,13 @@ const ChartData = ({
 	);
 };
 
-const mapStateToProps = (state: ChartPropertiesStateProps & TabTileStateProps2 & isLoggedProps & ChartFilterGroupStateProps & DashBoardFilterGroupStateProps, ownProps: any) => {
+
+const mapStateToProps = (state: ChartPropertiesStateProps & TabTileStateProps2 & TileRibbonStateProps & isLoggedProps & ChartFilterGroupStateProps & DashBoardFilterGroupStateProps, ownProps: any) => {
 	return {
 		tabTileProps: state.tabTileProps,
+		tileState: state.tileState,
+		tabState: state.tabState,
+
 		// userFilterGroup: state.userFilterGroup,
 		chartProp: state.chartProperties,
 		token: state.isLogged.accessToken,

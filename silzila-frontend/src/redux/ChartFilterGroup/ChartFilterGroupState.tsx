@@ -89,7 +89,7 @@ const chartFilterGroupReducer = (state: any = initialChartFilterGroup, action: a
                         filters: { $push: [action.payload.filters] },
                     },
                 },
-                chartFilterGroupEdited: { $set: true }
+               // chartFilterGroupEdited: { $set: true }
             });
 
         case "CHART_FILTER_GROUP_EDITED":
@@ -152,7 +152,7 @@ const chartFilterGroupReducer = (state: any = initialChartFilterGroup, action: a
                         $push: [action.payload.selectedGroups],
                     }
                 },
-                chartFilterGroupEdited: { $set: true }
+                //chartFilterGroupEdited: { $set: true }
             });
 
         case "DUPLICATE_CHART_FILTER_GROUPS":
