@@ -43,8 +43,8 @@ public class FilterOptionsQueryComposer {
             throw new BadRequestException("Error: RequestedFiter Column is not available in Dataset!");
         }
 
-        if (vendorName.equals("postgresql")) {
-            System.out.println("------ inside postges block");
+        if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+            System.out.println("------ inside postges/redshift block");
             finalQuery = FilterQueryPostgres.getFilterOptions(cf, table);
         } else if (vendorName.equals("mysql")) {
             System.out.println("------ inside mysql block");
