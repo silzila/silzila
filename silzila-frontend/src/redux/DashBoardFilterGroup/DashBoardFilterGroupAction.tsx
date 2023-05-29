@@ -6,6 +6,7 @@ export const updateDashBoardGroups = ( selectedGroups: string) => {
 };
 
 export const deleteDashBoardSelectedGroup = ( groupId: string) => {
+
 	return {
 		type: "DELETE_DASHBOARD_SELECTED_GROUP",
 		payload: { groupId },

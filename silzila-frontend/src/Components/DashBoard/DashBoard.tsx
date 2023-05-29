@@ -28,6 +28,7 @@ import ChartData from "../ChartAxes/ChartData";
 import {updateDashBoardGroups, deleteDashBoardSelectedGroup, addDashBoardFilterGroupTabTiles, 
 	setDashBoardFilterGroupsTabTiles, deleteDashBoardSelectedGroupAllTabTiles, deleteDashBoardSelectedTabTiles } from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
 
+
 const DashBoard = ({
 	// props
 	showListofTileMenu,
