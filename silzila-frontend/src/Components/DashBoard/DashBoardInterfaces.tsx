@@ -9,6 +9,8 @@ export interface DashBoardProps {
 	showDashBoardFilterMenu: boolean;
 
 	//state
+	chartGroup:any;
+	dashBoardGroup:any;
 	tabState: TabStateProps;
 	tabTileProps: TabTileStateProps;
 	tileState: TileStateProps;
@@ -29,6 +31,12 @@ export interface DashBoardProps {
 	setShowListofTileMenu: (value: boolean) => void;
 	setDashboardResizeColumn: (value: boolean) => void;
 	resetPageSettings: () => void; //gridSize{ x: null | number | string; y: null | number | string }
+	updateDashBoardGroups: (groupId: string) => void;
+	deleteDashBoardSelectedGroup: (groupId: string) => void;
+	deleteDashBoardSelectedGroupAllTabTiles:(groupId: string) => void;
+	addDashBoardFilterGroupTabTiles: (groupId: string) => void;
+	setDashBoardFilterGroupsTabTiles: (groupId: string, selectedTabTiles: any) => void;
+	deleteDashBoardSelectedTabTiles:(groupId: string, selectedTabTiles: any)=> void;
 }
 
 export type DashBoardStateProps = TabStateProps2 & TabTileStateProps2 & TileStateProps2;

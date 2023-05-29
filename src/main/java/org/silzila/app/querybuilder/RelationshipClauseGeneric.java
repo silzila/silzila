@@ -162,7 +162,7 @@ public class RelationshipClauseGeneric {
             }
             Table table = tOptional.get();
             // Postgres has the format of Schema_name.Table_name
-            if (vendorName.equals("postgresql")) {
+            if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
                 fromClause = "\n\t" + table.getSchema() + "." + table.getTable() + " AS " + table.getId();
             }
             // MySQL has the format of Database_name.Table_name
@@ -321,7 +321,7 @@ public class RelationshipClauseGeneric {
             /*
              * Postgres has the format of Schema_name.Table_name
              */
-            if (vendorName.equals("postgresql")) {
+            if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
                 if (i == 0) {
                     fromClause += "\n\t" + fromTable.getSchema() + "." + fromTable.getTable() + " AS "
                             + fromTable.getId()

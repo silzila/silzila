@@ -124,7 +124,8 @@ const ChartFilterGroupsContainer = ({
 		}
 		else {
 			if (fromDashboard) {
-				deleteDashBoardSelectedGroup(selectedFilterGroups.findIndex((name: string) => name == event.target.name))
+				deleteDashBoardSelectedGroup(event.target.name);
+
 				deleteDashBoardSelectedGroupAllTabTiles(event.target.name);
 			}
 			else {
@@ -298,12 +299,13 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		deleteChartFilterSelectedGroup: (tabTileName: string, groupIndex: number) =>
 			dispatch(deleteChartFilterSelectedGroup(tabTileName, groupIndex)),
 
-		updateDashBoardGroups: (groupIndex: number) =>
-			dispatch(updateDashBoardGroups(groupIndex)),
+		updateDashBoardGroups: (groupId: string) =>
+			dispatch(updateDashBoardGroups(groupId)),
 
 
-		deleteDashBoardSelectedGroup: (groupIndex: number) =>
-			dispatch(deleteDashBoardSelectedGroup(groupIndex)),
+		deleteDashBoardSelectedGroup: (groupId: string) =>
+			dispatch(deleteDashBoardSelectedGroup(groupId)),
+
 		deleteDashBoardSelectedGroupAllTabTiles:(groupId: string) =>
 			dispatch(deleteDashBoardSelectedGroupAllTabTiles(groupId)),
 		addDashBoardFilterGroupTabTiles: (groupId: string) =>

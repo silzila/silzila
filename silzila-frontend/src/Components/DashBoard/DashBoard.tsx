@@ -25,6 +25,10 @@ import { resetPageSettings } from "../../redux/PageSettings/DownloadPageSettings
 import ChartFilterGroupsContainer from '../ChartFilterGroup/ChartFilterGroupsContainer';
 import ChartData from "../ChartAxes/ChartData";
 
+import {updateDashBoardGroups, deleteDashBoardSelectedGroup, addDashBoardFilterGroupTabTiles, 
+	setDashBoardFilterGroupsTabTiles, deleteDashBoardSelectedGroupAllTabTiles, deleteDashBoardSelectedTabTiles } from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
+
+
 const DashBoard = ({
 	// props
 	showListofTileMenu,
@@ -34,6 +38,8 @@ const DashBoard = ({
 	setDashboardResizeColumn,
 
 	// state
+	chartGroup,
+	dashBoardGroup,
 	tabState,
 	tabTileProps,
 	tileState,
@@ -46,6 +52,13 @@ const DashBoard = ({
 	graphHighlight,
 	resetHighlight,
 	resetPageSettings,
+	updateDashBoardGroups,
+	deleteDashBoardSelectedGroup,
+	addDashBoardFilterGroupTabTiles,
+	setDashBoardFilterGroupsTabTiles,
+	deleteDashBoardSelectedGroupAllTabTiles,
+	deleteDashBoardSelectedTabTiles
+
 }: DashBoardProps) => {
 	var targetRef = useRef<any>();
 	const [mouseDownOutsideGraphs, setmouseDownOutsideGraphs] = useState<boolean>(false);
@@ -320,8 +333,9 @@ const DashBoard = ({
 					size="small"
 					key={index}
 					checked={checked}
-					onChange={() => {
+					onChange={(event) => {
 						console.log(dashSpecs);
+						updateDashBoardFilters(event, propKey);
 						updateDashDetails(
 							checked,
 							propKey,
@@ -351,6 +365,41 @@ const DashBoard = ({
 			</div>
 		);
 	});
+
+	const updateDashBoardFilters = (event: any, tileSelected: string) => {
+		if (event.target.checked) {
+			chartGroup.tabTile[tileSelected].forEach((groupID: string) => {
+
+				if (!dashBoardGroup.filterGroupTabTiles[groupID]) {
+					addDashBoardFilterGroupTabTiles(groupID);
+				}
+
+				if (!dashBoardGroup.groups.includes(groupID)) {
+					updateDashBoardGroups(groupID);
+				}
+
+				let tabTilesList: any = [];
+				tabTilesList.push(tileSelected);
+
+				setDashBoardFilterGroupsTabTiles(groupID, tabTilesList)
+			})
+		}
+		else {
+
+			dashBoardGroup.groups.forEach((groupID: string) => {
+				if(dashBoardGroup.filterGroupTabTiles[groupID].includes(tileSelected)){
+					if (dashBoardGroup.filterGroupTabTiles[groupID].length == 1) {
+						deleteDashBoardSelectedGroup(groupID)
+						deleteDashBoardSelectedGroupAllTabTiles(groupID);
+					}
+					else {
+						deleteDashBoardSelectedTabTiles(groupID, dashBoardGroup.filterGroupTabTiles[groupID].findIndex((id: string) => id == tileSelected));
+					}
+				}
+				
+			});
+		}
+	}
 
 	useEffect(() => {
 		renderGraphs();
@@ -489,6 +538,8 @@ const DashBoard = ({
 
 const mapStateToProps = (state: DashBoardStateProps & any, ownProps: any) => {
 	return {
+		chartGroup: state.chartFilterGroup,
+		dashBoardGroup: state.dashBoardFilterGroup,
 		tabState: state.tabState,
 		tabTileProps: state.tabTileProps,
 		tileState: state.tileState,
@@ -514,6 +565,19 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		resetHighlight: (tabId: number) => dispatch(resetGraphHighlight(tabId)),
 		setGridSize: (gridSize: any) => dispatch(setDashGridSize(gridSize)), //gridSize{ x: null | number | string; y: null | number | string }
 		resetPageSettings: () => dispatch(resetPageSettings()), //gridSize{ x: null | number | string; y: null | number | string }
+		
+		updateDashBoardGroups: (groupId: string) =>
+			dispatch(updateDashBoardGroups(groupId)),
+		deleteDashBoardSelectedGroup: (groupId: string) =>
+			dispatch(deleteDashBoardSelectedGroup(groupId)),
+		deleteDashBoardSelectedGroupAllTabTiles:(groupId: string) =>
+			dispatch(deleteDashBoardSelectedGroupAllTabTiles(groupId)),
+		addDashBoardFilterGroupTabTiles: (groupId: string) =>
+			dispatch(addDashBoardFilterGroupTabTiles(groupId)),
+		setDashBoardFilterGroupsTabTiles: (groupId: string, selectedTabTiles: any) =>
+			dispatch(setDashBoardFilterGroupsTabTiles(groupId, selectedTabTiles)),
+		deleteDashBoardSelectedTabTiles:(groupId: string, selectedTabTiles: any)=>
+			dispatch(deleteDashBoardSelectedTabTiles(groupId, selectedTabTiles))
 	};
 };
 export default connect(mapStateToProps, mapDispatchToProps)(DashBoard);

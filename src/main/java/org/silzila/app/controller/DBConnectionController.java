@@ -23,6 +23,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+// import com.simba.googlebigquery.jdbc.DataSource;
+// import java.sql.Connection;
+
 import java.sql.SQLException;
 import javax.validation.Valid;
 
@@ -144,6 +147,31 @@ public class DBConnectionController {
         JSONArray jsonArray = connectionPoolService.checkSqlServer();
         return ResponseEntity.ok().body(jsonArray.toString());
     }
+
+
+    // private static Connection connectViaDS() throws Exception {
+    //     String URL = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectId=stable-course-380911;OAuthType=0;OAuthServiceAcctEmail=svc-balu@stable-course-380911.iam.gserviceaccount.com;OAuthPvtKeyPath=/home/balu/Documents/Tokens/Big_Query_Token/stable-course-380911-0d77cb5f707b.json;";
+    //     Connection connection = null;
+    //     DataSource ds = new DataSource();
+    //     ds.setURL(URL);
+    //     ds.setProjectId("stable-course-380911");
+    //     ds.setOAuthType(0);
+    //     ds.setOAuthServiceAcctEmail("svc-balu@stable-course-380911.iam.gserviceaccount.com");
+    //     ds.setOAuthPvtKeyFilePath("/home/balu/Documents/Tokens/Big_Query_Token/stable-course-380911-0d77cb5f707b.json");
+    //     connection = ds.getConnection();
+    //     return connection;
+
+    // }
+
+
+    // @PostMapping(value = "/test-bigquery")
+    // public ResponseEntity<?> testBigQuery()
+    //         throws Exception {
+    //     // JSONArray jsonArray = connectionPoolService.checkSqlServer();
+    //     connectViaDS();
+    //     return ResponseEntity.ok().body("xxxx");
+    // }
+
 
     // Metadata discovery - get List of databases
     @GetMapping(value = "/metadata-databases/{id}")
