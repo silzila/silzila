@@ -29,6 +29,7 @@ const ChartFilterGroups = ({
 	// state
 	chartProp,
 	chartGroup,
+	tabState,
 	tileState,
 	tabTileProps,
 	dashBoardGroup,
@@ -54,11 +55,15 @@ const ChartFilterGroups = ({
 		selectedGroupTabTilesList = dashBoardGroup.filterGroupTabTiles[group.id];
 
 		[...tilesForSelectedTab].forEach((tile: any) => {
-			dashboardTabTileList.push({ name: tileState.tiles[tile].tileName, id: tile })
+			//chartGroup.groups[group.id].dataSetId
+			//chartProp.properties[tile].selectedDs.id
+
+			if(tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(tile)){
+				dashboardTabTileList.push({ name: tileState.tiles[tile].tileName, id: tile,
+				disabled: chartGroup.groups[group.id].dataSetId !== chartProp.properties[tile].selectedDs.id})
+			}
 		});
 	}
-
-
 
 
 	const [severity, setSeverity] = useState<AlertColor>("success");
@@ -258,6 +263,7 @@ const ChartFilterGroups = ({
 										<Checkbox
 											checked={selectedGroupTabTilesList.includes(item.id)}
 											name={item.name}
+											disabled={item.disabled}
 											id={item.id}
 											style={{
 												transform: "scale(0.6)",
@@ -302,6 +308,7 @@ const mapStateToProps = (state: ChartPropertiesStateProps & ChartFilterGroupStat
 	return {
 		chartProp: state.chartProperties,
 		chartGroup: state.chartFilterGroup,
+		tabState: state.tabState,
 		tileState: state.tileState,
 		tabTileProps: state.tabTileProps,
 		dashBoardGroup: state.dashBoardFilterGroup,

@@ -1,14 +1,14 @@
-export const updateDashBoardGroups = ( selectedGroups: any) => {
+export const updateDashBoardGroups = ( selectedGroups: string) => {
 	return {
 		type: "UPDATE_DASHBOARD_GROUPS",
 		payload: { selectedGroups },
 	};
 };
 
-export const deleteDashBoardSelectedGroup = ( groupIndex: number) => {
+export const deleteDashBoardSelectedGroup = ( groupId: string) => {
 	return {
 		type: "DELETE_DASHBOARD_SELECTED_GROUP",
-		payload: { groupIndex },
+		payload: { groupId },
 	};
 };
 

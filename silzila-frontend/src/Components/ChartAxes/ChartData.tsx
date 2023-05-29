@@ -277,7 +277,8 @@ export const getChartData = async (
 
 		if(screenFrom === "Dashboard"){
 			dashBoardGroup.groups.forEach((grp:string)=>{
-				if(dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)){ ////Check this condition 1. group check if cont 2. propkey
+				if(dashBoardGroup.filterGroupTabTiles[grp].includes(propKey) && !chartGroup.tabTile[propKey].includes(grp)){ ////Check this condition 1. group check if cont 2. propkey
+					
 					let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
 
 					if (rightFilterObj.filters.length > 0) {
@@ -295,27 +296,30 @@ export const getChartData = async (
 		}
 
 		/*	PRS 21/07/2022	*/
-		var res: any = await FetchData({
-			requestType: "withData",
-			method: "POST",
-			url: url,
-			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-			data: formattedAxes,
-		});
-
-		if (res.status) {
-			if (res.data && res.data.length > 0) {
-				if (forQueryData) {
-					return formattedAxes;
+		if(formattedAxes.dimensions.length > 0 || formattedAxes.measures.length > 0){
+			var res: any = await FetchData({
+				requestType: "withData",
+				method: "POST",
+				url: url,
+				headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+				data: formattedAxes,
+			});
+	
+			if (res.status) {
+				if (res.data && res.data.length > 0) {
+					if (forQueryData) {
+						return formattedAxes;
+					} else {
+						return res.data;
+					}
 				} else {
-					return res.data;
+					console.log("Change filter conditions.");
 				}
 			} else {
-				console.log("Change filter conditions.");
+				console.error("Get Table Data Error", res.data.message);
 			}
-		} else {
-			console.error("Get Table Data Error", res.data.message);
 		}
+		
 	}
 };
 
