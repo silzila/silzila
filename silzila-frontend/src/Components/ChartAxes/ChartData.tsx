@@ -24,7 +24,6 @@ import {chartFilterGroupEdited} from "../../redux/ChartFilterGroup/ChartFilterGr
 import {ChartFilterGroupProps, ChartFilterGroupStateProps} from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 import {dashBoardFilterGroupsEdited} from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
 import {DashBoardFilterGroupStateProps} from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupInterface';
-
 import { TileRibbonProps, TileRibbonStateProps } from "../../Components/TabsAndTiles/TileRibbonInterfaces";
 
 
@@ -279,8 +278,8 @@ export const getChartData = async (
 
 		if(screenFrom === "Dashboard"){
 			dashBoardGroup.groups.forEach((grp:string)=>{
-
-				if(dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)){ ////Check this condition 1. group check if cont 2. propkey
+				if(dashBoardGroup.filterGroupTabTiles[grp].includes(propKey) && !chartGroup.tabTile[propKey].includes(grp)){ ////Check this condition 1. group check if cont 2. propkey
+					
 
 					let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
 
@@ -299,27 +298,31 @@ export const getChartData = async (
 		}
 
 		/*	PRS 21/07/2022	*/
-		var res: any = await FetchData({
-			requestType: "withData",
-			method: "POST",
-			url: url,
-			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-			data: formattedAxes,
-		});
-
-		if (res.status) {
-			if (res.data && res.data.length > 0) {
-				if (forQueryData) {
-					return formattedAxes;
+		if(formattedAxes.dimensions.length > 0 || formattedAxes.measures.length > 0){
+			var res: any = await FetchData({
+				requestType: "withData",
+				method: "POST",
+				url: url,
+				headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+				data: formattedAxes,
+			});
+	
+			if (res.status) {
+				if (res.data && res.data.length > 0) {
+					if (forQueryData) {
+						return formattedAxes;
+					} else {
+						return res.data;
+					}
 				} else {
-					return res.data;
+					console.log("Change filter conditions.");
 				}
 			} else {
-				console.log("Change filter conditions.");
+				console.error("Get Table Data Error", res.data.message);
 			}
-		} else {
-			console.error("Get Table Data Error", res.data.message);
 		}
+		
+
 	}
 };
 
@@ -330,7 +333,6 @@ export const checkMinRequiredCards = (chartProp: any, _propKey: string) => {
 	ChartsInfo[chartProp.properties[_propKey].chartType].dropZones.forEach(
 		(zone: any, zoneI: number) => {
 			chartProp.properties[_propKey].chartAxes[zoneI].fields.length >= zone.min
-
 				? minReqMet.push(true)
 				: minReqMet.push(false);
 		}
@@ -342,7 +344,6 @@ export const checkMinRequiredCards = (chartProp: any, _propKey: string) => {
 			chartProp.properties[_propKey].chartAxes[1].fields.length > 0 ||
 			chartProp.properties[_propKey].chartAxes[2].fields.length > 0 ||
 			chartProp.properties[_propKey].chartAxes[3].fields.length > 0
-
 		) {
 			minReqMet.push(true);
 		} else {
@@ -367,7 +368,6 @@ const ChartData = ({
 	// state
 	token,
 	tabTileProps,
-
 	tileState,
 	tabState,
 
@@ -635,7 +635,6 @@ const ChartData = ({
 	]);
 
 	const resetStore = () => {
-
 		toggleAxesEdit(_propKey);
 		reUseOldData(_propKey);
 

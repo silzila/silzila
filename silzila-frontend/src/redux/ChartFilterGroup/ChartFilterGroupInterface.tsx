@@ -60,8 +60,8 @@ export interface ChartFilterGroupsContainerProps {
 	addChartFilterTabTileName: (selectedDatasetID: string, tabTileName: string) => void;
 	updateChartFilterSelectedGroups: (groupId: string, filters: any) => void;
 	deleteChartFilterSelectedGroup: (tabTileName: string, groupIndex: number) => void;
-	updateDashBoardGroups: (groupIndex: number) => void;
-	deleteDashBoardSelectedGroup: (groupIndex: number) => void;
+	updateDashBoardGroups: (groupId: string) => void;
+	deleteDashBoardSelectedGroup: (groupId: string) => void;
 	addDashBoardFilterGroupTabTiles:(groupId: string)=> void;
 	setDashBoardFilterGroupsTabTiles:(groupId: string, selectedTabTiles: any) => void;
 	deleteDashBoardSelectedGroupAllTabTiles:(groupId: string) => void;
@@ -71,6 +71,7 @@ export interface ChartFilterGroupsProps {
 	propKey: string;
 	group: groupProp;
 	chartProp: any;
+	tabState: any;
 	chartGroup: any;
 	fromDashboard: boolean;
 	tileState: any;
