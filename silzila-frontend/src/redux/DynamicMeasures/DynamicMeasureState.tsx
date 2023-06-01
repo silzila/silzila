@@ -91,17 +91,18 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 									fontStyle: "normal",
 								},
 
-								conditionalFormatStyleOptions: {
-									enableConditionalFormatting: false,
-									conditionType: 1,
-									target: null,
-									minValue: null,
-									maxValue: null,
-									backgroundColor: "white",
-									fontColor: "black",
-									fontStyle: "normal",
-									isConditionSatisfied: false,
-								},
+								conditionalFormats: [],
+
+								// {
+								// condtion Type:
+								// target value:
+								// isSatisfied:
+								// backgroundColor:
+								// 	fontColor:
+								// isItalic:
+								// 	isBold:
+								// isUnderlined:
+								// }
 							},
 						},
 					},
@@ -183,17 +184,7 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 										fontColor: "black",
 										fontStyle: "normal",
 									},
-									conditionalFormatStyleOptions: {
-										enableConditionalFormatting: false,
-										conditionType: 1,
-										target: null,
-										minValue: null,
-										maxValue: null,
-										backgroundColor: "white",
-										fontColor: "black",
-										fontStyle: "normal",
-										isConditionSatisfied: false,
-									},
+									conditionalFormats: [],
 								},
 							},
 						},
@@ -282,20 +273,12 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 									},
 									styleOptions: {
 										backgroundColor: "white",
+										isBold: false,
+										isUnderlined: false,
+										isItalic: false,
 										fontColor: "black",
-										fontStyle: "normal",
 									},
-									conditionalFormatStyleOptions: {
-										enableConditionalFormatting: false,
-										conditionType: 1,
-										target: null,
-										minValue: null,
-										maxValue: null,
-										backgroundColor: "white",
-										fontColor: "black",
-										fontStyle: "normal",
-										isConditionSatisfied: false,
-									},
+									conditionalFormats: [],
 								},
 							},
 						},
@@ -607,14 +590,14 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 				},
 			});
 
-		case "UPDATE_CONDITIONAL_STYLE_FORMAT":
+		case "ADD_NEW_CONDITION":
 			return update(state, {
 				dynamicMeasureProps: {
 					[state.selectedTabId]: {
 						[state.selectedTileId]: {
 							[`${state.selectedTileId}.${state.selectedDynamicMeasureId}`]: {
-								conditionalFormatStyleOptions: {
-									[action.payload.option]: { $set: action.payload.value },
+								conditionalFormats: {
+									$push: [action.payload],
 								},
 							},
 						},
@@ -622,9 +605,22 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 				},
 			});
 
+		case "CHANGE_CONDITIONAL_FORMAT":
+			return update(state, {
+				dynamicMeasureProps: {
+					[state.selectedTabId]: {
+						[state.selectedTileId]: {
+							[`${state.selectedTileId}.${state.selectedDynamicMeasureId}`]: {
+								conditionalFormats: {
+									$set: action.payload,
+								},
+							},
+						},
+					},
+				},
+			});
 		default:
 			return state;
 	}
 };
-
 export default DynamicMeasureReducer;

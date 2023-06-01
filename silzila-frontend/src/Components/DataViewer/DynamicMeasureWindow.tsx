@@ -222,7 +222,8 @@ const DynamicMeasureWindow = ({
 			</DialogTitle>
 			<DialogContent
 				sx={{
-					maxWidth: "fit-content",
+					maxWidth: "100%",
+					// maxWidth: "fit-content",
 					padding: 0,
 				}}
 			>

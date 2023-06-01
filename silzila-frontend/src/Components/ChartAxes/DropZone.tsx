@@ -406,11 +406,17 @@ const DropZone = ({
 					}
 				>
 					{name === "Filter" ? "Chart Filter" : name}
-
-					<span style={{ marginLeft: "5px" }} className="axisInfo">
-						({chartProp.properties[propKey].chartAxes[bIndex].fields.length} /
-						{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
-					</span>
+					{chartType === "richText" ? (
+						<span style={{ marginLeft: "5px" }} className="axisInfo">
+							({selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.length}/
+							{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
+						</span>
+					) : (
+						<span style={{ marginLeft: "5px" }} className="axisInfo">
+							({chartProp.properties[propKey].chartAxes[bIndex].fields.length}/
+							{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
+						</span>
+					)}
 
 					{name === "Filter" ? (
 						<div

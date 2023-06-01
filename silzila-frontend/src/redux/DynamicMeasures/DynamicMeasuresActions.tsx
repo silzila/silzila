@@ -133,26 +133,25 @@ export const changeDynamicMeasureOption = (value: any) => {
 };
 // updateRichTextOnAddingDYnamicMeasure;
 
-export const onCheckorUncheckOnDm = (dmId: number, value: boolean, propKey: string, obj: any) => {
-	var color: any, backgroundColor: any, fontStyle: any;
-	if (obj?.conditionalFormatStyleOptions.isConditionSatisfied) {
-		color = obj?.conditionalFormatStyleOptions.fontColor;
-		backgroundColor = obj?.conditionalFormatStyleOptions.backgroundColor;
-		fontStyle = obj?.conditionalFormatStyleOptions.fontStyle;
-	} else {
-		color = obj?.styleOptions.fontColor;
-		backgroundColor = obj?.styleOptions.backgroundColor;
-		fontStyle = obj?.styleOptions.fontStyle;
-	}
-
+export const onCheckorUncheckOnDm = (
+	dmId: number,
+	value: boolean,
+	propKey: string,
+	dmValue: any,
+	styleObj: any
+) => {
 	return (dispatch: Dispatch<any>) => {
+		console.log(styleObj.textUnderline);
 		dispatch(onCheckorUncheckOnDm1(dmId, value));
-		dispatch(
-			updateRichTextOnAddingDYnamicMeasure(
-				propKey,
-				`<p style={{color: ${color},backgroundColor:${backgroundColor},fontStyle:${fontStyle}}}>${value}</p>`
-			)
-		);
+		if (value) {
+			var text = ``;
+			if (styleObj.textUnderline === "none") {
+				text = `<span style="background-color:${styleObj.backgroundColor};color:${styleObj.fontColor};font-weight:${styleObj.boldText};font-style:${styleObj.italicText};">${dmValue}</span>`;
+			} else {
+				text = `<span style="background-color:${styleObj.backgroundColor};color:${styleObj.fontColor};font-weight:${styleObj.boldText};font-style:${styleObj.italicText};"><u>${dmValue}</u></span>`;
+			}
+			dispatch(updateRichTextOnAddingDYnamicMeasure(propKey, text));
+		}
 	};
 };
 
@@ -169,10 +168,17 @@ export const updateStyleOptions = (option: string, value: any) => {
 		payload: { option, value },
 	};
 };
-export const updateConditionalFormatStyleOptions = (option: string, value: any) => {
+export const addNewCondition = (conditionObj: any) => {
 	return {
-		type: "UPDATE_CONDITIONAL_STYLE_FORMAT",
-		payload: { option, value },
+		type: "ADD_NEW_CONDITION",
+		payload: conditionObj,
+	};
+};
+
+export const updateConditionalFormat = (updateFormatArray: any) => {
+	return {
+		type: "CHANGE_CONDITIONAL_FORMAT",
+		payload: updateFormatArray,
 	};
 };
 

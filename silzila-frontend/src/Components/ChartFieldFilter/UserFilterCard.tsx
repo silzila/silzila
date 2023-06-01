@@ -1017,6 +1017,7 @@ const UserFilterCard = ({
 
 	///Search Condition Dropdown list to select condition
 	const DropDownForPattern = ({ items }: any) => {
+		console.log(items);
 		return (
 			<Select
 				sx={{

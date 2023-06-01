@@ -24,8 +24,7 @@ const ChartControlObjects = ({
 		]?.[
 			`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
 		];
-	console.log(selectedDynamicMeasureProps);
-	const richTextOptionList: string[] = ["Title", "Format", "Style", "Conditional Formating"];
+	const richTextOptionList: string[] = ["Format", "Style", "Conditional Formating"];
 
 	const barOptionsList: string[] = [
 		"Title",
@@ -254,8 +253,7 @@ const ChartControlObjects = ({
 					);
 				});
 			case "richText":
-				return richTextOptionList.map(option => {
-					console.log(option, selectedDynamicMeasureProps?.chartOptionSelected);
+				return richTextOptionList.map((option: any, i: number) => {
 					return (
 						<div
 							key={option}
@@ -264,6 +262,10 @@ const ChartControlObjects = ({
 									? "optionImageSelected"
 									: "optionImage"
 							}
+							style={{
+								textAlign: "center",
+								gridColumn: i === 2 ? "1/span 3" : "auto",
+							}}
 							onClick={() => changeDynamicMeasureOption(option)}
 						>
 							{option}

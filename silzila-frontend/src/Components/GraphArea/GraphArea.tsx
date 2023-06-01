@@ -57,10 +57,7 @@ import PhotoSizeSelectActualIcon from "@mui/icons-material/PhotoSizeSelectActual
 import sqlIcon from "../../assets/sqlCodeIcon.png";
 import DoneIcon from "@mui/icons-material/Done";
 import SimpleCard from "../Charts/SimpleCard";
-import {
-	renameDynamicMeasure,
-	updateConditionalFormatStyleOptions,
-} from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+import { renameDynamicMeasure } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 
 const popoverButtonStyle = {
@@ -94,7 +91,56 @@ const GraphArea = ({
 	updateConditionalFormatStyleOptions,
 }: any) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
-	// console.log(propKey);
+
+	var selectedDynamicMeasureProp =
+		dynamicMeasureState.dynamicMeasureProps?.[`${dynamicMeasureState.selectedTabId}`]?.[
+			`${dynamicMeasureState.selectedTileId}`
+		]?.[
+			`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+		];
+
+	const [backgroundColor, setBackgroundColor] = useState<string>("");
+	const [fontColor, setFontColor] = useState<string>("");
+	const [italicText, setItalicText] = useState<string>("");
+	const [boldText, setBoldText] = useState<string>("");
+	const [textUnderline, setTextUnderline] = useState<string>("");
+
+	useEffect(() => {
+		var formats = selectedDynamicMeasureProp?.conditionalFormats;
+		if (formats?.length > 0) {
+			for (let i = formats.length - 1; i >= 0; i--) {
+				if (formats[i].isConditionSatisfied) {
+					setBackgroundColor(formats[i].backgroundColor);
+					setFontColor(formats[i].fontColor);
+					setBoldText(formats[i].isBold ? "bold" : "normal");
+					setItalicText(formats[i].isItalic ? "italic" : "normal");
+					setTextUnderline(formats[i].isUnderlined ? "underline" : "none");
+					return;
+				}
+				if (i === 0 && !formats[i].isConditionSatisfied) {
+					setBackgroundColor(selectedDynamicMeasureProp?.styleOptions.backgroundColor);
+					setFontColor(selectedDynamicMeasureProp?.styleOptions.fontColor);
+					setBoldText(
+						selectedDynamicMeasureProp?.styleOptions.isBold ? "bold" : "normal"
+					);
+					setItalicText(
+						selectedDynamicMeasureProp?.styleOptions.isItalic ? "italic" : "normal"
+					);
+					setTextUnderline(
+						selectedDynamicMeasureProp?.styleOptions.isUnderlined ? "underline" : "none"
+					);
+				}
+			}
+		} else {
+			setBackgroundColor(selectedDynamicMeasureProp?.styleOptions.backgroundColor);
+			setFontColor(selectedDynamicMeasureProp?.styleOptions.fontColor);
+			setBoldText(selectedDynamicMeasureProp?.styleOptions.isBold ? "bold" : "normal");
+			setItalicText(selectedDynamicMeasureProp?.styleOptions.isItalic ? "italic" : "normal");
+			setTextUnderline(
+				selectedDynamicMeasureProp?.styleOptions.isUnderlined ? "underline" : "none"
+			);
+		}
+	}, [selectedDynamicMeasureProp]);
 
 	const [graphDimension, setGraphDimension] = useState<any>({});
 	const [graphDimension2, setGraphDimension2] = useState<any>({});
@@ -104,51 +150,6 @@ const GraphArea = ({
 	const [fullScreen, setFullScreen] = useState<boolean>(false);
 	const [open, setOpen] = useState<boolean>(false);
 	const [anchorEl, setAnchorEl] = useState<any>();
-
-	const [isConditionSatisfied, setIsConditionSatisfied] = useState<boolean>(false);
-
-	var selectedDynamicMeasureProp =
-		dynamicMeasureState.dynamicMeasureProps?.[`${dynamicMeasureState.selectedTabId}`]?.[
-			`${dynamicMeasureState.selectedTileId}`
-		]?.[
-			`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
-		];
-
-	useEffect(() => {
-		if (selectedDynamicMeasureProp?.conditionalFormatStyleOptions.conditionType === 1) {
-			if (
-				parseInt(selectedDynamicMeasureProp?.conditionalFormatStyleOptions.target) <
-				parseInt(selectedDynamicMeasureProp.dmValue)
-			) {
-				setIsConditionSatisfied(true);
-				updateConditionalFormatStyleOptions("isConditionSatisfied", true);
-			} else {
-				setIsConditionSatisfied(false);
-			}
-		} else if (selectedDynamicMeasureProp?.conditionalFormatStyleOptions.conditionType === 2) {
-			if (
-				parseInt(selectedDynamicMeasureProp?.conditionalFormatStyleOptions.minValue) <
-					parseInt(selectedDynamicMeasureProp.dmValue) &&
-				parseInt(selectedDynamicMeasureProp.dmValue) <
-					parseInt(selectedDynamicMeasureProp?.conditionalFormatStyleOptions.maxValue)
-			) {
-				setIsConditionSatisfied(true);
-			} else {
-				setIsConditionSatisfied(false);
-			}
-		} else if (selectedDynamicMeasureProp?.conditionalFormatStyleOptions.conditionType === 3) {
-			if (
-				parseInt(selectedDynamicMeasureProp?.conditionalFormatStyleOptions.target) >
-				parseInt(selectedDynamicMeasureProp.dmValue)
-			) {
-				setIsConditionSatisfied(true);
-			} else {
-				setIsConditionSatisfied(false);
-			}
-		} else {
-			setIsConditionSatisfied(false);
-		}
-	}, [selectedDynamicMeasureProp?.conditionalFormatStyleOptions]);
 
 	useEffect(() => {
 		if (!tabTileProps.showDash) {
@@ -219,7 +220,6 @@ const GraphArea = ({
 	]);
 
 	const removeFullScreen = (e: any) => {
-		//console.log(e.keyCode);
 		if (e.keyCode === 27) {
 			setFullScreen(false);
 		}
@@ -397,41 +397,25 @@ const GraphArea = ({
 				);
 			case "richText":
 				if (chartProperties.properties[propKey].isDynamicMeasureWindowOpened) {
-					var prop =
-						dynamicMeasureState.dynamicMeasureProps?.[
-							dynamicMeasureState.selectedTabId
-						]?.[dynamicMeasureState.selectedTileId]?.[
-							`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
-						];
-					var data = prop?.dmValue;
-
+					var data = selectedDynamicMeasureProp?.dmValue;
 					var formattedValue = data;
-					formattedValue = formatChartLabelValue(prop, formattedValue);
+					formattedValue = formatChartLabelValue(
+						selectedDynamicMeasureProp,
+						formattedValue
+					);
 
 					return (
 						<div
 							style={{
-								color: prop?.conditionalFormatStyleOptions
-									.enableConditionalFormatting
-									? isConditionSatisfied
-										? prop?.conditionalFormatStyleOptions.fontColor
-										: prop?.styleOptions.fontColor
-									: prop?.styleOptions.fontColor,
-								backgroundColor: prop?.conditionalFormatStyleOptions
-									.enableConditionalFormatting
-									? isConditionSatisfied
-										? prop?.conditionalFormatStyleOptions.backgroundColor
-										: prop?.styleOptions.backgroundColor
-									: prop?.styleOptions.backgroundColor,
-								fontStyle: prop?.conditionalFormatStyleOptions
-									.enableConditionalFormatting
-									? isConditionSatisfied
-										? prop?.conditionalFormatStyleOptions.fontStyle
-										: prop?.styleOptions.fontStyle
-									: prop?.styleOptions.fontStyle,
+								color: fontColor,
+								backgroundColor: backgroundColor,
+								fontStyle: italicText,
+								fontWeight: boldText,
+								textDecoration: textUnderline,
+
 								padding: "5px",
-								width: graphDimension.width - 350,
-								height: graphDimension.height - 200,
+								width: "fit-content",
+								// height: graphDimension.height - 200,
 								overflow: "hidden",
 								margin: "auto",
 							}}
@@ -729,7 +713,6 @@ const GraphArea = ({
 				var height = pdf.internal.pageSize.getHeight();
 				const heightAndWidth = getHeightAndWidth(height, width);
 
-				// console.log(height, width, heightAndWidth);
 				pdf.addImage(
 					imageData,
 					"JPEG",
@@ -871,7 +854,6 @@ const GraphArea = ({
 						className="graphFullScreen"
 						style={{ zIndex: 3 }}
 						onKeyDown={e => {
-							//console.log("Key pressed");
 							removeFullScreen(e);
 						}}
 					>
@@ -1068,8 +1050,6 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(updateChartMargins(propKey, option, value)),
 		setPageSettings: (option: string, value: any) => dispatch(setPageSettings(option, value)),
 		resetPageSettings: () => dispatch(resetPageSettings()),
-		updateConditionalFormatStyleOptions: (option: string, value: any) =>
-			dispatch(updateConditionalFormatStyleOptions(option, value)),
 	};
 };
 

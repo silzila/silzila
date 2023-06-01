@@ -21,6 +21,9 @@ import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceFor
 import SwitchWithInput from "../SwitchWithInput";
 import { SelectComponentStyle, menuItemStyle } from "../Labels/SnakeyLabelOptions";
 import { updateStyleOptions } from "../../../redux/DynamicMeasures/DynamicMeasuresActions";
+import FormatBoldIcon from "@mui/icons-material/FormatBold";
+import FormatItalicIcon from "@mui/icons-material/FormatItalic";
+import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
 
 const DynamicMeasureStyle = ({
 	// state
@@ -120,30 +123,47 @@ const DynamicMeasureStyle = ({
 					</div>
 				</Popover>
 			</div>
-			<div className="optionDescription">Font Style</div>
-
-			<FormControl fullWidth size="small" style={{ fontSize: "12px", borderRadius: "4px" }}>
-				<Select
-					value={dmProps.styleOptions.fontStyle}
-					variant="outlined"
-					onChange={e => {
-						updateStyleOptions("fontStyle", e.target.value);
+			<div
+				className="optionDescription"
+				style={{ display: "flex", justifyContent: "space-around", marginTop: "10px" }}
+			>
+				<FormatBoldIcon
+					onClick={() => {
+						updateStyleOptions("isBold", !dmProps.styleOptions.isBold);
 					}}
-					sx={SelectComponentStyle}
-				>
-					{fontStyle.map((item: string) => {
-						return (
-							<MenuItem
-								value={item}
-								key={item}
-								sx={{ textTransform: "capitalize", ...menuItemStyle }}
-							>
-								{item}
-							</MenuItem>
-						);
-					})}
-				</Select>
-			</FormControl>
+					sx={{
+						border: "1px solid grey",
+						borderRadius: "3px",
+						backgroundColor: dmProps.styleOptions.isBold
+							? "rgba(224,224,224,1)"
+							: "none",
+					}}
+				/>
+				<FormatItalicIcon
+					onClick={() => {
+						updateStyleOptions("isItalic", !dmProps.styleOptions.isItalic);
+					}}
+					sx={{
+						border: "1px solid grey",
+						borderRadius: "3px",
+						backgroundColor: dmProps.styleOptions.isItalic
+							? "rgba(224,224,224,1)"
+							: "none",
+					}}
+				/>
+				<FormatUnderlinedIcon
+					onClick={() => {
+						updateStyleOptions("isUnderlined", !dmProps.styleOptions.isUnderlined);
+					}}
+					sx={{
+						border: "1px solid grey",
+						borderRadius: "3px",
+						backgroundColor: dmProps.styleOptions.isUnderlined
+							? "rgba(224,224,224,1)"
+							: "none",
+					}}
+				/>
+			</div>
 		</div>
 	);
 };

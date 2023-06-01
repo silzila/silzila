@@ -34,12 +34,12 @@ import {
 	setSelectedToEdit,
 } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import {
-	addMeasureInTextEditor,
 	changeChartOptionSelected,
 	setDynamicMeasureWindowOpen,
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
+import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 
 const DataViewerMiddle = ({
 	// props
@@ -64,7 +64,6 @@ const DataViewerMiddle = ({
 	setSelectedDynamicMeasureId,
 	onCheckorUncheckOnDm,
 	setDynamicMeasureWindowOpen,
-	addMeasureInTextEditor,
 	setSelectedToEdit,
 }: DataViewerMiddleProps & any) => {
 	var propKey: string = `${tabId}.${tileId}`;
@@ -79,6 +78,47 @@ const DataViewerMiddle = ({
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
 	const [severity, setSeverity] = useState<AlertColor>("success");
+	var dmProp =
+		dynamicMeasureState.dynamicMeasureProps[`${dynamicMeasureState.selectedTabId}`]?.[
+			`${dynamicMeasureState.selectedTileId}`
+		]?.[
+			`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+		];
+
+	const [backgroundColor, setBackgroundColor] = useState<string>("");
+	const [fontColor, setFontColor] = useState<string>("");
+	const [italicText, setItalicText] = useState<string>("");
+	const [boldText, setBoldText] = useState<string>("");
+	const [textUnderline, setTextUnderline] = useState<string>("");
+
+	useEffect(() => {
+		var formats = dmProp?.conditionalFormats;
+		if (formats?.length > 0) {
+			for (let i = formats.length - 1; i >= 0; i--) {
+				if (formats[i].isConditionSatisfied) {
+					setBackgroundColor(formats[i].backgroundColor);
+					setFontColor(formats[i].fontColor);
+					setBoldText(formats[i].isBold ? "bold" : "normal");
+					setItalicText(formats[i].isItalic ? "italic" : "normal");
+					setTextUnderline(formats[i].isUnderlined ? "underline" : "none");
+					return;
+				}
+				if (i === 0 && !formats[i].isConditionSatisfied) {
+					setBackgroundColor(dmProp?.styleOptions.backgroundColor);
+					setFontColor(dmProp?.styleOptions.fontColor);
+					setBoldText(dmProp?.styleOptions.isBold ? "bold" : "normal");
+					setItalicText(dmProp?.styleOptions.isItalic ? "italic" : "normal");
+					setTextUnderline(dmProp?.styleOptions.isUnderlined ? "underline" : "none");
+				}
+			}
+		} else {
+			setBackgroundColor(dmProp?.styleOptions.backgroundColor);
+			setFontColor(dmProp?.styleOptions.fontColor);
+			setBoldText(dmProp?.styleOptions.isBold ? "bold" : "normal");
+			setItalicText(dmProp?.styleOptions.isItalic ? "italic" : "normal");
+			setTextUnderline(dmProp?.styleOptions.isUnderlined ? "underline" : "none");
+		}
+	}, [dmProp]);
 
 	const controlDisplayed = () => {
 		switch (tabTileProps.selectedControlMenu) {
@@ -175,10 +215,33 @@ const DataViewerMiddle = ({
 		console.log(obj);
 		if (obj.usedInTextEditor) {
 			// TODO::DynamicMeasure have to delete the text from editor
-			onCheckorUncheckOnDm(obj.dynamicMeasureId, false, propKey, obj);
+			onCheckorUncheckOnDm(
+				obj.dynamicMeasureId,
+				false,
+				propKey,
+				getFormatedValue(obj.dynamicMeasureId),
+				{
+					backgroundColor,
+					fontColor,
+					boldText,
+					italicText,
+					textUnderline,
+				}
+			);
 		} else {
-			onCheckorUncheckOnDm(obj.dynamicMeasureId, true, propKey, obj);
-			addMeasureInTextEditor(propKey, true);
+			onCheckorUncheckOnDm(
+				obj.dynamicMeasureId,
+				true,
+				propKey,
+				getFormatedValue(obj.dynamicMeasureId),
+				{
+					backgroundColor,
+					fontColor,
+					boldText,
+					italicText,
+					textUnderline,
+				}
+			);
 		}
 	};
 
@@ -237,7 +300,25 @@ const DataViewerMiddle = ({
 								},
 							}}
 						/>
-						<div
+						<div>
+							{currentObj.editedDynamicMeasureName}
+
+							<br />
+							<span
+								style={{
+									fontSize: "10px",
+									margin: "0px",
+									backgroundColor: backgroundColor,
+									color: fontColor,
+									fontStyle: italicText,
+									fontWeight: boldText,
+									textDecoration: textUnderline,
+								}}
+							>
+								{getFormatedValue(currentObj.dynamicMeasureId)}
+							</span>
+						</div>
+						<CreateOutlinedIcon
 							onClick={() => {
 								setSelectedTileIdForDM(currentObj.tabId);
 								setSelectedTileIdForDM(currentObj.tileId);
@@ -250,15 +331,8 @@ const DataViewerMiddle = ({
 								);
 								setDynamicMeasureWindowOpen(propKey, true);
 							}}
-						>
-							{currentObj.editedDynamicMeasureName}
-
-							<br />
-							<span style={{ fontSize: "10px", margin: "0px" }}>
-								{getFormatedValue(currentObj.dynamicMeasureId)}
-								{/* {currentObj.dmValue} */}
-							</span>
-						</div>
+							sx={{ fontSize: "16px", margin: "auto 2px" }}
+						/>
 
 						<CloseSharp
 							onClick={() => {
@@ -412,12 +486,16 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		deletingDynamicMeasure: (tabId: number, tileId: number, dmId: number) =>
 			dispatch(deletingDynamicMeasure(tabId, tileId, dmId)),
 		setSelectedDynamicMeasureId: (dmId: number) => dispatch(setSelectedDynamicMeasureId(dmId)),
-		onCheckorUncheckOnDm: (dmId: number, value: boolean, propKey: string, obj: any) =>
-			dispatch(onCheckorUncheckOnDm(dmId, value, propKey, obj)),
+		onCheckorUncheckOnDm: (
+			dmId: number,
+			value: boolean,
+			propKey: string,
+			dmValue: any,
+			styleObj: any
+		) => dispatch(onCheckorUncheckOnDm(dmId, value, propKey, dmValue, styleObj)),
 		setDynamicMeasureWindowOpen: (propKey: string, chartValue: any) =>
 			dispatch(setDynamicMeasureWindowOpen(propKey, chartValue)),
-		addMeasureInTextEditor: (propKey: string, chartValue: any) =>
-			dispatch(addMeasureInTextEditor(propKey, chartValue)),
+
 		setSelectedToEdit: (tabId: number, tileId: number, dmId: number, value: boolean) =>
 			dispatch(setSelectedToEdit(tabId, tileId, dmId, value)),
 	};
