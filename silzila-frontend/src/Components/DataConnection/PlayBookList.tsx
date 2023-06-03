@@ -29,6 +29,7 @@ import { PbSelectedDataset, PlayBookProps } from "./PlayBookInterfaces";
 import AddIcon from "@mui/icons-material/Add";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import { AlertColor } from "@mui/material/Alert";
+import { setSelectedDatasetForDynamicMeasure } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 
 const PlayBookList = ({
 	// state
@@ -40,7 +41,8 @@ const PlayBookList = ({
 	loadPlayBook,
 	updatePlayBookId,
 	storePlayBookCopy,
-}: PlayBookProps) => {
+	setSelectedDatasetForDynamicMeasure,
+}: PlayBookProps & any) => {
 	const [playBookList, setPlayBookList] = useState<any[]>([]);
 
 	const [openPopOver, setOpenPopOver] = useState<boolean>(false);
@@ -85,6 +87,7 @@ const PlayBookList = ({
 		const fetchData = async () => {
 			if (selectedDataset) {
 				setSelectedDataSetList(selectedDataset);
+				setSelectedDatasetForDynamicMeasure(selectedDataset);
 
 				var datasetFromServer: any = await getTables(selectedDataset.id);
 				setTablesForDs({ [selectedDataset.id]: datasetFromServer.dataSchema.tables });
@@ -431,6 +434,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		storePlayBookCopy: (pb: any) => dispatch(storePlayBookCopy(pb)),
 		// updateChartData: (propKey:string | string, chartData: string | any) =>
 		// 	dispatch(updateChartData(propKey, chartData)),
+		setSelectedDatasetForDynamicMeasure: (dataset: any) =>
+			dispatch(setSelectedDatasetForDynamicMeasure(dataset)),
 	};
 };
 

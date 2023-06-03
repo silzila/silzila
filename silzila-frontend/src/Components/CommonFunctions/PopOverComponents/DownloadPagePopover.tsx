@@ -106,6 +106,7 @@ const DownloadPagePopover = ({
 										{orientations.map((ori: string) => {
 											return (
 												<MenuItem
+													key={ori}
 													value={ori}
 													style={{ textTransform: "capitalize" }}
 												>
@@ -133,7 +134,11 @@ const DownloadPagePopover = ({
 										select
 									>
 										{paperSize.map((size: string) => {
-											return <MenuItem value={size}>{size}</MenuItem>;
+											return (
+												<MenuItem key={size} value={size}>
+													{size}
+												</MenuItem>
+											);
 										})}
 									</TextField>
 								</div>

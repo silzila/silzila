@@ -3,6 +3,7 @@ import XAxisFormat from "./XAxisFormat";
 import YAxisFormat from "./YAxisFormat";
 
 const ChartFormat = ({ chartType }: { chartType: string }) => {
+	console.log(chartType);
 	return (
 		<div className="optionsInfo">
 			<LabelFormatting />

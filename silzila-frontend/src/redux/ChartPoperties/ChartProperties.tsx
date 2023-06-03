@@ -8,10 +8,13 @@ const chartProperties: ChartPropertiesProps = {
 	properties: {
 		1.1: {
 			// General Tab Info
+
 			tabId: 1,
 			tileId: 1,
 
-			chartType: "table",
+			chartType: "crossTab",
+			isDynamicMeasureWindowOpened: false,
+			addMeasureInTextEditor: false,
 
 			// Left Column
 			axesEdited: false,
@@ -58,7 +61,7 @@ const chartProperties: ChartPropertiesProps = {
 
 const chartPropertiesState = (
 	state: ChartPropertiesProps = chartProperties,
-	action: ChartPropertiesActionsProps
+	action: ChartPropertiesActionsProps & any
 ) => {
 	const findCardIndex = (propKey: any, fromBIndex: any, fromUid: any) => {
 		var removeIndex = state.properties[propKey].chartAxes[fromBIndex].fields.findIndex(
@@ -94,7 +97,8 @@ const chartPropertiesState = (
 						// General Tab Info
 						tabId: action.payload.tabId,
 						tileId: action.payload.tileId,
-						chartType: "table",
+						chartType: "crossTab",
+						isDynamicMeasureWindowOpened: false,
 
 						// Left Column
 						axesEdited: false,
@@ -151,7 +155,8 @@ const chartPropertiesState = (
 						// General Tab Info
 						tabId: action.payload.tabId,
 						tileId: action.payload.tileId,
-						chartType: "table",
+						chartType: "crossTab",
+						isDynamicMeasureWindowOpened: false,
 
 						// Left Column
 						axesEdited: false,
@@ -561,6 +566,7 @@ const chartPropertiesState = (
 					},
 				},
 			});
+
 		case "UPDATE_FILTER_EXPAND_COLLAPSE":
 			return update(state, {
 				properties: {
@@ -576,6 +582,23 @@ const chartPropertiesState = (
 					},
 				},
 			});
+		case "SET_DYNAMIC_MEASURE_WINDOW_OPEN":
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						isDynamicMeasureWindowOpened: { $set: action.payload.value },
+					},
+				},
+			});
+		case "ADD_MEASURE_IN_TEXT_EDITOR":
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						addMeasureInTextEditor: { $set: action.payload.value },
+					},
+				},
+			});
+
 		default:
 			return state;
 	}

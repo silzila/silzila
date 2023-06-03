@@ -17,6 +17,43 @@ import { TextField } from "@mui/material";
 import { textFieldStyleProps } from "../GridAndAxes/GridAndAxes";
 import { updateCardControls } from "../../../redux/ChartPoperties/ChartControlsActions";
 
+var titleOptions: any[] = [
+	{ type: "Auto" },
+	{ type: "Manual", hintTitle: "Double click on title to edit" },
+];
+
+var titleAlignOptions: any[] = [
+	{ name: "Left", value: "left" },
+	{ name: "Center", value: "center" },
+];
+
+export const RenderTitleOptions: any = ({ generateTitle, setTitleOption }: any) =>
+	titleOptions.map((option: any) => {
+		return (
+			<div
+				key={option.type}
+				className={option.type === generateTitle ? "radioButtonSelected" : "radioButton"}
+				onClick={() => setTitleOption(option.type)}
+				title={option.hintTitle}
+			>
+				{option.type}
+			</div>
+		);
+	});
+
+export const RenderTitleAlignOptions: any = ({ titleAlignment, changeTitleAlignment }: any) =>
+	titleAlignOptions.map((option: any) => {
+		return (
+			<div
+				key={option.value}
+				className={option.value === titleAlignment ? "radioButtonSelected" : "radioButton"}
+				onClick={() => changeTitleAlignment(option.value)}
+			>
+				{option.name}
+			</div>
+		);
+	});
+
 interface ChartTitleProps {
 	setGenerateTitleToStore: (propKey: string, option: string) => void;
 	setTitleAlignment: (propKey: string, align: string) => void;
@@ -39,50 +76,13 @@ const ChartTitle = ({
 	var generateTitle: string = chartProperties.properties[propKey].titleOptions.generateTitle;
 	var titleAlignment: string = chartProperties.properties[propKey].titleOptions.titleAlign;
 
-	var titleOptions: any[] = [
-		{ type: "Auto" },
-		{ type: "Manual", hintTitle: "Double click on title to edit" },
-	];
-
-	var titleAlignOptions: any[] = [
-		{ name: "Left", value: "left" },
-		{ name: "Center", value: "center" },
-	];
-
 	const setGenerateTitle = (type: string) => {
 		setGenerateTitleToStore(propKey, type);
 	};
 
-	const renderTitleOptions = () =>
-		titleOptions.map((option: any) => {
-			return (
-				<div
-					key={option.type}
-					className={
-						option.type === generateTitle ? "radioButtonSelected" : "radioButton"
-					}
-					onClick={() => setGenerateTitle(option.type)}
-					title={option.hintTitle}
-				>
-					{option.type}
-				</div>
-			);
-		});
-
-	const renderTitleAlignOptions = () =>
-		titleAlignOptions.map((option: any) => {
-			return (
-				<div
-					key={option.value}
-					className={
-						option.value === titleAlignment ? "radioButtonSelected" : "radioButton"
-					}
-					onClick={() => setTitleAlignment(propKey, option.value)}
-				>
-					{option.name}
-				</div>
-			);
-		});
+	const changeTitleAlignment = (value: string) => {
+		setTitleAlignment(propKey, value);
+	};
 
 	return (
 		<React.Fragment>
@@ -101,11 +101,21 @@ const ChartTitle = ({
 			) : (
 				<>
 					<div className="optionsInfo">
-						<div className="radioButtons">{renderTitleOptions()}</div>
+						<div className="radioButtons">
+							<RenderTitleOptions
+								generateTitle={generateTitle}
+								handleOnClick={setGenerateTitle}
+							/>
+						</div>
 					</div>
 					<div className="optionsInfo">
 						<div className="optionDescription">TITLE ALIGN</div>
-						<div className="radioButtons">{renderTitleAlignOptions()}</div>
+						<div className="radioButtons">
+							<RenderTitleAlignOptions
+								titleAlignment={titleAlignment}
+								changeTitleAlignment={changeTitleAlignment}
+							/>
+						</div>
 						<div className="optionDescription">TITLE FONT SIZE</div>
 						<div className="optionDescription">
 							<InputPositiveNumber
