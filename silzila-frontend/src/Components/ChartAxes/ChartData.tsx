@@ -321,7 +321,6 @@ export const getChartData = async (
 				console.error("Get Table Data Error", res.data.message);
 			}
 		}
-		
 
 	}
 };
@@ -337,7 +336,6 @@ export const checkMinRequiredCards = (chartProp: any, _propKey: string) => {
 				: minReqMet.push(false);
 		}
 	);
-
 
 	if (chartProp.properties[_propKey].chartType === "crossTab") {
 		if (
@@ -570,38 +568,60 @@ const ChartData = ({
 			}
 		}
 
+		const compareArrays = (a:any, b:any) =>
+				a.length === b.length &&
+				a.every((element:string, index:number) => element === b[index]);
+
+
 		const _checkGroupsNotSame = (_tabTile:string) => {
 			if(tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(_tabTile) && dashBoardGroup.groups.length > 0){
 				let _tileGroups = chartGroup.tabTile[_tabTile];
 				let _count = 0;
+				let _dashBoardTilesCount = 0;
+				let _dashBoardTilesGroups:any = [];
+
+				Object.keys(dashBoardGroup.filterGroupTabTiles).forEach(grp=>{
+					if(dashBoardGroup.filterGroupTabTiles[grp].includes(_tabTile)){
+						_dashBoardTilesCount +=	1;
+						_dashBoardTilesGroups.push(grp)
+					}
+				})
+				
+
+				if(_tileGroups && _tileGroups.length !== _dashBoardTilesCount){
+					return false;
+				}
+
+				return compareArrays(_dashBoardTilesGroups, _tileGroups);
 	
-				if(_tileGroups){
-					_tileGroups.forEach((grp:string)=>{
-						//if(chartGroup.groups[grp].filters.length > 0){
-						let _attachedTabTiles = dashBoardGroup.filterGroupTabTiles[grp];
+				// if(_tileGroups){
+				// 	_tileGroups.forEach((grp:string)=>{
+				// 		//if(chartGroup.groups[grp].filters.length > 0){
+				// 		let _attachedTabTiles = dashBoardGroup.filterGroupTabTiles[grp];
 	
-						if(_attachedTabTiles){
-							_count += _attachedTabTiles.includes(_tabTile) ? 1 : 0;
-						}
-						else{
-							_count = 999;
-						}
-						// }
-						// else{
-						// 	return true;
-						// }
-					})
+				// 		if(_attachedTabTiles && _attachedTabTiles.length > 0){
+				// 			_count += _attachedTabTiles.includes(_tabTile) ? 1 : 0;
+				// 		}
+				// 		else{
+				// 			_count = 999;
+				// 		}
+				// 		// }
+				// 		// else{
+				// 		// 	return true;
+				// 		// }
+				// 	})
 		
-					if(_count > 0){
-						return _count == _tileGroups.length;
-					}
-					else{
-						return true;
-					}
-				}
-				else{
-					return true;
-				}
+				// 	if(_count > 0){
+				// 		return _count == _tileGroups.length;
+				// 	}
+				// 	else{
+				// 		return true;
+				// 	}
+				// }
+				// else{
+				// 	return true;
+				// }
+
 			}
 			else{
 				return true;
