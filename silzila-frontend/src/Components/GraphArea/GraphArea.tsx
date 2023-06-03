@@ -38,7 +38,7 @@ import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import TextEditor from "../Charts/TextEditor";
 import CrossTabChart from "../Charts/CrossTab/CrossTabChart";
 import FetchData from "../ServerCall/FetchData";
-import { getChartData } from "../ChartAxes/ChartAxes";
+import { getChartData } from "../ChartAxes/ChartData";
 import {
 	updateChartMargins,
 	updateQueryResult,
@@ -440,6 +440,14 @@ const GraphArea = ({
 						graphTileSize={tileState.tiles[propKey].graphSizeFull}
 					/>
 				);
+			case "table":
+				return(
+					<TableChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+					></TableChart>
+				);
 
 			default:
 				return <h2>Work in progress</h2>;
@@ -636,7 +644,9 @@ const GraphArea = ({
 			chartProperties.properties[propKey],
 			// chartProperties,
 			chartGroup,
+			dashBoardGroup,
 			propKey,
+			"Chartaxes",
 			token,
 			true
 		).then(async data => {

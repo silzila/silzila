@@ -226,7 +226,8 @@ const ChartsInfo: ChartsInfoProps = {
 	table: {
 		dropZones: [
 			{ name: "Filter", allowedNumbers: 64, min: 0 },
-			{ name: "Column", allowedNumbers: 64, min: 1 },
+			{ name: "Row", allowedNumbers: 64, min: 0, dataType: ["text", "string", "timestamp"] },
+			{ name: "Measure", allowedNumbers: 64, min: 0, dataType: ["int", "float", "double"] },
 		],
 		showSwap: false,
 	},

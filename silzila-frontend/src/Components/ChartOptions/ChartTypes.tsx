@@ -41,6 +41,8 @@ import {
 	actionsToUpdateSelectedTile,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import ChartsInfo from "../ChartAxes/ChartsInfo2";
+import {addChartFilterTabTileName} from '../../redux/ChartFilterGroup/ChartFilterGroupStateActions';
+
 
 export const chartTypes = [
 	{ name: "crossTab", icon: CrossTabIcon, value: " Cross Tab" },
@@ -66,6 +68,7 @@ export const chartTypes = [
 	{ name: "richText", icon: TextEditorIcon, value: "Rich Text" },
 	{ name: "sankey", icon: Sankey, value: "Sankey Chart" },
 	{ name: "simplecard", icon: simpleCard, value: "Simple Card" },
+	{ name: "table", icon: CrossTabIcon, value: "Table" },
 ];
 
 const ChartTypes = ({
@@ -74,12 +77,14 @@ const ChartTypes = ({
 
 	//state
 	chartProp,
+	chartGroup,
 	tabState,
 	tabTileProps,
 	chartControls,
 
 	//dispatch
 	updateChartTypeAndAxes,
+	addChartFilterTabTileName,
 	keepOldData,
 	updateChartData,
 	addTile,
@@ -132,6 +137,7 @@ const ChartTypes = ({
 			case "area":
 			case "stackedArea":
 			case "treeMap":
+			case "table":
 			case "sankey":
 				if (
 					[
@@ -196,7 +202,7 @@ const ChartTypes = ({
 					}
 				}
 
-				if (newChart === "pie" || newChart === "donut" || newChart === "rose") {
+				if (newChart === "pie" || newChart === "donut" || newChart === "rose" || newChart === "table") {
 					keepOldData(propKey, false);
 
 					newChartAxes[0].fields = oldChartAxes[0].fields; //Filter
@@ -327,7 +333,7 @@ const ChartTypes = ({
 					return oldChartAxes;
 				}
 
-				if (newChart === "pie" || newChart === "donut" || newChart === "rose") {
+        if (newChart === "pie" || newChart === "donut" || newChart === "rose") {
 					keepOldData(propKey, false);
 
 					newChartAxes[0].fields = oldChartAxes[0].fields; //Filter
@@ -431,6 +437,7 @@ const ChartTypes = ({
 				}
 				break;
 
+			case "table":
 			case "pie":
 			case "donut":
 			case "rose":
@@ -603,6 +610,7 @@ const ChartTypes = ({
 						"line",
 						"area",
 						"pie",
+						"table",
 						"donut",
 						"rose",
 						"stackedArea",
@@ -722,6 +730,7 @@ const ChartTypes = ({
 						"line",
 						"area",
 						"pie",
+						"table",
 						"donut",
 						"rose",
 						"stackedArea",
@@ -802,6 +811,7 @@ const ChartTypes = ({
 						"horizontalStacked",
 						"line",
 						"area",
+						"table",
 						"pie",
 						"donut",
 						"rose",
@@ -882,6 +892,7 @@ const ChartTypes = ({
 						"horizontalStacked",
 						"line",
 						"area",
+						"table",
 						"pie",
 						"donut",
 						"rose",
@@ -993,6 +1004,7 @@ const ChartTypes = ({
 				}
 
 				break;
+
 			case "crossTab":
 			case "boxPlot":
 				if (newChart === "crossTab" || newChart === "boxPlot") return oldChartAxes;
@@ -1005,6 +1017,7 @@ const ChartTypes = ({
 						"horizontalStacked",
 						"line",
 						"area",
+						"table",
 						"pie",
 						"donut",
 						"rose",
@@ -1159,6 +1172,7 @@ const ChartTypes = ({
 						"calendar",
 
 						"pie",
+						"table",
 						"donut",
 						"rose",
 					].includes(newChart)
@@ -1194,6 +1208,15 @@ const ChartTypes = ({
 		}
 	};
 
+	const addReportFilterGroup = (tempPropKey:string)=>{
+		let selectedFilterGroups = chartGroup.tabTile[tempPropKey] || [];
+		let selectedDatasetID = chartProp.properties[tempPropKey].selectedDs.id;
+
+		if (!(selectedFilterGroups && selectedFilterGroups.length > 0)) {
+			addChartFilterTabTileName(selectedDatasetID, tempPropKey);
+		}
+	}
+
 	const handleAddTile = async (chartName: string) => {
 		let tabObj = tabState.tabs[tabTileProps.selectedTabId];
 
@@ -1205,6 +1228,8 @@ const ChartTypes = ({
 			chartProp.properties[propKey].selectedTable,
 			chartName
 		);
+
+		addReportFilterGroup(`${tabObj.tabId}.${tabObj.nextTileId}`);
 	};
 
 	const getAndUpdateNewChartAxes = (oldChart: string, newChart: string) => {
@@ -1240,6 +1265,7 @@ const ChartTypes = ({
 							"heatmap",
 
 							"crossTab",
+							"table",
 
 							"geoChart",
 							"stackedArea",
@@ -1348,6 +1374,7 @@ const mapStateToProps = (state: any) => {
 		tabState: state.tabState,
 		tabTileProps: state.tabTileProps,
 		chartControls: state.chartControls,
+		chartGroup : state.chartFilterGroup
 	};
 };
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
@@ -1388,6 +1415,9 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(
 				actionsToUpdateSelectedTile(tabId, tileName, tileId, nextTileId, fromTab, fileId)
 			),
+		addChartFilterTabTileName: (selectedDatasetID: string, tabTileName: string) =>
+			dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName)),
+
 	};
 };
 

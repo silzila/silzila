@@ -124,6 +124,13 @@ const ChartFilterGroupCard = ({
 						filterFieldData["fieldtypeoption"] = "Search Condition";
 					}
 					break;
+
+				case "text":
+					if (!filterFieldData.fieldtypeoption) {
+						filterFieldData["fieldtypeoption"] = "Pick List";
+					}
+					break;
+
 				case "date":
 				case "timestamp":
 					if (!filterFieldData.fieldtypeoption) {
@@ -131,6 +138,7 @@ const ChartFilterGroupCard = ({
 						filterFieldData["fieldtypeoption"] = "Pick List";
 					}
 					break;
+					
 				default:
 					if (!filterFieldData.fieldtypeoption) {
 						filterFieldData["fieldtypeoption"] = "Pick List";

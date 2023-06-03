@@ -32,11 +32,7 @@ const chartProperties: ChartPropertiesProps = {
 					fields: [],
 					isCollapsed: false,
 				},
-				{
-					name: "Column",
-					fields: [],
-					isCollapsed: false,
-				},
+				
 				{
 					name: "Measure",
 					fields: [],
@@ -120,11 +116,7 @@ const chartPropertiesState = (
 								fields: [],
 								isCollapsed: false,
 							},
-							{
-								name: "Column",
-								fields: [],
-								isCollapsed: false,
-							},
+							
 							{
 								name: "Measure",
 								fields: [],
@@ -182,11 +174,7 @@ const chartPropertiesState = (
 								fields: [],
 								isCollapsed: false,
 							},
-							{
-								name: "Column",
-								fields: [],
-								isCollapsed: false,
-							},
+						
 							{
 								name: "Measure",
 								fields: [],

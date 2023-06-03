@@ -7,15 +7,9 @@ import { connect } from "react-redux";
 import ChartsInfo from "./ChartsInfo2";
 import "./ChartAxes.css";
 import DropZone from "./DropZone";
-import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
-import { Dispatch } from "redux";
-import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
-import { canReUseData, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
-import FetchData from "../ServerCall/FetchData";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import { AxesValuProps, ChartAxesFormattedAxes, ChartAxesProps } from "./ChartAxesInterfaces";
+import {  ChartAxesProps } from "./ChartAxesInterfaces";
 import {
-	ChartPropertiesProps,
 	ChartPropertiesStateProps,
 } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
@@ -616,7 +610,7 @@ const ChartAxes = ({
 			{dropZones.map((zone: any, zoneI: any) => (
 				<DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} />
 			))}
-			{loading ? <LoadingPopover /> : null}
+			<ChartData tabId={tabId} tileId={tileId} screenFrom="Chartaxes"></ChartData>
 		</div>
 	);
 };
@@ -644,4 +638,4 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	};
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ChartAxes);
+export default connect(mapStateToProps, null)(ChartAxes);
