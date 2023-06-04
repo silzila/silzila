@@ -174,3 +174,8 @@ button:focus {
 	background-color: rgb(214, 214, 214);
 	width: 60%;
 }
+
+.customStyle{
+	background-color: pink;
+	width:300px;
+}

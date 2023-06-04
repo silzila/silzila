@@ -32,7 +32,6 @@ const PieChart = ({
 	// dispatch
 	updateChartMargins,
 }: ChartsReduxStateProps & PieChartProps) => {
-	console.log(graphDimension);
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData: any[] =
 		chartControl.chartData && chartControl.chartData.length > 0 ? chartControl.chartData : [];
@@ -143,12 +142,17 @@ const PieChart = ({
 									],
 
 									formatter: (value: FormatterValueProps) => {
+										console.log(value);
 										if (chartDataKeys) {
+											console.log(chartDataKeys);
 											var formattedValue = value.value[chartDataKeys[1]];
+											console.log(formattedValue);
 											formattedValue = formatChartLabelValue(
 												chartControl,
 												formattedValue
 											);
+											console.log(formattedValue);
+
 											return formattedValue;
 										}
 									},

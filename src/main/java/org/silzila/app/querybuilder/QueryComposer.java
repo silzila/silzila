@@ -37,7 +37,7 @@ public class QueryComposer {
          * don't have alias
          */
 
-        if (vendorName.equals("postgresql")) {
+        if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             // System.out.println("------ inside postges block");
             qMap = SelectClausePostgres.buildSelectClause(req);
         } else if (vendorName.equals("mysql")) {

@@ -294,7 +294,7 @@ public class ConnectionPoolService {
 
                 // for POSTGRESQL DB
                 // throw error if schema name is not passed
-                if (vendorName.equalsIgnoreCase("postgresql")) {
+                if (vendorName.equalsIgnoreCase("postgresql") || vendorName.equalsIgnoreCase("redshift")) {
                     if (schemaName == null || schemaName.trim().isEmpty()) {
                         throw new BadRequestException("Error: Schema name is not provided!");
                     }
@@ -355,7 +355,7 @@ public class ConnectionPoolService {
 
             // based on database dialect, we pass either DB name or schema name at different
             // position in the funciton for POSTGRESQL DB
-            if (vendorName.equals("postgresql")) {
+            if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
                 // schema name is must for postgres
                 if (schemaName == null || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Schema name is not provided!");
@@ -411,7 +411,7 @@ public class ConnectionPoolService {
 
         // based on database dialect, we pass different SELECT * Statement
         // for POSTGRESQL DB
-        if (vendorName.equals("postgresql")) {
+        if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             // schema name is must for postgres
             if (schemaName == null || schemaName.trim().isEmpty()) {
                 throw new BadRequestException("Error: Schema name is not provided!");

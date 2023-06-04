@@ -1,7 +1,6 @@
 export interface ChartControlsProps {
 	chartData: any;
 	queryResult: any;
-	isRichText: boolean;
 	richText: string;
 	colorScheme: string;
 	areaBackgroundColor: string;

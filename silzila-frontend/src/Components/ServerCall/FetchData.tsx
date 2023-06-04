@@ -51,10 +51,10 @@ const FetchData = async (props: FetchDataPropType) => {
 	return new Promise(resolve => {
 		switch (requestType) {
 			case "withData":
-				axios({ method, url: serverEndPoint + url, headers, data })
+				axios({ method, url: serverEndPoint + url, headers, data, timeout:1000 * 10 })
 					.then(res => resolve({ status: true, data: res.data }))
 					.catch(err => {
-						// //console.log(err);
+						console.error(err);
 						if (err?.response?.data) {
 							resolve({ status: false, data: err.response.data });
 						} else {
@@ -64,10 +64,10 @@ const FetchData = async (props: FetchDataPropType) => {
 				break;
 
 			case "noData":
-				axios({ method, url: serverEndPoint + url, headers })
+				axios({ method, url: serverEndPoint + url, headers, timeout:1000 * 10 })
 					.then(res => resolve({ status: true, data: res.data }))
 					.catch(err => {
-						// //console.log(err);
+						console.error(err);
 						if (err?.response?.data) {
 							resolve({ status: false, data: err.response.data });
 						} else {

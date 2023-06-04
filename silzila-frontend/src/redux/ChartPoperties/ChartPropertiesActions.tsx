@@ -295,6 +295,19 @@ export const updtateFilterExpandeCollapse = (
 	bIndex: number | string,
 	item: any
 ) => {
-	console.log("UPDATE_FILTER_EXPAND_COLLAPSE");
 	return { type: "UPDATE_FILTER_EXPAND_COLLAPSE", payload: { propKey, bIndex, item } };
+};
+
+export const setDynamicMeasureWindowOpen = (propKey: string, value: boolean) => {
+	return {
+		type: "SET_DYNAMIC_MEASURE_WINDOW_OPEN",
+		payload: { propKey, value },
+	};
+};
+
+export const addMeasureInTextEditor = (propKey: string, value: boolean) => {
+	return {
+		type: "ADD_MEASURE_IN_TEXT_EDITOR",
+		payload: { propKey, value },
+	};
 };

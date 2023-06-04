@@ -11,6 +11,8 @@ import DashGraph from "./DashGraph";
 import { Dispatch } from "redux";
 import { updateDashGraphPosition, updateDashGraphSize } from "../../redux/TabTile/TabActions";
 import { Rnd } from "react-rnd";
+import ChartAxes from '../ChartAxes/ChartAxes';
+
 
 const GraphRNDDash = ({
 	style,
