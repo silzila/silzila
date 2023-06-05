@@ -267,25 +267,26 @@ export const getChartData = async (
 			formattedAxes.filterPanels = [];
 		}
 
-		//chartGroup
-		chartGroup.tabTile[propKey]?.forEach((grp:any)=>{
-			let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
-
-			if (rightFilterObj.filters.length > 0) {
-				formattedAxes.filterPanels.push(rightFilterObj);
-			}
-		})
+	
 
 		if(screenFrom === "Dashboard"){
 			dashBoardGroup.groups.forEach((grp:string)=>{
-				if(dashBoardGroup.filterGroupTabTiles[grp].includes(propKey) && !chartGroup.tabTile[propKey].includes(grp)){ ////Check this condition 1. group check if cont 2. propkey
-					
+				if(dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)){ ////Check this condition 1. group check if cont 2. propkey
 
 					let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
 
 					if (rightFilterObj.filters.length > 0) {
 						formattedAxes.filterPanels.push(rightFilterObj);
 					}
+				}
+			});
+		}else{
+			//chartGroup
+			chartGroup.tabTile[propKey]?.forEach((grp:any)=>{
+				let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
+
+				if (rightFilterObj.filters.length > 0) {
+					formattedAxes.filterPanels.push(rightFilterObj);
 				}
 			});
 		}
