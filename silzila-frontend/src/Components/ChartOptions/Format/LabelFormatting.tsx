@@ -6,21 +6,30 @@ import { Dispatch } from "redux";
 import { ChartConLabelFormates } from "../../../redux/ChartPoperties/ChartControlsInterface";
 import { updateFormatOption } from "../../../redux/ChartPoperties/ChartControlsActions";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
+import { updateFormatForDm } from "../../../redux/DynamicMeasures/DynamicMeasuresActions";
 const LabelFormatting = ({
 	// state
 	chartProperties,
 	tabTileProps,
 	chartControls,
+	dynamicMeasureState,
 
 	// dispatch
 	updateFormat,
-}: ChartOptionsProps & {
-	updateFormat: (propKey: string, formatType: any, option: string, value: any) => void;
-}) => {
+	updateFormatForDm,
+}: ChartOptionsProps &
+	any & {
+		updateFormat: (propKey: string, formatType: any, option: string, value: any) => void;
+	}) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
-	let formatObject: ChartConLabelFormates =
-		chartControls.properties[propKey].formatOptions.labelFormats;
-
+	var chartType = chartProperties.properties[propKey].chartType;
+	var dmKey = `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`;
+	let formatObject: ChartConLabelFormates | any =
+		chartType === "richText"
+			? dynamicMeasureState.dynamicMeasureProps?.[`${dynamicMeasureState.selectedTabId}`]?.[
+					`${dynamicMeasureState.selectedTileId}`
+			  ]?.[dmKey]?.formatOptions.labelFormats
+			: chartControls.properties[propKey].formatOptions.labelFormats;
 	const formatOptions: any[] = [
 		{ type: "Number", value: "Number" },
 		{ type: "Currency", value: "Currency" },
@@ -51,6 +60,7 @@ const LabelFormatting = ({
 			case "gauge":
 			case "funnel":
 			case "simplecard":
+			case "richText":
 				measures = chartAxes[1].fields;
 				break;
 
@@ -61,6 +71,14 @@ const LabelFormatting = ({
 
 		setMeasuresList(measures);
 	}, [chartProperties]);
+
+	const handleUpdateFormat = (option: string, value: any, optionKey?: string) => {
+		if (chartType === "richText") {
+			updateFormatForDm(dmKey, option, value);
+		} else {
+			updateFormat(propKey, optionKey, option, value);
+		}
+	};
 
 	const renderFormatOptions = () => {
 		return formatOptions.map((item: any) => {
@@ -73,7 +91,8 @@ const LabelFormatting = ({
 							: "radioButton"
 					}
 					onClick={() => {
-						updateFormat(propKey, "labelFormats", "formatValue", item.value);
+						console.log("sdfsdf");
+						handleUpdateFormat("formatValue", item.value, "labelFormats");
 					}}
 				>
 					{item.type}
@@ -99,7 +118,7 @@ const LabelFormatting = ({
 							: "radioButton"
 					}
 					onClick={() => {
-						updateFormat(propKey, "labelFormats", "numberSeparator", item.value);
+						handleUpdateFormat("numberSeparator", item.value, "labelFormats");
 					}}
 				>
 					{item.type}
@@ -121,7 +140,7 @@ const LabelFormatting = ({
 						<InputSymbol
 							value={formatObject.currencySymbol}
 							updateValue={(value: any) =>
-								updateFormat(propKey, "labelFormats", "currencySymbol", value)
+								handleUpdateFormat("currencySymbol", value, "labelFormats")
 							}
 						/>
 					</div>
@@ -129,7 +148,8 @@ const LabelFormatting = ({
 			) : null}
 
 			<div style={{ borderTop: "1px solid rgb(211,211,211)", margin: "1rem 6% 1rem" }}></div>
-			{chartProperties.properties[propKey].chartType === "crossTab" ? (
+			{chartProperties.properties[propKey].chartType === "crossTab" ||
+			chartProperties.properties[propKey].chartType === "richText" ? (
 				<div className="optionDescription">FORMAT</div>
 			) : (
 				<div className="optionDescription">LABEL FORMAT</div>
@@ -155,11 +175,10 @@ const LabelFormatting = ({
 					id="enableDisable"
 					checked={formatObject.enableRounding}
 					onChange={() => {
-						updateFormat(
-							propKey,
-							"labelFormats",
+						handleUpdateFormat(
 							"enableRounding",
-							!formatObject.enableRounding
+							!formatObject.enableRounding,
+							"labelFormats"
 						);
 					}}
 				/>
@@ -167,9 +186,9 @@ const LabelFormatting = ({
 					value={formatObject.roundingDigits}
 					updateValue={(value: number) => {
 						if (value >= 0) {
-							updateFormat(propKey, "labelFormats", "roundingDigits", value);
+							handleUpdateFormat("roundingDigits", value, "labelFormats");
 						} else {
-							updateFormat(propKey, "labelFormats", "roundingDigits", 0);
+							handleUpdateFormat("roundingDigits", 0, "labelFormats");
 						}
 					}}
 					disabled={formatObject.enableRounding ? false : true}
@@ -180,11 +199,12 @@ const LabelFormatting = ({
 	);
 };
 
-const mapStateToProps = (state: ChartOptionsStateProps, ownProps: any) => {
+const mapStateToProps = (state: ChartOptionsStateProps & any, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
 		chartProperties: state.chartProperties,
+		dynamicMeasureState: state.dynamicMeasuresState,
 	};
 };
 
@@ -192,6 +212,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		updateFormat: (propKey: string, formatType: any, option: string, value: any) =>
 			dispatch(updateFormatOption(propKey, formatType, option, value)),
+		updateFormatForDm: (dmKey: string, option: string, value: any) =>
+			dispatch(updateFormatForDm(dmKey, option, value)),
 	};
 };
 

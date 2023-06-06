@@ -11,7 +11,12 @@ import TextField from "@mui/material/TextField";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
-import { updateChartFilterRightGroupsFilters, sortRightFilterGroupItems, revertRightFilterGroupItems, deleteRightFilterGroupItems } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
+import {
+	updateChartFilterRightGroupsFilters,
+	sortRightFilterGroupItems,
+	revertRightFilterGroupItems,
+	deleteRightFilterGroupItems,
+} from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import FetchData from "../ServerCall/FetchData";
@@ -24,11 +29,10 @@ import { Dispatch } from "redux";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import {ChartFilterGroupCardProps} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
+import { ChartFilterGroupCardProps } from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
-import {ChartFilterGroupStateProps} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
-
+import { ChartFilterGroupStateProps } from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 
 const ChartFilterGroupCard = ({
 	propKey,
@@ -54,9 +58,7 @@ const ChartFilterGroupCard = ({
 	let groupList = chartGroup.groups[name].filters || [];
 	let bIndex = 0;
 	const { uId, fieldname, displayname, dataType, tableId } = field;
-	const originalIndex = groupList.findIndex(
-		(item: any) => item.uId === uId
-	);
+	const originalIndex = groupList.findIndex((item: any) => item.uId === uId);
 
 	//const [showOptions, setShowOptions] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -509,73 +511,73 @@ const ChartFilterGroupCard = ({
 			>
 				{options.length > 0
 					? options.map((opt, index) => {
-						return (
-							<div
-								style={{ display: "flex" }}
-								onClick={() => handleClose("opt1", opt)}
-							>
-								<MenuItem
-									sx={{
-										fontSize: "12px",
-										alignSelf: "center",
-										padding: "2px 1rem",
-										flex: 1,
-									}}
-									key={index}
+							return (
+								<div
+									style={{ display: "flex" }}
+									onClick={() => handleClose("opt1", opt)}
 								>
-									{opt}
-								</MenuItem>
-								{opt === filterFieldData.includeexclude ? (
-									<Tooltip title="Selected">
-										<DoneIcon
-											style={{
-												// flex: 1,
-												fontSize: "14px",
-												alignSelf: "center",
-												// float: "right",
-												marginRight: "5px",
-											}}
-										/>
-									</Tooltip>
-								) : null}
-							</div>
-						);
-					})
+									<MenuItem
+										sx={{
+											fontSize: "12px",
+											alignSelf: "center",
+											padding: "2px 1rem",
+											flex: 1,
+										}}
+										key={index}
+									>
+										{opt}
+									</MenuItem>
+									{opt === filterFieldData.includeexclude ? (
+										<Tooltip title="Selected">
+											<DoneIcon
+												style={{
+													// flex: 1,
+													fontSize: "14px",
+													alignSelf: "center",
+													// float: "right",
+													marginRight: "5px",
+												}}
+											/>
+										</Tooltip>
+									) : null}
+								</div>
+							);
+					  })
 					: null}
 				<Divider />
 
 				{options2.length > 0
 					? options2.map((opt2, index) => {
-						return (
-							<div
-								style={{ display: "flex" }}
-								onClick={() => handleClose("opt2", opt2)}
-							>
-								<MenuItem
-									key={index}
-									sx={{
-										flex: 1,
-										fontSize: "12px",
-										alignSelf: "center",
-										padding: "2px 1rem",
-									}}
+							return (
+								<div
+									style={{ display: "flex" }}
+									onClick={() => handleClose("opt2", opt2)}
 								>
-									{opt2}
-								</MenuItem>
-								{opt2 === filterFieldData.fieldtypeoption ? (
-									<Tooltip title="Selected">
-										<DoneIcon
-											style={{
-												fontSize: "14px",
-												alignSelf: "center",
-												marginRight: "5px",
-											}}
-										/>
-									</Tooltip>
-								) : null}
-							</div>
-						);
-					})
+									<MenuItem
+										key={index}
+										sx={{
+											flex: 1,
+											fontSize: "12px",
+											alignSelf: "center",
+											padding: "2px 1rem",
+										}}
+									>
+										{opt2}
+									</MenuItem>
+									{opt2 === filterFieldData.fieldtypeoption ? (
+										<Tooltip title="Selected">
+											<DoneIcon
+												style={{
+													fontSize: "14px",
+													alignSelf: "center",
+													marginRight: "5px",
+												}}
+											/>
+										</Tooltip>
+									) : null}
+								</div>
+							);
+					  })
 					: null}
 			</Menu>
 		);
@@ -708,7 +710,7 @@ const ChartFilterGroupCard = ({
 		if (
 			filterFieldData.prefix === "date" &&
 			new Date(filterFieldData.greaterThanOrEqualTo) >
-			new Date(filterFieldData.lessThanOrEqualTo)
+				new Date(filterFieldData.lessThanOrEqualTo)
 		) {
 			filterFieldData["isInValidData"] = true;
 		} else {
@@ -1040,7 +1042,7 @@ const ChartFilterGroupCard = ({
 						<MenuItem
 							key={item.key}
 							value={item.key}
-						// selected={item.key === filterFieldData.exprType}
+							// selected={item.key === filterFieldData.exprType}
 						>
 							<Typography
 								sx={{
@@ -1135,7 +1137,7 @@ const ChartFilterGroupCard = ({
 
 	return (
 		<div
-			ref={node => drag(drop(node))}
+			ref={(node: any) => drag(drop(node))}
 			className="UserFilterCard"
 			style={
 				filterFieldData.isInValidData
@@ -1202,7 +1204,7 @@ const ChartFilterGroupCard = ({
 						}
 					>
 						{filterFieldData.dataType === "timestamp" ||
-							filterFieldData.dataType === "date" ? (
+						filterFieldData.dataType === "date" ? (
 							<div className="CustomRequiredField">
 								{filterFieldData.fieldtypeoption === "Pick List" ? (
 									<DropDownForDatePattern
@@ -1233,7 +1235,7 @@ const mapStateToProps = (
 	return {
 		token: state.isLogged.accessToken,
 		chartProp: state.chartProperties,
-		chartGroup: state.chartFilterGroup
+		chartGroup: state.chartFilterGroup,
 	};
 };
 
@@ -1251,6 +1253,3 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChartFilterGroupCard);
-
-
-

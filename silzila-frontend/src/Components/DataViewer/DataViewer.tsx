@@ -37,10 +37,14 @@ import filterIcon from "../../assets/filter_icon.svg";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import GridViewIcon from "@mui/icons-material/GridView";
 import AspectRatioRoundedIcon from "@mui/icons-material/AspectRatioRounded";
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import {
+	ChartPropProperties,
+	ChartPropertiesProps,
+} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 
 interface DataViewerProps {
 	tabTileProps: TabTileStateProps;
+	chartProperties: ChartPropertiesProps;
 	showDashBoard: (tabId: number, showDash: boolean) => void;
 	toggleDataViewerBottom: (show: boolean) => void;
 	toggleColumns: (displayOnlyCol: boolean) => void;
@@ -55,6 +59,7 @@ interface RenderMenuItems {
 function DataViewer({
 	//state
 	tabTileProps,
+	chartProperties,
 	// dispatch
 	showDashBoard,
 	toggleDataViewerBottom,
@@ -145,14 +150,16 @@ function DataViewer({
 			<MenuBar from="dataViewer" />
 			<div className="tabArea">
 				<TabRibbon />
-				{!tabTileProps.showDash ? (
+				{!tabTileProps.showDash &&
+				chartProperties.properties[
+					`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
+				].chartType !== "richText" ? (
 					<div
 						style={{
 							display: "flex",
 							alignItems: "right",
 							justifyContent: "center",
 							height: "2rem",
-							// cursor: "pointer",
 						}}
 					>
 						{renderMenu}
@@ -341,9 +348,10 @@ function DataViewer({
 //                                 REDUX MAPPING STATE AND DISPATCH TO PROPS
 // ===========================================================================================
 
-const mapStateToProps = (state: TabTileStateProps2, ownProps: any) => {
+const mapStateToProps = (state: TabTileStateProps2 & any, ownProps: any) => {
 	return {
 		tabTileProps: state.tabTileProps,
+		chartProperties: state.chartProperties,
 	};
 };
 

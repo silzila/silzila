@@ -50,6 +50,7 @@
 }
 
 .axisInfo {
+	text-align: center;
 	font-size: 11px;
 	color: #999999;
 	/* padding: 2px 0; */

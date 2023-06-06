@@ -42,12 +42,7 @@ import {
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import ChartsInfo from "../ChartAxes/ChartsInfo2";
 import {addChartFilterTabTileName} from '../../redux/ChartFilterGroup/ChartFilterGroupStateActions';
-// import {
-// 	actionsToAddTile,
-// 	actionsToAddTileForRichText,
-// 	actionsToUpdateSelectedTile,
-// } from "../../redux/TabTile/actionsTabTile";
-// import { SaveRichText } from "../Charts/TextEditor";
+
 
 export const chartTypes = [
 	{ name: "crossTab", icon: CrossTabIcon, value: " Cross Tab" },
@@ -94,6 +89,9 @@ const ChartTypes = ({
 	updateChartData,
 	addTile,
 	selectTile,
+
+	//for dynamic measure
+	setSelectedDatasetForDynamicMeasure,
 }: any) => {
 	var selectedChart = chartProp.properties[propKey].chartType;
 
@@ -104,8 +102,6 @@ const ChartTypes = ({
 		arr2?: any
 	) => {
 		let allowedNumbers = ChartsInfo[chartName].dropZones[chartAxesIndex].allowedNumbers ?? 1;
-		// let allowedNumbers = 10;
-
 		if (arr1 && arr1.length > 0) {
 			if (allowedNumbers > arr1.length) {
 				if (arr2 && arr2.length > 0) {
@@ -154,22 +150,12 @@ const ChartTypes = ({
 						"geoChart",
 						"stackedArea",
 						"treeMap",
-						// "richText",
-						"table",
 						"sankey",
 					].includes(newChart)
 				) {
 					keepOldData(propKey, true);
 
 					return oldChartAxes;
-				}
-
-				if (newChart === "richText") {
-					keepOldData(propKey, false);
-					newChartAxes[0].fields = [];
-					newChartAxes[1].fields = [];
-					newChartAxes[2].fields = [];
-					return newChartAxes;
 				}
 
 				if (newChart === "calendar") {
@@ -276,7 +262,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "gauge") {
+				if (newChart === "gauge" || newChart === "richText") {
 					keepOldData(propKey, false);
 					if (oldChartAxes[2].fields.length > 0)
 						newChartAxes[1].fields.push(oldChartAxes[2].fields[0]);
@@ -347,15 +333,7 @@ const ChartTypes = ({
 					return oldChartAxes;
 				}
 
-				if (newChart === "richText") {
-					keepOldData(propKey, false);
-					newChartAxes[0].fields = [];
-					newChartAxes[1].fields = [];
-					newChartAxes[2].fields = [];
-					return newChartAxes;
-				}
-
-				if (newChart === "pie" || newChart === "donut" || newChart === "rose" || newChart === "table") {
+        if (newChart === "pie" || newChart === "donut" || newChart === "rose") {
 					keepOldData(propKey, false);
 
 					newChartAxes[0].fields = oldChartAxes[0].fields; //Filter
@@ -401,13 +379,10 @@ const ChartTypes = ({
 				}
 
 				if (newChart === "funnel" || newChart === "simplecard") {
-					//name: "Measure", allowedNumbers: 12,
 					keepOldData(propKey, false);
 
 					if (oldChartAxes[2].fields.length > 0)
-						newChartAxes[1].fields = oldChartAxes[2].fields; // this will work
-					//newChartAxes[1].fields = getFieldsToChartAllowedNumbers("funnel", 1, oldChartAxes[2].fields);
-
+						newChartAxes[1].fields = oldChartAxes[2].fields;
 					// Map filter to Filter
 					if (oldChartAxes[0].fields.length > 0)
 						newChartAxes[0].fields = oldChartAxes[0].fields;
@@ -415,7 +390,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "gauge") {
+				if (newChart === "gauge" || newChart === "richText") {
 					keepOldData(propKey, false);
 					if (oldChartAxes[2].fields.length > 0)
 						newChartAxes[1].fields.push(oldChartAxes[2].fields[0]);
@@ -487,14 +462,6 @@ const ChartTypes = ({
 					return oldChartAxes;
 				}
 
-				if (newChart === "richText") {
-					keepOldData(propKey, false);
-					newChartAxes[0].fields = [];
-					newChartAxes[1].fields = [];
-					newChartAxes[2].fields = [];
-					return newChartAxes;
-				}
-
 				if (newChart === "calendar") {
 					console.log(oldChartAxes);
 					if (oldChartAxes[1].fields.length > 0) {
@@ -582,7 +549,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "gauge") {
+				if (newChart === "gauge" || newChart === "richText") {
 					keepOldData(propKey, false);
 					if (oldChartAxes[2].fields.length > 0)
 						newChartAxes[1].fields.push(oldChartAxes[2].fields[0]);
@@ -670,14 +637,6 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "richText") {
-					keepOldData(propKey, false);
-					newChartAxes[0].fields = [];
-					newChartAxes[1].fields = [];
-					newChartAxes[2].fields = [];
-					return newChartAxes;
-				}
-
 				if (newChart === "calendar") {
 					// console.log(oldChartAxes);
 
@@ -723,7 +682,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "gauge") {
+				if (newChart === "gauge" || newChart === "richText") {
 					keepOldData(propKey, false);
 					newChartAxes[1].fields = getFieldsToChartAllowedNumbers(
 						newChart,
@@ -795,14 +754,6 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "richText") {
-					keepOldData(propKey, false);
-					newChartAxes[0].fields = [];
-					newChartAxes[1].fields = [];
-					newChartAxes[2].fields = [];
-					return newChartAxes;
-				}
-
 				if (newChart === "scatterPlot") {
 					keepOldData(propKey, false);
 					if (oldChartAxes[1].fields.length > 0) {
@@ -819,7 +770,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "gauge") {
+				if (newChart === "gauge" || newChart === "richText") {
 					keepOldData(propKey, false);
 					if (oldChartAxes[1].fields.length > 0)
 						newChartAxes[1].fields.push(oldChartAxes[1].fields[0]);
@@ -849,7 +800,7 @@ const ChartTypes = ({
 
 				break;
 			case "gauge":
-				if (newChart === "gauge") {
+				if (newChart === "gauge" || newChart === "richText") {
 					return oldChartAxes;
 				}
 				if (
@@ -882,14 +833,6 @@ const ChartTypes = ({
 					if (oldChartAxes[0].fields.length > 0)
 						newChartAxes[0].fields = oldChartAxes[0].fields;
 
-					return newChartAxes;
-				}
-
-				if (newChart === "richText") {
-					keepOldData(propKey, false);
-					newChartAxes[0].fields = [];
-					newChartAxes[1].fields = [];
-					newChartAxes[2].fields = [];
 					return newChartAxes;
 				}
 
@@ -979,14 +922,6 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "richText") {
-					keepOldData(propKey, false);
-					newChartAxes[0].fields = [];
-					newChartAxes[1].fields = [];
-					newChartAxes[2].fields = [];
-					return newChartAxes;
-				}
-
 				if (newChart === "calendar") {
 					keepOldData(propKey, false);
 					if (oldChartAxes[0].fields.length > 0) {
@@ -1057,7 +992,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "gauge") {
+				if (newChart === "gauge" || newChart === "richText") {
 					keepOldData(propKey, false);
 					if (oldChartAxes[0].fields.length > 0)
 						newChartAxes[0].fields = oldChartAxes[0].fields;
@@ -1110,22 +1045,6 @@ const ChartTypes = ({
 							2,
 							oldChartAxes[3].fields
 						);
-
-					return newChartAxes;
-				}
-
-				if (newChart === "richText") {
-					console.log("open in new tile");
-
-					// handleAddTile();
-
-					// let tabObj = tabState.tabs[tabTileProps.selectedTabId];
-					// console.log(`${tabObj.tabId}.${tabObj.nextTileId}`);
-					// console.log(chartProp.properties[`${tabObj.tabId}.${tabObj.nextTileId}`]);
-
-					newChartAxes[0].fields = [];
-					newChartAxes[1].fields = [];
-					newChartAxes[2].fields = [];
 
 					return newChartAxes;
 				}
@@ -1204,7 +1123,7 @@ const ChartTypes = ({
 					return newChartAxes;
 				}
 
-				if (newChart === "gauge") {
+				if (newChart === "gauge" || newChart === "richText") {
 					keepOldData(propKey, false);
 					if (oldChartAxes[0].fields.length > 0)
 						newChartAxes[0].fields = oldChartAxes[0].fields;
@@ -1251,7 +1170,7 @@ const ChartTypes = ({
 						"treeMap",
 						"sankey",
 						"calendar",
-						"richText",
+
 						"pie",
 						"table",
 						"donut",
