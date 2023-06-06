@@ -25,6 +25,7 @@ import {ChartFilterGroupProps, ChartFilterGroupStateProps} from "../../redux/Cha
 import {dashBoardFilterGroupsEdited} from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
 import {DashBoardFilterGroupStateProps} from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupInterface';
 import { TileRibbonProps, TileRibbonStateProps } from "../../Components/TabsAndTiles/TileRibbonInterfaces";
+import {setDashTileSwitched} from '../../redux/TabTile/TabTileActionsAndMultipleDispatches';
 
 
 
@@ -267,25 +268,26 @@ export const getChartData = async (
 			formattedAxes.filterPanels = [];
 		}
 
-		//chartGroup
-		chartGroup.tabTile[propKey]?.forEach((grp:any)=>{
-			let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
-
-			if (rightFilterObj.filters.length > 0) {
-				formattedAxes.filterPanels.push(rightFilterObj);
-			}
-		})
+	
 
 		if(screenFrom === "Dashboard"){
 			dashBoardGroup.groups.forEach((grp:string)=>{
-				if(dashBoardGroup.filterGroupTabTiles[grp].includes(propKey) && !chartGroup.tabTile[propKey].includes(grp)){ ////Check this condition 1. group check if cont 2. propkey
-					
+				if(dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)){ ////Check this condition 1. group check if cont 2. propkey
 
 					let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
 
 					if (rightFilterObj.filters.length > 0) {
 						formattedAxes.filterPanels.push(rightFilterObj);
 					}
+				}
+			});
+		}else{
+			//chartGroup
+			chartGroup.tabTile[propKey]?.forEach((grp:any)=>{
+				let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
+
+				if (rightFilterObj.filters.length > 0) {
+					formattedAxes.filterPanels.push(rightFilterObj);
 				}
 			});
 		}
@@ -378,7 +380,8 @@ const ChartData = ({
 	toggleAxesEdit,
 	reUseOldData,
 	chartFilterGroupEdited,
-	dashBoardFilterGroupsEdited
+	dashBoardFilterGroupsEdited,
+	setDashTileSwitched
 
 }: ChartAxesProps & TileRibbonStateProps) => {
 	const [loading, setLoading] = useState<boolean>(false);
@@ -393,9 +396,6 @@ const ChartData = ({
 	// if not reset the data
 
 	useEffect(() => {
-
-
-		let showTabTile = false;
 
 		const makeServiceCall = (_tabTile:string)=>{
 			const axesValues = JSON.parse(JSON.stringify(chartProp.properties[_tabTile].chartAxes));
@@ -505,7 +505,7 @@ const ChartData = ({
 			let serverCall = false;
 
 			if (chartProp.properties[_tabTile].axesEdited || chartGroup.chartFilterGroupEdited || dashBoardGroup.dashBoardGroupEdited || 
-					tabTileProps.showDash || showTabTile) {
+					tabTileProps.isDashboardTileSwitched) {
 
 				if (chartProp.properties[_tabTile].reUseData) {
 					serverCall = false;
@@ -563,7 +563,6 @@ const ChartData = ({
 				getChartData(axesValues, chartProp, chartGroup, dashBoardGroup, _tabTile, screenFrom, token).then(data => {
 					updateChartData(_tabTile, sortChartData(data));
 					setLoading(false);
-					showTabTile = false;
 				});
 			}
 		}
@@ -638,7 +637,6 @@ const ChartData = ({
 		else{
 			if(((tabTileProps.previousTabId == 0 || tabTileProps.previousTileId == 0) &&  !_checkGroupsNotSame(_propKey)) 
 				|| chartProp.properties[_propKey].axesEdited || chartGroup.chartFilterGroupEdited || dashBoardGroup.dashBoardGroupEdited){
-				showTabTile = true;
 				makeServiceCall(_propKey);
 			}
 		}
@@ -651,7 +649,7 @@ const ChartData = ({
 
 		chartGroup.chartFilterGroupEdited,
 		dashBoardGroup.dashBoardGroupEdited,
-		tabTileProps.showDash
+		tabTileProps.isDashboardTileSwitched
 	]);
 
 	const resetStore = () => {
@@ -660,6 +658,7 @@ const ChartData = ({
 
 		chartFilterGroupEdited(false);
 		dashBoardFilterGroupsEdited(false);
+		setDashTileSwitched(false);
 	};
 
 
@@ -692,10 +691,12 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(updateChartData(propKey, chartData)),
 		toggleAxesEdit: (propKey: string) => dispatch(toggleAxesEdited(propKey, false)),
 		reUseOldData: (propKey: string) => dispatch(canReUseData(propKey, false)),
-	chartFilterGroupEdited:(isEdited : boolean) =>
-		dispatch(chartFilterGroupEdited(isEdited)),
+		chartFilterGroupEdited:(isEdited : boolean) =>
+			dispatch(chartFilterGroupEdited(isEdited)),
 		dashBoardFilterGroupsEdited:(isEdited : boolean) =>
-		dispatch(dashBoardFilterGroupsEdited(isEdited))
+			dispatch(dashBoardFilterGroupsEdited(isEdited)),
+		setDashTileSwitched:(isSwitched:boolean) =>
+			dispatch(setDashTileSwitched(isSwitched))
 	};
 };
 

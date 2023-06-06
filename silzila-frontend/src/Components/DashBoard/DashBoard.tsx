@@ -368,7 +368,7 @@ const DashBoard = ({
 
 	const updateDashBoardFilters = (event: any, tileSelected: string) => {
 		if (event.target.checked) {
-			chartGroup.tabTile[tileSelected].forEach((groupID: string) => {
+			chartGroup?.tabTile[tileSelected]?.forEach((groupID: string) => {
 
 				if (!dashBoardGroup.filterGroupTabTiles[groupID]) {
 					addDashBoardFilterGroupTabTiles(groupID);
@@ -386,7 +386,7 @@ const DashBoard = ({
 		}
 		else {
 
-			dashBoardGroup.groups.forEach((groupID: string) => {
+			dashBoardGroup.groups?.forEach((groupID: string) => {
 				if(dashBoardGroup.filterGroupTabTiles[groupID].includes(tileSelected)){
 					if (dashBoardGroup.filterGroupTabTiles[groupID].length == 1) {
 						deleteDashBoardSelectedGroup(groupID)
