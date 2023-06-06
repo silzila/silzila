@@ -17,6 +17,7 @@ const initialProperties = {
 	dragging: false,
 	chartPropUpdated: false,
 	showDash: false,
+	isDashboardTileSwitched: false,
 	dashMode: "Edit",
 	dashGridSize: { x: null, y: null },
 
@@ -80,8 +81,11 @@ const tabTilePropsReducer = (state: TabTileStateProps = initialProperties, actio
 				prevTab  = state.previousTabId;
 			}
 		
-			return { ...state, previousTileId:prevTile, previousTabId:prevTab, showDash: action.payload };
+			return { ...state, previousTileId:prevTile, previousTabId:prevTab, isDashboardTileSwitched: true, showDash: action.payload };
 
+		case "SET_DASH_TILE_SWITCHED":
+			return { ...state, isDashboardTileSwitched: action.payload };
+		
 		case "SET_DASH_GRID_SIZE":
 			return { ...state, dashGridSize: action.payload };
 

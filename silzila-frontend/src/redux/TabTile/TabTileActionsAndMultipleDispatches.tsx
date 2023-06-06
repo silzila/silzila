@@ -125,6 +125,12 @@ export const resetTabTileState = () => {
 	return { type: "RESET_TABTILE_PROPS" };
 };
 
+//19
+export const setDashTileSwitched = (isSwitched:boolean) => {
+	return { type: "SET_DASH_TILE_SWITCHED",  payload: isSwitched };
+};
+
+
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // MULTIPLE DISPATCHES
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
