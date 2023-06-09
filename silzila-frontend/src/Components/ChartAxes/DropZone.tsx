@@ -129,7 +129,7 @@ const DropZone = ({
 					);
 					if (chartType === "richText") {
 						updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
-						true;
+						//true;
 					} else {
 						updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
 					}
@@ -142,7 +142,7 @@ const DropZone = ({
 				);
 				if (chartType === "richText") {
 					updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
-					true;
+					//true;
 				} else {
 					updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
 				}
