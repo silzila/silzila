@@ -305,9 +305,6 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		deleteDashBoardSelectedGroup: (groupId: string) =>
 			dispatch(deleteDashBoardSelectedGroup(groupId)),
 
-		deleteDashBoardSelectedGroup: (groupId: string) =>
-			dispatch(deleteDashBoardSelectedGroup(groupId)),
-
 		deleteDashBoardSelectedGroupAllTabTiles:(groupId: string) =>
 			dispatch(deleteDashBoardSelectedGroupAllTabTiles(groupId)),
 		addDashBoardFilterGroupTabTiles: (groupId: string) =>

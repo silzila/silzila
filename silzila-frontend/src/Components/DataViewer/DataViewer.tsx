@@ -37,6 +37,7 @@ import filterIcon from "../../assets/filter_icon.svg";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import GridViewIcon from "@mui/icons-material/GridView";
 import AspectRatioRoundedIcon from "@mui/icons-material/AspectRatioRounded";
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import {
 	ChartPropProperties,
 	ChartPropertiesProps,
