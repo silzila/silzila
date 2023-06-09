@@ -23,9 +23,7 @@ const LineChart = ({
 
 	//state
 	chartControls,
-
-}: LineChartProps) => {
-
+}: ChartsReduxStateProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
@@ -220,7 +218,6 @@ const LineChart = ({
 
 	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
-
 const mapStateToProps = (state: ChartControlStateProps, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
