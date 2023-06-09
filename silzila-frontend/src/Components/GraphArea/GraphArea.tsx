@@ -59,6 +59,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import SimpleCard from "../Charts/SimpleCard";
 import { renameDynamicMeasure } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
+import TableChart from '../Charts/TableChart/TableChart';
 
 const popoverButtonStyle = {
 	textTransform: "none",
@@ -77,6 +78,7 @@ const GraphArea = ({
 	chartControlState,
 	token,
 	pageSettings,
+	dashBoardGroup,
 	dynamicMeasureState,
 
 	// dispatch
@@ -641,8 +643,7 @@ const GraphArea = ({
 	const getSqlQuery = () => {
 		getChartData(
 			chartProperties.properties[propKey].chartAxes,
-			chartProperties.properties[propKey],
-			// chartProperties,
+			chartProperties,
 			chartGroup,
 			dashBoardGroup,
 			propKey,
@@ -1043,6 +1044,7 @@ const mapStateToProps = (state: any) => {
 		token: state.isLogged.accessToken,
 		pageSettings: state.pageSettings,
 		dynamicMeasureState: state.dynamicMeasuresState,
+		dashBoardGroup: state.dashBoardFilterGroup,
 	};
 };
 

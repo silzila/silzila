@@ -7,6 +7,7 @@ import ChartColors from "./Color/ChartColors";
 import ColorScale from "./Color/ColorScale";
 import ColorSteps from "./Color/ColorSteps";
 import SankeyColorControls from "./Color/SankeyColorControls";
+import { ControlDetailStateProps } from "./CommonInterfacesForChartOptions";
 import ChartFormat from "./Format/ChartFormat";
 import AxisControls from "./GridAndAxes/AxisControls";
 import GridAndAxes from "./GridAndAxes/GridAndAxes";
