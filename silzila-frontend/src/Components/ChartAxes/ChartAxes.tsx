@@ -33,7 +33,6 @@ const ChartAxes = ({
 
 	// state
 	token,
-	chartProperties,
 	chartGroup,
 	chartProp,
 	changeLocation,
@@ -49,20 +48,20 @@ const ChartAxes = ({
 	const [loading, setLoading] = useState<boolean>(false);
 
 	var propKey: string = `${tabId}.${tileId}`;
-	var chartType = chartProperties.properties[propKey].chartType;
+	var chartType = chartProp.properties[propKey].chartType;
 	var dropZones: any = [];
 	for (let i = 0; i < ChartsInfo[chartProp.properties[propKey].chartType].dropZones.length; i++) {
 		dropZones.push(ChartsInfo[chartProp.properties[propKey].chartType].dropZones[i].name);
 	}
 
-	var chartProp: any =
-		chartType === "richText" && chartProperties.properties[propKey].isDynamicMeasureWindowOpened
-			? dynamicMeasureState.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
-					dynamicMeasureState.selectedTileId
-			  ]?.[
-					`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
-			  ]
-			: chartProperties.properties[propKey];
+	// var chartProp: any =
+	// 	chartType === "richText" && chartProperties.properties[propKey].isDynamicMeasureWindowOpened
+	// 		? dynamicMeasureState.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
+	// 				dynamicMeasureState.selectedTileId
+	// 		  ]?.[
+	// 				`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+	// 		  ]
+	// 		: chartProperties.properties[propKey];
 	// const usePrevious = (value) => {
 	// 	const ref = useRef();
 	// 	useEffect(() => {

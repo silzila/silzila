@@ -370,7 +370,7 @@ const DashBoard = ({
 		if (event.target.checked) {
 			chartGroup?.tabTile[tileSelected]?.forEach((groupID: string) => {
 
-				if (!dashBoardGroup.filterGroupTabTiles[groupID]) {
+				if (!dashBoardGroup?.filterGroupTabTiles[groupID]) {
 					addDashBoardFilterGroupTabTiles(groupID);
 				}
 
