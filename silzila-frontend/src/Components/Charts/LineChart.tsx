@@ -14,6 +14,7 @@ import {
 } from "../ChartOptions/Format/NumberFormatter";
 import { ChartsReduxStateProps, FormatterValueProps } from "./ChartsCommonInterfaces";
 
+
 const LineChart = ({
 	//props
 	propKey,
@@ -23,7 +24,9 @@ const LineChart = ({
 
 	//state
 	chartControls,
+
 }: ChartsReduxStateProps) => {
+
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
@@ -218,6 +221,7 @@ const LineChart = ({
 
 	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
+
 const mapStateToProps = (state: ChartControlStateProps, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,

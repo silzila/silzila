@@ -4,6 +4,7 @@
 
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
+import { Dispatch } from "redux";
 import ChartsInfo from "./ChartsInfo2";
 import "./ChartAxes.css";
 import DropZone from "./DropZone";
@@ -12,6 +13,7 @@ import {  ChartAxesProps } from "./ChartAxesInterfaces";
 import {
 	ChartPropertiesStateProps,
 } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import ChartData from "./ChartData";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { chartFilterGroupEdited } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 import {
@@ -19,314 +21,10 @@ import {
 	ChartFilterGroupStateProps,
 } from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 import { updateChartDataForDm } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
-
-// format the chartAxes into the way it is needed for api call
-export const getChartData = async (
-	axesValues: AxesValuProps[],
-	chartProp: any,
-	chartGroup: ChartFilterGroupProps,
-	propKey: string,
-	token: string,
-	forQueryData?: boolean
-) => {
-	console.log(chartProp);
-	var chartType = chartProp.chartType ? chartProp.chartType : "richText";
-	/*	PRS 21/07/2022	Construct filter object for service call */
-	const getChartLeftFilter = (filters: any) => {
-		let _type: any = {};
-
-		//let _chartProp = chartProp.properties[propKey].chartAxes[0];
-		let _chartProp = filters;
-
-		_type.panelName = "chartFilters";
-		_type.shouldAllConditionsMatch = !_chartProp.any_condition_match;
-		_type.filters = [];
-
-		/*	To determine filter type	*/
-		const _getFilterType = (item: any) => {
-			let _type = "";
-
-			switch (item.dataType) {
-				case "integer":
-				case "decimal":
-					_type = "number";
-					break;
-				case "timestamp":
-				case "date":
-					_type = "date";
-					break;
-				default:
-					_type = "text";
-					break;
-			}
-
-			return _type.concat(
-				"_",
-				item.fieldtypeoption === "Search Condition" ? "search" : "user_selection"
-			);
-		};
-
-		/*	Set User Selection property */
-		const _getUserSelection = (item: any) => {
-			if (item.fieldtypeoption === "Search Condition") {
-				if (
-					item.exprType === "between" &&
-					(item.greaterThanOrEqualTo || item.lessThanOrEqualTo)
-				) {
-					return [item.greaterThanOrEqualTo, item.lessThanOrEqualTo];
-				} else if (item.exprInput) {
-					return [item.exprInput];
-				} else {
-					return [""];
-				}
-			} else {
-				return item.userSelection;
-			}
-		};
-
-		const _isInvalidValue = (val: any) => {
-			if (val === undefined || val === null || val === "") {
-				return true;
-			}
-
-			return false;
-		};
-
-		/*	Determine whether to add a particular field	*/
-		const _getIsFilterValidToAdd = (item: any) => {
-			if (!item.fieldtypeoption) {
-				return false;
-			}
-
-			if (
-				item.fieldtypeoption === "Pick List" &&
-				item.userSelection &&
-				item.userSelection.length > 0
-			) {
-				return !item.userSelection.includes("(All)");
-			} else if (item.fieldtypeoption === "Search Condition") {
-				//   if (
-				//     item.exprType === "between" &&
-				//     item.greaterThanOrEqualTo &&
-				//     item.lessThanOrEqualTo &&
-				//     item.rawselectmembers?.length > 0
-				//   ) {
-				//     if (
-				//       item.greaterThanOrEqualTo <= item.rawselectmembers[1] &&
-				//       item.lessThanOrEqualTo >= item.rawselectmembers[item.rawselectmembers.length - 1]
-				//     ){
-				//       return false;
-				// 	}
-				//   } else
-
-				if (
-					item.exprType === "between" &&
-					(_isInvalidValue(item.greaterThanOrEqualTo) ||
-						_isInvalidValue(item.lessThanOrEqualTo))
-				) {
-					return false;
-				} else if (item.exprType !== "between" && _isInvalidValue(item.exprInput)) {
-					return false;
-				}
-			} else {
-				return false;
-			}
-
-			return true;
-		};
-
-		let _items = [];
-
-		if (_chartProp.fields) _items = _chartProp.fields;
-		else _items = _chartProp;
-
-		/*	Iterate through each fileds added in the Filter Dropzone	*/
-		_items.forEach((item: any) => {
-			let _filter: any = {};
-			_filter.filterType = _getFilterType(item);
-			_filter.tableId = item.tableId;
-			_filter.fieldName = item.fieldname;
-			_filter.dataType = item.dataType.toLowerCase();
-			_filter.shouldExclude = item.includeexclude === "Exclude";
-
-			if (item.fieldtypeoption === "Search Condition") {
-				if (item.exprType) {
-					_filter.operator = item.exprType;
-				} else {
-					_filter.operator = item.dataType === "text" ? "begins_with" : "greater_than";
-				}
-			} else {
-				_filter.operator = "in";
-			}
-
-			if (item.dataType === "timestamp" || item.dataType === "date") {
-				_filter.timeGrain = item.prefix;
-			}
-
-			_filter.userSelection = _getUserSelection(item);
-
-			if (_getIsFilterValidToAdd(item)) {
-				_type.filters.push(_filter);
-			}
-		});
-
-		return _type;
-	};
-
-	/*	PRS 21/07/2022 */
-
-	var formattedAxes: ChartAxesFormattedAxes = {};
-	axesValues.forEach((axis: AxesValuProps) => {
-		var dim = "";
-		switch (axis.name) {
-			case "Filter":
-				dim = "filters";
-				break;
-
-			case "Dimension":
-			case "Date":
-			case "Row":
-			case "Column":
-				dim = "dimensions";
-				break;
-
-			case "Location":
-				dim = "dims";
-				break;
-
-			case "Measure":
-				dim = "measures";
-				break;
-
-			case "X":
-				dim = "measures";
-				break;
-
-			case "Y":
-				dim = "measures";
-				break;
-		}
-
-		var formattedFields: any = [];
-
-		axis.fields.forEach((field: any) => {
-			var formattedField: any = {
-				tableId: field.tableId,
-				displayName: field.displayname,
-				fieldName: field.fieldname,
-				dataType: field.dataType.toLowerCase(),
-			};
-			if (field.dataType === "date" || field.dataType === "timestamp") {
-				formattedField.timeGrain = field.timeGrain;
-			}
-
-			if (axis.name === "Measure") {
-				formattedField.aggr = field.agg;
-			}
-
-			formattedFields.push(formattedField);
-		});
-		formattedAxes[dim] = formattedFields;
-	});
-
-	formattedAxes.fields = [];
-
-	if (
-		chartType === "funnel" ||
-		chartType === "gauge" ||
-		chartType === "simplecard" ||
-		chartType === "richText"
-	) {
-		formattedAxes.dimensions = [];
-	}
-
-	formattedAxes.filterPanels = [];
-
-	/*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
-
-	let _filterZoneFields = chartProp.chartAxes[0].fields;
-	let _hasInvalidFilterData = _filterZoneFields.filter((field: any) => field.isInValidData);
-
-	if (_filterZoneFields.length > 0 && _hasInvalidFilterData && _hasInvalidFilterData.length > 0) {
-		console.log("Filter has invalid data.");
-	} else {
-		let _filterObj = getChartLeftFilter(chartProp.chartAxes[0]);
-
-		if (_filterObj.filters.length > 0) {
-			formattedAxes.filterPanels.push(_filterObj);
-		} else {
-			formattedAxes.filterPanels = [];
-		}
-
-		//chartGroup
-		chartGroup.tabTile[propKey]?.forEach((grp: any) => {
-			let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
-
-			if (rightFilterObj.filters.length > 0) {
-				formattedAxes.filterPanels.push(rightFilterObj);
-			}
-		});
-
-		var url: string = "";
-		if (chartProp.selectedDs.isFlatFileData) {
-			url = `query?datasetid=${chartProp.selectedDs.id}`;
-		} else {
-			url = `query?dbconnectionid=${chartProp.selectedDs.connectionId}&datasetid=${chartProp.selectedDs.id}`;
-		}
-
-		/*	PRS 21/07/2022	*/
-		var res: any = await FetchData({
-			requestType: "withData",
-			method: "POST",
-			url: url,
-			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-			data: formattedAxes,
-		});
-
-		if (res.status) {
-			if (res.data && res.data.length > 0) {
-				if (forQueryData) {
-					return formattedAxes;
-				} else {
-					return res.data;
-				}
-			} else {
-				console.log("Change filter conditions.");
-			}
-		} else {
-			console.error("Get Table Data Error", res.data.message);
-		}
-	}
-};
-
-// given chart type, check if the dropzones have required number of fields
-export const checkMinRequiredCards = (chartProp: any) => {
-	var chartType = chartProp.chartType ? chartProp.chartType : "richText";
-	var minReqMet = [];
-	ChartsInfo[chartType].dropZones.forEach((zone: any, zoneI: number) => {
-		chartProp.chartAxes[zoneI].fields.length >= zone.min
-			? minReqMet.push(true)
-			: minReqMet.push(false);
-	});
-
-	if (chartType === "crossTab") {
-		if (
-			chartProp.chartAxes[1].fields.length > 0 ||
-			chartProp.chartAxes[2].fields.length > 0 ||
-			chartProp.chartAxes[3].fields.length > 0
-		) {
-			minReqMet.push(true);
-		} else {
-			minReqMet.push(false);
-		}
-	}
-
-	if (minReqMet.includes(false)) {
-		return false;
-	} else {
-		return true;
-	}
-};
+import {AxesValuProps, ChartAxesFormattedAxes } from './ChartAxesInterfaces';
+import FetchData from '../ServerCall/FetchData';
+import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
+import { canReUseData, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
 
 const ChartAxes = ({
 	// props
@@ -335,8 +33,8 @@ const ChartAxes = ({
 
 	// state
 	token,
-	chartProperties,
 	chartGroup,
+	chartProp,
 	changeLocation,
 	dynamicMeasureState,
 
@@ -350,20 +48,20 @@ const ChartAxes = ({
 	const [loading, setLoading] = useState<boolean>(false);
 
 	var propKey: string = `${tabId}.${tileId}`;
-	var chartType = chartProperties.properties[propKey].chartType;
+	var chartType = chartProp.properties[propKey].chartType;
 	var dropZones: any = [];
-	for (let i = 0; i < ChartsInfo[chartType].dropZones.length; i++) {
-		dropZones.push(ChartsInfo[chartType].dropZones[i].name);
+	for (let i = 0; i < ChartsInfo[chartProp.properties[propKey].chartType].dropZones.length; i++) {
+		dropZones.push(ChartsInfo[chartProp.properties[propKey].chartType].dropZones[i].name);
 	}
 
-	var chartProp: any =
-		chartType === "richText" && chartProperties.properties[propKey].isDynamicMeasureWindowOpened
-			? dynamicMeasureState.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
-					dynamicMeasureState.selectedTileId
-			  ]?.[
-					`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
-			  ]
-			: chartProperties.properties[propKey];
+	// var chartProp: any =
+	// 	chartType === "richText" && chartProperties.properties[propKey].isDynamicMeasureWindowOpened
+	// 		? dynamicMeasureState.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
+	// 				dynamicMeasureState.selectedTileId
+	// 		  ]?.[
+	// 				`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+	// 		  ]
+	// 		: chartProperties.properties[propKey];
 	// const usePrevious = (value) => {
 	// 	const ref = useRef();
 	// 	useEffect(() => {
@@ -380,168 +78,6 @@ const ChartAxes = ({
 	// check for minimum requirements in each dropzone for the given chart type
 	// if not reset the data
 
-	useEffect(() => {
-		const axesValues = JSON.parse(JSON.stringify(chartProp?.chartAxes));
-
-		/*	To sort chart data	based on field name	*/
-		const sortChartData = (chartData: any[]): any[] => {
-			let result: any[] = [];
-
-			if (chartData && chartData.length > 0) {
-				let _zones: any = axesValues.filter((zones: any) => zones.name !== "Filter");
-				//let _zonesFields:any = [];
-				let _fieldTempObject: any = {};
-				let _chartFieldTempObject: any = {};
-
-				// _zones.forEach((zone:any)=>{
-				// 	_zonesFields = [..._zonesFields, ...zone.fields]
-				// });
-
-				/*	Find and return field's new name	*/
-				const findFieldName = (name: string, i: number = 2): string => {
-					if (_fieldTempObject[`${name}(${i})`] !== undefined) {
-						i++;
-						return findFieldName(name, i);
-					} else {
-						return `${name}(${i})`;
-					}
-				};
-
-				/*	Find and return field's new name	*/
-				const findFieldIndexName = (name: string, i: number = 2): string => {
-					if (_chartFieldTempObject[`${name}_${i}`] !== undefined) {
-						i++;
-						return findFieldIndexName(name, i);
-					} else {
-						return `${name}_${i}`;
-					}
-				};
-
-				_zones.forEach((zoneItem: any) => {
-					zoneItem.fields.forEach((field: any, index: number) => {
-						let _nameWithAgg: string = "";
-
-						if (zoneItem.name === "Measure") {
-							if (field.dataType !== "date" && field.dataType !== "timestamp") {
-								_nameWithAgg = field.agg
-									? `${field.agg} of ${field.fieldname}`
-									: field.fieldname;
-							} else {
-								let _timeGrain: string = field.timeGrain || "";
-								_nameWithAgg = field.agg
-									? `${field.agg} ${_timeGrain} of ${field.fieldname}`
-									: field.fieldname;
-							}
-						} else {
-							if (field.dataType !== "date" && field.dataType !== "timestamp") {
-								_nameWithAgg = field.agg
-									? `${field.agg} of ${field.fieldname}`
-									: field.fieldname;
-							} else {
-								let _timeGrain: string = field.timeGrain || "";
-								_nameWithAgg = _timeGrain
-									? `${_timeGrain} of ${field.fieldname}`
-									: field.fieldname;
-							}
-						}
-
-						if (_chartFieldTempObject[field.fieldname] !== undefined) {
-							let _name = findFieldIndexName(field.fieldname);
-
-							field["NameWithIndex"] = _name;
-							_chartFieldTempObject[_name] = "";
-						} else {
-							field["NameWithIndex"] = field.fieldname;
-							_chartFieldTempObject[field.fieldname] = "";
-						}
-
-						if (_fieldTempObject[_nameWithAgg] !== undefined) {
-							let _name = findFieldName(_nameWithAgg);
-
-							field["NameWithAgg"] = _name;
-							_fieldTempObject[_name] = "";
-						} else {
-							field["NameWithAgg"] = _nameWithAgg;
-							_fieldTempObject[_nameWithAgg] = "";
-						}
-					});
-				});
-
-				chartData.forEach((data: any) => {
-					let _chartDataObj: any = {};
-
-					_zones.forEach((zoneItem: any) => {
-						zoneItem.fields.forEach((field: any) => {
-							_chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
-						});
-					});
-
-					result.push(_chartDataObj);
-				});
-			}
-
-			return result;
-		};
-
-		let serverCall = false;
-
-		if (chartProp.axesEdited || chartGroup.chartFilterGroupEdited) {
-			if (chartProp.reUseData) {
-				serverCall = false;
-			} else {
-				console.log("run up to this");
-				var minReq = checkMinRequiredCards(chartProp);
-				if (minReq) {
-					serverCall = true;
-				} else {
-					updateChartData(propKey, "");
-				}
-			}
-			resetStore();
-		}
-
-		if (chartType === "scatterPlot") {
-			var combinedValuesForMeasure = { name: "Measure", fields: [] };
-			var values1 = axesValues[2].fields;
-			var values2 = axesValues[3].fields;
-			var allValues = values1.concat(values2);
-			combinedValuesForMeasure.fields = allValues;
-			axesValues.splice(2, 2, combinedValuesForMeasure);
-		}
-
-		if (chartType === "heatmap" || chartType === "crossTab" || chartType === "boxPlot") {
-			var combinedValuesForDimension = { name: "Dimension", fields: [] };
-			var values1 = axesValues[1].fields;
-			var values2 = axesValues[2].fields;
-			var allValues = values1.concat(values2);
-			combinedValuesForDimension.fields = allValues;
-			axesValues.splice(1, 2, combinedValuesForDimension);
-		}
-
-		if (serverCall) {
-			setLoading(true);
-			getChartData(axesValues, chartProp, chartGroup, propKey, token).then(data => {
-				console.log(data);
-				if (chartType === "richText") {
-					updateChartDataForDm(sortChartData(data));
-				} else {
-					updateChartData(propKey, sortChartData(data));
-				}
-				setLoading(false);
-			});
-		}
-	}, [
-		chartProp?.chartAxes,
-		chartType,
-		chartProp?.filterRunState,
-		chartGroup.chartFilterGroupEdited,
-	]);
-
-	const resetStore = () => {
-		toggleAxesEdit(propKey);
-		reUseOldData(propKey);
-		chartFilterGroupEdited(false);
-	};
 
 	var menuItemStyle = {
 		fontSize: "12px",
@@ -551,7 +87,7 @@ const ChartAxes = ({
 
 	return (
 		<div className="charAxesArea">
-			{chartType === "geoChart" && (
+			{chartProp.properties[propKey].chartType === "geoChart" && (
 				<div
 					style={{ backgroundColor: "#d3d3d3", display: "flex", flexDirection: "column" }}
 				>
@@ -615,27 +151,11 @@ const ChartAxes = ({
 	);
 };
 
-const mapStateToProps = (
-	state: ChartPropertiesStateProps & isLoggedProps & ChartFilterGroupStateProps & any,
-	ownProps: any
-) => {
+const mapStateToProps = (state: ChartPropertiesStateProps , ownProps: any) => {
 	return {
-		chartProperties: state.chartProperties,
-		token: state.isLogged.accessToken,
-		chartGroup: state.chartFilterGroup,
-		dynamicMeasureState: state.dynamicMeasuresState,
+		chartProp: state.chartProperties,
 	};
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-	return {
-		updateChartData: (propKey: string, chartData: any) =>
-			dispatch(updateChartData(propKey, chartData)),
-		updateChartDataForDm: (chartData: any) => dispatch(updateChartDataForDm(chartData)),
-		toggleAxesEdit: (propKey: string) => dispatch(toggleAxesEdited(propKey, false)),
-		reUseOldData: (propKey: string) => dispatch(canReUseData(propKey, false)),
-		chartFilterGroupEdited: (isEdited: boolean) => dispatch(chartFilterGroupEdited(isEdited)),
-	};
-};
 
 export default connect(mapStateToProps, null)(ChartAxes);

@@ -302,10 +302,6 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		updateDashBoardGroups: (groupId: string) =>
 			dispatch(updateDashBoardGroups(groupId)),
 
-
-		deleteDashBoardSelectedGroup: (groupId: string) =>
-			dispatch(deleteDashBoardSelectedGroup(groupId)),
-
 		deleteDashBoardSelectedGroup: (groupId: string) =>
 			dispatch(deleteDashBoardSelectedGroup(groupId)),
 
