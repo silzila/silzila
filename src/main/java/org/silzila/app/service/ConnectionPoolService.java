@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import org.silzila.app.dto.BigqueryConnectionDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.helper.ResultSetToJson;
@@ -450,6 +451,49 @@ public class ConnectionPoolService {
             return jsonArray;
         } catch (Exception e) {
             throw e;
+        }
+    }
+
+    // test connect Big Query
+    public void testDBConnectionBigQuery(BigqueryConnectionDTO bigQryConnDTO)
+            throws SQLException, BadRequestException {
+        String fullUrl = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;OAuthType=0" +
+                ";ProjectId=" + bigQryConnDTO.getProjectId() +
+                ";OAuthServiceAcctEmail=" + bigQryConnDTO.getClientEmail() +
+                ";OAuthPvtKeyPath=" + System.getProperty("user.home") + "/silzila-uploads/tmp/"
+                + bigQryConnDTO.getTokenFileName() +
+                ";";
+        dataSource = new HikariDataSource();
+        dataSource.setMinimumIdle(1);
+        dataSource.setMaximumPoolSize(1);
+        dataSource.setDataSourceClassName("com.simba.googlebigquery.jdbc.DataSource");
+        dataSource.addDataSourceProperty("url", fullUrl);
+        connection = dataSource.getConnection();
+        Integer rowCount = 0;
+        // run a simple query and see it record is fetched
+        try {
+            statement = connection.createStatement();
+            // resultSet = statement.executeQuery("select * FROM
+            // `stable-course-380911`.landmark.store;");
+            resultSet = statement.executeQuery("select 1");
+            while (resultSet.next()) {
+                // System.out.println("**********************" + resultSet.getString(1));
+                rowCount++;
+
+            }
+            // return error if no record is fetched
+            if (rowCount == 0) {
+                throw new BadRequestException("Error: Something wrong!");
+            }
+        } catch (Exception e) {
+            System.out.println("error: " + e.toString());
+            throw e;
+
+        } finally {
+            resultSet.close();
+            statement.close();
+            connection.close();
+            dataSource.close();
         }
     }
 
