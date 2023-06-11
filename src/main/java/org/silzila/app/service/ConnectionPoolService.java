@@ -65,8 +65,23 @@ public class ConnectionPoolService {
             DBConnection dbConnection = dbConnectionService.getDBConnectionWithPasswordById(id, userId);
             String fullUrl = "";
 
+            // BigQuery - token file path to be sent in URL
+            if (dbConnection.getVendor().equals("bigquery")) {
+                fullUrl = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;OAuthType=0" +
+                        ";ProjectId=" + dbConnection.getProjectId() +
+                        ";OAuthServiceAcctEmail=" + dbConnection.getClientEmail() +
+                        ";OAuthPvtKeyPath=" + System.getProperty("user.home") + "/silzila-uploads/tokens/" +
+                        dbConnection.getFileName() +
+                        ";";
+                dataSource = new HikariDataSource();
+                dataSource.setMinimumIdle(1);
+                dataSource.setMaximumPoolSize(3);
+                dataSource.setDataSourceClassName("com.simba.googlebigquery.jdbc.DataSource");
+                dataSource.addDataSourceProperty("url", fullUrl);
+            }
+
             // SQL Server is handled differently
-            if (dbConnection.getVendor().equals("sqlserver")) {
+            else if (dbConnection.getVendor().equals("sqlserver")) {
                 fullUrl = "jdbc:sqlserver://" + dbConnection.getServer() + ":" + dbConnection.getPort()
                         + ";databaseName=" + dbConnection.getDatabase() + ";user=" + dbConnection.getUsername()
                         + ";password=" + dbConnection.getPasswordHash() + ";encrypt=true;trustServerCertificate=true;";
@@ -77,6 +92,7 @@ public class ConnectionPoolService {
                 dataSource.setDataSourceClassName("com.microsoft.sqlserver.jdbc.SQLServerDataSource");
                 dataSource.addDataSourceProperty("url", fullUrl);
             }
+
             // for Postgres & MySQL
             else {
                 // dbConnection.getPasswordHash() now holds decrypted password
@@ -295,7 +311,8 @@ public class ConnectionPoolService {
 
                 // for POSTGRESQL DB
                 // throw error if schema name is not passed
-                if (vendorName.equalsIgnoreCase("postgresql") || vendorName.equalsIgnoreCase("redshift")) {
+                if (vendorName.equalsIgnoreCase("postgresql") || vendorName.equalsIgnoreCase("redshift")
+                        || vendorName.equalsIgnoreCase("bigquery")) {
                     if (schemaName == null || schemaName.trim().isEmpty()) {
                         throw new BadRequestException("Error: Schema name is not provided!");
                     }
@@ -356,7 +373,7 @@ public class ConnectionPoolService {
 
             // based on database dialect, we pass either DB name or schema name at different
             // position in the funciton for POSTGRESQL DB
-            if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+            if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("bigquery")) {
                 // schema name is must for postgres
                 if (schemaName == null || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Schema name is not provided!");
@@ -420,6 +437,15 @@ public class ConnectionPoolService {
             // construct query
             query = "SELECT * FROM " + schemaName + "." + tableName + " LIMIT " + recordCount;
         }
+        // for BIGQUERY DB
+        else if (vendorName.equals("bigquery")) {
+            // schema name is must for postgres
+            if (schemaName == null || schemaName.trim().isEmpty()) {
+                throw new BadRequestException("Error: Schema name is not provided!");
+            }
+            // construct query
+            query = "SELECT * FROM `" + schemaName + "." + tableName + "` LIMIT " + recordCount;
+        }
         // for MYSQL DB
         else if (vendorName.equals("mysql")) {
             // DB name is must for MySQL
@@ -465,7 +491,7 @@ public class ConnectionPoolService {
                 ";";
         dataSource = new HikariDataSource();
         dataSource.setMinimumIdle(1);
-        dataSource.setMaximumPoolSize(1);
+        dataSource.setMaximumPoolSize(3);
         dataSource.setDataSourceClassName("com.simba.googlebigquery.jdbc.DataSource");
         dataSource.addDataSourceProperty("url", fullUrl);
         connection = dataSource.getConnection();

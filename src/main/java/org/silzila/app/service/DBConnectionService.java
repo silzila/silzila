@@ -114,8 +114,9 @@ public class DBConnectionService {
 
         // get Connection object from DB
         DBConnection dbConnection = checkDBConnectionById(id, userId);
+        // Applicable for all DBs except BigQuery
         // if vendor is BigQuery then NO password to decrypt
-        if (dbConnection.getVendor().equals("bigquery")) {
+        if (!dbConnection.getVendor().equals("bigquery")) {
             dbConnection
                     .setPasswordHash(AESEncryption.decrypt(dbConnection.getPasswordHash(), passwordEncryptionSecretKey,
                             dbConnection.getSalt()));
@@ -288,7 +289,8 @@ public class DBConnectionService {
             try {
                 Files.delete(Paths.get(oldFilePath));
             } catch (Exception e) {
-                throw new FileNotFoundException("old token file could not be deleted");
+                // throw new FileNotFoundException("old token file could not be deleted");
+                System.out.println("Warning: old token file could not be deleted: " + e.getMessage());
             }
         }
         // delete the record from DB
