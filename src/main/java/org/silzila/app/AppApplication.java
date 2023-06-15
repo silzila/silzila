@@ -11,7 +11,6 @@ import java.awt.Desktop;
 import java.io.*;
 import java.net.URI;
 
-
 @SpringBootApplication
 public class AppApplication {
 
@@ -23,16 +22,16 @@ public class AppApplication {
 		System.out.println("00000000000000");
 		String home_url = "http://localhost:8080";
 		System.setProperty("java.awt.headless", "false");
-		try {
-			Thread.sleep(1500);
-			java.awt.Desktop.getDesktop().browse(java.net.URI.create(home_url));
-			// Desktop desktop = Desktop.getDesktop();
-			// System.out.println("11111111111");
-			// System.out.println("2222222222");
-			// desktop.browse(new URI("http://localhost:8080"));	
-		} catch (InterruptedException ie) {
-			Thread.currentThread().interrupt();
-		}
+		// try {
+		// Thread.sleep(1500);
+		// java.awt.Desktop.getDesktop().browse(java.net.URI.create(home_url));
+		// // Desktop desktop = Desktop.getDesktop();
+		// // System.out.println("11111111111");
+		// // System.out.println("2222222222");
+		// // desktop.browse(new URI("http://localhost:8080"));
+		// } catch (InterruptedException ie) {
+		// Thread.currentThread().interrupt();
+		// }
 	}
 
 	// during shut down or killing of app, this closes all connections
