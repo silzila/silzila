@@ -322,7 +322,7 @@ const DashBoard = ({
 		var checked: boolean = indexOfProps ? true : false;
 
 		return (
-			<div
+			<div key={index}
 				className={
 					tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]?.highlight
 						? "listOfGraphsHighlighted"
@@ -343,8 +343,8 @@ const DashBoard = ({
 							tabTileProps.selectedTabId,
 							propIndex
 						);
-						// toggleGraphSize(propKey, checked ? true : false);
-						toggleGraphSize(propIndex, checked ? true : false);
+						 toggleGraphSize(propKey, checked ? true : false);
+						//toggleGraphSize(propIndex, checked ? true : false);
 					}}
 					style={{
 						transform: "scale(0.8)",
@@ -557,7 +557,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			propIndex: number
 		) => dispatch(updateTabDashDetails(checked, propKey, dashSpecs, tabId, propIndex)),
 
-		toggleGraphSize: (tileKey: number, graphSize: boolean) =>
+		toggleGraphSize: (tileKey: string, graphSize: boolean) =>
 			dispatch(toggleGraphSize(tileKey, graphSize)),
 
 		graphHighlight: (tabId: number, propKey: string, highlight: boolean | any) =>

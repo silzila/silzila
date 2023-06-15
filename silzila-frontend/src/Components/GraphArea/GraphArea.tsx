@@ -173,7 +173,7 @@ const GraphArea = ({
 	}, []);
 
 	const graphDimensionCompute = () => {
-		if (tileState.tiles[propKey].graphSizeFull) {
+		if (tileState.tiles[propKey]?.graphSizeFull) {
 			const height =
 				(document.getElementById("graphContainer") as HTMLElement).clientHeight - 30;
 			// const height = (document.getElementById("graphContainer") as HTMLElement).clientHeight;
@@ -218,7 +218,7 @@ const GraphArea = ({
 		fullScreen,
 		tabTileProps.showDataViewerBottom,
 		tabTileProps.selectedControlMenu,
-		tileState.tiles[propKey].graphSizeFull,
+		tileState.tiles[propKey]?.graphSizeFull,
 	]);
 
 	const removeFullScreen = (e: any) => {
@@ -234,7 +234,7 @@ const GraphArea = ({
 					<MultiBarChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 
@@ -243,7 +243,7 @@ const GraphArea = ({
 					<StackedBar
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 
@@ -252,7 +252,7 @@ const GraphArea = ({
 					<HorizontalBar
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 
@@ -261,7 +261,7 @@ const GraphArea = ({
 					<Horizontalstacked
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 
@@ -270,7 +270,7 @@ const GraphArea = ({
 					<CrossTabChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 
@@ -279,7 +279,7 @@ const GraphArea = ({
 					<ScatterChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 			case "area":
@@ -287,7 +287,7 @@ const GraphArea = ({
 					<AreaChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 			case "pie":
@@ -295,7 +295,7 @@ const GraphArea = ({
 					<PieChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 			case "donut":
@@ -303,7 +303,7 @@ const GraphArea = ({
 					<DoughnutChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 			case "rose":
@@ -311,7 +311,7 @@ const GraphArea = ({
 					<RoseChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 			case "line":
@@ -319,7 +319,7 @@ const GraphArea = ({
 					<LineChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 			case "funnel":
@@ -327,7 +327,7 @@ const GraphArea = ({
 					<FunnelChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 
@@ -336,7 +336,7 @@ const GraphArea = ({
 					<GaugeChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 
@@ -345,7 +345,7 @@ const GraphArea = ({
 					<HeatMap
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 
@@ -354,7 +354,7 @@ const GraphArea = ({
 			// 		<GeoChart
 			// 			propKey={propKey}
 			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey].graphSizeFull}
+			// 			graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 			// 		/>
 			// 	);
 			case "stackedArea":
@@ -362,7 +362,7 @@ const GraphArea = ({
 					<StackedAreaChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 			case "calendar":
@@ -370,7 +370,7 @@ const GraphArea = ({
 					<CalendarChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 			case "boxPlot":
@@ -378,7 +378,7 @@ const GraphArea = ({
 					<BoxPlotChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 			case "treeMap":
@@ -386,7 +386,7 @@ const GraphArea = ({
 					<TreeMap
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 			case "sankey":
@@ -394,7 +394,7 @@ const GraphArea = ({
 					<Sankey
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 			case "richText":
@@ -430,7 +430,7 @@ const GraphArea = ({
 						<TextEditor
 							propKey={propKey}
 							graphDimension={fullScreen ? graphDimension2 : graphDimension}
-							graphTileSize={tileState.tiles[propKey].graphSizeFull}
+							graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 						/>
 					);
 				}
@@ -439,7 +439,7 @@ const GraphArea = ({
 					<SimpleCard
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
 			case "table":
@@ -447,7 +447,7 @@ const GraphArea = ({
 					<TableChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey].graphSizeFull}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					></TableChart>
 				);
 
@@ -603,7 +603,7 @@ const GraphArea = ({
 			<>
 				<div
 					className={
-						!tileState.tiles[propKey].graphSizeFull
+						!tileState.tiles[propKey]?.graphSizeFull
 							? "graphAreaIconsSelected"
 							: "graphAreaIcons"
 					}
@@ -627,7 +627,7 @@ const GraphArea = ({
 
 				<div
 					className={
-						tileState.tiles[propKey].graphSizeFull
+						tileState.tiles[propKey]?.graphSizeFull
 							? "graphAreaIconsSelected"
 							: "graphAreaIcons"
 					}
@@ -851,7 +851,7 @@ const GraphArea = ({
 				id="graphContainer"
 				className="graphContainer"
 				style={{
-					margin: tileState.tiles[propKey].graphSizeFull ? "0" : "1rem",
+					margin: tileState.tiles[propKey]?.graphSizeFull ? "0" : "1rem",
 				}}
 			>
 				{showSqlCode ? <ShowFormattedQuery /> : chartDisplayed()}
@@ -938,7 +938,7 @@ const GraphArea = ({
 						Match Dashboard Size
 						<div
 							style={{
-								visibility: !tileState.tiles[propKey].graphSizeFull
+								visibility: !tileState.tiles[propKey]?.graphSizeFull
 									? "visible"
 									: "hidden",
 								marginLeft: "auto",
@@ -962,7 +962,7 @@ const GraphArea = ({
 						Fit Tile Size
 						<div
 							style={{
-								visibility: tileState.tiles[propKey].graphSizeFull
+								visibility: tileState.tiles[propKey]?.graphSizeFull
 									? "visible"
 									: "hidden",
 								marginLeft: "auto",
@@ -1054,7 +1054,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		renameDynamicMeasure: (name: string) => dispatch(renameDynamicMeasure(name)),
 		setGenerateTitleToStore: (propKey: string, option: any) =>
 			dispatch(setGenerateTitle(propKey, option)),
-		toggleGraphSize: (tileKey: number, graphSize: boolean | any) =>
+		toggleGraphSize: (tileKey: string, graphSize: boolean | any) =>
 			dispatch(toggleGraphSize(tileKey, graphSize)),
 		updateQueryResult: (propKey: string, query: string | any) =>
 			dispatch(updateQueryResult(propKey, query)),

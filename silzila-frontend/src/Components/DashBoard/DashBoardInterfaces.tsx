@@ -17,7 +17,7 @@ export interface DashBoardProps {
 	pageSettings: any;
 
 	// Dispatch
-	toggleGraphSize: (tileKey: number, graphSize: boolean) => void;
+	toggleGraphSize: (tileKey: string, graphSize: boolean) => void;
 	resetHighlight: (tabId: number) => void;
 	setGridSize: (gridSize: any) => void;
 	graphHighlight: (tabId: number, propKey: string, highlight: boolean | any) => void;

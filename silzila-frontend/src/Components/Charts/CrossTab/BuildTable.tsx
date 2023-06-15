@@ -28,7 +28,7 @@ export const BuildTable = ({
 
 	/* Construct cell data to show on popup */
 	const _mouseEnterHandler = (e: any) => {
-		let _compareObj = JSON.parse(e.target.getAttribute("data-compareObj"));
+		let _compareObj = JSON.parse(e.target.getAttribute("data-compareobj"));
 
 		if (!(Object.keys(_compareObj).length === 0 && _compareObj.constructor === Object)) {
 			setPopupData({
@@ -138,7 +138,7 @@ export const BuildTable = ({
 				<th
 					id={rowIndex + "_" + colIndex + "_" + col.isHeaderField}
 					className={_getHeaderClassName(col, rowIndex, colIndex)}
-					data-compareObj={JSON.stringify(col.compareObj)}
+					data-compareobj={JSON.stringify(col.compareObj)}
 					key={colIndex}
 					colSpan={col.columnSpan}
 					rowSpan={col.rowSpan}
@@ -178,7 +178,7 @@ export const BuildTable = ({
 						}}
 						colSpan={col.columnSpan}
 						rowSpan={col.rowSpan}
-						data-compareObj={JSON.stringify(col.compareObj)}
+						data-compareobj={JSON.stringify(col.compareObj)}
 						onMouseEnter={e => {
 							if (chartControls.properties[propKey].mouseOver.enable) {
 								e.persist();
