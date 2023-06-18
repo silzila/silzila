@@ -8,19 +8,13 @@ import {
 	InputLabel,
 	MenuItem,
 	Select,
-	Table,
-	TableHead,
-	TableRow,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import ChartAxes from "../ChartAxes/ChartAxes";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 
-import {
-	changeChartOptionSelected,
-	setDynamicMeasureWindowOpen,
-} from "../../redux/ChartPoperties/ChartPropertiesActions";
+import { setDynamicMeasureWindowOpen } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import DisplayTable from "./DisplayTable";
 import { getColumnTypes, getTableData } from "./DataViewerBottom";
 import { addTableRecords } from "../../redux/SampleTableRecords/SampleTableRecordsActions";
@@ -34,8 +28,8 @@ import {
 import GraphArea from "../GraphArea/GraphArea";
 import ChartControlObjects from "../ChartOptions/ChartControlObjects";
 import ControlDetail from "../ChartOptions/ControlDetail";
-import { createStyles, makeStyles } from "@mui/styles";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
+import "./DynamicMeasuresStyles.css";
 
 const DynamicMeasureWindow = ({
 	//state
@@ -235,17 +229,7 @@ const DynamicMeasureWindow = ({
 					<GraphArea />
 					<div className="rightColumn">
 						<div className="rightColumnControlsAndFilters">
-							<div
-								style={{
-									color: " #404040",
-									fontWeight: "600",
-									padding: "10px 0 0 0.5rem",
-									marginBottom: "3px",
-									textAlign: "center",
-								}}
-							>
-								Charts Controls
-							</div>
+							<div className="dm-ChartControls-style">Charts Controls</div>
 							<ChartControlObjects />
 							<ControlDetail />
 						</div>
@@ -266,8 +250,6 @@ const DynamicMeasureWindow = ({
 										size="small"
 										style={{
 											background: "white",
-											fontSize: "12px",
-											borderRadius: "4px",
 										}}
 									>
 										<InputLabel
@@ -364,15 +346,7 @@ const DynamicMeasureWindow = ({
 									/>
 								</div>
 							) : (
-								<div
-									className="axisInfo"
-									style={{
-										flex: "1",
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-									}}
-								>
+								<div className="axisInfo dm-tableviewer-bottom">
 									Select any table from the list on left to show records here
 								</div>
 							)}

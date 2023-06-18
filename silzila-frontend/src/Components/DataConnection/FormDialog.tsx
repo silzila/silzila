@@ -243,6 +243,9 @@ function FormDialog({
 		}
 		if (connection === "mssql") {
 			return "1433";
+		}
+		if (connection === "redshift") {
+			return "5439";
 		} else {
 			return "";
 		}
@@ -318,9 +321,10 @@ function FormDialog({
 									}
 								}}
 							>
-								<MenuItem value="postgresql">Postgresql</MenuItem>
-								<MenuItem value="mysql">Mysql</MenuItem>
-								<MenuItem value="sqlserver">Mssql</MenuItem>
+								<MenuItem value="postgresql">PostgreSql</MenuItem>
+								<MenuItem value="mysql">MySql</MenuItem>
+								<MenuItem value="sqlserver">Ms SQL Server</MenuItem>
+								<MenuItem value="redshift">Amazon Redshift</MenuItem>
 							</Select>
 						</FormControl>
 						<small style={{ color: "red" }}>{account.vendorError}</small>

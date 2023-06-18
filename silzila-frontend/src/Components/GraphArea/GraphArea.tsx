@@ -59,7 +59,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import SimpleCard from "../Charts/SimpleCard";
 import { renameDynamicMeasure } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
-import TableChart from '../Charts/TableChart/TableChart';
+import TableChart from "../Charts/TableChart/TableChart";
 
 const popoverButtonStyle = {
 	textTransform: "none",
@@ -417,7 +417,6 @@ const GraphArea = ({
 
 								padding: "5px",
 								width: "fit-content",
-								// height: graphDimension.height - 200,
 								overflow: "hidden",
 								margin: "auto",
 							}}
@@ -443,7 +442,7 @@ const GraphArea = ({
 					/>
 				);
 			case "table":
-				return(
+				return (
 					<TableChart
 						propKey={propKey}
 						graphDimension={fullScreen ? graphDimension2 : graphDimension}
@@ -989,11 +988,7 @@ const GraphArea = ({
 					}}
 				>
 					<div className="screenSettingsMenuItems">
-						<img
-							src={sqlIcon}
-							alt=""
-							style={{ height: "16px", width: "16px", color: "grey" }}
-						/>
+						<img src={sqlIcon} alt="" className="graphAreaViewSqlButtonStyle" />
 						View sql
 					</div>
 				</Button>
