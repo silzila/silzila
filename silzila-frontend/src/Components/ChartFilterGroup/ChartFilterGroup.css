@@ -1,0 +1,71 @@
+.chartFilterGroupContainer{
+   overflow: scroll;
+  padding-top:10px
+}
+
+.addFilterGroupButton{
+   border: 1px solid #2bb9bb;
+   background-color: transparent;
+   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+   font-weight: 600;
+   border-radius: 3px;
+   color: #2bb9bb;
+   height: 1.8rem;
+   width:30px;
+   font-size: 16px;
+   cursor: pointer;
+   padding-top: 2px;
+   
+}
+
+.addFilterGroupButton:hover {
+background-color: #2bb9bb;
+   border: 1px solid #2bb9bb;
+   color: white;
+}
+
+.chartFilterGroupcontainersHead {
+   padding-bottom: 1rem;
+   font-weight: 600;
+   display: flex;
+   overflow: hidden;
+   padding-left: 10px;
+   padding-right: 8px;
+   align-items: flex-end;
+   gap:10px
+}
+
+ /* chart-fil-grp = chart filter group */
+
+ /* chartFilterGroupCard.tsx */
+.chart-fil-grp-CustomRequiredField{
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  margin-left: 6px;
+  width: 94%;
+}
+
+/* chartGroups.tsx */
+.moreOptionsButtonStyle{
+background-color: transparent;
+margin-left: 3.2rem;
+}
+
+/* chartGroups.tsx */
+.dashboardTilesName{
+ margin-left: 0;
+ margin-top: 3.5px;
+ justify-self: center;
+ text-overflow: ellipsis;
+ white-space: nowrap;
+ overflow: hidden;
+}
+
+/* chartFilterGroupsContainer.tsx */
+.chooseGroupDropDownContainer{
+   display: flex; 
+   justify-content: space-between;
+}
+

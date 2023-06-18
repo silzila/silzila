@@ -1,4 +1,4 @@
-import { Card } from '../../Components/ChartAxes/ChartAxesInterfaces';
+import { Card } from "../../Components/ChartAxes/ChartAxesInterfaces";
 
 export interface fieldProps {
 	uId?: string;
@@ -11,22 +11,23 @@ export interface fieldProps {
 	timeGrain?: any;
 }
 
-export interface groupProp{
-	id:string;
-	name:string;
-	filters:any;
-	isCollapsed:boolean;
+export interface groupProp {
+	id: string;
+	name: string;
+	filters: any;
+	isCollapsed: boolean;
 }
 
-export interface ChartFilterGroupCardProps{
+export interface ChartFilterGroupCardProps {
 	token: string;
 	name: string;
-	field:fieldProps;
-	propKey:string;
-	itemIndex:number;
+	field: fieldProps;
+	propKey: string;
+	itemIndex: number;
 
 	chartProp: any;
 	chartGroup: any;
+	tabTileProps: any;
 
 	updateChartFilterRightGroupsFilters: (groupName: string, filter: any) => void;
 	deleteRightFilterGroupItems: (groupName: string, itemIndex: number) => void;
@@ -41,7 +42,6 @@ export interface ChartFilterGroupProps {
 	chartFilterGroupEdited: boolean;
 }
 
-
 export interface ChartFilterGroupStateProps {
 	chartFilterGroup: ChartFilterGroupProps;
 }
@@ -50,21 +50,25 @@ export interface ChartFilterGroupsContainerProps {
 	propKey: string;
 	chartProp: any;
 	chartGroup: any;
-	fromDashboard:boolean;
-	dashBoardGroup:any;
-	tileState:any;
-	tabTileProps:any;
+	fromDashboard: boolean;
+	dashBoardGroup: any;
+	tileState: any;
+	tabTileProps: any;
 
-	addChartFilterGroupName: (selectedDatasetID: string, groupId: string, groupName: string) => void;
+	addChartFilterGroupName: (
+		selectedDatasetID: string,
+		groupId: string,
+		groupName: string
+	) => void;
 	updateChartFilterGroupsCollapsed: (groupId: string, collapsed: boolean) => void;
 	addChartFilterTabTileName: (selectedDatasetID: string, tabTileName: string) => void;
 	updateChartFilterSelectedGroups: (groupId: string, filters: any) => void;
 	deleteChartFilterSelectedGroup: (tabTileName: string, groupIndex: number) => void;
 	updateDashBoardGroups: (groupId: string) => void;
 	deleteDashBoardSelectedGroup: (groupId: string) => void;
-	addDashBoardFilterGroupTabTiles:(groupId: string)=> void;
-	setDashBoardFilterGroupsTabTiles:(groupId: string, selectedTabTiles: any) => void;
-	deleteDashBoardSelectedGroupAllTabTiles:(groupId: string) => void;
+	addDashBoardFilterGroupTabTiles: (groupId: string) => void;
+	setDashBoardFilterGroupsTabTiles: (groupId: string, selectedTabTiles: any) => void;
+	deleteDashBoardSelectedGroupAllTabTiles: (groupId: string) => void;
 }
 
 export interface ChartFilterGroupsProps {
@@ -75,28 +79,27 @@ export interface ChartFilterGroupsProps {
 	chartGroup: any;
 	fromDashboard: boolean;
 	tileState: any;
-	tabTileProps:any;
-	dashBoardGroup:any;
+	tabTileProps: any;
+	dashBoardGroup: any;
 
-	updateChartFilterGroupsFilters: (selectedDatasetID: string, groupId: string, filters: any) => void;
+	updateChartFilterGroupsFilters: (
+		selectedDatasetID: string,
+		groupId: string,
+		filters: any
+	) => void;
 	updateChartFilterGroupsName: (groupId: string, name: string) => void;
 	updateChartFilterGroupsCollapsed: (groupId: string, collapsed: boolean) => void;
-	deleteDashBoardSelectedTabTiles: ( groupId: string, groupIndex: number)  => void;
-	updateDashBoardSelectedTabTiles: ( groupId: string, selectedTabTiles: any)=> void;
+	deleteDashBoardSelectedTabTiles: (groupId: string, groupIndex: number) => void;
+	updateDashBoardSelectedTabTiles: (groupId: string, selectedTabTiles: any) => void;
 }
 
 export interface UserFilterCardProps extends Card {
-	token: string,
+	token: string;
 
 	// dispatch
 	deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: number) => void;
 
-	updateQueryParam: (
-		propKey: string,
-		binIndex: number,
-		itemIndex: number,
-		item: any
-	) => void;
+	updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any) => void;
 
 	updateLeftFilterItem: (propKey: string, bIndex: number, item: any) => void;
 

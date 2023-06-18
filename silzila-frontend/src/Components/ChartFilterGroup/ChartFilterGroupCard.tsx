@@ -33,6 +33,7 @@ import { ChartFilterGroupCardProps } from "../../redux/ChartFilterGroup/ChartFil
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { ChartFilterGroupStateProps } from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
+import { DashBoardStateProps } from "../DashBoard/DashBoardInterfaces";
 
 const ChartFilterGroupCard = ({
 	propKey,
@@ -44,6 +45,7 @@ const ChartFilterGroupCard = ({
 	token,
 	chartProp,
 	chartGroup,
+	tabTileProps,
 
 	// dispatch
 	updateChartFilterRightGroupsFilters,
@@ -138,7 +140,7 @@ const ChartFilterGroupCard = ({
 						filterFieldData["fieldtypeoption"] = "Pick List";
 					}
 					break;
-					
+
 				default:
 					if (!filterFieldData.fieldtypeoption) {
 						filterFieldData["fieldtypeoption"] = "Pick List";
@@ -392,7 +394,7 @@ const ChartFilterGroupCard = ({
 								sx={{
 									color: "red",
 									"&.Mui-checked": {
-										color: "#1976d2",
+										color: "#a6a6a6",
 									},
 								}}
 								onChange={e => handleCBChange(e)}
@@ -679,7 +681,10 @@ const ChartFilterGroupCard = ({
 
 	///Remove filter card from dropzone
 	const deleteItem = () => {
-		deleteRightFilterGroupItems(name, itemIndex);
+		//to restric deletecard action when in dashboard present mode
+		if (tabTileProps.dashMode === "Edit") {
+			deleteRightFilterGroupItems(name, itemIndex);
+		}
 	};
 
 	///Handle Date time grain dropdown list change
@@ -1091,17 +1096,7 @@ const ChartFilterGroupCard = ({
 		}
 
 		return (
-			<div
-				// className="CustomRequiredField"
-				style={{
-					backgroundColor: "white",
-					display: "flex",
-					flexDirection: "column",
-					rowGap: "8px",
-					marginLeft: "6px",
-					width: "94%",
-				}}
-			>
+			<div className="chart-fil-grp-CustomRequiredField">
 				{members}
 				<CustomRequiredField></CustomRequiredField>
 			</div>
@@ -1155,7 +1150,11 @@ const ChartFilterGroupCard = ({
 					onClick={deleteItem}
 					title="Remove field"
 				>
-					<CloseRoundedIcon style={{ fontSize: "13px" }} />
+					<CloseRoundedIcon
+						style={{
+							fontSize: "13px",
+						}}
+					/>
 				</button>
 
 				{/* filter column name */}
@@ -1230,12 +1229,13 @@ const ChartFilterGroupCard = ({
 };
 
 const mapStateToProps = (
-	state: ChartPropertiesStateProps & isLoggedProps & ChartFilterGroupStateProps
+	state: ChartPropertiesStateProps & isLoggedProps & ChartFilterGroupStateProps & any
 ) => {
 	return {
 		token: state.isLogged.accessToken,
 		chartProp: state.chartProperties,
 		chartGroup: state.chartFilterGroup,
+		tabTileProps: state.tabTileProps,
 	};
 };
 

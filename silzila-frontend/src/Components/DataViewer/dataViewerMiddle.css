@@ -160,3 +160,7 @@
 	/* border-collapse: collapse; */
 
 }
+
+.graphAreaViewSqlButtonStyle{
+	height: 16px; width: 16px; color: grey
+}
