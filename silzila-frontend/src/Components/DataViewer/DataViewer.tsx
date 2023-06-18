@@ -37,11 +37,11 @@ import filterIcon from "../../assets/filter_icon.svg";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import GridViewIcon from "@mui/icons-material/GridView";
 import AspectRatioRoundedIcon from "@mui/icons-material/AspectRatioRounded";
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import {
 	ChartPropProperties,
 	ChartPropertiesProps,
 } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 
 interface DataViewerProps {
 	tabTileProps: TabTileStateProps;
@@ -70,7 +70,6 @@ function DataViewer({
 	const [showListofTileMenu, setShowListofTileMenu] = useState<boolean>(true);
 	const [dashboardResizeColumn, setDashboardResizeColumn] = useState<boolean>(false);
 	const [showDashboardFilter, setShowDashboardFilter] = useState<boolean>(false);
-
 
 	// Whether to show table at the bottom of page or not
 	const handleTableDisplayToggle = () => {
@@ -167,7 +166,7 @@ function DataViewer({
 					</div>
 				) : null}
 				{tabTileProps.showDash || tabTileProps.dashMode === "Present" ? (
-					<div style={{ display: "flex", alignItems: "center" }}>
+					<div style={{ display: "flex", alignItems: "center", paddingRight: "8px" }}>
 						{tabTileProps.dashMode === "Edit" ? (
 							<div
 								style={{
@@ -220,36 +219,31 @@ function DataViewer({
 											}}
 										/>
 									</Tooltip>
-
-									
-								</div>
-
-								<div
-									className={
-										showDashboardFilter
-											? "dashboardMenuIconStyleSelected"
-											: "dashboardMenuIconStyle"
-									}
-								>
-									<Tooltip title="Dashboard Filter">
-										<FilterAltIcon
-											sx={{ fontSize: "20px", marginTop: "2px" }}
-											onClick={() => {
-												if (tabTileProps.dashMode === "Edit") {
-													setShowListofTileMenu(false);
-													setDashboardResizeColumn(false);
-													setShowDashboardFilter(
-														!showDashboardFilter
-													);
-												}
-											}}
-										/>
-									</Tooltip>
-
-									
 								</div>
 							</div>
 						) : null}
+						<div
+							className={
+								showDashboardFilter
+									? "dashboardMenuIconStyleSelected"
+									: "dashboardMenuIconStyle"
+							}
+						>
+							<Tooltip title="Dashboard Filter">
+								<FilterAltOutlinedIcon
+									sx={{
+										fontSize: "25px",
+									}}
+									onClick={() => {
+										// if (tabTileProps.dashMode === "Edit") {
+										setShowListofTileMenu(false);
+										setDashboardResizeColumn(false);
+										setShowDashboardFilter(!showDashboardFilter);
+										// }
+									}}
+								/>
+							</Tooltip>
+						</div>
 					</div>
 				) : null}
 			</div>

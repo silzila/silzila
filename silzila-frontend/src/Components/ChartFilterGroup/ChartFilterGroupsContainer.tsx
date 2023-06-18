@@ -4,23 +4,36 @@
 
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { Popover } from "@mui/material";
-import ChartFilterGroups from './ChartFilterGroups';
-import { useState } from 'react';
+import { FormControl, ListItemText, MenuItem, Select, Tooltip, Typography } from "@mui/material";
+import ChartFilterGroups from "./ChartFilterGroups";
+import { useState, useEffect } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import {
 	addChartFilterGroupName,
 	deleteChartFilterSelectedGroup,
-	addChartFilterTabTileName, updateChartFilterSelectedGroups, updateChartFilterGroupsCollapsed
+	addChartFilterTabTileName,
+	updateChartFilterSelectedGroups,
+	updateChartFilterGroupsCollapsed,
 } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Checkbox } from "@mui/material";
-import { ChartFilterGroupsContainerProps } from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
-import { ChartPropertiesStateProps } from '../../redux/ChartPoperties/ChartPropertiesInterfaces';
-import { ChartFilterGroupStateProps, groupProp } from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
-import { updateDashBoardGroups, deleteDashBoardSelectedGroup } from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
-import { addDashBoardFilterGroupTabTiles, setDashBoardFilterGroupsTabTiles, deleteDashBoardSelectedGroupAllTabTiles } from '../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction';
+import { ChartFilterGroupsContainerProps } from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
+import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import {
+	ChartFilterGroupStateProps,
+	groupProp,
+} from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
+import {
+	updateDashBoardGroups,
+	deleteDashBoardSelectedGroup,
+} from "../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction";
+import {
+	addDashBoardFilterGroupTabTiles,
+	setDashBoardFilterGroupsTabTiles,
+	deleteDashBoardSelectedGroupAllTabTiles,
+} from "../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction";
 import { TileRibbonStateProps } from "../../Components/TabsAndTiles/TileRibbonInterfaces";
+import "./ChartFilterGroup.css";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 const ChartFilterGroupsContainer = ({
 	// props
@@ -44,40 +57,34 @@ const ChartFilterGroupsContainer = ({
 	deleteDashBoardSelectedGroup,
 	addDashBoardFilterGroupTabTiles,
 	setDashBoardFilterGroupsTabTiles,
-	deleteDashBoardSelectedGroupAllTabTiles
+	deleteDashBoardSelectedGroupAllTabTiles,
 }: ChartFilterGroupsContainerProps) => {
-
 	let selectedDatasetID = "";
 	let datasetGroupList = [];
 	let selectedFilterGroups: any = [];
-
 
 	if (!fromDashboard) {
 		selectedDatasetID = chartProp.properties[propKey].selectedDs.id;
 		datasetGroupList = chartGroup.datasetGroupsList[selectedDatasetID];
 		selectedFilterGroups = chartGroup.tabTile[propKey] || [];
-	}
-	else {
+	} else {
 		selectedFilterGroups = dashBoardGroup.groups;
 		datasetGroupList = Object.keys(chartGroup.groups);
 	}
 
-	const [showPopover, setShowPopover] = useState<boolean>(false);
-	const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-	const open = Boolean(anchorEl);
-	const id = open ? 'simple-popover' : undefined;
-
-	//const 
+	//const
 	let showFilters: any[] = [];
 
 	//if (!fromDashboard) {
 	if (selectedFilterGroups && selectedFilterGroups.length > 0) {
 		selectedFilterGroups.forEach((grp: string) => {
 			showFilters.push({
-				id: grp, name: chartGroup.groups[grp].name,
-				filters: chartGroup.groups[grp].filters, isCollapsed: chartGroup.groups[grp].isCollapsed
+				id: grp,
+				name: chartGroup.groups[grp].name,
+				filters: chartGroup.groups[grp].filters,
+				isCollapsed: chartGroup.groups[grp].isCollapsed,
 			});
-		})
+		});
 	}
 	//}
 
@@ -87,17 +94,6 @@ const ChartFilterGroupsContainer = ({
 				updateChartFilterGroupsCollapsed(grp, true);
 			});
 		}
-	}
-
-	const handleClose = () => {
-		setShowPopover(false)
-		setAnchorEl(null);
-
-	};
-
-	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-		setAnchorEl(event.currentTarget);
-		setShowPopover(true)
 	};
 
 	const handleCBChange = (event: any) => {
@@ -105,7 +101,6 @@ const ChartFilterGroupsContainer = ({
 			if (fromDashboard) {
 				addDashBoardFilterGroupTabTiles(event.target.name);
 				updateDashBoardGroups(event.target.name);
-
 
 				let tabTilesList: any = [];
 				let groupDataSetId = chartGroup.groups[event.target.name].dataSetId;
@@ -116,24 +111,24 @@ const ChartFilterGroupsContainer = ({
 					}
 				});
 
-				setDashBoardFilterGroupsTabTiles(event.target.name, tabTilesList)
-			}
-			else {
+				setDashBoardFilterGroupsTabTiles(event.target.name, tabTilesList);
+				console.log(event.target.name, tabTilesList);
+			} else {
 				updateChartFilterSelectedGroups(propKey, event.target.name);
 			}
-		}
-		else {
+		} else {
 			if (fromDashboard) {
 				deleteDashBoardSelectedGroup(event.target.name);
 
 				deleteDashBoardSelectedGroupAllTabTiles(event.target.name);
-			}
-			else {
-				deleteChartFilterSelectedGroup(propKey, selectedFilterGroups.findIndex((name: string) => name == event.target.name))
+			} else {
+				deleteChartFilterSelectedGroup(
+					propKey,
+					selectedFilterGroups.findIndex((name: string) => name == event.target.name)
+				);
 			}
 		}
-	}
-
+	};
 
 	const getNewGroupName = (numOfGroups: number): string => {
 		let isUnique = true;
@@ -148,22 +143,144 @@ const ChartFilterGroupsContainer = ({
 		});
 
 		if (!isUnique) {
-			return getNewGroupName(numOfGroups + 1)
-		}
-		else {
+			return getNewGroupName(numOfGroups + 1);
+		} else {
 			return newName;
 		}
-	}
+	};
 
+	// name list of selected filter grops in tile
+	const [filterGroupNamelist, setFilterGroupNamelist] = useState<string[]>(["No group selected"]);
+
+	/* getting names of selected filter groups to store the names in filterGropNamelist 
+	state  to give it as a value for choose group dropdown when user select or deselect filtergrops in tile */
+	useEffect(() => {
+		if (chartGroup?.tabTile[propKey]) {
+			let temp = chartGroup?.tabTile[propKey].map((el: any) => {
+				return chartGroup.groups[el].name;
+			});
+			if (temp.length === 0) {
+				setFilterGroupNamelist(["No group selected"]);
+			} else {
+				setFilterGroupNamelist(temp);
+			}
+			console.log(temp);
+		}
+	}, [chartGroup?.tabTile[propKey]]);
+
+	// name list of selected filter grops in dashboard
+
+	const [dashboardFilterGroupNamelist, setDashboardFilterGroupNamelist] = useState<string[]>([
+		"No group selected",
+	]);
+
+	/* getting names of selected filter group of dashboard to store the names in dashboardFilterGroupNamelist 
+	state  to give it as a value for choose group dropdown of dashboard when user select or deselect filtergrops in dashboard */
+
+	useEffect(() => {
+		if (dashBoardGroup.groups.length > 0) {
+			const selectedDashboardFilterGropsNames = dashBoardGroup.groups.map((el: any) => {
+				return chartGroup.groups[el].name;
+			});
+			setDashboardFilterGroupNamelist(selectedDashboardFilterGropsNames);
+		} else {
+			setDashboardFilterGroupNamelist(["No group selected"]);
+		}
+	}, [dashBoardGroup.groups]);
+
+	const MenuProps = {
+		PaperProps: {
+			style: {
+				width: 180,
+			},
+		},
+	};
 	return (
 		<div className="chartFilterGroupContainer">
-			<div className="containersHead">
-				{!fromDashboard ?
-					<div
-						title="Create New Playbook"
-						className="containerButton"
-						onClick={e => {
+			<div className="chartFilterGroupcontainersHead">
+				<div>
+					<span className="chooseGroupDropDownContainer">
+						<Typography sx={{ fontSize: "14px", textAlign: "left", color: "grey" }}>
+							Choose Group
+						</Typography>
+						{fromDashboard ? (
+							<Tooltip title="Hide">
+								<KeyboardArrowUpIcon
+									sx={{
+										fontSize: "16px",
+										float: "right",
+										color: "grey",
+										marginRight: "10px",
+									}}
+									// onClick={() => setShowDashBoardFilter(false)}
+								/>
+							</Tooltip>
+						) : null}
+					</span>
+					<FormControl sx={{ mt: 1, width: fromDashboard ? 212 : 175 }}>
+						<Select
+							labelId="demo-multiple-checkbox-label"
+							id="demo-multiple-checkbox"
+							multiple
+							value={
+								fromDashboard ? dashboardFilterGroupNamelist : filterGroupNamelist
+							}
+							renderValue={selected => selected.join(", ")}
+							MenuProps={MenuProps}
+							sx={{
+								height: "1.8rem",
+								fontSize: "13px",
+								color: "grey",
 
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb",
+									color: "#2bb9bb",
+								},
+
+								"&.Mui-focused .MuiSvgIcon-root ": {
+									fill: "#2bb9bb !important",
+								},
+							}}
+						>
+							{datasetGroupList?.map((item: string) => (
+								<MenuItem
+									key={item}
+									value={chartGroup.groups[item].name}
+									sx={{
+										height: "30px",
+										padding: "2px 1rem 2px 0.5rem",
+										"& .MuiTypography-root": {
+											fontSize: "14px",
+										},
+									}}
+								>
+									<Checkbox
+										checked={selectedFilterGroups.includes(item)}
+										name={item}
+										style={{
+											transform: "scale(0.7)",
+											paddingRight: "0px",
+											marginRight: "10px",
+										}}
+										sx={{
+											"&.Mui-checked": {
+												color: "#2bb9bb",
+											},
+										}}
+										onChange={e => handleCBChange(e)}
+									/>
+									<ListItemText primary={chartGroup.groups[item].name} />
+								</MenuItem>
+							))}
+						</Select>
+					</FormControl>
+				</div>
+
+				{!fromDashboard ? (
+					<div
+						title="Create New Filter Group"
+						className="addFilterGroupButton"
+						onClick={e => {
 							if (!(selectedFilterGroups && selectedFilterGroups.length > 0)) {
 								addChartFilterTabTileName(selectedDatasetID, propKey);
 							}
@@ -171,12 +288,19 @@ const ChartFilterGroupsContainer = ({
 							//let newGroupName = "Filter Group " + ((datasetGroupList?.length + 1) || 1);
 							let numOfGroups = 0;
 
-							if (Object.keys(chartGroup.groups) && Object.keys(chartGroup.groups).length > 0) {
+							if (
+								Object.keys(chartGroup.groups) &&
+								Object.keys(chartGroup.groups).length > 0
+							) {
 								numOfGroups = Object.keys(chartGroup.groups).length;
 							}
 
 							let newGroupName = getNewGroupName(numOfGroups + 1);
-							let groupId = selectedDatasetID + "_" + newGroupName + (new Date().getMilliseconds());
+							let groupId =
+								selectedDatasetID +
+								"_" +
+								newGroupName +
+								new Date().getMilliseconds();
 							addChartFilterGroupName(selectedDatasetID, groupId, newGroupName);
 							collapseOtherGroups();
 							updateChartFilterSelectedGroups(propKey, groupId);
@@ -184,95 +308,25 @@ const ChartFilterGroupsContainer = ({
 					>
 						<AddIcon />
 					</div>
-					: null}
-				<button
-					type="button"
-					className="buttonCommon"
-					style={{ backgroundColor: "transparent" }}
-					title="More Options"
-					onClick={handleClick}
-				>
-					<MoreVertIcon aria-describedby={id} style={{ fontSize: "16px", color: "#999999" }} onClick={() => handleClick} />
-				</button>
+				) : null}
 			</div>
 			<div>
-				{
-					showFilters.map((group: groupProp, indx: number) =>
-					(
-						<ChartFilterGroups key={indx} propKey={propKey} group={group} fromDashboard={fromDashboard}></ChartFilterGroups>
-					)
-					)
-				}
-
+				{showFilters.map((group: groupProp, indx: number) => (
+					<ChartFilterGroups
+						key={indx}
+						propKey={propKey}
+						group={group}
+						fromDashboard={fromDashboard}
+					></ChartFilterGroups>
+				))}
 			</div>
-
-			<Popover
-				open={showPopover}
-				id={id}
-				anchorEl={anchorEl}
-				onClose={handleClose}
-				anchorOrigin={{
-					vertical: "bottom",
-					horizontal: "left",
-				}}
-				transformOrigin={{
-					vertical: "top",
-					horizontal: "right",
-				}}
-			>
-				<div className="datasetListPopover">
-					<div className="datasetListPopoverHeading">
-						<div style={{ flex: 1 }}>{"Active Filter Groups"}</div>
-					</div>
-					<div>
-						{
-							datasetGroupList?.map((item: any, index: number) => {
-								return (
-									<label className="UserFilterCheckboxes" key={index}>
-
-										<Checkbox
-											checked={selectedFilterGroups.includes(item)}
-											name={item}
-											style={{
-												transform: "scale(0.6)",
-												paddingRight: "0px",
-											}}
-											sx={{
-												"&.Mui-checked": {
-													color: "orange",
-												},
-
-											}}
-											onChange={e => handleCBChange(e)}
-										/>
-
-
-										<span
-											title={chartGroup.groups[item].name}
-											style={{
-												marginLeft: 0,
-												marginTop: "3.5px",
-												justifySelf: "center",
-												textOverflow: "ellipsis",
-												whiteSpace: "nowrap",
-												overflow: "hidden",
-											}}
-										>
-											{chartGroup.groups[item].name}
-										</span>
-									</label>
-								);
-							})
-						}
-					</div>
-				</div>
-			</Popover>
-
 		</div>
 	);
 };
 
-const mapStateToProps = (state: ChartPropertiesStateProps & ChartFilterGroupStateProps & TileRibbonStateProps) => {
+const mapStateToProps = (
+	state: ChartPropertiesStateProps & ChartFilterGroupStateProps & TileRibbonStateProps
+) => {
 	return {
 		chartProp: state.chartProperties,
 		chartGroup: state.chartFilterGroup,
@@ -299,18 +353,17 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		deleteChartFilterSelectedGroup: (tabTileName: string, groupIndex: number) =>
 			dispatch(deleteChartFilterSelectedGroup(tabTileName, groupIndex)),
 
-		updateDashBoardGroups: (groupId: string) =>
-			dispatch(updateDashBoardGroups(groupId)),
+		updateDashBoardGroups: (groupId: string) => dispatch(updateDashBoardGroups(groupId)),
 
 		deleteDashBoardSelectedGroup: (groupId: string) =>
 			dispatch(deleteDashBoardSelectedGroup(groupId)),
 
-		deleteDashBoardSelectedGroupAllTabTiles:(groupId: string) =>
+		deleteDashBoardSelectedGroupAllTabTiles: (groupId: string) =>
 			dispatch(deleteDashBoardSelectedGroupAllTabTiles(groupId)),
 		addDashBoardFilterGroupTabTiles: (groupId: string) =>
 			dispatch(addDashBoardFilterGroupTabTiles(groupId)),
 		setDashBoardFilterGroupsTabTiles: (groupId: string, selectedTabTiles: any) =>
-			dispatch(setDashBoardFilterGroupsTabTiles(groupId, selectedTabTiles))
+			dispatch(setDashBoardFilterGroupsTabTiles(groupId, selectedTabTiles)),
 	};
 };
 
