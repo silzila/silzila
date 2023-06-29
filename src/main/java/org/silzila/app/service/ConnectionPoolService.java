@@ -184,8 +184,8 @@ public class ConnectionPoolService {
         // when connection id is not available, RecordNotFoundException will be throws
         createConnectionPool(id, userId);
         ArrayList<String> schemaList = new ArrayList<String>();
-        try {
-            Connection _connection = connectionPool.get(id).getConnection();
+
+        try (Connection _connection = connectionPool.get(id).getConnection();) {
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
             // get database (catalog) names from metadata object
             ResultSet resultSet = databaseMetaData.getCatalogs();
@@ -219,9 +219,6 @@ public class ConnectionPoolService {
                 if (databaseName == null || databaseName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Please specify Database Name for SQL Server connection");
                 }
-                Connection _connection = connectionPool.get(id).getConnection();
-
-                statement = _connection.createStatement();
                 String query = """
                         select s.name as schema_name
                         from %s.sys.schemas s
@@ -229,40 +226,44 @@ public class ConnectionPoolService {
                         on u.uid = s.principal_id
                         where u.issqluser = 1
                         and u.name not in ('sys', 'guest', 'INFORMATION_SCHEMA')""".formatted(databaseName);
-                resultSet = statement.executeQuery(query);
-                JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
-                statement.close();
-                // get list of schema names from result
-                schemaList = new ArrayList<>();
-                if (jsonArray != null) {
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject rec = jsonArray.getJSONObject(i);
-                        // schema_name is the key in the JSON Object
-                        String schema = rec.getString("schema_name");
-                        schemaList.add(schema);
+                try (Connection _connection = connectionPool.get(id).getConnection();
+                        PreparedStatement pst = _connection.prepareStatement(query);
+                        ResultSet rs = pst.executeQuery();) {
+                    JSONArray jsonArray = ResultSetToJson.convertToJson(rs);
+                    // get list of schema names from result
+                    schemaList = new ArrayList<>();
+                    if (jsonArray != null) {
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject rec = jsonArray.getJSONObject(i);
+                            // schema_name is the key in the JSON Object
+                            String schema = rec.getString("schema_name");
+                            schemaList.add(schema);
+                        }
                     }
+                    return schemaList;
                 }
-                return schemaList;
-
             }
             // for Postgres & MySQL
             else {
-                Connection _connection = connectionPool.get(id).getConnection();
-                DatabaseMetaData databaseMetaData = _connection.getMetaData();
+                try (Connection _connection = connectionPool.get(id).getConnection();) {
 
-                // get database & schema names from metadata object
-                // Postgres will not show other databases in the server and MySQL doesn't have
-                // Schema. So, either DB or schema will be populated for Postgres and MySQL
-                // and shemas and can query cross DB
-                ResultSet resultSet = databaseMetaData.getSchemas();
-                // iterate result and add row to object and append object to list
-                while (resultSet.next()) {
-                    // TABLE_CATALOG is the DB name and we don't need
-                    // String dbName = resultSet.getString("TABLE_CATALOG");
-                    String schemaName = resultSet.getString("TABLE_SCHEM");
-                    schemaList.add(schemaName);
+                    DatabaseMetaData databaseMetaData = _connection.getMetaData();
+
+                    // get database & schema names from metadata object
+                    // Postgres will not show other databases in the server and MySQL doesn't have
+                    // Schema. So, either DB or schema will be populated for Postgres and MySQL
+                    // and shemas and can query cross DB
+                    ResultSet resultSet = databaseMetaData.getSchemas();
+                    // iterate result and add row to object and append object to list
+                    while (resultSet.next()) {
+                        // TABLE_CATALOG is the DB name and we don't need
+                        // String dbName = resultSet.getString("TABLE_CATALOG");
+                        String schemaName = resultSet.getString("TABLE_SCHEM");
+                        schemaList.add(schemaName);
+                    }
+                    return schemaList;
                 }
-                return schemaList;
+
             }
         } catch (
 
@@ -277,8 +278,7 @@ public class ConnectionPoolService {
         // first create connection pool to query DB
         String vendorName = getVendorNameFromConnectionPool(id, userId);
 
-        try {
-            Connection _connection = connectionPool.get(id).getConnection();
+        try (Connection _connection = connectionPool.get(id).getConnection();) {
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
             // this object will hold list of tables and list of views
             MetadataTable metadataTable = new MetadataTable();
@@ -374,8 +374,8 @@ public class ConnectionPoolService {
         // metadataColumns list will contain the final result
         ArrayList<MetadataColumn> metadataColumns = new ArrayList<MetadataColumn>();
 
-        try {
-            Connection _connection = connectionPool.get(id).getConnection();
+        try (Connection _connection = connectionPool.get(id).getConnection();) {
+
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
             ResultSet resultSet = null;
 
@@ -476,12 +476,14 @@ public class ConnectionPoolService {
 
         }
         // RUN THE 'SELECT *' QUERY
-        try {
-            Connection _connection = connectionPool.get(id).getConnection();
-            statement = _connection.createStatement();
-            resultSet = statement.executeQuery(query);
-            JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
-            statement.close();
+        try (Connection _connection = connectionPool.get(id).getConnection();
+                PreparedStatement pst = _connection.prepareStatement(query);
+                ResultSet rs = pst.executeQuery();) {
+            // Connection _connection = connectionPool.get(id).getConnection();
+            // statement = _connection.createStatement();
+            // resultSet = statement.executeQuery(query);
+            JSONArray jsonArray = ResultSetToJson.convertToJson(rs);
+            // statement.close();
             return jsonArray;
         } catch (Exception e) {
             throw e;
