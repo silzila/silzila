@@ -395,7 +395,7 @@ const UserFilterCard = ({
 								sx={{
 									color: "red",
 									"&.Mui-checked": {
-										color: "#1976d2",
+										color: "#a6a6a6",
 									},
 								}}
 								onChange={e => handleCBChange(e)}
