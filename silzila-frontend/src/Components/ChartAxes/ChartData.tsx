@@ -633,6 +633,26 @@ const ChartData = ({
 					makeServiceCall(tile);
 				}
 			});
+
+			// let i = 0;
+			// const loop = () => {
+			// 	setTimeout(() => {
+			// 		console.log(" Time: " + 50 * i);
+			// 		i++;
+
+			// 		if(!_checkGroupsNotSame(tile) || chartProp.properties[tile].axesEdited || chartGroup.chartFilterGroupEdited || dashBoardGroup.dashBoardGroupEdited){
+			// 			makeServiceCall(tile);
+			// 		}
+
+			// 		if (i < 20) {
+			// 		loop();
+			// 		}
+
+			// 	}, i * 50)
+			// 	};
+
+			// 	loop();
+
 		}
 		else{
 			if(((tabTileProps.previousTabId == 0 || tabTileProps.previousTileId == 0) &&  !_checkGroupsNotSame(_propKey)) 
