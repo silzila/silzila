@@ -5,6 +5,7 @@ import {
 	Radio,
 	RadioGroup,
 	TextField,
+	Tooltip,
 	Typography,
 } from "@mui/material";
 import React, { useState } from "react";
@@ -26,6 +27,7 @@ import {
 } from "../../redux/TabTile/TabActions";
 import { DashBoardLayoutProps } from "./DashBoardLayoutControlInterfaces";
 import CloseIcon from "@mui/icons-material/Close";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 const DashBoardLayoutControl = ({
 	// props
@@ -312,16 +314,16 @@ const DashBoardLayoutControl = ({
 		<div className="dashboardLayoutControl">
 			<div className="axisTitle">
 				Dashboard Size
-				<CloseIcon
-					onClick={() => {
-						setDashboardResizeColumn(false);
-					}}
-					sx={{
-						fontSize: "16px",
-						float: "right",
-						marginRight: "2px",
-					}}
-				/>
+				<Tooltip title="Hide">
+					<KeyboardArrowUpIcon
+						sx={{
+							fontSize: "16px",
+							float: "right",
+							marginRight: "-4px",
+						}}
+						onClick={() => setDashboardResizeColumn(false)}
+					/>
+				</Tooltip>
 			</div>
 			{/* {dashSizeOptionBtn()} */}
 			{whenPageSizeisAuto()}

@@ -20,7 +20,7 @@ import GraphArea from "../GraphArea/GraphArea";
 import ChartControlObjects from "../ChartOptions/ChartControlObjects";
 import { CloseSharp } from "@mui/icons-material";
 import ChartFilterGroupsContainer from "../ChartFilterGroup/ChartFilterGroupsContainer";
-import { AlertColor, Button, Checkbox } from "@mui/material";
+import { AlertColor, Button, Checkbox, Tooltip } from "@mui/material";
 import DynamicMeasureWindow from "./DynamicMeasureWindow";
 import {
 	addNewDynamicMeasurePropsForSameTile,
@@ -40,6 +40,7 @@ import {
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 const DataViewerMiddle = ({
 	// props
@@ -120,6 +121,22 @@ const DataViewerMiddle = ({
 		}
 	}, [dmProp]);
 
+	const MinimizeComponent = () => {
+		return (
+			<Tooltip title="Hide">
+				<KeyboardArrowUpIcon
+					sx={{
+						fontSize: "18px",
+						float: "right",
+						marginTop: "5px",
+						marginRight: "1rem",
+					}}
+					onClick={() => setMenu("")}
+				/>
+			</Tooltip>
+		);
+	};
+
 	const controlDisplayed = () => {
 		switch (tabTileProps.selectedControlMenu) {
 			case "Charts":
@@ -133,15 +150,7 @@ const DataViewerMiddle = ({
 							}}
 						>
 							Charts
-							<CloseSharp
-								sx={{
-									fontSize: "16px",
-									float: "right",
-									marginTop: "5px",
-									marginRight: "1rem",
-								}}
-								onClick={() => setMenu("")}
-							/>
+							<MinimizeComponent />
 						</div>
 						<ChartTypes propKey={propKey} />
 					</div>
@@ -160,15 +169,7 @@ const DataViewerMiddle = ({
 							}}
 						>
 							Charts Controls
-							<CloseSharp
-								sx={{
-									fontSize: "16px",
-									float: "right",
-									marginTop: "5px",
-									marginRight: "12px",
-								}}
-								onClick={() => setMenu("")}
-							/>
+							<MinimizeComponent />
 						</div>
 						<ChartControlObjects />
 						<ControlDetail />
@@ -187,17 +188,12 @@ const DataViewerMiddle = ({
 							}}
 						>
 							Report Filter
-							<CloseSharp
-								sx={{
-									fontSize: "16px",
-									float: "right",
-									marginTop: "5px",
-									marginRight: "12px",
-								}}
-								onClick={() => setMenu("")}
-							/>
+							<MinimizeComponent />
 						</div>
-						<ChartFilterGroupsContainer propKey={propKey} fromDashboard={false}></ChartFilterGroupsContainer>
+						<ChartFilterGroupsContainer
+							propKey={propKey}
+							fromDashboard={false}
+						></ChartFilterGroupsContainer>
 					</div>
 				);
 			default:
