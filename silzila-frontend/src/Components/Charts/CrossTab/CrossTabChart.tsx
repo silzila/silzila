@@ -69,7 +69,7 @@ const CrossTabChart = ({
   To apply chart data format from 'property.formatOptions'. Deep cloned chart  data is used.
   */
 	useEffect(() => {
-		if (tempFormatedChartPropData) {
+		if (tempFormatedChartPropData && tempFormatedChartPropData[0]) {
 			var chartDataKeys = Object.keys(tempFormatedChartPropData[0]);
 			let _formChartData:any = [];
 

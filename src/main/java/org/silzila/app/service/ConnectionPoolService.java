@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+// import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -33,14 +35,14 @@ import org.silzila.app.payload.response.MetadataTable;
 @Service
 public class ConnectionPoolService {
 
-    private HikariDataSource dataSource = null;
+    HikariDataSource dataSource = null;
     HikariConfig config = new HikariConfig();
 
     Connection connection = null;
     Statement statement = null;
     ResultSet resultSet = null;
 
-    private static Map<String, Connection> connectionPool = new HashMap<>();
+    private static Map<String, HikariDataSource> connectionPool = new HashMap<>();
     private static Map<String, DBConnection> connectionDetails = new HashMap<>();
 
     @Autowired
@@ -61,6 +63,9 @@ public class ConnectionPoolService {
 
     // creates connection pool if not created already for a connection
     public void createConnectionPool(String id, String userId) throws RecordNotFoundException, SQLException {
+        HikariDataSource dataSource = null;
+        HikariConfig config = new HikariConfig();
+
         if (!connectionPool.containsKey(id)) {
             DBConnection dbConnection = dbConnectionService.getDBConnectionWithPasswordById(id, userId);
             String fullUrl = "";
@@ -103,10 +108,12 @@ public class ConnectionPoolService {
                 config.setPassword(dbConnection.getPasswordHash());
                 config.addDataSourceProperty("minimulIdle", "1");
                 config.addDataSourceProperty("maximumPoolSize", "3");
+                config.setConnectionTimeout(300000);
+                config.setIdleTimeout(120000);
                 dataSource = new HikariDataSource(config);
             }
-            connection = dataSource.getConnection();
-            connectionPool.put(id, connection);
+            // connection = dataSource.getConnection();
+            connectionPool.put(id, dataSource);
             connectionDetails.put(id, dbConnection);
         }
     }
@@ -155,12 +162,13 @@ public class ConnectionPoolService {
     // generates SQL and runs in DB and gives response based on
     // user drag & drop columns
     public JSONArray runQuery(String id, String userId, String query) throws RecordNotFoundException, SQLException {
-        try {
-            Connection _connection = connectionPool.get(id);
-            statement = _connection.createStatement();
-            resultSet = statement.executeQuery(query);
-            JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
-            statement.close();
+        try (Connection _connection = connectionPool.get(id).getConnection();
+                PreparedStatement pst = _connection.prepareStatement(query);
+                ResultSet rs = pst.executeQuery();) {
+            // statement = _connection.createStatement();
+            // resultSet = statement.executeQuery(query);
+            JSONArray jsonArray = ResultSetToJson.convertToJson(rs);
+            // statement.close();
             return jsonArray;
         } catch (Exception e) {
             System.out.println("runQuery Exception ----------------");
@@ -176,8 +184,8 @@ public class ConnectionPoolService {
         // when connection id is not available, RecordNotFoundException will be throws
         createConnectionPool(id, userId);
         ArrayList<String> schemaList = new ArrayList<String>();
-        try {
-            Connection _connection = connectionPool.get(id);
+
+        try (Connection _connection = connectionPool.get(id).getConnection();) {
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
             // get database (catalog) names from metadata object
             ResultSet resultSet = databaseMetaData.getCatalogs();
@@ -211,9 +219,6 @@ public class ConnectionPoolService {
                 if (databaseName == null || databaseName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Please specify Database Name for SQL Server connection");
                 }
-                Connection _connection = connectionPool.get(id);
-
-                statement = _connection.createStatement();
                 String query = """
                         select s.name as schema_name
                         from %s.sys.schemas s
@@ -221,40 +226,44 @@ public class ConnectionPoolService {
                         on u.uid = s.principal_id
                         where u.issqluser = 1
                         and u.name not in ('sys', 'guest', 'INFORMATION_SCHEMA')""".formatted(databaseName);
-                resultSet = statement.executeQuery(query);
-                JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
-                statement.close();
-                // get list of schema names from result
-                schemaList = new ArrayList<>();
-                if (jsonArray != null) {
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject rec = jsonArray.getJSONObject(i);
-                        // schema_name is the key in the JSON Object
-                        String schema = rec.getString("schema_name");
-                        schemaList.add(schema);
+                try (Connection _connection = connectionPool.get(id).getConnection();
+                        PreparedStatement pst = _connection.prepareStatement(query);
+                        ResultSet rs = pst.executeQuery();) {
+                    JSONArray jsonArray = ResultSetToJson.convertToJson(rs);
+                    // get list of schema names from result
+                    schemaList = new ArrayList<>();
+                    if (jsonArray != null) {
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject rec = jsonArray.getJSONObject(i);
+                            // schema_name is the key in the JSON Object
+                            String schema = rec.getString("schema_name");
+                            schemaList.add(schema);
+                        }
                     }
+                    return schemaList;
                 }
-                return schemaList;
-
             }
             // for Postgres & MySQL
             else {
-                Connection _connection = connectionPool.get(id);
-                DatabaseMetaData databaseMetaData = _connection.getMetaData();
+                try (Connection _connection = connectionPool.get(id).getConnection();) {
 
-                // get database & schema names from metadata object
-                // Postgres will not show other databases in the server and MySQL doesn't have
-                // Schema. So, either DB or schema will be populated for Postgres and MySQL
-                // and shemas and can query cross DB
-                ResultSet resultSet = databaseMetaData.getSchemas();
-                // iterate result and add row to object and append object to list
-                while (resultSet.next()) {
-                    // TABLE_CATALOG is the DB name and we don't need
-                    // String dbName = resultSet.getString("TABLE_CATALOG");
-                    String schemaName = resultSet.getString("TABLE_SCHEM");
-                    schemaList.add(schemaName);
+                    DatabaseMetaData databaseMetaData = _connection.getMetaData();
+
+                    // get database & schema names from metadata object
+                    // Postgres will not show other databases in the server and MySQL doesn't have
+                    // Schema. So, either DB or schema will be populated for Postgres and MySQL
+                    // and shemas and can query cross DB
+                    ResultSet resultSet = databaseMetaData.getSchemas();
+                    // iterate result and add row to object and append object to list
+                    while (resultSet.next()) {
+                        // TABLE_CATALOG is the DB name and we don't need
+                        // String dbName = resultSet.getString("TABLE_CATALOG");
+                        String schemaName = resultSet.getString("TABLE_SCHEM");
+                        schemaList.add(schemaName);
+                    }
+                    return schemaList;
                 }
-                return schemaList;
+
             }
         } catch (
 
@@ -269,8 +278,7 @@ public class ConnectionPoolService {
         // first create connection pool to query DB
         String vendorName = getVendorNameFromConnectionPool(id, userId);
 
-        try {
-            Connection _connection = connectionPool.get(id);
+        try (Connection _connection = connectionPool.get(id).getConnection();) {
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
             // this object will hold list of tables and list of views
             MetadataTable metadataTable = new MetadataTable();
@@ -366,8 +374,8 @@ public class ConnectionPoolService {
         // metadataColumns list will contain the final result
         ArrayList<MetadataColumn> metadataColumns = new ArrayList<MetadataColumn>();
 
-        try {
-            Connection _connection = connectionPool.get(id);
+        try (Connection _connection = connectionPool.get(id).getConnection();) {
+
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
             ResultSet resultSet = null;
 
@@ -468,12 +476,14 @@ public class ConnectionPoolService {
 
         }
         // RUN THE 'SELECT *' QUERY
-        try {
-            Connection _connection = connectionPool.get(id);
-            statement = _connection.createStatement();
-            resultSet = statement.executeQuery(query);
-            JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
-            statement.close();
+        try (Connection _connection = connectionPool.get(id).getConnection();
+                PreparedStatement pst = _connection.prepareStatement(query);
+                ResultSet rs = pst.executeQuery();) {
+            // Connection _connection = connectionPool.get(id).getConnection();
+            // statement = _connection.createStatement();
+            // resultSet = statement.executeQuery(query);
+            JSONArray jsonArray = ResultSetToJson.convertToJson(rs);
+            // statement.close();
             return jsonArray;
         } catch (Exception e) {
             throw e;
@@ -614,7 +624,7 @@ public class ConnectionPoolService {
     public void clearAllConnectionPoolsInShutDown() {
         connectionPool.forEach((id, conn) -> {
             try {
-                conn.close();
+                conn.getConnection().close();
             } catch (SQLException e) {
                 System.out.println("Error while closing all Connection Pools......");
                 e.printStackTrace();
