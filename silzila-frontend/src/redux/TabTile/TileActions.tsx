@@ -34,7 +34,7 @@ export const removeTile = (tabId: number, tileId: number, tileIndex: number) => 
 };
 
 //6
-export const toggleGraphSize = (tileKey: number, graphSize: boolean) => {
+export const toggleGraphSize = (tileKey: string, graphSize: boolean) => {
 	return {
 		type: "TOGGLE_GRAPH_SIZE",
 		payload: { tileKey, graphSize },
