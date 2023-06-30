@@ -11,6 +11,27 @@ const initialProperties: any = {
 };
 
 const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
+	const findCardIndex = (propKey: any, fromBIndex: any, fromUid: any) => {
+		var removeIndex = state.dynamicMeasureProps?.[`${state.selectedTabId}`]?.[
+			`${state.selectedTileId}`
+		]?.[propKey].chartAxes[fromBIndex].fields.findIndex((obj: any) => obj.uId === fromUid);
+		return removeIndex;
+	};
+
+	const findCardObject = (propKey: any, bIndex: any, uId: any) => {
+		var cardIndex = state.dynamicMeasureProps?.[`${state.selectedTabId}`]?.[
+			`${state.selectedTileId}`
+		]?.[propKey].chartAxes[bIndex].fields.findIndex((obj: any) => obj.uId === uId);
+		var card =
+			state.dynamicMeasureProps?.[`${state.selectedTabId}`]?.[`${state.selectedTileId}`]?.[
+				propKey
+			].chartAxes[bIndex].fields[cardIndex];
+
+		return {
+			cardIndex,
+			card,
+		};
+	};
 	switch (action.type) {
 		//1//have to call this whilre user select the rich text
 		case "SET_SELECTED_DATASET_FOR_DYNAMICMEASURE":
@@ -619,6 +640,183 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 					},
 				},
 			});
+
+		case "UPDATE_LEFT_FILTER_ITEM_FOR_DM":
+			var cardIndex = findCardIndex(
+				action.payload.propKey,
+				action.payload.bIndex,
+				action.payload.item.uId
+			);
+			return update(state, {
+				dynamicMeasureProps: {
+					[state.selectedTabId]: {
+						[state.selectedTileId]: {
+							[action.payload.propKey]: {
+								chartAxes: {
+									[action.payload.bIndex]: {
+										fields: {
+											$splice: [[cardIndex, 1, action.payload.item]],
+										},
+									},
+								},
+								axesEdited: { $set: true },
+							},
+						},
+					},
+				},
+			});
+
+		case "SORT_ITEM_FOR_DM":
+			var dropIndex = findCardIndex(
+				action.payload.propKey,
+				action.payload.bIndex,
+				action.payload.dropUId
+			);
+			var dragObj = findCardObject(
+				action.payload.propKey,
+				action.payload.bIndex,
+				action.payload.dragUId
+			);
+
+			return update(state, {
+				dynamicMeasureProps: {
+					[state.selectedTabId]: {
+						[state.selectedTileId]: {
+							[action.payload.propKey]: {
+								chartAxes: {
+									[action.payload.bIndex]: {
+										fields: {
+											$splice: [
+												[dragObj.cardIndex, 1],
+												[dropIndex, 0, dragObj.card],
+											],
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			});
+
+		case "REVERT_ITEM_FOR_DM":
+			var dragObj2 = findCardObject(
+				action.payload.propKey,
+				action.payload.bIndex,
+				action.payload.uId
+			);
+			return update(state, {
+				dynamicMeasureProps: {
+					[state.selectedTabId]: {
+						[state.selectedTileId]: {
+							[action.payload.propKey]: {
+								chartAxes: {
+									[action.payload.bIndex]: {
+										fields: {
+											$splice: [
+												[dragObj2.cardIndex, 1],
+												[action.payload.originalIndex, 0, dragObj2.card],
+											],
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			});
+		case "UPDATE_FILTER_EXPAND_COLLAPSE_FOR_DM":
+			return update(state, {
+				dynamicMeasureProps: {
+					[state.selectedTabId]: {
+						[state.selectedTileId]: {
+							[action.payload.propKey]: {
+								chartAxes: {
+									[action.payload.bIndex]: {
+										fields: {
+											$set: action.payload.item,
+										},
+									},
+								},
+								axesEdited: { $set: true },
+							},
+						},
+					},
+				},
+			});
+
+		case "DELETE_ITEM_FROM_PROP_FOR_DM":
+			return update(state, {
+				dynamicMeasureProps: {
+					[state.selectedTabId]: {
+						[state.selectedTileId]: {
+							[action.payload.propKey]: {
+								chartAxes: {
+									[action.payload.binIndex]: {
+										fields: { $splice: [[action.payload.itemIndex, 1]] },
+									},
+								},
+							},
+						},
+					},
+				},
+			});
+
+		case "MOVE_ITEM_FOR_DM":
+			var removeIndex = findCardIndex(
+				action.payload.propKey,
+				action.payload.fromBIndex,
+				action.payload.fromUID
+			);
+			console.log(removeIndex);
+
+			if (
+				state.dynamicMeasureProps[state.selectedTabId][state.selectedTileId][
+					action.payload.propKey
+				].chartAxes[action.payload.toBIndex].fields.length < action.payload.allowedNumbers
+			) {
+				return update(state, {
+					dynamicMeasureProps: {
+						[state.selectedTabId]: {
+							[state.selectedTileId]: {
+								[action.payload.propKey]: {
+									chartAxes: {
+										[action.payload.toBIndex]: {
+											fields: { $push: [action.payload.item] },
+										},
+										[action.payload.fromBIndex]: {
+											fields: { $splice: [[removeIndex, 1]] },
+										},
+									},
+								},
+							},
+						},
+					},
+				});
+			} else {
+				return update(state, {
+					dynamicMeasureProps: {
+						[state.selectedTabId]: {
+							[state.selectedTileId]: {
+								[action.payload.propKey]: {
+									chartAxes: {
+										[action.payload.toBIndex]: {
+											fields: {
+												$splice: [[0, 1]],
+												$push: [action.payload.item],
+											},
+										},
+										[action.payload.fromBIndex]: {
+											fields: { $splice: [[removeIndex, 1]] },
+										},
+									},
+								},
+							},
+						},
+					},
+				});
+			}
+
 		default:
 			return state;
 	}
