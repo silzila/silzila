@@ -46,6 +46,7 @@ const ChartFilterGroupsContainer = ({
 	dashBoardGroup,
 	tileState,
 	tabTileProps,
+	tabState,
 
 	// dispatch
 	addChartFilterGroupName,
@@ -58,7 +59,7 @@ const ChartFilterGroupsContainer = ({
 	addDashBoardFilterGroupTabTiles,
 	setDashBoardFilterGroupsTabTiles,
 	deleteDashBoardSelectedGroupAllTabTiles,
-}: ChartFilterGroupsContainerProps) => {
+}: ChartFilterGroupsContainerProps & any) => {
 	let selectedDatasetID = "";
 	let datasetGroupList = [];
 	let selectedFilterGroups: any = [];
@@ -255,6 +256,14 @@ const ChartFilterGroupsContainer = ({
 									}}
 								>
 									<Checkbox
+										disabled={
+											fromDashboard
+												? tabState.tabs[tabTileProps.selectedTabId]
+														.tilesInDashboard.length > 0
+													? false
+													: true
+												: false
+										}
 										checked={selectedFilterGroups.includes(item)}
 										name={item}
 										style={{
@@ -325,7 +334,7 @@ const ChartFilterGroupsContainer = ({
 };
 
 const mapStateToProps = (
-	state: ChartPropertiesStateProps & ChartFilterGroupStateProps & TileRibbonStateProps
+	state: ChartPropertiesStateProps & ChartFilterGroupStateProps & TileRibbonStateProps & any
 ) => {
 	return {
 		chartProp: state.chartProperties,
@@ -333,6 +342,7 @@ const mapStateToProps = (
 		dashBoardGroup: state.dashBoardFilterGroup,
 		tileState: state.tileState,
 		tabTileProps: state.tabTileProps,
+		tabState: state.tabState,
 	};
 };
 
