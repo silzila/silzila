@@ -182,38 +182,149 @@ export const updateConditionalFormat = (updateFormatArray: any) => {
 	};
 };
 
-//
-export const addingMeasure1 = (
-	tabId: number,
-	tileId: number,
-	dynamicMeasureId: number,
-	newTile: boolean,
-	selectedDs: any
+export const updateLeftFilterItemForDm = (propKey: string, bIndex: number, item: any) => {
+	return { type: "UPDATE_LEFT_FILTER_ITEM_FOR_DM", payload: { propKey, bIndex, item } };
+};
+
+export const sortAxesForDm = (
+	propKey: string,
+	bIndex: number,
+	dragUId: string | number,
+	dropUId: string | number
 ) => {
-	if (!newTile) {
-		return {
-			type: "ADD_NEW_MEASURE",
-			payload: { tabId, tileId, dynamicMeasureId, selectedDs },
-		};
-	} else {
-		return {
-			type: "ADD_NEW_MEASURE",
-			payload: { tabId, tileId, dynamicMeasureId, selectedDs },
-		};
-	}
+	return {
+		type: "SORT_ITEM_FOR_DM",
+		payload: { propKey, bIndex, dragUId, dropUId },
+	};
 };
 
-export const onDiscardDynamicMeasureCreation1 = (tileId: number) => {
-	return { type: "ON_DISCARD_OF_DYNAMICMEASURE_CREATION", payload: { tileId } };
+export const revertAxesForDm = (
+	propKey: string,
+	bIndex: number,
+	uId: string | number,
+	originalIndex: any
+) => {
+	return {
+		type: "REVERT_ITEM_FOR_DM",
+		payload: { propKey, bIndex, uId, originalIndex },
+	};
 };
 
-//dynamicMeasureprops
-// export const updateDynamicMeasureProps = (option: string, value: any) => { //can be deleted
-// 	return {
-// 		type: "UPDATE_DYNAMIC_MEASURE_PROPS",
-// 		payload: { option, value },
-// 	};
-// };
+export const updtateFilterExpandeCollapseForDm = (
+	propKey: string,
+	bIndex: number | string,
+	item: any
+) => {
+	return { type: "UPDATE_FILTER_EXPAND_COLLAPSE_FOR_DM", payload: { propKey, bIndex, item } };
+};
+
+export const toggleAxesEditedForDm = (propKey: string, axesEdited: any) => {
+	return { type: "TOGGLE_AXES_EDITED_FOR_DM", payload: { propKey, axesEdited } };
+};
+
+export const updateChartPropLeftForDm = (
+	propKey: string,
+	bIndex: number,
+	item: any,
+	allowedNumbers: any
+) => {
+	return { type: "UPDATE_PROP_FOR_DM", payload: { propKey, bIndex, item, allowedNumbers } };
+};
+
+export const moveItemChartPropForDm = (
+	propKey: string,
+	fromBIndex: any,
+	fromUID: any,
+	item: any,
+	toBIndex: any,
+	allowedNumbers: any
+) => {
+	return {
+		type: "MOVE_ITEM_FOR_DM",
+		payload: { propKey, fromBIndex, fromUID, item, toBIndex, allowedNumbers },
+	};
+};
+
+export const deleteItemInChartPropForDm = (
+	propKey: string,
+	binIndex: number,
+	itemIndex: number
+) => {
+	console.log(propKey, binIndex, itemIndex);
+	return {
+		type: "DELETE_ITEM_FROM_PROP_FOR_DM",
+		payload: {
+			propKey,
+			binIndex,
+			itemIndex,
+		},
+	};
+};
+
+export const updateAxesQueryParamForDm = (
+	propKey: string,
+	binIndex: number,
+	itemIndex: number,
+	item: any
+) => {
+	return {
+		type: "UPDATE_AXES_QUERY_PARAM_FOR_DM",
+		payload: { propKey, binIndex, itemIndex, item },
+	};
+};
+
+export const editChartPropItemForDm = (action: any, details: any) => {
+	return (dispatch: Dispatch<any>) => {
+		dispatch(toggleAxesEditedForDm(details.propKey, true));
+		switch (action) {
+			case "update":
+				dispatch(
+					updateChartPropLeftForDm(
+						details.propKey,
+						details.bIndex,
+						details.item,
+						details.allowedNumbers
+					)
+				);
+				break;
+
+			case "move":
+				console.log(details);
+				dispatch(
+					moveItemChartPropForDm(
+						details.propKey,
+						details.fromBIndex,
+						details.fromUID,
+						details.item,
+						details.toBIndex,
+						details.allowedNumbers
+					)
+				);
+				break;
+
+			case "delete":
+				dispatch(
+					deleteItemInChartPropForDm(details.propKey, details.binIndex, details.itemIndex)
+				);
+				break;
+
+			case "updateQuery":
+				dispatch(
+					updateAxesQueryParamForDm(
+						details.propKey,
+						details.binIndex,
+						details.itemIndex,
+						details.item
+					)
+				);
+				break;
+
+			default:
+				break;
+		}
+	};
+};
+
 export const setSelectedToEdit = (tabId: number, tileId: number, dmId: number, value: boolean) => {
 	return {
 		type: "SET_SELECTED_TO_EDIT",
@@ -225,35 +336,5 @@ export const discardCreationOfFirstDm = (tabId: number, tileId: number, dmId: nu
 	return {
 		type: "DISCARD_CREATION_OF_FIRST_DM",
 		payload: { tabId, tileId, dmId },
-	};
-};
-
-// export const onDiscardDynamicMeasureCreation = (tileId: number) => {
-// 	return (dispatch: Dispatch<any>) => {
-// 		dispatch(onDiscardDynamicMeasureCreation1(tileId));
-// 		dispatch(updateDynamicMeasureProps("selectedDynamicMeasureId", 2));
-// 	};
-// };
-
-// export const addingMeasure = ( // can be deleted
-// 	tabId: number,
-// 	tileId: number,
-// 	dynamicMeasureId: number,
-// 	newTile: boolean,
-// 	selectedDs: any
-// ) => {
-// 	return (dispatch: Dispatch<any>) => {
-// 		dispatch(addingMeasure1(tabId, tileId, dynamicMeasureId, newTile, selectedDs));
-// 		dispatch(updateDynamicMeasureProps("selectedDynamicMeasureId", dynamicMeasureId));
-// 	};
-// };
-
-export const setSelectedTableInDynamicMeasure = (
-	dynamicMeasurePropKey: string,
-	selectedTable: any
-) => {
-	return {
-		type: "SET_SELECTED_TABLE_IN_DYNAMIC_MEASURE",
-		payload: { dynamicMeasurePropKey, selectedTable },
 	};
 };

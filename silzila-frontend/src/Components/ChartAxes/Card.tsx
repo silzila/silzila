@@ -18,6 +18,7 @@ import { Dispatch } from "redux";
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { CardProps } from "./ChartAxesInterfaces";
+import { editChartPropItemForDm } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 
 const Card = ({
 	// props
@@ -37,6 +38,7 @@ const Card = ({
 	updateQueryParam,
 	sortAxes,
 	revertAxes,
+	deleteDropZoneItemsForDm,
 }: CardProps) => {
 	field.dataType = field.dataType.toLowerCase();
 
@@ -45,7 +47,14 @@ const Card = ({
 	);
 
 	const deleteItem = () => {
-		deleteDropZoneItems(propKey, bIndex, itemIndex);
+		if (
+			chartProp.properties[`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`]
+				.chartType === "richText"
+		) {
+			deleteDropZoneItemsForDm(propKey, bIndex, itemIndex);
+		} else {
+			deleteDropZoneItems(propKey, bIndex, itemIndex);
+		}
 		// chartPropUpdated(true);
 	};
 
@@ -272,6 +281,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(sortAxes(propKey, bIndex, dragUId, uId)),
 		revertAxes: (propKey: string, bIndex: number, uId: string, originalIndex: number) =>
 			dispatch(revertAxes(propKey, bIndex, uId, originalIndex)),
+		deleteDropZoneItemsForDm: (propKey: string, binIndex: number, itemIndex: any) =>
+			dispatch(editChartPropItemForDm("delete", { propKey, binIndex, itemIndex })),
 	};
 };
 
