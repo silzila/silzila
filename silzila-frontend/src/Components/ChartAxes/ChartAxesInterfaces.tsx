@@ -5,21 +5,21 @@ export interface ChartAxesProps {
 	// props
 	tabId: number;
 	tileId: number;
-	screenFrom:string;
+	screenFrom: string;
 	tabTileProps: TabTileStateProps;
 	// state
 	token: string;
 	chartProp: any;
-	chartGroup:any;
-	dashBoardGroup:any;
+	chartGroup: any;
+	dashBoardGroup: any;
 	changeLocation: any;
 
 	// dispatch
 	updateChartData: (propKey: string, chartData: any) => void;
 	toggleAxesEdit: (propKey: string) => void;
 	reUseOldData: (propKey: string) => void;
-	chartFilterGroupEdited: (isEdited : boolean)=> void;
-	dashBoardFilterGroupsEdited:(isEdited : boolean) =>void;
+	chartFilterGroupEdited: (isEdited: boolean) => void;
+	dashBoardFilterGroupsEdited: (isEdited: boolean) => void;
 }
 interface TimeGrain {
 	name: string;
@@ -167,6 +167,7 @@ export interface Card {
 export interface CardProps extends Card {
 	// dispatch
 	deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: number) => void;
+	deleteDropZoneItemsForDm: (propKey: string, binIndex: number, itemIndex: number) => void;
 
 	updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any) => void;
 

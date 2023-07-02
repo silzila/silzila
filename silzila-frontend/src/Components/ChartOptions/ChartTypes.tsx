@@ -41,8 +41,7 @@ import {
 	actionsToUpdateSelectedTile,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import ChartsInfo from "../ChartAxes/ChartsInfo2";
-import {addChartFilterTabTileName} from '../../redux/ChartFilterGroup/ChartFilterGroupStateActions';
-
+import { addChartFilterTabTileName } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 
 export const chartTypes = [
 	{ name: "crossTab", icon: CrossTabIcon, value: " Cross Tab" },
@@ -159,7 +158,6 @@ const ChartTypes = ({
 				}
 
 				if (newChart === "calendar") {
-					console.log(oldChartAxes);
 					if (oldChartAxes[1].fields.length > 0) {
 						if (
 							oldChartAxes[1].fields[0].dataType === "date" ||
@@ -169,7 +167,6 @@ const ChartTypes = ({
 								keepOldData(propKey, true);
 								return oldChartAxes;
 							} else {
-								console.log(oldChartAxes);
 								keepOldData(propKey, false);
 								updateChartData(propKey, "");
 
@@ -185,7 +182,7 @@ const ChartTypes = ({
 									},
 								];
 								newChartAxes[2].fields = oldChartAxes[2].fields;
-								console.log(newChartAxes);
+
 								return newChartAxes;
 							}
 						} else {
@@ -193,7 +190,7 @@ const ChartTypes = ({
 
 							newChartAxes[1].fields = [];
 							newChartAxes[2].fields.push(oldChartAxes[2].fields[0]);
-							console.log(newChartAxes);
+
 							return newChartAxes;
 						}
 					} else {
@@ -202,7 +199,12 @@ const ChartTypes = ({
 					}
 				}
 
-				if (newChart === "pie" || newChart === "donut" || newChart === "rose" || newChart === "table") {
+				if (
+					newChart === "pie" ||
+					newChart === "donut" ||
+					newChart === "rose" ||
+					newChart === "table"
+				) {
 					keepOldData(propKey, false);
 
 					newChartAxes[0].fields = oldChartAxes[0].fields; //Filter
@@ -333,7 +335,7 @@ const ChartTypes = ({
 					return oldChartAxes;
 				}
 
-        if (newChart === "pie" || newChart === "donut" || newChart === "rose") {
+				if (newChart === "pie" || newChart === "donut" || newChart === "rose") {
 					keepOldData(propKey, false);
 
 					newChartAxes[0].fields = oldChartAxes[0].fields; //Filter
@@ -463,7 +465,6 @@ const ChartTypes = ({
 				}
 
 				if (newChart === "calendar") {
-					console.log(oldChartAxes);
 					if (oldChartAxes[1].fields.length > 0) {
 						if (
 							oldChartAxes[1].fields[0].dataType === "date" ||
@@ -473,7 +474,6 @@ const ChartTypes = ({
 								keepOldData(propKey, true);
 								return oldChartAxes;
 							} else {
-								console.log(oldChartAxes);
 								keepOldData(propKey, false);
 								updateChartData(propKey, "");
 
@@ -489,7 +489,7 @@ const ChartTypes = ({
 									},
 								];
 								newChartAxes[2].fields = oldChartAxes[2].fields;
-								console.log(newChartAxes);
+
 								return newChartAxes;
 							}
 						} else {
@@ -497,7 +497,7 @@ const ChartTypes = ({
 
 							newChartAxes[1].fields = [];
 							newChartAxes[2].fields.push(oldChartAxes[2].fields[0]);
-							console.log(newChartAxes);
+
 							return newChartAxes;
 						}
 					} else {
@@ -638,8 +638,6 @@ const ChartTypes = ({
 				}
 
 				if (newChart === "calendar") {
-					// console.log(oldChartAxes);
-
 					keepOldData(propKey, false);
 
 					if (oldChartAxes[0].fields.length > 0) {
@@ -1050,8 +1048,6 @@ const ChartTypes = ({
 				}
 
 				if (newChart === "calendar") {
-					// console.log(oldChartAxes);
-
 					keepOldData(propKey, false);
 					if (oldChartAxes[0].fields.length > 0) {
 						newChartAxes[0].fields = oldChartAxes[0].fields;
@@ -1071,7 +1067,6 @@ const ChartTypes = ({
 						]);
 						newChartAxes[1].fields[0].timeGrain = "date";
 					}
-					// console.log(newChartAxes[1]);
 
 					if (oldChartAxes[3].fields.length > 0) {
 						newChartAxes[2].fields = getFieldsToChartAllowedNumbers(
@@ -1208,14 +1203,14 @@ const ChartTypes = ({
 		}
 	};
 
-	const addReportFilterGroup = (tempPropKey:string)=>{
+	const addReportFilterGroup = (tempPropKey: string) => {
 		let selectedFilterGroups = chartGroup.tabTile[tempPropKey] || [];
 		let selectedDatasetID = chartProp.properties[tempPropKey].selectedDs.id;
 
 		if (!(selectedFilterGroups && selectedFilterGroups.length > 0)) {
 			addChartFilterTabTileName(selectedDatasetID, tempPropKey);
 		}
-	}
+	};
 
 	const handleAddTile = async (chartName: string) => {
 		let tabObj = tabState.tabs[tabTileProps.selectedTabId];
@@ -1300,7 +1295,6 @@ const ChartTypes = ({
 								chartControls.properties[propKey].richText === "" ||
 								chartControls.properties[propKey].richText === "<p><br></p>"
 							) {
-								console.log(chartControls.properties[propKey].richText);
 								getAndUpdateNewChartAxes(
 									chartProp.properties[propKey].chartType,
 									chart.name
@@ -1339,7 +1333,6 @@ const ChartTypes = ({
 							//if chartAxes of oldchart is not empty, then open richtext in new tile
 							else {
 								handleAddTile(chart.name);
-								// console.log(chartProp);
 							}
 						}
 
@@ -1374,7 +1367,7 @@ const mapStateToProps = (state: any) => {
 		tabState: state.tabState,
 		tabTileProps: state.tabTileProps,
 		chartControls: state.chartControls,
-		chartGroup : state.chartFilterGroup
+		chartGroup: state.chartFilterGroup,
 	};
 };
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
@@ -1417,7 +1410,6 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			),
 		addChartFilterTabTileName: (selectedDatasetID: string, tabTileName: string) =>
 			dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName)),
-
 	};
 };
 

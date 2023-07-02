@@ -28,7 +28,11 @@ import DoneIcon from "@mui/icons-material/Done";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { AlertColor } from "@mui/material/Alert";
-import { updateDynamicMeasureAxes } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+import {
+	editChartPropItemForDm,
+	updateDynamicMeasureAxes,
+} from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+import UserFilterCardForDm from "../ChartFieldFilter/UserFilterCardForDm";
 //import { StyledEngineProvider } from '@mui/material/styles';
 
 const DropZone = ({
@@ -50,6 +54,7 @@ const DropZone = ({
 	moveItemChartProp,
 	toggleFilterRunState,
 	updateDynamicMeasureAxes,
+	moveItemChartPropForDm,
 }: DropZoneProps & any) => {
 	// var geoLocation = chartProp.properties[propKey].geoLocation;
 
@@ -87,11 +92,13 @@ const DropZone = ({
 		var allowedNumbers = ChartsInfo[chartType].dropZones[bIndex].allowedNumbers;
 		let newFieldData = {};
 
+		// when column dragged from table
 		if (item.bIndex === 99) {
 			const uID = uIdGenerator();
 			var fieldData = item.fieldData;
 			fieldData.uId = uID;
 
+			//drop zone is measure if the binIndex is 1
 			if (bIndex === 1) {
 				if (chartType === "calendar") {
 					if (
@@ -175,9 +182,43 @@ const DropZone = ({
 					}
 				} else {
 					console.log("******", name);
-
 					let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
 					["type", "bIndex"].forEach(e => delete newFieldData[e]);
+					if (chartType === "richText") {
+						moveItemChartPropForDm(
+							`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`,
+							item.bIndex,
+							item.uId,
+							newFieldData,
+							bIndex,
+							allowedNumbers
+						);
+					} else {
+						moveItemChartProp(
+							propKey,
+							item.bIndex,
+							item.uId,
+							newFieldData,
+							bIndex,
+							allowedNumbers
+						);
+					}
+				}
+			}
+			//bindex is not 1 (dimension)
+			else {
+				let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
+				["type", "bIndex"].forEach(e => delete newFieldData[e]);
+				if (chartType === "richText") {
+					moveItemChartPropForDm(
+						`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`,
+						item.bIndex,
+						item.uId,
+						newFieldData,
+						bIndex,
+						allowedNumbers
+					);
+				} else {
 					moveItemChartProp(
 						propKey,
 						item.bIndex,
@@ -187,19 +228,6 @@ const DropZone = ({
 						allowedNumbers
 					);
 				}
-			}
-			//bindex is not 1 (dimension)
-			else {
-				let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
-				["type", "bIndex"].forEach(e => delete newFieldData[e]);
-				moveItemChartProp(
-					propKey,
-					item.bIndex,
-					item.uId,
-					newFieldData,
-					bIndex,
-					allowedNumbers
-				);
 			}
 		}
 
@@ -551,13 +579,13 @@ const DropZone = ({
 						{chartType === "richText"
 							? selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.map(
 									(field: any, index: number) => (
-										<UserFilterCard
+										<UserFilterCardForDm
 											field={field}
 											bIndex={bIndex}
 											axisTitle={name}
 											key={index}
 											itemIndex={index}
-											propKey={propKey}
+											propKey={`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`}
 										/>
 									)
 							  )
@@ -585,7 +613,7 @@ const DropZone = ({
 											axisTitle={name}
 											key={index}
 											itemIndex={index}
-											propKey={propKey}
+											propKey={`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`}
 										/>
 									)
 							  )
@@ -676,6 +704,24 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		) =>
 			dispatch(
 				editChartPropItem("move", {
+					propKey,
+					fromBIndex,
+					fromUID,
+					item,
+					toBIndex,
+					allowedNumbers,
+				})
+			),
+		moveItemChartPropForDm: (
+			propKey: string,
+			fromBIndex: any,
+			fromUID: any,
+			item: any,
+			toBIndex: any,
+			allowedNumbers: any
+		) =>
+			dispatch(
+				editChartPropItemForDm("move", {
 					propKey,
 					fromBIndex,
 					fromUID,

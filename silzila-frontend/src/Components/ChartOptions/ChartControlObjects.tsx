@@ -91,7 +91,6 @@ const ChartControlObjects = ({
 	const simpleCardOptionList: string[] = ["Title", "Colors", "Format", "Style"];
 
 	const RenderOptions: any = () => {
-		console.log(selectedChart);
 		switch (selectedChart) {
 			case "multibar":
 			case "stackedBar":
