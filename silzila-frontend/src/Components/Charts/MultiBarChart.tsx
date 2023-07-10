@@ -73,6 +73,8 @@ const MultiBarChart = ({
 		return el.name === chartControl.colorScheme;
 	});
 
+	console.log(chartControl.legendOptions.position);
+
 	const RenderChart = () => {
 		return chartData ? (
 			<ReactEcharts
@@ -82,7 +84,7 @@ const MultiBarChart = ({
 					padding: "5px",
 					width: graphDimension.width,
 					height: graphDimension.height,
-					overflow: "hidden",
+					overflow: "scroll",
 					margin: "auto",
 					border: chartArea
 						? "none"
@@ -104,8 +106,10 @@ const MultiBarChart = ({
 						itemWidth: chartControl.legendOptions?.symbolWidth,
 						itemGap: chartControl.legendOptions?.itemGap,
 
-						left: chartControl.legendOptions?.position?.left,
-						top: chartControl.legendOptions?.position?.top,
+						// left: chartControl.legendOptions?.position?.left,
+						left: "50%",
+						// top: chartControl.legendOptions?.position?.top,
+						top: "95%",
 						orient: chartControl.legendOptions?.orientation,
 					},
 					grid: {
