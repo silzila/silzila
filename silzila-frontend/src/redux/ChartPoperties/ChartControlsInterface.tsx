@@ -45,6 +45,8 @@ interface ChartConLegendOptions {
 	itemGap: number;
 	position: { pos: string; top: string; left: string };
 	orientation: string;
+	left: string;
+	top: string;
 }
 
 interface ChartConChartMargin {
