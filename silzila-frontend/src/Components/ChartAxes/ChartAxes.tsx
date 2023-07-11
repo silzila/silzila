@@ -2,29 +2,15 @@
 // Number of dropzones and its name is returned according to the chart type selected.
 // Once minimum number of fields are met for the given chart type, server call is made to get chart data and saved in store
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
-import { Dispatch } from "redux";
 import ChartsInfo from "./ChartsInfo2";
 import "./ChartAxes.css";
 import DropZone from "./DropZone";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import {  ChartAxesProps } from "./ChartAxesInterfaces";
-import {
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartAxesProps } from "./ChartAxesInterfaces";
+import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import ChartData from "./ChartData";
-import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
-import { chartFilterGroupEdited } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
-import {
-	ChartFilterGroupProps,
-	ChartFilterGroupStateProps,
-} from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
-import { updateChartDataForDm } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
-import {AxesValuProps, ChartAxesFormattedAxes } from './ChartAxesInterfaces';
-import FetchData from '../ServerCall/FetchData';
-import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
-import { canReUseData, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
 
 const ChartAxes = ({
 	// props
@@ -32,36 +18,18 @@ const ChartAxes = ({
 	tileId,
 
 	// state
-	token,
-	chartGroup,
+
 	chartProp,
 	changeLocation,
-	dynamicMeasureState,
-
-	// dispatch
-	updateChartData,
-	toggleAxesEdit,
-	reUseOldData,
-	chartFilterGroupEdited,
-	updateChartDataForDm,
-}: ChartAxesProps & any) => {
+}: ChartAxesProps) => {
 	const [loading, setLoading] = useState<boolean>(false);
 
 	var propKey: string = `${tabId}.${tileId}`;
-	var chartType = chartProp.properties[propKey].chartType;
 	var dropZones: any = [];
 	for (let i = 0; i < ChartsInfo[chartProp.properties[propKey].chartType].dropZones.length; i++) {
 		dropZones.push(ChartsInfo[chartProp.properties[propKey].chartType].dropZones[i].name);
 	}
 
-	// var chartProp: any =
-	// 	chartType === "richText" && chartProperties.properties[propKey].isDynamicMeasureWindowOpened
-	// 		? dynamicMeasureState.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
-	// 				dynamicMeasureState.selectedTileId
-	// 		  ]?.[
-	// 				`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
-	// 		  ]
-	// 		: chartProperties.properties[propKey];
 	// const usePrevious = (value) => {
 	// 	const ref = useRef();
 	// 	useEffect(() => {
@@ -77,7 +45,6 @@ const ChartAxes = ({
 	// new data must be obtained from server
 	// check for minimum requirements in each dropzone for the given chart type
 	// if not reset the data
-
 
 	var menuItemStyle = {
 		fontSize: "12px",
@@ -151,11 +118,10 @@ const ChartAxes = ({
 	);
 };
 
-const mapStateToProps = (state: ChartPropertiesStateProps , ownProps: any) => {
+const mapStateToProps = (state: ChartPropertiesStateProps, ownProps: any) => {
 	return {
 		chartProp: state.chartProperties,
 	};
 };
-
 
 export default connect(mapStateToProps, null)(ChartAxes);

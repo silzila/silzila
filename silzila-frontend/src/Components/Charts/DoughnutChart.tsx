@@ -82,8 +82,11 @@ const DoughnutChart = ({
 							itemWidth: chartControl.legendOptions?.symbolWidth,
 							itemGap: chartControl.legendOptions?.itemGap,
 
-							left: chartControl.legendOptions?.position?.left,
-							top: chartControl.legendOptions?.position?.top,
+							// left: chartControl.legendOptions?.position?.left,
+							// top: chartControl.legendOptions?.position?.top,
+
+							left: "50%",
+							top: "95%",
 							orient: chartControl.legendOptions?.orientation,
 						},
 
