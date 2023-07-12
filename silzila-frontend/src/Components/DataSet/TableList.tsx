@@ -210,6 +210,9 @@ const TableList = (props: TableListProps) => {
 					"&.Mui-checked": {
 						color: "#2bb9bb",
 					},
+					"&.Mui-disabled": {
+						color: "#B1B1B1",
+					},
 				}}
 				style={{ width: "0.5rem", height: "0.5rem", margin: "auto 5px auto 0" }}
 				size="small"

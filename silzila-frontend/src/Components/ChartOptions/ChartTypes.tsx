@@ -937,7 +937,9 @@ const ChartTypes = ({
 							...row,
 							...column,
 						]);
-						newChartAxes[1].fields[0].timeGrain = "date";
+						if (newChartAxes[1].fields.length > 0) {
+							newChartAxes[1].fields[0].timeGrain = "date";
+						}
 					}
 					console.log(newChartAxes[1]);
 
@@ -1065,7 +1067,9 @@ const ChartTypes = ({
 							...row,
 							...column,
 						]);
-						newChartAxes[1].fields[0].timeGrain = "date";
+						if (newChartAxes[1].fields.length > 0) {
+							newChartAxes[1].fields[0].timeGrain = "date";
+						}
 					}
 
 					if (oldChartAxes[3].fields.length > 0) {

@@ -59,7 +59,7 @@ const ControlDetail = ({
 					return <ChartTitle />;
 				}
 			case "Colors":
-				if (chartType === "heatmap") {
+				if (chartType === "heatmap" || chartType === "calendar") {
 					return <ColorScale />;
 				} else if (chartType === "gauge") {
 					return <ColorSteps />;
