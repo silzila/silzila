@@ -70,11 +70,21 @@ const Sankey = ({
 							position:
 								chartControl.sankeyControls.labelPosition === "inside"
 									? i / 2 === 0
-										? [30 + chartControl.sankeyControls.labelDistance, 50]
-										: [-8 - chartControl.sankeyControls.labelDistance, 50]
+										? [30 + chartControl.sankeyControls.labelDistance, 10]
+										: [
+												-70 -
+													2 *
+														(chartControl.sankeyControls.labelDistance /
+															2),
+												10,
+										  ]
 									: i / 2 === 0
-									? [-8 - chartControl.sankeyControls.labelDistance, 50]
-									: [30 + chartControl.sankeyControls.labelDistance, 50],
+									? [
+											-70 -
+												2 * (chartControl.sankeyControls.labelDistance / 2),
+											10,
+									  ]
+									: [30 + chartControl.sankeyControls.labelDistance, 10],
 							show: chartControl.labelOptions.showLabel,
 							fontSize: chartControl.labelOptions.fontSize,
 							color: chartControl.labelOptions.labelColorManual
@@ -84,6 +94,7 @@ const Sankey = ({
 							overflow: chartControl.sankeyControls.overFlow,
 							distance: chartControl.sankeyControls.labelDistance,
 							rotate: chartControl.sankeyControls.labelRotate,
+							verticalAlign: "top",
 						},
 						itemStyle: {
 							color:

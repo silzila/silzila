@@ -78,8 +78,12 @@ const CanvasTables = ({
 	const [severity, setseverity] = useState<AlertColor>("success");
 	const [testMessage, setTestMessage] = useState<string>("");
 
-	const [x, setX] = useState<number>(0);
-	const [y, setY] = useState<number>(0);
+	const [x, setX] = useState<number | any>(
+		tableData.tablePositionX ? tableData.tablePositionX : 0
+	);
+	const [y, setY] = useState<number | any>(
+		tableData.tablePositionY ? tableData.tablePositionY : 0
+	);
 
 	//console.log(tableData);
 
@@ -248,6 +252,7 @@ const CanvasTables = ({
 			}, 4000);
 		}
 	};
+	console.log(tableData);
 
 	return (
 		<div>

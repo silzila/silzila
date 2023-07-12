@@ -18,7 +18,12 @@ import { Dispatch } from "redux";
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { CardProps } from "./ChartAxesInterfaces";
-import { editChartPropItemForDm } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+import {
+	editChartPropItemForDm,
+	revertAxesForDm,
+	sortAxesForDm,
+	updateAxesQueryParamForDm,
+} from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 
 const Card = ({
 	// props
@@ -31,6 +36,7 @@ const Card = ({
 	// state
 	tabTileProps,
 	chartProp,
+	dynamicMeasureState,
 
 	// dispatch
 	// chartPropUpdated,
@@ -38,19 +44,32 @@ const Card = ({
 	updateQueryParam,
 	sortAxes,
 	revertAxes,
+
+	//dynamicMeasure dispatch
 	deleteDropZoneItemsForDm,
+	updateQueryParamForDm,
+	sortAxesForDm,
+	revertAxesForDm,
 }: CardProps) => {
 	field.dataType = field.dataType.toLowerCase();
 
-	const originalIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
-		(item: any) => item.uId === field.uId
-	);
+	var chartType =
+		chartProp.properties[`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`]
+			.chartType;
+
+	const originalIndex =
+		chartType === "richText"
+			? dynamicMeasureState.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
+					dynamicMeasureState.selectedTileId
+			  ]?.[
+					`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+			  ].chartAxes[bIndex].fields.findIndex((item: any) => item.uId === field.uId)
+			: chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
+					(item: any) => item.uId === field.uId
+			  );
 
 	const deleteItem = () => {
-		if (
-			chartProp.properties[`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`]
-				.chartType === "richText"
-		) {
+		if (chartType === "richText") {
 			deleteDropZoneItemsForDm(propKey, bIndex, itemIndex);
 		} else {
 			deleteDropZoneItems(propKey, bIndex, itemIndex);
@@ -85,7 +104,11 @@ const Card = ({
 				field2.timeGrain = queryParam;
 			}
 			// console.log(propKey, bIndex, itemIndex, field2);
-			updateQueryParam(propKey, bIndex, itemIndex, field2);
+			if (chartType === "richText") {
+				updateAxesQueryParamForDm(propKey, bIndex, itemIndex, field2);
+			} else {
+				updateQueryParam(propKey, bIndex, itemIndex, field2);
+			}
 		}
 	};
 
@@ -120,7 +143,11 @@ const Card = ({
 			// console.log("didDrop = ", didDrop);
 
 			if (!didDrop) {
-				revertAxes(propKey, bIndex, uId, originalIndex);
+				if (chartType === "richText") {
+					revertAxesForDm(propKey, bIndex, uId, originalIndex);
+				} else {
+					revertAxes(propKey, bIndex, uId, originalIndex);
+				}
 			}
 		},
 	});
@@ -134,7 +161,11 @@ const Card = ({
 		}),
 		hover: ({ uId: dragUId, bIndex: fromBIndex }: { uId: string; bIndex: number }) => {
 			if (fromBIndex === bIndex && dragUId !== field.uId) {
-				sortAxes(propKey, bIndex, dragUId, field.uId);
+				if (chartType === "richText") {
+					sortAxesForDm(propKey, bIndex, dragUId, field.uId);
+				} else {
+					sortAxes(propKey, bIndex, dragUId, field.uId);
+				}
 				console.log("============HOVER BLOCK END ==============");
 			}
 		},
@@ -262,10 +293,11 @@ const Card = ({
 	) : null;
 };
 
-const mapStateToProps = (state: TabTileStateProps2 & ChartPropertiesStateProps) => {
+const mapStateToProps = (state: TabTileStateProps2 & ChartPropertiesStateProps & any) => {
 	return {
 		tabTileProps: state.tabTileProps,
 		chartProp: state.chartProperties,
+		dynamicMeasureState: state.dynamicMeasuresState,
 	};
 };
 
@@ -273,16 +305,22 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: number) =>
 			dispatch(editChartPropItem("delete", { propKey, binIndex, itemIndex })),
-
 		updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any) =>
 			dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item })),
-
 		sortAxes: (propKey: string, bIndex: number, dragUId: string, uId: string) =>
 			dispatch(sortAxes(propKey, bIndex, dragUId, uId)),
 		revertAxes: (propKey: string, bIndex: number, uId: string, originalIndex: number) =>
 			dispatch(revertAxes(propKey, bIndex, uId, originalIndex)),
+
+		//dynamic measure actions
 		deleteDropZoneItemsForDm: (propKey: string, binIndex: number, itemIndex: any) =>
 			dispatch(editChartPropItemForDm("delete", { propKey, binIndex, itemIndex })),
+		sortAxesForDm: (propKey: string, bIndex: number, dragUId: string, uId: string) =>
+			dispatch(sortAxesForDm(propKey, bIndex, dragUId, uId)),
+		updateQueryParamForDm: (propKey: string, binIndex: number, itemIndex: number, item: any) =>
+			dispatch(editChartPropItemForDm("updateQuery", { propKey, binIndex, itemIndex, item })),
+		revertAxesForDm: (propKey: string, bIndex: number, uId: string, originalIndex: number) =>
+			dispatch(revertAxesForDm(propKey, bIndex, uId, originalIndex)),
 	};
 };
 
