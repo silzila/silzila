@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { updateRichText, updateRichTextOnAddingDYnamicMeasure } from "../../redux/ChartPoperties/ChartControlsActions";
 import { addMeasureInTextEditor } from "../../redux/ChartPoperties/ChartPropertiesActions";
+import {onCheckorUncheckOnDm} from '../../redux/DynamicMeasures/DynamicMeasuresActions'
 
 
 interface textEditorInterface {
@@ -17,35 +18,42 @@ var Embed = Quill.import('blots/embed');
 class Mention extends Embed {
     static create(value:any) {
         let node = super.create(value);
-        node.innerHTML = value.measureValue;
-        node.setAttribute('data-measure-value', value.measureValue);
-
-		this._addRemovalButton(node);
+		node.id = value.measureValue.id;
+        node.innerHTML = value.measureValue.value + " ";
+        //node.setAttribute('data-measure-value', value.measureValue.value);
+        node.setAttribute('data-propKey', value.propKey);	
+		this._addRemovalButton(node, value.onCheckorUncheckOnDm);
+		node.style.outline = "1px solid grey";
         return node;
     }
 
-    static value(domNode:any) {
-        return {
-            measureValue: domNode.getAttribute('data-measure-value')
-        }
-    }
+    // static value(domNode:any) {
+    //     return {
+    //         measureValue: domNode.getAttribute('data-measure-value')
+    //     }
+    // }
 
-	static _addRemovalButton(node:any) {
+	static _addRemovalButton(node:any, onCheckorUncheckOnDm:any) {
 		const button = document.createElement('button');
 		button.innerText = 'x';
-		button.onclick = () => node.remove();
-		button.contentEditable = 'false';
+		button.onclick = (args) => { 
+			console.log(args);
+			console.log(node.id);
+			onCheckorUncheckOnDm(node.id, false, node.getAttribute("data-propKey"),0,{});
+			node.remove(); 
+		}
+	//	button.contentEditable = 'false';
 		node.appendChild(button);
 	
-		const span = document.createElement('span');
-		span.innerText = ' ';
-		node.appendChild(span);
+		// const span = document.createElement('span');
+		// span.innerText = ' ';
+		// node.appendChild(span);
 	  }
 }
 
 Mention.blotName = 'mention';
 Mention.className = 'mention';
-Mention.tagName = 'SPAN';
+Mention.tagName = 'LABEL';
 
 Quill.register({
     'formats/mention': Mention
@@ -85,6 +93,7 @@ const TextEditor = ({
 	graphDimension,
 	chartArea,
 	graphTileSize,
+	onCheckorUncheckOnDm,
 	chartDetail,
 	onMouseDown,
 	dynamicMeasureState,
@@ -100,13 +109,15 @@ const TextEditor = ({
 	   let range = editor.getSelection();
 	   let position = range ? range.index : 0;
 
-	  var cObj = {measureValue : measureVal};
+	  var cObj:any = {measureValue : measureVal};
+	  cObj["onCheckorUncheckOnDm"] = onCheckorUncheckOnDm;
+	  cObj["propKey"] = propKey;
 	  editor.insertEmbed(position,"mention",cObj);
 	}
 
 	useEffect(() => {
 		updateRichText(propKey, value);
-		updateRichTextOnAddingDYnamicMeasure(propKey, "");
+		//updateRichTextOnAddingDYnamicMeasure(propKey, "");
 	}, [value]);
 
 	useEffect(() => {
@@ -114,7 +125,7 @@ const TextEditor = ({
 	}, [chartProp.properties[propKey].richText]);
 
 	useEffect(() => {
-		if(chartProp.properties[propKey].measureValue !== "")
+		if(chartProp.properties[propKey].measureValue.value !== "")
 		{
 			let _measureValueCopy =  Object.assign({}, chartProp.properties[propKey]); 
 			inserMention(thisEditor.current, _measureValueCopy.measureValue);
@@ -173,8 +184,15 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		updateRichText: (propKey: string, value: any) => dispatch(updateRichText(propKey, value)),
 		addMeasureInTextEditor: (propKey: string, chartValue: any) =>
 			dispatch(addMeasureInTextEditor(propKey, chartValue)),
-		updateRichTextOnAddingDYnamicMeasure: (propKey: string, value: string) =>
-			dispatch(updateRichTextOnAddingDYnamicMeasure(propKey,value))
+		onCheckorUncheckOnDm: (
+				dmId: number,
+				value: boolean,
+				propKey: string,
+				dmValue: any,
+				styleObj: any
+			) => dispatch(onCheckorUncheckOnDm(dmId, value, propKey, dmValue, styleObj)),
+		// updateRichTextOnAddingDYnamicMeasure: (propKey: string, value: string) =>
+		// 	dispatch(updateRichTextOnAddingDYnamicMeasure(propKey,value))
 	};
 };
 

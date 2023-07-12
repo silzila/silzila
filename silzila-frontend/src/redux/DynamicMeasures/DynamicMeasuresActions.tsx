@@ -150,8 +150,13 @@ export const onCheckorUncheckOnDm = (
 			} else {
 				text = `<span style="background-color:${styleObj.backgroundColor};color:${styleObj.fontColor};font-weight:${styleObj.boldText};font-style:${styleObj.italicText};"><u>${dmValue}</u></span>`;
 			}
-			dispatch(updateRichTextOnAddingDYnamicMeasure(propKey, text));
+
+			dispatch(updateRichTextOnAddingDYnamicMeasure(propKey,value, text, dmId));
 		}
+		else{
+			dispatch(updateRichTextOnAddingDYnamicMeasure(propKey,value, dmValue, dmId));
+		}
+
 	};
 };
 

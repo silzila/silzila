@@ -3,6 +3,32 @@
 
 import update from "immutability-helper";
 
+function removeTagFromHTMLString(htmlString:any, tagName:any, id:string) {
+	// Create a new DOMParser instance
+	const parser = new DOMParser();
+  
+	// Parse the HTML string
+	const doc = parser.parseFromString(htmlString, 'text/html');
+  
+	// Find all the elements with the specified tag name
+	const elements = doc.getElementsByTagName(tagName);
+  
+	// Convert the HTMLCollection to an array to avoid live collection issues
+	const elementsArray = Array.from(elements);
+  
+	// Remove each element from the DOM
+	elementsArray.forEach((element) => {
+		if(element.id == id){
+			element.parentNode.removeChild(element);
+		}
+	});
+  
+	// Serialize the modified DOM back to an HTML string
+	const modifiedHTMLString = new XMLSerializer().serializeToString(doc);
+  
+	return modifiedHTMLString;
+  }
+
 const chartControl = {
 	properties: {
 		1.1: {
@@ -1369,11 +1395,31 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 			});
 
 		case "UPDATE_RICH_TEXT_ON_ADDING_DYNAMIC_MEASURE":
+
+		let measureText = "";
+
+		if(action.payload.value){
+			measureText = action.payload.dmValue;
+		}
+		else{
+			measureText = removeTagFromHTMLString(state.properties[action.payload.propKey].richText, 'label', action.payload.dmId);
+
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						richText: {
+							$set: measureText
+						},
+					},
+				},
+			});
+		}
+
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
 						measureValue: {
-							$set: action.payload.value
+							$set: {value: measureText, id: action.payload.dmId}
 						},
 					},
 				},
