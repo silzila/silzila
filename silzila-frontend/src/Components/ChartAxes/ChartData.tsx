@@ -5,19 +5,14 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import ChartsInfo from "./ChartsInfo2";
-import DropZone from "./DropZone";
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import { Dispatch } from "redux";
 import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
 import { canReUseData, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import FetchData from "../ServerCall/FetchData";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { AxesValuProps, ChartAxesFormattedAxes, ChartAxesProps } from "./ChartAxesInterfaces";
-import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
-import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
+import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { chartFilterGroupEdited } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
@@ -27,10 +22,7 @@ import {
 } from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 import { dashBoardFilterGroupsEdited } from "../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction";
 import { DashBoardFilterGroupStateProps } from "../../redux/DashBoardFilterGroup/DashBoardFilterGroupInterface";
-import {
-	TileRibbonProps,
-	TileRibbonStateProps,
-} from "../../Components/TabsAndTiles/TileRibbonInterfaces";
+import { TileRibbonStateProps } from "../../Components/TabsAndTiles/TileRibbonInterfaces";
 import { setDashTileSwitched } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { updateChartDataForDm } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 
@@ -384,7 +376,7 @@ const ChartData = ({
 	dashBoardFilterGroupsEdited,
 	setDashTileSwitched,
 	updateChartDataForDm,
-}: ChartAxesProps & TileRibbonStateProps & any) => {
+}: ChartAxesProps & TileRibbonStateProps) => {
 	const [loading, setLoading] = useState<boolean>(false);
 
 	var _propKey: string = `${tabId}.${tileId}`;
@@ -716,8 +708,8 @@ const mapStateToProps = (
 		TileRibbonStateProps &
 		isLoggedProps &
 		ChartFilterGroupStateProps &
-		DashBoardFilterGroupStateProps &
-		any,
+		DashBoardFilterGroupStateProps,
+
 	ownProps: any
 ) => {
 	return {

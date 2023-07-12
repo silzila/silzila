@@ -162,17 +162,26 @@ export interface Card {
 	// state
 	tabTileProps: TabTileStateProps;
 	chartProp: ChartPropertiesProps;
+	dynamicMeasureState: any;
 }
 
 export interface CardProps extends Card {
 	// dispatch
 	deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: number) => void;
-	deleteDropZoneItemsForDm: (propKey: string, binIndex: number, itemIndex: number) => void;
-
 	updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any) => void;
-
 	sortAxes: (propKey: string, bIndex: number, dragUId: any, uId: any) => void;
 	revertAxes: (propKey: string, bIndex: number, uId: any, originalIndex: number) => void;
+
+	//dynamicMeasure dispatch
+	deleteDropZoneItemsForDm: (propKey: string, binIndex: number, itemIndex: number) => void;
+	updateQueryParamForDm: (
+		propKey: string,
+		binIndex: number,
+		itemIndex: number,
+		item: any
+	) => void;
+	sortAxesForDm: (propKey: string, bIndex: number, dragUId: any, uId: any) => void;
+	revertAxesForDm: (propKey: string, bIndex: number, uId: any, originalIndex: number) => void;
 }
 
 export interface AxesValuProps {

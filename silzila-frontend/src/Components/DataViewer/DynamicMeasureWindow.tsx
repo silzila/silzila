@@ -206,12 +206,15 @@ const DynamicMeasureWindow = ({
 						textTransform: "none",
 						backgroundColor: "rgb(43, 185, 187)",
 						color: "white",
+						"&:hover": {
+							backgroundColor: "rgb(43, 185, 187)",
+						},
 					}}
 					onClick={() => {
 						handleOnSave();
 					}}
 				>
-					save
+					Save
 				</Button>
 			</DialogTitle>
 			<DialogContent

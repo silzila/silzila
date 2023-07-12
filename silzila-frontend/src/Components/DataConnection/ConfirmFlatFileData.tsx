@@ -12,6 +12,7 @@ import {
 	MenuItem,
 	TableContainer,
 	Tooltip,
+	AlertColor,
 } from "@mui/material";
 import React, { useState } from "react";
 import { connect } from "react-redux";
@@ -30,6 +31,7 @@ import createStyles from "@mui/styles/createStyles";
 import "./FlatFile.css";
 import { styles, TextFieldBorderStyle } from "./EditFlatFileData";
 import MenuBar from "../DataViewer/MenuBar";
+import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 const FormLabelStyle = {
 	fontSize: "14px",
 	margin: "5px",
@@ -134,6 +136,10 @@ const ConfirmFlatFileData = ({
 	const navigate = useNavigate();
 	const columnHeaders: any[] = Object.keys(modifiedResponse.sampleRecordes[0]);
 	const [selectedButton, setselectedButton] = useState<string>("save");
+
+	const [openAlert, setOpenAlert] = useState<boolean>(false);
+	const [testMessage, setTestMessage] = useState<string>("");
+	const [severity, setSeverity] = useState<AlertColor>("success");
 
 	const handleOnConfirm = async () => {
 		var url: string = "";
@@ -348,6 +354,15 @@ const ConfirmFlatFileData = ({
 					</TextField>
 				</div>
 			</div>
+			<NotificationDialog
+				openAlert={openAlert}
+				severity={severity}
+				testMessage={testMessage}
+				onCloseAlert={() => {
+					setOpenAlert(false);
+					setTestMessage("");
+				}}
+			/>
 		</div>
 	);
 };

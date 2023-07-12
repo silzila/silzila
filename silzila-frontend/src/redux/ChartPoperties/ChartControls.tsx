@@ -31,6 +31,8 @@ const chartControl = {
 				itemGap: 10,
 				position: { pos: "Bottom", top: "bottom", left: "center" },
 				orientation: "horizontal",
+				top: "90%",
+				left: "40%",
 			},
 
 			chartMargin: {
@@ -261,12 +263,12 @@ const chartControl = {
 
 					// onZeroLeft: true,
 					tickSizeLeft: 5,
-					tickPaddingLeft: 5,
+					tickPaddingLeft: 10,
 					tickRotationLeft: 0,
 
 					// onZeroRight: false,
 					tickSizeRight: 5,
-					tickPaddingRight: 5,
+					tickPaddingRight: 10,
 					tickRotationRight: 0,
 				},
 				xAxis: {
@@ -283,12 +285,12 @@ const chartControl = {
 
 					// onZeroBottom: true,
 					tickSizeBottom: 5,
-					tickPaddingBottom: 5,
+					tickPaddingBottom: 10,
 					tickRotationBottom: 0,
 
 					// onZeroTop: false,
 					tickSizeTop: 5,
-					tickPaddingTop: 5,
+					tickPaddingTop: 10,
 					tickRotationTop: 0,
 				},
 				scatterChartMinMax: {
@@ -578,12 +580,12 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 
 								// onZeroLeft: true,
 								tickSizeLeft: 5,
-								tickPaddingLeft: 5,
+								tickPaddingLeft: 10,
 								tickRotationLeft: 0,
 
 								// onZeroRight: false,
 								tickSizeRight: 5,
-								tickPaddingRight: 5,
+								tickPaddingRight: 10,
 								tickRotationRight: 0,
 							},
 							xAxis: {
@@ -600,12 +602,12 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 
 								// onZeroBottom: true,
 								tickSizeBottom: 5,
-								tickPaddingBottom: 5,
+								tickPaddingBottom: 10,
 								tickRotationBottom: 0,
 
 								// onZeroTop: false,
 								tickSizeTop: 5,
-								tickPaddingTop: 5,
+								tickPaddingTop: 10,
 								tickRotationTop: 0,
 							},
 							scatterChartMinMax: {
@@ -643,7 +645,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 					[tileKey2]: {
 						chartData: "",
 						queryResult: "",
-						measureValue:"",
+						measureValue: "",
 						richText:
 							'<h1 class="ql-align-center ql-indent-2">Content Header</h1><p><span style="background-color: rgb(255, 255, 0);">Paragraph goes here...</span></p><ul><li>This</li><li>is</li><li>List</li></ul><p>Another Paragraph</p><ol><li>Numbered</li><li>List</li><li><a href="https://silzila.org" rel="noopener noreferrer" target="_blank">silzila</a></li></ol>',
 						colorScheme: "peacock",
@@ -896,12 +898,12 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 
 								// onZeroLeft: true,
 								tickSizeLeft: 5,
-								tickPaddingLeft: 5,
+								tickPaddingLeft: 10,
 								tickRotationLeft: 0,
 
 								// onZeroRight: false,
 								tickSizeRight: 5,
-								tickPaddingRight: 5,
+								tickPaddingRight: 10,
 								tickRotationRight: 0,
 							},
 							xAxis: {
@@ -918,12 +920,12 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 
 								// onZeroBottom: true,
 								tickSizeBottom: 5,
-								tickPaddingBottom: 5,
+								tickPaddingBottom: 10,
 								tickRotationBottom: 0,
 
 								// onZeroTop: false,
 								tickSizeTop: 5,
-								tickPaddingTop: 5,
+								tickPaddingTop: 10,
 								tickRotationTop: 0,
 							},
 							scatterChartMinMax: {
@@ -1373,7 +1375,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 				properties: {
 					[action.payload.propKey]: {
 						measureValue: {
-							$set: action.payload.value
+							$set: action.payload.value,
 						},
 					},
 				},

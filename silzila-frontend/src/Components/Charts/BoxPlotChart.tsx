@@ -35,45 +35,48 @@ const BoxPlotChart = ({
 			// distribution value
 			var dimValue: string = "";
 
-			if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
-				dimValue = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
-			} else {
-				dimValue = `${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
-			}
-			var dimArray: string[] = chartData.map((el: any) => {
-				console.log(el, dimValue);
-				return el[dimValue];
-			});
-			console.log(dimArray);
-
-			setDimensionData([...new Set(dimArray)]);
-
-			var measureValue = `${chartProperties.properties[propKey].chartAxes[3].fields[0].agg} of ${chartProperties.properties[propKey].chartAxes[3].fields[0].fieldname}`;
-
-			var allMeasureValue: number[] = [];
-			allMeasureValue = chartData.map(el => {
-				return el[measureValue];
-			});
-			console.log(allMeasureValue);
-
-			minimumValueOfYaxis = Math.min(...allMeasureValue);
-			maximumValueOfYaxis = Math.max(...allMeasureValue);
-
-			var arrayPoints: any[] = [];
-
-			// getting array points
-			[...new Set(dimArray)].map((el: string) => {
-				var temp: string[] = [];
-
-				chartData.map((elm: any) => {
-					if (el === elm[dimValue]) {
-						temp.push(elm[measureValue]);
-					}
+			if (chartProperties.properties[propKey].chartAxes[1].fields.length > 0) {
+				//if switched to boxplot from other charts without dimension value
+				if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
+					dimValue = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
+				} else {
+					dimValue = `${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
+				}
+				var dimArray: string[] = chartData.map((el: any) => {
+					console.log(el, dimValue);
+					return el[dimValue];
 				});
-				arrayPoints.push(temp);
-			});
+				console.log(dimArray);
 
-			setSourceData(arrayPoints);
+				setDimensionData([...new Set(dimArray)]);
+
+				var measureValue = `${chartProperties.properties[propKey].chartAxes[3].fields[0].agg} of ${chartProperties.properties[propKey].chartAxes[3].fields[0].fieldname}`;
+
+				var allMeasureValue: number[] = [];
+				allMeasureValue = chartData.map(el => {
+					return el[measureValue];
+				});
+				console.log(allMeasureValue);
+
+				minimumValueOfYaxis = Math.min(...allMeasureValue);
+				maximumValueOfYaxis = Math.max(...allMeasureValue);
+
+				var arrayPoints: any[] = [];
+
+				// getting array points
+				[...new Set(dimArray)].map((el: string) => {
+					var temp: string[] = [];
+
+					chartData.map((elm: any) => {
+						if (el === elm[dimValue]) {
+							temp.push(elm[measureValue]);
+						}
+					});
+					arrayPoints.push(temp);
+				});
+
+				setSourceData(arrayPoints);
+			}
 		}
 	}, [chartData, chartControl]);
 

@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
-import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+import {
+	ChartDataFieldProps,
+	ChartsMapStateToProps,
+	ChartsReduxStateProps,
+} from "./ChartsCommonInterfaces";
 
 const CalendarChart = ({
 	//props
@@ -31,6 +35,9 @@ const CalendarChart = ({
 
 	let inChartHeight: number;
 
+	const [maxValue, setMaxValue] = useState<number>(0);
+	const [minValue, setMinValue] = useState<number>(0);
+
 	useEffect(() => {
 		if (chartData.length >= 1) {
 			if (chartProperties.properties[propKey].chartAxes[1].fields.length > 0) {
@@ -40,6 +47,30 @@ const CalendarChart = ({
 				let objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
 
 				// console.log(objKey, chartData);
+
+				var measureField: ChartDataFieldProps =
+					chartProperties.properties[propKey].chartAxes[2].fields[0];
+				if (measureField) {
+					var maxFieldName: string = "";
+					if ("timeGrain" in measureField) {
+						maxFieldName = `${measureField.timeGrain} of ${measureField.fieldname}`;
+					} else {
+						maxFieldName = `${measureField.agg} of ${measureField.fieldname}`;
+					}
+
+					var max: number = 0;
+					var min: number = 100000000;
+					chartData.forEach((element: any) => {
+						if (element[maxFieldName] > max) {
+							max = element[maxFieldName];
+						}
+						if (element[maxFieldName] < min) {
+							min = element[maxFieldName];
+						}
+					});
+					setMaxValue(max);
+					setMinValue(min);
+				}
 
 				// getting years of dates
 				chartData.map((el: any) => {
@@ -176,7 +207,9 @@ const CalendarChart = ({
 						type: chartControl.calendarStyleOptions.pieceWise ? "piecewise" : null,
 						show:
 							graphDimension.height > 180
-								? chartControl.legendOptions?.showLegend
+								? chartData.length >= 1
+									? chartControl.legendOptions?.showLegend
+									: false
 								: false,
 						itemHeight: chartControl.calendarStyleOptions?.height,
 						itemWidth: chartControl.calendarStyleOptions?.width,
@@ -185,8 +218,19 @@ const CalendarChart = ({
 						left: chartControl.legendOptions?.position?.left,
 						top: chartControl.legendOptions?.position?.top,
 						orient: chartControl.calendarStyleOptions?.orientation,
-						min: 200,
-						max: 10000,
+						min:
+							chartControl.colorScale.colorScaleType === "Manual"
+								? chartControl.colorScale.min !== parseInt("")
+									? chartControl.colorScale.min
+									: 0
+								: minValue,
+						max:
+							chartControl.colorScale.colorScaleType === "Manual"
+								? chartControl.colorScale.max !== parseInt("")
+									? chartControl.colorScale.max
+									: 0
+								: maxValue,
+
 						inRange: {
 							color: [
 								chartControl.colorScale.minColor,
