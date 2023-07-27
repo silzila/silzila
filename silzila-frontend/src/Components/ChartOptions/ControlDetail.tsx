@@ -29,6 +29,7 @@ import TitleForDynamicMeasures from "./Title/TitleForDynamicMeasures";
 import ChartFormatForDm from "./Format/ChartFormatForDm";
 import DynamicMeasureStyle from "./ChartStyle/DynamicMeasureStyle";
 import DynamicMeasureConditionalFormating from "./DynamicMeasureConditionalFormating";
+import TableConditionalFormating from "./TableConditionalFormatting";
 
 interface ControlDetailProps {
 	chartProperties: ChartPropertiesProps;
@@ -110,8 +111,12 @@ const ControlDetail = ({
 				} else {
 					return <ChartFormat chartType={chartType} />;
 				}
-			case "Conditional Formating":
-				return <DynamicMeasureConditionalFormating />;
+			case "Conditional Formatting":
+				if (chartType === "richText") {
+					return <DynamicMeasureConditionalFormating />;
+				} else {
+					return <TableConditionalFormating />;
+				}
 			default:
 				return (
 					<span>

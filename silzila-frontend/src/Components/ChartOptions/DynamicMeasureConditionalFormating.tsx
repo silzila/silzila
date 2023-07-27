@@ -16,6 +16,7 @@ import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import { color } from "echarts";
 
 export const checkIsConditionSatisfied = (formatsArray: any, dmValue: number) => {
 	const updatedArray = formatsArray.map((el: any) => {
@@ -73,6 +74,327 @@ export const checkIsConditionSatisfied = (formatsArray: any, dmValue: number) =>
 	return updatedArray;
 };
 
+const conditionTypes = [
+	{ id: 1, value: "> Greater than" },
+	{ id: 2, value: "< Less than" },
+	{ id: 3, value: ">= Greater than or Equal to" },
+	{ id: 4, value: "<= Less than or Equal to" },
+	{ id: 5, value: "= Equal to" },
+	{ id: 6, value: "<> Not Equal to" },
+	{ id: 7, value: ">= Between <=" },
+];
+
+const GetInputField = ({ condition, onChangeValueProps }: any) => {
+	console.log(condition);
+	return (
+		<>
+			{condition.conditionType === 7 ? (
+				<>
+					<div className="optionDescription">Min Value</div>
+
+					<TextField
+						value={condition.minValue}
+						variant="outlined"
+						type="number"
+						onChange={e => {
+							e.preventDefault();
+							onChangeValueProps("minValue", e.target.value);
+						}}
+						InputProps={{ ...textFieldStyleProps }}
+					/>
+					<div className="optionDescription">Max Value</div>
+
+					<TextField
+						value={condition.maxValue}
+						variant="outlined"
+						type="number"
+						onChange={e => {
+							e.preventDefault();
+							onChangeValueProps("maxValue", e.target.value);
+						}}
+						InputProps={{ ...textFieldStyleProps }}
+					/>
+				</>
+			) : (
+				<>
+					<div className="optionDescription">Target Value</div>
+
+					<TextField
+						value={condition.target}
+						variant="outlined"
+						type="number"
+						onChange={e => {
+							e.preventDefault();
+							onChangeValueProps("target", e.target.value);
+						}}
+						InputProps={{ ...textFieldStyleProps }}
+					/>
+				</>
+			)}
+		</>
+	);
+};
+
+export const CondtionComponent = ({
+	conditionSArray,
+	onDeleteCondition,
+	onChangeProps,
+	setbgColorPopOverOpen,
+	setFontColorPopOverOpen,
+	isbgColorPopoverOpen,
+	isFontColorPopoverOpen,
+}: any) => {
+	return (
+		<>
+			<div className="optionDescription" style={{ display: "flex", flexDirection: "column" }}>
+				{conditionSArray.map((condition: any, i: number) => {
+					return (
+						<div
+							style={{
+								display: "flex",
+								flexDirection: "column",
+								borderBottom: "2px solid rgba(224,224,224,1)",
+								paddingBottom: "10px",
+							}}
+						>
+							<div style={{ display: "flex" }}>
+								<span>conditional Format {i + 1}</span>
+								{condition.isCollapsed ? (
+									<ExpandMoreIcon
+										sx={{ margin: "0px 0px 0px auto" }}
+										onClick={() => {
+											onChangeProps(
+												condition.id,
+												"isCollapsed",
+												!condition.isCollapsed
+											);
+										}}
+									/>
+								) : (
+									<ExpandLessIcon
+										sx={{ margin: "0px 0px 0px auto" }}
+										onClick={() =>
+											onChangeProps(
+												condition.id,
+												"isCollapsed",
+												!condition.isCollapsed
+											)
+										}
+									/>
+								)}
+								<DeleteOutlineOutlinedIcon
+									onClick={() => onDeleteCondition(condition.id)}
+								/>
+							</div>
+
+							{condition.isCollapsed ? (
+								<>
+									<div style={{ flexDirection: "column" }}>
+										<div className="optionDescription">Condition</div>
+										<FormControl
+											fullWidth
+											size="small"
+											style={{ fontSize: "12px", borderRadius: "4px" }}
+										>
+											<Select
+												value={condition.conditionType}
+												variant="outlined"
+												onChange={e => {
+													onChangeProps(
+														condition.id,
+														"conditionType",
+														e.target.value
+													);
+												}}
+												sx={SelectComponentStyle}
+											>
+												{conditionTypes.map((item: any) => {
+													return (
+														<MenuItem
+															value={item.id}
+															key={item.id}
+															sx={{
+																textTransform: "capitalize",
+																...menuItemStyle,
+															}}
+														>
+															{item.value}
+														</MenuItem>
+													);
+												})}
+											</Select>
+										</FormControl>
+										<GetInputField
+											condition={condition}
+											onChangeValueProps={(option: string, value: any) => {
+												onChangeProps(condition.id, option, value);
+											}}
+										/>
+										<StyleButtons
+											isBold={condition.isBold}
+											isItalic={condition.isItalic}
+											isUnderlined={condition.isUnderlined}
+											onChangeStyleProps={(option: string, value: any) => {
+												onChangeProps(condition.id, option, value);
+											}}
+										/>
+										<CustomFontAndBgColor
+											backgroundColor={condition.backgroundColor}
+											fontColor={condition.fontColor}
+											onChangeColorProps={(
+												option: string,
+												color: any,
+												id: any
+											) => {
+												onChangeProps(id, option, color);
+											}}
+											id={condition.id}
+										/>
+									</div>
+								</>
+							) : null}
+						</div>
+					);
+				})}
+			</div>
+		</>
+	);
+};
+
+export const StyleButtons = ({ isBold, isItalic, isUnderlined, onChangeStyleProps }: any) => {
+	return (
+		<div
+			style={{
+				display: "flex",
+				justifyContent: "space-around",
+			}}
+		>
+			<FormatBoldIcon
+				onClick={() => {
+					onChangeStyleProps("isBold", !isBold);
+				}}
+				sx={{
+					border: "1px solid grey",
+					borderRadius: "3px",
+					backgroundColor: isBold ? "rgba(224,224,224,1)" : "none",
+				}}
+			/>
+			<FormatItalicIcon
+				onClick={() => onChangeStyleProps("isItalic", !isItalic)}
+				sx={{
+					border: "1px solid grey",
+					borderRadius: "3px",
+					backgroundColor: isItalic ? "rgba(224,224,224,1)" : "none",
+				}}
+			/>
+			<FormatUnderlinedIcon
+				onClick={() => onChangeStyleProps("isUnderlined", !isUnderlined)}
+				sx={{
+					border: "1px solid grey",
+					borderRadius: "3px",
+					backgroundColor: isUnderlined ? "rgba(224,224,224,1)" : "none",
+				}}
+			/>
+		</div>
+	);
+};
+
+export const CustomFontAndBgColor = ({
+	id,
+	backgroundColor,
+
+	fontColor,
+
+	onChangeColorProps,
+}: any) => {
+	const [selectedId, setSelectedId] = useState<string>("");
+	const [isbgColorPopoverOpen, setbgColorPopOverOpen] = useState<boolean>(false);
+	const [isFontColorPopoverOpen, setFontColorPopOverOpen] = useState<boolean>(false);
+	console.log(selectedId);
+
+	return (
+		<>
+			<div className="optionDescription">
+				<label style={{ width: "40%" }}>Background Color</label>
+				<div
+					style={{
+						height: "1.25rem",
+						width: "50%",
+						marginLeft: "20px",
+						backgroundColor: backgroundColor,
+						color: backgroundColor,
+						border: "2px solid darkgray",
+						margin: "auto",
+					}}
+					onClick={() => {
+						setSelectedId(id);
+
+						setbgColorPopOverOpen(!isbgColorPopoverOpen);
+					}}
+				></div>
+				<Popover
+					open={isbgColorPopoverOpen}
+					onClose={() => setbgColorPopOverOpen(false)}
+					onClick={() => setbgColorPopOverOpen(false)}
+					anchorReference="anchorPosition"
+					anchorPosition={{ top: 350, left: 1300 }}
+				>
+					<div id={id}>
+						<SketchPicker
+							className="sketchPicker"
+							width="16rem"
+							onChangeComplete={color => {
+								onChangeColorProps("backgroundColor", color.hex, selectedId);
+							}}
+							onChange={color => {
+								onChangeColorProps("backgroundColor", color.hex, selectedId);
+							}}
+						/>
+					</div>
+				</Popover>
+			</div>
+			<div className="optionDescription">
+				<label style={{ width: "40%" }}>Font Color</label>
+				<div
+					style={{
+						height: "1.25rem",
+						width: "50%",
+						marginLeft: "20px",
+						backgroundColor: fontColor,
+						color: fontColor,
+						border: "2px solid darkgray",
+						margin: "auto",
+					}}
+					onClick={() => {
+						setFontColorPopOverOpen(!isFontColorPopoverOpen);
+						setSelectedId(id);
+					}}
+				></div>
+				<Popover
+					open={isFontColorPopoverOpen}
+					onClose={() => setFontColorPopOverOpen(false)}
+					onClick={() => setFontColorPopOverOpen(false)}
+					anchorReference="anchorPosition"
+					anchorPosition={{ top: 350, left: 1300 }}
+				>
+					<div id={id}>
+						<SketchPicker
+							className="sketchPicker"
+							width="16rem"
+							onChangeComplete={color => {
+								onChangeColorProps("fontColor", color.hex, selectedId);
+							}}
+							onChange={color => {
+								onChangeColorProps("fontColor", color.hex, selectedId);
+							}}
+						/>
+					</div>
+				</Popover>
+			</div>
+		</>
+	);
+};
+
 const DynamicMeasureConditionalFormating = ({
 	addNewCondition,
 	dynamicMeasureProps,
@@ -85,15 +407,6 @@ const DynamicMeasureConditionalFormating = ({
 			`${dynamicMeasureProps.selectedTileId}.${dynamicMeasureProps.selectedDynamicMeasureId}`
 		];
 
-	const conditionTypes = [
-		{ id: 1, value: "> Greater than" },
-		{ id: 2, value: "< Less than" },
-		{ id: 3, value: ">= Greater than or Equal to" },
-		{ id: 4, value: "<= Less than or Equal to" },
-		{ id: 5, value: "= Equal to" },
-		{ id: 6, value: "<> Not Equal to" },
-		{ id: 7, value: ">= Between <=" },
-	];
 	const [isbgColorPopoverOpen, setbgColorPopOverOpen] = useState<boolean>(false);
 
 	var uid = new ShortUniqueId({ length: 8 });
@@ -118,59 +431,6 @@ const DynamicMeasureConditionalFormating = ({
 		addNewCondition(obj);
 	};
 
-	const getInputField = (cf: any) => {
-		switch (cf.conditionType) {
-			case 1:
-			case 2:
-			case 3:
-			case 4:
-			case 5:
-			case 6:
-				return (
-					<>
-						<div className="optionDescription">Target Value</div>
-
-						<TextField
-							value={cf.target}
-							variant="outlined"
-							type="number"
-							onChange={e => {
-								changeOptionValue(cf.id, "target", e.target.value);
-							}}
-							InputProps={{ ...textFieldStyleProps }}
-						/>
-					</>
-				);
-			case 7:
-				return (
-					<>
-						<div className="optionDescription">Min Value</div>
-
-						<TextField
-							value={cf.minValue}
-							variant="outlined"
-							type="number"
-							onChange={e => {
-								changeOptionValue(cf.id, "minValue", e.target.value);
-							}}
-							InputProps={{ ...textFieldStyleProps }}
-						/>
-						<div className="optionDescription">Max Value</div>
-
-						<TextField
-							value={cf.maxValue}
-							variant="outlined"
-							type="number"
-							onChange={e => {
-								e.preventDefault();
-								changeOptionValue(cf.id, "maxValue", e.target.value);
-							}}
-							InputProps={{ ...textFieldStyleProps }}
-						/>
-					</>
-				);
-		}
-	};
 	const onDelete = (id: string) => {
 		const updatedConditionalFormatsArray = dmProp.conditionalFormats.filter((el: any) => {
 			return el.id !== id;
@@ -187,7 +447,7 @@ const DynamicMeasureConditionalFormating = ({
 			}
 			return el;
 		});
-		// console.log(updatedConditionalFormatsArray);
+
 		if (
 			option === "conditionType" ||
 			option === "target" ||
@@ -203,240 +463,17 @@ const DynamicMeasureConditionalFormating = ({
 	};
 	return (
 		<div className="optionsInfo">
-			<div className="optionDescription" style={{ display: "flex", flexDirection: "column" }}>
-				{dmProp.conditionalFormats.map((cf: any, i: number) => {
-					return (
-						<div
-							style={{
-								display: "flex",
-								flexDirection: "column",
-								borderBottom: "2px solid rgba(224,224,224,1)",
-								paddingBottom: "10px",
-							}}
-						>
-							<div style={{ display: "flex" }}>
-								<span>conditional Format {i + 1}</span>
-								{cf.isCollapsed ? (
-									<ExpandMoreIcon
-										sx={{ margin: "0px 0px 0px auto" }}
-										onClick={() => {
-											console.log(cf.id);
-											changeOptionValue(
-												cf.id,
-												"isCollapsed",
-												!cf.isCollapsed
-											);
-										}}
-									/>
-								) : (
-									<ExpandLessIcon
-										sx={{ margin: "0px 0px 0px auto" }}
-										onClick={() =>
-											changeOptionValue(cf.id, "isCollapsed", !cf.isCollapsed)
-										}
-									/>
-								)}
-								<DeleteOutlineOutlinedIcon onClick={() => onDelete(cf.id)} />
-							</div>
-
-							{cf.isCollapsed ? (
-								<>
-									<div style={{ flexDirection: "column" }}>
-										<div className="optionDescription">Condition</div>
-										<FormControl
-											fullWidth
-											size="small"
-											style={{ fontSize: "12px", borderRadius: "4px" }}
-										>
-											<Select
-												value={cf.conditionType}
-												variant="outlined"
-												onChange={e => {
-													changeOptionValue(
-														cf.id,
-														"conditionType",
-														e.target.value
-													);
-												}}
-												sx={SelectComponentStyle}
-											>
-												{conditionTypes.map((item: any) => {
-													return (
-														<MenuItem
-															value={item.id}
-															key={item.id}
-															sx={{
-																textTransform: "capitalize",
-																...menuItemStyle,
-															}}
-														>
-															{item.value}
-														</MenuItem>
-													);
-												})}
-											</Select>
-										</FormControl>
-										{getInputField(cf)}
-										<div
-											style={{
-												display: "flex",
-												justifyContent: "space-around",
-											}}
-										>
-											<FormatBoldIcon
-												onClick={() => {
-													changeOptionValue(cf.id, "isBold", !cf.isBold);
-												}}
-												sx={{
-													border: "1px solid grey",
-													borderRadius: "3px",
-													backgroundColor: cf.isBold
-														? "rgba(224,224,224,1)"
-														: "none",
-												}}
-											/>
-											<FormatItalicIcon
-												onClick={() => {
-													changeOptionValue(
-														cf.id,
-														"isItalic",
-														!cf.isItalic
-													);
-												}}
-												sx={{
-													border: "1px solid grey",
-													borderRadius: "3px",
-													backgroundColor: cf.isItalic
-														? "rgba(224,224,224,1)"
-														: "none",
-												}}
-											/>
-											<FormatUnderlinedIcon
-												onClick={() => {
-													changeOptionValue(
-														cf.id,
-														"isUnderlined",
-														!cf.isUnderlined
-													);
-												}}
-												sx={{
-													border: "1px solid grey",
-													borderRadius: "3px",
-													backgroundColor: cf.isUnderlined
-														? "rgba(224,224,224,1)"
-														: "none",
-												}}
-											/>
-										</div>
-										<div className="optionDescription">
-											<label style={{ width: "40%" }}>Background Color</label>{" "}
-											<div
-												style={{
-													height: "1.25rem",
-													width: "50%",
-													marginLeft: "20px",
-													backgroundColor: cf.backgroundColor,
-													color: cf.backgroundColor,
-													border: "2px solid darkgray",
-													margin: "auto",
-												}}
-												onClick={() => {
-													setbgColorPopOverOpen(!isbgColorPopoverOpen);
-												}}
-											></div>
-											<Popover
-												open={isbgColorPopoverOpen}
-												onClose={() => setbgColorPopOverOpen(false)}
-												onClick={() => setbgColorPopOverOpen(false)}
-												anchorReference="anchorPosition"
-												anchorPosition={{ top: 350, left: 1300 }}
-											>
-												<div id={cf.id}>
-													<SketchPicker
-														className="sketchPicker"
-														width="16rem"
-														onChangeComplete={color => {
-															console.log(cf.id);
-															changeOptionValue(
-																cf.id,
-																"backgroundColor",
-																color.hex
-															);
-														}}
-														onChange={color => {
-															console.log(cf.id);
-															changeOptionValue(
-																cf.id,
-																"backgroundColor",
-																color.hex
-															);
-														}}
-													/>
-												</div>
-											</Popover>
-										</div>
-										<div className="optionDescription">
-											<label style={{ width: "40%" }}>Font Color</label>
-											<div
-												style={{
-													height: "1.25rem",
-													width: "50%",
-													marginLeft: "20px",
-													backgroundColor: cf.fontColor,
-													color: cf.fontColor,
-													border: "2px solid darkgray",
-													margin: "auto",
-												}}
-												onClick={() => {
-													setFontColorPopOverOpen(
-														!isFontColorPopoverOpen
-													);
-												}}
-											></div>
-											<Popover
-												open={isFontColorPopoverOpen}
-												onClose={() => setFontColorPopOverOpen(false)}
-												onClick={() => setFontColorPopOverOpen(false)}
-												anchorReference="anchorPosition"
-												anchorPosition={{ top: 350, left: 1300 }}
-											>
-												<div id={cf.id}>
-													<SketchPicker
-														className="sketchPicker"
-														width="16rem"
-														onChangeComplete={color => {
-															console.log(cf.id);
-
-															changeOptionValue(
-																cf.id,
-																"fontColor",
-																color.hex
-															);
-														}}
-														onChange={color => {
-															changeOptionValue(
-																cf.id,
-																"fontColor",
-																color.hex
-															);
-														}}
-													/>
-												</div>
-											</Popover>
-										</div>
-									</div>
-								</>
-							) : null}
-						</div>
-					);
-				})}
-			</div>
-			<hr />
-			<div className="optionDescription">
-				<p style={{ color: "#ccc", fontStyle: "italic", fontSize: "10px" }}>
-					*the last satisfied condition's style will be applied*
-				</p>
-			</div>
+			<CondtionComponent
+				conditionSArray={dmProp.conditionalFormats}
+				onChangeProps={(id: string, option: string, value: any) => {
+					changeOptionValue(id, option, value);
+				}}
+				onDeleteCondition={(id: string) => onDelete(id)}
+				isbgColorPopoverOpen={isbgColorPopoverOpen}
+				isFontColorPopoverOpen={isFontColorPopoverOpen}
+				setbgColorPopOverOpen={(value: boolean) => setbgColorPopOverOpen(value)}
+				setFontColorPopOverOpen={(value: boolean) => setFontColorPopOverOpen(value)}
+			/>
 			<div className="optionDescription">
 				<Button
 					sx={{
@@ -453,6 +490,12 @@ const DynamicMeasureConditionalFormating = ({
 				>
 					Add
 				</Button>
+			</div>
+			<hr />
+			<div className="optionDescription">
+				<p style={{ color: "#ccc", fontStyle: "italic", fontSize: "10px" }}>
+					*the last satisfied condition's style will be applied*
+				</p>
 			</div>
 		</div>
 	);
