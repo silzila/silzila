@@ -27,7 +27,7 @@ public class QueryComposer {
          * builds JOIN Clause of SQL - same for all dialects
          */
         String fromClause = RelationshipClauseGeneric.buildRelationship(req, ds.getDataSchema(), vendorName);
-
+        // System.out.println("from clause ================\n" + fromClause);
         /*
          * builds SELECT Clause of SQL
          * SELECT clause is the most varying of all clauses, different for each dialect
@@ -40,7 +40,7 @@ public class QueryComposer {
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             // System.out.println("------ inside postges block");
             qMap = SelectClausePostgres.buildSelectClause(req);
-        } else if (vendorName.equals("mysql")) {
+        } else if (vendorName.equals("mysql") || vendorName.equals("duckdb")) {
             // System.out.println("------ inside mysql block");
             qMap = SelectClauseMysql.buildSelectClause(req);
         } else if (vendorName.equals("sqlserver")) {
