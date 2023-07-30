@@ -153,7 +153,7 @@ const FlatFileList = (props: any) => {
 										<div className="dataConnectionName">{fi.name}</div>
 										{xprops.open ? (
 											<Tooltip
-												title="Delete playbook"
+												title="Delete Flatfile"
 												arrow
 												placement="right-start"
 											>
