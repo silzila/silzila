@@ -53,7 +53,7 @@ public class DatasetService {
     FileDataService fileDataService;
 
     @Autowired
-    SparkService sparkService;
+    DuckDbService duckDbService;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -261,14 +261,14 @@ public class DatasetService {
     public String runQuery(String userId, String dBConnectionId, String datasetId, Boolean isSqlOnly,
             Query req)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
-            BadRequestException {
+            BadRequestException, ClassNotFoundException {
         // need at least one dim or measure or field for query execution
         if (req.getDimensions().isEmpty() && req.getMeasures().isEmpty() && req.getFields().isEmpty()) {
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Error: At least one Dimension/Measure/Field should be there!");
         }
-        // get dataset details to compose query
+        // get dataset details in buffer
         DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
         // System.out.println("*****************" + ds.toString());
 
@@ -331,23 +331,27 @@ public class DatasetService {
                     .filter(table -> uniqueTableIds.contains(table.getId()))
                     .collect(Collectors.toList());
 
+            System.out.println("unique table id =======\n" + uniqueTableIds.toString() +
+                    "\n\tableObjectList ======== \n" + tableObjList.toString());
             // throw error when any requested table id is not in dataset
             if (uniqueTableIds.size() != tableObjList.size()) {
                 throw new BadRequestException("Error: some table id is not present in Dataset!");
             }
 
-            // get files names from file ids and load the files as DF
+            // get files names from file ids and load the files as Views
             fileDataService.getFileNameFromFileId(userId, tableObjList);
-            String query = queryComposer.composeQuery(req, ds, "spark");
+            String query = queryComposer.composeQuery(req, ds, "duckdb");
             System.out.println("\n******* QUERY **********\n" + query);
+
             // when the request is just Raw SQL query Text
             if (isSqlOnly != null && isSqlOnly) {
                 return query;
             }
             // when the request is for query result
             else {
-                List<JsonNode> jsonNodes = sparkService.runQuery(query);
-                return jsonNodes.toString();
+                // List<JsonNode> jsonNodes = sparkService.runQuery(query);
+                JSONArray jsonArray = duckDbService.runQuery(query);
+                return jsonArray.toString();
             }
         }
 
@@ -356,7 +360,7 @@ public class DatasetService {
     // Populate filter Options
     public Object filterOptions(String userId, String dBConnectionId, String datasetId, ColumnFilter columnFilter)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
-            BadRequestException {
+            BadRequestException, ClassNotFoundException {
 
         String vendorName = "";
         DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
@@ -394,13 +398,15 @@ public class DatasetService {
                 throw new BadRequestException("Error: table id is not present in Dataset!");
             }
 
-            // get files names from file ids and load the files as DF
+            // get files names from file ids and load the files as Views
             fileDataService.getFileNameFromFileId(userId, tableObjList);
             // build query
-            String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, "spark");
+            String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, "duckdb");
             System.out.println("\n******* QUERY **********\n" + query);
-            List<JsonNode> jsonNodes = sparkService.runQuery(query);
-            return jsonNodes;
+            // List<JsonNode> jsonNodes = sparkService.runQuery(query);
+            // return jsonNodes;
+            JSONArray jsonArray = duckDbService.runQuery(query);
+            return jsonArray.toString();
         }
 
     }

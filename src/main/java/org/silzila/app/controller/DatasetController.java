@@ -112,7 +112,7 @@ public class DatasetController {
             @RequestParam(name = "datasetid") String datasetId,
             @RequestParam(name = "sql", required = false) Boolean isSqlOnly)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
-            BadRequestException {
+            BadRequestException, ClassNotFoundException {
         String userId = reqHeader.get("requesterUserId");
 
         String queryResultOrQueryText = datasetService.runQuery(userId, dBConnectionId, datasetId, isSqlOnly, query);
@@ -125,7 +125,7 @@ public class DatasetController {
             @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
             @RequestParam(name = "datasetid") String datasetId)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
-            BadRequestException {
+            BadRequestException, ClassNotFoundException {
         String userId = reqHeader.get("requesterUserId");
         Object jsonArrayOrJsonNodeList = datasetService.filterOptions(userId, dBConnectionId, datasetId, columnFilter);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArrayOrJsonNodeList.toString());
