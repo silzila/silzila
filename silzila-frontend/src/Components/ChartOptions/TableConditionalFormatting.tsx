@@ -20,6 +20,9 @@ import {
 	StyleButtons,
 } from "./DynamicMeasureConditionalFormating";
 import StarPurple500Icon from "@mui/icons-material/StarPurple500";
+import AddIcon from "@mui/icons-material/Add";
+import LabelComponent from "./TableChartControlComponents/LabelComponent";
+import GradientComponent from "./TableChartControlComponents/GradientComponent";
 
 const TableConditionalFormatting = ({
 	chartControls,
@@ -225,6 +228,42 @@ const TableConditionalFormatting = ({
 		}
 	};
 
+	const onGradientStyleChange = (
+		optionName: string,
+		value: any,
+		id: string,
+		columnName: string
+	) => {
+		/* finding  conditional format obj */
+		const matchedObj = chartControls.properties[propKey].tableConditionalFormats.filter(
+			(column: any) => {
+				return column.name === columnName;
+			}
+		);
+
+		/* updating values in the values(table data) of selected conditional Format obj */
+		const matchedValue = matchedObj[0].value.map((el: any) => {
+			if (el.id === id) {
+				el[optionName] = value;
+			}
+			return el;
+		});
+
+		console.log(matchedObj);
+		/* assigning updated values array to corresponding conditional format obj on tableConditionalFormats Array*/
+		const updatedValues = chartControls.properties[propKey].tableConditionalFormats.map(
+			(column: any) => {
+				if (column.name === columnName) {
+					column.value = matchedValue;
+				}
+				return column;
+			}
+		);
+
+		/* sending updatedValues as payload to update state*/
+		updatecfObjectOptions1(propKey, updatedValues);
+	};
+
 	const onLabelStyleChange = (
 		optionName: string,
 		value: any,
@@ -245,42 +284,6 @@ const TableConditionalFormatting = ({
 				console.log("matched", el.colValue, valueName, optionName, el[optionName]);
 				el[optionName] = value;
 				console.log(el);
-			}
-			return el;
-		});
-
-		console.log(matchedObj);
-		/* assigning updated values array to corresponding conditional format obj on tableConditionalFormats Array*/
-		const updatedValues = chartControls.properties[propKey].tableConditionalFormats.map(
-			(column: any) => {
-				if (column.name === columnName) {
-					column.value = matchedValue;
-				}
-				return column;
-			}
-		);
-
-		/* sending updatedValues as payload to update state*/
-		updatecfObjectOptions1(propKey, updatedValues);
-	};
-
-	const onGradientStyleChange = (
-		optionName: string,
-		value: any,
-		id: string,
-		columnName: string
-	) => {
-		/* finding  conditional format obj */
-		const matchedObj = chartControls.properties[propKey].tableConditionalFormats.filter(
-			(column: any) => {
-				return column.name === columnName;
-			}
-		);
-
-		/* updating values in the values(table data) of selected conditional Format obj */
-		const matchedValue = matchedObj[0].value.map((el: any) => {
-			if (el.id === id) {
-				el[optionName] = value;
 			}
 			return el;
 		});
@@ -353,14 +356,6 @@ const TableConditionalFormatting = ({
 		);
 	};
 
-	const onChangeGradientValue = (e: any) => {
-		e.preventdefault();
-		console.log(e.target.value);
-		if (e.target.value < gradientMinAndMax.max && e.target.value > gradientMinAndMax.min) {
-			setGradientValue(e.target.value);
-		}
-	};
-
 	const onAddCustomValues = (format: any) => {
 		var obj = {
 			id: uId(),
@@ -385,25 +380,27 @@ const TableConditionalFormatting = ({
 
 		let indexvalue;
 
-		/* to check the enterd value is grater than min and small than max*/
-		if (gradientValue > gradientMinAndMax.min && gradientValue < gradientMinAndMax.max) {
-			formatItemValue.forEach((item: any, index: number) => {
-				/*the first item's (this would be min value) value is less than enterd value, it its valid then check the value next to it is grater than enterd value.
-if it is valid then capture the index in whiche the new value will be pushed*/
-				if (item.value < gradientValue) {
-					if (formatItemValue[index + 1]) {
-						if (formatItemValue[index + 1].value > gradientValue) {
-							indexvalue = index + 1;
+		formatItemValue.forEach((item: any, index: number) => {
+			if (formatItemValue.length === 3) {
+				indexvalue = 2;
+			} else {
+				if (index !== 0 && index !== 1 && index !== formatItemValue.length - 1) {
+					if (item.value < gradientValue) {
+						if (formatItemValue[index + 1]) {
+							if (formatItemValue[index + 1].value > gradientValue) {
+								indexvalue = index + 1;
+							}
 						}
 					}
 				}
-			});
-		}
+			}
+		});
+
+		setGradientValue(0);
 		console.log(indexvalue);
 
 		formatItemValue.splice(indexvalue, 0, obj);
 		onUpdateRule(formatItemValue, format.name);
-		setGradientValue(null);
 	};
 
 	const onAddCondition = (format: any, index: number) => {
@@ -485,11 +482,15 @@ if it is valid then capture the index in whiche the new value will be pushed*/
 										{format.isCollapsed ? (
 											<>
 												{format.isLabel ? (
-													<LabelStyleOptions format={format} index={i} />
+													<LabelComponent format={format} />
 												) : (
+													// <LabelStyleOptions format={format} index={i} />
 													<>
 														{format.isGradient ? (
 															<>
+																<GradientComponent
+																	format={format}
+																/>
 																<div
 																	style={{
 																		display: "flex",
@@ -505,15 +506,26 @@ if it is valid then capture the index in whiche the new value will be pushed*/
 																			);
 																		}}
 																	/>
-																	<button
-																		onClick={() =>
-																			onAddCustomValues(
-																				format
-																			)
-																		}
+																	<div
+																		title="Add Custom Value"
+																		className="containerButton"
+																		onClick={() => {
+																			if (
+																				gradientValue !== 0
+																			) {
+																				onAddCustomValues(
+																					format
+																				);
+																			} else {
+																				// TODO: need to fix
+																				window.alert(
+																					"custom value cant be zero"
+																				);
+																			}
+																		}}
 																	>
-																		add
-																	</button>
+																		<AddIcon />
+																	</div>
 																</div>
 																{format.value.map((el: any) => {
 																	return (
