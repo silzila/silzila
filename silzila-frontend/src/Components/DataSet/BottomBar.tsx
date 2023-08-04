@@ -23,9 +23,8 @@ import {
 	relationshipServerObjProps,
 	tablesSelectedInSidebarProps,
 } from "./BottomBarInterfaces";
-import { SaveButtons } from "../DataConnection/ConfirmFlatFileData";
-import { TextFieldBorderStyle } from "../DataConnection/EditFlatFileData";
 import { AlertColor } from "@mui/material/Alert";
+import { SaveButtons, TextFieldBorderStyle } from "../DataConnection/muiStyles";
 
 const BottomBar = ({
 	//props
