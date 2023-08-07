@@ -120,7 +120,7 @@ const GetInputField = ({ condition, onChangeValueProps }: any) => {
 					<div className="optionDescription">Target Value</div>
 
 					<TextField
-						value={condition.target}
+						value={5}
 						variant="outlined"
 						type="number"
 						onChange={e => {
@@ -135,15 +135,7 @@ const GetInputField = ({ condition, onChangeValueProps }: any) => {
 	);
 };
 
-export const CondtionComponent = ({
-	conditionSArray,
-	onDeleteCondition,
-	onChangeProps,
-	setbgColorPopOverOpen,
-	setFontColorPopOverOpen,
-	isbgColorPopoverOpen,
-	isFontColorPopoverOpen,
-}: any) => {
+export const CondtionComponent = ({ conditionSArray, onDeleteCondition, onChangeProps }: any) => {
 	return (
 		<>
 			<div className="optionDescription" style={{ display: "flex", flexDirection: "column" }}>
@@ -469,10 +461,6 @@ const DynamicMeasureConditionalFormating = ({
 					changeOptionValue(id, option, value);
 				}}
 				onDeleteCondition={(id: string) => onDelete(id)}
-				isbgColorPopoverOpen={isbgColorPopoverOpen}
-				isFontColorPopoverOpen={isFontColorPopoverOpen}
-				setbgColorPopOverOpen={(value: boolean) => setbgColorPopOverOpen(value)}
-				setFontColorPopOverOpen={(value: boolean) => setFontColorPopOverOpen(value)}
 			/>
 			<div className="optionDescription">
 				<Button
