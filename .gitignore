@@ -47,3 +47,5 @@ secrets.yml
 node_modules/
 silzila-frontend/package-lock.json
 src/main/resources/static
+*.log
+*.hprof

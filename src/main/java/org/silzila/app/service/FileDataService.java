@@ -1,40 +1,37 @@
 package org.silzila.app.service;
 
+import org.json.JSONArray;
 import org.silzila.app.dto.FileDataDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.ExpectationFailedException;
 import org.silzila.app.exception.RecordNotFoundException;
-import org.silzila.app.helper.ConvertSparkDataType;
+import org.silzila.app.helper.ConvertDuckDbDataType;
 import org.silzila.app.model.FileData;
 import org.silzila.app.payload.request.FileUploadRevisedColumnInfo;
 import org.silzila.app.payload.request.FileUploadRevisedInfoRequest;
 import org.silzila.app.payload.request.Table;
-import org.silzila.app.payload.response.FileUploadColumnInfo;
-import org.silzila.app.payload.response.FileUploadResponse;
+import org.silzila.app.payload.response.FileUploadResponseDuckDb;
 import org.silzila.app.repository.FileDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class FileDataService {
@@ -42,7 +39,7 @@ public class FileDataService {
     public static HashMap<String, ArrayList<FileData>> usersFileDatas = new HashMap<String, ArrayList<FileData>>();
 
     @Autowired
-    SparkService sparkService;
+    DuckDbService duckDbService;
 
     @Autowired
     FileDataRepository fileDataRepository;
@@ -51,8 +48,9 @@ public class FileDataService {
     final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
 
     // 1. upload File Data
-    public FileUploadResponse fileUpload(MultipartFile file)
-            throws ExpectationFailedException, JsonMappingException, JsonProcessingException {
+    public FileUploadResponseDuckDb fileUpload(MultipartFile file)
+            throws ExpectationFailedException, JsonMappingException, JsonProcessingException, SQLException,
+            ClassNotFoundException {
         Path path = Paths.get(SILZILA_DIR, "tmp");
         String uploadedFileNameWithoutExtn = "";
         String savedFileName = "";
@@ -87,98 +85,106 @@ public class FileDataService {
 
         // Open file in spark to get metadata
         // first, start spark session
-        sparkService.startSparkSession();
+        // sparkService.startSparkSession();
+        duckDbService.startDuckDb();
         // calling spark service function,
         // this will have sample records & column name and type
-        FileUploadResponse fileUploadResponse = sparkService.readCsv(filePath);
+        // FileUploadResponse fileUploadResponse = sparkService.readCsv(filePath);
+        FileUploadResponseDuckDb fileUploadResponseDuckDb = duckDbService.readCsv(savedFileName);
 
         // also pass file name & dataframe name to the response
-        fileUploadResponse.setFileId(savedFileName);
-        fileUploadResponse.setName(uploadedFileNameWithoutExtn);
-        return fileUploadResponse;
+        fileUploadResponseDuckDb.setFileId(savedFileName);
+        fileUploadResponseDuckDb.setName(uploadedFileNameWithoutExtn);
+        return fileUploadResponseDuckDb;
     }
 
-    // helper function to build query from revised columns for meta data changes
-    // like change of data type or column name
-    public String buildQueryWithChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest) {
-        String query = "";
-        String alias = "";
-        List<String> columnList = new ArrayList<>();
+    // // helper function to build query from revised columns for meta data changes
+    // // like change of data type or column name
+    // public String buildQueryWithChangeSchema(FileUploadRevisedInfoRequest
+    // revisedInfoRequest) {
+    // String query = "";
+    // String alias = "";
+    // List<String> columnList = new ArrayList<>();
 
-        // iterate colummns list to check if any data type or column name change
-        for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
-            FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
+    // // iterate colummns list to check if any data type or column name change
+    // for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
+    // FileUploadRevisedColumnInfo col =
+    // revisedInfoRequest.getRevisedColumnInfos().get(i);
 
-            String colString = "";
+    // String colString = "";
 
-            /*
-             * data type conversion
-             */
+    // /*
+    // * data type conversion
+    // */
 
-            // if not data type change then use column as is
-            if (Objects.isNull(col.getNewDataType())) {
-                colString = "`" + col.getFieldName() + "`";
-            }
-            // when new data type is provided
-            else if (!Objects.isNull(col.getNewDataType())) {
-                if (col.getNewDataType().name().equals("BOOLEAN")) {
-                    colString = "BOOLEAN(`" + col.getFieldName() + "`)";
-                } else if (col.getNewDataType().name().equals("INTEGER")) {
-                    colString = "CAST(`" + col.getFieldName() + "` AS INTEGER)";
-                } else if (col.getNewDataType().name().equals("TEXT")) {
-                    colString = "STRING(`" + col.getFieldName() + "`)";
-                } else if (col.getNewDataType().name().equals("DECIMAL")) {
-                    colString = "CAST(`" + col.getFieldName() + "` AS DOUBLE)";
-                } else if (col.getNewDataType().name().equals("DATE")) {
-                    // timestamp to date
-                    if (col.getDataType().name().equals("TIMESTAMP")) {
-                        colString = "CAST(`" + col.getFieldName() + "` AS DATE)";
-                    }
-                    // other types to date
-                    else {
-                        if (!Objects.isNull(col.getFormat())) {
-                            colString = "TO_DATE(`" + col.getFieldName() + "`, '" + col.getFormat() + "')";
-                        } else {
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                    "Error: Date conversion needs date format for the column: " + col.getFieldName()
-                                            + "!");
-                        }
-                    }
-                } else if (col.getNewDataType().name().equals("TIMESTAMP")) {
-                    // date to timestamp
-                    if (col.getDataType().name().equals("DATE")) {
-                        colString = "CAST(`" + col.getFieldName() + "` AS TIMESTAMP)";
-                    }
-                    // other types to timestamp
-                    else {
-                        if (!Objects.isNull(col.getFormat())) {
-                            colString = "TO_TIMESTAMP(`" + col.getFieldName() + "`, '" + col.getFormat() + "')";
-                        } else {
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                    "Error: Timestamp conversion needs Timestamp format for the column: "
-                                            + col.getFieldName()
-                                            + "!");
-                        }
-                    }
-                }
-            }
-            /*
-             * Alias for column
-             * if not alias is given then use column name as alias
-             */
-            if (!Objects.isNull(col.getNewFieldName())) {
-                alias = "`" + col.getNewFieldName() + "`";
-            } else {
-                alias = "`" + col.getFieldName() + "`";
-            }
+    // // if not data type change then use column as is
+    // if (Objects.isNull(col.getNewDataType())) {
+    // colString = "`" + col.getFieldName() + "`";
+    // }
+    // // when new data type is provided
+    // else if (!Objects.isNull(col.getNewDataType())) {
+    // if (col.getNewDataType().name().equals("BOOLEAN")) {
+    // colString = "BOOLEAN(`" + col.getFieldName() + "`)";
+    // } else if (col.getNewDataType().name().equals("INTEGER")) {
+    // colString = "CAST(`" + col.getFieldName() + "` AS INTEGER)";
+    // } else if (col.getNewDataType().name().equals("TEXT")) {
+    // colString = "STRING(`" + col.getFieldName() + "`)";
+    // } else if (col.getNewDataType().name().equals("DECIMAL")) {
+    // colString = "CAST(`" + col.getFieldName() + "` AS DOUBLE)";
+    // } else if (col.getNewDataType().name().equals("DATE")) {
+    // // timestamp to date
+    // if (col.getDataType().name().equals("TIMESTAMP")) {
+    // colString = "CAST(`" + col.getFieldName() + "` AS DATE)";
+    // }
+    // // other types to date
+    // else {
+    // if (!Objects.isNull(col.getFormat())) {
+    // colString = "TO_DATE(`" + col.getFieldName() + "`, '" + col.getFormat() +
+    // "')";
+    // } else {
+    // throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+    // "Error: Date conversion needs date format for the column: " +
+    // col.getFieldName()
+    // + "!");
+    // }
+    // }
+    // } else if (col.getNewDataType().name().equals("TIMESTAMP")) {
+    // // date to timestamp
+    // if (col.getDataType().name().equals("DATE")) {
+    // colString = "CAST(`" + col.getFieldName() + "` AS TIMESTAMP)";
+    // }
+    // // other types to timestamp
+    // else {
+    // if (!Objects.isNull(col.getFormat())) {
+    // colString = "TO_TIMESTAMP(`" + col.getFieldName() + "`, '" + col.getFormat()
+    // + "')";
+    // } else {
+    // throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+    // "Error: Timestamp conversion needs Timestamp format for the column: "
+    // + col.getFieldName()
+    // + "!");
+    // }
+    // }
+    // }
+    // }
+    // /*
+    // * Alias for column
+    // * if not alias is given then use column name as alias
+    // */
+    // if (!Objects.isNull(col.getNewFieldName())) {
+    // alias = "`" + col.getNewFieldName() + "`";
+    // } else {
+    // alias = "`" + col.getFieldName() + "`";
+    // }
 
-            String colWithAlias = colString + " AS " + alias;
-            columnList.add(colWithAlias);
-        }
+    // String colWithAlias = colString + " AS " + alias;
+    // columnList.add(colWithAlias);
+    // }
 
-        query = "SELECT \n\t" + columnList.stream().collect(Collectors.joining(",\n\t"));
-        return query;
-    }
+    // query = "SELECT \n\t" +
+    // columnList.stream().collect(Collectors.joining(",\n\t"));
+    // return query;
+    // }
 
     // helper function to check if file data name is alreay taken
     // used to check while creating new File Data
@@ -203,64 +209,72 @@ public class FileDataService {
         }
     }
 
-    // helper function to create Schema String for given list of columns
+    // // helper function to create Schema String for given list of columns
+    // // to change data type or col name while reading CSV
+    // public String makeSchemaString(FileUploadRevisedInfoRequest
+    // revisedInfoRequest) {
+    // List<String> schemList = new ArrayList<>();
+    // String schemaString = "";
+    // // iterate list of columns
+    // for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
+    // FileUploadRevisedColumnInfo col =
+    // revisedInfoRequest.getRevisedColumnInfos().get(i);
+
+    // String colName = Objects.isNull(col.getNewFieldName()) ? col.getFieldName() :
+    // col.getNewFieldName();
+    // String silzilaDataType = Objects.isNull(col.getNewDataType()) ?
+    // col.getDataType().name().toLowerCase()
+    // : col.getNewDataType().name().toLowerCase();
+    // String sparkDataType = ConvertSparkDataType.toSparkDataType(silzilaDataType);
+    // // construct for every column. eg. "column_name data_type"
+    // schemList.add("`" + colName + "` `" + sparkDataType + "`");
+    // }
+    // // concatenate per column schema into a comma separated string
+    // schemaString = schemList.stream().collect(Collectors.joining(", "));
+    // return schemaString;
+    // }
+
+    // DUCKDB helper function to create map of col name & data type
     // to change data type or col name while reading CSV
-    public String makeSchemaString(FileUploadRevisedInfoRequest revisedInfoRequest) {
-        List<String> schemList = new ArrayList<>();
-        String schemaString = "";
+    public Map<String, String> makeColumnSchemaMap(FileUploadRevisedInfoRequest revisedInfoRequest) {
+        Map<String, String> colMap = new HashMap<String, String>();
         // iterate list of columns
         for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
             FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
 
-            String colName = Objects.isNull(col.getNewFieldName()) ? col.getFieldName() : col.getNewFieldName();
-            String silzilaDataType = Objects.isNull(col.getNewDataType()) ? col.getDataType().name().toLowerCase()
-                    : col.getNewDataType().name().toLowerCase();
-            String sparkDataType = ConvertSparkDataType.toSparkDataType(silzilaDataType);
+            String colName = col.getFieldName();
+            String silzilaDataType = col.getDataType().name().toLowerCase();
+            // String sparkDataType = ConvertSparkDataType.toSparkDataType(silzilaDataType);
+            String duckDbDataType = ConvertDuckDbDataType.toDuckDbDataType(silzilaDataType);
             // construct for every column. eg. "column_name data_type"
-            schemList.add("`" + colName + "` `" + sparkDataType + "`");
+            colMap.put(colName, duckDbDataType);
         }
-        // concatenate per column schema into a comma separated string
-        schemaString = schemList.stream().collect(Collectors.joining(", "));
-        return schemaString;
-
+        return colMap;
     }
 
     // 2. update schema for uploaded file
-    public List<JsonNode> fileUploadChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
-            throws JsonMappingException, JsonProcessingException, BadRequestException {
+    public JSONArray fileUploadChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+            throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
+            SQLException {
 
         // check in DB if file data name is already taken
         isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName());
 
-        String schemaString = makeSchemaString(revisedInfoRequest);
-        // System.out.println("SCHEMA ===================== " + schemaString);
-
-        // construct query by using helper function
-        // String query = buildQueryWithChangeSchema(revisedInfoRequest);
-        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads"
-                + "/" + "tmp" + "/" + revisedInfoRequest.getFileId();
-
-        // first, start spark session
-        sparkService.startSparkSession();
-        List<JsonNode> jsonNodes = sparkService.readCsvChangeSchema(filePath, schemaString,
-                revisedInfoRequest.getDateFormat(),
-                revisedInfoRequest.getTimestampFormat(), revisedInfoRequest.getTimestampNTZFormat());
-        return jsonNodes;
+        // start duckdb in memory
+        duckDbService.startDuckDb();
+        JSONArray jsonArray = duckDbService.readCsvChangeSchema(revisedInfoRequest);
+        return jsonArray;
     }
 
     // 3. persist uploaded file (with/witout changed schema) as parquet file to disk
     // Steps: read uploaded file + change metadata if needed
     // + save the data as Parquet file + delete uploaded file
     public FileDataDTO fileUploadSave(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
-            throws JsonMappingException, JsonProcessingException, BadRequestException {
+            throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
+            SQLException {
 
         // check in DB if file data name is already taken
         isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName());
-        // List<FileData> fileDatas = fileDataRepository.findByUserIdAndName(
-        // userId, revisedInfoRequest.getName());
-        // if (!fileDatas.isEmpty()) {
-        // throw new BadRequestException("Error: File Data Name is already taken!");
-        // }
 
         // if not exists, create folder for user - to save file
         Path path = Paths.get(SILZILA_DIR, userId);
@@ -271,19 +285,10 @@ public class FileDataService {
             throw new RuntimeException("Could not initialize folder for upload. Errorr: " + e.getMessage());
         }
 
-        String schemaString = makeSchemaString(revisedInfoRequest);
+        // start duckdb in memory
+        duckDbService.startDuckDb();
 
-        final String readFile = System.getProperty("user.home") + "/" + "silzila-uploads"
-                + "/" + "tmp" + "/" + revisedInfoRequest.getFileId();
-        final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
-                + "/" + revisedInfoRequest.getFileId() + ".parquet";
-
-        // first, start spark session
-        sparkService.startSparkSession();
-        // write to Parquet file
-        sparkService.saveFileData(readFile, writeFile, schemaString,
-                revisedInfoRequest.getDateFormat(),
-                revisedInfoRequest.getTimestampFormat(), revisedInfoRequest.getTimestampNTZFormat());
+        duckDbService.writeToParquet(revisedInfoRequest, userId);
 
         // save metadata to DB and return as response
         String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
@@ -299,6 +304,8 @@ public class FileDataService {
                 fileData.getName());
 
         // delete the read file which was uploaded by user
+        final String readFile = System.getProperty("user.home") + "/" + "silzila-uploads"
+                + "/" + "tmp" + "/" + revisedInfoRequest.getFileId();
         try {
             Files.deleteIfExists(Paths.get(readFile));
         } catch (IOException e) {
@@ -326,8 +333,9 @@ public class FileDataService {
     }
 
     // get sample records
-    public List<JsonNode> getSampleRecords(String id, String userId)
-            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, BadRequestException {
+    public JSONArray getSampleRecords(String id, String userId)
+            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, BadRequestException,
+            ClassNotFoundException, SQLException {
         // if no file data inside optional wrapper, then send NOT FOUND Error
         Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
         if (!fdOptional.isPresent()) {
@@ -342,15 +350,16 @@ public class FileDataService {
             throw new BadRequestException("Error: File not exists!");
         }
 
-        // first, start spark session
-        sparkService.startSparkSession();
-        List<JsonNode> jsonNodes = sparkService.getSampleRecords(parquetFilePath);
-        return jsonNodes;
+        // start duckdb in memory
+        duckDbService.startDuckDb();
+        JSONArray jsonArray = duckDbService.getSampleRecords(parquetFilePath);
+        return jsonArray;
     }
 
     // get sample records
-    public List<FileUploadColumnInfo> getColumns(String id, String userId)
-            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, BadRequestException {
+    public List<Map<String, Object>> getColumns(String id, String userId)
+            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, BadRequestException,
+            ClassNotFoundException, SQLException {
         // if no file data inside optional wrapper, then send NOT FOUND Error
         Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
         if (!fdOptional.isPresent()) {
@@ -364,11 +373,10 @@ public class FileDataService {
         if (Files.notExists(Paths.get(parquetFilePath))) {
             throw new BadRequestException("Error: File not exists!");
         }
-
-        // first, start spark session
-        sparkService.startSparkSession();
-        List<FileUploadColumnInfo> columnInfos = sparkService.getColumns(parquetFilePath);
-        return columnInfos;
+        // start duckdb in memory
+        duckDbService.startDuckDb();
+        List<Map<String, Object>> metaList = duckDbService.getColumnMetaData(parquetFilePath);
+        return metaList;
     }
 
     // Delete File Data
@@ -400,111 +408,9 @@ public class FileDataService {
         fileDataRepository.deleteById(id);
     }
 
-    // A. update schema of file data
-    // same request json of file upload change schema
-    // but file data id instead of actual file id
-    public List<JsonNode> fileDataChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
-            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
-
-        // get the physical file id from file data id
-        // if no file data inside optional wrapper, then send NOT FOUND Error
-        Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(revisedInfoRequest.getFileId(), userId);
-        if (!fdOptional.isPresent()) {
-            throw new RecordNotFoundException("Error: No such File Data Id exists!");
-        }
-        FileData fileData = fdOptional.get();
-
-        // if file not exists, throw error:
-        final String parquetFilePath = System.getProperty("user.home") + "/" + "silzila-uploads"
-                + "/" + userId + "/" + fileData.getFileName();
-        if (Files.notExists(Paths.get(parquetFilePath))) {
-            throw new BadRequestException("Error: File not exists!");
-        }
-
-        // check if file data name is already taken other than self
-        isFileDataNameTakenOtherThanSelf(fileData.getId(), userId, revisedInfoRequest.getName());
-
-        // construct query by using helper function
-        String query = buildQueryWithChangeSchema(revisedInfoRequest);
-        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads"
-                + "/" + userId + "/" + fileData.getFileName();
-
-        // first, start spark session
-        sparkService.startSparkSession();
-        // get temp. updated schema
-        List<JsonNode> jsonNodes = sparkService.readParquetChangeSchema(filePath, query);
-        return jsonNodes;
-    }
-
-    // B. Udate Parque file with the changed Schema
-    // this creates new Parquet file with changed schema and deletes old file
-    public FileDataDTO fileDataSaveWithSchemaUpdate(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
-            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
-
-        // get the physical file id from file data id
-        // if no file data inside optional wrapper, then send NOT FOUND Error
-        Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(revisedInfoRequest.getFileId(), userId);
-        if (!fdOptional.isPresent()) {
-            throw new RecordNotFoundException("Error: No such File Data Id exists!");
-        }
-        FileData fileData = fdOptional.get();
-
-        // check if file data name is already taken other than self
-        isFileDataNameTakenOtherThanSelf(fileData.getId(), userId, revisedInfoRequest.getName());
-
-        final String readFilePath = System.getProperty("user.home") + "/" + "silzila-uploads"
-                + "/" + userId + "/" + fileData.getFileName();
-        final String newFileName = UUID.randomUUID().toString() + ".parquet";
-        final String writeFilePath = System.getProperty("user.home") + "/" + "silzila-uploads"
-                + "/" + userId + "/" + newFileName;
-
-        // if file not exists, throw error:
-        if (Files.notExists(Paths.get(readFilePath))) {
-            throw new BadRequestException("Error: File not exists!");
-        }
-
-        // check in DB if file data name is already taken
-        // isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName());
-
-        // construct query by using helper function
-        String query = buildQueryWithChangeSchema(revisedInfoRequest);
-
-        // first, start spark session
-        sparkService.startSparkSession();
-        // write to new Parquet file
-        sparkService.updateParquetChangeSchema(readFilePath, writeFilePath, query);
-
-        // delete the Old Parquet File from file system
-        try {
-            // if Parquet folder exists then delete contents and the folder
-            if (Files.exists(Paths.get(readFilePath))) {
-                // traverse the folder and delete
-                Files.walk(Paths.get(readFilePath))
-                        .sorted(Comparator.reverseOrder())
-                        .map(Path::toFile)
-                        .forEach(File::delete);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Update the new file name & new physical file name in DB
-        fileData.setName(revisedInfoRequest.getName());
-        fileData.setFileName(newFileName);
-        fileDataRepository.save(fileData);
-
-        // return response
-        FileDataDTO fileDataDTO = new FileDataDTO(
-                fileData.getId(),
-                fileData.getUserId(),
-                fileData.getName());
-        return fileDataDTO;
-
-    }
-
     // HELPER FUNCTION - read all file datas with file name
     public void getFileNameFromFileId(String userId, List<Table> tableObjList)
-            throws BadRequestException {
+            throws BadRequestException, SQLException, ClassNotFoundException {
         List<FileData> fileDataList;
         // first try to get all file datas for a user from cache
         if (usersFileDatas.containsKey(userId)) {
@@ -515,7 +421,8 @@ public class FileDataService {
             fileDataList = fileDataRepository.findByUserId(userId);
         }
 
-        sparkService.createDfForFlatFiles(userId, tableObjList, fileDataList);
+        // sparkService.createDfForFlatFiles(userId, tableObjList, fileDataList);
+        duckDbService.createViewForFlatFiles(userId, tableObjList, fileDataList);
 
     }
 

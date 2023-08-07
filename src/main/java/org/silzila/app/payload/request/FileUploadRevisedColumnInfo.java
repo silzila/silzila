@@ -23,14 +23,14 @@ public class FileUploadRevisedColumnInfo implements Serializable {
 
     @JsonProperty("fieldName")
     private String fieldName;
-    @JsonProperty("newFieldName")
-    private String newFieldName;
+    // @JsonProperty("newFieldName")
+    // private String newFieldName;
     @JsonProperty("dataType")
     private FileUploadRevisedColumnInfo.DataType dataType;
-    @JsonProperty("newDataType")
-    private FileUploadRevisedColumnInfo.NewDataType newDataType;
-    @JsonProperty("format")
-    private String format;
+    // @JsonProperty("newDataType")
+    // private FileUploadRevisedColumnInfo.NewDataType newDataType;
+    // @JsonProperty("format")
+    // private String format;
     private final static long serialVersionUID = -4018176502088620701L;
 
     /**
@@ -48,15 +48,15 @@ public class FileUploadRevisedColumnInfo implements Serializable {
      * @param newFieldName
      * @param newDataType
      */
-    public FileUploadRevisedColumnInfo(String fieldName, String newFieldName,
-            FileUploadRevisedColumnInfo.DataType dataType, FileUploadRevisedColumnInfo.NewDataType newDataType,
-            String format) {
+    public FileUploadRevisedColumnInfo(String fieldName, FileUploadRevisedColumnInfo.DataType dataType
+    // , FileUploadRevisedColumnInfo.NewDataType newDataType, String format
+    ) {
         super();
         this.fieldName = fieldName;
-        this.newFieldName = newFieldName;
+        // this.newFieldName = newFieldName;
         this.dataType = dataType;
-        this.newDataType = newDataType;
-        this.format = format;
+        // this.newDataType = newDataType;
+        // this.format = format;
     }
 
     @JsonProperty("fieldName")
@@ -69,15 +69,15 @@ public class FileUploadRevisedColumnInfo implements Serializable {
         this.fieldName = fieldName;
     }
 
-    @JsonProperty("newFieldName")
-    public String getNewFieldName() {
-        return newFieldName;
-    }
+    // @JsonProperty("newFieldName")
+    // public String getNewFieldName() {
+    // return newFieldName;
+    // }
 
-    @JsonProperty("newFieldName")
-    public void setNewFieldName(String newFieldName) {
-        this.newFieldName = newFieldName;
-    }
+    // @JsonProperty("newFieldName")
+    // public void setNewFieldName(String newFieldName) {
+    // this.newFieldName = newFieldName;
+    // }
 
     @JsonProperty("dataType")
     public FileUploadRevisedColumnInfo.DataType getDataType() {
@@ -89,25 +89,26 @@ public class FileUploadRevisedColumnInfo implements Serializable {
         this.dataType = dataType;
     }
 
-    @JsonProperty("newDataType")
-    public FileUploadRevisedColumnInfo.NewDataType getNewDataType() {
-        return newDataType;
-    }
+    // @JsonProperty("newDataType")
+    // public FileUploadRevisedColumnInfo.NewDataType getNewDataType() {
+    // return newDataType;
+    // }
 
-    @JsonProperty("newDataType")
-    public void setNewDataType(FileUploadRevisedColumnInfo.NewDataType newDataType) {
-        this.newDataType = newDataType;
-    }
+    // @JsonProperty("newDataType")
+    // public void setNewDataType(FileUploadRevisedColumnInfo.NewDataType
+    // newDataType) {
+    // this.newDataType = newDataType;
+    // }
 
-    @JsonProperty("format")
-    public String getFormat() {
-        return format;
-    }
+    // @JsonProperty("format")
+    // public String getFormat() {
+    // return format;
+    // }
 
-    @JsonProperty("format")
-    public void setFormat(String format) {
-        this.format = format;
-    }
+    // @JsonProperty("format")
+    // public void setFormat(String format) {
+    // this.format = format;
+    // }
 
     @Override
     public String toString() {
@@ -118,22 +119,22 @@ public class FileUploadRevisedColumnInfo implements Serializable {
         sb.append('=');
         sb.append(((this.fieldName == null) ? "<null>" : this.fieldName));
         sb.append(',');
-        sb.append("newFieldName");
-        sb.append('=');
-        sb.append(((this.newFieldName == null) ? "<null>" : this.newFieldName));
-        sb.append(',');
+        // sb.append("newFieldName");
+        // sb.append('=');
+        // sb.append(((this.newFieldName == null) ? "<null>" : this.newFieldName));
+        // sb.append(',');
         sb.append("dataType");
         sb.append('=');
         sb.append(((this.dataType == null) ? "<null>" : this.dataType));
         sb.append(',');
-        sb.append("newDataType");
-        sb.append('=');
-        sb.append(((this.newDataType == null) ? "<null>" : this.newDataType));
-        sb.append(',');
-        sb.append("format");
-        sb.append('=');
-        sb.append(((this.format == null) ? "<null>" : this.format));
-        sb.append(',');
+        // sb.append("newDataType");
+        // sb.append('=');
+        // sb.append(((this.newDataType == null) ? "<null>" : this.newDataType));
+        // sb.append(',');
+        // sb.append("format");
+        // sb.append('=');
+        // sb.append(((this.format == null) ? "<null>" : this.format));
+        // sb.append(',');
         if (sb.charAt((sb.length() - 1)) == ',') {
             sb.setCharAt((sb.length() - 1), ']');
         } else {
@@ -187,49 +188,51 @@ public class FileUploadRevisedColumnInfo implements Serializable {
 
     }
 
-    @Generated("jsonschema2pojo")
-    public enum NewDataType {
+    // @Generated("jsonschema2pojo")
+    // public enum NewDataType {
 
-        TEXT("text"),
-        INTEGER("integer"),
-        DECIMAL("decimal"),
-        BOOLEAN("boolean"),
-        DATE("date"),
-        TIMESTAMP("timestamp");
+    // TEXT("text"),
+    // INTEGER("integer"),
+    // DECIMAL("decimal"),
+    // BOOLEAN("boolean"),
+    // DATE("date"),
+    // TIMESTAMP("timestamp");
 
-        private final String value;
-        private final static Map<String, FileUploadRevisedColumnInfo.NewDataType> CONSTANTS = new HashMap<String, FileUploadRevisedColumnInfo.NewDataType>();
+    // private final String value;
+    // private final static Map<String, FileUploadRevisedColumnInfo.NewDataType>
+    // CONSTANTS = new HashMap<String, FileUploadRevisedColumnInfo.NewDataType>();
 
-        static {
-            for (FileUploadRevisedColumnInfo.NewDataType c : values()) {
-                CONSTANTS.put(c.value, c);
-            }
-        }
+    // static {
+    // for (FileUploadRevisedColumnInfo.NewDataType c : values()) {
+    // CONSTANTS.put(c.value, c);
+    // }
+    // }
 
-        NewDataType(String value) {
-            this.value = value;
-        }
+    // NewDataType(String value) {
+    // this.value = value;
+    // }
 
-        @Override
-        public String toString() {
-            return this.value;
-        }
+    // @Override
+    // public String toString() {
+    // return this.value;
+    // }
 
-        @JsonValue
-        public String value() {
-            return this.value;
-        }
+    // @JsonValue
+    // public String value() {
+    // return this.value;
+    // }
 
-        @JsonCreator
-        public static FileUploadRevisedColumnInfo.NewDataType fromValue(String value) {
-            FileUploadRevisedColumnInfo.NewDataType constant = CONSTANTS.get(value);
-            if (constant == null) {
-                throw new IllegalArgumentException(value);
-            } else {
-                return constant;
-            }
-        }
+    // @JsonCreator
+    // public static FileUploadRevisedColumnInfo.NewDataType fromValue(String value)
+    // {
+    // FileUploadRevisedColumnInfo.NewDataType constant = CONSTANTS.get(value);
+    // if (constant == null) {
+    // throw new IllegalArgumentException(value);
+    // } else {
+    // return constant;
+    // }
+    // }
 
-    }
+    // }
 
 }
