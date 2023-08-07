@@ -96,7 +96,12 @@ const EditFlatFileData = ({
 		if (result.status) {
 			setEditApiResponse("sampleRecordes", result.data);
 		} else {
-			console.log("error");
+			setOpenAlert(true);
+			setSeverity("error");
+			setTestMessage(result.data.message);
+			setTimeout(() => {
+				setOpenAlert(false);
+			}, 3000);
 		}
 	};
 
@@ -129,11 +134,12 @@ const EditFlatFileData = ({
 				resetFlatFileState();
 			}, 3000);
 		} else {
-			if (result.data.message === "Job aborted.") {
-				window.alert(
-					"Upload failed: Please make sure all the dataTypes(like date,timestamp) are correct"
-				);
-			}
+			setOpenAlert(true);
+			setSeverity("error");
+			setTestMessage(result.data.message);
+			setTimeout(() => {
+				setOpenAlert(false);
+			}, 3000);
 		}
 	};
 
