@@ -118,7 +118,7 @@ export const updateTitleOptionsFordm = (
 		payload: { tabId, tileId, dmPropKey, option, value },
 	};
 };
-export const onCheckorUncheckOnDm1 = (dmId: number, value: boolean) => {
+export const onCheckorUncheckOnDm1 = (dmId: string, value: boolean) => {
 	return {
 		type: "ON_CHECK_ON_DYNAMIC_MEASURE",
 		payload: { dmId, value },
@@ -134,7 +134,7 @@ export const changeDynamicMeasureOption = (value: any) => {
 // updateRichTextOnAddingDYnamicMeasure;
 
 export const onCheckorUncheckOnDm = (
-	dmId: number,
+	dmId: string,
 	value: boolean,
 	propKey: string,
 	dmValue: any,
@@ -142,19 +142,20 @@ export const onCheckorUncheckOnDm = (
 ) => {
 	return (dispatch: Dispatch<any>) => {
 		console.log(styleObj.textUnderline);
-		dispatch(onCheckorUncheckOnDm1(dmId, value));
-		if (value) {
-			var text = ``;
-			if (styleObj.textUnderline === "none") {
-				text = `<span style="background-color:${styleObj.backgroundColor};color:${styleObj.fontColor};font-weight:${styleObj.boldText};font-style:${styleObj.italicText};">${dmValue}</span>`;
-			} else {
-				text = `<span style="background-color:${styleObj.backgroundColor};color:${styleObj.fontColor};font-weight:${styleObj.boldText};font-style:${styleObj.italicText};"><u>${dmValue}</u></span>`;
-			}
 
-			dispatch(updateRichTextOnAddingDYnamicMeasure(propKey,value, text, dmId));
+		dispatch(onCheckorUncheckOnDm1(dmId.toString().replace("RichTextID",""), value));
+		if (value) {
+			// var text = ``;
+			// if (styleObj.textUnderline === "none") {
+			// 	text = `<span style="background-color:${styleObj.backgroundColor};color:${styleObj.fontColor};font-weight:${styleObj.boldText};font-style:${styleObj.italicText};">${dmValue}</span>`;
+			// } else {
+			// 	text = `<span style="background-color:${styleObj.backgroundColor};color:${styleObj.fontColor};font-weight:${styleObj.boldText};font-style:${styleObj.italicText};"><u>${dmValue}</u></span>`;
+			// }
+
+			dispatch(updateRichTextOnAddingDYnamicMeasure(propKey, value, dmValue, styleObj, dmId));
 		}
 		else{
-			dispatch(updateRichTextOnAddingDYnamicMeasure(propKey,value, dmValue, dmId));
+			dispatch(updateRichTextOnAddingDYnamicMeasure(propKey, value, dmValue,  null, dmId));
 		}
 
 	};

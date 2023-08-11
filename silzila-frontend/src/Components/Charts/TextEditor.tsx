@@ -1,89 +1,23 @@
-import { useEffect, useState, useRef } from "react";
-import ReactQuill  from "react-quill";
+
 import "react-quill/dist/quill.snow.css";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { updateRichText, updateRichTextOnAddingDYnamicMeasure } from "../../redux/ChartPoperties/ChartControlsActions";
+import { updateRichText, updateRichTextOnAddingDYnamicMeasure,clearRichText } from "../../redux/ChartPoperties/ChartControlsActions";
 import { addMeasureInTextEditor } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import {onCheckorUncheckOnDm} from '../../redux/DynamicMeasures/DynamicMeasuresActions'
+import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react'
+import { Editor, Transforms, Range, createEditor, Descendant } from 'slate'
+import {
+  Slate,
+  Editable,
+  ReactEditor,
+  withReact,
+  useSelected,
+  useFocused, 
+} from 'slate-react';
 
-
-interface textEditorInterface {
-	onMouseDown: () => void;
-}
-
-const Quill = ReactQuill.Quill;
-var Embed = Quill.import('blots/embed');
-
-class Mention extends Embed {
-    static create(value:any) {
-        let node = super.create(value);
-		node.id = value.measureValue.id;
-        node.innerHTML = value.measureValue.value + " ";
-        //node.setAttribute('data-measure-value', value.measureValue.value);
-        node.setAttribute('data-propKey', value.propKey);	
-		this._addRemovalButton(node, value.onCheckorUncheckOnDm);
-		node.style.outline = "1px solid grey";
-        return node;
-    }
-
-    // static value(domNode:any) {
-    //     return {
-    //         measureValue: domNode.getAttribute('data-measure-value')
-    //     }
-    // }
-
-	static _addRemovalButton(node:any, onCheckorUncheckOnDm:any) {
-		const button = document.createElement('button');
-		button.innerText = 'x';
-		button.onclick = (args) => { 
-			console.log(args);
-			console.log(node.id);
-			onCheckorUncheckOnDm(node.id, false, node.getAttribute("data-propKey"),0,{});
-			node.remove(); 
-		}
-	//	button.contentEditable = 'false';
-		node.appendChild(button);
-	
-		// const span = document.createElement('span');
-		// span.innerText = ' ';
-		// node.appendChild(span);
-	  }
-}
-
-Mention.blotName = 'mention';
-Mention.className = 'mention';
-Mention.tagName = 'LABEL';
-
-Quill.register({
-    'formats/mention': Mention
-});
-
-
-const modules = {
-	toolbar: [
-		[{ font: [] }],
-		[{ header: [1, 2, 3, 4, 5, 6, false] }],
-		["bold", "italic", "underline", "strike"],
-		[{ color: [] }, { background: [] }],
-		[{ script: "sub" }, { script: "super" }],
-		["blockquote", "code-block"],
-		[{ list: "ordered" }, { list: "bullet" }],
-		[{ indent: "-1" }, { indent: "+1" }, { align: [] }],
-		["link", "image", "video"],
-		["link"],
-		["clean"],
-	],
-	clipboard: {
-		matchVisual: false,
-	},
-};
-
-const dashboardModules = {
-	clipboard: {
-		matchVisual: false,
-	},
-};
+//import { Portal } from '../components'
+//import { MentionElement } from './custom-types'
 
 const TextEditor = ({
 	propKey,
@@ -98,77 +32,210 @@ const TextEditor = ({
 	onMouseDown,
 	dynamicMeasureState,
 	addMeasureInTextEditor,
-	updateRichTextOnAddingDYnamicMeasure
-}: textEditorInterface & any) => {
+	updateRichTextOnAddingDYnamicMeasure,
+  clearRichText
+}:  any) => {
+  const ref:any = useRef<HTMLDivElement | null>()
+  const [target, setTarget] = useState<Range | undefined>()
+  const [index, setIndex] = useState(0)
+  const [search, setSearch] = useState('')
+  const renderElement = useCallback((props:any) => <Element {...props} />, [])
+  const renderLeaf = useCallback((props:any) => <Leaf {...props} />, [])
+  const editor = useMemo(
+    () => withMentions(withReact(createEditor())),
+    []
+  )
 
-	const thisEditor = useRef(null);
-	const [value, setValue] = useState(chartProp.properties[propKey].richText);
-  
-	const inserMention = (thisEditor:any, measureVal:string) => {
-	  const editor = thisEditor.getEditor();
-	   let range = editor.getSelection();
-	   let position = range ? range.index : 0;
 
-	  var cObj:any = {measureValue : measureVal};
-	  cObj["onCheckorUncheckOnDm"] = onCheckorUncheckOnDm;
-	  cObj["propKey"] = propKey;
-	  editor.insertEmbed(position,"mention",cObj);
-	}
+  const [value, setValue] = useState(chartProp.properties[propKey]?.richText?.text || []);
 
-	useEffect(() => {
+  useEffect(() => {
 		updateRichText(propKey, value);
 		//updateRichTextOnAddingDYnamicMeasure(propKey, "");
 	}, [value]);
 
 	useEffect(() => {
-		setValue(chartProp.properties[propKey].richText);
+    // let totalNodes = editor.children.length;
+
+    // for (let i = 0; i < totalNodes - 1; i++) {
+    //   Transforms.removeNodes(editor, {
+    //       at: [totalNodes-i-1],
+    //   });
+    // }
+
+		setValue(chartProp.properties[propKey]?.richText?.text ||[]);
 	}, [chartProp.properties[propKey].richText]);
 
 	useEffect(() => {
-		if(chartProp.properties[propKey].measureValue.value !== "")
+		if(chartProp.properties[propKey].measureValue?.id !== "")
 		{
+      clearRichText(propKey);
+
 			let _measureValueCopy =  Object.assign({}, chartProp.properties[propKey]); 
-			inserMention(thisEditor.current, _measureValueCopy.measureValue);
+      if(_measureValueCopy && _measureValueCopy.measureValue && _measureValueCopy.measureValue.value)
+      {
+
+        let _object:any =  {
+          type: "mention",
+          character:  _measureValueCopy.measureValue?.value?.text,
+          children: [{ text: '' }],
+          measureStyle: _measureValueCopy.measureValue.value?.style,
+          id:_measureValueCopy.measureValue.id,
+          propKey:propKey,
+          onCheckorUncheckOnDm: onCheckorUncheckOnDm
+        }
+
+        Transforms.insertNodes(editor,[_object]);
+        Transforms.move(editor)
+      }
+     
+			//inserMention(thisEditor.current, _measureValueCopy.measureValue);
 		}
-	}, [chartProp.properties[propKey].measureValue]);
+	}, [chartProp.properties[propKey].measureValue?.id]);
 
-	return (
-		<>
-			{!tabTileProps.showDash ? (
-				<ReactQuill
-					ref={thisEditor}
-					modules={modules}
-					onChange={setValue}
-					// value={delta}
-					value={value}
-					style={{ height: "90%" }}
-					theme="snow"
-					placeholder="Content goes here...."
-				/>
-			) : (
-				<ReactQuill
-					modules={dashboardModules}
-					readOnly={true}
-					value={value}
-					theme="bubble"
-					style={{
-						padding: "5px",
-						width: graphDimension.width,
+  const chars:any =[];
 
-						height: graphDimension.height,
-						overflow: "hidden",
-						margin: "auto",
-						border: chartArea
-							? "none"
-							: graphTileSize
-							? "none"
-							: "1px solid rgb(238,238,238)",
-					}}
-				/>
-			)}
-		</>
-	);
-};
+  // useEffect(() => {
+  //   if (target && chars.length > 0) {
+  //     const el:any = ref.current
+  //     const domRange = ReactEditor.toDOMRange(editor, target)
+  //     const rect = domRange.getBoundingClientRect()
+  //     el.style.top = `${rect.top + window.pageYOffset + 24}px`
+  //     el.style.left = `${rect.left + window.pageXOffset}px`
+  //   }
+  // }, [chars.length, editor, index, search, target])
+
+  return (
+    <Slate
+      editor={editor}
+      initialValue={value}
+      onChange={(val) => {
+        //const { selection } = editor
+        updateRichText(propKey, val);
+       // setTarget(null)
+      }}
+    >
+      <Editable
+        value={value}
+        renderElement={renderElement}
+        renderLeaf={renderLeaf}
+        placeholder="Enter some text..."
+        style={{"height":"200px"}}
+      />
+    </Slate>
+  )
+}
+
+const withMentions = (editor:any) => {
+  const { isInline, isVoid, markableVoid } = editor
+
+  editor.isInline = (element:any) => {
+    return element.type === 'mention' ? true : isInline(element)
+  }
+
+  editor.isVoid = (element:any) => {
+    return element.type === 'mention' ? true : isVoid(element)
+  }
+
+  editor.markableVoid = (element:any) => {
+    return element.type === 'mention' || markableVoid(element)
+  }
+
+  return editor
+}
+
+const insertMention = (editor:any, character:any) => {
+  const mention: any = {
+    type: 'mention',
+    character,
+    children: [{ text: '' }],
+  }
+  Transforms.insertNodes(editor, mention)
+  Transforms.move(editor)
+}
+
+// Borrow Leaf renderer from the Rich Text example.
+// In a real project you would get this via `withRichText(editor)` or similar.
+const Leaf = ({ attributes, children, leaf }:any) => {
+  if (leaf.bold) {
+    children = <strong>{children}</strong>
+  }
+
+  if (leaf.code) {
+    children = <code>{children}</code>
+  }
+
+  if (leaf.italic) {
+    children = <em>{children}</em>
+  }
+
+  if (leaf.underline) {
+    children = <u>{children}</u>
+  }
+
+  return <span {...attributes}>{children}</span>
+}
+
+const Element = (props:any) => {
+  const { attributes, children, element } = props
+  switch (element.type) {
+    case 'mention':
+      return <Mention {...props} />
+    default:
+      return <div {...attributes}>{children}</div>
+  }
+}
+
+const Mention = ({ attributes, children, element }:any) => {
+  const ref:any = useRef<HTMLDivElement | null>()
+
+  const selected = useSelected()
+  const focused = useFocused()
+  const style: any = {
+    padding: '3px 3px 2px',
+    margin: '0 1px',
+    verticalAlign: 'baseline',
+    display: 'inline-block',
+    borderRadius: '4px',
+    backgroundColor: '#eee',
+    fontSize: '0.9em',
+    boxShadow: selected && focused ? '0 0 0 2px #B4D5FF' : 'none',
+  }
+  // See if our empty text child has any styling marks applied and apply those
+  if (element.children[0].bold) {
+    style.fontWeight = 'bold'
+  }
+  if (element.children[0].italic) {
+    style.fontStyle = 'italic'
+  }
+
+  Object.keys(element.measureStyle).forEach(_key=>{
+    style[_key] = element.measureStyle[_key];
+  })
+
+  return (
+    <div ref={ref} id={element.id} data-propkey={element.propKey} style={{"display":"inline"}}>
+    <span 
+      {...attributes}
+      contentEditable={false}
+      data-cy={`mention-${element.character.replace(' ', '-')}`}
+      style={style}
+    >
+      {element.character}
+      {children}
+    </span>
+    <button  contentEditable={false} onClick={(e)=>{
+      ref.current?.remove();
+      if(element.onCheckorUncheckOnDm){
+        let _parentDiv:any = e.currentTarget.closest('[data-propkey]') || {};
+
+        element.onCheckorUncheckOnDm(_parentDiv.id, false, _parentDiv.getAttribute("data-propkey"),0,{});
+      }
+      }}><span  contentEditable={false}>X</span></button>
+    </div>
+  )
+}
+
 
 const mapStateToProps = (state: any) => {
 	return {
@@ -185,16 +252,17 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		addMeasureInTextEditor: (propKey: string, chartValue: any) =>
 			dispatch(addMeasureInTextEditor(propKey, chartValue)),
 		onCheckorUncheckOnDm: (
-				dmId: number,
+				dmId: string,
 				value: boolean,
 				propKey: string,
 				dmValue: any,
 				styleObj: any
 			) => dispatch(onCheckorUncheckOnDm(dmId, value, propKey, dmValue, styleObj)),
+    clearRichText: (propKey: string) =>
+			dispatch(clearRichText(propKey))
 		// updateRichTextOnAddingDYnamicMeasure: (propKey: string, value: string) =>
 		// 	dispatch(updateRichTextOnAddingDYnamicMeasure(propKey,value))
 	};
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TextEditor);
-
