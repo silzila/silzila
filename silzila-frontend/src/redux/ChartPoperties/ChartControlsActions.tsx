@@ -301,3 +301,29 @@ export const updateCardControls = (propKey: string, option: string, value: any) 
 export const clearRichText = (propKey: string) => {
 	return { type: "CLEAR_RICH_TEXT", payload: { propKey } };
 };
+export const addTableConditionalFormats = (propKey: string, item: any) => {
+	return { type: "ADD_TABLE_CONDITIONAL_FORMATS", payload: { propKey, item } };
+};
+export const deleteTablecf = (propKey: string, index: number) => {
+	return { type: "DELETE_TABLE_CONDITIONAL_FORMATS", payload: { propKey, index } };
+};
+export const updatecfObjectOptions = (propKey: string, index: number, item: any) => {
+	return { type: "UPDATE_CF_OBJECT1", payload: { propKey, index, item } };
+};
+export const updateRuleObjectOptions = (
+	propKey: string,
+	objectIndex: number,
+	itemIndex: number,
+	item: any
+) => {
+	return { type: "UPDATE_RULE_OBJECT", payload: { propKey, objectIndex, itemIndex, item } };
+};
+
+//new code
+export const addTableLabel = (propKey: string, item: any) => {
+	return { type: "ADD_TABLE_CONDITIONAL_FORMATS", payload: { propKey, item } };
+};
+
+export const updatecfObjectOptions1 = (propKey: string, item: any) => {
+	return { type: "UPDATE_CF_OBJECT", payload: { propKey, item } };
+};

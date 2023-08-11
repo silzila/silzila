@@ -24,9 +24,10 @@ import { DatasetItem, UserTableProps } from "../../redux/DataSet/DatasetStateInt
 import DataConnectionListPopover from "../CommonFunctions/PopOverComponents/DataConnectionListPopover";
 import AddIcon from "@mui/icons-material/Add";
 import SchemaOutlinedIcon from "@mui/icons-material/SchemaOutlined";
-import { SaveButtons } from "../DataConnection/ConfirmFlatFileData";
+
 import ShortUniqueId from "short-unique-id";
 import { AlertColor } from "@mui/material/Alert";
+import { SaveButtons } from "../DataConnection/muiStyles";
 
 const DataSetList = ({
 	// state
