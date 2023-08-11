@@ -64,18 +64,7 @@ const FlatFileList = (props: any) => {
 			//console.log(result.detail);
 		}
 	};
-	const getColumnInfos = (data: any) => {
-		const mappedColumnInfos = data.map((el: any) => {
-			return {
-				fieldName: el.fieldName,
-				dataType: el.dataType,
-				newFieldName: el.fieldName,
-				newDataType: el.dataType,
-				columnExcluded: false,
-			};
-		});
-		return mappedColumnInfos;
-	};
+
 	const onEditFlatFile = async (file: any) => {
 		var result: any = await FetchData({
 			requestType: "noData",
@@ -96,10 +85,9 @@ const FlatFileList = (props: any) => {
 				var fileObj = {
 					fileId: file.id,
 					name: file.name,
-					dateFormat: "yyyy-MM-dd",
-					timestampFormat: "yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]",
-					timestampNTZFormat: "yyyy-MM-dd'T'HH:mm:ss[.SSS]",
-					columnInfos: getColumnInfos(result.data),
+					dateFormat: file.dateFormat,
+					timestampFormat: file.timestampFormat,
+					columnInfos: result.data,
 					sampleRecords: result2.data,
 				};
 				console.log(fileObj);
@@ -153,7 +141,7 @@ const FlatFileList = (props: any) => {
 										<div className="dataConnectionName">{fi.name}</div>
 										{xprops.open ? (
 											<Tooltip
-												title="Delete playbook"
+												title="Delete Flatfile"
 												arrow
 												placement="right-start"
 											>

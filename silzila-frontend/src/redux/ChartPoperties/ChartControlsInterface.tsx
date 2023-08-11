@@ -20,6 +20,7 @@ export interface ChartControlsProps {
 	labelOptions: ChartConLabelOptions;
 	formatOptions: ChartConFormateOptions;
 	axisOptions: ChartConAxisOptions;
+	tableConditionalFormats: any;
 
 	mouseOver: {
 		enable: boolean;

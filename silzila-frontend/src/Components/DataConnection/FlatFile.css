@@ -161,7 +161,9 @@ input[id="columnName"] {
 .formatElm {
     flex: 1;
     display: flex;
+    gap:2px;
     max-height: 28px;
+    
 }
 
 .buttonContainer{
@@ -170,10 +172,9 @@ input[id="columnName"] {
             width: 90%;
             margin:1rem auto;
            
-            justify-content: flex-end;
-        /*  width: 500px;
-            margin: 0 auto;
-            padding: 2rem; */
+            justify-content: right;
+            gap:15px;
+       
 }
 
 /* final flatfile data */
@@ -183,4 +184,30 @@ input[id="columnName"] {
             height: 100vh;
             padding: 2rem;
             width: 100vw;
+}
+
+
+
+
+
+
+/*&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&*/
+.ffTableDiv{
+    flex: 1;
+            height: 500px;
+            width:90%;
+            margin: 1rem auto;
+}
+
+
+
+.ffTablecellDiv{
+    display: flex;
+            justify-content: space-between;
+    
+            margin-bottom: 10px;
+}
+.ffDialogTablecell{
+    font-weight: bold;
+            background-color: #e8eaf6;
 }
