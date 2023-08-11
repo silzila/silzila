@@ -24,7 +24,7 @@ const ChartControlObjects = ({
 		]?.[
 			`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
 		];
-	const richTextOptionList: string[] = ["Format", "Style", "Conditional Formating"];
+	const richTextOptionList: string[] = ["Format", "Style", "Conditional Formatting"];
 
 	const barOptionsList: string[] = [
 		"Title",
@@ -89,6 +89,13 @@ const ChartControlObjects = ({
 		"Style",
 	];
 	const simpleCardOptionList: string[] = ["Title", "Colors", "Format", "Style"];
+	const tableOptionList: string[] = [
+		"Title",
+		"Tooltip",
+		"Style",
+		"Format",
+		"Conditional Formatting",
+	];
 
 	const RenderOptions: any = () => {
 		switch (selectedChart) {
@@ -236,6 +243,21 @@ const ChartControlObjects = ({
 				});
 
 			case "table":
+				return tableOptionList.map(option => {
+					return (
+						<div
+							key={option}
+							className={
+								chartProp.properties[propKey].chartOptionSelected === option
+									? "optionImageSelected"
+									: "optionImage"
+							}
+							onClick={() => changeChartOption(propKey, option)}
+						>
+							{option}
+						</div>
+					);
+				});
 			case "crossTab":
 				return crossTabOptionList.map(option => {
 					return (

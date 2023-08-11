@@ -337,6 +337,13 @@ const chartControl = {
 					maxValue: 10000,
 				},
 			},
+
+			tableLabel: [],
+			tableGradient: [],
+			tableRule: [],
+
+			tableConditionalFormats: [],
+			tableConditionalRules: [],
 		},
 	},
 
@@ -1426,6 +1433,81 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 					},
 				},
 			});
+		case "ADD_TABLE_CONDITIONAL_FORMATS":
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						tableConditionalFormats: {
+							$push: [action.payload.item],
+						},
+					},
+				},
+			});
+
+		case "DELETE_TABLE_CONDITIONAL_FORMATS":
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						tableConditionalFormats: {
+							$splice: [[action.payload.index, 1]],
+						},
+					},
+				},
+			});
+
+		case "UPDATE_CF_OBJECT1": //CF referse to conditional format
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						tableConditionalFormats: {
+							[action.payload.index]: { $set: action.payload.item },
+						},
+					},
+				},
+			});
+
+		case "UPDATE_RULE_OBJECT":
+			console.log(
+				state.properties[action.payload.propKey].tableConditionalFormats[
+					action.payload.objectIndex
+				]
+			);
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						tableConditionalFormats: {
+							[action.payload.ObjectIndex]: {
+								value: {
+									[action.payload.itemIndex]: { $set: action.payload.item },
+								},
+							},
+						},
+					},
+				},
+			});
+		/// new code
+		case "ADD_TABLE_LABEL":
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						tableLabel: {
+							$push: [action.payload.item],
+						},
+					},
+				},
+			});
+		case "UPDATE_CF_OBJECT": //CF referse to conditional format
+			console.log(action.payload);
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						tableConditionalFormats: {
+							$set: action.payload.item,
+						},
+					},
+				},
+			});
+
 		default:
 			return state;
 	}

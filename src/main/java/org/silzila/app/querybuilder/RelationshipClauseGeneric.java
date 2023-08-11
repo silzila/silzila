@@ -176,7 +176,7 @@ public class RelationshipClauseGeneric {
             }
             // Spark - flatfile has the format of:
             // vw_ + first 8 letters of flatfileid + _ + alias
-            else if (vendorName.equals("spark")) {
+            else if (vendorName.equals("spark") || vendorName.equals("duckdb")) {
                 fromClause = "\n\t" + "vw_" + table.getAlias() + "_" + table.getFlatFileId().substring(0, 8) + " AS "
                         + table.getId();
             }
@@ -462,7 +462,7 @@ public class RelationshipClauseGeneric {
              * Spark - flatfile has the format of:
              * vw_ + first 8 letters of flatfileid + _ + alias
              */
-            else if (vendorName.equals("spark")) {
+            else if (vendorName.equals("spark") || (vendorName.equals("duckdb"))) {
                 if (i == 0) {
                     fromClause += "\n\t" + "vw_" + fromTable.getAlias() + "_"
                             + fromTable.getFlatFileId().substring(0, 8)

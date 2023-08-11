@@ -9,49 +9,21 @@ import FetchData from "../ServerCall/FetchData";
 import "./FlatFile.css";
 import FileDropZone from "./FileDropZone";
 import { FlatFileUploadProps } from "./FlatFileInterfaces";
-import { FlatFileProp } from "../../redux/FlatFile/FlatFileInterfaces";
-import { makeStyles } from "@mui/styles";
-import createStyles from "@mui/styles/createStyles";
-import MenuBar from "../DataViewer/MenuBar";
 
-const useStyles: any = makeStyles(() =>
-	createStyles({
-		uploadButton: {
-			textTransform: "none",
-			color: "#303030",
-			border: "2px solid #bababa",
-			padding: "5px 20px",
-			borderRadius: "5px",
-		},
-	})
-);
+import MenuBar from "../DataViewer/MenuBar";
 
 const FlatFileUpload = ({ token, setApiResponse, setEditApiResponse }: FlatFileUploadProps) => {
 	const navigate = useNavigate();
-	const classes = useStyles();
-	const [selectedFile, setSelectedFile] = useState<File>();
 
-	const getColumnInfos = (data: any) => {
-		const mappedColumnInfos = data.map((el: any) => {
-			return {
-				fieldName: el.fieldName,
-				dataType: el.dataType,
-				newFieldName: el.fieldName,
-				newDataType: el.dataType,
-				columnExcluded: false,
-			};
-		});
-		return mappedColumnInfos;
-	};
+	const [selectedFile, setSelectedFile] = useState<File>();
 
 	const setDataToEditApiResponse = (data: any) => {
 		var fileObj = {
 			fileId: data.fileId,
 			name: data.name,
-			dateFormat: "yyyy-MM-dd",
-			timestampFormat: "yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]",
-			timestampNTZFormat: "yyyy-MM-dd'T'HH:mm:ss[.SSS]",
-			columnInfos: getColumnInfos(data.columnInfos),
+			dateFormat: data.dateFormat,
+			timestampFormat: data.timestampFormat,
+			columnInfos: data.columnInfos,
 			sampleRecords: data.sampleRecords,
 		};
 		setEditApiResponse(fileObj);

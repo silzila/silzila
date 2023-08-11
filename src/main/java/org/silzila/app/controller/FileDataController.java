@@ -1,10 +1,13 @@
 package org.silzila.app.controller;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.json.JSONArray;
 import org.silzila.app.dto.FileDataDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.ExpectationFailedException;
@@ -12,6 +15,7 @@ import org.silzila.app.exception.RecordNotFoundException;
 import org.silzila.app.payload.request.FileUploadRevisedInfoRequest;
 import org.silzila.app.payload.response.FileUploadColumnInfo;
 import org.silzila.app.payload.response.FileUploadResponse;
+import org.silzila.app.payload.response.FileUploadResponseDuckDb;
 import org.silzila.app.payload.response.MessageResponse;
 import org.silzila.app.service.FileDataService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +50,10 @@ public class FileDataController {
     @PostMapping("/file-upload")
     public ResponseEntity<?> fileUpload(
             @RequestParam("file") MultipartFile file)
-            throws ExpectationFailedException, JsonMappingException, JsonProcessingException {
+            throws ExpectationFailedException, JsonMappingException, JsonProcessingException, SQLException,
+            ClassNotFoundException {
         // calling Service function
-        FileUploadResponse fileUploadResponse = fileDataService.fileUpload(file);
+        FileUploadResponseDuckDb fileUploadResponse = fileDataService.fileUpload(file);
         return ResponseEntity.status(HttpStatus.OK).body(fileUploadResponse);
 
     }
@@ -60,12 +65,13 @@ public class FileDataController {
     @PostMapping("/file-upload-change-schema")
     public ResponseEntity<?> fileUploadChangeSchema(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
-            throws JsonMappingException, JsonProcessingException, BadRequestException {
+            throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
+            SQLException {
         // get the requester user Id
         String userId = reqHeader.get("requesterUserId");
         // calling Service function
-        List<JsonNode> jsonNodes = fileDataService.fileUploadChangeSchema(revisedInfoRequest, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(jsonNodes);
+        JSONArray jsonArray = fileDataService.fileUploadChangeSchema(revisedInfoRequest, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
     // step 3:
@@ -73,7 +79,8 @@ public class FileDataController {
     @PostMapping("/file-upload-save-data")
     public ResponseEntity<?> fileUploadSaveData(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
-            throws JsonMappingException, JsonProcessingException, BadRequestException {
+            throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
+            SQLException {
         // get the requester user Id
         String userId = reqHeader.get("requesterUserId");
         // calling Service function
@@ -94,22 +101,24 @@ public class FileDataController {
     @GetMapping("/file-data-sample-records/{id}")
     public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id)
-            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
+            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException,
+            ClassNotFoundException, SQLException {
         // get the requester user Id
         String userId = reqHeader.get("requesterUserId");
-        List<JsonNode> jsonNodes = fileDataService.getSampleRecords(id, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(jsonNodes);
+        JSONArray jsonArray = fileDataService.getSampleRecords(id, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
     // file data - Column details
     @GetMapping("/file-data-column-details/{id}")
     public ResponseEntity<?> getColumnDetails(@RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id)
-            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
+            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException,
+            ClassNotFoundException, SQLException {
         // get the requester user Id
         String userId = reqHeader.get("requesterUserId");
-        List<FileUploadColumnInfo> fileUploadColumnInfos = fileDataService.getColumns(id, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(fileUploadColumnInfos);
+        List<Map<String, Object>> metaList = fileDataService.getColumns(id, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(metaList);
     }
 
     // Delete File Data
@@ -121,30 +130,6 @@ public class FileDataController {
         fileDataService.deleteFileData(id, userId);
         return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("File Data is deleted"));
 
-    }
-
-    // 1. update Parquet - show temp changed schema
-    @PostMapping("/file-data-change-schema")
-    public ResponseEntity<?> fileDataChangeSchema(@RequestHeader Map<String, String> reqHeader,
-            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
-            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
-        // get the requester user Id
-        String userId = reqHeader.get("requesterUserId");
-        // calling Service function
-        List<JsonNode> jsonNodes = fileDataService.fileDataChangeSchema(revisedInfoRequest, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(jsonNodes);
-    }
-
-    // 2. update Parquet - save schema changes
-    @PostMapping("/file-data-change-schema-save")
-    public ResponseEntity<?> fileDataChangeSchemaSave(@RequestHeader Map<String, String> reqHeader,
-            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
-            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException {
-        // get the requester user Id
-        String userId = reqHeader.get("requesterUserId");
-        // calling Service function
-        FileDataDTO fileDataDTO = fileDataService.fileDataSaveWithSchemaUpdate(revisedInfoRequest, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(fileDataDTO);
     }
 
 }

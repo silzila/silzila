@@ -165,7 +165,7 @@ public class WhereClause {
                     // Calling Dialect specific methods
                     if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
                         where = WhereClauseDatePostgres.buildWhereClauseDate(filter);
-                    } else if (vendorName.equals("mysql")) {
+                    } else if (vendorName.equals("mysql") || vendorName.equals("duckdb")) {
                         where = WhereClauseDateMysql.buildWhereClauseDate(filter);
                     } else if (vendorName.equals("sqlserver")) {
                         where = WhereClauseDateSqlserver.buildWhereClauseDate(filter);
