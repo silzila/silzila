@@ -11,18 +11,12 @@ function removeTagFromHTMLString(htmlString:any, tagName:any, id:string) {
 	const doc = parser.parseFromString(htmlString, 'text/html');
   
 	// Find all the elements with the specified tag name
-	const elements = doc.getElementsByTagName(tagName);
-  
-	// Convert the HTMLCollection to an array to avoid live collection issues
-	const elementsArray = Array.from(elements);
-  
-	// Remove each element from the DOM
-	elementsArray.forEach((element) => {
-		if(element.id == id){
-			element.parentNode.removeChild(element);
-		}
-	});
-  
+	var element = doc.getElementById(id);
+	
+	if(element){
+		element.remove();
+	}
+	  
 	// Serialize the modified DOM back to an HTML string
 	const modifiedHTMLString = new XMLSerializer().serializeToString(doc);
   
@@ -34,9 +28,17 @@ const chartControl = {
 		1.1: {
 			chartData: "",
 			queryResult: "",
-			measureValue: "",
-			richText:
-				'<h1 class="ql-align-center ql-indent-2">Content Header</h1><p><span style="background-color: rgb(255, 255, 0);">Paragraph goes here...</span></p><ul><li>This</li><li>is</li><li>List</li></ul><p>Another Paragraph</p><ol><li>Numbered</li><li>List</li><li><a href="https://silzila.org" rel="noopener noreferrer" target="_blank">silzila</a></li></ol>',
+			measureValue: {value: "", id: "RichTextID"},
+			richText: {
+				text : [
+					{
+					  type: 'paragraph',
+					  children: [{ text: 'A line of text in a paragraph.' }],
+					},
+				  ],
+				  style : null
+			}, 
+				
 			colorScheme: "peacock",
 			areaBackgroundColor: "#22194D",
 			areaOpacity: 0.1,
@@ -353,9 +355,16 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 					[tileKey]: {
 						chartData: "",
 						queryResult: "",
-						measureValue: "",
-						richText:
-							'<h1 class="ql-align-center ql-indent-2">Content Header</h1><p><span style="background-color: rgb(255, 255, 0);">Paragraph goes here...</span></p><ul><li>This</li><li>is</li><li>List</li></ul><p>Another Paragraph</p><ol><li>Numbered</li><li>List</li><li><a href="https://silzila.org" rel="noopener noreferrer" target="_blank">silzila</a></li></ol>',
+						measureValue: {value: "", id: "RichTextID"},
+						richText: {
+							text : [
+								{
+								  type: 'paragraph',
+								  children: [{ text: 'A line of text in a paragraph.' }],
+								},
+							  ],
+							  style : null
+						}, 
 						colorScheme: "peacock",
 						areaBackgroundColor: "#22194D",
 						areaOpacity: 0.1,
@@ -671,9 +680,16 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 					[tileKey2]: {
 						chartData: "",
 						queryResult: "",
-						measureValue: "",
-						richText:
-							'<h1 class="ql-align-center ql-indent-2">Content Header</h1><p><span style="background-color: rgb(255, 255, 0);">Paragraph goes here...</span></p><ul><li>This</li><li>is</li><li>List</li></ul><p>Another Paragraph</p><ol><li>Numbered</li><li>List</li><li><a href="https://silzila.org" rel="noopener noreferrer" target="_blank">silzila</a></li></ol>',
+						measureValue: {value: "", id: "RichTextID"},
+						richText: {
+							text : [
+								{
+								  type: 'paragraph',
+								  children: [{ text: 'A line of text in a paragraph.' }],
+								},
+							  ],
+							  style : null
+						}, 
 						colorScheme: "peacock",
 						areaBackgroundColor: "#22194D",
 						areaOpacity: 0.1,
@@ -1374,11 +1390,13 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 			});
 
 		case "UPDATE_RICH_TEXT":
+
+		let _richText = {text: action.payload.value, style:null};
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
 						richText: {
-							$set: action.payload.value,
+							$set: _richText,
 						},
 					},
 				},
@@ -1398,34 +1416,76 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 
 		case "UPDATE_RICH_TEXT_ON_ADDING_DYNAMIC_MEASURE":
 
-		let measureText = "";
+		let measureText = {};
 
 		if(action.payload.value){
-			measureText = action.payload.dmValue;
+			measureText = {text: action.payload.dmValue, style:  action.payload.style};
 		}
 		else{
-			measureText = removeTagFromHTMLString(state.properties[action.payload.propKey].richText, 'label', action.payload.dmId);
+			//measureText = removeTagFromHTMLString(state.properties[action.payload.propKey].richText, 'label', "RichTextID" + action.payload.dmId);
+			
+			if(!action.payload?.dmId?.toString()?.includes("RichTextID")){
+				measureText = {text: "", style: ""};
 
-			return update(state, {
-				properties: {
-					[action.payload.propKey]: {
-						richText: {
-							$set: measureText
+				let _richText = JSON.parse(JSON.stringify(state.properties[action.payload.propKey].richText)); 
+
+				_richText?.text?.forEach((list:any) => {
+					let index = list.children.findIndex((item:any)=>item.id == "RichTextID" + action.payload.dmId);
+	
+					if(index > -1){
+						list.children.splice(index,1);
+						return;
+					}
+				});
+
+				
+	
+				return update(state, {
+					properties: {
+						[action.payload.propKey]: {
+							richText: {
+								$set: _richText
+							},
 						},
 					},
-				},
-			});
+				});
+			}
+			else{
+				measureText = {text: action.payload.dmValue, style:  action.payload.style};
+
+				return update(state, {
+					properties: {
+						[action.payload.propKey]: {
+							richText: {
+								$set: measureText
+							},
+						},
+					},
+				});
+			}
 		}
 
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
 						measureValue: {
-							$set: {value: measureText, id: action.payload.dmId}
+							$set: {value: measureText, id: "RichTextID" + action.payload.dmId}
 						},
 					},
 				},
 			});
+
+			case "CLEAR_RICH_TEXT":
+				return update(state, {
+					properties: {
+						[action.payload.propKey]: {
+							measureValue: {
+								$set: {value: "", id: ""}
+							},
+						},
+					},
+				});
+
 		default:
 			return state;
 	}

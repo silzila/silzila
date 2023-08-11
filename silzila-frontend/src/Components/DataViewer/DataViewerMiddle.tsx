@@ -209,7 +209,7 @@ const DataViewerMiddle = ({
 
 	const handleOnCheckAndUnCheckOndm = (obj: any) => {
 		console.log(obj);
-		if (obj.usedInTextEditor) {
+		if (obj?.usedInTextEditor) {
 			// TODO::DynamicMeasure have to delete the text from editor
 			onCheckorUncheckOnDm(
 				obj.dynamicMeasureId,
@@ -278,7 +278,7 @@ const DataViewerMiddle = ({
 					>
 						<Checkbox
 							size="small"
-							checked={currentObj.usedInTextEditor ? true : false}
+							checked={currentObj?.usedInTextEditor ? true : false}
 							onChange={() => {
 								handleOnCheckAndUnCheckOndm(currentObj);
 							}}
@@ -483,7 +483,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(deletingDynamicMeasure(tabId, tileId, dmId)),
 		setSelectedDynamicMeasureId: (dmId: number) => dispatch(setSelectedDynamicMeasureId(dmId)),
 		onCheckorUncheckOnDm: (
-			dmId: number,
+			dmId: string,
 			value: boolean,
 			propKey: string,
 			dmValue: any,
