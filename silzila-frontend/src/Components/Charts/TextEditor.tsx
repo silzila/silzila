@@ -6,7 +6,7 @@ import { updateRichText, updateRichTextOnAddingDYnamicMeasure,clearRichText } fr
 import { addMeasureInTextEditor } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import {onCheckorUncheckOnDm} from '../../redux/DynamicMeasures/DynamicMeasuresActions'
 import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react'
-import { Editor, Transforms, Range, createEditor, Descendant } from 'slate'
+import { Editor, Transforms, Range, createEditor, Descendant, Element as SlateElement, } from 'slate'
 import {
   Slate,
   Editable,
@@ -14,10 +14,22 @@ import {
   withReact,
   useSelected,
   useFocused, 
+  useSlate
 } from 'slate-react';
 
-//import { Portal } from '../components'
-//import { MentionElement } from './custom-types'
+import { Button, Icon, Toolbar } from '../CommonFunctions/TextEditorToolBar' ;
+
+
+const HOTKEYS = {
+  'mod+b': 'bold',
+  'mod+i': 'italic',
+  'mod+u': 'underline',
+  'mod+`': 'code',
+}
+
+const LIST_TYPES = ['numbered-list', 'bulleted-list']
+const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify']
+
 
 const TextEditor = ({
 	propKey,
@@ -46,11 +58,18 @@ const TextEditor = ({
     []
   )
 
-
+  const initialValue:any = useMemo(()=>chartProp.properties[propKey]?.richText?.text || [
+    {
+      type: 'paragraph',
+      children: [{ text: 'A line of text in a paragraph.' }],
+    },
+  ],[]);
+  
   const [value, setValue] = useState(chartProp.properties[propKey]?.richText?.text || []);
 
   useEffect(() => {
 		updateRichText(propKey, value);
+    setTarget(undefined)
 		//updateRichTextOnAddingDYnamicMeasure(propKey, "");
 	}, [value]);
 
@@ -64,6 +83,7 @@ const TextEditor = ({
     // }
 
 		setValue(chartProp.properties[propKey]?.richText?.text ||[]);
+    setTarget(undefined)
 	}, [chartProp.properties[propKey].richText]);
 
 	useEffect(() => {
@@ -87,6 +107,7 @@ const TextEditor = ({
 
         Transforms.insertNodes(editor,[_object]);
         Transforms.move(editor)
+        setTarget(undefined)
       }
      
 			//inserMention(thisEditor.current, _measureValueCopy.measureValue);
@@ -108,15 +129,27 @@ const TextEditor = ({
   return (
     <Slate
       editor={editor}
-      initialValue={value}
+      initialValue={initialValue}
       onChange={(val) => {
         //const { selection } = editor
-        updateRichText(propKey, val);
-       // setTarget(null)
+        setValue(val);
+        setTarget(undefined)
+       console.log(val);
       }}
     >
+       <Toolbar>
+        <MarkButton format="bold" icon="format_bold" />
+        <MarkButton format="italic" icon="format_italic" />
+        <MarkButton format="underline" icon="format_underlined" />
+        <BlockButton format="block-quote" icon="format_quote" />
+        <BlockButton format="numbered-list" icon="format_list_numbered" />
+        <BlockButton format="bulleted-list" icon="format_list_bulleted" />
+        <BlockButton format="left" icon="format_align_left" />
+        <BlockButton format="center" icon="format_align_center" />
+        <BlockButton format="right" icon="format_align_right" />
+        <BlockButton format="justify" icon="format_align_justify" />
+      </Toolbar>
       <Editable
-        value={value}
         renderElement={renderElement}
         renderLeaf={renderLeaf}
         placeholder="Enter some text..."
@@ -125,6 +158,108 @@ const TextEditor = ({
     </Slate>
   )
 }
+
+
+const BlockButton = ({ format, icon }:any) => {
+  const editor = useSlate()
+  return (
+    <Button
+      active={isBlockActive(
+        editor,
+        format,
+        TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
+      )}
+      onMouseDown={(event:any) => {
+        event.preventDefault()
+        toggleBlock(editor, format)
+      }}
+    >
+      <Icon>{icon}</Icon>
+    </Button>
+  )
+}
+
+const MarkButton = ({ format, icon }:any) => {
+  const editor = useSlate()
+  return (
+    <Button
+      active={isMarkActive(editor, format)}
+      onMouseDown={(event:any) => {
+        event.preventDefault()
+        toggleMark(editor, format)
+      }}
+    >
+      <Icon>{icon}</Icon>
+    </Button>
+  )
+}
+
+const toggleBlock = (editor:any, format:any) => {
+  const isActive = isBlockActive(
+    editor,
+    format,
+    TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
+  )
+  const isList = LIST_TYPES.includes(format)
+
+  Transforms.unwrapNodes(editor, {
+    match: n =>
+      !Editor.isEditor(n) &&
+      SlateElement.isElement(n) &&
+      LIST_TYPES.includes(n.type) &&
+      !TEXT_ALIGN_TYPES.includes(format),
+    split: true,
+  })
+  let newProperties: Partial<SlateElement>
+  if (TEXT_ALIGN_TYPES.includes(format)) {
+    newProperties = {
+      align: isActive ? undefined : format,
+    }
+  } else {
+    newProperties = {
+      type: isActive ? 'paragraph' : isList ? 'list-item' : format,
+    }
+  }
+  Transforms.setNodes<SlateElement>(editor, newProperties)
+
+  if (!isActive && isList) {
+    const block = { type: format, children: [] }
+    Transforms.wrapNodes(editor, block)
+  }
+}
+
+const toggleMark = (editor:any, format:any) => {
+  const isActive = isMarkActive(editor, format)
+
+  if (isActive) {
+    Editor.removeMark(editor, format)
+  } else {
+    Editor.addMark(editor, format, true)
+  }
+}
+
+const isBlockActive = (editor:any, format:any, blockType = 'type') => {
+  const { selection } = editor
+  if (!selection) return false
+
+  const [match] = Array.from(
+    Editor.nodes(editor, {
+      at: Editor.unhangRange(editor, selection),
+      match: n =>
+        !Editor.isEditor(n) &&
+        SlateElement.isElement(n) &&
+        n[blockType] === format,
+    })
+  )
+
+  return !!match
+}
+
+const isMarkActive = (editor:any, format:any) => {
+  const marks:any = Editor.marks(editor)
+  return marks ? marks[format] === true : false
+}
+
 
 const withMentions = (editor:any) => {
   const { isInline, isVoid, markableVoid } = editor
@@ -177,10 +312,48 @@ const Leaf = ({ attributes, children, leaf }:any) => {
 }
 
 const Element = (props:any) => {
-  const { attributes, children, element } = props
+  const { attributes, children, element } = props;
+  const style = { textAlign: element.align };
+
   switch (element.type) {
     case 'mention':
       return <Mention {...props} />
+      case 'block-quote':
+        return (
+          <blockquote style={style} {...attributes}>
+            {children}
+          </blockquote>
+        )
+      case 'bulleted-list':
+        return (
+          <ul style={style} {...attributes}>
+            {children}
+          </ul>
+        )
+      case 'heading-one':
+        return (
+          <h1 style={style} {...attributes}>
+            {children}
+          </h1>
+        )
+      case 'heading-two':
+        return (
+          <h2 style={style} {...attributes}>
+            {children}
+          </h2>
+        )
+      case 'list-item':
+        return (
+          <li style={style} {...attributes}>
+            {children}
+          </li>
+        )
+      case 'numbered-list':
+        return (
+          <ol style={style} {...attributes}>
+            {children}
+          </ol>
+        )
     default:
       return <div {...attributes}>{children}</div>
   }

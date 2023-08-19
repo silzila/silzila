@@ -29,23 +29,23 @@ const SampleRecordsReducer = (
 				var stateCopy = Object.assign(state);
 				var dsObj = { [action.payload.ds_uid]: {} };
 
-				//console.log(dsObj);
-		//		stateCopy = update(stateCopy, { $merge: dsObj });
-		//		stateCopy = update(stateCopy, { recordsColumnType: { $merge: dsObj } });
+				console.log(dsObj);
+				stateCopy = update(stateCopy, { $merge: dsObj });
+				stateCopy = update(stateCopy, { recordsColumnType: { $merge: dsObj } });
 
-		// 		//console.log(stateCopy);
+				//console.log(stateCopy);
 
-		// 		return update(stateCopy, {
-		// 			[action.payload.ds_uid]: {
-		// 				[action.payload.tableId]: { $set: action.payload.tableRecords },
-		// 			},
-		// 			recordsColumnType: {
-		// 				[action.payload.ds_uid]: {
-		// 					[action.payload.tableId]: { $set: action.payload.columnType },
-		// 				},
-		// 			},
-		// 		});
-		// 	}
+				return update(stateCopy, {
+					[action.payload.ds_uid]: {
+						[action.payload.tableId]: { $set: action.payload.tableRecords },
+					},
+					recordsColumnType: {
+						[action.payload.ds_uid]: {
+							[action.payload.tableId]: { $set: action.payload.columnType },
+						},
+					},
+				});
+			}
 
 		case "LOAD_SAMPLE_RECORDS_FROM_PLAYBOOK":
 			return action.payload;
