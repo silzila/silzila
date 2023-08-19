@@ -1,0 +1,10 @@
+.gradientCustomValueInputContainer{
+    display:flex;
+    margin:0.5rem 0px;
+    gap:10px
+}
+
+.addIconStyle{
+    border:2px solid gray;
+    border-radius: 2px;
+}

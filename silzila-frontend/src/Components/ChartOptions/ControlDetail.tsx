@@ -113,7 +113,7 @@ const ControlDetail = ({
 				}
 			case "Conditional Formatting":
 				if (chartType === "richText") {
-					return <DynamicMeasureConditionalFormating />;
+					return <DynamicMeasureConditionalFormating chartType={chartType} />;
 				} else {
 					return <TableConditionalFormating />;
 				}
