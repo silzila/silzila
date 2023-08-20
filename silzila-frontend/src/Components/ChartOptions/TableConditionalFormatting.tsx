@@ -4,25 +4,17 @@ import React, { Dispatch, useState } from "react";
 import { connect } from "react-redux";
 import {
 	addTableConditionalFormats,
-	addTableLabel,
 	deleteTablecf,
-	updateRuleObjectOptions,
 	updatecfObjectOptions,
-	updatecfObjectOptions1,
 } from "../../redux/ChartPoperties/ChartControlsActions";
 import ShortUniqueId from "short-unique-id";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import {
-	CondtionComponent,
-	CustomFontAndBgColor,
-	StyleButtons,
-} from "./DynamicMeasureConditionalFormating";
-import StarPurple500Icon from "@mui/icons-material/StarPurple500";
-import AddIcon from "@mui/icons-material/Add";
 import LabelComponent from "./TableChartControlComponents/LabelComponent";
 import GradientComponent from "./TableChartControlComponents/GradientComponent";
+import RuleComponent from "./TableChartControlComponents/RuleComponent";
+import { gradientDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 const TableConditionalFormatting = ({
 	chartControls,
@@ -31,9 +23,6 @@ const TableConditionalFormatting = ({
 	addTableConditionalFormats,
 	updatecfObjectOptions,
 	deleteTablecf,
-	updateRuleObjectOptions,
-	addTableLabel,
-	updatecfObjectOptions1,
 }: any) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var uId = new ShortUniqueId({ length: 8 });
@@ -44,69 +33,16 @@ const TableConditionalFormatting = ({
 	const [anchorEl, setAnchorEl] = useState<any>();
 	const [optionAnchorEl, setOptionAnchorEl] = useState<any>();
 	const [openOptionPopover, setOpenOptionPopover] = useState<boolean>(false);
+	const [openSubOptions, setOpenSubOptions] = useState<boolean>(false);
 	const [selectedColumnName, setSelectedColumnName] = useState<string>("");
-	const [gradientValue, setGradientValue] = useState<any>(null);
+
 	const [gradientMinAndMax, setGradientMinAndMax] = useState<any>({
 		min: 0,
 		max: 0,
 	});
 
-	const onUpdateConditionRule = (columnName: string, id: string, action: string) => {
-		/* finding  conditional format obj */
-		const matchedObj = chartControls.properties[propKey].tableConditionalFormats.filter(
-			(column: any) => {
-				return column.name === columnName;
-			}
-		);
-
-		/* if action if delete*/
-		const valuesOnDelete = matchedObj[0].value.filter((el: any) => {
-			return el.id !== id;
-		});
-
-		/* updating values in the values(table data) of selected conditional Format obj */
-		// const matchedValues = matchedObj[0].value.map((el: any) => {
-		// 	if (el.colValue === valueName) {
-		// 		console.log("matched", el.colValue, valueName, optionName, el[optionName]);
-		// 		el[optionName] = value;
-		// 		console.log(el);
-		// 	}
-		// 	return el;
-		// });
-
-		/* assigning updated values array to corresponding conditional format obj on tableConditionalFormats Array*/
-		const updatedValues = chartControls.properties[propKey].tableConditionalFormats.map(
-			(column: any) => {
-				if (column.name === columnName) {
-					if (action === "delete") {
-						column.value = valuesOnDelete;
-					}
-				}
-				return column;
-			}
-		);
-
-		/* sending updatedValues as payload to update state*/
-		updatecfObjectOptions1(propKey, updatedValues);
-	};
-	const onUpdateRule = (updatedArray: any, columnName: string) => {
-		const updatedValues = chartControls.properties[propKey].tableConditionalFormats.map(
-			(column: any) => {
-				if (column.name === columnName) {
-					column.value = updatedArray;
-				}
-				return column;
-			}
-		);
-
-		/* sending updatedValues as payload to update state*/
-		updatecfObjectOptions1(propKey, updatedValues);
-	};
-
 	console.log(chartProperties.properties[propKey].chartAxes);
 
-	/* when the selected column is from dimension, getLabelValues will be called,
-    this will return all the values of selected column with its properties*/
 	const getLabelValues = (columnName: string) => {
 		const values = chartControls.properties[propKey].chartData.map((item: any) => {
 			return {
@@ -116,6 +52,7 @@ const TableConditionalFormatting = ({
 				isItalic: false,
 				isUnderlined: false,
 				fontColor: "black",
+				isUnique: false,
 			};
 		});
 
@@ -191,9 +128,6 @@ const TableConditionalFormatting = ({
 		}
 	};
 
-	/* when user select any column this function will be called, this function will check the column is available in chartaxes's dimension array.
-	if the column is available then add obj with properties in TableConditionalFormatArray else (selected column is in measure) 
-	populate the other popover to let the user to select condition option for the column of measure*/
 	const onSelectColumn = (columnName: string) => {
 		var canAdd = false;
 		if (chartControls.properties[propKey].tableConditionalFormats.length === 0) {
@@ -206,10 +140,11 @@ const TableConditionalFormatting = ({
 				canAdd = true;
 			}
 		}
+		let isLabel = false;
 		if (canAdd) {
-			var isLabel = false;
 			chartProperties.properties[propKey].chartAxes[1].fields.map((column: any) => {
 				if (columnName === column.fieldname) {
+					setOpenSubOptions(false);
 					isLabel = true;
 
 					addTableConditionalFormats(propKey, {
@@ -217,213 +152,21 @@ const TableConditionalFormatting = ({
 						name: columnName,
 						value: getLabelValues(columnName),
 						isCollapsed: false,
+						applyCommonStyle: true,
+						commonBg: "white",
+						commonFontColor: "black",
 					});
 
 					setOpenPopover(false);
 				}
 			});
 			if (!isLabel) {
-				setOpenOptionPopover(true);
+				console.log("its a measure");
+				setOpenSubOptions(true);
 			}
+		} else {
+			setOpenSubOptions(false);
 		}
-	};
-
-	const onGradientStyleChange = (
-		optionName: string,
-		value: any,
-		id: string,
-		columnName: string
-	) => {
-		/* finding  conditional format obj */
-		const matchedObj = chartControls.properties[propKey].tableConditionalFormats.filter(
-			(column: any) => {
-				return column.name === columnName;
-			}
-		);
-
-		/* updating values in the values(table data) of selected conditional Format obj */
-		const matchedValue = matchedObj[0].value.map((el: any) => {
-			if (el.id === id) {
-				el[optionName] = value;
-			}
-			return el;
-		});
-
-		console.log(matchedObj);
-		/* assigning updated values array to corresponding conditional format obj on tableConditionalFormats Array*/
-		const updatedValues = chartControls.properties[propKey].tableConditionalFormats.map(
-			(column: any) => {
-				if (column.name === columnName) {
-					column.value = matchedValue;
-				}
-				return column;
-			}
-		);
-
-		/* sending updatedValues as payload to update state*/
-		updatecfObjectOptions1(propKey, updatedValues);
-	};
-
-	const onLabelStyleChange = (
-		optionName: string,
-		value: any,
-		valueName: string,
-		columnName: string
-	) => {
-		console.log(valueName);
-		/* finding  conditional format obj */
-		const matchedObj = chartControls.properties[propKey].tableConditionalFormats.filter(
-			(column: any) => {
-				return column.name === columnName;
-			}
-		);
-
-		/* updating values in the values(table data) of selected conditional Format obj */
-		const matchedValue = matchedObj[0].value.map((el: any) => {
-			if (el.colValue === valueName) {
-				console.log("matched", el.colValue, valueName, optionName, el[optionName]);
-				el[optionName] = value;
-				console.log(el);
-			}
-			return el;
-		});
-
-		console.log(matchedObj);
-		/* assigning updated values array to corresponding conditional format obj on tableConditionalFormats Array*/
-		const updatedValues = chartControls.properties[propKey].tableConditionalFormats.map(
-			(column: any) => {
-				if (column.name === columnName) {
-					column.value = matchedValue;
-				}
-				return column;
-			}
-		);
-
-		/* sending updatedValues as payload to update state*/
-		updatecfObjectOptions1(propKey, updatedValues);
-	};
-
-	const LabelStyleOptions = ({ format, index }: any) => {
-		return (
-			<>
-				{format.value.map((el: any) => {
-					return (
-						<div
-							key={el.id}
-							style={{
-								display: "flex",
-								flexDirection: "column",
-								gap: "15px",
-								paddingBottom: "2px",
-								borderBottom: "2px solid rgba(224,224,224,1)",
-								marginBottom: "4px",
-							}}
-						>
-							<span
-								style={{
-									borderBottom: "2px dashed rgba(224,224,224,1)",
-									paddingBottom: "4px",
-								}}
-							>
-								<StarPurple500Icon sx={{ fontSize: "10px", marginRight: "2px	" }} />
-								{el.colValue}
-							</span>
-							<StyleButtons
-								isBold={el.isBold}
-								isItalic={el.isItalic}
-								isUnderlined={el.isUnderlined}
-								onChangeStyleProps={(option: string, value: any) => {
-									onLabelStyleChange(option, value, el.colValue, format.name);
-								}}
-							/>
-
-							<CustomFontAndBgColor
-								id={el.colValue}
-								backgroundColor={el.backgroundColor}
-								onChangeColorProps={(
-									option: string,
-									value: any,
-									columnValue: string
-								) => {
-									onLabelStyleChange(option, value, columnValue, format.name);
-								}}
-								fontColor={el.fontColor}
-							/>
-						</div>
-					);
-				})}
-			</>
-		);
-	};
-
-	const onAddCustomValues = (format: any) => {
-		var obj = {
-			id: uId(),
-			forNull: false,
-			name: `Value ${uId()}`,
-			value: gradientValue,
-			isBold: false,
-			isItalic: false,
-			isUnderlined: false,
-			backgroundColor: "white",
-			fontColor: "black",
-		};
-
-		/*getting condition(gradient) object to be changed*/
-		const formatItem = chartControls.properties[propKey].tableConditionalFormats.filter(
-			(item: any) => {
-				return item.name === format.name;
-			}
-		);
-		/* get formatItem's value to do iteration*/
-		var formatItemValue = formatItem[0].value;
-
-		let indexvalue;
-
-		formatItemValue.forEach((item: any, index: number) => {
-			if (formatItemValue.length === 3) {
-				indexvalue = 2;
-			} else {
-				if (index !== 0 && index !== 1 && index !== formatItemValue.length - 1) {
-					if (item.value < gradientValue) {
-						if (formatItemValue[index + 1]) {
-							if (formatItemValue[index + 1].value > gradientValue) {
-								indexvalue = index + 1;
-							}
-						}
-					}
-				}
-			}
-		});
-
-		setGradientValue(0);
-		console.log(indexvalue);
-
-		formatItemValue.splice(indexvalue, 0, obj);
-		onUpdateRule(formatItemValue, format.name);
-	};
-
-	const onAddCondition = (format: any, index: number) => {
-		console.log(format, index);
-		var obj = {
-			id: uId(),
-			isConditionSatisfied: false,
-			conditionType: 1,
-			target: null,
-			minValue: null,
-			maxValue: null,
-			backgroundColor: "white",
-			fontColor: "black",
-			isBold: false,
-			isItalic: false,
-			isUnderlined: false,
-			isCollapsed: true,
-		};
-
-		updatecfObjectOptions(propKey, index, {
-			...format,
-			value: [...format.value, obj],
-		});
 	};
 
 	const columnsNames =
@@ -446,11 +189,14 @@ const TableConditionalFormatting = ({
 											paddingBottom: "10px",
 										}}
 									>
-										<div style={{ display: "flex" }}>
-											<span>{format.name}</span>
+										<div style={{ display: "flex", marginBottom: "10px" }}>
+											<span style={{ fontSize: "16px" }}>{format.name}</span>
 											{format.isCollapsed ? (
 												<ExpandMoreIcon
-													sx={{ margin: "0px 0px 0px auto" }}
+													sx={{
+														margin: "5px 0px 0px auto",
+														fontSize: "16px",
+													}}
 													onClick={() => {
 														console.log(format);
 														updatecfObjectOptions(propKey, i, {
@@ -461,7 +207,10 @@ const TableConditionalFormatting = ({
 												/>
 											) : (
 												<ExpandLessIcon
-													sx={{ margin: "0px 0px 0px auto" }}
+													sx={{
+														margin: "5px 0px 0px auto",
+														fontSize: "16px",
+													}}
 													onClick={() => {
 														console.log(format, {
 															...format,
@@ -476,6 +225,10 @@ const TableConditionalFormatting = ({
 												/>
 											)}
 											<DeleteOutlineOutlinedIcon
+												sx={{
+													margin: "3px 0px 0px 10px",
+													fontSize: "18px",
+												}}
 												onClick={() => deleteTablecf(propKey, i)}
 											/>
 										</div>
@@ -484,188 +237,18 @@ const TableConditionalFormatting = ({
 												{format.isLabel ? (
 													<LabelComponent format={format} />
 												) : (
-													// <LabelStyleOptions format={format} index={i} />
 													<>
 														{format.isGradient ? (
 															<>
 																<GradientComponent
+																	gradientMinMax={
+																		gradientMinAndMax
+																	}
 																	format={format}
 																/>
-																<div
-																	style={{
-																		display: "flex",
-																	}}
-																>
-																	<input
-																		type="number"
-																		value={gradientValue}
-																		onChange={e => {
-																			e.preventDefault();
-																			setGradientValue(
-																				e.target.value
-																			);
-																		}}
-																	/>
-																	<div
-																		title="Add Custom Value"
-																		className="containerButton"
-																		onClick={() => {
-																			if (
-																				gradientValue !== 0
-																			) {
-																				onAddCustomValues(
-																					format
-																				);
-																			} else {
-																				// TODO: need to fix
-																				window.alert(
-																					"custom value cant be zero"
-																				);
-																			}
-																		}}
-																	>
-																		<AddIcon />
-																	</div>
-																</div>
-																{format.value.map((el: any) => {
-																	return (
-																		<div>
-																			<div>
-																				{el.name}
-																				<div
-																					style={{
-																						border: "2px solid black",
-																					}}
-																				>
-																					{el.value}
-																				</div>
-																			</div>
-																			<div>
-																				<StyleButtons
-																					isBold={
-																						el.isBold
-																					}
-																					isItalic={
-																						el.isItalic
-																					}
-																					isUnderlined={
-																						el.isUnderlined
-																					}
-																					onChangeStyleProps={(
-																						option: string,
-																						value: any
-																					) => {
-																						onGradientStyleChange(
-																							option,
-																							value,
-																							el.id,
-																							format.name
-																						);
-																					}}
-																				/>
-
-																				<CustomFontAndBgColor
-																					id={el.id}
-																					backgroundColor={
-																						el.backgroundColor
-																					}
-																					fontColor={
-																						el.fontColor
-																					}
-																					onChangeColorProps={(
-																						option: string,
-																						value: any
-																					) => {
-																						onGradientStyleChange(
-																							option,
-																							value,
-																							el.id,
-																							format.name
-																						);
-																					}}
-																				/>
-																			</div>
-																		</div>
-																	);
-																})}
 															</>
 														) : (
-															<>
-																<CondtionComponent
-																	conditionSArray={format.value}
-																	onChangeProps={(
-																		id: string,
-																		option: string,
-																		value: any
-																	) => {
-																		const updatedArray =
-																			format.value.map(
-																				(el: any) => {
-																					if (
-																						el.id === id
-																					) {
-																						el[option] =
-																							value;
-																					}
-																					return el;
-																				}
-																			);
-																		onUpdateRule(
-																			updatedArray,
-																			format.name
-																		);
-																	}}
-																	onDeleteCondition={(
-																		id: string
-																	) => {
-																		const filterdArray =
-																			format.value.filter(
-																				(el: any) => {
-																					return (
-																						el.id !== id
-																					);
-																				}
-																			);
-																		onUpdateRule(
-																			filterdArray,
-																			format.name
-																		);
-																	}}
-																/>
-																<Button
-																	sx={{
-																		backgroundColor:
-																			"rgb(43, 185, 187)",
-																		height: "25px",
-																		width: "100%",
-																		color: "white",
-																		textTransform: "none",
-																		"&:hover": {
-																			backgroundColor:
-																				"rgb(43, 185, 187)",
-																		},
-																	}}
-																	onClick={() => {
-																		onAddCondition(format, i);
-																	}}
-																>
-																	Add Condition
-																</Button>
-																<hr />
-																<div className="optionDescription">
-																	<p
-																		style={{
-																			color: "#ccc",
-																			fontStyle: "italic",
-																			fontSize: "10px",
-																		}}
-																	>
-																		*the last satisfied
-																		condition's style will be
-																		applied*
-																	</p>
-																</div>
-															</>
+															<RuleComponent format={format} i={i} />
 														)}
 													</>
 												)}
@@ -717,21 +300,69 @@ const TableConditionalFormatting = ({
 				{columnsNames &&
 					columnsNames.map((column: string) => {
 						return (
-							<Button
-								sx={{
-									textTransform: "none",
-									color: "grey",
-									display: "block",
-								}}
-								value={column}
-								onClick={e => {
-									setOptionAnchorEl(e.currentTarget);
-									setSelectedColumnName(column);
-									onSelectColumn(column);
-								}}
-							>
-								{column}
-							</Button>
+							<>
+								<Button
+									sx={{
+										textTransform: "none",
+										color: "grey",
+										display: "block",
+										padding: "0px 8px",
+									}}
+									value={column}
+									onClick={e => {
+										setOptionAnchorEl(e.currentTarget);
+										onSelectColumn(column);
+										setSelectedColumnName(column);
+									}}
+								>
+									{column}
+								</Button>
+								{openSubOptions && column === selectedColumnName ? (
+									<div
+										style={{
+											marginLeft: "10px",
+											display: "flex",
+											flexDirection: "column",
+										}}
+									>
+										<Button
+											sx={{
+												textTransform: "none",
+												color: "grey",
+												padding: "0px 8px",
+												justifyContent: "left",
+											}}
+											value="gradient"
+											onClick={(e: any) => {
+												setOpenOptionPopover(false);
+												setOpenPopover(false);
+												setOpenSubOptions(false);
+												onSelectOption(e.target.value);
+											}}
+										>
+											Gradient
+										</Button>
+										<Button
+											sx={{
+												textTransform: "none",
+												color: "grey",
+												justifyContent: "left",
+												padding: "0px 8px",
+											}}
+											value="rule"
+											onClick={(e: any) => {
+												setOpenOptionPopover(false);
+												setOpenPopover(false);
+												setOpenSubOptions(false);
+
+												onSelectOption(e.target.value);
+											}}
+										>
+											Rule
+										</Button>
+									</div>
+								) : null}
+							</>
 						);
 					})}
 			</Popover>
@@ -757,7 +388,6 @@ const TableConditionalFormatting = ({
 					}}
 					value="gradient"
 					onClick={(e: any) => {
-						// onSelectColumn(column);
 						setOpenOptionPopover(false);
 						setOpenPopover(false);
 						onSelectOption(e.target.value);
@@ -773,7 +403,6 @@ const TableConditionalFormatting = ({
 					}}
 					value="rule"
 					onClick={(e: any) => {
-						// onSelectColumn(column);
 						setOpenOptionPopover(false);
 						setOpenPopover(false);
 						onSelectOption(e.target.value);
@@ -800,18 +429,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(addTableConditionalFormats(propKey, item)),
 		updatecfObjectOptions: (propKey: string, removeIndex: number, item: any) =>
 			dispatch(updatecfObjectOptions(propKey, removeIndex, item)),
-		updateRuleObjectOptions: (
-			propKey: string,
-			objectIndex: number,
-			itemIndex: number,
-			item: any
-		) => dispatch(updateRuleObjectOptions(propKey, objectIndex, itemIndex, item)),
 		deleteTablecf: (propKey: string, index: number) => dispatch(deleteTablecf(propKey, index)),
-
-		//new code
-		addTableLabel: (propKey: string, item: any) => dispatch(addTableLabel(propKey, item)),
-		updatecfObjectOptions1: (propKey: string, item: any) =>
-			dispatch(updatecfObjectOptions1(propKey, item)),
 	};
 };
 

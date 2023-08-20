@@ -9,6 +9,7 @@ import {
 	Popover,
 	Select,
 	SelectChangeEvent,
+	Typography,
 } from "@mui/material";
 import "./DataSetup.css";
 import { Button } from "@mui/material";
@@ -17,6 +18,10 @@ import TextFieldComponent from "../../Components/CommonFunctions/TextFieldCompon
 import CloseIcon from "@mui/icons-material/Close";
 import { FormProps } from "./DataConnectionInterfaces";
 import FetchData from "../ServerCall/FetchData";
+import redshiftIcon from "../../assets/redshiftIcon.png";
+import mssqlIcon from "../../assets/mssqlicon.png";
+import mysqlicon from "../../assets/mysqlicon.svg";
+import postgresicon from "../../assets/postgresicon.png";
 
 function FormDialog({
 	//props
@@ -321,10 +326,54 @@ function FormDialog({
 									}
 								}}
 							>
-								<MenuItem value="postgresql">PostgreSql</MenuItem>
-								<MenuItem value="mysql">MySql</MenuItem>
-								<MenuItem value="sqlserver">Ms SQL Server</MenuItem>
-								<MenuItem value="redshift">Amazon Redshift</MenuItem>
+								<MenuItem value="postgresql">
+									<img
+										src={postgresicon}
+										alt=""
+										style={{
+											height: "25px",
+											width: "25px",
+											marginRight: "10px",
+										}}
+									/>
+									<Typography>PostgreSql</Typography>
+								</MenuItem>
+								<MenuItem value="mysql">
+									<img
+										src={mysqlicon}
+										alt=""
+										style={{
+											height: "25px",
+											width: "25px",
+											marginRight: "10px",
+										}}
+									/>
+									<Typography>MySql</Typography>
+								</MenuItem>
+								<MenuItem value="sqlserver">
+									<img
+										src={mssqlIcon}
+										alt=""
+										style={{
+											height: "25px",
+											width: "25px",
+											marginRight: "10px",
+										}}
+									/>
+									<Typography>Ms SQL Server</Typography>
+								</MenuItem>
+								<MenuItem value="redshift">
+									<img
+										src={redshiftIcon}
+										alt=""
+										style={{
+											height: "25px",
+											width: "25px",
+											marginRight: "10px",
+										}}
+									/>
+									<Typography>Amazon Redshift</Typography>
+								</MenuItem>
 							</Select>
 						</FormControl>
 						<small style={{ color: "red" }}>{account.vendorError}</small>

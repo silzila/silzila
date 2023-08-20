@@ -47,7 +47,7 @@ const Card = ({
 
 	//dynamicMeasure dispatch
 	deleteDropZoneItemsForDm,
-	updateQueryParamForDm,
+	updateAxesQueryParamForDm,
 	sortAxesForDm,
 	revertAxesForDm,
 }: CardProps) => {
@@ -95,9 +95,10 @@ const Card = ({
 
 		if (closeFrom === "agg" || closeFrom === "timeGrain") {
 			var field2 = JSON.parse(JSON.stringify(field));
+			console.log(field2);
 
 			if (closeFrom === "agg") {
-				// console.log("Aggregate Choice selected", queryParam);
+				console.log("Aggregate Choice selected", queryParam);
 				field2.agg = queryParam;
 			} else if (closeFrom === "timeGrain") {
 				// console.log("Time Grain Choice selected", queryParam);
@@ -105,6 +106,7 @@ const Card = ({
 			}
 			// console.log(propKey, bIndex, itemIndex, field2);
 			if (chartType === "richText") {
+				console.log("queryparam");
 				updateAxesQueryParamForDm(propKey, bIndex, itemIndex, field2);
 			} else {
 				updateQueryParam(propKey, bIndex, itemIndex, field2);
@@ -317,7 +319,12 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(editChartPropItemForDm("delete", { propKey, binIndex, itemIndex })),
 		sortAxesForDm: (propKey: string, bIndex: number, dragUId: string, uId: string) =>
 			dispatch(sortAxesForDm(propKey, bIndex, dragUId, uId)),
-		updateQueryParamForDm: (propKey: string, binIndex: number, itemIndex: number, item: any) =>
+		updateAxesQueryParamForDm: (
+			propKey: string,
+			binIndex: number,
+			itemIndex: number,
+			item: any
+		) =>
 			dispatch(editChartPropItemForDm("updateQuery", { propKey, binIndex, itemIndex, item })),
 		revertAxesForDm: (propKey: string, bIndex: number, uId: string, originalIndex: number) =>
 			dispatch(revertAxesForDm(propKey, bIndex, uId, originalIndex)),
