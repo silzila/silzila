@@ -174,7 +174,7 @@ export interface CardProps extends Card {
 
 	//dynamicMeasure dispatch
 	deleteDropZoneItemsForDm: (propKey: string, binIndex: number, itemIndex: number) => void;
-	updateQueryParamForDm: (
+	updateAxesQueryParamForDm: (
 		propKey: string,
 		binIndex: number,
 		itemIndex: number,

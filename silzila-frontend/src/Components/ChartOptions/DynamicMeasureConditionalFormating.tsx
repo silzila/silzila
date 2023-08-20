@@ -16,7 +16,6 @@ import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import { color } from "echarts";
 
 export const checkIsConditionSatisfied = (formatsArray: any, dmValue: number) => {
 	const updatedArray = formatsArray.map((el: any) => {
@@ -90,7 +89,7 @@ const GetInputField = ({ condition, onChangeValueProps }: any) => {
 		<>
 			{condition.conditionType === 7 ? (
 				<>
-					<div className="optionDescription">Min Value</div>
+					<div>Min Value</div>
 
 					<TextField
 						value={condition.minValue}
@@ -100,9 +99,11 @@ const GetInputField = ({ condition, onChangeValueProps }: any) => {
 							e.preventDefault();
 							onChangeValueProps("minValue", e.target.value);
 						}}
+						sx={{ marginTop: "5px" }}
 						InputProps={{ ...textFieldStyleProps }}
+						fullWidth
 					/>
-					<div className="optionDescription">Max Value</div>
+					<div>Max Value</div>
 
 					<TextField
 						value={condition.maxValue}
@@ -112,12 +113,14 @@ const GetInputField = ({ condition, onChangeValueProps }: any) => {
 							e.preventDefault();
 							onChangeValueProps("maxValue", e.target.value);
 						}}
+						sx={{ marginTop: "5px" }}
 						InputProps={{ ...textFieldStyleProps }}
+						fullWidth
 					/>
 				</>
 			) : (
 				<>
-					<div className="optionDescription">Target Value</div>
+					<div>Target Value</div>
 
 					<TextField
 						value={5}
@@ -127,7 +130,9 @@ const GetInputField = ({ condition, onChangeValueProps }: any) => {
 							e.preventDefault();
 							onChangeValueProps("target", e.target.value);
 						}}
+						sx={{ marginTop: "5px" }}
 						InputProps={{ ...textFieldStyleProps }}
+						fullWidth
 					/>
 				</>
 			)}
@@ -135,10 +140,16 @@ const GetInputField = ({ condition, onChangeValueProps }: any) => {
 	);
 };
 
-export const CondtionComponent = ({ conditionSArray, onDeleteCondition, onChangeProps }: any) => {
+export const CondtionComponent = ({
+	conditionSArray,
+	onDeleteCondition,
+	onChangeProps,
+	chartType,
+}: any) => {
+	console.log(chartType);
 	return (
 		<>
-			<div className="optionDescription" style={{ display: "flex", flexDirection: "column" }}>
+			<div style={{ display: "flex", flexDirection: "column" }}>
 				{conditionSArray.map((condition: any, i: number) => {
 					return (
 						<div
@@ -153,7 +164,10 @@ export const CondtionComponent = ({ conditionSArray, onDeleteCondition, onChange
 								<span>conditional Format {i + 1}</span>
 								{condition.isCollapsed ? (
 									<ExpandMoreIcon
-										sx={{ margin: "0px 0px 0px auto" }}
+										sx={{
+											margin: "5px 0px 0px auto",
+											fontSize: "16px",
+										}}
 										onClick={() => {
 											onChangeProps(
 												condition.id,
@@ -164,7 +178,10 @@ export const CondtionComponent = ({ conditionSArray, onDeleteCondition, onChange
 									/>
 								) : (
 									<ExpandLessIcon
-										sx={{ margin: "0px 0px 0px auto" }}
+										sx={{
+											margin: "5px 0px 0px auto",
+											fontSize: "16px",
+										}}
 										onClick={() =>
 											onChangeProps(
 												condition.id,
@@ -175,6 +192,10 @@ export const CondtionComponent = ({ conditionSArray, onDeleteCondition, onChange
 									/>
 								)}
 								<DeleteOutlineOutlinedIcon
+									sx={{
+										margin: "3px 0px 0px 10px",
+										fontSize: "18px",
+									}}
 									onClick={() => onDeleteCondition(condition.id)}
 								/>
 							</div>
@@ -182,11 +203,15 @@ export const CondtionComponent = ({ conditionSArray, onDeleteCondition, onChange
 							{condition.isCollapsed ? (
 								<>
 									<div style={{ flexDirection: "column" }}>
-										<div className="optionDescription">Condition</div>
+										<div>Condition</div>
 										<FormControl
 											fullWidth
 											size="small"
-											style={{ fontSize: "12px", borderRadius: "4px" }}
+											style={{
+												fontSize: "12px",
+												borderRadius: "4px",
+												marginTop: "5px",
+											}}
 										>
 											<Select
 												value={condition.conditionType}
@@ -222,26 +247,38 @@ export const CondtionComponent = ({ conditionSArray, onDeleteCondition, onChange
 												onChangeProps(condition.id, option, value);
 											}}
 										/>
-										<StyleButtons
-											isBold={condition.isBold}
-											isItalic={condition.isItalic}
-											isUnderlined={condition.isUnderlined}
-											onChangeStyleProps={(option: string, value: any) => {
-												onChangeProps(condition.id, option, value);
+										<div
+											style={{
+												display: "flex",
+												marginTop: "5px",
+												marginLeft:
+													chartType === "richText" ? "30px" : "0px",
 											}}
-										/>
-										<CustomFontAndBgColor
-											backgroundColor={condition.backgroundColor}
-											fontColor={condition.fontColor}
-											onChangeColorProps={(
-												option: string,
-												color: any,
-												id: any
-											) => {
-												onChangeProps(id, option, color);
-											}}
-											id={condition.id}
-										/>
+										>
+											<StyleButtons
+												isBold={condition.isBold}
+												isItalic={condition.isItalic}
+												isUnderlined={condition.isUnderlined}
+												onChangeStyleProps={(
+													option: string,
+													value: any
+												) => {
+													onChangeProps(condition.id, option, value);
+												}}
+											/>
+											<CustomFontAndBgColor
+												backgroundColor={condition.backgroundColor}
+												fontColor={condition.fontColor}
+												onChangeColorProps={(
+													option: string,
+													color: any,
+													id: any
+												) => {
+													onChangeProps(id, option, color);
+												}}
+												id={condition.id}
+											/>
+										</div>
 									</div>
 								</>
 							) : null}
@@ -258,7 +295,7 @@ export const StyleButtons = ({ isBold, isItalic, isUnderlined, onChangeStyleProp
 		<div
 			style={{
 				display: "flex",
-				justifyContent: "space-around",
+				gap: "10px",
 			}}
 		>
 			<FormatBoldIcon
@@ -305,85 +342,79 @@ export const CustomFontAndBgColor = ({
 	console.log(selectedId);
 
 	return (
-		<>
-			<div className="optionDescription">
-				<label style={{ width: "40%" }}>Background Color</label>
-				<div
-					style={{
-						height: "1.25rem",
-						width: "50%",
-						marginLeft: "20px",
-						backgroundColor: backgroundColor,
-						color: backgroundColor,
-						border: "2px solid darkgray",
-						margin: "auto",
-					}}
-					onClick={() => {
-						setSelectedId(id);
+		<div style={{ display: "flex", gap: "10px", marginLeft: "10px" }}>
+			<div
+				title="Background Color"
+				style={{
+					height: "25px",
+					width: "25px",
+					backgroundColor: backgroundColor,
+					color: backgroundColor,
+					border: "2px solid darkgray",
+					borderRadius: "4px",
+				}}
+				onClick={() => {
+					setSelectedId(id);
+					setbgColorPopOverOpen(!isbgColorPopoverOpen);
+				}}
+			></div>
+			<Popover
+				open={isbgColorPopoverOpen}
+				onClose={() => setbgColorPopOverOpen(false)}
+				onClick={() => setbgColorPopOverOpen(false)}
+				anchorReference="anchorPosition"
+				anchorPosition={{ top: 350, left: 1300 }}
+			>
+				<div id={id}>
+					<SketchPicker
+						className="sketchPicker"
+						width="16rem"
+						onChangeComplete={color => {
+							onChangeColorProps("backgroundColor", color.hex, selectedId);
+						}}
+						onChange={color => {
+							onChangeColorProps("backgroundColor", color.hex, selectedId);
+						}}
+					/>
+				</div>
+			</Popover>
 
-						setbgColorPopOverOpen(!isbgColorPopoverOpen);
-					}}
-				></div>
-				<Popover
-					open={isbgColorPopoverOpen}
-					onClose={() => setbgColorPopOverOpen(false)}
-					onClick={() => setbgColorPopOverOpen(false)}
-					anchorReference="anchorPosition"
-					anchorPosition={{ top: 350, left: 1300 }}
-				>
-					<div id={id}>
-						<SketchPicker
-							className="sketchPicker"
-							width="16rem"
-							onChangeComplete={color => {
-								onChangeColorProps("backgroundColor", color.hex, selectedId);
-							}}
-							onChange={color => {
-								onChangeColorProps("backgroundColor", color.hex, selectedId);
-							}}
-						/>
-					</div>
-				</Popover>
-			</div>
-			<div className="optionDescription">
-				<label style={{ width: "40%" }}>Font Color</label>
-				<div
-					style={{
-						height: "1.25rem",
-						width: "50%",
-						marginLeft: "20px",
-						backgroundColor: fontColor,
-						color: fontColor,
-						border: "2px solid darkgray",
-						margin: "auto",
-					}}
-					onClick={() => {
-						setFontColorPopOverOpen(!isFontColorPopoverOpen);
-						setSelectedId(id);
-					}}
-				></div>
-				<Popover
-					open={isFontColorPopoverOpen}
-					onClose={() => setFontColorPopOverOpen(false)}
-					onClick={() => setFontColorPopOverOpen(false)}
-					anchorReference="anchorPosition"
-					anchorPosition={{ top: 350, left: 1300 }}
-				>
-					<div id={id}>
-						<SketchPicker
-							className="sketchPicker"
-							width="16rem"
-							onChangeComplete={color => {
-								onChangeColorProps("fontColor", color.hex, selectedId);
-							}}
-							onChange={color => {
-								onChangeColorProps("fontColor", color.hex, selectedId);
-							}}
-						/>
-					</div>
-				</Popover>
-			</div>
-		</>
+			<div
+				title="Font Color"
+				style={{
+					height: "25px",
+					width: "25px",
+					backgroundColor: fontColor,
+					color: fontColor,
+					border: "2px solid darkgray",
+					borderRadius: "4px",
+				}}
+				onClick={() => {
+					setFontColorPopOverOpen(!isFontColorPopoverOpen);
+					setSelectedId(id);
+				}}
+			></div>
+			<Popover
+				open={isFontColorPopoverOpen}
+				onClose={() => setFontColorPopOverOpen(false)}
+				onClick={() => setFontColorPopOverOpen(false)}
+				anchorReference="anchorPosition"
+				anchorPosition={{ top: 350, left: 1300 }}
+			>
+				<div id={id}>
+					<SketchPicker
+						className="sketchPicker"
+						width="16rem"
+						onChangeComplete={color => {
+							onChangeColorProps("fontColor", color.hex, selectedId);
+						}}
+						onChange={color => {
+							onChangeColorProps("fontColor", color.hex, selectedId);
+						}}
+					/>
+				</div>
+			</Popover>
+		</div>
 	);
 };
 
@@ -391,6 +422,7 @@ const DynamicMeasureConditionalFormating = ({
 	addNewCondition,
 	dynamicMeasureProps,
 	changeConditionalFormat,
+	chartType,
 }: any) => {
 	var dmProp =
 		dynamicMeasureProps.dynamicMeasureProps[`${dynamicMeasureProps.selectedTabId}`]?.[
@@ -461,6 +493,7 @@ const DynamicMeasureConditionalFormating = ({
 					changeOptionValue(id, option, value);
 				}}
 				onDeleteCondition={(id: string) => onDelete(id)}
+				chartType={chartType}
 			/>
 			<div className="optionDescription">
 				<Button
