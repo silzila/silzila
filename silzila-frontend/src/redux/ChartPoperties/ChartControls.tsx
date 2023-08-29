@@ -1428,7 +1428,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 		if(action.payload.value){
 			measureText = {text: action.payload.dmValue, style:  action.payload.style};
 		}
-		else{
+		else if(false){
 			//measureText = removeTagFromHTMLString(state.properties[action.payload.propKey].richText, 'label', "RichTextID" + action.payload.dmId);
 			
 			//if(!action.payload?.dmId?.toString()?.includes("RichTextID")){

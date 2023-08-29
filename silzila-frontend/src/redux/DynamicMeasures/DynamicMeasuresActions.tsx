@@ -155,7 +155,7 @@ export const onCheckorUncheckOnDm = (
 			dispatch(updateRichTextOnAddingDYnamicMeasure(propKey, value, dmValue, styleObj, dmId));
 		}
 		else{
-			dispatch(updateRichTextOnAddingDYnamicMeasure(propKey, value, dmValue,  null, dmId));
+			//dispatch(updateRichTextOnAddingDYnamicMeasure(propKey, value, dmValue,  null, dmId));
 		}
 
 	};

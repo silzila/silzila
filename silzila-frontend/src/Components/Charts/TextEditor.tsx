@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { updateRichText, updateRichTextOnAddingDYnamicMeasure,clearRichText } from "../../redux/ChartPoperties/ChartControlsActions";
 import { addMeasureInTextEditor } from "../../redux/ChartPoperties/ChartPropertiesActions";
-import {onCheckorUncheckOnDm} from '../../redux/DynamicMeasures/DynamicMeasuresActions'
 import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react'
 import { Editor, Transforms, Range, createEditor, Descendant, Element as SlateElement, } from 'slate'
 import {
@@ -18,18 +17,26 @@ import {
 } from 'slate-react';
 
 import { Button, Icon, Toolbar } from '../CommonFunctions/TextEditorToolBar' ;
+import {MdFormatBold,MdFormatItalic,MdFormatUnderlined,MdFormatListBulleted,MdFormatListNumbered,MdFormatAlignLeft,MdFormatAlignCenter,MdFormatAlignRight,MdFormatAlignJustify,MdFormatQuote} from 'react-icons/md';
 
+import {
+	setDynamicMeasureWindowOpen,
+} from "../../redux/ChartPoperties/ChartPropertiesActions";
 
-const HOTKEYS = {
-  'mod+b': 'bold',
-  'mod+i': 'italic',
-  'mod+u': 'underline',
-  'mod+`': 'code',
-}
+import {
+	addNewDynamicMeasurePropsForSameTile,
+	addNewDynamicMeasurePropsFromNewTab,
+	addNewDynamicMeasurePropsFromNewTile,
+	deletingDynamicMeasure,
+	onCheckorUncheckOnDm,
+	setSelectedDynamicMeasureId,
+	setSelectedTabIdInDynamicMeasureState,
+	setSelectedTileIdInDynamicMeasureState,
+	setSelectedToEdit,
+} from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 
-const LIST_TYPES = ['numbered-list', 'bulleted-list']
-const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify']
-
+const LIST_TYPES:any = ['numbered-list', 'bulleted-list']
+const TEXT_ALIGN_TYPES:any = ['left', 'center', 'right', 'justify']
 
 const TextEditor = ({
 	propKey,
@@ -39,16 +46,19 @@ const TextEditor = ({
 	graphDimension,
 	chartArea,
 	graphTileSize,
-	onCheckorUncheckOnDm,
 	chartDetail,
 	onMouseDown,
 	dynamicMeasureState,
 	addMeasureInTextEditor,
 	updateRichTextOnAddingDYnamicMeasure,
+  setDynamicMeasureWindowOpen,
+  addNewDynamicMeasurePropsFromNewTab,
+	addNewDynamicMeasurePropsFromNewTile,
+	addNewDynamicMeasurePropsForSameTile,
   clearRichText
 }:  any) => {
-  const ref:any = useRef<HTMLDivElement | null>()
-  const [target, setTarget] = useState<Range | undefined>()
+  //const ref:any = useRef<HTMLDivElement | undefined>()
+  const [target, setTarget] = useState<any>()
   const [index, setIndex] = useState(0)
   const [search, setSearch] = useState('')
   const renderElement = useCallback((props:any) => <Element {...props} />, [])
@@ -58,6 +68,9 @@ const TextEditor = ({
     []
   )
 
+
+const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
+
   const initialValue:any = useMemo(()=>chartProp.properties[propKey]?.richText?.text || [
     {
       type: 'paragraph',
@@ -65,27 +78,6 @@ const TextEditor = ({
     },
   ],[]);
   
-  const [value, setValue] = useState(chartProp.properties[propKey]?.richText?.text || []);
-
-  useEffect(() => {
-		updateRichText(propKey, value);
-    setTarget(undefined)
-		//updateRichTextOnAddingDYnamicMeasure(propKey, "");
-	}, [value]);
-
-	useEffect(() => {
-    // let totalNodes = editor.children.length;
-
-    // for (let i = 0; i < totalNodes - 1; i++) {
-    //   Transforms.removeNodes(editor, {
-    //       at: [totalNodes-i-1],
-    //   });
-    // }
-
-		setValue(chartProp.properties[propKey]?.richText?.text ||[]);
-    setTarget(undefined)
-	}, [chartProp.properties[propKey].richText]);
-
 	useEffect(() => {
 		if(chartProp.properties[propKey].measureValue?.id !== "")
 		{
@@ -102,60 +94,127 @@ const TextEditor = ({
           measureStyle: _measureValueCopy.measureValue.value?.style,
           id:_measureValueCopy.measureValue.id,
           propKey:propKey,
-          onCheckorUncheckOnDm: onCheckorUncheckOnDm
+          showDash: tabTileProps.showDash
         }
 
+       //ref?.current?.focus();
+
+        // const { selection } = editor
+
+        // const [start] = Range.edges(selection)
+
+        // const wordBefore = Editor.before(editor, start, { unit: 'word' })
+        // const before = wordBefore && Editor.before(editor, wordBefore)
+        // const beforeRange = before && Editor.range(editor, before, start)
+        // setTarget(beforeRange)
+
+        //Transforms.select(editor, target)
         Transforms.insertNodes(editor,[_object]);
         Transforms.move(editor)
         setTarget(undefined)
       }
-     
-			//inserMention(thisEditor.current, _measureValueCopy.measureValue);
 		}
 	}, [chartProp.properties[propKey].measureValue?.id]);
 
-  const chars:any =[];
 
-  // useEffect(() => {
-  //   if (target && chars.length > 0) {
-  //     const el:any = ref.current
-  //     const domRange = ReactEditor.toDOMRange(editor, target)
-  //     const rect = domRange.getBoundingClientRect()
-  //     el.style.top = `${rect.top + window.pageYOffset + 24}px`
-  //     el.style.left = `${rect.left + window.pageXOffset}px`
-  //   }
-  // }, [chars.length, editor, index, search, target])
+  const onAddingNewDynamicMeaasure = () => {
+		if (dynamicMeasureState.dynamicMeasureList) {
+			if (dynamicMeasureState.dynamicMeasureList.hasOwnProperty(tabId)) {
+				if (dynamicMeasureState.dynamicMeasureList[tabId].hasOwnProperty(tileId)) {
+					var totalMeasures =
+						dynamicMeasureState.dynamicMeasureProps[tabId][tileId].totalDms;
+
+					addNewDynamicMeasurePropsForSameTile(
+						tabId,
+						tileId,
+						totalMeasures + 1,
+						...tabTileProps.selectedDataSetList
+					);
+				} else {
+					addNewDynamicMeasurePropsFromNewTile(
+						tabId,
+						tileId,
+						1,
+						...tabTileProps.selectedDataSetList
+					);
+				}
+			} else {
+				addNewDynamicMeasurePropsFromNewTab(
+					tabId,
+					tileId,
+					1,
+					...tabTileProps.selectedDataSetList
+				);
+			}
+		} else {
+			addNewDynamicMeasurePropsFromNewTab(
+				tabId,
+				tileId,
+				1,
+				...tabTileProps.selectedDataSetList
+			);
+		}
+	};
 
   return (
-    <Slate
-      editor={editor}
-      initialValue={initialValue}
-      onChange={(val) => {
-        //const { selection } = editor
-        setValue(val);
-        setTarget(undefined)
-       console.log(val);
-      }}
-    >
-       <Toolbar>
-        <MarkButton format="bold" icon="format_bold" />
-        <MarkButton format="italic" icon="format_italic" />
-        <MarkButton format="underline" icon="format_underlined" />
-        <BlockButton format="block-quote" icon="format_quote" />
-        <BlockButton format="numbered-list" icon="format_list_numbered" />
-        <BlockButton format="bulleted-list" icon="format_list_bulleted" />
-        <BlockButton format="left" icon="format_align_left" />
-        <BlockButton format="center" icon="format_align_center" />
-        <BlockButton format="right" icon="format_align_right" />
-        <BlockButton format="justify" icon="format_align_justify" />
-      </Toolbar>
-      <Editable
-        renderElement={renderElement}
-        renderLeaf={renderLeaf}
-        placeholder="Enter some text..."
-        style={{"height":"200px"}}
-      />
-    </Slate>
+    <>
+      {
+         !tabTileProps.showDash ?
+         <Button 
+         onClick={() => {
+             setDynamicMeasureWindowOpen(propKey, true);
+             onAddingNewDynamicMeaasure();
+         }}
+       >
+         Add Dynamic Measure
+     </Button>
+     : null
+      }
+       
+      <Slate
+        editor={editor}
+        initialValue={initialValue}
+        onChange={(val) => {
+          //const { selection } = editor
+
+          const isAstChange = editor.operations.some(
+            (op:any) => 'set_selection' !== op.type
+          )
+
+          if (isAstChange) {
+            updateRichText(propKey, val);
+            setTarget(undefined)
+            console.log(val);
+          }
+        }}
+      >
+        {
+          !tabTileProps.showDash ?
+          <Toolbar>
+          <BlockButton format="heading-one" icon="H1" />
+            <BlockButton format="heading-two" icon="H2" />
+            <MarkButton format="bold" icon={<MdFormatBold/>}/>
+            <MarkButton format="italic" icon={<MdFormatItalic/>} />
+            <MarkButton format="underline" icon={<MdFormatUnderlined/>} />
+            <BlockButton format="numbered-list" icon={<MdFormatListNumbered/>} />
+            <BlockButton format="bulleted-list" icon={<MdFormatListBulleted/>} />
+            <BlockButton format="left" icon={<MdFormatAlignLeft/>} />
+            <BlockButton format="center" icon={<MdFormatAlignCenter/>} />
+            <BlockButton format="right" icon={<MdFormatAlignRight/>} />
+            <BlockButton format="justify" icon={<MdFormatAlignJustify />} />
+          </Toolbar>
+          :null
+        }
+       
+        <Editable
+          readOnly={tabTileProps.showDash}
+          renderElement={renderElement}
+          renderLeaf={renderLeaf}
+          placeholder="Enter some text..."
+          style={{"height":"200px"}}
+        />
+      </Slate>
+    </>
   )
 }
 
@@ -203,14 +262,14 @@ const toggleBlock = (editor:any, format:any) => {
   const isList = LIST_TYPES.includes(format)
 
   Transforms.unwrapNodes(editor, {
-    match: n =>
+    match: (n:any) =>
       !Editor.isEditor(n) &&
       SlateElement.isElement(n) &&
       LIST_TYPES.includes(n.type) &&
       !TEXT_ALIGN_TYPES.includes(format),
     split: true,
   })
-  let newProperties: Partial<SlateElement>
+  let newProperties: any
   if (TEXT_ALIGN_TYPES.includes(format)) {
     newProperties = {
       align: isActive ? undefined : format,
@@ -238,14 +297,14 @@ const toggleMark = (editor:any, format:any) => {
   }
 }
 
-const isBlockActive = (editor:any, format:any, blockType = 'type') => {
+const isBlockActive = (editor:any, format:any, blockType:any = 'type') => {
   const { selection } = editor
   if (!selection) return false
 
   const [match] = Array.from(
     Editor.nodes(editor, {
       at: Editor.unhangRange(editor, selection),
-      match: n =>
+      match: (n:any) =>
         !Editor.isEditor(n) &&
         SlateElement.isElement(n) &&
         n[blockType] === format,
@@ -360,7 +419,7 @@ const Element = (props:any) => {
 }
 
 const Mention = ({ attributes, children, element }:any) => {
-  const ref:any = useRef<HTMLDivElement | null>()
+  //const ref:any = useRef<HTMLDivElement | undefined>()
 
   const selected = useSelected()
   const focused = useFocused()
@@ -370,24 +429,42 @@ const Mention = ({ attributes, children, element }:any) => {
     verticalAlign: 'baseline',
     display: 'inline-block',
     borderRadius: '4px',
-    backgroundColor: '#eee',
+    backgroundColor: 'lavender',
     fontSize: '0.9em',
-    boxShadow: selected && focused ? '0 0 0 2px #B4D5FF' : 'none',
+    boxShadow: selected && focused ? '0px 1px 1px 2px #B4D5FF' : 'none',
+    
   }
   // See if our empty text child has any styling marks applied and apply those
-  if (element.children[0].bold) {
+  if (element.measureStyle.isBold) {
     style.fontWeight = 'bold'
   }
-  if (element.children[0].italic) {
+
+  if (element.measureStyle.isItalic) {
     style.fontStyle = 'italic'
   }
 
-  Object.keys(element.measureStyle).forEach(_key=>{
-    style[_key] = element.measureStyle[_key];
-  })
+  if (element.measureStyle.fontColor) {
+    style.color = element.measureStyle.fontColor;
+  }
+
+  if (element.measureStyle.isUnderlined) {
+    style.textDecoration = 'underline';
+  }
+
+if (element.measureStyle.backgroundColor != 'white') {
+    style.backgroundColor = element.measureStyle.backgroundColor;
+  }
+
+  // if(element.showDash){
+  //   style.border  = 'dashed 1px grey';
+  // }
+
+
+  // Object.keys(element.measureStyle).forEach(_key=>{
+  //   style[_key] = element.measureStyle[_key];
+  // })
 
   return (
-    <div ref={ref} id={element.id} data-propkey={element.propKey} style={{"display":"inline"}}>
     <span 
       {...attributes}
       contentEditable={false}
@@ -397,15 +474,6 @@ const Mention = ({ attributes, children, element }:any) => {
       {element.character}
       {children}
     </span>
-    <button  contentEditable={false} onClick={(e)=>{
-      ref.current?.remove();
-      if(element.onCheckorUncheckOnDm){
-        let _parentDiv:any = e.currentTarget.closest('[data-propkey]') || {};
-
-        element.onCheckorUncheckOnDm(_parentDiv.id, false, _parentDiv.getAttribute("data-propkey"),0,{});
-      }
-      }}><span  contentEditable={false}>X</span></button>
-    </div>
   )
 }
 
@@ -424,17 +492,35 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		updateRichText: (propKey: string, value: any) => dispatch(updateRichText(propKey, value)),
 		addMeasureInTextEditor: (propKey: string, chartValue: any) =>
 			dispatch(addMeasureInTextEditor(propKey, chartValue)),
-		onCheckorUncheckOnDm: (
-				dmId: string,
-				value: boolean,
-				propKey: string,
-				dmValue: any,
-				styleObj: any
-			) => dispatch(onCheckorUncheckOnDm(dmId, value, propKey, dmValue, styleObj)),
     clearRichText: (propKey: string) =>
-			dispatch(clearRichText(propKey))
-		// updateRichTextOnAddingDYnamicMeasure: (propKey: string, value: string) =>
-		// 	dispatch(updateRichTextOnAddingDYnamicMeasure(propKey,value))
+			dispatch(clearRichText(propKey)),
+      setDynamicMeasureWindowOpen: (propKey: string, chartValue: any) =>
+			dispatch(setDynamicMeasureWindowOpen(propKey, chartValue)),
+      addNewDynamicMeasurePropsFromNewTab: (
+        tabId: number,
+        tileId: number,
+        dynamicMeasureId: number,
+        dataset: any
+      ) =>
+        dispatch(addNewDynamicMeasurePropsFromNewTab(tabId, tileId, dynamicMeasureId, dataset)),
+      addNewDynamicMeasurePropsFromNewTile: (
+        tabId: number,
+        tileId: number,
+        dynamicMeasureId: number,
+        dataset: any
+      ) =>
+        dispatch(
+          addNewDynamicMeasurePropsFromNewTile(tabId, tileId, dynamicMeasureId, dataset)
+        ),
+      addNewDynamicMeasurePropsForSameTile: (
+        tabId: number,
+        tileId: number,
+        dynamicMeasureId: number,
+        dataset: any
+      ) =>
+        dispatch(
+          addNewDynamicMeasurePropsForSameTile(tabId, tileId, dynamicMeasureId, dataset)
+        ),
 	};
 };
 
