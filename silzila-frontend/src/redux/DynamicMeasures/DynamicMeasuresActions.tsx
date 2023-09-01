@@ -1,6 +1,10 @@
 import { Dispatch } from "redux";
 import { updateRichTextOnAddingDYnamicMeasure } from "../ChartPoperties/ChartControlsActions";
 
+export const loadDynamicMeasures = (dynamicMeasure: any) => {
+	return { type: "LOAD_DYMANIC_MEASURES", payload: dynamicMeasure };
+};
+
 export const setSelectedDatasetForDynamicMeasure = (dataset: any) => {
 	return { type: "SET_SELECTED_DATASET_FOR_DYNAMICMEASURE", payload: dataset };
 };

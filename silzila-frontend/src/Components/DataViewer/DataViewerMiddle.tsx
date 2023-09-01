@@ -392,10 +392,32 @@ const DataViewerMiddle = ({
 		<div className="dataViewerMiddle" style={{ height: "300px" }}>
 			{chartProp.properties[propKey].chartType === "richText" ? (
 				<>
-					<GraphArea />
-					
-					<DynamicMeasureWindow />
-				</>
+				<GraphArea />
+				{/* <div className="rightColumn">
+					<div className="rightColumnControlsAndFilters">
+						<div
+							style={{
+								color: " #404040",
+								fontWeight: "600",
+								padding: "10px 0 0 0.5rem",
+								marginBottom: "3px",
+							}}
+						>
+							Dynamic Measure
+						</div>
+						{displayDynamicMeasuresList()}
+						<Button
+							onClick={() => {
+								setDynamicMeasureWindowOpen(propKey, true);
+								onAddingNewDynamicMeaasure();
+							}}
+						>
+							Add
+						</Button>
+					</div>
+				</div> */}
+				<DynamicMeasureWindow />
+			</>
 			) : (
 				<>
 					<ChartAxes tabId={tabId} tileId={tileId} />
