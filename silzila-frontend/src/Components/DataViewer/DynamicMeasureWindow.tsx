@@ -31,6 +31,12 @@ import ControlDetail from "../ChartOptions/ControlDetail";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import "./DynamicMeasuresStyles.css";
 
+import {
+	
+	onCheckorUncheckOnDm,
+
+} from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+
 
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 
@@ -46,6 +52,7 @@ const DynamicMeasureWindow = ({
 	dynamicMeasureState,
 
 	//dispatch
+	onCheckorUncheckOnDm,
 	addRecords,
 	setSelectedTable,
 	onDiscardDynamicMeasureCreation,
@@ -172,19 +179,13 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
 
 			updateRichTextOnAddingDYnamicMeasure(propKey, true, getFormatedValue(obj.dynamicMeasureId), obj.styleOptions, obj.dynamicMeasureId);
 
-			// onCheckorUncheckOnDm(
-			// 	obj.dynamicMeasureId,
-			// 	false,
-			// 	propKey,
-			// 	getFormatedValue(obj.dynamicMeasureId),
-			// 	{
-			// 		// obj?.styleOptions?.backgroundColor,
-			// 		// obj?.styleOptions?.fontColor,
-			// 		// obj?.styleOptions?.isBold,
-			// 		// obj?.styleOptions?.isItalic,
-			// 		// obj?.styleOptions?.isUnderlined,
-			// 	}
-			// );
+			onCheckorUncheckOnDm(
+				obj.dynamicMeasureId,
+				false,
+				propKey,
+				getFormatedValue(obj.dynamicMeasureId),
+				obj.styleOptions
+			);
 
 
 		} else {
@@ -450,6 +451,13 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 				dmValue: any,
 				styleObj: any
 			) => dispatch(updateRichTextOnAddingDYnamicMeasure(dmId, value, propKey, dmValue, styleObj)),
+			onCheckorUncheckOnDm: (
+				dmId: string,
+				value: boolean,
+				propKey: string,
+				dmValue: any,
+				styleObj: any
+			) => dispatch(onCheckorUncheckOnDm(dmId, value, propKey, dmValue, styleObj)),
 	};
 };
 

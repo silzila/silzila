@@ -33,6 +33,11 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 		};
 	};
 	switch (action.type) {
+
+		case "LOAD_DYMANIC_MEASURES":
+			return action.payload;
+
+
 		//1//have to call this whilre user select the rich text
 		case "SET_SELECTED_DATASET_FOR_DYNAMICMEASURE":
 			return {

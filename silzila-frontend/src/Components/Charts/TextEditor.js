@@ -27,16 +27,15 @@ import {
 	addNewDynamicMeasurePropsForSameTile,
 	addNewDynamicMeasurePropsFromNewTab,
 	addNewDynamicMeasurePropsFromNewTile,
-	deletingDynamicMeasure,
-	onCheckorUncheckOnDm,
+	
 	setSelectedDynamicMeasureId,
 	setSelectedTabIdInDynamicMeasureState,
 	setSelectedTileIdInDynamicMeasureState,
 	setSelectedToEdit,
 } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 
-const LIST_TYPES:any = ['numbered-list', 'bulleted-list']
-const TEXT_ALIGN_TYPES:any = ['left', 'center', 'right', 'justify']
+const LIST_TYPES = ['numbered-list', 'bulleted-list']
+const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify']
 
 const TextEditor = ({
 	propKey,
@@ -55,14 +54,38 @@ const TextEditor = ({
   addNewDynamicMeasurePropsFromNewTab,
 	addNewDynamicMeasurePropsFromNewTile,
 	addNewDynamicMeasurePropsForSameTile,
+  setSelectedDynamicMeasureId,
+	setSelectedTabIdForDM,
+	setSelectedTileIdForDM,
+	setSelectedToEdit,
   clearRichText
-}:  any) => {
-  //const ref:any = useRef<HTMLDivElement | undefined>()
-  const [target, setTarget] = useState<any>()
+}:any) => {
+  //const ref = useRef<HTMLDivElement | undefined>()
+  const [target, setTarget] = useState()
   const [index, setIndex] = useState(0)
   const [search, setSearch] = useState('')
-  const renderElement = useCallback((props:any) => <Element {...props} />, [])
-  const renderLeaf = useCallback((props:any) => <Leaf {...props} />, [])
+  const renderElement = useCallback((props) => <Element {...props} />, [])
+  const renderLeaf = useCallback((props) => <Leaf {...props} />, [])
+
+
+  const withMentions = (editor) => {
+    const { isInline, isVoid, markableVoid } = editor
+  
+    editor.isInline = (element) => {
+      return element.type === 'mention' ? true : isInline(element)
+    }
+  
+    editor.isVoid = (element) => {
+      return element.type === 'mention' ? true : isVoid(element)
+    }
+  
+    editor.markableVoid = (element) => {
+      return element.type === 'mention' || markableVoid(element)
+    }
+  
+    return editor
+  }
+
   const editor = useMemo(
     () => withMentions(withReact(createEditor())),
     []
@@ -71,7 +94,7 @@ const TextEditor = ({
 
 const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
 
-  const initialValue:any = useMemo(()=>chartProp.properties[propKey]?.richText?.text || [
+  const initialValue = useMemo(()=>chartProp.properties[propKey]?.richText?.text || [
     {
       type: 'paragraph',
       children: [{ text: 'A line of text in a paragraph.' }],
@@ -87,7 +110,7 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
       if(_measureValueCopy && _measureValueCopy.measureValue && _measureValueCopy.measureValue.value)
       {
 
-        let _object:any =  {
+        let _object =  {
           type: "mention",
           character:  _measureValueCopy.measureValue?.value?.text,
           children: [{ text: '' }],
@@ -156,70 +179,9 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
 		}
 	};
 
-  return (
-    <>
-      {
-         !tabTileProps.showDash ?
-         <Button 
-         onClick={() => {
-             setDynamicMeasureWindowOpen(propKey, true);
-             onAddingNewDynamicMeaasure();
-         }}
-       >
-         Add Dynamic Measure
-     </Button>
-     : null
-      }
-       
-      <Slate
-        editor={editor}
-        initialValue={initialValue}
-        onChange={(val) => {
-          //const { selection } = editor
+  
 
-          const isAstChange = editor.operations.some(
-            (op:any) => 'set_selection' !== op.type
-          )
-
-          if (isAstChange) {
-            updateRichText(propKey, val);
-            setTarget(undefined)
-            console.log(val);
-          }
-        }}
-      >
-        {
-          !tabTileProps.showDash ?
-          <Toolbar>
-          <BlockButton format="heading-one" icon="H1" />
-            <BlockButton format="heading-two" icon="H2" />
-            <MarkButton format="bold" icon={<MdFormatBold/>}/>
-            <MarkButton format="italic" icon={<MdFormatItalic/>} />
-            <MarkButton format="underline" icon={<MdFormatUnderlined/>} />
-            <BlockButton format="numbered-list" icon={<MdFormatListNumbered/>} />
-            <BlockButton format="bulleted-list" icon={<MdFormatListBulleted/>} />
-            <BlockButton format="left" icon={<MdFormatAlignLeft/>} />
-            <BlockButton format="center" icon={<MdFormatAlignCenter/>} />
-            <BlockButton format="right" icon={<MdFormatAlignRight/>} />
-            <BlockButton format="justify" icon={<MdFormatAlignJustify />} />
-          </Toolbar>
-          :null
-        }
-       
-        <Editable
-          readOnly={tabTileProps.showDash}
-          renderElement={renderElement}
-          renderLeaf={renderLeaf}
-          placeholder="Enter some text..."
-          style={{"height":"200px"}}
-        />
-      </Slate>
-    </>
-  )
-}
-
-
-const BlockButton = ({ format, icon }:any) => {
+const BlockButton = ({ format, icon }) => {
   const editor = useSlate()
   return (
     <Button
@@ -228,7 +190,7 @@ const BlockButton = ({ format, icon }:any) => {
         format,
         TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
       )}
-      onMouseDown={(event:any) => {
+      onMouseDown={(event) => {
         event.preventDefault()
         toggleBlock(editor, format)
       }}
@@ -238,12 +200,12 @@ const BlockButton = ({ format, icon }:any) => {
   )
 }
 
-const MarkButton = ({ format, icon }:any) => {
+const MarkButton = ({ format, icon }) => {
   const editor = useSlate()
   return (
     <Button
       active={isMarkActive(editor, format)}
-      onMouseDown={(event:any) => {
+      onMouseDown={(event) => {
         event.preventDefault()
         toggleMark(editor, format)
       }}
@@ -253,7 +215,7 @@ const MarkButton = ({ format, icon }:any) => {
   )
 }
 
-const toggleBlock = (editor:any, format:any) => {
+const toggleBlock = (editor, format) => {
   const isActive = isBlockActive(
     editor,
     format,
@@ -262,14 +224,14 @@ const toggleBlock = (editor:any, format:any) => {
   const isList = LIST_TYPES.includes(format)
 
   Transforms.unwrapNodes(editor, {
-    match: (n:any) =>
+    match: (n) =>
       !Editor.isEditor(n) &&
       SlateElement.isElement(n) &&
       LIST_TYPES.includes(n.type) &&
       !TEXT_ALIGN_TYPES.includes(format),
     split: true,
   })
-  let newProperties: any
+  let newProperties
   if (TEXT_ALIGN_TYPES.includes(format)) {
     newProperties = {
       align: isActive ? undefined : format,
@@ -279,7 +241,7 @@ const toggleBlock = (editor:any, format:any) => {
       type: isActive ? 'paragraph' : isList ? 'list-item' : format,
     }
   }
-  Transforms.setNodes<SlateElement>(editor, newProperties)
+  Transforms.setNodes(editor, newProperties)
 
   if (!isActive && isList) {
     const block = { type: format, children: [] }
@@ -287,7 +249,7 @@ const toggleBlock = (editor:any, format:any) => {
   }
 }
 
-const toggleMark = (editor:any, format:any) => {
+const toggleMark = (editor, format) => {
   const isActive = isMarkActive(editor, format)
 
   if (isActive) {
@@ -297,14 +259,14 @@ const toggleMark = (editor:any, format:any) => {
   }
 }
 
-const isBlockActive = (editor:any, format:any, blockType:any = 'type') => {
+const isBlockActive = (editor, format, blockType = 'type') => {
   const { selection } = editor
   if (!selection) return false
 
   const [match] = Array.from(
     Editor.nodes(editor, {
       at: Editor.unhangRange(editor, selection),
-      match: (n:any) =>
+      match: (n) =>
         !Editor.isEditor(n) &&
         SlateElement.isElement(n) &&
         n[blockType] === format,
@@ -314,32 +276,16 @@ const isBlockActive = (editor:any, format:any, blockType:any = 'type') => {
   return !!match
 }
 
-const isMarkActive = (editor:any, format:any) => {
-  const marks:any = Editor.marks(editor)
+const isMarkActive = (editor, format) => {
+  const marks = Editor.marks(editor)
   return marks ? marks[format] === true : false
 }
 
 
-const withMentions = (editor:any) => {
-  const { isInline, isVoid, markableVoid } = editor
 
-  editor.isInline = (element:any) => {
-    return element.type === 'mention' ? true : isInline(element)
-  }
 
-  editor.isVoid = (element:any) => {
-    return element.type === 'mention' ? true : isVoid(element)
-  }
-
-  editor.markableVoid = (element:any) => {
-    return element.type === 'mention' || markableVoid(element)
-  }
-
-  return editor
-}
-
-const insertMention = (editor:any, character:any) => {
-  const mention: any = {
+const insertMention = (editor, character) => {
+  const mention = {
     type: 'mention',
     character,
     children: [{ text: '' }],
@@ -350,7 +296,7 @@ const insertMention = (editor:any, character:any) => {
 
 // Borrow Leaf renderer from the Rich Text example.
 // In a real project you would get this via `withRichText(editor)` or similar.
-const Leaf = ({ attributes, children, leaf }:any) => {
+const Leaf = ({ attributes, children, leaf }) => {
   if (leaf.bold) {
     children = <strong>{children}</strong>
   }
@@ -370,7 +316,7 @@ const Leaf = ({ attributes, children, leaf }:any) => {
   return <span {...attributes}>{children}</span>
 }
 
-const Element = (props:any) => {
+const Element = (props) => {
   const { attributes, children, element } = props;
   const style = { textAlign: element.align };
 
@@ -418,18 +364,20 @@ const Element = (props:any) => {
   }
 }
 
-const Mention = ({ attributes, children, element }:any) => {
-  //const ref:any = useRef<HTMLDivElement | undefined>()
+
+  
+const Mention = ({ attributes, children, element }) => {
+  //const ref = useRef<HTMLDivElement | undefined>()
 
   const selected = useSelected()
   const focused = useFocused()
-  const style: any = {
+  const style = {
     padding: '3px 3px 2px',
     margin: '0 1px',
     verticalAlign: 'baseline',
     display: 'inline-block',
     borderRadius: '4px',
-    backgroundColor: 'lavender',
+    backgroundColor: '',
     fontSize: '0.9em',
     boxShadow: selected && focused ? '0px 1px 1px 2px #B4D5FF' : 'none',
     
@@ -470,6 +418,23 @@ if (element.measureStyle.backgroundColor != 'white') {
       contentEditable={false}
       data-cy={`mention-${element.character.replace(' ', '-')}`}
       style={style}
+      onClick={e=>{
+        console.log(e.target);
+        console.log(element);
+        let tabId = element.propKey.split('.')[0];
+        let tileId = element.propKey.split('.')[1];
+        let dmId = element.id.replace("RichTextID","");
+        setSelectedTabIdForDM(tabId);
+          setSelectedTileIdForDM(tileId);
+          setSelectedDynamicMeasureId(dmId);
+          setSelectedToEdit(
+            tabId,
+            tileId,
+            dmId,
+            true
+          );
+          setDynamicMeasureWindowOpen(propKey, true);
+      }}
     >
       {element.character}
       {children}
@@ -477,8 +442,71 @@ if (element.measureStyle.backgroundColor != 'white') {
   )
 }
 
+  return (
+    <>
+      {
+         !tabTileProps.showDash ?
+         <Button 
+         onClick={() => {
+             setDynamicMeasureWindowOpen(propKey, true);
+             onAddingNewDynamicMeaasure();
+         }}
+       >
+         Add Dynamic Measure
+     </Button>
+     : null
+      }
+       
+      <Slate
+        editor={editor}
+        initialValue={initialValue}
+        onChange={(val) => {
+          //const { selection } = editor
 
-const mapStateToProps = (state: any) => {
+          const isAstChange = editor.operations.some(
+            (op) => 'set_selection' !== op.type
+          )
+
+          if (isAstChange) {
+            updateRichText(propKey, val);
+            setTarget(undefined)
+            console.log(val);
+          }
+        }}
+      >
+        {
+          !tabTileProps.showDash ?
+          <Toolbar>
+          <BlockButton format="heading-one" icon="H1" />
+            <BlockButton format="heading-two" icon="H2" />
+            <MarkButton format="bold" icon={<MdFormatBold/>}/>
+            <MarkButton format="italic" icon={<MdFormatItalic/>} />
+            <MarkButton format="underline" icon={<MdFormatUnderlined/>} />
+            <BlockButton format="numbered-list" icon={<MdFormatListNumbered/>} />
+            <BlockButton format="bulleted-list" icon={<MdFormatListBulleted/>} />
+            <BlockButton format="left" icon={<MdFormatAlignLeft/>} />
+            <BlockButton format="center" icon={<MdFormatAlignCenter/>} />
+            <BlockButton format="right" icon={<MdFormatAlignRight/>} />
+            <BlockButton format="justify" icon={<MdFormatAlignJustify />} />
+          </Toolbar>
+          :null
+        }
+       
+        <Editable
+          readOnly={tabTileProps.showDash}
+          renderElement={renderElement}
+          renderLeaf={renderLeaf}
+          placeholder="Enter some text..."
+          style={{"height":"200px"}}
+        />
+      </Slate>
+    </>
+  )
+}
+
+
+
+const mapStateToProps = (state) => {
 	return {
 		chartProp: state.chartControls,
 		tabTileProps: state.tabTileProps,
@@ -487,40 +515,49 @@ const mapStateToProps = (state: any) => {
 	};
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+const mapDispatchToProps = (dispatch) => {
 	return {
-		updateRichText: (propKey: string, value: any) => dispatch(updateRichText(propKey, value)),
-		addMeasureInTextEditor: (propKey: string, chartValue: any) =>
+		updateRichText: (propKey, value) => dispatch(updateRichText(propKey, value)),
+		addMeasureInTextEditor: (propKey, chartValue) =>
 			dispatch(addMeasureInTextEditor(propKey, chartValue)),
-    clearRichText: (propKey: string) =>
+    clearRichText: (propKey) =>
 			dispatch(clearRichText(propKey)),
-      setDynamicMeasureWindowOpen: (propKey: string, chartValue: any) =>
+      setDynamicMeasureWindowOpen: (propKey, chartValue) =>
 			dispatch(setDynamicMeasureWindowOpen(propKey, chartValue)),
       addNewDynamicMeasurePropsFromNewTab: (
-        tabId: number,
-        tileId: number,
-        dynamicMeasureId: number,
-        dataset: any
+        tabId,
+        tileId,
+        dynamicMeasureId,
+        dataset
       ) =>
         dispatch(addNewDynamicMeasurePropsFromNewTab(tabId, tileId, dynamicMeasureId, dataset)),
       addNewDynamicMeasurePropsFromNewTile: (
-        tabId: number,
-        tileId: number,
-        dynamicMeasureId: number,
-        dataset: any
+        tabId,
+        tileId,
+        dynamicMeasureId,
+        dataset
       ) =>
         dispatch(
           addNewDynamicMeasurePropsFromNewTile(tabId, tileId, dynamicMeasureId, dataset)
         ),
       addNewDynamicMeasurePropsForSameTile: (
-        tabId: number,
-        tileId: number,
-        dynamicMeasureId: number,
-        dataset: any
+        tabId,
+        tileId,
+        dynamicMeasureId,
+        dataset
       ) =>
         dispatch(
           addNewDynamicMeasurePropsForSameTile(tabId, tileId, dynamicMeasureId, dataset)
         ),
+
+        setSelectedTileIdForDM: (tileId) =>
+			dispatch(setSelectedTileIdInDynamicMeasureState(tileId)),
+		setSelectedTabIdForDM: (tabId) =>
+			dispatch(setSelectedTabIdInDynamicMeasureState(tabId)),
+      setSelectedDynamicMeasureId: (dmId) => dispatch(setSelectedDynamicMeasureId(dmId)),
+     
+		setSelectedToEdit: (tabId, tileId, dmId, value) =>
+			dispatch(setSelectedToEdit(tabId, tileId, dmId, value)),
 	};
 };
 
