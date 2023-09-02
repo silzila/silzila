@@ -57,6 +57,7 @@ const MenuBar = ({
 	chartProperty,
 	chartControl,
 	chartGroup,
+	dynamicMeasureState,
 
 	//dispatch
 	toggleDashMode,
@@ -783,7 +784,7 @@ const MenuBar = ({
 	);
 };
 
-const mapStateToProps = (state: MapStateProps, ownProps: any) => {
+const mapStateToProps = (state: any, ownProps: any) => {
 	return {
 		playBookState: state.playBookState,
 		token: state.isLogged.accessToken,
@@ -792,7 +793,7 @@ const mapStateToProps = (state: MapStateProps, ownProps: any) => {
 		tileState: state.tileState,
 		chartProperty: state.chartProperties,
 		chartControl: state.chartControls,
-		chartGroup: state.chartFilterGroup,
+		chartGroup: state.chartFilterGroup
 	};
 };
 
