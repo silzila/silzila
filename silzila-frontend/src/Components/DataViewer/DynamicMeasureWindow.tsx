@@ -139,10 +139,10 @@ const DynamicMeasureWindow = ({
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage("Measure Field Can't be Empty");
-			setTimeout(() => {
-				setOpenAlert(false);
-				setTestMessage("");
-			}, 2000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	setTestMessage("");
+			// }, 2000);
 		}
 	};
 

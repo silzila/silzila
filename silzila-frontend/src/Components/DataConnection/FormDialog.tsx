@@ -22,6 +22,7 @@ import redshiftIcon from "../../assets/redshiftIcon.png";
 import mssqlIcon from "../../assets/mssqlicon.png";
 import mysqlicon from "../../assets/mysqlicon.svg";
 import postgresicon from "../../assets/postgresicon.png";
+import Logger from "../../Logger";
 
 function FormDialog({
 	//props
@@ -116,19 +117,19 @@ function FormDialog({
 				setSeverity("error");
 				setOpenAlert(true);
 				setTestMessage(response.data.message);
-				setTimeout(() => {
-					setOpenAlert(false);
-					setTestMessage("");
-				}, 4000);
+				// setTimeout(() => {
+				// 	setOpenAlert(false);
+				// 	setTestMessage("");
+				// }, 4000);
 			}
 		} else {
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage("Please Fillout All the fields");
-			setTimeout(() => {
-				setOpenAlert(false);
-				setTestMessage("");
-			}, 4000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	setTestMessage("");
+			// }, 4000);
 		}
 	};
 
@@ -171,7 +172,7 @@ function FormDialog({
 			url: "database-connection/" + dataConnId,
 			headers: { Authorization: `Bearer ${token}` },
 		});
-		// //console.log("database-connection/" + dataConnId);
+
 		if (result.status) {
 			setDcDel(false);
 			setSeverity("success");
@@ -185,14 +186,14 @@ function FormDialog({
 				getInformation();
 			}, 3000);
 		} else {
-			// //console.log("Delete Dc", result.data.detail);
+			Logger("error", result.data.detail);
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage(result.data.detail);
-			setTimeout(() => {
-				setOpenAlert(false);
-				setTestMessage("");
-			}, 3000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	setTestMessage("");
+			// }, 3000);
 		}
 	};
 	// =========================================================================
@@ -223,19 +224,19 @@ function FormDialog({
 				setSeverity("error");
 				setOpenAlert(true);
 				setTestMessage(response.data.message);
-				setTimeout(() => {
-					setOpenAlert(false);
-					setTestMessage("");
-				}, 4000);
+				// setTimeout(() => {
+				// 	setOpenAlert(false);
+				// 	setTestMessage("");
+				// }, 4000);
 			}
 		} else {
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage("Please Fillout All the fields");
-			setTimeout(() => {
-				setOpenAlert(false);
-				setTestMessage("");
-			}, 4000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	setTestMessage("");
+			// }, 4000);
 		}
 	};
 
@@ -297,6 +298,12 @@ function FormDialog({
 						<FormControl style={{ width: "60%" }}>
 							<InputLabel id="selectVendor">Vendor</InputLabel>
 							<Select
+								sx={{
+									"& .css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input":
+										{
+											display: "flex",
+										},
+								}}
 								required
 								fullWidth
 								label="vendor"
@@ -305,8 +312,6 @@ function FormDialog({
 								variant="outlined"
 								value={account.vendor}
 								onChange={e => {
-									//console.log(e.target.value);
-
 									setAccount({
 										...account,
 										vendor: e.target.value,
@@ -327,51 +332,19 @@ function FormDialog({
 								}}
 							>
 								<MenuItem value="postgresql">
-									<img
-										src={postgresicon}
-										alt=""
-										style={{
-											height: "25px",
-											width: "25px",
-											marginRight: "10px",
-										}}
-									/>
+									<img src={postgresicon} alt="" className="vendorIconStyle" />
 									<Typography>PostgreSql</Typography>
 								</MenuItem>
 								<MenuItem value="mysql">
-									<img
-										src={mysqlicon}
-										alt=""
-										style={{
-											height: "25px",
-											width: "25px",
-											marginRight: "10px",
-										}}
-									/>
+									<img src={mysqlicon} alt="" className="vendorIconStyle" />
 									<Typography>MySql</Typography>
 								</MenuItem>
 								<MenuItem value="sqlserver">
-									<img
-										src={mssqlIcon}
-										alt=""
-										style={{
-											height: "25px",
-											width: "25px",
-											marginRight: "10px",
-										}}
-									/>
+									<img src={mssqlIcon} alt="" className="vendorIconStyle" />
 									<Typography>Ms SQL Server</Typography>
 								</MenuItem>
 								<MenuItem value="redshift">
-									<img
-										src={redshiftIcon}
-										alt=""
-										style={{
-											height: "25px",
-											width: "25px",
-											marginRight: "10px",
-										}}
-									/>
+									<img src={redshiftIcon} alt="" className="vendorIconStyle" />
 									<Typography>Amazon Redshift</Typography>
 								</MenuItem>
 							</Select>

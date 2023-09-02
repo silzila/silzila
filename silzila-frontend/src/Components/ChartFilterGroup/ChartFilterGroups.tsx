@@ -151,10 +151,10 @@ const ChartFilterGroups = ({
 			setOpenAlert(true);
 			setTestMessage("Group name should be unique.");
 
-			setTimeout(() => {
-				setOpenAlert(false);
-				//setTestMessage("");
-			}, 3000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	//setTestMessage("");
+			// }, 3000);
 		}
 	};
 

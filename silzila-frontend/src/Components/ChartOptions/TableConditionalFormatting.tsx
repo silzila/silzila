@@ -1,6 +1,6 @@
 import { Button, Popover } from "@mui/material";
 import "./ConditionalFormatting.css";
-import React, { Dispatch, useState } from "react";
+import React, { Dispatch, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import {
 	addTableConditionalFormats,
@@ -9,12 +9,24 @@ import {
 } from "../../redux/ChartPoperties/ChartControlsActions";
 import ShortUniqueId from "short-unique-id";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import LabelComponent from "./TableChartControlComponents/LabelComponent";
 import GradientComponent from "./TableChartControlComponents/GradientComponent";
-import RuleComponent from "./TableChartControlComponents/RuleComponent";
-import { gradientDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import RuleComponent, {
+	addConditionButtonStyle,
+} from "./TableChartControlComponents/RuleComponent";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+
+const subMenuItemStyle = {
+	textTransform: "none",
+	color: "grey",
+	display: "block",
+};
+
+const arrowIconStyle = {
+	margin: "5px 0px 0px auto",
+	fontSize: "16px",
+};
 
 const TableConditionalFormatting = ({
 	chartControls,
@@ -29,19 +41,17 @@ const TableConditionalFormatting = ({
 
 	// tableConditionalFormats;
 
-	const [openPopover, setOpenPopover] = useState(false);
 	const [anchorEl, setAnchorEl] = useState<any>();
 	const [optionAnchorEl, setOptionAnchorEl] = useState<any>();
-	const [openOptionPopover, setOpenOptionPopover] = useState<boolean>(false);
-	const [openSubOptions, setOpenSubOptions] = useState<boolean>(false);
 	const [selectedColumnName, setSelectedColumnName] = useState<string>("");
+	const [menu, setMenu] = useState<any>([]);
+	const [openMenu, setOpenMenu] = useState<boolean>(false);
+	const [openSubMenu, setOpenSubMenu] = useState<boolean>(false);
 
 	const [gradientMinAndMax, setGradientMinAndMax] = useState<any>({
 		min: 0,
 		max: 0,
 	});
-
-	console.log(chartProperties.properties[propKey].chartAxes);
 
 	const getLabelValues = (columnName: string) => {
 		const values = chartControls.properties[propKey].chartData.map((item: any) => {
@@ -52,7 +62,7 @@ const TableConditionalFormatting = ({
 				isItalic: false,
 				isUnderlined: false,
 				fontColor: "black",
-				isUnique: false,
+				// isUnique: false,
 			};
 		});
 
@@ -81,7 +91,6 @@ const TableConditionalFormatting = ({
 			});
 		}
 		if (option === "gradient") {
-			console.log(chartControls);
 			addTableConditionalFormats(propKey, {
 				id: uId(),
 				isLabel: false,
@@ -128,51 +137,61 @@ const TableConditionalFormatting = ({
 		}
 	};
 
-	const onSelectColumn = (columnName: string) => {
+	const onSelectColumn = (column: any) => {
 		var canAdd = false;
 		if (chartControls.properties[propKey].tableConditionalFormats.length === 0) {
 			canAdd = true;
 		} else {
 			var columnAlreadyExist = chartControls.properties[
 				propKey
-			].tableConditionalFormats.filter((item: any) => item.name === columnName)[0];
+			].tableConditionalFormats.filter((item: any) => item.name === column.columnName)[0];
 			if (!columnAlreadyExist) {
 				canAdd = true;
 			}
 		}
-		let isLabel = false;
+
 		if (canAdd) {
-			chartProperties.properties[propKey].chartAxes[1].fields.map((column: any) => {
-				if (columnName === column.fieldname) {
-					setOpenSubOptions(false);
-					isLabel = true;
-
-					addTableConditionalFormats(propKey, {
-						isLabel: true,
-						name: columnName,
-						value: getLabelValues(columnName),
-						isCollapsed: false,
-						applyCommonStyle: true,
-						commonBg: "white",
-						commonFontColor: "black",
-					});
-
-					setOpenPopover(false);
-				}
-			});
-			if (!isLabel) {
-				console.log("its a measure");
-				setOpenSubOptions(true);
+			if (column.isLabel) {
+				addTableConditionalFormats(propKey, {
+					isLabel: column.isLabel,
+					name: column.columnName,
+					value: column.isLabel ? getLabelValues(column.columnName) : "",
+					isCollapsed: false,
+					backgroundColor: "white",
+					fontColor: "black",
+					isItalic: false,
+					isUnderlined: false,
+					isBold: false,
+				});
+				setOpenMenu(false);
+			} else {
+				setOpenSubMenu(true);
 			}
-		} else {
-			setOpenSubOptions(false);
 		}
 	};
 
-	const columnsNames =
-		chartControls.properties[propKey].chartData.length > 0
-			? Object.keys(chartControls.properties[propKey].chartData[0])
-			: [];
+	useEffect(() => {
+		if (chartControls.properties[propKey].chartData.length > 0) {
+			const zones = chartProperties.properties[propKey].chartAxes;
+
+			const output = zones.reduce((accumulator: any, zone: any) => {
+				accumulator = accumulator.concat(
+					zone.fields.map((value: any) => ({
+						isLabel: zone.name === "Row",
+						columnName:
+							zone.name === "Row"
+								? value.fieldname
+								: `${value.agg} of ${value.fieldname}`,
+					}))
+				);
+
+				return accumulator;
+			}, []);
+
+			setMenu(output);
+		}
+	}, [chartControls.properties[propKey].chartData]);
+
 	return (
 		<div className="optionsInfo">
 			<div className="optionDescription" style={{ display: "flex", flexDirection: "column" }}>
@@ -181,24 +200,15 @@ const TableConditionalFormatting = ({
 						(format: any, i: number) => {
 							return (
 								<>
-									<div
-										style={{
-											display: "flex",
-											flexDirection: "column",
-											borderBottom: "2px solid rgba(224,224,224,1)",
-											paddingBottom: "10px",
-										}}
-									>
-										<div style={{ display: "flex", marginBottom: "10px" }}>
-											<span style={{ fontSize: "16px" }}>{format.name}</span>
+									<div className="tableConditionalFormatContainer">
+										<div className="labelPropsContailer">
+											<span style={{ fontSize: "16px", color: "#5d5c5c" }}>
+												{format.name}{" "}
+											</span>
 											{format.isCollapsed ? (
-												<ExpandMoreIcon
-													sx={{
-														margin: "5px 0px 0px auto",
-														fontSize: "16px",
-													}}
+												<ChevronRightIcon
+													sx={arrowIconStyle}
 													onClick={() => {
-														console.log(format);
 														updatecfObjectOptions(propKey, i, {
 															...format,
 															isCollapsed: false,
@@ -206,17 +216,9 @@ const TableConditionalFormatting = ({
 													}}
 												/>
 											) : (
-												<ExpandLessIcon
-													sx={{
-														margin: "5px 0px 0px auto",
-														fontSize: "16px",
-													}}
+												<ExpandMoreIcon
+													sx={arrowIconStyle}
 													onClick={() => {
-														console.log(format, {
-															...format,
-															isCollapsed: true,
-														});
-
 														updatecfObjectOptions(propKey, i, {
 															...format,
 															isCollapsed: true,
@@ -225,14 +227,11 @@ const TableConditionalFormatting = ({
 												/>
 											)}
 											<DeleteOutlineOutlinedIcon
-												sx={{
-													margin: "3px 0px 0px 10px",
-													fontSize: "18px",
-												}}
+												sx={{ ...arrowIconStyle, fontSize: "18px" }}
 												onClick={() => deleteTablecf(propKey, i)}
 											/>
 										</div>
-										{format.isCollapsed ? (
+										{!format.isCollapsed ? (
 											<>
 												{format.isLabel ? (
 													<LabelComponent format={format} />
@@ -262,20 +261,11 @@ const TableConditionalFormatting = ({
 			</div>
 			<div className="optionDescription">
 				<Button
-					sx={{
-						backgroundColor: "rgb(43, 185, 187)",
-						height: "25px",
-						width: "100%",
-						color: "white",
-						textTransform: "none",
-						"&:hover": {
-							backgroundColor: "rgb(43, 185, 187)",
-						},
-					}}
+					sx={addConditionButtonStyle}
 					disabled={chartControls.properties[propKey].chartData.length > 0 ? false : true}
 					onClick={(e: any) => {
 						setAnchorEl(e.currentTarget);
-						setOpenPopover(true);
+						setOpenMenu(true);
 					}}
 				>
 					Add
@@ -285,7 +275,7 @@ const TableConditionalFormatting = ({
 				<p>create a chart first and then add conditional formats</p>
 			)}
 			<Popover
-				open={openPopover}
+				open={openMenu}
 				anchorEl={anchorEl}
 				anchorOrigin={{
 					vertical: "center",
@@ -295,116 +285,66 @@ const TableConditionalFormatting = ({
 					vertical: "center",
 					horizontal: "right",
 				}}
-				onClose={() => setOpenPopover(false)}
+				onClose={() => setOpenMenu(false)}
 			>
-				{columnsNames &&
-					columnsNames.map((column: string) => {
+				{menu &&
+					menu.map((column: any, index: number) => {
 						return (
-							<>
-								<Button
-									sx={{
-										textTransform: "none",
-										color: "grey",
-										display: "block",
-										padding: "0px 8px",
-									}}
-									value={column}
-									onClick={e => {
-										setOptionAnchorEl(e.currentTarget);
-										onSelectColumn(column);
-										setSelectedColumnName(column);
-									}}
-								>
-									{column}
-								</Button>
-								{openSubOptions && column === selectedColumnName ? (
-									<div
-										style={{
-											marginLeft: "10px",
-											display: "flex",
-											flexDirection: "column",
-										}}
-									>
-										<Button
-											sx={{
-												textTransform: "none",
-												color: "grey",
-												padding: "0px 8px",
-												justifyContent: "left",
-											}}
-											value="gradient"
-											onClick={(e: any) => {
-												setOpenOptionPopover(false);
-												setOpenPopover(false);
-												setOpenSubOptions(false);
-												onSelectOption(e.target.value);
-											}}
-										>
-											Gradient
-										</Button>
-										<Button
-											sx={{
-												textTransform: "none",
-												color: "grey",
-												justifyContent: "left",
-												padding: "0px 8px",
-											}}
-											value="rule"
-											onClick={(e: any) => {
-												setOpenOptionPopover(false);
-												setOpenPopover(false);
-												setOpenSubOptions(false);
-
-												onSelectOption(e.target.value);
-											}}
-										>
-											Rule
-										</Button>
-									</div>
-								) : null}
-							</>
+							<div
+								className="menuItemStyle"
+								style={{
+									borderBottom:
+										index === menu.length - 1
+											? "none"
+											: "1px solid rgba(224,224,224,1)",
+								}}
+								onClick={e => {
+									// if (column.isLabel) {
+									onSelectColumn(column);
+									setOptionAnchorEl(e.currentTarget);
+									// }
+									setSelectedColumnName(column.columnName);
+								}}
+							>
+								{column.columnName}
+								{column.isLabel ? null : (
+									<span style={{ float: "right", marginLeft: "5px" }}>{">"}</span>
+								)}
+							</div>
 						);
 					})}
 			</Popover>
 
 			<Popover
-				open={openOptionPopover}
+				open={openSubMenu}
 				anchorEl={optionAnchorEl}
 				anchorOrigin={{
-					vertical: "center",
-					horizontal: "left",
+					vertical: "bottom",
+					horizontal: "right",
 				}}
 				transformOrigin={{
 					vertical: "center",
-					horizontal: "right",
+					horizontal: "left",
 				}}
-				onClose={() => setOpenOptionPopover(false)}
+				onClose={() => setOpenSubMenu(false)}
 			>
 				<Button
-					sx={{
-						textTransform: "none",
-						color: "grey",
-						display: "block",
-					}}
+					sx={subMenuItemStyle}
 					value="gradient"
 					onClick={(e: any) => {
-						setOpenOptionPopover(false);
-						setOpenPopover(false);
+						setOpenSubMenu(false);
+						setOpenMenu(false);
 						onSelectOption(e.target.value);
 					}}
 				>
 					Gradient
 				</Button>
 				<Button
-					sx={{
-						textTransform: "none",
-						color: "grey",
-						display: "block",
-					}}
+					sx={subMenuItemStyle}
 					value="rule"
 					onClick={(e: any) => {
-						setOpenOptionPopover(false);
-						setOpenPopover(false);
+						setOpenSubMenu(false);
+						setOpenMenu(false);
 						onSelectOption(e.target.value);
 					}}
 				>

@@ -19,6 +19,7 @@ import { resetAllStates } from "../../redux/TabTile/TabTileActionsAndMultipleDis
 import AddIcon from "@mui/icons-material/Add";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 import { AlertColor } from "@mui/material/Alert";
+import Logger from "../../Logger";
 
 const initialState = {
 	vendor: "",
@@ -64,12 +65,10 @@ const DataConnection = (props: DataConnectionProps) => {
 		});
 
 		if (result.status) {
-			//console.log("dc");
-
 			setDataConnectionList(result.data);
 			props.setDataConnectionListToState(result.data);
 		} else {
-			// //console.log("result.data.detail");
+			Logger("error", result.data.detail);
 		}
 	};
 
@@ -107,8 +106,6 @@ const DataConnection = (props: DataConnectionProps) => {
 	// when Visibility icon Clicked
 	// ==================================================
 	const ViewOrEditDc = async (dcuid: string) => {
-		//console.log("click");
-
 		setDataConnId(dcuid);
 		// TODO need to specify type
 		var result: any = await FetchData({
@@ -117,14 +114,13 @@ const DataConnection = (props: DataConnectionProps) => {
 			url: "database-connection/" + dcuid,
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
-		//console.log(result);
 
 		if (result.status) {
 			setAccount({ ...result.data, password: "*******" });
 			setShowForm(true);
 			setViewMode(true);
 		} else {
-			// //console.log(result.data.detail);
+			Logger("error", result.data.detail);
 		}
 	};
 
@@ -170,7 +166,7 @@ const DataConnection = (props: DataConnectionProps) => {
 				}, 3000);
 			}
 		} else {
-			// //console.log(response);
+			Logger("error", response);
 		}
 	};
 
@@ -207,14 +203,13 @@ const DataConnection = (props: DataConnectionProps) => {
 				getInformation();
 			}, 3000);
 		} else {
-			// //console.log("Update Dc error", response);
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage(response.data.detail);
-			setTimeout(() => {
-				setOpenAlert(false);
-				setTestMessage("");
-			}, 3000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	setTestMessage("");
+			// }, 3000);
 		}
 	};
 
@@ -251,6 +246,7 @@ const DataConnection = (props: DataConnectionProps) => {
 				<div
 					className="containerButton"
 					onClick={(e: any) => {
+						Logger("info", "add new connection");
 						handleMode("New");
 						showAndHideForm();
 					}}
