@@ -1,5 +1,3 @@
-import React, { useState } from "react";
-import AddIcon from "@mui/icons-material/Add";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import ShortUniqueId from "short-unique-id";
@@ -7,17 +5,23 @@ import {
 	updatecfObjectOptions,
 	updatecfObjectOptions1,
 } from "../../../redux/ChartPoperties/ChartControlsActions";
-import {
-	CondtionComponent,
-	CustomFontAndBgColor,
-	StyleButtons,
-} from "../DynamicMeasureConditionalFormating";
+import { CondtionComponent } from "../ConditionalFormatingComponent";
 import { Button } from "@mui/material";
+
+export const addConditionButtonStyle = {
+	backgroundColor: "rgb(43, 185, 187)",
+	height: "25px",
+	width: "100%",
+	color: "white",
+	textTransform: "none",
+	"&:hover": {
+		backgroundColor: "rgb(43, 185, 187)",
+	},
+};
 
 const RuleComponent = ({
 	chartControls,
 	tabTileProps,
-	chartProperties,
 	updatecfObjectOptions1,
 	updatecfObjectOptions,
 	format,
@@ -40,7 +44,6 @@ const RuleComponent = ({
 		updatecfObjectOptions1(propKey, updatedValues);
 	};
 	const onAddCondition = (format: any, index: number) => {
-		console.log(format, index);
 		var obj = {
 			id: uId(),
 			isConditionSatisfied: false,
@@ -83,16 +86,7 @@ const RuleComponent = ({
 				}}
 			/>
 			<Button
-				sx={{
-					backgroundColor: "rgb(43, 185, 187)",
-					height: "25px",
-					width: "100%",
-					color: "white",
-					textTransform: "none",
-					"&:hover": {
-						backgroundColor: "rgb(43, 185, 187)",
-					},
-				}}
+				sx={addConditionButtonStyle}
 				onClick={() => {
 					onAddCondition(format, i);
 				}}
@@ -101,15 +95,7 @@ const RuleComponent = ({
 			</Button>
 			<hr />
 			<div className="optionDescription">
-				<p
-					style={{
-						color: "#ccc",
-						fontStyle: "italic",
-						fontSize: "10px",
-					}}
-				>
-					*the last satisfied condition's style will be applied*
-				</p>
+				<p className="noteStyle">*the last satisfied condition's style will be applied*</p>
 			</div>
 		</div>
 	);
@@ -119,7 +105,6 @@ const mapStateToProps = (state: any) => {
 	return {
 		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
-		chartProperties: state.chartProperties,
 	};
 };
 

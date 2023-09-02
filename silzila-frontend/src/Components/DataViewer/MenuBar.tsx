@@ -79,9 +79,9 @@ const MenuBar = ({
 				JSON.stringify(playBookState.oldContent.tabTileProps) &&
 			JSON.stringify(chartProperty) ===
 				JSON.stringify(playBookState.oldContent.chartProperty) &&
-			JSON.stringify(chartControl) === JSON.stringify(playBookState.oldContent.chartControl) &&
-			JSON.stringify(chartGroup) === JSON.stringify(playBookState.oldContent.chartGroup) &&
-			JSON.stringify(dynamicMeasureState) === JSON.stringify(playBookState.oldContent.dynamicMeasureState)
+			JSON.stringify(chartControl) ===
+				JSON.stringify(playBookState.oldContent.chartControl) &&
+			JSON.stringify(chartGroup) === JSON.stringify(playBookState.oldContent.chartGroup)
 		) {
 			showSaveWarning = false;
 		} else {
@@ -194,7 +194,6 @@ const MenuBar = ({
 				chartProperty,
 				chartControl,
 				chartGroup,
-				dynamicMeasureState
 			},
 		};
 
@@ -247,18 +246,18 @@ const MenuBar = ({
 				setSeverity("error");
 				setOpenAlert(true);
 				setTestMessage(result.data.detail);
-				setTimeout(() => {
-					setOpenAlert(false);
-				}, 2000);
+				// setTimeout(() => {
+				// 	setOpenAlert(false);
+				// }, 2000);
 			}
 		} else {
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage("Provide a Playbook name");
 
-			setTimeout(() => {
-				setOpenAlert(false);
-			}, 2000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// }, 2000);
 		}
 	};
 
@@ -794,8 +793,7 @@ const mapStateToProps = (state: any, ownProps: any) => {
 		tileState: state.tileState,
 		chartProperty: state.chartProperties,
 		chartControl: state.chartControls,
-		chartGroup: state.chartFilterGroup,
-		dynamicMeasureState: state.dynamicMeasuresState
+		chartGroup: state.chartFilterGroup
 	};
 };
 
