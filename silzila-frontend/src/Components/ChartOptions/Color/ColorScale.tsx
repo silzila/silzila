@@ -69,19 +69,19 @@ const ColorScale = ({
 			setOpenAlert(true);
 			setSeverity("error");
 			setTestMessage("Max value can't be zero");
-			setTimeout(() => {
-				setOpenAlert(false);
-				setTestMessage("");
-			}, 3000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	setTestMessage("");
+			// }, 3000);
 		} else {
 			if (Number(min) >= Number(max)) {
 				setOpenAlert(true);
 				setSeverity("error");
 				setTestMessage("Max value should be grater than Min");
-				setTimeout(() => {
-					setOpenAlert(false);
-					setTestMessage("");
-				}, 3000);
+				// setTimeout(() => {
+				// 	setOpenAlert(false);
+				// 	setTestMessage("");
+				// }, 3000);
 			}
 		}
 	};

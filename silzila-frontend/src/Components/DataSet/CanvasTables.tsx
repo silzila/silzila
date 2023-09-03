@@ -246,10 +246,10 @@ const CanvasTables = ({
 			setOpenAlert(true);
 			setseverity("error");
 			setTestMessage("Atleast one letter should be provided");
-			setTimeout(() => {
-				setOpenAlert(false);
-				setTestMessage("");
-			}, 4000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	setTestMessage("");
+			// }, 4000);
 		}
 	};
 	console.log(tableData);

@@ -243,7 +243,7 @@ const ChartControlObjects = ({
 				});
 
 			case "table":
-				return tableOptionList.map(option => {
+				return tableOptionList.map((option: string, i: number) => {
 					return (
 						<div
 							key={option}
@@ -252,6 +252,10 @@ const ChartControlObjects = ({
 									? "optionImageSelected"
 									: "optionImage"
 							}
+							style={{
+								textAlign: "center",
+								gridColumn: i === 4 ? "1/span 3" : "auto",
+							}}
 							onClick={() => changeChartOption(propKey, option)}
 						>
 							{option}

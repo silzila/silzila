@@ -114,10 +114,10 @@ const DataSetList = ({
 			setOpenAlert(true);
 			setTestMessage(result.data.detail);
 			getInformation();
-			setTimeout(() => {
-				setOpenAlert(false);
-				setTestMessage("");
-			}, 3000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	setTestMessage("");
+			// }, 3000);
 		}
 	};
 

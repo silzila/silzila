@@ -57,6 +57,7 @@ const MenuBar = ({
 	chartProperty,
 	chartControl,
 	chartGroup,
+	dynamicMeasureState,
 
 	//dispatch
 	toggleDashMode,
@@ -78,7 +79,8 @@ const MenuBar = ({
 				JSON.stringify(playBookState.oldContent.tabTileProps) &&
 			JSON.stringify(chartProperty) ===
 				JSON.stringify(playBookState.oldContent.chartProperty) &&
-			JSON.stringify(chartControl) === JSON.stringify(playBookState.oldContent.chartControl) &&
+			JSON.stringify(chartControl) ===
+				JSON.stringify(playBookState.oldContent.chartControl) &&
 			JSON.stringify(chartGroup) === JSON.stringify(playBookState.oldContent.chartGroup)
 		) {
 			showSaveWarning = false;
@@ -191,7 +193,7 @@ const MenuBar = ({
 				tabTileProps,
 				chartProperty,
 				chartControl,
-				chartGroup
+				chartGroup,
 			},
 		};
 
@@ -244,18 +246,18 @@ const MenuBar = ({
 				setSeverity("error");
 				setOpenAlert(true);
 				setTestMessage(result.data.detail);
-				setTimeout(() => {
-					setOpenAlert(false);
-				}, 2000);
+				// setTimeout(() => {
+				// 	setOpenAlert(false);
+				// }, 2000);
 			}
 		} else {
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage("Provide a Playbook name");
 
-			setTimeout(() => {
-				setOpenAlert(false);
-			}, 2000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// }, 2000);
 		}
 	};
 
@@ -782,7 +784,7 @@ const MenuBar = ({
 	);
 };
 
-const mapStateToProps = (state: MapStateProps, ownProps: any) => {
+const mapStateToProps = (state: any, ownProps: any) => {
 	return {
 		playBookState: state.playBookState,
 		token: state.isLogged.accessToken,
