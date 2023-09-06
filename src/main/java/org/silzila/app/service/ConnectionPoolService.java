@@ -97,6 +97,17 @@ public class ConnectionPoolService {
                 dataSource.setDataSourceClassName("com.microsoft.sqlserver.jdbc.SQLServerDataSource");
                 dataSource.addDataSourceProperty("url", fullUrl);
             }
+            // for Databricks
+            else if(dbConnection.getVendor().equals("databricks")){
+                fullUrl = "jdbc:databricks://" + dbConnection.getServer() + ":" 
+                         + dbConnection.getPort() + "/" + dbConnection.getDatabase() + ";transportMode=http;ssl=1;httpPath=" +
+                         dbConnection.getHttpPath() + ";AuthMech=3;UID=token;PWD=" + dbConnection.getPasswordHash() + ";EnableArrow=0";
+                config.setJdbcUrl(fullUrl);
+                config.setDriverClassName("com.databricks.client.jdbc.Driver");
+                config.addDataSourceProperty("minimulIdle", "1");
+                config.addDataSourceProperty("maximumPoolSize", "2");
+                dataSource = new HikariDataSource(config);
+            }
 
             // for Postgres & MySQL
             else {
@@ -243,6 +254,22 @@ public class ConnectionPoolService {
                     return schemaList;
                 }
             }
+            // Databricks
+            else if (vendorName.equals("databricks")) {
+                 if (databaseName == null || databaseName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Please specify Database Name for Databricks connection");
+                }
+                try( Connection _connection = connectionPool.get(id).getConnection();){
+                 DatabaseMetaData databaseMetaData = _connection.getMetaData();
+                //  get list of schema names from result
+                 ResultSet resultSet = databaseMetaData.getSchemas(databaseName, null);
+		         while (resultSet.next()) {
+		         String schemaName = resultSet.getString("TABLE_SCHEM");
+			     schemaList.add(schemaName);
+		        }
+                return schemaList;
+                }
+            }
             // for Postgres & MySQL
             else {
                 try (Connection _connection = connectionPool.get(id).getConnection();) {
@@ -265,9 +292,7 @@ public class ConnectionPoolService {
                 }
 
             }
-        } catch (
-
-        Exception e) {
+        } catch (Exception e) {
             throw e;
         }
     }
@@ -314,6 +339,31 @@ public class ConnectionPoolService {
                 resultSetTables.close();
 
             }
+            // for Databricks
+            else if(vendorName.equalsIgnoreCase("databricks")){
+                // throw error if db name or schema name is not passed
+                if(databaseName == null || databaseName.trim().isEmpty() || schemaName == null 
+                       || schemaName.trim().isEmpty()){
+                    throw new BadRequestException("Error: Database & Schema names are not provided!");
+                }
+                // Add Tables
+                 resultSetTables = databaseMetaData.getTables(databaseName, schemaName, null, new String[] { "TABLE" });
+                // Add Views
+                 resultSetViews = databaseMetaData.getTables(databaseName, schemaName, null, new String[] { "VIEW" });
+		        while (resultSetTables.next()) {
+			    // fetch Tables
+			     String tableName = resultSetTables.getString("TABLE_NAME");
+			     metadataTable.getTables().add(tableName);
+                }
+                while (resultSetViews.next()){
+                // fetch Views
+                 String tableName = resultSetViews.getString("TABLE_NAME");
+                 metadataTable.getViews().add(tableName);
+                }
+                resultSetTables.close();
+                resultSetViews.close();
+
+		    }
             // postgres & MySql are handled the same but different from SQL Server
             else {
 
@@ -410,6 +460,16 @@ public class ConnectionPoolService {
                 resultSet = databaseMetaData.getColumns(databaseName, schemaName, tableName, null);
 
             }
+            // for Databricks
+            else if(vendorName.equals("databricks")){
+                // DB name & schema name are must for Databricks
+               if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                        || schemaName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Database & Schema names are not provided!");
+                }
+                // get column names from the given schema and Table name
+                resultSet = databaseMetaData.getColumns(databaseName, schemaName, tableName, null);
+            }
             // iterate table names and add it to List
             while (resultSet.next()) {
                 String columnName = resultSet.getString("COLUMN_NAME");
@@ -474,6 +534,16 @@ public class ConnectionPoolService {
             // construct query
             query = "SELECT TOP " + recordCount + " * FROM " + databaseName + "." + schemaName + "." + tableName;
 
+        }
+        // for Databricks 
+        else if (vendorName.equals("databricks")) {
+            // DB name & schema name are must for Databricks
+            if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                    || schemaName.trim().isEmpty()) {
+                throw new BadRequestException("Error: Database & Schema names are not provided!");
+            }
+            // construct query
+            query = "SELECT * FROM " + databaseName + ".`" + schemaName + "`." + tableName + " LIMIT " + recordCount;
         }
         // RUN THE 'SELECT *' QUERY
         try (Connection _connection = connectionPool.get(id).getConnection();
@@ -547,7 +617,19 @@ public class ConnectionPoolService {
             dataSource.setDataSourceClassName("com.microsoft.sqlserver.jdbc.SQLServerDataSource");
             dataSource.addDataSourceProperty("url", fullUrl);
         }
-        // Postgres & MySQL
+        // Databricks
+        else if(request.getVendor().equals("databricks")){
+		 String fullUrl = "jdbc:databricks://" + request.getServer() + ":" 
+                  + request.getPort() + "/" + request.getDatabase() + ";transportMode=http;ssl=1;httpPath=" 
+                   + request.getHttpPath() + ";AuthMech=3;UID=token;PWD=" + request.getPassword() + ";EnableArrow=0";
+         System.out.println(fullUrl);       
+		 config.setJdbcUrl(fullUrl);
+         config.setDriverClassName("com.databricks.client.jdbc.Driver");
+		 config.addDataSourceProperty("minimulIdle", "1");
+		 config.addDataSourceProperty("maximumPoolSize", "2");
+		 dataSource = new HikariDataSource(config);
+        }
+         // Postgres & MySQL
         else {
             String fullUrl = "jdbc:" + request.getVendor() + "://" + request.getServer() + ":" + request.getPort() + "/"
                     + request.getDatabase();

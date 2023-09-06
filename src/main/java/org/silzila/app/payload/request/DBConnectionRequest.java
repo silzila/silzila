@@ -31,9 +31,11 @@ public class DBConnectionRequest {
     @NotBlank
     @Size(max = 255)
     private String password;
+    
+    @Size(max = 255)
+    private String httpPath;
 
     @NotBlank
     @Size(max = 255)
     private String connectionName;
-
 }

@@ -69,7 +69,7 @@ public class DBConnectionController {
     @PostMapping("/database-connection")
     public ResponseEntity<?> registerDBConnection(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody DBConnectionRequest dbConnectionRequest) throws BadRequestException {
-        // get the rquester user id
+        // get the requester user id
         String userId = reqHeader.get("requesterUserId");
         // make service call to add record
         DBConnectionDTO dto = dbConnectionService.createDBConnection(dbConnectionRequest, userId);

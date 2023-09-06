@@ -155,6 +155,7 @@ public class DBConnectionService {
                 saltString,
                 passwordHash, // dbConnectionRequest.getPassword(),
                 dbConnectionRequest.getConnectionName(),
+                dbConnectionRequest.getHttpPath(),
                 null,
                 null,
                 null);
@@ -182,6 +183,7 @@ public class DBConnectionService {
                 "",
                 "",
                 connectionName,
+                "",
                 bigQryConnDTO.getProjectId(),
                 bigQryConnDTO.getClientEmail(),
                 bigQryConnDTO.getTokenFileName());

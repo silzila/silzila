@@ -49,9 +49,9 @@ public class QueryComposer {
         } else if (vendorName.equals("bigquery")) {
             // System.out.println("------ inside Big Query block");
             qMap = SelectClauseSqlserver.buildSelectClause(req);
-        } else if (vendorName.equals("spark")) {
-            // System.out.println("------ inside spark block");
-            qMap = SelectClauseSpark.buildSelectClause(req);
+        } else if (vendorName.equals("databricks")) {
+            // System.out.println("------ inside databricks block");
+            qMap = SelectClauseDatabricks.buildSelectClause(req);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
