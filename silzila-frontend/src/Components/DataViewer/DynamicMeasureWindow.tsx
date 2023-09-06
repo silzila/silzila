@@ -31,6 +31,18 @@ import ControlDetail from "../ChartOptions/ControlDetail";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import "./DynamicMeasuresStyles.css";
 
+import {
+	
+	onCheckorUncheckOnDm,
+
+} from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+
+
+import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
+
+import {  updateRichTextOnAddingDYnamicMeasure } from "../../redux/ChartPoperties/ChartControlsActions";
+
+
 const DynamicMeasureWindow = ({
 	//state
 	token,
@@ -40,12 +52,15 @@ const DynamicMeasureWindow = ({
 	dynamicMeasureState,
 
 	//dispatch
+	onCheckorUncheckOnDm,
 	addRecords,
 	setSelectedTable,
 	onDiscardDynamicMeasureCreation,
 	setDynamicMeasureWindowOpen,
 	discardCreationOfFirstDm,
 	setSelectedToEdit,
+	updateRichTextOnAddingDYnamicMeasure
+
 }: any) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var dynamicMeasurePropKey: string = `${tabTileProps.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`;
@@ -59,6 +74,8 @@ const DynamicMeasureWindow = ({
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
 	const [severity, setSeverity] = useState<AlertColor>("success");
+const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
+
 
 	const handleTableChange = async (table: any, dsUid?: any) => {
 		if (table.flatFileId) {
@@ -130,19 +147,55 @@ const DynamicMeasureWindow = ({
 			return count;
 		});
 	};
+
+	const getFormatedValue = (dmId: number) => {
+		var formattedValue =
+			dynamicMeasureState.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
+				dynamicMeasureState.selectedTileId
+			]?.[`${dynamicMeasureState.selectedTileId}.${dmId}`]?.dmValue;
+		formattedValue = formatChartLabelValue(
+			dynamicMeasureState.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
+				dynamicMeasureState.selectedTileId
+			]?.[`${dynamicMeasureState.selectedTileId}.${dmId}`],
+			formattedValue
+		);
+		return formattedValue;
+	};
+
+
 	var count = 0;
 	const handleOnSave = () => {
 		if (selectedDynamicMeasureProps.chartAxes[1].fields.length !== 0) {
 			// updateDynamicMeasureName(`${Object.keys(selectedDynamicMeasureProps.chartData[0])}`);
 			setDynamicMeasureWindowOpen(propKey, false);
+
+			let obj: any 	=
+					dynamicMeasureState.dynamicMeasureProps[`${dynamicMeasureState.selectedTabId}`]?.[
+						`${dynamicMeasureState.selectedTileId}`
+					]?.[
+						`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+					];
+
+
+			updateRichTextOnAddingDYnamicMeasure(propKey, true, getFormatedValue(obj.dynamicMeasureId), obj.styleOptions, obj.dynamicMeasureId);
+
+			onCheckorUncheckOnDm(
+				obj.dynamicMeasureId,
+				false,
+				propKey,
+				getFormatedValue(obj.dynamicMeasureId),
+				obj.styleOptions
+			);
+
+
 		} else {
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage("Measure Field Can't be Empty");
-			setTimeout(() => {
-				setOpenAlert(false);
-				setTestMessage("");
-			}, 2000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	setTestMessage("");
+			// }, 2000);
 		}
 	};
 
@@ -391,6 +444,20 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(discardCreationOfFirstDm(tabId, tileId, dmId)),
 		setSelectedToEdit: (tabId: number, tileId: number, dmId: number, value: boolean) =>
 			dispatch(setSelectedToEdit(tabId, tileId, dmId, value)),
+			updateRichTextOnAddingDYnamicMeasure: (
+				dmId: string,
+				value: boolean,
+				propKey: string,
+				dmValue: any,
+				styleObj: any
+			) => dispatch(updateRichTextOnAddingDYnamicMeasure(dmId, value, propKey, dmValue, styleObj)),
+			onCheckorUncheckOnDm: (
+				dmId: string,
+				value: boolean,
+				propKey: string,
+				dmValue: any,
+				styleObj: any
+			) => dispatch(onCheckorUncheckOnDm(dmId, value, propKey, dmValue, styleObj)),
 	};
 };
 

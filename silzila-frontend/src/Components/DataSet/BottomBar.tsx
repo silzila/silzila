@@ -87,10 +87,10 @@ const BottomBar = ({
 					"tables with no Relationship\n" +
 					tablesWithoutRelation.map((el: string) => "\n" + el)
 			);
-			setTimeout(() => {
-				setOpenAlert(false);
-				setTestMessage("");
-			}, 4000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	setTestMessage("");
+			// }, 4000);
 		}
 
 		// case where there is only one table and no relations or
@@ -174,10 +174,10 @@ const BottomBar = ({
 				setSeverity("error");
 				setOpenAlert(true);
 				setTestMessage(options.data.detail);
-				setTimeout(() => {
-					setOpenAlert(false);
-					setTestMessage("");
-				}, 4000);
+				// setTimeout(() => {
+				// 	setOpenAlert(false);
+				// 	setTestMessage("");
+				// }, 4000);
 			}
 		}
 
@@ -234,10 +234,10 @@ const BottomBar = ({
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage("Please Enter A Dataset Name");
-			setTimeout(() => {
-				setOpenAlert(false);
-				setTestMessage("");
-			}, 4000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	setTestMessage("");
+			// }, 4000);
 		}
 	};
 

@@ -99,9 +99,9 @@ const EditFlatFileData = ({
 			setOpenAlert(true);
 			setSeverity("error");
 			setTestMessage(result.data.message);
-			setTimeout(() => {
-				setOpenAlert(false);
-			}, 3000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// }, 3000);
 		}
 	};
 
@@ -137,9 +137,9 @@ const EditFlatFileData = ({
 			setOpenAlert(true);
 			setSeverity("error");
 			setTestMessage(result.data.message);
-			setTimeout(() => {
-				setOpenAlert(false);
-			}, 3000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// }, 3000);
 		}
 	};
 

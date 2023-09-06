@@ -813,8 +813,8 @@ const GraphArea = ({
 								title="Double click to set title manually"
 							>
 								{chartProperties.properties[propKey].isDynamicMeasureWindowOpened
-									? selectedDynamicMeasureProp.dynamicMeasureName
-									: chartProperties.properties[propKey].titleOptions.chartTitle}
+									? selectedDynamicMeasureProp?.dynamicMeasureName
+									: chartProperties.properties[propKey]?.titleOptions?.chartTitle}
 							</div>
 						</>
 					)}

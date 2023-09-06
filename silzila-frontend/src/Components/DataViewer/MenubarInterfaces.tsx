@@ -15,7 +15,6 @@ import { PlayBookProps } from "../DataConnection/PlayBookInterfaces";
 import {ChartFilterGroupProps} from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 import {ChartFilterGroupStateProps} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
 
-
 export type MapStateProps = isLoggedProps &
 	TabStateProps2 &
 	TileStateProps2 &
@@ -37,6 +36,7 @@ export interface MenubarProps {
 	chartControl: ChartControl;
 	chartProperty: ChartPropertiesProps;
 	chartGroup:ChartFilterGroupProps;
+	dynamicMeasureState : any;
 	//Dispatch
 	resetUser: () => void;
 	updatePlayBookId: (

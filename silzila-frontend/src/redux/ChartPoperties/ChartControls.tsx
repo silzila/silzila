@@ -1428,16 +1428,25 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 		if(action.payload.value){
 			measureText = {text: action.payload.dmValue, style:  action.payload.style};
 		}
-		else{
+		else if(false){
 			//measureText = removeTagFromHTMLString(state.properties[action.payload.propKey].richText, 'label', "RichTextID" + action.payload.dmId);
 			
-			if(!action.payload?.dmId?.toString()?.includes("RichTextID")){
+			//if(!action.payload?.dmId?.toString()?.includes("RichTextID")){
 				measureText = {text: "", style: ""};
 
 				let _richText = JSON.parse(JSON.stringify(state.properties[action.payload.propKey].richText)); 
 
 				_richText?.text?.forEach((list:any) => {
-					let index = list.children.findIndex((item:any)=>item.id == "RichTextID" + action.payload.dmId);
+					let index = list.children.findIndex((item:any)=>
+						{
+							if(action.payload.dmId?.toString().includes("RichTextID"))
+							{
+								return item.id == action.payload.dmId;
+							}
+							else{
+								return item.id == "RichTextID" + action.payload.dmId;
+							}
+						});
 	
 					if(index > -1){
 						list.children.splice(index,1);
@@ -1456,20 +1465,20 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 						},
 					},
 				});
-			}
-			else{
-				measureText = {text: action.payload.dmValue, style:  action.payload.style};
+			// }
+			// else{
+			// 	measureText = {text: action.payload.dmValue, style:  action.payload.style};
 
-				return update(state, {
-					properties: {
-						[action.payload.propKey]: {
-							richText: {
-								$set: measureText
-							},
-						},
-					},
-				});
-			}
+			// 	return update(state, {
+			// 		properties: {
+			// 			[action.payload.propKey]: {
+			// 				richText: {
+			// 					$set: measureText
+			// 				},
+			// 			},
+			// 		},
+			// 	});
+			// }
 		}
 
 			return update(state, {

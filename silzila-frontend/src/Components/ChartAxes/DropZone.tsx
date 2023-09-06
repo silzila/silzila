@@ -118,10 +118,10 @@ const DropZone = ({
 						setTestMessage(
 							"Can't drop columns of datatype other than date or timestamp"
 						);
-						setTimeout(() => {
-							setOpenAlert(false);
-							setTestMessage("");
-						}, 3000);
+						// setTimeout(() => {
+						// 	setOpenAlert(false);
+						// 	setTestMessage("");
+						// }, 3000);
 					}
 				}
 				// else if (chartType === "geoChart") {
@@ -175,10 +175,10 @@ const DropZone = ({
 						setTestMessage(
 							"Can't drop columns of datatype other than date or timestamp"
 						);
-						setTimeout(() => {
-							setOpenAlert(false);
-							setTestMessage("");
-						}, 3000);
+						// setTimeout(() => {
+						// 	setOpenAlert(false);
+						// 	setTestMessage("");
+						// }, 3000);
 					}
 				} else {
 					console.log("******", name);

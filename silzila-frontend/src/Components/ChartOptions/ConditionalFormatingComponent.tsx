@@ -1,5 +1,5 @@
 import { Button, FormControl, MenuItem, Popover, Select, TextField } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import {
@@ -14,8 +14,8 @@ import FormatBoldIcon from "@mui/icons-material/FormatBold";
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 export const checkIsConditionSatisfied = (formatsArray: any, dmValue: number) => {
 	const updatedArray = formatsArray.map((el: any) => {
@@ -84,7 +84,6 @@ const conditionTypes = [
 ];
 
 const GetInputField = ({ condition, onChangeValueProps }: any) => {
-	console.log(condition);
 	return (
 		<>
 			{condition.conditionType === 7 ? (
@@ -146,7 +145,6 @@ export const CondtionComponent = ({
 	onChangeProps,
 	chartType,
 }: any) => {
-	console.log(chartType);
 	return (
 		<>
 			<div style={{ display: "flex", flexDirection: "column" }}>
@@ -161,7 +159,11 @@ export const CondtionComponent = ({
 							}}
 						>
 							<div style={{ display: "flex" }}>
-								<span>conditional Format {i + 1}</span>
+								<span>
+									{chartType === "richText"
+										? `conditional Format ${i + 1}`
+										: `Rule ${i + 1}`}
+								</span>
 								{condition.isCollapsed ? (
 									<ExpandMoreIcon
 										sx={{
@@ -177,7 +179,7 @@ export const CondtionComponent = ({
 										}}
 									/>
 								) : (
-									<ExpandLessIcon
+									<ChevronRightIcon
 										sx={{
 											margin: "5px 0px 0px auto",
 											fontSize: "16px",
@@ -303,6 +305,8 @@ export const StyleButtons = ({ isBold, isItalic, isUnderlined, onChangeStyleProp
 					onChangeStyleProps("isBold", !isBold);
 				}}
 				sx={{
+					height: "20px",
+					width: "20px",
 					border: "1px solid grey",
 					borderRadius: "3px",
 					backgroundColor: isBold ? "rgba(224,224,224,1)" : "none",
@@ -311,6 +315,8 @@ export const StyleButtons = ({ isBold, isItalic, isUnderlined, onChangeStyleProp
 			<FormatItalicIcon
 				onClick={() => onChangeStyleProps("isItalic", !isItalic)}
 				sx={{
+					height: "20px",
+					width: "20px",
 					border: "1px solid grey",
 					borderRadius: "3px",
 					backgroundColor: isItalic ? "rgba(224,224,224,1)" : "none",
@@ -319,6 +325,8 @@ export const StyleButtons = ({ isBold, isItalic, isUnderlined, onChangeStyleProp
 			<FormatUnderlinedIcon
 				onClick={() => onChangeStyleProps("isUnderlined", !isUnderlined)}
 				sx={{
+					height: "20px",
+					width: "20px",
 					border: "1px solid grey",
 					borderRadius: "3px",
 					backgroundColor: isUnderlined ? "rgba(224,224,224,1)" : "none",
@@ -339,15 +347,14 @@ export const CustomFontAndBgColor = ({
 	const [selectedId, setSelectedId] = useState<string>("");
 	const [isbgColorPopoverOpen, setbgColorPopOverOpen] = useState<boolean>(false);
 	const [isFontColorPopoverOpen, setFontColorPopOverOpen] = useState<boolean>(false);
-	console.log(selectedId);
 
 	return (
 		<div style={{ display: "flex", gap: "10px", marginLeft: "10px" }}>
 			<div
 				title="Background Color"
 				style={{
-					height: "25px",
-					width: "25px",
+					height: "20px",
+					width: "20px",
 					backgroundColor: backgroundColor,
 					color: backgroundColor,
 					border: "2px solid darkgray",
@@ -367,11 +374,9 @@ export const CustomFontAndBgColor = ({
 			>
 				<div id={id}>
 					<SketchPicker
+						color={backgroundColor}
 						className="sketchPicker"
 						width="16rem"
-						onChangeComplete={color => {
-							onChangeColorProps("backgroundColor", color.hex, selectedId);
-						}}
 						onChange={color => {
 							onChangeColorProps("backgroundColor", color.hex, selectedId);
 						}}
@@ -382,8 +387,8 @@ export const CustomFontAndBgColor = ({
 			<div
 				title="Font Color"
 				style={{
-					height: "25px",
-					width: "25px",
+					height: "20px",
+					width: "20px",
 					backgroundColor: fontColor,
 					color: fontColor,
 					border: "2px solid darkgray",
@@ -403,11 +408,9 @@ export const CustomFontAndBgColor = ({
 			>
 				<div id={id}>
 					<SketchPicker
+						color={fontColor}
 						className="sketchPicker"
 						width="16rem"
-						onChangeComplete={color => {
-							onChangeColorProps("fontColor", color.hex, selectedId);
-						}}
 						onChange={color => {
 							onChangeColorProps("fontColor", color.hex, selectedId);
 						}}
@@ -418,7 +421,7 @@ export const CustomFontAndBgColor = ({
 	);
 };
 
-const DynamicMeasureConditionalFormating = ({
+const ConditionalFormatingComponent = ({
 	addNewCondition,
 	dynamicMeasureProps,
 	changeConditionalFormat,
@@ -431,11 +434,7 @@ const DynamicMeasureConditionalFormating = ({
 			`${dynamicMeasureProps.selectedTileId}.${dynamicMeasureProps.selectedDynamicMeasureId}`
 		];
 
-	const [isbgColorPopoverOpen, setbgColorPopOverOpen] = useState<boolean>(false);
-
 	var uid = new ShortUniqueId({ length: 8 });
-
-	const [isFontColorPopoverOpen, setFontColorPopOverOpen] = useState<boolean>(false);
 
 	const addNewConditionOnClick = () => {
 		var obj = {
@@ -463,8 +462,6 @@ const DynamicMeasureConditionalFormating = ({
 	};
 
 	const changeOptionValue = (id: string, option: string, value: any) => {
-		// console.log(dmProp.conditionalFormats);
-		// console.log(id, option, value);
 		const updatedConditionalFormatsArray = dmProp.conditionalFormats.map((el: any) => {
 			if (el.id === id) {
 				el[option] = value;
@@ -535,4 +532,4 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	};
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DynamicMeasureConditionalFormating);
+export default connect(mapStateToProps, mapDispatchToProps)(ConditionalFormatingComponent);

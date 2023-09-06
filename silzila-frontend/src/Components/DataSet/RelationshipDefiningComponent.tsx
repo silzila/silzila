@@ -200,11 +200,11 @@ const RelationshipDefiningComponent = ({
 			setSeverity("error");
 			setTestMessage("please select a value in all the fields");
 			setOpenAlert(true);
-			setTimeout(() => {
-				setOpenAlert(false);
-				setTestMessage("");
-				setSeverity("success");
-			}, 3000);
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	setTestMessage("");
+			// 	setSeverity("success");
+			// }, 3000);
 		}
 	};
 
