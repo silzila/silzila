@@ -14,11 +14,11 @@ import org.silzila.app.payload.request.Dimension;
 import org.silzila.app.payload.request.Measure;
 import org.silzila.app.payload.request.Query;
 
-public class SelectClauseSpark {
+public class SelectClauseDatabricks {
 
-    /* SELECT clause for Spark dialect */
+    /* SELECT clause for Databricks dialect */
     public static QueryClauseFieldListMap buildSelectClause(Query req) throws BadRequestException {
-        System.out.println("SelectClauseSpark calling ***********");
+        System.out.println("SelectClauseDatabricks calling ***********");
 
         List<String> selectList = new ArrayList<>();
         List<String> selectDimList = new ArrayList<>();
