@@ -53,14 +53,12 @@ const DashBoardLayoutControl = ({
 	const [isCoustomSelected, setIsCustomSelected] = useState<boolean>(false);
 	const [isCoustomRangeSelected, setIsCustomRangeSelected] = useState<boolean>(false);
 
-	// console.log(tabTileProps.selectedTabId);
 	const tabId = tabTileProps.selectedTabId;
 	const fixedOption = tabState.tabs[tabId].dashLayout.selectedOptionForFixed;
 	const autoOption = tabState.tabs[tabId].dashLayout.selectedOptionForAuto;
 	let customHeight = tabState.tabs[tabId].dashLayout.custom.height;
 	let customWidth = tabState.tabs[tabId].dashLayout.custom.width;
 
-	// console.log(tabState.tabs[tabId].dashLayout.dashboardLayout);
 	const textFieldInputProps = {
 		style: {
 			height: "2rem",

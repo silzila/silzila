@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { CloseOutlined } from "@mui/icons-material";
 import "./Dataset.css";
+import Logger from "../../Logger";
 
 export interface tableDataComponentProps {
 	showTableData: boolean;
@@ -33,7 +34,7 @@ function TableData({
 	setTableData,
 	objKeys,
 }: tableDataComponentProps) {
-	console.log(tableData);
+	Logger("info", tableData);
 	const handleClose = () => {
 		setShowTableData(false);
 		setSelectedTable("");

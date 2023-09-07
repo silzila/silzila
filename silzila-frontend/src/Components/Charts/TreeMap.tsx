@@ -8,6 +8,8 @@ import { updateTreeMapStyleOptions } from "../../redux/ChartPoperties/ChartContr
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import { TLSSocket } from "tls";
+import Logger from "../../Logger";
+
 interface TreemapChartProps {
 	updateTreeMapStyleOptions: (propKey: string, option: string, value: any) => void;
 }
@@ -35,6 +37,7 @@ const Treemap = ({
 	const formatUtil = echarts.format;
 
 	const getRecursiveData = ({ data, i, measure }: { data: any; i: number; measure: string }) => {
+		
 		console.log(data, i, measure);
 		if (i !== dimensionsKeys.length) {
 			if (i === dimensionsKeys.length - 1) {
@@ -60,7 +63,7 @@ const Treemap = ({
 				var formattedData: any = [];
 				var total = 0;
 				uniqueDimValues.forEach(val => {
-					console.log(val);
+					Logger("info", val);
 					var parentObj = { name: val, value: 0, children: [] }; // Define parent structure (second,third,... dimension)
 					var filteredData = data.filter((dt: any) => dt[dimensionsKeys[i]] === val); // Filter data only for this parent
 
@@ -110,7 +113,7 @@ const Treemap = ({
 			var uniqueDimValues = [...new Set(dimValues)]; // Unique values of first dimension. These are the parent objects
 
 			if (dimensionsKeys.length === 1) {
-				console.log("only one Dimenstion");
+				Logger("info", "only one Dimenstion");
 				var childrenArray: any = [];
 				chartData.map((item: any) => {
 					var finalObj = {
@@ -123,7 +126,7 @@ const Treemap = ({
 					childrenArray.push(finalObj);
 				});
 				setsourceData(childrenArray);
-				console.log(childrenArray);
+				Logger("info", childrenArray);
 			} else {
 				// For each of the parent objects, find what are their children
 				uniqueDimValues.forEach(val => {
@@ -131,7 +134,7 @@ const Treemap = ({
 					var filteredData = chartData.filter((dt: any) => {
 						return dt[dimensionsKeys[0]] === val;
 					}); // Filter data only for this parent
-					console.log(filteredData);
+					Logger("info", filteredData);
 					var [children, total]: any = getRecursiveData({
 						data: filteredData,
 						i: 1,
@@ -142,7 +145,7 @@ const Treemap = ({
 					formattedData.push(parentObj);
 				});
 				setsourceData(formattedData);
-				console.log(formattedData);
+				Logger("info", formattedData);
 			}
 		}
 	}, [chartData, chartControl]);
@@ -170,7 +173,7 @@ const Treemap = ({
 	}
 
 	const getSourceData = () => {
-		console.log(sourceData);
+		Logger("info", sourceData);
 		return sourceData;
 	};
 	var chartThemes: any[] = ColorSchemes.filter(el => {

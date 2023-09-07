@@ -11,6 +11,7 @@ import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { ChartAxesProps } from "./ChartAxesInterfaces";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import ChartData from "./ChartData";
+import Logger from "../../Logger";
 
 const ChartAxes = ({
 	// props
@@ -68,7 +69,7 @@ const ChartAxes = ({
 							label="Select Map"
 							value={chartProp.properties[propKey].geoLocation}
 							onChange={e => {
-								console.log(e.target.value);
+								Logger("info", e.target.value);
 								changeLocation(propKey, e.target.value);
 							}}
 						>

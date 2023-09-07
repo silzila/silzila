@@ -1,9 +1,10 @@
 import LabelFormatting from "./LabelFormatting";
 import XAxisFormat from "./XAxisFormat";
 import YAxisFormat from "./YAxisFormat";
+import Logger from "../../../Logger";
 
 const ChartFormat = ({ chartType }: { chartType: string }) => {
-	console.log(chartType);
+	Logger("info", chartType);
 	return (
 		<div className="optionsInfo">
 			<LabelFormatting />

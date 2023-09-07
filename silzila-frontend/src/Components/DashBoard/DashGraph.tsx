@@ -23,6 +23,7 @@ import StackedAreaChart from "../Charts/StackedAreaChart";
 import PieChart from "../Charts/PieChart";
 import SimpleCard from "../Charts/SimpleCard";
 import TableChart from '../Charts/TableChart/TableChart';
+import Logger from "../../Logger";
 
 const DashGraph = ({
 	// props
@@ -48,7 +49,7 @@ const DashGraph = ({
 			width:
 				parseInt(tabState.tabs[tabId].dashTilesDetails[propKey].width, 10) * gridSize.x - 4,
 		};
-		console.log(dimensions);
+		Logger("info", dimensions);
 
 		switch (chartProp?.properties[propKey]?.chartType) {
 			case "multibar":

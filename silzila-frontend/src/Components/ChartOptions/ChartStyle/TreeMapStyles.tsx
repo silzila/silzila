@@ -6,6 +6,7 @@ import { FormControl, MenuItem, Select } from "@mui/material";
 import { updateTreeMapStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
 import { Dispatch } from "redux";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
+import Logger from "../../../Logger";
 
 const TreeMapStyles = ({
 	// state
@@ -40,7 +41,7 @@ const TreeMapStyles = ({
 			return { name: el.fieldname, value: i + 1 };
 		}
 	);
-	console.log(treeMapLeafDepthOptions);
+	Logger("info", treeMapLeafDepthOptions);
 
 	return (
 		<div className="optionsInfo">

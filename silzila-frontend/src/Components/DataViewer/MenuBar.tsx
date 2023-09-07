@@ -44,6 +44,8 @@ import silzilaNewLogo from "../../assets/new_silzilaLogo.svg";
 import { AlertColor } from "@mui/material/Alert";
 import DownloadPagePopover from "../CommonFunctions/PopOverComponents/DownloadPagePopover";
 import { setPageSettings } from "../../redux/PageSettings/DownloadPageSettingsActions";
+import Logger from "../../Logger";
+
 const MenuBar = ({
 	// props
 	from,
@@ -132,7 +134,7 @@ const MenuBar = ({
 	//		2. Home button clicked
 	//		3. Logout clicked
 	const handleSave = async () => {
-		console.log(playBookState);
+		Logger("info", playBookState);
 		setOpenFileMenu(false);
 
 		// check if this playbook already has a name / id
@@ -151,7 +153,7 @@ const MenuBar = ({
 			});
 
 			if (!result.status) {
-				//console.log(result.data.detail);
+				Logger("info", result.data.detail);
 			} else {
 				setSeverity("success");
 				setOpenAlert(true);
@@ -268,7 +270,6 @@ const MenuBar = ({
 	// 		url: "dc/close-all-dc",
 	// 		headers: { Authorization: `Bearer ${token}` },
 	// 	});
-	// 	//console.log(result.data);
 	// };
 
 	const LogOutMenu = () => {
@@ -642,7 +643,7 @@ const MenuBar = ({
 					!tabTileProps.showDash && from === "dataViewer" ? "accountIcon" : "menuHome"
 				}
 				onClick={e => {
-					console.log(e.currentTarget);
+					Logger("info", e.currentTarget);
 					setLogoutAnchor(e.currentTarget);
 					setLogoutModal(!logoutModal);
 				}}

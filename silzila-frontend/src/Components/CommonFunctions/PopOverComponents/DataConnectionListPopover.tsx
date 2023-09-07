@@ -34,7 +34,6 @@ const DataConnectionListPopover = ({
 }: Props) => {
 	var navigate = useNavigate();
 
-	//console.log(dataConnectionList);
 	return (
 		<Popover
 			open={showCard}

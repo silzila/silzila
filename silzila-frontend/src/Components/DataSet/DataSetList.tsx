@@ -28,6 +28,7 @@ import SchemaOutlinedIcon from "@mui/icons-material/SchemaOutlined";
 import ShortUniqueId from "short-unique-id";
 import { AlertColor } from "@mui/material/Alert";
 import { SaveButtons } from "../DataConnection/muiStyles";
+import Logger from "../../Logger";
 
 const DataSetList = ({
 	// state
@@ -78,7 +79,7 @@ const DataSetList = ({
 			setDataSetList(result.data);
 			setDataSetListToStore(result.data);
 		} else {
-			// ////console.log(result.data.detail);
+			Logger("error", result.data.detail);
 		}
 	};
 
@@ -109,7 +110,7 @@ const DataSetList = ({
 				setTestMessage("");
 			}, 2000);
 		} else {
-			// ////console.log(result.data.detail);
+			Logger("error", result.data.detail);
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage(result.data.detail);

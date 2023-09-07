@@ -5,6 +5,7 @@ import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInte
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import { formatChartYAxisValue } from "../ChartOptions/Format/NumberFormatter";
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+import Logger from "../../Logger";
 
 const BoxPlotChart = ({
 	// props
@@ -46,7 +47,7 @@ const BoxPlotChart = ({
 					console.log(el, dimValue);
 					return el[dimValue];
 				});
-				console.log(dimArray);
+				Logger("info", dimArray);;
 
 				setDimensionData([...new Set(dimArray)]);
 
@@ -56,7 +57,7 @@ const BoxPlotChart = ({
 				allMeasureValue = chartData.map(el => {
 					return el[measureValue];
 				});
-				console.log(allMeasureValue);
+				Logger("info", allMeasureValue);
 
 				minimumValueOfYaxis = Math.min(...allMeasureValue);
 				maximumValueOfYaxis = Math.max(...allMeasureValue);
@@ -127,7 +128,7 @@ const BoxPlotChart = ({
 						trigger: "item",
 						// just formating data to shown in tooltiop in required formate
 						formatter: function (params: any) {
-							console.log(params);
+							Logger("info", params);
 							if (params.seriesName === "boxplot") {
 								return `${params.name} <br/> ${params.seriesName} <br/> <table>
 								<th>

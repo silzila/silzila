@@ -6,6 +6,7 @@ import { Dispatch } from "redux";
 import { updateSankeyStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import { ColorSchemes } from "./ColorScheme";
+import Logger from "../../../Logger";
 
 const SankeyColorControls = ({
 	// state
@@ -36,7 +37,7 @@ const SankeyColorControls = ({
 			if (chartControls.properties[propKey].sankeyControls.nodesAndColors.length === 0) {
 				let values = [];
 				values = chartProperties.properties[propKey].chartAxes[1].fields.map((el, i) => {
-					console.log(i);
+					Logger("info", i);
 					return { nodeName: el.fieldname, nodeColor: colorSchemes[i] };
 				});
 				setdims(values);
@@ -49,7 +50,7 @@ const SankeyColorControls = ({
 	}, [chartData]);
 
 	const renderNodesAndColors = () => {
-		console.log(dims);
+		Logger("info", dims);
 		if (dims.length !== 0) {
 			return dims.map((item: any, i: number) => {
 				return (

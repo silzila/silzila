@@ -19,6 +19,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { FormProps } from "./DataConnectionInterfaces";
 import FetchData from "../ServerCall/FetchData";
 import redshiftIcon from "../../assets/redshiftIcon.png";
+import databricksIcon from "../../assets/databricksIcon.png";
 import mssqlIcon from "../../assets/mssqlicon.png";
 import mysqlicon from "../../assets/mysqlicon.svg";
 import postgresicon from "../../assets/postgresicon.png";
@@ -260,7 +261,7 @@ function FormDialog({
 	return (
 		<>
 			<Dialog open={showForm} onClose={showAndHideForm}>
-				<div style={{ padding: "10px", width: "400px" }}>
+				<div style={{ padding: "10px", width: "400px"  , overflow:"hidden" }}>
 					<form
 						style={{
 							// textAlign: "center",

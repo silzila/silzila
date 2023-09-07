@@ -14,6 +14,7 @@ import {
 	ChartControlsProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
+import Logger from "../../Logger";
 
 interface PieChartProps {
 	updateChartMargins: (propKey: string, option: string, value: any) => void;
@@ -142,16 +143,16 @@ const PieChart = ({
 									],
 
 									formatter: (value: FormatterValueProps) => {
-										console.log(value);
+										Logger("info", value);
 										if (chartDataKeys) {
-											console.log(chartDataKeys);
+											Logger("info", chartDataKeys);
 											var formattedValue = value.value[chartDataKeys[1]];
-											console.log(formattedValue);
+											Logger("info", formattedValue);
 											formattedValue = formatChartLabelValue(
 												chartControl,
 												formattedValue
 											);
-											console.log(formattedValue);
+											Logger("info", formattedValue);
 
 											return formattedValue;
 										}

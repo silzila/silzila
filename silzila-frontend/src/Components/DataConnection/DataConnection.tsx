@@ -246,6 +246,7 @@ const DataConnection = (props: DataConnectionProps) => {
 				<div
 					className="containerButton"
 					onClick={(e: any) => {
+						//Logger("error", response);
 						Logger("info", "add new connection");
 						handleMode("New");
 						showAndHideForm();

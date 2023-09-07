@@ -60,6 +60,7 @@ import SimpleCard from "../Charts/SimpleCard";
 import { renameDynamicMeasure } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 import TableChart from "../Charts/TableChart/TableChart";
+import Logger from "../../Logger";
 
 const popoverButtonStyle = {
 	textTransform: "none",
@@ -751,7 +752,7 @@ const GraphArea = ({
 					}, 300);
 				})
 				.catch((err: any) => {
-					console.log(err);
+					Logger("info", err);
 				});
 		}
 	};

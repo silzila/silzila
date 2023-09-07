@@ -10,6 +10,7 @@ import { setColorScaleOption } from "../../../redux/ChartPoperties/ChartControls
 import { NotificationDialog } from "../../CommonFunctions/DialogComponents";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import "./ColorSteps.css";
+import Logger from "../../../Logger";
 
 const textFieldInputProps = {
 	style: {
@@ -174,7 +175,6 @@ const ColorScale = ({
 								type="number"
 								value={min}
 								onChange={e => {
-									//console.log(e.target.value);
 									setColorScaleOption("min", e.target.value, propKey);
 								}}
 								label="Min"
@@ -186,7 +186,6 @@ const ColorScale = ({
 								type="number"
 								value={max}
 								onChange={e => {
-									//console.log(e.target.value);
 									setColorScaleOption("max", e.target.value, propKey);
 								}}
 								label="Max"

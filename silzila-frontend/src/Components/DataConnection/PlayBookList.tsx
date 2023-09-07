@@ -30,6 +30,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import { AlertColor } from "@mui/material/Alert";
 import { setSelectedDatasetForDynamicMeasure } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+import Logger from "../../Logger";
 
 const PlayBookList = ({
 	// state
@@ -55,7 +56,6 @@ const PlayBookList = ({
 
 	var navigate = useNavigate();
 
-	// console.log(selectedDataset);
 
 	useEffect(() => {
 		getInformation();
@@ -73,10 +73,9 @@ const PlayBookList = ({
 
 		if (result.status) {
 			// console.log(result.data, "Playbook list");
-
 			setPlayBookList(result.data);
 		} else {
-			//console.log(result.data.detail);
+			Logger("error", result.data.detail);
 		}
 	};
 
@@ -112,7 +111,7 @@ const PlayBookList = ({
 		if (result.status) {
 			return result.data;
 		} else {
-			//console.log(result.data.detail);
+			Logger("error", result.data.detail);
 		}
 	};
 
@@ -130,7 +129,7 @@ const PlayBookList = ({
 		});
 
 		if (result.status) {
-			// console.log(result.data);
+			Logger("info", result.data);
 			setLoading(true);
 
 			var pb = result.data;
@@ -154,13 +153,13 @@ const PlayBookList = ({
 					}
 				})
 			);
-			console.log(tablesForSelectedDatasetsCopy);
+			Logger("info", tablesForSelectedDatasetsCopy);
 			pb.content.content.tabTileProps.tablesForSelectedDataSets =
 				tablesForSelectedDatasetsCopy;
 
 			// for each tile in playbook, if it has minimum required cards in dropzones, get chart data from server
 			var newChartControl = JSON.parse(JSON.stringify(pb.content.content?.chartControl));
-			console.log(newChartControl);
+			Logger("info", newChartControl);
 			await Promise.all(
 				Object.keys(pb.content.content.chartControl.properties).map(async property => {
 					var axesValue = JSON.parse(
@@ -204,7 +203,6 @@ const PlayBookList = ({
 							combinedValues2.fields = allValues2;
 							axesValue.splice(1, 2, combinedValues2);
 						}
-						////console.log(axesValue);
 						// getChartData(axesValue, pb.content.chartProperty, property, token).then(
 						// 	(data:any) => {
 						// 		newChartControl.properties[property].chartData = data;
@@ -272,7 +270,7 @@ const PlayBookList = ({
 									[selectedTableForThisDataset.id]: { $set: tableRecords },
 								},
 							});
-							console.log(sampleRecords);
+							Logger("info", sampleRecords);
 						}
 					}
 				})
@@ -310,7 +308,7 @@ const PlayBookList = ({
 				setTestMessage("");
 			}, 2000);
 		} else {
-			//console.log(result.detail);
+			Logger("error", result.detail);
 		}
 	};
 

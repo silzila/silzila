@@ -4,6 +4,7 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import CloseIcon from "@mui/icons-material/Close";
 import { makeStyles } from "@mui/styles";
 import createStyles from "@mui/styles/createStyles";
+import Logger from "../../Logger";
 
 interface FileDropZoneProps {
 	setSelectedFile: any;

@@ -41,6 +41,7 @@ import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import Logger from "../../Logger";
 
 const DataViewerMiddle = ({
 	// props
@@ -208,7 +209,7 @@ const DataViewerMiddle = ({
 		: null;
 
 	const handleOnCheckAndUnCheckOndm = (obj: any) => {
-		console.log(obj);
+		Logger("info", obj);
 		if (obj?.usedInTextEditor) {
 			// TODO::DynamicMeasure have to delete the text from editor
 			onCheckorUncheckOnDm(
@@ -332,7 +333,7 @@ const DataViewerMiddle = ({
 
 						<CloseSharp
 							onClick={() => {
-								console.log(currentObj.dynamicMeasureId);
+								Logger("info", currentObj.dynamicMeasureId);
 								deletingDynamicMeasure(
 									currentObj.tabId,
 									currentObj.tileId,

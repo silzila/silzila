@@ -76,9 +76,7 @@ const CanvasTableColumns = ({
 				e.dataTransfer.getData("connectItemId") === itemId ||
 				e.dataTransfer.getData("connectTableName") === tableName
 			) {
-				////console.log("same table names");
 				if (e.dataTransfer.getData("schema") !== schema) {
-					////console.log("same table Diff schema, new rel");
 					setupForRelation(e);
 				}
 			} else {
@@ -91,7 +89,6 @@ const CanvasTableColumns = ({
 					(arr.start === e.dataTransfer.getData("connectItemId") && arr.end === itemId) ||
 					(arr.end === e.dataTransfer.getData("connectItemId") && arr.start === itemId)
 				) {
-					//console.log("RELATION BETWEEN THESE TWO COLUMNS ARE ALREADY EXIST");
 					oldRel = true;
 				}
 			});

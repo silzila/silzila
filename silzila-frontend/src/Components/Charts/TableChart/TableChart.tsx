@@ -15,6 +15,8 @@ import {
 	formatChartYAxisValue,
 } from "../../ChartOptions/Format/NumberFormatter";
 
+import Logger from "../../../Logger";
+
 const TableChart = ({
 	propKey,
 	graphDimension,
@@ -55,12 +57,12 @@ const TableChart = ({
 	var property = chartControls.properties[propKey];
 	var chartPropAxes = chartProperties.properties[propKey].chartAxes;
 
-	// console.log(property, "+++++ PROPERTY +++++");
+	
 	let chartPropData = property.chartData ? property.chartData : "";
 
 	let tempFormatedChartPropData = CrossTab.cloneData(chartPropData??{});
-	console.log(JSON.stringify(tempFormatedChartPropData));
-	console.log(chartPropData);
+	Logger("info", JSON.stringify(tempFormatedChartPropData));
+	Logger("info", chartPropData);
 
 	const [showAsColumn, setShowAsColumn] = React.useState(true);
 

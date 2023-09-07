@@ -10,6 +10,8 @@ import { Dispatch } from "redux";
 import { updateCardControls } from "../../redux/ChartPoperties/ChartControlsActions";
 import { TextField } from "@mui/material";
 import { Rnd } from "react-rnd";
+import Logger from "../../Logger";
+
 const SimpleCard = ({
 	//props
 	propKey,
@@ -31,7 +33,7 @@ const SimpleCard = ({
 	const [cardData, setCardData] = useState<any[]>([]);
 
 	useEffect(() => {
-		console.log(chartData);
+		Logger("info", chartData);
 		if (chartData.length >= 1) {
 			setCardData(chartData[0][Object.keys(chartData[0])[0]]);
 			updateCardControls(propKey, "subText", Object.keys(chartData[0])[0]);
@@ -40,7 +42,7 @@ const SimpleCard = ({
 
 	const getFormatedChartData = () => {
 		var formattedValue = cardData;
-		console.log(formattedValue);
+		Logger("info", formattedValue);
 		formattedValue = formatChartLabelValue(chartControl, formattedValue);
 		return formattedValue;
 	};

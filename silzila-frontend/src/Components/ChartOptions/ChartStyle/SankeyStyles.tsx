@@ -6,6 +6,7 @@ import SwitchWithInput from "../SwitchWithInput";
 import { Dispatch } from "redux";
 import { updateSankeyStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
+import Logger from "../../../Logger";
 
 const SankeyStyles = ({
 	// state
@@ -19,7 +20,7 @@ const SankeyStyles = ({
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	const sankeyStyle = chartControls.properties[propKey].sankeyControls;
-	console.log(sankeyStyle);
+	Logger("info",sankeyStyle);
 
 	return (
 		<div className="optionsInfo">

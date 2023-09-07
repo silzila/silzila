@@ -34,6 +34,8 @@ import {
 	setSelectedToEdit,
 } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 
+import Logger from "../../Logger";
+
 const LIST_TYPES = ['numbered-list', 'bulleted-list']
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify']
 
@@ -419,8 +421,8 @@ if (element.measureStyle.backgroundColor != 'white') {
       data-cy={`mention-${element.character.replace(' ', '-')}`}
       style={style}
       onClick={e=>{
-        console.log(e.target);
-        console.log(element);
+        Logger("info", e.target);
+        Logger("info", element);
         let tabId = element.propKey.split('.')[0];
         let tileId = element.propKey.split('.')[1];
         let dmId = element.id.replace("RichTextID","");
@@ -470,7 +472,7 @@ if (element.measureStyle.backgroundColor != 'white') {
           if (isAstChange) {
             updateRichText(propKey, val);
             setTarget(undefined)
-            console.log(val);
+            Logger("info", val);
           }
         }}
       >

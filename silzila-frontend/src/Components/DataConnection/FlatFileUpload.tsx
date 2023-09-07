@@ -9,6 +9,7 @@ import FetchData from "../ServerCall/FetchData";
 import "./FlatFile.css";
 import FileDropZone from "./FileDropZone";
 import { FlatFileUploadProps } from "./FlatFileInterfaces";
+import Logger from "../../Logger";
 
 import MenuBar from "../DataViewer/MenuBar";
 
@@ -55,7 +56,7 @@ const FlatFileUpload = ({ token, setApiResponse, setEditApiResponse }: FlatFileU
 			setDataToEditApiResponse(result.data);
 			navigate("/editflatfile");
 		} else {
-			console.log("error");
+			Logger("error", "error");
 		}
 	};
 

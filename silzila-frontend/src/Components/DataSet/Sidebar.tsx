@@ -42,6 +42,7 @@ import { idText } from "typescript";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import FlatFileList from "../DataConnection/FlatFileList";
+import Logger from "../../Logger";
 
 const Sidebar = ({
 	//props
@@ -92,7 +93,6 @@ const Sidebar = ({
 	// 		to display in canvas, provide a warning to reset data
 
 	const onConnectionChange = (e: string) => {
-		//console.log(e);
 		setSelectedDb(e);
 		setDatabaseNametoState(e);
 
@@ -106,7 +106,6 @@ const Sidebar = ({
 		if (serverName === "mysql") {
 			// getTables()
 		} else {
-			//console.log(e);
 			getSchemaList(e);
 		}
 	};
@@ -189,7 +188,7 @@ const Sidebar = ({
 		if (res.status) {
 			setSchemaList(res.data);
 		} else {
-			//console.log(res.data.detail);
+			Logger("error", res.data.detail);
 		}
 	};
 
@@ -231,7 +230,7 @@ const Sidebar = ({
 							tbl.schema === schema &&
 							tbl.tableName === el
 					)[0];
-					console.log(tableAlreadyChecked);
+					Logger("info", tableAlreadyChecked);
 					tempTable.forEach((tbl: any) => {
 						if (
 							tbl.dcId === connectionValue &&
@@ -280,7 +279,6 @@ const Sidebar = ({
 						tbl.tableName === el
 				)[0];
 
-				// //console.log(tableAlreadyChecked);
 
 				// Checking if the selected table is new or previously added to this dataset
 				// Required as editing a dataset doesn't allow for deleting already added tables
@@ -320,11 +318,9 @@ const Sidebar = ({
 					isNewTable: true,
 				};
 			});
-			//console.log(userTable);
 			setUserTable(userTable);
 			setViews(views);
 		} else {
-			// //console.log(res);
 		}
 	};
 
@@ -337,7 +333,7 @@ const Sidebar = ({
 		});
 		return name;
 	};
-	console.log(tableList);
+	Logger("info", tableList);
 
 	return (
 		<div className="sidebar">

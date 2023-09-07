@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+import Logger from "../../Logger";
 
 const Sankey = ({
 	// props
@@ -30,7 +31,7 @@ const Sankey = ({
 	useEffect(() => {
 		if (chartData.length >= 1) {
 			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map(el => {
-				console.log(el);
+				Logger("info", el);
 				if ("timeGrain" in el) {
 					return `${el.timeGrain} of ${el.fieldname}`;
 				} else if ("agg" in el) {
@@ -133,8 +134,8 @@ const Sankey = ({
 					return obj;
 				});
 			}
-
-			console.log(valuesOfLink);
+     
+			Logger("info", valuesOfLink);
 			setLinks(valuesOfLink);
 		}
 	}, [chartData, chartControl]);

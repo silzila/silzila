@@ -33,6 +33,7 @@ import MenuBar from "../DataViewer/MenuBar";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { CloseOutlined } from "@mui/icons-material";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
+import Logger from "../../Logger";
 import {
 	FormLabelStyle,
 	TextFieldBorderStyle,
@@ -48,6 +49,7 @@ import {
 	useStyles,
 } from "./muiStyles";
 
+
 const EditFlatFileData = ({
 	token,
 	editApiResponse,
@@ -58,7 +60,7 @@ const EditFlatFileData = ({
 	const classes = useStyles();
 	const classes2 = styles();
 
-	console.log(editApiResponse);
+	Logger('info',editApiResponse);
 
 	const navigate = useNavigate();
 
@@ -75,7 +77,7 @@ const EditFlatFileData = ({
 	const [severity, setSeverity] = useState<AlertColor>("success");
 
 	const setDataToEditApiResponse = async () => {
-		console.log(editApiResponse);
+		Logger("info", editApiResponse );
 		var fileObj = {
 			fileId: editApiResponse.fileId,
 			name: editApiResponse.name,

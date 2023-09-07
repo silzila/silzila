@@ -34,6 +34,7 @@ import {
 import { TileRibbonStateProps } from "../../Components/TabsAndTiles/TileRibbonInterfaces";
 import "./ChartFilterGroup.css";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import Logger from "../../Logger";
 
 const ChartFilterGroupsContainer = ({
 	// props
@@ -165,7 +166,7 @@ const ChartFilterGroupsContainer = ({
 			} else {
 				setFilterGroupNamelist(temp);
 			}
-			console.log(temp);
+			Logger("info", temp);
 		}
 	}, [chartGroup?.tabTile[propKey]]);
 

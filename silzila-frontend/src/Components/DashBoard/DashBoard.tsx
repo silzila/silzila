@@ -34,6 +34,7 @@ import {
 	deleteDashBoardSelectedTabTiles,
 } from "../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import Logger from "../../Logger";
 
 const DashBoard = ({
 	// props
@@ -127,7 +128,7 @@ const DashBoard = ({
 			if (pageSettings.downloadType === "pdf") {
 				html2canvas(input).then(canvas => {
 					const imageData = canvas.toDataURL("image/png");
-					console.log(imageData);
+					Logger("info", imageData);
 
 					const pdf = new jsPDF(
 						pageSettings.SelectedOrientation,
@@ -158,7 +159,7 @@ const DashBoard = ({
 						resetPageSettings();
 					})
 					.catch((err: any) => {
-						console.log(err);
+						Logger("error", err);
 					});
 			}
 		}
@@ -195,7 +196,7 @@ const DashBoard = ({
 				width: targetRef.current.offsetWidth,
 				height: targetRef.current.offsetHeight,
 			});
-			console.log(targetRef);
+			Logger("info", targetRef);
 		}
 	};
 
@@ -245,7 +246,7 @@ const DashBoard = ({
 			// compute size of each of the grid and save it in store
 			// used by graph area in tile for displaying graph in dashboard size
 			setGridSize({ x: fullWidth / 32, y: fullHeight / 18 });
-			console.log(dashStyle);
+			Logger("info", dashStyle);
 		}
 
 		if (
@@ -346,7 +347,7 @@ const DashBoard = ({
 					key={index}
 					checked={checked}
 					onChange={event => {
-						console.log(dashSpecs);
+						Logger("info", dashSpecs);
 						updateDashBoardFilters(event, propKey);
 						updateDashDetails(
 							checked,
@@ -420,9 +421,9 @@ const DashBoard = ({
 	const renderGraphs = () => {
 		return tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.map((box, index) => {
 			var boxDetails = tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[box];
-			console.log(tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard);
+			Logger("info", tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard);
 			console.log(box, index);
-			console.log(boxDetails);
+			Logger("info", boxDetails);
 
 			return (
 				<GraphRNDDash
@@ -449,7 +450,7 @@ const DashBoard = ({
 				var container3 = "rndObject";
 
 				if (e.target.attributes.class) {
-					console.log(e.target.attributes.class.value);
+					Logger("info", e.target.attributes.class.value);
 					if (
 						e.target.attributes.class.value === container ||
 						e.target.attributes.class.value === container2 ||

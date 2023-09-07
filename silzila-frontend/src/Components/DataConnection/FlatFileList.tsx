@@ -16,6 +16,7 @@ import {
 import { Dispatch } from "redux";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { AlertColor } from "@mui/material/Alert";
+import Logger from "../../Logger";
 
 const FlatFileList = (props: any) => {
 	const [fileList, setFileList] = useState<any>([]);
@@ -51,7 +52,7 @@ const FlatFileList = (props: any) => {
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
 		if (result.status) {
-			console.log(result);
+			Logger("info", "result");
 			setSeverity("success");
 			setOpenAlert(true);
 			setTestMessage("Deleted Successfully!");
@@ -61,7 +62,7 @@ const FlatFileList = (props: any) => {
 				setTestMessage("");
 			}, 2000);
 		} else {
-			//console.log(result.detail);
+			Logger("error", result.data.detail);
 		}
 	};
 
@@ -90,15 +91,15 @@ const FlatFileList = (props: any) => {
 					columnInfos: result.data,
 					sampleRecords: result2.data,
 				};
-				console.log(fileObj);
+				Logger("info", "fileObj");
 				props.setApiResponse(fileObj);
 				props.setEditApiResponse(fileObj);
 				navigate("/editflatfile");
 			} else {
-				console.log(result2);
+		        Logger("error", result2.data);
 			}
 		} else {
-			console.log(result);
+			Logger("error", result.data);
 		}
 		props.setEditMode(true);
 	};

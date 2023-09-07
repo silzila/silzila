@@ -24,6 +24,7 @@ import { connect } from "react-redux";
 import TableData from "./TableData";
 import { TableListProps, tabObj } from "./TableListInterfaces";
 import { Columns, ColumnsWithUid } from "./DatasetInterfaces";
+import Logger from "../../Logger";
 
 const TableList = (props: TableListProps) => {
 	const [selectedTable, setSelectedTable] = useState<string>("");
@@ -32,11 +33,11 @@ const TableList = (props: TableListProps) => {
 	// tableData  will be type of any
 	const [tableData, setTableData] = useState<any[]>([]);
 	const [objKeys, setObjKeys] = useState<string[]>([]);
-
-	console.log(props);
+    
+	Logger("info", props);
 	// Get all columns for a given table
 	const getTableColumns = async (tableName: string, isView: boolean) => {
-		console.log("get Columns from tableList");
+		Logger("info", "get Columns from tableList");
 		const uid: any = new ShortUniqueId({ length: 8 });
 
 		var url: string = "";
@@ -57,7 +58,7 @@ const TableList = (props: TableListProps) => {
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
 		if (result.status) {
-			console.log(result.data);
+			Logger("info", result.data);
 			var obj: tabObj | undefined;
 			if (isView) {
 				props.viewList.map((el: any) => {
@@ -71,7 +72,7 @@ const TableList = (props: TableListProps) => {
 								...data,
 							};
 						});
-						//console.log(arrayWithUid);
+						Logger("info", arrayWithUid);
 
 						obj = {
 							isView: true,
@@ -98,7 +99,7 @@ const TableList = (props: TableListProps) => {
 						let arrayWithUid: any = [];
 						if (props.isFlatFile) {
 							arrayWithUid = result.data.map((data: any) => {
-								console.log(data);
+								Logger("info", data);
 								return {
 									uid: uid(),
 									columnName: data.fieldName,
@@ -140,7 +141,7 @@ const TableList = (props: TableListProps) => {
 		if (table["isView"]) {
 			props.toggleOnCheckedOnView(id);
 		} else {
-			console.log(id);
+			Logger("info", id);
 			props.onChecked(id);
 		}
 
@@ -157,7 +158,7 @@ const TableList = (props: TableListProps) => {
 			}
 		}
 	};
-	console.log(props.table.tableName);
+	Logger("info", props.table.tableName);
 
 	// ==============================================================
 	//  get Table Data
@@ -182,7 +183,7 @@ const TableList = (props: TableListProps) => {
 		});
 
 		if (res.status) {
-			//console.log(res.data);
+			Logger("info", res.data);
 			setTableData(res.data);
 			setShowTableData(true);
 			var keys: string[] = Object.keys(res.data[0]);

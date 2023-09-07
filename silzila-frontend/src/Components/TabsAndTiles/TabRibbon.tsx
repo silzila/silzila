@@ -20,7 +20,7 @@ import {
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import AddIcon from "@mui/icons-material/Add";
 import {addChartFilterTabTileName} from '../../redux/ChartFilterGroup/ChartFilterGroupStateActions';
-
+import Logger from "../../Logger";
 
 const TabRibbon = ({
 	// state
@@ -125,10 +125,10 @@ const TabRibbon = ({
 			if (addingNewTab) {
 				removeTab(tabName, tabId, tabToRemoveIndex);
 			} else {
-				console.log("case");
+				Logger("info", "case");
 				let newTabId: number = tabState.tabList[nextSelection];
 				let newObj: IndTabs = tabState.tabs[newTabId];
-				console.log(newObj);
+				Logger("info", newObj);
 
 				removeTab(tabName, tabId, tabToRemoveIndex, newObj);
 			}

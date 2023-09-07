@@ -26,6 +26,7 @@ import {
 	updateDashBoardSelectedTabTiles,
 } from "../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction";
 import { TileRibbonStateProps } from "../../Components/TabsAndTiles/TileRibbonInterfaces";
+import Logger from "../../Logger";
 
 const ChartFilterGroups = ({
 	// props
@@ -146,7 +147,7 @@ const ChartFilterGroups = ({
 		if (isUnique) {
 			updateChartFilterGroupsName(group.id, e.target.value);
 		} else {
-			console.error("Group name should be unique.");
+			Logger("error", "Group name should be unique.");
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage("Group name should be unique.");
@@ -207,7 +208,7 @@ const ChartFilterGroups = ({
 		useState<string[]>([]);
 
 	useEffect(() => {
-		console.log(group);
+		Logger("info", group);
 		if (group) {
 			setSelectedFilterGroupsNamesInDashBoard([
 				...selectedFilterGroupsNamesInDashBoard,
@@ -215,8 +216,8 @@ const ChartFilterGroups = ({
 			]);
 		}
 	}, [group]);
-
-	console.log(selectedFilterGroupsNamesInDashBoard);
+    
+	Logger("info", selectedFilterGroupsNamesInDashBoard);
 
 	return (
 		<div ref={drop} style={groupsStyle} onDoubleClick={() => setEditGroupName(true)}>

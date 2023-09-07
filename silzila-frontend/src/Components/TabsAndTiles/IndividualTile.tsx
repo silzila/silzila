@@ -25,6 +25,7 @@ import { actionsToAddTile } from "../../redux/TabTile/TabTileActionsAndMultipleD
 import {duplicateChartFilterGroups,addChartFilterTabTileName} from '../../redux/ChartFilterGroup/ChartFilterGroupStateActions';
 import {ChartFilterGroupProps} from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 import {ChartFilterGroupStateProps} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
+import Logger from "../../Logger";
 
 type IndTileStateProps = TabStateProps2 &
 	TileStateProps2 &
@@ -129,7 +130,7 @@ const IndividualTile = ({
 		nextTileId: number
 	) {
 		tileState.tileList[tabId].forEach((tileKey: any) => {
-			console.log(tileKey);
+			Logger("info", tileKey);
 			if (tileState.tiles[tileKey].tileName === newName) {
 				count = count + 1;
 				newName = `${fromTileName} - copy(${count})`;
@@ -270,19 +271,19 @@ const IndividualTile = ({
 				}
 				onDoubleClick={e => {
 					e.stopPropagation();
-					console.log("Double clicked");
+					Logger("info", "Double clicked");
 					renameTileBegin(tabId, tileId);
 				}}
 				onClick={e => {
 					e.stopPropagation();
-					console.log("Left clicked");
+					Logger("info", "Left clicked");
 					selectTile(tileId, tileName, tabId, tabName);
 				}}
 				title={`${tileName}. Double click to edit name`}
 				onContextMenu={e => {
 					e.preventDefault();
 					e.stopPropagation();
-					console.log("Right Click");
+					Logger("info", "Right Click");
 					handleClick(e);
 				}}
 			>

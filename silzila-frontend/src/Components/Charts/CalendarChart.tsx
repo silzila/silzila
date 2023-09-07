@@ -8,6 +8,7 @@ import {
 	ChartsMapStateToProps,
 	ChartsReduxStateProps,
 } from "./ChartsCommonInterfaces";
+import Logger from "../../Logger";
 
 const CalendarChart = ({
 	//props
@@ -27,7 +28,7 @@ const CalendarChart = ({
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
-	console.log(chartData);
+	Logger("info", chartData);
 
 	const [calendarArray, setCalendarArray] = useState<any[]>([]);
 	const [seriesArray, setSeriesArray] = useState<any[]>([]);
@@ -42,11 +43,10 @@ const CalendarChart = ({
 		if (chartData.length >= 1) {
 			if (chartProperties.properties[propKey].chartAxes[1].fields.length > 0) {
 				setChartDataKeys(Object.keys(chartData[0]));
-
-				console.log(chartProperties.properties[propKey].chartAxes[1].fields[0]);
+                
+				Logger("info", chartProperties.properties[propKey].chartAxes[1].fields[0]);
 				let objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
 
-				// console.log(objKey, chartData);
 
 				var measureField: ChartDataFieldProps =
 					chartProperties.properties[propKey].chartAxes[2].fields[0];
@@ -145,12 +145,9 @@ const CalendarChart = ({
 				});
 				setSeriesArray(seriesArrayValues);
 
-				// console.log((graphDimension.height * 80) / 100);
 				// //ind chart height
-				// console.log((graphDimension.height * 80) / 100 / uniqueYears.length);
 				// inChartHeight = (graphDimension.height * 80) / 100 / uniqueYears.length;
 				// //chart gap
-				// console.log((graphDimension.height * 20) / 100 / (uniqueYears.length - 1));
 			}
 		}
 	}, [chartControl, chartControl.chartData]);
@@ -166,8 +163,6 @@ const CalendarChart = ({
 				virtualData.push(Object.values(el));
 			}
 		});
-
-		// console.log(virtualData);
 		return virtualData;
 	}
 

@@ -21,6 +21,7 @@ import {
 } from "../../../redux/ChartPoperties/ChartControlsActions";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import { AlertColor } from "@mui/material/Alert";
+import Logger from "../../../Logger";
 
 const textFieldStyleProps = {
 	style: {
@@ -64,8 +65,8 @@ const ColorSteps = ({
 	let chartData = chartControls.properties[propKey].chartData
 		? chartControls.properties[propKey].chartData
 		: [];
-
-	console.log(chartData);
+    
+    Logger("info", chartData);	
 
 	// TODO: Priority 1 - Color steps value keeps changing every time we come back to it
 	// after clicking on other control tiles

@@ -7,6 +7,8 @@ import { ChartConLabelFormates } from "../../../redux/ChartPoperties/ChartContro
 import { updateFormatOption } from "../../../redux/ChartPoperties/ChartControlsActions";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import { updateFormatForDm } from "../../../redux/DynamicMeasures/DynamicMeasuresActions";
+import Logger from "../../../Logger";
+
 const LabelFormatting = ({
 	// state
 	chartProperties,
@@ -91,7 +93,7 @@ const LabelFormatting = ({
 							: "radioButton"
 					}
 					onClick={() => {
-						console.log("sdfsdf");
+						Logger("info", "sdfsdf");
 						handleUpdateFormat("formatValue", item.value, "labelFormats");
 					}}
 				>

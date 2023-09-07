@@ -8,6 +8,7 @@ import {
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 import { ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+import Logger from "../../Logger";
 
 const GaugeChart = ({
 	//props
@@ -32,7 +33,7 @@ const GaugeChart = ({
 				chartControl.axisOptions.gaugeChartControls.stepcolor[i].color,
 			]);
 		}
-		console.log(colorArray);
+		Logger("info", colorArray);
 	};
 
 	getColors();
