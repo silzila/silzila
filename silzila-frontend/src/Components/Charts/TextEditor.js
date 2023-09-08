@@ -60,12 +60,13 @@ const TextEditor = ({
 	setSelectedToEdit,
   clearRichText
 }:any) => {
-  //const ref = useRef<HTMLDivElement | undefined>()
   const [target, setTarget] = useState()
   const [index, setIndex] = useState(0)
   const [search, setSearch] = useState('')
   const renderElement = useCallback((props) => <Element {...props} />, [])
   const renderLeaf = useCallback((props) => <Leaf {...props} />, [])
+  const [position, setPosition] = useState(JSON.parse(localStorage.getItem('cursor')));
+
 
 
   const withMentions = (editor) => {
@@ -120,21 +121,7 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
           showDash: tabTileProps.showDash
         }
 
-       //ref?.current?.focus();
-
-        // const { selection } = editor
-
-        // const [start] = Range.edges(selection)
-
-        // const wordBefore = Editor.before(editor, start, { unit: 'word' })
-        // const before = wordBefore && Editor.before(editor, wordBefore)
-        // const beforeRange = before && Editor.range(editor, before, start)
-        // setTarget(beforeRange)
-
-        //Transforms.select(editor, target)
-        Transforms.insertNodes(editor,[_object]);
-        Transforms.move(editor)
-        setTarget(undefined)
+        Transforms.insertNodes(editor,[_object], position);
       }
 		}
 	}, [chartProp.properties[propKey].measureValue?.id]);
@@ -234,7 +221,7 @@ const toggleBlock = (editor, format) => {
   let newProperties
   if (TEXT_ALIGN_TYPES.includes(format)) {
     newProperties = {
-      align: isActive ? undefined : format,
+      align: isActive ? 'left' : format,
     }
   } else {
     newProperties = {
@@ -318,7 +305,7 @@ const Leaf = ({ attributes, children, leaf }) => {
 
 const Element = (props) => {
   const { attributes, children, element } = props;
-  const style = { textAlign: element.align };
+  const style = { textAlign: element.align || 'left' };
 
   switch (element.type) {
     case 'mention':
@@ -360,14 +347,13 @@ const Element = (props) => {
           </ol>
         )
     default:
-      return <div {...attributes}>{children}</div>
+      return <p style={style} {...attributes}>{children}</p>
   }
 }
 
 
   
 const Mention = ({ attributes, children, element }) => {
-  //const ref = useRef<HTMLDivElement | undefined>()
 
   const selected = useSelected()
   const focused = useFocused()
@@ -403,37 +389,45 @@ if (element.measureStyle.backgroundColor != 'white') {
     style.backgroundColor = element.measureStyle.backgroundColor;
   }
 
-  // if(element.showDash){
-  //   style.border  = 'dashed 1px grey';
-  // }
+     style.border  = 'dashed 1px grey';
 
-
-  // Object.keys(element.measureStyle).forEach(_key=>{
-  //   style[_key] = element.measureStyle[_key];
-  // })
 
   return (
     <span 
       {...attributes}
       contentEditable={false}
-      data-cy={`mention-${element.character.replace(' ', '-')}`}
       style={style}
       onClick={e=>{
-        console.log(e.target);
-        console.log(element);
-        let tabId = element.propKey.split('.')[0];
-        let tileId = element.propKey.split('.')[1];
-        let dmId = element.id.replace("RichTextID","");
-        setSelectedTabIdForDM(tabId);
-          setSelectedTileIdForDM(tileId);
-          setSelectedDynamicMeasureId(dmId);
-          setSelectedToEdit(
-            tabId,
-            tileId,
-            dmId,
-            true
-          );
-          setDynamicMeasureWindowOpen(propKey, true);
+        if(!tabTileProps.showDash){
+          const { selection } = editor
+
+          if (selection && Range.isCollapsed(selection)) {
+            const [start] = Range.edges(selection)
+            const wordBefore = Editor.before(editor, start, { unit: 'word' })
+            const after = Editor.after(editor, start)
+  
+            localStorage.setItem('cursor', JSON.stringify({
+              at: {
+                anchor: wordBefore,
+                focus: after,
+              },
+            }))
+          }
+         
+          let tabId = element.propKey.split('.')[0];
+          let tileId = element.propKey.split('.')[1];
+          let dmId = element.id.replace("RichTextID","");
+          setSelectedTabIdForDM(tabId);
+            setSelectedTileIdForDM(tileId);
+            setSelectedDynamicMeasureId(dmId);
+            setSelectedToEdit(
+              tabId,
+              tileId,
+              dmId,
+              true
+            );
+            setDynamicMeasureWindowOpen(propKey, true);
+        }
       }}
     >
       {element.character}
@@ -442,18 +436,21 @@ if (element.measureStyle.backgroundColor != 'white') {
   )
 }
 
+
+
+
   return (
     <>
       {
-         !tabTileProps.showDash ?
-         <Button 
+        !tabTileProps.showDash ?
+        <Button style={{"color":"black"}}
          onClick={() => {
              setDynamicMeasureWindowOpen(propKey, true);
              onAddingNewDynamicMeaasure();
          }}
-       >
+        >
          Add Dynamic Measure
-     </Button>
+       </Button>
      : null
       }
        
@@ -461,7 +458,15 @@ if (element.measureStyle.backgroundColor != 'white') {
         editor={editor}
         initialValue={initialValue}
         onChange={(val) => {
-          //const { selection } = editor
+          const { selection } = editor
+
+          if (selection && Range.isCollapsed(selection)) {
+            const [start] = Range.edges(selection)
+
+            localStorage.setItem('cursor', JSON.stringify({
+              at: start
+            }))
+          }
 
           const isAstChange = editor.operations.some(
             (op) => 'set_selection' !== op.type
@@ -470,7 +475,6 @@ if (element.measureStyle.backgroundColor != 'white') {
           if (isAstChange) {
             updateRichText(propKey, val);
             setTarget(undefined)
-            console.log(val);
           }
         }}
       >
@@ -487,7 +491,6 @@ if (element.measureStyle.backgroundColor != 'white') {
             <BlockButton format="left" icon={<MdFormatAlignLeft/>} />
             <BlockButton format="center" icon={<MdFormatAlignCenter/>} />
             <BlockButton format="right" icon={<MdFormatAlignRight/>} />
-            <BlockButton format="justify" icon={<MdFormatAlignJustify />} />
           </Toolbar>
           :null
         }
@@ -497,7 +500,10 @@ if (element.measureStyle.backgroundColor != 'white') {
           renderElement={renderElement}
           renderLeaf={renderLeaf}
           placeholder="Enter some text..."
-          style={{"height":"200px"}}
+        
+          style={{
+            minHeight: '200px',
+          }}
         />
       </Slate>
     </>
