@@ -31,17 +31,11 @@ import ControlDetail from "../ChartOptions/ControlDetail";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import "./DynamicMeasuresStyles.css";
 
-import {
-	
-	onCheckorUncheckOnDm,
-
-} from "../../redux/DynamicMeasures/DynamicMeasuresActions";
-
+import { onCheckorUncheckOnDm } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 
-import {  updateRichTextOnAddingDYnamicMeasure } from "../../redux/ChartPoperties/ChartControlsActions";
-
+import { updateRichTextOnAddingDYnamicMeasure } from "../../redux/ChartPoperties/ChartControlsActions";
 
 const DynamicMeasureWindow = ({
 	//state
@@ -59,8 +53,7 @@ const DynamicMeasureWindow = ({
 	setDynamicMeasureWindowOpen,
 	discardCreationOfFirstDm,
 	setSelectedToEdit,
-	updateRichTextOnAddingDYnamicMeasure
-
+	updateRichTextOnAddingDYnamicMeasure,
 }: any) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var dynamicMeasurePropKey: string = `${tabTileProps.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`;
@@ -69,13 +62,15 @@ const DynamicMeasureWindow = ({
 			dynamicMeasureState.selectedTileId
 		]?.[dynamicMeasurePropKey];
 
+	console.log(selectedDynamicMeasureProps);
+
 	const [loading, setLoading] = useState<boolean>(false);
 
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
 	const [severity, setSeverity] = useState<AlertColor>("success");
-const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
-
+	const tabId = tabTileProps.selectedTabId,
+		tileId = tabTileProps.selectedTileId;
 
 	const handleTableChange = async (table: any, dsUid?: any) => {
 		if (table.flatFileId) {
@@ -162,22 +157,26 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
 		return formattedValue;
 	};
 
-
 	var count = 0;
 	const handleOnSave = () => {
 		if (selectedDynamicMeasureProps.chartAxes[1].fields.length !== 0) {
 			// updateDynamicMeasureName(`${Object.keys(selectedDynamicMeasureProps.chartData[0])}`);
 			setDynamicMeasureWindowOpen(propKey, false);
 
-			let obj: any 	=
-					dynamicMeasureState.dynamicMeasureProps[`${dynamicMeasureState.selectedTabId}`]?.[
-						`${dynamicMeasureState.selectedTileId}`
-					]?.[
-						`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
-					];
+			let obj: any =
+				dynamicMeasureState.dynamicMeasureProps[`${dynamicMeasureState.selectedTabId}`]?.[
+					`${dynamicMeasureState.selectedTileId}`
+				]?.[
+					`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+				];
 
-
-			updateRichTextOnAddingDYnamicMeasure(propKey, true, getFormatedValue(obj.dynamicMeasureId), obj.styleOptions, obj.dynamicMeasureId);
+			updateRichTextOnAddingDYnamicMeasure(
+				propKey,
+				true,
+				getFormatedValue(obj.dynamicMeasureId),
+				obj.styleOptions,
+				obj.dynamicMeasureId
+			);
 
 			onCheckorUncheckOnDm(
 				obj.dynamicMeasureId,
@@ -186,8 +185,6 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
 				getFormatedValue(obj.dynamicMeasureId),
 				obj.styleOptions
 			);
-
-
 		} else {
 			setSeverity("error");
 			setOpenAlert(true);
@@ -444,20 +441,21 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(discardCreationOfFirstDm(tabId, tileId, dmId)),
 		setSelectedToEdit: (tabId: number, tileId: number, dmId: number, value: boolean) =>
 			dispatch(setSelectedToEdit(tabId, tileId, dmId, value)),
-			updateRichTextOnAddingDYnamicMeasure: (
-				dmId: string,
-				value: boolean,
-				propKey: string,
-				dmValue: any,
-				styleObj: any
-			) => dispatch(updateRichTextOnAddingDYnamicMeasure(dmId, value, propKey, dmValue, styleObj)),
-			onCheckorUncheckOnDm: (
-				dmId: string,
-				value: boolean,
-				propKey: string,
-				dmValue: any,
-				styleObj: any
-			) => dispatch(onCheckorUncheckOnDm(dmId, value, propKey, dmValue, styleObj)),
+		updateRichTextOnAddingDYnamicMeasure: (
+			dmId: string,
+			value: boolean,
+			propKey: string,
+			dmValue: any,
+			styleObj: any
+		) =>
+			dispatch(updateRichTextOnAddingDYnamicMeasure(dmId, value, propKey, dmValue, styleObj)),
+		onCheckorUncheckOnDm: (
+			dmId: string,
+			value: boolean,
+			propKey: string,
+			dmValue: any,
+			styleObj: any
+		) => dispatch(onCheckorUncheckOnDm(dmId, value, propKey, dmValue, styleObj)),
 	};
 };
 
