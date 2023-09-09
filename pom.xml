@@ -47,12 +47,12 @@
             <artifactId>spring-boot-devtools</artifactId>
             <version>2.7.14</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
+         <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>2.2.220</version>
-            <scope>test</scope>
+            <version>2.1.214</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security -->
@@ -140,11 +140,11 @@
 		</dependency>   
 
     <!-- Manual addition of BigQuery Driver -->
-        <dependency>
+        <!-- <dependency>
             <groupId>com.google.bigquery</groupId>
             <artifactId>bigquery-jdbc</artifactId>
             <version>42</version>
-        </dependency>  
+        </dependency>   -->
 
     <!-- dependency for Bigquery driver -->
 
@@ -201,6 +201,13 @@
         <groupId>org.duckdb</groupId>
         <artifactId>duckdb_jdbc</artifactId>
         <version>0.8.1</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.databricks/databricks-jdbc -->
+    <dependency>
+        <groupId>com.databricks</groupId>
+        <artifactId>databricks-jdbc</artifactId>
+        <version>2.6.33</version>
     </dependency>
 
     </dependencies>

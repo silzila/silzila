@@ -52,9 +52,9 @@ public class FilterOptionsQueryComposer {
         } else if (vendorName.equals("sqlserver")) {
             System.out.println("------ inside sql server block");
             finalQuery = FilterQuerySqlserver.getFilterOptions(cf, table);
-        } else if (vendorName.equals("spark")) {
-            System.out.println("------ inside spark block");
-            finalQuery = FilterQuerySpark.getFilterOptions(cf, table);
+        } else if (vendorName.equals("databricks")) {
+            System.out.println("------ inside databricks block");
+            finalQuery = FilterQueryDatabricks.getFilterOptions(cf, table);
         } else if (vendorName.equals("duckdb")) {
             System.out.println("------ inside duckdb block");
             finalQuery = FilterQueryDuckDb.getFilterOptions(cf, table);

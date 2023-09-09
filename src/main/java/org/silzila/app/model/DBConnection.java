@@ -61,6 +61,9 @@ public class DBConnection {
     private String connectionName;
 
     @Size(max = 255)
+    private String httpPath;
+
+    @Size(max = 255)
     private String projectId;
 
     @Size(max = 255)
@@ -78,9 +81,8 @@ public class DBConnection {
             @NotBlank @Size(max = 255) String database, @NotBlank @Size(max = 255) String username,
             @NotBlank @Size(max = 255) String salt, @NotBlank @Size(max = 255) String passwordHash,
             @NotBlank @Size(max = 255) String connectionName,
-            @Size(max = 255) String projectId,
-            @Size(max = 255) String clientEmail,
-            @Size(max = 255) String fileName) {
+            @Size(max = 255) String httpPath,
+            @Size(max = 255) String projectId, @Size(max = 255) String clientEmail, @Size(max = 255) String fileName) {
         this.userId = userId;
         this.vendor = vendor;
         this.server = server;
@@ -90,9 +92,12 @@ public class DBConnection {
         this.salt = salt;
         this.passwordHash = passwordHash;
         this.connectionName = connectionName;
+        this.httpPath = httpPath;
         this.projectId = projectId;
         this.clientEmail = clientEmail;
         this.fileName = fileName;
     }
+
+  
 
 }

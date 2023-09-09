@@ -19,7 +19,7 @@ Data Setup Page
 	max-width: 1400px;
 	margin: auto;
 	display: flex;
-	border-top:2px solid rgba(224,224,224,1)
+	border-top: 2px solid rgba(224, 224, 224, 1)
 }
 
 .dcds {
@@ -30,8 +30,7 @@ Data Setup Page
 	overflow: hidden;
 	justify-content: space-between;
 	padding-right: 1rem;
-	border-right:2px solid rgba(224,224,224,1)
-	
+	border-right: 2px solid rgba(224, 224, 224, 1)
 }
 
 .dataConnectionContainer {
@@ -43,7 +42,7 @@ Data Setup Page
 	overflow: auto;
 	display: flex;
 	flex-direction: column;
-	height:400px
+	height: 400px
 }
 
 .dataSetContainer {
@@ -54,17 +53,17 @@ Data Setup Page
 	overflow: auto;
 	display: flex;
 	flex-direction: column;
-	height:400px
+	height: 400px
 }
 
 .connectionListContainer {
 	display: flex;
 	flex-direction: column;
-	overflow:hidden;
-	margin-left:0.8rem;
+	overflow: hidden;
+	margin-left: 0.8rem;
 }
 
-.connectionListContainer:hover{
+.connectionListContainer:hover {
 	overflow: auto;
 }
 
@@ -93,6 +92,7 @@ Data Setup Page
 	margin-right: 1rem;
 	flex: 1;
 }
+
 .containerButton {
 	border: 1px solid #2bb9bb;
 	background-color: transparent;
@@ -104,7 +104,7 @@ Data Setup Page
 	padding: 2.5px 20px;
 	font-size: 16px;
 	cursor: pointer;
-	
+
 }
 
 
@@ -120,14 +120,78 @@ Data Connections
 =================================================== 
 */
 
+.dbFormContainer {
+	padding: 10px;
+	width: 400px
+}
+
+.dbForm {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	row-gap: 10px;
+}
+
+.dbFormTitle {
+	display: grid;
+	grid-template-columns: 95% 5%;
+	text-align: center;
+	width: 100%;
+	color: #5d5c5c;
+}
+
+.dbConnectionErrorText {
+	color: red;
+
+}
+
+.dbFormButton {
+	margin: 10px auto;
+	display: flex;
+	column-gap: 40px;
+}
+
+.dbDeleteDialog {
+	display: flex;
+	flex-direction: column;
+	padding: 5px;
+	width: 350px;
+	height: auto;
+	justify-content: center;
+}
+
+.dbDeleteDialogMsg {
+	font-weight: bold;
+	text-align: center;
+	margin-top: 20px
+}
+
+.dbDeleteDialogBtnContainer {
+	display: flex;
+	padding: 15px;
+	justify-content: space-around;
+}
+
+.dbDeleteDialogBtn1 {
+	background-color: grey;
+	float: right;
+	text-transform: none;
+}
+
+.dbDeleteDialogBtn2 {
+	background-color: red;
+
+	text-transform: none;
+}
+
 .dataConnectionList {
 	margin: 8px 5px 0 0;
 	/* background-color: rgb(250, 250, 250); */
 	border-radius: 5px;
 	display: flex;
-	padding:5px 20px 5px 30px;
-	border: 1px solid rgba(224,224,224,1);
-	color:rgb(101, 101, 101);
+	padding: 5px 20px 5px 30px;
+	border: 1px solid rgba(224, 224, 224, 1);
+	color: rgb(101, 101, 101);
 }
 
 .dataConnectionListSelected {
@@ -143,7 +207,7 @@ Data Connections
 
 .dataHomeDeleteIcon {
 	width: 1.5rem;
-	margin-right:2px;
+	margin-right: 2px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -186,11 +250,11 @@ Datasets
 .sidebar {
 	width: 16rem;
 	/* background-color: rgb(238, 238, 238); */
-	border-right: 2px solid rgba(224,224,224,1);
+	border-right: 2px solid rgba(224, 224, 224, 1);
 	padding: 1rem;
-	border-top:2px solid rgba(224,224,224,1)
-	/* overflow-y: auto; */
-	/* overflow-x: hidden; */
+	border-top: 2px solid rgba(224, 224, 224, 1)
+		/* overflow-y: auto; */
+		/* overflow-x: hidden; */
 }
 
 .selectBar {
@@ -220,21 +284,25 @@ Datasets
 	padding: 2px;
 	font-size: 14px;
 }
+
 .tableListStyle:hover {
 	box-shadow: 0 0 2px 2px #c9c9c9;
 	border-radius: 5px;
 	background-color: white;
 }
+
 .selectTableInput {
 	margin: auto 5px;
 	height: 6px;
 	width: 6px;
 }
+
 .tableIcon {
 	margin: auto 5px;
 	height: 15px;
 	width: 15px;
 }
+
 .tableName {
 	margin: auto 5px;
 	flex: 1;
@@ -244,11 +312,12 @@ Datasets
 	text-overflow: ellipsis;
 }
 
-.vendorIconStyle{
-	height:25px;
-	width:25px;
+.vendorIconStyle {
+	height: 25px;
+	width: 25px;
 	margin-right: 10px;
 }
+
 /* 
 -------------------------------------------------
 DashboardList
@@ -269,7 +338,7 @@ TableData
 	/* padding: 3px;
 	height: 28px; */
 	padding: 0px 16px 0 16px;
-		height: 28px;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+	height: 28px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }

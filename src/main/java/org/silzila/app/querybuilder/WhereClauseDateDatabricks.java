@@ -8,7 +8,7 @@ import org.silzila.app.payload.request.Filter;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.helper.QueryNegator;
 
-public class WhereClauseDateSpark {
+public class WhereClauseDateDatabricks {
 
     public static String buildWhereClauseDate(Filter filter) throws BadRequestException {
         // MAP of request time grain to date function parameter in Postgres

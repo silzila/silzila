@@ -259,30 +259,24 @@ function FormDialog({
 
 	return (
 		<>
-			<Dialog open={showForm} onClose={showAndHideForm}>
-				<div style={{ padding: "10px", width: "400px" }}>
+			<Dialog
+				open={showForm}
+				onClose={showAndHideForm}
+				sx={{
+					"& .css-1t1j96h-MuiPaper-root-MuiDialog-paper": {
+						overflow: "hidden",
+					},
+				}}
+			>
+				<div className="dbFormContainer">
 					<form
-						style={{
-							// textAlign: "center",
-							alignItems: "center",
-							display: "flex",
-							flexDirection: "column",
-							rowGap: "10px",
-						}}
+						className="dbForm"
 						onSubmit={e => {
 							e.preventDefault();
 							onSubmit();
 						}}
 					>
-						<div
-							style={{
-								display: "grid",
-								gridTemplateColumns: "95% 5%",
-								textAlign: "center",
-								width: "100%",
-								color: "#5d5c5c",
-							}}
-						>
+						<div className="dbFormTitle">
 							{viewMode ? (
 								<h3>DB Connection</h3>
 							) : regOrUpdate === "Update" ? (
@@ -349,7 +343,7 @@ function FormDialog({
 								</MenuItem>
 							</Select>
 						</FormControl>
-						<small style={{ color: "red" }}>{account.vendorError}</small>
+						<small className="dbConnectionErrorText">{account.vendorError}</small>
 						<TextFieldComponent
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 								setAccount({ ...account, server: e.target.value });
@@ -367,7 +361,7 @@ function FormDialog({
 							}}
 							{...{ viewMode, value: account.server, lable: "Server Url" }}
 						/>
-						<small style={{ color: "red" }}>{account.serverError}</small>
+						<small className="dbConnectionErrorText">{account.serverError}</small>
 						<TextFieldComponent
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 								setAccount({ ...account, port: e.target.value });
@@ -385,7 +379,7 @@ function FormDialog({
 							}}
 							{...{ viewMode, value: account.port, lable: "Port", type: "number" }}
 						/>
-						<small style={{ color: "red" }}>{account.portError}</small>
+						<small className="dbConnectionErrorText">{account.portError}</small>
 						<TextFieldComponent
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 								setAccount({ ...account, database: e.target.value });
@@ -403,7 +397,7 @@ function FormDialog({
 							}}
 							{...{ viewMode, value: account.database, lable: "Database" }}
 						/>
-						<small style={{ color: "red" }}>{account.databaseError}</small>
+						<small className="dbConnectionErrorText">{account.databaseError}</small>
 
 						<TextFieldComponent
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -422,7 +416,7 @@ function FormDialog({
 							}}
 							{...{ viewMode, value: account.username, lable: "Username" }}
 						/>
-						<small style={{ color: "red" }}>{account.userNameError}</small>
+						<small className="dbConnectionErrorText">{account.userNameError}</small>
 
 						<TextFieldComponent
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -446,7 +440,7 @@ function FormDialog({
 								type: "password",
 							}}
 						/>
-						<small style={{ color: "red" }}>{account.passwordError}</small>
+						<small className="dbConnectionErrorText">{account.passwordError}</small>
 
 						<TextFieldComponent
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -469,15 +463,11 @@ function FormDialog({
 								lable: "Connection name",
 							}}
 						/>
-						<small style={{ color: "red" }}>{account.connectionNameError}</small>
+						<small className="dbConnectionErrorText">
+							{account.connectionNameError}
+						</small>
 						{viewMode ? (
-							<div
-								style={{
-									margin: "10px auto",
-									display: "flex",
-									columnGap: "40px",
-								}}
-							>
+							<div className="dbFormButton">
 								<Button
 									variant="contained"
 									value="Edit"
@@ -499,13 +489,7 @@ function FormDialog({
 								</Button>
 							</div>
 						) : (
-							<div
-								style={{
-									margin: "10px auto",
-									display: "flex",
-									columnGap: "40px",
-								}}
-							>
+							<div className="dbFormButton">
 								<Button
 									variant="contained"
 									onClick={handleonTest}
@@ -540,30 +524,15 @@ function FormDialog({
 				</div>
 			</Dialog>
 			<Dialog open={openConfirmDialog}>
-				<div
-					style={{
-						display: "flex",
-						flexDirection: "column",
-						padding: "5px",
-						width: "350px",
-						height: "auto",
-						justifyContent: "center",
-					}}
-				>
-					<div style={{ fontWeight: "bold", textAlign: "center", marginTop: "20px" }}>
+				<div className="dbDeleteDialog">
+					<div className="dbDeleteDialogMsg">
 						Delete DB Connection?
 						<br />
 						<br />
 					</div>
-					<div
-						style={{ padding: "15px", justifyContent: "space-around", display: "flex" }}
-					>
+					<div className="dbDeleteDialogBtnContainer">
 						<Button
-							style={{
-								backgroundColor: "grey",
-								float: "right",
-								textTransform: "none",
-							}}
+							className="dbDeleteDialogBtn1"
 							onClick={() => setOpenConfirmDialog(false)}
 							variant="contained"
 						>
@@ -571,7 +540,7 @@ function FormDialog({
 						</Button>
 
 						<Button
-							style={{ backgroundColor: "red", textTransform: "none" }}
+							className="dbDeleteDialogBtn2"
 							variant="contained"
 							onClick={() => {
 								setOpenConfirmDialog(false);

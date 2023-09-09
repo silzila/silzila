@@ -7,17 +7,17 @@ import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.payload.request.ColumnFilter;
 import org.silzila.app.payload.request.Table;
 
-public class FilterQuerySpark {
+public class FilterQueryDatabricks {
 
     public static String getFilterOptions(ColumnFilter req, Table table) throws BadRequestException {
-        System.out.println("=========== FilterQuerySpark fn calling...");
+        System.out.println("=========== FilterQueryDatabricks fn calling...");
         /*
          * ************************************************
          * get distinct values - binary, text
          * ************************************************
          */
         String query = "";
-        String fromClause = " FROM vw_" + table.getAlias() + "_" + table.getFlatFileId().substring(0, 8) + " ";
+        String fromClause = " FROM " + table.getDatabase() + ".`" + table.getSchema() + "`." + table.getTable() + " ";
 
         if (List.of("TEXT", "BOOLEAN").contains(req.getDataType().name())) {
             query = "SELECT DISTINCT " + req.getFieldName() + fromClause + "ORDER BY 1";
