@@ -33,10 +33,8 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 		};
 	};
 	switch (action.type) {
-
 		case "LOAD_DYMANIC_MEASURES":
 			return action.payload;
-
 
 		//1//have to call this whilre user select the rich text
 		case "SET_SELECTED_DATASET_FOR_DYNAMICMEASURE":
@@ -821,6 +819,38 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 					},
 				});
 			}
+
+		case "UPDATE_AXES_QUERY_PARAM_FOR_DM":
+			return update(state, {
+				dynamicMeasureProps: {
+					[state.selectedTabId]: {
+						[state.selectedTileId]: {
+							[action.payload.propKey]: {
+								chartAxes: {
+									[action.payload.binIndex]: {
+										fields: {
+											$splice: [
+												[action.payload.itemIndex, 1, action.payload.item],
+											],
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				// properties: {
+				// 	[action.payload.propKey]: {
+				// 		chartAxes: {
+				// 			[action.payload.binIndex]: {
+				// 				fields: {
+				// 					$splice: [[action.payload.itemIndex, 1, action.payload.item]],
+				// 				},
+				// 			},
+				// 		},
+				// 	},
+				// },
+			});
 
 		default:
 			return state;
