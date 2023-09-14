@@ -16,8 +16,13 @@ import {
   useSlate
 } from 'slate-react';
 
-import { Button, Icon, Toolbar } from '../CommonFunctions/TextEditorToolBar' ;
-import {MdFormatBold,MdFormatItalic,MdFormatUnderlined,MdFormatListBulleted,MdFormatListNumbered,MdFormatAlignLeft,MdFormatAlignCenter,MdFormatAlignRight,MdFormatAlignJustify,MdFormatQuote} from 'react-icons/md';
+import {
+	Button,
+	
+} from "@mui/material";
+
+import { ToolBarButton, Icon, Toolbar } from '../CommonFunctions/TextEditorToolBar' ;
+import {MdCode,MdFormatQuote,MdLooksOne,MdLooksTwo, MdFormatBold,MdFormatItalic,MdFormatUnderlined,MdFormatListBulleted,MdFormatListNumbered,MdFormatAlignLeft,MdFormatAlignCenter,MdFormatAlignRight,MdFormatAlignJustify} from 'react-icons/md';
 
 import {
 	setDynamicMeasureWindowOpen,
@@ -171,7 +176,8 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
 const BlockButton = ({ format, icon }) => {
   const editor = useSlate()
   return (
-    <Button
+    <ToolBarButton
+   
       active={isBlockActive(
         editor,
         format,
@@ -183,14 +189,14 @@ const BlockButton = ({ format, icon }) => {
       }}
     >
       <Icon>{icon}</Icon>
-    </Button>
+    </ToolBarButton>
   )
 }
 
 const MarkButton = ({ format, icon }) => {
   const editor = useSlate()
   return (
-    <Button
+    <ToolBarButton
       active={isMarkActive(editor, format)}
       onMouseDown={(event) => {
         event.preventDefault()
@@ -198,7 +204,7 @@ const MarkButton = ({ format, icon }) => {
       }}
     >
       <Icon>{icon}</Icon>
-    </Button>
+    </ToolBarButton>
   )
 }
 
@@ -441,18 +447,7 @@ if (element.measureStyle.backgroundColor != 'white') {
 
   return (
     <>
-      {
-        !tabTileProps.showDash ?
-        <Button style={{"color":"black"}}
-         onClick={() => {
-             setDynamicMeasureWindowOpen(propKey, true);
-             onAddingNewDynamicMeaasure();
-         }}
-        >
-         Add Dynamic Measure
-       </Button>
-     : null
-      }
+     
        
       <Slate
         editor={editor}
@@ -480,18 +475,39 @@ if (element.measureStyle.backgroundColor != 'white') {
       >
         {
           !tabTileProps.showDash ?
-          <Toolbar>
-          <BlockButton format="heading-one" icon="H1" />
-            <BlockButton format="heading-two" icon="H2" />
-            <MarkButton format="bold" icon={<MdFormatBold/>}/>
-            <MarkButton format="italic" icon={<MdFormatItalic/>} />
-            <MarkButton format="underline" icon={<MdFormatUnderlined/>} />
-            <BlockButton format="numbered-list" icon={<MdFormatListNumbered/>} />
-            <BlockButton format="bulleted-list" icon={<MdFormatListBulleted/>} />
-            <BlockButton format="left" icon={<MdFormatAlignLeft/>} />
-            <BlockButton format="center" icon={<MdFormatAlignCenter/>} />
-            <BlockButton format="right" icon={<MdFormatAlignRight/>} />
-          </Toolbar>
+          <div style={{"display":"block",  "width":"100%"}}>
+            <Toolbar>
+              <MarkButton format="bold" icon={<MdFormatBold/>}/>
+              <MarkButton format="italic" icon={<MdFormatItalic/>} />
+              <MarkButton format="underline" icon={<MdFormatUnderlined/>} />
+              <MarkButton format="code" icon={<MdCode/>} />
+              <BlockButton format="heading-one" icon={<MdLooksOne/>} />
+              <BlockButton format="heading-two" icon={<MdLooksTwo/>} />
+              <BlockButton format="block-quote" icon={<MdFormatQuote/>} />
+              <BlockButton format="numbered-list" icon={<MdFormatListNumbered/>} />
+              <BlockButton format="bulleted-list" icon={<MdFormatListBulleted/>} />
+              <BlockButton format="left" icon={<MdFormatAlignLeft/>} />
+              <BlockButton format="center" icon={<MdFormatAlignCenter/>} />
+              <BlockButton format="right" icon={<MdFormatAlignRight/>} />
+            
+            </Toolbar>
+            <Button style={{"float":"right", "marginTop":"-50px", "height":"30px"}}
+            sx={{
+              textTransform: "none",
+              backgroundColor: "rgb(43, 185, 187)",
+              color: "white",
+              "&:hover": {
+                backgroundColor: "rgb(43, 185, 187)",
+              },
+            }}
+            onClick={() => {
+                setDynamicMeasureWindowOpen(propKey, true);
+                onAddingNewDynamicMeaasure();
+            }}
+            >
+            Add Dynamic Measure
+          </Button>
+         </div>
           :null
         }
        
@@ -502,7 +518,9 @@ if (element.measureStyle.backgroundColor != 'white') {
           placeholder="Enter some text..."
         
           style={{
-            minHeight: '200px',
+            minHeight: '300px',
+            border : '1px black solid',
+            padding: '2px 2px 2px 12px'
           }}
         />
       </Slate>
