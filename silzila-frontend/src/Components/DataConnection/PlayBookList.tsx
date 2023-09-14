@@ -130,7 +130,6 @@ const PlayBookList = ({
 		});
 
 		if (result.status) {
-			// console.log(result.data);
 			setLoading(true);
 
 			var pb = result.data;
@@ -283,7 +282,7 @@ const PlayBookList = ({
 			pb.content.content.chartControl = newChartControl;
 			pb.content.content.sampleRecords = sampleRecords;
 			loadPlayBook(pb.content.content);
-			updatePlayBookId(pb.name, pb.id, pb.description);
+			updatePlayBookId(pb.name, pb.id, pb.description, pb.content.content);
 
 			var pbCopy = pb.content.content;
 			delete pbCopy.sampleRecords;
