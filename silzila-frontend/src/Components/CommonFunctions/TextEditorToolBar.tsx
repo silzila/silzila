@@ -8,7 +8,7 @@ interface BaseProps {
 }
 type OrNull<T> = T | null
 
-export const Button = React.forwardRef(
+export const ToolBarButton = React.forwardRef(
   (
     {
       className,
@@ -33,10 +33,10 @@ export const Button = React.forwardRef(
           color: ${reversed
             ? active
               ? 'white'
-              : '#aaa'
+              : '#eee'
             : active
             ? 'black'
-            : '#ccc'};
+            : '#36efef'};
         `
       )}
     />
@@ -112,7 +112,7 @@ export const Icon = React.forwardRef(
         'material-icons',
         className,
         css`
-          font-size: 18px;
+          font-size: 24px;
           vertical-align: text-bottom;
         `
       )}
@@ -186,9 +186,6 @@ export const Toolbar = React.forwardRef(
         css`
           position: relative;
           padding: 1px 18px 17px;
-          margin: 0 -20px;
-          border-bottom: 2px solid #eee;
-          margin-bottom: 20px;
         `
       )}
     />
