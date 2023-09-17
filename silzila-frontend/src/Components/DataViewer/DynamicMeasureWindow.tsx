@@ -170,11 +170,28 @@ const DynamicMeasureWindow = ({
 					`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
 				];
 
+			let style = {};
+			var formats = obj?.conditionalFormats;
+
+		if (formats?.length > 0) {
+			for (let i = formats.length - 1; i >= 0; i--) {
+				if (formats[i].isConditionSatisfied) {					
+					style = formats[i];
+					break;
+				}
+				if (i === 0 && !formats[i].isConditionSatisfied) {
+					style = obj.styleOptions;
+				}
+			}
+		} else {
+			style = obj.styleOptions;
+		}
+
 			updateRichTextOnAddingDYnamicMeasure(
 				propKey,
 				true,
 				getFormatedValue(obj.dynamicMeasureId),
-				obj.styleOptions,
+				style,
 				obj.dynamicMeasureId
 			);
 
@@ -183,7 +200,7 @@ const DynamicMeasureWindow = ({
 				false,
 				propKey,
 				getFormatedValue(obj.dynamicMeasureId),
-				obj.styleOptions
+				style
 			);
 		} else {
 			setSeverity("error");

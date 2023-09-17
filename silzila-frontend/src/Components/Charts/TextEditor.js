@@ -397,6 +397,8 @@ if (element.measureStyle.backgroundColor != 'white') {
 
      style.border  = 'dashed 1px grey';
 
+     style.cursor =  "pointer";
+
 
   return (
     <span 
@@ -447,8 +449,6 @@ if (element.measureStyle.backgroundColor != 'white') {
 
   return (
     <>
-     
-       
       <Slate
         editor={editor}
         initialValue={initialValue}
@@ -519,7 +519,7 @@ if (element.measureStyle.backgroundColor != 'white') {
         
           style={{
             minHeight: '300px',
-            border : '1px black solid',
+            border: "1px solid rgb(222, 222, 222)",
             padding: '2px 2px 2px 12px'
           }}
         />
