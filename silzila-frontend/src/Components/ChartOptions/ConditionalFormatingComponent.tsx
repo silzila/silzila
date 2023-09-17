@@ -70,6 +70,7 @@ export const checkIsConditionSatisfied = (formatsArray: any, dmValue: number) =>
 		}
 		return el;
 	});
+
 	return updatedArray;
 };
 
@@ -122,7 +123,7 @@ const GetInputField = ({ condition, onChangeValueProps }: any) => {
 					<div>Target Value</div>
 
 					<TextField
-						value={5}
+						value={condition.target}
 						variant="outlined"
 						type="number"
 						onChange={e => {

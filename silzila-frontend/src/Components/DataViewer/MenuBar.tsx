@@ -76,12 +76,14 @@ const MenuBar = ({
 			JSON.stringify(tabState) === JSON.stringify(playBookState.oldContent.tabState) &&
 			JSON.stringify(tileState) === JSON.stringify(playBookState.oldContent.tileState) &&
 			JSON.stringify(tabTileProps) ===
-				JSON.stringify(playBookState.oldContent.tabTileProps) &&
+				JSON.stringify(playBookState.oldContent.tabTileProps) && //*
 			JSON.stringify(chartProperty) ===
 				JSON.stringify(playBookState.oldContent.chartProperty) &&
 			JSON.stringify(chartControl) ===
-				JSON.stringify(playBookState.oldContent.chartControl) &&
-			JSON.stringify(chartGroup) === JSON.stringify(playBookState.oldContent.chartGroup)
+				JSON.stringify(playBookState.oldContent.chartControl) && //*
+			JSON.stringify(chartGroup) === JSON.stringify(playBookState.oldContent.chartGroup) &&
+			JSON.stringify(dynamicMeasureState) ===
+				JSON.stringify(playBookState.oldContent.dynamicMeasureState)
 		) {
 			showSaveWarning = false;
 		} else {
@@ -178,6 +180,9 @@ const MenuBar = ({
 						navigate("/login");
 					}
 				}, 2000);
+
+				console.log(JSON.stringify(result.data.content["tabTileProps"], null, "\t"));
+				console.log(JSON.stringify(tabTileProps, null, "\t"));
 			}
 		} else {
 			setSaveModal(true);
@@ -518,6 +523,7 @@ const MenuBar = ({
 					<div
 						className="menuHomeIcon"
 						onClick={() => {
+							console.log(showSaveWarning, playBookState.playBookUid);
 							if (showSaveWarning || playBookState.playBookUid === null) {
 								setSaveFromHomeIcon(true);
 								setSaveModal(true);
