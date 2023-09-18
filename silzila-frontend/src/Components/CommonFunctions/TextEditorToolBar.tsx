@@ -35,8 +35,8 @@ export const ToolBarButton = React.forwardRef(
               ? 'white'
               : '#eee'
             : active
-            ? 'black'
-            : '#36efef'};
+            ? '#36efef'
+            : '#808080c2'};
         `
       )}
     />
