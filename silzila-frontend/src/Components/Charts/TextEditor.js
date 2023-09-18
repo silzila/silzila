@@ -1,6 +1,7 @@
 
 import "react-quill/dist/quill.snow.css";
 import { connect } from "react-redux";
+import './TextEditor.css';
 import { Dispatch } from "redux";
 import { updateRichText, updateRichTextOnAddingDYnamicMeasure,clearRichText } from "../../redux/ChartPoperties/ChartControlsActions";
 import { addMeasureInTextEditor } from "../../redux/ChartPoperties/ChartPropertiesActions";
@@ -22,7 +23,9 @@ import {
 } from "@mui/material";
 
 import { ToolBarButton, Icon, Toolbar } from '../CommonFunctions/TextEditorToolBar' ;
-import {MdCode,MdFormatQuote,MdLooksOne,MdLooksTwo, MdFormatBold,MdFormatItalic,MdFormatUnderlined,MdFormatListBulleted,MdFormatListNumbered,MdFormatAlignLeft,MdFormatAlignCenter,MdFormatAlignRight,MdFormatAlignJustify} from 'react-icons/md';
+import {MdFormatStrikethrough,MdCode,MdFormatQuote,MdLooksOne,MdLooksTwo, MdFormatBold,MdFormatItalic,MdFormatUnderlined,MdFormatListBulleted,MdFormatListNumbered,MdFormatAlignLeft,MdFormatAlignCenter,MdFormatAlignRight,MdFormatAlignJustify} from 'react-icons/md';
+
+import { FaSuperscript,FaSubscript } from 'react-icons/fa'
 
 import {
 	setDynamicMeasureWindowOpen,
@@ -306,6 +309,33 @@ const Leaf = ({ attributes, children, leaf }) => {
     children = <u>{children}</u>
   }
 
+  if(leaf.superscript){
+    children = <sup>{children}</sup>
+    }
+    if(leaf.subscript){
+        children = <sub>{children}</sub>
+    }
+
+    if(leaf.strikethrough){
+      children = <span style={{textDecoration:'line-through'}}>{children}</span>
+    }
+
+    if(leaf.color){
+        children = <span style={{color:leaf.color}}>{children}</span>
+    }
+    if(leaf.bgColor){
+        children = <span style={{backgroundColor:leaf.bgColor}}>{children}</span>
+    }
+    // if(leaf.fontSize){
+    //     const size = sizeMap[leaf.fontSize]
+    //     children = <span style={{fontSize:size}}>{children}</span>
+    // }
+    // if(leaf.fontFamily){
+    //     const family = fontFamilyMap[leaf.fontFamily]
+    //     children = <span style={{fontFamily:family}}>{children}</span>
+    // }
+    
+
   return <span {...attributes}>{children}</span>
 }
 
@@ -397,6 +427,8 @@ if (element.measureStyle.backgroundColor != 'white') {
 
      style.border  = 'dashed 1px grey';
 
+     style.cursor =  "pointer";
+
 
   return (
     <span 
@@ -447,8 +479,6 @@ if (element.measureStyle.backgroundColor != 'white') {
 
   return (
     <>
-     
-       
       <Slate
         editor={editor}
         initialValue={initialValue}
@@ -480,7 +510,10 @@ if (element.measureStyle.backgroundColor != 'white') {
               <MarkButton format="bold" icon={<MdFormatBold/>}/>
               <MarkButton format="italic" icon={<MdFormatItalic/>} />
               <MarkButton format="underline" icon={<MdFormatUnderlined/>} />
-              <MarkButton format="code" icon={<MdCode/>} />
+              <MarkButton format="strikethrough" icon={<MdFormatStrikethrough/>} />
+              <MarkButton format="superscript" icon={<FaSuperscript/>} />
+              <MarkButton format="subscript"  icon={<FaSubscript/>} />
+              
               <BlockButton format="heading-one" icon={<MdLooksOne/>} />
               <BlockButton format="heading-two" icon={<MdLooksTwo/>} />
               <BlockButton format="block-quote" icon={<MdFormatQuote/>} />
@@ -519,7 +552,7 @@ if (element.measureStyle.backgroundColor != 'white') {
         
           style={{
             minHeight: '300px',
-            border : '1px black solid',
+            border: "1px solid rgb(222, 222, 222)",
             padding: '2px 2px 2px 12px'
           }}
         />
