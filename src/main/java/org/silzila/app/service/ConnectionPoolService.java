@@ -605,6 +605,14 @@ public class ConnectionPoolService {
 
     // test connect a given database connection parameters
     public void testDBConnection(DBConnectionRequest request) throws SQLException, BadRequestException {
+
+        HikariDataSource dataSource = null;
+        HikariConfig config = new HikariConfig();
+
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+	    
         // SQL Server is hadled differently
         if (request.getVendor().equals("sqlserver")) {
             String fullUrl = "jdbc:sqlserver://" + request.getServer() + ":" + request.getPort()
