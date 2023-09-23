@@ -16,12 +16,15 @@ import java.util.List;
 import java.util.Map;
 // import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import org.silzila.app.AppApplication;
 import org.silzila.app.dto.BigqueryConnectionDTO;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.exception.RecordNotFoundException;
@@ -34,6 +37,8 @@ import org.silzila.app.payload.response.MetadataTable;
 
 @Service
 public class ConnectionPoolService {
+
+    private static final Logger logger = LogManager.getLogger(AppApplication.class);
 
     HikariDataSource dataSource = null;
     HikariConfig config = new HikariConfig();
@@ -132,7 +137,7 @@ public class ConnectionPoolService {
     // STUB - not needed
     public JSONArray checkSqlServer() throws SQLException, RecordNotFoundException {
         String connectionUrl = "jdbc:sqlserver://3.7.39.222:1433;databaseName=landmark;user=balu;password=Marina!1234;encrypt=false";
-        System.out.println("Connection String ==========" + connectionUrl);
+        logger.info("Connection String ==========" + connectionUrl);
         try {
             Connection con = DriverManager.getConnection(connectionUrl);
             Statement statement = con.createStatement();
@@ -151,7 +156,7 @@ public class ConnectionPoolService {
             while (resultSet.next()) {
                 MetadataDatabase metadataDatabase = new MetadataDatabase();
                 metadataDatabase.setDatabase(resultSet.getString("TABLE_CAT"));
-                System.out.println("Schema loop ======== " + resultSet.getString("TABLE_CAT"));
+                logger.info("Schema loop ======== " + resultSet.getString("TABLE_CAT"));
             }
             /* SCHEMA NAMES */
             ResultSet resultSet2 = databaseMetaData.getSchemas();
@@ -159,7 +164,7 @@ public class ConnectionPoolService {
             while (resultSet2.next()) {
                 String databaseName = resultSet2.getString("TABLE_CATALOG");
                 String schemaName = resultSet2.getString("TABLE_SCHEM");
-                System.out.println("DB NAME ======== " + databaseName + " SCHEMA NAME ======= " + schemaName);
+                logger.info("DB NAME ======== " + databaseName + " SCHEMA NAME ======= " + schemaName);
             }
             con.close();
             // System.out.println("Stringigy JSON ===========\n " + jsonArray.toString());
@@ -182,8 +187,8 @@ public class ConnectionPoolService {
             // statement.close();
             return jsonArray;
         } catch (Exception e) {
-            System.out.println("runQuery Exception ----------------");
-            System.out.println("error: " + e.toString());
+            logger.warn("runQuery Exception ----------------");
+            logger.warn("error: " + e.toString());
             throw e;
         }
     }
@@ -592,7 +597,7 @@ public class ConnectionPoolService {
                 throw new BadRequestException("Error: Something wrong!");
             }
         } catch (Exception e) {
-            System.out.println("error: " + e.toString());
+            logger.warn("error: " + e.toString());
             throw e;
 
         } finally {
@@ -630,7 +635,7 @@ public class ConnectionPoolService {
 		 String fullUrl = "jdbc:databricks://" + request.getServer() + ":" 
                   + request.getPort() + "/" + request.getDatabase() + ";transportMode=http;ssl=1;httpPath=" 
                    + request.getHttpPath() + ";AuthMech=3;UID=token;PWD=" + request.getPassword() + ";EnableArrow=0";
-         System.out.println(fullUrl);       
+         logger.info(fullUrl);       
 		 config.setJdbcUrl(fullUrl);
          config.setDriverClassName("com.databricks.client.jdbc.Driver");
 		 config.addDataSourceProperty("minimulIdle", "1");
@@ -662,7 +667,7 @@ public class ConnectionPoolService {
                 throw new BadRequestException("Error: Something wrong!");
             }
         } catch (Exception e) {
-            System.out.println("error: " + e.toString());
+           logger.warn("error: " + e.toString());
             throw e;
 
         } finally {
@@ -692,16 +697,16 @@ public class ConnectionPoolService {
                     on u.uid = s.principal_id
                     where u.issqluser = 1
                     and u.name not in ('sys', 'guest', 'INFORMATION_SCHEMA')""";
-            System.out.println("------------------------------\n" + query);
+            logger.info("------------------------------\n" + query);
             resultSet = statement.executeQuery(query); // select 1 as x, 2 as y
             JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
-            System.out.println("------------------------------\n" + jsonArray.toString());
+            logger.info("------------------------------\n" + jsonArray.toString());
             statement.close();
             return jsonArray;
 
         } catch (Exception e) {
-            System.out.println("runQuery Exception ----------------");
-            System.out.println("error: " + e.toString());
+            logger.warn("runQuery Exception ----------------");
+            logger.warn("error: " + e.toString());
             throw new SQLException();
         } finally {
             connection.close();
@@ -716,10 +721,10 @@ public class ConnectionPoolService {
             try {
                 conn.getConnection().close();
             } catch (SQLException e) {
-                System.out.println("Error while closing all Connection Pools......");
+                logger.warn("Error while closing all Connection Pools......");
                 e.printStackTrace();
             }
         });
-        System.out.println("clearAllConnectionPoolsInShutDown Fn Called..................");
+        logger.warn("clearAllConnectionPoolsInShutDown Fn Called..................");
     }
 }

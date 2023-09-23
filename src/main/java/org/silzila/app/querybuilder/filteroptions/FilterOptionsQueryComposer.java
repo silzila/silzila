@@ -3,6 +3,9 @@ package org.silzila.app.querybuilder.filteroptions;
 import java.util.stream.Collectors;
 import java.util.Objects;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.silzila.app.AppApplication;
 import org.silzila.app.domain.QueryClauseFieldListMap;
 import org.silzila.app.dto.DatasetDTO;
 import org.silzila.app.exception.BadRequestException;
@@ -14,12 +17,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class FilterOptionsQueryComposer {
 
+    private static final Logger logger = LogManager.getLogger(FilterOptionsQueryComposer.class);
+
     /*
      * Builds query for the dropped column into a filter
      * Query result are the unique values of the selected column.
      */
     public String composeQuery(ColumnFilter cf, DatasetDTO ds, String vendorName) throws BadRequestException {
-        System.out.println("----------- FilterOptionsQueryComposer calling......");
+        logger.info("----------- FilterOptionsQueryComposer calling......");
         String finalQuery = "";
 
         /*
@@ -44,19 +49,19 @@ public class FilterOptionsQueryComposer {
         }
 
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
-            System.out.println("------ inside postges/redshift block");
+            logger.info("------ inside postges/redshift block");
             finalQuery = FilterQueryPostgres.getFilterOptions(cf, table);
         } else if (vendorName.equals("mysql")) {
-            System.out.println("------ inside mysql block");
+            logger.info("------ inside mysql block");
             finalQuery = FilterQueryMysql.getFilterOptions(cf, table);
         } else if (vendorName.equals("sqlserver")) {
-            System.out.println("------ inside sql server block");
+            logger.info("------ inside sql server block");
             finalQuery = FilterQuerySqlserver.getFilterOptions(cf, table);
         } else if (vendorName.equals("databricks")) {
-            System.out.println("------ inside databricks block");
+            logger.info("------ inside databricks block");
             finalQuery = FilterQueryDatabricks.getFilterOptions(cf, table);
         } else if (vendorName.equals("duckdb")) {
-            System.out.println("------ inside duckdb block");
+            logger.info("------ inside duckdb block");
             finalQuery = FilterQueryDuckDb.getFilterOptions(cf, table);
         }
 
