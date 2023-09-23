@@ -10,6 +10,10 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.silzila.app.AppApplication;
+
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -20,6 +24,7 @@ import java.util.Base64;
 
 public class AESEncryption {
 
+    private static final Logger logger = LogManager.getLogger(AESEncryption.class);
     // encryption method
     public static String encrypt(String stringToEncrypt, String passwordEncryptionSecretKey,
             String passwordEncryptionSaltValue) {
@@ -42,7 +47,7 @@ public class AESEncryption {
         } catch (InvalidAlgorithmParameterException | InvalidKeyException | NoSuchAlgorithmException
                 | InvalidKeySpecException | BadPaddingException | IllegalBlockSizeException
                 | NoSuchPaddingException e) {
-            System.out.println("Error occured during encryption: " + e.toString());
+            logger.warn("Error occured during encryption: " + e.toString());
         }
         return null;
     }
@@ -68,7 +73,7 @@ public class AESEncryption {
         } catch (InvalidAlgorithmParameterException | InvalidKeyException | NoSuchAlgorithmException
                 | InvalidKeySpecException | BadPaddingException | IllegalBlockSizeException
                 | NoSuchPaddingException e) {
-            System.out.println("Error occured during decryption: " + e.toString());
+            logger.warn("Error occured during decryption: " + e.toString());
         }
         return null;
     }

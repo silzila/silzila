@@ -1,9 +1,12 @@
 package org.silzila.app.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.modelmapper.ModelMapper;
+import org.silzila.app.AppApplication;
 import org.silzila.app.dto.BigqueryConnectionDTO;
 import org.silzila.app.dto.DBConnectionDTO;
 import org.silzila.app.exception.BadRequestException;
@@ -49,6 +52,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class DBConnectionController {
+
+    private static final Logger logger = LogManager.getLogger(DBConnectionController.class);
 
     @Autowired
     DBConnectionRepository dbConnectionRepository;
@@ -136,7 +141,7 @@ public class DBConnectionController {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject rec = jsonArray.getJSONObject(i);
                 String schema = rec.getString("schema_name");
-                System.out.println("######## " + jsonArray.get(i).toString());
+                logger.info("######## " + jsonArray.get(i).toString());
                 schemaList.add(schema);
             }
         }

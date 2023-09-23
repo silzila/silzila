@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.silzila.app.AppApplication;
 import org.silzila.app.domain.QueryClauseFieldListMap;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.helper.AilasMaker;
@@ -16,9 +19,11 @@ import org.silzila.app.payload.request.Query;
 
 public class SelectClauseSqlserver {
 
+    private static final Logger logger = LogManager.getLogger(SelectClauseSqlserver.class);
+
     /* SELECT clause for MySQL dialect */
     public static QueryClauseFieldListMap buildSelectClause(Query req) throws BadRequestException {
-        System.out.println("SelectClauseSqlserver calling ***********");
+        logger.info("SelectClauseSqlserver calling ***********");
 
         List<String> selectList = new ArrayList<>();
         List<String> selectDimList = new ArrayList<>();

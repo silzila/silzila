@@ -2,6 +2,8 @@ package org.silzila.app;
 
 import javax.annotation.PreDestroy;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.silzila.app.service.ConnectionPoolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -14,12 +16,14 @@ import java.net.URI;
 @SpringBootApplication
 public class AppApplication {
 
+	private static final Logger logger = LogManager.getLogger(AppApplication.class);
+
 	@Autowired
 	ConnectionPoolService connectionPoolService;
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(AppApplication.class, args);
-		System.out.println("00000000000000");
+		logger.info("00000000000000");
 		String home_url = "http://localhost:8080";
 		System.setProperty("java.awt.headless", "false");
 		// try {
@@ -38,7 +42,7 @@ public class AppApplication {
 	// in connection pools
 	@PreDestroy
 	private void shutDown() {
-		System.out.println("############## APP Shutdown #################");
+		logger.info("############## APP Shutdown #################");
 		connectionPoolService.clearAllConnectionPoolsInShutDown();
 	}
 
