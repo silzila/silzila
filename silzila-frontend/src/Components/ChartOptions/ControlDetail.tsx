@@ -7,7 +7,6 @@ import ChartColors from "./Color/ChartColors";
 import ColorScale from "./Color/ColorScale";
 import ColorSteps from "./Color/ColorSteps";
 import SankeyColorControls from "./Color/SankeyColorControls";
-import { ControlDetailStateProps } from "./CommonInterfacesForChartOptions";
 import ChartFormat from "./Format/ChartFormat";
 import AxisControls from "./GridAndAxes/AxisControls";
 import GridAndAxes from "./GridAndAxes/GridAndAxes";
@@ -28,8 +27,9 @@ import CardStyle from "./ChartStyle/CardStyle";
 import TitleForDynamicMeasures from "./Title/TitleForDynamicMeasures";
 import ChartFormatForDm from "./Format/ChartFormatForDm";
 import DynamicMeasureStyle from "./ChartStyle/DynamicMeasureStyle";
-import ConditionalFormatingComponent from "./ConditionalFormatingComponent";
+import ConditionalFormatingComponent from "./DynamicMeasureConditionalFormattingComponent";
 import TableConditionalFormating from "./TableConditionalFormatting";
+import DynamicMeasureConditionalFormattingComponent from "./DynamicMeasureConditionalFormattingComponent";
 
 interface ControlDetailProps {
 	chartProperties: ChartPropertiesProps;
@@ -113,7 +113,7 @@ const ControlDetail = ({
 				}
 			case "Conditional Formatting":
 				if (chartType === "richText") {
-					return <ConditionalFormatingComponent chartType={chartType} />;
+					return <DynamicMeasureConditionalFormattingComponent />;
 				} else {
 					return <TableConditionalFormating />;
 				}
