@@ -423,6 +423,10 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 
 		case "UPDATE_CHART_DATA_FOR_DM":
 			console.log(action.payload);
+			const measureName =
+				state.dynamicMeasureProps[`${state.selectedTabId}`][`${state.selectedTileId}`][
+					`${state.selectedTileId}.${state.selectedDynamicMeasureId}`
+				].dynamicMeasureName;
 			return update(state, {
 				dynamicMeasureProps: {
 					[state.selectedTabId]: {
@@ -430,17 +434,29 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 							[`${state.selectedTileId}.${state.selectedDynamicMeasureId}`]: {
 								chartData: { $set: action.payload },
 								dmValue: {
-									$set: action.payload[0][Object.keys(action.payload[0])[0]],
+									$set:
+										action.payload !== ""
+											? action.payload[0][Object.keys(action.payload[0])[0]]
+											: null,
 								},
-								dynamicMeasureName: { $set: Object.keys(action.payload[0])[0] },
+								dynamicMeasureName: {
+									$set:
+										action.payload !== ""
+											? Object.keys(action.payload[0])[0]
+											: "",
+								},
 								editedDynamicMeasureName: {
-									$set: Object.keys(action.payload[0])[0],
+									$set:
+										action.payload !== ""
+											? Object.keys(action.payload[0])[0]
+											: "",
 								},
 							},
 						},
 					},
 				},
 			});
+
 		case "UPDATE_DYNAMIC_MEASURE_NAME":
 			return update(state, {
 				dynamicMeasureProps: {
@@ -630,6 +646,18 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 			});
 
 		case "CHANGE_CONDITIONAL_FORMAT":
+			// const temp = state.dynamicMeasureProps[
+			// 	`${state.selectedTabId}.${state.selectedTileId}`
+			// ][`${state.selectedTileId}.${state.selectedDynamicMeasureId}`].conditionalFormats.map(
+			// 	(el: any) => {
+			// 		if (el.id === action.payload.id) {
+			// 			el[action.payload.option] = action.payload.value;
+			// 		}
+			// 		return el;
+			// 	}
+			// );
+
+			// console.log(temp);
 			return update(state, {
 				dynamicMeasureProps: {
 					[state.selectedTabId]: {
