@@ -2,12 +2,13 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import ShortUniqueId from "short-unique-id";
 import { updatecfObjectOptions1 } from "../../../redux/ChartPoperties/ChartControlsActions";
-import { CustomFontAndBgColor, StyleButtons } from "../ConditionalFormatingComponent";
+
 import "./tablechartCF.css";
 import { InputBase } from "@mui/material";
 import { Checkbox } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
+import { CustomFontAndBgColor, StyleButtons } from "../CommonComponents";
 
 const closeIconStyle = {
 	fontSize: "12px",

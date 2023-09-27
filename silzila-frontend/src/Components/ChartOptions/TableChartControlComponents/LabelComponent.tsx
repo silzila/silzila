@@ -1,7 +1,7 @@
-import { CustomFontAndBgColor, StyleButtons } from "../ConditionalFormatingComponent";
 import { updatecfObjectOptions1 } from "../../../redux/ChartPoperties/ChartControlsActions";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
+import { CustomFontAndBgColor, StyleButtons } from "../CommonComponents";
 
 const LabelComponent = ({ format, tabTileProps, chartControls, updatecfObjectOptions1 }: any) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;

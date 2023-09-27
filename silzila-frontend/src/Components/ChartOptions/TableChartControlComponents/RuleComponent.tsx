@@ -5,8 +5,9 @@ import {
 	updatecfObjectOptions,
 	updatecfObjectOptions1,
 } from "../../../redux/ChartPoperties/ChartControlsActions";
-import { CondtionComponent } from "../ConditionalFormatingComponent";
+
 import { Button } from "@mui/material";
+import { CondtionComponent } from "../CommonComponents";
 
 export const addConditionButtonStyle = {
 	backgroundColor: "rgb(43, 185, 187)",

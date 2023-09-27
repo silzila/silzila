@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.silzila.app.AppApplication;
 import org.silzila.app.dto.BigqueryConnectionDTO;
 
 // import com.simba.googlebigquery.jdbc.DataSource;
@@ -34,6 +35,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -42,6 +45,7 @@ import org.modelmapper.ModelMapper;
 @Service
 public class DBConnectionService {
 
+    private static final Logger logger = LogManager.getLogger(DBConnectionService.class);
     // all uploads are initially saved in tmp
     final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
 
@@ -142,7 +146,7 @@ public class DBConnectionService {
         String saltString = RandomStringUtils.randomAlphanumeric(16);
         String passwordHash = AESEncryption.encrypt(dbConnectionRequest.getPassword(), passwordEncryptionSecretKey,
                 saltString);
-        System.out.println(" ========== password = " + dbConnectionRequest.getPassword() + " encrypted password = "
+        logger.info(" ========== password = " + dbConnectionRequest.getPassword() + " encrypted password = "
                 + passwordHash);
         // create DB Connection object and save it to DB
         DBConnection dbConnection = new DBConnection(
@@ -218,7 +222,7 @@ public class DBConnectionService {
         String saltString = RandomStringUtils.randomAlphanumeric(16);
         String passwordHash = AESEncryption.encrypt(dbConnectionRequest.getPassword(), passwordEncryptionSecretKey,
                 saltString);
-        System.out.println(" ========== password = " + dbConnectionRequest.getPassword() + " encrypted password = "
+        logger.info(" ========== password = " + dbConnectionRequest.getPassword() + " encrypted password = "
                 + passwordHash);
         _dbConnection.setConnectionName(dbConnectionRequest.getConnectionName());
         _dbConnection.setVendor(dbConnectionRequest.getVendor());
@@ -251,12 +255,12 @@ public class DBConnectionService {
             // delete old token file
             final String oldFilePath = System.getProperty("user.home") + "/silzila-uploads/tokens/"
                     + _dbConnection.getFileName();
-            System.out.println("file to be deleted ====== " + oldFilePath);
+            logger.warn("file to be deleted ====== " + oldFilePath);
             try {
-                System.out.println("**********TRY delete old file ***********");
+                logger.warn("**********TRY delete old file ***********");
                 Files.delete(Paths.get(oldFilePath));
             } catch (Exception e) {
-                System.out.println("**********CATCH delete old file ***********");
+                logger.warn("**********CATCH delete old file ***********");
                 throw new FileNotFoundException("old token file could not be deleted");
             }
             _dbConnection.setProjectId(bigQryConnDTO.getProjectId());
@@ -292,7 +296,7 @@ public class DBConnectionService {
                 Files.delete(Paths.get(oldFilePath));
             } catch (Exception e) {
                 // throw new FileNotFoundException("old token file could not be deleted");
-                System.out.println("Warning: old token file could not be deleted: " + e.getMessage());
+                logger.warn("Warning: old token file could not be deleted: " + e.getMessage());
             }
         }
         // delete the record from DB
@@ -346,13 +350,13 @@ public class DBConnectionService {
         // get email from the JSON object
         String clientEmail = (String) jo.get("client_email");
         if (clientEmail == null) {
-            System.out.println("Email is null " + clientEmail);
+            logger.warn("Email is null " + clientEmail);
             throw new ExpectationFailedException("JSON file does not contain the key value for client_email");
         }
         // get email from the JSON object
         String projectId = (String) jo.get("project_id");
         if (projectId == null) {
-            System.out.println("Project Id is null " + projectId);
+            logger.warn("Project Id is null " + projectId);
             throw new ExpectationFailedException("JSON file does not contain the key value for project_id");
         }
         // System.out.println("projectId ===================== " + projectId);
@@ -413,16 +417,16 @@ public class DBConnectionService {
         // get email from the JSON object
         String clientEmail = (String) jo.get("client_email");
         if (clientEmail == null) {
-            System.out.println("EMAIL is null " + clientEmail);
+            logger.warn("EMAIL is null " + clientEmail);
             throw new ExpectationFailedException("JSON file does not contain the key value for client_email");
         }
         // get email from the JSON object
         String projectId = (String) jo.get("project_id");
         if (projectId == null) {
-            System.out.println("EMAIL is null " + projectId);
+            logger.warn("EMAIL is null " + projectId);
             throw new ExpectationFailedException("JSON file does not contain the key value for project_id");
         }
-        System.out.println("projectId ===================== " + projectId);
+        logger.info("projectId ===================== " + projectId);
 
         ArrayList<String> connectionVariableArray = new ArrayList<String>() {
             {

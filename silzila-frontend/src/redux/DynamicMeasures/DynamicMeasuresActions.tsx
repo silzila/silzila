@@ -147,7 +147,7 @@ export const onCheckorUncheckOnDm = (
 	return (dispatch: Dispatch<any>) => {
 		console.log(styleObj.textUnderline);
 
-		dispatch(onCheckorUncheckOnDm1(dmId.toString().replace("RichTextID",""), value));
+		dispatch(onCheckorUncheckOnDm1(dmId.toString().replace("RichTextID", ""), value));
 		if (value) {
 			// var text = ``;
 			// if (styleObj.textUnderline === "none") {
@@ -157,11 +157,9 @@ export const onCheckorUncheckOnDm = (
 			// }
 
 			dispatch(updateRichTextOnAddingDYnamicMeasure(propKey, value, dmValue, styleObj, dmId));
-		}
-		else{
+		} else {
 			//dispatch(updateRichTextOnAddingDYnamicMeasure(propKey, value, dmValue,  null, dmId));
 		}
-
 	};
 };
 
@@ -191,6 +189,12 @@ export const updateConditionalFormat = (updateFormatArray: any) => {
 		payload: updateFormatArray,
 	};
 };
+// export const updateConditionalFormat = (id: string, option: string, value: any) => {
+// 	return {
+// 		type: "CHANGE_CONDITIONAL_FORMAT",
+// 		payload: { id, option, value },
+// 	};
+// };
 
 export const updateLeftFilterItemForDm = (propKey: string, bIndex: number, item: any) => {
 	return { type: "UPDATE_LEFT_FILTER_ITEM_FOR_DM", payload: { propKey, bIndex, item } };

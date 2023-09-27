@@ -44,6 +44,7 @@ import silzilaNewLogo from "../../assets/new_silzilaLogo.svg";
 import { AlertColor } from "@mui/material/Alert";
 import DownloadPagePopover from "../CommonFunctions/PopOverComponents/DownloadPagePopover";
 import { setPageSettings } from "../../redux/PageSettings/DownloadPageSettingsActions";
+
 const MenuBar = ({
 	// props
 	from,
@@ -69,21 +70,29 @@ const MenuBar = ({
 	setPageSettings,
 }: MenubarProps) => {
 	var showSaveWarning: boolean = false;
+	var _ = require("lodash");
 
 	// Check if the current state of playbook is the same as old state or not
 	if (from === "dataViewer" && playBookState.oldContent) {
 		if (
-			JSON.stringify(tabState) === JSON.stringify(playBookState.oldContent.tabState) &&
-			JSON.stringify(tileState) === JSON.stringify(playBookState.oldContent.tileState) &&
-			JSON.stringify(tabTileProps) ===
-				JSON.stringify(playBookState.oldContent.tabTileProps) && //*
-			JSON.stringify(chartProperty) ===
-				JSON.stringify(playBookState.oldContent.chartProperty) &&
-			JSON.stringify(chartControl) ===
-				JSON.stringify(playBookState.oldContent.chartControl) && //*
-			JSON.stringify(chartGroup) === JSON.stringify(playBookState.oldContent.chartGroup) &&
-			JSON.stringify(dynamicMeasureState) ===
-				JSON.stringify(playBookState.oldContent.dynamicMeasureState)
+			_.isEqual(tabState, playBookState.oldContent.tabState) &&
+			_.isEqual(tileState, playBookState.oldContent.tileState) &&
+			_.isEqual(tabTileProps, playBookState.oldContent.tabTileProps) &&
+			_.isEqual(chartProperty, playBookState.oldContent.chartProperty) &&
+			_.isEqual(chartControl, playBookState.oldContent.chartControl) &&
+			_.isEqual(chartGroup, playBookState.oldContent.chartGroup) &&
+			_.isEqual(dynamicMeasureState, playBookState.oldContent.dynamicMeasureState)
+			// JSON.stringify(tabState) === JSON.stringify(playBookState.oldContent.tabState) &&
+			// JSON.stringify(tileState) === JSON.stringify(playBookState.oldContent.tileState) &&
+			// JSON.stringify(tabTileProps) ===
+			// 	JSON.stringify(playBookState.oldContent.tabTileProps) && //*
+			// JSON.stringify(chartProperty) ===
+			// 	JSON.stringify(playBookState.oldContent.chartProperty) &&
+			// JSON.stringify(chartControl) ===
+			// 	JSON.stringify(playBookState.oldContent.chartControl) && //*
+			// JSON.stringify(chartGroup) === JSON.stringify(playBookState.oldContent.chartGroup) &&
+			// JSON.stringify(dynamicMeasureState) ===
+			// JSON.stringify(playBookState.oldContent.dynamicMeasureState)
 		) {
 			showSaveWarning = false;
 		} else {
