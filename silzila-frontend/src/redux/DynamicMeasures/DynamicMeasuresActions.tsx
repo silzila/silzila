@@ -145,7 +145,6 @@ export const onCheckorUncheckOnDm = (
 	styleObj: any
 ) => {
 	return (dispatch: Dispatch<any>) => {
-		console.log(styleObj.textUnderline);
 
 		dispatch(onCheckorUncheckOnDm1(dmId.toString().replace("RichTextID",""), value));
 		if (value) {
@@ -260,7 +259,6 @@ export const deleteItemInChartPropForDm = (
 	binIndex: number,
 	itemIndex: number
 ) => {
-	console.log(propKey, binIndex, itemIndex);
 	return {
 		type: "DELETE_ITEM_FROM_PROP_FOR_DM",
 		payload: {
@@ -299,7 +297,6 @@ export const editChartPropItemForDm = (action: any, details: any) => {
 				break;
 
 			case "move":
-				console.log(details);
 				dispatch(
 					moveItemChartPropForDm(
 						details.propKey,

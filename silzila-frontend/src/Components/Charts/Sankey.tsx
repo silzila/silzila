@@ -30,7 +30,6 @@ const Sankey = ({
 	useEffect(() => {
 		if (chartData.length >= 1) {
 			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map(el => {
-				console.log(el);
 				if ("timeGrain" in el) {
 					return `${el.timeGrain} of ${el.fieldname}`;
 				} else if ("agg" in el) {
@@ -134,7 +133,6 @@ const Sankey = ({
 				});
 			}
 
-			console.log(valuesOfLink);
 			setLinks(valuesOfLink);
 		}
 	}, [chartData, chartControl]);

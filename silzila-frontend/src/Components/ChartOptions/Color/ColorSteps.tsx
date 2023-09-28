@@ -65,7 +65,6 @@ const ColorSteps = ({
 		? chartControls.properties[propKey].chartData
 		: [];
 
-	console.log(chartData);
 
 	// TODO: Priority 1 - Color steps value keeps changing every time we come back to it
 	// after clicking on other control tiles

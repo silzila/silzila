@@ -48,7 +48,6 @@ const DashGraph = ({
 			width:
 				parseInt(tabState.tabs[tabId].dashTilesDetails[propKey].width, 10) * gridSize.x - 4,
 		};
-		console.log(dimensions);
 
 		switch (chartProp?.properties[propKey]?.chartType) {
 			case "multibar":

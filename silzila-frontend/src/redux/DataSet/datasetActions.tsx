@@ -25,7 +25,6 @@ export const setServerName = (name: string) => {
 };
 // 3
 export const setConnectionValue = (connectionId: string) => {
-	//console.log("set connection value action called");
 	return { type: "SET_CONNECTION_VALUE", payload: connectionId };
 };
 
@@ -40,7 +39,6 @@ export const setDataSchema = (schemaName: string) => {
 
 // 7
 export const setUserTable = (userTable: UserTableProps[]) => {
-	//console.log("setUserTable action called", userTable);
 	return { type: "SET_TABLES", payload: userTable };
 };
 // 10
@@ -65,7 +63,6 @@ export const setDatasetName = (datasetName: string) => {
 };
 
 export const setViews = (views: any[]) => {
-	// console.log(views);
 	return { type: "SET_VIEWS", payload: views };
 };
 
@@ -134,7 +131,6 @@ export const setDataConnectionListToState = (dcList: ConnectionItem[]) => {
 // =====================================================================
 // 8
 export const setTempTables = (tables: tableObjProps[]) => {
-	//console.log(tables);
 	return { type: "SET_TEMP_TABLES", payload: tables };
 };
 // 23
@@ -169,7 +165,6 @@ export const actionsOnRemoveTable = (
 	tables: UserTableProps[],
 	tableId: string
 ) => {
-	////console.log("REMOVE TABLE FROM CANVAS", tempTables, tables, tableId);
 
 	return (dispatch: any) => {
 		dispatch(setTempTables(tempTables));

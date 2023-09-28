@@ -51,7 +51,6 @@ const FlatFileList = (props: any) => {
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
 		if (result.status) {
-			console.log(result);
 			setSeverity("success");
 			setOpenAlert(true);
 			setTestMessage("Deleted Successfully!");
@@ -61,7 +60,6 @@ const FlatFileList = (props: any) => {
 				setTestMessage("");
 			}, 2000);
 		} else {
-			//console.log(result.detail);
 		}
 	};
 
@@ -90,15 +88,12 @@ const FlatFileList = (props: any) => {
 					columnInfos: result.data,
 					sampleRecords: result2.data,
 				};
-				console.log(fileObj);
 				props.setApiResponse(fileObj);
 				props.setEditApiResponse(fileObj);
 				navigate("/editflatfile");
 			} else {
-				console.log(result2);
 			}
 		} else {
-			console.log(result);
 		}
 		props.setEditMode(true);
 	};
@@ -111,7 +106,7 @@ const FlatFileList = (props: any) => {
 				</div>
 
 				<div
-					title="Create New Flatfile"
+					title="Add New Flatfile"
 					className="containerButton"
 					onClick={() => {
 						navigate("/flatfileupload");

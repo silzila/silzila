@@ -39,7 +39,6 @@ export const addControl = (tabId: number, nextTileId: number, newTab: boolean) =
 };
 
 export const duplicateControl = (propKey: string, chartControl: ChartControlsProps) => {
-	console.log(propKey, chartControl);
 	return { type: "DUPLICATE_CHART_CONTROL", payload: { propKey, chartControl } };
 };
 

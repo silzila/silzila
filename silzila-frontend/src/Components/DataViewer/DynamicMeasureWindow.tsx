@@ -62,7 +62,6 @@ const DynamicMeasureWindow = ({
 			dynamicMeasureState.selectedTileId
 		]?.[dynamicMeasurePropKey];
 
-	console.log(selectedDynamicMeasureProps);
 
 	const [loading, setLoading] = useState<boolean>(false);
 

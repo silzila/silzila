@@ -32,7 +32,6 @@ const GaugeChart = ({
 				chartControl.axisOptions.gaugeChartControls.stepcolor[i].color,
 			]);
 		}
-		console.log(colorArray);
 	};
 
 	getColors();

@@ -9,9 +9,7 @@
 // 	chartProp,
 // }) => {
 // 	var property = chartProp.properties[propKey];
-// 	// console.log(property, "+++++ PROPERTY +++++");
 // 	let chartData = property.chartData ? property.chartData.result : "";
-// 	// console.log(chartData, "+++++ chartData +++++");
 
 // 	return (
 // 		<>

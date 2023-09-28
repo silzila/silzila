@@ -78,7 +78,6 @@ const DataSetList = ({
 			setDataSetList(result.data);
 			setDataSetListToStore(result.data);
 		} else {
-			// ////console.log(result.data.detail);
 		}
 	};
 
@@ -109,7 +108,6 @@ const DataSetList = ({
 				setTestMessage("");
 			}, 2000);
 		} else {
-			// ////console.log(result.data.detail);
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage(result.data.detail);
@@ -259,6 +257,20 @@ const DataSetList = ({
 						color: "grey",
 						display: "block",
 					}}
+					value="dbConnections"
+					onClick={() => {
+						setOpenPopOver(true);
+						setOpen(false);
+					}}
+				>
+					DB Connections
+				</Button>
+				<Button
+					sx={{
+						textTransform: "none",
+						color: "grey",
+						display: "block",
+					}}
 					value="flatFile"
 					onClick={() => {
 						setSelectedButton("flatFile");
@@ -269,20 +281,6 @@ const DataSetList = ({
 					}}
 				>
 					Flat Files
-				</Button>
-				<Button
-					sx={{
-						textTransform: "none",
-						color: "grey",
-						display: "block",
-					}}
-					value="dbConnections"
-					onClick={() => {
-						setOpenPopOver(true);
-						setOpen(false);
-					}}
-				>
-					DB Connections
 				</Button>
 			</Popover>
 		</div>

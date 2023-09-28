@@ -30,7 +30,6 @@ const GraphRNDDash = ({
 	chartControls,
 }: any) => {
 	const gridSize = tabTileProps.dashGridSize;
-	console.log(gridSize);
 	const dragGridX = gridSize.x;
 	const dragGridY = gridSize.y;
 	const resizeGridX = gridSize.x;
@@ -55,7 +54,6 @@ const GraphRNDDash = ({
 			enableResizing={tabTileProps.dashMode === "Edit" ? true : false}
 			onMouseEnter={() => {
 				if (tabTileProps.dashMode === "Edit") {
-					// console.log("Mouse Entered in GraphRNDDash component");
 					setHovering(true);
 				}
 			}}
@@ -71,16 +69,12 @@ const GraphRNDDash = ({
 			size={{ width: boxDetails.width * gridSize.x, height: boxDetails.height * gridSize.y }}
 			position={{ x: boxDetails.x * gridSize.x, y: boxDetails.y * gridSize.y }}
 			onDragStart={(e: any, d: any) => {
-				// console.log(d);
 			}}
 			onDrag={(e: any, d: any) => {
-				// console.log(d);
 				setStyle({ ...style, border: "1px solid gray" });
 			}}
 			onDragStop={(e: any, d: any) => {
-				console.log(d.lastX, d.lastY);
-				console.log(gridSize.x, gridSize.y);
-				console.log((d.lastX - 5) / gridSize.x, (d.lastY - 80) / gridSize.y);
+				
 				updateDashGraphPos(
 					tabId,
 					boxDetails.propKey,

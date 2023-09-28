@@ -33,7 +33,6 @@ function TableData({
 	setTableData,
 	objKeys,
 }: tableDataComponentProps) {
-	console.log(tableData);
 	const handleClose = () => {
 		setShowTableData(false);
 		setSelectedTable("");

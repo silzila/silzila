@@ -142,16 +142,12 @@ const PieChart = ({
 									],
 
 									formatter: (value: FormatterValueProps) => {
-										console.log(value);
 										if (chartDataKeys) {
-											console.log(chartDataKeys);
 											var formattedValue = value.value[chartDataKeys[1]];
-											console.log(formattedValue);
 											formattedValue = formatChartLabelValue(
 												chartControl,
 												formattedValue
 											);
-											console.log(formattedValue);
 
 											return formattedValue;
 										}

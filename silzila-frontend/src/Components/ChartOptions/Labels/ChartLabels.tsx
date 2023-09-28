@@ -39,7 +39,6 @@ const ChartLabels = ({
 	updateLabelPadding,
 }: ChartOptionsProps & ChartLabelsProps) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
-	console.log(chartControls.properties[propKey].labelOptions.fontSize);
 
 	const [isColorPopoverOpen, setColorPopOverOpen] = useState<boolean>(false);
 	const [anchorEl, setAnchorEl] = useState<string | any>("");
@@ -47,7 +46,6 @@ const ChartLabels = ({
 	const showLabel: boolean = chartControls.properties[propKey].labelOptions.showLabel;
 	var labelOptions: ChartConLabelOptions = chartControls.properties[propKey].labelOptions;
 
-	console.log(labelOptions);
 
 	const labelPositionOptions: any[] = [
 		{ name: "Outside", value: "outside" },
@@ -91,7 +89,6 @@ const ChartLabels = ({
 										value={labelOptions.pieLabel.labelPosition}
 										variant="outlined"
 										onChange={e => {
-											console.log(e.target.value);
 											updateLabelPosition(propKey, e.target.value);
 										}}
 										sx={{
@@ -144,7 +141,6 @@ const ChartLabels = ({
 								}
 								sliderMinMax={{ min: 8, max: 50, step: 1 }}
 								changeValue={(value: number) => {
-									console.log(value);
 									updateLabelOption(propKey, "fontSize", value);
 								}}
 							/>

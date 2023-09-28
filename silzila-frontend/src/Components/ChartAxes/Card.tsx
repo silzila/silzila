@@ -24,6 +24,7 @@ import {
 	sortAxesForDm,
 	updateAxesQueryParamForDm,
 } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+import Logger from "../../Logger";
 
 const Card = ({
 	// props
@@ -85,28 +86,23 @@ const Card = ({
 
 	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);
-		console.log(open);
 	};
 
 	const handleClose = (closeFrom: any, queryParam?: any) => {
-		// console.log(closeFrom);
 		setAnchorEl(null);
 		setShowOptions(false);
 
 		if (closeFrom === "agg" || closeFrom === "timeGrain") {
 			var field2 = JSON.parse(JSON.stringify(field));
-			console.log(field2);
 
 			if (closeFrom === "agg") {
-				console.log("Aggregate Choice selected", queryParam);
+				Logger("info", "Aggregate Choice selected", queryParam);
 				field2.agg = queryParam;
 			} else if (closeFrom === "timeGrain") {
-				// console.log("Time Grain Choice selected", queryParam);
 				field2.timeGrain = queryParam;
 			}
-			// console.log(propKey, bIndex, itemIndex, field2);
 			if (chartType === "richText") {
-				console.log("queryparam");
+				Logger("info", "queryparam");
 				updateAxesQueryParamForDm(propKey, bIndex, itemIndex, field2);
 			} else {
 				updateQueryParam(propKey, bIndex, itemIndex, field2);
@@ -137,13 +133,8 @@ const Card = ({
 		type: "card",
 
 		end: (dropResult, monitor) => {
-			// console.log("***************on DRAG END**************");
 			const { uId, bIndex, originalIndex } = monitor.getItem();
-			// console.log("uId = ", uId);
-
 			const didDrop = monitor.didDrop();
-			// console.log("didDrop = ", didDrop);
-
 			if (!didDrop) {
 				if (chartType === "richText") {
 					revertAxesForDm(propKey, bIndex, uId, originalIndex);
@@ -168,7 +159,7 @@ const Card = ({
 				} else {
 					sortAxes(propKey, bIndex, dragUId, field.uId);
 				}
-				console.log("============HOVER BLOCK END ==============");
+				Logger("info", "============HOVER BLOCK END ==============");
 			}
 		},
 	});
