@@ -21,6 +21,9 @@ public class DBConnectionDTO {
 
     private String connectionName;
 
+    // httpPath - for databricks
+    private String httpPath;
+
     // projectId, clientEmail & fileName - for BigQuery
     private String projectId;
 
