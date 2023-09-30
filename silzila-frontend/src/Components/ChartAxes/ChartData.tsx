@@ -516,13 +516,13 @@ const ChartData = ({
 			};
 
 			let serverCall = false;
-
 			if (
 				chartProp.axesEdited ||
 				chartGroup.chartFilterGroupEdited ||
 				dashBoardGroup.dashBoardGroupEdited ||
 				tabTileProps.isDashboardTileSwitched
 			) {
+				//add resuse key in dynamic measure state
 				if (chartProp.reUseData) {
 					serverCall = false;
 				} else {
@@ -530,10 +530,15 @@ const ChartData = ({
 						chartProp,
 						chartProperties.properties[_propKey].chartType
 					);
+
 					if (minReq) {
 						serverCall = true;
 					} else {
-						updateChartData(_propKey, "");
+						if (chartProperties.properties[_propKey].chartType === "richText") {
+							updateChartDataForDm("");
+						} else {
+							updateChartData(_propKey, "");
+						}
 					}
 				}
 			}
@@ -586,6 +591,7 @@ const ChartData = ({
 					token,
 					chartProperties.properties[_propKey].chartType
 				).then(data => {
+					console.log(data);
 					if (chartProperties.properties[_propKey].chartType === "richText") {
 						updateChartDataForDm(sortChartData(data));
 					} else {

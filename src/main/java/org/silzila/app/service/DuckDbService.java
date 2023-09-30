@@ -11,9 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.duckdb.DuckDBConnection;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.silzila.app.AppApplication;
 import org.silzila.app.helper.ConvertDuckDbDataType;
 import org.silzila.app.helper.DuckDbMetadataToJson;
 import org.silzila.app.helper.ResultSetToJson;
@@ -27,6 +30,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DuckDbService {
 
+    private static final Logger logger = LogManager.getLogger(DuckDbService.class);
     // holds view name of DFs used in query
     // contains user wise dataset wise list of tables
     public static HashMap<String, HashMap<String, ArrayList<String>>> views = new HashMap<String, HashMap<String, ArrayList<String>>>();
@@ -148,8 +152,8 @@ public class DuckDbService {
         String colMapString = "[" + String.join(", ", columnList) + "]";
         // build stringified list of data types
         String dataTypeMapString = "[" + String.join(", ", dataTypeList) + "]";
-        System.out.println("====================\n" + colMapString);
-        System.out.println("====================\n" + dataTypeMapString);
+        logger.info("====================\n" + colMapString);
+        logger.info("====================\n" + dataTypeMapString);
 
         // when user provieds custom data format
         String dateFormatCondition = "";
@@ -168,7 +172,7 @@ public class DuckDbService {
                 + "', SAMPLE_SIZE=200, names=" + colMapString + ", types=" + dataTypeMapString
                 + dateFormatCondition
                 + timeStampFormatCondition + ");";
-        System.out.println("************************\n" + query);
+        logger.info("************************\n" + query);
 
         ResultSet resultSet = stmtRecords.executeQuery(query);
         JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
@@ -209,8 +213,8 @@ public class DuckDbService {
         String colMapString = "[" + String.join(", ", columnList) + "]";
         // build stringified list of data types
         String dataTypeMapString = "[" + String.join(", ", dataTypeList) + "]";
-        System.out.println("====================\n" + colMapString);
-        System.out.println("====================\n" + dataTypeMapString);
+        logger.info("====================\n" + colMapString);
+        logger.info("====================\n" + dataTypeMapString);
 
         // when user provieds custom data format
         String dateFormatCondition = "";
@@ -234,7 +238,7 @@ public class DuckDbService {
                 + timeStampFormatCondition + ")) TO '" + writeFile
                 + "' (FORMAT PARQUET, COMPRESSION ZSTD);";
         stmtRecords.execute(query);
-        System.out.println("************************\n" + query);
+        logger.info("************************\n" + query);
 
         stmtRecords.close();
         conn2.close();
@@ -247,7 +251,7 @@ public class DuckDbService {
         Statement stmtRecords = conn2.createStatement();
 
         String query = "SELECT * from read_parquet('" + parquetFilePath + "') LIMIT 200;";
-        System.out.println("************************\n" + query);
+        logger.info("************************\n" + query);
 
         ResultSet resultSet = stmtRecords.executeQuery(query);
         JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
@@ -264,7 +268,7 @@ public class DuckDbService {
         Statement stmtMeta = conn2.createStatement();
 
         String query = "DESCRIBE SELECT * from read_parquet('" + parquetFilePath + "') LIMIT 1;";
-        System.out.println("************************\n" + query);
+        logger.info("************************\n" + query);
 
         ResultSet rsMeta = stmtMeta.executeQuery(query);
         // keep only column name & data type
@@ -331,12 +335,12 @@ public class DuckDbService {
                         Connection conn2 = ((DuckDBConnection) conn).duplicate();
                         Statement stmt = conn2.createStatement();
                         String query = "CREATE OR REPLACE VIEW " + viewName + " AS (SELECT * FROM '" + filePath + "')";
-                        System.out.println("View creating query ==============\n" + query);
+                        logger.info("View creating query ==============\n" + query);
                         stmt.execute(query);
                         stmt.close();
                         conn2.close();
                         views.get(userId).get(flatFileId).add(viewName);
-                        System.out.println("Views list ================ \n" + views);
+                        logger.info("Views list ================ \n" + views);
                     }
                 }
 

@@ -1,6 +1,7 @@
 
 import "react-quill/dist/quill.snow.css";
 import { connect } from "react-redux";
+import './TextEditor.css';
 import { Dispatch } from "redux";
 import { updateRichText, updateRichTextOnAddingDYnamicMeasure,clearRichText } from "../../redux/ChartPoperties/ChartControlsActions";
 import { addMeasureInTextEditor } from "../../redux/ChartPoperties/ChartPropertiesActions";
@@ -16,8 +17,15 @@ import {
   useSlate
 } from 'slate-react';
 
-import { Button, Icon, Toolbar } from '../CommonFunctions/TextEditorToolBar' ;
-import {MdFormatBold,MdFormatItalic,MdFormatUnderlined,MdFormatListBulleted,MdFormatListNumbered,MdFormatAlignLeft,MdFormatAlignCenter,MdFormatAlignRight,MdFormatAlignJustify,MdFormatQuote} from 'react-icons/md';
+import {
+	Button,
+	
+} from "@mui/material";
+
+import { ToolBarButton, Icon, Toolbar } from '../CommonFunctions/TextEditorToolBar' ;
+import {MdFormatStrikethrough,MdCode,MdFormatQuote,MdLooksOne,MdLooksTwo, MdFormatBold,MdFormatItalic,MdFormatUnderlined,MdFormatListBulleted,MdFormatListNumbered,MdFormatAlignLeft,MdFormatAlignCenter,MdFormatAlignRight,MdFormatAlignJustify} from 'react-icons/md';
+
+import { FaSuperscript,FaSubscript } from 'react-icons/fa'
 
 import {
 	setDynamicMeasureWindowOpen,
@@ -171,7 +179,8 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
 const BlockButton = ({ format, icon }) => {
   const editor = useSlate()
   return (
-    <Button
+    <ToolBarButton
+   
       active={isBlockActive(
         editor,
         format,
@@ -183,14 +192,14 @@ const BlockButton = ({ format, icon }) => {
       }}
     >
       <Icon>{icon}</Icon>
-    </Button>
+    </ToolBarButton>
   )
 }
 
 const MarkButton = ({ format, icon }) => {
   const editor = useSlate()
   return (
-    <Button
+    <ToolBarButton
       active={isMarkActive(editor, format)}
       onMouseDown={(event) => {
         event.preventDefault()
@@ -198,7 +207,7 @@ const MarkButton = ({ format, icon }) => {
       }}
     >
       <Icon>{icon}</Icon>
-    </Button>
+    </ToolBarButton>
   )
 }
 
@@ -300,6 +309,33 @@ const Leaf = ({ attributes, children, leaf }) => {
     children = <u>{children}</u>
   }
 
+  if(leaf.superscript){
+    children = <sup>{children}</sup>
+    }
+    if(leaf.subscript){
+        children = <sub>{children}</sub>
+    }
+
+    if(leaf.strikethrough){
+      children = <span style={{textDecoration:'line-through'}}>{children}</span>
+    }
+
+    if(leaf.color){
+        children = <span style={{color:leaf.color}}>{children}</span>
+    }
+    if(leaf.bgColor){
+        children = <span style={{backgroundColor:leaf.bgColor}}>{children}</span>
+    }
+    // if(leaf.fontSize){
+    //     const size = sizeMap[leaf.fontSize]
+    //     children = <span style={{fontSize:size}}>{children}</span>
+    // }
+    // if(leaf.fontFamily){
+    //     const family = fontFamilyMap[leaf.fontFamily]
+    //     children = <span style={{fontFamily:family}}>{children}</span>
+    // }
+    
+
   return <span {...attributes}>{children}</span>
 }
 
@@ -391,6 +427,8 @@ if (element.measureStyle.backgroundColor != 'white') {
 
      style.border  = 'dashed 1px grey';
 
+     style.cursor =  "pointer";
+
 
   return (
     <span 
@@ -441,19 +479,6 @@ if (element.measureStyle.backgroundColor != 'white') {
 
   return (
     <>
-      {
-        !tabTileProps.showDash ?
-        <Button style={{"color":"black"}}
-         onClick={() => {
-             setDynamicMeasureWindowOpen(propKey, true);
-             onAddingNewDynamicMeaasure();
-         }}
-        >
-         Add Dynamic Measure
-       </Button>
-     : null
-      }
-       
       <Slate
         editor={editor}
         initialValue={initialValue}
@@ -480,18 +505,42 @@ if (element.measureStyle.backgroundColor != 'white') {
       >
         {
           !tabTileProps.showDash ?
-          <Toolbar>
-          <BlockButton format="heading-one" icon="H1" />
-            <BlockButton format="heading-two" icon="H2" />
-            <MarkButton format="bold" icon={<MdFormatBold/>}/>
-            <MarkButton format="italic" icon={<MdFormatItalic/>} />
-            <MarkButton format="underline" icon={<MdFormatUnderlined/>} />
-            <BlockButton format="numbered-list" icon={<MdFormatListNumbered/>} />
-            <BlockButton format="bulleted-list" icon={<MdFormatListBulleted/>} />
-            <BlockButton format="left" icon={<MdFormatAlignLeft/>} />
-            <BlockButton format="center" icon={<MdFormatAlignCenter/>} />
-            <BlockButton format="right" icon={<MdFormatAlignRight/>} />
-          </Toolbar>
+          <div style={{"display":"block",  "width":"100%"}}>
+            <Toolbar>
+              <MarkButton format="bold" icon={<MdFormatBold/>}/>
+              <MarkButton format="italic" icon={<MdFormatItalic/>} />
+              <MarkButton format="underline" icon={<MdFormatUnderlined/>} />
+              <MarkButton format="strikethrough" icon={<MdFormatStrikethrough/>} />
+              <MarkButton format="superscript" icon={<FaSuperscript/>} />
+              <MarkButton format="subscript"  icon={<FaSubscript/>} />
+              
+              <BlockButton format="heading-one" icon={<MdLooksOne/>} />
+              <BlockButton format="heading-two" icon={<MdLooksTwo/>} />
+              <BlockButton format="block-quote" icon={<MdFormatQuote/>} />
+              <BlockButton format="numbered-list" icon={<MdFormatListNumbered/>} />
+              <BlockButton format="bulleted-list" icon={<MdFormatListBulleted/>} />
+              <BlockButton format="left" icon={<MdFormatAlignLeft/>} />
+              <BlockButton format="center" icon={<MdFormatAlignCenter/>} />
+              <BlockButton format="right" icon={<MdFormatAlignRight/>} />
+            
+            </Toolbar>
+            <Button style={{"float":"right", "marginTop":"-50px", "height":"30px"}}
+            sx={{
+              textTransform: "none",
+              backgroundColor: "rgb(43, 185, 187)",
+              color: "white",
+              "&:hover": {
+                backgroundColor: "rgb(43, 185, 187)",
+              },
+            }}
+            onClick={() => {
+                setDynamicMeasureWindowOpen(propKey, true);
+                onAddingNewDynamicMeaasure();
+            }}
+            >
+            Add Dynamic Measure
+          </Button>
+         </div>
           :null
         }
        
@@ -502,7 +551,9 @@ if (element.measureStyle.backgroundColor != 'white') {
           placeholder="Enter some text..."
         
           style={{
-            minHeight: '200px',
+            minHeight: '300px',
+            border: "1px solid rgb(222, 222, 222)",
+            padding: '2px 2px 2px 12px'
           }}
         />
       </Slate>

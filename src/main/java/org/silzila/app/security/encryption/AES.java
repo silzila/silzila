@@ -9,7 +9,13 @@ import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.silzila.app.AppApplication;
+
 public class AES {
+
+    private static final Logger logger = LogManager.getLogger(AES.class);
 
     private static SecretKeySpec secretKey;
     private static byte[] key;
@@ -36,7 +42,7 @@ public class AES {
             return Base64.getEncoder()
                     .encodeToString(cipher.doFinal(stringToEncrypt.getBytes("UTF-8")));
         } catch (Exception e) {
-            System.out.println("Error hile encrypting: " + e.toString());
+            logger.warn("Error while encrypting: " + e.toString());
         }
         return null;
 
@@ -50,7 +56,7 @@ public class AES {
             return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
 
         } catch (Exception e) {
-            System.out.println("Error while decrypting: " + e.toString());
+            logger.warn("Error while decrypting: " + e.toString());
         }
         return null;
     }

@@ -27,20 +27,30 @@ const arrowIconStyle = {
 	margin: "5px 0px 0px auto",
 	fontSize: "16px",
 };
+// TODO (kasthuri)
+interface Props {
+	chartControls: any;
+	tabTileProps: any;
+	chartProperties: any;
+
+	addTableConditionalFormats: (propKey: string, item: any) => void;
+	updatecfObjectOptions: (propKey: string, removeIndex: number, item: any) => void;
+	deleteTablecf: (propKey: string, index: number) => void;
+}
 
 const TableConditionalFormatting = ({
+	//state
 	chartControls,
 	tabTileProps,
 	chartProperties,
+
+	//dispatch
 	addTableConditionalFormats,
 	updatecfObjectOptions,
 	deleteTablecf,
-}: any) => {
+}: Props) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var uId = new ShortUniqueId({ length: 8 });
-
-	// tableConditionalFormats;
-
 	const [anchorEl, setAnchorEl] = useState<any>();
 	const [optionAnchorEl, setOptionAnchorEl] = useState<any>();
 	const [selectedColumnName, setSelectedColumnName] = useState<string>("");
@@ -54,15 +64,26 @@ const TableConditionalFormatting = ({
 	});
 
 	const getLabelValues = (columnName: string) => {
+		let formattedColumnName = columnName;
+		// checking the column type To generate the name as it is in the chartData
+		chartProperties.properties[propKey].chartAxes[1].fields.forEach((el: any) => {
+			if (el.dataType === "date") {
+				console.log();
+				if (el.fieldname === columnName) {
+					formattedColumnName = `${el.timeGrain} of ${el.fieldname}`;
+				}
+			}
+		});
+
 		const values = chartControls.properties[propKey].chartData.map((item: any) => {
+			console.log(item, columnName);
 			return {
-				colValue: item[columnName],
+				colValue: item[formattedColumnName],
 				backgroundColor: "white",
 				isBold: false,
 				isItalic: false,
 				isUnderlined: false,
 				fontColor: "black",
-				// isUnique: false,
 			};
 		});
 
@@ -80,6 +101,7 @@ const TableConditionalFormatting = ({
 	};
 
 	const onSelectOption = (option: string) => {
+		// if the selected format type for the selected column is rule
 		if (option === "rule") {
 			addTableConditionalFormats(propKey, {
 				id: uId(),
@@ -90,7 +112,9 @@ const TableConditionalFormatting = ({
 				value: [],
 			});
 		}
+		// if the selected format type for the selected column is Gradient
 		if (option === "gradient") {
+			// here we adding 3 values as default , for min,max and NULL values
 			addTableConditionalFormats(propKey, {
 				id: uId(),
 				isLabel: false,
@@ -113,6 +137,7 @@ const TableConditionalFormatting = ({
 						id: uId(),
 						forNull: false,
 						name: "Min",
+						// getting minimum and maximum values of the selected column
 						value: getMinAndMaxValue(selectedColumnName).min,
 						isBold: false,
 						isItalic: false,
@@ -125,6 +150,7 @@ const TableConditionalFormatting = ({
 						id: uId(),
 						forNull: false,
 						name: "Max",
+						// getting minimum and maximum values of the selected column
 						value: getMinAndMaxValue(selectedColumnName).max,
 						isBold: false,
 						isItalic: false,
@@ -137,8 +163,11 @@ const TableConditionalFormatting = ({
 		}
 	};
 
+	// when select any column from dimension
 	const onSelectColumn = (column: any) => {
 		var canAdd = false;
+		/* checking length of array to check whether this item is already exist or not, if the lenth 
+		is zero then this is the first item else check the array with columnname */
 		if (chartControls.properties[propKey].tableConditionalFormats.length === 0) {
 			canAdd = true;
 		} else {
@@ -150,11 +179,13 @@ const TableConditionalFormatting = ({
 			}
 		}
 
+		/* if the is is not already exist or this is the first item */
 		if (canAdd) {
 			if (column.isLabel) {
 				addTableConditionalFormats(propKey, {
 					isLabel: column.isLabel,
 					name: column.columnName,
+					// getLabelValues - function to get all values of selected column
 					value: column.isLabel ? getLabelValues(column.columnName) : "",
 					isCollapsed: false,
 					backgroundColor: "white",
@@ -165,11 +196,13 @@ const TableConditionalFormatting = ({
 				});
 				setOpenMenu(false);
 			} else {
+				// if the column is not from dimension (means it is from measure zone) , open the popover with two options gradient , rule
 				setOpenSubMenu(true);
 			}
 		}
 	};
 
+	// getting the list of columns with isLabel key (it is true if it is a dimension column else it will be false) whenever the chartData changes
 	useEffect(() => {
 		if (chartControls.properties[propKey].chartData.length > 0) {
 			const zones = chartProperties.properties[propKey].chartAxes;
@@ -299,10 +332,8 @@ const TableConditionalFormatting = ({
 											: "1px solid rgba(224,224,224,1)",
 								}}
 								onClick={e => {
-									// if (column.isLabel) {
 									onSelectColumn(column);
 									setOptionAnchorEl(e.currentTarget);
-									// }
 									setSelectedColumnName(column.columnName);
 								}}
 							>

@@ -8,7 +8,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
+import org.silzila.app.AppApplication;
 import org.silzila.app.dto.DatasetDTO;
 import org.silzila.app.dto.DatasetNoSchemaDTO;
 import org.silzila.app.exception.BadRequestException;
@@ -34,6 +37,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class DatasetService {
+
+    private static final Logger logger = LogManager.getLogger(DatasetService.class);
 
     private static Map<String, DatasetDTO> datasetDetails = new HashMap<>();
 
@@ -291,7 +296,7 @@ public class DatasetService {
         if (ds.getIsFlatFileData() == false) {
 
             String query = queryComposer.composeQuery(req, ds, vendorName);
-            System.out.println("\n******* QUERY **********\n" + query);
+            logger.info("\n******* QUERY **********\n" + query);
             // when the request is just Raw SQL query Text
             if (isSqlOnly != null && isSqlOnly) {
                 return query;
@@ -331,7 +336,7 @@ public class DatasetService {
                     .filter(table -> uniqueTableIds.contains(table.getId()))
                     .collect(Collectors.toList());
 
-            System.out.println("unique table id =======\n" + uniqueTableIds.toString() +
+            logger.info("unique table id =======\n" + uniqueTableIds.toString() +
                     "\n\tableObjectList ======== \n" + tableObjList.toString());
             // throw error when any requested table id is not in dataset
             if (uniqueTableIds.size() != tableObjList.size()) {
@@ -341,7 +346,7 @@ public class DatasetService {
             // get files names from file ids and load the files as Views
             fileDataService.getFileNameFromFileId(userId, tableObjList);
             String query = queryComposer.composeQuery(req, ds, "duckdb");
-            System.out.println("\n******* QUERY **********\n" + query);
+            logger.info("\n******* QUERY **********\n" + query);
 
             // when the request is just Raw SQL query Text
             if (isSqlOnly != null && isSqlOnly) {
@@ -377,7 +382,7 @@ public class DatasetService {
             vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
             // System.out.println("Dialect *****************" + vendorName);
             String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, vendorName);
-            System.out.println("\n******* QUERY **********\n" + query);
+            logger.info("\n******* QUERY **********\n" + query);
             JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
             return jsonArray;
         }
@@ -402,7 +407,7 @@ public class DatasetService {
             fileDataService.getFileNameFromFileId(userId, tableObjList);
             // build query
             String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, "duckdb");
-            System.out.println("\n******* QUERY **********\n" + query);
+            logger.info("\n******* QUERY **********\n" + query);
             // List<JsonNode> jsonNodes = sparkService.runQuery(query);
             // return jsonNodes;
             JSONArray jsonArray = duckDbService.runQuery(query);

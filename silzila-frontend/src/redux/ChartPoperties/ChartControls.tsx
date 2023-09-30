@@ -3,42 +3,42 @@
 
 import update from "immutability-helper";
 
-function removeTagFromHTMLString(htmlString:any, tagName:any, id:string) {
+function removeTagFromHTMLString(htmlString: any, tagName: any, id: string) {
 	// Create a new DOMParser instance
 	const parser = new DOMParser();
-  
+
 	// Parse the HTML string
-	const doc = parser.parseFromString(htmlString, 'text/html');
-  
+	const doc = parser.parseFromString(htmlString, "text/html");
+
 	// Find all the elements with the specified tag name
 	var element = doc.getElementById(id);
-	
-	if(element){
+
+	if (element) {
 		element.remove();
 	}
-	  
+
 	// Serialize the modified DOM back to an HTML string
 	const modifiedHTMLString = new XMLSerializer().serializeToString(doc);
-  
+
 	return modifiedHTMLString;
-  }
+}
 
 const chartControl = {
 	properties: {
 		1.1: {
 			chartData: "",
 			queryResult: "",
-			measureValue: {value: "", id: "RichTextID"},
+			measureValue: { value: "", id: "RichTextID" },
 			richText: {
-				text : [
+				text: [
 					{
-					  type: 'paragraph',
-					  children: [{ text: 'A line of text in a paragraph.' }],
+						type: "paragraph",
+						children: [{ text: "A line of text in a paragraph." }],
 					},
-				  ],
-				  style : null
-			}, 
-				
+				],
+				style: null,
+			},
+
 			colorScheme: "peacock",
 			areaBackgroundColor: "#22194D",
 			areaOpacity: 0.1,
@@ -340,12 +340,12 @@ const chartControl = {
 				},
 			},
 
+			// note : not used these values yet, these are created for table chart conditional format, can remove in future if not needed
 			tableLabel: [],
 			tableGradient: [],
 			tableRule: [],
 
 			tableConditionalFormats: [],
-			tableConditionalRules: [],
 		},
 	},
 
@@ -362,16 +362,16 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 					[tileKey]: {
 						chartData: "",
 						queryResult: "",
-						measureValue: {value: "", id: "RichTextID"},
+						measureValue: { value: "", id: "RichTextID" },
 						richText: {
-							text : [
+							text: [
 								{
-								  type: 'paragraph',
-								  children: [{ text: 'A line of text in a paragraph.' }],
+									type: "paragraph",
+									children: [{ text: "A line of text in a paragraph." }],
 								},
-							  ],
-							  style : null
-						}, 
+							],
+							style: null,
+						},
 						colorScheme: "peacock",
 						areaBackgroundColor: "#22194D",
 						areaOpacity: 0.1,
@@ -670,6 +670,11 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 								maxValue: 10000,
 							},
 						},
+						tableLabel: [],
+						tableGradient: [],
+						tableRule: [],
+
+						tableConditionalFormats: [],
 					},
 				},
 				propList: {
@@ -687,16 +692,16 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 					[tileKey2]: {
 						chartData: "",
 						queryResult: "",
-						measureValue: {value: "", id: "RichTextID"},
+						measureValue: { value: "", id: "RichTextID" },
 						richText: {
-							text : [
+							text: [
 								{
-								  type: 'paragraph',
-								  children: [{ text: 'A line of text in a paragraph.' }],
+									type: "paragraph",
+									children: [{ text: "A line of text in a paragraph." }],
 								},
-							  ],
-							  style : null
-						}, 
+							],
+							style: null,
+						},
 						colorScheme: "peacock",
 						areaBackgroundColor: "#22194D",
 						areaOpacity: 0.1,
@@ -995,6 +1000,11 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 								maxValue: 10000,
 							},
 						},
+						tableLabel: [],
+						tableGradient: [],
+						tableRule: [],
+
+						tableConditionalFormats: [],
 					},
 				},
 				propList: { ...state.propList, [action.payload.tabId]: [tileKey2] },
@@ -1396,8 +1406,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 			});
 
 		case "UPDATE_RICH_TEXT":
-
-		let _richText = {text: action.payload.value, style:null};
+			let _richText = { text: action.payload.value, style: null };
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
@@ -1421,85 +1430,80 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 			});
 
 		case "UPDATE_RICH_TEXT_ON_ADDING_DYNAMIC_MEASURE":
+			let measureText = {};
 
-		let measureText = {};
+			if (action.payload.value) {
+				measureText = { text: action.payload.dmValue, style: action.payload.style };
+			} else if (false) {
+				//measureText = removeTagFromHTMLString(state.properties[action.payload.propKey].richText, 'label', "RichTextID" + action.payload.dmId);
 
-		if(action.payload.value){
-			measureText = {text: action.payload.dmValue, style:  action.payload.style};
-		}
-		else if(false){
-			//measureText = removeTagFromHTMLString(state.properties[action.payload.propKey].richText, 'label', "RichTextID" + action.payload.dmId);
-			
-			//if(!action.payload?.dmId?.toString()?.includes("RichTextID")){
-				measureText = {text: "", style: ""};
+				//if(!action.payload?.dmId?.toString()?.includes("RichTextID")){
+				measureText = { text: "", style: "" };
 
-				let _richText = JSON.parse(JSON.stringify(state.properties[action.payload.propKey].richText)); 
+				let _richText = JSON.parse(
+					JSON.stringify(state.properties[action.payload.propKey].richText)
+				);
 
-				_richText?.text?.forEach((list:any) => {
-					let index = list.children.findIndex((item:any)=>
-						{
-							if(action.payload.dmId?.toString().includes("RichTextID"))
-							{
-								return item.id == action.payload.dmId;
-							}
-							else{
-								return item.id == "RichTextID" + action.payload.dmId;
-							}
-						});
-	
-					if(index > -1){
-						list.children.splice(index,1);
+				_richText?.text?.forEach((list: any) => {
+					let index = list.children.findIndex((item: any) => {
+						if (action.payload.dmId?.toString().includes("RichTextID")) {
+							return item.id == action.payload.dmId;
+						} else {
+							return item.id == "RichTextID" + action.payload.dmId;
+						}
+					});
+
+					if (index > -1) {
+						list.children.splice(index, 1);
 						return;
 					}
 				});
 
-				
-	
 				return update(state, {
 					properties: {
 						[action.payload.propKey]: {
 							richText: {
-								$set: _richText
+								$set: _richText,
 							},
 						},
 					},
 				});
-			// }
-			// else{
-			// 	measureText = {text: action.payload.dmValue, style:  action.payload.style};
+				// }
+				// else{
+				// 	measureText = {text: action.payload.dmValue, style:  action.payload.style};
 
-			// 	return update(state, {
-			// 		properties: {
-			// 			[action.payload.propKey]: {
-			// 				richText: {
-			// 					$set: measureText
-			// 				},
-			// 			},
-			// 		},
-			// 	});
-			// }
-		}
+				// 	return update(state, {
+				// 		properties: {
+				// 			[action.payload.propKey]: {
+				// 				richText: {
+				// 					$set: measureText
+				// 				},
+				// 			},
+				// 		},
+				// 	});
+				// }
+			}
 
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
 						measureValue: {
-							$set: {value: measureText, id: "RichTextID" + action.payload.dmId}
+							$set: { value: measureText, id: "RichTextID" + action.payload.dmId },
 						},
 					},
 				},
 			});
 
-			case "CLEAR_RICH_TEXT":
-				return update(state, {
-					properties: {
-						[action.payload.propKey]: {
-							measureValue: {
-								$set: {value: "", id: ""}
-							},
+		case "CLEAR_RICH_TEXT":
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						measureValue: {
+							$set: { value: "", id: "" },
 						},
 					},
-				});
+				},
+			});
 		case "ADD_TABLE_CONDITIONAL_FORMATS":
 			return update(state, {
 				properties: {

@@ -3,14 +3,19 @@ package org.silzila.app.querybuilder.filteroptions;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.silzila.app.AppApplication;
 import org.silzila.app.exception.BadRequestException;
 import org.silzila.app.payload.request.ColumnFilter;
 import org.silzila.app.payload.request.Table;
 
 public class FilterQueryPostgres {
 
+    private static final Logger logger = LogManager.getLogger(FilterQueryPostgres.class);
+
     public static String getFilterOptions(ColumnFilter req, Table table) throws BadRequestException {
-        System.out.println("=========== FilterQueryPostgres fn calling...");
+        logger.info("=========== FilterQueryPostgres fn calling...");
         /*
          * ************************************************
          * get distinct values - binary, text & number fields

@@ -110,6 +110,7 @@ const GraphArea = ({
 
 	useEffect(() => {
 		var formats = selectedDynamicMeasureProp?.conditionalFormats;
+
 		if (formats?.length > 0) {
 			for (let i = formats.length - 1; i >= 0; i--) {
 				if (formats[i].isConditionSatisfied) {
@@ -401,11 +402,8 @@ const GraphArea = ({
 			case "richText":
 				if (chartProperties.properties[propKey].isDynamicMeasureWindowOpened) {
 					var data = selectedDynamicMeasureProp?.dmValue;
-					var formattedValue = data;
-					formattedValue = formatChartLabelValue(
-						selectedDynamicMeasureProp,
-						formattedValue
-					);
+					// var formattedValue = data;
+					var formattedValue = formatChartLabelValue(selectedDynamicMeasureProp, data);
 
 					return (
 						<div

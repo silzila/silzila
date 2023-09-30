@@ -1,9 +1,12 @@
 package org.silzila.app.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.modelmapper.ModelMapper;
+import org.silzila.app.AppApplication;
 import org.silzila.app.dto.BigqueryConnectionDTO;
 import org.silzila.app.dto.DBConnectionDTO;
 import org.silzila.app.exception.BadRequestException;
@@ -49,6 +52,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class DBConnectionController {
+
+    private static final Logger logger = LogManager.getLogger(DBConnectionController.class);
 
     @Autowired
     DBConnectionRepository dbConnectionRepository;
@@ -136,7 +141,7 @@ public class DBConnectionController {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject rec = jsonArray.getJSONObject(i);
                 String schema = rec.getString("schema_name");
-                System.out.println("######## " + jsonArray.get(i).toString());
+                logger.info("######## " + jsonArray.get(i).toString());
                 schemaList.add(schema);
             }
         }
@@ -163,6 +168,7 @@ public class DBConnectionController {
     // private static Connection connectViaDS() throws Exception {
     // // String token =
     // //
+    // //
     // "{\"type\":\"service_account\",\"project_id\":\"stable-course-380911\",\"private_key_id\":\"0d77cb5f707bfba51930dbbf983b3f34043b6819\",\"private_key\":\"-----BEGINPRIVATEKEY-----\\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCScumcevlt+fL8\\n9MgqtJ5DaZA9nA3gDs7glnIL5Sc/INDLtXMyf/tDdTljya9988qZ6tZYqNDCiLwx\\nEd1mKGJ90nC0NJc6HdbCKVFBd+Zx9Er2+WSwzfxYgAXKo5v44Qy/jIE0HxNevW3o\\nN1iv9gri4bN1/z9beuGSTjN35AXkoBrX80zX1aZ1GysoIgL5vZfvQ9lq9MCsyR5w\\ner4e60OeHcBUZaRT6KEkJToK/LQHDc3TAKaPTsZ5YXblp6eX/guofYUAaw65DBqI\\nVjmJgeUXQRkaMDIVnTJrbOD1dU1UiEzqSRdJ/zFm59ReRFdYEKPudn54DWJ3Q4U8\\nltlx75WhAgMBAAECggEAA+2/gN5HLfk6OKk/6+5dvwj4UMDMmf3HtLxweYt3lLDW\\njRp0aU7H4LDGvfuxgKdfQGcNgkIgHJHiu43DQtvzPXUdZyYwhuN5SQrm9kLHTLgN\\nIUhCOGCERCMGFMA0HVZ7OzHDnxB02nIqPkQq1cib1OeRYwlai6OVpNFCffVA57fN\\n8M8FGDC+PMnlR4wChbKCn7EBj5a3Op2AhlvZQ9ZrQIG1r7nKcpJ7dMpGdONa/hOx\\nBqX/8iUQ0MS2ES+j0H11BhnC1BU7iDX6ARg72N+aEPDL/15EVBHvcFMzslDTz9o7\\nALSqnGLY7WBH+UFKV7Y6pdAku8goD7vPsSQy/+UkAQKBgQDEJbOh1wogkEApDcab\\nsSNFAu7be3aVr3oAxPMKwETQbctcD11P3R8j+GIaoAWRc0RTRzVZ9lei32AR4OGf\\nUqlltoTS9EyAzB8X7r+ggVaU6MDGOzY4CWYtKW+dfWd+ALfPjzqb8hkLLyciBlVz\\nWcMJGq/EHQ+4pSj4skntJ+yFAQKBgQC/IvTSDOwmbItZjMhF5AAA87PpMMbV4xV4\\ncQgXmEjrSomDYoo+PfkeDFTXknP1SMoZyyYXX9SCCRC5y+/8a84MWuDOwVJbQvYw\\nSvX2XsvR/Ipqi4Dto9jh8igR1Om8FKsSJEO17OZzETC/OYRTlawSQefiPsI0YmKQ\\nVT3Znn/woQKBgEHIDx1Yu/m9xva9uvzeBGERob+UAWoj5nu5kXTqlGl+WPQv5vBw\\nzQ/ILkaVoihsit6PBBJ+rldeKJ72V1SSaWNGOfdxnPKZAliJZlTS65GXGYehtgZH\\nCLBetCMSOpIkdYCznUlNgR6iGrKrgx7jXKiB/a58vJgFM99sE6TofccBAoGASbpy\\nNZRGg4vbNO/ZURxh4/wdqhXmnRq7bXosZO2ZMynNYaDhMqE1NyIKmB0mHbe2Pbzf\\nNKUClCZrDUBdkkEDekCT9y0bV5i83mQL/L0UYivIONEXKpPJVV7Tlg1LHAHc+2KB\\nu+tl+XzoENte798MQP6rM9qBjzNkUciP0yIQuAECgYEAqWvmUHlNOLqcgl89w28Q\\nJq0e9ECuFtmARr/3FK6KpX3jd62d8vZUQJI5cIa4nqMn1V1lUNVLGQ3KlLQ5dt95\\nScCPc/oKGvZrnC1kP8VUNo+nCEuMmMDOyQLReztFQZJoD9KAeiIxfW0cd1tEwOmI\\nfJ1ToVWjHHqbHukEqyYts9A=\\n-----ENDPRIVATEKEY-----\\n\",\"client_email\":\"svc-balu@stable-course-380911.iam.gserviceaccount.com\",\"client_id\":\"101389739033240098558\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://oauth2.googleapis.com/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_x509_cert_url\":\"https://www.googleapis.com/robot/v1/metadata/x509/svc-balu%40stable-course-380911.iam.gserviceaccount.com\"}";
     // String token =
     // "{\"type\":\"service_account\",\"project_id\":\"stable-course-380911\",\"private_key_id\":\"0d77cb5f707bfba51930dbbf983b3f34043b6819\",\"private_key\":\"MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCScumcevlt+fL8\\n9MgqtJ5DaZA9nA3gDs7glnIL5Sc/INDLtXMyf/tDdTljya9988qZ6tZYqNDCiLwx\\nEd1mKGJ90nC0NJc6HdbCKVFBd+Zx9Er2+WSwzfxYgAXKo5v44Qy/jIE0HxNevW3o\\nN1iv9gri4bN1/z9beuGSTjN35AXkoBrX80zX1aZ1GysoIgL5vZfvQ9lq9MCsyR5w\\ner4e60OeHcBUZaRT6KEkJToK/LQHDc3TAKaPTsZ5YXblp6eX/guofYUAaw65DBqI\\nVjmJgeUXQRkaMDIVnTJrbOD1dU1UiEzqSRdJ/zFm59ReRFdYEKPudn54DWJ3Q4U8\\nltlx75WhAgMBAAECggEAA+2/gN5HLfk6OKk/6+5dvwj4UMDMmf3HtLxweYt3lLDW\\njRp0aU7H4LDGvfuxgKdfQGcNgkIgHJHiu43DQtvzPXUdZyYwhuN5SQrm9kLHTLgN\\nIUhCOGCERCMGFMA0HVZ7OzHDnxB02nIqPkQq1cib1OeRYwlai6OVpNFCffVA57fN\\n8M8FGDC+PMnlR4wChbKCn7EBj5a3Op2AhlvZQ9ZrQIG1r7nKcpJ7dMpGdONa/hOx\\nBqX/8iUQ0MS2ES+j0H11BhnC1BU7iDX6ARg72N+aEPDL/15EVBHvcFMzslDTz9o7\\nALSqnGLY7WBH+UFKV7Y6pdAku8goD7vPsSQy/+UkAQKBgQDEJbOh1wogkEApDcab\\nsSNFAu7be3aVr3oAxPMKwETQbctcD11P3R8j+GIaoAWRc0RTRzVZ9lei32AR4OGf\\nUqlltoTS9EyAzB8X7r+ggVaU6MDGOzY4CWYtKW+dfWd+ALfPjzqb8hkLLyciBlVz\\nWcMJGq/EHQ+4pSj4skntJ+yFAQKBgQC/IvTSDOwmbItZjMhF5AAA87PpMMbV4xV4\\ncQgXmEjrSomDYoo+PfkeDFTXknP1SMoZyyYXX9SCCRC5y+/8a84MWuDOwVJbQvYw\\nSvX2XsvR/Ipqi4Dto9jh8igR1Om8FKsSJEO17OZzETC/OYRTlawSQefiPsI0YmKQ\\nVT3Znn/woQKBgEHIDx1Yu/m9xva9uvzeBGERob+UAWoj5nu5kXTqlGl+WPQv5vBw\\nzQ/ILkaVoihsit6PBBJ+rldeKJ72V1SSaWNGOfdxnPKZAliJZlTS65GXGYehtgZH\\nCLBetCMSOpIkdYCznUlNgR6iGrKrgx7jXKiB/a58vJgFM99sE6TofccBAoGASbpy\\nNZRGg4vbNO/ZURxh4/wdqhXmnRq7bXosZO2ZMynNYaDhMqE1NyIKmB0mHbe2Pbzf\\nNKUClCZrDUBdkkEDekCT9y0bV5i83mQL/L0UYivIONEXKpPJVV7Tlg1LHAHc+2KB\\nu+tl+XzoENte798MQP6rM9qBjzNkUciP0yIQuAECgYEAqWvmUHlNOLqcgl89w28Q\\nJq0e9ECuFtmARr/3FK6KpX3jd62d8vZUQJI5cIa4nqMn1V1lUNVLGQ3KlLQ5dt95\\nScCPc/oKGvZrnC1kP8VUNo+nCEuMmMDOyQLReztFQZJoD9KAeiIxfW0cd1tEwOmI\\nfJ1ToVWjHHqbHukEqyYts9A=\",\"client_email\":\"svc-balu@stable-course-380911.iam.gserviceaccount.com\",\"client_id\":\"101389739033240098558\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://oauth2.googleapis.com/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_x509_cert_url\":\"https://www.googleapis.com/robot/v1/metadata/x509/svc-balu%40stable-course-380911.iam.gserviceaccount.com\"}";
@@ -172,6 +178,7 @@ public class DBConnectionController {
     // System.out.println(token);
 
     // // String URL =
+    // //
     // //
     // "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectId=stable-course-380911;OAuthType=0;OAuthServiceAcctEmail=svc-balu@stable-course-380911.iam.gserviceaccount.com;OAuthPvtKeyPath=/home/balu/Documents/Tokens/Big_Query_Token/stable-course-380911-0d77cb5f707b.json;";
     // String URL = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;";
@@ -187,7 +194,6 @@ public class DBConnectionController {
     // ds.setOAuthPvtKeyFilePath("/home/balu/Documents/Tokens/Big_Query_Token/stable-course-380911-0d77cb5f707b.json");
     // connection = ds.getConnection();
     // return connection;
-
     // }
 
     // @PostMapping(value = "/test-bigquery-original")
