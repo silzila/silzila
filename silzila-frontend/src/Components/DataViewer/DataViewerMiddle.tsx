@@ -208,7 +208,6 @@ const DataViewerMiddle = ({
 		: null;
 
 	const handleOnCheckAndUnCheckOndm = (obj: any) => {
-		console.log(obj);
 		if (obj?.usedInTextEditor) {
 			// TODO::DynamicMeasure have to delete the text from editor
 			onCheckorUncheckOnDm(
@@ -332,7 +331,6 @@ const DataViewerMiddle = ({
 
 						<CloseSharp
 							onClick={() => {
-								console.log(currentObj.dynamicMeasureId);
 								deletingDynamicMeasure(
 									currentObj.tabId,
 									currentObj.tileId,

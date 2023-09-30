@@ -113,7 +113,6 @@ const ChartFilterGroupsContainer = ({
 				});
 
 				setDashBoardFilterGroupsTabTiles(event.target.name, tabTilesList);
-				console.log(event.target.name, tabTilesList);
 			} else {
 				updateChartFilterSelectedGroups(propKey, event.target.name);
 			}
@@ -165,7 +164,6 @@ const ChartFilterGroupsContainer = ({
 			} else {
 				setFilterGroupNamelist(temp);
 			}
-			console.log(temp);
 		}
 	}, [chartGroup?.tabTile[propKey]]);
 

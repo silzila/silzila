@@ -212,7 +212,6 @@ const chartPropertiesState = (
 			};
 
 		case "DUPLICATE_CHART_PROP":
-			console.log(action.payload);
 			return update(state, {
 				properties: { [action.payload.propKey]: { $set: action.payload.chartProperty } },
 			});

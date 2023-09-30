@@ -1,5 +1,6 @@
 import axios from "axios";
 import { serverEndPoint } from "./EnvironmentVariables";
+import Logger from "../../Logger";
 //import jwtDecode from "jwt-decode";
 
 type FetchDataPropType = {
@@ -25,7 +26,6 @@ type FetchDataPropType = {
 //     // check if expired
 //     var timeShort = currentTimeStr.substr(0, 10);
 //     let diff = expiry - timeShort;
-//     //console.log(`Current time: ${timeShort} \nExpiry time: ${expiry} \nDifference: ${diff}`);
 
 //     if (diff < 7200) {
 //         return false;
@@ -39,7 +39,6 @@ const FetchData = async (props: FetchDataPropType) => {
 
 	// if (token) {
 	//     var token2 = await CheckTokenValidity(token);
-	//     //console.log(token, "\n", token2);
 	// }
 
 	// if (token2) {
@@ -54,7 +53,7 @@ const FetchData = async (props: FetchDataPropType) => {
 				axios({ method, url: serverEndPoint + url, headers, data, timeout:1000 * 10 })
 					.then(res => resolve({ status: true, data: res.data }))
 					.catch(err => {
-						console.error(err);
+						Logger("error", err);
 						if (err?.response?.data) {
 							resolve({ status: false, data: err.response.data });
 						} else {
@@ -67,7 +66,7 @@ const FetchData = async (props: FetchDataPropType) => {
 				axios({ method, url: serverEndPoint + url, headers, timeout:1000 * 10 })
 					.then(res => resolve({ status: true, data: res.data }))
 					.catch(err => {
-						console.error(err);
+						Logger("error", err);
 						if (err?.response?.data) {
 							resolve({ status: false, data: err.response.data });
 						} else {
@@ -77,7 +76,6 @@ const FetchData = async (props: FetchDataPropType) => {
 				break;
 
 			default:
-				// //console.log("Fetch Data -- No fetch case made");
 				break;
 		}
 	});

@@ -28,7 +28,6 @@ const DatasetListPopover = ({
 	// state
 	dataSetList,
 }: Props) => {
-	//console.log(dataSetList);
 	return (
 		<Popover
 			open={showCard}

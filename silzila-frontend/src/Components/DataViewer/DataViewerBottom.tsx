@@ -35,6 +35,7 @@ import {
 	setTablesForSelectedDataSets,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { IndChartPropProperties } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import Logger from "../../Logger";
 
 export const getTableData = async (dc_uid: string, tableObj: any, token: string) => {
 	var database: string = tableObj.database;
@@ -57,7 +58,7 @@ export const getTableData = async (dc_uid: string, tableObj: any, token: string)
 	if (res.status) {
 		return res.data;
 	} else {
-		console.log("Get Table Data Error", res);
+		Logger("info", "Get Table Data Error", res);
 	}
 };
 
@@ -93,7 +94,7 @@ export const getColumnTypes = async (dc_uid: string, tableObj: any, token: strin
 		}
 		return finalResult;
 	} else {
-		console.log("Get Table ColumnsType Error", res);
+		Logger("info", "Get Table ColumnsType Error", res);
 	}
 };
 
@@ -174,7 +175,6 @@ const DataViewerBottom = ({
 		if (result.status) {
 			return result.data;
 		} else {
-			// console.log(result.data.detail);
 		}
 	};
 
@@ -278,7 +278,6 @@ const DataViewerBottom = ({
 
 	const onChangeOrAddDataset = () => {
 		let tabObj = tabState.tabs[tabTileProps.selectedTabId];
-		console.log(tabTileProps.selectedTable);
 
 		addTile(
 			tabObj.tabId,

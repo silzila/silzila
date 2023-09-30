@@ -29,6 +29,7 @@ import {
 import { Dispatch } from "redux";
 import { Columns, ColumnsWithUid } from "./DatasetInterfaces";
 import { CanvasIndividualTableProps, EditDatasetProps } from "./EditDataSetInterfaces";
+import Logger from "../../Logger";
 
 const EditDataSet = ({
 	//state
@@ -64,7 +65,6 @@ const EditDataSet = ({
 		});
 
 		if (res.status) {
-			// console.log(res.data);
 			if (res.data.isFlatFileData) {
 				setCreateDsFromFlatFile(true);
 			}
@@ -118,8 +118,6 @@ const EditDataSet = ({
 				})
 			);
 
-			console.log(canvasTables);
-
 			// ======================== set tables & schema ====================================================
 
 			var schema_list: string[] = res.data.dataSchema.tables.map(
@@ -150,7 +148,6 @@ const EditDataSet = ({
 					headers: { Authorization: `Bearer ${token}` },
 					token: token,
 				});
-				console.log(res1);
 
 				if (res1.status) {
 					let userTable: UserTableProps[] = [];
@@ -168,7 +165,6 @@ const EditDataSet = ({
 										tbl.schema === uniqueSchema[0] &&
 										tbl.tableName === el
 								)[0];
-								//console.log(tableAlreadyChecked);
 								canvasTables.forEach((tbl: any) => {
 									if (
 										tbl.dcId === res.data.connectionId &&
@@ -227,7 +223,6 @@ const EditDataSet = ({
 									databaseName = tbl.databaseName;
 								}
 							});
-							// //console.log(tableAlreadyChecked1);
 							if (tableAlreadyChecked1) {
 								return {
 									schema: schema,
@@ -289,7 +284,6 @@ const EditDataSet = ({
 						});
 					}
 
-					console.log(userTable, views);
 					setUserTable(userTable);
 					if (!res.data.isFlatFileData) {
 						setViews(views);
@@ -334,12 +328,10 @@ const EditDataSet = ({
 					columns_in_relationships.push(rel);
 					relationUniqueId = uid();
 				});
-				console.log(columns_in_relationships);
 				arrowObj = columns_in_relationships.map((el: any) => {
 					startTableName = x[0].table;
 					endTableName = y[0].table;
 
-					console.log(el);
 					return {
 						isSelected: false,
 
@@ -374,7 +366,6 @@ const EditDataSet = ({
 				});
 
 				arrowsArray.push(...arrowObj);
-				console.log(obj);
 
 				relObject = {
 					startId: x[0].id,
@@ -403,7 +394,7 @@ const EditDataSet = ({
 
 			setloadPage(true);
 		} else {
-			console.log(res, "********ERROR********");
+			Logger("info", res, "********ERROR********");
 		}
 	};
 
@@ -414,7 +405,6 @@ const EditDataSet = ({
 		databaseName: string,
 		flatFileId: string
 	) => {
-		console.log(flatFileId);
 		const uid: any = new ShortUniqueId({ length: 8 });
 		var url: string = "";
 		if (!flatFileId) {

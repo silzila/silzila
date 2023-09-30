@@ -24,7 +24,6 @@ const MultiBarChart = ({
 	//state
 	chartControls,
 }: ChartsReduxStateProps) => {
-	console.log(graphDimension);
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
@@ -72,8 +71,6 @@ const MultiBarChart = ({
 	var chartThemes: any[] = ColorSchemes.filter(el => {
 		return el.name === chartControl.colorScheme;
 	});
-
-	console.log(chartControl.legendOptions.position);
 
 	const RenderChart = () => {
 		return chartData ? (

@@ -91,7 +91,6 @@ const Login = (props: DispatchProps) => {
 				data: form,
 				headers: { "Content-Type": "application/json" },
 			});
-			//console.log(response);
 			if (response.status) {
 				setLoginStatus(true);
 				var payload = {

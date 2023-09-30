@@ -68,7 +68,6 @@ const ChartAxes = ({
 							label="Select Map"
 							value={chartProp.properties[propKey].geoLocation}
 							onChange={e => {
-								console.log(e.target.value);
 								changeLocation(propKey, e.target.value);
 							}}
 						>

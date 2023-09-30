@@ -42,6 +42,7 @@ import {
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import ChartsInfo from "../ChartAxes/ChartsInfo2";
 import { addChartFilterTabTileName } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
+import Logger from "../../Logger";
 
 export const chartTypes = [
 	{ name: "crossTab", icon: CrossTabIcon, value: " Cross Tab" },
@@ -941,7 +942,6 @@ const ChartTypes = ({
 							newChartAxes[1].fields[0].timeGrain = "date";
 						}
 					}
-					console.log(newChartAxes[1]);
 
 					if (oldChartAxes[3].fields.length > 0) {
 						newChartAxes[2].fields = getFieldsToChartAllowedNumbers(
@@ -1276,7 +1276,7 @@ const ChartTypes = ({
 							"simplecard",
 						].includes(chart.name)
 					) {
-						console.log(chart.name, " clicked");
+						Logger("info", chart.name, "clicked");
 						var oldChartAxes = chartProp.properties[propKey].chartAxes;
 
 						//CASE 1: when switching from richtext to richtext
@@ -1322,7 +1322,7 @@ const ChartTypes = ({
 									noOfAxes = noOfAxes - 1;
 								}
 							});
-							console.log(noOfAxes);
+							
 							if (
 								// oldChartAxes[0].fields.length === 0 &&
 								// oldChartAxes[1].fields.length === 0 &&

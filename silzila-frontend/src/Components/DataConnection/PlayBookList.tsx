@@ -55,8 +55,6 @@ const PlayBookList = ({
 
 	var navigate = useNavigate();
 
-	// console.log(selectedDataset);
-
 	useEffect(() => {
 		getInformation();
 		// eslint - disable - next - line;
@@ -72,11 +70,9 @@ const PlayBookList = ({
 		});
 
 		if (result.status) {
-			// console.log(result.data, "Playbook list");
 
 			setPlayBookList(result.data);
 		} else {
-			//console.log(result.data.detail);
 		}
 	};
 
@@ -112,7 +108,6 @@ const PlayBookList = ({
 		if (result.status) {
 			return result.data;
 		} else {
-			//console.log(result.data.detail);
 		}
 	};
 
@@ -153,13 +148,11 @@ const PlayBookList = ({
 					}
 				})
 			);
-			console.log(tablesForSelectedDatasetsCopy);
 			pb.content.content.tabTileProps.tablesForSelectedDataSets =
 				tablesForSelectedDatasetsCopy;
 
 			// for each tile in playbook, if it has minimum required cards in dropzones, get chart data from server
 			var newChartControl = JSON.parse(JSON.stringify(pb.content.content?.chartControl));
-			console.log(newChartControl);
 			await Promise.all(
 				Object.keys(pb.content.content.chartControl.properties).map(async property => {
 					var axesValue = JSON.parse(
@@ -203,7 +196,6 @@ const PlayBookList = ({
 							combinedValues2.fields = allValues2;
 							axesValue.splice(1, 2, combinedValues2);
 						}
-						////console.log(axesValue);
 						// getChartData(axesValue, pb.content.chartProperty, property, token).then(
 						// 	(data:any) => {
 						// 		newChartControl.properties[property].chartData = data;
@@ -271,7 +263,6 @@ const PlayBookList = ({
 									[selectedTableForThisDataset.id]: { $set: tableRecords },
 								},
 							});
-							console.log(sampleRecords);
 						}
 					}
 				})
@@ -309,7 +300,6 @@ const PlayBookList = ({
 				setTestMessage("");
 			}, 2000);
 		} else {
-			//console.log(result.detail);
 		}
 	};
 

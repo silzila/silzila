@@ -1041,7 +1041,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 			});
 
 		case "DUPLICATE_CHART_CONTROL":
-			console.log(action.payload);
 			return update(state, {
 				properties: { [action.payload.propKey]: { $set: action.payload.chartControl } },
 			});
@@ -1539,11 +1538,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 			});
 
 		case "UPDATE_RULE_OBJECT":
-			console.log(
-				state.properties[action.payload.propKey].tableConditionalFormats[
-					action.payload.objectIndex
-				]
-			);
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
@@ -1569,7 +1563,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 				},
 			});
 		case "UPDATE_CF_OBJECT": //CF referse to conditional format
-			console.log(action.payload);
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {

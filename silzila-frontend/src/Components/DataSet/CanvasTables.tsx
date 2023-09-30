@@ -50,20 +50,9 @@ const CanvasTables = ({
 	actionsOnRemoveTable,
 	setTempTables,
 }: CanvasTablesProps) => {
-	//console.log(tableData, "tableData");
 	//TODO not sure about ref type,need to specify type
 	const dragRef = useRef<any>();
 	const updateXarrow = useXarrow();
-
-	console.log(
-		tableData,
-
-		arrows,
-		tempTable,
-		relationships,
-		tables,
-		views
-	);
 
 	const [showRelationCard, setShowRelationCard] = useState<boolean>(false);
 	const [arrowProp, setArrowProp] = useState<any>([]);
@@ -84,8 +73,6 @@ const CanvasTables = ({
 	const [y, setY] = useState<number | any>(
 		tableData.tablePositionY ? tableData.tablePositionY : 0
 	);
-
-	//console.log(tableData);
 
 	var uid = new ShortUniqueId({ length: 8 });
 
@@ -114,7 +101,6 @@ const CanvasTables = ({
 				// check if the relationship already exist by checking
 				// if the start table and end table matches between the new arrow and existing realtionships
 
-				//console.log(rel.startId, newArrowObj.startId, rel.endId, newArrowObj.endId);
 
 				if (rel.startId === newArrowObj.startId && rel.endId === newArrowObj.endId) {
 					newArrowObj.relationId = rel.relationId;
@@ -124,7 +110,6 @@ const CanvasTables = ({
 					newArrowObj.showTail = rel.showTail;
 					sameRel = true;
 					sameRelObj = newArrowObj;
-					//console.log(newArrowObj);
 				} else if (rel.startId === newArrowObj.endId && rel.endId === newArrowObj.startId) {
 					// If it is in reverse assign the start and end table parameters in reverse
 
@@ -154,8 +139,6 @@ const CanvasTables = ({
 				}
 			});
 
-			////console.log(sameRel);
-			////console.log(sameRelInv);
 			if (sameRel) {
 				addArrows(sameRelObj);
 			}
@@ -252,7 +235,6 @@ const CanvasTables = ({
 			// }, 4000);
 		}
 	};
-	console.log(tableData);
 
 	return (
 		<div>
@@ -334,7 +316,6 @@ const CanvasTables = ({
 									<MoreVertIcon
 										style={{ float: "right" }}
 										onClick={e => {
-											//console.log(tableData);
 											setTableId(tableData.id);
 											setOpen(true);
 											setAnchorEl(e.currentTarget);

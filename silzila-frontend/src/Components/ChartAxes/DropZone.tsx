@@ -33,6 +33,7 @@ import {
 	updateDynamicMeasureAxes,
 } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import UserFilterCardForDm from "../ChartFieldFilter/UserFilterCardForDm";
+import Logger from "../../Logger";
 //import { StyledEngineProvider } from '@mui/material/styles';
 
 const DropZone = ({
@@ -153,7 +154,6 @@ const DropZone = ({
 				}
 			}
 		} else if (item.bIndex !== bIndex) {
-			// console.log("-------moving item from within------");
 			if (bIndex === 1) {
 				if (chartType === "calendar") {
 					if (item.dataType === "date") {
@@ -181,7 +181,7 @@ const DropZone = ({
 						// }, 3000);
 					}
 				} else {
-					console.log("******", name);
+					Logger("info", "******", name);
 					let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
 					["type", "bIndex"].forEach(e => delete newFieldData[e]);
 					if (chartType === "richText") {
@@ -240,7 +240,6 @@ const DropZone = ({
 	const open = Boolean(anchorEl);
 
 	const handleClose = async (closeFrom: any, queryParam?: any) => {
-		// console.log(closeFrom);
 		setAnchorEl(null);
 		//setShowOptions(false);
 
@@ -494,7 +493,6 @@ const DropZone = ({
 											// 	!chartProp.properties[propKey].chartAxes[bIndex]
 											// 		.isCollapsed
 											// );
-											// console.log("Collapse");
 										}}
 									/>
 								</Tooltip>

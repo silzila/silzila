@@ -106,7 +106,6 @@ const ChartFilterGroupCard = ({
 	];
 
 	let filterFieldData = JSON.parse(JSON.stringify(field));
-	// console.log(filterFieldData);
 
 	var includeExcludeOptions: PatternCollectionType[] = [
 		{ name: "Include", value: "Include" },
@@ -284,12 +283,9 @@ const ChartFilterGroupCard = ({
 		type: "card",
 
 		end: (dropResult, monitor) => {
-			// // console.log("***************on DRAG END**************");
 			const { uId, bIndex, originalIndex } = monitor.getItem();
-			// // console.log("uId = ", uId);
 
 			const didDrop = monitor.didDrop();
-			// // console.log("didDrop = ", didDrop);
 
 			if (!didDrop) {
 				revertRightFilterGroupItems(name, uId, originalIndex);
@@ -307,7 +303,6 @@ const ChartFilterGroupCard = ({
 		hover({ uId: dragUId, bIndex: fromBIndex }: any) {
 			if (fromBIndex === bIndex && dragUId !== uId) {
 				sortRightFilterGroupItems(name, dragUId, uId);
-				// console.log("============HOVER BLOCK END ==============");
 			}
 		},
 	});
@@ -359,7 +354,6 @@ const ChartFilterGroupCard = ({
 	///Render Pick list card from raw select members
 	const SelecPickListCard = () => {
 		let _selectionMembers = null;
-		// console.log(filterFieldData);
 
 		if (filterFieldData && filterFieldData.rawselectmembers) {
 			_selectionMembers = filterFieldData.rawselectmembers.map((item: any, index: number) => {
@@ -461,12 +455,10 @@ const ChartFilterGroupCard = ({
 
 	///Menu close event handler
 	const handleClose = async (closeFrom: any, queryParam?: any) => {
-		// console.log(closeFrom, queryParam);
 		setAnchorEl(null);
 		//setShowOptions(false);
 
 		if (closeFrom === "opt2") {
-			// console.log(filterFieldData.rawselectmembers, filterFieldData.fieldtypeoption);
 			if (
 				!filterFieldData.rawselectmembers ||
 				filterFieldData.fieldtypeoption !== queryParam
@@ -675,7 +667,6 @@ const ChartFilterGroupCard = ({
 	};
 
 	const handleExpandCollapse = (e: any) => {
-		console.log(e.uId);
 		// filterFieldData.isCollapsed = e;
 	};
 
@@ -758,7 +749,6 @@ const ChartFilterGroupCard = ({
 
 	///Render Search Condition Custom Input Control
 	const SearchConditionCustomInputControl = ({ type }: any) => {
-		// // console.log(type);
 		return (
 			<>
 				<TextField
@@ -1126,7 +1116,6 @@ const ChartFilterGroupCard = ({
 
 	///Construct Chart property object
 	const constructChartAxesFieldObject = () => {
-		console.log(filterFieldData);
 		return filterFieldData;
 	};
 
