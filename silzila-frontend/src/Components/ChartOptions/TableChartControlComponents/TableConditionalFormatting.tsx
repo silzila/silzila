@@ -1,21 +1,30 @@
 import { Button, Popover } from "@mui/material";
-import "./ConditionalFormatting.css";
+import "../ConditionalFormatting.css";
 import React, { Dispatch, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import {
 	addTableConditionalFormats,
 	deleteTablecf,
 	updatecfObjectOptions,
-} from "../../redux/ChartPoperties/ChartControlsActions";
+} from "../../../redux/ChartPoperties/ChartControlsActions";
 import ShortUniqueId from "short-unique-id";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import LabelComponent from "./TableChartControlComponents/LabelComponent";
-import GradientComponent from "./TableChartControlComponents/GradientComponent";
-import RuleComponent, {
-	addConditionButtonStyle,
-} from "./TableChartControlComponents/RuleComponent";
+import LabelComponent from "./LabelComponent";
+import GradientComponent from "./GradientComponent";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import RuleComponent from "./RuleComponent";
+
+export const addConditionButtonStyle = {
+	backgroundColor: "rgb(43, 185, 187)",
+	height: "25px",
+	width: "100%",
+	color: "white",
+	textTransform: "none",
+	"&:hover": {
+		backgroundColor: "rgb(43, 185, 187)",
+	},
+};
 
 const subMenuItemStyle = {
 	textTransform: "none",
@@ -23,10 +32,6 @@ const subMenuItemStyle = {
 	display: "block",
 };
 
-const arrowIconStyle = {
-	margin: "5px 0px 0px auto",
-	fontSize: "16px",
-};
 // TODO (kasthuri)
 interface Props {
 	chartControls: any;
@@ -227,42 +232,53 @@ const TableConditionalFormatting = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="optionDescription" style={{ display: "flex", flexDirection: "column" }}>
+			<div
+				className="optionDescription"
+				style={{ display: "flex", flexDirection: "column", marginTop: "0px" }}
+			>
 				{chartControls.properties[propKey].tableConditionalFormats &&
 					chartControls.properties[propKey].tableConditionalFormats.map(
 						(format: any, i: number) => {
 							return (
 								<>
-									<div className="tableConditionalFormatContainer">
-										<div className="labelPropsContailer">
+									<div>
+										<div className="ColumnTitle">
 											<span style={{ fontSize: "16px", color: "#5d5c5c" }}>
 												{format.name}{" "}
 											</span>
-											{format.isCollapsed ? (
-												<ChevronRightIcon
-													sx={arrowIconStyle}
-													onClick={() => {
-														updatecfObjectOptions(propKey, i, {
-															...format,
-															isCollapsed: false,
-														});
-													}}
+											<span className="expandLessMoreContainer">
+												{format.isCollapsed ? (
+													<ChevronRightIcon
+														sx={{
+															fontSize: "16px",
+														}}
+														onClick={() => {
+															updatecfObjectOptions(propKey, i, {
+																...format,
+																isCollapsed: false,
+															});
+														}}
+													/>
+												) : (
+													<ExpandMoreIcon
+														sx={{
+															fontSize: "16px",
+														}}
+														onClick={() => {
+															updatecfObjectOptions(propKey, i, {
+																...format,
+																isCollapsed: true,
+															});
+														}}
+													/>
+												)}
+											</span>
+											<span className="deleteIconContainer">
+												<DeleteOutlineOutlinedIcon
+													sx={{ fontSize: "16px" }}
+													onClick={() => deleteTablecf(propKey, i)}
 												/>
-											) : (
-												<ExpandMoreIcon
-													sx={arrowIconStyle}
-													onClick={() => {
-														updatecfObjectOptions(propKey, i, {
-															...format,
-															isCollapsed: true,
-														});
-													}}
-												/>
-											)}
-											<DeleteOutlineOutlinedIcon
-												sx={{ ...arrowIconStyle, fontSize: "18px" }}
-												onClick={() => deleteTablecf(propKey, i)}
-											/>
+											</span>
 										</div>
 										{!format.isCollapsed ? (
 											<>
@@ -292,7 +308,7 @@ const TableConditionalFormatting = ({
 						}
 					)}
 			</div>
-			<div className="optionDescription">
+			<div>
 				<Button
 					sx={addConditionButtonStyle}
 					disabled={chartControls.properties[propKey].chartData.length > 0 ? false : true}
@@ -305,7 +321,9 @@ const TableConditionalFormatting = ({
 				</Button>
 			</div>
 			{chartControls.properties[propKey].chartData.length > 0 ? null : (
-				<p>create a chart first and then add conditional formats</p>
+				<p style={{ color: "#ccc", fontStyle: "italic", fontSize: "10px" }}>
+					*Create a chart first and then add conditions*
+				</p>
 			)}
 			<Popover
 				open={openMenu}

@@ -28,7 +28,7 @@ import TitleForDynamicMeasures from "./Title/TitleForDynamicMeasures";
 import ChartFormatForDm from "./Format/ChartFormatForDm";
 import DynamicMeasureStyle from "./ChartStyle/DynamicMeasureStyle";
 import ConditionalFormatingComponent from "./DynamicMeasureConditionalFormattingComponent";
-import TableConditionalFormating from "./TableConditionalFormatting";
+import TableConditionalFormating from "./TableChartControlComponents/TableConditionalFormatting";
 import DynamicMeasureConditionalFormattingComponent from "./DynamicMeasureConditionalFormattingComponent";
 
 interface ControlDetailProps {

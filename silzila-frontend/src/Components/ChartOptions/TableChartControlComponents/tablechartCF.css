@@ -1,54 +1,81 @@
-.gradientCustomValueInputContainer{
-    display:flex;
-    margin:0.5rem 0px;
-    gap:10px
+.gradientCustomValueInputContainer {
+    display: flex;
+    margin: 0.5rem 0px;
+    gap: 10px
 }
 
-.addIconStyle{
-    border:2px solid gray;
+.addIconStyle {
+    border: 2px solid gray;
     border-radius: 2px;
 }
 
-.midvalue{
+.midvalue {
     display: flex;
-    margin-top:5px;
+    margin: 10px 0px 5px 0px;
+    gap: 5px
 }
 
-.displayFlex{
-    display:flex;
-}
-
-.gradientComponentContainer{
+.displayFlex {
     display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin: 5px 0px;
-}
-.gradientCardContainer{
-    display: flex; flex-direction: column; gap: 5px
 }
 
-.checkboxStyle{
-    
-            width: 0.5rem; height: 0.5rem; margin: auto 5px auto 0
-        
-}
-
-.labelItemContainer{
+.gradientComponentContainer {
     display: flex;
-            flex-direction: column;
-            gap: 5px;
-            padding-bottom: 2px;
-            margin-bottom: 4px;
+    flex-direction: column;
+    gap: 10px;
+    margin: 5px 0px;
+}
+
+.gradientCardContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 5px
+}
+
+.checkboxStyle {
+
+    width: 0.5rem;
+    height: 0.5rem;
+    margin: auto 5px auto 0
+}
+
+.labelItemContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-bottom: 2px;
+    margin-bottom: 4px;
 }
 
 
-.labelText{
+.labelText {
     padding-bottom: 4px;
-            font-size: 12px;
-            color: #575757;
+    font-size: 12px;
+    color: #575757;
 }
 
-.labelPropsContailer{
-    display: flex; margin-bottom: 10px
+.labelPropsContailer {
+    display: flex;
+    margin-bottom: 8px
+}
+
+
+.ColumnTitle {
+    display: flex;
+    height: 25px;
+}
+
+.expandLessMoreContainer {
+    background-color: white;
+    margin-right: 0px;
+    margin-left: auto;
+    align-self: center;
+}
+
+.deleteIconContainer {
+    background-color: white;
+    margin-right: 2px;
+    width: fit-content;
+    align-self: center;
+    margin-left: 5px;
 }

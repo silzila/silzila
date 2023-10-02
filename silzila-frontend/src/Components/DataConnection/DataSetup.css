@@ -34,15 +34,13 @@ Data Setup Page
 }
 
 .dataConnectionContainer {
-	flex: 2;
-	padding: 1rem 10rem;
-	border-radius: 0.5rem;
-	background-color: #fff;
-	/* margin-bottom: 2rem; */
-	overflow: auto;
 	display: flex;
 	flex-direction: column;
-	height: 400px
+	height: 100%;
+	background-color: #fff;
+	padding: 1rem 10rem;
+	overflow: auto;
+	gap: 10px
 }
 
 .dataSetContainer {
@@ -54,6 +52,11 @@ Data Setup Page
 	display: flex;
 	flex-direction: column;
 	height: 400px
+}
+
+.listContainer {
+	height: 100%;
+	overflow-y: scroll;
 }
 
 .connectionListContainer {
@@ -76,14 +79,11 @@ Data Setup Page
 }
 
 .containersHead {
-	/* width: 100%; */
-	padding-bottom: 1rem;
-	font-weight: 600;
 	display: flex;
-	overflow: hidden;
+	font-weight: 600;
 	padding-left: 10px;
 	padding-right: 10px;
-	/* border-bottom: 1px solid rgb(192, 192, 192); */
+
 }
 
 .containerTitle {

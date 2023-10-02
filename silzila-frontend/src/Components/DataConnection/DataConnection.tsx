@@ -255,7 +255,7 @@ const DataConnection = (props: DataConnectionProps) => {
 					<AddIcon />
 				</div>
 			</div>
-			<div className="connectionListContainer">
+			<div className="listContainer">
 				{dataConnectionList &&
 					dataConnectionList.map((dc: ConnectionItem) => {
 						return (
