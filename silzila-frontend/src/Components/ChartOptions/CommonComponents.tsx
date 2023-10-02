@@ -296,7 +296,8 @@ export const CondtionComponent = ({
 };
 
 export const checkIsConditionSatisfied = (formatsArray: any, dmValue: number) => {
-	const updatedArray = formatsArray.map((el: any) => {
+	const updatedArray = formatsArray.map((item: any) => {
+		let  el = JSON.parse(JSON.stringify(item));
 		if (el.conditionType === 1) {
 			if (dmValue > el.target) {
 				el.isConditionSatisfied = true;

@@ -76,7 +76,6 @@ const TextEditor = ({
   const [position, setPosition] = useState(JSON.parse(localStorage.getItem('cursor')));
 
 
-
   const withMentions = (editor) => {
     const { isInline, isVoid, markableVoid } = editor
   
@@ -100,6 +99,9 @@ const TextEditor = ({
     []
   )
 
+  // const focused = useFocused()
+  // console.log(focused);
+
 
 const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
 
@@ -114,7 +116,8 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
 		if(chartProp.properties[propKey].measureValue?.id !== "")
 		{
       clearRichText(propKey);
-
+     // Transforms.select(editor, { offset: 0, path: [0, 0] });
+    
 			let _measureValueCopy =  Object.assign({}, chartProp.properties[propKey]); 
       if(_measureValueCopy && _measureValueCopy.measureValue && _measureValueCopy.measureValue.value)
       {
@@ -129,10 +132,23 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
           showDash: tabTileProps.showDash
         }
 
-        Transforms.insertNodes(editor,[_object], position);
+      
+        if(ReactEditor.isFocused){
+          Transforms.insertNodes(editor,[_object], position);
+        }
+
+       
+        ReactEditor.focus(editor);
       }
 		}
 	}, [chartProp.properties[propKey].measureValue?.id]);
+
+
+
+
+  useEffect(() => {
+    ReactEditor.focus(editor);
+  },[])
 
 
   const onAddingNewDynamicMeaasure = () => {
@@ -480,6 +496,14 @@ if (element.measureStyle.backgroundColor != 'white') {
   return (
     <>
       <Slate
+      onFocus={(event, editor, next) => {
+
+        setTimeout(() => {
+          // Change editor state here.
+        });    
+    
+        return next();
+      }}
         editor={editor}
         initialValue={initialValue}
         onChange={(val) => {
@@ -534,6 +558,10 @@ if (element.measureStyle.backgroundColor != 'white') {
               },
             }}
             onClick={() => {
+
+            ReactEditor.focus(editor);
+          //  Transforms.select(editor, { offset: 0, path: [0, 0] });
+
                 setDynamicMeasureWindowOpen(propKey, true);
                 onAddingNewDynamicMeaasure();
             }}
