@@ -113,34 +113,39 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
   ],[]);
   
 	useEffect(() => {
-		if(chartProp.properties[propKey].measureValue?.id !== "")
-		{
-      clearRichText(propKey);
-     // Transforms.select(editor, { offset: 0, path: [0, 0] });
-    
-			let _measureValueCopy =  Object.assign({}, chartProp.properties[propKey]); 
-      if(_measureValueCopy && _measureValueCopy.measureValue && _measureValueCopy.measureValue.value)
+    try{
+      if(chartProp.properties[propKey].measureValue?.id !== "")
       {
-
-        let _object =  {
-          type: "mention",
-          character:  _measureValueCopy.measureValue?.value?.text,
-          children: [{ text: '' }],
-          measureStyle: _measureValueCopy.measureValue.value?.style,
-          id:_measureValueCopy.measureValue.id,
-          propKey:propKey,
-          showDash: tabTileProps.showDash
-        }
-
+        clearRichText(propKey);
+      // Transforms.select(editor, { offset: 0, path: [0, 0] });
       
-        if(ReactEditor.isFocused){
-          Transforms.insertNodes(editor,[_object], position);
-        }
+        let _measureValueCopy =  Object.assign({}, chartProp.properties[propKey]); 
+        if(_measureValueCopy && _measureValueCopy.measureValue && _measureValueCopy.measureValue.value)
+        {
 
-       
-        ReactEditor.focus(editor);
+          let _object =  {
+            type: "mention",
+            character:  _measureValueCopy.measureValue?.value?.text,
+            children: [{ text: '' }],
+            measureStyle: _measureValueCopy.measureValue.value?.style,
+            id:_measureValueCopy.measureValue.id,
+            propKey:propKey,
+            showDash: tabTileProps.showDash
+          }
+
+        
+          if(ReactEditor.isFocused){
+            Transforms.insertNodes(editor,[_object], position);
+          }
+
+        
+          ReactEditor.focus(editor);
+        }
       }
-		}
+  }
+  catch(error){
+    console.error(error);
+  }
 	}, [chartProp.properties[propKey].measureValue?.id]);
 
 
