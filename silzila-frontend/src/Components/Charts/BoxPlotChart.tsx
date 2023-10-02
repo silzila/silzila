@@ -43,10 +43,8 @@ const BoxPlotChart = ({
 					dimValue = `${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
 				}
 				var dimArray: string[] = chartData.map((el: any) => {
-					console.log(el, dimValue);
 					return el[dimValue];
 				});
-				console.log(dimArray);
 
 				setDimensionData([...new Set(dimArray)]);
 
@@ -56,7 +54,6 @@ const BoxPlotChart = ({
 				allMeasureValue = chartData.map(el => {
 					return el[measureValue];
 				});
-				console.log(allMeasureValue);
 
 				minimumValueOfYaxis = Math.min(...allMeasureValue);
 				maximumValueOfYaxis = Math.max(...allMeasureValue);
@@ -127,7 +124,6 @@ const BoxPlotChart = ({
 						trigger: "item",
 						// just formating data to shown in tooltiop in required formate
 						formatter: function (params: any) {
-							console.log(params);
 							if (params.seriesName === "boxplot") {
 								return `${params.name} <br/> ${params.seriesName} <br/> <table>
 								<th>

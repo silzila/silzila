@@ -115,7 +115,6 @@ const UserFilterCard = ({
 	];
 
 	let filterFieldData = JSON.parse(JSON.stringify(field));
-	// console.log(filterFieldData);
 
 	var includeExcludeOptions: PatternCollectionType[] = [
 		{ name: "Include", value: "Include" },
@@ -285,12 +284,9 @@ const UserFilterCard = ({
 		type: "card",
 
 		end: (dropResult, monitor) => {
-			// // console.log("***************on DRAG END**************");
 			const { uId, bIndex, originalIndex } = monitor.getItem();
-			// // console.log("uId = ", uId);
 
 			const didDrop = monitor.didDrop();
-			// // console.log("didDrop = ", didDrop);
 
 			if (!didDrop) {
 				revertAxes(propKey, bIndex, uId, originalIndex);
@@ -308,7 +304,6 @@ const UserFilterCard = ({
 		hover({ uId: dragUId, bIndex: fromBIndex }: any) {
 			if (fromBIndex === bIndex && dragUId !== uId) {
 				sortAxes(propKey, bIndex, dragUId, uId);
-				// console.log("============HOVER BLOCK END ==============");
 			}
 		},
 	});
@@ -360,7 +355,6 @@ const UserFilterCard = ({
 	///Render Pick list card from raw select members
 	const SelecPickListCard = () => {
 		let _selectionMembers = null;
-		// console.log(filterFieldData);
 
 		if (filterFieldData && filterFieldData.rawselectmembers) {
 			_selectionMembers = filterFieldData.rawselectmembers.map((item: any, index: number) => {
@@ -462,12 +456,10 @@ const UserFilterCard = ({
 
 	///Menu close event handler
 	const handleClose = async (closeFrom: any, queryParam?: any) => {
-		// console.log(closeFrom, queryParam);
 		setAnchorEl(null);
 		//setShowOptions(false);
 
 		if (closeFrom === "opt2") {
-			// console.log(filterFieldData.rawselectmembers, filterFieldData.fieldtypeoption);
 			if (
 				!filterFieldData.rawselectmembers ||
 				filterFieldData.fieldtypeoption !== queryParam
@@ -676,7 +668,6 @@ const UserFilterCard = ({
 	};
 
 	const handleExpandCollapse = (e: any) => {
-		console.log(e.uId);
 		// filterFieldData.isCollapsed = e;
 	};
 
@@ -756,7 +747,6 @@ const UserFilterCard = ({
 
 	///Render Search Condition Custom Input Control
 	const SearchConditionCustomInputControl = ({ type }: any) => {
-		// // console.log(type);
 		return (
 			<>
 				<TextField
@@ -1017,7 +1007,6 @@ const UserFilterCard = ({
 
 	///Search Condition Dropdown list to select condition
 	const DropDownForPattern = ({ items }: any) => {
-		console.log(items);
 		return (
 			<Select
 				sx={{

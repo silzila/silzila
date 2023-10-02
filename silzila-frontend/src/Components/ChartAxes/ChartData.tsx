@@ -25,6 +25,7 @@ import { DashBoardFilterGroupStateProps } from "../../redux/DashBoardFilterGroup
 import { TileRibbonStateProps } from "../../Components/TabsAndTiles/TileRibbonInterfaces";
 import { setDashTileSwitched } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { updateChartDataForDm } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+import Logger from "../../Logger";
 
 // format the chartAxes into the way it is needed for api call
 export const getChartData = async (
@@ -255,7 +256,7 @@ export const getChartData = async (
 	let _hasInvalidFilterData = _filterZoneFields.filter((field: any) => field.isInValidData);
 
 	if (_filterZoneFields.length > 0 && _hasInvalidFilterData && _hasInvalidFilterData.length > 0) {
-		console.log("Filter has invalid data.");
+		Logger("info", "Filter has invalid data.");
 	} else {
 		let _filterObj = getChartLeftFilter(chartProp.chartAxes[0]);
 
@@ -313,10 +314,10 @@ export const getChartData = async (
 						return res.data;
 					}
 				} else {
-					console.log("Change filter conditions.");
+					Logger("info", "Change filter conditions.");
 				}
 			} else {
-				console.error("Get Table Data Error", res.data.message);
+				Logger("error", "Get Table Data Error", res.data.message);
 			}
 		}
 	}

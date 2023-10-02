@@ -58,8 +58,6 @@ const EditFlatFileData = ({
 	const classes = useStyles();
 	const classes2 = styles();
 
-	console.log(editApiResponse);
-
 	const navigate = useNavigate();
 
 	const [dateFormat, setDateFormat] = useState<string>(
@@ -75,7 +73,6 @@ const EditFlatFileData = ({
 	const [severity, setSeverity] = useState<AlertColor>("success");
 
 	const setDataToEditApiResponse = async () => {
-		console.log(editApiResponse);
 		var fileObj = {
 			fileId: editApiResponse.fileId,
 			name: editApiResponse.name,

@@ -4,6 +4,7 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import CloseIcon from "@mui/icons-material/Close";
 import { makeStyles } from "@mui/styles";
 import createStyles from "@mui/styles/createStyles";
+import Logger from "../../Logger";
 
 interface FileDropZoneProps {
 	setSelectedFile: any;
@@ -67,7 +68,7 @@ const FileDropZone = ({ setSelectedFile, selectedFile }: FileDropZoneProps) => {
 		e.stopPropagation();
 		setDragActive(false);
 		if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-			console.log(e.dataTransfer.files[0], "handleDrop");
+			Logger("info", e.dataTransfer.files[0], "handleDrop");
 			setSelectedFile(e.dataTransfer.files[0]);
 		}
 	};
@@ -76,7 +77,7 @@ const FileDropZone = ({ setSelectedFile, selectedFile }: FileDropZoneProps) => {
 	const handleChange = function (e: any) {
 		e.preventDefault();
 		if (e.target.files && e.target.files[0]) {
-			console.log(e.target.files[0], "handleChange");
+			Logger("info", e.target.files[0], "handleChange");
 			setSelectedFile(e.target.files[0]);
 		}
 	};

@@ -28,7 +28,6 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 			return update(state, { databaseName: { $set: action.payload } });
 
 		case "SET_SERVER_NAME":
-			// //console.log("set connection value action called", action.payload);
 			return update(state, { serverName: { $set: action.payload } });
 
 		// sets DC id to state
@@ -49,11 +48,9 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 
 		// sets list of tables for a selected schema to state
 		case "SET_TABLES":
-			// //console.log(action.payload);
 			return update(state, { tables: { $set: action.payload } });
 
 		case "SET_TEMP_TABLES":
-			//console.log(action.payload);
 			// return update(state, { tempTable: { $set: action } });
 			return update(state, { tempTable: { $set: action.payload } });
 
@@ -140,14 +137,12 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 			const z1 = y1.filter((rel: any) => {
 				return rel.endId !== action.relationId;
 			});
-			////console.log(z1);
 			return update(state, { relationships: { $set: z1 } });
 
 		case "DELETE_RELATIONSHIP_FROM_CANVAS":
 			const rels = state.relationships.filter(
 				(rel: any) => rel.relationId !== action.payload
 			);
-			////console.log(rels);
 			return update(state, { relationships: { $set: rels } });
 
 		case "UPDATE_RELATIONSHIP":
@@ -156,17 +151,13 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 			);
 
 			var oldRelationsArray = state.relationships.slice();
-			////console.log(JSON.stringify(oldRelationsArray, null, 4));
 			oldRelationsArray.splice(index2, 1);
 			oldRelationsArray.push(action.payload.relation);
-			////console.log(JSON.stringify(oldRelationsArray, null, 4));
 
 			var oldArrows = state.arrows.slice();
 			var relArrows = oldArrows.filter(
 				(arr: any) => arr.relationId === action.payload.relationId
 			);
-			////console.log(JSON.stringify(oldArrows, null, 4));
-			////console.log(JSON.stringify(relArrows, null, 4));
 
 			relArrows.forEach((arr: any) => {
 				arr.integrity = action.payload.relation.integrity;
@@ -174,7 +165,6 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 				arr.showHead = action.payload.relation.showHead;
 				arr.showTail = action.payload.relation.showTail;
 			});
-			////console.log(JSON.stringify(relArrows, null, 4));
 
 			oldArrows.push(relArrows);
 
@@ -204,7 +194,6 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 		case "SET_ARROWS":
 			return update(state, { arrows: { $set: action.payload } });
 		case "SET_VIEWS":
-			// console.log(action);
 			return update(state, { views: { $set: action.payload } });
 
 		case "ON_CHECKED_ON_VIEW":

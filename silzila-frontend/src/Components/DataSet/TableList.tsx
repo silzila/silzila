@@ -24,6 +24,7 @@ import { connect } from "react-redux";
 import TableData from "./TableData";
 import { TableListProps, tabObj } from "./TableListInterfaces";
 import { Columns, ColumnsWithUid } from "./DatasetInterfaces";
+import Logger from "../../Logger";
 
 const TableList = (props: TableListProps) => {
 	const [selectedTable, setSelectedTable] = useState<string>("");
@@ -33,10 +34,9 @@ const TableList = (props: TableListProps) => {
 	const [tableData, setTableData] = useState<any[]>([]);
 	const [objKeys, setObjKeys] = useState<string[]>([]);
 
-	console.log(props);
 	// Get all columns for a given table
 	const getTableColumns = async (tableName: string, isView: boolean) => {
-		console.log("get Columns from tableList");
+		Logger("info", "get Columns from tableList");
 		const uid: any = new ShortUniqueId({ length: 8 });
 
 		var url: string = "";
@@ -57,11 +57,9 @@ const TableList = (props: TableListProps) => {
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
 		if (result.status) {
-			console.log(result.data);
 			var obj: tabObj | undefined;
 			if (isView) {
 				props.viewList.map((el: any) => {
-					//console.log(el.tableName, tableName, el.isSelected);
 					// While in edit mode, we check if this table has already been selected
 					// If selected, set its old parameters UID parameters,
 					if (el.tableName === tableName && el.isSelected === true && el.isView) {
@@ -71,7 +69,6 @@ const TableList = (props: TableListProps) => {
 								...data,
 							};
 						});
-						//console.log(arrayWithUid);
 
 						obj = {
 							isView: true,
@@ -98,7 +95,6 @@ const TableList = (props: TableListProps) => {
 						let arrayWithUid: any = [];
 						if (props.isFlatFile) {
 							arrayWithUid = result.data.map((data: any) => {
-								console.log(data);
 								return {
 									uid: uid(),
 									columnName: data.fieldName,
@@ -140,7 +136,6 @@ const TableList = (props: TableListProps) => {
 		if (table["isView"]) {
 			props.toggleOnCheckedOnView(id);
 		} else {
-			console.log(id);
 			props.onChecked(id);
 		}
 
@@ -157,7 +152,6 @@ const TableList = (props: TableListProps) => {
 			}
 		}
 	};
-	console.log(props.table.tableName);
 
 	// ==============================================================
 	//  get Table Data
@@ -182,7 +176,6 @@ const TableList = (props: TableListProps) => {
 		});
 
 		if (res.status) {
-			//console.log(res.data);
 			setTableData(res.data);
 			setShowTableData(true);
 			var keys: string[] = Object.keys(res.data[0]);

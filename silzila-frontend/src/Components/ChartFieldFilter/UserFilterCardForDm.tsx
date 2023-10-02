@@ -56,7 +56,6 @@ const UserFilterCardForDm = ({
 	revertAxesForDm,
 	updtateFilterExpandeCollapseForDm,
 }: UserFilterCardProps & any) => {
-	console.log(propKey, field, bIndex, itemIndex);
 	var selectedDynamicMeasureProps =
 		dynamicMeasureState?.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
 			dynamicMeasureState.selectedTileId
@@ -126,7 +125,6 @@ const UserFilterCardForDm = ({
 	];
 
 	let filterFieldData = JSON.parse(JSON.stringify(field));
-	// console.log(filterFieldData);
 
 	var includeExcludeOptions: PatternCollectionType[] = [
 		{ name: "Include", value: "Include" },
@@ -297,12 +295,9 @@ const UserFilterCardForDm = ({
 		type: "card",
 
 		end: (dropResult, monitor) => {
-			// // console.log("***************on DRAG END**************");
 			const { uId, bIndex, originalIndex } = monitor.getItem();
-			// // console.log("uId = ", uId);
 
 			const didDrop = monitor.didDrop();
-			// // console.log("didDrop = ", didDrop);
 
 			if (!didDrop) {
 				revertAxesForDm(propKey, bIndex, uId, originalIndex);
@@ -320,7 +315,6 @@ const UserFilterCardForDm = ({
 		hover({ uId: dragUId, bIndex: fromBIndex }: any) {
 			if (fromBIndex === bIndex && dragUId !== uId) {
 				sortAxesForDm(propKey, bIndex, dragUId, uId);
-				// console.log("============HOVER BLOCK END ==============");
 			}
 		},
 	});
@@ -372,7 +366,6 @@ const UserFilterCardForDm = ({
 	///Render Pick list card from raw select members
 	const SelecPickListCard = () => {
 		let _selectionMembers = null;
-		// console.log(filterFieldData);
 
 		if (filterFieldData && filterFieldData.rawselectmembers) {
 			_selectionMembers = filterFieldData.rawselectmembers.map((item: any, index: number) => {
@@ -474,12 +467,10 @@ const UserFilterCardForDm = ({
 
 	///Menu close event handler
 	const handleClose = async (closeFrom: any, queryParam?: any) => {
-		// console.log(closeFrom, queryParam);
 		setAnchorEl(null);
 		//setShowOptions(false);
 
 		if (closeFrom === "opt2") {
-			// console.log(filterFieldData.rawselectmembers, filterFieldData.fieldtypeoption);
 			if (
 				!filterFieldData.rawselectmembers ||
 				filterFieldData.fieldtypeoption !== queryParam
@@ -687,13 +678,11 @@ const UserFilterCardForDm = ({
 	};
 
 	const handleExpandCollapse = (e: any) => {
-		console.log(e.uId);
 		// filterFieldData.isCollapsed = e;
 	};
 
 	///Remove filter card from dropzone
 	const deleteItem = () => {
-		console.log(dynamicMeasureState);
 		deleteDropZoneItems(propKey, bIndex, itemIndex);
 	};
 
@@ -768,7 +757,6 @@ const UserFilterCardForDm = ({
 
 	///Render Search Condition Custom Input Control
 	const SearchConditionCustomInputControl = ({ type }: any) => {
-		// // console.log(type);
 		return (
 			<>
 				<TextField
@@ -1029,7 +1017,6 @@ const UserFilterCardForDm = ({
 
 	///Search Condition Dropdown list to select condition
 	const DropDownForPattern = ({ items }: any) => {
-		console.log(items);
 		return (
 			<Select
 				sx={{

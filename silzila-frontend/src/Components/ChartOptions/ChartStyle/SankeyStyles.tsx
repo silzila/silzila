@@ -19,7 +19,6 @@ const SankeyStyles = ({
 }) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	const sankeyStyle = chartControls.properties[propKey].sankeyControls;
-	console.log(sankeyStyle);
 
 	return (
 		<div className="optionsInfo">

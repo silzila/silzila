@@ -40,7 +40,6 @@ const TreeMapStyles = ({
 			return { name: el.fieldname, value: i + 1 };
 		}
 	);
-	console.log(treeMapLeafDepthOptions);
 
 	return (
 		<div className="optionsInfo">

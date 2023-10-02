@@ -141,7 +141,6 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 
 		case "ADD_NEW_DYNAMIC_MEASURE_FROM_NEW_TILE":
 			let dynamicMeasureKey1: string = `${action.payload.tileId}.${action.payload.dynamicMeasureId}`;
-			console.log(state.dynamicMeasureList);
 			return update(state, {
 				selectedTileId: { $set: action.payload.tileId },
 				selectedDynamicMeasureId: { $set: action.payload.dynamicMeasureId },
@@ -222,9 +221,7 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 			});
 
 		case "ADD_NEW_DYNAMIC_MEASURE_FOR_SAME_TILE":
-			console.log(action.payload);
 			let dynamicMeasureKey2: string = `${action.payload.tileId}.${action.payload.dynamicMeasureId}`;
-			console.log(state.dynamicMeasureList[action.payload.tabId][action.payload.tileId]);
 
 			return update(state, {
 				selectedDynamicMeasureId: { $set: action.payload.dynamicMeasureId },
@@ -406,7 +403,6 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 			delete state.dynamicMeasureProps[state.selectedTabId][state.selectedTileId][
 				`${state.selectedTileId}.${state.selectedDynamicMeasureId}`
 			];
-			console.log(state.dynamicMeasureProps);
 			return update(state, {
 				selectedDynamicMeasureId: { $set: state.selectedDynamicMeasureId - 1 },
 				dynamicMeasureList: {
@@ -422,11 +418,6 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 			});
 
 		case "UPDATE_CHART_DATA_FOR_DM":
-			console.log(action.payload);
-			const measureName =
-				state.dynamicMeasureProps[`${state.selectedTabId}`][`${state.selectedTileId}`][
-					`${state.selectedTileId}.${state.selectedDynamicMeasureId}`
-				].dynamicMeasureName;
 			return update(state, {
 				dynamicMeasureProps: {
 					[state.selectedTabId]: {
@@ -489,7 +480,6 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 			delete state.dynamicMeasureProps[action.payload.tabId][action.payload.tileId][
 				`${action.payload.tileId}.${action.payload.dmId}`
 			];
-			console.log(state.dynamicMeasureProps);
 			return update(state, {
 				// selectedDynamicMeasureId: { $set: action.payload.dmId - 1 },
 				dynamicMeasureList: {
@@ -504,7 +494,6 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 				},
 			});
 		case "UPDATE_TITLE_OPTIONS":
-			console.log(action.payload);
 			return update(state, {
 				dynamicMeasureProps: {
 					[action.payload.tabId]: {
@@ -799,7 +788,6 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 				action.payload.fromBIndex,
 				action.payload.fromUID
 			);
-			console.log(removeIndex);
 
 			if (
 				state.dynamicMeasureProps[state.selectedTabId][state.selectedTileId][

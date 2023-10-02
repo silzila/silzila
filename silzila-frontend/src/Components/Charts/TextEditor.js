@@ -76,7 +76,6 @@ const TextEditor = ({
   const [position, setPosition] = useState(JSON.parse(localStorage.getItem('cursor')));
 
 
-
   const withMentions = (editor) => {
     const { isInline, isVoid, markableVoid } = editor
   
@@ -100,6 +99,9 @@ const TextEditor = ({
     []
   )
 
+  // const focused = useFocused()
+  // console.log(focused);
+
 
 const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
 
@@ -111,28 +113,47 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
   ],[]);
   
 	useEffect(() => {
-		if(chartProp.properties[propKey].measureValue?.id !== "")
-		{
-      clearRichText(propKey);
-
-			let _measureValueCopy =  Object.assign({}, chartProp.properties[propKey]); 
-      if(_measureValueCopy && _measureValueCopy.measureValue && _measureValueCopy.measureValue.value)
+    try{
+      if(chartProp.properties[propKey].measureValue?.id !== "")
       {
+        clearRichText(propKey);
+      // Transforms.select(editor, { offset: 0, path: [0, 0] });
+      
+        let _measureValueCopy =  Object.assign({}, chartProp.properties[propKey]); 
+        if(_measureValueCopy && _measureValueCopy.measureValue && _measureValueCopy.measureValue.value)
+        {
 
-        let _object =  {
-          type: "mention",
-          character:  _measureValueCopy.measureValue?.value?.text,
-          children: [{ text: '' }],
-          measureStyle: _measureValueCopy.measureValue.value?.style,
-          id:_measureValueCopy.measureValue.id,
-          propKey:propKey,
-          showDash: tabTileProps.showDash
+          let _object =  {
+            type: "mention",
+            character:  _measureValueCopy.measureValue?.value?.text,
+            children: [{ text: '' }],
+            measureStyle: _measureValueCopy.measureValue.value?.style,
+            id:_measureValueCopy.measureValue.id,
+            propKey:propKey,
+            showDash: tabTileProps.showDash
+          }
+
+        
+          if(ReactEditor.isFocused){
+            Transforms.insertNodes(editor,[_object], position);
+          }
+
+        
+          ReactEditor.focus(editor);
         }
-
-        Transforms.insertNodes(editor,[_object], position);
       }
-		}
+  }
+  catch(error){
+    console.error(error);
+  }
 	}, [chartProp.properties[propKey].measureValue?.id]);
+
+
+
+
+  useEffect(() => {
+    ReactEditor.focus(editor);
+  },[])
 
 
   const onAddingNewDynamicMeaasure = () => {
@@ -480,6 +501,14 @@ if (element.measureStyle.backgroundColor != 'white') {
   return (
     <>
       <Slate
+      onFocus={(event, editor, next) => {
+
+        setTimeout(() => {
+          // Change editor state here.
+        });    
+    
+        return next();
+      }}
         editor={editor}
         initialValue={initialValue}
         onChange={(val) => {
@@ -534,6 +563,10 @@ if (element.measureStyle.backgroundColor != 'white') {
               },
             }}
             onClick={() => {
+
+            ReactEditor.focus(editor);
+          //  Transforms.select(editor, { offset: 0, path: [0, 0] });
+
                 setDynamicMeasureWindowOpen(propKey, true);
                 onAddingNewDynamicMeaasure();
             }}

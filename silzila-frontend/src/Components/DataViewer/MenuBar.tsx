@@ -143,7 +143,6 @@ const MenuBar = ({
 	//		2. Home button clicked
 	//		3. Logout clicked
 	const handleSave = async () => {
-		// console.log(playBookState);
 		setOpenFileMenu(false);
 
 		// check if this playbook already has a name / id
@@ -152,7 +151,6 @@ const MenuBar = ({
 		if (playBookState.playBookUid !== null) {
 			setSaveModal(false);
 			var playBookObj = formatPlayBookData();
-			// console.log(playBookObj);
 			/*	PRS	11/JUN/2022	Removed extra '/'	*/
 			var result: any = await FetchData({
 				requestType: "withData",
@@ -163,9 +161,7 @@ const MenuBar = ({
 			});
 
 			if (!result.status) {
-				//// console.log(result.data.detail);
 			} else {
-				// console.log(result.data);
 				setSeverity("success");
 				setOpenAlert(true);
 				setTestMessage("Successfully saved playbook");
@@ -226,7 +222,6 @@ const MenuBar = ({
 	const savePlaybook = async () => {
 		if (playBookName) {
 			var playBookObj = formatPlayBookData();
-			// console.log(playBookObj);
 
 			var result: any = await FetchData({
 				requestType: "withData",
@@ -286,7 +281,6 @@ const MenuBar = ({
 	// 		url: "dc/close-all-dc",
 	// 		headers: { Authorization: `Bearer ${token}` },
 	// 	});
-	// 	//// console.log(result.data);
 	// };
 
 	const LogOutMenu = () => {
@@ -661,7 +655,6 @@ const MenuBar = ({
 					!tabTileProps.showDash && from === "dataViewer" ? "accountIcon" : "menuHome"
 				}
 				onClick={e => {
-					// console.log(e.currentTarget);
 					setLogoutAnchor(e.currentTarget);
 					setLogoutModal(!logoutModal);
 				}}

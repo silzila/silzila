@@ -62,9 +62,6 @@ const ColorScale = ({
 	};
 
 	const checkMinMaxValue = () => {
-		console.log(min, max);
-		console.log(typeof min, typeof max);
-		console.log(Number(min), Number(max));
 		if (Number(max) === 0) {
 			setOpenAlert(true);
 			setSeverity("error");
@@ -174,7 +171,6 @@ const ColorScale = ({
 								type="number"
 								value={min}
 								onChange={e => {
-									//console.log(e.target.value);
 									setColorScaleOption("min", e.target.value, propKey);
 								}}
 								label="Min"
@@ -186,7 +182,6 @@ const ColorScale = ({
 								type="number"
 								value={max}
 								onChange={e => {
-									//console.log(e.target.value);
 									setColorScaleOption("max", e.target.value, propKey);
 								}}
 								label="Max"

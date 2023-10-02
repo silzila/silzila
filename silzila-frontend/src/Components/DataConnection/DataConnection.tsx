@@ -36,6 +36,8 @@ const initialState = {
 	connectionNameError: "",
 	password: "",
 	passwordError: "",
+	httppath: "",
+	httppathError:"",
 };
 
 const DataConnection = (props: DataConnectionProps) => {
@@ -65,6 +67,7 @@ const DataConnection = (props: DataConnectionProps) => {
 		});
 
 		if (result.status) {
+			
 			setDataConnectionList(result.data);
 			props.setDataConnectionListToState(result.data);
 		} else {
@@ -129,15 +132,19 @@ const DataConnection = (props: DataConnectionProps) => {
 	//  ==============================================================
 
 	const handleRegister = async () => {
-		var data = {
+		var data:any = {
 			vendor: account.vendor,
 			server: account.server,
 			port: account.port,
 			database: account.database,
-			username: account.username,
 			password: account.password,
 			connectionName: account.connectionName,
 		};
+		if(account.vendor === "databricks"){
+           data.httppath = account.httppath;
+		}else{
+			data.username = account.username;
+		}
 		// TODO need to specify type
 		var response: any = await FetchData({
 			requestType: "withData",
@@ -174,15 +181,19 @@ const DataConnection = (props: DataConnectionProps) => {
 	// Update Dc
 	// ==============================================================
 	const handleonUpdate = async () => {
-		var data = {
+		var data:any = {
 			vendor: account.vendor,
 			server: account.server,
 			port: account.port,
 			database: account.database,
-			username: account.username,
 			password: account.password,
 			connectionName: account.connectionName,
 		};
+		if(account.vendor === "databricks"){
+			data.httppath = account.httppath;
+		 }else{
+			 data.username = account.username;
+		 }
 		// TODO need to specify type
 		var response: any = await FetchData({
 			requestType: "withData",
@@ -255,7 +266,7 @@ const DataConnection = (props: DataConnectionProps) => {
 					<AddIcon />
 				</div>
 			</div>
-			<div className="connectionListContainer">
+			<div className="listContainer">
 				{dataConnectionList &&
 					dataConnectionList.map((dc: ConnectionItem) => {
 						return (

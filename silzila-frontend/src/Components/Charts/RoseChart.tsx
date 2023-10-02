@@ -114,7 +114,6 @@ const RoseChart = ({
 									],
 
 									formatter: (value: FormatterValueProps) => {
-										console.log(value);
 										if (chartDataKeys) {
 											var formattedValue = value.value[chartDataKeys[1]];
 											formattedValue = formatChartLabelValue(

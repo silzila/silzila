@@ -18,37 +18,43 @@ const DataHome = () => {
 				display: "grid",
 				gridTemplateRows: "2.5rem auto",
 				height: "100vh",
+				width: "100vW",
 			}}
 		>
-			<MenuBar from="dataHome" />
+			<div>
+				<MenuBar from="dataHome" />
+			</div>
 			<div
 				style={{
+					flex: "100%",
+					display: "flex",
+					flexDirection: "column",
+					height: "100%",
+					backgroundColor: "pink",
 					borderTop: "2px solid rgba(224,224,224,1)",
-					display: "grid",
-					gridTemplateColumns: "50% 50%",
-					gridTemplateRows: "50% 50%",
 				}}
 			>
-				<div
-					style={{
-						borderRight: "2px solid rgba(224,224,224,1)",
-						borderBottom: "2px solid  rgba(224,224,224,1)",
-					}}
-				>
-					<DataConnection />
+				<div style={{ flex: 1, display: "flex" }}>
+					<div
+						style={{
+							flex: 1,
+							borderRight: "2px solid rgba(224,224,224,1)",
+							borderBottom: "2px solid  rgba(224,224,224,1)",
+						}}
+					>
+						<DataConnection />
+					</div>
+					<div style={{ flex: 1, borderBottom: "2px solid  rgba(224,224,224,1)" }}>
+						<DataSetList />
+					</div>
 				</div>
-				<div
-					style={{
-						borderBottom: "2px solid  rgba(224,224,224,1)",
-					}}
-				>
-					<DataSetList />
-				</div>
-				<div style={{ borderRight: "2px solid  rgba(224,224,224,1)" }}>
-					<FlatFile />
-				</div>
-				<div>
-					<PlayBookList />
+				<div style={{ flex: 1, display: "flex", maxHeight: "100%", overflow: "hidden" }}>
+					<div style={{ flex: 1, borderRight: "2px solid  rgba(224,224,224,1)" }}>
+						<FlatFile />
+					</div>
+					<div style={{ flex: 1 }}>
+						<PlayBookList />
+					</div>
 				</div>
 			</div>
 		</div>
@@ -56,3 +62,7 @@ const DataHome = () => {
 };
 
 export default DataHome;
+
+
+
+ 
