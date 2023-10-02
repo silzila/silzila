@@ -3,7 +3,7 @@
 // Creating new and editing existing dataset are handled in other child components
 
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Button, MenuItem, Popover, TextField, Tooltip } from "@mui/material";
+import { Button, Dialog, MenuItem, Popover, TextField, Tooltip } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +28,7 @@ import SchemaOutlinedIcon from "@mui/icons-material/SchemaOutlined";
 import ShortUniqueId from "short-unique-id";
 import { AlertColor } from "@mui/material/Alert";
 import { SaveButtons } from "../DataConnection/muiStyles";
+import CloseRounded from "@mui/icons-material/CloseRounded";
 
 const DataSetList = ({
 	// state
@@ -58,6 +59,8 @@ const DataSetList = ({
 	const [open, setOpen] = useState<boolean>(false);
 	const [anchorEl, setAnchorEl] = useState<any>();
 	const uid: any = new ShortUniqueId({ length: 8 });
+	const [confirmDialog, setConfirmDialog] = useState<boolean>(false);
+	const [deleteItemId, setDeleteItemId] = useState<string>("");
 
 	useEffect(() => {
 		resetState();
@@ -90,7 +93,9 @@ const DataSetList = ({
 	};
 
 	// Deleting a dataset
-	const deleteDs = async (dsId: string) => {
+	const deleteDs = async () => {
+		setConfirmDialog(false);
+		const dsId: string = deleteItemId;
 		// TODO: need to specify type
 		var result: any = await FetchData({
 			requestType: "noData",
@@ -145,44 +150,33 @@ const DataSetList = ({
 	};
 
 	return (
-		<div className="dataSetContainer">
-			<div
-				style={{
-					fontWeight: "600",
-					display: "flex",
-					flexDirection: "column",
-					overflow: "hidden",
-				}}
-			>
-				<div className="containersHead" style={{ flex: 1 }}>
-					<div className="containerTitle">
-						<SchemaOutlinedIcon style={{ marginRight: "10px", color: " #2bb9bb" }} />
-						Datasets
-					</div>
-					<div
-						title="Create New Dataset"
-						className="containerButton"
-						onClick={() => {
-							setShowOpnMenu(true);
+		<div className="dataConnectionContainer">
+			<div className="containersHead">
+				<div className="containerTitle">
+					<SchemaOutlinedIcon style={{ marginRight: "10px", color: " #2bb9bb" }} />
+					Datasets
+				</div>
+				<div
+					className="containerButton"
+					onClick={() => {
+						setShowOpnMenu(true);
+					}}
+				>
+					<AddIcon
+						onClick={e => {
+							setAnchorEl(e.currentTarget);
+							setOpen(true);
 						}}
-					>
-						<AddIcon
-							onClick={e => {
-								setAnchorEl(e.currentTarget);
-								setOpen(true);
-							}}
-						/>
-					</div>
+					/>
 				</div>
 			</div>
-
-			<div className="connectionListContainer">
+			<div className="listContainer">
 				{dataSetList &&
 					dataSetList.map((dc: DatasetItem) => {
 						return (
 							<SelectListItem
 								key={dc.datasetName}
-								// TODO : need to specify type
+								//  TODO : need to specify type
 								render={(xprops: any) => (
 									<div
 										className={
@@ -206,13 +200,8 @@ const DataSetList = ({
 													className="dataHomeDeleteIcon"
 													onClick={e => {
 														e.stopPropagation();
-
-														var yes = window.confirm(
-															"Are you sure you want to Delete this Dataset?"
-														);
-														if (yes) {
-															deleteDs(dc.id);
-														}
+														setConfirmDialog(true);
+														setDeleteItemId(dc.id);
 													}}
 												>
 													<DeleteIcon
@@ -231,7 +220,6 @@ const DataSetList = ({
 						);
 					})}
 			</div>
-			{/* Alert to display success / failure info */}
 			<NotificationDialog
 				openAlert={openAlert}
 				severity={severity}
@@ -283,6 +271,53 @@ const DataSetList = ({
 					Flat Files
 				</Button>
 			</Popover>
+			<Dialog open={confirmDialog}>
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						padding: "8px",
+						width: "400px",
+						height: "auto",
+						justifyContent: "center",
+					}}
+				>
+					<div style={{ fontWeight: "bold", textAlign: "center" }}>
+						<div style={{ display: "flex" }}>
+							<span style={{ flex: 1 }}>
+								Are You Sure You Want To Delete This Dataset?
+							</span>
+
+							<CloseRounded
+								style={{ margin: "0.25rem", fontSize: "16px" }}
+								onClick={() => {
+									setConfirmDialog(false);
+								}}
+							/>
+						</div>
+					</div>
+					<div
+						style={{ padding: "15px", justifyContent: "space-around", display: "flex" }}
+					>
+						<Button
+							style={{ backgroundColor: "#2bb9bb" }}
+							variant="contained"
+							onClick={() => {
+								setConfirmDialog(false);
+							}}
+						>
+							Cancel
+						</Button>
+						<Button
+							style={{ backgroundColor: "red", float: "right" }}
+							variant="contained"
+							onClick={() => deleteDs()}
+						>
+							Delete
+						</Button>
+					</div>
+				</div>
+			</Dialog>
 		</div>
 	);
 };

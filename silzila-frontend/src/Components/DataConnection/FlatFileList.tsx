@@ -5,7 +5,7 @@ import FetchData from "../ServerCall/FetchData";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { connect } from "react-redux";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
-import { Tooltip } from "@mui/material";
+import { Button, Dialog, Tooltip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import {
@@ -16,12 +16,15 @@ import {
 import { Dispatch } from "redux";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { AlertColor } from "@mui/material/Alert";
+import { CloseRounded } from "@mui/icons-material";
 
 const FlatFileList = (props: any) => {
 	const [fileList, setFileList] = useState<any>([]);
 	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
+	const [confirmDialog, setConfirmDialog] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("Testing alert");
+	const [deleteItemId, setDeleteItemId] = useState<string>("");
 	var navigate = useNavigate();
 	useEffect(() => {
 		getInformation();
@@ -43,7 +46,8 @@ const FlatFileList = (props: any) => {
 		}
 	};
 
-	const deleteFlatFile = async (fileId: string) => {
+	const deleteFlatFile = async () => {
+		const fileId = deleteItemId;
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "DELETE",
@@ -115,7 +119,7 @@ const FlatFileList = (props: any) => {
 					<AddIcon />
 				</div>
 			</div>
-			<div className="connectionListContainer">
+			<div className="listContainer">
 				{fileList &&
 					fileList.map((fi: any) => {
 						return (
@@ -144,13 +148,15 @@ const FlatFileList = (props: any) => {
 													className="dataHomeDeleteIcon"
 													onClick={e => {
 														e.stopPropagation();
+														setDeleteItemId(fi.id);
+														setConfirmDialog(true);
 
-														var yes = window.confirm(
-															"Are you sure you want to Delete this File?"
-														);
-														if (yes) {
-															deleteFlatFile(fi.id);
-														}
+														// var yes = window.confirm(
+														// 	"Are you sure you want to Delete this File?"
+														// );
+														// if (yes) {
+														// 	deleteFlatFile(fi.id);
+														// }
 													}}
 												>
 													<DeleteIcon
@@ -169,6 +175,53 @@ const FlatFileList = (props: any) => {
 						);
 					})}
 			</div>
+			<Dialog open={confirmDialog}>
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						padding: "8px",
+						width: "400px",
+						height: "auto",
+						justifyContent: "center",
+					}}
+				>
+					<div style={{ fontWeight: "bold", textAlign: "center" }}>
+						<div style={{ display: "flex" }}>
+							<span style={{ flex: 1 }}>
+								Are You Sure You Want To Delete This FlatFile?
+							</span>
+
+							<CloseRounded
+								style={{ margin: "0.25rem", fontSize: "16px" }}
+								onClick={() => {
+									setConfirmDialog(false);
+								}}
+							/>
+						</div>
+					</div>
+					<div
+						style={{ padding: "15px", justifyContent: "space-around", display: "flex" }}
+					>
+						<Button
+							style={{ backgroundColor: "#2bb9bb" }}
+							variant="contained"
+							onClick={() => {
+								setConfirmDialog(false);
+							}}
+						>
+							Cancel
+						</Button>
+						<Button
+							style={{ backgroundColor: "red", float: "right" }}
+							variant="contained"
+							onClick={() => deleteFlatFile()}
+						>
+							Delete
+						</Button>
+					</div>
+				</div>
+			</Dialog>
 			<NotificationDialog
 				onCloseAlert={() => {
 					setOpenAlert(false);

@@ -42,7 +42,6 @@ export const CustomFontAndBgColor = ({
 			<Popover
 				open={isbgColorPopoverOpen}
 				onClose={() => setbgColorPopOverOpen(false)}
-				// onClick={() => setbgColorPopOverOpen(false)}
 				anchorReference="anchorPosition"
 				anchorPosition={{ top: 350, left: 1300 }}
 			>
@@ -76,7 +75,6 @@ export const CustomFontAndBgColor = ({
 			<Popover
 				open={isFontColorPopoverOpen}
 				onClose={() => setFontColorPopOverOpen(false)}
-				// onClick={() => setFontColorPopOverOpen(false)}
 				anchorReference="anchorPosition"
 				anchorPosition={{ top: 350, left: 1300 }}
 			>
@@ -136,162 +134,6 @@ export const StyleButtons = ({ isBold, isItalic, isUnderlined, onChangeStyleProp
 				}}
 			/>
 		</div>
-	);
-};
-
-export const CondtionComponent = ({
-	conditionSArray,
-	onDeleteCondition,
-	onChangeProps,
-	chartType,
-}: any) => {
-	return (
-		<>
-			<div style={{ display: "flex", flexDirection: "column" }}>
-				{conditionSArray.map((condition: any, i: number) => {
-					return (
-						<div
-							style={{
-								display: "flex",
-								flexDirection: "column",
-								borderBottom: "2px solid rgba(224,224,224,1)",
-								paddingBottom: "10px",
-							}}
-						>
-							<div style={{ display: "flex" }}>
-								<span>
-									{chartType === "richText"
-										? `conditional Format ${i + 1}`
-										: `Rule ${i + 1}`}
-								</span>
-								{condition.isCollapsed ? (
-									<ExpandMoreIcon
-										sx={{
-											margin: "5px 0px 0px auto",
-											fontSize: "16px",
-										}}
-										onClick={() => {
-											onChangeProps(
-												condition.id,
-												"isCollapsed",
-												!condition.isCollapsed
-											);
-										}}
-									/>
-								) : (
-									<ChevronRightIcon
-										sx={{
-											margin: "5px 0px 0px auto",
-											fontSize: "16px",
-										}}
-										onClick={() =>
-											onChangeProps(
-												condition.id,
-												"isCollapsed",
-												!condition.isCollapsed
-											)
-										}
-									/>
-								)}
-								<DeleteOutlineOutlinedIcon
-									sx={{
-										margin: "3px 0px 0px 10px",
-										fontSize: "18px",
-									}}
-									onClick={() => onDeleteCondition(condition.id)}
-								/>
-							</div>
-
-							{condition.isCollapsed ? (
-								<>
-									<div style={{ flexDirection: "column" }}>
-										<div>Condition</div>
-										<FormControl
-											fullWidth
-											size="small"
-											style={{
-												fontSize: "12px",
-												borderRadius: "4px",
-												marginTop: "5px",
-											}}
-										>
-											<Select
-												value={condition.conditionType}
-												variant="outlined"
-												onChange={e => {
-													onChangeProps(
-														condition.id,
-														"conditionType",
-														e.target.value
-													);
-												}}
-												sx={SelectComponentStyle}
-											>
-												{conditionTypes.map((item: any) => {
-													return (
-														<MenuItem
-															value={item.id}
-															key={item.id}
-															sx={{
-																textTransform: "capitalize",
-																...menuItemStyle,
-															}}
-														>
-															{item.value}
-														</MenuItem>
-													);
-												})}
-											</Select>
-										</FormControl>
-										<GetInputField
-											condition={condition}
-											// onChangeValueProps={(option: string, value: any) =>
-											// 	console.log(value)
-											// }
-											onChangeValueProps={(option: string, value: any) => {
-												onChangeProps(condition.id, option, value);
-											}}
-										/>
-										<div
-											style={{
-												display: "flex",
-												marginTop: "5px",
-												marginLeft:
-													chartType === "richText" ? "30px" : "0px",
-											}}
-										>
-											<StyleButtons
-												isBold={condition.isBold}
-												isItalic={condition.isItalic}
-												isUnderlined={condition.isUnderlined}
-												onChangeStyleProps={(
-													option: string,
-													value: any
-												) => {
-													onChangeProps(condition.id, option, value);
-												}}
-											/>
-											<CustomFontAndBgColor
-												backgroundColor={condition.backgroundColor}
-												fontColor={condition.fontColor}
-												onChangeColorProps={(
-													option: string,
-													color: any,
-													id: any
-												) => {
-													onChangeProps(id, option, color);
-												}}
-												id={condition.id}
-											/>
-										</div>
-									</div>
-								</>
-							) : null}
-						</div>
-					);
-				})}
-			</div>
-		</>
 	);
 };
 

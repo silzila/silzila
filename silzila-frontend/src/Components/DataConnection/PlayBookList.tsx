@@ -3,7 +3,7 @@
 // Creating new and editing existing playbook are handled in other child components
 
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Tooltip } from "@mui/material";
+import { Button, Dialog, Tooltip } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +30,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import { AlertColor } from "@mui/material/Alert";
 import { setSelectedDatasetForDynamicMeasure } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+import { CloseRounded } from "@mui/icons-material";
 
 const PlayBookList = ({
 	// state
@@ -50,6 +51,8 @@ const PlayBookList = ({
 	const [loading, setLoading] = useState<boolean>(false);
 
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
+	const [confirmDialog, setConfirmDialog] = useState<boolean>(false);
+	const [deleteItemId, setDeleteItemId] = useState<string>("");
 	const [testMessage, setTestMessage] = useState<string>("");
 	const [severity, setSeverity] = useState<AlertColor>("success");
 
@@ -283,7 +286,9 @@ const PlayBookList = ({
 	};
 
 	// Delete a playbook
-	const deletePlayBook = async (pbUid: string) => {
+	const deletePlayBook = async () => {
+		setConfirmDialog(false);
+		const pbUid = deleteItemId;
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "DELETE",
@@ -304,13 +309,12 @@ const PlayBookList = ({
 	};
 
 	return (
-		<div className="dashboardsContainer">
+		<div className="dataConnectionContainer">
 			<div className="containersHead">
 				<div className="containerTitle">
 					<DashboardOutlinedIcon style={{ marginRight: "10px", color: "#2bb9bb" }} />
 					Playbooks
 				</div>
-
 				<DatasetListPopover
 					showCard={openPopOver}
 					setShowCard={setOpenPopOver}
@@ -327,7 +331,7 @@ const PlayBookList = ({
 					<AddIcon />
 				</div>
 			</div>
-			<div className="connectionListContainer">
+			<div className="listContainer">
 				{playBookList &&
 					playBookList.map(pb => {
 						return (
@@ -358,13 +362,8 @@ const PlayBookList = ({
 														className="dataHomeDeleteIcon"
 														onClick={e => {
 															e.stopPropagation();
-
-															var yes = window.confirm(
-																"Are you sure you want to Delete this Playbook?"
-															);
-															if (yes) {
-																deletePlayBook(pb.id);
-															}
+															setDeleteItemId(pb.id);
+															setConfirmDialog(true);
 														}}
 													>
 														<DeleteIcon
@@ -396,6 +395,53 @@ const PlayBookList = ({
 			</div>
 
 			{loading ? <LoadingPopover /> : null}
+			<Dialog open={confirmDialog}>
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						padding: "8px",
+						width: "400px",
+						height: "auto",
+						justifyContent: "center",
+					}}
+				>
+					<div style={{ fontWeight: "bold", textAlign: "center" }}>
+						<div style={{ display: "flex" }}>
+							<span style={{ flex: 1 }}>
+								Are You Sure You Want To Delete This PlayBook?
+							</span>
+
+							<CloseRounded
+								style={{ margin: "0.25rem", fontSize: "16px" }}
+								onClick={() => {
+									setConfirmDialog(false);
+								}}
+							/>
+						</div>
+					</div>
+					<div
+						style={{ padding: "15px", justifyContent: "space-around", display: "flex" }}
+					>
+						<Button
+							style={{ backgroundColor: "#2bb9bb" }}
+							variant="contained"
+							onClick={() => {
+								setConfirmDialog(false);
+							}}
+						>
+							Cancel
+						</Button>
+						<Button
+							style={{ backgroundColor: "red", float: "right" }}
+							variant="contained"
+							onClick={() => deletePlayBook()}
+						>
+							Delete
+						</Button>
+					</div>
+				</div>
+			</Dialog>
 		</div>
 	);
 };
