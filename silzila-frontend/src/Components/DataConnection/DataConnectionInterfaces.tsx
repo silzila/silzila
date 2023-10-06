@@ -17,8 +17,8 @@ export interface DataConnectionDetails {
 	connectionNameError: string;
 	password: string;
 	passwordError: string;
-	httppath: string;
-	httppathError: string;
+	httpPath: string;
+	httpPathError: string;
 }
 
 export interface DataConnectionProps {

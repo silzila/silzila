@@ -62,7 +62,7 @@ function FormDialog({
 		    account.connectionName !== "" &&
 			account.password !== "") {
 			if (account.vendor === 'databricks') {
-				if (account.httppath !== "") {
+				if (account.httpPath !== "") {
 						setBtnEnable(false);	
 				} else {
 					setBtnEnable(true);
@@ -97,7 +97,7 @@ function FormDialog({
 			password: account.password,
 			};
 			if(account.vendor === "databricks"){
-				data.httpPath = account.httppath;
+				data.httpPath = account.httpPath;
 			 }else{
 				 data.username = account.username;
 			 }
@@ -122,13 +122,13 @@ function FormDialog({
 		)
 			{
 				if (account.vendor === 'databricks') {
-					if (account.httppath !== "") {
+					if (account.httpPath !== "") {
 						var response: any = await getDatabaseConnectionTest();
 
 						if (response.status) {
 							setSeverity("success");
 							setOpenAlert(true);
-							setTestMessage("Test Connection successfull");
+							setTestMessage("Test Connection successful");
 							setTimeout(() => {
 								setOpenAlert(false);
 								setTestMessage("");
@@ -274,7 +274,7 @@ function FormDialog({
 		) 
 		{
 			if (account.vendor === 'databricks') {
-				if (account.httppath !== ""){
+				if (account.httpPath !== ""){
 					var response: any = await getDatabaseConnectionTest();
 		
 					if (response.status) {
@@ -527,22 +527,22 @@ function FormDialog({
 						<>
 						<TextFieldComponent
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-								setAccount({ ...account, httppath: e.target.value });
+								setAccount({ ...account, httpPath: e.target.value });
 								btnEnabelDisable();
 							}}
-							onFocus={() => setAccount({ ...account, httppathError: "" })}
+							onFocus={() => setAccount({ ...account, httpPathError: "" })}
 							onBlur={() => {
-								if (account.httppath.length === 0) {
+								if (account.httpPath.length === 0) {
 									setAccount({
 										...account,
-										httppathError: "HTTP Path should not be Empty",
+										httpPathError: "HTTP Path should not be Empty",
 									});
 									btnEnabelDisable();
 								}
 							}}
-							{...{ viewMode, value: account.httppath, lable: "HTTP Path" }}
+							{...{ viewMode, value: account.httpPath, lable: "HTTP Path" }}
 						/>
-						<small className="dbConnectionErrorText">{account.httppathError}</small>
+						<small className="dbConnectionErrorText">{account.httpPathError}</small>
 						</>
                         :
 						<>
