@@ -36,8 +36,8 @@ const initialState = {
 	connectionNameError: "",
 	password: "",
 	passwordError: "",
-	httppath: "",
-	httppathError:"",
+	httpPath: "",
+	httpPathError:"",
 };
 
 const DataConnection = (props: DataConnectionProps) => {
@@ -141,7 +141,7 @@ const DataConnection = (props: DataConnectionProps) => {
 			connectionName: account.connectionName,
 		};
 		if(account.vendor === "databricks"){
-           data.httppath = account.httppath;
+           data.httpPath = account.httpPath;
 		}else{
 			data.username = account.username;
 		}
@@ -190,7 +190,7 @@ const DataConnection = (props: DataConnectionProps) => {
 			connectionName: account.connectionName,
 		};
 		if(account.vendor === "databricks"){
-			data.httppath = account.httppath;
+			data.httpPath = account.httpPath;
 		 }else{
 			 data.username = account.username;
 		 }
