@@ -10,6 +10,7 @@ import { isLoggedProps, LoggedDetailsType } from "../redux/UserInfo/IsLoggedInte
 import DataViewer from "./DataViewer/DataViewer";
 import EditFlatFileData from "./DataConnection/EditFlatFileData";
 import FlatFileUpload from "./DataConnection/FlatFileUpload";
+import NewDataConnection from "./DataConnection/NewDataConnection";
 // import { Item } from "../redux/UserInfo/types";
 // import Redirect from "./Redirect";
 
@@ -34,6 +35,7 @@ const Home = (props: LoggedDetailsType) => {
 						<Route path="/dataviewer" element={<DataViewer />} />
 						<Route path="/flatfileupload" element={<FlatFileUpload />} />
 						<Route path="/editflatfile" element={<EditFlatFileData />} />
+						<Route path="/newdataconnection" element={<NewDataConnection />} />
 					</Routes>
 				</Router>
 			) : (

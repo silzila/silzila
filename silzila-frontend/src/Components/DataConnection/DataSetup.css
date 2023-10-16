@@ -148,7 +148,7 @@ Data Connections
 .dbFormButton {
 	margin: 10px auto;
 	display: flex;
-	column-gap: 40px;
+	column-gap: 30rem;
 }
 
 .dbDeleteDialog {
@@ -235,6 +235,30 @@ Data Connections
 	margin: 10px;
 }
 
+.listItem{
+	display: flex;
+	align-items: center;
+	column-gap: 20px;
+	padding: 10px;
+	cursor: pointer;
+}
+
+.listItem:hover{
+	padding: 10px;
+	background-color: rgb(242, 242, 242);
+	border-radius: 2px;
+}
+
+.active{
+	display: flex;
+	align-items: center;
+	column-gap: 20px;
+	cursor: pointer;
+	padding: 10px;
+	background-color: rgba(224, 224, 224, 1);
+	border-radius: 2px;
+}
+
 /* 
 ===================================================
 Datasets
@@ -315,7 +339,6 @@ Datasets
 .vendorIconStyle {
 	height: 25px;
 	width: 25px;
-	margin-right: 10px;
 }
 
 /* 
