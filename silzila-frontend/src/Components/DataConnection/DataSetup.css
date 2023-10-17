@@ -148,7 +148,7 @@ Data Connections
 .dbFormButton {
 	margin: 10px auto;
 	display: flex;
-	column-gap: 30rem;
+	column-gap: 16rem;
 }
 
 .dbDeleteDialog {
@@ -239,14 +239,14 @@ Data Connections
 	display: flex;
 	align-items: center;
 	column-gap: 20px;
-	padding: 10px;
+	padding: 6px;
+	margin-bottom: 3px;
 	cursor: pointer;
 }
 
 .listItem:hover{
-	padding: 10px;
-	background-color: rgb(242, 242, 242);
-	border-radius: 2px;
+	border: 1px solid rgba(224, 224, 224, 1);
+	border-radius: 4px;
 }
 
 .active{
@@ -254,9 +254,18 @@ Data Connections
 	align-items: center;
 	column-gap: 20px;
 	cursor: pointer;
-	padding: 10px;
-	background-color: rgba(224, 224, 224, 1);
-	border-radius: 2px;
+	padding: 6px;
+	margin-bottom: 3px;
+	border: 1px solid #2bb9bb;
+	border-radius: 4px;
+}
+
+.listItems{
+	display: flex;
+	align-items: center;
+	column-gap: 20px;
+	padding: 6px;
+	margin-bottom: 3px;
 }
 
 /* 

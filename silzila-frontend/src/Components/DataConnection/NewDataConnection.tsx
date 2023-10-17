@@ -55,6 +55,8 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 	const [btnEnable, setBtnEnable] = useState<boolean>(false);
 	const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 	const [selected, setSelected] = useState<string>('');
+	const [showform, setShowform] = useState<boolean>(false);
+	const [enable, setEnable] = useState<boolean>(false);
 	const navigate =  useNavigate();
     const location = useLocation();
     const state	= location.state;
@@ -82,7 +84,7 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 		{
 		  id: 4,
 		  value: 'mysql',
-		  name: 'MsSql',
+		  name: 'MySql',
 		  img: mysqlicon,
 		},
 		{
@@ -95,8 +97,8 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 
     useEffect(() => {
 		handleMode(state.mode);
-		handleListItem(state?.value)
 	    ViewOrEditDc(state?.id);
+		handleListItem(state?.value);
 		props.resetAllStates();
 		getInformation();
 	    // eslint-disable-next-line
@@ -552,11 +554,16 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 			return "";
 		}
 	};
+
     
 	//handleListItem function is used for highlighting the selected DataConnection
 	const handleListItem = ( value: string ) => {
 		setSelected(value);
+		if(value){
+			setShowform(true);
+			}	
 	  };
+
 
   return (
     <div>
@@ -584,7 +591,14 @@ const NewDataConnection = (props: DataConnectionProps)  => {
     }}
     >    
            <div>
-			<Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}} >Select a Database</Typography>
+		   {viewMode ? (
+                <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Database</Typography>
+							) : !viewMode && enable ? (
+				<Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Database</Typography>				
+							) : (
+                <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Select a Database</Typography>
+							)
+			}
 			<div> 
 				{
 				dataconnection.map((data)=>{
@@ -592,7 +606,7 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 					return(
 						<div 
 						onClick={() => {
-							if(!viewMode){
+							if(!viewMode && !enable){
                               setAccount({
 								...account,
 								vendor: value,
@@ -601,7 +615,11 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 								database: value === "databricks" ? "default" : "",
 							});
 							btnEnabelDisable();
-						}}}
+						}
+					else{
+						if(!viewMode && enable){
+						}
+					}}}
 						onFocus={() => setAccount({ ...account, vendorError: "" })}
 						onBlur={() => {
 							if (account.vendor.length === 0) {
@@ -612,10 +630,38 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 								btnEnabelDisable();
 							}
 						}} >
-							<div key={id} onClick={() => handleListItem(value)}
-							className={selected === value ? 'active': 'listItem'}>
-							<img src={img} alt="Icon" className="vendorIconStyle" />
-						    <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
+							<div key={id} 
+							 onClick={() =>{
+								if(enable){
+                                    return setEnable(true);
+								}
+								if(!viewMode && !enable){
+									handleListItem(value);
+								}
+								}} >
+								{ viewMode ? (
+									<div className={selected === value ? 'active': 'listItems'}>
+										<img src={img} alt="Icon" className="vendorIconStyle" />
+						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
+									</div>
+								): !viewMode && enable ? (
+									<div className={selected === value ? 'active': 'listItems'}>
+										<img src={img} alt="Icon" className="vendorIconStyle" />
+						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
+									</div>
+								 ): 
+								 !viewMode && !enable ? (
+									<div className={selected === value ? 'active': 'listItem'}>
+										<img src={img} alt="Icon" className="vendorIconStyle" />
+						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
+									</div>
+								 ):
+								 <div className={selected === value ? 'active': 'listItem'}>
+										<img src={img} alt="Icon" className="vendorIconStyle" />
+						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
+								 </div>
+								 }
+							
 							</div>
 						</div>	
 					)
@@ -626,260 +672,272 @@ const NewDataConnection = (props: DataConnectionProps)  => {
     </Box>
 
     <Box
-	sx={{ display:'flex', flexDirection:'column', gap:'22px', flex:1,  paddingTop:'1.5rem'}}>
-    <div
-    style={{ display:'flex', flexDirection:'column', gap:'15px', alignItems:'center'}}>
-		<div>
-			{viewMode ? (
-                <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>DB Connection</Typography>
-							) : regOrUpdate === "Update" ? (
-                <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Edit DB Connection</Typography>
-							) : (
-                <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Create DB Connection</Typography>
-							)
-			}
-		</div>
-		
-		 {/*========================== Reusable Component from ../CommonFunctions/TextFieldComponents========================= */}
-                        <TextFieldComponent
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-								setAccount({ ...account, server: e.target.value });
-								btnEnabelDisable();
-							}}
-							onFocus={() => setAccount({ ...account, serverError: "" })}
-							onBlur={() => {
-								if (account.server.length === 0) {
-									setAccount({
-										...account,
-										serverError: account.vendor === "databricks" ? "Server Hostname should not be empty" : "Server Url should not be empty",
-									});
-									btnEnabelDisable();
-								}
-							}}
-							{...{ viewMode, value: account.server, lable: account.vendor === "databricks" ? "Server Hostname" : "Server Url"}}
-						/>
-						<small className="dbConnectionErrorText">{account.serverError}</small>
-                          
-                         <TextFieldComponent
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-								setAccount({ ...account, port: e.target.value });
-								btnEnabelDisable();
-							}}
-							onFocus={() => setAccount({ ...account, portError: "" })}
-							onBlur={() => {
-								if (account.port.length === 0) {
-									setAccount({
-										...account,
-										portError: "port should not be Empty",
-									});
-									btnEnabelDisable();
-								}
-							}}
-							{...{ viewMode, value: account.port, lable: "Port", type: "number" }}
-						/>
-						<small className="dbConnectionErrorText">{account.portError}</small>
-                       
-						<TextFieldComponent
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-								setAccount({ ...account, database: e.target.value });
-								btnEnabelDisable();
-							}}
-							onFocus={() => setAccount({ ...account, databaseError: "" })}
-							onBlur={() => {
-								if (account.database.length === 0) {
-									setAccount({
-										...account,
-										databaseError: "Database should not be Empty",
-									});
-									btnEnabelDisable();
-								}
-							}}
-							{...{ viewMode, value: account.database, lable: "Database"}}
-						/>
-						<small className="dbConnectionErrorText">{account.databaseError}</small>
-					
-                         
-						{account.vendor === "databricks" ?
-						<>
-						<TextFieldComponent
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-								setAccount({ ...account, httpPath: e.target.value });
-								btnEnabelDisable();
-							}}
-							onFocus={() => setAccount({ ...account, httpPathError: "" })}
-							onBlur={() => {
-								if (account.httpPath.length === 0) {
-									setAccount({
-										...account,
-										httpPathError: "HTTP Path should not be Empty",
-									});
-									btnEnabelDisable();
-								}
-							}}
-							{...{ viewMode, value: account.httpPath, lable: "HTTP Path" }}
-						/>
-						<small className="dbConnectionErrorText">{account.httpPathError}</small>
-						</>
-                        :
-						<>
-						<TextFieldComponent
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-								setAccount({ ...account, username: e.target.value });
-								btnEnabelDisable();
-							}}
-							onFocus={() => setAccount({ ...account, userNameError: "" })}
-							onBlur={() => {
-								if (account.username.length === 0) {
-									setAccount({
-										...account,
-										userNameError: "Username should not be Empty",
-									});
-									btnEnabelDisable();
-								}
-							}}
-							{...{ viewMode, value: account.username, lable: "Username"}}
-						/>
-						<small className="dbConnectionErrorText">{account.userNameError}</small>
-						</>
-						} 
-                        
-						{account.vendor === 'databricks' ?
-						<>
-						<TextFieldComponent
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-								setAccount({ ...account, password: e.target.value });
-								btnEnabelDisable();
-							}}
-							onFocus={() => setAccount({ ...account, passwordError: "" })}
-							onBlur={() => {
-								if (account.password.length === 0) {
-									setAccount({
-										...account,
-										passwordError: "Token should not be Empty",
-									});
-									btnEnabelDisable();
-								}
-							}}
-							{...{
-								viewMode,
-								value: account.password,
-								lable: "Token" ,
-								type: "text",
-					            multiline: true,
-							}}
-						/>
-						<small className="dbConnectionErrorText">{account.passwordError}</small>
-						</>
-                        :
-						<>
-						<TextFieldComponent
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-								setAccount({ ...account, password: e.target.value });
-								btnEnabelDisable();
-							}}
-							onFocus={() => setAccount({ ...account, passwordError: "" })}
-							onBlur={() => {
-								if (account.password.length === 0) {
-									setAccount({
-										...account,
-										passwordError: "Password should not be Empty",
-									});
-									btnEnabelDisable();
-								}
-							}}
-							{...{
-								viewMode,
-								value: account.password,
-								lable: "Password",
-								type: "password",
-							}}
-						/>
-						<small className="dbConnectionErrorText">{account.passwordError}</small>          
-                        </>
-                        } 
+	sx={{ display:'flex', flexDirection:'column', gap:'55px', flex:1,  paddingTop:'1.5rem'}}>
 
-						<TextFieldComponent
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-								setAccount({ ...account, connectionName: e.target.value });
-								btnEnabelDisable();
-							}}
-							onFocus={() => setAccount({ ...account, connectionNameError: "" })}
-							onBlur={() => {
-								if (account.connectionName.length === 0) {
-									setAccount({
-										...account,
-										connectionNameError: "Connection Name should not be Empty",
-									});
-									btnEnabelDisable();
-								}
-							}}
-							{...{
-								viewMode,
-								value: account.connectionName,
-								lable: "Connection name",
-							}}
-						/>
-						<small className="dbConnectionErrorText">
-							{account.connectionNameError}
-						</small>
-            </div>
-
-                        {viewMode ? (
-							<div className="dbFormButton">
-								<Button
-									variant="contained"
-									value="Edit"
-									onClick={(e: any) => {
-										setViewMode(false);
-										setBtnEnable(true);
-										handleMode("Edit");
-									}}
-									style={{ backgroundColor: "#af99db" }}
-								>
-									Edit
-								</Button>
-								<Button
-									variant="contained"
-									style={{ backgroundColor: "red" }}
-									onClick={deleteDcWarning}
-								>
-									Delete
-								</Button>
-							</div>
-						) : (
-							<div className="dbFormButton">
-								<Button
-									variant="contained"
-									onClick={handleonTest}
-									disabled={btnEnable}
-									style={{
-										backgroundColor: btnEnable
-											? "rgba(224,224,224,1)"
-											: "#af99db",
-									}}
-								>
-									Test
-								</Button>
-								<Button
-									type="submit"
-									variant="contained"
-									style={{
-										backgroundColor: btnEnable
-											? "rgba(224,224,224,1)"
-											: "#2bb9bb",
-									}}
-									onClick={e => {
-										e.preventDefault();
-										onSubmit();
-									}}
-									disabled={btnEnable}
-								>
-									{regOrUpdate}
-								</Button>
-							</div>
-						)}
-
-                </Box>
+		{ showform || viewMode ?
+		<>
+           <div
+		   style={{ display:'flex', flexDirection:'column', gap:'15px', alignItems:'center'}}>
+			   <div>
+				   {viewMode ? (
+					   <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>DB Connection</Typography>
+								   ) : regOrUpdate === "Update" ? (
+					   <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Edit DB Connection</Typography>
+								   ) : (
+					   <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Create DB Connection</Typography>
+								   )
+				   }
+			   </div>
+			   
+				{/*========================== Reusable Component from ../CommonFunctions/TextFieldComponents========================= */}
+				{}
+							   <TextFieldComponent
+								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+									   setAccount({ ...account, server: e.target.value });
+									   btnEnabelDisable();
+								   }}
+								   onFocus={() => setAccount({ ...account, serverError: "" })}
+								   onBlur={() => {
+									   if (account.server.length === 0) {
+										   setAccount({
+											   ...account,
+											   serverError: account.vendor === "databricks" ? "Server Hostname should not be empty" : "Server Url should not be empty",
+										   });
+										   btnEnabelDisable();
+									   }
+								   }}
+								   {...{ viewMode, value: account.server, lable: account.vendor === "databricks" ? "Server Hostname" : "Server Url"}}
+							   />
+							   <small className="dbConnectionErrorText">{account.serverError}</small>
+								 
+								<TextFieldComponent
+								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+									   setAccount({ ...account, port: e.target.value });
+									   btnEnabelDisable();
+								   }}
+								   onFocus={() => setAccount({ ...account, portError: "" })}
+								   onBlur={() => {
+									   if (account.port.length === 0) {
+										   setAccount({
+											   ...account,
+											   portError: "port should not be Empty",
+										   });
+										   btnEnabelDisable();
+									   }
+								   }}
+								   {...{ viewMode, value: account.port, lable: "Port", type: "number" }}
+							   />
+							   <small className="dbConnectionErrorText">{account.portError}</small>
+							  
+							   <TextFieldComponent
+								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+									   setAccount({ ...account, database: e.target.value });
+									   btnEnabelDisable();
+								   }}
+								   onFocus={() => setAccount({ ...account, databaseError: "" })}
+								   onBlur={() => {
+									   if (account.database.length === 0) {
+										   setAccount({
+											   ...account,
+											   databaseError: "Database should not be Empty",
+										   });
+										   btnEnabelDisable();
+									   }
+								   }}
+								   {...{ viewMode, value: account.database, lable: "Database"}}
+							   />
+							   <small className="dbConnectionErrorText">{account.databaseError}</small>
+						   
+								
+							   {account.vendor === "databricks" ?
+							   <>
+							   <TextFieldComponent
+								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+									   setAccount({ ...account, httpPath: e.target.value });
+									   btnEnabelDisable();
+								   }}
+								   onFocus={() => setAccount({ ...account, httpPathError: "" })}
+								   onBlur={() => {
+									   if (account.httpPath.length === 0) {
+										   setAccount({
+											   ...account,
+											   httpPathError: "HTTP Path should not be Empty",
+										   });
+										   btnEnabelDisable();
+									   }
+								   }}
+								   {...{ viewMode, value: account.httpPath, lable: "HTTP Path" }}
+							   />
+							   <small className="dbConnectionErrorText">{account.httpPathError}</small>
+							   </>
+							   :
+							   <>
+							   <TextFieldComponent
+								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+									   setAccount({ ...account, username: e.target.value });
+									   btnEnabelDisable();
+								   }}
+								   onFocus={() => setAccount({ ...account, userNameError: "" })}
+								   onBlur={() => {
+									   if (account.username.length === 0) {
+										   setAccount({
+											   ...account,
+											   userNameError: "Username should not be Empty",
+										   });
+										   btnEnabelDisable();
+									   }
+								   }}
+								   {...{ viewMode, value: account.username, lable: "Username"}}
+							   />
+							   <small className="dbConnectionErrorText">{account.userNameError}</small>
+							   </>
+							   } 
+							   
+							   {account.vendor === 'databricks' ?
+							   <>
+							   <TextFieldComponent
+								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+									   setAccount({ ...account, password: e.target.value });
+									   btnEnabelDisable();
+								   }}
+								   onFocus={() => setAccount({ ...account, passwordError: "" })}
+								   onBlur={() => {
+									   if (account.password.length === 0) {
+										   setAccount({
+											   ...account,
+											   passwordError: "Token should not be Empty",
+										   });
+										   btnEnabelDisable();
+									   }
+								   }}
+								   {...{
+									   viewMode,
+									   value: account.password,
+									   lable: "Token" ,
+									   type: "text",
+									   multiline: true,
+								   }}
+							   />
+							   <small className="dbConnectionErrorText">{account.passwordError}</small>
+							   </>
+							   :
+							   <>
+							   <TextFieldComponent
+								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+									   setAccount({ ...account, password: e.target.value });
+									   btnEnabelDisable();
+								   }}
+								   onFocus={() => setAccount({ ...account, passwordError: "" })}
+								   onBlur={() => {
+									   if (account.password.length === 0) {
+										   setAccount({
+											   ...account,
+											   passwordError: "Password should not be Empty",
+										   });
+										   btnEnabelDisable();
+									   }
+								   }}
+								   {...{
+									   viewMode,
+									   value: account.password,
+									   lable: "Password",
+									   type: "password",
+								   }}
+							   />
+							   <small className="dbConnectionErrorText">{account.passwordError}</small>          
+							   </>
+							   } 
+	   
+							   <TextFieldComponent
+								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+									   setAccount({ ...account, connectionName: e.target.value });
+									   btnEnabelDisable();
+								   }}
+								   onFocus={() => setAccount({ ...account, connectionNameError: "" })}
+								   onBlur={() => {
+									   if (account.connectionName.length === 0) {
+										   setAccount({
+											   ...account,
+											   connectionNameError: "Connection Name should not be Empty",
+										   });
+										   btnEnabelDisable();
+									   }
+								   }}
+								   {...{
+									   viewMode,
+									   value: account.connectionName,
+									   lable: "Connection name",
+								   }}
+							   />
+							   <small className="dbConnectionErrorText">
+								   {account.connectionNameError}
+							   </small>
+			               </div>
+	                            
+							   {viewMode ? (
+								   <div className="dbFormButton">
+									   <Button
+										   variant="contained"
+										   value="Edit"
+										   onClick={(e: any) => {
+											   setViewMode(false);
+											   setBtnEnable(true);
+											   handleMode("Edit");
+											   setEnable(true)
+										   }}
+										   style={{ backgroundColor: "#af99db" }}
+									   >
+										   Edit
+									   </Button>
+									   <Button
+										   variant="contained"
+										   style={{ backgroundColor: "red" }}
+										   onClick={deleteDcWarning}
+									   >
+										   Delete
+									   </Button>
+								   </div>
+							   ) : (
+								   <div className="dbFormButton">
+									   <Button
+										   variant="contained"
+										   onClick={handleonTest}
+										   disabled={btnEnable}
+										   style={{
+											   backgroundColor: btnEnable
+												   ? "rgba(224,224,224,1)"
+												   : "#af99db",
+										   }}
+									   >
+										   Test
+									   </Button>
+									   <Button
+										   type="submit"
+										   variant="contained"
+										   style={{
+											   backgroundColor: btnEnable
+												   ? "rgba(224,224,224,1)"
+												   : "#2bb9bb",
+										   }}
+										   onClick={e => {
+											   e.preventDefault();
+											   onSubmit();
+										   }}
+										   disabled={btnEnable}
+									   >
+										   {regOrUpdate}
+									   </Button>
+								   </div>
+							   )}
+							   </>
+							   :
+		                       <div>
+		                       <Typography variant= 'h6' sx={{color: '#B4B4B3', paddingTop:'20rem'}}>
+								Please select a database
+								</Typography>
+		                       </div>
+		                       }
+    </Box>
 				
 				{/* Alert to display success / failure info */}
 			    <DatabaseConnectionDialogComponents
