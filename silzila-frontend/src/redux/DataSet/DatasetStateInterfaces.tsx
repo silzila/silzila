@@ -31,7 +31,7 @@ export interface ConnectionItem {
 	database: string;
 	username: string;
 	connectionName: string;
-	httppath: string;
+	httpPath: string;
 }
 
 export interface DataSetStateProps {

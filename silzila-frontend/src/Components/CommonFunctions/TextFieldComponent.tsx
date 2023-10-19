@@ -9,12 +9,13 @@ value:string | number,
 viewMode:any, 
 lable:string, 
 type?:string,
+multiline?:boolean,
 }
 
-const TextFieldComponent = ({ onChange, onFocus, onBlur, value, viewMode, lable, type}:Props) => {
+const TextFieldComponent = ({ onChange, onFocus, onBlur, value, viewMode, lable, type, multiline}:Props) => {
 	return (
 		<TextField
-			style={{ width: "60%" }}
+			style={{ width: "35%" }}
 			// className="formTF"
 			type={type}
 			label={lable}
@@ -24,6 +25,7 @@ const TextFieldComponent = ({ onChange, onFocus, onBlur, value, viewMode, lable,
 			onChange={onChange}
 			onFocus={onFocus}
 			onBlur={onBlur}
+			multiline={multiline}
 		/>
 	);
 };

@@ -76,7 +76,8 @@ const Treemap = ({
 				return [formattedData, total];
 			}
 		} else {
-			Logger("info",`'its more than or equal to dimlenght', ${i}, ${dimensionsKeys.length}`);
+			Logger("info", 'its more than or equal to dimlenght', i);
+			Logger("info", "", dimensionsKeys.length)
 		}
 	};
 
