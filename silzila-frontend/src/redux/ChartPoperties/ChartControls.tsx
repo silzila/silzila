@@ -3,6 +3,7 @@
 
 import update from "immutability-helper";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function removeTagFromHTMLString(htmlString: any, tagName: any, id: string) {
 	// Create a new DOMParser instance
 	const parser = new DOMParser();
@@ -346,6 +347,7 @@ const chartControl = {
 			tableRule: [],
 
 			tableConditionalFormats: [],
+			simplecardConditionalFormats: [],
 		},
 	},
 
@@ -675,6 +677,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 						tableRule: [],
 
 						tableConditionalFormats: [],
+						simplecardConditionalFormats: [],
 					},
 				},
 				propList: {
@@ -1005,6 +1008,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 						tableRule: [],
 
 						tableConditionalFormats: [],
+						simplecardConditionalFormats: [],
 					},
 				},
 				propList: { ...state.propList, [action.payload.tabId]: [tileKey2] },
@@ -1447,9 +1451,9 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 				_richText?.text?.forEach((list: any) => {
 					let index = list.children.findIndex((item: any) => {
 						if (action.payload.dmId?.toString().includes("RichTextID")) {
-							return item.id == action.payload.dmId;
+							return item.id === action.payload.dmId;
 						} else {
-							return item.id == "RichTextID" + action.payload.dmId;
+							return item.id === "RichTextID" + action.payload.dmId;
 						}
 					});
 
@@ -1567,6 +1571,16 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 				properties: {
 					[action.payload.propKey]: {
 						tableConditionalFormats: {
+							$set: action.payload.item,
+						},
+					},
+				},
+			});
+		case "ADD_OR_EDIT_SIMPLECARD_CF": //CF referse to conditional format
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						simplecardConditionalFormats: {
 							$set: action.payload.item,
 						},
 					},

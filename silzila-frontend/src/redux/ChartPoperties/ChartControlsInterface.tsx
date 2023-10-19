@@ -21,6 +21,7 @@ export interface ChartControlsProps {
 	formatOptions: ChartConFormateOptions;
 	axisOptions: ChartConAxisOptions;
 	tableConditionalFormats: any;
+	simplecardConditionalFormats: any;
 
 	mouseOver: {
 		enable: boolean;
