@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { connect } from "react-redux";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 import { ChartsReduxStateProps } from "./ChartsCommonInterfaces";
-import Draggable from "react-draggable";
-import { Card, CardContent, Tooltip, Typography } from "@mui/material";
+
 import { Dispatch } from "redux";
 import { updateCardControls } from "../../redux/ChartPoperties/ChartControlsActions";
-import { TextField } from "@mui/material";
+
 import { Rnd } from "react-rnd";
 const SimpleCard = ({
 	//props
@@ -20,13 +19,48 @@ const SimpleCard = ({
 	//state
 	chartControls,
 	chartProperties,
+	tabtileProps,
 
 	//dispatch
 	updateCardControls,
 }: ChartsReduxStateProps & any) => {
-	var chartType = chartProperties.properties[propKey].chartType;
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
+
+	const [backgroundColorValue, setBackgroundColorValue] = useState<string | null>("");
+	const [fontColor, setFontColor] = useState<string | null>("");
+	const [italicText, setItalicText] = useState<string | null>("");
+	const [boldText, setBoldText] = useState<string | null>("");
+	const [textUnderline, setTextUnderline] = useState<string | null>("");
+	var formats = chartControl?.simplecardConditionalFormats;
+
+	useEffect(() => {
+		if (formats?.length > 0) {
+			for (let i = formats.length - 1; i >= 0; i--) {
+				if (formats[i].isConditionSatisfied) {
+					setBackgroundColorValue(formats[i].backgroundColor);
+					setFontColor(formats[i].fontColor);
+					setBoldText(formats[i].isBold ? "bold" : "normal");
+					setItalicText(formats[i].isItalic ? "italic" : "normal");
+					setTextUnderline(formats[i].isUnderlined ? "underline" : "none");
+					return;
+				}
+				if (i === 0 && !formats[i].isConditionSatisfied) {
+					setBackgroundColorValue(null);
+					setFontColor(null);
+					setBoldText(null);
+					setItalicText(null);
+					setTextUnderline(null);
+				}
+			}
+		} else {
+			setBackgroundColorValue(null);
+			setFontColor(null);
+			setBoldText(null);
+			setItalicText(null);
+			setTextUnderline(null);
+		}
+	}, [formats]);
 
 	const [cardData, setCardData] = useState<any[]>([]);
 
@@ -35,6 +69,7 @@ const SimpleCard = ({
 			setCardData(chartData[0][Object.keys(chartData[0])[0]]);
 			updateCardControls(propKey, "subText", Object.keys(chartData[0])[0]);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chartData]);
 
 	const getFormatedChartData = () => {
@@ -87,57 +122,122 @@ const SimpleCard = ({
 					>
 						{chartData.length >= 1 ? (
 							<>
-								<Rnd
-									disableResizing={true}
-									disableDragging={chartArea === "dashboard" ? true : false}
-									bounds="parent"
-									position={chartControl.cardControls.mainTextPos}
-									onDragStop={(e, d) => {
-										updateCardControls(propKey, "mainTextPos", {
-											x: d.x,
-											y: d.y,
-										});
-									}}
-									style={{
-										overflow: "hidden",
-									}}
-								>
-									<p
-										title="Drag to change position"
-										style={{
-											cursor: "move",
-											fontSize: `${chartControl.cardControls.fontSize}px`,
-											color: chartThemes[0].colors[0],
-											margin: "5px",
-										}}
-									>
-										{getFormatedChartData()}
-									</p>
-								</Rnd>
-								<Rnd
-									disableResizing={true}
-									disableDragging={chartArea === "dashboard" ? true : false}
-									bounds="parent"
-									position={chartControl.cardControls.subTextPos}
-									onDragStop={(e, d) => {
-										updateCardControls(propKey, "subTextPos", {
-											x: d.x,
-											y: d.y,
-										});
-									}}
-								>
-									<p
-										title="Drag to change position"
-										style={{
-											cursor: "move",
-											fontSize: `${chartControl.cardControls.subtextFontSize}px`,
-											color: chartThemes[0].colors[1],
-											margin: "5px",
-										}}
-									>
-										{chartControls.properties[propKey].cardControls.subText}
-									</p>
-								</Rnd>
+								{tabtileProps.showDash ? (
+									<>
+										<span>
+											<p
+												title="Drag to change position"
+												style={{
+													fontSize: `${chartControl.cardControls.fontSize}px`,
+													color: fontColor
+														? fontColor
+														: chartThemes[0].colors[0],
+													margin: "5px",
+													backgroundColor: backgroundColorValue
+														? backgroundColorValue
+														: "none",
+													fontStyle: italicText ? italicText : "none",
+													textDecoration: textUnderline
+														? textUnderline
+														: "none",
+													fontWeight: boldText ? boldText : "none",
+													padding: "0px 5px",
+													borderRadius: "4px",
+												}}
+											>
+												{getFormatedChartData()}
+											</p>
+										</span>
+										<span>
+											<p
+												title="Drag to change position"
+												style={{
+													fontSize: `${chartControl.cardControls.subtextFontSize}px`,
+													color: chartThemes[0].colors[1],
+													margin: "5px",
+												}}
+											>
+												{
+													chartControls.properties[propKey].cardControls
+														.subText
+												}
+											</p>
+										</span>
+									</>
+								) : (
+									<>
+										<Rnd
+											disableResizing={true}
+											disableDragging={
+												chartArea === "dashboard" ? true : false
+											}
+											bounds="parent"
+											position={chartControl.cardControls.mainTextPos}
+											onDragStop={(e, d) => {
+												updateCardControls(propKey, "mainTextPos", {
+													x: d.x,
+													y: d.y,
+												});
+											}}
+											style={{
+												overflow: "hidden",
+											}}
+										>
+											<p
+												title="Drag to change position"
+												style={{
+													cursor: "move",
+													fontSize: `${chartControl.cardControls.fontSize}px`,
+													color: fontColor
+														? fontColor
+														: chartThemes[0].colors[0],
+													margin: "5px",
+													backgroundColor: backgroundColorValue
+														? backgroundColorValue
+														: "none",
+													fontStyle: italicText ? italicText : "none",
+													textDecoration: textUnderline
+														? textUnderline
+														: "none",
+													fontWeight: boldText ? boldText : "none",
+													padding: "0px 5px",
+													borderRadius: "4px",
+												}}
+											>
+												{getFormatedChartData()}
+											</p>
+										</Rnd>
+										<Rnd
+											disableResizing={true}
+											disableDragging={
+												chartArea === "dashboard" ? true : false
+											}
+											bounds="parent"
+											position={chartControl.cardControls.subTextPos}
+											onDragStop={(e, d) => {
+												updateCardControls(propKey, "subTextPos", {
+													x: d.x,
+													y: d.y,
+												});
+											}}
+										>
+											<p
+												title="Drag to change position"
+												style={{
+													cursor: "move",
+													fontSize: `${chartControl.cardControls.subtextFontSize}px`,
+													color: chartThemes[0].colors[1],
+													margin: "5px",
+												}}
+											>
+												{
+													chartControls.properties[propKey].cardControls
+														.subText
+												}
+											</p>
+										</Rnd>
+									</>
+								)}
 							</>
 						) : null}
 					</div>
@@ -152,6 +252,7 @@ const mapStateToProps = (state: any, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
 		chartProperties: state.chartProperties,
+		tabtileProps: state.tabTileProps,
 	};
 };
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
@@ -162,6 +263,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SimpleCard);
+// eslint-disable-next-line no-lone-blocks
 {
 	/* <span
 									style={{
