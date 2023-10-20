@@ -12,6 +12,7 @@ import {
 	ChartsReduxStateProps,
 	FormatterValueProps,
 } from "./ChartsCommonInterfaces";
+import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 
 const StackedBar = ({
 	//props
@@ -23,7 +24,8 @@ const StackedBar = ({
 	//state
 	chartControls,
 	chartProperties,
-}: ChartsReduxStateProps) => {
+	tabTileProps,
+}: ChartsReduxStateProps & TabTileStateProps2) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
@@ -64,10 +66,30 @@ const StackedBar = ({
 			}
 			setSeriesData(seriesDataTemp);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chartData, chartControl.formatOptions]);
 	var chartThemes: any[] = ColorSchemes.filter(el => {
 		return el.name === chartControl.colorScheme;
 	});
+
+	const getHeightAndWidth = () => {
+		var height = 0;
+		var width = 0;
+		console.log(graphDimension);
+		if (
+			graphDimension.height > 230 &&
+			graphDimension.width > 350 &&
+			graphDimension.height < 300
+		) {
+			height = 12;
+			width = 12;
+		} else {
+			height = 15;
+			width = 15;
+		}
+		return { height: height, width: width };
+	};
+	console.log(graphDimension);
 
 	const RenderChart = () => {
 		return (
@@ -92,15 +114,19 @@ const StackedBar = ({
 					legend: {
 						type: "scroll",
 						show:
-							graphDimension.height > 210
+							graphDimension.height > 220
 								? chartControl.legendOptions?.showLegend
 								: false,
-						itemHeight: chartControl.legendOptions?.symbolHeight,
-						itemWidth: chartControl.legendOptions?.symbolWidth,
+						itemHeight: tabTileProps.showDash
+							? getHeightAndWidth().height
+							: chartControl.legendOptions?.symbolHeight,
+						itemWidth: tabTileProps.showDash
+							? getHeightAndWidth().width
+							: chartControl.legendOptions?.symbolWidth,
 						itemGap: chartControl.legendOptions?.itemGap,
 
 						left: chartControl.legendOptions?.position?.left,
-						top: chartControl.legendOptions?.position?.top,
+						top: tabTileProps.showDash ? "95%" : "90%",
 						orient: chartControl.legendOptions?.orientation,
 					},
 					grid: {
@@ -108,6 +134,11 @@ const StackedBar = ({
 						right: chartControl.chartMargin.right + "%",
 						top: chartControl.chartMargin.top + "%",
 						bottom: chartControl.chartMargin.bottom + "%",
+						height: tabTileProps.showDash
+							? graphDimension.height < 220
+								? "70%"
+								: "85%"
+							: "80% ",
 					},
 
 					tooltip: { show: chartControl.mouseOver.enable },
@@ -228,10 +259,11 @@ const StackedBar = ({
 
 	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
-const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
+const mapStateToProps = (state: ChartsMapStateToProps & TabTileStateProps2, ownProps: any) => {
 	return {
 		chartProperties: state.chartProperties,
 		chartControls: state.chartControls,
+		tabTileProps: state.tabTileProps,
 	};
 };
 
