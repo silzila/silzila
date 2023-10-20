@@ -88,7 +88,13 @@ const ChartControlObjects = ({
 		// "Format",
 		"Style",
 	];
-	const simpleCardOptionList: string[] = ["Title", "Colors", "Format", "Style"];
+	const simpleCardOptionList: string[] = [
+		"Title",
+		"Colors",
+		"Format",
+		"Style",
+		"Conditional Formatting",
+	];
 	const tableOptionList: string[] = [
 		"Title",
 		"Tooltip",
@@ -299,7 +305,7 @@ const ChartControlObjects = ({
 					);
 				});
 			case "simplecard":
-				return simpleCardOptionList.map(option => {
+				return simpleCardOptionList.map((option: any, i: number) => {
 					return (
 						<div
 							key={option}
@@ -308,6 +314,10 @@ const ChartControlObjects = ({
 									? "optionImageSelected"
 									: "optionImage"
 							}
+							style={{
+								textAlign: "center",
+								gridColumn: i === 4 ? "1/span 3" : "auto",
+							}}
 							onClick={() => changeChartOption(propKey, option)}
 						>
 							{option}
