@@ -38,10 +38,8 @@ import {
 	UserTableProps,
 } from "../../redux/DataSet/DatasetStateInterfaces";
 import { ChangeConnection } from "../CommonFunctions/DialogComponents";
-import { idText } from "typescript";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import FlatFileList from "../DataConnection/FlatFileList";
 import Logger from "../../Logger";
 
 const Sidebar = ({
@@ -276,7 +274,6 @@ const Sidebar = ({
 						tbl.schema === schema &&
 						tbl.tableName === el
 				)[0];
-
 
 				// Checking if the selected table is new or previously added to this dataset
 				// Required as editing a dataset doesn't allow for deleting already added tables

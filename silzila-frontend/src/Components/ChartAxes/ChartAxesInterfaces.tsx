@@ -21,10 +21,7 @@ export interface ChartAxesProps {
 	chartFilterGroupEdited: (isEdited: boolean) => void;
 	dashBoardFilterGroupsEdited: (isEdited: boolean) => void;
 }
-interface TimeGrain {
-	name: string;
-	id: string;
-}
+
 export interface DimensionPrefixesProps {
 	[key: string]: any;
 	// integer: any;

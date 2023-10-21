@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 import update from "immutability-helper";
 
 import { Dispatch } from "redux";
-import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
 import { setSelectedDsInTile } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { storePlayBookCopy, updatePlaybookUid } from "../../redux/PlayBook/PlayBookActions";
 import { loadPlaybook } from "../../redux/TabTile/actionsTabTile";
@@ -31,6 +30,7 @@ import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import { AlertColor } from "@mui/material/Alert";
 import { setSelectedDatasetForDynamicMeasure } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import { CloseRounded } from "@mui/icons-material";
+import "./DataSetup.css";
 
 const PlayBookList = ({
 	// state
@@ -61,6 +61,7 @@ const PlayBookList = ({
 	useEffect(() => {
 		getInformation();
 		// eslint - disable - next - line;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Get list of saved playbooks
@@ -73,7 +74,6 @@ const PlayBookList = ({
 		});
 
 		if (result.status) {
-
 			setPlayBookList(result.data);
 		} else {
 		}
@@ -97,6 +97,7 @@ const PlayBookList = ({
 		};
 
 		fetchData();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedDataset]);
 
 	// Get tables for a dataset from server
@@ -332,56 +333,61 @@ const PlayBookList = ({
 				</div>
 			</div>
 			<div className="listContainer">
-				{playBookList &&
-					playBookList.map(pb => {
-						return (
-							<SelectListItem
-								key={pb.name}
-								render={(xprops: any) => (
-									<div
-										className={
-											xprops.open
-												? "dataConnectionListSelected"
-												: "dataConnectionList"
-										}
-										onMouseOver={() => xprops.setOpen(true)}
-										onMouseLeave={() => xprops.setOpen(false)}
-										onClick={() => {
-											getPlayBookDataFromServer(pb.id);
-										}}
-									>
-										<div className="dataConnectionName">{pb.name}</div>
-										<div>
-											{xprops.open ? (
-												<Tooltip
-													title="Delete playbook"
-													arrow
-													placement="right-start"
-												>
-													<div
-														className="dataHomeDeleteIcon"
-														onClick={e => {
-															e.stopPropagation();
-															setDeleteItemId(pb.id);
-															setConfirmDialog(true);
-														}}
+				{playBookList.length > 0 ? (
+					<>
+						{playBookList.map(pb => {
+							return (
+								<SelectListItem
+									key={pb.name}
+									render={(xprops: any) => (
+										<div
+											className={
+												xprops.open
+													? "dataConnectionListSelected"
+													: "dataConnectionList"
+											}
+											onMouseOver={() => xprops.setOpen(true)}
+											onMouseLeave={() => xprops.setOpen(false)}
+											onClick={() => {
+												getPlayBookDataFromServer(pb.id);
+											}}
+										>
+											<div className="dataConnectionName">{pb.name}</div>
+											<div>
+												{xprops.open ? (
+													<Tooltip
+														title="Delete playbook"
+														arrow
+														placement="right-start"
 													>
-														<DeleteIcon
-															style={{
-																width: "1rem",
-																height: "1rem",
-																margin: "auto",
+														<div
+															className="dataHomeDeleteIcon"
+															onClick={e => {
+																e.stopPropagation();
+																setDeleteItemId(pb.id);
+																setConfirmDialog(true);
 															}}
-														/>
-													</div>
-												</Tooltip>
-											) : null}
+														>
+															<DeleteIcon
+																style={{
+																	width: "1rem",
+																	height: "1rem",
+																	margin: "auto",
+																}}
+															/>
+														</div>
+													</Tooltip>
+												) : null}
+											</div>
 										</div>
-									</div>
-								)}
-							/>
-						);
-					})}
+									)}
+								/>
+							);
+						})}
+					</>
+				) : (
+					<div className="listEmptyNote">*No Playbook created yet*</div>
+				)}
 
 				<NotificationDialog
 					openAlert={openAlert}

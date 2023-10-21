@@ -396,7 +396,7 @@ const DropZone = ({
 		);
 	};
 
-	const [modalData, setModalData] = useState<any>(null);
+	const [setModalData] = useState<any>(null);
 
 	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);
@@ -572,7 +572,7 @@ const DropZone = ({
 					<span className="axisInfo"> Drop (0 - max {ChartsInfo[chartType].dropZones[bIndex].allowedNumbers}) field(s) here</span>
 				) : null */}
 
-				{bIndex == 0 ? (
+				{bIndex === 0 ? (
 					<>
 						{chartType === "richText"
 							? selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.map(

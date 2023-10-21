@@ -139,7 +139,7 @@ const ChartFilterGroups = ({
 		let isUnique = true;
 
 		Object.keys(chartGroup.groups).forEach(grp => {
-			if (chartGroup.groups[grp].name == e.target.value) {
+			if (chartGroup.groups[grp].name === e.target.value) {
 				isUnique = false;
 			}
 		});
@@ -215,7 +215,6 @@ const ChartFilterGroups = ({
 			]);
 		}
 	}, [group]);
-
 
 	return (
 		<div ref={drop} style={groupsStyle} onDoubleClick={() => setEditGroupName(true)}>

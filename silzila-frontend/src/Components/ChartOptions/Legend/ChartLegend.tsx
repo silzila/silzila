@@ -5,7 +5,7 @@
 // 	- Orientation
 // 	- legend item size
 
-import { FormControl, MenuItem, Select, Switch } from "@mui/material";
+import { FormControl, MenuItem, Select } from "@mui/material";
 import React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
