@@ -20,7 +20,7 @@ import GraphArea from "../GraphArea/GraphArea";
 import ChartControlObjects from "../ChartOptions/ChartControlObjects";
 import { CloseSharp } from "@mui/icons-material";
 import ChartFilterGroupsContainer from "../ChartFilterGroup/ChartFilterGroupsContainer";
-import { AlertColor, Button, Checkbox, Tooltip } from "@mui/material";
+import { AlertColor, Checkbox, Tooltip } from "@mui/material";
 import DynamicMeasureWindow from "./DynamicMeasureWindow";
 import {
 	addNewDynamicMeasurePropsForSameTile,
@@ -390,8 +390,8 @@ const DataViewerMiddle = ({
 		<div className="dataViewerMiddle" style={{ height: "300px" }}>
 			{chartProp.properties[propKey].chartType === "richText" ? (
 				<>
-				<GraphArea />
-				{/* <div className="rightColumn">
+					<GraphArea />
+					{/* <div className="rightColumn">
 					<div className="rightColumnControlsAndFilters">
 						<div
 							style={{
@@ -414,8 +414,8 @@ const DataViewerMiddle = ({
 						</Button>
 					</div>
 				</div> */}
-				<DynamicMeasureWindow />
-			</>
+					<DynamicMeasureWindow />
+				</>
 			) : (
 				<>
 					<ChartAxes tabId={tabId} tileId={tileId} />

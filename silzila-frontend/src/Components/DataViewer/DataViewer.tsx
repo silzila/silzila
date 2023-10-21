@@ -37,10 +37,7 @@ import filterIcon from "../../assets/filter_icon.svg";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import GridViewIcon from "@mui/icons-material/GridView";
 import AspectRatioRoundedIcon from "@mui/icons-material/AspectRatioRounded";
-import {
-	ChartPropProperties,
-	ChartPropertiesProps,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartPropertiesProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 
 interface DataViewerProps {

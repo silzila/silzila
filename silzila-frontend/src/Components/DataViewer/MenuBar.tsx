@@ -29,7 +29,7 @@ import AboutPopover from "../CommonFunctions/PopOverComponents/AboutPopover";
 import PrivacyPopover from "../CommonFunctions/PopOverComponents/PrivacyPopover";
 import { Dispatch } from "redux";
 import CSS from "csstype";
-import { MapStateProps, MenubarProps } from "./MenubarInterfaces";
+import { MenubarProps } from "./MenubarInterfaces";
 
 import FetchData from "../ServerCall/FetchData";
 import "./dataViewer.css";

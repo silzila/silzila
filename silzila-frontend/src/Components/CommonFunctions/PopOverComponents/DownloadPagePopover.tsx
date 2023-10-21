@@ -13,8 +13,6 @@ import {
 } from "../../../redux/PageSettings/DownloadPageSettingsActions";
 import { Dispatch } from "redux";
 import { orientations, paperSize } from "./pageSettingsData";
-import { useEffect, useState } from "react";
-import { setCustomHeight } from "../../../redux/TabTile/TabActions";
 
 const DownloadPagePopover = ({
 	pageSettings,
