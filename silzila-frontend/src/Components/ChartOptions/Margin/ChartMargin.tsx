@@ -1,7 +1,7 @@
 // This component is used to set margin for all charts
 // Top, bottom, lift & right margins can be individually changed
 
-import React, { useEffect } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import {

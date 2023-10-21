@@ -22,7 +22,6 @@ import {
 	editChartPropItemForDm,
 	revertAxesForDm,
 	sortAxesForDm,
-	updateAxesQueryParamForDm,
 } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import Logger from "../../Logger";
 

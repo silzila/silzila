@@ -1,12 +1,7 @@
 import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import {
-	ChartControl,
-	ChartControlsProps,
-	ChartControlStateProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
-import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import {
 	formatChartLabelValue,

@@ -7,7 +7,6 @@ import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInte
 import { updateTreeMapStyleOptions } from "../../redux/ChartPoperties/ChartControlsActions";
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
-import { TLSSocket } from "tls";
 import Logger from "../../Logger";
 interface TreemapChartProps {
 	updateTreeMapStyleOptions: (propKey: string, option: string, value: any) => void;
@@ -76,8 +75,8 @@ const Treemap = ({
 				return [formattedData, total];
 			}
 		} else {
-			Logger("info", 'its more than or equal to dimlenght', i);
-			Logger("info", "", dimensionsKeys.length)
+			Logger("info", "its more than or equal to dimlenght", i);
+			Logger("info", "", dimensionsKeys.length);
 		}
 	};
 
