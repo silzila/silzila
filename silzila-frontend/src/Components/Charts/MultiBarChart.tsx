@@ -13,6 +13,7 @@ import {
 	ChartsReduxStateProps,
 	FormatterValueProps,
 } from "./ChartsCommonInterfaces";
+import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 
 const MultiBarChart = ({
 	// props
@@ -23,7 +24,8 @@ const MultiBarChart = ({
 
 	//state
 	chartControls,
-}: ChartsReduxStateProps) => {
+	tabTileProps,
+}: ChartsReduxStateProps & TabTileStateProps2) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
@@ -53,10 +55,7 @@ const MultiBarChart = ({
 
 						formatter: (value: FormatterValueProps) => {
 							var formattedValue = value.value[chartDataKeys[i + 1]];
-							var formattedValue = formatChartLabelValue(
-								chartControl,
-								formattedValue
-							);
+							formattedValue = formatChartLabelValue(chartControl, formattedValue);
 
 							return formattedValue;
 						},
@@ -67,10 +66,30 @@ const MultiBarChart = ({
 			}
 			setSeriesData(seriesDataTemp);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chartData, chartControl]);
 	var chartThemes: any[] = ColorSchemes.filter(el => {
 		return el.name === chartControl.colorScheme;
 	});
+	console.log(graphDimension);
+
+	const getHeightAndWidth = () => {
+		var height = 0;
+		var width = 0;
+		console.log(graphDimension);
+		if (
+			graphDimension.height > 230 &&
+			graphDimension.width > 350 &&
+			graphDimension.height < 300
+		) {
+			height = 12;
+			width = 12;
+		} else {
+			height = 15;
+			width = 15;
+		}
+		return { height: height, width: width };
+	};
 
 	const RenderChart = () => {
 		return chartData ? (
@@ -96,17 +115,22 @@ const MultiBarChart = ({
 					legend: {
 						type: "scroll",
 						show:
-							graphDimension.height > 210
+							graphDimension.height > 220
 								? chartControl.legendOptions?.showLegend
 								: false,
-						itemHeight: chartControl.legendOptions?.symbolHeight,
-						itemWidth: chartControl.legendOptions?.symbolWidth,
+						itemHeight: tabTileProps.showDash
+							? getHeightAndWidth().height
+							: chartControl.legendOptions?.symbolHeight,
+						itemWidth: tabTileProps.showDash
+							? getHeightAndWidth().width
+							: chartControl.legendOptions?.symbolWidth,
+
 						itemGap: chartControl.legendOptions?.itemGap,
 
 						// left: chartControl.legendOptions?.position?.left,
 						left: "50%",
 						// top: chartControl.legendOptions?.position?.top,
-						top: "95%",
+						top: tabTileProps.showDash ? "95%" : "90%",
 						orient: chartControl.legendOptions?.orientation,
 					},
 					grid: {
@@ -114,6 +138,11 @@ const MultiBarChart = ({
 						right: chartControl.chartMargin.right + "%",
 						top: chartControl.chartMargin.top + "%",
 						bottom: chartControl.chartMargin.bottom + "%",
+						height: tabTileProps.showDash
+							? graphDimension.height < 220
+								? "70%"
+								: "85%"
+							: " auto",
 					},
 
 					tooltip: { show: chartControl.mouseOver.enable },
@@ -228,9 +257,10 @@ const MultiBarChart = ({
 
 	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
-const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
+const mapStateToProps = (state: ChartsMapStateToProps & TabTileStateProps2, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
+		tabTileProps: state.tabTileProps,
 	};
 };
 
