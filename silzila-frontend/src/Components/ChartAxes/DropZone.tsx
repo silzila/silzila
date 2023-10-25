@@ -4,7 +4,6 @@
 
 import {
 	editChartPropItem,
-	updateDropZoneExpandCollapsePropLeft,
 	updateIsAutoFilterEnabledPropLeft,
 	updateFilterAnyContidionMatchPropLeft,
 	clearDropZoneFieldsChartPropLeft,
@@ -48,7 +47,6 @@ const DropZone = ({
 
 	// dispatch
 	clearDropZoneFieldsChartPropLeft,
-	updateDropZoneExpandCollapsePropLeft,
 	updateIsAutoFilterEnabledPropLeft,
 	updateFilterAnyContidionMatchPropLeft,
 	updateDropZoneItems,
@@ -467,12 +465,6 @@ const DropZone = ({
 										}}
 										onClick={() => {
 											setIsFilterCollapsed(!isFilterCollapsed);
-											// updateDropZoneExpandCollapsePropLeft(
-											// 	propKey,
-											// 	bIndex,
-											// 	!chartProp.properties[propKey].chartAxes[bIndex]
-											// 		.isCollapsed
-											// );
 										}}
 									/>
 								</Tooltip>
@@ -487,12 +479,6 @@ const DropZone = ({
 										onClick={() => {
 											setIsFilterCollapsed(!isFilterCollapsed);
 
-											// updateDropZoneExpandCollapsePropLeft(
-											// 	propKey,
-											// 	bIndex,
-											// 	!chartProp.properties[propKey].chartAxes[bIndex]
-											// 		.isCollapsed
-											// );
 										}}
 									/>
 								</Tooltip>
@@ -670,11 +656,6 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		clearDropZoneFieldsChartPropLeft: (propKey: string, bIndex: number) =>
 			dispatch(clearDropZoneFieldsChartPropLeft(propKey, bIndex)),
-		updateDropZoneExpandCollapsePropLeft: (
-			propKey: string,
-			bIndex: number,
-			isCollapsed: boolean
-		) => dispatch(updateDropZoneExpandCollapsePropLeft(propKey, bIndex, isCollapsed)),
 		updateFilterAnyContidionMatchPropLeft: (
 			propKey: string,
 			bIndex: number,

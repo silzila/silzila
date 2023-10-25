@@ -249,6 +249,11 @@ const ChartFilterGroups = ({
 
 			<ExpandCollapseIconSwitch />
 
+			{
+				group && group.filters && group.filters.length ? null : <p style={{fontSize: "10px", color: "#999999"}}>Please drag a field here</p>
+			}
+			
+
 			<NotificationDialog
 				onCloseAlert={() => {
 					setOpenAlert(false);
