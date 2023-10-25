@@ -148,7 +148,7 @@ Data Connections
 .dbFormButton {
 	margin: 10px auto;
 	display: flex;
-	column-gap: 40px;
+	column-gap: 16rem;
 }
 
 .dbDeleteDialog {
@@ -235,6 +235,39 @@ Data Connections
 	margin: 10px;
 }
 
+.listItem {
+	display: flex;
+	align-items: center;
+	column-gap: 20px;
+	padding: 6px;
+	margin-bottom: 3px;
+	cursor: pointer;
+}
+
+.listItem:hover {
+	border: 1px solid rgba(224, 224, 224, 1);
+	border-radius: 4px;
+}
+
+.active {
+	display: flex;
+	align-items: center;
+	column-gap: 20px;
+	cursor: pointer;
+	padding: 6px;
+	margin-bottom: 3px;
+	border: 1px solid #2bb9bb;
+	border-radius: 4px;
+}
+
+.listItems {
+	display: flex;
+	align-items: center;
+	column-gap: 20px;
+	padding: 6px;
+	margin-bottom: 3px;
+}
+
 /* 
 ===================================================
 Datasets
@@ -315,7 +348,6 @@ Datasets
 .vendorIconStyle {
 	height: 25px;
 	width: 25px;
-	margin-right: 10px;
 }
 
 /* 
@@ -341,4 +373,40 @@ TableData
 	height: 28px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+/* 
+-------------------------------------------------
+DataHome
+------------------------------------------------- 
+*/
+
+.visiblityIconStyle {
+	width: 0.7rem;
+	height: 0.7rem;
+	margin: auto 7px auto auto;
+}
+
+.listEmptyNote {
+	font-size: 14px;
+	height: 100%;
+	padding: 25% 2rem;
+	color: #ccc;
+	font-style: italic;
+}
+
+.dataHomeContainer {
+	display: grid;
+	grid-template-rows: 2.5rem auto;
+	height: 100vh;
+	width: 100vW;
+}
+
+.dataHomeItemsContainer {
+	flex: 100%;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	background-color: pink;
+	border-top: 2px solid rgba(224, 224, 224, 1);
 }

@@ -394,7 +394,7 @@ const DropZone = ({
 		);
 	};
 
-	const [modalData, setModalData] = useState<any>(null);
+	const [setModalData] = useState<any>(null);
 
 	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);

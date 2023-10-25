@@ -3,7 +3,7 @@
 // Creating new and editing existing dataset are handled in other child components
 
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Button, Dialog, MenuItem, Popover, TextField, Tooltip } from "@mui/material";
+import { Button, Dialog, Popover, Tooltip } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -18,7 +18,6 @@ import {
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import { DatasetListProps } from "./DatasetListInterfaces";
-import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import FetchData from "../ServerCall/FetchData";
 import { DatasetItem, UserTableProps } from "../../redux/DataSet/DatasetStateInterfaces";
 import DataConnectionListPopover from "../CommonFunctions/PopOverComponents/DataConnectionListPopover";
@@ -27,8 +26,9 @@ import SchemaOutlinedIcon from "@mui/icons-material/SchemaOutlined";
 
 import ShortUniqueId from "short-unique-id";
 import { AlertColor } from "@mui/material/Alert";
-import { SaveButtons } from "../DataConnection/muiStyles";
+
 import CloseRounded from "@mui/icons-material/CloseRounded";
+import "../DataConnection/DataSetup.css";
 
 const DataSetList = ({
 	// state
@@ -42,18 +42,15 @@ const DataSetList = ({
 	setCreateDsFromFlatFile,
 	setUserTable,
 }: DatasetListProps) => {
-	const classes = SaveButtons();
 	var navigate = useNavigate();
 
 	var token: string = accessToken;
 
 	const [dataSetList, setDataSetList] = useState<DatasetItem[]>([]);
-	const [selectedButton, setSelectedButton] = useState<string>("flatFile");
 
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
 	const [severity, setSeverity] = useState<AlertColor>("success");
-	const [showOpnMenu, setShowOpnMenu] = useState<boolean>(false);
 
 	const [openPopOver, setOpenPopOver] = useState<boolean>(false);
 	const [open, setOpen] = useState<boolean>(false);
@@ -65,6 +62,7 @@ const DataSetList = ({
 	useEffect(() => {
 		resetState();
 		getInformation();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Get the list of Datasets
@@ -158,67 +156,72 @@ const DataSetList = ({
 				</div>
 				<div
 					className="containerButton"
-					onClick={() => {
-						setShowOpnMenu(true);
+					onClick={e => {
+						setAnchorEl(e.currentTarget);
+						setOpen(true);
 					}}
 				>
-					<AddIcon
-						onClick={e => {
-							setAnchorEl(e.currentTarget);
-							setOpen(true);
-						}}
-					/>
+					<AddIcon />
 				</div>
 			</div>
 			<div className="listContainer">
-				{dataSetList &&
-					dataSetList.map((dc: DatasetItem) => {
-						return (
-							<SelectListItem
-								key={dc.datasetName}
-								//  TODO : need to specify type
-								render={(xprops: any) => (
-									<div
-										className={
-											xprops.open
-												? "dataConnectionListSelected"
-												: "dataConnectionList"
-										}
-										onClick={() => editDs(dc.id)}
-										onMouseOver={() => xprops.setOpen(true)}
-										onMouseLeave={() => xprops.setOpen(false)}
-									>
-										<div className="dataConnectionName">{dc.datasetName}</div>
+				{dataSetList.length > 0 ? (
+					<>
+						{dataSetList.map((dc: DatasetItem) => {
+							return (
+								<SelectListItem
+									key={dc.datasetName}
+									//  TODO : need to specify type
+									render={(xprops: any) => (
+										<div
+											className={
+												xprops.open
+													? "dataConnectionListSelected"
+													: "dataConnectionList"
+											}
+											onClick={() => editDs(dc.id)}
+											onMouseOver={() => xprops.setOpen(true)}
+											onMouseLeave={() => xprops.setOpen(false)}
+										>
+											<div className="dataConnectionName">
+												{dc.datasetName}
+											</div>
 
-										{xprops.open ? (
-											<Tooltip
-												title="Delete Dataset"
-												arrow
-												placement="right-start"
-											>
-												<div
-													className="dataHomeDeleteIcon"
-													onClick={e => {
-														e.stopPropagation();
-														setConfirmDialog(true);
-														setDeleteItemId(dc.id);
-													}}
+											{xprops.open ? (
+												<Tooltip
+													title="Delete Dataset"
+													arrow
+													placement="right-start"
 												>
-													<DeleteIcon
-														style={{
-															width: "1rem",
-															height: "1rem",
-															margin: "auto",
+													<div
+														className="dataHomeDeleteIcon"
+														onClick={e => {
+															e.stopPropagation();
+															setConfirmDialog(true);
+															setDeleteItemId(dc.id);
 														}}
-													/>
-												</div>
-											</Tooltip>
-										) : null}
-									</div>
-								)}
-							/>
-						);
-					})}
+													>
+														<DeleteIcon
+															style={{
+																width: "1rem",
+																height: "1rem",
+																margin: "auto",
+															}}
+														/>
+													</div>
+												</Tooltip>
+											) : null}
+										</div>
+									)}
+								/>
+							);
+						})}
+					</>
+				) : (
+					<div className="listEmptyNote">
+						*No Datasets created yet, create Dataset to start a PlayBook*
+					</div>
+				)}
 			</div>
 			<NotificationDialog
 				openAlert={openAlert}
@@ -261,7 +264,6 @@ const DataSetList = ({
 					}}
 					value="flatFile"
 					onClick={() => {
-						setSelectedButton("flatFile");
 						setCreateDsFromFlatFile(true);
 						setFlatFilesListAsTables();
 						navigate("/newdataset");

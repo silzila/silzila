@@ -29,7 +29,6 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {
-	deleteItemInChartPropForDm,
 	editChartPropItemForDm,
 	revertAxesForDm,
 	sortAxesForDm,
@@ -126,11 +125,6 @@ const UserFilterCardForDm = ({
 
 	let filterFieldData = JSON.parse(JSON.stringify(field));
 
-	var includeExcludeOptions: PatternCollectionType[] = [
-		{ name: "Include", value: "Include" },
-		{ name: "Exclude", value: "Exclude" },
-	];
-
 	/* Initialize vaiarble to default values */
 
 	useEffect(() => {
@@ -211,13 +205,6 @@ const UserFilterCardForDm = ({
 		// eslint-disable-next-line
 		updateLeftFilterItemForDm(propKey, 0, constructChartAxesFieldObject());
 	}, []);
-
-	var menuStyle = { fontSize: "12px", padding: "2px 1rem" };
-	var menuSelectedStyle = {
-		fontSize: "12px",
-		padding: "2px 1rem",
-		backgroundColor: "rgba(25, 118, 210, 0.08)",
-	};
 
 	///Fech Field data for Pick List
 	const fetchFieldData = (type: string) => {
@@ -677,10 +664,6 @@ const UserFilterCardForDm = ({
 		setAnchorEl(event.currentTarget);
 	};
 
-	const handleExpandCollapse = (e: any) => {
-		// filterFieldData.isCollapsed = e;
-	};
-
 	///Remove filter card from dropzone
 	const deleteItem = () => {
 		deleteDropZoneItems(propKey, bIndex, itemIndex);
@@ -789,17 +772,6 @@ const UserFilterCardForDm = ({
 
 	///Render Search Condition Between Control
 	const SearchConditionBetweenControl = () => {
-		let _marks = [
-			{
-				value: filterFieldData.greaterThanOrEqualTo,
-				label: filterFieldData.greaterThanOrEqualTo?.toString(),
-			},
-			{
-				value: filterFieldData.lessThanOrEqualTo,
-				label: filterFieldData.lessThanOrEqualTo?.toString(),
-			},
-		];
-
 		return (
 			<>
 				{/*<StyledSlider

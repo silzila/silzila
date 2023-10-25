@@ -27,9 +27,9 @@ import CardStyle from "./ChartStyle/CardStyle";
 import TitleForDynamicMeasures from "./Title/TitleForDynamicMeasures";
 import ChartFormatForDm from "./Format/ChartFormatForDm";
 import DynamicMeasureStyle from "./ChartStyle/DynamicMeasureStyle";
-import ConditionalFormatingComponent from "./DynamicMeasureConditionalFormattingComponent";
 import TableConditionalFormating from "./TableChartControlComponents/TableConditionalFormatting";
 import DynamicMeasureConditionalFormattingComponent from "./DynamicMeasureConditionalFormattingComponent";
+import SimplecardConditionalFormatting from "./SimplecardConditionalFormatting";
 
 interface ControlDetailProps {
 	chartProperties: ChartPropertiesProps;
@@ -114,6 +114,8 @@ const ControlDetail = ({
 			case "Conditional Formatting":
 				if (chartType === "richText") {
 					return <DynamicMeasureConditionalFormattingComponent />;
+				} else if (chartType === "simplecard") {
+					return <SimplecardConditionalFormatting />;
 				} else {
 					return <TableConditionalFormating />;
 				}

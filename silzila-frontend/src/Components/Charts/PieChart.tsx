@@ -9,10 +9,7 @@ import {
 	ChartsReduxStateProps,
 	FormatterValueProps,
 } from "./ChartsCommonInterfaces";
-import {
-	ChartControlProperties,
-	ChartControlsProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 
 interface PieChartProps {

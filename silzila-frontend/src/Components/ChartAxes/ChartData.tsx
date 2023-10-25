@@ -382,11 +382,6 @@ const ChartData = ({
 
 	var _propKey: string = `${tabId}.${tileId}`;
 
-	var propKey_1 =
-		chartProperties.properties[_propKey].chartType === "richText"
-			? `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
-			: _propKey;
-
 	// every time chartAxes or chartType is changed, check if
 	// new data must be obtained from server
 	// check for minimum requirements in each dropzone for the given chart type
@@ -612,7 +607,6 @@ const ChartData = ({
 				dashBoardGroup.groups.length > 0
 			) {
 				let _tileGroups = chartGroup.tabTile[_tabTile];
-				let _count = 0;
 				let _dashBoardTilesCount = 0;
 				let _dashBoardTilesGroups: any = [];
 
