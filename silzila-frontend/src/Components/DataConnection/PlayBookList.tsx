@@ -4,15 +4,14 @@
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Button, Dialog, Tooltip } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import update from "immutability-helper";
 
 import { Dispatch } from "redux";
-import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
 import { setSelectedDsInTile } from "../../redux/ChartPoperties/ChartPropertiesActions";
-import { storePlayBookCopy, updatePlaybookUid } from "../../redux/PlayBook/PlayBookActions";
+import { updatePlaybookUid } from "../../redux/PlayBook/PlayBookActions";
 import { loadPlaybook } from "../../redux/TabTile/actionsTabTile";
 import {
 	setSelectedDataSetList,
@@ -41,7 +40,6 @@ const PlayBookList = ({
 	setSelectedDs,
 	loadPlayBook,
 	updatePlayBookId,
-	storePlayBookCopy,
 	setSelectedDatasetForDynamicMeasure,
 }: PlayBookProps & any) => {
 	const [playBookList, setPlayBookList] = useState<any[]>([]);
@@ -466,9 +464,6 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			description: string,
 			oldContent?: string | any
 		) => dispatch(updatePlaybookUid(playBookName, playBookUid, description, oldContent)),
-		storePlayBookCopy: (pb: any) => dispatch(storePlayBookCopy(pb)),
-		// updateChartData: (propKey:string | string, chartData: string | any) =>
-		// 	dispatch(updateChartData(propKey, chartData)),
 		setSelectedDatasetForDynamicMeasure: (dataset: any) =>
 			dispatch(setSelectedDatasetForDynamicMeasure(dataset)),
 	};

@@ -665,7 +665,7 @@ const ChartData = ({
 			[...tileState.tileList[tabTileProps.selectedTabId]].forEach(tile => {
 				if (
 					!_checkGroupsNotSame(tile) ||
-					chartProp.properties[tile].axesEdited ||
+					(chartProp.properties && chartProp.properties[tile].axesEdited) ||
 					chartGroup.chartFilterGroupEdited ||
 					dashBoardGroup.dashBoardGroupEdited
 				) {

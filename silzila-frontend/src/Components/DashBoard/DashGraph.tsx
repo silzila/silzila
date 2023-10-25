@@ -14,7 +14,7 @@ import HorizontalBar from "../Charts/HorizontalBar";
 import Horizontalstacked from "../Charts/Horizontalstacked";
 import RoseChart from "../Charts/RoseChart";
 import GeoChart from "../Charts/GeoChart";
-import TextEditor from "../Charts/TextEditor";
+import TextEditor from "../Charts/TextEditor/TextEditor";
 import CalendarChart from "../Charts/CalendarChart";
 import BoxPlotChart from "../Charts/BoxPlotChart";
 import TreeMap from "../Charts/TreeMap";

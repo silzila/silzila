@@ -44,7 +44,6 @@ const UserFilterCard = ({
 	token,
 
 	// state
-	tabTileProps,
 	chartProp,
 
 	// dispatch
@@ -953,26 +952,7 @@ const UserFilterCard = ({
 					height: "1.5rem",
 					fontSize: "14px",
 					textAlign: "left",
-					width: "100%",
-
-					// ".MuiOutlinedInput-notchedOutline": {
-					// 	borderColor: "rgba(228, 219, 233, 0.25)",
-					// },
-					// "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-					// 	borderColor: "rgba(228, 219, 233, 0.25)",
-					// },
-					// "&:hover .MuiOutlinedInput-notchedOutline": {
-					// 	borderColor: "rgba(228, 219, 233, 0.25)",
-					// },
-					".MuiSvgIcon-root ": {
-						fill: "#999999 !important",
-						fontSize: "17px",
-						marginLeft: "20px",
-					},
-					".MuiSelect-icon": {
-						position: "unset",
-						marginRight: "5px",
-					},
+					
 				}}
 				IconComponent={KeyboardArrowDownIcon}
 				onChange={e => {
@@ -1012,17 +992,7 @@ const UserFilterCard = ({
 				sx={{
 					height: "1.5rem",
 					fontSize: "14px",
-					width: "100%",
 					textAlign: "left",
-					".MuiSvgIcon-root ": {
-						fill: "#999999 !important",
-						fontSize: "17px",
-						marginLeft: "20px",
-					},
-					".MuiSelect-icon": {
-						position: "unset",
-						marginRight: "5px",
-					},
 				}}
 				IconComponent={KeyboardArrowDownIcon}
 				onChange={e => {
@@ -1226,7 +1196,6 @@ const mapStateToProps = (
 	ownProps: any
 ) => {
 	return {
-		tabTileProps: state.tabTileProps,
 		chartProp: state.chartProperties,
 		token: state.isLogged.accessToken,
 	};
