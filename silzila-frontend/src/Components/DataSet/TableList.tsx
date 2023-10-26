@@ -59,7 +59,7 @@ const TableList = (props: TableListProps) => {
 		if (result.status) {
 			var obj: tabObj | undefined;
 			if (isView) {
-				props.viewList.map((el: any) => {
+				props.viewList.forEach((el: any) => {
 					// While in edit mode, we check if this table has already been selected
 					// If selected, set its old parameters UID parameters,
 					if (el.tableName === tableName && el.isSelected === true && el.isView) {
@@ -88,7 +88,7 @@ const TableList = (props: TableListProps) => {
 					}
 				});
 			} else {
-				props.tableList.map((el: UserTableProps) => {
+				props.tableList.forEach((el: UserTableProps) => {
 					// While in edit mode, we check if this table has already been selected
 					// If selected, set its old parameters UID parameters,
 					if (el.tableName === tableName && el.isSelected === true) {
@@ -143,7 +143,7 @@ const TableList = (props: TableListProps) => {
 			getTableColumns(e.target.value, table["isView"]);
 		} else {
 			if (props.tempTable.length !== 0) {
-				props.tempTable.map((el: tableObjProps) => {
+				props.tempTable.forEach((el: tableObjProps) => {
 					if (el.id === id) {
 						props.removeArrows(id);
 						props.removeRelationship(id);

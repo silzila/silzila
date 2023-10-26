@@ -589,12 +589,12 @@ const ChartFilterGroupCard = ({
 	};
 
 	///Search condition Silder on change handler
-	const handleSliderRangeOnChange = (event: any, newValue: any) => {
-		filterFieldData["greaterThanOrEqualTo"] = newValue[0];
-		filterFieldData["lessThanOrEqualTo"] = newValue[1];
-		sliderRange = newValue;
-		updateChartFilterRightGroupsFilters(name, constructChartAxesFieldObject());
-	};
+	// const handleSliderRangeOnChange = (event: any, newValue: any) => {
+	// 	filterFieldData["greaterThanOrEqualTo"] = newValue[0];
+	// 	filterFieldData["lessThanOrEqualTo"] = newValue[1];
+	// 	sliderRange = newValue;
+	// 	updateChartFilterRightGroupsFilters(name, constructChartAxesFieldObject());
+	// };
 
 	const checkValidDate = (val: any) => {
 		if (

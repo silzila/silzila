@@ -65,13 +65,12 @@ const ColorSteps = ({
 		? chartControls.properties[propKey].chartData
 		: [];
 
-
 	// TODO: Priority 1 - Color steps value keeps changing every time we come back to it
 	// after clicking on other control tiles
 
 	useEffect(() => {
 		var col: any = [];
-		ColorSchemes.map(el => {
+		ColorSchemes.forEach(el => {
 			if (el.name === chartControls.properties[propKey].colorScheme) {
 				setColorsOfScheme(el.colors);
 				col.push(...el.colors);
@@ -98,7 +97,7 @@ const ColorSteps = ({
 		var newTempData: any = [];
 		var total: number;
 		if (chartData) {
-			Object.keys(chartData[0]).map(key => {
+			Object.keys(chartData[0]).forEach(key => {
 				newTempData.push({
 					name: key,
 					value: chartData[0][key],
@@ -189,7 +188,7 @@ const ColorSteps = ({
 	/* getting total value of all steps*/
 	const getTotal = (stepsArray: any) => {
 		let total: number = 0;
-		stepsArray.map((el: any) => {
+		stepsArray.forEach((el: any) => {
 			total = total + parseInt(el.value);
 		});
 		return total;

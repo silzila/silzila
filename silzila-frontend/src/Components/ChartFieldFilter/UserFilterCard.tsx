@@ -44,7 +44,6 @@ const UserFilterCard = ({
 	token,
 
 	// state
-	tabTileProps,
 	chartProp,
 
 	// dispatch
@@ -115,11 +114,6 @@ const UserFilterCard = ({
 	];
 
 	let filterFieldData = JSON.parse(JSON.stringify(field));
-
-	var includeExcludeOptions: PatternCollectionType[] = [
-		{ name: "Include", value: "Include" },
-		{ name: "Exclude", value: "Exclude" },
-	];
 
 	/* Initialize vaiarble to default values */
 
@@ -596,12 +590,12 @@ const UserFilterCard = ({
 	};
 
 	///Search condition Silder on change handler
-	const handleSliderRangeOnChange = (event: any, newValue: any) => {
-		filterFieldData["greaterThanOrEqualTo"] = newValue[0];
-		filterFieldData["lessThanOrEqualTo"] = newValue[1];
-		sliderRange = newValue;
-		updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
-	};
+	// const handleSliderRangeOnChange = (event: any, newValue: any) => {
+	// 	filterFieldData["greaterThanOrEqualTo"] = newValue[0];
+	// 	filterFieldData["lessThanOrEqualTo"] = newValue[1];
+	// 	sliderRange = newValue;
+	// 	updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
+	// };
 
 	const checkValidDate = (val: any) => {
 		if (
@@ -1204,7 +1198,6 @@ const mapStateToProps = (
 	ownProps: any
 ) => {
 	return {
-		tabTileProps: state.tabTileProps,
 		chartProp: state.chartProperties,
 		token: state.isLogged.accessToken,
 	};

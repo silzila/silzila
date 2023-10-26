@@ -41,7 +41,7 @@ const Treemap = ({
 				var childrenArray: any = [];
 
 				var finalTotal = 0;
-				data.map((item: any) => {
+				data.forEach((item: any) => {
 					var finalObj = { name: item[dimensionsKeys[i]], value: item[measure] };
 					finalTotal = finalTotal + item[measure];
 					childrenArray.push(finalObj);
@@ -96,7 +96,7 @@ const Treemap = ({
 			});
 
 			// column in measure
-			chartProperties.properties[propKey].chartAxes[2].fields.map(el => {
+			chartProperties.properties[propKey].chartAxes[2].fields.forEach(el => {
 				if (el.agg) {
 					measure = `${el.agg} of ${el.fieldname}`;
 				}
@@ -111,7 +111,7 @@ const Treemap = ({
 			if (dimensionsKeys.length === 1) {
 				Logger("info", "only one Dimenstion");
 				var childrenArray: any = [];
-				chartData.map((item: any) => {
+				chartData.forEach((item: any) => {
 					var finalObj = {
 						name:
 							typeof item[dimensionsKeys[0]] === "number"
