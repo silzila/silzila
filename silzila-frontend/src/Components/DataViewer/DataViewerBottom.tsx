@@ -247,7 +247,7 @@ const DataViewerBottom = ({
 		setAddNewOrChooseExistingDS(value);
 		if (value === "addNewDataset") {
 			var count = 0;
-			axes.map((ax: any) => {
+			axes.forEach((ax: any) => {
 				if (ax.fields.length > 0) {
 					count = count + 1;
 				}
@@ -259,7 +259,7 @@ const DataViewerBottom = ({
 			}
 		} else {
 			var count = 0;
-			axes.map((ax: any) => {
+			axes.forEach((ax: any) => {
 				if (ax.fields.length > 0) {
 					count = count + 1;
 				}

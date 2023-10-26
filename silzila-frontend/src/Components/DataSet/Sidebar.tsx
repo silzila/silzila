@@ -66,9 +66,6 @@ const Sidebar = ({
 	setDatabaseNametoState,
 	setViews,
 }: SidebarProps) => {
-	const [selectedConnection, setSelectedConnection] = useState<String>("");
-	const [connectionList, setConnectionList] = useState<ConnectionItem[]>([]);
-	const [connectionId, setConnectionId] = useState<string>("");
 	const [schemaList, setSchemaList] = useState<string[]>([]);
 	const [selectedSchema, setSelectedSchema] = useState<string>("");
 	const [isSchemaAvailable, setIsSchemaAvailable] = useState<boolean>(true);
@@ -76,15 +73,12 @@ const Sidebar = ({
 	const [openDlg, setOpenDlg] = useState<boolean>(false);
 	const [resetDataset, setResetDataset] = useState<boolean>(false);
 
-	const [dcToResetTo, setDcToResetTo] = useState<string>("");
-
 	const [databaseList, setDatabaseList] = useState<string[]>([]);
 	const [selectedDb, setSelectedDb] = useState<string>("");
 	const [tableExpand, setTableExpand] = useState<boolean>(true);
 	const [viewExpand, setViewExpand] = useState<boolean>(true);
 
 	const [disableDb, setDisableDb] = useState<boolean>(false);
-	const [flatFileList, setflatFileList] = useState<any>([]);
 
 	// Actions performed when dataConnection is changed
 	// If user already selected some tables from another dataset
@@ -118,13 +112,13 @@ const Sidebar = ({
 				getAllMetaDb();
 				setSelectedDb(databaseName);
 				setSelectedSchema(schemaValue);
-				setSelectedConnection(connectionValue);
-				setConnectionId(connectionValue);
+
 				getSchemaList(databaseName);
 			} else {
 				getAllMetaDb();
 			}
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
@@ -136,17 +130,18 @@ const Sidebar = ({
 				setDisableDb(false);
 			}
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [tempTable]);
 
 	// Reset all the values in store
 	useEffect(() => {
 		if (resetDataset) {
-			setSelectedConnection(dcToResetTo);
-			getSchemaList(dcToResetTo);
+			getSchemaList("");
 			setSelectedSchema("");
 			setDataSchema("");
 			setResetDataset(false);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [resetDataset]);
 
 	const getAllMetaDb = async () => {
@@ -321,7 +316,7 @@ const Sidebar = ({
 
 	const getConnectionName = (id: string) => {
 		var name: string = "";
-		dataConnectionList.map((el: ConnectionItem) => {
+		dataConnectionList.forEach((el: ConnectionItem) => {
 			if (el.id === id) {
 				name = el.connectionName;
 			}
@@ -369,23 +364,15 @@ const Sidebar = ({
 						<FormControl fullWidth size="small">
 							<TextField
 								label="DataConnection"
-								InputLabelProps={{
-									sx: {
-										fontSize: "14.5px",
-									},
-								}}
-								InputProps={{
-									sx: {
-										height: "2.5rem",
-										fontSize: "13.5px",
-										borderRadius: "5px",
-										backgroundColor: "white",
-										marginBottom: "1.5rem",
-										textAlign: "left",
-									},
-								}}
+								id="outlined-size-small"
+								size="small"
 								disabled={true}
 								value={getConnectionName(connectionValue)}
+								InputProps={{
+									sx: {
+										marginBottom: "1.5rem",
+									},
+								}}
 							/>
 						</FormControl>
 					</div>

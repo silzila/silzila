@@ -19,9 +19,8 @@ import {
 	actionsToUpdateSelectedTile,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import AddIcon from "@mui/icons-material/Add";
-import {addChartFilterTabTileName} from '../../redux/ChartFilterGroup/ChartFilterGroupStateActions';
+import { addChartFilterTabTileName } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 import Logger from "../../Logger";
-
 
 const TabRibbon = ({
 	// state
@@ -39,19 +38,18 @@ const TabRibbon = ({
 	enableRenameTab,
 	completeRenameTab,
 	selectTile,
-	addChartFilterTabTileName
+	addChartFilterTabTileName,
 }: TabRibbonProps) => {
-
-	const addReportFilterGroup = (nextPropKey:string)=>{
+	const addReportFilterGroup = (nextPropKey: string) => {
 		var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
-		let selectedFilterGroups = chartGroup.tabTile[propKey] || [];
+		// let selectedFilterGroups = chartGroup.tabTile[propKey] || [];
 		let selectedDatasetID = chartProp.properties[propKey].selectedDs.id;
 
-	//	if (!(selectedFilterGroups && selectedFilterGroups.length > 0)) {
-			addChartFilterTabTileName(selectedDatasetID, nextPropKey);
-	///	}
-	}
+		//	if (!(selectedFilterGroups && selectedFilterGroups.length > 0)) {
+		addChartFilterTabTileName(selectedDatasetID, nextPropKey);
+		///	}
+	};
 
 	const handleAddTab = () => {
 		let tabId: number = tabTileProps.nextTabId;
@@ -66,7 +64,6 @@ const TabRibbon = ({
 		);
 
 		addReportFilterGroup(`${tabId}.${tabTileProps.selectedTileId}`);
-
 	};
 
 	const handleSelectTab = (tabName: string, tabId: number) => {
@@ -187,8 +184,7 @@ const mapStateToProps = (state: TabRibbonStateProps) => {
 		tabTileProps: state.tabTileProps,
 		tabState: state.tabState,
 		chartProp: state.chartProperties,
-		chartGroup : state.chartFilterGroup
-
+		chartGroup: state.chartFilterGroup,
 	};
 };
 

@@ -62,13 +62,9 @@ const DynamicMeasureWindow = ({
 			dynamicMeasureState.selectedTileId
 		]?.[dynamicMeasurePropKey];
 
-	const [loading, setLoading] = useState<boolean>(false);
-
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
 	const [severity, setSeverity] = useState<AlertColor>("success");
-	const tabId = tabTileProps.selectedTabId,
-		tileId = tabTileProps.selectedTileId;
 
 	const handleTableChange = async (table: any, dsUid?: any) => {
 		if (table.flatFileId) {
@@ -80,7 +76,6 @@ const DynamicMeasureWindow = ({
 
 			if (sampleRecords?.[selectedDynamicMeasureProps.selectedDs?.id]?.[table.id]) {
 			} else {
-				setLoading(true);
 				var dc_uid = selectedDynamicMeasureProps.selectedDs?.connectionId;
 				var id = selectedDynamicMeasureProps.selectedDs?.id;
 
@@ -89,7 +84,6 @@ const DynamicMeasureWindow = ({
 				var recordsType = await getColumnTypes(dc_uid, table, token);
 
 				addRecords(id, table.id, tableRecords, recordsType);
-				setLoading(false);
 			}
 		}
 	};
@@ -122,24 +116,24 @@ const DynamicMeasureWindow = ({
 		} else return null;
 	};
 
-	const getDynamicMeasureName = () => {
-		var count = 0;
-		return Object.keys(
-			dynamicMeasureState.dynamicMeasureProps[dynamicMeasureState.selectedTabId]?.[
-				dynamicMeasureState.selectedTileId
-			]
-		).forEach((k, i) => {
-			if (
-				dynamicMeasureState.dynamicMeasureProps[dynamicMeasureState.selectedTabId]?.[
-					dynamicMeasureState.selectedTileId
-				]?.[k].dynamicMeasureName === Object.keys(selectedDynamicMeasureProps.chartData[0])
-			) {
-				count = count + 1;
-			}
+	// const getDynamicMeasureName = () => {
+	// 	var count = 0;
+	// 	return Object.keys(
+	// 		dynamicMeasureState.dynamicMeasureProps[dynamicMeasureState.selectedTabId]?.[
+	// 			dynamicMeasureState.selectedTileId
+	// 		]
+	// 	).forEach((k, i) => {
+	// 		if (
+	// 			dynamicMeasureState.dynamicMeasureProps[dynamicMeasureState.selectedTabId]?.[
+	// 				dynamicMeasureState.selectedTileId
+	// 			]?.[k].dynamicMeasureName === Object.keys(selectedDynamicMeasureProps.chartData[0])
+	// 		) {
+	// 			count = count + 1;
+	// 		}
 
-			return count;
-		});
-	};
+	// 		return count;
+	// 	});
+	// };
 
 	const getFormatedValue = (dmId: number) => {
 		var formattedValue =
@@ -155,7 +149,7 @@ const DynamicMeasureWindow = ({
 		return formattedValue;
 	};
 
-	var count = 0;
+	// var count = 0;
 	const handleOnSave = () => {
 		if (selectedDynamicMeasureProps.chartAxes[1].fields.length !== 0) {
 			// updateDynamicMeasureName(`${Object.keys(selectedDynamicMeasureProps.chartData[0])}`);
@@ -171,19 +165,19 @@ const DynamicMeasureWindow = ({
 			let style = {};
 			var formats = obj?.conditionalFormats;
 
-		if (formats?.length > 0) {
-			for (let i = formats.length - 1; i >= 0; i--) {
-				if (formats[i].isConditionSatisfied) {					
-					style = formats[i];
-					break;
+			if (formats?.length > 0) {
+				for (let i = formats.length - 1; i >= 0; i--) {
+					if (formats[i].isConditionSatisfied) {
+						style = formats[i];
+						break;
+					}
+					if (i === 0 && !formats[i].isConditionSatisfied) {
+						style = obj.styleOptions;
+					}
 				}
-				if (i === 0 && !formats[i].isConditionSatisfied) {
-					style = obj.styleOptions;
-				}
+			} else {
+				style = obj.styleOptions;
 			}
-		} else {
-			style = obj.styleOptions;
-		}
 
 			updateRichTextOnAddingDYnamicMeasure(
 				propKey,

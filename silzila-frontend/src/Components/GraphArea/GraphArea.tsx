@@ -91,7 +91,6 @@ const GraphArea = ({
 	setPageSettings,
 	resetPageSettings,
 	renameDynamicMeasure,
-	updateConditionalFormatStyleOptions,
 }: any) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
