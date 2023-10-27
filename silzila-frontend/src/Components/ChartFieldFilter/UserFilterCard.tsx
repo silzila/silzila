@@ -44,7 +44,6 @@ const UserFilterCard = ({
 	token,
 
 	// state
-	tabTileProps,
 	chartProp,
 
 	// dispatch
@@ -115,11 +114,6 @@ const UserFilterCard = ({
 	];
 
 	let filterFieldData = JSON.parse(JSON.stringify(field));
-
-	var includeExcludeOptions: PatternCollectionType[] = [
-		{ name: "Include", value: "Include" },
-		{ name: "Exclude", value: "Exclude" },
-	];
 
 	/* Initialize vaiarble to default values */
 
@@ -596,12 +590,12 @@ const UserFilterCard = ({
 	};
 
 	///Search condition Silder on change handler
-	const handleSliderRangeOnChange = (event: any, newValue: any) => {
-		filterFieldData["greaterThanOrEqualTo"] = newValue[0];
-		filterFieldData["lessThanOrEqualTo"] = newValue[1];
-		sliderRange = newValue;
-		updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
-	};
+	// const handleSliderRangeOnChange = (event: any, newValue: any) => {
+	// 	filterFieldData["greaterThanOrEqualTo"] = newValue[0];
+	// 	filterFieldData["lessThanOrEqualTo"] = newValue[1];
+	// 	sliderRange = newValue;
+	// 	updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
+	// };
 
 	const checkValidDate = (val: any) => {
 		if (
@@ -638,7 +632,7 @@ const UserFilterCard = ({
 
 	///Search Condition Dropdown list on change handler
 	const handleDropDownForPatternOnChange = async (event: any) => {
-		// let filterObj = userFilterGroup[propName].chartUserFilters.find((usrfilter) => usrfilter.uId == data.uid);
+		// let filterObj = userFilterGroup[propName].chartUserFilters.find((usrfilter) => usrfilter.uId === data.uid);
 
 		filterFieldData["exprType"] = event.target.value;
 		// filterFieldData = _modifiedResultForServerRequest(filterFieldData);
@@ -931,26 +925,7 @@ const UserFilterCard = ({
 					height: "1.5rem",
 					fontSize: "14px",
 					textAlign: "left",
-					width: "100%",
-
-					// ".MuiOutlinedInput-notchedOutline": {
-					// 	borderColor: "rgba(228, 219, 233, 0.25)",
-					// },
-					// "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-					// 	borderColor: "rgba(228, 219, 233, 0.25)",
-					// },
-					// "&:hover .MuiOutlinedInput-notchedOutline": {
-					// 	borderColor: "rgba(228, 219, 233, 0.25)",
-					// },
-					".MuiSvgIcon-root ": {
-						fill: "#999999 !important",
-						fontSize: "17px",
-						marginLeft: "20px",
-					},
-					".MuiSelect-icon": {
-						position: "unset",
-						marginRight: "5px",
-					},
+					
 				}}
 				IconComponent={KeyboardArrowDownIcon}
 				onChange={e => {
@@ -990,17 +965,7 @@ const UserFilterCard = ({
 				sx={{
 					height: "1.5rem",
 					fontSize: "14px",
-					width: "100%",
 					textAlign: "left",
-					".MuiSvgIcon-root ": {
-						fill: "#999999 !important",
-						fontSize: "17px",
-						marginLeft: "20px",
-					},
-					".MuiSelect-icon": {
-						position: "unset",
-						marginRight: "5px",
-					},
 				}}
 				IconComponent={KeyboardArrowDownIcon}
 				onChange={e => {
@@ -1204,7 +1169,6 @@ const mapStateToProps = (
 	ownProps: any
 ) => {
 	return {
-		tabTileProps: state.tabTileProps,
 		chartProp: state.chartProperties,
 		token: state.isLogged.accessToken,
 	};

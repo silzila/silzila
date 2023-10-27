@@ -2,9 +2,8 @@
 import "react-quill/dist/quill.snow.css";
 import { connect } from "react-redux";
 import './TextEditor.css';
-import { Dispatch } from "redux";
-import { updateRichText, updateRichTextOnAddingDYnamicMeasure,clearRichText } from "../../redux/ChartPoperties/ChartControlsActions";
-import { addMeasureInTextEditor } from "../../redux/ChartPoperties/ChartPropertiesActions";
+import { updateRichText, updateRichTextOnAddingDYnamicMeasure,clearRichText } from "../../../redux/ChartPoperties/ChartControlsActions";
+import { addMeasureInTextEditor } from "../../../redux/ChartPoperties/ChartPropertiesActions";
 import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react'
 import { Editor, Transforms, Range, createEditor, Descendant, Element as SlateElement, } from 'slate'
 import {
@@ -16,20 +15,13 @@ import {
   useFocused, 
   useSlate
 } from 'slate-react';
-
 import {
 	Button,
-	
 } from "@mui/material";
-
-import { ToolBarButton, Icon, Toolbar } from '../CommonFunctions/TextEditorToolBar' ;
-import {MdFormatStrikethrough,MdCode,MdFormatQuote,MdLooksOne,MdLooksTwo, MdFormatBold,MdFormatItalic,MdFormatUnderlined,MdFormatListBulleted,MdFormatListNumbered,MdFormatAlignLeft,MdFormatAlignCenter,MdFormatAlignRight,MdFormatAlignJustify} from 'react-icons/md';
-
-import { FaSuperscript,FaSubscript } from 'react-icons/fa'
 
 import {
 	setDynamicMeasureWindowOpen,
-} from "../../redux/ChartPoperties/ChartPropertiesActions";
+} from "../../../redux/ChartPoperties/ChartPropertiesActions";
 
 import {
 	addNewDynamicMeasurePropsForSameTile,
@@ -40,24 +32,23 @@ import {
 	setSelectedTabIdInDynamicMeasureState,
 	setSelectedTileIdInDynamicMeasureState,
 	setSelectedToEdit,
-} from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+} from "../../../redux/DynamicMeasures/DynamicMeasuresActions";
+import Toolbar from './Toolbar/Toolbar';
+import { sizeMap, fontFamilyMap } from './utils/SlateUtilityFunctions'
+import Link from'./Elements/Link/Link'
+import Image from './Elements/Image/Image'
+import Video from './Elements/Video/Video'
 
 const LIST_TYPES = ['numbered-list', 'bulleted-list']
-const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify']
 
 const TextEditor = ({
 	propKey,
+  graphDimension,
 	updateRichText,
 	tabTileProps,
 	chartProp,
-	graphDimension,
-	chartArea,
-	graphTileSize,
-	chartDetail,
-	onMouseDown,
 	dynamicMeasureState,
-	addMeasureInTextEditor,
-	updateRichTextOnAddingDYnamicMeasure,
+
   setDynamicMeasureWindowOpen,
   addNewDynamicMeasurePropsFromNewTab,
 	addNewDynamicMeasurePropsFromNewTile,
@@ -68,14 +59,15 @@ const TextEditor = ({
 	setSelectedToEdit,
   clearRichText
 }:any) => {
-  const [target, setTarget] = useState()
-  const [index, setIndex] = useState(0)
-  const [search, setSearch] = useState('')
+  // const [target, setTarget] = useState()
+  // const [index, setIndex] = useState(0)
+  // const [search, setSearch] = useState('')
   const renderElement = useCallback((props) => <Element {...props} />, [])
   const renderLeaf = useCallback((props) => <Leaf {...props} />, [])
   const [position, setPosition] = useState(JSON.parse(localStorage.getItem('cursor')));
+	//const [isbgColorPopoverOpen, setbgColorPopOverOpen] = useState(false);
 
-
+ 
   const withMentions = (editor) => {
     const { isInline, isVoid, markableVoid } = editor
   
@@ -108,7 +100,7 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
   const initialValue = useMemo(()=>chartProp.properties[propKey]?.richText?.text || [
     {
       type: 'paragraph',
-      children: [{ text: 'A line of text in a paragraph.' }],
+      children: [{ text: 'Enter some text...' }],
     },
   ],[]);
   
@@ -147,8 +139,6 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
     console.error(error);
   }
 	}, [chartProp.properties[propKey].measureValue?.id]);
-
-
 
 
   useEffect(() => {
@@ -195,121 +185,6 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
 		}
 	};
 
-  
-
-const BlockButton = ({ format, icon }) => {
-  const editor = useSlate()
-  return (
-    <ToolBarButton
-   
-      active={isBlockActive(
-        editor,
-        format,
-        TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
-      )}
-      onMouseDown={(event) => {
-        event.preventDefault()
-        toggleBlock(editor, format)
-      }}
-    >
-      <Icon>{icon}</Icon>
-    </ToolBarButton>
-  )
-}
-
-const MarkButton = ({ format, icon }) => {
-  const editor = useSlate()
-  return (
-    <ToolBarButton
-      active={isMarkActive(editor, format)}
-      onMouseDown={(event) => {
-        event.preventDefault()
-        toggleMark(editor, format)
-      }}
-    >
-      <Icon>{icon}</Icon>
-    </ToolBarButton>
-  )
-}
-
-const toggleBlock = (editor, format) => {
-  const isActive = isBlockActive(
-    editor,
-    format,
-    TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
-  )
-  const isList = LIST_TYPES.includes(format)
-
-  Transforms.unwrapNodes(editor, {
-    match: (n) =>
-      !Editor.isEditor(n) &&
-      SlateElement.isElement(n) &&
-      LIST_TYPES.includes(n.type) &&
-      !TEXT_ALIGN_TYPES.includes(format),
-    split: true,
-  })
-  let newProperties
-  if (TEXT_ALIGN_TYPES.includes(format)) {
-    newProperties = {
-      align: isActive ? 'left' : format,
-    }
-  } else {
-    newProperties = {
-      type: isActive ? 'paragraph' : isList ? 'list-item' : format,
-    }
-  }
-  Transforms.setNodes(editor, newProperties)
-
-  if (!isActive && isList) {
-    const block = { type: format, children: [] }
-    Transforms.wrapNodes(editor, block)
-  }
-}
-
-const toggleMark = (editor, format) => {
-  const isActive = isMarkActive(editor, format)
-
-  if (isActive) {
-    Editor.removeMark(editor, format)
-  } else {
-    Editor.addMark(editor, format, true)
-  }
-}
-
-const isBlockActive = (editor, format, blockType = 'type') => {
-  const { selection } = editor
-  if (!selection) return false
-
-  const [match] = Array.from(
-    Editor.nodes(editor, {
-      at: Editor.unhangRange(editor, selection),
-      match: (n) =>
-        !Editor.isEditor(n) &&
-        SlateElement.isElement(n) &&
-        n[blockType] === format,
-    })
-  )
-
-  return !!match
-}
-
-const isMarkActive = (editor, format) => {
-  const marks = Editor.marks(editor)
-  return marks ? marks[format] === true : false
-}
-
-
-
-
-const insertMention = (editor, character) => {
-  const mention = {
-    type: 'mention',
-    character,
-    children: [{ text: '' }],
-  }
-  Transforms.insertNodes(editor, mention)
-  Transforms.move(editor)
-}
 
 // Borrow Leaf renderer from the Rich Text example.
 // In a real project you would get this via `withRichText(editor)` or similar.
@@ -342,19 +217,19 @@ const Leaf = ({ attributes, children, leaf }) => {
     }
 
     if(leaf.color){
-        children = <span style={{color:leaf.color}}>{children}</span>
-    }
+      children = <span style={{color:leaf.color}}>{children}</span>
+  }
     if(leaf.bgColor){
         children = <span style={{backgroundColor:leaf.bgColor}}>{children}</span>
     }
-    // if(leaf.fontSize){
-    //     const size = sizeMap[leaf.fontSize]
-    //     children = <span style={{fontSize:size}}>{children}</span>
-    // }
-    // if(leaf.fontFamily){
-    //     const family = fontFamilyMap[leaf.fontFamily]
-    //     children = <span style={{fontFamily:family}}>{children}</span>
-    // }
+    if(leaf.fontSize){
+        const size = sizeMap[leaf.fontSize]
+        children = <span style={{fontSize:size}}>{children}</span>
+    }
+    if(leaf.fontFamily){
+        const family = fontFamilyMap[leaf.fontFamily]
+        children = <span style={{fontFamily:family}}>{children}</span>
+    }
     
 
   return <span {...attributes}>{children}</span>
@@ -362,54 +237,55 @@ const Leaf = ({ attributes, children, leaf }) => {
 
 const Element = (props) => {
   const { attributes, children, element } = props;
-  const style = { textAlign: element.align || 'left' };
+  let align = 'left';
 
-  switch (element.type) {
+  switch(element.type){
     case 'mention':
       return <Mention {...props} />
-      case 'block-quote':
-        return (
-          <blockquote style={style} {...attributes}>
-            {children}
-          </blockquote>
-        )
-      case 'bulleted-list':
-        return (
-          <ul style={style} {...attributes}>
-            {children}
-          </ul>
-        )
-      case 'heading-one':
-        return (
-          <h1 style={style} {...attributes}>
-            {children}
-          </h1>
-        )
-      case 'heading-two':
-        return (
-          <h2 style={style} {...attributes}>
-            {children}
-          </h2>
-        )
-      case 'list-item':
-        return (
-          <li style={style} {...attributes}>
-            {children}
-          </li>
-        )
-      case 'numbered-list':
-        return (
-          <ol style={style} {...attributes}>
-            {children}
-          </ol>
-        )
-    default:
-      return <p style={style} {...attributes}>{children}</p>
-  }
+    case 'headingOne':
+        return <h1 {...attributes}>{children}</h1>
+    case 'headingTwo':
+        return <h2 {...attributes}>{children}</h2>
+    case 'headingThree':
+        return <h3 {...attributes}>{children}</h3>
+    case 'blockquote':
+        return <blockquote {...attributes}>{children}</blockquote>
+    case 'alignLeft':
+        //align = 'left';
+        return <div style={{textAlign:'left',listStylePosition:'inside'}} {...attributes}>{children}</div>
+    case 'alignCenter':
+        //align = 'center';
+        return <div style={{textAlign:'center',listStylePosition:'inside'}} {...attributes}>{children}</div>
+    case 'alignRight':
+        //align = 'right';
+        return <div style={{textAlign:'right',listStylePosition:'inside'}} {...attributes}>{children}</div>
+    case 'list-item':
+        return  <li {...attributes}>{children}</li>
+    case 'orderedList':
+        return <ol type='1' {...attributes}>{children}</ol>
+    case 'unorderedList':
+        return <ul {...attributes}>{children}</ul>
+    case 'link':
+        return <Link {...props}/>
+   
+    case 'table':
+        return <table>
+            <tbody {...attributes}>{children}</tbody>
+        </table>
+    case 'table-row':
+        return <tr {...attributes}>{children}</tr>
+    case 'table-cell':
+        return <td style={{textAlign: align || 'left',listStylePosition:'inside'}} {...attributes}>{children}</td>
+    case 'image':
+        return <Image {...props}/>
+    case 'video':
+        return <Video {...props}/>
+    default :
+        return <p {...attributes}>{children}</p>
+}
 }
 
 
-  
 const Mention = ({ attributes, children, element }) => {
 
   const selected = useSelected()
@@ -495,20 +371,10 @@ if (element.measureStyle.backgroundColor != 'white') {
   )
 }
 
-
-
-
   return (
-    <>
-      <Slate
-      onFocus={(event, editor, next) => {
-
-        setTimeout(() => {
-          // Change editor state here.
-        });    
-    
-        return next();
-      }}
+    <div className="slate">
+      <Slate 
+        
         editor={editor}
         initialValue={initialValue}
         onChange={(val) => {
@@ -528,51 +394,17 @@ if (element.measureStyle.backgroundColor != 'white') {
 
           if (isAstChange) {
             updateRichText(propKey, val);
-            setTarget(undefined)
+            //setTarget(undefined)
           }
         }}
       >
         {
           !tabTileProps.showDash ?
           <div style={{"display":"block",  "width":"100%"}}>
-            <Toolbar>
-              <MarkButton format="bold" icon={<MdFormatBold/>}/>
-              <MarkButton format="italic" icon={<MdFormatItalic/>} />
-              <MarkButton format="underline" icon={<MdFormatUnderlined/>} />
-              <MarkButton format="strikethrough" icon={<MdFormatStrikethrough/>} />
-              <MarkButton format="superscript" icon={<FaSuperscript/>} />
-              <MarkButton format="subscript"  icon={<FaSubscript/>} />
-              
-              <BlockButton format="heading-one" icon={<MdLooksOne/>} />
-              <BlockButton format="heading-two" icon={<MdLooksTwo/>} />
-              <BlockButton format="block-quote" icon={<MdFormatQuote/>} />
-              <BlockButton format="numbered-list" icon={<MdFormatListNumbered/>} />
-              <BlockButton format="bulleted-list" icon={<MdFormatListBulleted/>} />
-              <BlockButton format="left" icon={<MdFormatAlignLeft/>} />
-              <BlockButton format="center" icon={<MdFormatAlignCenter/>} />
-              <BlockButton format="right" icon={<MdFormatAlignRight/>} />
-            
-            </Toolbar>
-            <Button style={{"float":"right", "marginTop":"-50px", "height":"30px"}}
-            sx={{
-              textTransform: "none",
-              backgroundColor: "rgb(43, 185, 187)",
-              color: "white",
-              "&:hover": {
-                backgroundColor: "rgb(43, 185, 187)",
-              },
-            }}
-            onClick={() => {
-
-            ReactEditor.focus(editor);
-          //  Transforms.select(editor, { offset: 0, path: [0, 0] });
-
-                setDynamicMeasureWindowOpen(propKey, true);
-                onAddingNewDynamicMeaasure();
-            }}
-            >
-            Add Dynamic Measure
-          </Button>
+        
+          <Toolbar propKey={propKey} setDynamicMeasureWindowOpen={setDynamicMeasureWindowOpen} onAddingNewDynamicMeaasure={onAddingNewDynamicMeaasure} />
+         
+           
          </div>
           :null
         }
@@ -584,13 +416,13 @@ if (element.measureStyle.backgroundColor != 'white') {
           placeholder="Enter some text..."
         
           style={{
-            minHeight: '300px',
+            minHeight: 'auto',
             border: "1px solid rgb(222, 222, 222)",
             padding: '2px 2px 2px 12px'
           }}
         />
       </Slate>
-    </>
+    </div>
   )
 }
 

@@ -38,7 +38,7 @@ const PieChart = ({
 
 	useEffect(() => {
 		if (chartData.length >= 1) {
-			if (typeof chartData == "object" && chartData.length > 0) {
+			if (typeof chartData === "object" && chartData.length > 0) {
 				setChartDataKeys(Object.keys(chartData[0]));
 			}
 

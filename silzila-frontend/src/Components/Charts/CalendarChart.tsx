@@ -30,9 +30,6 @@ const CalendarChart = ({
 
 	const [calendarArray, setCalendarArray] = useState<any[]>([]);
 	const [seriesArray, setSeriesArray] = useState<any[]>([]);
-	const [chartDataKeys, setChartDataKeys] = useState<any[]>([]);
-
-	let inChartHeight: number;
 
 	const [maxValue, setMaxValue] = useState<number>(0);
 	const [minValue, setMinValue] = useState<number>(0);
@@ -40,10 +37,7 @@ const CalendarChart = ({
 	useEffect(() => {
 		if (chartData.length >= 1) {
 			if (chartProperties.properties[propKey].chartAxes[1].fields.length > 0) {
-				setChartDataKeys(Object.keys(chartData[0]));
-
 				let objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
-
 
 				var measureField: ChartDataFieldProps =
 					chartProperties.properties[propKey].chartAxes[2].fields[0];
@@ -70,7 +64,7 @@ const CalendarChart = ({
 				}
 
 				// getting years of dates
-				chartData.map((el: any) => {
+				chartData.forEach((el: any) => {
 					const timestampformate = new Date(el[objKey]);
 					const year: number = timestampformate.getFullYear();
 					yearsArray.push(JSON.stringify(year));
@@ -154,7 +148,7 @@ const CalendarChart = ({
 		var virtualData: any[] = [];
 
 		// getting measure value as day value for individual year
-		chartData.map((el: any) => {
+		chartData.forEach((el: any) => {
 			var elYear = new Date(el[objKey]).getFullYear();
 			if (year === JSON.stringify(elYear)) {
 				virtualData.push(Object.values(el));

@@ -567,9 +567,9 @@ const ChartData = ({
 				// var allValues = values1.concat(values2);
 				combinedValuesForDimension.fields = axesValues[1].fields;
 
-				if (axesValues.length == 4) {
+				if (axesValues.length === 4) {
 					axesValues.splice(1, 2, combinedValuesForDimension);
-				} else if (axesValues.length == 3) {
+				} else if (axesValues.length === 3) {
 					axesValues.splice(1, 1, combinedValuesForDimension);
 				}
 			}
@@ -641,7 +641,7 @@ const ChartData = ({
 				// 	})
 
 				// 	if(_count > 0){
-				// 		return _count == _tileGroups.length;
+				// 		return _count === _tileGroups.length;
 				// 	}
 				// 	else{
 				// 		return true;
@@ -659,7 +659,7 @@ const ChartData = ({
 			[...tileState.tileList[tabTileProps.selectedTabId]].forEach(tile => {
 				if (
 					!_checkGroupsNotSame(tile) ||
-					chartProp.properties[tile].axesEdited ||
+					(chartProp.properties && chartProp.properties[tile].axesEdited) ||
 					chartGroup.chartFilterGroupEdited ||
 					dashBoardGroup.dashBoardGroupEdited
 				) {
@@ -668,8 +668,8 @@ const ChartData = ({
 			});
 		} else {
 			if (
-				tabTileProps.previousTabId == 0 ||
-				tabTileProps.previousTileId == 0 ||
+				tabTileProps.previousTabId === 0 ||
+				tabTileProps.previousTileId === 0 ||
 				// &&
 				// !_checkGroupsNotSame(_propKey)
 				chartProp.axesEdited ||

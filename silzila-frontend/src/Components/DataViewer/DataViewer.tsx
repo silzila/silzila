@@ -49,11 +49,6 @@ interface DataViewerProps {
 	setMenu: (menu: string) => void;
 }
 
-interface RenderMenuItems {
-	name: string;
-	icon: any;
-	style: any;
-}
 function DataViewer({
 	//state
 	tabTileProps,
@@ -81,22 +76,6 @@ function DataViewer({
 	// ===========================================================================================
 	//                                      UI Components
 	// ===========================================================================================
-
-	const menuIconStyle = {
-		width: "26px",
-		height: "26px",
-		margin: "auto 10px auto 0",
-		padding: "2px",
-		borderBottom: "2px solid transparent",
-	};
-	const menuIconSelectedStyle = {
-		width: "26px",
-		height: "26px",
-		margin: "auto 10px auto 0",
-		padding: "2px",
-		backgroundColor: "#ffffff",
-		borderBottom: "2px solid rgb(0,128,255)",
-	};
 
 	const rmenu: any[] = [
 		{

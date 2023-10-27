@@ -186,7 +186,7 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 			var copyOfDetails = state.tabs[action.payload.tabId].dashTilesDetails;
 			var items = Object.keys(copyOfDetails);
 
-			items.map(item => {
+			items.forEach(item => {
 				if (item === action.payload.propKey) {
 					copyOfDetails[item].highlight = true;
 				} else {
@@ -202,7 +202,7 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 			var copyOfDetails: any = state.tabs[action.payload].dashTilesDetails;
 			var items = Object.keys(copyOfDetails);
 
-			items.map(item => {
+			items.forEach(item => {
 				copyOfDetails[item].highlight = false;
 			});
 

@@ -4,7 +4,7 @@ import "../ChartFieldFilter/UserFilterCard.css";
 import { useDrag, useDrop } from "react-dnd";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { connect } from "react-redux";
-import { Checkbox, Divider, Menu, MenuItem, Select, Tooltip, Typography } from "@mui/material";
+import { Checkbox, Divider, Menu, MenuItem, Select, Tooltip, Typography, FormControl } from "@mui/material";
 
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import TextField from "@mui/material/TextField";
@@ -589,12 +589,12 @@ const ChartFilterGroupCard = ({
 	};
 
 	///Search condition Silder on change handler
-	const handleSliderRangeOnChange = (event: any, newValue: any) => {
-		filterFieldData["greaterThanOrEqualTo"] = newValue[0];
-		filterFieldData["lessThanOrEqualTo"] = newValue[1];
-		sliderRange = newValue;
-		updateChartFilterRightGroupsFilters(name, constructChartAxesFieldObject());
-	};
+	// const handleSliderRangeOnChange = (event: any, newValue: any) => {
+	// 	filterFieldData["greaterThanOrEqualTo"] = newValue[0];
+	// 	filterFieldData["lessThanOrEqualTo"] = newValue[1];
+	// 	sliderRange = newValue;
+	// 	updateChartFilterRightGroupsFilters(name, constructChartAxesFieldObject());
+	// };
 
 	const checkValidDate = (val: any) => {
 		if (
@@ -631,7 +631,7 @@ const ChartFilterGroupCard = ({
 
 	///Search Condition Dropdown list on change handler
 	const handleDropDownForPatternOnChange = async (event: any) => {
-		// let filterObj = userFilterGroup[propName].chartUserFilters.find((usrfilter) => usrfilter.uId == data.uid);
+		// let filterObj = userFilterGroup[propName].chartUserFilters.find((usrfilter) => usrfilter.uId === data.uid);
 
 		filterFieldData["exprType"] = event.target.value;
 		// filterFieldData = _modifiedResultForServerRequest(filterFieldData);
@@ -921,111 +921,91 @@ const ChartFilterGroupCard = ({
 	///Dropdown list to select Time grain
 	const DropDownForDatePattern = ({ items }: any) => {
 		return (
-			<Select
-				// sx={{ height: "1.5rem", fontSize: "14px", textAlign: "left", width: "100%" }}
-				sx={{
-					height: "1.5rem",
-					fontSize: "14px",
-					textAlign: "left",
-					width: "100%",
-
-					// ".MuiOutlinedInput-notchedOutline": {
-					// 	borderColor: "rgba(228, 219, 233, 0.25)",
-					// },
-					// "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-					// 	borderColor: "rgba(228, 219, 233, 0.25)",
-					// },
-					// "&:hover .MuiOutlinedInput-notchedOutline": {
-					// 	borderColor: "rgba(228, 219, 233, 0.25)",
-					// },
-					".MuiSvgIcon-root ": {
-						fill: "#999999 !important",
-						fontSize: "17px",
-						marginLeft: "20px",
-					},
-					".MuiSelect-icon": {
-						position: "unset",
-						marginRight: "5px",
-					},
-				}}
-				IconComponent={KeyboardArrowDownIcon}
-				onChange={e => {
-					handleDropDownForDatePatternOnChange(e);
-				}}
-				value={filterFieldData["prefix"]}
-			>
-				{items.map((item: any) => {
-					return (
-						<MenuItem
-							key={item.key}
-							value={item.key}
-							selected={item.key === filterFieldData.exprType}
-						>
-							<Typography
-								sx={{
-									width: "auto",
-									overflow: "hidden",
-									textOverflow: "ellipsis",
-									fontSize: "12px",
-									lineHeight: "20px",
-								}}
+			<FormControl
+				fullWidth
+				size="small">
+				<Select
+					// sx={{ height: "1.5rem", fontSize: "14px", textAlign: "left", width: "100%" }}
+					sx={{
+						height: "1.5rem",
+						fontSize: "14px",
+						textAlign: "left",
+						
+					}}
+					onChange={e => {
+						handleDropDownForDatePatternOnChange(e);
+					}}
+					value={filterFieldData["prefix"]}
+					variant="outlined"
+				>
+					{items.map((item: any) => {
+						return (
+							<MenuItem
+								key={item.key}
+								value={item.key}
+								selected={item.key === filterFieldData.exprType}
 							>
-								{item.value}
-							</Typography>
-						</MenuItem>
-					);
-				})}
-			</Select>
+								<Typography
+									sx={{
+										width: "auto",
+										overflow: "hidden",
+										textOverflow: "ellipsis",
+										fontSize: "12px",
+										lineHeight: "20px",
+									}}
+								>
+									{item.value}
+								</Typography>
+							</MenuItem>
+						);
+					})}
+				</Select>
+			</FormControl>
 		);
 	};
 
 	///Search Condition Dropdown list to select condition
 	const DropDownForPattern = ({ items }: any) => {
 		return (
-			<Select
-				sx={{
-					height: "1.5rem",
-					fontSize: "14px",
-					width: "100%",
-					textAlign: "left",
-					".MuiSvgIcon-root ": {
-						fill: "#999999 !important",
-						fontSize: "17px",
-						marginLeft: "20px",
-					},
-					".MuiSelect-icon": {
-						position: "unset",
-						marginRight: "5px",
-					},
-				}}
-				IconComponent={KeyboardArrowDownIcon}
-				onChange={e => {
-					handleDropDownForPatternOnChange(e);
-				}}
-				value={filterFieldData.exprType}
-			>
-				{items.map((item: any) => {
-					return (
-						<MenuItem
-							key={item.key}
-							value={item.key}
-							// selected={item.key === filterFieldData.exprType}
-						>
-							<Typography
-								sx={{
-									width: "auto",
-									overflow: "hidden",
-									textOverflow: "ellipsis",
-									fontSize: "12px",
-								}}
+			<FormControl
+				fullWidth
+				size="small">
+				<Select
+					sx={{
+						height: "1.5rem",
+						fontSize: "14px",
+						textAlign: "left",
+						
+					}}
+					onChange={e => {
+						handleDropDownForPatternOnChange(e);
+					}}
+					value={filterFieldData.exprType}
+					variant="outlined"
+				>
+					{items.map((item: any) => {
+						return (
+							<MenuItem
+								key={item.key}
+								value={item.key}
+								// selected={item.key === filterFieldData.exprType}
 							>
-								{item.value}
-							</Typography>
-							{/* CustomCard */}
-						</MenuItem>
-					);
-				})}
-			</Select>
+								<Typography
+									sx={{
+										width: "auto",
+										overflow: "hidden",
+										textOverflow: "ellipsis",
+										fontSize: "12px",
+									}}
+								>
+									{item.value}
+								</Typography>
+								{/* CustomCard */}
+							</MenuItem>
+						);
+					})}
+				</Select>
+			</FormControl>
 		);
 	};
 

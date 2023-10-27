@@ -37,15 +37,14 @@ const DynamicMeasureConditionalFormattingComponent = ({
 	changeConditionalFormat,
 }: Props) => {
 	var uid = new ShortUniqueId({ length: 8 });
-	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
 	var measureKey = `${dynamicMeasureProps.selectedTileId}.${dynamicMeasureProps.selectedDynamicMeasureId}`;
 
-	const [dmValue, setDmValue] = useState<number>(
+	const dmValue =
 		dynamicMeasureProps.dynamicMeasureProps[`${tabTileProps.selectedTabId}`][
 			`${tabTileProps.selectedTileId}`
-		][measureKey].dmValue
-	);
+		][measureKey].dmValue;
+
 	const [cfList, setCfList] = useState<any>(
 		dynamicMeasureProps.dynamicMeasureProps[`${tabTileProps.selectedTabId}`][
 			`${tabTileProps.selectedTileId}`

@@ -11,8 +11,7 @@ import { formatChartLabelValue } from "../../ChartOptions/Format/NumberFormatter
 const CrossTabChart = ({
 	propKey,
 	graphDimension,
-	chartArea,
-	graphTileSize,
+
 	//state
 	chartControls,
 	chartProperties,
@@ -221,7 +220,7 @@ const CrossTabChart = ({
 					tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinRows[row], "row");
 				} else {
 					/*  Feature added to include Column field to the column header  */
-					if (row == dustbinRows.length - 1) {
+					if (row === dustbinRows.length - 1) {
 						tempColumnObj.displayData = CrossTab.getKeyWithPrefix(
 							dustbinColumns[i],
 							"row"
@@ -258,7 +257,7 @@ const CrossTabChart = ({
 			// 	tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[row], "col");
 			// } else {
 			// 	/*  Feature added to include Column field to the column header  */
-			// 	if (row == dustbinColumns.length - 1) {
+			// 	if (row === dustbinColumns.length - 1) {
 			tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[i], "col");
 			// 	}
 			// }
@@ -329,7 +328,7 @@ const CrossTabChart = ({
 						if (_filteredData) {
 							let valueField = dustbinValues.find(
 								dustVal =>
-									CrossTab.getKeyWithPrefix(dustVal, "val") == item.displayData
+									CrossTab.getKeyWithPrefix(dustVal, "val") === item.displayData
 							);
 
 							let _key = CrossTab.getKeyWithPrefix(valueField, "val");
@@ -399,7 +398,7 @@ const CrossTabChart = ({
 
 								if (
 									previousRowData &&
-									previousRowData.displayData == rowValues[colIndex]
+									previousRowData.displayData === rowValues[colIndex]
 								) {
 									previousRowData.rowSpan =
 										rowIndex - parseInt(previousRowData.rowIndex) + 1;
@@ -479,7 +478,7 @@ const CrossTabChart = ({
 										rowValues[row.split(CrossTab.delimiter).length - 2];
 									let valueField = dustbinValues.find(
 										dustVal =>
-											CrossTab.getKeyWithPrefix(dustVal, "val") == tempValue
+											CrossTab.getKeyWithPrefix(dustVal, "val") === tempValue
 									);
 
 									let _key = CrossTab.getKeyWithPrefix(valueField, "val");
@@ -537,7 +536,6 @@ const CrossTabChart = ({
 	const constructColumnHeaderArea = () => {
 		for (let i = 0; i < dustbinColumns.length; i++) {
 			if (i === 0) {
-				let tempColumnObj = CrossTab.cloneData(columnObj);
 				let tempRowObj = CrossTab.cloneData(rowObj);
 
 				let _headerColumnList = CrossTab.getColumnList(i, chartDataCSV.columns);
@@ -649,7 +647,7 @@ const CrossTabChart = ({
 						index
 					);
 
-					if (previousRowData && previousRowData.displayData == val) {
+					if (previousRowData && previousRowData.displayData === val) {
 						if (index + 2 !== rowItemArray.length) {
 							previousRowData.rowSpan = i - parseInt(previousRowData.rowIndex) + 1;
 							tempColumnObj.skip = true;
@@ -786,7 +784,7 @@ const CrossTabChart = ({
 						true
 					);
 
-					if (previousRowData && previousRowData.displayData == data[key]) {
+					if (previousRowData && previousRowData.displayData === data[key]) {
 						previousRowData.rowSpan = index - parseInt(previousRowData.rowIndex) + 1;
 						tempColumnObj.skip = true;
 					} else {

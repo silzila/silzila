@@ -392,14 +392,14 @@ const DashBoard = ({
 		} else {
 			dashBoardGroup.groups?.forEach((groupID: string) => {
 				if (dashBoardGroup.filterGroupTabTiles[groupID].includes(tileSelected)) {
-					if (dashBoardGroup.filterGroupTabTiles[groupID].length == 1) {
+					if (dashBoardGroup.filterGroupTabTiles[groupID].length === 1) {
 						deleteDashBoardSelectedGroup(groupID);
 						deleteDashBoardSelectedGroupAllTabTiles(groupID);
 					} else {
 						deleteDashBoardSelectedTabTiles(
 							groupID,
 							dashBoardGroup.filterGroupTabTiles[groupID].findIndex(
-								(id: string) => id == tileSelected
+								(id: string) => id === tileSelected
 							)
 						);
 					}
