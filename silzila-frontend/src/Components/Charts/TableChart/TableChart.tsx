@@ -246,7 +246,7 @@ const TableChart = ({
 
 	const appendRowsFieldsAsColumnsForColumnOnly = () => {
 		for (let i = crossTabData.length - 1; i >= 0; i--) {
-			let tempColumns = [];
+			let tempColumns:any = [];
 
 			///	for (let row = 0; row < dustbinColumns.length; row++) {
 			let tempColumnObj = CrossTab.cloneData(columnObj);
