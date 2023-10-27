@@ -220,7 +220,7 @@ const CrossTabChart = ({
 					tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinRows[row], "row");
 				} else {
 					/*  Feature added to include Column field to the column header  */
-					if (row == dustbinRows.length - 1) {
+					if (row === dustbinRows.length - 1) {
 						tempColumnObj.displayData = CrossTab.getKeyWithPrefix(
 							dustbinColumns[i],
 							"row"
@@ -257,7 +257,7 @@ const CrossTabChart = ({
 			// 	tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[row], "col");
 			// } else {
 			// 	/*  Feature added to include Column field to the column header  */
-			// 	if (row == dustbinColumns.length - 1) {
+			// 	if (row === dustbinColumns.length - 1) {
 			tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[i], "col");
 			// 	}
 			// }

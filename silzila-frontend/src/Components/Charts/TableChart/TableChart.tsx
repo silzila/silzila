@@ -221,10 +221,9 @@ const TableChart = ({
 				} else {
 					/*  Feature added to include Column field to the column header  */
 					if (row === dustbinRows.length - 1) {
-						tempColumnObj.displayData = CrossTab.getKeyWithPrefix(
-							dustbinColumns[i],
-							"row"
-						);
+
+						tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[i], "row");
+
 					}
 				}
 
@@ -253,19 +252,15 @@ const TableChart = ({
 			///	for (let row = 0; row < dustbinColumns.length; row++) {
 			let tempColumnObj = CrossTab.cloneData(columnObj);
 
-			// if (i === crossTabData.length - 1) {
-			// 	tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[row], "col");
-			// } else {
-			// 	/*  Feature added to include Column field to the column header  */
-			// 	if (row == dustbinColumns.length - 1) {
-			tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[i], "col");
-			// 	}
-			// }
+				// if (i === crossTabData.length - 1) {
+				// 	tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[row], "col");
+				// } else {
+				// 	/*  Feature added to include Column field to the column header  */
+				// 	if (row === dustbinColumns.length - 1) {
+						tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[i], "col");;
+				// 	}
+				// }
 
-			tempColumnObj.isRowField = true;
-			tempColumnObj.isHeaderField = true;
-			tempColumns.push(tempColumnObj);
-			///	}
 
 			crossTabData[i].columnItems = [...tempColumns, ...crossTabData[i].columnItems];
 		}
@@ -327,7 +322,9 @@ const TableChart = ({
 
 						if (_filteredData) {
 							let valueField = dustbinValues.find(
-								dustVal =>
+
+								(dustVal) =>
+
 									CrossTab.getKeyWithPrefix(dustVal, "val") === item.displayData
 							);
 
@@ -398,7 +395,7 @@ const TableChart = ({
 
 								//if (
 								// 	previousRowData &&
-								// 	previousRowData.displayData == rowValues[colIndex]
+								// 	previousRowData.displayData === rowValues[colIndex]
 								// ) {
 								// 	// previousRowData.rowSpan =
 								// 	// 	rowIndex - parseInt(previousRowData.rowIndex) + 1;
@@ -477,7 +474,8 @@ const TableChart = ({
 									let tempValue =
 										rowValues[row.split(CrossTab.delimiter).length - 2];
 									let valueField = dustbinValues.find(
-										dustVal =>
+										(dustVal) =>
+
 											CrossTab.getKeyWithPrefix(dustVal, "val") === tempValue
 									);
 
@@ -648,7 +646,7 @@ const TableChart = ({
 					// 	index
 					// );
 
-					// if (previousRowData && previousRowData.displayData == val) {
+					// if (previousRowData && previousRowData.displayData === val) {
 					// 	// if (index + 2 !== rowItemArray.length) {
 					// 	// 	previousRowData.rowSpan = i - parseInt(previousRowData.rowIndex) + 1;
 					// 	// 	tempColumnObj.skip = true;
@@ -785,7 +783,7 @@ const TableChart = ({
 					// 	true
 					// );
 
-					// if (previousRowData && previousRowData.displayData == data[key]) {
+					// if (previousRowData && previousRowData.displayData === data[key]) {
 					// 	// previousRowData.rowSpan = index - parseInt(previousRowData.rowIndex) + 1;
 					// 	// tempColumnObj.skip = true;
 					// } else {

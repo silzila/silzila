@@ -641,7 +641,7 @@ const ChartData = ({
 				// 	})
 
 				// 	if(_count > 0){
-				// 		return _count == _tileGroups.length;
+				// 		return _count === _tileGroups.length;
 				// 	}
 				// 	else{
 				// 		return true;

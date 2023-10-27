@@ -18,61 +18,58 @@ const findFieldName = (name: string, fieldTempObject: any, i: number = 2): strin
 /*
     Get display data("JSON object") from fields with prefix
   */
-export const getKeyWithPrefix = (
-	item: any = {},
-	dustbinName?: string,
-	fieldTempObject: any = {}
-) => {
-	let _nameWithAgg: string = "";
+export const getKeyWithPrefix = (item : any = {}, dustbinName? :string, fieldTempObject:any = {}) => {
+  let _nameWithAgg: string =  "";
 
-	if (dustbinName === "val") {
-		if (item.dataType.toLowerCase() !== "date" && item.dataType.toLowerCase() !== "timestamp") {
-			_nameWithAgg = item.agg ? `${item.agg} of ${item.fieldname}` : item.fieldname;
-		} else {
-			let _timeGrain: string = item.timeGrain || "";
-			_nameWithAgg = item.agg
-				? `${item.agg} ${_timeGrain} of ${item.fieldname}`
-				: item.fieldname;
-		}
+  if(dustbinName === "val"){
+    if(item.dataType.toLowerCase() !== "date" && item.dataType.toLowerCase() !== "timestamp"){
+      _nameWithAgg =	item.agg ? `${item.agg} of ${item.fieldname}`: item.fieldname;
+    }
+    else{
+      let _timeGrain:string = item.timeGrain || "";
+      _nameWithAgg = 	item.agg ? `${item.agg} ${_timeGrain} of ${item.fieldname}`: item.fieldname;
+    }
 
-		if (fieldTempObject[_nameWithAgg] !== undefined) {
-			_nameWithAgg = findFieldName(_nameWithAgg, fieldTempObject);
-		}
-	} else {
-		let _timeGrain: string = item.timeGrain || "";
-		_nameWithAgg = _timeGrain ? `${_timeGrain} of ${item.fieldname}` : item.fieldname;
-	}
+ 
+    if(fieldTempObject[_nameWithAgg] !== undefined){
+      _nameWithAgg = findFieldName(_nameWithAgg,fieldTempObject);
+    }  
+  }
+  else{
+    let _timeGrain:string = item.timeGrain || "";
+    _nameWithAgg = 	_timeGrain ? `${_timeGrain} of ${item.fieldname}`: item.fieldname;
+  }
 
-	return _nameWithAgg;
+  return _nameWithAgg;
 
-	// if (dustbinName == "val") {
-	//   //val ==> "Measure"
-	//   switch (item.dataType) {
-	//     case "date":
-	//     case "timestamp":
-	//       return `${item.fieldname}__${item.timeGrain}_${item.agg}`;
-	//     case "decimal":
-	//     case "integer":
-	//       return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;
-	//     case "text":
-	//       return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;
-	//     default:
-	//       return item?.fieldname || "";
-	//   }
-	// } else {  // col/row ==> Columns / Rows
-	//   switch (item.dataType) {
-	//     case "date":
-	//     case "timestamp":
-	//       return `${item.fieldname}__${item.agg ? item.agg : item.timeGrain}`;
-	//     case "decimal":
-	//     case "integer":
-	//       return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;
-	//     case "text":
-	//       return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;
-	//     default:
-	//       return item?.fieldname || "";
-	//   }
-	// }
+  // if (dustbinName === "val") {
+  //   //val ==> "Measure"
+  //   switch (item.dataType) {
+  //     case "date":
+  //     case "timestamp":
+  //       return `${item.fieldname}__${item.timeGrain}_${item.agg}`;
+  //     case "decimal":
+  //     case "integer":
+  //       return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;
+  //     case "text":
+  //       return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;
+  //     default:
+  //       return item?.fieldname || "";
+  //   }
+  // } else {  // col/row ==> Columns / Rows
+  //   switch (item.dataType) {
+  //     case "date":
+  //     case "timestamp":
+  //       return `${item.fieldname}__${item.agg ? item.agg : item.timeGrain}`;
+  //     case "decimal":
+  //     case "integer":
+  //       return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;
+  //     case "text":
+  //       return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;
+  //     default:
+  //       return item?.fieldname || "";
+  //   }
+  // }
 };
 
 /*
@@ -107,31 +104,27 @@ export const getColumnList = (index: number, list: any[]) => {
     Filter items from ChartData / given list for given compare Object
   */
 
-export const getFilteredChartPropDataByCompareObject = (
-	propData: any,
-	compareObj: any,
-	data?: any
-) => {
-	const finder = (item: any) => {
-		let keys = Object.keys(compareObj);
-		let isEqual = true;
+export const getFilteredChartPropDataByCompareObject = (propData:any, compareObj:any, data?:any) => {
+  const finder = (item:any) => {
+    let keys = Object.keys(compareObj);
+    let isEqual = true;
 
-		if (keys && keys.length > 0) {
-			keys.forEach(key => {
-				if (isEqual) isEqual = item[key] === compareObj[key];
-			});
+    if (keys && keys.length > 0) {
+      keys.forEach((key) => {
+        if (isEqual) isEqual = item[key] === compareObj[key];
+      });
 
-			return isEqual;
-		} else {
-			return true;
-		}
-	};
+      return isEqual;
+    } else {
+      return true;
+    }
+  };
 
-	if (data) {
-		return data.filter((item: any) => finder(item));
-	} else {
-		return propData.filter((item: any) => finder(item));
-	}
+  if (data) {
+    return data.filter((item:any) => finder(item));
+  } else {
+    return propData.filter((item:any) => finder(item));
+  }
 };
 
 /*
@@ -152,9 +145,10 @@ export const getDistinctList = (
 		let keys = Object.keys(modifiedCompareObj);
 		let isEqual = true;
 
-		keys.forEach(key => {
-			if (isEqual) isEqual = item[key] === modifiedCompareObj[key];
-		});
+    keys.forEach((key) => {
+      if (isEqual) isEqual = item[key] === modifiedCompareObj[key];
+    });
+
 
 		return isEqual;
 	};
@@ -166,10 +160,11 @@ export const getDistinctList = (
 
 		let distinctObj = list.find(item => finder(item, modifiedCompareObj));
 
-		if (resultList.length === 0 || !resultList.find(item => finder(item, modifiedCompareObj))) {
-			resultList.push(distinctObj);
-		}
-	});
+    if (resultList.length === 0 || !resultList.find((item) => finder(item, modifiedCompareObj))) {
+      resultList.push(distinctObj);
+    }
+  });
+
 
 	return resultList;
 };

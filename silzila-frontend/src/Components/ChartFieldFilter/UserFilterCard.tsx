@@ -632,7 +632,7 @@ const UserFilterCard = ({
 
 	///Search Condition Dropdown list on change handler
 	const handleDropDownForPatternOnChange = async (event: any) => {
-		// let filterObj = userFilterGroup[propName].chartUserFilters.find((usrfilter) => usrfilter.uId == data.uid);
+		// let filterObj = userFilterGroup[propName].chartUserFilters.find((usrfilter) => usrfilter.uId === data.uid);
 
 		filterFieldData["exprType"] = event.target.value;
 		// filterFieldData = _modifiedResultForServerRequest(filterFieldData);

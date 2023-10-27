@@ -33,8 +33,8 @@ const chartControl = {
 			richText: {
 				text: [
 					{
-						type: "paragraph",
-						children: [{ text: "A line of text in a paragraph." }],
+						type: "p",
+						children: [{ text: "Enter some text..." }],
 					},
 				],
 				style: null,
@@ -368,8 +368,8 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 						richText: {
 							text: [
 								{
-									type: "paragraph",
-									children: [{ text: "A line of text in a paragraph." }],
+									type: "p",
+									children: [{ text: "Enter some text..." }],
 								},
 							],
 							style: null,
@@ -699,8 +699,8 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 						richText: {
 							text: [
 								{
-									type: "paragraph",
-									children: [{ text: "A line of text in a paragraph." }],
+									type: "p",
+									children: [{ text: "Enter some text..." }],
 								},
 							],
 							style: null,
