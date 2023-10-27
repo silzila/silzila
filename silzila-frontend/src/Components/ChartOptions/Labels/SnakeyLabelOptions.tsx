@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { connect } from "react-redux";
 import "./chartLabels.css";
 import SliderWithInput from "../SliderWithInput";

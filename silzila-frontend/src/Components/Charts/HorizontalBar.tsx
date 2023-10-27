@@ -51,10 +51,7 @@ const HorizontalBar = ({
 
 						formatter: (value: FormatterValueProps) => {
 							var formattedValue = value.value[chartDataKeys[i + 1]];
-							var formattedValue = formatChartLabelValue(
-								chartControl,
-								formattedValue
-							);
+							formattedValue = formatChartLabelValue(chartControl, formattedValue);
 
 							return formattedValue;
 						},

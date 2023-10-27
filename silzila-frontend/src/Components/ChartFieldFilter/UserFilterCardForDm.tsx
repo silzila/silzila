@@ -600,12 +600,12 @@ const UserFilterCardForDm = ({
 	};
 
 	///Search condition Silder on change handler
-	const handleSliderRangeOnChange = (event: any, newValue: any) => {
-		filterFieldData["greaterThanOrEqualTo"] = newValue[0];
-		filterFieldData["lessThanOrEqualTo"] = newValue[1];
-		sliderRange = newValue;
-		updateLeftFilterItemForDm(propKey, 0, constructChartAxesFieldObject());
-	};
+	// const handleSliderRangeOnChange = (event: any, newValue: any) => {
+	// 	filterFieldData["greaterThanOrEqualTo"] = newValue[0];
+	// 	filterFieldData["lessThanOrEqualTo"] = newValue[1];
+	// 	sliderRange = newValue;
+	// 	updateLeftFilterItemForDm(propKey, 0, constructChartAxesFieldObject());
+	// };
 
 	const checkValidDate = (val: any) => {
 		if (

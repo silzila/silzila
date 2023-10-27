@@ -25,8 +25,7 @@ const FlatFileReducer = (state: FlatFileState = initialState, action: FlatFileAc
 			});
 		case "TOGGLE_EDIT_MODE":
 			return update(state, { editMode: { $set: action.payload } });
-		case "CONFIRM_MODIFIED_RESPONSE":
-			return update(state, { confirmModifiedResponse: { $set: action.payload } });
+
 		case "RESET_STATE":
 			return (state = initialState);
 		default:
