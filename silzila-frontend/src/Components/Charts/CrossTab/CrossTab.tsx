@@ -44,7 +44,7 @@ export const getKeyWithPrefix = (item : any = {}, dustbinName? :string, fieldTem
 
   return _nameWithAgg;
 
-  // if (dustbinName == "val") {
+  // if (dustbinName === "val") {
   //   //val ==> "Measure"
   //   switch (item.dataType) {
   //     case "date":
@@ -110,7 +110,7 @@ export const getFilteredChartPropDataByCompareObject = (propData:any, compareObj
 
     if (keys && keys.length > 0) {
       keys.forEach((key) => {
-        if (isEqual) isEqual = item[key] == compareObj[key];
+        if (isEqual) isEqual = item[key] === compareObj[key];
       });
 
       return isEqual;
@@ -140,7 +140,7 @@ export const getDistinctList = (dustbinColumns:any, compareObj:any, columnIndex:
     let isEqual = true;
 
     keys.forEach((key) => {
-      if (isEqual) isEqual = item[key] == modifiedCompareObj[key];
+      if (isEqual) isEqual = item[key] === modifiedCompareObj[key];
     });
 
     return isEqual;
@@ -153,7 +153,7 @@ export const getDistinctList = (dustbinColumns:any, compareObj:any, columnIndex:
 
     let distinctObj = list.find((item) => finder(item, modifiedCompareObj));
 
-    if (resultList.length == 0 || !resultList.find((item) => finder(item, modifiedCompareObj))) {
+    if (resultList.length === 0 || !resultList.find((item) => finder(item, modifiedCompareObj))) {
       resultList.push(distinctObj);
     }
   });

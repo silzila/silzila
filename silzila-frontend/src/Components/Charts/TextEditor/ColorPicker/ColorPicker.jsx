@@ -1,15 +1,16 @@
 import React, { useRef, useState } from "react";
-import { MdFormatColorText, MdFormatColorFill, MdCheck } from "react-icons/md";
+import {  MdOutlineFormatPaint, MdCheck } from "react-icons/md";
 import "./ColorPicker.css";
 import { colors } from "./defaultColors.js";
 import { addMarkData, activeMark } from "../utils/SlateUtilityFunctions.js";
 import { Transforms } from "slate";
 import usePopup from "../utils/usePopup";
 import { ReactEditor } from "slate-react";
+import { FaFont } from "react-icons/fa6";
 
 const logo = {
-  color: <MdFormatColorText size={20} />,
-  bgColor: <MdFormatColorFill size={20} />
+  color: <FaFont size={16} />,
+  bgColor: <MdOutlineFormatPaint size={16} />
 };
 const ColorPicker = ({ format, editor }) => {
   const [selection, setSelection] = useState();
@@ -56,7 +57,8 @@ const ColorPicker = ({ format, editor }) => {
     <div className="color-picker popup-wrapper" ref={colorPickerRef}>
       <button
         style={{
-          color: showOptions ? "black" : activeMark(editor, format),
+          color: showOptions ? "black" : `linear-gradient(to bottom, transparent 85%, ${activeMark(editor, format)} 15%)`,
+          backgroundImage: `linear-gradient(to bottom, transparent 85%, ${activeMark(editor, format)} 15%)`,
           opacity: "1"
         }}
         className={showOptions ? "clicked" : ""}

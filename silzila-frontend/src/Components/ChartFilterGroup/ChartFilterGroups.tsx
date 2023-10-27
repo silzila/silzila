@@ -188,7 +188,7 @@ const ChartFilterGroups = ({
 		} else {
 			deleteDashBoardSelectedTabTiles(
 				group.id,
-				selectedGroupTabTilesList.findIndex((id: string) => id == event.target.id)
+				selectedGroupTabTilesList.findIndex((id: string) => id === event.target.id)
 			);
 		}
 	};
@@ -200,7 +200,7 @@ const ChartFilterGroups = ({
 		paddingTop: "5px",
 	};
 
-	if (!group.isCollapsed && group.filters && group.filters.length == 0) {
+	if (!group.isCollapsed && group.filters && group.filters.length === 0) {
 		groupsStyle["minHeight"] = "100px";
 	}
 

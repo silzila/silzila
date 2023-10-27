@@ -228,7 +228,7 @@ const TableChart = ({
 					tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinRows[row], "row");
 				} else {
 					/*  Feature added to include Column field to the column header  */
-					if (row == dustbinRows.length - 1) {
+					if (row === dustbinRows.length - 1) {
 						tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[i], "row");
 					}
 				}
@@ -262,7 +262,7 @@ const TableChart = ({
 				// 	tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[row], "col");
 				// } else {
 				// 	/*  Feature added to include Column field to the column header  */
-				// 	if (row == dustbinColumns.length - 1) {
+				// 	if (row === dustbinColumns.length - 1) {
 						tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[i], "col");;
 				// 	}
 				// }
@@ -333,7 +333,7 @@ const TableChart = ({
 						if (_filteredData) {
 							let valueField = dustbinValues.find(
 								(dustVal) =>
-									CrossTab.getKeyWithPrefix(dustVal, "val") == item.displayData
+									CrossTab.getKeyWithPrefix(dustVal, "val") === item.displayData
 							);
 
 							let _key = CrossTab.getKeyWithPrefix(valueField, "val");
@@ -403,7 +403,7 @@ const TableChart = ({
 
 								//if (
 								// 	previousRowData &&
-								// 	previousRowData.displayData == rowValues[colIndex]
+								// 	previousRowData.displayData === rowValues[colIndex]
 								// ) {
 								// 	// previousRowData.rowSpan =
 								// 	// 	rowIndex - parseInt(previousRowData.rowIndex) + 1;
@@ -483,7 +483,7 @@ const TableChart = ({
 										rowValues[row.split(CrossTab.delimiter).length - 2];
 									let valueField = dustbinValues.find(
 										(dustVal) =>
-											CrossTab.getKeyWithPrefix(dustVal, "val") == tempValue
+											CrossTab.getKeyWithPrefix(dustVal, "val") === tempValue
 									);
 
 									let _key = CrossTab.getKeyWithPrefix(valueField, "val");
@@ -649,7 +649,7 @@ const TableChart = ({
 						index
 					);
 
-					// if (previousRowData && previousRowData.displayData == val) {
+					// if (previousRowData && previousRowData.displayData === val) {
 					// 	// if (index + 2 !== rowItemArray.length) {
 					// 	// 	previousRowData.rowSpan = i - parseInt(previousRowData.rowIndex) + 1;
 					// 	// 	tempColumnObj.skip = true;
@@ -778,7 +778,7 @@ const TableChart = ({
 						true
 					);
 
-					// if (previousRowData && previousRowData.displayData == data[key]) {
+					// if (previousRowData && previousRowData.displayData === data[key]) {
 					// 	// previousRowData.rowSpan = index - parseInt(previousRowData.rowIndex) + 1;
 					// 	// tempColumnObj.skip = true;
 					// } else {

@@ -562,14 +562,13 @@ const GraphArea = ({
 	};
 
 	useEffect(() => {
-		if (chartProperties.properties[propKey].chartType === "richText") {
-			setTitleText(selectedDynamicMeasureProp?.editedDynamicMeasureName);
-		} else {
+		// if (chartProperties.properties[propKey].chartType === "richText") {
+		// 	setTitleText(selectedDynamicMeasureProp?.editedDynamicMeasureName);
+		// } else {
 			setTitleText(chartProperties.properties[propKey].titleOptions.chartTitle);
-		}
+		//}
 	}, [
-		chartProperties.properties[propKey].titleOptions.chartTitle,
-		selectedDynamicMeasureProp?.dynamicMeasureName,
+		chartProperties.properties[propKey].titleOptions.chartTitle
 	]);
 
 	const [inputTitleText, setTitleText] = useState<string>("");
@@ -578,11 +577,11 @@ const GraphArea = ({
 	};
 
 	const completeRename = () => {
-		if (chartProperties.properties[propKey].chartType === "richText") {
-			renameDynamicMeasure(inputTitleText);
-		} else {
+		// if (chartProperties.properties[propKey].chartType === "richText") {
+		// 	renameDynamicMeasure(inputTitleText);
+		// } else {
 			setChartTitle(propKey, inputTitleText);
-		}
+	//	}
 		setEditTitle(false);
 	};
 

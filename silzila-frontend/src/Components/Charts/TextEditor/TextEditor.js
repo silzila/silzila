@@ -43,6 +43,7 @@ const LIST_TYPES = ['numbered-list', 'bulleted-list']
 
 const TextEditor = ({
 	propKey,
+  graphDimension,
 	updateRichText,
 	tabTileProps,
 	chartProp,
@@ -236,7 +237,7 @@ const Leaf = ({ attributes, children, leaf }) => {
 
 const Element = (props) => {
   const { attributes, children, element } = props;
-  const style = { textAlign: element.align || 'left' };
+  let align = 'left';
 
   switch(element.type){
     case 'mention':
@@ -250,10 +251,13 @@ const Element = (props) => {
     case 'blockquote':
         return <blockquote {...attributes}>{children}</blockquote>
     case 'alignLeft':
+        //align = 'left';
         return <div style={{textAlign:'left',listStylePosition:'inside'}} {...attributes}>{children}</div>
     case 'alignCenter':
+        //align = 'center';
         return <div style={{textAlign:'center',listStylePosition:'inside'}} {...attributes}>{children}</div>
     case 'alignRight':
+        //align = 'right';
         return <div style={{textAlign:'right',listStylePosition:'inside'}} {...attributes}>{children}</div>
     case 'list-item':
         return  <li {...attributes}>{children}</li>
@@ -271,7 +275,7 @@ const Element = (props) => {
     case 'table-row':
         return <tr {...attributes}>{children}</tr>
     case 'table-cell':
-        return <td {...attributes}>{children}</td>
+        return <td style={{textAlign: align || 'left',listStylePosition:'inside'}} {...attributes}>{children}</td>
     case 'image':
         return <Image {...props}/>
     case 'video':
@@ -412,7 +416,7 @@ if (element.measureStyle.backgroundColor != 'white') {
           placeholder="Enter some text..."
         
           style={{
-            minHeight: '300px',
+            minHeight: 'auto',
             border: "1px solid rgb(222, 222, 222)",
             padding: '2px 2px 2px 12px'
           }}

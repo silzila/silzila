@@ -76,7 +76,7 @@ export const BuildTable = ({
 			_userCellCompareJSON = _cellData?.compareObj;
 
 			if (Object.keys(_userCellCompareJSON).length > 0) {
-				if (_idArray[2] == "true") {
+				if (_idArray[2] === "true") {
 					_className = "UserClickedCellRemainingChildren";
 
 					if (_idArray[0] < dustbinColumns.length + 1) {
@@ -95,12 +95,12 @@ export const BuildTable = ({
 								_userCellCompareJSON
 							);
 						} else {
-							if (rowIndex == _idArray[0]) {
+							if (rowIndex === _idArray[0]) {
 								return "UserClickedCellChildren";
 							}
 						}
 					} else {
-						if (colIndex == _idArray[1]) {
+						if (colIndex === _idArray[1]) {
 							return "UserClickedCellChildren";
 						}
 					}
