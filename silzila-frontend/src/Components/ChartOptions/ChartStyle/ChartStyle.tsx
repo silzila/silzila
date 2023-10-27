@@ -36,7 +36,6 @@ const ChartStyle = ({
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
 	const [isColorPopoverOpen, setColorPopOverOpen] = useState<boolean>(false);
-	const [anchorEl, setAnchorEl] = useState<string>("");
 	const [optionName, setOptionName] = useState<string>("Header");
 	let options: any = {};
 

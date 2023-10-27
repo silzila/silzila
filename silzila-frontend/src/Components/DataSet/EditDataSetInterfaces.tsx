@@ -9,7 +9,6 @@ export interface EditDatasetProps {
 	//state
 	token: string;
 	dsId: string;
-	isFlatFile: boolean;
 
 	//dispatch
 	setValuesToState: (

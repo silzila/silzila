@@ -121,7 +121,7 @@ export const BuildTable = ({
 
 		_header = rowIndex < dustbinColumns.length ? "CrossTabHeader " : "CrossTabLeftColumnHeader";
 
-		if(chartProperties.properties[propKey].chartType === 'table'){
+		if (chartProperties.properties[propKey].chartType === "table") {
 			_header = "TableHeader";
 		}
 

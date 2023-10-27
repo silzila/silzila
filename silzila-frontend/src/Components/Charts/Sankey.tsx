@@ -41,14 +41,14 @@ const Sankey = ({
 
 			//getting measure value as string since allowed numof measure is 1 for this chart
 
-			chartProperties.properties[propKey].chartAxes[2].fields.map(el => {
+			chartProperties.properties[propKey].chartAxes[2].fields.forEach(el => {
 				// measure = `${el.fieldname}__${el.agg}`;
 				measure = `${el.agg} of ${el.fieldname}`;
 			});
 
 			const getColorOfNode = (nodeName: string) => {
 				var color = "";
-				chartControl.sankeyControls.nodesAndColors.map(el => {
+				chartControl.sankeyControls.nodesAndColors.forEach(el => {
 					if (el.nodeName === nodeName) {
 						color = el.nodeColor;
 					}

@@ -11,8 +11,7 @@ import { formatChartLabelValue } from "../../ChartOptions/Format/NumberFormatter
 const CrossTabChart = ({
 	propKey,
 	graphDimension,
-	chartArea,
-	graphTileSize,
+
 	//state
 	chartControls,
 	chartProperties,
@@ -537,7 +536,6 @@ const CrossTabChart = ({
 	const constructColumnHeaderArea = () => {
 		for (let i = 0; i < dustbinColumns.length; i++) {
 			if (i === 0) {
-				let tempColumnObj = CrossTab.cloneData(columnObj);
 				let tempRowObj = CrossTab.cloneData(rowObj);
 
 				let _headerColumnList = CrossTab.getColumnList(i, chartDataCSV.columns);

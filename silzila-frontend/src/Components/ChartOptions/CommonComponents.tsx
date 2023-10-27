@@ -172,7 +172,7 @@ export const checkIsConditionSatisfied = (formatsArray: any, dmValue: number) =>
 			}
 		}
 		if (el.conditionType === 6) {
-			if (dmValue != el.target) {
+			if (dmValue !== el.target) {
 				el.isConditionSatisfied = true;
 			} else {
 				el.isConditionSatisfied = false;

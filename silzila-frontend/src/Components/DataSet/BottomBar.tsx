@@ -24,6 +24,7 @@ import {
 	tablesSelectedInSidebarProps,
 } from "./BottomBarInterfaces";
 import { AlertColor } from "@mui/material/Alert";
+
 import { TextFieldBorderStyle } from "../DataConnection/muiStyles";
 
 const BottomBar = ({
@@ -250,27 +251,27 @@ const BottomBar = ({
 					justifyContent: "flex-end",
 				}}
 			>
-				<Tooltip title="Click to Edit">
+				<Tooltip
+					title="Click to Edit"
+					sx={{
+						"& .MuiTextField-root": { margin: 1, width: "20px" },
+					}}
+				>
 					<TextField
 						sx={{
 							flex: 1,
 							margin: "auto 20px",
 							maxWidth: "200px",
 						}}
-						InputProps={TextFieldBorderStyle}
 						inputProps={{
 							style: {
-								height: "35px",
-								padding: "0px 10px",
 								fontSize: "14px",
 								color: "#3B3C36",
 							},
 						}}
-						InputLabelProps={{
-							sx: {
-								fontSize: "12px",
-							},
-						}}
+						InputProps={TextFieldBorderStyle}
+						id="outlined-size-small"
+						size="small"
 						onChange={e => {
 							e.preventDefault();
 							setFname(e.target.value);
@@ -280,7 +281,15 @@ const BottomBar = ({
 					/>
 				</Tooltip>
 
-				<Button variant="contained" onClick={onSendData} id="setButton">
+				<Button
+					variant="contained"
+					onClick={onSendData}
+					id="setButton"
+					sx={{
+						backgroundColor: "#2bb9bb",
+						textTransform: "none",
+					}}
+				>
 					{sendOrUpdate}
 				</Button>
 			</div>

@@ -30,11 +30,6 @@ interface setEditApiResponse {
 	payload: any;
 }
 
-interface setModifiedApiResponse {
-	type: "CONFIRM_MODIFIED_RESPONSE";
-	payload: any;
-}
-
 interface setEditApiResponseProp {
 	type: "EDIT_API_RESPONSE_PROP";
 	payload: { key: string; file: any };
@@ -51,7 +46,6 @@ interface toggleEditMode {
 export type FlatFileActions =
 	| setApiResponse
 	| setEditApiResponse
-	| setModifiedApiResponse
 	| setEditApiResponseProp
 	| resetFlatFileState
 	| toggleEditMode;

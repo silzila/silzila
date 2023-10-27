@@ -84,7 +84,7 @@ const CanvasTableColumns = ({
 			}
 		} else {
 			var oldRel: boolean = false;
-			arrows.map((arr: ArrowsProps) => {
+			arrows.forEach((arr: ArrowsProps) => {
 				if (
 					(arr.start === e.dataTransfer.getData("connectItemId") && arr.end === itemId) ||
 					(arr.end === e.dataTransfer.getData("connectItemId") && arr.start === itemId)

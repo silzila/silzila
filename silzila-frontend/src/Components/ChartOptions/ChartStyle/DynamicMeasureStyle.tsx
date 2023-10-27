@@ -30,8 +30,6 @@ const DynamicMeasureStyle = ({
 			`${dynamicMeasureProps.selectedTileId}.${dynamicMeasureProps.selectedDynamicMeasureId}`
 		];
 
-	const fontStyle: string[] = ["italic", "oblique", "normal"];
-
 	const [isFontColorPopoverOpen, setFontColorPopOverOpen] = useState<boolean>(false);
 	const [isbgColorPopoverOpen, setbgColorPopOverOpen] = useState<boolean>(false);
 
