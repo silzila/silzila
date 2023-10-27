@@ -54,7 +54,7 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 	const [dcDelMeg, setDcDelMeg] = useState<string>("");
 	const [btnEnable, setBtnEnable] = useState<boolean>(false);
 	const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-	const [selected, setSelected] = useState<string>("");
+	const [selected, setSelected] = useState<string>('');
 	const [showform, setShowform] = useState<boolean>(false);
 	const [enable, setEnable] = useState<boolean>(false);
 	const [changedb, setChangeDB] = useState<boolean>(false);
