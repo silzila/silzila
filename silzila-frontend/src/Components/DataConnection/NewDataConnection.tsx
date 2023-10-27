@@ -51,7 +51,7 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("Testing alert");
     const [dcDel, setDcDel] = useState<boolean>(false);
-	const [dcDelMeg, setDcDelMeg] = useState<string>("");
+	const [dcDelMeg, setDcDelMeg] = useState<string>('');
 	const [btnEnable, setBtnEnable] = useState<boolean>(false);
 	const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 	const [selected, setSelected] = useState<string>('');
