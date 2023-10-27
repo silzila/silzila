@@ -54,10 +54,12 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 	const [dcDelMeg, setDcDelMeg] = useState<string>("");
 	const [btnEnable, setBtnEnable] = useState<boolean>(false);
 	const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-	const [selected, setSelected] = useState<string>('');
+	const [selected, setSelected] = useState<string>("");
 	const [showform, setShowform] = useState<boolean>(false);
 	const [enable, setEnable] = useState<boolean>(false);
-	const navigate =  useNavigate();
+	const [changedb, setChangeDB] = useState<boolean>(false);
+	const [values, setValues] = useState<string>('');
+    const navigate =  useNavigate();
     const location = useLocation();
     const state	= location.state;
     
@@ -557,18 +559,38 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 
     
 	//handleListItem function is used for highlighting the selected DataConnection
-	const handleListItem = ( value: string ) => {
-		setSelected(value);
-		if(value){
-			setShowform(true);
-			}	
-	  };
-
+	const handleListItem = ( value: string) => {
+			setSelected(value);
+			if(value){
+				setShowform(true);
+				}		
+		}
+	
+     const setDataConnection = (value: string) => {
+        setAccount({
+			...account,
+			vendor: value,
+			server: value === "databricks" ? "" : "localhost" && value === "redshift" ? "" : "localhost" ,
+			port: getUrlAndPort(value),
+			database: value === "databricks" ? "default" : "",
+			httpPath: "",
+			username: "",
+			password: "",
+			connectionName: "",
+			serverError: "",
+			portError: "", 
+			databaseError: "", 
+			httpPathError: "", 
+			userNameError: "", 
+			passwordError: "", 
+			connectionNameError: "",
+		});
+	 }
 
   return (
-    <div>
+    <div style={{height: '100vh'}}>
       
-    <div style={{borderBottom:'2px solid rgba(224, 224, 224, 1)'}}>
+    <div style={{borderBottom: '2px solid rgba(224, 224, 224, 1)'}}>
         <MenuBar from="dataSet" />
     </div>
    
@@ -579,15 +601,16 @@ const NewDataConnection = (props: DataConnectionProps)  => {
         onSubmit();
       }
     }>
+		
     <Box 
     sx={{ 
-    minHeight:'100vh', 
-    display:'flex', 
-    flexDirection:'column', 
-    flex:0.20, 
-    borderRight:'2px solid rgba(224, 224, 224, 1)', 
-    padding:'1rem 2rem',
-    alignItems:'flex-start'
+    minHeight: '100vh', 
+    display: 'flex', 
+    flexDirection: 'column', 
+    flex: 0.15, 
+    borderRight: '2px solid rgba(224, 224, 224, 1)', 
+    padding: '1rem 2rem',
+    alignItems: 'flex-start'
     }}
     >    
            <div>
@@ -607,13 +630,83 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 						<div 
 						onClick={() => {
 							if(!viewMode && !enable){
-                              setAccount({
-								...account,
-								vendor: value,
-								server: value === "databricks" ? "" : "localhost" && value === "redshift" ? "" : "localhost" ,
-								port: getUrlAndPort(value),
-								database: value === "databricks" ? "default" : "",
-							});
+								if(value !== ''){
+									if(account.vendor !== ''){
+										if(account.vendor !== value){
+											if(value === 'redshift'){
+												if(account.vendor === 'databricks'){
+													if(account.server !== '' || account.httpPath !== ''  || account.password !== '' || account.connectionName !== ''){
+														setChangeDB(true);
+														setValues(value);
+													}else{
+														setDataConnection(value);
+													}	
+												}else{
+													if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql'){
+														if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+															setChangeDB(true);
+														    setValues(value);
+														}else{
+															setDataConnection(value);	
+														}
+													}
+												}
+											}else{
+												if(value === 'databricks'){
+													if(account.vendor === 'redshift'){
+														if(account.server !== '' || account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+															setChangeDB(true);
+															setValues(value);
+														}else{
+															setDataConnection(value);
+														}
+													}else{
+														if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql'){
+															if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+																setChangeDB(true);
+																setValues(value);
+															}else{
+																setDataConnection(value);	
+															}
+														}
+													}
+												}else{
+													if(value === 'sqlserver' || 'mysql' || 'postgresql'){
+														if(account.vendor === 'redshift'){
+															if(account.server !== '' || account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+																setChangeDB(true);
+																setValues(value);
+															}else{
+																setDataConnection(value);
+															}
+														}else{
+															if(account.vendor === 'databricks'){
+																if(account.server !== '' || account.httpPath !== ''  || account.password !== '' || account.connectionName !== ''){
+																	setChangeDB(true);
+																	setValues(value);
+																}else{
+																	setDataConnection(value);
+																}	
+															}else{
+																	if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+																		setChangeDB(true);
+																		setValues(value);
+																	}else{
+																		setDataConnection(value);	
+																	}
+															}
+														}
+													}
+												}
+											}
+										}else{
+											if(account.vendor === value){}
+										}
+									}else{
+										setDataConnection(value);
+									}
+
+								}
 							btnEnabelDisable();
 						}
 					else{
@@ -635,6 +728,45 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 								if(enable){
                                     return setEnable(true);
 								}
+
+								if(account.vendor !== ''){
+									if(value === 'sqlserver' || 'mysql' || 'postgresql' ){
+										if(account.vendor === 'databricks'){
+											if(account.server === '' || account.httpPath === '' || account.password === '' || account.connectionName === ''){
+												handleListItem(value);
+											}
+										}else{
+											if(account.vendor === 'redshift'){
+												if(account.server === '' || account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+													handleListItem(value);
+												}}else{
+													if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+														handleListItem(value);
+													}}}}
+
+                                    else{
+									if(value === 'databricks'){
+										if(account.vendor === 'redshift'){
+											if(account.server === '' || account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+												handleListItem(value);
+											}}else{
+												if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+													handleListItem(value);
+												}}
+											}
+											
+											else{
+												if(value === 'redshift'){
+													if(account.vendor === 'databricks') {
+														if(account.server === '' || account.httpPath === '' || account.password === '' || account.connectionName === ''){
+															handleListItem(value);
+														}}else{
+															if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+																handleListItem(value);
+															}
+														}}}}
+								} 
+                                
 								if(!viewMode && !enable){
 									handleListItem(value);
 								}
@@ -670,15 +802,16 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 			</div>
 		</div> 
     </Box>
-
+     
     <Box
-	sx={{ display:'flex', flexDirection:'column', gap:'55px', flex:1,  paddingTop:'1.5rem'}}>
+	sx={{ display:'flex', flexDirection:'column', flex:1,  marginTop:'1.5rem'}}>
 
 		{ showform || viewMode ?
 		<>
-           <div
-		   style={{ display:'flex', flexDirection:'column', gap:'15px', alignItems:'center'}}>
-			   <div>
+            <div 
+		    style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
+
+			    <div>
 				   {viewMode ? (
 					   <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>DB Connection</Typography>
 								   ) : regOrUpdate === "Update" ? (
@@ -687,10 +820,13 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 					   <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Create DB Connection</Typography>
 								   )
 				   }
-			   </div>
+			    </div>
 			   
 				{/*========================== Reusable Component from ../CommonFunctions/TextFieldComponents========================= */}
-				{}
+			    <div
+				style={{ display:'flex', flexDirection:'column', gap:'15px', alignItems:'center', width: '100%', marginTop: '20px', padding: '5px',
+				height:540, overflow: 'hidden', overflowY: 'scroll'}}>
+					
 							   <TextFieldComponent
 								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 									   setAccount({ ...account, server: e.target.value });
@@ -872,8 +1008,10 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 							   <small className="dbConnectionErrorText">
 								   {account.connectionNameError}
 							   </small>
-			               </div>
-	                            
+			                </div>
+							</div>	
+                            
+							<div className="dbButton">
 							   {viewMode ? (
 								   <div className="dbFormButton">
 									   <Button
@@ -885,13 +1023,13 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 											   handleMode("Edit");
 											   setEnable(true)
 										   }}
-										   style={{ backgroundColor: "#af99db" }}
+										   style={{ backgroundColor: "#af99db", marginRight: '20px' }}
 									   >
 										   Edit
 									   </Button>
 									   <Button
 										   variant="contained"
-										   style={{ backgroundColor: "red" }}
+										   style={{ backgroundColor: "red", marginRight: '10px'}}
 										   onClick={deleteDcWarning}
 									   >
 										   Delete
@@ -918,6 +1056,7 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 											   backgroundColor: btnEnable
 												   ? "rgba(224,224,224,1)"
 												   : "#2bb9bb",
+												   marginRight: '5px'
 										   }}
 										   onClick={e => {
 											   e.preventDefault();
@@ -929,6 +1068,7 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 									   </Button>
 								   </div>
 							   )}
+							   </div>
 							   </>
 							   :
 		                       <div>
@@ -950,7 +1090,41 @@ const NewDataConnection = (props: DataConnectionProps)  => {
                 openAlert={openAlert}
                 />
 
-            <Dialog open={openConfirmDialog} sx={{marginLeft:'20rem'}}>
+           <Dialog open={changedb} sx={{marginLeft:'16rem'}}>
+				<div className="dbDeleteDialog">
+					<div className="dbDeleteDialogMsg">
+					You are selecting a different database vendor. Are you sure to reset connection details?
+						<br />
+						<br />
+					</div>
+					<div className="dbDeleteDialogBtnContainer">
+						<Button
+							className="dbDeleteDialogBtn1"
+							variant="contained"
+							onClick={() => {
+										setChangeDB(false);
+										handleListItem(values);
+										setDataConnection(values);
+								}}
+						>
+							Continue
+						</Button>
+
+						<Button
+							className="dbDeleteDialogBtn2"
+							variant="contained"
+							onClick={() => {
+								setChangeDB(false);
+								handleListItem(account.vendor);
+							}}
+						>
+							Cancle
+						</Button>
+					 </div>
+				</div>
+			</Dialog>		
+            
+            <Dialog open={openConfirmDialog} sx={{marginLeft:'16.7rem'}}>
 				<div className="dbDeleteDialog">
 					<div className="dbDeleteDialogMsg">
 						Delete DB Connection?
