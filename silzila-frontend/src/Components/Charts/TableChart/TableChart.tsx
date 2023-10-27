@@ -221,7 +221,6 @@ const TableChart = ({
 				} else {
 					/*  Feature added to include Column field to the column header  */
 					if (row === dustbinRows.length - 1) {
-
 						tempColumnObj.displayData = CrossTab.getKeyWithPrefix(dustbinColumns[i], "row");
 
 					}
@@ -247,7 +246,7 @@ const TableChart = ({
 
 	const appendRowsFieldsAsColumnsForColumnOnly = () => {
 		for (let i = crossTabData.length - 1; i >= 0; i--) {
-			let tempColumns = [];
+			let tempColumns:any = [];
 
 			///	for (let row = 0; row < dustbinColumns.length; row++) {
 			let tempColumnObj = CrossTab.cloneData(columnObj);
@@ -324,7 +323,6 @@ const TableChart = ({
 							let valueField = dustbinValues.find(
 
 								(dustVal) =>
-
 									CrossTab.getKeyWithPrefix(dustVal, "val") === item.displayData
 							);
 
@@ -475,7 +473,6 @@ const TableChart = ({
 										rowValues[row.split(CrossTab.delimiter).length - 2];
 									let valueField = dustbinValues.find(
 										(dustVal) =>
-
 											CrossTab.getKeyWithPrefix(dustVal, "val") === tempValue
 									);
 

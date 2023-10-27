@@ -42,7 +42,7 @@ export const getKeyWithPrefix = (item : any = {}, dustbinName? :string, fieldTem
 
   return _nameWithAgg;
 
-  // if (dustbinName === "val") {
+  // if (dustbinName ==== "val") {
   //   //val ==> "Measure"
   //   switch (item.dataType) {
   //     case "date":
@@ -158,7 +158,7 @@ export const getDistinctList = (
 		let _key = getKeyWithPrefix(dustbinColumns[columnIndex]);
 		modifiedCompareObj[_key] = item[_key];
 
-		let distinctObj = list.find(item => finder(item, modifiedCompareObj));
+    let distinctObj = list.find((item) => finder(item, modifiedCompareObj));
 
     if (resultList.length === 0 || !resultList.find((item) => finder(item, modifiedCompareObj))) {
       resultList.push(distinctObj);
