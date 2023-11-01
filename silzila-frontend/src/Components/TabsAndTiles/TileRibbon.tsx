@@ -14,9 +14,8 @@ import {
 import IndividualTile from "./IndividualTile";
 import { TileRibbonProps, TileRibbonStateProps } from "./TileRibbonInterfaces";
 import AddIcon from "@mui/icons-material/Add";
-import {addChartFilterTabTileName} from '../../redux/ChartFilterGroup/ChartFilterGroupStateActions';
+import { addChartFilterTabTileName } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 import Logger from "../../Logger";
-
 
 const TileRibbon = ({
 	// state
@@ -33,18 +32,16 @@ const TileRibbon = ({
 	enableRenameTile,
 	completeRenameTile,
 	removeTile,
-	addChartFilterTabTileName
+	addChartFilterTabTileName,
 }: TileRibbonProps) => {
-
-	const addReportFilterGroup = (nextPropKey:string)=>{
+	const addReportFilterGroup = (nextPropKey: string) => {
 		var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
-		let selectedFilterGroups = chartGroup.tabTile[propKey] || [];
 		let selectedDatasetID = chartProp.properties[propKey].selectedDs.id;
 
-	///	if (!(selectedFilterGroups && selectedFilterGroups.length > 0)) {
-			addChartFilterTabTileName(selectedDatasetID, nextPropKey);
-	///	}
-	}
+		///	if (!(selectedFilterGroups && selectedFilterGroups.length > 0)) {
+		addChartFilterTabTileName(selectedDatasetID, nextPropKey);
+		///	}
+	};
 
 	// adding new tile information to store
 	const handleAddTile = () => {
@@ -59,9 +56,8 @@ const TileRibbon = ({
 			chartProp.properties[propKey].selectedDs,
 			chartProp.properties[propKey].selectedTable
 		);
-	
+
 		addReportFilterGroup(`${tabObj.tabId}.${tabObj.nextTileId}`);
-		
 	};
 
 	const handleSelectTile = (tileId: number, tileName: string, tabId: number, tabName: string) => {
@@ -207,7 +203,7 @@ const mapStateToProps = (state: TileRibbonStateProps) => {
 		tileState: state.tileState,
 		tableData: state.tableData,
 		chartProp: state.chartProperties,
-		chartGroup : state.chartFilterGroup
+		chartGroup: state.chartFilterGroup,
 	};
 };
 

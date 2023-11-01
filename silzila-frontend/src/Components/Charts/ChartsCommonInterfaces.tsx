@@ -50,4 +50,3 @@ export interface ChartDataFieldProps {
 	uId: string;
 	agg?: any;
 }
-var i = {};

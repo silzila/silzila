@@ -2,7 +2,6 @@
 // Number of dropzones and its name is returned according to the chart type selected.
 // Once minimum number of fields are met for the given chart type, server call is made to get chart data and saved in store
 
-import React, { useState } from "react";
 import { connect } from "react-redux";
 import ChartsInfo from "./ChartsInfo2";
 import "./ChartAxes.css";
@@ -22,8 +21,6 @@ const ChartAxes = ({
 	chartProp,
 	changeLocation,
 }: ChartAxesProps) => {
-	const [loading, setLoading] = useState<boolean>(false);
-
 	var propKey: string = `${tabId}.${tileId}`;
 	var dropZones: any = [];
 	for (let i = 0; i < ChartsInfo[chartProp.properties[propKey].chartType].dropZones.length; i++) {

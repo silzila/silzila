@@ -3,25 +3,26 @@
 
 import update from "immutability-helper";
 
-function removeTagFromHTMLString(htmlString: any, tagName: any, id: string) {
-	// Create a new DOMParser instance
-	const parser = new DOMParser();
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// function removeTagFromHTMLString(htmlString: any, tagName: any, id: string) {
+// 	// Create a new DOMParser instance
+// 	const parser = new DOMParser();
 
-	// Parse the HTML string
-	const doc = parser.parseFromString(htmlString, "text/html");
+// 	// Parse the HTML string
+// 	const doc = parser.parseFromString(htmlString, "text/html");
 
-	// Find all the elements with the specified tag name
-	var element = doc.getElementById(id);
+// 	// Find all the elements with the specified tag name
+// 	var element = doc.getElementById(id);
 
-	if (element) {
-		element.remove();
-	}
+// 	if (element) {
+// 		element.remove();
+// 	}
 
-	// Serialize the modified DOM back to an HTML string
-	const modifiedHTMLString = new XMLSerializer().serializeToString(doc);
+// 	// Serialize the modified DOM back to an HTML string
+// 	const modifiedHTMLString = new XMLSerializer().serializeToString(doc);
 
-	return modifiedHTMLString;
-}
+// 	return modifiedHTMLString;
+// }
 
 const chartControl = {
 	properties: {
@@ -32,8 +33,8 @@ const chartControl = {
 			richText: {
 				text: [
 					{
-						type: "paragraph",
-						children: [{ text: "A line of text in a paragraph." }],
+						type: "p",
+						children: [{ text: "Enter some text..." }],
 					},
 				],
 				style: null,
@@ -346,6 +347,7 @@ const chartControl = {
 			tableRule: [],
 
 			tableConditionalFormats: [],
+			simplecardConditionalFormats: [],
 		},
 	},
 
@@ -366,8 +368,8 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 						richText: {
 							text: [
 								{
-									type: "paragraph",
-									children: [{ text: "A line of text in a paragraph." }],
+									type: "p",
+									children: [{ text: "Enter some text..." }],
 								},
 							],
 							style: null,
@@ -675,6 +677,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 						tableRule: [],
 
 						tableConditionalFormats: [],
+						simplecardConditionalFormats: [],
 					},
 				},
 				propList: {
@@ -696,8 +699,8 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 						richText: {
 							text: [
 								{
-									type: "paragraph",
-									children: [{ text: "A line of text in a paragraph." }],
+									type: "p",
+									children: [{ text: "Enter some text..." }],
 								},
 							],
 							style: null,
@@ -1005,6 +1008,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 						tableRule: [],
 
 						tableConditionalFormats: [],
+						simplecardConditionalFormats: [],
 					},
 				},
 				propList: { ...state.propList, [action.payload.tabId]: [tileKey2] },
@@ -1447,9 +1451,9 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 				_richText?.text?.forEach((list: any) => {
 					let index = list.children.findIndex((item: any) => {
 						if (action.payload.dmId?.toString().includes("RichTextID")) {
-							return item.id == action.payload.dmId;
+							return item.id === action.payload.dmId;
 						} else {
-							return item.id == "RichTextID" + action.payload.dmId;
+							return item.id === "RichTextID" + action.payload.dmId;
 						}
 					});
 
@@ -1567,6 +1571,16 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 				properties: {
 					[action.payload.propKey]: {
 						tableConditionalFormats: {
+							$set: action.payload.item,
+						},
+					},
+				},
+			});
+		case "ADD_OR_EDIT_SIMPLECARD_CF": //CF referse to conditional format
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						simplecardConditionalFormats: {
 							$set: action.payload.item,
 						},
 					},

@@ -44,6 +44,7 @@ export const updateSelectedTab = (
 };
 
 //3
+// TODO:(kasthuri) have to remove this action
 export const toggleEditingTab = (isTrue: boolean) => {
 	return { type: "EDITING_TAB", payload: isTrue };
 };
@@ -125,10 +126,9 @@ export const resetTabTileState = () => {
 };
 
 //19
-export const setDashTileSwitched = (isSwitched:boolean) => {
-	return { type: "SET_DASH_TILE_SWITCHED",  payload: isSwitched };
+export const setDashTileSwitched = (isSwitched: boolean) => {
+	return { type: "SET_DASH_TILE_SWITCHED", payload: isSwitched };
 };
-
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // MULTIPLE DISPATCHES

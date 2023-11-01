@@ -20,7 +20,6 @@ import ActionPopover from "./ActionPopover";
 import { Button, TextField } from "@mui/material";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import {
-	ArrowsProps,
 	DataSetStateProps,
 	RelationshipsProps,
 	tableObjProps,
@@ -100,7 +99,6 @@ const CanvasTables = ({
 			relationships.forEach((rel: RelationshipsProps, i: number) => {
 				// check if the relationship already exist by checking
 				// if the start table and end table matches between the new arrow and existing realtionships
-
 
 				if (rel.startId === newArrowObj.startId && rel.endId === newArrowObj.endId) {
 					newArrowObj.relationId = rel.relationId;

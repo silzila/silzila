@@ -9,17 +9,8 @@ import { connect } from "react-redux";
 import "./chartStyle.css";
 
 import { SketchPicker } from "react-color";
-import SliderWithInput from "../SliderWithInput";
-import { FormControl, MenuItem, Popover, Select } from "@mui/material";
+import { Popover } from "@mui/material";
 import { Dispatch } from "redux";
-import {
-	updateCrossTabCellLabelOptions,
-	updateCrossTabHeaderLabelOptions,
-	updateCrossTabStyleOptions,
-} from "../../../redux/ChartPoperties/ChartControlsActions";
-import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
-import SwitchWithInput from "../SwitchWithInput";
-import { SelectComponentStyle, menuItemStyle } from "../Labels/SnakeyLabelOptions";
 import { updateStyleOptions } from "../../../redux/DynamicMeasures/DynamicMeasuresActions";
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
@@ -38,8 +29,6 @@ const DynamicMeasureStyle = ({
 		]?.[
 			`${dynamicMeasureProps.selectedTileId}.${dynamicMeasureProps.selectedDynamicMeasureId}`
 		];
-
-	const fontStyle: string[] = ["italic", "oblique", "normal"];
 
 	const [isFontColorPopoverOpen, setFontColorPopOverOpen] = useState<boolean>(false);
 	const [isbgColorPopoverOpen, setbgColorPopOverOpen] = useState<boolean>(false);
