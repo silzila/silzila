@@ -22,7 +22,7 @@ const dashBoardFilterGroupReducer = (state: any = initialDashBoardFilterGroup, a
             });
 
         case "DELETE_DASHBOARD_SELECTED_GROUP":
-            let index = state.groups.findIndex((id: string) => id == action.payload.groupId);
+            let index = state.groups.findIndex((id: string) => id === action.payload.groupId);
             
             return update(state, {
                 groups: {

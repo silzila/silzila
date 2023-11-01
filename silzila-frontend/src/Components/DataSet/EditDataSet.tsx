@@ -35,7 +35,6 @@ const EditDataSet = ({
 	//state
 	token,
 	dsId,
-	isFlatFile,
 
 	//dispatch
 	setValuesToState,
@@ -49,7 +48,7 @@ const EditDataSet = ({
 	var server: string = "";
 
 	const [loadPage, setloadPage] = useState<boolean>(false);
-	const [editMode, seteditMode] = useState<boolean>(true);
+
 	var count: number = 0;
 
 	useEffect(() => {
@@ -77,7 +76,7 @@ const EditDataSet = ({
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (getDc.status) {
-					getDc.data.map((dc: any) => {
+					getDc.data.forEach((dc: any) => {
 						if (dc.id === res.data.connectionId) {
 							server = dc.vendor;
 							setServerName(server);
@@ -301,7 +300,7 @@ const EditDataSet = ({
 			let arrowObj: any = [];
 			let relObject: any = [];
 
-			res.data.dataSchema.relationships.map((obj: any) => {
+			res.data.dataSchema.relationships.forEach((obj: any) => {
 				const uid = new ShortUniqueId({ length: 8 });
 
 				const valuesForshowHeadAndshowTail: any = FindShowHeadAndShowTail(obj.cardinality);
@@ -322,7 +321,7 @@ const EditDataSet = ({
 				let columns_in_relationships: any = [];
 				let relationUniqueId: any = "";
 
-				obj.table1Columns.map((el: any, index: number) => {
+				obj.table1Columns.forEach((el: any, index: number) => {
 					var table2_col = obj.table2Columns[index];
 					let rel = { tab1: el, tab2: table2_col };
 					columns_in_relationships.push(rel);
@@ -449,8 +448,8 @@ const EditDataSet = ({
 			<div className="createDatasetPage">
 				{loadPage ? (
 					<>
-						<Sidebar editMode={editMode} />
-						<Canvas editMode={editMode} />
+						<Sidebar editMode={true} />
+						<Canvas editMode={true} />
 					</>
 				) : null}
 			</div>
@@ -461,7 +460,6 @@ const mapStateToProps = (state: isLoggedProps & DataSetStateProps) => {
 	return {
 		token: state.isLogged.accessToken,
 		dsId: state.dataSetState.dsId,
-		isFlatFile: state.dataSetState.isFlatFile,
 	};
 };
 

@@ -3,7 +3,7 @@
 // 	- List of tables for selected dataset
 // 	- Tablle for sample records
 
-import { FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -247,7 +247,7 @@ const DataViewerBottom = ({
 		setAddNewOrChooseExistingDS(value);
 		if (value === "addNewDataset") {
 			var count = 0;
-			axes.map((ax: any) => {
+			axes.forEach((ax: any) => {
 				if (ax.fields.length > 0) {
 					count = count + 1;
 				}
@@ -259,7 +259,7 @@ const DataViewerBottom = ({
 			}
 		} else {
 			var count = 0;
-			axes.map((ax: any) => {
+			axes.forEach((ax: any) => {
 				if (ax.fields.length > 0) {
 					count = count + 1;
 				}

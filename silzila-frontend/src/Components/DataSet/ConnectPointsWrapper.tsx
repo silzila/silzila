@@ -1,10 +1,8 @@
 // This component is part of table rows within canvas.
 // This circular point is the start of drag action to create arrow / relationship
 
-import React, { MutableRefObject, RefObject, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Xarrow from "react-xarrows";
-import CSS from "csstype";
-
 // const connectPointStyle:CSS.Properties = {
 // 	position: "absolute",
 // 	width: 10,

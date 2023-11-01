@@ -27,7 +27,7 @@ const FunnelChart = ({
 	useEffect(() => {
 		if (chartData.length >= 1) {
 			var funnelChartData: any[] = [];
-			Object.keys(chartData[0]).map((key: string) => {
+			Object.keys(chartData[0]).forEach((key: string) => {
 				funnelChartData.push({
 					name: key,
 					value: chartData[0][key],

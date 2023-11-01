@@ -3,7 +3,7 @@
 // 	- the differences in dropzones for each specific graphs along,
 // 	- moving table fields into appropriate dropzones for each specific chart type
 
-import React, { useEffect } from "react";
+import React from "react";
 import { connect } from "react-redux";
 
 import "./ChartIconStyles.css";
@@ -89,9 +89,6 @@ const ChartTypes = ({
 	updateChartData,
 	addTile,
 	selectTile,
-
-	//for dynamic measure
-	setSelectedDatasetForDynamicMeasure,
 }: any) => {
 	var selectedChart = chartProp.properties[propKey].chartType;
 
@@ -1322,7 +1319,7 @@ const ChartTypes = ({
 									noOfAxes = noOfAxes - 1;
 								}
 							});
-							
+
 							if (
 								// oldChartAxes[0].fields.length === 0 &&
 								// oldChartAxes[1].fields.length === 0 &&

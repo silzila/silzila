@@ -35,7 +35,7 @@ import SyntaxHighlighter from "react-syntax-highlighter";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-import TextEditor from "../Charts/TextEditor";
+import TextEditor from "../Charts/TextEditor/TextEditor";
 import CrossTabChart from "../Charts/CrossTab/CrossTabChart";
 import FetchData from "../ServerCall/FetchData";
 import { getChartData } from "../ChartAxes/ChartData";
@@ -91,7 +91,6 @@ const GraphArea = ({
 	setPageSettings,
 	resetPageSettings,
 	renameDynamicMeasure,
-	updateConditionalFormatStyleOptions,
 }: any) => {
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
@@ -562,14 +561,13 @@ const GraphArea = ({
 	};
 
 	useEffect(() => {
-		if (chartProperties.properties[propKey].chartType === "richText") {
-			setTitleText(selectedDynamicMeasureProp?.editedDynamicMeasureName);
-		} else {
+		// if (chartProperties.properties[propKey].chartType === "richText") {
+		// 	setTitleText(selectedDynamicMeasureProp?.editedDynamicMeasureName);
+		// } else {
 			setTitleText(chartProperties.properties[propKey].titleOptions.chartTitle);
-		}
+		//}
 	}, [
-		chartProperties.properties[propKey].titleOptions.chartTitle,
-		selectedDynamicMeasureProp?.dynamicMeasureName,
+		chartProperties.properties[propKey].titleOptions.chartTitle
 	]);
 
 	const [inputTitleText, setTitleText] = useState<string>("");
@@ -578,11 +576,11 @@ const GraphArea = ({
 	};
 
 	const completeRename = () => {
-		if (chartProperties.properties[propKey].chartType === "richText") {
-			renameDynamicMeasure(inputTitleText);
-		} else {
+		// if (chartProperties.properties[propKey].chartType === "richText") {
+		// 	renameDynamicMeasure(inputTitleText);
+		// } else {
 			setChartTitle(propKey, inputTitleText);
-		}
+	//	}
 		setEditTitle(false);
 	};
 

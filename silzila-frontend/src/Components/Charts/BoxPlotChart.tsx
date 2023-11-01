@@ -61,10 +61,10 @@ const BoxPlotChart = ({
 				var arrayPoints: any[] = [];
 
 				// getting array points
-				[...new Set(dimArray)].map((el: string) => {
+				[...new Set(dimArray)].forEach((el: string) => {
 					var temp: string[] = [];
 
-					chartData.map((elm: any) => {
+					chartData.forEach((elm: any) => {
 						if (el === elm[dimValue]) {
 							temp.push(elm[measureValue]);
 						}

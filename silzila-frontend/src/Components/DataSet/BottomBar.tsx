@@ -3,10 +3,10 @@
 // Used for naming the dataset & saving it
 
 import { Close } from "@mui/icons-material";
-import { Button, Dialog, MenuItem, TextField, Tooltip } from "@mui/material";
+import { Button, Dialog, TextField, Tooltip } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { resetState, setDatabaseNametoState } from "../../redux/DataSet/datasetActions";
+import { resetState } from "../../redux/DataSet/datasetActions";
 import { useNavigate } from "react-router-dom";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import FetchData from "../ServerCall/FetchData";
@@ -24,7 +24,8 @@ import {
 	tablesSelectedInSidebarProps,
 } from "./BottomBarInterfaces";
 import { AlertColor } from "@mui/material/Alert";
-import { SaveButtons, TextFieldBorderStyle } from "../DataConnection/muiStyles";
+
+import { TextFieldBorderStyle } from "../DataConnection/muiStyles";
 
 const BottomBar = ({
 	//props
@@ -51,7 +52,6 @@ const BottomBar = ({
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
 	const [severity, setSeverity] = useState<AlertColor>("success");
-	const [selectedButton, setselectedButton] = useState<string>(editMode ? "Update" : "Save");
 
 	const navigate = useNavigate();
 
@@ -61,6 +61,7 @@ const BottomBar = ({
 		if (editMode) {
 			setSendOrUpdate("Update");
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Check if every table has atleast one relationship before submitting the dataset
@@ -69,7 +70,7 @@ const BottomBar = ({
 		tablesWithRelation: string[]
 	) => {
 		if (tablesSelectedInSidebar.length > 1) {
-			tablesSelectedInSidebar.map((el: tablesSelectedInSidebarProps) => {
+			tablesSelectedInSidebar.forEach((el: tablesSelectedInSidebarProps) => {
 				if (tablesWithRelation.includes(el.table)) {
 				} else {
 					tablesWithoutRelation.push(el.table);
@@ -126,7 +127,6 @@ const BottomBar = ({
 
 				relationshipServerObj.push(relationObj);
 			});
-
 
 			var apiurl: string;
 
@@ -232,37 +232,46 @@ const BottomBar = ({
 	const onCancelOnDataset = () => {
 		setOpen(true);
 	};
-	const classes = SaveButtons();
 
 	return (
 		<div className="bottomBar">
-			{/* <Button variant="contained" onClick={onCancelOnDataset} id="cancelButton">
+			<Button
+				variant="contained"
+				onClick={onCancelOnDataset}
+				id="cancelButton"
+				sx={{ textTransform: "none" }}
+			>
 				{editMode ? "Back" : "Cancel"}
-			</Button> */}
+			</Button>
 
-			<div style={{ flex: 1, display: "flex", justifyContent: "space-between" }}>
-				<Tooltip title="Click to Edit">
+			<div
+				style={{
+					flex: 1,
+					display: "flex",
+					justifyContent: "flex-end",
+				}}
+			>
+				<Tooltip
+					title="Click to Edit"
+					sx={{
+						"& .MuiTextField-root": { margin: 1, width: "20px" },
+					}}
+				>
 					<TextField
 						sx={{
 							flex: 1,
 							margin: "auto 20px",
 							maxWidth: "200px",
 						}}
-						InputProps={TextFieldBorderStyle}
 						inputProps={{
 							style: {
-								height: "35px",
-
-								padding: "0px 10px",
 								fontSize: "14px",
 								color: "#3B3C36",
 							},
 						}}
-						InputLabelProps={{
-							sx: {
-								fontSize: "12px",
-							},
-						}}
+						InputProps={TextFieldBorderStyle}
+						id="outlined-size-small"
+						size="small"
 						onChange={e => {
 							e.preventDefault();
 							setFname(e.target.value);
@@ -272,42 +281,17 @@ const BottomBar = ({
 					/>
 				</Tooltip>
 
-				<TextField
+				<Button
+					variant="contained"
+					onClick={onSendData}
+					id="setButton"
 					sx={{
-						flex: 1,
-						maxWidth: "150px",
+						backgroundColor: "#2bb9bb",
+						textTransform: "none",
 					}}
-					SelectProps={{
-						MenuProps: {
-							anchorOrigin: {
-								vertical: "top",
-								horizontal: "left",
-							},
-						},
-					}}
-					className={classes.root}
-					value={"Save"}
-					variant="outlined"
-					select
 				>
-					<MenuItem value={"Save"} onClick={onSendData}>
-						Save
-					</MenuItem>
-
-					<MenuItem
-						value={editMode ? "Back" : "Cancel"}
-						onClick={(e: any) => {
-							setselectedButton(e.target.value);
-							onCancelOnDataset();
-						}}
-					>
-						{editMode ? "Back" : "Cancel"}
-					</MenuItem>
-				</TextField>
-
-				{/* <Button variant="contained" onClick={onSendData} id="setButton">
 					{sendOrUpdate}
-				</Button> */}
+				</Button>
 			</div>
 
 			<NotificationDialog

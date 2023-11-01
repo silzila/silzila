@@ -41,11 +41,9 @@ const ChartLabels = ({
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
 	const [isColorPopoverOpen, setColorPopOverOpen] = useState<boolean>(false);
-	const [anchorEl, setAnchorEl] = useState<string | any>("");
 
 	const showLabel: boolean = chartControls.properties[propKey].labelOptions.showLabel;
 	var labelOptions: ChartConLabelOptions = chartControls.properties[propKey].labelOptions;
-
 
 	const labelPositionOptions: any[] = [
 		{ name: "Outside", value: "outside" },
@@ -185,7 +183,6 @@ const ChartLabels = ({
 										}}
 										onClick={e => {
 											setColorPopOverOpen(!isColorPopoverOpen);
-											setAnchorEl(e.currentTarget);
 										}}
 									>
 										{"  "}

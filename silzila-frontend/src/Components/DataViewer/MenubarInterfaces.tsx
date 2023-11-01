@@ -11,9 +11,8 @@ import { TabStateProps, TabStateProps2 } from "../../redux/TabTile/TabStateInter
 import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { TileStateProps, TileStateProps2 } from "../../redux/TabTile/TileStateInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
-import { PlayBookProps } from "../DataConnection/PlayBookInterfaces";
-import {ChartFilterGroupProps} from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
-import {ChartFilterGroupStateProps} from '../../redux/ChartFilterGroup/ChartFilterGroupInterface';
+import { ChartFilterGroupProps } from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
+import { ChartFilterGroupStateProps } from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 
 export type MapStateProps = isLoggedProps &
 	TabStateProps2 &
@@ -35,8 +34,8 @@ export interface MenubarProps {
 	playBookState: any;
 	chartControl: ChartControl;
 	chartProperty: ChartPropertiesProps;
-	chartGroup:ChartFilterGroupProps;
-	dynamicMeasureState : any;
+	chartGroup: ChartFilterGroupProps;
+	dynamicMeasureState: any;
 	//Dispatch
 	resetUser: () => void;
 	updatePlayBookId: (

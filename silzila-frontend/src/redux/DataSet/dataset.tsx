@@ -67,7 +67,7 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 							var yes = window.confirm("are you sure you want to remove this table?");
 							if (yes) {
 								tab.isSelected = !tab.isSelected;
-								state.tempTable.map((el: tableObjProps) => {
+								state.tempTable.forEach((el: tableObjProps) => {
 									if (el.id === tab.id) {
 										el.isSelected = false;
 									}
@@ -75,7 +75,7 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 							}
 						} else {
 							tab.isSelected = !tab.isSelected;
-							state.tempTable.map((el: tableObjProps) => {
+							state.tempTable.forEach((el: tableObjProps) => {
 								if (el.id === tab.id) {
 									el.isSelected = false;
 								}
@@ -208,7 +208,7 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 							var yes = window.confirm("are you sure you want to remove this table?");
 							if (yes) {
 								tab.isSelected = !tab.isSelected;
-								state.tempTable.map((el: tableObjProps) => {
+								state.tempTable.forEach((el: tableObjProps) => {
 									if (el.id === tab.id) {
 										el.isSelected = false;
 									}
@@ -216,7 +216,7 @@ const DataSetReducer = (state: any = initialState, action: ActionTypeOfDataSet) 
 							}
 						} else {
 							tab.isSelected = !tab.isSelected;
-							state.tempTable.map((el: tableObjProps) => {
+							state.tempTable.forEach((el: tableObjProps) => {
 								if (el.id === tab.id) {
 									el.isSelected = false;
 								}

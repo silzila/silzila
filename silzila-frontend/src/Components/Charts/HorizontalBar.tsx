@@ -1,12 +1,7 @@
 import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import {
-	ChartControl,
-	ChartControlsProps,
-	ChartControlStateProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
-import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import {
 	formatChartLabelValue,
@@ -56,10 +51,7 @@ const HorizontalBar = ({
 
 						formatter: (value: FormatterValueProps) => {
 							var formattedValue = value.value[chartDataKeys[i + 1]];
-							var formattedValue = formatChartLabelValue(
-								chartControl,
-								formattedValue
-							);
+							formattedValue = formatChartLabelValue(chartControl, formattedValue);
 
 							return formattedValue;
 						},

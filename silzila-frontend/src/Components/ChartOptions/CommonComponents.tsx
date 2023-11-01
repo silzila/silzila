@@ -1,13 +1,9 @@
-import { FormControl, MenuItem, Popover, Select, TextField } from "@mui/material";
-import { SelectComponentStyle, menuItemStyle } from "./Labels/SnakeyLabelOptions";
+import { Popover, TextField } from "@mui/material";
 import { textFieldStyleProps } from "./GridAndAxes/GridAndAxes";
 import { SketchPicker } from "react-color";
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useState } from "react";
 
 export const CustomFontAndBgColor = ({
@@ -139,7 +135,7 @@ export const StyleButtons = ({ isBold, isItalic, isUnderlined, onChangeStyleProp
 
 export const checkIsConditionSatisfied = (formatsArray: any, dmValue: number) => {
 	const updatedArray = formatsArray.map((item: any) => {
-		let  el = JSON.parse(JSON.stringify(item));
+		let el = JSON.parse(JSON.stringify(item));
 		if (el.conditionType === 1) {
 			if (dmValue > el.target) {
 				el.isConditionSatisfied = true;
@@ -176,7 +172,7 @@ export const checkIsConditionSatisfied = (formatsArray: any, dmValue: number) =>
 			}
 		}
 		if (el.conditionType === 6) {
-			if (dmValue != el.target) {
+			if (dmValue !== el.target) {
 				el.isConditionSatisfied = true;
 			} else {
 				el.isConditionSatisfied = false;
