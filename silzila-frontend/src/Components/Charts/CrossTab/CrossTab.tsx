@@ -111,7 +111,7 @@ export const getFilteredChartPropDataByCompareObject = (propData:any, compareObj
 
     if (keys && keys.length > 0) {
       keys.forEach((key) => {
-        if (isEqual) isEqual = item[key] === compareObj[key];
+        if (isEqual) isEqual = item[key]?.toString() === compareObj[key]?.toString();
       });
 
       return isEqual;
