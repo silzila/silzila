@@ -1,11 +1,4 @@
-import {
-	ArrowsProps,
-	DataSetStateProps,
-	RelationshipsProps,
-	tableObjProps,
-	UserTableProps,
-} from "../../redux/DataSet/DatasetStateInterfaces";
-import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
+import { tableObjProps } from "../../redux/DataSet/DatasetStateInterfaces";
 
 export interface ActionPopoverProps {
 	open: boolean;

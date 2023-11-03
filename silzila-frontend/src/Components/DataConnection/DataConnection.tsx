@@ -18,11 +18,12 @@ import { Dispatch } from "redux";
 import { DataConnectionProps } from "./DataConnectionInterfaces";
 import { setDataConnectionListToState } from "../../redux/DataSet/datasetActions";
 import { resetAllStates } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
+import "./DataSetup.css";
 
 const DataConnection = (props: DataConnectionProps) => {
 	const [dataConnectionList, setDataConnectionList] = useState<ConnectionItem[]>([]);
-	const [mode, setMode] = useState<string>("New");
-    const navigate = useNavigate();
+	const [mode] = useState<string>("New");
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		props.resetAllStates();
@@ -30,8 +31,7 @@ const DataConnection = (props: DataConnectionProps) => {
 		// eslint-disable-next-line
 	}, []);
 
-    
-  // Get Info on DataConnection from server
+	// Get Info on DataConnection from server
 	const getInformation = async () => {
 		var result: any = await FetchData({
 			requestType: "noData",
@@ -41,7 +41,6 @@ const DataConnection = (props: DataConnectionProps) => {
 		});
 
 		if (result.status) {
-			
 			setDataConnectionList(result.data);
 			props.setDataConnectionListToState(result.data);
 		} else {
@@ -60,72 +59,86 @@ const DataConnection = (props: DataConnectionProps) => {
 					className="containerButton"
 					onClick={(e: any) => {
 						Logger("info", "add new connection");
-						navigate("/newdataconnection", {state: { mode: mode}});
-						}}
+						navigate("/newdataconnection", { state: { mode: mode } });
+					}}
 					title="Create New DB Connection"
 				>
 					<AddIcon />
 				</div>
 			</div>
 			<div className="listContainer">
-				{dataConnectionList &&
-					dataConnectionList.map((dc: ConnectionItem) => {
-						return (
-							<SelectListItem
-								key={dc.connectionName}
-								render={(xprops: any) => (
-									<div
-										className={
-											xprops.open
-												? "dataConnectionListSelected"
-												: "dataConnectionList"
-										}
-										onMouseOver={() => xprops.setOpen(true)}
-										onMouseLeave={() => xprops.setOpen(false)}
-										// onClick={() => ViewOrEditDc(dc.id)}
-									>
-										<div className="dataConnectionName">
-											{dc.connectionName}
+				{dataConnectionList.length > 0 ? (
+					<>
+						{dataConnectionList.map((dc: ConnectionItem) => {
+							return (
+								<SelectListItem
+									key={dc.connectionName}
+									render={(xprops: any) => (
+										<div
+											className={
+												xprops.open
+													? "dataConnectionListSelected"
+													: "dataConnectionList"
+											}
+											onMouseOver={() => xprops.setOpen(true)}
+											onMouseLeave={() => xprops.setOpen(false)}
+											// onClick={() => ViewOrEditDc(dc.id)}
+										>
+											<div className="dataConnectionName">
+												{dc.connectionName}
+											</div>
+											{xprops.open ? (
+												<Tooltip
+													title="View / Edit Data Connection"
+													arrow
+													placement="right-start"
+												>
+													<VisibilitySharp
+														//external css wont work for this
+														style={{
+															width: "1rem",
+															height: "1rem",
+															margin: "auto 7px auto auto",
+														}}
+														onClick={() =>
+															navigate("/newdataconnection", {
+																state: {
+																	id: dc.id,
+																	value: dc.vendor,
+																},
+															})
+														}
+													/>
+												</Tooltip>
+											) : null}
 										</div>
-										{xprops.open ? (
-											<Tooltip
-												title="View / Edit Data Connection"
-												arrow
-												placement="right-start"
-											>
-												<VisibilitySharp
-													style={{
-														width: "1rem",
-														height: "1rem",
-														margin: "auto 7px auto auto",
-													}}
-													onClick={() => 
-														navigate("/newdataconnection", {state: { id: dc.id, value: dc.vendor}})}
-												/>
-											</Tooltip>
-										) : null}
-									</div>
-								)}
-							/>
-						);
-					})}
+									)}
+								/>
+							);
+						})}
+					</>
+				) : (
+					<div className="listEmptyNote">
+						*No db connections added yet, add db connection to create datasets*
+					</div>
+				)}
 			</div>
 		</div>
 	);
 };
 
 const mapStateToProps = (state: isLoggedProps) => {
-return {
-	token: state.isLogged.accessToken,
+	return {
+		token: state.isLogged.accessToken,
 	};
-	};
+};
 
-	const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-		return {
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+	return {
 		resetAllStates: () => dispatch(resetAllStates()),
 		setDataConnectionListToState: (list: ConnectionItem[]) =>
-		dispatch(setDataConnectionListToState(list)),
-		};
-		};
+			dispatch(setDataConnectionListToState(list)),
+	};
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(DataConnection);

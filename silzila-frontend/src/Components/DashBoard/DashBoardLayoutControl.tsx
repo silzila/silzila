@@ -1,14 +1,4 @@
-import {
-	Button,
-	FormControlLabel,
-	InputLabel,
-	Radio,
-	RadioGroup,
-	TextField,
-	Tooltip,
-	Typography,
-} from "@mui/material";
-import React, { useState } from "react";
+import { FormControlLabel, Radio, RadioGroup, TextField, Tooltip, Typography } from "@mui/material";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import {} from "../../redux/TabTile/actionsTabTile";
@@ -26,7 +16,6 @@ import {
 	setDashLayoutSelectedOptionForFixed,
 } from "../../redux/TabTile/TabActions";
 import { DashBoardLayoutProps } from "./DashBoardLayoutControlInterfaces";
-import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 const DashBoardLayoutControl = ({
@@ -41,23 +30,23 @@ const DashBoardLayoutControl = ({
 	setDashLayoutSelectedOptionForFixed,
 	setAspectRatioHeight,
 	setAspectRatioWidth,
-	setCustomHeight,
-	setCustomWidth,
-	setCustomRMinWidth,
-	setCustomRMinHeight,
-	setCustomRMaxWidth,
-	setCustomRMaxHeight,
-}: DashBoardLayoutProps) => {
-	const [isAutoSelected, setIsAutoSelected] = useState<boolean>(true);
-	const [isFixedSelected, setIsFixedSelected] = useState<boolean>(false);
-	const [isCoustomSelected, setIsCustomSelected] = useState<boolean>(false);
-	const [isCoustomRangeSelected, setIsCustomRangeSelected] = useState<boolean>(false);
+}: // setCustomHeight,
+// setCustomWidth,
+// setCustomRMinWidth,
+// setCustomRMinHeight,
+// setCustomRMaxWidth,
+// setCustomRMaxHeight,
+DashBoardLayoutProps) => {
+	// const [isAutoSelected, setIsAutoSelected] = useState<boolean>(true);
+	// const [isFixedSelected, setIsFixedSelected] = useState<boolean>(false);
+	// const [isCoustomSelected, setIsCustomSelected] = useState<boolean>(false);
+	// const [isCoustomRangeSelected, setIsCustomRangeSelected] = useState<boolean>(false);
 
 	const tabId = tabTileProps.selectedTabId;
-	const fixedOption = tabState.tabs[tabId].dashLayout.selectedOptionForFixed;
+	// const fixedOption = tabState.tabs[tabId].dashLayout.selectedOptionForFixed;
 	const autoOption = tabState.tabs[tabId].dashLayout.selectedOptionForAuto;
-	let customHeight = tabState.tabs[tabId].dashLayout.custom.height;
-	let customWidth = tabState.tabs[tabId].dashLayout.custom.width;
+	// let customHeight = tabState.tabs[tabId].dashLayout.custom.height;
+	// let customWidth = tabState.tabs[tabId].dashLayout.custom.width;
 
 	const textFieldInputProps = {
 		style: {

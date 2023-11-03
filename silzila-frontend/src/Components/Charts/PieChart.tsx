@@ -9,10 +9,7 @@ import {
 	ChartsReduxStateProps,
 	FormatterValueProps,
 } from "./ChartsCommonInterfaces";
-import {
-	ChartControlProperties,
-	ChartControlsProps,
-} from "../../redux/ChartPoperties/ChartControlsInterface";
+import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 
 interface PieChartProps {
@@ -41,7 +38,7 @@ const PieChart = ({
 
 	useEffect(() => {
 		if (chartData.length >= 1) {
-			if (typeof chartData == "object" && chartData.length > 0) {
+			if (typeof chartData === "object" && chartData.length > 0) {
 				setChartDataKeys(Object.keys(chartData[0]));
 			}
 

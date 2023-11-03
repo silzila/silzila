@@ -1,9 +1,7 @@
-import React, { useState } from "react";
 import { connect } from "react-redux";
 import "./chartLabels.css";
 import SliderWithInput from "../SliderWithInput";
 import { FormControl, MenuItem, Select } from "@mui/material";
-import { debounce } from "lodash";
 import { Dispatch } from "redux";
 import { updateSankeyStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";

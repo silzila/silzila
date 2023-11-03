@@ -13,28 +13,12 @@ import FlatFile from "./FlatFileList";
 
 const DataHome = () => {
 	return (
-		<div
-			style={{
-				display: "grid",
-				gridTemplateRows: "2.5rem auto",
-				height: "100vh",
-				width: "100vW",
-			}}
-		>
+		<div className="dataHomeContainer">
 			<div>
 				<MenuBar from="dataHome" />
 			</div>
-			<div
-				style={{
-					flex: "100%",
-					display: "flex",
-					flexDirection: "column",
-					height: "100%",
-					backgroundColor: "pink",
-					borderTop: "2px solid rgba(224,224,224,1)",
-				}}
-			>
-				<div style={{ flex: 1, display: "flex" }}>
+			<div className="dataHomeItemsContainer">
+				<div style={{ flex: 1, display: "flex", maxHeight: "50%", overflow: "hidden" }}>
 					<div
 						style={{
 							flex: 1,
@@ -62,7 +46,3 @@ const DataHome = () => {
 };
 
 export default DataHome;
-
-
-
- 

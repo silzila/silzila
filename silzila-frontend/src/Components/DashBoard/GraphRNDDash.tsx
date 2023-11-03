@@ -11,8 +11,6 @@ import DashGraph from "./DashGraph";
 import { Dispatch } from "redux";
 import { updateDashGraphPosition, updateDashGraphSize } from "../../redux/TabTile/TabActions";
 import { Rnd } from "react-rnd";
-import ChartAxes from '../ChartAxes/ChartAxes';
-
 
 const GraphRNDDash = ({
 	style,
@@ -68,13 +66,11 @@ const GraphRNDDash = ({
 			style={boxDetails.highlight || hovering ? style2 : style}
 			size={{ width: boxDetails.width * gridSize.x, height: boxDetails.height * gridSize.y }}
 			position={{ x: boxDetails.x * gridSize.x, y: boxDetails.y * gridSize.y }}
-			onDragStart={(e: any, d: any) => {
-			}}
+			onDragStart={(e: any, d: any) => {}}
 			onDrag={(e: any, d: any) => {
 				setStyle({ ...style, border: "1px solid gray" });
 			}}
 			onDragStop={(e: any, d: any) => {
-				
 				updateDashGraphPos(
 					tabId,
 					boxDetails.propKey,

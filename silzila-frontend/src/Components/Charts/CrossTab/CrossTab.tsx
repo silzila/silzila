@@ -1,21 +1,19 @@
 export const delimiter = ",";
 
 /*  To deep clone an Object */
-export const cloneData = (data:any) => {
-  return JSON.parse(JSON.stringify(data));
+export const cloneData = (data: any) => {
+	return JSON.parse(JSON.stringify(data));
 };
 
 /*	Find and return field's new name	*/
-const findFieldName=(name : string, fieldTempObject:any, i : number = 2): string=>{
-				
-  if(fieldTempObject[`${name}(${i})`] !== undefined){
-    i++;
-    return findFieldName(name, fieldTempObject, i);
-  }
-  else{
-    return `${name}(${i})`;
-  }
-}
+const findFieldName = (name: string, fieldTempObject: any, i: number = 2): string => {
+	if (fieldTempObject[`${name}(${i})`] !== undefined) {
+		i++;
+		return findFieldName(name, fieldTempObject, i);
+	} else {
+		return `${name}(${i})`;
+	}
+};
 
 /*
     Get display data("JSON object") from fields with prefix
@@ -44,7 +42,7 @@ export const getKeyWithPrefix = (item : any = {}, dustbinName? :string, fieldTem
 
   return _nameWithAgg;
 
-  // if (dustbinName == "val") {
+  // if (dustbinName ==== "val") {
   //   //val ==> "Measure"
   //   switch (item.dataType) {
   //     case "date":
@@ -78,25 +76,28 @@ export const getKeyWithPrefix = (item : any = {}, dustbinName? :string, fieldTem
     Get particular distinct list for given index from split of chartDataCSV.columns using the delimiter
   */
 
-export const getColumnList = (index:number, list:any[]) => {
-  ////let chartColumns = chartDataCSV.columns.sort();  ::TODO
-  let chartColumns = list;
-  let _columnList:any[] = [];
+export const getColumnList = (index: number, list: any[]) => {
+	////let chartColumns = chartDataCSV.columns.sort();  ::TODO
+	let chartColumns = list;
+	let _columnList: any[] = [];
 
-  for (let i = 0; i < chartColumns.length; i++) {
-    let _tempColString = "";
+	for (let i = 0; i < chartColumns.length; i++) {
+		let _tempColString = "";
 
-    if (chartColumns[i].includes(delimiter)) {
-      _tempColString = chartColumns[i].substring(0, chartColumns[i].length - delimiter.length);
-    }
+		if (chartColumns[i].includes(delimiter)) {
+			_tempColString = chartColumns[i].substring(
+				0,
+				chartColumns[i].length - delimiter.length
+			);
+		}
 
-    let col = _tempColString.split(delimiter)[index];
+		let col = _tempColString.split(delimiter)[index];
 
-    if (!_columnList.includes(col)) {
-      _columnList.push(col);
-    }
-  }
-  return _columnList;
+		if (!_columnList.includes(col)) {
+			_columnList.push(col);
+		}
+	}
+	return _columnList;
 };
 
 /*
@@ -110,7 +111,7 @@ export const getFilteredChartPropDataByCompareObject = (propData:any, compareObj
 
     if (keys && keys.length > 0) {
       keys.forEach((key) => {
-        if (isEqual) isEqual = item[key] == compareObj[key];
+        if (isEqual) isEqual = item[key]?.toString() === compareObj[key]?.toString();
       });
 
       return isEqual;
@@ -131,56 +132,67 @@ export const getFilteredChartPropDataByCompareObject = (propData:any, compareObj
      From parent compare object need to add additional key : value to filter for next/child column header
   */
 
-export const getDistinctList = (dustbinColumns:any, compareObj:any, columnIndex:number, list:any[]) => {
-  list = list || [];
-  let resultList:any[] = [];
+export const getDistinctList = (
+	dustbinColumns: any,
+	compareObj: any,
+	columnIndex: number,
+	list: any[]
+) => {
+	list = list || [];
+	let resultList: any[] = [];
 
-  const finder = (item:any, modifiedCompareObj:any) => {
-    let keys = Object.keys(modifiedCompareObj);
-    let isEqual = true;
+	const finder = (item: any, modifiedCompareObj: any) => {
+		let keys = Object.keys(modifiedCompareObj);
+		let isEqual = true;
 
     keys.forEach((key) => {
-      if (isEqual) isEqual = item[key] == modifiedCompareObj[key];
+      if (isEqual) isEqual = item[key] === modifiedCompareObj[key];
     });
 
-    return isEqual;
-  };
 
-  list.forEach((item) => {
-    let modifiedCompareObj = Object.assign({}, compareObj);
-    let _key = getKeyWithPrefix(dustbinColumns[columnIndex]);
-    modifiedCompareObj[_key] = item[_key];
+		return isEqual;
+	};
+
+	list.forEach(item => {
+		let modifiedCompareObj = Object.assign({}, compareObj);
+		let _key = getKeyWithPrefix(dustbinColumns[columnIndex]);
+		modifiedCompareObj[_key] = item[_key];
 
     let distinctObj = list.find((item) => finder(item, modifiedCompareObj));
 
-    if (resultList.length == 0 || !resultList.find((item) => finder(item, modifiedCompareObj))) {
+    if (resultList.length === 0 || !resultList.find((item) => finder(item, modifiedCompareObj))) {
       resultList.push(distinctObj);
     }
   });
 
-  return resultList;
+
+	return resultList;
 };
 
-  /*  TODO:: Feature to change color of Row/Column cells on header cell click */
+/*  TODO:: Feature to change color of Row/Column cells on header cell click */
 
-export const getUserClickedClassNameForColor = (chartPropData:any, col:any, userCellCompareJSON:any) => {
-  let _className = "UserClickedCellRemainingChildren";
+export const getUserClickedClassNameForColor = (
+	chartPropData: any,
+	col: any,
+	userCellCompareJSON: any
+) => {
+	let _className = "UserClickedCellRemainingChildren";
 
-  let _filteredData = getFilteredChartPropDataByCompareObject(chartPropData, userCellCompareJSON);
+	let _filteredData = getFilteredChartPropDataByCompareObject(chartPropData, userCellCompareJSON);
 
-  if (Object.keys(col.compareObj).length > 0) {
-    let _currentData = getFilteredChartPropDataByCompareObject(
-      chartPropData,
-      col.compareObj,
-      _filteredData
-    );
+	if (Object.keys(col.compareObj).length > 0) {
+		let _currentData = getFilteredChartPropDataByCompareObject(
+			chartPropData,
+			col.compareObj,
+			_filteredData
+		);
 
-    if (_currentData.length > 0) {
-      _className = "UserClickedCellChildren";
-    }
-  }
+		if (_currentData.length > 0) {
+			_className = "UserClickedCellChildren";
+		}
+	}
 
-  return _className;
+	return _className;
 };
 
 /*
@@ -188,50 +200,51 @@ export const getUserClickedClassNameForColor = (chartPropData:any, col:any, user
 */
 
 export const getPreviousRowColumnData = (
-  crossTabData:any,
-  dustbinColumns:any,
-  dustbinValues:any,
-  showAsColumn:any,
-  rowIndex:any,
-  colIndex:any,
-  dontIncrement?:any
-):any => {
-  let headerRowCount = dustbinColumns.length;
-  let rowNumber = headerRowCount + rowIndex;
+	crossTabData: any,
+	dustbinColumns: any,
+	dustbinValues: any,
+	showAsColumn: any,
+	rowIndex: any,
+	colIndex: any,
+	dontIncrement?: any
+): any => {
+	let headerRowCount = dustbinColumns.length;
+	let rowNumber = headerRowCount + rowIndex;
 
-  if (rowNumber >= 0) {
-    let colData = crossTabData[rowNumber]?.columnItems[colIndex];
+	if (rowNumber >= 0) {
+		let colData = crossTabData[rowNumber]?.columnItems[colIndex];
 
-    if (colData && colData.displayData === "" && rowIndex !== 0) {
-      return getPreviousRowColumnData(
-        crossTabData,
-        dustbinColumns,
-        dustbinValues,
-        showAsColumn,
-        rowIndex - 1,
-        colIndex
-      );
-    } else {
-      return colData;
-    }
-  } else {
-    return "";
-  }
+		if (colData && colData.displayData === "" && rowIndex !== 0) {
+			return getPreviousRowColumnData(
+				crossTabData,
+				dustbinColumns,
+				dustbinValues,
+				showAsColumn,
+				rowIndex - 1,
+				colIndex
+			);
+		} else {
+			return colData;
+		}
+	} else {
+		return "";
+	}
 };
 
 /*
     Push Dusbin Values into ChartData rows/column collection
 */
-export const addDusbinValuesMeasuresInChartData = (dustbinValues:any, list:any) => {
-  let newRowsArray = [];
+export const addDusbinValuesMeasuresInChartData = (dustbinValues: any, list: any) => {
+	let newRowsArray = [];
 
-  if (dustbinValues.length > 1) {
-    for (let i = 0; i < list.length; i++) {
-      for (let valIndex = 0; valIndex < dustbinValues.length; valIndex++) {
-        newRowsArray.push(list[i].concat(getKeyWithPrefix(dustbinValues[valIndex]), delimiter));
-      }
-    }
-    return newRowsArray;
-  }
+	if (dustbinValues.length > 1) {
+		for (let i = 0; i < list.length; i++) {
+			for (let valIndex = 0; valIndex < dustbinValues.length; valIndex++) {
+				newRowsArray.push(
+					list[i].concat(getKeyWithPrefix(dustbinValues[valIndex]), delimiter)
+				);
+			}
+		}
+		return newRowsArray;
+	}
 };
-

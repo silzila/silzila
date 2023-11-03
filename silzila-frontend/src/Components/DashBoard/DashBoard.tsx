@@ -16,7 +16,6 @@ import "./DashBoard.css";
 import { DashBoardProps, DashBoardStateProps } from "./DashBoardInterfaces";
 import DashBoardLayoutControl from "./DashBoardLayoutControl";
 import GraphRNDDash from "./GraphRNDDash";
-import CloseIcon from "@mui/icons-material/Close";
 import { Checkbox, Tooltip } from "@mui/material";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -330,7 +329,8 @@ const DashBoard = ({
 		var checked: boolean = indexOfProps ? true : false;
 
 		return (
-			<div key={index}
+			<div
+				key={index}
 				className={
 					tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]?.highlight
 						? "listOfGraphsHighlighted"
@@ -350,7 +350,7 @@ const DashBoard = ({
 							tabTileProps.selectedTabId,
 							propIndex
 						);
-						 toggleGraphSize(propKey, checked ? true : false);
+						toggleGraphSize(propKey, checked ? true : false);
 						//toggleGraphSize(propIndex, checked ? true : false);
 					}}
 					style={{
@@ -392,14 +392,14 @@ const DashBoard = ({
 		} else {
 			dashBoardGroup.groups?.forEach((groupID: string) => {
 				if (dashBoardGroup.filterGroupTabTiles[groupID].includes(tileSelected)) {
-					if (dashBoardGroup.filterGroupTabTiles[groupID].length == 1) {
+					if (dashBoardGroup.filterGroupTabTiles[groupID].length === 1) {
 						deleteDashBoardSelectedGroup(groupID);
 						deleteDashBoardSelectedGroupAllTabTiles(groupID);
 					} else {
 						deleteDashBoardSelectedTabTiles(
 							groupID,
 							dashBoardGroup.filterGroupTabTiles[groupID].findIndex(
-								(id: string) => id == tileSelected
+								(id: string) => id === tileSelected
 							)
 						);
 					}

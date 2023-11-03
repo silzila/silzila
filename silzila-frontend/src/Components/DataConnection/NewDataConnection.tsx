@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Button, Dialog, Typography} from '@mui/material';
+import React, { useState, useEffect } from "react";
+import { Box, Button, Dialog, Typography } from "@mui/material";
 import MenuBar from "../DataViewer/MenuBar";
-import { useLocation } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 import redshiftIcon from "../../assets/redshiftIcon.png";
 import databricksIcon from "../../assets/databricksIcon.png";
 import mssqlIcon from "../../assets/mssqlicon.png";
@@ -9,18 +9,18 @@ import mysqlicon from "../../assets/mysqlicon.svg";
 import postgresicon from "../../assets/postgresicon.png";
 import TextFieldComponent from "../../Components/CommonFunctions/TextFieldComponent";
 import FetchData from "../ServerCall/FetchData";
-import './DataSetup.css';
-import Logger from '../../Logger';
-import DatabaseConnectionDialogComponents from './DatabaseConnectionDialogComponents';
+import "./DataSetup.css";
+import Logger from "../../Logger";
+import DatabaseConnectionDialogComponents from "./DatabaseConnectionDialogComponents";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { DataConnectionDetails, DataConnectionProps } from "./DataConnectionInterfaces";
 import { ConnectionItem } from "../../redux/DataSet/DatasetStateInterfaces";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import { AlertColor } from "@mui/material/Alert";
-import { useNavigate } from 'react-router-dom';
-import { resetAllStates } from '../../redux/TabTile/TabTileActionsAndMultipleDispatches';
-import { setDataConnectionListToState } from '../../redux/DataSet/datasetActions';
+import { useNavigate } from "react-router-dom";
+import { resetAllStates } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
+import { setDataConnectionListToState } from "../../redux/DataSet/datasetActions";
 
 const initialState = {
 	vendor: "",
@@ -38,11 +38,10 @@ const initialState = {
 	password: "",
 	passwordError: "",
 	httpPath: "",
-	httpPathError:"",
+	httpPathError: "",
 };
 
-const NewDataConnection = (props: DataConnectionProps)  => {
-    const [dataConnectionList, setDataConnectionList] = useState<ConnectionItem[]>([]);
+const NewDataConnection = (props: DataConnectionProps) => {
 	const [regOrUpdate, setRegOrUpdate] = useState<string>("Register");
 	const [account, setAccount] = useState<DataConnectionDetails>(initialState);
 	const [dataConnId, setDataConnId] = useState<string>("");
@@ -50,64 +49,63 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("Testing alert");
-    const [dcDel, setDcDel] = useState<boolean>(false);
+  const [dcDel, setDcDel] = useState<boolean>(false);
 	const [dcDelMeg, setDcDelMeg] = useState<string>('');
 	const [btnEnable, setBtnEnable] = useState<boolean>(false);
 	const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-	const [selected, setSelected] = useState<string>('');
+	const [selected, setSelected] = useState<string>("");
 	const [showform, setShowform] = useState<boolean>(false);
 	const [enable, setEnable] = useState<boolean>(false);
 	const [changedb, setChangeDB] = useState<boolean>(false);
 	const [values, setValues] = useState<string>('');
-    const navigate =  useNavigate();
-    const location = useLocation();
-    const state	= location.state;
-    
-	//This dataconnection array is used to list all the data connections in UI
+  const navigate =  useNavigate();
+  const location = useLocation();
+  const state	= location.state;
+
+    //This dataconnection array is used to list all the data connections in UI
 	const dataconnection = [
 		{
-          id: 1,
-		  value: 'redshift',
-		  name: 'Amazon Redshift',
-		  img: redshiftIcon,
+			id: 1,
+			value: "redshift",
+			name: "Amazon Redshift",
+			img: redshiftIcon,
 		},
 		{
-		  id: 2,
-		  value: 'databricks',
-		  name: 'Databricks',
-		  img: databricksIcon,
+			id: 2,
+			value: "databricks",
+			name: "Databricks",
+			img: databricksIcon,
 		},
 		{
-		  id: 3,
-		  value: 'sqlserver',
-		  name: 'Ms SQL Server',
-		  img: mssqlIcon,
+			id: 3,
+			value: "sqlserver",
+			name: "Ms SQL Server",
+			img: mssqlIcon,
 		},
 		{
-		  id: 4,
-		  value: 'mysql',
-		  name: 'MySql',
-		  img: mysqlicon,
+			id: 4,
+			value: "mysql",
+			name: "MySql",
+			img: mysqlicon,
 		},
 		{
-		  id: 5,
-		  value: 'postgresql',
-		  name: 'PostgreSql',
-		  img: postgresicon,
+			id: 5,
+			value: "postgresql",
+			name: "PostgreSql",
+			img: postgresicon,
 		},
 	];
 
-    useEffect(() => {
+	useEffect(() => {
 		handleMode(state.mode);
-	    ViewOrEditDc(state?.id);
+		ViewOrEditDc(state?.id);
 		handleListItem(state?.value);
 		props.resetAllStates();
 		getInformation();
-	    // eslint-disable-next-line
+		// eslint-disable-next-line
 	}, []);
-	
-	
-  // ================================= when newButton clicked ====================
+
+	// ================================= when newButton clicked ====================
 
 	//=============== set Mode ===============================
 	// TODO:need to specify types
@@ -120,8 +118,7 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 		}
 	};
 
-
-  // Get Info on DataConnection from server
+	// Get Info on DataConnection from server
 	const getInformation = async () => {
 		var result: any = await FetchData({
 			requestType: "noData",
@@ -131,62 +128,58 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 		});
 
 		if (result.status) {
-			
-			setDataConnectionList(result.data);
 			props.setDataConnectionListToState(result.data);
 		} else {
 			Logger("error", result.data.detail);
 		}
 	};
-	
-	
+
 	//ButtonEnabelDisable
-    const btnEnabelDisable = () => {
-		if (account.vendor !== "" &&
+	const btnEnabelDisable = () => {
+		if (
+			account.vendor !== "" &&
 			account.server !== "" &&
 			account.port !== "" &&
 			account.database !== "" &&
-		    account.connectionName !== "" &&
-			account.password !== "") {
-			if (account.vendor === 'databricks') {
+			account.connectionName !== "" &&
+			account.password !== ""
+		) {
+			if (account.vendor === "databricks") {
 				if (account.httpPath !== "") {
-						setBtnEnable(false);	
+					setBtnEnable(false);
 				} else {
 					setBtnEnable(true);
 				}
-			}
-			else {
+			} else {
 				if (account.username !== "") {
-						setBtnEnable(false);	
+					setBtnEnable(false);
 				} else {
 					setBtnEnable(true);
 				}
 			}
-			
 		} else {
-		setBtnEnable(true);	
-	}
-	}; 
-	
-	
+			setBtnEnable(true);
+		}
+	};
+
 	// =================================================
 	// Test DataConnection
 	// =================================================
 
 	const getDatabaseConnectionTest = () => {
-		let data:any = {
+		let data: any = {
 			connectionName: account.connectionName,
 			vendor: account.vendor,
 			server: account.server,
 			port: account.port,
 			database: account.database,
 			password: account.password,
-			};
-			if(account.vendor === "databricks"){
-				data.httpPath = account.httpPath;
-			 }else{
-				 data.username = account.username;
-			 }
+		};
+		if (account.vendor === "databricks") {
+			data.httpPath = account.httpPath;
+		} else {
+			data.username = account.username;
+		}
 		return FetchData({
 			requestType: "withData",
 			method: "POST",
@@ -197,7 +190,7 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 	};
 
 	const handleonTest = async () => {
-		 if (
+		if (
 			account.vendor !== "" &&
 			account.server !== "" &&
 			account.port !== "" &&
@@ -205,72 +198,69 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 			account.connectionName !== "" &&
 			account.password &&
 			(account.password !== "" || account.password !== undefined)
-		)
-			{
-				if (account.vendor === 'databricks') {
-					if (account.httpPath !== "") {
-						var response: any = await getDatabaseConnectionTest();
+		) {
+			if (account.vendor === "databricks") {
+				if (account.httpPath !== "") {
+					var response: any = await getDatabaseConnectionTest();
 
-						if (response.status) {
-							setSeverity("success");
-							setOpenAlert(true);
-							setTestMessage("Test Connection successful");
-							setTimeout(() => {
-								setOpenAlert(false);
-								setTestMessage("");
-							}, 3000);
-						} else {
-							setSeverity("error");
-							setOpenAlert(true);
-							setTestMessage(response.data.message);
-							// setTimeout(() => {
-							// 	setOpenAlert(false);
-							// 	setTestMessage("");
-							// }, 4000);
-						}
+					if (response.status) {
+						setSeverity("success");
+						setOpenAlert(true);
+						setTestMessage("Test Connection successful");
+						setTimeout(() => {
+							setOpenAlert(false);
+							setTestMessage("");
+						}, 3000);
 					} else {
 						setSeverity("error");
-			            setOpenAlert(true);
-			            setTestMessage("Please Fillout All the fields");
-			            // setTimeout(() => {
-			            // 	setOpenAlert(false);
-			            // 	setTestMessage("");
-			            // }, 4000);
+						setOpenAlert(true);
+						setTestMessage(response.data.message);
+						// setTimeout(() => {
+						// 	setOpenAlert(false);
+						// 	setTestMessage("");
+						// }, 4000);
 					}
+				} else {
+					setSeverity("error");
+					setOpenAlert(true);
+					setTestMessage("Please Fillout All the fields");
+					// setTimeout(() => {
+					// 	setOpenAlert(false);
+					// 	setTestMessage("");
+					// }, 4000);
 				}
-				else {
-					if (account.username !== ""){
-							var response: any = await getDatabaseConnectionTest();
-	
-							if (response.status) {
-								setSeverity("success");
-								setOpenAlert(true);
-								setTestMessage("Test Connection successfull");
-								setTimeout(() => {
-									setOpenAlert(false);
-									setTestMessage("");
-								}, 3000);
-							} else {
-								setSeverity("error");
-								setOpenAlert(true);
-								setTestMessage(response.data.message);
-								// setTimeout(() => {
-								// 	setOpenAlert(false);
-								// 	setTestMessage("");
-								// }, 4000);
-							}
-						} else {
-							setSeverity("error");
-							setOpenAlert(true);
-							setTestMessage("Please Fillout All the fields");
-							// setTimeout(() => {
-							// 	setOpenAlert(false);
-							// 	setTestMessage("");
-							// }, 4000);
-						}
+			} else {
+				if (account.username !== "") {
+					var response: any = await getDatabaseConnectionTest();
+
+					if (response.status) {
+						setSeverity("success");
+						setOpenAlert(true);
+						setTestMessage("Test Connection successfull");
+						setTimeout(() => {
+							setOpenAlert(false);
+							setTestMessage("");
+						}, 3000);
+					} else {
+						setSeverity("error");
+						setOpenAlert(true);
+						setTestMessage(response.data.message);
+						// setTimeout(() => {
+						// 	setOpenAlert(false);
+						// 	setTestMessage("");
+						// }, 4000);
+					}
+				} else {
+					setSeverity("error");
+					setOpenAlert(true);
+					setTestMessage("Please Fillout All the fields");
+					// setTimeout(() => {
+					// 	setOpenAlert(false);
+					// 	setTestMessage("");
+					// }, 4000);
 				}
 			}
-		else {
+		} else {
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage("Please Fillout All the fields");
@@ -278,16 +268,15 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 			// 	setOpenAlert(false);
 			// 	setTestMessage("");
 			// }, 4000);
-		} 
+		}
 	};
 
-    
 	// ==============================================================
 	//  Register dc
 	//  ==============================================================
 
 	const handleRegister = async () => {
-		var data:any = {
+		var data: any = {
 			vendor: account.vendor,
 			server: account.server,
 			port: account.port,
@@ -295,9 +284,9 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 			password: account.password,
 			connectionName: account.connectionName,
 		};
-		if(account.vendor === "databricks"){
-           data.httpPath = account.httpPath;
-		}else{
+		if (account.vendor === "databricks") {
+			data.httpPath = account.httpPath;
+		} else {
 			data.username = account.username;
 		}
 		// TODO need to specify type
@@ -324,20 +313,19 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 					setOpenAlert(false);
 					setTestMessage("");
 					setAccount(initialState);
-					navigate('/datahome');
+					navigate("/datahome");
 				}, 3000);
-				}
+			}
 		} else {
 			Logger("error", response);
 		}
 	};
 
-	
 	// ==============================================================
 	// Update Dc
 	// ==============================================================
 	const handleonUpdate = async () => {
-		var data:any = {
+		var data: any = {
 			vendor: account.vendor,
 			server: account.server,
 			port: account.port,
@@ -345,11 +333,11 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 			password: account.password,
 			connectionName: account.connectionName,
 		};
-		if(account.vendor === "databricks"){
+		if (account.vendor === "databricks") {
 			data.httpPath = account.httpPath;
-		 }else{
-			 data.username = account.username;
-		 }
+		} else {
+			data.username = account.username;
+		}
 		// TODO need to specify type
 		var response: any = await FetchData({
 			requestType: "withData",
@@ -367,7 +355,7 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 				setOpenAlert(false);
 				setTestMessage("");
 				getInformation();
-				navigate('/datahome');
+				navigate("/datahome");
 			}, 3000);
 		} else {
 			setSeverity("error");
@@ -379,7 +367,6 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 			// }, 3000);
 		}
 	};
-	
 
 	// ==================================================
 	// when Visibility icon Clicked
@@ -402,7 +389,6 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 		}
 	};
 
-	
 	// ==================================================
 	// when Delete icon Clicked
 	// ==================================================
@@ -419,16 +405,14 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 		});
 
 		if (result.status) {
-			setDcDel(false);
 			setSeverity("success");
 			setOpenAlert(true);
 			setTestMessage("Deleted Successfully!");
 			setTimeout(() => {
 				setOpenAlert(false);
 				setTestMessage("");
-				setDcDelMeg("");
 				getInformation();
-				navigate('/datahome');
+				navigate("/datahome");
 			}, 3000);
 		} else {
 			Logger("error", result.data.detail);
@@ -442,7 +426,6 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 		}
 	};
 
-    
 	// =========================================================================
 	// On Form Submit (register Or update)
 	// =========================================================================
@@ -456,12 +439,11 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 			account.connectionName !== "" &&
 			account.password &&
 			(account.password !== "" || account.password !== undefined)
-		) 
-		{
-			if (account.vendor === 'databricks') {
-				if (account.httpPath !== ""){
+		) {
+			if (account.vendor === "databricks") {
+				if (account.httpPath !== "") {
 					var response: any = await getDatabaseConnectionTest();
-		
+
 					if (response.status) {
 						if (regOrUpdate === "Update") {
 							handleonUpdate();
@@ -478,9 +460,7 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 						// 	setTestMessage("");
 						// }, 4000);
 					}
-				} 
-			
-				else {
+				} else {
 					setSeverity("error");
 					setOpenAlert(true);
 					setTestMessage("Please Fillout All the fields");
@@ -489,11 +469,10 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 					// 	setTestMessage("");
 					// }, 4000);
 				}
-			}
-			else {
-				if (account.username !== ""){
+			} else {
+				if (account.username !== "") {
 					var response: any = await getDatabaseConnectionTest();
-		
+
 					if (response.status) {
 						if (regOrUpdate === "Update") {
 							handleonUpdate();
@@ -510,9 +489,7 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 						// 	setTestMessage("");
 						// }, 4000);
 					}
-				} 
-			
-				else {
+				} else {
 					setSeverity("error");
 					setOpenAlert(true);
 					setTestMessage("Please Fillout All the fields");
@@ -522,10 +499,7 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 					// }, 4000);
 				}
 			}
-			
-		}
-		
-		else {
+		} else {
 			setSeverity("error");
 			setOpenAlert(true);
 			setTestMessage("Please Fillout All the fields");
@@ -535,8 +509,7 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 			// }, 4000);
 		}
 	};
-	
-	
+
 	const getUrlAndPort = (connection: string) => {
 		if (connection === "postgresql") {
 			return "5432";
@@ -549,15 +522,14 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 		}
 		if (connection === "redshift") {
 			return "5439";
-		} 
+		}
 		if (connection === "databricks") {
 			return "443";
-		}else {
+		} else {
 			return "";
 		}
 	};
 
-    
 	//handleListItem function is used for highlighting the selected DataConnection
 	const handleListItem = ( value: string) => {
 			setSelected(value);
@@ -1074,11 +1046,11 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 		                       <div>
 		                       <Typography variant= 'h6' sx={{color: '#B4B4B3', paddingTop:'20rem'}}>
 								Please select a database
-								</Typography>
-		                       </div>
-		                       }
-    </Box>
-				
+							</Typography>
+						</div>
+					)}
+				</Box>
+
 				{/* Alert to display success / failure info */}
 			    <DatabaseConnectionDialogComponents
                 onCloseAlert={() => {
@@ -1131,46 +1103,24 @@ const NewDataConnection = (props: DataConnectionProps)  => {
 						<br />
 						<br />
 					</div>
-					<div className="dbDeleteDialogBtnContainer">
-						<Button
-							className="dbDeleteDialogBtn1"
-							onClick={() => setOpenConfirmDialog(false)}
-							variant="contained"
-						>
-							Cancel
-						</Button>
-
-						<Button
-							className="dbDeleteDialogBtn2"
-							variant="contained"
-							onClick={() => {
-								setOpenConfirmDialog(false);
-								deleteDc();
-							}}
-						>
-							Delete
-						</Button>
-					 </div>
-				</div>
-			</Dialog>
-           </div>
+				</Dialog>
+			</div>
 		</div>
-  )
- }
+	);
+};
 
- const mapStateToProps = (state: isLoggedProps) => {
- return {
- token: state.isLogged.accessToken,
- };
- };
-
- const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+const mapStateToProps = (state: isLoggedProps) => {
 	return {
-	resetAllStates: () => dispatch(resetAllStates()),
-	setDataConnectionListToState: (list: ConnectionItem[]) =>
-	dispatch(setDataConnectionListToState(list)),
+		token: state.isLogged.accessToken,
 	};
+};
+
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+	return {
+		resetAllStates: () => dispatch(resetAllStates()),
+		setDataConnectionListToState: (list: ConnectionItem[]) =>
+			dispatch(setDataConnectionListToState(list)),
 	};
+};
 
- export default connect(mapStateToProps, mapDispatchToProps)( NewDataConnection);
-
+export default connect(mapStateToProps, mapDispatchToProps)(NewDataConnection);

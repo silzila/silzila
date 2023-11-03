@@ -281,6 +281,7 @@ Data Connections
 	margin: 10px;
 }
 
+
 /* 
 ===================================================
 Datasets
@@ -386,4 +387,40 @@ TableData
 	height: 28px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+/* 
+-------------------------------------------------
+DataHome
+------------------------------------------------- 
+*/
+
+.visiblityIconStyle {
+	width: 0.7rem;
+	height: 0.7rem;
+	margin: auto 7px auto auto;
+}
+
+.listEmptyNote {
+	font-size: 14px;
+	height: 100%;
+	padding: 25% 2rem;
+	color: #ccc;
+	font-style: italic;
+}
+
+.dataHomeContainer {
+	display: grid;
+	grid-template-rows: 2.5rem auto;
+	height: 100vh;
+	width: 100vW;
+}
+
+.dataHomeItemsContainer {
+	flex: 100%;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	background-color: pink;
+	border-top: 2px solid rgba(224, 224, 224, 1);
 }

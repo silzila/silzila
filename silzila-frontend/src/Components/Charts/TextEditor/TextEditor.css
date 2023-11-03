@@ -1,0 +1,79 @@
+.slate blockquote{
+    border-left: 2px solid #ddd;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 10px;
+    color: #aaa;
+    font-style: italic;
+}
+.slate table {
+    border: 1px solid black;
+}
+
+.slate th {
+    border: 1px solid black;
+}
+
+.slate td {
+    border: 1px solid black;
+}
+
+.slate table{
+    border-collapse: collapse;
+}
+.slate button{
+    background-color: white;
+    border:none;
+    opacity: 0.5;
+}
+.slate .btnActive{
+    opacity: 1;
+}
+
+.slate .editor-wrapper{
+    font-family:'Helvetica','Arial', sans-serif;
+    border-radius: 10px;
+background: #ffffff;
+box-shadow:  -8px 8px 13px #ededed,
+             8px -8px 13px #ffffff;
+    min-height: 400px;
+    height: fit-content;
+}
+
+.slate table{
+    width:100%;
+}
+.slate td{
+    height: 50px;
+    padding:0 5px;
+}
+.slate .popup-wrapper{
+    display: inline;
+    position: relative;
+}
+.popup{
+    position: absolute;
+    left: 0;
+    background-color: white;
+    padding: 6px 10px;
+    border: 1px solid lightgray;
+    height: fit-content;
+    z-index: 1;
+
+}
+button{
+    cursor: pointer;
+}
+
+.MeasureButton{
+    width: 150px !important;
+    height: 30px !important;
+    text-transform: none !important;
+    background-color: rgb(43, 185, 187) !important;
+    color: white !important;
+    opacity: 1 !important;
+}
+
+.MeasureButton:hover{
+    background-color: rgb(43, 185, 187) !important;
+}
