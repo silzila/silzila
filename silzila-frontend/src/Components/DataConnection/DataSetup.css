@@ -140,16 +140,62 @@ Data Connections
 	color: #5d5c5c;
 }
 
+.listItems{
+	display: flex;
+	align-items: center;
+	column-gap: 20px;
+	padding: 6px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	margin-bottom: 1px;
+}
+
+.listItem{
+	display: flex;
+	align-items: center;
+	column-gap: 20px;
+	padding: 6px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	margin-bottom: 1px;
+	cursor: pointer;
+}
+
+.listItem:hover{
+	border: 1px solid rgba(224, 224, 224, 1);
+	border-radius: 4px; 
+}
+
+.active{
+	display: flex;
+	align-items: center;
+	column-gap: 20px;
+	cursor: pointer;
+	padding: 6px;
+	margin-bottom: 1px;
+	border: 1px solid #2bb9bb;
+	border-radius: 4px;
+}
+
 .dbConnectionErrorText {
 	color: red;
+}
 
+.dbButton{
+	display: flex;
+	justify-content: center;
+	border-top: 2px solid rgba(224, 224, 224, 1);
+	margin-top: 20px;
 }
 
 .dbFormButton {
-	margin: 10px auto;
+	position: fixed;
+	bottom: 1px ;
 	display: flex;
-	column-gap: 16rem;
-}
+	align-items: center;
+	column-gap: 17rem;
+	margin: 10px auto 5px auto;
+   }
 
 .dbDeleteDialog {
 	display: flex;
@@ -235,38 +281,6 @@ Data Connections
 	margin: 10px;
 }
 
-.listItem {
-	display: flex;
-	align-items: center;
-	column-gap: 20px;
-	padding: 6px;
-	margin-bottom: 3px;
-	cursor: pointer;
-}
-
-.listItem:hover {
-	border: 1px solid rgba(224, 224, 224, 1);
-	border-radius: 4px;
-}
-
-.active {
-	display: flex;
-	align-items: center;
-	column-gap: 20px;
-	cursor: pointer;
-	padding: 6px;
-	margin-bottom: 3px;
-	border: 1px solid #2bb9bb;
-	border-radius: 4px;
-}
-
-.listItems {
-	display: flex;
-	align-items: center;
-	column-gap: 20px;
-	padding: 6px;
-	margin-bottom: 3px;
-}
 
 /* 
 ===================================================

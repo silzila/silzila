@@ -23,7 +23,7 @@ const DatabaseConnectionDialogComponents = ({
 				aria-labelledby="alert-dialog-title"
 				aria-describedby="alert-dialog-description"
 				onClose={onCloseAlert}
-                sx={{marginLeft:'19rem'}}
+                sx={{marginLeft:'16.5rem'}}
 			>
 				<Alert style={{ padding: "30px" }} severity={severity}>
 					{testMessage}
