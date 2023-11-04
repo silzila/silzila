@@ -49,8 +49,6 @@ const NewDataConnection = (props: DataConnectionProps) => {
 	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("Testing alert");
-  const [dcDel, setDcDel] = useState<boolean>(false);
-	const [dcDelMeg, setDcDelMeg] = useState<string>('');
 	const [btnEnable, setBtnEnable] = useState<boolean>(false);
 	const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 	const [selected, setSelected] = useState<string>("");
@@ -58,9 +56,9 @@ const NewDataConnection = (props: DataConnectionProps) => {
 	const [enable, setEnable] = useState<boolean>(false);
 	const [changedb, setChangeDB] = useState<boolean>(false);
 	const [values, setValues] = useState<string>('');
-  const navigate =  useNavigate();
-  const location = useLocation();
-  const state	= location.state;
+    const navigate =  useNavigate();
+    const location = useLocation();
+    const state	= location.state;
 
     //This dataconnection array is used to list all the data connections in UI
 	const dataconnection = [
@@ -1046,9 +1044,9 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		                       <div>
 		                       <Typography variant= 'h6' sx={{color: '#B4B4B3', paddingTop:'20rem'}}>
 								Please select a database
-							</Typography>
+							   </Typography>
 						</div>
-					)}
+					}
 				</Box>
 
 				{/* Alert to display success / failure info */}
@@ -1103,6 +1101,27 @@ const NewDataConnection = (props: DataConnectionProps) => {
 						<br />
 						<br />
 					</div>
+					<div className="dbDeleteDialogBtnContainer">
+						<Button
+							className="dbDeleteDialogBtn1"
+							onClick={() => setOpenConfirmDialog(false)}
+							variant="contained"
+						>
+							Cancel
+						</Button>
+
+						<Button
+							className="dbDeleteDialogBtn2"
+							variant="contained"
+							onClick={() => {
+								setOpenConfirmDialog(false);
+								deleteDc();
+							}}
+						>
+							Delete
+						</Button>
+					 </div>
+				</div>
 				</Dialog>
 			</div>
 		</div>
