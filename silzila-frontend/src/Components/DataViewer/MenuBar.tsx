@@ -226,7 +226,7 @@ const MenuBar = ({
 			var result: any = await FetchData({
 				requestType: "withData",
 				method: "POST",
-				url: "playbook/",
+				url: "playbook",
 				data: playBookObj,
 				headers: { Authorization: `Bearer ${token}` },
 			});
