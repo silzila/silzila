@@ -131,7 +131,7 @@ const EditDataSet = ({
 			const getTables = async () => {
 				var url: string = "";
 				if (res.data.isFlatFileData) {
-					url = `file-data/`;
+					url = `file-data`;
 				} else {
 					if (server === "mysql") {
 						url = `metadata-tables/${res.data.connectionId}?database=${dbName}`;

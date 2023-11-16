@@ -94,10 +94,10 @@ const NewDataConnection = (props: DataConnectionProps) => {
 
 	useEffect(() => {
 		handleMode(state.mode);
-		ViewOrEditDc(state?.id);
-		handleListItem(state?.value);
+		// ViewOrEditDc(state?.id);
+		// handleListItem(state?.value);
 		props.resetAllStates();
-		getInformation();
+
 		// eslint-disable-next-line
 	}, []);
 
@@ -111,22 +111,6 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		} else if (mode === "Edit") {
 			setAccount({ ...account, password: "" });
 			setRegOrUpdate("Update");
-		}
-	};
-
-	// Get Info on DataConnection from server
-	const getInformation = async () => {
-		var result: any = await FetchData({
-			requestType: "noData",
-			method: "GET",
-			url: "database-connection",
-			headers: { Authorization: `Bearer ${props.token}` },
-		});
-
-		if (result.status) {
-			props.setDataConnectionListToState(result.data);
-		} else {
-			Logger("error", result.data.detail);
 		}
 	};
 
@@ -304,7 +288,6 @@ const NewDataConnection = (props: DataConnectionProps) => {
 				setOpenAlert(true);
 				setSeverity("success");
 				setTestMessage("Data Connection successful");
-				getInformation();
 				setTimeout(() => {
 					setOpenAlert(false);
 					setTestMessage("");
@@ -350,7 +333,6 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			setTimeout(() => {
 				setOpenAlert(false);
 				setTestMessage("");
-				getInformation();
 				navigate("/datahome");
 			}, 3000);
 		} else {
@@ -407,7 +389,6 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			setTimeout(() => {
 				setOpenAlert(false);
 				setTestMessage("");
-				getInformation();
 				navigate("/datahome");
 			}, 3000);
 		} else {
@@ -433,29 +414,28 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			account.port !== "" &&
 			account.database !== "" &&
 			account.connectionName !== "" &&
-			account.password &&
-			(account.password !== "" || account.password !== undefined)
+			account.password
 		) {
 			if (account.vendor === "databricks") {
 				if (account.httpPath !== "") {
-					var response: any = await getDatabaseConnectionTest();
+					// var response: any = await getDatabaseConnectionTest();
 
-					if (response.status) {
-						if (regOrUpdate === "Update") {
-							handleonUpdate();
-						}
-						if (regOrUpdate === "Register") {
-							handleRegister();
-						}
-					} else {
-						setSeverity("error");
-						setOpenAlert(true);
-						setTestMessage(response.data.message);
-						// setTimeout(() => {
-						// 	setOpenAlert(false);
-						// 	setTestMessage("");
-						// }, 4000);
+					// if (response.status) {
+					if (regOrUpdate === "Update") {
+						handleonUpdate();
 					}
+					if (regOrUpdate === "Register") {
+						handleRegister();
+					}
+					// } else {
+					// 	setSeverity("error");
+					// 	setOpenAlert(true);
+					// 	setTestMessage(response.data.message);
+					// 	// setTimeout(() => {
+					// 	// 	setOpenAlert(false);
+					// 	// 	setTestMessage("");
+					// 	// }, 4000);
+					// }
 				} else {
 					setSeverity("error");
 					setOpenAlert(true);
@@ -467,24 +447,24 @@ const NewDataConnection = (props: DataConnectionProps) => {
 				}
 			} else {
 				if (account.username !== "") {
-					var response: any = await getDatabaseConnectionTest();
+					// var response: any = await getDatabaseConnectionTest();
 
-					if (response.status) {
-						if (regOrUpdate === "Update") {
-							handleonUpdate();
-						}
-						if (regOrUpdate === "Register") {
-							handleRegister();
-						}
-					} else {
-						setSeverity("error");
-						setOpenAlert(true);
-						setTestMessage(response.data.message);
-						// setTimeout(() => {
-						// 	setOpenAlert(false);
-						// 	setTestMessage("");
-						// }, 4000);
+					// if (response.status) {
+					if (regOrUpdate === "Update") {
+						handleonUpdate();
 					}
+					if (regOrUpdate === "Register") {
+						handleRegister();
+					}
+					// } else {
+					// 	setSeverity("error");
+					// 	setOpenAlert(true);
+					// 	setTestMessage(response.data.message);
+					// 	// setTimeout(() => {
+					// 	// 	setOpenAlert(false);
+					// 	// 	setTestMessage("");
+					// 	// }, 4000);
+					// }
 				} else {
 					setSeverity("error");
 					setOpenAlert(true);
@@ -540,13 +520,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 				<MenuBar from="dataSet" />
 			</div>
 
-			<div
-				style={{ display: "flex" }}
-				onSubmit={e => {
-					e.preventDefault();
-					onSubmit();
-				}}
-			>
+			<div style={{ display: "flex" }}>
 				<Box
 					sx={{
 						minHeight: "100vh",
@@ -743,7 +717,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 								</div>
 
 								{/*========================== Reusable Component from ../CommonFunctions/TextFieldComponents========================= */}
-								{}
+
 								<TextFieldComponent
 									onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 										setAccount({ ...account, server: e.target.value });

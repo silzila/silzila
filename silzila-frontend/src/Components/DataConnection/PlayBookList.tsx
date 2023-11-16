@@ -68,8 +68,11 @@ const PlayBookList = ({
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: "playbook/",
-			headers: { Authorization: `Bearer ${token}` },
+			url: "playbook",
+			headers: {
+				"content-type": "application/json",
+				Authorization: `Bearer ${token}`,
+			},
 		});
 
 		if (result.status) {

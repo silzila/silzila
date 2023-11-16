@@ -82,7 +82,7 @@ const EditFlatFileData = ({
 		var result: any = await FetchData({
 			requestType: "withData",
 			method: "POST",
-			url: "file-upload-change-schema/",
+			url: "file-upload-change-schema",
 			data: fileObj,
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -113,7 +113,7 @@ const EditFlatFileData = ({
 		var result: any = await FetchData({
 			requestType: "withData",
 			method: "POST",
-			url: "file-upload-save-data/",
+			url: "file-upload-save-data",
 			data: formObj,
 			headers: {
 				Authorization: `Bearer ${token}`,
