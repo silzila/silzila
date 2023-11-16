@@ -763,12 +763,17 @@ const CrossTabChart = ({
 		addColumnItemsFromRowBoj(dustbinValues, tempRowObj1, "val");
 
 		crossTabData.push(tempRowObj1);
+		let columnsHeader: string[] = [];
+		tempRowObj1.columnItems.forEach((item:any)=>{
+			columnsHeader.push(item?.displayData)
+		})
+
 
 		formatedChartPropData.forEach((data, index) => {
 			let tempRowObj = CrossTab.cloneData(rowObj);
 			let compObj: any = {};
 
-			Object.keys(data).forEach((key, pos) => {
+			columnsHeader.forEach((key, pos) => {
 				let tempColumnObj = CrossTab.cloneData(columnObj);
 
 				if (pos > dustbinRows.length - 1) {

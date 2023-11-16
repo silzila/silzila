@@ -2,22 +2,41 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Spring Boot-AppApplication<app>",
+      "name": "Spring Boot-AuthJwtBootApplication<jwt-auth>",
       "request": "launch",
       "cwd": "${workspaceFolder}",
-      "mainClass": "org.silzila.app.AppApplication",
-      "projectName": "app",
+      "mainClass": "com.javatab.AuthJwtBootApplication",
+      "projectName": "jwt-auth",
       "args": "",
-      "vmArgs": "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=java.base/java.lang=ALL-UNNAMED --add-exports=java.base/java.lang.invoke=ALL-UNNAMED --add-exports=java.base/java.lang.reflect=ALL-UNNAMED --add-exports=java.base/java.io=ALL-UNNAMED --add-exports=java.base/java.net=ALL-UNNAMED --add-exports=java.base/java.nio=ALL-UNNAMED --add-exports=java.base/java.util=ALL-UNNAMED --add-exports=java.base/java.util.concurrent=ALL-UNNAMED --add-exports=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=java.base/sun.nio.cs=ALL-UNNAMED --add-exports=java.base/sun.security.action=ALL-UNNAMED --add-exports=java.base/sun.util.calendar=ALL-UNNAMED --add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED",
       "envFile": "${workspaceFolder}/.env"
     },
     {
       "type": "java",
-      "name": "Spring Boot-AppApplication<silzila>",
+      "name": "Spring Boot-VizApplication<jwt-auth>",
       "request": "launch",
       "cwd": "${workspaceFolder}",
-      "mainClass": "org.silzila.app.AppApplication",
+      "mainClass": "com.silzila.VizApplication",
+      "projectName": "jwt-auth",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-VizApplication<silzila>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.silzila.VizApplication",
       "projectName": "silzila",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-VizApplication<app>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.silzila.VizApplication",
+      "projectName": "app",
       "args": "",
       "envFile": "${workspaceFolder}/.env"
     }
