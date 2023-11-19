@@ -1,7 +1,7 @@
 
-export const setCellColor = (isHeader:boolean,crossTabData: any, colIndex: number, colData: any, chartProperties: any, propKey: string, chartControls: any): object => {
+export const setCellColor = (isHeader:boolean,crossTabData: any, colIndex: number, rowIndex: number, colData: any, chartProperties: any, propKey: string, chartControls: any): object => {
     let isConditionAvailable = checkChartControlConditionalColor(chartProperties, propKey,chartControls);
-    let _conditionalStyle : any = getConditionalFormat(crossTabData, colIndex, colData, chartProperties, propKey, chartControls) || {};
+    let _conditionalStyle : any = getConditionalFormat(crossTabData, colIndex, rowIndex, colData, chartProperties, propKey, chartControls) || {};
     let _crossTabStyle = isHeader ? chartControls.properties[propKey].crossTabHeaderLabelOptions : chartControls.properties[propKey].crossTabCellLabelOptions;
     let style = {
         color : isConditionAvailable ? _conditionalStyle.fontColor : 
@@ -28,25 +28,48 @@ const checkChartControlConditionalColor = (chartProperties: any, propKey: string
     return false;
 }
 
-const getConditionalFormat = (crossTabData: any,colIndex: number, colData: any, chartProperties: any, propKey: string, chartControls: any) =>{
+const getConditionalFormat = (crossTabData: any,colIndex: number, rowIndex : number, colData: any, chartProperties: any, propKey: string, chartControls: any) =>{
 
-    let colName = getColumnName(crossTabData,colIndex,chartProperties, propKey );
+    if(colData == '270'){
+        console.log('sum of quantity')
+    }
+
+    let colName = getColumnName(crossTabData,colIndex, chartProperties, propKey );
        
     let colNameConditions = chartControls.properties[propKey].tableConditionalFormats.find((item:any)=>{
         return item.name === colName;
     });
     
     if(colNameConditions){
-        let field = getColumnField(colIndex,chartProperties,propKey);
+        if(colNameConditions.isGradient){
+          let colors =  interpolateColor(colNameConditions.value[0].backgroundColor,colNameConditions.value[2].backgroundColor, crossTabData.length - 2);
+          let style = colNameConditions.value[1];
 
-        switch(field.dataType){
-          
-            case 'text':
-                return colNameConditions.value.find((item:any)=> item.colValue === colData)
-            default:
-                let lastSatisfiedCondition = getLastSatisfiedCondition(colData, colNameConditions);
-                return lastSatisfiedCondition || {};
+          if(colors[rowIndex]){
+            style.backgroundColor = colors[rowIndex];
+
+          }
+
+          return style;
         }
+        else{
+            let field = getColumnField(colIndex,chartProperties,propKey);
+
+            switch(field.dataType){
+              
+                case 'text':
+                    return colNameConditions.value.find((item:any)=> item.colValue === colData)
+                default:
+                    if(!isNaN(colData)){
+                        let lastSatisfiedCondition = getLastSatisfiedCondition(colData, colNameConditions);
+                        return lastSatisfiedCondition || {};
+                    }
+                    else{
+                        return {};
+                    }
+            }
+        }
+       
     }
     else{
         return {};
@@ -123,4 +146,17 @@ const getColumnName = (crossTabData: any, colIndex: number, chartProperties: any
 
     return "";
 }
+
+const interpolateColor = (startColor:any, endColor:any, steps:any) => {
+    const colorMap = (value:any, start:any, end:any) => start + Math.round(value * (end - start));
+    const parseColor = (color:any) => color.match(/\w\w/g).map((hex:any) => parseInt(hex, 16));
+  
+    const startRGB = parseColor(startColor);
+    const endRGB = parseColor(endColor);
+  
+    return Array.from({ length: steps }, (_, index) => {
+      const t = index / (steps - 1);
+      return `rgb(${colorMap(t, startRGB[0], endRGB[0])},${colorMap(t, startRGB[1], endRGB[1])},${colorMap(t, startRGB[2], endRGB[2])})`;
+    });
+  };
 

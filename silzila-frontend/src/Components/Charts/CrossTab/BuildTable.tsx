@@ -135,7 +135,7 @@ export const BuildTable = ({
 	/*  Construct table header and cell with data */
 	const GetTableContent = (crossTabData: any, col: any, rowIndex: number, colIndex: number) => {
 		if (col.isHeaderField && !col.skip) {
-			let tdStyle : any = ColorFormat.setCellColor(true, crossTabData, colIndex, col.displayData, chartProperties, propKey, chartControls)
+			let tdStyle : any = ColorFormat.setCellColor(true, crossTabData, colIndex, rowIndex, col.displayData, chartProperties, propKey, chartControls)
 
 			return (
 				/*  Construct header area */
@@ -154,7 +154,7 @@ export const BuildTable = ({
 		} else {
 			if (!col.skip) {
 
-				let tdStyle : any = ColorFormat.setCellColor(false,crossTabData, colIndex, col.displayData, chartProperties, propKey, chartControls)
+				let tdStyle : any = ColorFormat.setCellColor(false,crossTabData, colIndex, rowIndex, col.displayData, chartProperties, propKey, chartControls)
 
 				return (
 					/*  Construct table body area */
