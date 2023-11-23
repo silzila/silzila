@@ -96,10 +96,10 @@ const NewDataConnection = (props: DataConnectionProps) => {
 
 	useEffect(() => {
 		handleMode(state.mode);
-		// ViewOrEditDc(state?.id);
-		// handleListItem(state?.value);
+		ViewOrEditDc(state?.id);
+		handleListItem(state?.value);
 		props.resetAllStates();
-
+		getInformation();
 		// eslint-disable-next-line
 	}, []);
 
@@ -113,6 +113,22 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		} else if (mode === "Edit") {
 			setAccount({ ...account, password: "" });
 			setRegOrUpdate("Update");
+		}
+	};
+
+	// Get Info on DataConnection from server
+	const getInformation = async () => {
+		var result: any = await FetchData({
+			requestType: "noData",
+			method: "GET",
+			url: "database-connection",
+			headers: { Authorization: `Bearer ${props.token}` },
+		});
+
+		if (result.status) {
+			props.setDataConnectionListToState(result.data);
+		} else {
+			Logger("error", result.data.detail);
 		}
 	};
 
@@ -290,6 +306,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 				setOpenAlert(true);
 				setSeverity("success");
 				setTestMessage("Data Connection successful");
+				getInformation();
 				setTimeout(() => {
 					setOpenAlert(false);
 					setTestMessage("");
@@ -335,6 +352,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			setTimeout(() => {
 				setOpenAlert(false);
 				setTestMessage("");
+				getInformation();
 				navigate("/datahome");
 			}, 3000);
 		} else {
@@ -391,6 +409,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			setTimeout(() => {
 				setOpenAlert(false);
 				setTestMessage("");
+				getInformation();
 				navigate("/datahome");
 			}, 3000);
 		} else {
@@ -416,28 +435,29 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			account.port !== "" &&
 			account.database !== "" &&
 			account.connectionName !== "" &&
-			account.password
+			account.password &&
+			(account.password !== "" || account.password !== undefined)
 		) {
 			if (account.vendor === "databricks") {
 				if (account.httpPath !== "") {
-					// var response: any = await getDatabaseConnectionTest();
+					var response: any = await getDatabaseConnectionTest();
 
-					// if (response.status) {
-					if (regOrUpdate === "Update") {
-						handleonUpdate();
+					if (response.status) {
+						if (regOrUpdate === "Update") {
+							handleonUpdate();
+						}
+						if (regOrUpdate === "Register") {
+							handleRegister();
+						}
+					} else {
+						setSeverity("error");
+						setOpenAlert(true);
+						setTestMessage(response.data.message);
+						// setTimeout(() => {
+						// 	setOpenAlert(false);
+						// 	setTestMessage("");
+						// }, 4000);
 					}
-					if (regOrUpdate === "Register") {
-						handleRegister();
-					}
-					// } else {
-					// 	setSeverity("error");
-					// 	setOpenAlert(true);
-					// 	setTestMessage(response.data.message);
-					// 	// setTimeout(() => {
-					// 	// 	setOpenAlert(false);
-					// 	// 	setTestMessage("");
-					// 	// }, 4000);
-					// }
 				} else {
 					setSeverity("error");
 					setOpenAlert(true);
@@ -449,24 +469,24 @@ const NewDataConnection = (props: DataConnectionProps) => {
 				}
 			} else {
 				if (account.username !== "") {
-					// var response: any = await getDatabaseConnectionTest();
+					var response: any = await getDatabaseConnectionTest();
 
-					// if (response.status) {
-					if (regOrUpdate === "Update") {
-						handleonUpdate();
+					if (response.status) {
+						if (regOrUpdate === "Update") {
+							handleonUpdate();
+						}
+						if (regOrUpdate === "Register") {
+							handleRegister();
+						}
+					} else {
+						setSeverity("error");
+						setOpenAlert(true);
+						setTestMessage(response.data.message);
+						// setTimeout(() => {
+						// 	setOpenAlert(false);
+						// 	setTestMessage("");
+						// }, 4000);
 					}
-					if (regOrUpdate === "Register") {
-						handleRegister();
-					}
-					// } else {
-					// 	setSeverity("error");
-					// 	setOpenAlert(true);
-					// 	setTestMessage(response.data.message);
-					// 	// setTimeout(() => {
-					// 	// 	setOpenAlert(false);
-					// 	// 	setTestMessage("");
-					// 	// }, 4000);
-					// }
 				} else {
 					setSeverity("error");
 					setOpenAlert(true);
@@ -537,277 +557,183 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		});
 	 }
 
-			<div style={{ display: "flex" }}>
-				<Box
-					sx={{
-						minHeight: "100vh",
-						display: "flex",
-						flexDirection: "column",
-						flex: 0.2,
-						borderRight: "2px solid rgba(224, 224, 224, 1)",
-						padding: "1rem 2rem",
-						alignItems: "flex-start",
-					}}
-				>
-					<div>
-						{viewMode ? (
-							<Typography
-								variant="h6"
-								sx={{ color: "#B4B4B3", paddingBottom: "10px" }}
-							>
-								Database
-							</Typography>
-						) : !viewMode && enable ? (
-							<Typography
-								variant="h6"
-								sx={{ color: "#B4B4B3", paddingBottom: "10px" }}
-							>
-								Database
-							</Typography>
-						) : (
-							<Typography
-								variant="h6"
-								sx={{ color: "#B4B4B3", paddingBottom: "10px" }}
-							>
-								Select a Database
-							</Typography>
-						)}
-						<div>
-							{dataconnection.map(data => {
-								const { id, value, name, img } = data;
-								return (
-									<div
-										onClick={() => {
-											if (!viewMode && !enable) {
-												setAccount({
-													...account,
-													vendor: value,
-													server:
-														value === "databricks"
-															? ""
-															: "localhost" && value === "redshift"
-															? ""
-															: "localhost",
-													port: getUrlAndPort(value),
-													database:
-														value === "databricks" ? "default" : "",
-												});
-												btnEnabelDisable();
-											} else {
-												if (!viewMode && enable) {
-												}
-											}
-										}}
-										onFocus={() => setAccount({ ...account, vendorError: "" })}
-										onBlur={() => {
-											if (account.vendor.length === 0) {
-												setAccount({
-													...account,
-													vendorError: "vendor should not be Empty",
-												});
-												btnEnabelDisable();
-											}
-										}}
-									>
-										<div
-											key={id}
-											onClick={() => {
-												if (enable) {
-													return setEnable(true);
-												}
-												if (!viewMode && !enable) {
-													handleListItem(value);
-												}
-											}}
-										>
-											{viewMode ? (
-												<div
-													className={
-														selected === value ? "active" : "listItems"
-													}
-												>
-													<img
-														src={img}
-														alt="Icon"
-														className="vendorIconStyle"
-													/>
-													<Typography sx={{ color: "#9e9e9e" }}>
-														{name}
-													</Typography>
-												</div>
-											) : !viewMode && enable ? (
-												<div
-													className={
-														selected === value ? "active" : "listItems"
-													}
-												}
-											}else{
-												if(value === 'databricks'){
-													if(account.vendor === 'redshift'){
-														if(account.server !== '' || account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
-															setChangeDB(true);
-															setValues(value);
-														}else{
-															setDataConnection(value);
-														}
-													}else{
-														if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql'){
-															if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
-																setChangeDB(true);
-																setValues(value);
-															}else{
-																setDataConnection(value);	
-															}
-														}
-													}
-												}else{
-													if(value === 'sqlserver' || 'mysql' || 'postgresql'){
-														if(account.vendor === 'redshift'){
-															if(account.server !== '' || account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
-																setChangeDB(true);
-																setValues(value);
-															}else{
-																setDataConnection(value);
-															}
-														}else{
-															if(account.vendor === 'databricks'){
-																if(account.server !== '' || account.httpPath !== ''  || account.password !== '' || account.connectionName !== ''){
-																	setChangeDB(true);
-																	setValues(value);
-																}else{
-																	setDataConnection(value);
-																}	
-															}else{
-																	if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
-																		setChangeDB(true);
-																		setValues(value);
-																	}else{
-																		setDataConnection(value);	
-																	}
-															}
-														}
-													}
-												>
-													<img
-														src={img}
-														alt="Icon"
-														className="vendorIconStyle"
-													/>
-													<Typography sx={{ color: "#9e9e9e" }}>
-														{name}
-													</Typography>
-												</div>
-											)}
-										</div>
-									</div>
-								);
-							})}
-						</div>
-					</div>
-				</Box>
-
-				<Box
-					sx={{
-						display: "flex",
-						flexDirection: "column",
-						gap: "55px",
-						flex: 1,
-						paddingTop: "1.5rem",
-					}}
-				>
-					{showform || viewMode ? (
-						<>
-							<div
-								style={{
-									display: "flex",
-									flexDirection: "column",
-									gap: "15px",
-									alignItems: "center",
-								}}
-							>
-								<div>
-									{viewMode ? (
-										<Typography
-											variant="h6"
-											sx={{ color: "#B4B4B3", paddingBottom: "10px" }}
-										>
-											DB Connection
-										</Typography>
-									) : regOrUpdate === "Update" ? (
-										<Typography
-											variant="h6"
-											sx={{ color: "#B4B4B3", paddingBottom: "10px" }}
-										>
-											Edit DB Connection
-										</Typography>
-									) : (
-										<Typography
-											variant="h6"
-											sx={{ color: "#B4B4B3", paddingBottom: "10px" }}
-										>
-											Create DB Connection
-										</Typography>
-									)}
-								</div>
-
-								{/*========================== Reusable Component from ../CommonFunctions/TextFieldComponents========================= */}
-
-								<TextFieldComponent
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-										setAccount({ ...account, server: e.target.value });
-										btnEnabelDisable();
-									}}
-									onFocus={() => setAccount({ ...account, serverError: "" })}
-									onBlur={() => {
-										if (account.server.length === 0) {
-											setAccount({
-												...account,
-												serverError:
-													account.vendor === "databricks"
-														? "Server Hostname should not be empty"
-														: "Server Url should not be empty",
-											});
-											btnEnabelDisable();
-										}
-									}}
-									{...{
-										viewMode,
-										value: account.server,
-										lable:
-											account.vendor === "databricks"
-												? "Server Hostname"
-												: "Server Url",
-									}}
-								/>
-								<small className="dbConnectionErrorText">
-									{account.serverError}
-								</small>
-
-								<TextFieldComponent
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-										setAccount({ ...account, port: e.target.value });
-										btnEnabelDisable();
-									}}
-									onFocus={() => setAccount({ ...account, portError: "" })}
-									onBlur={() => {
-										if (account.port.length === 0) {
-											setAccount({
-												...account,
-												portError: "port should not be Empty",
-											});
-											btnEnabelDisable();
-										}
+	 const dataConnectionOnclick=(value:any)=>{
+		if(!viewMode && !enable){
+			if(value !== ''){
+				if(account.vendor !== ''){
+					if(account.vendor !== value){
+						if(value === 'redshift'){
+							if(account.vendor === 'databricks'){
+								if(account.server !== '' || account.httpPath !== ''  || account.password !== '' || account.connectionName !== ''){
+									setChangeDB(true);
+									setValues(value);
+								}else{
+									setDataConnection(value);
+								}	
+							}else{
+								if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql'){
+									if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+										setChangeDB(true);
+										setValues(value);
+									}else{
+										setDataConnection(value);	
+									}
+								}
+							}
+						}else{
+							if(value === 'databricks'){
+								if(account.vendor === 'redshift'){
+									if(account.server !== '' || account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+										setChangeDB(true);
+										setValues(value);
 									}else{
 										setDataConnection(value);
 									}
-
+								}else{
+									if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql'){
+										if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+											setChangeDB(true);
+											setValues(value);
+										}else{
+											setDataConnection(value);	
+										}
+									}
 								}
-							btnEnabelDisable();
+							}else{
+								if(value === 'sqlserver' || 'mysql' || 'postgresql'){
+									if(account.vendor === 'redshift'){
+										if(account.server !== '' || account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+											setChangeDB(true);
+											setValues(value);
+										}else{
+											setDataConnection(value);
+										}
+									}else{
+										if(account.vendor === 'databricks'){
+											if(account.server !== '' || account.httpPath !== ''  || account.password !== '' || account.connectionName !== ''){
+												setChangeDB(true);
+												setValues(value);
+											}else{
+												setDataConnection(value);
+											}	
+										}else{
+												if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+													setChangeDB(true);
+													setValues(value);
+												}else{
+													setDataConnection(value);	
+												}
+										}
+									}
+								}
+							}
 						}
+					}else{
+						if(account.vendor === value){}
+					}
+				}else{
+					setDataConnection(value);
+				}
+
+			}
+		btnEnabelDisable();
+	}
+else{
+	if(!viewMode && enable){
+	}
+}
+	 }
+
+	 const handleListItemBasedOnVendor = (value:any)=>{
+		if(enable){
+			return setEnable(true);
+		}
+
+		if(account.vendor !== ''){
+			if(value === 'sqlserver' || 'mysql' || 'postgresql' ){
+				if(account.vendor === 'databricks'){
+					if(account.server === '' || account.httpPath === '' || account.password === '' || account.connectionName === ''){
+						handleListItem(value);
+					}
+				}else{
+					if(account.vendor === 'redshift'){
+						if(account.server === '' || account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+							handleListItem(value);
+						}}else{
+							if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+								handleListItem(value);
+							}}}}
+
+			else{
+			if(value === 'databricks'){
+				if(account.vendor === 'redshift'){
+					if(account.server === '' || account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+						handleListItem(value);
+					}}else{
+						if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+							handleListItem(value);
+						}}
+					}
+					
 					else{
-						if(!viewMode && enable){
-						}
-					}}}
+						if(value === 'redshift'){
+							if(account.vendor === 'databricks') {
+								if(account.server === '' || account.httpPath === '' || account.password === '' || account.connectionName === ''){
+									handleListItem(value);
+								}}else{
+									if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+										handleListItem(value);
+									}
+								}}}}
+		} 
+		
+		if(!viewMode && !enable){
+			handleListItem(value);
+		}
+	 }
+
+  return (
+    <div style={{height: '100vh'}}>
+      
+    <div style={{borderBottom: '2px solid rgba(224, 224, 224, 1)'}}>
+        <MenuBar from="dataSet" />
+    </div>
+   
+    <div style={{display:'flex'}} 
+    onSubmit={
+      e => {
+        e.preventDefault();
+        onSubmit();
+      }
+    }>
+		
+    <Box 
+    sx={{ 
+    minHeight: '100vh', 
+    display: 'flex', 
+    flexDirection: 'column', 
+    flex: 0.15, 
+    borderRight: '2px solid rgba(224, 224, 224, 1)', 
+    padding: '1rem 2rem',
+    alignItems: 'flex-start'
+    }}
+    >    
+           <div>
+		   {viewMode ? (
+                <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Database</Typography>
+							) : !viewMode && enable ? (
+				<Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Database</Typography>				
+							) : (
+                <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Select a Database</Typography>
+							)
+			}
+			<div> 
+				{
+				dataconnection.map((data)=>{
+					const {id, value, name, img} = data;
+					return(
+						<div 
+						onClick={() =>dataConnectionOnclick(value)}
 						onFocus={() => setAccount({ ...account, vendorError: "" })}
 						onBlur={() => {
 							if (account.vendor.length === 0) {
@@ -818,54 +744,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 								btnEnabelDisable();
 							}
 						}} >
-							<div key={id} 
-							 onClick={() =>{
-								if(enable){
-                                    return setEnable(true);
-								}
-
-								if(account.vendor !== ''){
-									if(value === 'sqlserver' || 'mysql' || 'postgresql' ){
-										if(account.vendor === 'databricks'){
-											if(account.server === '' || account.httpPath === '' || account.password === '' || account.connectionName === ''){
-												handleListItem(value);
-											}
-										}else{
-											if(account.vendor === 'redshift'){
-												if(account.server === '' || account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-													handleListItem(value);
-												}}else{
-													if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-														handleListItem(value);
-													}}}}
-
-                                    else{
-									if(value === 'databricks'){
-										if(account.vendor === 'redshift'){
-											if(account.server === '' || account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-												handleListItem(value);
-											}}else{
-												if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-													handleListItem(value);
-												}}
-											}
-											
-											else{
-												if(value === 'redshift'){
-													if(account.vendor === 'databricks') {
-														if(account.server === '' || account.httpPath === '' || account.password === '' || account.connectionName === ''){
-															handleListItem(value);
-														}}else{
-															if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-																handleListItem(value);
-															}
-														}}}}
-								} 
-                                
-								if(!viewMode && !enable){
-									handleListItem(value);
-								}
-								}} >
+							<div key={id} onClick={() =>{ handleListItemBasedOnVendor(value)}} >
 								{ viewMode ? (
 									<div className={selected === value ? 'active': 'listItems'}>
 										<img src={img} alt="Icon" className="vendorIconStyle" />
