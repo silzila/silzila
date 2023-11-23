@@ -42,7 +42,7 @@ const FlatFileUpload = ({ token, setApiResponse, setEditApiResponse }: FlatFileU
 		var result: any = await FetchData({
 			requestType: "withData",
 			method: "POST",
-			url: "file-upload/",
+			url: "file-upload",
 			data: formData,
 			headers: {
 				Authorization: `Bearer ${token}`,

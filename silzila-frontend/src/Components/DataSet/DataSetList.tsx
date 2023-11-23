@@ -126,7 +126,7 @@ const DataSetList = ({
 		var res: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: "file-data/",
+			url: "file-data",
 			headers: { Authorization: `Bearer ${token}` },
 		});
 

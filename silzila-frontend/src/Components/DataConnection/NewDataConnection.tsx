@@ -557,6 +557,141 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		});
 	 }
 
+	 const dataConnectionOnclick=(value:any)=>{
+		if(!viewMode && !enable){
+			if(value !== ''){
+				if(account.vendor !== ''){
+					if(account.vendor !== value){
+						if(value === 'redshift'){
+							if(account.vendor === 'databricks'){
+								if(account.server !== '' || account.httpPath !== ''  || account.password !== '' || account.connectionName !== ''){
+									setChangeDB(true);
+									setValues(value);
+								}else{
+									setDataConnection(value);
+								}	
+							}else{
+								if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql'){
+									if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+										setChangeDB(true);
+										setValues(value);
+									}else{
+										setDataConnection(value);	
+									}
+								}
+							}
+						}else{
+							if(value === 'databricks'){
+								if(account.vendor === 'redshift'){
+									if(account.server !== '' || account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+										setChangeDB(true);
+										setValues(value);
+									}else{
+										setDataConnection(value);
+									}
+								}else{
+									if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql'){
+										if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+											setChangeDB(true);
+											setValues(value);
+										}else{
+											setDataConnection(value);	
+										}
+									}
+								}
+							}else{
+								if(value === 'sqlserver' || 'mysql' || 'postgresql'){
+									if(account.vendor === 'redshift'){
+										if(account.server !== '' || account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+											setChangeDB(true);
+											setValues(value);
+										}else{
+											setDataConnection(value);
+										}
+									}else{
+										if(account.vendor === 'databricks'){
+											if(account.server !== '' || account.httpPath !== ''  || account.password !== '' || account.connectionName !== ''){
+												setChangeDB(true);
+												setValues(value);
+											}else{
+												setDataConnection(value);
+											}	
+										}else{
+												if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+													setChangeDB(true);
+													setValues(value);
+												}else{
+													setDataConnection(value);	
+												}
+										}
+									}
+								}
+							}
+						}
+					}else{
+						if(account.vendor === value){}
+					}
+				}else{
+					setDataConnection(value);
+				}
+
+			}
+		btnEnabelDisable();
+	}
+else{
+	if(!viewMode && enable){
+	}
+}
+	 }
+
+	 const handleListItemBasedOnVendor = (value:any)=>{
+		if(enable){
+			return setEnable(true);
+		}
+
+		if(account.vendor !== ''){
+			if(value === 'sqlserver' || 'mysql' || 'postgresql' ){
+				if(account.vendor === 'databricks'){
+					if(account.server === '' || account.httpPath === '' || account.password === '' || account.connectionName === ''){
+						handleListItem(value);
+					}
+				}else{
+					if(account.vendor === 'redshift'){
+						if(account.server === '' || account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+							handleListItem(value);
+						}}else{
+							if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+								handleListItem(value);
+							}}}}
+
+			else{
+			if(value === 'databricks'){
+				if(account.vendor === 'redshift'){
+					if(account.server === '' || account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+						handleListItem(value);
+					}}else{
+						if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+							handleListItem(value);
+						}}
+					}
+					
+					else{
+						if(value === 'redshift'){
+							if(account.vendor === 'databricks') {
+								if(account.server === '' || account.httpPath === '' || account.password === '' || account.connectionName === ''){
+									handleListItem(value);
+								}}else{
+									if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
+										handleListItem(value);
+									}
+								}}}}
+		} 
+		
+		if(!viewMode && !enable){
+			handleListItem(value);
+		}
+	 }
+
   return (
     <div style={{height: '100vh'}}>
       
@@ -598,91 +733,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 					const {id, value, name, img} = data;
 					return(
 						<div 
-						onClick={() => {
-							if(!viewMode && !enable){
-								if(value !== ''){
-									if(account.vendor !== ''){
-										if(account.vendor !== value){
-											if(value === 'redshift'){
-												if(account.vendor === 'databricks'){
-													if(account.server !== '' || account.httpPath !== ''  || account.password !== '' || account.connectionName !== ''){
-														setChangeDB(true);
-														setValues(value);
-													}else{
-														setDataConnection(value);
-													}	
-												}else{
-													if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql'){
-														if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
-															setChangeDB(true);
-														    setValues(value);
-														}else{
-															setDataConnection(value);	
-														}
-													}
-												}
-											}else{
-												if(value === 'databricks'){
-													if(account.vendor === 'redshift'){
-														if(account.server !== '' || account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
-															setChangeDB(true);
-															setValues(value);
-														}else{
-															setDataConnection(value);
-														}
-													}else{
-														if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql'){
-															if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
-																setChangeDB(true);
-																setValues(value);
-															}else{
-																setDataConnection(value);	
-															}
-														}
-													}
-												}else{
-													if(value === 'sqlserver' || 'mysql' || 'postgresql'){
-														if(account.vendor === 'redshift'){
-															if(account.server !== '' || account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
-																setChangeDB(true);
-																setValues(value);
-															}else{
-																setDataConnection(value);
-															}
-														}else{
-															if(account.vendor === 'databricks'){
-																if(account.server !== '' || account.httpPath !== ''  || account.password !== '' || account.connectionName !== ''){
-																	setChangeDB(true);
-																	setValues(value);
-																}else{
-																	setDataConnection(value);
-																}	
-															}else{
-																	if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
-																		setChangeDB(true);
-																		setValues(value);
-																	}else{
-																		setDataConnection(value);	
-																	}
-															}
-														}
-													}
-												}
-											}
-										}else{
-											if(account.vendor === value){}
-										}
-									}else{
-										setDataConnection(value);
-									}
-
-								}
-							btnEnabelDisable();
-						}
-					else{
-						if(!viewMode && enable){
-						}
-					}}}
+						onClick={() =>dataConnectionOnclick(value)}
 						onFocus={() => setAccount({ ...account, vendorError: "" })}
 						onBlur={() => {
 							if (account.vendor.length === 0) {
@@ -693,54 +744,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 								btnEnabelDisable();
 							}
 						}} >
-							<div key={id} 
-							 onClick={() =>{
-								if(enable){
-                                    return setEnable(true);
-								}
-
-								if(account.vendor !== ''){
-									if(value === 'sqlserver' || 'mysql' || 'postgresql' ){
-										if(account.vendor === 'databricks'){
-											if(account.server === '' || account.httpPath === '' || account.password === '' || account.connectionName === ''){
-												handleListItem(value);
-											}
-										}else{
-											if(account.vendor === 'redshift'){
-												if(account.server === '' || account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-													handleListItem(value);
-												}}else{
-													if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-														handleListItem(value);
-													}}}}
-
-                                    else{
-									if(value === 'databricks'){
-										if(account.vendor === 'redshift'){
-											if(account.server === '' || account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-												handleListItem(value);
-											}}else{
-												if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-													handleListItem(value);
-												}}
-											}
-											
-											else{
-												if(value === 'redshift'){
-													if(account.vendor === 'databricks') {
-														if(account.server === '' || account.httpPath === '' || account.password === '' || account.connectionName === ''){
-															handleListItem(value);
-														}}else{
-															if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-																handleListItem(value);
-															}
-														}}}}
-								} 
-                                
-								if(!viewMode && !enable){
-									handleListItem(value);
-								}
-								}} >
+							<div key={id} onClick={() =>{ handleListItemBasedOnVendor(value)}} >
 								{ viewMode ? (
 									<div className={selected === value ? 'active': 'listItems'}>
 										<img src={img} alt="Icon" className="vendorIconStyle" />

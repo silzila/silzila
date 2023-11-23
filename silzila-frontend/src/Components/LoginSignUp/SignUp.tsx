@@ -91,8 +91,9 @@ const SignUp = () => {
 		if (canSignUp) {
 			var form = {
 				name: account.name,
-				email: account.email,
+				username: account.email,
 				password: account.password,
+				device: "web",
 			};
 			// TODO:need to specify types
 			var response: any = await FetchData({

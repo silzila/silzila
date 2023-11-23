@@ -80,8 +80,9 @@ const Login = (props: DispatchProps) => {
 			// form.append("password", account.password);
 
 			let form = {
-				email: account.email,
+				username: account.email,
 				password: account.password,
+				device: "web",
 			};
 			// TODO need to specify type
 			var response: any = await FetchData({
@@ -104,7 +105,11 @@ const Login = (props: DispatchProps) => {
 				}, 1000);
 			} else {
 				setLoginError(true);
-				setServerErrorMessage(response.data.detail);
+				if (response.data.status === 401) {
+					setServerErrorMessage("Email or password is incorrect");
+				} else {
+					setServerErrorMessage(response.data.detail);
+				}
 			}
 		} else {
 			setLoginError(true);

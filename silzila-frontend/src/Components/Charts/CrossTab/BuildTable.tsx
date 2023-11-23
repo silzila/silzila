@@ -1,3 +1,5 @@
+import * as ColorFormat from './ConditionalColorFormat';
+
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import debounce from "lodash.debounce";
 import ShowDataPopup from "../../ChartOptions/ShowDataPopup";
@@ -131,8 +133,10 @@ export const BuildTable = ({
 	};
 
 	/*  Construct table header and cell with data */
-	const GetTableContent = (col: any, rowIndex: number, colIndex: number) => {
+	const GetTableContent = (crossTabData: any, col: any, rowIndex: number, colIndex: number) => {
 		if (col.isHeaderField && !col.skip) {
+			let tdStyle : any = ColorFormat.setCellColor(true, crossTabData, colIndex, rowIndex, col.displayData, chartProperties, propKey, chartControls)
+
 			return (
 				/*  Construct header area */
 				<th
@@ -142,40 +146,23 @@ export const BuildTable = ({
 					key={colIndex}
 					colSpan={col.columnSpan}
 					rowSpan={col.rowSpan}
-					style={{
-						fontSize:
-							chartControls.properties[propKey].crossTabHeaderLabelOptions.fontSize,
-						fontWeight:
-							chartControls.properties[propKey].crossTabHeaderLabelOptions.fontWeight,
-						color: chartControls.properties[propKey].crossTabHeaderLabelOptions
-							.labelColor,
-						borderWidth:
-							chartControls.properties[propKey].crossTabStyleOptions.borderWidth,
-					}}
+					style={tdStyle}
 				>
 					{col.displayData}
 				</th>
 			);
 		} else {
 			if (!col.skip) {
+
+				let tdStyle : any = ColorFormat.setCellColor(false,crossTabData, colIndex, rowIndex, col.displayData, chartProperties, propKey, chartControls)
+
 				return (
 					/*  Construct table body area */
-
 					<td
 						id={rowIndex + "_" + colIndex + "_" + col.isHeaderField}
 						className={"CrossTabCell " + _getUserClickedColor(col, rowIndex, colIndex)}
 						key={colIndex}
-						style={{
-							fontSize:
-								chartControls.properties[propKey].crossTabCellLabelOptions.fontSize,
-							fontWeight:
-								chartControls.properties[propKey].crossTabCellLabelOptions
-									.fontWeight,
-							color: chartControls.properties[propKey].crossTabCellLabelOptions
-								.labelColor,
-							borderWidth:
-								chartControls.properties[propKey].crossTabStyleOptions.borderWidth,
-						}}
+						style={tdStyle}
 						colSpan={col.columnSpan}
 						rowSpan={col.rowSpan}
 						data-compareobj={JSON.stringify(col.compareObj)}
@@ -207,7 +194,7 @@ export const BuildTable = ({
 			let _rowContent = [];
 			_rowContent.push(
 				row.columnItems.map((col: any, colIndex: number) => {
-					return GetTableContent(col, rowIndex, colIndex);
+					return GetTableContent(crossTabData, col, rowIndex, colIndex);
 				})
 			);
 

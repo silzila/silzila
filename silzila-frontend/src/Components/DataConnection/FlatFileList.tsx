@@ -37,7 +37,7 @@ const FlatFileList = (props: any) => {
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "GET",
-			url: "file-data/",
+			url: "file-data",
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
 

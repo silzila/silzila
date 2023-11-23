@@ -178,9 +178,11 @@ const Sidebar = ({
 			headers: { Authorization: `Bearer ${token}` },
 			token: token,
 		});
+		console.log(res);
 		if (res.status) {
 			setSchemaList(res.data);
 		} else {
+			console.log(res.status);
 		}
 	};
 
