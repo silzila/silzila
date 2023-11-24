@@ -3,6 +3,11 @@ package com.silzila.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -10,7 +15,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +30,8 @@ import org.json.JSONObject;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.silzila.VizApplication;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
@@ -619,6 +627,7 @@ public class ConnectionPoolService {
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
+        String tempPath = null;
 
         // SQL Server is hadled differently
         if (request.getVendor().equals("sqlserver")) {
@@ -643,6 +652,68 @@ public class ConnectionPoolService {
             config.addDataSourceProperty("minimulIdle", "1");
             config.addDataSourceProperty("maximumPoolSize", "2");
             dataSource = new HikariDataSource(config);
+        }
+        // Bigquery
+        else if(request.getVendor().equals("bigquery")){
+        String projectId = null;
+        String clientEmail = null;
+        try{
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode actualObj = mapper.readTree(request.getPassword());
+
+        projectId = actualObj.get("project_id").asText();
+        clientEmail = actualObj.get("client_email").asText();
+    
+        if (projectId.isEmpty() || clientEmail.isEmpty()) {
+            throw new RuntimeException("Project ID or Client Email not found in the token.");
+        }
+        
+        logger.info("Project ID: " + projectId);
+        logger.info("Client Email: " + clientEmail);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        // Create a path for the temporary JSON file
+        try {
+            // Get the current timestamp
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+            String timestamp = dateFormat.format(new Date());
+
+            // Create a temporary file with a timestamp in the filename
+            Path tempFilePath = Files.createTempFile("tempfile_" + timestamp, ".json");
+
+            // Write the password to the temporary file
+            // Replace this with the actual password
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFilePath.toFile()))) {
+                writer.write(request.getPassword());
+            }
+            tempPath = tempFilePath.toString();
+            // Print the path of the temporary file
+            System.out.println("Temporary file created: " + tempPath);
+
+        } catch (IOException e) {
+            // Handle exception if file creation fails
+            e.printStackTrace();
+        }
+		String fullUrl = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;OAuthType=0" +
+				";ProjectId=" + projectId +
+				";OAuthServiceAcctEmail=" + clientEmail +
+				";OAuthPvtKeyPath="
+				+ tempPath +
+				";";
+                
+		dataSource = new HikariDataSource();
+		dataSource.setDataSourceClassName("com.simba.googlebigquery.jdbc.DataSource");
+		dataSource.setMinimumIdle(1);
+		dataSource.setMaximumPoolSize(3);
+		dataSource.addDataSourceProperty("url", fullUrl);
+		dataSource.addDataSourceProperty("OAuthType", 0);
+		dataSource.addDataSourceProperty("ProjectId", projectId);
+		dataSource.addDataSourceProperty("OAuthServiceAcctEmail",
+				clientEmail);
+		dataSource.addDataSourceProperty("OAuthPvtKeyFilePath",
+				tempPath);
         }
         // Postgres & MySQL
         else {
