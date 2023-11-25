@@ -7,7 +7,6 @@ import org.json.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.modelmapper.ModelMapper;
 
-import com.silzila.dto.BigqueryConnectionDTO;
 import com.silzila.dto.DBConnectionDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.ExpectationFailedException;
@@ -153,29 +152,6 @@ public class DBConnectionController {
             throws RecordNotFoundException, SQLException {
         JSONArray jsonArray = connectionPoolService.checkSqlServer();
         return ResponseEntity.ok().body(jsonArray.toString());
-    }
-
-    @PostMapping(value = "test-bigquery")
-    public ResponseEntity<?> testBigQuery(@RequestParam("file") MultipartFile file)
-            throws FileNotFoundException, ExpectationFailedException, IOException, ParseException, SQLException,
-            BadRequestException {
-        BigqueryConnectionDTO bigQryConnDTO = dbConnectionService.processBigQueryTokenFile(file, false);
-        connectionPoolService.testDBConnectionBigQuery(bigQryConnDTO);
-        return ResponseEntity.ok().body(new MessageResponse("Connection OK!"));
-    }
-
-    @PutMapping(value = "database-connection-bigquery/{id}")
-    public ResponseEntity<?> updateDBConnectionBigquery(@RequestHeader Map<String, String> reqHeader,
-            @RequestParam(value = "file", required = false) MultipartFile file,
-            @RequestParam(value = "connectionName") String connectionName,
-            @PathVariable(value = "id") String id)
-            throws FileNotFoundException, ExpectationFailedException, IOException, ParseException, SQLException,
-            BadRequestException, RecordNotFoundException {
-        // get the rquester user id
-        String userId = reqHeader.get("username");
-        // make service call to update record
-        DBConnectionDTO dto = dbConnectionService.updateDBConnectionBigQuery(id, userId, connectionName, file);
-        return ResponseEntity.ok(dto);
     }
 
     // Metadata discovery - get List of databases

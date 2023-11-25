@@ -42,12 +42,11 @@ import com.silzila.payload.response.MetadataColumn;
 import com.silzila.payload.response.MetadataDatabase;
 import com.silzila.payload.response.MetadataTable;
 import com.silzila.domain.entity.DBConnection;
-import com.silzila.dto.BigqueryConnectionDTO;
 
 @Service
 public class ConnectionPoolService {
 
-    private static final Logger logger = LogManager.getLogger(VizApplication.class);
+    private static final Logger logger = LogManager.getLogger(ConnectionPoolService.class);
 
     HikariDataSource dataSource = null;
     HikariConfig config = new HikariConfig();
@@ -104,7 +103,7 @@ public class ConnectionPoolService {
             }
             tempPath = tempFilePath.toString();
             // Print the path of the temporary file
-            logger.info("Temporary file created: " + tempPath);
+            logger.info("Temporary token file created for bigquery: " + tempPath);
 
             } catch (IOException e) {
             // Handle exception if file creation fails
@@ -653,49 +652,6 @@ public class ConnectionPoolService {
         }
     }
 
-    // test connect Big Query
-    public void testDBConnectionBigQuery(BigqueryConnectionDTO bigQryConnDTO)
-            throws SQLException, BadRequestException {
-        String fullUrl = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;OAuthType=0" +
-                ";ProjectId=" + bigQryConnDTO.getProjectId() +
-                ";OAuthServiceAcctEmail=" + bigQryConnDTO.getClientEmail() +
-                ";OAuthPvtKeyPath=" + System.getProperty("user.home") + "/silzila-uploads/tmp/"
-                + bigQryConnDTO.getTokenFileName() +
-                ";";
-        dataSource = new HikariDataSource();
-        dataSource.setMinimumIdle(1);
-        dataSource.setMaximumPoolSize(3);
-        dataSource.setDataSourceClassName("com.simba.googlebigquery.jdbc.DataSource");
-        dataSource.addDataSourceProperty("url", fullUrl);
-        connection = dataSource.getConnection();
-        Integer rowCount = 0;
-        // run a simple query and see it record is fetched
-        try {
-            statement = connection.createStatement();
-            // resultSet = statement.executeQuery("select * FROM
-            // `stable-course-380911`.landmark.store;");
-            resultSet = statement.executeQuery("select 1");
-            while (resultSet.next()) {
-                // System.out.println("**********************" + resultSet.getString(1));
-                rowCount++;
-
-            }
-            // return error if no record is fetched
-            if (rowCount == 0) {
-                throw new BadRequestException("Error: Something wrong!");
-            }
-        } catch (Exception e) {
-            logger.warn("error: " + e.toString());
-            throw e;
-
-        } finally {
-            resultSet.close();
-            statement.close();
-            connection.close();
-            dataSource.close();
-        }
-    }
-
     // test connect a given database connection parameters
     public void testDBConnection(DBConnectionRequest request) throws SQLException, BadRequestException {
 
@@ -767,7 +723,7 @@ public class ConnectionPoolService {
                 }
                 tempPath = tempFilePath.toString();
                 // Print the path of the temporary file
-                System.out.println("Temporary file created: " + tempPath);
+                logger.info("Temporary token file created for bigquery: " + tempPath);
 
             } catch (IOException e) {
                 // Handle exception if file creation fails
@@ -830,9 +786,9 @@ public class ConnectionPoolService {
             if (tempFile.exists()) {
             boolean deleted = tempFile.delete();
             if (deleted) {
-            logger.info("Temporary file deleted successfully.");
+            logger.info("Temporary token file for bigquery deleted successfully.");
             } else {
-            logger.warn("Failed to delete temporary file.");
+            logger.warn("Failed to delete temporary token file for bigquery.");
             }
             }
         }

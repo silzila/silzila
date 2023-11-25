@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.silzila.dto.BigqueryConnectionDTO;
 import com.silzila.dto.DBConnectionDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -119,11 +118,11 @@ public class DBConnectionService {
         DBConnection dbConnection = checkDBConnectionById(id, userId);
         // Applicable for all DBs except BigQuery
         // if vendor is BigQuery then NO password to decrypt
-        if (!dbConnection.getVendor().equals("bigquery")) {
-            dbConnection
-                    .setPasswordHash(AESEncryption.decrypt(dbConnection.getPasswordHash(), passwordEncryptionSecretKey,
-                            dbConnection.getSalt()));
-        }
+        // if (!dbConnection.getVendor().equals("bigquery")) {
+        dbConnection
+                .setPasswordHash(AESEncryption.decrypt(dbConnection.getPasswordHash(), passwordEncryptionSecretKey,
+                        dbConnection.getSalt()));
+        // }
         return dbConnection;
     }
 
@@ -230,47 +229,6 @@ public class DBConnectionService {
         return dto;
     }
 
-    public DBConnectionDTO updateDBConnectionBigQuery(String id, String userId, String connectionName,
-            MultipartFile file)
-            throws RecordNotFoundException, BadRequestException, FileNotFoundException, ExpectationFailedException,
-            IOException, ParseException, SQLException {
-        // when file is not uploaded and connection name is not given then send error
-        if ((file == null || file.isEmpty()) && (connectionName == null || connectionName.trim().isEmpty())) {
-            throw new BadRequestException("Error: New Connection Name or new Token file must be given!");
-        }
-
-        DBConnection _dbConnection = checkDBConnectionNameAlreadyExist(id, connectionName, userId);
-
-        // when file is given
-        if (file != null && !file.isEmpty()) {
-            // System.out.println("############file is not empty##########");
-            BigqueryConnectionDTO bigQryConnDTO = processBigQueryTokenFile(file, true);
-            // delete old token file
-            final String oldFilePath = System.getProperty("user.home") + "/silzila-uploads/tokens/"
-                    + _dbConnection.getFileName();
-            logger.warn("file to be deleted ====== " + oldFilePath);
-            try {
-                logger.warn("**********TRY delete old file ***********");
-                Files.delete(Paths.get(oldFilePath));
-            } catch (Exception e) {
-                logger.warn("**********CATCH delete old file ***********");
-                throw new FileNotFoundException("old token file could not be deleted");
-            }
-            _dbConnection.setProjectId(bigQryConnDTO.getProjectId());
-            _dbConnection.setClientEmail(bigQryConnDTO.getClientEmail());
-            _dbConnection.setFileName(bigQryConnDTO.getTokenFileName());
-        }
-        // when new connection name is given
-        if (connectionName != null && !connectionName.trim().isEmpty()) {
-            _dbConnection.setConnectionName(connectionName);
-        }
-        // update in DB
-        dbConnectionRepository.save(_dbConnection);
-        DBConnectionDTO dto = mapper.map(_dbConnection, DBConnectionDTO.class);
-        return dto;
-
-    }
-
     public void deleteDBConnection(String id, String userId)
             throws RecordNotFoundException, FileNotFoundException {
         // fetch the particular DB connection for the user
@@ -280,187 +238,20 @@ public class DBConnectionService {
             throw new RecordNotFoundException("Error: No such Connection Id exists");
         }
 
-        DBConnection _dbConnection = optionalDBConnection.get();
-        // delete old token file for BigQuery
-        if (_dbConnection.getVendor().equals("bigquery")) {
-            final String oldFilePath = System.getProperty("user.home") + "/silzila-uploads/tokens/"
-                    + _dbConnection.getFileName();
-            try {
-                Files.delete(Paths.get(oldFilePath));
-            } catch (Exception e) {
-                // throw new FileNotFoundException("old token file could not be deleted");
-                logger.warn("Warning: old token file could not be deleted: " + e.getMessage());
-            }
-        }
+        // DBConnection _dbConnection = optionalDBConnection.get();
+        // // delete old token file for BigQuery
+        // if (_dbConnection.getVendor().equals("bigquery")) {
+        //     final String oldFilePath = System.getProperty("user.home") + "/silzila-uploads/tokens/"
+        //             + _dbConnection.getFileName();
+        //     try {
+        //         Files.delete(Paths.get(oldFilePath));
+        //     } catch (Exception e) {
+        //         // throw new FileNotFoundException("old token file could not be deleted");
+        //         logger.warn("Warning: old token file could not be deleted: " + e.getMessage());
+        //     }
+        // }
         // delete the record from DB
         dbConnectionRepository.deleteById(id);
-    }
-
-    public BigqueryConnectionDTO processBigQueryTokenFile(MultipartFile file, Boolean isPersist)
-            throws ExpectationFailedException, FileNotFoundException, IOException, ParseException, SQLException,
-            BadRequestException {
-        String tokenSavedFolder = "";
-        if (isPersist == false) {
-            tokenSavedFolder = "tmp";
-        } else {
-            tokenSavedFolder = "tokens";
-        }
-        Path path = Paths.get(SILZILA_DIR, tokenSavedFolder);
-
-        String uploadedFileNameWithoutExtn = "";
-        String savedFileName = "";
-
-        // create tmp folder
-        try {
-            Files.createDirectories(path);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Could not initialize folder for upload. Errorr: " + e.getMessage());
-        }
-        // only JSON file is allowed and throws error if otherwise
-        if (!(file.getContentType() == null || file.getContentType().equals("application/json"))) {
-            throw new ExpectationFailedException("Error: Only CSV file is allowed!");
-        }
-        // upload file
-        try {
-            // rename to random id while saving file
-            savedFileName = UUID.randomUUID().toString().substring(0, 8) + ".json";
-            // trim file name without file extension - used for naming data frame
-            uploadedFileNameWithoutExtn = file.getOriginalFilename().substring(0,
-                    file.getOriginalFilename().lastIndexOf("."));
-            // persisting file
-            Files.copy(file.getInputStream(), path.resolve(savedFileName));
-        } catch (Exception e) {
-            throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
-        }
-
-        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + tokenSavedFolder + "/"
-                + savedFileName;
-        // read the json token file
-        Object obj = new JSONParser().parse(new FileReader(filePath));
-        // typecasting obj to JSONObject
-        JSONObject jo = (JSONObject) obj;
-        // get email from the JSON object
-        String clientEmail = (String) jo.get("client_email");
-        if (clientEmail == null) {
-            logger.warn("Email is null " + clientEmail);
-            throw new ExpectationFailedException("JSON file does not contain the key value for client_email");
-        }
-        // get email from the JSON object
-        String projectId = (String) jo.get("project_id");
-        if (projectId == null) {
-            logger.warn("Project Id is null " + projectId);
-            throw new ExpectationFailedException("JSON file does not contain the key value for project_id");
-        }
-        // System.out.println("projectId ===================== " + projectId);
-
-        BigqueryConnectionDTO bigQryConnDTO = new BigqueryConnectionDTO(projectId, clientEmail, savedFileName);
-
-        // delete temp file (applicable only when testing connection)
-        // if (isPersist == false) {
-        // System.out.println("file to be deleted ====== " + filePath);
-        // try {
-        // System.out.println("**********TRY***********");
-        // Files.delete(Paths.get(filePath));
-        // } catch (Exception e) {
-        // System.out.println("**********CATCH***********");
-        // throw new FileNotFoundException("token file could not be deleted");
-        // }
-        // }
-        return bigQryConnDTO;
-    }
-
-    public ArrayList<String> testBigQuery(MultipartFile file)
-            throws ExpectationFailedException, FileNotFoundException, IOException, ParseException, SQLException,
-            BadRequestException {
-        Path path = Paths.get(SILZILA_DIR, "tmp");
-        String uploadedFileNameWithoutExtn = "";
-        String savedFileName = "";
-
-        // create tmp folder
-        try {
-            Files.createDirectories(path);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Could not initialize folder for upload. Errorr: " + e.getMessage());
-        }
-        // only JSON file is allowed and throws error if otherwise
-        if (!(file.getContentType() == null || file.getContentType().equals("application/json"))) {
-            throw new ExpectationFailedException("Error: Only CSV file is allowed!");
-        }
-        // upload file
-        try {
-            // rename to random id while saving file
-            savedFileName = UUID.randomUUID().toString().substring(0, 8) + ".json";
-            // trim file name without file extension - used for naming data frame
-            uploadedFileNameWithoutExtn = file.getOriginalFilename().substring(0,
-                    file.getOriginalFilename().lastIndexOf("."));
-            // persisting file
-            Files.copy(file.getInputStream(), path.resolve(savedFileName));
-        } catch (Exception e) {
-            throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
-        }
-
-        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/"
-                + savedFileName;
-        // read the json token file
-        Object obj = new JSONParser().parse(new FileReader(filePath));
-        // typecasting obj to JSONObject
-        JSONObject jo = (JSONObject) obj;
-        // get email from the JSON object
-        String clientEmail = (String) jo.get("client_email");
-        if (clientEmail == null) {
-            logger.warn("EMAIL is null " + clientEmail);
-            throw new ExpectationFailedException("JSON file does not contain the key value for client_email");
-        }
-        // get email from the JSON object
-        String projectId = (String) jo.get("project_id");
-        if (projectId == null) {
-            logger.warn("EMAIL is null " + projectId);
-            throw new ExpectationFailedException("JSON file does not contain the key value for project_id");
-        }
-        logger.info("projectId ===================== " + projectId);
-
-        ArrayList<String> connectionVariableArray = new ArrayList<String>() {
-            {
-                add(projectId);
-                add(clientEmail);
-                add(filePath);
-            }
-        };
-        return connectionVariableArray;
-
-        // // connect to bigquery
-        // String URL = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;";
-        // Connection connection = null;
-        // DataSource dataSource = new DataSource();
-        // dataSource.setURL(URL);
-        // dataSource.setProjectId(projectId);
-        // dataSource.setOAuthType(0);
-        // dataSource.setOAuthServiceAcctEmail(clientEmail);
-        // dataSource.setOAuthPvtKeyFilePath(filePath);
-        // connection = dataSource.getConnection();
-        // try {
-        // Statement statement = connection.createStatement();
-        // ResultSet resultSet = statement.executeQuery("SELECT 1");
-        // Integer rowCount = 0;
-        // while (resultSet.next()) {
-        // rowCount++;
-        // }
-        // // return error if no record is fetched
-        // if (rowCount == 0) {
-        // throw new BadRequestException("Error: Something wrong!");
-        // }
-        // } catch (Exception e) {
-        // System.out.println("error: " + e.toString());
-        // throw e;
-        // } finally {
-        // // resultSet.close();
-        // // statement.close();
-        // connection.close();
-        // // dataSource.close();
-        // }
-
     }
 
 }
