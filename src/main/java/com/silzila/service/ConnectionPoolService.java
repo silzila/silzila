@@ -104,7 +104,7 @@ public class ConnectionPoolService {
             }
             tempPath = tempFilePath.toString();
             // Print the path of the temporary file
-            System.out.println("Temporary file created: " + tempPath);
+            logger.info("Temporary file created: " + tempPath);
 
             } catch (IOException e) {
             // Handle exception if file creation fails
