@@ -514,7 +514,7 @@ public class ConnectionPoolService {
 
             // based on database dialect, we pass either DB name or schema name at different
             // position in the funciton for POSTGRESQL DB
-            if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("bigquery")) {
+            if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
                 // schema name is must for postgres
                 if (schemaName == null || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Schema name is not provided!");
@@ -546,6 +546,16 @@ public class ConnectionPoolService {
             // for Databricks
             else if (vendorName.equals("databricks")) {
                 // DB name & schema name are must for Databricks
+                if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                        || schemaName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Database & Schema names are not provided!");
+                }
+                // get column names from the given schema and Table name
+                resultSet = databaseMetaData.getColumns(databaseName, schemaName, tableName, null);
+            }
+            // for Bigquery
+            else if(vendorName.equals("bigquery")){
+                // DB name & schema name are must for Bigquery
                 if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
                         || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Database & Schema names are not provided!");
@@ -595,7 +605,7 @@ public class ConnectionPoolService {
                 throw new BadRequestException("Error: Schema name is not provided!");
             }
             // construct query
-            query = "SELECT * FROM `" + schemaName + "." + tableName + "` LIMIT " + recordCount;
+            query = "SELECT * FROM `" + databaseName + "." + schemaName + "." + tableName + "` LIMIT " + recordCount;
         }
         // for MYSQL DB
         else if (vendorName.equals("mysql")) {
