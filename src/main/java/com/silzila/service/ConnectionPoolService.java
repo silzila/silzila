@@ -310,6 +310,23 @@ public class ConnectionPoolService {
                     return schemaList;
                 }
             }
+            // for bigquery
+            else if (vendorName.equals("bigquery")){
+                if (databaseName == null || databaseName.trim().isEmpty()) {
+                throw new BadRequestException("Error: Please specify Database Name for Databricks connection");
+                }
+                try( Connection _connection = connectionPool.get(id).getConnection();){
+                DatabaseMetaData databaseMetaData = _connection.getMetaData();
+                ResultSet resultSet2 = databaseMetaData.getSchemas(databaseName, null);
+		        while (resultSet2.next()) {
+			    // TABLE_CATALOG is the DB name and we don't need
+			    // String dbName = resultSet2.getString("TABLE_CATALOG");
+			    String schemaName = resultSet2.getString("TABLE_SCHEM");
+			    schemaList.add(schemaName);
+		        }
+                return schemaList;
+                }
+            }
             // for Postgres & MySQL
             else {
                 try (Connection _connection = connectionPool.get(id).getConnection();) {
