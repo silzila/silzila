@@ -421,13 +421,39 @@ public class ConnectionPoolService {
                 resultSetViews.close();
 
             }
+            // for bigquery
+            else if(vendorName.equalsIgnoreCase("bigquery")){
+                // throw error if db name or schema name is not passed
+                if(databaseName == null || databaseName.trim().isEmpty() || schemaName == null 
+                       || schemaName.trim().isEmpty()){
+                    throw new BadRequestException("Error: Database & Schema names are not provided!");
+                }
+                //Add Tables
+                resultSetTables = databaseMetaData.getTables(databaseName, schemaName, null, new String[] { "TABLE" });
+                //Add Views
+                resultSetViews = databaseMetaData.getTables(databaseName, schemaName, null, new String[] { "VIEW" });
+                while (resultSetTables.next()) {
+                    // TABLE_CATALOG is the DB name and we don't need
+                    // String dbName = resultSet3.getString("TABLE_CATALOG");
+                    String tableName = resultSetTables.getString("TABLE_NAME");
+                    metadataTable.getTables().add(tableName);
+                }
+                while (resultSetViews.next()) {
+                    // TABLE_CATALOG is the DB name and we don't need
+                    // String dbName = resultSet4.getString("TABLE_CATALOG");
+                    String tableName = resultSetViews.getString("TABLE_NAME");
+                    metadataTable.getViews().add(tableName);
+                }
+                resultSetTables.close();
+                resultSetViews.close();
+
+            }
             // postgres & MySql are handled the same but different from SQL Server
             else {
 
                 // for POSTGRESQL DB
                 // throw error if schema name is not passed
-                if (vendorName.equalsIgnoreCase("postgresql") || vendorName.equalsIgnoreCase("redshift")
-                        || vendorName.equalsIgnoreCase("bigquery")) {
+                if (vendorName.equalsIgnoreCase("postgresql") || vendorName.equalsIgnoreCase("redshift")) {
                     if (schemaName == null || schemaName.trim().isEmpty()) {
                         throw new BadRequestException("Error: Schema name is not provided!");
                     }
