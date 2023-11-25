@@ -86,11 +86,34 @@ public class ConnectionPoolService {
 
             // BigQuery - token file path to be sent in URL
             if (dbConnection.getVendor().equals("bigquery")) {
+                String password = dbConnection.getToken();
+                String tempPath = null;
+            // Create a path for the temporary JSON file
+            try {
+            // Get the current timestamp
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+            String timestamp = dateFormat.format(new Date());
+
+            // Create a temporary file with a timestamp in the filename
+            Path tempFilePath = Files.createTempFile("tempfile_" + timestamp, ".json");
+
+            // Write the password to the temporary file
+            // Replace this with the actual password
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFilePath.toFile()))) {
+                writer.write(password);
+            }
+            tempPath = tempFilePath.toString();
+            // Print the path of the temporary file
+            System.out.println("Temporary file created: " + tempPath);
+
+            } catch (IOException e) {
+            // Handle exception if file creation fails
+            e.printStackTrace();
+            }
                 fullUrl = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;OAuthType=0" +
                         ";ProjectId=" + dbConnection.getProjectId() +
                         ";OAuthServiceAcctEmail=" + dbConnection.getClientEmail() +
-                        ";OAuthPvtKeyPath=" + System.getProperty("user.home") + "/silzila-uploads/tokens/" +
-                        dbConnection.getFileName() +
+                        ";OAuthPvtKeyPath=" + tempPath +
                         ";";
                 dataSource = new HikariDataSource();
                 dataSource.setMinimumIdle(1);
@@ -98,6 +121,7 @@ public class ConnectionPoolService {
                 dataSource.setDataSourceClassName("com.simba.googlebigquery.jdbc.DataSource");
                 dataSource.addDataSourceProperty("url", fullUrl);
             }
+
 
             // SQL Server is handled differently
             else if (dbConnection.getVendor().equals("sqlserver")) {
