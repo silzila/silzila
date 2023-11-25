@@ -83,6 +83,43 @@ button:focus {
 }
 
 /* ======================================== */
+/* Sort highlighting used in Chart Title */
+.menuStyle{
+    text-transform: none;
+    color: black;
+    display: block;
+    padding: 0px 8px 8px 15px;
+    cursor: pointer;
+    text-align: left;
+    margin-top: 5px;
+    font-size: 13px;
+}
+
+.menuStyle:hover{
+    text-transform: none;
+    display: block;
+    padding: 0px 8px 8px 15px;
+    cursor: pointer;
+    text-align: left;
+    margin-top: 5px;
+    font-size: 13px;
+    background-color: rgb(247, 247, 247);
+    color: black;
+}
+
+.menuStyleActive{
+    text-transform: none;
+    display: block;
+    padding: 0px 8px 8px 15px;
+    cursor: pointer;
+    text-align: left;
+    margin-top: 5px;
+    font-size: 13px;
+    background-color: rgba(224, 224, 224);
+    color: black;
+}
+
+/* ======================================== */
 /* Color theme MUI Select style */
 .custom-option {
 	position: relative;

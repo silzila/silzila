@@ -338,3 +338,24 @@ export const updatecfObjectOptions1 = (propKey: string, item: any) => {
 export const addOrEditSimplecardConditionalFormat = (propKey: string, item: any) => {
 	return { type: "ADD_OR_EDIT_SIMPLECARD_CF", payload: { propKey, item } };
 };
+
+export const SortChartData= (propKey: string, chartData: string | any) => {
+	return {
+		type: "SORT_CHART_DATAS",
+		payload: { propKey, chartData },
+	};
+};
+
+export const SortOrder= (propKey: string, order: string) => {
+	return {
+		type: "SORT_ORDER",
+		payload: { propKey, order },
+	};
+};
+
+export const SortedValue= (propKey: string, value: string | any) => {
+	return {
+		type: "SORTED_VALUE",
+		payload: { propKey, value },
+	};
+};

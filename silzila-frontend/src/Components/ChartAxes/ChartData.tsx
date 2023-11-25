@@ -586,7 +586,7 @@ const ChartData = ({
 					token,
 					chartProperties.properties[_propKey].chartType
 				).then(data => {
-					console.log(data);
+					Logger("info", "", data)
 					if (chartProperties.properties[_propKey].chartType === "richText") {
 						updateChartDataForDm(sortChartData(data));
 					} else {
