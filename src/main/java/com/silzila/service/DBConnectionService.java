@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.silzila.dto.BigqueryConnectionDTO;
 import com.silzila.dto.DBConnectionDTO;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.silzila.domain.entity.DBConnection;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.payload.request.DBConnectionRequest;
@@ -145,6 +147,27 @@ public class DBConnectionService {
                 saltString);
         logger.info(" ========== password = " + dbConnectionRequest.getPassword() + " encrypted password = "
                 + passwordHash);
+        String projectId = null;
+        String clientEmail = null;
+        if(dbConnectionRequest.getVendor().equals("bigquery")){
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(dbConnectionRequest.getPassword());
+    
+                projectId = jsonNode.get("project_id").asText();
+                clientEmail = jsonNode.get("client_email").asText();
+    
+                if (projectId.isEmpty() || clientEmail.isEmpty()) {
+                    throw new RuntimeException("Project ID or Client Email not found in the token.");
+                }
+    
+                logger.info("Project ID: " + projectId);
+                logger.info("Client Email: " + clientEmail);
+
+            } catch (Exception e) {
+                throw new RuntimeException("Error processing JSON token: " + e.getMessage());
+            }
+        }
         // create DB Connection object and save it to DB
         DBConnection dbConnection = new DBConnection(
                 userId,
@@ -157,37 +180,10 @@ public class DBConnectionService {
                 passwordHash, // dbConnectionRequest.getPassword(),
                 dbConnectionRequest.getConnectionName(),
                 dbConnectionRequest.getHttpPath(),
+                projectId,
+                clientEmail,
                 null,
-                null,
-                null);
-        dbConnectionRepository.save(dbConnection);
-        DBConnectionDTO dto = mapper.map(dbConnection, DBConnectionDTO.class);
-        return dto;
-    }
-
-    public DBConnectionDTO createDBConnectionBigQuery(BigqueryConnectionDTO bigQryConnDTO,
-            String connectionName,
-            String userId)
-            throws BadRequestException {
-        // check if connection name is alredy used for the requester
-        checkConnectionNameExists(userId, connectionName);
-
-        // create DB Connection object and save it to DB
-        // many properties are not needed for bigquery, so kept as empty
-        DBConnection dbConnection = new DBConnection(
-                userId,
-                "bigquery",
-                "",
-                0,
-                "",
-                "",
-                "",
-                "",
-                connectionName,
-                "",
-                bigQryConnDTO.getProjectId(),
-                bigQryConnDTO.getClientEmail(),
-                bigQryConnDTO.getTokenFileName());
+                dbConnectionRequest.getPassword());
         dbConnectionRepository.save(dbConnection);
         DBConnectionDTO dto = mapper.map(dbConnection, DBConnectionDTO.class);
         return dto;

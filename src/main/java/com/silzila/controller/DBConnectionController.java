@@ -164,21 +164,6 @@ public class DBConnectionController {
         return ResponseEntity.ok().body(new MessageResponse("Connection OK!"));
     }
 
-    @PostMapping(value = "database-connection-bigquery")
-    public ResponseEntity<?> registerDBConnectionBigquery(@RequestHeader Map<String, String> reqHeader,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("connectionName") String connectionName)
-            throws FileNotFoundException, ExpectationFailedException, IOException, ParseException, SQLException,
-            BadRequestException {
-        // get connection details from uploaded token file
-        BigqueryConnectionDTO bigQryConnDTO = dbConnectionService.processBigQueryTokenFile(file, true);
-        // get the rquester user id
-        String userId = reqHeader.get("username");
-        // make service call to add record
-        DBConnectionDTO dto = dbConnectionService.createDBConnectionBigQuery(bigQryConnDTO, connectionName, userId);
-        return ResponseEntity.ok(dto);
-    }
-
     @PutMapping(value = "database-connection-bigquery/{id}")
     public ResponseEntity<?> updateDBConnectionBigquery(@RequestHeader Map<String, String> reqHeader,
             @RequestParam(value = "file", required = false) MultipartFile file,

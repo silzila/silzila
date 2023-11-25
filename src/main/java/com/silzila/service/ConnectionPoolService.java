@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -654,66 +655,65 @@ public class ConnectionPoolService {
             dataSource = new HikariDataSource(config);
         }
         // Bigquery
-        else if(request.getVendor().equals("bigquery")){
-        String projectId = null;
-        String clientEmail = null;
-        try{
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode actualObj = mapper.readTree(request.getPassword());
+        else if (request.getVendor().equals("bigquery")) {
+            String projectId = null;
+            String clientEmail = null;
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode actualObj = mapper.readTree(request.getPassword());
 
-        projectId = actualObj.get("project_id").asText();
-        clientEmail = actualObj.get("client_email").asText();
-    
-        if (projectId.isEmpty() || clientEmail.isEmpty()) {
-            throw new RuntimeException("Project ID or Client Email not found in the token.");
-        }
-        
-        logger.info("Project ID: " + projectId);
-        logger.info("Client Email: " + clientEmail);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-        // Create a path for the temporary JSON file
-        try {
-            // Get the current timestamp
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-            String timestamp = dateFormat.format(new Date());
+                projectId = actualObj.get("project_id").asText();
+                clientEmail = actualObj.get("client_email").asText();
 
-            // Create a temporary file with a timestamp in the filename
-            Path tempFilePath = Files.createTempFile("tempfile_" + timestamp, ".json");
+                if (projectId.isEmpty() || clientEmail.isEmpty()) {
+                    throw new RuntimeException("Project ID or Client Email not found in the token.");
+                }
 
-            // Write the password to the temporary file
-            // Replace this with the actual password
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFilePath.toFile()))) {
-                writer.write(request.getPassword());
+                logger.info("Project ID: " + projectId);
+                logger.info("Client Email: " + clientEmail);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            tempPath = tempFilePath.toString();
-            // Print the path of the temporary file
-            System.out.println("Temporary file created: " + tempPath);
+            // Create a path for the temporary JSON file
+            try {
+                // Get the current timestamp
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+                String timestamp = dateFormat.format(new Date());
 
-        } catch (IOException e) {
-            // Handle exception if file creation fails
-            e.printStackTrace();
-        }
-		String fullUrl = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;OAuthType=0" +
-				";ProjectId=" + projectId +
-				";OAuthServiceAcctEmail=" + clientEmail +
-				";OAuthPvtKeyPath="
-				+ tempPath +
-				";";
-                
-		dataSource = new HikariDataSource();
-		dataSource.setDataSourceClassName("com.simba.googlebigquery.jdbc.DataSource");
-		dataSource.setMinimumIdle(1);
-		dataSource.setMaximumPoolSize(3);
-		dataSource.addDataSourceProperty("url", fullUrl);
-		dataSource.addDataSourceProperty("OAuthType", 0);
-		dataSource.addDataSourceProperty("ProjectId", projectId);
-		dataSource.addDataSourceProperty("OAuthServiceAcctEmail",
-				clientEmail);
-		dataSource.addDataSourceProperty("OAuthPvtKeyFilePath",
-				tempPath);
+                // Create a temporary file with a timestamp in the filename
+                Path tempFilePath = Files.createTempFile("tempfile_" + timestamp, ".json");
+
+                // Write the password to the temporary file
+                // Replace this with the actual password
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFilePath.toFile()))) {
+                    writer.write(request.getPassword());
+                }
+                tempPath = tempFilePath.toString();
+                // Print the path of the temporary file
+                System.out.println("Temporary file created: " + tempPath);
+
+            } catch (IOException e) {
+                // Handle exception if file creation fails
+                e.printStackTrace();
+            }
+            String fullUrl = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;OAuthType=0" +
+                    ";ProjectId=" + projectId +
+                    ";OAuthServiceAcctEmail=" + clientEmail +
+                    ";OAuthPvtKeyPath="
+                    + tempPath +
+                    ";";
+
+            dataSource = new HikariDataSource();
+            dataSource.setDataSourceClassName("com.simba.googlebigquery.jdbc.DataSource");
+            dataSource.setMinimumIdle(1);
+            dataSource.setMaximumPoolSize(3);
+            dataSource.addDataSourceProperty("url", fullUrl);
+            dataSource.addDataSourceProperty("OAuthType", 0);
+            dataSource.addDataSourceProperty("ProjectId", projectId);
+            dataSource.addDataSourceProperty("OAuthServiceAcctEmail",
+                    clientEmail);
+            dataSource.addDataSourceProperty("OAuthPvtKeyFilePath",
+                    tempPath);
         }
         // Postgres & MySQL
         else {
@@ -748,6 +748,17 @@ public class ConnectionPoolService {
             statement.close();
             connection.close();
             dataSource.close();
+            if(request.getVendor().equals("bigquery")){
+            File tempFile = new File(tempPath);
+            if (tempFile.exists()) {
+            boolean deleted = tempFile.delete();
+            if (deleted) {
+            logger.info("Temporary file deleted successfully.");
+            } else {
+            logger.warn("Failed to delete temporary file.");
+            }
+            }
+        }
         }
     }
 
