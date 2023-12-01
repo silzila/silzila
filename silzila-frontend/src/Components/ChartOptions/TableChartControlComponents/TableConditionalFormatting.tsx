@@ -73,7 +73,7 @@ const TableConditionalFormatting = ({
 		// checking the column type To generate the name as it is in the chartData
 		chartProperties.properties[propKey].chartAxes[1].fields.forEach((el: any) => {
 			if (el.dataType === "date") {
-				console.log();
+				//console.log();
 				if (el.fieldname === columnName) {
 					formattedColumnName = `${el.timeGrain} of ${el.fieldname}`;
 				}
@@ -81,7 +81,7 @@ const TableConditionalFormatting = ({
 		});
 
 		const values = chartControls.properties[propKey].chartData.map((item: any) => {
-			console.log(item, columnName);
+			//console.log(item, columnName);
 			return {
 				colValue: item[formattedColumnName],
 				backgroundColor: "white",
