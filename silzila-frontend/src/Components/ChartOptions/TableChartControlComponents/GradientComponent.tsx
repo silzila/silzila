@@ -36,6 +36,8 @@ const GradientComponent = ({
 	format,
 	gradientMinMax,
 }: any) => {
+	format = JSON.parse(JSON.stringify(format));
+	//console.log(JSON.stringify(format.value.find((item:any)=>item.name == 'Min')))
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var uId = new ShortUniqueId({ length: 8 });
 

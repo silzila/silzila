@@ -39,6 +39,16 @@ export const getChartData = async (
 	chartType: any,
 	forQueryData?: boolean
 ) => {
+
+	let _chartAxes:any = [];
+
+	if(chartProp.chartAxes){
+		_chartAxes = chartProp.chartAxes;
+	}
+	else{
+		_chartAxes = chartProp.properties[propKey].chartAxes;
+	}
+
 	/*	PRS 21/07/2022	Construct filter object for service call */
 	const getChartLeftFilter = (filters: any) => {
 		let _type: any = {};
@@ -251,14 +261,14 @@ export const getChartData = async (
 	formattedAxes.filterPanels = [];
 
 	/*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
-
-	let _filterZoneFields = chartProp.chartAxes[0].fields;
+	
+	let _filterZoneFields = _chartAxes[0].fields;
 	let _hasInvalidFilterData = _filterZoneFields.filter((field: any) => field.isInValidData);
 
 	if (_filterZoneFields.length > 0 && _hasInvalidFilterData && _hasInvalidFilterData.length > 0) {
 		Logger("info", "Filter has invalid data.");
 	} else {
-		let _filterObj = getChartLeftFilter(chartProp.chartAxes[0]);
+		let _filterObj = getChartLeftFilter(_chartAxes[0]);
 
 		if (_filterObj.filters.length > 0) {
 			formattedAxes.filterPanels.push(_filterObj);
@@ -289,11 +299,20 @@ export const getChartData = async (
 			});
 		}
 
+		let _selectedDS: any = {};
+
+		if(chartProp.selectedDs){
+			_selectedDS = chartProp.selectedDs;
+		}
+		else{
+			_selectedDS = chartProp.properties[propKey].selectedDs;
+		}
+
 		var url: string = "";
-		if (chartProp.selectedDs.isFlatFileData) {
-			url = `query?datasetid=${chartProp.selectedDs.id}`;
+		if (_selectedDS.isFlatFileData) {
+			url = `query?datasetid=${_selectedDS.id}`;
 		} else {
-			url = `query?dbconnectionid=${chartProp.selectedDs.connectionId}&datasetid=${chartProp.selectedDs.id}`;
+			url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}`;
 		}
 
 		/*	PRS 21/07/2022	*/
@@ -586,7 +605,7 @@ const ChartData = ({
 					token,
 					chartProperties.properties[_propKey].chartType
 				).then(data => {
-					console.log(data);
+					//console.log(data);
 					if (chartProperties.properties[_propKey].chartType === "richText") {
 						updateChartDataForDm(sortChartData(data));
 					} else {
