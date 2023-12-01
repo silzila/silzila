@@ -60,6 +60,9 @@ public class FilterOptionsQueryComposer {
         } else if (vendorName.equals("duckdb")) {
             logger.info("------ inside duckdb block");
             finalQuery = FilterQueryDuckDb.getFilterOptions(cf, table);
+        } else if (vendorName.equals("bigquery")) {
+            logger.info("------ inside bigquery block");
+            finalQuery = FilterQueryBigquery.getFilterOptions(cf, table);
         }
 
         else {

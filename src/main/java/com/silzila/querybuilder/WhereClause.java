@@ -171,6 +171,8 @@ public class WhereClause {
                         where = WhereClauseDateSqlserver.buildWhereClauseDate(filter);
                     } else if (vendorName.equals("databricks")) {
                         where = WhereClauseDateDatabricks.buildWhereClauseDate(filter);
+                    } else if (vendorName.equals("bigquery")) {
+                        where = WhereClauseDateBigquery.buildWhereClauseDate(filter);
                     }
                 }
 

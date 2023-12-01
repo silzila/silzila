@@ -29,6 +29,8 @@ const chartControl = {
 		1.1: {
 			chartData: "",
 			queryResult: "",
+			sortOrder: "",
+			sortedValue: "",
 			measureValue: { value: "", id: "RichTextID" },
 			richText: {
 				text: [
@@ -1035,6 +1037,34 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 					},
 				},
 			});
+
+		case "SORT_CHART_DATAS":
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						chartData: { $set: action.payload.chartData },
+					},
+				},
+			});
+		
+		case "SORT_ORDER":
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						sortOrder: { $set: action.payload.order },
+					},
+				},
+			});
+
+		case "SORTED_VALUE":
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						sortedValue: { $set: action.payload.value },
+					},
+				},
+			});	
+
 		case "UPDATE_QUERY_DATA":
 			return update(state, {
 				properties: {

@@ -30,6 +30,7 @@ import DynamicMeasureStyle from "./ChartStyle/DynamicMeasureStyle";
 import TableConditionalFormating from "./TableChartControlComponents/TableConditionalFormatting";
 import DynamicMeasureConditionalFormattingComponent from "./DynamicMeasureConditionalFormattingComponent";
 import SimplecardConditionalFormatting from "./SimplecardConditionalFormatting";
+import Sort from "./Sort/Sort";
 
 interface ControlDetailProps {
 	chartProperties: ChartPropertiesProps;
@@ -119,6 +120,13 @@ const ControlDetail = ({
 				} else {
 					return <TableConditionalFormating />;
 				}
+			case "Sort":
+				if(chartType === "crossTab"){
+					return <Sort/>;
+				} else {
+					return <Sort/>;
+				}
+				
 			default:
 				return (
 					<span>

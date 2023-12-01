@@ -34,7 +34,7 @@ public class DBConnection extends BaseEntity {
     private String username;
     @Column(name = "salt")
     private String salt;
-    @Column(name = "password_hash")
+    @Column(name = "password_hash", length = 5000)
     private String passwordHash;
     @Column(name = "connectionName")
     private String connectionName;
@@ -46,4 +46,6 @@ public class DBConnection extends BaseEntity {
     private String clientEmail;
     @Column(name = "file_name")
     private String fileName;
+    @Column(name = "token", length = 5000)
+    private String token;
 }
