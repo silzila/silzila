@@ -1,15 +1,14 @@
 import React, {  useState, useEffect, Dispatch } from 'react';
 import { connect} from 'react-redux';
-import {MdArrowDropDown, MdArrowDropUp} from 'react-icons/md';
 import "../ChartOptions.css";
-import { SortChartData, updateChartData, SortOrder, SortedValue } from "../../../redux/ChartPoperties/ChartControlsActions";
+import { SortChartData, SortOrder, SortedValue } from "../../../redux/ChartPoperties/ChartControlsActions";
+import { FormControl, MenuItem, Select, Typography } from '@mui/material';
 
 interface Props {
 	chartControls: any;
 	tabTileProps: any;
 
 	SortChartData: (propKey: string, chartData: string | any) => void;
-	updateChartData: (propKey: string, chartData: string | any) => void;
 	SortOrder: (propKey: string, order: string) => void;
 	SortedValue: (propKey: string, chartData: string | any) => void;
   }
@@ -21,45 +20,37 @@ const Sort = ({
 
   //dispatch
     SortChartData,
-	updateChartData,
 	SortOrder,
 	SortedValue
 }: Props) => { 
 	const[data, setData] = useState<string | any>([]);
-	const[arrowState, setArrowState] = useState<boolean>(false);
 	const[ascDescNotify, setAscDescNotify] = useState<string>("");
 	const[state, setState] = useState<boolean>(false);
-	const[sortValue, setSortValue] = useState<string | any>();
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
 	useEffect(()=>{
-		//Getting chartData 
+		// Getting chartData 
 		const datas = chartControls.properties[propKey].chartData;
 		setData(datas);
-	  }); 
+	});
+	
+	// Shallow copy of data
+	var chartData: string | any = [...data];
+	var descendingChartData: string | any = [...data];
     
-	//shallow copy of an original chart data
-	var chartDetails: string | any = [...data];
-	var desecingData: string | any = [...data];
+	// Getting the keys of first object in chartData array
+	const firstObjKey = chartData.length > 0 ? Object.keys(chartData[0]) : [];
     
-	//firstObjKey getting the keys values from first object in array
-	const firstObjKey = chartDetails.length > 0 ? Object.keys(chartDetails[0]) : [];
-
-	/* if(chartDetails.length > 0 && chartControls.properties[propKey].sortedValue ){
-		if(chartControls.properties[propKey].sortedValue !== sortValue){
-			SortedValue(propKey, "");
-            SortOrder(propKey, "");
-		}
-    } */  
+	// Update the selected column to the state
+	const handleSelectedColumnValue = (event: string | any) => {
+		setAscDescNotify("");
+		setState(true); 
+		SortedValue(propKey, event.target.value);
+	};  
     
-	//Function getting the value from sortby and update that to state
-	const handleKeySelect = (event: string | any) => {
-		SortedValue(propKey, event.target.textContent); 
-	  };  
-    
-	//Function create a ascending order of chartData and update that to state
+	// Creates an ascending order of selected column
 	const handleAsc = () => {
-		const sortedDataAscending = chartDetails.sort((a: string | any , b: string | any) => { 
+		const sortedDataAscending = chartData.sort((a: string | any , b: string | any) => { 
 			const sortedValueA = a[chartControls.properties[propKey].sortedValue];
 			const sortedValueB = b[chartControls.properties[propKey].sortedValue];
 		
@@ -68,17 +59,17 @@ const Sort = ({
 			} else if (typeof sortedValueA === 'string' && typeof sortedValueB === 'string') {
 			  return sortedValueA.localeCompare(sortedValueB); // String comparison
 			} else {
-			  // Handle other data types or fallback to default sorting
+			  // Handle other data types 
 			  return sortedValueA - sortedValueB;
 			}
 		  });
-		chartDetails = sortedDataAscending; 
-		SortChartData(propKey, chartDetails);  
+		  chartData = sortedDataAscending;
+		  SortChartData(propKey, chartData);
 	}
     
-	//Function create a ascending order of chartData and update that to state
+	// Creates an descending order of selected column
 	const handleDesc = () => {
-		const sortedDataDescending = desecingData.sort((a: string | any, b: string | any) => { 
+		const sortedDataDescending = descendingChartData.sort((a: string | any, b: string | any) => { 
 			const sortedValueA = a[chartControls.properties[propKey].sortedValue];
 			const sortedValueB = b[chartControls.properties[propKey].sortedValue];
 		
@@ -87,144 +78,141 @@ const Sort = ({
 			} else if (typeof sortedValueB === 'string' && typeof sortedValueA === 'string') {
 			  return sortedValueB.localeCompare(sortedValueA); // String comparison
 			} else {
-			  // Handle other data types or fallback to default sorting
+			  // Handle other data types 
 			  return sortedValueB - sortedValueA;
 			}
 		});
-		desecingData = sortedDataDescending; 
-		SortChartData(propKey, desecingData); 
-	  }  
+		descendingChartData = sortedDataDescending; 
+		SortChartData(propKey, descendingChartData);
+	}  
+	
+	// Non equal value between local state and redux state get erased
+	if(chartControls.properties[propKey].sortedValue !== "") {
+		if(firstObjKey.length !== 0){
+		const find = firstObjKey.some(value => value === chartControls.properties[propKey].sortedValue);
+		if(find === false){
+			SortedValue(propKey, "");
+			SortOrder(propKey, "");
+		}
+	}}
+	
+	return (
+		<React.Fragment>
+			{chartControls.properties[propKey].chartData.length > 0 ?
+			/* Enable Sort Component */
+			(
+				<div>
+					<div className='sort'>Sortby</div>
+					
+					{/* itreate and display firstObjKey */}
+					{data ?
+					<div>
+						<FormControl fullWidth  sx={{margin: "0 10px 0 10px"}}>
 
-  return (
-	<React.Fragment>
-    
-	{chartControls.properties[propKey].chartData.length > 0 ?
-	/* Enable Sort Component */
-	(
-	<div style={{minHeight: "100vh"}} >
-	<div 
-	style={{display: "flex", textAlign: "left", padding: "0 6% 5px 6%", color: "rgb(96, 96, 96)", fontWeight: 600, marginTop: "20px", fontSize: "15px", cursor: "pointer", alignItems: "center"}}
-	onClick={() => {
-		setArrowState(!arrowState);
-		}}>
-		Sortby  
-		{chartControls.properties[propKey].chartData.length > 0 && arrowState  ? <MdArrowDropUp/> :
-		 chartControls.properties[propKey].chartData.length > 0 ? <MdArrowDropDown/> : <MdArrowDropUp/> } 
-    </div>
+							{chartControls.properties[propKey].sortedValue ? null :
+							<Typography sx={{color: "#ccc", fontSize: "10px", textAlign: "left", padding: "0 0 3px 5px", fontStyle: "italic"}}>
+								*Select a Column name*
+							</Typography>}
 
-		<div style= {{width: "100%", height: "260px", overflow: "hidden", overflowY: "auto", textOverflow: "ellipsis"}}>
-        
-		{/* itreating and displaying firstObjKey */}
-		{arrowState ? null : data ?
-		<div onClick={handleKeySelect}>
+							<Select sx={{width: "95.5%", height: "26px", fontSize: "13px"}}
+							onChange={handleSelectedColumnValue}
+							value={chartControls.properties[propKey].sortedValue}>
 
-           {firstObjKey.map((data, index) => {
-			return(
-				<div key= {index} className= {chartControls.properties[propKey].sortedValue === data ? "menuStyleActive" : "menuStyle"}
-				onClick={() => {
-					setState(true); 
-					setAscDescNotify("");
-					setSortValue(data);
-					}}>
-					{data}
-				</div>	
+								{firstObjKey.map((data,index) => (
+									<MenuItem key={index} value={data} 
+									sx={{color: "black", fontSize: "13px", "&:hover" : {backgroundColor: "rgb(238, 238, 238)"}}}>
+										{data}
+									</MenuItem>
+									))}	
+                            </Select>
+							
+                        </FormControl>
+					</div>
+					:null 
+					}
+					
+					<div className='sort'>Sort Type</div>
+					
+					<div style={{display: "flex"}}>
+						{chartControls.properties[propKey].sortedValue ?
+						/* Column name or value gets selected then ascending, descending enable */
+						<>
+						<div style={{borderRadius: "5px 0 0 5px", cursor: "pointer", marginLeft: "10px", marginBottom: "10px", transition: "0.2s"}}
+						className={ state ? "radioButton" : chartControls.properties[propKey].sortOrder === "Ascending" ? "radioButtonSelected" : "radioButton" }
+						onClick={() => {
+							setState(false);
+							SortOrder(propKey, "Ascending");
+							handleAsc();
+						}}>
+							Ascending
+						</div>
+
+						<div style={{borderRadius: "0 5px 5px 0", cursor: "pointer", marginBottom: "10px", transition: "0.2s"}}
+						className={ state ? "radioButton" : chartControls.properties[propKey].sortOrder === "Descending" ? "radioButtonSelected" : "radioButton" }
+						onClick={() => { 
+							setState(false); 
+							SortOrder(propKey, "Descending");
+							handleDesc();
+						}}>
+							Descending
+						</div>
+						</>
+						:
+						<>
+						{/* Column name or value not selected then ascending, descending disable  */}
+						<div style={{ borderRadius: "5px 0 0 5px", cursor: "pointer", marginLeft: "10px", marginTop: "10px", transition: "0.2s"}} className= "radioButton"
+						 onClick={() => { 
+							setAscDescNotify("Firstly Please select column name");
+						}}>
+							Ascending
+						</div>
+						
+						<div style={{ borderRadius: "0 5px 5px 0", cursor: "pointer", marginTop: "10px", transition: "0.2s"}} className= "radioButton"
+						 onClick={() => { 
+							setAscDescNotify("Firstly Please select column name");
+						}}>
+							Descending
+						</div>
+						</> 
+						}
+					</div>
+					
+					<div>
+						{ascDescNotify && 
+						<p style={{ color: "#ccc", fontStyle: "italic", fontSize: "10px" }}>
+							*{ascDescNotify}*
+						</p>
+						}
+				</div>
+				</div>
 			)
-		   })}
-			
-		</div>
-       :null }
-			 
-		<div
-		style={{display: "flex", textAlign: "left", padding: "0 6% 5px 6%", color: "rgb(96, 96, 96)", fontWeight: 600, marginTop: "20px", fontSize: "15px", cursor: "pointer", alignItems: "center"}}>
-		Sort Type 
-		</div> 
+			:
+			/* Disable Sort Component */
+			(
+				<div>
+					<div className='sortDisable'>Sortby</div>
 
-        <div style={{display: "flex"}} >
-			{ chartControls.properties[propKey].sortedValue   ? 
-			/* If value get selected under sortby, then above condition gets satisfied, then it show Ascending and Descending button for do ascending and descending */
-			<>
-			<div style={{borderRadius: "5px 0 0 5px", cursor: "pointer", marginLeft: "10px", marginTop: "10px", transition: "0.2s"}}
-			className={ state ? "radioButton" : /* chartControls.properties[propKey].sortedValue === sortValue &&  */ 
-			chartControls.properties[propKey].sortOrder === "Ascending" ? "radioButtonSelected" : "radioButton" }
-			onClick={() => {{ 
-			    setState(false); 	
-				SortOrder(propKey, "Ascending");
-			    handleAsc();
-			}}} >
-			Ascending 	
-			</div>
-			<div style={{borderRadius: "0 5px 5px 0", cursor: "pointer", marginTop: "10px", transition: "0.2s"}}
-			className={ state ? "radioButton" : /* chartControls.properties[propKey].sortedValue === sortValue && */
-			 chartControls.properties[propKey].sortOrder === "Descending" ? "radioButtonSelected" : "radioButton" }
-			onClick={() => {{ 
-			    setState(false); 
-			    SortOrder(propKey, "Descending");
-			    handleDesc();
-			}}}
-			>
-            Descending
-			</div>
-			</> 
-			: 
-			/* If value not get selected under sortby, then now also it show Ascending and Descending button but when make click on 
-			 it notify us that value not get selected */
-			<>
-			<div onClick={() => { setAscDescNotify("Please select one value under sortby"); }}
-			style={{borderRadius: "5px 0 0 5px", cursor: "pointer", marginLeft: "10px", marginTop: "10px", transition: "0.2s"}}
-			className= "radioButton" >
-			Ascending 
-			</div>
-			
-			<div onClick={() => { setAscDescNotify("Please select one value under sortby"); }}
-			style={{borderRadius: "0 5px 5px 0", cursor: "pointer", marginTop: "10px", transition: "0.2s"}}
-			className= "radioButton" >
-            Descending
-			</div>
-			</> }
-		</div>
-		
-		<div>
-			{ascDescNotify && 
-			    <p style={{ color: "#ccc", fontStyle: "italic", fontSize: "10px" }}>
-				*{ascDescNotify}*
-			    </p>}
-			</div>
-	    </div>
-		</div>
+					<div>
+						<FormControl fullWidth disabled sx={{margin: "0 10px 0 10px"}}>
+							<Select sx={{width: "95.5%", height: "26px"}}></Select>
+						</FormControl>
+	                </div>
+					
+					<div className='sortDisable'>Sort Type</div>
+					
+					<div style={{display: "flex"}}>
+						<div style={{color: "#b6b6b6", borderRadius: "5px 0 0 5px", marginLeft: "10px"}} className= "radioButton">
+							Ascending 
+	                    </div>
+						<div style={{color: "#b6b6b6", borderRadius: "0 5px 5px 0"}} className= "radioButton">
+							Descending
+	                    </div> 
+	                </div>
+	            </div>
+	        )}
+		</React.Fragment>
     )
-    :
-	/* Disable Sort Component */ 
-	(
-	<div>
-	<div 
-	style={{display: "flex", textAlign: "left", padding: "0 6% 5px 6%", color: "#b6b6b6", fontWeight: 600, marginTop: "20px", fontSize: "15px", alignItems: "center"}}>
-    	Sortby  <MdArrowDropUp/> 
-	</div>	
-	
-	<div
-		style={{display: "flex", textAlign: "left", padding: "0 6% 5px 6%", color: "#b6b6b6", fontWeight: 600, marginTop: "20px", fontSize: "15px", alignItems: "center"}}>
-		Sort Type 
-    </div>
-    
-	<div style={{display: "flex"}} >
-	<div
-		style={{color: "#b6b6b6", borderRadius: "5px 0 0 5px", marginLeft: "10px", marginTop: "10px", transition: "0.2s"}}
-		className= "radioButton" >
-		    Ascending 
-	</div>
-	
-	<div
-	    style={{color: "#b6b6b6", borderRadius: "0 5px 5px 0", marginTop: "10px", transition: "0.2s"}}
-		className= "radioButton" >
-            Descending
-	</div> 
-	</div>
-	</div>
-	)}
-	</React.Fragment>
-  )
 }
-
 
 const mapStateToProps = (state: any) => {
 	return {
@@ -237,8 +225,6 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		SortChartData: (propKey: string, chartData: string | any) =>
 			dispatch(SortChartData(propKey, chartData)),
-		updateChartData: (propKey: string, chartData: string | any) =>
-			dispatch(updateChartData(propKey, chartData)),	
 		SortOrder: (propKey: string, order: string) =>
 			dispatch(SortOrder(propKey, order)),
 		SortedValue: (propKey: string, value: string | any) =>

@@ -1,4 +1,4 @@
-
+import Logger from "../../../Logger";
 export const setCellColor = (isHeader:boolean,crossTabData: any, colIndex: number, rowIndex: number, colData: any, chartProperties: any, propKey: string, chartControls: any): object => {
     let isConditionAvailable = checkChartControlConditionalColor(chartProperties, propKey,chartControls);
     let _conditionalStyle : any = getConditionalFormat(crossTabData, colIndex, rowIndex, colData, chartProperties, propKey, chartControls) || {};
@@ -31,7 +31,7 @@ const checkChartControlConditionalColor = (chartProperties: any, propKey: string
 const getConditionalFormat = (crossTabData: any,colIndex: number, rowIndex : number, colData: any, chartProperties: any, propKey: string, chartControls: any) =>{
 
     if(colData == '270'){
-        console.log('sum of quantity')
+        Logger("info" ,"sum of quantity");
     }
 
     let colName = getColumnName(crossTabData,colIndex, chartProperties, propKey );
