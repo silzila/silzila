@@ -186,8 +186,8 @@ const MenuBar = ({
 					}
 				}, 2000);
 
-				console.log(JSON.stringify(result.data.content["tabTileProps"], null, "\t"));
-				console.log(JSON.stringify(tabTileProps, null, "\t"));
+				//console.log(JSON.stringify(result.data.content["tabTileProps"], null, "\t"));
+				//console.log(JSON.stringify(tabTileProps, null, "\t"));
 			}
 		} else {
 			setSaveModal(true);
@@ -526,7 +526,7 @@ const MenuBar = ({
 					<div
 						className="menuHomeIcon"
 						onClick={() => {
-							console.log(showSaveWarning, playBookState.playBookUid);
+							//console.log(showSaveWarning, playBookState.playBookUid);
 							if (showSaveWarning || playBookState.playBookUid === null) {
 								setSaveFromHomeIcon(true);
 								setSaveModal(true);
