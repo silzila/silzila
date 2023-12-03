@@ -1,20 +1,19 @@
-
-export const setCellColor = (isHeader: boolean, crossTabData: any, colIndex: number, rowIndex: number, colData: any, chartProperties: any, propKey: string, chartControls: any): object => {
-    try {
-        let isConditionAvailable = checkChartControlConditionalColor(chartProperties, propKey, chartControls);
-        let _conditionalStyle: any = getConditionalFormat(crossTabData, colIndex, rowIndex, colData, chartProperties, propKey, chartControls) || {};
-        let _crossTabStyle = isHeader ? chartControls.properties[propKey].crossTabHeaderLabelOptions : chartControls.properties[propKey].crossTabCellLabelOptions;
-        let style = {
-            color: isConditionAvailable ? _conditionalStyle.fontColor :
-                _crossTabStyle.labelColor,
-            fontWeight: isConditionAvailable ? _conditionalStyle.isBold ? "bold" : "normal" :
-                _crossTabStyle.fontWeight,
-            fontSize: _crossTabStyle.fontSize,
-            borderWidth: chartControls.properties[propKey].crossTabStyleOptions.borderWidth,
-            backgroundColor: _conditionalStyle.backgroundColor,
-            textDecoration: _conditionalStyle.isUnderlined ? 'underline' : "",
-            fontStyle: _conditionalStyle.isItalic ? 'italic' : "normal"
-        }
+import Logger from "../../../Logger";
+export const setCellColor = (isHeader:boolean,crossTabData: any, colIndex: number, rowIndex: number, colData: any, chartProperties: any, propKey: string, chartControls: any): object => {
+    let isConditionAvailable = checkChartControlConditionalColor(chartProperties, propKey,chartControls);
+    let _conditionalStyle : any = getConditionalFormat(crossTabData, colIndex, rowIndex, colData, chartProperties, propKey, chartControls) || {};
+    let _crossTabStyle = isHeader ? chartControls.properties[propKey].crossTabHeaderLabelOptions : chartControls.properties[propKey].crossTabCellLabelOptions;
+    let style = {
+        color : isConditionAvailable ? _conditionalStyle.fontColor : 
+                    _crossTabStyle.labelColor,
+        fontWeight : isConditionAvailable ? _conditionalStyle.isBold ? "bold" : "normal" : 
+                    _crossTabStyle.fontWeight,
+        fontSize : _crossTabStyle.fontSize,
+        borderWidth : chartControls.properties[propKey].crossTabStyleOptions.borderWidth,
+        backgroundColor : _conditionalStyle.backgroundColor,
+        textDecoration : _conditionalStyle.isUnderlined ? 'underline' : "",
+        fontStyle : _conditionalStyle.isItalic ? 'italic' : "normal"
+    }
 
         return style;
     }
@@ -42,7 +41,9 @@ const getConditionalFormat = (crossTabData: any, colIndex: number, rowIndex: num
         let _colNameConditions:any = {};
         let colName = getColumnName(crossTabData, colIndex, chartProperties, propKey);
 
-        let _tableConditionalFormats = JSON.parse(JSON.stringify(chartControls.properties[propKey].tableConditionalFormats));
+    if(colData == '270'){
+        Logger("info" ,"sum of quantity");
+    }
 
         let colNameConditions = _tableConditionalFormats?.find((item: any) => {
             return item.name === colName;
