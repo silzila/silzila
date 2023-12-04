@@ -1,15 +1,25 @@
 package com.silzila.querybuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
+import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Query;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 @Service
 public class QueryComposer {
+
+    private static final Logger logger = LogManager.getLogger(QueryComposer.class);
 
     /*
      * Builds query based on Dimensions and Measures of user selection.
@@ -48,7 +58,7 @@ public class QueryComposer {
             qMap = SelectClauseSqlserver.buildSelectClause(req);
         } else if (vendorName.equals("bigquery")) {
             // System.out.println("------ inside Big Query block");
-            qMap = SelectClauseSqlserver.buildSelectClause(req);
+            qMap = SelectClauseBigquery.buildSelectClause(req);
         } else if (vendorName.equals("databricks")) {
             // System.out.println("------ inside databricks block");
             qMap = SelectClauseDatabricks.buildSelectClause(req);
@@ -63,8 +73,56 @@ public class QueryComposer {
         String groupByClause = "\n\t" + qMap.getGroupByList().stream().distinct().collect(Collectors.joining(",\n\t"));
         String orderByClause = "\n\t" + qMap.getOrderByList().stream().distinct().collect(Collectors.joining(",\n\t"));
         String whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName);
+        // for bigquery only
+        if (vendorName.equals("bigquery")) {
+            boolean isDateOrTimestamp = false;
+            boolean isMonthOrDayOfWeek = false;
+            // get each dimensions from api using for-each
+            for (Dimension dim : req.getDimensions()) {
+                // check whether dimension's datatype match ('date','timestamp')
+                if (List.of("DATE", "TIMESTAMP").contains(dim.getDataType().name()) &&
+                        (dim.getTimeGrain().name().equals("MONTH") || dim.getTimeGrain().name().equals("DAYOFWEEK"))) {
+                    isDateOrTimestamp = true;
+                    isMonthOrDayOfWeek = true;
+                    break; // Exit the loop if any dimension meets the criteria
+                }
+            }
+            if (isDateOrTimestamp && isMonthOrDayOfWeek) {
+                List<String> filteredlist = new ArrayList<>();
+                List<String> filteredSelectList = qMap.getSelectList().stream().filter(column -> !column.contains("__"))
+                        .collect(Collectors.toList()); // remove double underscore columns('__')
 
-        if (!req.getDimensions().isEmpty()) {
+                logger.info(filteredSelectList);
+
+                for (int i = 0; i < filteredSelectList.size(); i++) {
+                    String regex = "\\bAS\\s+(\\w+)"; // using regex to get alias after 'AS'
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(filteredSelectList.get(i));
+                    while (matcher.find()) {
+                        String alias = matcher.group(1);
+                        filteredlist.add(alias); // aliases add into filteredlist
+                        logger.info("Alias: " + alias);
+                    }
+                }
+                logger.info(filteredlist);
+
+                String filteredSelectClause = "\n\t" + filteredlist.stream().collect(Collectors.joining(",\n\t")); //convert arrayList values into String
+                logger.info(filteredSelectClause);
+
+                finalQuery = "SELECT " + filteredSelectClause + "\nFROM (" + "\nSELECT " + selectClause + "\nFROM"
+                        + fromClause + whereClause + "\nGROUP BY" + groupByClause
+                        + "\nORDER BY"
+                        + orderByClause + "\n) AS Tbl";
+            } else if (!req.getDimensions().isEmpty()) {
+                finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause + whereClause + "\nGROUP BY"
+                        + groupByClause
+                        + "\nORDER BY"
+                        + orderByClause;
+            } else if (!req.getMeasures().isEmpty()) {
+                finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause + whereClause;
+            }
+
+        } else if (!req.getDimensions().isEmpty()) {
             finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause + whereClause + "\nGROUP BY" + groupByClause
                     + "\nORDER BY"
                     + orderByClause;

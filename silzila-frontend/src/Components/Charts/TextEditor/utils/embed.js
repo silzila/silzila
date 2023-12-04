@@ -24,7 +24,7 @@ export const insertEmbed = (editor,embedData,format) => {
     embedData.height = height ? `${height}px`:'auto'
     const embed = format === 'image' ?  createImageNode("EditorImage",embedData):createVideoNode(embedData);
     
-    console.log(format);
+    //console.log(format);
     Transforms.insertNodes(editor,embed,{select:true});
     Transforms.insertNodes(editor,createParagraph(""),{mode:'highest'})
 }

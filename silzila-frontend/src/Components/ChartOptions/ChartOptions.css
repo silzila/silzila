@@ -83,40 +83,28 @@ button:focus {
 }
 
 /* ======================================== */
-/* Sort highlighting used in Chart Title */
-.menuStyle{
-    text-transform: none;
-    color: black;
-    display: block;
-    padding: 0px 8px 8px 15px;
-    cursor: pointer;
-    text-align: left;
-    margin-top: 5px;
-    font-size: 13px;
+/* Styles for Sort component */
+.sort{
+	display: flex;
+	text-align: left;
+	padding: 0 6% 5px 6%;
+	color: rgb(96, 96, 96);
+	font-weight: 600;
+	margin-top: 20px;
+	font-size: 15px;
+	cursor: pointer;
+	align-items: center;
 }
 
-.menuStyle:hover{
-    text-transform: none;
-    display: block;
-    padding: 0px 8px 8px 15px;
-    cursor: pointer;
-    text-align: left;
-    margin-top: 5px;
-    font-size: 13px;
-    background-color: rgb(247, 247, 247);
-    color: black;
-}
-
-.menuStyleActive{
-    text-transform: none;
-    display: block;
-    padding: 0px 8px 8px 15px;
-    cursor: pointer;
-    text-align: left;
-    margin-top: 5px;
-    font-size: 13px;
-    background-color: rgba(224, 224, 224);
-    color: black;
+.sortDisable{
+	display: flex;
+	text-align: left;
+	padding: 0 6% 5px 6%;
+	color: #b6b6b6;
+	font-weight: 600;
+	margin-top: 20px;
+	font-size: 15px;
+	align-items: center;
 }
 
 /* ======================================== */
