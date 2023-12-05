@@ -1,4 +1,5 @@
 
+
 import {interpolateColor} from '../../CommonFunctions/CommonFunctions';
 
 export const setCellColor = (isHeader: boolean, crossTabData: any, colIndex: number, rowIndex: number, colData: any, chartProperties: any, propKey: string, chartControls: any): object => {
@@ -17,6 +18,7 @@ export const setCellColor = (isHeader: boolean, crossTabData: any, colIndex: num
             textDecoration: _conditionalStyle.isUnderlined ? 'underline' : "",
             fontStyle: _conditionalStyle.isItalic ? 'italic' : "normal"
         }
+
 
         return style;
     }
@@ -43,7 +45,9 @@ const getConditionalFormat = (crossTabData: any, colIndex: number, rowIndex: num
         let _colNameConditions:any = {};
         let colName = getColumnName(crossTabData, colIndex, chartProperties, propKey);
 
-        let _tableConditionalFormats = JSON.parse(JSON.stringify(chartControls.properties[propKey].tableConditionalFormats));
+    if(colData == '270'){
+        Logger("info" ,"sum of quantity");
+    }
 
         let colNameConditions = _tableConditionalFormats?.find((item: any) => {
             return item.name === colName;
