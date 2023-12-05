@@ -45,14 +45,12 @@ const getConditionalFormat = (crossTabData: any, colIndex: number, rowIndex: num
         let _colNameConditions:any = {};
         let colName = getColumnName(crossTabData, colIndex, chartProperties, propKey);
 
-    if(colData == '270'){
-        Logger("info" ,"sum of quantity");
-    }
+        let _tableConditionalFormats = JSON.parse(JSON.stringify(chartControls.properties[propKey].tableConditionalFormats));
 
         let colNameConditions = _tableConditionalFormats?.find((item: any) => {
             return item.name === colName;
         });
-
+        
         if(colNameConditions)
             _colNameConditions = JSON.parse(JSON.stringify(colNameConditions));
 
