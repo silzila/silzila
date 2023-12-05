@@ -16,9 +16,12 @@ import {
 	conditionTypes,
 } from "./CommonComponents";
 
+import {useEffect} from 'react';
+
 const SimplecardConditionalFormatting = ({
 	chartControls,
 	tabTileProps,
+	chartProperties,
 	addOrEditSimplecardConditionalFormat,
 }: any) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
@@ -26,6 +29,12 @@ const SimplecardConditionalFormatting = ({
 	var cfList = chartControls.properties[propKey].simplecardConditionalFormats;
 	var valueName: any = Object.keys(chartControls.properties[propKey].chartData[0]);
 	var dataValue = chartControls.properties[propKey].chartData[0][valueName];
+
+
+	// useEffect(()=>{
+
+	// }
+	// ,[chartProperties.properties[propKey].chartAxes])
 
 	const onAddCondition = () => {
 		var obj = {
@@ -266,6 +275,7 @@ const mapStateToProps = (state: any) => {
 	return {
 		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
+		chartProperties: state.chartProperties,
 	};
 };
 

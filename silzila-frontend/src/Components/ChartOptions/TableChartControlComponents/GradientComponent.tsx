@@ -111,7 +111,7 @@ const GradientComponent = ({
 			isBold: false,
 			isItalic: false,
 			isUnderlined: false,
-			backgroundColor: "white",
+			backgroundColor: "#FFB980",
 			fontColor: "black",
 		};
 
