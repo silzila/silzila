@@ -92,7 +92,7 @@ const LabelComponent = ({ format, tabTileProps, chartControls, updatecfObjectOpt
 					</div>
 				</div>
 			</div>
-			{format.value.map((el: any) => {
+			{format?.value?.map((el: any) => {
 				return (
 					<div key={el.id} className="labelItemContainer">
 						<span className="labelText">{el.colValue}</span>

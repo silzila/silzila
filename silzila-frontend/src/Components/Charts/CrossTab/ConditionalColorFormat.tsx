@@ -1,4 +1,7 @@
 
+
+import {interpolateColor} from '../../CommonFunctions/CommonFunctions';
+
 export const setCellColor = (isHeader: boolean, crossTabData: any, colIndex: number, rowIndex: number, colData: any, chartProperties: any, propKey: string, chartControls: any): object => {
     try {
         let isConditionAvailable = checkChartControlConditionalColor(chartProperties, propKey, chartControls);
@@ -16,6 +19,7 @@ export const setCellColor = (isHeader: boolean, crossTabData: any, colIndex: num
             fontStyle: _conditionalStyle.isItalic ? 'italic' : "normal"
         }
 
+
         return style;
     }
     catch (err) {
@@ -29,6 +33,8 @@ const checkChartControlConditionalColor = (chartProperties: any, propKey: string
     switch (chartProperties.properties[propKey].chartType) {
         case "table":
             return chartControls.properties[propKey]?.tableConditionalFormats?.length > 0
+        case "crossTab":
+            return chartControls.properties[propKey]?.tableConditionalFormats?.length > 0
     }
 
     return false;
@@ -36,9 +42,6 @@ const checkChartControlConditionalColor = (chartProperties: any, propKey: string
 
 const getConditionalFormat = (crossTabData: any, colIndex: number, rowIndex: number, colData: any, chartProperties: any, propKey: string, chartControls: any) => {
     try {
-        // if(colData == '270'){
-        //     console.log('sum of quantity')
-        // }
         let _colNameConditions:any = {};
         let colName = getColumnName(crossTabData, colIndex, chartProperties, propKey);
 
@@ -47,7 +50,7 @@ const getConditionalFormat = (crossTabData: any, colIndex: number, rowIndex: num
         let colNameConditions = _tableConditionalFormats?.find((item: any) => {
             return item.name === colName;
         });
-
+        
         if(colNameConditions)
             _colNameConditions = JSON.parse(JSON.stringify(colNameConditions));
 
@@ -90,6 +93,10 @@ const getConditionalFormat = (crossTabData: any, colIndex: number, rowIndex: num
 const getGradientBasedStyle = (_colNameConditions: any, crossTabData: any, rowIndex: number, colData: any) => {
     let startStyle:any = {}, midStyle:any = {}, endStyle:any = {};
 
+    if(colData === ""){
+        return _colNameConditions.value.find((item: any) => item.name == 'Null')
+    }
+
     if (_colNameConditions.value.length === 4) {
         midStyle = _colNameConditions.value.find((item: any) => item.name?.trim() == 'Mid Value');
     }
@@ -123,11 +130,47 @@ const checkColumnValueForGradient = (startStyle: any, midStyle: any, endStyle: a
         let stepNumber = 20;
 
         if(Object.keys(midStyle).length > 0){
-            if(Number(midStyle.value) > Number(_colValue)){
+            let step:number = 0;
+            let colors:any = [];
+            let style:any = {};
 
+            if(Number(midStyle.value) < Number(_colValue)){
+                 step = calculateStep(Number(midStyle.value), Number(endStyle.value), stepNumber, Number(_colValue)) || 0;
+                 colors = interpolateColor(midStyle?.backgroundColor, endStyle?.backgroundColor, stepNumber);
+
+                 style = {};
+    
+                 if(step || 0 < 10){
+                     style = midStyle;
+                 }
+                 else{
+                     style = endStyle;
+                 }
+     
+                 if (colors[step || 0]) {
+                     style.backgroundColor = colors[step || 0];
+                 }
+     
+                 return style;
             }
             else{
+                step = calculateStep(Number(startStyle.value), Number(midStyle.value), stepNumber, Number(_colValue)) || 0;
+                colors = interpolateColor(startStyle?.backgroundColor, midStyle?.backgroundColor, stepNumber);
 
+                style = {};
+    
+                if(step || 0 < 10){
+                    style = startStyle;
+                }
+                else{
+                    style = midStyle;
+                }
+    
+                if (colors[step || 0]) {
+                    style.backgroundColor = colors[step || 0];
+                }
+    
+                return style;
             }
         }
         else {
@@ -151,16 +194,6 @@ const checkColumnValueForGradient = (startStyle: any, midStyle: any, endStyle: a
 
         return {};
     }
-
-   // let colors = interpolateColor(startStyle?.backgroundColor, endStyle?.backgroundColor, crossTabData.length - 2);
-
-    let style = startStyle;
-
-    // if (colors[rowIndex]) {
-    //     style.backgroundColor = colors[rowIndex];
-    // }
-
-    return style;
 }
 
 
@@ -268,22 +301,14 @@ const checkNumberAgaintConditionType = (conditionType: number, target: number, v
 const getColumnName = (crossTabData: any, colIndex: number, chartProperties: any, propKey: string): string => {
     switch (chartProperties.properties[propKey].chartType) {
         case "table":
-            return crossTabData[0].columnItems[colIndex].displayData;
+            return crossTabData[0]?.columnItems[colIndex]?.displayData;
+        case "crossTab":
+            let headerIndex = chartProperties.properties[propKey].chartAxes.find((item:any)=>item.name == 'Column')?.fields?.length || 0;
+            return crossTabData[headerIndex]?.columnItems[colIndex]?.displayData;
     }
 
     return "";
 }
 
-const interpolateColor = (startColor: any, endColor: any, steps: any) => {
-    const colorMap = (value: any, start: any, end: any) => start + Math.round(value * (end - start));
-    const parseColor = (color: any) => color?.match(/\w\w/g)?.map((hex: any) => parseInt(hex, 16));
 
-    const startRGB = parseColor(startColor);
-    const endRGB = parseColor(endColor);
-
-    return Array.from({ length: steps }, (_, index) => {
-        const t = index / (steps - 1);
-        return `rgb(${colorMap(t, startRGB[0], endRGB[0])},${colorMap(t, startRGB[1], endRGB[1])},${colorMap(t, startRGB[2], endRGB[2])})`;
-    });
-};
 
