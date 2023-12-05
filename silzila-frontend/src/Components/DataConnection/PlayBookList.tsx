@@ -135,7 +135,12 @@ const PlayBookList = ({
 
 			var pb = result.data;
 
-			var selectedDatasetsInPlaybook = pb.content.content.tabTileProps.selectedDataSetList;
+
+			pb.content = JSON.parse(JSON.stringify(pb.content))
+
+			pb.content.content = JSON.parse(pb.content.content)
+
+			var selectedDatasetsInPlaybook = pb.content.content?.tabTileProps?.selectedDataSetList || [];
 
 			// Get list of tables for a given dataset and save here
 			var tablesForSelectedDatasetsCopy: any = {};
@@ -154,6 +159,9 @@ const PlayBookList = ({
 					}
 				})
 			);
+			
+			//pb.content.content = JSON.parse(pb.content.content);
+
 			pb.content.content.tabTileProps.tablesForSelectedDataSets =
 				tablesForSelectedDatasetsCopy;
 
