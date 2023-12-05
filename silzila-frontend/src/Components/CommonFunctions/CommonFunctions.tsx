@@ -22,3 +22,16 @@ export const validatePassword = (password: string) => {
 export const validateEqualValues = (value1: string, value2: string) => {
 	return value1 === value2;
 };
+
+export const interpolateColor = (startColor: any, endColor: any, steps: any) => {
+    const colorMap = (value: any, start: any, end: any) => start + Math.round(value * (end - start));
+    const parseColor = (color: any) => color?.match(/\w\w/g)?.map((hex: any) => parseInt(hex, 16));
+
+    const startRGB = parseColor(startColor);
+    const endRGB = parseColor(endColor);
+
+    return Array.from({ length: steps }, (_, index) => {
+        const t = index / (steps - 1);
+        return `rgb(${colorMap(t, startRGB[0], endRGB[0])},${colorMap(t, startRGB[1], endRGB[1])},${colorMap(t, startRGB[2], endRGB[2])})`;
+    });
+};
