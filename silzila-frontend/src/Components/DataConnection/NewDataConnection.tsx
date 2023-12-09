@@ -7,6 +7,7 @@ import databricksIcon from "../../assets/databricksIcon.png";
 import mssqlIcon from "../../assets/mssqlicon.png";
 import mysqlicon from "../../assets/mysqlicon.svg";
 import postgresicon from "../../assets/postgresicon.png";
+import bigqueryicon from "../../assets/bigqueryicon.svg";
 import TextFieldComponent from "../../Components/CommonFunctions/TextFieldComponent";
 import FetchData from "../ServerCall/FetchData";
 import "./DataSetup.css";
@@ -92,6 +93,12 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			name: "PostgreSql",
 			img: postgresicon,
 		},
+		{
+			id: 6,
+			value: "bigquery",
+			name: "Google BigQuery",
+			img: bigqueryicon,
+		},
 	];
 
 	useEffect(() => {
@@ -134,6 +141,15 @@ const NewDataConnection = (props: DataConnectionProps) => {
 
 	//ButtonEnabelDisable
 	const btnEnabelDisable = () => {
+		if(account.vendor !== "" && account.vendor === "bigquery"){
+			if(
+				account.connectionName !== "" &&
+				account.password !== ""){
+					setBtnEnable(false);
+				}else{
+					setBtnEnable(true);
+				}
+		}else {
 		if (
 			account.vendor !== "" &&
 			account.server !== "" &&
@@ -158,13 +174,13 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		} else {
 			setBtnEnable(true);
 		}
-	};
+	}};
 
 	// =================================================
 	// Test DataConnection
 	// =================================================
 
-	const getDatabaseConnectionTest = () => {
+	const getDatabaseConnectionTest = () =>  {
 		let data: any = {
 			connectionName: account.connectionName,
 			vendor: account.vendor,
@@ -188,6 +204,45 @@ const NewDataConnection = (props: DataConnectionProps) => {
 	};
 
 	const handleonTest = async () => {
+		if(account.vendor !== "" && account.vendor === "bigquery"){
+			if (
+				account.server === "",
+				account.port === "" ,
+				account.database === "",
+				account.username === "",
+				account.connectionName !== "" &&
+				JSON.stringify(account.password) &&
+				(account.password !== "" || account.password !== undefined)
+			) {
+				var response: any = await getDatabaseConnectionTest();
+
+				if (response.status) {
+					setSeverity("success");
+					setOpenAlert(true);
+					setTestMessage("Test Connection successful");
+					setTimeout(() => {
+						setOpenAlert(false);
+						setTestMessage("");
+					}, 3000);
+				} else {
+					setSeverity("error");
+					setOpenAlert(true);
+					setTestMessage(response.data.message);
+					// setTimeout(() => {
+					// 	setOpenAlert(false);
+					// 	setTestMessage("");
+					// }, 4000);
+				}
+			} else {
+				setSeverity("error");
+				setOpenAlert(true);
+				setTestMessage("Please Fillout All the fields");
+				// setTimeout(() => {
+				// 	setOpenAlert(false);
+				// 	setTestMessage("");
+				// }, 4000);
+			}
+        } else {
 		if (
 			account.vendor !== "" &&
 			account.server !== "" &&
@@ -266,7 +321,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			// 	setOpenAlert(false);
 			// 	setTestMessage("");
 			// }, 4000);
-		}
+		}}
 	};
 
 	// ==============================================================
@@ -429,6 +484,43 @@ const NewDataConnection = (props: DataConnectionProps) => {
 	// =========================================================================
 
 	const onSubmit = async () => {
+		if(account.vendor !== "" && account.vendor === "bigquery"){
+			if(
+				account.server === "",
+				account.port === "" ,
+				account.database === "",
+				account.username === "",
+				account.connectionName !== "" &&
+				JSON.stringify(account.password) &&
+				(account.password !== "" || account.password !== undefined)
+				){
+					var response: any = await getDatabaseConnectionTest();
+					if (response.status) {
+						if (regOrUpdate === "Update") {
+							handleonUpdate();
+						}
+						if (regOrUpdate === "Register") {
+							handleRegister();
+						}
+					} else {
+						setSeverity("error");
+						setOpenAlert(true);
+						setTestMessage(response.data.message);
+						// setTimeout(() => {
+						// 	setOpenAlert(false);
+						// 	setTestMessage("");
+						// }, 4000);
+					}
+			}else{
+				setSeverity("error");
+				setOpenAlert(true);
+				setTestMessage("Please Fillout All the fields");
+				// setTimeout(() => {
+				// 	setOpenAlert(false);
+				// 	setTestMessage("");
+				// }, 4000);
+			}
+		} else {
 		if (
 			account.vendor !== "" &&
 			account.server !== "" &&
@@ -505,7 +597,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			// 	setOpenAlert(false);
 			// 	setTestMessage("");
 			// }, 4000);
-		}
+		}}
 	};
 
 	const getUrlAndPort = (connection: string) => {
@@ -535,7 +627,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 				setShowform(true);
 				}		
 		}
-	
+
      const setDataConnection = (value: string) => {
         setAccount({
 			...account,
@@ -571,8 +663,8 @@ const NewDataConnection = (props: DataConnectionProps) => {
 									setDataConnection(value);
 								}	
 							}else{
-								if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql'){
-									if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+								if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql' || 'bigquery'){
+									if(account.password !== '' || account.connectionName !== '' || account.database !== '' || account.username !== '' ){
 										setChangeDB(true);
 										setValues(value);
 									}else{
@@ -590,8 +682,8 @@ const NewDataConnection = (props: DataConnectionProps) => {
 										setDataConnection(value);
 									}
 								}else{
-									if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql'){
-										if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+									if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql' || 'bigquery'){
+										if(account.password !== '' || account.connectionName !== '' || account.database !== '' || account.username !== ''){
 											setChangeDB(true);
 											setValues(value);
 										}else{
@@ -600,7 +692,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 									}
 								}
 							}else{
-								if(value === 'sqlserver' || 'mysql' || 'postgresql'){
+								if(value === 'bigquery'){
 									if(account.vendor === 'redshift'){
 										if(account.server !== '' || account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
 											setChangeDB(true);
@@ -617,74 +709,55 @@ const NewDataConnection = (props: DataConnectionProps) => {
 												setDataConnection(value);
 											}	
 										}else{
-												if(account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+												if(account.password !== '' || account.connectionName !== '' || account.database !== '' || account.username !== ''){
 													setChangeDB(true);
 													setValues(value);
 												}else{
 													setDataConnection(value);	
+												}}}}
+												else{
+													if(value === 'sqlserver' || 'mysql' || 'postgresql'){
+														if(account.vendor === 'redshift'){
+															if(account.server !== '' || account.database !== '' || account.username !== '' || account.password !== '' || account.connectionName !== ''){
+																setChangeDB(true);
+																setValues(value);
+															} else {
+																setDataConnection(value);
+															}
+														} else {
+															if(account.vendor === 'databricks'){
+																if(account.server !== '' || account.httpPath !== ''  || account.password !== '' || account.connectionName !== ''){
+																	setChangeDB(true);
+																	setValues(value);
+																} else {
+																	setDataConnection(value);
+																}
+															} else {
+																if(account.password !== '' || account.connectionName !== '' || account.database !== '' || account.username !== ''){
+																	setChangeDB(true);
+														            setValues(value);
+																} else {
+																	setDataConnection(value);
+																}}}}}
+															}
+														}
+													} else {
+														if(account.vendor === value){}
+													}
+												} else {
+													setDataConnection(value);
 												}
+											}
+											btnEnabelDisable();
+										}
+										else{
+											if(!viewMode && enable){}
 										}
 									}
-								}
-							}
-						}
-					}else{
-						if(account.vendor === value){}
-					}
-				}else{
-					setDataConnection(value);
-				}
-
-			}
-		btnEnabelDisable();
-	}
-else{
-	if(!viewMode && enable){
-	}
-}
-	 }
 
 	 const handleListItemBasedOnVendor = (value:any)=>{
 		if(enable){
 			return setEnable(true);
-		}
-
-		if(account.vendor !== ''){
-			if(value === 'sqlserver' || 'mysql' || 'postgresql' ){
-				if(account.vendor === 'databricks'){
-					if(account.server === '' || account.httpPath === '' || account.password === '' || account.connectionName === ''){
-						handleListItem(value);
-					}
-				}else{
-					if(account.vendor === 'redshift'){
-						if(account.server === '' || account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-							handleListItem(value);
-						}}else{
-							if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-								handleListItem(value);
-							}}}}
-
-			else{
-			if(value === 'databricks'){
-				if(account.vendor === 'redshift'){
-					if(account.server === '' || account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-						handleListItem(value);
-					}}else{
-						if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-							handleListItem(value);
-						}}
-					}
-					
-					else{
-						if(value === 'redshift'){
-							if(account.vendor === 'databricks') {
-								if(account.server === '' || account.httpPath === '' || account.password === '' || account.connectionName === ''){
-									handleListItem(value);
-								}}else{
-									if(account.database === '' || account.username === '' || account.password === '' || account.connectionName === ''){
-										handleListItem(value);
-									}
-								}}}}
 		} 
 		
 		if(!viewMode && !enable){
@@ -699,13 +772,7 @@ else{
         <MenuBar from="dataSet" />
     </div>
    
-    <div style={{display:'flex'}} 
-    onSubmit={
-      e => {
-        e.preventDefault();
-        onSubmit();
-      }
-    }>
+    <div style={{display:'flex'}}>
 		
     <Box 
     sx={{ 
@@ -778,7 +845,7 @@ else{
     </Box>
      
     <Box
-	sx={{ display:'flex', flexDirection:'column', flex:1,  marginTop:'1.5rem'}}>
+	sx={{ display:'flex', flexDirection:'column', flex:1,  marginTop:'1.5rem', overflowY: "auto"}}>
 
 		{ showform || viewMode ?
 		<>
@@ -799,8 +866,12 @@ else{
 				{/*========================== Reusable Component from ../CommonFunctions/TextFieldComponents========================= */}
 			    <div
 				style={{ display:'flex', flexDirection:'column', gap:'15px', alignItems:'center', width: '100%', marginTop: '20px', padding: '5px',
-				height:540, overflow: 'hidden', overflowY: 'scroll'}}>
-					
+				height:540, overflow: "hidden", overflowY: "auto"}}>
+					           
+							   {account.vendor === "bigquery" ? 
+							   null
+							   :
+							   <>
 							   <TextFieldComponent
 								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 									   setAccount({ ...account, server: e.target.value });
@@ -819,7 +890,13 @@ else{
 								   {...{ viewMode, value: account.server, lable: account.vendor === "databricks" ? "Server Hostname" : "Server Url"}}
 							   />
 							   <small className="dbConnectionErrorText">{account.serverError}</small>
-								 
+							   </>
+							   }
+							   
+							   {account.vendor === "bigquery" ?
+							   null 
+							   :
+							   <>
 								<TextFieldComponent
 								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 									   setAccount({ ...account, port: e.target.value });
@@ -838,7 +915,13 @@ else{
 								   {...{ viewMode, value: account.port, lable: "Port", type: "number" }}
 							   />
 							   <small className="dbConnectionErrorText">{account.portError}</small>
-							  
+							   </>
+							   }
+							   
+							   {account.vendor === "bigquery" ?
+							   null 
+							   :
+							   <>
 							   <TextFieldComponent
 								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 									   setAccount({ ...account, database: e.target.value });
@@ -857,8 +940,13 @@ else{
 								   {...{ viewMode, value: account.database, lable: "Database"}}
 							   />
 							   <small className="dbConnectionErrorText">{account.databaseError}</small>
-						   
+						       </>
+							   }
 								
+								{account.vendor === "bigquery" ?
+							   null 
+							   :
+							   <>	
 							   {account.vendor === "databricks" ?
 							   <>
 							   <TextFieldComponent
@@ -902,9 +990,12 @@ else{
 							   <small className="dbConnectionErrorText">{account.userNameError}</small>
 							   </>
 							   } 
-							   
-							   {account.vendor === 'databricks' ?
-							   <>
+							   </>
+							   }
+
+							  {
+								account.vendor === 'databricks' ?
+								<>
 							   <TextFieldComponent
 								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 									   setAccount({ ...account, password: e.target.value });
@@ -920,18 +1011,35 @@ else{
 										   btnEnabelDisable();
 									   }
 								   }}
-								   {...{
-									   viewMode,
-									   value: account.password,
-									   lable: "Token" ,
-									   type: "text",
-									   multiline: true,
-								   }}
+								   {...{ viewMode, value: account.password, lable: "Token", type: "text", multiline: true,}}
 							   />
 							   <small className="dbConnectionErrorText">{account.passwordError}</small>
 							   </>
 							   :
+							   account.vendor === "bigquery" ? 
 							   <>
+							  <TextFieldComponent
+								  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+									  setAccount({ ...account, password: e.target.value });
+									  btnEnabelDisable();
+								  }}
+								  onFocus={() => setAccount({ ...account, passwordError: "" })}
+								  onBlur={() => {
+									  if (account.password.length === 0) {
+										  setAccount({
+											  ...account,
+											  passwordError: "Token should not be Empty",
+										  });
+										  btnEnabelDisable();
+									  }
+								  }}
+								  {...{ viewMode, value: account.password, lable: "Token", type: "text", multiline: true, rows: 12,
+								  placeholder : "Copy, Paste the entire contents from the token json file including { }"}}
+							  />
+							  <small className="dbConnectionErrorText">{account.passwordError}</small>
+							  </>
+							  :
+							  <>
 							   <TextFieldComponent
 								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 									   setAccount({ ...account, password: e.target.value });
@@ -947,17 +1055,12 @@ else{
 										   btnEnabelDisable();
 									   }
 								   }}
-								   {...{
-									   viewMode,
-									   value: account.password,
-									   lable: "Password",
-									   type: "password",
-								   }}
+								   {...{viewMode, value: account.password, lable: "Password", type: "password", }}
 							   />
 							   <small className="dbConnectionErrorText">{account.passwordError}</small>          
 							   </>
-							   } 
-	   
+							  } 
+
 							   <TextFieldComponent
 								   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 									   setAccount({ ...account, connectionName: e.target.value });
@@ -997,13 +1100,13 @@ else{
 											   handleMode("Edit");
 											   setEnable(true)
 										   }}
-										   style={{ backgroundColor: "#af99db", marginRight: '20px' }}
+										   style={{ backgroundColor: "#af99db", marginRight: '18px' }}
 									   >
 										   Edit
 									   </Button>
 									   <Button
 										   variant="contained"
-										   style={{ backgroundColor: "red", marginRight: '10px'}}
+										   style={{ backgroundColor: "red", marginRight: '7px'}}
 										   onClick={deleteDcWarning}
 									   >
 										   Delete
