@@ -23,30 +23,33 @@ const Sort = ({
 	SortOrder,
 	SortedValue
 }: Props) => { 
-	const[data, setData] = useState<string | any>([]);
 	const[ascDescNotify, setAscDescNotify] = useState<string>("");
-	const[state, setState] = useState<boolean>(false);
-	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
-
-	useEffect(()=>{
-		// Getting chartData 
-		const datas = chartControls.properties[propKey].chartData;
-		setData(datas);
-	});
+	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`; 
+	// Getting chartData 
+	const data: string | any = chartControls.properties[propKey].chartData.length > 0 ? chartControls.properties[propKey].chartData : [];
 	
+    useEffect(()=>{ 
+		if(chartControls.properties[propKey].sortOrder !== ""){
+			if(chartControls.properties[propKey].sortOrder === "Ascending")
+			{
+				handleAsc();
+			} else {
+				handleDesc();
+			}}
+	},[chartControls.properties[propKey].sortedValue]); 
+
 	// Shallow copy of data
 	var chartData: string | any = [...data];
 	var descendingChartData: string | any = [...data];
     
 	// Getting the keys of first object in chartData array
-	const firstObjKey = chartData.length > 0 ? Object.keys(chartData[0]) : [];
-    
+	const firstObjKey = chartData.length > 0 ? Object.keys(chartData[0]) : [];  
+	
 	// Update the selected column to the state
-	const handleSelectedColumnValue = (event: string | any) => {
+	const handleSelectedColumnValue = (event: string | any) => { 
 		setAscDescNotify("");
-		setState(true); 
 		SortedValue(propKey, event.target.value);
-	};  
+    };
     
 	// Creates an ascending order of selected column
 	const handleAsc = () => {
@@ -98,14 +101,13 @@ const Sort = ({
 	
 	return (
 		<React.Fragment>
-			{chartControls.properties[propKey].chartData.length > 0 ?
+			{data.length > 0 ?
 			/* Enable Sort Component */
 			(
 				<div>
 					<div className='sort'>Sortby</div>
 					
 					{/* itreate and display firstObjKey */}
-					{data ?
 					<div>
 						<FormControl fullWidth  sx={{margin: "0 10px 0 10px"}}>
 
@@ -128,8 +130,6 @@ const Sort = ({
 							
                         </FormControl>
 					</div>
-					:null 
-					}
 					
 					<div className='sort'>Sort Type</div>
 					
@@ -138,9 +138,8 @@ const Sort = ({
 						/* Column name or value gets selected then ascending, descending enable */
 						<>
 						<div style={{borderRadius: "5px 0 0 5px", cursor: "pointer", marginLeft: "10px", marginBottom: "10px", transition: "0.2s"}}
-						className={ state ? "radioButton" : chartControls.properties[propKey].sortOrder === "Ascending" ? "radioButtonSelected" : "radioButton" }
+						className={ chartControls.properties[propKey].sortOrder === "Ascending" ? "radioButtonSelected" : "radioButton" }
 						onClick={() => {
-							setState(false);
 							SortOrder(propKey, "Ascending");
 							handleAsc();
 						}}>
@@ -148,9 +147,8 @@ const Sort = ({
 						</div>
 
 						<div style={{borderRadius: "0 5px 5px 0", cursor: "pointer", marginBottom: "10px", transition: "0.2s"}}
-						className={ state ? "radioButton" : chartControls.properties[propKey].sortOrder === "Descending" ? "radioButtonSelected" : "radioButton" }
-						onClick={() => { 
-							setState(false); 
+						className={ chartControls.properties[propKey].sortOrder === "Descending" ? "radioButtonSelected" : "radioButton" }
+						onClick={() => {  
 							SortOrder(propKey, "Descending");
 							handleDesc();
 						}}>
