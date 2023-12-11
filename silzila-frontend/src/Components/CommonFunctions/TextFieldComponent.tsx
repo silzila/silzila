@@ -10,9 +10,11 @@ viewMode:any,
 lable:string, 
 type?:string,
 multiline?:boolean,
+rows?:number,
+placeholder?:string,
 }
 
-const TextFieldComponent = ({ onChange, onFocus, onBlur, value, viewMode, lable, type, multiline}:Props) => {
+const TextFieldComponent = ({ onChange, onFocus, onBlur, value, viewMode, lable, type, multiline, rows, placeholder}:Props) => {
 	return (
 		<TextField
 			style={{ width: "35%" }}
@@ -21,11 +23,13 @@ const TextFieldComponent = ({ onChange, onFocus, onBlur, value, viewMode, lable,
 			label={lable}
 			disabled={viewMode}
 			value={value}
+			rows={rows}
+			placeholder={placeholder}
+			multiline={multiline}
 			required
 			onChange={onChange}
 			onFocus={onFocus}
 			onBlur={onBlur}
-			multiline={multiline}
 		/>
 	);
 };
