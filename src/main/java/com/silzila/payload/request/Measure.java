@@ -1,7 +1,9 @@
 package com.silzila.payload.request;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -16,7 +18,11 @@ import com.fasterxml.jackson.annotation.JsonValue;
         "fieldName",
         "dataType",
         "timeGrain",
-        "aggr"
+        "aggr",
+        "windowFn",
+        "windowFnOption",
+        "windowFnPartition",
+        "windowFnOrderByRow"
 })
 @Generated("jsonschema2pojo")
 public class Measure implements Serializable {
@@ -31,8 +37,16 @@ public class Measure implements Serializable {
     private Measure.TimeGrain timeGrain = Measure.TimeGrain.fromValue("year");
     @JsonProperty("aggr")
     private Measure.Aggr aggr = Measure.Aggr.fromValue("count");
+    @JsonProperty("windowFn")
+    private Measure.WindowFn windowFn = Measure.WindowFn.fromValue("rank");
+    @JsonProperty("windowFnOption")
+    private List<String> windowFnOption;
+    @JsonProperty("windowFnPartition")
+    private List<Integer> windowFnPartition;
+    @JsonProperty("windowFnOrderByRow")
+    private Boolean windowFnOrderByRow = true;
     private final static long serialVersionUID = 1754801202036436076L;
-
+      
     /**
      * No args constructor for use in serialization
      *
@@ -47,15 +61,24 @@ public class Measure implements Serializable {
      * @param dataType
      * @param tableId
      * @param aggr
+     * @param windowFn
+     * @param windowFnOption
+     * @param windowFnPartition
+     * @param windowFnOrderByRow
      */
-    public Measure(String tableId, String fieldName, Measure.DataType dataType, Measure.TimeGrain timeGrain,
-            Measure.Aggr aggr) {
+    public Measure(String tableId, String fieldName, Measure.DataType dataType, Measure.TimeGrain timeGrain, Measure.Aggr aggr,
+            Measure.WindowFn windowFn, List<String> windowFnOption, List<Integer> windowFnPartition,
+            Boolean windowFnOrderByRow) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
         this.dataType = dataType;
         this.timeGrain = timeGrain;
         this.aggr = aggr;
+        this.windowFn = windowFn;
+        this.windowFnOption = windowFnOption;
+        this.windowFnPartition = windowFnPartition;
+        this.windowFnOrderByRow = windowFnOrderByRow;
     }
 
     @JsonProperty("tableId")
@@ -107,6 +130,46 @@ public class Measure implements Serializable {
     public void setAggr(Measure.Aggr aggr) {
         this.aggr = aggr;
     }
+    
+    @JsonProperty("windowFn")
+    public Measure.WindowFn getWindowFn() {
+        return windowFn;
+    }
+    
+    @JsonProperty("windowFn")
+    public void setWindowFn(Measure.WindowFn windowFn) {
+        this.windowFn = windowFn;
+    }
+    
+    @JsonProperty("windowFnOption")
+    public List<String> getWindowFnOption() {
+        return windowFnOption;
+    }
+     
+    @JsonProperty("windowFnOption")
+    public void setWindowFnOption(List<String> windowFnOption) {
+        this.windowFnOption = windowFnOption;
+    }
+
+    @JsonProperty("windowFnPartition")
+    public List<Integer> getWindowFnPartition() {
+        return windowFnPartition;
+    }
+
+    @JsonProperty("windowFnPartition")
+    public void setWindowFnPartition(List<Integer> windowFnPartition) {
+        this.windowFnPartition = windowFnPartition;
+    }
+
+    @JsonProperty("windowFnOrderByRow")
+    public Boolean isWindowFnOrderByRow() {
+        return windowFnOrderByRow;
+    }
+    
+    @JsonProperty("windowFnOrderByRow")
+    public void setWindowFnOrderByRow(Boolean windowFnOrderByRow) {
+        this.windowFnOrderByRow = windowFnOrderByRow;
+    }
 
     @Override
     public String toString() {
@@ -132,6 +195,22 @@ public class Measure implements Serializable {
         sb.append("aggr");
         sb.append('=');
         sb.append(((this.aggr == null) ? "<null>" : this.aggr));
+        sb.append(',');
+        sb.append("windowFn");
+        sb.append('=');
+        sb.append(((this.windowFn == null) ? "<null>" : this.windowFn));
+        sb.append(',');
+        sb.append("windowFnOption");
+        sb.append('=');
+        sb.append(((this.windowFnOption == null) ? "<null>" : this.windowFnOption));
+        sb.append(',');
+        sb.append("windowFnPartition");
+        sb.append('=');
+        sb.append(((this.windowFnPartition == null) ? "<null>" : this.windowFnPartition));
+        sb.append(',');
+        sb.append("windowFnOrderByRpw");
+        sb.append('=');
+        sb.append(((this.windowFnOrderByRow == null) ? "<null>" : this.windowFnOrderByRow));
         sb.append(',');
         if (sb.charAt((sb.length() - 1)) == ',') {
             sb.setCharAt((sb.length() - 1), ']');
@@ -280,4 +359,47 @@ public class Measure implements Serializable {
 
     }
 
+    @Generated("jsonschema2pojo")
+    public enum WindowFn {
+
+        RANK("rank"),
+        RUNNINGTOTAL("runningTotal"),
+        PERCENTAGETOTAL("percentageTotal"),
+        MOVINGAVERAGE("movingAverage");
+
+        private final String value;
+        private final static Map<String, Measure.WindowFn> CONSTANTS = new HashMap<String, Measure.WindowFn>();
+
+        static {
+            for (Measure.WindowFn c : values()) {
+                CONSTANTS.put(c.value, c);
+            }
+        }
+
+        WindowFn(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+
+        @JsonValue
+        public String value() {
+            return this.value;
+        }
+
+        @JsonCreator
+        public static Measure.WindowFn fromValue(String value) {
+            Measure.WindowFn constant = CONSTANTS.get(value);
+            if (constant == null) {
+                throw new IllegalArgumentException(value);
+            } else {
+                return constant;
+            }
+        }
+
+    }
+       
 }
