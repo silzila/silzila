@@ -242,6 +242,33 @@
 					<includeSystemScope>true</includeSystemScope>
 				</configuration>
 			</plugin>
+
+			<!-- UNCOMMENT for single build with React -->
+			<!-- copy react build into springboot in jar build time -->
+			<!-- <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy react into springboot</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/classes/static</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/resources/static</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+
+						</configuration>
+					</execution>
+				</executions>
+			</plugin> -->
+
 		</plugins>
 	</build>
 
