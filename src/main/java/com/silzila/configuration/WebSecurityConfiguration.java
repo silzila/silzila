@@ -85,7 +85,8 @@ public class WebSecurityConfiguration {
                                         antMatcher("/**/api-docs/**"),
                                         antMatcher("/swagger-ui.html"),
                                         antMatcher("/swagger-ui/**"),
-                                        antMatcher("/auth/**"))
+                                        antMatcher("/auth/**"),
+                                        antMatcher("/**"))
                                 .permitAll() // https://marco.dev/spring-boot-h2-error
                                 .anyRequest().authenticated())
                 .exceptionHandling(
