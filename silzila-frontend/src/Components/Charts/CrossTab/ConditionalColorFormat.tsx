@@ -64,6 +64,7 @@ const getConditionalFormat = (crossTabData: any, colIndex: number, rowIndex: num
                 switch (field.dataType) {
 
                     case 'text':
+                    case 'date':
                         return _colNameConditions.value.find((item: any) => item.colValue === colData)
                     default:
                         if (!isNaN(colData) && !isNaN(colData.toString().substring(colData.length - 1))) {
