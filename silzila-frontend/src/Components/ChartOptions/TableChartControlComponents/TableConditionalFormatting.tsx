@@ -83,7 +83,7 @@ const TableConditionalFormatting = ({
 			chartProperties.properties[propKey].chartAxes[1].fields.forEach(async (el: any) => {
 				//if (el.dataType === "date") {
 				//console.log();
-				if (el.fieldname === columnName) {
+				if (columnName.includes(el.fieldname)) {
 					//formattedColumnName = `${el.timeGrain} of ${el.fieldname}`;
 					field = el;
 				}
@@ -93,7 +93,7 @@ const TableConditionalFormatting = ({
 			let formattedColumnName = field.dataType === "date" ? field.timeGrain : columnName;
 			fieldValues = await fetchFieldData(field);
 
-			let colors = interpolateColor("#2BB9BB", "#D87A80", chartControls.properties[propKey]?.chartData?.length);
+			let colors = interpolateColor("#2BB9BB", "#D87A80", fieldValues?.data?.length);
 
 			const values = fieldValues?.data?.map((item: any, idx: number) => {
 				//console.log(item, columnName);
@@ -122,6 +122,9 @@ const TableConditionalFormatting = ({
 		// 	dataType: dataType,
 		// 	filterOption: "allValues",
 		// };
+		if (bodyData.dataType === "timestamp" || bodyData.dataType === "date") {
+			bodyData["timeGrain"] = bodyData.timeGrain || "year";
+		}
 
 		bodyData.filterOption = "allValues";
 		bodyData.fieldName = bodyData.fieldname
@@ -211,7 +214,7 @@ const TableConditionalFormatting = ({
 	};
 
 	// when select any column from dimension
-	const onSelectColumn = (column: any) => {
+	const onSelectColumn = async(column: any) => {
 		var canAdd = false;
 		/* checking length of array to check whether this item is already exist or not, if the lenth 
 		is zero then this is the first item else check the array with columnname */
@@ -229,11 +232,13 @@ const TableConditionalFormatting = ({
 		/* if the is is not already exist or this is the first item */
 		if (canAdd) {
 			if (column.isLabel) {
+				let _colValues = column.isLabel ? await getLabelValues(column.columnName) : "";
+
 				addTableConditionalFormats(propKey, {
 					isLabel: column.isLabel,
 					name: column.columnName,
 					// getLabelValues - function to get all values of selected column
-					value: column.isLabel ? getLabelValues(column.columnName) : "",
+					value: _colValues,
 					isCollapsed: false,
 					backgroundColor: "white",
 					fontColor: "black",
@@ -251,6 +256,22 @@ const TableConditionalFormatting = ({
 
 	// getting the list of columns with isLabel key (it is true if it is a dimension column else it will be false) whenever the chartData changes
 	useEffect(() => {
+
+		const fieldName = (value:any)=>{
+			if(value.agg || value.timeGrain){
+				if(value.dataType == "date"){
+					return `${value.timeGrain} of ${value.fieldname}`;
+				}
+				else{
+					return `${value.agg} of ${value.fieldname}`;
+				}
+			}
+			else{
+				return value.fieldname;
+			}
+			
+		}
+
 		if (chartControls.properties[propKey].chartData.length > 0) {
 			const zones = chartProperties.properties[propKey].chartAxes;
 
@@ -258,10 +279,7 @@ const TableConditionalFormatting = ({
 				accumulator = accumulator.concat(
 					zone.fields.map((value: any) => ({
 						isLabel: zone.name === "Row",
-						columnName:
-							zone.name === "Row"
-								? value.fieldname
-								: `${value.agg} of ${value.fieldname}`,
+						columnName: fieldName(value),
 					}))
 				);
 
