@@ -111,13 +111,13 @@ const getGradientBasedStyle = (_colNameConditions: any, crossTabData: any, rowIn
 const checkColumnValueForGradient = (startStyle: any, midStyle: any, endStyle: any, crossTabData: any, colData: any)=>{
     let _colValue:Number = 0;
 
-    if(isNaN(colData.toString().substring(0, 1))){
+    if(isNaN(colData?.toString().substring(0, 1))){
         return {};
     }
-    else if (!isNaN(colData) && !isNaN(colData.toString().substring(colData.length - 1))) {
+    else if (!isNaN(colData) && !isNaN(colData?.toString().substring(colData.length - 1))) {
         _colValue = Number(colData);
     }
-    else if (['K', 'M', 'B', 'T'].includes(colData.toString().substring(colData.length - 1))) {
+    else if (['K', 'M', 'B', 'T'].includes(colData?.toString().substring(colData.length - 1))) {
         _colValue = Number(getActualNumber(colData));
     }
 

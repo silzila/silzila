@@ -27,6 +27,14 @@ import { setDashTileSwitched } from "../../redux/TabTile/TabTileActionsAndMultip
 import { updateChartDataForDm } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import Logger from "../../Logger";
 
+import {	
+	deleteTablecf,
+	updatecfObjectOptions,
+} from "../../redux/ChartPoperties/ChartControlsActions";
+
+import {interpolateColor, generateRandomColorArray, fieldName, getLabelValues} from '../CommonFunctions/CommonFunctions';
+
+
 // format the chartAxes into the way it is needed for api call
 export const getChartData = async (
 	axesValues: AxesValuProps[],
@@ -382,6 +390,7 @@ const ChartData = ({
 	tabTileProps,
 	tileState,
 	tabState,
+	chartControls,
 
 	chartProperties,
 	chartGroup,
@@ -396,6 +405,8 @@ const ChartData = ({
 	dashBoardFilterGroupsEdited,
 	setDashTileSwitched,
 	updateChartDataForDm,
+	updatecfObjectOptions,
+	deleteTablecf,
 }: ChartAxesProps & TileRibbonStateProps) => {
 	const [loading, setLoading] = useState<boolean>(false);
 
@@ -425,8 +436,82 @@ const ChartData = ({
 	// 	  ]
 	// 	: chartProperties;
 
+	const getMinAndMaxValue = (column: string) => {
+		const valuesArray = chartControls.properties[_propKey].chartData.map((el: any) => {
+			return el[column];
+		});		
+		const minValue = Number(Math.min(...valuesArray)).toFixed(2);
+		const maxValue =  Number(Math.max(...valuesArray)).toFixed(2);	
+
+		return { min: minValue, max: maxValue };
+	};
+
+	const updateConditionalFormattingMinMax = ()=>{
+		if(["crossTab", "table"].includes(chartProperties.properties[_propKey].chartType)){
+			let conditionalFormat = JSON.parse(JSON.stringify(chartControls.properties[_propKey]?.tableConditionalFormats));
+
+			if(conditionalFormat && conditionalFormat.length >0){
+				[...conditionalFormat].forEach(async (format:any, index:number) => {
+					let names = format.name.split(' of ');
+					let name = names.length > 1 ? names[1] : names[0];
+					let agg = names.length > 1 ? names[0] : "";
+
+					let axesAllFields = []; let measureFields = [];
+
+
+					if(chartProperties.properties[_propKey].chartType == "table"){
+						axesAllFields = [...chartProp.chartAxes[1].fields, ...chartProp.chartAxes[2].fields];
+						measureFields = chartProp.chartAxes[2].fields;
+					}
+					else{
+						axesAllFields = [...chartProp.chartAxes[1].fields, ...chartProp.chartAxes[2].fields, ...chartProp.chartAxes[3].fields];
+						measureFields = chartProp.chartAxes[3].fields;
+					}
+
+					let findField = axesAllFields.find((item:any)=>{
+						return item.fieldname == name;
+					})
+
+					if(!findField){
+						deleteTablecf(_propKey, index)
+					}
+					else{
+						//if(agg && agg !== findField.agg && agg !== findField.timeGrain){
+
+							let findMeasureField = measureFields.find((item:any)=>{
+								return item.fieldname == name;
+							})
+
+							if(!findMeasureField){								
+								 let _colValues = format.isLabel ? await getLabelValues(name,chartControls,chartProperties,_propKey, token) : "";								
+
+								format.value = _colValues;
+								format.name = fieldName(findField);								
+
+								updatecfObjectOptions(_propKey, index, format);								
+							}
+							else{								
+								if(format.isGradient){
+								 let minMaxValue = getMinAndMaxValue(fieldName(findField));
+
+								 format.value.find((val:any)=>val.name == 'Min').value = minMaxValue.min;
+								 format.value.find((val:any)=>val.name == 'Max').value = minMaxValue.max;
+								 format.name = fieldName(findField);
+								 updatecfObjectOptions(_propKey, index, format);
+								}								
+							}
+						//}
+					}					
+				});	
+			}
+		}
+	}
+
+
+
+
 	useEffect(() => {
-		const makeServiceCall = () => {
+		const makeServiceCall = async () => {
 			const axesValues = JSON.parse(JSON.stringify(chartProp.chartAxes));
 
 			/*	To sort chart data	based on field name	*/
@@ -593,29 +678,31 @@ const ChartData = ({
 				}
 			}
 
+			let serverData = [];
+
 			if (serverCall) {
 				setLoading(true);
-				getChartData(
-					axesValues,
-					chartProp,
-					chartGroup,
-					dashBoardGroup,
-					_propKey,
-					screenFrom,
-					token,
-					chartProperties.properties[_propKey].chartType
-				).then(data => {
-				
-					Logger("info", "", data)
 
-					if (chartProperties.properties[_propKey].chartType === "richText") {
-						updateChartDataForDm(sortChartData(data));
-					} else {
-						updateChartData(_propKey, sortChartData(data));
-					}
-					setLoading(false);
-				});
-			}
+				serverData =	await getChartData(
+						axesValues,
+						chartProp,
+						chartGroup,
+						dashBoardGroup,
+						_propKey,
+						screenFrom,
+						token,
+						chartProperties.properties[_propKey].chartType
+					)
+					
+				Logger("info", "", serverData);
+
+				if (chartProperties.properties[_propKey].chartType === "richText") {
+					updateChartDataForDm(sortChartData(serverData));
+				} else {
+					updateChartData(_propKey, sortChartData(serverData));
+				}
+				setLoading(false);				
+			}		
 		};
 
 		const compareArrays = (a: any, b: any) =>
@@ -712,6 +799,10 @@ const ChartData = ({
 		tabTileProps.isDashboardTileSwitched,
 	]);
 
+	useEffect(()=>{
+		updateConditionalFormattingMinMax();
+	},[chartControls.properties[_propKey].chartData])
+
 	const resetStore = () => {
 		toggleAxesEdit(_propKey);
 		reUseOldData(_propKey);
@@ -738,6 +829,7 @@ const mapStateToProps = (
 		tabTileProps: state.tabTileProps,
 		tileState: state.tileState,
 		tabState: state.tabState,
+		chartControls: state.chartControls,
 
 		// userFilterGroup: state.userFilterGroup,
 		chartProperties: state.chartProperties,
@@ -759,6 +851,9 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(dashBoardFilterGroupsEdited(isEdited)),
 		setDashTileSwitched: (isSwitched: boolean) => dispatch(setDashTileSwitched(isSwitched)),
 		updateChartDataForDm: (chartData: any) => dispatch(updateChartDataForDm(chartData)),
+		updatecfObjectOptions: (propKey: string, removeIndex: number, item: any) =>
+			dispatch(updatecfObjectOptions(propKey, removeIndex, item)),
+		deleteTablecf: (propKey: string, index: number) => dispatch(deleteTablecf(propKey, index)),
 	};
 };
 

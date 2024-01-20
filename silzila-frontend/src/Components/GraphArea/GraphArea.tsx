@@ -651,6 +651,7 @@ const GraphArea = ({
 			propKey,
 			"Chartaxes",
 			token,
+			chartProperties.properties[propKey].chartType,
 			true
 		).then(async data => {
 			var url: string = "";

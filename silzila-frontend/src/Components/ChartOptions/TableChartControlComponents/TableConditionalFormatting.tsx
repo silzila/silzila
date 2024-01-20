@@ -14,8 +14,8 @@ import LabelComponent from "./LabelComponent";
 import GradientComponent from "./GradientComponent";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import RuleComponent from "./RuleComponent";
-import {interpolateColor} from '../../CommonFunctions/CommonFunctions';
-import FetchData from "../../ServerCall/FetchData";
+import { getContrastColor, getLabelValues, fieldName} from '../../CommonFunctions/CommonFunctions';
+
 
 export const addConditionButtonStyle = {
 	backgroundColor: "rgb(43, 185, 187)",
@@ -39,8 +39,8 @@ interface Props {
 	chartControls: any;
 	tabTileProps: any;
 	chartProperties: any;
-	chartProp:any;
 	token:any;
+	chartGroup:any;
 
 	addTableConditionalFormats: (propKey: string, item: any) => void;
 	updatecfObjectOptions: (propKey: string, removeIndex: number, item: any) => void;
@@ -52,8 +52,8 @@ const TableConditionalFormatting = ({
 	chartControls,
 	tabTileProps,
 	chartProperties,
-	chartProp,
 	token,
+	chartGroup,
 
 	//dispatch
 	addTableConditionalFormats,
@@ -68,84 +68,29 @@ const TableConditionalFormatting = ({
 	const [menu, setMenu] = useState<any>([]);
 	const [openMenu, setOpenMenu] = useState<boolean>(false);
 	const [openSubMenu, setOpenSubMenu] = useState<boolean>(false);
-
+	////const [isUpdate, setIsUpdate] = useState<boolean>(false);
 	const [gradientMinAndMax, setGradientMinAndMax] = useState<any>({
 		min: 0,
 		max: 0,
 	});
 
-	const getLabelValues = async (columnName: string) => {
-		try {
-			let fieldValues: any = [];
-			let field: any = {}
 
-			// checking the column type To generate the name as it is in the chartData
-			chartProperties.properties[propKey].chartAxes[1].fields.forEach(async (el: any) => {
-				//if (el.dataType === "date") {
-				//console.log();
-				if (columnName.includes(el.fieldname)) {
-					//formattedColumnName = `${el.timeGrain} of ${el.fieldname}`;
-					field = el;
-				}
-				//}
-			});
-
-			let formattedColumnName = field.dataType === "date" ? field.timeGrain : columnName;
-			fieldValues = await fetchFieldData(field);
-
-			let colors = interpolateColor("#2BB9BB", "#D87A80", fieldValues?.data?.length);
-
-			const values = fieldValues?.data?.map((item: any, idx: number) => {
-				//console.log(item, columnName);
-				return {
-					colValue: item[formattedColumnName],
-					backgroundColor: colors[idx],
-					isBold: false,
-					isItalic: false,
-					isUnderlined: false,
-					fontColor: "black",
-				};
-			});
-
-			return values;
+	const _getLabelValues = async (columnName: string) => {
+		try {		
+			return getLabelValues(columnName,chartControls,chartProperties,propKey, token);
 		}
 		catch (err) {
 			console.error(err)
 		}
 	};
 
-	const fetchFieldData = (bodyData: any) => {
-
-		//  bodyData: any = {
-		// 	tableId: tableId,
-		// 	fieldName: displayname,
-		// 	dataType: dataType,
-		// 	filterOption: "allValues",
-		// };
-		if (bodyData.dataType === "timestamp" || bodyData.dataType === "date") {
-			bodyData["timeGrain"] = bodyData.timeGrain || "year";
-		}
-
-		bodyData.filterOption = "allValues";
-		bodyData.fieldName = bodyData.fieldname
-
-		
-
-		return FetchData({
-			requestType: "withData",
-			method: "POST",
-			url: `filter-options?dbconnectionid=${chartProp.properties[propKey].selectedDs.connectionId}&datasetid=${chartProp.properties[propKey].selectedDs.id}`,
-			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-			data: bodyData,
-		});
-	};
-
 	const getMinAndMaxValue = (column: string) => {
 		const valuesArray = chartControls.properties[propKey].chartData.map((el: any) => {
 			return el[column];
-		});
-		const minValue = Math.min(...valuesArray);
-		const maxValue = Math.max(...valuesArray);
+		});		
+		const minValue = Number(Math.min(...valuesArray)).toFixed(2);
+		const maxValue =  Number(Math.max(...valuesArray)).toFixed(2);	
+
 		setGradientMinAndMax({ min: minValue, max: maxValue });
 		return { min: minValue, max: maxValue };
 	};
@@ -181,7 +126,7 @@ const TableConditionalFormatting = ({
 						isItalic: false,
 						isUnderlined: false,
 						backgroundColor: "#AF99DB",
-						fontColor: "black",
+						fontColor: getContrastColor("#AF99DB"),
 					},
 					{
 						id: uId(),
@@ -193,7 +138,7 @@ const TableConditionalFormatting = ({
 						isItalic: false,
 						isUnderlined: false,
 						backgroundColor: "#2BB9BB",
-						fontColor: "black",
+						fontColor: getContrastColor("#2BB9BB"),
 					},
 
 					{
@@ -206,7 +151,7 @@ const TableConditionalFormatting = ({
 						isItalic: false,
 						isUnderlined: false,
 						backgroundColor: "#D87A80",
-						fontColor: "black",
+						fontColor: getContrastColor("#D87A80"),
 					},
 				],
 			});
@@ -232,7 +177,7 @@ const TableConditionalFormatting = ({
 		/* if the is is not already exist or this is the first item */
 		if (canAdd) {
 			if (column.isLabel) {
-				let _colValues = column.isLabel ? await getLabelValues(column.columnName) : "";
+				let _colValues = column.isLabel ? await _getLabelValues(column.columnName) : "";
 
 				addTableConditionalFormats(propKey, {
 					isLabel: column.isLabel,
@@ -254,23 +199,13 @@ const TableConditionalFormatting = ({
 		}
 	};
 
-	// getting the list of columns with isLabel key (it is true if it is a dimension column else it will be false) whenever the chartData changes
-	useEffect(() => {
+	// useEffect(()=>{
+	// 	setIsUpdate(!isUpdate);
+	// },
+	// [chartControls.properties[propKey].tableConditionalFormats]);
 
-		const fieldName = (value:any)=>{
-			if(value.agg || value.timeGrain){
-				if(value.dataType == "date"){
-					return `${value.timeGrain} of ${value.fieldname}`;
-				}
-				else{
-					return `${value.agg} of ${value.fieldname}`;
-				}
-			}
-			else{
-				return value.fieldname;
-			}
-			
-		}
+	// getting the list of columns with isLabel key (it is true if it is a dimension column else it will be false) whenever the chartData changes
+	useEffect(() => {		
 
 		if (chartControls.properties[propKey].chartData.length > 0) {
 			const zones = chartProperties.properties[propKey].chartAxes;
@@ -289,6 +224,7 @@ const TableConditionalFormatting = ({
 			setMenu(output);
 		}
 	}, [chartControls.properties[propKey].chartData]);
+
 
 	return (
 		<div className="optionsInfo">
@@ -468,9 +404,9 @@ const mapStateToProps = (state: any) => {
 	return {
 		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
-		chartProperties: state.chartProperties,
-		chartProp: state.chartProperties,
-		token: state.isLogged.accessToken
+		chartProperties: state.chartProperties,		
+		token: state.isLogged.accessToken,
+		chartGroup: state.chartFilterGroup,
 	};
 };
 
