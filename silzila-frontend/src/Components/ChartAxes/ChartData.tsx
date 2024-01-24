@@ -476,31 +476,32 @@ const ChartData = ({
 						deleteTablecf(_propKey, index)
 					}
 					else{
-						//if(agg && agg !== findField.agg && agg !== findField.timeGrain){
+						let findMeasureField = measureFields.find((item:any)=>{
+							return item.fieldname == name;
+						})
 
-							let findMeasureField = measureFields.find((item:any)=>{
-								return item.fieldname == name;
-							})
+						if(!findMeasureField){								
+								let _colValues = format.isLabel ? await getLabelValues(name,chartControls,chartProperties,_propKey, token) : "";								
 
-							if(!findMeasureField){								
-								 let _colValues = format.isLabel ? await getLabelValues(name,chartControls,chartProperties,_propKey, token) : "";								
+							format.value = _colValues;
+							format.name = fieldName(findField);								
 
-								format.value = _colValues;
-								format.name = fieldName(findField);								
+							updatecfObjectOptions(_propKey, index, format);								
+						}
+						else{								
+							if(format.isGradient && !format.isUserChanged){
+								let minMaxValue = getMinAndMaxValue(fieldName(findField));
 
-								updatecfObjectOptions(_propKey, index, format);								
-							}
-							else{								
-								if(format.isGradient){
-								 let minMaxValue = getMinAndMaxValue(fieldName(findField));
+								let minObject = format.value.find((val:any)=>val.name == 'Min'),
+								maxObject = format.value.find((val:any)=>val.name == 'Max');
 
-								 format.value.find((val:any)=>val.name == 'Min').value = minMaxValue.min;
-								 format.value.find((val:any)=>val.name == 'Max').value = minMaxValue.max;
-								 format.name = fieldName(findField);
-								 updatecfObjectOptions(_propKey, index, format);
-								}								
-							}
-						//}
+								if(!minObject.isUserChanged) minObject.value = minMaxValue.min;
+								if(!maxObject.isUserChanged) maxObject.value = minMaxValue.max;
+
+								format.name = fieldName(findField);
+								updatecfObjectOptions(_propKey, index, format);
+							}								
+						}
 					}					
 				});	
 			}

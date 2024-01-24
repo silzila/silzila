@@ -213,7 +213,7 @@ const TableConditionalFormatting = ({
 			const output = zones.reduce((accumulator: any, zone: any) => {
 				accumulator = accumulator.concat(
 					zone.fields.map((value: any) => ({
-						isLabel: zone.name === "Row",
+						isLabel: zone.name !== "Measure",
 						columnName: fieldName(value),
 					}))
 				);

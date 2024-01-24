@@ -82,10 +82,29 @@ const GradientComponent = ({
 		const temp = format.value.map((el: any, i: number) => {
 			if (i === index) {
 				el.value = e.target.value;
+
+				if(e.target.value){
+					el.isUserChanged = true;
+				}
+				else{
+					el.isUserChanged = false;
+				}
 			}
 			return el;
-		});
+		});		
+		
+
 		onUpdateRule(temp, format.name);
+	};
+
+	const getMinAndMaxValue = (column: string) => {
+		const valuesArray = chartControls.properties[propKey].chartData.map((el: any) => {
+			return el[column];
+		});		
+		const minValue = Number(Math.min(...valuesArray)).toFixed(2);
+		const maxValue =  Number(Math.max(...valuesArray)).toFixed(2);	
+
+		return { min: minValue, max: maxValue };
 	};
 
 	const onUpdateRule = (updatedArray: any, columnName: string) => {
@@ -154,6 +173,8 @@ const GradientComponent = ({
 											onChangeMinMaxValues(e, index);
 										}}
 										sx={inputBaseStyle}
+										placeholder={el.isUserChanged ? "" : el.name == "Min" ? "Enter Min Value ("+ getMinAndMaxValue(format.name)?.min + ")"
+																									: "Enter Max Value (" + getMinAndMaxValue(format.name)?.max + ")" }
 									/>
 								</>
 							)}
