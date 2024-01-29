@@ -121,7 +121,16 @@ export const generateRandomColorArray = (length:number) => {
 				//console.log();
 				if (columnName.includes(el.fieldname)) {
 					//formattedColumnName = `${el.timeGrain} of ${el.fieldname}`;
-					field = el;
+					if(el.dataType === "date"){
+						if(columnName.split(' of ')[0] === el.timeGrain){
+							field = el;
+							return;
+						}
+					}
+					else{
+						field = el;
+						return;
+					}
 				}
 				//}
 			});

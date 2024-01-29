@@ -469,7 +469,16 @@ const ChartData = ({
 					}
 
 					let findField = axesAllFields.find((item:any)=>{
-						return item.fieldname == name;
+						if (format.name.includes(item.fieldname)) {
+							if(item.dataType === "date"){
+								if(format.name.split(' of ')[0] === item.timeGrain){
+									return true;									
+								}
+							}
+							else{
+								return true;								
+							}
+						}		
 					})
 
 					if(!findField){
@@ -481,7 +490,7 @@ const ChartData = ({
 						})
 
 						if(!findMeasureField){								
-								let _colValues = format.isLabel ? await getLabelValues(name,chartControls,chartProperties,_propKey, token) : "";								
+								let _colValues = format.isLabel ? await getLabelValues(format.name,chartControls,chartProperties,_propKey, token) : "";								
 
 							format.value = _colValues;
 							format.name = fieldName(findField);								
@@ -490,13 +499,15 @@ const ChartData = ({
 						}
 						else{								
 							if(format.isGradient && !format.isUserChanged){
-								let minMaxValue = getMinAndMaxValue(fieldName(findField));
+								let minMaxValue:any = getMinAndMaxValue(fieldName(findField));
 
 								let minObject = format.value.find((val:any)=>val.name == 'Min'),
-								maxObject = format.value.find((val:any)=>val.name == 'Max');
+								maxObject = format.value.find((val:any)=>val.name == 'Max'),
+								midObject = format.value.find((val:any)=>val.name?.trim() == 'Mid Value');
 
 								if(!minObject.isUserChanged) minObject.value = minMaxValue.min;
 								if(!maxObject.isUserChanged) maxObject.value = minMaxValue.max;
+								if(midObject && !midObject.isUserChanged) midObject.value = (parseFloat(minMaxValue.min) + parseFloat(minMaxValue.max)) / 2;
 
 								format.name = fieldName(findField);
 								updatecfObjectOptions(_propKey, index, format);
