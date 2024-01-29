@@ -62,7 +62,8 @@
 
 .ColumnTitle {
     display: flex;
-    height: 25px;
+    min-height: 25px;
+    height: auto;
 }
 
 .expandLessMoreContainer {

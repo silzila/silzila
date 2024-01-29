@@ -19,6 +19,8 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import { SelectComponentStyle, menuItemStyle } from "../Labels/SnakeyLabelOptions";
 import "./tablechartCF.css";
+import { getContrastColor} from '../../CommonFunctions/CommonFunctions';
+
 
 const RuleComponent = ({
 	chartControls,
@@ -52,8 +54,8 @@ const RuleComponent = ({
 			target: null,
 			minValue: null,
 			maxValue: null,
-			backgroundColor: "white",
-			fontColor: "black",
+			backgroundColor: "#AF99DB",
+			fontColor: getContrastColor("#AF99DB"),
 			isBold: false,
 			isItalic: false,
 			isUnderlined: false,

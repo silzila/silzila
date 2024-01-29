@@ -103,7 +103,7 @@ const TableConditionalFormatting = ({
 				isLabel: false,
 				isGradient: false,
 				name: selectedColumnName,
-				isCollapsed: false,
+				isCollapsed: false,				
 				value: [],
 			});
 		}
