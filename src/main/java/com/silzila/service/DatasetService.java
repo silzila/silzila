@@ -1,16 +1,23 @@
 package com.silzila.service;
 
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.silzila.dto.DatasetDTO;
 import com.silzila.dto.DatasetNoSchemaDTO;
@@ -20,10 +27,14 @@ import com.silzila.domain.entity.Dataset;
 import com.silzila.payload.request.ColumnFilter;
 import com.silzila.payload.request.DataSchema;
 import com.silzila.payload.request.DatasetRequest;
+import com.silzila.payload.request.Filter;
 import com.silzila.payload.request.Query;
+import com.silzila.payload.request.RelativeFilterRequest;
 import com.silzila.payload.request.Table;
 import com.silzila.querybuilder.QueryComposer;
 import com.silzila.querybuilder.filteroptions.FilterOptionsQueryComposer;
+import com.silzila.querybuilder.relativefilter.RelativeFilterDateMySQL;
+import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.repository.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -53,6 +64,9 @@ public class DatasetService {
 
     @Autowired
     FilterOptionsQueryComposer filterOptionsQueryComposer;
+
+    @Autowired
+    RelativeFilterQueryComposer relativeFilterQueryComposer;
 
     @Autowired
     FileDataService fileDataService;
@@ -266,7 +280,7 @@ public class DatasetService {
     public String runQuery(String userId, String dBConnectionId, String datasetId, Boolean isSqlOnly,
             Query req)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
-            BadRequestException, ClassNotFoundException {
+            BadRequestException, ClassNotFoundException, ParseException {
         // need at least one dim or measure or field for query execution
         if (req.getDimensions().isEmpty() && req.getMeasures().isEmpty() && req.getFields().isEmpty()) {
 
@@ -295,7 +309,50 @@ public class DatasetService {
         /* DB based Dataset */
         if (ds.getIsFlatFileData() == false) {
 
+            // relative Date
+            if (req.getFilterPanels().get(0).getRelativeCondition() != null) {
+
+                RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
+
+                List<String> relativeDate = new ArrayList<>();
+
+                relativeFilter
+                        .setAnchorDate(req.getFilterPanels().get(0).getRelativeCondition().get(0).getAnchorDate());
+                relativeFilter
+                        .setFrom(req.getFilterPanels().get(0).getRelativeCondition().get(0).getFrom());
+                relativeFilter
+                        .setTo(req.getFilterPanels().get(0).getRelativeCondition().get(0).getTo());
+                relativeFilter
+                        .setFilterTable(req.getFilterPanels().get(0).getFilters());
+
+                JSONArray anchorDate = relativeFilter(userId, dBConnectionId, datasetId, relativeFilter);
+
+                String fromDate = String.valueOf(anchorDate.getJSONObject(0).get("fromDate"));
+                String toDate = String.valueOf(anchorDate.getJSONObject(0).get("toDate"));
+
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+                Date parsedfromDate = dateFormat.parse(fromDate);
+                Date parsedtoDate = dateFormat.parse(toDate);
+
+                if (parsedfromDate.compareTo(parsedtoDate) > 0) {
+
+                    String tempDate = dateFormat.format(parsedfromDate);
+                    fromDate = dateFormat.format(parsedtoDate);
+                    toDate = tempDate;
+                }
+
+                relativeDate.add(fromDate);
+                relativeDate.add(toDate);
+
+                req.getFilterPanels().get(0).getFilters().get(0).setUserSelection(relativeDate);
+
+                System.out.println(relativeDate);
+
+            }
+
             String query = queryComposer.composeQuery(req, ds, vendorName);
+            
             logger.info("\n******* QUERY **********\n" + query);
             // when the request is just Raw SQL query Text
             if (isSqlOnly != null && isSqlOnly) {
@@ -413,6 +470,32 @@ public class DatasetService {
             JSONArray jsonArray = duckDbService.runQuery(query);
             return jsonArray.toString();
         }
+
+    }
+
+    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,
+            @Valid RelativeFilterRequest relativeFilter)
+            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException,
+            SQLException {
+
+        String vendorName = "";
+        DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
+        if (dBConnectionId == null || dBConnectionId.isEmpty()) {
+            throw new BadRequestException("Error: DB Connection Id can't be empty!");
+        }
+
+        vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
+
+        // for get a date
+        String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery(vendorName, ds, relativeFilter);
+
+        JSONArray anchorDateArray = connectionPoolService.runQuery(dBConnectionId, userId, anchorDateQuery);
+
+        String query = relativeFilterQueryComposer.composeQuery(vendorName, ds, relativeFilter, anchorDateArray);
+
+        JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
+
+        return jsonArray;
 
     }
 

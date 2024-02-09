@@ -1,6 +1,7 @@
 package com.silzila.controller;
 
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import com.silzila.exception.RecordNotFoundException;
 import com.silzila.payload.request.ColumnFilter;
 import com.silzila.payload.request.DatasetRequest;
 import com.silzila.payload.request.Query;
+import com.silzila.payload.request.RelativeFilterRequest;
 import com.silzila.payload.response.MessageResponse;
 import com.silzila.service.ConnectionPoolService;
 import com.silzila.service.DatasetService;
@@ -111,9 +113,8 @@ public class DatasetController {
             @RequestParam(name = "datasetid") String datasetId,
             @RequestParam(name = "sql", required = false) Boolean isSqlOnly)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
-            BadRequestException, ClassNotFoundException {
+            BadRequestException, ClassNotFoundException, ParseException {
         String userId = reqHeader.get("username");
-
         String queryResultOrQueryText = datasetService.runQuery(userId, dBConnectionId, datasetId, isSqlOnly, query);
         return ResponseEntity.status(HttpStatus.OK).body(queryResultOrQueryText);
     }
@@ -130,5 +131,16 @@ public class DatasetController {
         return ResponseEntity.status(HttpStatus.OK).body(jsonArrayOrJsonNodeList.toString());
 
     }
+
+    @PostMapping("/relative-filter")
+    public ResponseEntity<?> relativeFilter(@RequestHeader Map<String, String> reqHeader,
+            @Valid @RequestBody RelativeFilterRequest relativeFilter,
+            @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
+            @RequestParam(name = "datasetid") String datasetId) throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException, SQLException {
+                
+        String userId = reqHeader.get("username");
+        Object jsonArray = datasetService.relativeFilter(userId, dBConnectionId, datasetId, relativeFilter);
+        return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+            }
 
 }

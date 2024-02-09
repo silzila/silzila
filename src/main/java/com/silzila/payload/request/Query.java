@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "dimensions",
         "measures",
         "fields",
-        "filterPanels"
+        "filterPanels",
 })
 @Generated("jsonschema2pojo")
 public class Query implements Serializable {

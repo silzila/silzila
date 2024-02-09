@@ -11,7 +11,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
         "panelName",
         "shouldAllConditionsMatch",
-        "filters"
+        "filters",
+        "relativeCondition"
 })
 @Generated("jsonschema2pojo")
 public class FilterPanel implements Serializable {
@@ -22,6 +23,8 @@ public class FilterPanel implements Serializable {
     private Boolean shouldAllConditionsMatch = true;
     @JsonProperty("filters")
     private List<Filter> filters = null;
+    @JsonProperty("relativeCondition")
+    private List<RelativeCondition> relativeCondition = null; // Remove "= null"
     private final static long serialVersionUID = -2994418440697742665L;
 
     /**
@@ -36,12 +39,15 @@ public class FilterPanel implements Serializable {
      * @param shouldAllConditionsMatch
      * @param filters
      * @param panelName
+     * @param relativeCondition
      */
-    public FilterPanel(String panelName, Boolean shouldAllConditionsMatch, List<Filter> filters) {
+    public FilterPanel(String panelName, Boolean shouldAllConditionsMatch, List<Filter> filters, 
+            List<RelativeCondition> relativeCondition) {
         super();
         this.panelName = panelName;
         this.shouldAllConditionsMatch = shouldAllConditionsMatch;
         this.filters = filters;
+        this.relativeCondition = relativeCondition;
     }
 
     @JsonProperty("panelName")
@@ -74,6 +80,16 @@ public class FilterPanel implements Serializable {
         this.filters = filters;
     }
 
+    @JsonProperty("relativeCondition")
+    public List<RelativeCondition> getRelativeCondition() {
+        return relativeCondition;
+    }
+
+    @JsonProperty("relativeCondition")
+    public void setRelativeCondition(List<RelativeCondition> relativeCondition) {
+        this.relativeCondition = relativeCondition;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -90,6 +106,9 @@ public class FilterPanel implements Serializable {
         sb.append("filters");
         sb.append('=');
         sb.append(((this.filters == null) ? "<null>" : this.filters));
+        sb.append("relativeCondition");
+        sb.append('=');
+        sb.append(((this.relativeCondition == null) ? "<null>" : this.relativeCondition));
         sb.append(',');
         if (sb.charAt((sb.length() - 1)) == ',') {
             sb.setCharAt((sb.length() - 1), ']');

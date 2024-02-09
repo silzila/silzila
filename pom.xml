@@ -209,13 +209,13 @@
         </dependency>
 
 		<!-- Manual addition of BigQuery Driver -->
-        <dependency>
+        <!-- <dependency>
             <groupId>com.google.bigquery</groupId>
             <artifactId>bigquery-jdbc</artifactId>
             <version>42</version>
 			<scope>system</scope>
     		<systemPath>${basedir}/src/lib/GoogleBigQueryJDBC42.jar</systemPath>
-        </dependency> 
+        </dependency>  -->
 
 		<!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-bigquery -->
 		<dependency>
