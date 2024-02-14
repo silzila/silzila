@@ -23,10 +23,8 @@ import com.silzila.querybuilder.filteroptions.FilterQuerySqlserver;
 
 @Service
 public class RelativeFilterQueryComposer {
-    
 
     private static final Logger logger = LogManager.getLogger(RelativeFilterQueryComposer.class);
-
 
     public String composeQuery(String vendorName, DatasetDTO ds, RelativeFilterRequest relativeFilter,
             JSONArray anchorDateArray) throws BadRequestException, RecordNotFoundException, SQLException {
@@ -35,13 +33,13 @@ public class RelativeFilterQueryComposer {
 
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             logger.info("------ inside postges/redshift block");
-
+            finalQuery = RelativeFilterDatePostgres.getRelativeDate(relativeFilter, anchorDateArray);
         } else if (vendorName.equals("mysql")) {
             logger.info("------ inside mysql block");
             finalQuery = RelativeFilterDateMySQL.getRelativeDate(relativeFilter, anchorDateArray);
         } else if (vendorName.equals("sqlserver")) {
             logger.info("------ inside sql server block");
-
+            finalQuery = RelativeFilterDateSqlserver.getRelativeDate(relativeFilter, anchorDateArray);
         } else if (vendorName.equals("databricks")) {
             logger.info("------ inside databricks block");
 
@@ -59,9 +57,9 @@ public class RelativeFilterQueryComposer {
 
         return finalQuery;
     }
-    
+
     public String anchorDateComposeQuery(String vendorName, DatasetDTO ds, RelativeFilterRequest relativeFilter)
-     throws BadRequestException, RecordNotFoundException, SQLException {
+            throws BadRequestException, RecordNotFoundException, SQLException {
         logger.info("----------- RelativeFilteranchorDateQueryComposer calling......");
         String finalQuery = "";
 
@@ -81,13 +79,13 @@ public class RelativeFilterQueryComposer {
 
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             logger.info("------ inside postges/redshift block");
-
+            finalQuery = RelativeFilterDatePostgres.getRelativeAnchorDate(table, relativeFilter);
         } else if (vendorName.equals("mysql")) {
             logger.info("------ inside mysql block");
             finalQuery = RelativeFilterDateMySQL.getRelativeAnchorDate(table, relativeFilter);
         } else if (vendorName.equals("sqlserver")) {
             logger.info("------ inside sql server block");
-
+            finalQuery = RelativeFilterDateSqlserver.getRelativeAnchorDate(table, relativeFilter);
         } else if (vendorName.equals("databricks")) {
             logger.info("------ inside databricks block");
 

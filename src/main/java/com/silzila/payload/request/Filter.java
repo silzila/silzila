@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+        "filterType",
         "tableId",
         "fieldName",
         "dataType",
@@ -24,6 +25,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 @Generated("jsonschema2pojo")
 public class Filter implements Serializable {
 
+    @JsonProperty("filterType")
+    private String filterType;
     @JsonProperty("tableId")
     private String tableId;
     @JsonProperty("fieldName")
@@ -49,6 +52,7 @@ public class Filter implements Serializable {
 
     /**
      *
+     * @param filterType
      * @param timeGrain
      * @param fieldName
      * @param dataType
@@ -58,7 +62,7 @@ public class Filter implements Serializable {
      * @param operator
      */
     public Filter(String tableId, String fieldName, Filter.DataType dataType, Boolean shouldExclude,
-            Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection) {
+            Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection, String filterType) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
@@ -67,6 +71,17 @@ public class Filter implements Serializable {
         this.timeGrain = timeGrain;
         this.operator = operator;
         this.userSelection = userSelection;
+        this.filterType = filterType;
+    }
+
+    @JsonProperty("filterType")
+    public String getFilterType() {
+        return filterType;
+    }
+
+    @JsonProperty("filterType")
+    public void setFilterType(String filterType) {
+        this.filterType = filterType;
     }
 
     @JsonProperty("tableId")
@@ -144,6 +159,10 @@ public class Filter implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append(Filter.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this)))
                 .append('[');
+        sb.append("filterType");
+        sb.append('=');
+        sb.append(((this.filterType == null) ? "<null>" : this.filterType));
+        sb.append(',');
         sb.append("tableId");
         sb.append('=');
         sb.append(((this.tableId == null) ? "<null>" : this.tableId));

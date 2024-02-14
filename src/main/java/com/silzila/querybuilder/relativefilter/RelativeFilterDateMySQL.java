@@ -390,7 +390,7 @@ public class RelativeFilterDateMySQL {
             }
             // finalQuery to get date
 
-            String finalQuery = "SELECT " + fromDate + " as fromDate, " + toDate + " as toDate";
+            String finalQuery = "SELECT " + fromDate + " as fromdate, " + toDate + " as todate";
 
             // String finalQuery = "SELECT 1";
             System.out.println(finalQuery);

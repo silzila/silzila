@@ -309,50 +309,52 @@ public class DatasetService {
         /* DB based Dataset */
         if (ds.getIsFlatFileData() == false) {
 
-            // relative Date
-            if (req.getFilterPanels().get(0).getRelativeCondition() != null) {
+            // relative Date filter
+            for (Filter filter : req.getFilterPanels().get(0).getFilters()) {
+                if ("relative_filter".equals(filter.getFilterType())) {
+                    if (req.getFilterPanels().get(0).getRelativeCondition() != null) {
 
-                RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
+                        RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
 
-                List<String> relativeDate = new ArrayList<>();
+                        List<String> relativeDate = new ArrayList<>();
 
-                relativeFilter
-                        .setAnchorDate(req.getFilterPanels().get(0).getRelativeCondition().get(0).getAnchorDate());
-                relativeFilter
-                        .setFrom(req.getFilterPanels().get(0).getRelativeCondition().get(0).getFrom());
-                relativeFilter
-                        .setTo(req.getFilterPanels().get(0).getRelativeCondition().get(0).getTo());
-                relativeFilter
-                        .setFilterTable(req.getFilterPanels().get(0).getFilters());
+                        List<Filter> filters = new ArrayList<>();
+                        filters.add(filter);
+                        // setting the relativeFilter parameter
+                        relativeFilter.setAnchorDate(
+                                req.getFilterPanels().get(0).getRelativeCondition().get(0).getAnchorDate());
+                        relativeFilter.setFrom(req.getFilterPanels().get(0).getRelativeCondition().get(0).getFrom());
+                        relativeFilter.setTo(req.getFilterPanels().get(0).getRelativeCondition().get(0).getTo());
+                        relativeFilter.setFilterTable(filters);
 
-                JSONArray anchorDate = relativeFilter(userId, dBConnectionId, datasetId, relativeFilter);
+                        JSONArray relativeDateJson = relativeFilter(userId, dBConnectionId, datasetId, relativeFilter);
 
-                String fromDate = String.valueOf(anchorDate.getJSONObject(0).get("fromDate"));
-                String toDate = String.valueOf(anchorDate.getJSONObject(0).get("toDate"));
+                        String fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("fromdate"));
+                        String toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("todate"));
 
-                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        // checking the from and to date is in correct order
+                        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-                Date parsedfromDate = dateFormat.parse(fromDate);
-                Date parsedtoDate = dateFormat.parse(toDate);
+                        Date parsedfromDate = dateFormat.parse(fromDate);
+                        Date parsedtoDate = dateFormat.parse(toDate);
 
-                if (parsedfromDate.compareTo(parsedtoDate) > 0) {
+                        if (parsedfromDate.compareTo(parsedtoDate) > 0) {
+                            String tempDate = dateFormat.format(parsedfromDate);
+                            fromDate = dateFormat.format(parsedtoDate);
+                            toDate = tempDate;
+                        }
 
-                    String tempDate = dateFormat.format(parsedfromDate);
-                    fromDate = dateFormat.format(parsedtoDate);
-                    toDate = tempDate;
+                        relativeDate.add(fromDate);
+                        relativeDate.add(toDate);
+
+                        // set user selection
+                        filter.setUserSelection(relativeDate);
+                    }
                 }
-
-                relativeDate.add(fromDate);
-                relativeDate.add(toDate);
-
-                req.getFilterPanels().get(0).getFilters().get(0).setUserSelection(relativeDate);
-
-                System.out.println(relativeDate);
-
             }
 
             String query = queryComposer.composeQuery(req, ds, vendorName);
-            
+
             logger.info("\n******* QUERY **********\n" + query);
             // when the request is just Raw SQL query Text
             if (isSqlOnly != null && isSqlOnly) {
