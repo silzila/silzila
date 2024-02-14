@@ -5,6 +5,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +30,9 @@ import com.silzila.payload.request.ColumnFilter;
 import com.silzila.payload.request.DataSchema;
 import com.silzila.payload.request.DatasetRequest;
 import com.silzila.payload.request.Filter;
+import com.silzila.payload.request.FilterPanel;
 import com.silzila.payload.request.Query;
+import com.silzila.payload.request.RelativeCondition;
 import com.silzila.payload.request.RelativeFilterRequest;
 import com.silzila.payload.request.Table;
 import com.silzila.querybuilder.QueryComposer;
@@ -310,48 +314,49 @@ public class DatasetService {
         if (ds.getIsFlatFileData() == false) {
 
             // relative Date filter
-            for (Filter filter : req.getFilterPanels().get(0).getFilters()) {
-                if ("relative_filter".equals(filter.getFilterType())) {
-                    if (req.getFilterPanels().get(0).getRelativeCondition() != null) {
+            // Get the first filter panel from the request
+            FilterPanel filterPanel = req.getFilterPanels().get(0);
+            if (filterPanel != null) {
+                // Get the list of filters from the filter panel
+                List<Filter> filters = filterPanel.getFilters();
+                if (filters != null) {
+                    // Iterate over each filter in the list
+                    for (Filter filter : filters) {
+                        // Check if the filter is of type 'relative_filter'
+                        if ("relative_filter".equals(filter.getFilterType())) {
+                            // Get the relative condition associated with the filter panel
+                            List<RelativeCondition> relativeConditions = filterPanel.getRelativeCondition();
+                            if (relativeConditions != null && !relativeConditions.isEmpty()) {
 
-                        RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
+                                // Get the first relative condition 
+                                RelativeCondition relativeCondition = relativeConditions.get(0);
 
-                        List<String> relativeDate = new ArrayList<>();
+                                // Create a new RelativeFilterRequest object with the relative condition and filter
+                                RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
 
-                        List<Filter> filters = new ArrayList<>();
-                        filters.add(filter);
-                        // setting the relativeFilter parameter
-                        relativeFilter.setAnchorDate(
-                                req.getFilterPanels().get(0).getRelativeCondition().get(0).getAnchorDate());
-                        relativeFilter.setFrom(req.getFilterPanels().get(0).getRelativeCondition().get(0).getFrom());
-                        relativeFilter.setTo(req.getFilterPanels().get(0).getRelativeCondition().get(0).getTo());
-                        relativeFilter.setFilterTable(filters);
-
-                        JSONArray relativeDateJson = relativeFilter(userId, dBConnectionId, datasetId, relativeFilter);
-
-                        String fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("fromdate"));
-                        String toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("todate"));
-
-                        // checking the from and to date is in correct order
-                        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-                        Date parsedfromDate = dateFormat.parse(fromDate);
-                        Date parsedtoDate = dateFormat.parse(toDate);
-
-                        if (parsedfromDate.compareTo(parsedtoDate) > 0) {
-                            String tempDate = dateFormat.format(parsedfromDate);
-                            fromDate = dateFormat.format(parsedtoDate);
-                            toDate = tempDate;
+                                relativeFilter.setAnchorDate(relativeCondition.getAnchorDate());
+                                relativeFilter.setFrom(relativeCondition.getFrom());
+                                relativeFilter.setTo(relativeCondition.getTo());
+                                relativeFilter.setFilterTable(Collections.singletonList(filter));
+                                // Call a method to get the relative date range
+                                JSONArray relativeDateJson = relativeFilter(userId, dBConnectionId, datasetId, relativeFilter);
+                                // Extract the 'fromdate' and 'todate' values from the JSON response
+                                String fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("fromdate"));
+                                String toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("todate"));
+                                // Ensure fromDate is before toDate
+                                if (fromDate.compareTo(toDate) > 0) {
+                                    String tempDate = fromDate;
+                                    fromDate = toDate;
+                                    toDate = tempDate;
+                                }
+                                // Set the user selection - date range
+                                filter.setUserSelection(Arrays.asList(fromDate, toDate));
+                            }
                         }
-
-                        relativeDate.add(fromDate);
-                        relativeDate.add(toDate);
-
-                        // set user selection
-                        filter.setUserSelection(relativeDate);
                     }
                 }
             }
+
 
             String query = queryComposer.composeQuery(req, ds, vendorName);
 
