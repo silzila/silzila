@@ -1,0 +1,225 @@
+/* input[type="file"]{
+    opacity:0;
+    width:0;
+}
+
+/* label{
+    background-color: rgba(224,224,224,1);
+    padding:10px;
+    border-radius:5px;
+} */
+/*.labelStyle{
+background-color: rgba(224, 224, 224, 1);
+    padding: 10px;
+    border-radius: 5px;
+} */
+
+
+
+
+
+
+/* Flat File Upload */
+
+.FileUploadContainer{
+    display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 500px;
+            margin: 0 auto;
+            text-align: left;
+            padding: 2rem;
+}
+
+.uploadFileTitle{
+    font-size: 16px; font-weight: bold; margin: 10px;
+    color: #5d5c5c;
+}
+
+.file-upload-button-container{
+    flex: 1;
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+}
+
+
+
+/* File Drop Zone */
+#form-file-upload {
+    height: 14rem;
+    border: 2px dashed rgba(224, 224, 224, 1);
+    display: flex;
+    padding: 1rem;
+    flex-direction: column;
+}
+#input-file-upload {
+    display: none;
+}
+
+
+
+.upload-button {
+    background-color: #af99db;
+    color:white;
+    padding: 10px;
+    border-radius: 5px;
+    border-color: transparent;
+    margin: 0 auto;
+    width: fit-content;
+}
+
+#drag-file-element {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 1rem;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+}
+
+.fileNameCard{
+
+    border: 1px solid rgba(224,224,224,1);
+    margin: 10px auto;
+    padding: 8px;
+    font-size: 12px;
+    display: flex;
+}
+
+
+
+/* Edit Flat File */
+.columnNameStyle{
+    width: 148px;   
+    color: rgb(70, 71, 71);
+   
+}
+ 
+.columnNameStyle:hover{
+    border:1.5px solid rgba(224, 224, 224, 1);
+    border-radius: 4px;
+    width: 148px;
+  
+}
+
+input[id="columnName"] {
+    width: 148px;
+    height: 24px;
+    border:1px solid rgba(224, 224, 224, 1);
+    border-radius: 4px;
+    padding-left: 5px;
+   
+}
+
+
+
+.editFlatFileContainer {
+    /* width: 100%; */
+    /* height: 100%; */
+    padding:2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.editFlatFileHeader {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    width:90%;
+    max-height: 7rem;
+    margin:0px auto 2rem auto;
+}
+.flat-file-name {
+    flex: 1;
+    text-align: left;
+    
+ 
+ 
+}
+
+.tableName-style{
+  padding:5px 10px;
+  width: 60%;
+
+}
+
+.tableName-style:hover {
+   border: 1px solid grey;
+   border-radius: 5px;
+}
+
+
+.format-elm-container{
+    flex: 1;
+            display: flex;
+            flex-direction: column;
+}
+
+.formatElm {
+    flex: 1;
+    display: flex;
+    gap:2px;
+    max-height: 28px;
+    
+}
+
+.buttonContainer{
+    flex: 1;
+            display: flex;
+            width: 90%;
+            margin:1rem auto;
+           
+            justify-content: right;
+            gap:15px;
+       
+}
+
+/* final flatfile data */
+.confirm-flat-file-container{
+    display: grid;
+            grid-template-rows: 20% 70% 10% ;
+            height: 100vh;
+            padding: 2rem;
+            width: 100vw;
+}
+
+.iconDefault {
+    margin-left: 5px;
+    cursor: pointer;
+    margin-top: 4px;
+    color: #CCCCCC; /* Light grey color */
+    transition: color 0.3s, font-size 0.3s; /* Transition for smooth hover effect */
+}
+
+.iconHover {
+    color: #8BC34A; /* Medium light green color on hover */
+    font-size: calc(1em - 2px); /* Reduce size by 2 pixels on hover */
+}
+
+
+
+
+
+/*&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&*/
+.ffTableDiv{
+    flex: 1;
+            height: 500px;
+            width:90%;
+            margin: 1rem auto;
+}
+
+
+
+.ffTablecellDiv{
+    display: flex;
+            justify-content: space-between;
+    
+            margin-bottom: 10px;
+}
+.ffDialogTablecell{
+    font-weight: bold;
+            background-color: #e8eaf6;
+}

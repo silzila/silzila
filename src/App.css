@@ -1,0 +1,43 @@
+*,
+*:after,
+*:before {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+  /* background-color: lightgray; */
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgb(199, 199, 199);
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(177, 177, 177);
+}
+
+.App {
+  text-align: center;
+  overflow: hidden;
+  
+}
+
+
+
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+@media only screen and (max-width: 660px) {
+  .App {
+    text-align: center;
+    overflow: auto;
+    
+  }  
+}

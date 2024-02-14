@@ -1,0 +1,172 @@
+.dataViewerBottom {
+	height: 9rem;
+	width: 100%;
+	display: flex;
+	overflow: hidden;
+	/* background-color: rgb(238, 238, 238); */
+	background-color: white;
+	border-top: 2px solid rgba(224, 224, 224, 1);
+}
+
+.bottomHeader {
+	height: 33px;
+	background-color: rgb(211, 211, 211);
+}
+
+.dataSetAndTableList {
+	width: 14.5rem;
+	min-width: 14.5rem;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	font-size: 14px;
+	/* border-right: 2px solid rgba(224, 224, 224, 1); */
+}
+
+.dataSetSelect {
+	width: 92%;
+	padding: 8px 0 6px 10px;
+	/* background-color: rgb(211, 211, 211); */
+}
+
+.tileTableList {
+	/* padding: 0.5rem 0; */
+	background-color: white;
+	overflow: hidden;
+	display: flex;
+}
+.tablescontainerinDataviewerBottom{
+	flex: 1;
+	overflow: hidden;
+	padding: 0 0.5rem 0 10px;
+}
+.tablescontainerinDataviewerBottom:hover{
+	overflow: auto;
+}
+
+
+
+.dsIndiTableInTile {
+	border-radius: 2px;
+	/* padding: 1px 0 1px 0.5rem;*/
+	padding: 1px 0 1px 0;
+	text-align: left;
+	cursor: pointer;
+	/* background-color: white; */
+}
+.dsIndiTableInTile:hover {
+	background-color: rgb(238, 238, 238);
+}
+.dsIndiTableInTileSelected {
+	border-radius: 2px;
+	/* background-color: white; */
+	font-weight: 600;
+	color: #2bb9bb;
+	/* padding: 1px 0 1px 0.5rem; */
+	padding: 1px 0 1px 0;
+	text-align: left;
+	cursor: pointer;
+}
+
+.tileTableView {
+	overflow: hidden;
+	padding: 8px 12px 0px 0px;
+	width: 100%;
+	/* padding-top:10px; */
+	/* border-top: 2px solid rgba(224, 224, 224, 1); */
+}
+.tileTableView:hover{
+	overflow: auto;
+}
+.displayTable {
+	flex: 1;
+	font-size: 12px;
+	text-align: left;
+	background-color: rgb(238, 238, 238);
+	border-collapse: collapse;
+	color: rgb(51, 51, 51);
+}
+.tableHeadings {
+	height: 40px;
+	/* padding: 9px 9px 9px 0; */
+	position: sticky;
+	top: 0;
+	background-color: rgb(238, 238, 238);
+	font-weight: normal;
+	/* cursor: move; */
+	font-weight: 600;
+	z-index: 2;
+}
+
+.tableHeadingsSmall {
+	top: 0;
+	font-size: 12px;
+	font-weight: normal;
+	cursor: move;
+	/* font-weight: 600; */
+}
+/* .tableHeadings:hover {
+	background-color: rgb(211, 211, 211);
+} */
+.tableRows:nth-child(odd) {
+	background-color: white;
+}
+.tableRows:nth-child(even) {
+	background-color: rgb(238, 238, 238);
+}
+
+.tableValues {
+	padding: 0 10px 0 20px;
+	white-space: nowrap;
+	max-width: 250px;
+	min-width: 75px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.showColumnsOnly {
+	font-size: 11px;
+	padding: 8px;
+/* background-color: white; */
+	display: grid;
+	grid-gap: 0.25rem;
+	grid-template-columns: repeat(10, 1fr);
+	grid-template-rows: 1fr 1fr 1fr 1fr;
+	grid-auto-flow: column;
+}
+
+.boxContainer {
+	flex: 1;
+	border-radius: 2px;
+	border: 1px solid rgb(211, 211, 211);
+	text-align: left;
+	background-color: #fff;
+	font-weight: normal;
+	font-size: 12px;
+	color: #606060;
+	cursor: move;
+	padding: 3px 4px;
+}
+.boxContainer:hover {
+	background-color: rgba(224, 224, 224, 1);
+}
+.boxText {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.styleForTableHeader{
+/* padding:9px 9px 9px 0px; */
+display: flex;
+cursor: move;
+
+}
+.styleForTableHeader:hover{
+	background-color: rgb(211, 211, 211);
+}
+
+.styleForColumnsOnly{
+	display: flex;
+	cursor: move;
+}

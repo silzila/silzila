@@ -1,0 +1,57 @@
+.charAxesArea {
+
+padding:0px 7px;
+	width: 14.5rem;
+	display: flex;
+	flex-direction: column;
+	overflow:hidden;
+	border-right: 2px solid rgba(224, 224, 224, 1);
+
+}
+.charAxesArea:hover{
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+.chartAxis {
+	flex: 1;
+	/* background-color: #eee; */
+	background-color: white;
+	display: flex;
+	flex-direction: column;
+
+	/* text-align: left; */
+}
+
+.chartAxisHeader{
+	position: sticky;
+}
+
+.chartAxisBody{
+	flex: 1;
+	/* overflow-y: hidden; */
+	/* display: flex; */
+	flex-direction: column;
+	max-height: auto;
+	/* min-height: 6em; */
+	padding-left: 2px;
+	/* max-height: 100rem; */
+	/* min-height: 100em; */
+
+}
+
+.axisTitle {
+	
+	color: #5d5c5c;
+	font-weight: 600;
+	/* padding: 10px 0.8rem  0 0.5rem; */
+	padding: 10px 10px 0 10px;
+	text-align: left;
+	margin-bottom: 6px;
+}
+
+.axisInfo {
+	text-align: center;
+	font-size: 11px;
+	color: #999999;
+	/* padding: 2px 0; */
+}

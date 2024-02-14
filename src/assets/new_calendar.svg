@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="250mm" height="270mm" version="1.1" viewBox="0 0 250 270" xmlns="http://www.w3.org/2000/svg">
+ <path d="m34.918 106.32 180.52-0.29985 0.16612-32.862 0.10944-10.674-181.82 1.0083z" fill="#2bb9bb" stroke-width="0"/>
+ <g stroke-linecap="round" stroke-linejoin="round">
+  <path d="m34.885 106.32 174.7-0.29985" fill="#0076f6" stroke="#808080" stroke-width="12.266"/>
+  <rect x="32.12" y="60.345" width="185.76" height="168.84" rx="14.2" ry="14.2" fill-opacity="0" stroke="#808080" stroke-width="13.188"/>
+  <g transform="translate(2.49 -.012111)" fill="#0076f6">
+   <g stroke="#808080" stroke-width="11.52">
+    <path d="m121.88 35.562v42.539"/>
+    <path d="m67.698 35.562v42.539"/>
+    <path d="m176.06 35.562v42.539"/>
+   </g>
+   <g stroke="#af99db" stroke-width="13.641">
+    <path d="m58.092 135.32h22.387"/>
+    <path d="m110.4 135.32h22.387"/>
+    <path d="m161.04 135.32h22.387"/>
+    <path d="m60.396 167.21h22.387"/>
+    <path d="m111.04 167.11h22.387"/>
+    <path d="m161.68 165.92h22.387"/>
+    <path d="m60.121 199.11h22.387"/>
+    <path d="m110.76 199.11h22.387"/>
+    <path d="m161.4 199.11h22.387"/>
+   </g>
+  </g>
+ </g>
+</svg>

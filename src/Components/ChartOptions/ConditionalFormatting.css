@@ -1,0 +1,29 @@
+.buttonstyle {
+    background-color: rgb(43, 185, 187);
+    height: 25px;
+    width: 100%;
+    color: white;
+    text-transform: none;
+}
+
+.noteStyle {
+    color: #ccc;
+    font-style: italic;
+    font-size: 10px;
+}
+
+.menuItemStyle {
+    text-transform: none;
+    color: grey;
+    display: block;
+    padding: 0px 8px 8px 8px;
+    cursor: pointer;
+}
+
+.tableConditionalFormatContainer {
+    display: flex;
+    flex-direction: column;
+    /* border-bottom: 2px solid rgba(224,224,224,1); */
+
+
+}
