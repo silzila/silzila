@@ -1,0 +1,44 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-AuthJwtBootApplication<jwt-auth>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.javatab.AuthJwtBootApplication",
+      "projectName": "jwt-auth",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-VizApplication<jwt-auth>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.silzila.VizApplication",
+      "projectName": "jwt-auth",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-VizApplication<silzila>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.silzila.VizApplication",
+      "projectName": "silzila",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-VizApplication<app>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.silzila.VizApplication",
+      "projectName": "app",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
