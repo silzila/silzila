@@ -42,13 +42,13 @@ public class RelativeFilterQueryComposer {
             finalQuery = RelativeFilterDateSqlserver.getRelativeDate(relativeFilter, anchorDateArray);
         } else if (vendorName.equals("databricks")) {
             logger.info("------ inside databricks block");
-
+            
         } else if (vendorName.equals("duckdb")) {
             logger.info("------ inside duckdb block");
 
         } else if (vendorName.equals("bigquery")) {
             logger.info("------ inside bigquery block");
-
+            finalQuery = RelativeFilterDateBigquery.getRelativeDate(relativeFilter, anchorDateArray);
         }
 
         else {
@@ -94,7 +94,7 @@ public class RelativeFilterQueryComposer {
 
         } else if (vendorName.equals("bigquery")) {
             logger.info("------ inside bigquery block");
-
+            finalQuery = RelativeFilterDateBigquery.getRelativeAnchorDate(table, relativeFilter);
         }
 
         else {
