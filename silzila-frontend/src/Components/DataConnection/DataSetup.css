@@ -187,14 +187,7 @@ Data Connections
 	margin-top: 20px;
 }
 
-.dbFormButton {
-	position: fixed;
-	bottom: 1px ;
-	display: flex;
-	align-items: center;
-	column-gap: 7.5rem;
-	margin: 10px auto 5px auto;
-   }
+
 
 .dbDeleteDialog {
 	display: flex;
@@ -224,8 +217,8 @@ Data Connections
 }
 
 .dbDeleteDialogBtn2 {
+	display: flex;
 	background-color: red;
-
 	text-transform: none;
 }
 
@@ -434,7 +427,33 @@ DataHome
    
 }
 
-@media only screen and (max-width: 660px) {
+.dbForm{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    margin-top: 20px;
+    padding: 5px;
+    height: 540px; /* Adjust height as needed */
+    overflow: hidden auto;
+}
+
+.dbFormButton {
+	display: flex;
+	position: fixed;
+    bottom: 1px;
+    display: flex;
+    align-items: center;
+    column-gap: 222px;
+    justify-content: center;
+    width: 90%;
+    margin: 10px auto auto 10px;
+    padding: 10px;
+}
+
+
+@media only screen and (max-width: 860px) {
 	.dataHomeItemsContainer {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto auto auto;
@@ -449,14 +468,28 @@ DataHome
 		padding: 3rem 3rem 5rem 3rem;
 		gap: 10px;
 	}
-}
-
-@media only screen and (max-width: 1260px) {
-	.dbFormButton {
-		position: absolute;
-		bottom: 1px;
-		display: flex;
-		align-items: center;
-		column-gap: 8.5rem;
+	.Button{
+		padding: revert;
 	}
 }
+
+@media screen and (max-width: 1228px) {
+    .dbForm {
+        width: 90%; /* Reduce width for smaller screens */
+        padding: 10px;/* Reduce width for smaller screens */
+
+    }
+	body, html {
+        /* Ensure the whole window is scrollable */
+        overflow: auto;
+    }
+
+    .dbFormButton {
+		display: flex;
+		column-gap: 62px;
+		margin-right: 4px;
+		padding: 8px 16px; /* Reduce padding for smaller screens */
+    }
+	
+}
+
