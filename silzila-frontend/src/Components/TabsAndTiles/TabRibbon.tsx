@@ -11,12 +11,12 @@ import { IndTabs } from "../../redux/TabTile/TabStateInterfaces";
 import {
   actionsToEnableRenameTab,
   actionsToRenameTab,
-  actionsToSelectTab
+  actionsToSelectTab,
 } from "../../redux/TabTile/actionsTabTile";
 import {
   actionsToAddTab,
   actionsToRemoveTab,
-  actionsToUpdateSelectedTile
+  actionsToUpdateSelectedTile,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import AddIcon from "@mui/icons-material/Add";
 import { addChartFilterTabTileName } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
@@ -42,7 +42,7 @@ const TabRibbon = ({
   enableRenameTab,
   completeRenameTab,
   selectTile,
-  addChartFilterTabTileName
+  addChartFilterTabTileName,
 }: TabRibbonProps) => {
   const addReportFilterGroup = (nextPropKey: string) => {
     var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
@@ -200,7 +200,7 @@ const TabRibbon = ({
             color: "808080",
             margin: "0px",
             height: "1.75rem",
-            width: "1.6rem"
+            width: "1.6rem",
           }}
           onClick={(e) => {
             setAnchorEl(e.currentTarget);
@@ -210,7 +210,7 @@ const TabRibbon = ({
       <Menu
         id="long-menu"
         MenuListProps={{
-          "aria-labelledby": "long-button"
+          "aria-labelledby": "long-button",
         }}
         anchorEl={anchorEl}
         open={tabOpen}
@@ -219,12 +219,16 @@ const TabRibbon = ({
           style: {
             minHeight: ITEM_HEIGHT * 4.5,
             maxHeight: ITEM_HEIGHT * 12.3,
-            width: "15ch"
-          }
+            width: "26ch",
+            margin: "11px 0px 0px -12px",
+            padding: "0px 45px",
+          },
         }}
       >
         {tablist.map((tabItem) => (
-          <MenuItem onClick={handleClose}>{tabItem}</MenuItem>
+          <MenuItem style={{ padding: "8px 20px" }} onClick={handleClose}>
+            {tabItem}
+          </MenuItem>
         ))}
       </Menu>
       <div style={{ overflow: "hidden", display: "flex" }} ref={tabWrapperRef}>
@@ -237,7 +241,10 @@ const TabRibbon = ({
             className="plusTab"
             onClick={() => handleAddTab()}
           >
-            <AddIcon sx={{ fontSize: "16px", marginTop: "3px" }} />
+            <AddIcon
+              sx={{ fontSize: "16px", marginTop: "3px" }}
+              onClick={() => handleTabScroll(200)}
+            />
           </span>
         ) : null}
 
@@ -263,7 +270,7 @@ const mapStateToProps = (state: TabRibbonStateProps) => {
     tabTileProps: state.tabTileProps,
     tabState: state.tabState,
     chartProp: state.chartProperties,
-    chartGroup: state.chartFilterGroup
+    chartGroup: state.chartFilterGroup,
   };
 };
 
@@ -319,7 +326,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
     addChartFilterTabTileName: (
       selectedDatasetID: string,
       tabTileName: string
-    ) => dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName))
+    ) => dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName)),
   };
 };
 

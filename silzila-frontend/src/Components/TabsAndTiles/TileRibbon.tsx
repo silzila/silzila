@@ -8,7 +8,7 @@ import {
   actionsToCompleteRenameTile,
   actionsToEnableRenameTile,
   actionsToRemoveTile,
-  actionsToUpdateSelectedTile
+  actionsToUpdateSelectedTile,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 
 import IndividualTile from "./IndividualTile";
@@ -37,7 +37,7 @@ const TileRibbon = ({
   enableRenameTile,
   completeRenameTile,
   removeTile,
-  addChartFilterTabTileName
+  addChartFilterTabTileName,
 }: TileRibbonProps) => {
   const addReportFilterGroup = (nextPropKey: string) => {
     var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
@@ -213,7 +213,6 @@ const TileRibbon = ({
 
   const handleClose = () => {
     setAnchorEl(null);
-    console.log("Live - Ajmal");
   };
 
   return (
@@ -229,7 +228,7 @@ const TileRibbon = ({
       <Menu
         id="long-menu"
         MenuListProps={{
-          "aria-labelledby": "long-button"
+          "aria-labelledby": "long-button",
         }}
         anchorEl={anchorEl}
         open={tileOpen}
@@ -238,8 +237,10 @@ const TileRibbon = ({
           style: {
             minHeight: ITEM_HEIGHT * 4.5,
             maxHeight: ITEM_HEIGHT * 12.3,
-            width: "15ch"
-          }
+            width: "26ch",
+            margin: "-26px 0px 0px -85px",
+            padding: "0px 45px",
+          },
         }}
       >
         {tileList.map((tileItem) => (
@@ -256,7 +257,10 @@ const TileRibbon = ({
           className="plusTile"
           onClick={() => handleAddTile()}
         >
-          <AddIcon sx={{ fontSize: "16px", marginTop: "2px" }} />
+          <AddIcon
+            sx={{ fontSize: "16px", marginTop: "2px" }}
+            onClick={() => handleTileScroll(100)}
+          />
         </span>
         {currentTileLength >= 10 ? (
           <div
@@ -264,7 +268,7 @@ const TileRibbon = ({
               margin: "0px 5px 6px 0px",
               display: "flex",
               justifyContent: "flex-end",
-              overflow: "hidden"
+              overflow: "hidden",
             }}
           >
             <ArrowLeftIcon onClick={() => handleTileScroll(-100)} />
@@ -283,7 +287,7 @@ const mapStateToProps = (state: TileRibbonStateProps) => {
     tileState: state.tileState,
     tableData: state.tableData,
     chartProp: state.chartProperties,
-    chartGroup: state.chartFilterGroup
+    chartGroup: state.chartFilterGroup,
   };
 };
 
@@ -303,7 +307,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
           table,
           fromTab: false,
           selectedDs: selectedDataset,
-          selectedTablesInDs: selectedTables
+          selectedTablesInDs: selectedTables,
         })
       ),
 
@@ -351,7 +355,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
     addChartFilterTabTileName: (
       selectedDatasetID: string,
       tabTileName: string
-    ) => dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName))
+    ) => dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName)),
     // showDashBoard: (tabId, showDash) => dispatch(actions.setShowDashBoard(tabId, showDash)),
   };
 };
