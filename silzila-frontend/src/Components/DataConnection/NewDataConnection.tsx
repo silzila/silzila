@@ -865,7 +865,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			   
 				{/*========================== Reusable Component from ../CommonFunctions/TextFieldComponents========================= */}
 			    <div
-				style={{ display:'flex', flexDirection:'column', gap:'15px', alignItems:'center', width: '100%', marginTop: '20px', padding: '5px',
+				style={{ display:'flex', flexDirection:'column', gap:'8px', alignItems:'center', width: '100%', marginTop: '20px', padding: '5px',
 				height:540, overflow: "hidden", overflowY: "auto"}}>
 					           
 							   {account.vendor === "bigquery" ? 
