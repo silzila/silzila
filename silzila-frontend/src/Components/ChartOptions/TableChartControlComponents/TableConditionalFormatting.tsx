@@ -116,18 +116,7 @@ const TableConditionalFormatting = ({
 				isGradient: true,
 				name: selectedColumnName,
 				isCollapsed: false,
-				value: [
-					{
-						id: uId(),
-						forNull: true,
-						name: "Null",
-						value: "null",
-						isBold: false,
-						isItalic: false,
-						isUnderlined: false,
-						backgroundColor: "#AF99DB",
-						fontColor: getContrastColor("#AF99DB"),
-					},
+				value: [					
 					{
 						id: uId(),
 						forNull: false,
@@ -137,7 +126,7 @@ const TableConditionalFormatting = ({
 						isBold: false,
 						isItalic: false,
 						isUnderlined: false,
-						backgroundColor: "#2BB9BB",
+						backgroundColor: "#AF99DB",
 						fontColor: getContrastColor("#2BB9BB"),
 					},
 
@@ -150,8 +139,19 @@ const TableConditionalFormatting = ({
 						isBold: false,
 						isItalic: false,
 						isUnderlined: false,
-						backgroundColor: "#D87A80",
+						backgroundColor: "#2BB9BB",
 						fontColor: getContrastColor("#D87A80"),
+					},
+					{
+						id: uId(),
+						forNull: true,
+						name: "Null",
+						value: "null",
+						isBold: false,
+						isItalic: false,
+						isUnderlined: false,
+						backgroundColor: "#D87A80",
+						fontColor: getContrastColor("#AF99DB"),
 					},
 				],
 			});
