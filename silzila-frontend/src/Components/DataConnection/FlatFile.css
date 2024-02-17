@@ -187,6 +187,19 @@ input[id="columnName"] {
 }
 
 
+.iconDefault {
+    margin-left: 5px;
+    cursor: pointer;
+    margin-top: 4px;
+    color: #CCCCCC; /* Light grey color */
+    transition: color 0.3s, font-size 0.3s; /* Transition for smooth hover effect */
+}
+
+.iconHover {
+    color: #8BC34A; /* Medium light green color on hover */
+    font-size: calc(1em - 2px); /* Reduce size by 2 pixels on hover */
+}
+
 
 
 

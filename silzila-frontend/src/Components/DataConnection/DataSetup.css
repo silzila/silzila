@@ -39,8 +39,7 @@ Data Setup Page
 	height: 100%;
 	background-color: #fff;
 	padding: 1rem 10rem;
-	overflow: auto;
-	gap: 10px
+	gap: 10px;
 }
 
 .dataSetContainer {
@@ -56,7 +55,7 @@ Data Setup Page
 
 .listContainer {
 	height: 100%;
-	overflow-y: scroll;
+	overflow: hidden;;
 }
 
 .connectionListContainer {
@@ -188,14 +187,7 @@ Data Connections
 	margin-top: 20px;
 }
 
-.dbFormButton {
-	position: fixed;
-	bottom: 1px ;
-	display: flex;
-	align-items: center;
-	column-gap: 17rem;
-	margin: 10px auto 5px auto;
-   }
+
 
 .dbDeleteDialog {
 	display: flex;
@@ -225,8 +217,8 @@ Data Connections
 }
 
 .dbDeleteDialogBtn2 {
+	display: flex;
 	background-color: red;
-
 	text-transform: none;
 }
 
@@ -268,6 +260,7 @@ Data Connections
 .dataConnectionName {
 	flex: 1;
 	text-align: left;
+	margin-right: 140px;
 }
 
 .inputFieldStyle {
@@ -394,7 +387,6 @@ TableData
 DataHome
 ------------------------------------------------- 
 */
-
 .visiblityIconStyle {
 	width: 0.7rem;
 	height: 0.7rem;
@@ -404,23 +396,100 @@ DataHome
 .listEmptyNote {
 	font-size: 14px;
 	height: 100%;
-	padding: 25% 2rem;
+	padding: 2rem;
 	color: #ccc;
 	font-style: italic;
 }
 
 .dataHomeContainer {
-	display: grid;
-	grid-template-rows: 2.5rem auto;
-	height: 100vh;
-	width: 100vW;
+    grid-template-rows: auto auto;
+    height: 100vh;
+    width: 100%;
 }
 
 .dataHomeItemsContainer {
-	flex: 100%;
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	background-color: pink;
-	border-top: 2px solid rgba(224, 224, 224, 1);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    border-top: 0.2px solid rgba(224, 224, 224, 1);
+	min-height: calc(100vh - 100px); /* Adjust 100px to accommodate other elements if needed */
+    /* Make the container scrollable */
+    overflow-y: auto; /* Vertical scrolling */
+    overflow-x: auto; /* Hide horizontal scrollbar if not needed */
 }
+
+.dataHomeItemsContainer > div {
+    display: flex;
+    justify-content: center;
+	padding: 1rem 2rem 9rem 2rem;
+    align-items: center;
+    border: 0.2px solid rgba(224, 224, 224, 1);
+   
+}
+
+.dbForm{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    margin-top: 20px;
+    padding: 5px;
+    height: 540px; /* Adjust height as needed */
+    overflow: hidden auto;
+}
+
+.dbFormButton {
+	display: flex;
+	position: fixed;
+    bottom: 1px;
+    display: flex;
+    align-items: center;
+    column-gap: 222px;
+    justify-content: center;
+    width: 90%;
+    margin: 10px auto auto 10px;
+    padding: 10px;
+}
+
+
+@media only screen and (max-width: 860px) {
+	.dataHomeItemsContainer {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto auto;
+       
+    }
+	body, html {
+        /* Ensure the whole window is scrollable */
+        overflow: auto;
+    }
+ 
+	.dataConnectionContainer {
+		padding: 3rem 3rem 5rem 3rem;
+		gap: 10px;
+	}
+	.Button{
+		padding: revert;
+	}
+}
+
+@media screen and (max-width: 1228px) {
+    .dbForm {
+        width: 90%; /* Reduce width for smaller screens */
+        padding: 10px;/* Reduce width for smaller screens */
+
+    }
+	body, html {
+        /* Ensure the whole window is scrollable */
+        overflow: auto;
+    }
+
+    .dbFormButton {
+		display: flex;
+		column-gap: 62px;
+		margin-right: 4px;
+		padding: 8px 16px; /* Reduce padding for smaller screens */
+    }
+	
+}
+

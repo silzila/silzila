@@ -34,3 +34,10 @@ body {
   padding: 0;
 }
 
+@media only screen and (max-width: 660px) {
+  .App {
+    text-align: center;
+    overflow: auto;
+    
+  }  
+}
