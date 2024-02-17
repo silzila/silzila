@@ -57,6 +57,7 @@ const chartProperties: ChartPropertiesProps = {
 				generateTitle: "Auto",
 			},
 			chartOptionSelected: "Title",
+			geoLocation: "usa"
 		},
 	},
 
@@ -145,6 +146,7 @@ const chartPropertiesState = (
 						},
 
 						chartOptionSelected: "Colors",
+						geoLocation: "usa"
 					},
 				},
 				propList: {
@@ -206,6 +208,7 @@ const chartPropertiesState = (
 						},
 
 						chartOptionSelected: "Colors",
+						geoLocation: "usa"
 					},
 				},
 				propList: { ...state.propList, [action.payload.tabId]: [tileKey2] },
@@ -609,6 +612,15 @@ const chartPropertiesState = (
 					},
 				},
 			});
+
+			case "CHANGE_GEOMAP_LOCATION":
+				return update(state, {
+					properties: {
+						[action.payload.propKey]: {
+							geoLocation: { $set: action.payload.value },
+						},
+					},
+				});
 
 		default:
 			return state;

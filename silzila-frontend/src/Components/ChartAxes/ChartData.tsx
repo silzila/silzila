@@ -470,7 +470,7 @@ const ChartData = ({
 
 					let findField = axesAllFields.find((item:any)=>{
 						if (format.name.includes(item.fieldname)) {
-							if(item.dataType === "date"){
+							if(["date", "timestamp"].includes(item.dataType)){
 								if(format.name.split(' of ')[0] === item.timeGrain){
 									return true;									
 								}

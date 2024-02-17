@@ -56,7 +56,14 @@ const getConditionalFormat = (crossTabData: any, colIndex: number, rowIndex: num
 
         if (Object.keys(_colNameConditions).length > 0) {
             if (_colNameConditions?.isGradient) {
-                return getGradientBasedStyle(_colNameConditions, crossTabData, rowIndex, colData);
+                let currentCellData = crossTabData[rowIndex].columnItems[colIndex];
+
+                if(!currentCellData.isHeaderField){
+                    return getGradientBasedStyle(_colNameConditions, crossTabData, rowIndex, colData);
+                }
+                else {
+                    return {};
+                }
             }
             else {  //Rule Based
                 let currentCellData = crossTabData[rowIndex].columnItems[colIndex];
@@ -240,11 +247,17 @@ const getLastSatisfiedCondition = (value: any, colNameConditions: any) => {
     }
 }
 
-const checkNumberAgaintConditionType = (conditionType: number, target: number, value: number, minValue: number, maxValue: number): boolean => {
+const checkNumberAgaintConditionType = (conditionType: number, target: any, value: number, minValue: number, maxValue: number): boolean => {
     let result = false;
+
+    if(target === null || target?.trim() === ""){
+       return false;
+    }
 
     value = Number(value);
     target = Number(target);
+
+  
 
     switch (conditionType) {
         case 1://greater than

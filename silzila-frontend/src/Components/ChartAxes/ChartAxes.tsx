@@ -10,6 +10,8 @@ import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { ChartAxesProps } from "./ChartAxesInterfaces";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import ChartData from "./ChartData";
+import { Dispatch } from "redux";
+import {changeLocation} from "../../redux/ChartPoperties/ChartPropertiesActions";
 
 const ChartAxes = ({
 	// props
@@ -53,7 +55,7 @@ const ChartAxes = ({
 		<div className="charAxesArea">
 			{chartProp.properties[propKey].chartType === "geoChart" && (
 				<div
-					style={{ backgroundColor: "#d3d3d3", display: "flex", flexDirection: "column" }}
+					style={{display: "flex", flexDirection: "column" }}
 				>
 					<span className="axisTitle"></span>
 					<FormControl size="small" sx={{ margin: "0.5rem" }}>
@@ -90,6 +92,9 @@ const ChartAxes = ({
 							<MenuItem sx={menuItemStyle} value="japan">
 								Japan
 							</MenuItem>
+							<MenuItem sx={menuItemStyle} value="australia">
+								Australia
+							</MenuItem>
 							<MenuItem sx={menuItemStyle} value="nigeria">
 								Nigeria
 							</MenuItem>
@@ -120,4 +125,11 @@ const mapStateToProps = (state: ChartPropertiesStateProps, ownProps: any) => {
 	};
 };
 
-export default connect(mapStateToProps, null)(ChartAxes);
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+	return {
+		changeLocation: (propKey: string, geoLocation: any) =>
+			dispatch(changeLocation(propKey, geoLocation)),
+	}
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ChartAxes);
