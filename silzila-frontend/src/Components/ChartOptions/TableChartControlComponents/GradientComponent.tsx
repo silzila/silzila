@@ -142,7 +142,7 @@ const GradientComponent = ({
 			isBold: false,
 			isItalic: false,
 			isUnderlined: false,
-			backgroundColor: "#FFB980",
+			backgroundColor: "#E6FB0A",
 			fontColor: "black",
 		};
 
@@ -172,13 +172,13 @@ const GradientComponent = ({
 				return (
 					<div className="gradientComponentContainer">
 						<div className="gradientCardContainer">
-							{index === 0 ? (
+							{el.name?.trim() == "Null"? (
 								"Null"
 							) : (
 								<>
 									<span>
 										{el.name}
-										{format.value.length === 4 && index === 2 ? (
+										{el.name?.trim() == "Mid Value" ? (
 											<CloseIcon
 												sx={closeIconStyle}
 												onClick={() => onRemoveMidValue()}

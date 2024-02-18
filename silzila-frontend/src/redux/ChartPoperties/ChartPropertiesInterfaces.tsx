@@ -17,6 +17,7 @@ export interface IndChartPropProperties {
 	titleOptions: ChartPropTitleOptions;
 	chartOptionSelected: string;
 	reUseData?: boolean;
+	geoLocation: string;
 }
 export interface ChartPropProperties {
 	[key: string]: IndChartPropProperties;

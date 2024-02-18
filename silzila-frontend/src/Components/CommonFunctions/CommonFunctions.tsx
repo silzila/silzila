@@ -121,7 +121,7 @@ export const generateRandomColorArray = (length:number) => {
 				//console.log();
 				if (columnName.includes(el.fieldname)) {
 					//formattedColumnName = `${el.timeGrain} of ${el.fieldname}`;
-					if(el.dataType === "date"){
+					if(["date", "timestamp"].includes(el.dataType)){
 						if(columnName.split(' of ')[0] === el.timeGrain){
 							field = el;
 							return;
@@ -135,7 +135,7 @@ export const generateRandomColorArray = (length:number) => {
 				//}
 			});
 
-			let formattedColumnName = field.dataType === "date" ? field.timeGrain : columnName;
+			let formattedColumnName = ["date", "timestamp"].includes(field.dataType) ? field.timeGrain : columnName;
 			fieldValues = await fetchFieldData(field, chartProperties, propKey, token);
 
 			//let colors = interpolateColor("#2BB9BB", "#D87A80", fieldValues?.data?.length);
@@ -167,18 +167,22 @@ export const generateRandomColorArray = (length:number) => {
 	};
 
 	export const fieldName = (field:any)=>{
-		if(field.agg || field.timeGrain){
-			if(field.dataType == "date"){
-				return `${field.timeGrain} of ${field.fieldname}`;
+		if(field){
+			if(field.agg || field.timeGrain){
+				if(["date", "timestamp"].includes(field.dataType)){
+					return `${field.timeGrain} of ${field.fieldname}`;
+				}
+				else{
+					return `${field.agg} of ${field.fieldname}`;
+				}
 			}
 			else{
-				return `${field.agg} of ${field.fieldname}`;
+				return field.fieldname;
 			}
 		}
 		else{
-			return field.fieldname;
-		}
-		
+			return field;
+		}				
 	}
 
 	const fetchFieldData = (bodyData: any, chartProperties:any, propKey:string, token:string) => {
