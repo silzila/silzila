@@ -118,9 +118,9 @@ const DataConnection = (props: DataConnectionProps) => {
 													<VisibilitySharp
 														//external css wont work for this
 														style={{
-															width: "1rem",
+															// width: "1rem",
 															height: "1rem",
-															margin: "auto 7px auto auto",
+															margin: "auto auto auto auto",
 														}}
 														onClick={() =>
 															navigate("/newdataconnection", {

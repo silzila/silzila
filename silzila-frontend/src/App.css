@@ -2,7 +2,7 @@
 *:after,
 *:before {
   box-sizing: border-box;
-  scrollbar-width: thin;
+  /* scrollbar-width: ; */
 }
 
 *::-webkit-scrollbar {
@@ -22,7 +22,7 @@
 
 .App {
   text-align: center;
-  overflow: hidden;
+  overflow: auto;
   
 }
 
