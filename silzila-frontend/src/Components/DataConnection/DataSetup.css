@@ -62,7 +62,7 @@ Data Setup Page
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
-	margin-left: 0.8rem;
+	/* margin-left: 0.8rem; */
 }
 
 .connectionListContainer:hover {
@@ -80,6 +80,7 @@ Data Setup Page
 .containersHead {
 	display: flex;
 	font-weight: 600;
+	column-gap: 54px;
 	padding-left: 10px;
 	padding-right: 10px;
 
@@ -142,8 +143,9 @@ Data Connections
 .listItems{
 	display: flex;
 	align-items: center;
-	column-gap: 20px;
-	padding: 6px;
+	text-align: left;
+    column-gap: 32px;
+	padding: 12px 12px 12px 12px;
 	border: 1px solid transparent;
 	border-radius: 4px;
 	margin-bottom: 1px;
@@ -152,8 +154,9 @@ Data Connections
 .listItem{
 	display: flex;
 	align-items: center;
-	column-gap: 20px;
-	padding: 6px;
+	text-align: left;
+	column-gap: 34px;
+    padding: 6px 6px 6px 8px;
 	border: 1px solid transparent;
 	border-radius: 4px;
 	margin-bottom: 1px;
@@ -168,9 +171,9 @@ Data Connections
 .active{
 	display: flex;
 	align-items: center;
-	column-gap: 20px;
-	cursor: pointer;
-	padding: 6px;
+	column-gap: 32px;
+	/* cursor: pointer; */
+    padding: 6px 6px 6px 12px;
 	margin-bottom: 1px;
 	border: 1px solid #2bb9bb;
 	border-radius: 4px;
@@ -224,8 +227,9 @@ Data Connections
 
 .dataConnectionList {
 	margin: 8px 5px 0 0;
-	/* background-color: rgb(250, 250, 250); */
+	background-color: rgb(250, 250, 250);
 	border-radius: 5px;
+	width: 22rem;
 	display: flex;
 	padding: 5px 20px 5px 30px;
 	border: 1px solid rgba(224, 224, 224, 1);
@@ -236,11 +240,12 @@ Data Connections
 	margin: 8px 5px 0 0;
 	background-color: #fff;
 	border-radius: 5px;
+	width: 22rem;
 	display: flex;
-	padding: 5px 20px 5px 30px;
-	border: 1px solid #7b63a6;
+	padding: 5px 14px 5px 22px;
+	border: 1px solid #41109c;
 	cursor: pointer;
-	color: #7b63a6;
+	color: #431597;
 }
 
 .dataHomeDeleteIcon {
@@ -421,7 +426,7 @@ DataHome
 .dataHomeItemsContainer > div {
     display: flex;
     justify-content: center;
-	padding: 1rem 2rem 9rem 2rem;
+	padding: 1rem 2rem 12.5rem 2rem;
     align-items: center;
     border: 0.2px solid rgba(224, 224, 224, 1);
    
@@ -435,7 +440,7 @@ DataHome
     width: 100%;
     margin-top: 20px;
     padding: 5px;
-    height: 540px; /* Adjust height as needed */
+    height: 640px; /* Adjust height as needed */
     overflow: hidden auto;
 }
 
@@ -445,10 +450,10 @@ DataHome
     bottom: 1px;
     display: flex;
     align-items: center;
-    column-gap: 222px;
+    column-gap: 323px;
     justify-content: center;
     width: 90%;
-    margin: 10px auto auto 10px;
+    margin: 10px auto 144px 10px;
     padding: 10px;
 }
 
@@ -462,6 +467,7 @@ DataHome
 	body, html {
         /* Ensure the whole window is scrollable */
         overflow: auto;
+		overflow-y: scroll;
     }
  
 	.dataConnectionContainer {
@@ -473,23 +479,168 @@ DataHome
 	}
 }
 
-@media screen and (max-width: 1228px) {
-    .dbForm {
-        width: 90%; /* Reduce width for smaller screens */
-        padding: 10px;/* Reduce width for smaller screens */
-
-    }
-	body, html {
-        /* Ensure the whole window is scrollable */
-        overflow: auto;
-    }
-
+/* Media query for larger screens */
+@media (min-resolution: 25dpi) and (max-resolution: 40dpi) {
     .dbFormButton {
-		display: flex;
-		column-gap: 62px;
-		margin-right: 4px;
-		padding: 8px 16px; /* Reduce padding for smaller screens */
+        /* Adjust width, margin, and column-gap for larger screens */
+        width: 70%;
+        margin: 1px 2px 1160px 10px;
+        column-gap: 66rem;
     }
-	
+
+    .dbForm {
+        /* Adjust height and margin for larger screens */
+        height: 520px;
+        margin-top: 40px;
+    }
 }
 
+@media (min-resolution: 40dpi) and (max-resolution: 50dpi) {
+    .dbFormButton {
+        /* Adjust width, margin, and column-gap for larger screens */
+        width: 70%;
+        margin: 1px 2px 560px 10px;
+        column-gap: 631px;
+    }
+
+    .dbForm {
+        /* Adjust height and margin for larger screens */
+        height: 520px;
+        margin-top: 40px;
+    }
+}
+
+@media (min-resolution: 50dpi) and (max-resolution: 65dpi) {
+    .dbFormButton {
+        /* Adjust width, margin, and column-gap for larger screens */
+        width: 70%;
+        margin: 1px 2px 270px 10px;
+        column-gap: 426px;
+    }
+
+    .dbForm {
+        /* Adjust height and margin for larger screens */
+        height: 520px;
+        margin-top: 40px;
+    }
+}
+
+@media (min-resolution: 65dpi) and (max-resolution: 75dpi) {
+    .dbFormButton {
+        /* Adjust width, margin, and column-gap for larger screens */
+        width: 70%;
+        margin: 1px 2px 160px 10px;
+        column-gap: 356px;
+    }
+
+    .dbForm {
+        /* Adjust height and margin for larger screens */
+        height: 520px;
+        margin-top: 40px;
+    }
+}
+
+@media (min-resolution: 75dpi) and (max-resolution: 85dpi) {
+    .dbFormButton {
+        /* Adjust width, margin, and column-gap for larger screens */
+        width: 70%;
+        margin: 1px 2px 110px 10px;
+        column-gap: 319px;
+    }
+
+    .dbForm {
+        /* Adjust height and margin for larger screens */
+        height: 520px;
+        margin-top: 40px;
+    }
+}
+
+@media (min-resolution: 85dpi) and (max-resolution: 95dpi) {
+    .dbFormButton {
+        /* Adjust width, margin, and column-gap for larger screens */
+        width: 70%;
+        margin: 1px 2px 40px 10px;
+        column-gap: 268px;
+    }
+
+    .dbForm {
+        /* Adjust height and margin for larger screens */
+        height: 520px;
+        margin-top: 40px;
+    }
+}
+
+@media (min-resolution: 95dpi) and (max-resolution: 105dpi) {
+    .dbFormButton {
+        /* Adjust width, margin, and column-gap for larger screens */
+        width: 70%;
+        margin: 1px 2px 40px 10px;
+        column-gap: 220px;
+    }
+
+    .dbForm {
+        /* Adjust height and margin for larger screens */
+        height: 520px;
+        margin-top: 40px;
+    }
+}
+
+@media (min-resolution: 105dpi) and (max-resolution: 120dpi) {
+    .dbFormButton {
+        /* Adjust width, margin, and column-gap for larger screens */
+        width: 70%;
+        margin: 1px 2px 40px 10px;
+        column-gap: 180px;
+    }
+
+    .dbForm {
+        /* Adjust height and margin for larger screens */
+        height: 520px;
+        margin-top: 40px;
+    }
+}
+
+@media (min-resolution: 120dpi) and (max-resolution: 140dpi) {
+    .dbFormButton {
+        /* Adjust width, margin, and column-gap for larger screens */
+        width: 70%;
+        margin: 1px 2px 40px 10px;
+        column-gap: 128px;
+    }
+
+    .dbForm {
+        /* Adjust height and margin for larger screens */
+        height: 520px;
+        margin-top: 40px;
+    }
+}
+
+@media (min-resolution: 140dpi) and (max-resolution: 160dpi) {
+    .dbFormButton {
+        /* Adjust width, margin, and column-gap for larger screens */
+        width: 70%;
+        margin: 1px 2px 20px 10px;
+        column-gap: 65px;
+    }
+
+    .dbForm {
+        /* Adjust height and margin for larger screens */
+        height: 520px;
+        margin-top: 40px;
+    }
+}
+
+@media (min-resolution: 160dpi) and (max-resolution: 200dpi) {
+    .dbFormButton {
+        /* Adjust width, margin, and column-gap for larger screens */
+        width: 70%;
+        margin: 1px 2px 40px 10px;
+        column-gap: 38px;
+    }
+
+    .dbForm {
+        /* Adjust height and margin for larger screens */
+        height: 520px;
+        margin-top: 40px;
+    }
+}
