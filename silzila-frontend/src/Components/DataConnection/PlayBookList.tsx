@@ -332,7 +332,7 @@ const PlayBookList = ({
 	return (
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
-				<div className="containerTitle">
+				<div className="PBcontainerTitle">
 					<DashboardOutlinedIcon style={{ marginRight: "10px", color: "#2bb9bb" }} />
 					Playbooks
 					<Tooltip title="Explore data from dataset and create dashboard." arrow placement="top">

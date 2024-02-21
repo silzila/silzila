@@ -159,7 +159,7 @@ const DataSetList = ({
 	return (
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
-				<div className="containerTitle">
+				<div className="DScontainerTitle">
 					<SchemaOutlinedIcon style={{ marginRight: "10px", color: " #2bb9bb" }} />
 					Datasets
 					<Tooltip title="Add table and create connection between tables to use it as data set for later use." arrow placement="top">
