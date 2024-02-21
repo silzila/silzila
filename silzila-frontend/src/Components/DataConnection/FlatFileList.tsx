@@ -116,7 +116,7 @@ const FlatFileList = (props: any) => {
 	return (
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
-				<div className="containerTitle">
+				<div className="FFcontainerTitle">
 					<DescriptionOutlinedIcon style={{ marginRight: "10px", color: " #2bb9bb" }} />
 					Flat Files
 					<Tooltip title="Add your CSV file and use it as data table." arrow placement="top">

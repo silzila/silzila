@@ -59,7 +59,7 @@ const DataConnection = (props: DataConnectionProps) => {
 	return (
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
-				<div className="containerTitle">
+				<div className="DBcontainerTitle">
 					<StorageOutlinedIcon style={{ marginRight: "10px", color: " #2bb9bb" }} />
 					DB Connections
 					<Tooltip title="Create connection to your database and save it for later." arrow placement="top">
