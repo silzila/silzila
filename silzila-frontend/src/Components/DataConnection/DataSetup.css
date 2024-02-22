@@ -204,15 +204,6 @@ Data Connections
 	color: red;
 }
 
-.dbButton{
-	display: flex;
-	justify-content: center;
-	border-top: 2px solid rgba(224, 224, 224, 1);
-	margin-top: 20px;
-}
-
-
-
 .dbDeleteDialog {
 	display: flex;
 	flex-direction: column;
@@ -250,9 +241,9 @@ Data Connections
 	margin: 8px 5px 0 0;
 	background-color: rgb(250, 250, 250);
 	border-radius: 5px;
-	width: 22rem;
+	width: 24rem;
 	display: flex;
-	padding: 5px 20px 5px 30px;
+	padding: 5px 4px 5px 4px;
 	border: 1px solid rgba(224, 224, 224, 1);
 	color: rgb(101, 101, 101);
 }
@@ -261,9 +252,9 @@ Data Connections
 	margin: 8px 5px 0 0;
 	background-color: hsl(0, 0%, 100%);
 	border-radius: 5px;
-	width: 22rem;
+	width: 24rem;
 	display: flex;
-	padding: 5px 20px 5px 30px;
+	padding: 5px 4px 5px 4px;
 	border: 1px solid #6933cf;
 	cursor: pointer;
 	color: #773be6;
@@ -453,30 +444,46 @@ DataHome
    
 }
 
-.dbForm{
+/* .dbButton{
+	display: flex;
+	justify-content: center;
+	border-top: 2px solid rgba(224, 224, 224, 1);
+	margin-top: 20px;
+}
+ */
+
+/* .dbForm */
+.dbForm {
+    flex: 1 1;
+    position: relative;
+    overflow-y: auto; /* Allow vertical scrolling */
     display: flex;
     flex-direction: column;
-    gap: 8px;
     align-items: center;
+    gap: 8px;
     width: 100%;
     margin-top: 20px;
     padding: 5px;
-    height: 640px; /* Adjust height as needed */
-    overflow: hidden auto;
+    padding-bottom: 3.5rem; /* Ensure space for button at the bottom */
+    max-height: calc(80vh - 20px); /* Limit the maximum height to viewport height minus top margin */
 }
 
+/* .dbFormButton */
 .dbFormButton {
-	display: flex;
-	position: fixed;
-    bottom: 1px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+	z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
+    justify-content: space-evenly;
     align-items: center;
-    column-gap: 323px;
-    justify-content: center;
-    width: 90%;
-    margin: 10px auto 144px 10px;
-    padding: 10px;
+    padding-left: 10px;
+    padding-right: 246px; /* Adjusted */
 }
+
 
 
 @media only screen and (max-width: 860px) {
@@ -498,264 +505,4 @@ DataHome
 	.Button{
 		padding: revert;
 	}
-}
-
-@media (max-width: 722px) {
-	.dbForm {
-		height: 520px;
-		margin-top: 40px;
-	}
-	.dbFormButton {
-		width: 70%;
-		margin: 1px 2px 40px 10px;
-		column-gap: 82px;
-	}
-}
-
-@media (min-resolution: 2dpi) and (max-resolution: 25dpi) {
-    .dbFormButton {
-        /* Adjust width, margin, and column-gap for larger screens */
-        width: 70%;
-        margin: 1px 2px 2px 10px;
-        column-gap: 92rem;
-    }
-
-    .dbForm {
-        /* Adjust height and margin for larger screens */
-		height: 135.5rem;
-		overflow: auto;
-		gap: 42px;
-		margin-top: 64px;
-		position: relative;
-		display: flex;
-    }
-}
-
-/* Media query for larger screens */
-@media (min-resolution: 25dpi) and (max-resolution: 40dpi) {
-    .dbFormButton {
-        /* Adjust width, margin, and column-gap for larger screens */
-		width: 70%;
-        margin: 1px 2px 2px 10px;
-        column-gap: 65.6rem;
-    }
-
-    .dbForm {
-        /* Adjust height and margin for larger screens */
-        height: 101.1rem;
-		overflow: auto;
-		gap: 34px;
-		margin-top: 11px;
-		position: relative;
-		display: flex;
-    }
-}
-
-@media (min-resolution: 40dpi) and (max-resolution: 50dpi) {
-    .dbFormButton {
-        /* Adjust width, margin, and column-gap for larger screens */
-        width: 70%;
-		margin: 1px 6px 2px 14px;
-        column-gap: 50rem;
-    }
-
-    .dbForm {
-        /* Adjust height and margin for larger screens */
-		height: 72.6rem;
-		overflow: auto;
-		gap: 24px;
-		margin-top: 12px;
-		position: relative;
-		display: flex;
-    }
-}
-
-@media (min-resolution: 50dpi) and (max-resolution: 65dpi) {
-    .dbFormButton {
-        /* Adjust width, margin, and column-gap for larger screens */
-		width: 70%;
-		margin: 1px 2px 2px 10px;
-    	column-gap: 29.3rem;
-    }
-
-    .dbForm {
-        /* Adjust height and margin for larger screens */
-		height: 44.26rem;
-		overflow: auto;
-		gap: 18px;
-		margin-top: 11px;
-		position: relative;
-		display: flex;
-    }
-}
-
-@media (min-resolution: 65dpi) and (max-resolution: 75dpi) {
-    .dbFormButton {
-        /* Adjust width, margin, and column-gap for larger screens */
-        width: 70%;
-		margin: 1px 6px 1px 10px;
-		column-gap: 22.3rem;
-    }
-
-    .dbForm {
-        /* Adjust height and margin for larger screens */
-		height: 34.8rem;
-		overflow: auto;
-		gap: 8px;
-		margin-top: 64px;
-		position: relative;
-		display: flex;
-    }
-}
-
-@media (min-resolution: 75dpi) and (max-resolution: 85dpi) {
-    .dbFormButton {
-        /* Adjust width, margin, and column-gap for larger screens */
-		width: 70%;
-		margin: 1px 4px 2px 10px;
-        column-gap: 18.7rem;
-    }
-
-    .dbForm {
-        /* Adjust height and margin for larger screens */
-		height: 30.26rem;
-		overflow: auto;
-		gap: 8px;
-		margin-top: 8px;
-		position: relative;
-		display: flex;
-    }
-}
-
-@media (min-resolution: 85dpi) and (max-resolution: 95dpi) {
-    .dbFormButton {
-        /* Adjust width, margin, and column-gap for larger screens */
-		width: 70%;
-		margin: 1px 8px 2px 10px;
-		column-gap: 15.4rem;
-    }
-
-    .dbForm {
-        /* Adjust height and margin for larger screens */
-        height: 25.6rem;
-		overflow: auto;
-		gap: 12px;
-		margin-top: 10px;
-		position: relative;
-		display: flex;
-    }
-}
-
-@media (min-resolution: 95dpi) and (max-resolution: 105dpi) {
-    .dbFormButton {
-        /* Adjust width, margin, and column-gap for larger screens */
-        width: 70%;
-        margin: 1px 8px 2px 10px;
-        column-gap: 13.5rem;
-    }
-
-    .dbForm {
-        /* Adjust height and margin for larger screens */
-		height: 22.9rem;
-		overflow: auto;
-		/* gap: 18px; */
-		margin-top: 12px;
-		position: relative;
-		display: flex;
-    }
-}
-
-@media (min-resolution: 105dpi) and (max-resolution: 120dpi) {
-    .dbFormButton {
-        /* Adjust width, margin, and column-gap for larger screens */
-        width: 70%;
-		margin: 1px 7px 1px 10px;
-		column-gap: 10.48rem;
-    }
-
-    .dbForm {
-        /* Adjust height and margin for larger screens */
-		height: 19.2rem;
-		overflow: auto;
-		gap: 18px;
-		margin-top: 10px;
-		position: relative;
-		display: flex;
-    }
-}
-
-@media (min-resolution: 120dpi) and (max-resolution: 130dpi) {
-    .dbFormButton {
-        /* Adjust width, margin, and column-gap for larger screens */
-        width: 70%;
-		margin: 1px 7px -2px 10px;
-    	column-gap: 7.81rem;
-    }
-
-    .dbForm {
-        /* Adjust height and margin for larger screens */
-        height: 16.268rem;
-		overflow: auto;
-		gap: 18px;
-		margin-top: 11px;
-		position: relative;
-		display: flex;
-    }
-}
-
-@media (min-resolution: 130dpi) and (max-resolution: 140dpi) {
-    .dbFormButton {
-        /* Adjust width, margin, and column-gap for larger screens */
-        width: 70%;
-		margin: 1px 7px -2px 10px;
-    	column-gap: 5.674rem;
-    }
-
-    .dbForm {
-        /* Adjust height and margin for larger screens */
-        height: 13.7rem;
-		overflow: auto;
-		gap: 18px;
-		margin-top: 10px;
-		position: relative;
-		display: flex;
-    }
-}
-
-@media (min-resolution: 140dpi) and (max-resolution: 160dpi) {
-    .dbFormButton {
-        /* Adjust width, margin, and column-gap for larger screens */
-        width: 70%;
-		margin: 1px 7px -2px 10px;
-    	column-gap: 3.16rem;
-    }
-
-    .dbForm {
-        /* Adjust height and margin for larger screens */
-        height: 10.6rem;
-		overflow: auto;
-		gap: 18px;
-		margin-top: 10px;
-		position: relative;
-		display: flex;
-    }
-}
-
-@media (min-resolution: 160dpi) and (max-resolution: 200dpi) {
-    .dbFormButton {
-        /* Adjust width, margin, and column-gap for larger screens */
-		width: 70%;
-        margin: 1px 8px -6px 10px;
-        column-gap: 0.1rem;
-    }
-
-    .dbForm {
-        /* Adjust height and margin for larger screens */
-        height: 7.2rem;
-		overflow: auto;
-		gap: 18px;
-		margin-top: 12px;
-		position: relative;
-		display: flex;
-    }
 }
