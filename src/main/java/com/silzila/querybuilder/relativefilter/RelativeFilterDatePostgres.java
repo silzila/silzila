@@ -1,6 +1,7 @@
 package com.silzila.querybuilder.relativefilter;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -118,12 +119,26 @@ public class RelativeFilterDatePostgres {
                                 "END";
                         break;
                     case "calendarMonth":
-                        fromDate = "TO_CHAR((('" + anchorDate + "'::date - interval '" + fromNum
-                                + " month') + interval '1 day')::date, 'YYYY-MM-01')";
+
+                        if (isLastDay(anchorDate, "month")) {
+                            fromNum = fromNum + 1;
+                            fromDate = " DATE_TRUNC('MONTH', DATE '" + anchorDate + "' - INTERVAL '" + fromNum
+                                    + " MONTH' + INTERVAL '1 day') ";
+                        } else {
+                            fromDate = " DATE_TRUNC('MONTH', DATE '" + anchorDate + "' - INTERVAL '" + fromNum
+                                    + " MONTH' + INTERVAL '1 day') ";
+                        }
+
                         break;
                     case "calendarYear":
-                        fromDate = "TO_CHAR((('" + anchorDate + "'::date - interval '" + fromNum
-                                + " year') + interval '1 day')::date, 'YYYY-01-01')";
+                        if (isLastDay(anchorDate, "year")) {
+                            fromNum = fromNum + 1;
+                            fromDate = " DATE_TRUNC('YEAR', DATE '" + anchorDate + "' - INTERVAL '" + fromNum
+                                    + " YEAR' + INTERVAL '1 day') ";
+                        } else {
+                            fromDate = " DATE_TRUNC('YEAR', DATE '" + anchorDate + "' - INTERVAL '" + fromNum
+                                    + " YEAR' + INTERVAL '1 day') ";
+                        }
                         break;
                     default:
                         break;
@@ -164,14 +179,26 @@ public class RelativeFilterDatePostgres {
                                 "END";
                         break;
                     case "calendarMonth":
-                        fromNum = 0;
-                        fromDate = "TO_CHAR((('" + anchorDate + "'::date - interval '" + fromNum
-                                + " month') + interval '1 day')::date, 'YYYY-MM-01')";
+                        if (isLastDay(anchorDate, "month")) {
+                            fromNum = 1;
+                            fromDate = " DATE_TRUNC('MONTH', DATE '" + anchorDate + "' - INTERVAL '" + fromNum
+                                    + " MONTH' + INTERVAL '1 day') ";
+                        } else {
+                            fromNum = 0;
+                            fromDate = "DATE_TRUNC('MONTH', DATE '" + anchorDate + "' - INTERVAL '" + fromNum
+                                    + " MONTH' + INTERVAL '1 day') ";
+                        }
                         break;
                     case "calendarYear":
-                        fromNum = 0;
-                        fromDate = "TO_CHAR((('" + anchorDate + "'::date - interval '" + fromNum
-                                + " year') + interval '1 day')::date, 'YYYY-01-01')";
+                        if (isLastDay(anchorDate, "year")) {
+                            fromNum = 1;
+                            fromDate = " DATE_TRUNC('YEAR', DATE '" + anchorDate + "' - INTERVAL '" + fromNum
+                                    + " YEAR' + INTERVAL '1 day') ";
+                        } else {
+                            fromNum = 0;
+                            fromDate = "DATE_TRUNC('YEAR', DATE '" + anchorDate + "' - INTERVAL '" + fromNum
+                                    + " YEAR' + INTERVAL '1 day') ";
+                        }
                         break;
                     default:
                         break;
@@ -213,12 +240,25 @@ public class RelativeFilterDatePostgres {
                                 "END";
                         break;
                     case "calendarMonth":
-                        fromDate = "TO_CHAR((('" + anchorDate + "'::date + interval '" + fromNum
-                                + " month') + interval '1 day')::date, 'YYYY-MM-01')";
+
+                        if (isLastDay(anchorDate, "month")) {
+                            fromNum = fromNum - 1;
+                            fromDate = " DATE_TRUNC('MONTH', DATE '" + anchorDate + "' +  INTERVAL '" + fromNum
+                                    + " MONTH' + INTERVAL '1 day') ";
+                        } else {
+                            fromDate = "DATE_TRUNC('MONTH', DATE '" + anchorDate + "' + INTERVAL '" + fromNum
+                                    + " MONTH' + INTERVAL '1 day') ";
+                        }
                         break;
                     case "calendarYear":
-                        fromDate = "TO_CHAR((('" + anchorDate + "'::date + interval '" + fromNum
-                                + " year') + interval '1 day')::date, 'YYYY-01-01')";
+                        if (isLastDay(anchorDate, "year")) {
+                            fromNum = fromNum - 1;
+                            fromDate = " DATE_TRUNC('YEAR', DATE '" + anchorDate + "' +  INTERVAL '" + fromNum
+                                    + " YEAR' + INTERVAL '1 day') ";
+                        } else {
+                            fromDate = "DATE_TRUNC('YEAR', DATE '" + anchorDate + "' + INTERVAL '" + fromNum
+                                    + " YEAR' + INTERVAL '1 day') ";
+                        }
                         break;
                     default:
                         break;
@@ -244,9 +284,38 @@ public class RelativeFilterDatePostgres {
                         toNum = (toNum * 7) - 1 - 7;
                         toDate = "('" + anchorDate + "'::date - interval '1 day' * ((EXTRACT(DOW FROM '" + anchorDate
                                 + "'::date) + " + toNum + ") + 2))::date";
-
                         break;
-                   
+                    case "weekMonSun":
+                        toNum = (toNum * 7) - 7;
+                        toDate = "CASE WHEN EXTRACT(DOW FROM '" + anchorDate + "'::date) = 0 THEN " +
+                                "('" + anchorDate + "'::date - interval '1 day' * (EXTRACT(DOW FROM '" + anchorDate
+                                + "'::date) + 7 + " + toNum + "))::date " +
+                                "ELSE " +
+                                "('" + anchorDate + "'::date - interval '1 day' * (EXTRACT(DOW FROM '" + anchorDate
+                                + "'::date) + " + toNum + "))::date " +
+                                "END";
+                        break;
+                    case "calendarMonth":
+
+                        if (isLastDay(anchorDate, "month")) {
+                            toDate = " DATE_TRUNC('MONTH', DATE '" + anchorDate + "' - INTERVAL '" + toNum
+                                    + " MONTH' + INTERVAL '1 day') - INTERVAL '1 day' ";
+                        } else {
+                            toNum = toNum - 1;
+                            toDate = "DATE_TRUNC('MONTH', DATE '" + anchorDate + "' - INTERVAL '" + toNum
+                                    + " MONTH' + INTERVAL '1 day') - INTERVAL '1 day' ";
+                        }
+                        break;
+                    case "calendarYear":
+                        if (isLastDay(anchorDate, "year")) {
+                            toDate = " DATE_TRUNC('YEAR', DATE '" + anchorDate + "' - INTERVAL '" + toNum
+                                    + " YEAR' + INTERVAL '1 day') - INTERVAL '1 day' ";
+                        } else {
+                            toNum = toNum - 1;
+                            toDate = "DATE_TRUNC('YEAR', DATE '" + anchorDate + "' - INTERVAL '" + toNum
+                                    + " YEAR' + INTERVAL '1 day') - INTERVAL '1 day' ";
+                        }
+                        break;
 
                     default:
                         break;
@@ -286,14 +355,27 @@ public class RelativeFilterDatePostgres {
                         break;
 
                     case "calendarMonth":
-                        toNum = 1;
-                        toDate = "TO_CHAR((('" + anchorDate + "'::date + interval '" + toNum
-                                + " month') + interval '1 day'), 'YYYY-MM-01')::date - interval '1 day'";
+
+                        if (isLastDay(anchorDate, "month")) {
+                            toNum = 0;
+                            toDate = " DATE_TRUNC('MONTH', DATE '" + anchorDate + "' + INTERVAL '" + toNum
+                                    + " MONTH' + INTERVAL '1 day')  - INTERVAL '1 day'  ";
+                        } else {
+                            toNum = 1;
+                            toDate = " DATE_TRUNC('MONTH', DATE '" + anchorDate + "' + INTERVAL '" + toNum
+                                    + " MONTH' + INTERVAL '1 day') - INTERVAL '1 day' ";
+                        }
                         break;
                     case "calendarYear":
-                        toNum = 1;
-                        toDate = "TO_CHAR((('" + anchorDate + "'::date + interval '" + toNum
-                                + " year') + interval '1 day'), 'YYYY-01-01')::date - interval '1 day'";
+                        if (isLastDay(anchorDate, "year")) {
+                            toNum = 0;
+                            toDate = " DATE_TRUNC('YEAR', DATE '" + anchorDate + "' + INTERVAL '" + toNum
+                                    + " YEAR' + INTERVAL '1 day')  - INTERVAL '1 day'  ";
+                        } else {
+                            toNum = 1;
+                            toDate = " DATE_TRUNC('YEAR', DATE '" + anchorDate + "' + INTERVAL '" + toNum
+                                    + " YEAR' + INTERVAL '1 day') - INTERVAL '1 day' ";
+                        }
                         break;
 
                     default:
@@ -307,60 +389,49 @@ public class RelativeFilterDatePostgres {
                         break;
                     case "rollingWeek":
                         toDate = "('" + anchorDate + "'::date + interval '" + toNum + " week')";
-                        if (fromType.equals("rollingWeek") && fromConditions.get(0).equals("next")) {
-                            toDate = "('" + anchorDate + "'::date + interval '" + toNum + " week')";
-                        }
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "('" + anchorDate + "'::date + interval '" + toNum + " day')";
-                        }
                         break;
                     case "rollingMonth":
                         toDate = "('" + anchorDate + "'::date + interval '" + toNum + " month')";
-                        if (fromType.equals("rollingMonth") && fromConditions.get(0).equals("next")) {
-                            toDate = "('" + anchorDate + "'::date + interval '" + toNum + " month')";
-                        }
-
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "('" + anchorDate + "'::date + interval '" + toNum + " day')";
-                        }
                         break;
                     case "rollingYear":
                         toDate = "('" + anchorDate + "'::date + interval '" + toNum + " year')";
-                        if (fromType.equals("rollingYear") && fromConditions.get(0).equals("next")) {
-                            toDate = "('" + anchorDate + "'::date + interval '" + toNum + " year')";
-                        }
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "('" + anchorDate + "'::date + interval '" + toNum + " day')";
-                        }
                         break;
                     case "weekSunSat":
-                        toNum = (toNum * 7) - 2 + 7;
-                        toDate = "('" + anchorDate + "'::date + interval '1 day' * ( EXTRACT(DOW FROM '" + anchorDate
+                        toNum = (toNum * 7) - 1;
+                        toDate = "('" + anchorDate + "'::date + interval '1 day' * (7- EXTRACT(DOW FROM '" + anchorDate
                                 + "'::date) + " + toNum + "))::date";
                         break;
                     case "weekMonSun":
-                        toNum = (toNum * 7) - 2 + 7;
+                        toNum = (toNum * 7);
                         toDate = "CASE WHEN EXTRACT(DOW FROM '" + anchorDate + "'::date) = 0 THEN " +
-                                "('" + anchorDate + "'::date + interval '1 day' * (EXTRACT(DOW FROM '" + anchorDate
-                                + "'::date) - 5 + " + toNum + "))::date " +
+                                "('" + anchorDate + "'::date + interval '1 day' * (7 - EXTRACT(DOW FROM '" + anchorDate
+                                + "'::date) - 7 + " + toNum + "))::date " +
                                 "ELSE " +
-                                "('" + anchorDate + "'::date + interval '1 day' * (EXTRACT(DOW FROM '" + anchorDate
+                                "('" + anchorDate + "'::date + interval '1 day' * (7 - EXTRACT(DOW FROM '" + anchorDate
                                 + "'::date) + " + toNum + "))::date " +
                                 "END";
                         break;
-                    
+
                     case "calendarMonth":
-                        toNum = toNum + 1;
-                        toDate = "TO_CHAR((('" + anchorDate + "'::date + interval '" + toNum
-                                + " month') + interval '1 day'), 'YYYY-MM-01')::date - interval '1 day'";
+
+                        if (isLastDay(anchorDate, "month")) {
+                            toDate = " DATE_TRUNC('MONTH', DATE '" + anchorDate + "' + INTERVAL '" + toNum
+                                    + " MONTH' + INTERVAL '1 day')  - INTERVAL '1 day' ";
+                        } else {
+                            toNum = toNum + 1;
+                            toDate = "DATE_TRUNC('MONTH', DATE '" + anchorDate + "' + INTERVAL '" + toNum
+                                    + " MONTH' + INTERVAL '1 day') - INTERVAL '1 day' ";
+                        }
                         break;
                     case "calendarYear":
-                        toNum = toNum + 1;
-                        toDate = "TO_CHAR((('" + anchorDate + "'::date +interval '" + toNum
-                                + " year') + interval '1 day'), 'YYYY-01-01')::date - interval '1 day'";
+                        if (isLastDay(anchorDate, "year")) {
+                            toDate = " DATE_TRUNC('YEAR', DATE '" + anchorDate + "' + INTERVAL '" + toNum
+                                    + " YEAR' + INTERVAL '1 day')  - INTERVAL '1 day' ";
+                        } else {
+                            toNum = toNum + 1;
+                            toDate = "DATE_TRUNC('YEAR', DATE '" + anchorDate + "' + INTERVAL '" + toNum
+                                    + " YEAR' + INTERVAL '1 day') - INTERVAL '1 day' ";
+                        }
                         break;
 
                     default:
@@ -369,7 +440,7 @@ public class RelativeFilterDatePostgres {
             }
             // finalQuery to get date
 
-            String finalQuery ="SELECT CAST((" + fromDate + ") AS DATE) as fromdate, CAST((" + toDate
+            String finalQuery = "SELECT CAST((" + fromDate + ") AS DATE) as fromdate, CAST((" + toDate
                     + ") AS DATE) as todate";
 
             // String finalQuery = "SELECT 1";
@@ -409,7 +480,8 @@ public class RelativeFilterDatePostgres {
             } else if (anchorDate.equals("yesterday")) {
                 query = "select current_date - interval '1 day' as anchorDate";
             } else if (anchorDate.equals("latest")) {
-                query = "select max(" + relativeFilter.getFilterTable().get(0).getFieldName() + ") as anchorDate from "
+                query = "select CAST(max(" + relativeFilter.getFilterTable().get(0).getFieldName()
+                        + ")as DATE) as anchorDate from "
                         + schemaName + "." + tableName;
             }
         } else if (matcher.matches()) {
@@ -419,5 +491,20 @@ public class RelativeFilterDatePostgres {
         }
 
         return query;
+    }
+
+    public static boolean isLastDay(String dateString, String type) {
+        LocalDate date = LocalDate.parse(dateString);
+
+        if ("month".equalsIgnoreCase(type)) {
+            int lastDayOfMonth = date.lengthOfMonth();
+            return date.getDayOfMonth() == lastDayOfMonth;
+        } else if ("year".equalsIgnoreCase(type)) {
+            int dayOfYear = date.getDayOfYear();
+            int lastDayOfYear = date.isLeapYear() ? 366 : 365;
+            return dayOfYear == lastDayOfYear;
+        } else {
+            throw new IllegalArgumentException("Invalid type. Use 'month' or 'year'.");
+        }
     }
 }

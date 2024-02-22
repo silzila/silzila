@@ -136,8 +136,7 @@ public class DatasetController {
     public ResponseEntity<?> relativeFilter(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody RelativeFilterRequest relativeFilter,
             @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
-            @RequestParam(name = "datasetid") String datasetId) throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException, SQLException {
-                
+            @RequestParam(name = "datasetid") String datasetId) throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException {       
         String userId = reqHeader.get("username");
         Object jsonArray = datasetService.relativeFilter(userId, dBConnectionId, datasetId, relativeFilter);
         return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());

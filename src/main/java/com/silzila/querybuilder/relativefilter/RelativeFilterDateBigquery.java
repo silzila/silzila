@@ -256,12 +256,14 @@ public class RelativeFilterDateBigquery {
                         break;
                     case "calendarMonth":
                         toNum = toNum - 1;
-                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-%m-01', date_sub(parse_date('%Y-%m-%d', '" + anchorDate
+                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-%m-01', date_sub(parse_date('%Y-%m-%d', '"
+                                + anchorDate
                                 + "'), interval " + toNum + " month))), interval 1 day)";
                         break;
                     case "calendarYear":
                         toNum = toNum - 1;
-                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-01-01', date_sub(parse_date('%Y-%m-%d', '" + anchorDate
+                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-01-01', date_sub(parse_date('%Y-%m-%d', '"
+                                + anchorDate
                                 + "'), interval " + toNum + " year))), interval 1 day)";
                         break;
 
@@ -301,12 +303,14 @@ public class RelativeFilterDateBigquery {
                         break;
                     case "calendarMonth":
                         toNum = 1;
-                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-%m-01', date_add(parse_date('%Y-%m-%d', '" + anchorDate
+                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-%m-01', date_add(parse_date('%Y-%m-%d', '"
+                                + anchorDate
                                 + "'), interval " + toNum + " month))), interval 1 day)";
                         break;
                     case "calendarYear":
                         toNum = 1;
-                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-01-01', date_add(parse_date('%Y-%m-%d', '" + anchorDate
+                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-01-01', date_add(parse_date('%Y-%m-%d', '"
+                                + anchorDate
                                 + "'), interval " + toNum + " year))), interval 1 day)";
                         break;
                     default:
@@ -319,37 +323,13 @@ public class RelativeFilterDateBigquery {
                         toDate = "date_add('" + anchorDate + "', interval " + toNum + " day)";
                         break;
                     case "rollingWeek":
-                        toDate = "date_sub(date_add('" + anchorDate + "', interval " + toNum
-                                + " week), interval 1 day)";
-                        if (fromType.equals("rollingWeek") && fromConditions.get(0).equals("next")) {
-                            toDate = "date_add('" + anchorDate + "', interval " + toNum + " week)";
-                        }
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "date_add('" + anchorDate + "', interval " + toNum + " day)";
-                        }
+                        toDate = "date_add('" + anchorDate + "', interval " + toNum + " week)";
                         break;
                     case "rollingMonth":
-                        toDate = "date_sub(date_add('" + anchorDate + "', interval " + toNum
-                                + " month), interval 1 day)";
-                        if (fromType.equals("rollingMonth") && fromConditions.get(0).equals("next")) {
-                            toDate = "date_add('" + anchorDate + "', interval " + toNum + " month)";
-                        }
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "date_add('" + anchorDate + "', interval " + toNum + " day)";
-                        }
+                        toDate = "date_add('" + anchorDate + "', interval " + toNum + " month)";
                         break;
                     case "rollingYear":
-                        toDate = "date_sub(date_add('" + anchorDate + "', interval " + toNum
-                                + " year), interval 1 day)";
-                        if (fromType.equals("rollingYear") && fromConditions.get(0).equals("next")) {
-                            toDate = "date_add('" + anchorDate + "', interval " + toNum + " year)";
-                        }
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "date_add('" + anchorDate + "', interval " + toNum + " day)";
-                        }
+                        toDate = "date_add('" + anchorDate + "', interval " + toNum + " year)";
                         break;
                     case "weekSunSat":
                         toNum = toNum * 7;
@@ -366,12 +346,14 @@ public class RelativeFilterDateBigquery {
                         break;
                     case "calendarMonth":
                         toNum = toNum + 1;
-                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-%m-01', date_add(parse_date('%Y-%m-%d', '" + anchorDate
+                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-%m-01', date_add(parse_date('%Y-%m-%d', '"
+                                + anchorDate
                                 + "'), interval " + toNum + " month))), interval 1 day)";
                         break;
                     case "calendarYear":
                         toNum = toNum + 1;
-                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-01-01', date_add(parse_date('%Y-%m-%d', '" + anchorDate
+                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-01-01', date_add(parse_date('%Y-%m-%d', '"
+                                + anchorDate
                                 + "'), interval " + toNum + " year))), interval 1 day)";
                         break;
                     default:
@@ -380,7 +362,7 @@ public class RelativeFilterDateBigquery {
             }
             // finalQuery to get date
 
-            String finalQuery = "SELECT " + fromDate + " as fromdate, " + toDate + " as todate";
+            String finalQuery = "SELECT DATE(" + fromDate + ") as fromdate, DATE(" + toDate + ") as todate";
 
             // String finalQuery = "SELECT 1";
             System.out.println(finalQuery);

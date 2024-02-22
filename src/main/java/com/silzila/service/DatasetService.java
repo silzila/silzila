@@ -310,54 +310,54 @@ public class DatasetService {
             // System.out.println("Dialect *****************" + vendorName);
         }
 
-        /* DB based Dataset */
-        if (ds.getIsFlatFileData() == false) {
+        // relative Date filter
+        // Get the first filter panel from the request
+        FilterPanel filterPanel = req.getFilterPanels().get(0);
+        if (filterPanel != null) {
+            // Get the list of filters from the filter panel
+            List<Filter> filters = filterPanel.getFilters();
+            if (filters != null) {
+                // Iterate over each filter in the list
+                for (Filter filter : filters) {
+                    // Check if the filter is of type 'relative_filter'
+                    if ("relative_filter".equals(filter.getFilterType())) {
+                        // Get the relative condition associated with the filter panel
+                        List<RelativeCondition> relativeConditions = filterPanel.getRelativeCondition();
+                        if (relativeConditions != null && !relativeConditions.isEmpty()) {
 
-            // relative Date filter
-            // Get the first filter panel from the request
-            FilterPanel filterPanel = req.getFilterPanels().get(0);
-            if (filterPanel != null) {
-                // Get the list of filters from the filter panel
-                List<Filter> filters = filterPanel.getFilters();
-                if (filters != null) {
-                    // Iterate over each filter in the list
-                    for (Filter filter : filters) {
-                        // Check if the filter is of type 'relative_filter'
-                        if ("relative_filter".equals(filter.getFilterType())) {
-                            // Get the relative condition associated with the filter panel
-                            List<RelativeCondition> relativeConditions = filterPanel.getRelativeCondition();
-                            if (relativeConditions != null && !relativeConditions.isEmpty()) {
+                            // Get the first relative condition
+                            RelativeCondition relativeCondition = relativeConditions.get(0);
 
-                                // Get the first relative condition 
-                                RelativeCondition relativeCondition = relativeConditions.get(0);
+                            // Create a new RelativeFilterRequest object with the relative condition and
+                            // filter
+                            RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
 
-                                // Create a new RelativeFilterRequest object with the relative condition and filter
-                                RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
-
-                                relativeFilter.setAnchorDate(relativeCondition.getAnchorDate());
-                                relativeFilter.setFrom(relativeCondition.getFrom());
-                                relativeFilter.setTo(relativeCondition.getTo());
-                                relativeFilter.setFilterTable(Collections.singletonList(filter));
-                                // Call a method to get the relative date range
-                                JSONArray relativeDateJson = relativeFilter(userId, dBConnectionId, datasetId, relativeFilter);
-                                // Extract the 'fromdate' and 'todate' values from the JSON response
-                                String fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("fromdate"));
-                                String toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("todate"));
-                                // Ensure fromDate is before toDate
-                                if (fromDate.compareTo(toDate) > 0) {
-                                    String tempDate = fromDate;
-                                    fromDate = toDate;
-                                    toDate = tempDate;
-                                }
-                                // Set the user selection - date range
-                                filter.setUserSelection(Arrays.asList(fromDate, toDate));
+                            relativeFilter.setAnchorDate(relativeCondition.getAnchorDate());
+                            relativeFilter.setFrom(relativeCondition.getFrom());
+                            relativeFilter.setTo(relativeCondition.getTo());
+                            relativeFilter.setFilterTable(Collections.singletonList(filter));
+                            // Call a method to get the relative date range
+                            JSONArray relativeDateJson = relativeFilter(userId, dBConnectionId, datasetId,
+                                    relativeFilter);
+                            // Extract the 'fromdate' and 'todate' values from the JSON response
+                            String fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("fromdate"));
+                            String toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("todate"));
+                            // Ensure fromDate is before toDate
+                            if (fromDate.compareTo(toDate) > 0) {
+                                String tempDate = fromDate;
+                                fromDate = toDate;
+                                toDate = tempDate;
                             }
+                            // Set the user selection - date range
+                            filter.setUserSelection(Arrays.asList(fromDate, toDate));
                         }
                     }
                 }
             }
+        }
 
-
+        /* DB based Dataset */
+        if (ds.getIsFlatFileData() == false) {
             String query = queryComposer.composeQuery(req, ds, vendorName);
 
             logger.info("\n******* QUERY **********\n" + query);
@@ -409,6 +409,7 @@ public class DatasetService {
 
             // get files names from file ids and load the files as Views
             fileDataService.getFileNameFromFileId(userId, tableObjList);
+            // come here
             String query = queryComposer.composeQuery(req, ds, "duckdb");
             logger.info("\n******* QUERY **********\n" + query);
 
@@ -482,28 +483,58 @@ public class DatasetService {
 
     public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,
             @Valid RelativeFilterRequest relativeFilter)
-            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException,
-            SQLException {
+            throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException, JsonMappingException, JsonProcessingException {
 
-        String vendorName = "";
+        // Load dataset into memory buffer
         DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
-        if (dBConnectionId == null || dBConnectionId.isEmpty()) {
-            throw new BadRequestException("Error: DB Connection Id can't be empty!");
+
+        // Initialize variables
+        JSONArray anchorDateArray;
+        String query;
+
+        // Check if dataset is flat file data or not
+        if (ds.getIsFlatFileData()) {
+            // Get the table ID from the filter request
+            String tableId = relativeFilter.getFilterTable().get(0).getTableId();
+
+            // Find the table object in the dataset schema
+            Table tableObj = ds.getDataSchema().getTables().stream()
+                    .filter(table -> table.getId().equals(tableId))
+                    .findFirst()
+                    .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!"));
+
+            // Load file names from file IDs and load the files as views
+            fileDataService.getFileNameFromFileId(userId, Collections.singletonList(tableObj));
+
+            // Compose anchor date query for DuckDB and run it
+            String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery("duckdb", ds, relativeFilter);
+            anchorDateArray = duckDbService.runQuery(anchorDateQuery);
+
+            // Compose main query for DuckDB
+            query = relativeFilterQueryComposer.composeQuery("duckdb", ds, relativeFilter, anchorDateArray);
+
+        } else {
+            // Check if DB connection ID is provided
+            if (dBConnectionId == null || dBConnectionId.isEmpty()) {
+                throw new BadRequestException("Error: DB Connection Id can't be empty!");
+            }
+
+            // Get the vendor name from the connection pool using the DB connection ID
+            String vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
+
+            // Compose anchor date query for the specific vendor and run it
+            String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery(vendorName, ds, relativeFilter);
+            anchorDateArray = connectionPoolService.runQuery(dBConnectionId, userId, anchorDateQuery);
+
+            // Compose main query for the specific vendor
+            query = relativeFilterQueryComposer.composeQuery(vendorName, ds, relativeFilter, anchorDateArray);
         }
 
-        vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
-
-        // for get a date
-        String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery(vendorName, ds, relativeFilter);
-
-        JSONArray anchorDateArray = connectionPoolService.runQuery(dBConnectionId, userId, anchorDateQuery);
-
-        String query = relativeFilterQueryComposer.composeQuery(vendorName, ds, relativeFilter, anchorDateArray);
-
-        JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
+        // Execute the main query and return the result
+        JSONArray jsonArray = ds.getIsFlatFileData() ? duckDbService.runQuery(query)
+                : connectionPoolService.runQuery(dBConnectionId, userId, query);
 
         return jsonArray;
-
     }
 
 }

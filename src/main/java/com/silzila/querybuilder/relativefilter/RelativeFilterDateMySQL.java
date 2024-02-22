@@ -324,39 +324,13 @@ public class RelativeFilterDateMySQL {
                         toDate = "date_add('" + anchorDate + "' , interval " + toNum + " day)";
                         break;
                     case "rollingWeek":
-                        toDate = "date_sub(date_add('" + anchorDate + "' , interval " + toNum
-                                + " week), interval 1 day)";
-                        if (fromType.equals("rollingWeek") && fromConditions.get(0).equals("next")) {
                             toDate = "date_add('" + anchorDate + "' , interval " + toNum + " week)";
-                        }
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "date_add('" + anchorDate + "' , interval " + toNum + " day)";
-                        }
                         break;
                     case "rollingMonth":
-                        toDate = "date_sub(date_add('" + anchorDate + "' , interval " + toNum
-                                + " month), interval 1 day)";
-                        if (fromType.equals("rollingMonth") && fromConditions.get(0).equals("next")) {
-                            toDate = "date_add('" + anchorDate + "' , interval " + toNum + " month)";
-                        }
-
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "date_add('" + anchorDate + "' , interval " + toNum + " day)";
-                        }
+                        toDate = "date_add('" + anchorDate + "' , interval " + toNum + " month)";
                         break;
                     case "rollingYear":
-                        toDate = "date_sub(date_add('" + anchorDate + "' , interval " + toNum
-                                + " year), interval 1 day)";
-                        if (fromType.equals("rollingYear") && fromConditions.get(0).equals("next")) {
-                            toDate = "date_add('" + anchorDate + "' , interval " + toNum + " year)";
-                        }
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "date_add('" + anchorDate + "' , interval " + toNum + " day)";
-                        }
-
+                        toDate = "date_add('" + anchorDate + "' , interval " + toNum + " year)";
                         break;
                     case "weekSunSat":
                         toNum = toNum * 7;
@@ -390,7 +364,7 @@ public class RelativeFilterDateMySQL {
             }
             // finalQuery to get date
 
-            String finalQuery = "SELECT " + fromDate + " as fromdate, " + toDate + " as todate";
+            String finalQuery = "SELECT DATE(" + fromDate + ") as fromdate, DATE(" + toDate + ") as todate";
 
             // String finalQuery = "SELECT 1";
             System.out.println(finalQuery);
@@ -417,7 +391,7 @@ public class RelativeFilterDateMySQL {
         String anchorDate = relativeFilter.getAnchorDate();
 
         // pattern checker of specific date
-        Pattern pattern = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+        Pattern pattern = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])");
         Matcher matcher = pattern.matcher(anchorDate);
 
         // Query
@@ -429,7 +403,7 @@ public class RelativeFilterDateMySQL {
             } else if (anchorDate.equals("yesterday")) {
                 query = "select date_sub(curdate(), interval 1 day) as anchorDate";
             } else if (anchorDate.equals("latest")) {
-                query = "select max(" + relativeFilter.getFilterTable().get(0).getFieldName() + ") as anchorDate from "
+                query = "select DATE(max(" + relativeFilter.getFilterTable().get(0).getFieldName() + ")) as anchorDate from "
                         +
                         databaseName + "." + tableName;
             }
@@ -438,8 +412,9 @@ public class RelativeFilterDateMySQL {
         } else {
             throw new BadRequestException("Invalid anchor date");
         }
-
+        System.out.println(query);
         return query;
+
     }
 
 }

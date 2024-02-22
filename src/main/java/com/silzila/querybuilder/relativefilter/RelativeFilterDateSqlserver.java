@@ -115,58 +115,66 @@ public class RelativeFilterDateSqlserver {
                                 "END";
                         break;
                     case "calendarMonth":
-                        fromDate = "datetrunc(month,dateadd(day, 1, dateadd(month, -" + fromNum + ", convert(date, '"
-                                + anchorDate
-                                + "', 23))))";
+                        fromDate = "case when '" + anchorDate + "' = DATEFROMPARTS(YEAR('" + anchorDate + "'), 12, 31) "
+                                +
+                                "THEN datetrunc(month, dateadd(day, 1, dateadd(month, -(" + (fromNum + 1)
+                                + "), convert(date, '" + anchorDate + "', 23)))) " +
+                                "else datetrunc(month, dateadd(day, 1, dateadd(month, -(" + (fromNum)
+                                + "), convert(date, '" + anchorDate + "', 23)))) " +
+                                "END"; 
                         break;
                     case "calendarYear":
-                        fromDate = "datetrunc(year,dateadd(day, 1, dateadd(year, -" + fromNum
-                                + ", convert(date, '" + anchorDate
-                                + "', 23))))";
+                        fromDate = "case when '" + anchorDate + "' = DATEFROMPARTS(YEAR('" + anchorDate + "'), 12, 31) "
+                                +
+                                "THEN datetrunc(year, dateadd(day, 1, dateadd(year, -(" + (fromNum + 1)
+                                + "), convert(date, '" + anchorDate + "', 23)))) " +
+                                "else datetrunc(year, dateadd(day, 1, dateadd(year, -(" + (fromNum)
+                                + "), convert(date, '" + anchorDate + "', 23)))) " +
+                                "END";
                     default:
                         break;
                 }
             }
             if (fromConditions.get(0).equals("current")) {
-                    switch (fromType) {
-                        case "day":
-                            fromNum = 0;
-                            fromDate = "dateadd(day, -" + fromNum + ", '" + anchorDate + "')";
-                            break;
-                        case "rollingWeek":
-                            fromNum = 1;
-                            fromDate = "dateadd(day, 1, dateadd(week, -" + fromNum + ", '" + anchorDate + "'))";
-                            break;
-                        case "rollingMonth":
-                            fromNum = 1;
-                            fromDate = "dateadd(day, 1, dateadd(month, -" + fromNum + ", '" + anchorDate + "'))";
-                            break;
-                        case "rollingYear":
-                            fromNum = 1;
-                            fromDate = "dateadd(day, 1, dateadd(year, -" + fromNum + ", '" + anchorDate + "'))";
-                            break;
-                        case "weekSunSat":
-                            fromDate = "dateadd(day, -(datepart(dw, '" + anchorDate + "') - 1), '" + anchorDate + "')";
-                            break;
-                        case "weekMonSun":
+                switch (fromType) {
+                    case "day":
+                        fromNum = 0;
+                        fromDate = "dateadd(day, -" + fromNum + ", '" + anchorDate + "')";
+                        break;
+                    case "rollingWeek":
+                        fromNum = 1;
+                        fromDate = "dateadd(day, 1, dateadd(week, -" + fromNum + ", '" + anchorDate + "'))";
+                        break;
+                    case "rollingMonth":
+                        fromNum = 1;
+                        fromDate = "dateadd(day, 1, dateadd(month, -" + fromNum + ", '" + anchorDate + "'))";
+                        break;
+                    case "rollingYear":
+                        fromNum = 1;
+                        fromDate = "dateadd(day, 1, dateadd(year, -" + fromNum + ", '" + anchorDate + "'))";
+                        break;
+                    case "weekSunSat":
+                        fromDate = "dateadd(day, -(datepart(dw, '" + anchorDate + "') - 1), '" + anchorDate + "')";
+                        break;
+                    case "weekMonSun":
 
-                            fromDate = "case " +
-                                    "when datepart(dw, '" + anchorDate + "') = 1 then dateadd(day, -6, '" + anchorDate
-                                    + "') " +
-                                    "else dateadd(day, - (datepart(dw, '" + anchorDate + "') - 2), '" + anchorDate
-                                    + "') " +
-                                    "end";
+                        fromDate = "case " +
+                                "when datepart(dw, '" + anchorDate + "') = 1 then dateadd(day, -6, '" + anchorDate
+                                + "') " +
+                                "else dateadd(day, - (datepart(dw, '" + anchorDate + "') - 2), '" + anchorDate
+                                + "') " +
+                                "end";
 
-                            break;
-                        case "calendarMonth":
-                            fromNum = 0;
-                            fromDate = "format(dateadd(month, -" + fromNum + ", '" + anchorDate + "'), 'yyyy-MM-01')";
-                            break;
+                        break;
+                    case "calendarMonth":
+                        fromNum = 0;
+                        fromDate = "format(dateadd(month, -" + fromNum + ", '" + anchorDate + "'), 'yyyy-MM-01')";
+                        break;
 
-                        case "calendarYear":
-                            fromNum = 0;
-                            fromDate = "format(dateadd(year, -" + fromNum + ", '" + anchorDate + "'), 'yyyy-01-01')";
-                            break;
+                    case "calendarYear":
+                        fromNum = 0;
+                        fromDate = "format(dateadd(year, -" + fromNum + ", '" + anchorDate + "'), 'yyyy-01-01')";
+                        break;
                     default:
                         break;
                 }
@@ -318,32 +326,14 @@ public class RelativeFilterDateSqlserver {
                         toDate = "DATEADD(day, " + toNum + ", '" + anchorDate + "')";
                         break;
                     case "rollingWeek":
-                        toDate = "DATEADD(day, -1, DATEADD(week, " + toNum + ", '" + anchorDate + "'))";
-                        if (fromType.equals("rollingWeek") && fromConditions.get(0).equals("next")) {
-                            toDate = "DATEADD(week, " + toNum + ", '" + anchorDate + "')";
-                        }
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toDate = "DATEADD(day, " + toNum + ", '" + anchorDate + "')";
-                        }
+                        toDate = "DATEADD(week, " + toNum + ", '" + anchorDate + "')";
 
                         break;
                     case "rollingMonth":
-                        toDate = "DATEADD(day, -1, DATEADD(month, " + toNum + ", '" + anchorDate + "'))";
-                        if (fromType.equals("rollingMonth") && fromConditions.get(0).equals("next")) {
-                            toDate = "DATEADD(month, " + toNum + ", '" + anchorDate + "')";
-                        }
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toDate = "DATEADD(day, " + toNum + ", '" + anchorDate + "')";
-                        }
+                        toDate = "DATEADD(month, " + toNum + ", '" + anchorDate + "')";
                         break;
                     case "rollingYear":
-                        toDate = "DATEADD(day, -1, DATEADD(year, " + toNum + ", '" + anchorDate + "'))";
-                        if (fromType.equals("rollingYear") && fromConditions.get(0).equals("next")) {
-                            toDate = "DATEADD(year, " + toNum + ", '" + anchorDate + "')";
-                        }
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toDate = "DATEADD(day, " + toNum + ", '" + anchorDate + "')";
-                        }
+                        toDate = "DATEADD(year, " + toNum + ", '" + anchorDate + "')";
                         break;
                     case "weekSunSat":
                         toNum = toNum * 7;
@@ -415,7 +405,8 @@ public class RelativeFilterDateSqlserver {
             } else if (anchorDate.equals("yesterday")) {
                 query = "select dateadd(day, -1, convert(date, getdate())) as anchorDate";
             } else if (anchorDate.equals("latest")) {
-                query = "select max(" + relativeFilter.getFilterTable().get(0).getFieldName() + ") as anchorDate from "
+                query = "select CAST(max(" + relativeFilter.getFilterTable().get(0).getFieldName()
+                        + ") as DATE)as anchorDate from "
                         + schemaName + "." + tableName;
             }
         } else if (matcher.matches()) {

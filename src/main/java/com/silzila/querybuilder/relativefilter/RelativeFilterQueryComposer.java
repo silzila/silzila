@@ -45,7 +45,7 @@ public class RelativeFilterQueryComposer {
             
         } else if (vendorName.equals("duckdb")) {
             logger.info("------ inside duckdb block");
-
+            finalQuery = RelativeFilterDateDuckDB.getRelativeDate(relativeFilter, anchorDateArray);
         } else if (vendorName.equals("bigquery")) {
             logger.info("------ inside bigquery block");
             finalQuery = RelativeFilterDateBigquery.getRelativeDate(relativeFilter, anchorDateArray);
@@ -62,7 +62,7 @@ public class RelativeFilterQueryComposer {
             throws BadRequestException, RecordNotFoundException, SQLException {
         logger.info("----------- RelativeFilteranchorDateQueryComposer calling......");
         String finalQuery = "";
-
+        System.out.println(ds);
         Table table = null;
         for (int i = 0; i < ds.getDataSchema().getTables().size(); i++) {
             if (ds.getDataSchema().getTables().get(i).getId()
@@ -72,6 +72,7 @@ public class RelativeFilterQueryComposer {
             }
         }
         ;
+        System.out.println(table);
 
         if (Objects.isNull(table)) {
             throw new BadRequestException("Error: RequestedFiter Column is not available in Dataset!");
@@ -91,7 +92,7 @@ public class RelativeFilterQueryComposer {
 
         } else if (vendorName.equals("duckdb")) {
             logger.info("------ inside duckdb block");
-
+            finalQuery = RelativeFilterDateDuckDB.getRelativeAnchorDate(table, relativeFilter);
         } else if (vendorName.equals("bigquery")) {
             logger.info("------ inside bigquery block");
             finalQuery = RelativeFilterDateBigquery.getRelativeAnchorDate(table, relativeFilter);
