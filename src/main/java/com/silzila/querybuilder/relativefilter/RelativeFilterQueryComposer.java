@@ -13,13 +13,7 @@ import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.payload.request.RelativeFilterRequest;
 import com.silzila.payload.request.Table;
-import com.silzila.querybuilder.filteroptions.FilterOptionsQueryComposer;
-import com.silzila.querybuilder.filteroptions.FilterQueryBigquery;
-import com.silzila.querybuilder.filteroptions.FilterQueryDatabricks;
-import com.silzila.querybuilder.filteroptions.FilterQueryDuckDb;
-import com.silzila.querybuilder.filteroptions.FilterQueryMysql;
-import com.silzila.querybuilder.filteroptions.FilterQueryPostgres;
-import com.silzila.querybuilder.filteroptions.FilterQuerySqlserver;
+
 
 @Service
 public class RelativeFilterQueryComposer {
@@ -42,7 +36,7 @@ public class RelativeFilterQueryComposer {
             finalQuery = RelativeFilterDateSqlserver.getRelativeDate(relativeFilter, anchorDateArray);
         } else if (vendorName.equals("databricks")) {
             logger.info("------ inside databricks block");
-            
+            finalQuery = RelativeFilterDateDatabricks.getRelativeDate(relativeFilter, anchorDateArray);
         } else if (vendorName.equals("duckdb")) {
             logger.info("------ inside duckdb block");
             finalQuery = RelativeFilterDateDuckDB.getRelativeDate(relativeFilter, anchorDateArray);
@@ -50,7 +44,6 @@ public class RelativeFilterQueryComposer {
             logger.info("------ inside bigquery block");
             finalQuery = RelativeFilterDateBigquery.getRelativeDate(relativeFilter, anchorDateArray);
         }
-
         else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
@@ -62,7 +55,6 @@ public class RelativeFilterQueryComposer {
             throws BadRequestException, RecordNotFoundException, SQLException {
         logger.info("----------- RelativeFilteranchorDateQueryComposer calling......");
         String finalQuery = "";
-        System.out.println(ds);
         Table table = null;
         for (int i = 0; i < ds.getDataSchema().getTables().size(); i++) {
             if (ds.getDataSchema().getTables().get(i).getId()
@@ -72,7 +64,6 @@ public class RelativeFilterQueryComposer {
             }
         }
         ;
-        System.out.println(table);
 
         if (Objects.isNull(table)) {
             throw new BadRequestException("Error: RequestedFiter Column is not available in Dataset!");
@@ -89,7 +80,7 @@ public class RelativeFilterQueryComposer {
             finalQuery = RelativeFilterDateSqlserver.getRelativeAnchorDate(table, relativeFilter);
         } else if (vendorName.equals("databricks")) {
             logger.info("------ inside databricks block");
-
+            finalQuery = RelativeFilterDateDatabricks.getRelativeAnchorDate(table, relativeFilter);
         } else if (vendorName.equals("duckdb")) {
             logger.info("------ inside duckdb block");
             finalQuery = RelativeFilterDateDuckDB.getRelativeAnchorDate(table, relativeFilter);

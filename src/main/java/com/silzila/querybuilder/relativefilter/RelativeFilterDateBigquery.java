@@ -365,7 +365,6 @@ public class RelativeFilterDateBigquery {
             String finalQuery = "SELECT DATE(" + fromDate + ") as fromdate, DATE(" + toDate + ") as todate";
 
             // String finalQuery = "SELECT 1";
-            System.out.println(finalQuery);
             return finalQuery;
         }
 
@@ -380,7 +379,7 @@ public class RelativeFilterDateBigquery {
             throw new BadRequestException("there is no anchor date");
         }
         String query = "";
-        System.out.println(table);
+       
         // table
         String tableName = table.getTable();
 
@@ -391,7 +390,7 @@ public class RelativeFilterDateBigquery {
         String anchorDate = relativeFilter.getAnchorDate();
 
         // pattern checker of specific date
-        Pattern pattern = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+        Pattern pattern = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])");
         Matcher matcher = pattern.matcher(anchorDate);
 
         // Query

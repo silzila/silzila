@@ -62,8 +62,7 @@ public class RelativeFilterDatePostgres {
         if (ancDateArray.isEmpty()) {
             throw new BadRequestException("there is no anchor date");
         }
-
-        System.out.println(ancDateArray);
+        // get a anchorDate
         String ancDate = String.valueOf(ancDateArray.getJSONObject(0).get("anchordate"));
 
         if (List.of("today", "tomorrow", "yesterday", "latest").contains(relativeFilter.getAnchorDate())
@@ -444,7 +443,7 @@ public class RelativeFilterDatePostgres {
                     + ") AS DATE) as todate";
 
             // String finalQuery = "SELECT 1";
-            System.out.println(finalQuery);
+            
             return finalQuery;
         }
 
@@ -468,7 +467,7 @@ public class RelativeFilterDatePostgres {
         String anchorDate = relativeFilter.getAnchorDate();
 
         // pattern checker of specific date
-        Pattern pattern = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+        Pattern pattern = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])");
         Matcher matcher = pattern.matcher(anchorDate);
 
         // Query

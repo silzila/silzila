@@ -367,7 +367,6 @@ public class RelativeFilterDateMySQL {
             String finalQuery = "SELECT DATE(" + fromDate + ") as fromdate, DATE(" + toDate + ") as todate";
 
             // String finalQuery = "SELECT 1";
-            System.out.println(finalQuery);
             return finalQuery;
         }
 
@@ -412,7 +411,7 @@ public class RelativeFilterDateMySQL {
         } else {
             throw new BadRequestException("Invalid anchor date");
         }
-        System.out.println(query);
+
         return query;
 
     }

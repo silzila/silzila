@@ -403,7 +403,7 @@ public class RelativeFilterDateDuckDB {
                     + " as DATE )as todate;";
 
             // String finalQuery = "SELECT 1";
-            System.out.println(finalQuery);
+          
 
             return finalQuery;
         }
@@ -427,7 +427,7 @@ public class RelativeFilterDateDuckDB {
         String anchorDate = relativeFilter.getAnchorDate();
 
         // pattern checker of specific date
-        Pattern pattern = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+        Pattern pattern = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])");
         Matcher matcher = pattern.matcher(anchorDate);
 
         // fromClause
@@ -450,8 +450,6 @@ public class RelativeFilterDateDuckDB {
         } else {
             throw new BadRequestException("Invalid anchor date");
         }
-
-        System.out.println(query);
         return query;
 
     }

@@ -312,44 +312,51 @@ public class DatasetService {
 
         // relative Date filter
         // Get the first filter panel from the request
-        FilterPanel filterPanel = req.getFilterPanels().get(0);
-        if (filterPanel != null) {
-            // Get the list of filters from the filter panel
-            List<Filter> filters = filterPanel.getFilters();
-            if (filters != null) {
-                // Iterate over each filter in the list
-                for (Filter filter : filters) {
-                    // Check if the filter is of type 'relative_filter'
-                    if ("relative_filter".equals(filter.getFilterType())) {
-                        // Get the relative condition associated with the filter panel
-                        List<RelativeCondition> relativeConditions = filterPanel.getRelativeCondition();
-                        if (relativeConditions != null && !relativeConditions.isEmpty()) {
+        // Assuming req.getFilterPanels() returns a list of FilterPanel objects
+        List<FilterPanel> filterPanels = req.getFilterPanels();
+        if (filterPanels != null) {
+            // Loop through each FilterPanel
+            for (FilterPanel filterPanel : filterPanels) {
+                // Get the list of filters from the filter panel
+                List<Filter> filters = filterPanel.getFilters();
+                if (filters != null) {
+                    // Iterate over each filter in the list
+                    for (Filter filter : filters) {
+                        // Check if the filter is of type 'relative_filter'
+                        if ("relative_filter".equals(filter.getFilterType())) {
+                            // Get the relative condition associated with the filter panel
+                            List<RelativeCondition> relativeConditions = filterPanel.getRelativeCondition();
+                            if (relativeConditions != null && !relativeConditions.isEmpty()) {
+                                // Get the first relative condition
+                                RelativeCondition relativeCondition = relativeConditions.get(0);
 
-                            // Get the first relative condition
-                            RelativeCondition relativeCondition = relativeConditions.get(0);
+                                // Create a new RelativeFilterRequest object with the relative condition and
+                                // filter
+                                RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
 
-                            // Create a new RelativeFilterRequest object with the relative condition and
-                            // filter
-                            RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
+                                relativeFilter.setAnchorDate(relativeCondition.getAnchorDate());
+                                relativeFilter.setFrom(relativeCondition.getFrom());
+                                relativeFilter.setTo(relativeCondition.getTo());
+                                relativeFilter.setFilterTable(Collections.singletonList(filter));
 
-                            relativeFilter.setAnchorDate(relativeCondition.getAnchorDate());
-                            relativeFilter.setFrom(relativeCondition.getFrom());
-                            relativeFilter.setTo(relativeCondition.getTo());
-                            relativeFilter.setFilterTable(Collections.singletonList(filter));
-                            // Call a method to get the relative date range
-                            JSONArray relativeDateJson = relativeFilter(userId, dBConnectionId, datasetId,
-                                    relativeFilter);
-                            // Extract the 'fromdate' and 'todate' values from the JSON response
-                            String fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("fromdate"));
-                            String toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("todate"));
-                            // Ensure fromDate is before toDate
-                            if (fromDate.compareTo(toDate) > 0) {
-                                String tempDate = fromDate;
-                                fromDate = toDate;
-                                toDate = tempDate;
+                                // Call a method to get the relative date range
+                                JSONArray relativeDateJson = relativeFilter(userId, dBConnectionId, datasetId,
+                                        relativeFilter);
+
+                                // Extract the 'fromdate' and 'todate' values from the JSON response
+                                String fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("fromdate"));
+                                String toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("todate"));
+
+                                // Ensure fromDate is before toDate
+                                if (fromDate.compareTo(toDate) > 0) {
+                                    String tempDate = fromDate;
+                                    fromDate = toDate;
+                                    toDate = tempDate;
+                                }
+
+                                // Set the user selection - date range
+                                filter.setUserSelection(Arrays.asList(fromDate, toDate));
                             }
-                            // Set the user selection - date range
-                            filter.setUserSelection(Arrays.asList(fromDate, toDate));
                         }
                     }
                 }

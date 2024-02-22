@@ -362,7 +362,7 @@ public class RelativeFilterDateDatabricks {
             String finalQuery = "SELECT " + fromDate + " as fromdate, " + toDate + " as todate";
 
             // String finalQuery = "SELECT 1";
-            System.out.println(finalQuery);
+            
             return finalQuery;
         }
 
