@@ -241,23 +241,29 @@ Data Connections
 	margin: 8px 5px 0 0;
 	background-color: rgb(250, 250, 250);
 	border-radius: 5px;
-	width: 24rem;
+	width: 22rem;
 	display: flex;
-	padding: 5px 4px 5px 4px;
+	padding: 5px 8px 5px 12px;
 	border: 1px solid rgba(224, 224, 224, 1);
 	color: rgb(101, 101, 101);
+	white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */
 }
 
 .dataConnectionListSelected {
 	margin: 8px 5px 0 0;
 	background-color: hsl(0, 0%, 100%);
 	border-radius: 5px;
-	width: 24rem;
+	width: 22rem;
 	display: flex;
-	padding: 5px 4px 5px 4px;
+	padding: 5px 8px 5px 12px;
 	border: 1px solid #6933cf;
 	cursor: pointer;
 	color: #773be6;
+	white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */
 }
 
 .dataHomeDeleteIcon {
@@ -275,9 +281,12 @@ Data Connections
 }
 
 .dataConnectionName {
-	flex: 1;
-	text-align: left;
-	margin-right: 140px;
+	flex: 1 1;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
 }
 
 .inputFieldStyle {
@@ -449,9 +458,15 @@ DataHome
 	justify-content: center;
 	border-top: 2px solid rgba(224, 224, 224, 1);
 	margin-top: 20px;
-}
- */
-
+} */
+/* .editButton {
+	background-color: rgb(175, 153, 219);
+    margin-right: -82px;
+} */
+/* .EDbutton {
+	background-color: rgb(175, 153, 219);
+	margin-right: -81px;
+  } */
 /* .dbForm */
 .dbForm {
     flex: 1 1;
@@ -480,10 +495,9 @@ DataHome
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    padding-left: 10px;
-    padding-right: 246px; /* Adjusted */
+    padding-left: 2%;
+    padding-right: 17.6%; /* Adjusted */
 }
-
 
 
 @media only screen and (max-width: 860px) {
@@ -506,3 +520,419 @@ DataHome
 		padding: revert;
 	}
 }
+@media (max-width: 860px) {
+	.dbForm {
+		flex: 1 1;
+		position: relative;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		width: 104%;
+		margin-top: 20px;
+		padding: 5px;
+		padding-bottom: 3.5rem;
+		max-height: calc(80vh - 20px);
+	}
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgba(224, 224, 224, 1);
+		display: flex;
+		column-gap: 1%;
+		padding-left: 6.5%;
+		padding-right: 34.1%;
+	}
+	
+}
+
+@media screen and (min-width: 1920px) and (max-height: 1080px) {
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgb(202, 0, 118);
+		display: flex;
+		column-gap: 34%;
+		padding-left: 18.2%;
+		padding-right: 34.1%;
+	}
+}
+
+@media screen and (min-width: 1680px) and (max-height: 1050px) {
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgb(206, 0, 0);
+		display: flex;
+		column-gap: 32%;
+		padding-left: 17.9%;
+		padding-right: 34.1%;
+	}
+}
+
+@media screen and (min-width: 1600px) and (max-height: 1000px) {
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgb(18, 31, 214);
+		display: flex;
+		column-gap: 29.9%;
+		padding-left: 17.4%;
+		padding-right: 33.9%;
+	}
+}
+
+@media screen and (min-width: 1440px) and (max-height: 900px) {
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgb(0, 217, 233);
+		display: flex;
+		column-gap: 28%;
+		padding-left: 17.1%;
+		padding-right: 33.9%;
+	}
+}
+
+@media screen and (min-width: 1366px) and (max-height: 768px) {
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgb(230, 0, 0);
+		display: flex;
+		column-gap: 28%;
+		padding-left: 17%;
+		padding-right: 34.1%;
+	}
+}
+
+@media screen and (min-width: 1280px) and (max-height: 760px) {
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgb(0, 182, 24);
+		display: flex;
+		column-gap: 27.8%;
+		padding-left: 16.9%;
+		padding-right: 34.1%;
+	}
+}
+
+@media screen and (min-width: 1024px) and (max-height: 720px) {
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgb(45, 5, 139);
+		display: flex;
+		column-gap: 27.8%;
+		padding-left: 16.9%;
+		padding-right: 34.1%;
+		column-gap: 12%;
+		padding-left: 12.4%;
+		padding-right: 34.1%;
+	}
+}
+
+@media (min-resolution: 175dpi) and (max-resolution: 200dpi) {
+	.dbForm {
+		flex: 1 1;
+		position: relative;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		margin-top: 20px;
+		padding: 5px;
+		padding-bottom: 3.5rem;
+		max-height: calc(80vh - 20px);
+	}
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgba(224, 224, 224, 1);
+		display: flex;
+		column-gap: 20%;
+		padding-left: 15.4%;
+		padding-right: 38.9%;
+	}
+  }
+
+@media (min-resolution: 150dpi) and (max-resolution: 175dpi) {
+	.dbForm {
+		flex: 1 1;
+		position: relative;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		margin-top: 20px;
+		padding: 5px;
+		padding-bottom: 3.5rem;
+		max-height: calc(80vh - 20px);
+	}
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgba(224, 224, 224, 1);
+		display: flex;
+		column-gap: 31.8%;
+		padding-left: 18.5%;
+		padding-right: 38.9%;
+	}
+  }
+
+@media (min-resolution: 125dpi) and (max-resolution: 150dpi) {
+	.dbForm {
+		flex: 1 1;
+		position: relative;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		margin-top: 20px;
+		padding: 5px;
+		padding-bottom: 3.5rem;
+		max-height: calc(80vh - 20px);
+	}
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgba(224, 224, 224, 1);
+		display: flex;
+		column-gap: 44%;
+		padding-left: 21.6%;
+		padding-right: 38.9%;
+	}
+  }
+
+  @media (min-resolution: 110dpi) and (max-resolution: 125dpi) {
+	.dbForm {
+		flex: 1 1;
+		position: relative;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		margin-top: 20px;
+		padding: 5px;
+		padding-bottom: 3.5rem;
+		max-height: calc(80vh - 20px);
+	}
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgba(224, 224, 224, 1);
+		display: flex;
+		column-gap: 50.8%;
+		padding-left: 22.4%;
+		padding-right: 39.1%;
+	}
+  }
+
+  @media (min-resolution: 100dpi) and (max-resolution: 110dpi) {
+	.dbForm {
+		flex: 1 1;
+		position: relative;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		margin-top: 20px;
+		padding: 5px;
+		padding-bottom: 3.5rem;
+		max-height: calc(80vh - 20px);
+	}
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgba(224, 224, 224, 1);
+		display: flex;
+		column-gap: 55%;
+		padding-left: 23%;
+		padding-right: 39.1%;
+	}
+  }
+
+@media (min-resolution: 80dpi) and (max-resolution: 90dpi) {
+	.dbForm {
+		flex: 1 1;
+		position: relative;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		margin-top: 20px;
+		padding: 5px;
+		padding-bottom: 3.5rem;
+		max-height: calc(80vh - 20px);
+	}
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgba(224, 224, 224, 1);
+		display: flex;
+		column-gap: 59%;
+		padding-left: 23.5%;
+		padding-right: 39.1%;
+	}
+  }
+
+
+@media (min-resolution: 75dpi) and (max-resolution: 80dpi) {
+	.dbForm {
+		flex: 1 1;
+		position: relative;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		margin-top: 20px;
+		padding: 5px;
+		padding-bottom: 3.5rem;
+		max-height: calc(80vh - 20px);
+	}
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgba(224, 224, 224, 1);
+		display: flex;
+		column-gap: 60.6%;
+		padding-left: 23.6%;
+		padding-right: 39.1%;
+	}
+  }
+
+  @media (min-resolution: 67dpi) and (max-resolution: 75dpi) {
+	.dbForm {
+		flex: 1 1;
+		position: relative;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		margin-top: 20px;
+		padding: 5px;
+		padding-bottom: 3.5rem;
+		max-height: calc(80vh - 20px);
+	}
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgba(224, 224, 224, 1);
+		display: flex;
+		column-gap: 66.8%;
+		padding-left: 24.6%;
+		padding-right: 39.8%;
+	}
+  }
+
+  @media (min-resolution: 50dpi) and (max-resolution: 67dpi) {
+	.dbForm {
+		flex: 1 1;
+		position: relative;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		margin-top: 20px;
+		padding: 5px;
+		padding-bottom: 3.5rem;
+		max-height: calc(80vh - 20px);
+	}
+	.dbFormButton {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		height: 3.5rem;
+		z-index: 1;
+		background: rgb(255, 255, 255); /* Fully opaque background color */
+		border-top: 2px solid rgba(224, 224, 224, 1);
+		display: flex;
+		column-gap: 60%;
+		padding-left: 23.4%;
+		padding-right: 38.4%;
+	}
+  }

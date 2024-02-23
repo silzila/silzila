@@ -853,7 +853,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
         overflowY: "auto"
     }}
 >
-    {showform || viewMode ?
+    {showform || viewMode ? (
         <>
             <div
                 style={{
@@ -1086,74 +1086,76 @@ const NewDataConnection = (props: DataConnectionProps) => {
                 </div>
             </div>
 
-            <div className="dbButton">
-                {viewMode ? (
-                    <div className="dbFormButton">
-                        <Button
-                            variant="contained"
-                            value="Edit"
-                            onClick={(e: any) => {
-                                setViewMode(false);
-                                setBtnEnable(true);																																																													
-                                handleMode("Edit");
-                                setEnable(true)
-                            }}
-                            style={{ backgroundColor: "#af99db", marginRight: '18px' }}
-                        >
-                            Edit
-                        </Button>
-                        <Button
-                            variant="contained"
-                            style={{ backgroundColor: "red", marginRight: '7px' }}
-                            onClick={deleteDcWarning}
-                        >
-                            Delete
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="dbFormButton">
-                        <Button
-                            variant="contained"
-                            onClick={handleonTest}
-                            disabled={btnEnable}
-                            style={{
-                                backgroundColor: btnEnable
-                                    ? "rgba(224,224,224,1)"
-                                    : "#af99db",
-                            }}
-                        >
-                            Test
-                        </Button>
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            style={{
-                                backgroundColor: btnEnable
-                                    ? "rgba(224,224,224,1)"
-                                    : "#2bb9bb",
-                                marginRight: '5px'
-                            }}
-                            onClick={e => {
-                                e.preventDefault();
-                                onSubmit();
-                            }}
-                            disabled={btnEnable}
-                        >
-                            {regOrUpdate}
-                        </Button>
-                    </div>
-                )}
+         <div className="dbButton">
+			<div className="dbButtonContainer">
+                <div className="dbButtonBox">
+                    {viewMode ? (
+                        <div className="dbFormButton">
+                            <Button
+                                variant="contained"
+                                value="Edit"
+                                onClick={(e: any) => {
+                                    setViewMode(false);
+                                    setBtnEnable(true);
+                                    handleMode("Edit");
+                                    setEnable(true)
+                                }}
+								style={{ backgroundColor: "rgb(175, 153, 219)", 
+										 marginRight: '-81px'
+									  
+									}}
+                            >
+                                Edit
+                            </Button>
+                            <Button 
+                                variant="contained"
+                                style={{ backgroundColor: "red", marginRight: '7px' }}
+                                onClick={deleteDcWarning}
+                            >
+                                Delete
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="dbFormButton">
+                            <Button className="testButton"
+                                variant="contained"
+                                onClick={handleonTest}
+                                disabled={btnEnable}
+                                style={{
+                                    backgroundColor: btnEnable ? "rgba(224,224,224,1)" : "#af99db",
+                                }}
+                            >
+                                Test
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                style={{
+                                    backgroundColor: btnEnable ? "rgba(224,224,224,1)" : "#2bb9bb",
+                                    marginRight: '5px'
+                                }}
+                                onClick={e => {
+                                    e.preventDefault();
+                                    onSubmit();
+                                }}
+                                disabled={btnEnable}
+                            >
+                                {regOrUpdate}
+                            </Button>
+                        </div>
+                    )}
+                </div>
             </div>
+		</div>
         </>
-        :
+    ) : (
         <div>
             <Typography variant='h6' sx={{ color: '#B4B4B3', paddingTop: '20rem' }}>
                 Please select a database
             </Typography>
         </div>
-    }
+    )}
 </Box>
-
 
 				{/* Alert to display success / failure info */}
 			    <DatabaseConnectionDialogComponents
