@@ -1123,6 +1123,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
                                 disabled={btnEnable}
                                 style={{
                                     backgroundColor: btnEnable ? "rgba(224,224,224,1)" : "#af99db",
+									marginRight: '-108px'
                                 }}
                             >
                                 Test

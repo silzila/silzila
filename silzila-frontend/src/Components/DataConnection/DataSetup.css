@@ -453,20 +453,6 @@ DataHome
    
 }
 
-/* .dbButton{
-	display: flex;
-	justify-content: center;
-	border-top: 2px solid rgba(224, 224, 224, 1);
-	margin-top: 20px;
-} */
-/* .editButton {
-	background-color: rgb(175, 153, 219);
-    margin-right: -82px;
-} */
-/* .EDbutton {
-	background-color: rgb(175, 153, 219);
-	margin-right: -81px;
-  } */
 /* .dbForm */
 .dbForm {
     flex: 1 1;
