@@ -107,6 +107,18 @@ const GradientComponent = ({
 		return { min: minValue, max: maxValue };
 	};
 
+	const getMidValue = (column: string) => {
+		const valuesArray = chartControls.properties[propKey].chartData.map((el: any) => {
+			return el[column];
+		});		
+		const minValue:any = Number(Math.min(...valuesArray)).toFixed(2);
+		const maxValue:any =  Number(Math.max(...valuesArray)).toFixed(2);	
+
+		return (Number(minValue) + Number(maxValue)) / 2;
+	};
+
+	
+
 	const onUpdateRule = (updatedArray: any, columnName: string) => {
 		const updatedValues = chartControls.properties[propKey].tableConditionalFormats.map(
 			(column: any) => {
@@ -130,14 +142,20 @@ const GradientComponent = ({
 			isBold: false,
 			isItalic: false,
 			isUnderlined: false,
-			backgroundColor: "#FFB980",
+			backgroundColor: "#E6FB0A",
 			fontColor: "black",
 		};
 
 		var formatItemValue = format.value;
 		let indexvalue = 2;
-		setGradientValue(0);
+		let min = format.value.find((val:any)=>val.name == 'Min').value;
+		let max = format.value.find((val:any)=>val.name == 'Max').value;
+		let midVal = (Number(min) + Number(max)) / 2;
+
+		obj.value = midVal;
+
 		formatItemValue.splice(indexvalue, 0, obj);
+		setGradientValue(midVal);
 		onUpdateRule(formatItemValue, format.name);
 	};
 
@@ -154,13 +172,13 @@ const GradientComponent = ({
 				return (
 					<div className="gradientComponentContainer">
 						<div className="gradientCardContainer">
-							{index === 0 ? (
+							{el.name?.trim() == "Null"? (
 								"Null"
 							) : (
 								<>
 									<span>
 										{el.name}
-										{format.value.length === 4 && index === 2 ? (
+										{el.name?.trim() == "Mid Value" ? (
 											<CloseIcon
 												sx={closeIconStyle}
 												onClick={() => onRemoveMidValue()}
@@ -174,7 +192,8 @@ const GradientComponent = ({
 										}}
 										sx={inputBaseStyle}
 										placeholder={el.isUserChanged ? "" : el.name == "Min" ? "Enter Min Value ("+ getMinAndMaxValue(format.name)?.min + ")"
-																									: "Enter Max Value (" + getMinAndMaxValue(format.name)?.max + ")" }
+															: el.name == "Max" ? "Enter Max Value (" + getMinAndMaxValue(format.name)?.max + ")" : 
+															"Enter Mid Value (" + getMidValue(format.name) + ")"}
 									/>
 								</>
 							)}

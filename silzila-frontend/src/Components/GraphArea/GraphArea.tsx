@@ -37,6 +37,7 @@ import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import TextEditor from "../Charts/TextEditor/TextEditor";
 import CrossTabChart from "../Charts/CrossTab/CrossTabChart";
+import GeoChart from "../Charts/GeoChart/GeoChart";
 import FetchData from "../ServerCall/FetchData";
 import { getChartData } from "../ChartAxes/ChartData";
 import {
@@ -355,14 +356,14 @@ const GraphArea = ({
 					/>
 				);
 
-			// case "geoChart":
-			// 	return (
-			// 		<GeoChart
-			// 			propKey={propKey}
-			// 			graphDimension={fullScreen ? graphDimension2 : graphDimension}
-			// 			graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
-			// 		/>
-			// 	);
+			case "geoChart":
+				return (
+					<GeoChart
+						propKey={propKey}
+						graphDimension={fullScreen ? graphDimension2 : graphDimension}
+						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
+					/>
+				);
 			case "stackedArea":
 				return (
 					<StackedAreaChart

@@ -3,7 +3,7 @@
 // Creating new and editing existing connections are handled in FormDialog child component
 
 import React, { useEffect, useState } from "react";
-import { VisibilitySharp } from "@mui/icons-material";
+import { VisibilitySharp, InfoOutlined } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
@@ -24,7 +24,15 @@ const DataConnection = (props: DataConnectionProps) => {
 	const [dataConnectionList, setDataConnectionList] = useState<ConnectionItem[]>([]);
 	const [mode] = useState<string>("New");
 	const navigate = useNavigate();
+	const [isHovered, setIsHovered] = useState(false);
+	// Handle the Information of tooltip
+    const handleMouseEnter = () => {
+        setIsHovered(true);
+    };
 
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+    };
 	useEffect(() => {
 		props.resetAllStates();
 		getInformation();
@@ -51,9 +59,23 @@ const DataConnection = (props: DataConnectionProps) => {
 	return (
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
-				<div className="containerTitle">
+				<div className="DBcontainerTitle">
 					<StorageOutlinedIcon style={{ marginRight: "10px", color: " #2bb9bb" }} />
 					DB Connections
+					<Tooltip title="Create connection to your database and save it for later." arrow placement="top">
+					<InfoOutlined 
+								style={{ 
+									marginLeft: "5px", 
+									cursor: "pointer", 
+									marginTop: "4px",
+									color: isHovered ? "grey" : "LightGrey", // Change color based on hover state
+									fontSize: "1.2em", // Change font size based on hover state
+									transition: "color 0.3s, font-size 0.3s" // Transition for smooth hover effect
+								}}
+								onMouseEnter={handleMouseEnter}
+								onMouseLeave={handleMouseLeave}
+							/>
+					</Tooltip>
 				</div>
 				<div
 					className="containerButton"
@@ -96,9 +118,9 @@ const DataConnection = (props: DataConnectionProps) => {
 													<VisibilitySharp
 														//external css wont work for this
 														style={{
-															width: "1rem",
+															// width: "1rem",
 															height: "1rem",
-															margin: "auto 7px auto auto",
+															margin: "auto auto auto auto",
 														}}
 														onClick={() =>
 															navigate("/newdataconnection", {
