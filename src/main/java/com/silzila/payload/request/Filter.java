@@ -41,6 +41,8 @@ public class Filter implements Serializable {
     private Filter.Operator operator;
     @JsonProperty("userSelection")
     private List<String> userSelection = null;
+    @JsonProperty("relativeCondition")
+    private List<RelativeCondition> relativeCondition = null;
     private final static long serialVersionUID = 4876626487235075859L;
 
     /**
@@ -60,9 +62,11 @@ public class Filter implements Serializable {
      * @param tableId
      * @param userSelection
      * @param operator
+     * @param relativeCondition
      */
     public Filter(String tableId, String fieldName, Filter.DataType dataType, Boolean shouldExclude,
-            Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection, String filterType) {
+            Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection, String filterType,
+            List<RelativeCondition> relativeCondition) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
@@ -72,6 +76,7 @@ public class Filter implements Serializable {
         this.operator = operator;
         this.userSelection = userSelection;
         this.filterType = filterType;
+        this.relativeCondition = relativeCondition;
     }
 
     @JsonProperty("filterType")
@@ -154,6 +159,16 @@ public class Filter implements Serializable {
         this.userSelection = userSelection;
     }
 
+    @JsonProperty("relativeCondition")
+    public List<RelativeCondition> getRelativeCondition() {
+        return relativeCondition;
+    }
+
+    @JsonProperty("relativeCondition")
+    public void setRelativeCondition(List<RelativeCondition> relativeCondition) {
+        this.relativeCondition = relativeCondition;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -190,6 +205,10 @@ public class Filter implements Serializable {
         sb.append("userSelection");
         sb.append('=');
         sb.append(((this.userSelection == null) ? "<null>" : this.userSelection));
+        sb.append(',');
+        sb.append("relativeCondition");
+        sb.append('=');
+        sb.append(((this.relativeCondition == null) ? "<null>" : this.relativeCondition));
         sb.append(',');
         if (sb.charAt((sb.length() - 1)) == ',') {
             sb.setCharAt((sb.length() - 1), ']');

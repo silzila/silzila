@@ -76,10 +76,7 @@ public class RelativeCondition implements Serializable {
 
     @Override
     public String toString() {
-        return "RelativeCondition{" +
-                "from=" + from +
-                ", to=" + to +
-                ", anchorDate='" + anchorDate + '\'' +
-                '}';
-    }
+        return "RelativeCondition [from=" + from + ", to=" + to + ", anchorDate=" + anchorDate + "]";
+    } 
+
 }

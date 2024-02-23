@@ -323,9 +323,9 @@ public class DatasetService {
                     // Iterate over each filter in the list
                     for (Filter filter : filters) {
                         // Check if the filter is of type 'relative_filter'
-                        if ("relative_filter".equals(filter.getFilterType())) {
+                        if ("relativeFilter".equals(filter.getFilterType())) {
                             // Get the relative condition associated with the filter panel
-                            List<RelativeCondition> relativeConditions = filterPanel.getRelativeCondition();
+                            List<RelativeCondition> relativeConditions = filter.getRelativeCondition();
                             if (relativeConditions != null && !relativeConditions.isEmpty()) {
                                 // Get the first relative condition
                                 RelativeCondition relativeCondition = relativeConditions.get(0);

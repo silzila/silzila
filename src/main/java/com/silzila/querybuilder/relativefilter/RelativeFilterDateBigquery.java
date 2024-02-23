@@ -30,47 +30,21 @@ public class RelativeFilterDateBigquery {
         List<String> toConditions = relativeFilter.getTo();
 
         // check three elements are there and type is correct or not
-        if (fromConditions.size() != 3 || toConditions.size() != 3) {
-            throw new BadRequestException("no valid number of conditions");
-        }
-
-        if (!List.of("last", "current", "next").contains(fromConditions.get(0)) ||
-                !List.of("last", "current", "next").contains(toConditions.get(0)) ||
-                !List.of("day", "rollingWeek", "rollingMonth", "rollingYear", "weekSunSat", "weekMonSun",
-                        "calendarYear",
-                        "calendarMonth").contains(fromConditions.get(2))
-                ||
-                !List.of("day", "rollingWeek", "rollingMonth", "rollingYear", "weekSunSat", "weekMonSun",
-                        "calendarYear",
-                        "calendarMonth").contains(toConditions.get(2))) {
-
-            throw new BadRequestException("Invalid type");
-        }
+        RelativeFilterDateValidationUtils.validateConditions(fromConditions, toConditions);
 
         // precedingorfollowingNumber
         int fromNum = Integer.parseInt(fromConditions.get(1));
         int toNum = Integer.parseInt(toConditions.get(1));
 
-        if (fromNum < 0 || toNum < 0) {
-            throw new BadRequestException("Preceding or Following number should be valid");
-        }
+        // check Number is valid or not
+        RelativeFilterDateValidationUtils.fromToNumValidation(fromNum, toNum);
 
         // tableDateType
         String tableDataType = relativeFilter.getFilterTable().get(0).getDataType().name();
 
         // anchorDate -- specificDate/date
-        // retriving a date
-        if (ancDateArray.isEmpty()) {
-            throw new BadRequestException("there is no anchor date");
-        }
-        String ancDate = String.valueOf(ancDateArray.getJSONObject(0).get("anchorDate"));
-
-        if (List.of("today", "tomorrow", "yesterday", "latest").contains(relativeFilter.getAnchorDate())
-                && !ancDate.equals("1")) {
-            anchorDate = ancDate;
-        } else if (ancDate.equals("1")) {
-            anchorDate = relativeFilter.getAnchorDate();
-        }
+        // retriving a date with validation
+        anchorDate = RelativeFilterDateValidationUtils.anchorDateValidation(relativeFilter, ancDateArray);
 
         if (!List.of("DATE", "TIMESTAMP").contains(tableDataType)) {
             throw new BadRequestException("DateType should be date or timestamp");
@@ -84,46 +58,43 @@ public class RelativeFilterDateBigquery {
 
                 switch (fromType) {
                     case "day":
-                        fromDate = "date_sub('" + anchorDate + "', interval " + fromNum + " day)";
+                        fromDate = "DATE_SUB('" + anchorDate + "', INTERVAL " + fromNum + " DAY)";
                         break;
                     case "rollingWeek":
                         fromNum = fromNum + 1;
-                        fromDate = "date_add(date_sub('" + anchorDate + "', interval " + fromNum
-                                + " week), interval 1 day)";
+                        fromDate = "DATE_ADD(DATE_SUB('" + anchorDate + "', INTERVAL " + fromNum
+                                + " WEEK), INTERVAL 1 DAY)";
                         break;
                     case "rollingMonth":
                         fromNum = fromNum + 1;
-                        fromDate = "date_add(date_sub('" + anchorDate + "', interval " + fromNum
-                                + " month), interval 1 day)";
+                        fromDate = "DATE_ADD(DATE_SUB('" + anchorDate + "', INTERVAL " + fromNum
+                                + " MONTH), INTERVAL 1 DAY)";
                         break;
                     case "rollingYear":
                         fromNum = fromNum + 1;
-                        fromDate = "date_add(date_sub('" + anchorDate + "' , interval " + fromNum
-                                + " year), interval 1 day)";
+                        fromDate = "DATE_ADD(DATE_SUB('" + anchorDate + "', INTERVAL " + fromNum
+                                + " YEAR), INTERVAL 1 DAY)";
                         break;
                     case "weekSunSat":
                         fromNum = (fromNum * 7) - 1;
-                        fromDate = "date_sub('" + anchorDate + "', interval (extract(dayofweek from date '" + anchorDate
-                                + "') + " + fromNum + ") day)";
+                        fromDate = "DATE_SUB('" + anchorDate + "', INTERVAL (DAYOFWEEK('" + anchorDate
+                                + "') + " + fromNum + ") DAY)";
                         break;
                     case "weekMonSun":
                         fromNum = (fromNum * 7) - 2;
-                        fromDate = "if(extract(dayofweek from date '" + anchorDate + "') = 1, "
-                                + "date_sub('" + anchorDate + "', interval (extract(dayofweek from date '" + anchorDate
-                                + "') + "
-                                + fromNum + " + 7) day), "
-                                + "date_sub('" + anchorDate + "', interval (extract(dayofweek from date '" + anchorDate
-                                + "') + "
-                                + fromNum + ") day))";
+                        fromDate = "IF(DAYOFWEEK('" + anchorDate + "') = 1, "
+                                + "DATE_SUB('" + anchorDate + "', INTERVAL (DAYOFWEEK('" + anchorDate
+                                + "') + " + fromNum + " + 7) DAY), "
+                                + "DATE_SUB('" + anchorDate + "', INTERVAL (DAYOFWEEK('" + anchorDate
+                                + "') + " + fromNum + ") DAY))";
                         break;
-                    case "calendarMonth":
-                        fromDate = "format_date('%Y-%m-01', date_sub(parse_date('%Y-%m-%d', '" + anchorDate
-                                + "'), interval " + fromNum + " month))";
-
+                    case "month":
+                        fromDate = "DATE_TRUNC(DATE_SUB('" + anchorDate
+                                + "', INTERVAL " + fromNum + " MONTH), MONTH)";
                         break;
-                    case "calendarYear":
-                        fromDate = "format_date('%Y-01-01', date_sub(parse_date('%Y-%m-%d', '" + anchorDate
-                                + "'), interval " + fromNum + " year))";
+                    case "year":
+                        fromDate = "DATE_TRUNC(DATE_SUB('" + anchorDate
+                                + "', INTERVAL " + fromNum + " YEAR), YEAR)";
                         break;
                     default:
                         break;
@@ -133,47 +104,45 @@ public class RelativeFilterDateBigquery {
                 switch (fromType) {
                     case "day":
                         fromNum = 0;
-                        fromDate = "date_sub('" + anchorDate + "' , interval " + fromNum + " day)";
+                        fromDate = "DATE_SUB('" + anchorDate + "' , INTERVAL " + fromNum + " DAY)";
                         break;
                     case "rollingWeek":
                         fromNum = 1;
-                        fromDate = "date_add(date_sub('" + anchorDate + "' , interval " + fromNum
-                                + " week), interval 1 day)";
+                        fromDate = "DATE_ADD(DATE_SUB('" + anchorDate + "' , INTERVAL " + fromNum
+                                + " WEEK), INTERVAL 1 DAY)";
                         break;
                     case "rollingMonth":
                         fromNum = 1;
-                        fromDate = "date_add(date_sub('" + anchorDate + "' , interval " + fromNum
-                                + " month), interval 1 day)";
+                        fromDate = "DATE_ADD(DATE_SUB('" + anchorDate + "' , INTERVAL " + fromNum
+                                + " MONTH), INTERVAL 1 DAY)";
                         break;
                     case "rollingYear":
                         fromNum = 1;
-                        fromDate = "date_add(date_sub('" + anchorDate + "' , interval " + fromNum
-                                + " year), interval 1 day)";
+                        fromDate = "DATE_ADD(DATE_SUB('" + anchorDate + "' , INTERVAL " + fromNum
+                                + " YEAR), INTERVAL 1 DAY)";
                         break;
                     case "weekSunSat":
-
-                        fromDate = "date_sub('" + anchorDate + "', interval (extract(dayofweek from date '" + anchorDate
-                                + "') - 1) day)";
-
+                        fromDate = "DATE_SUB('" + anchorDate + "', INTERVAL (DAYOFWEEK('" + anchorDate
+                                + "') - 1) DAY)";
                         break;
                     case "weekMonSun":
-
-                        fromDate = "if(extract(dayofweek from date '" + anchorDate + "') = 1, " +
-                                "date_sub('" + anchorDate + "', interval (extract(dayofweek from date '" + anchorDate
-                                + "') - 2 + 7) day), " +
-                                "date_sub('" + anchorDate + "', interval (extract(dayofweek from date '" + anchorDate
-                                + "') - 2) day))";
+                        fromDate = "IF(DAYOFWEEK('" + anchorDate + "') = 1, " +
+                                "DATE_SUB('" + anchorDate + "', INTERVAL (DAYOFWEEK('" + anchorDate
+                                + "') - 2 + 7) DAY), " +
+                                "DATE_SUB('" + anchorDate + "', INTERVAL (DAYOFWEEK('" + anchorDate
+                                + "') - 2) DAY))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         fromNum = 0;
-                        fromDate = "format_date('%Y-%m-01', date_sub(parse_date('%Y-%m-%d', '" + anchorDate
-                                + "'), interval " + fromNum + " month))";
+                        fromDate = "DATE_TRUNC(DATE_SUB('" + anchorDate
+                                + "', INTERVAL " + fromNum + " MONTH), MONTH)";
+                        System.out.println(fromDate);
                         break;
 
-                    case "calendarYear":
+                    case "year":
                         fromNum = 0;
-                        fromDate = "format_date('%Y-01-01', date_sub(parse_date('%Y-%m-%d', '" + anchorDate
-                                + "'), interval " + fromNum + " year))";
+                        fromDate = "DATE_TRUNC(DATE_SUB('" + anchorDate
+                                + "', INTERVAL " + fromNum + " YEAR), YEAR)";
                         break;
                     default:
                         break;
@@ -182,45 +151,44 @@ public class RelativeFilterDateBigquery {
             if (fromConditions.get(0).equals("next")) {
                 switch (fromType) {
                     case "day":
-                        fromDate = "date_add('" + anchorDate + "' , interval " + fromNum + " day)";
+                        fromDate = "DATE_ADD('" + anchorDate + "' , INTERVAL " + fromNum + " DAY)";
                         break;
                     case "rollingWeek":
                         fromNum = fromNum - 1;
-                        fromDate = "date_add(date_add('" + anchorDate + "', interval " + fromNum
-                                + " week), interval 1 day)";
+                        fromDate = "DATE_ADD(DATE_ADD('" + anchorDate + "', INTERVAL " + fromNum
+                                + " WEEK), INTERVAL 1 DAY)";
                         break;
                     case "rollingMonth":
                         fromNum = fromNum - 1;
-                        fromDate = "date_add(date_add('" + anchorDate + "' , interval " + fromNum
-                                + " month), interval 1 day)";
+                        fromDate = "DATE_ADD(DATE_ADD('" + anchorDate + "' , INTERVAL " + fromNum
+                                + " MONTH), INTERVAL 1 DAY)";
                         break;
                     case "rollingYear":
                         fromNum = fromNum - 1;
-                        fromDate = "date_add(date_add('" + anchorDate + "' , interval " + fromNum
-                                + " year), interval 1 day)";
+                        fromDate = "DATE_ADD(DATE_ADD('" + anchorDate + "' , INTERVAL " + fromNum
+                                + " YEAR), INTERVAL 1 DAY)";
                         break;
                     case "weekSunSat":
                         fromNum = (fromNum * 7) - 6;
-                        fromDate = "date_add('" + anchorDate + "', interval (7 - extract(dayofweek from date '"
-                                + anchorDate + "') + " + fromNum + ") day)";
+                        fromDate = "DATE_ADD('" + anchorDate + "', INTERVAL (7 - EXTRACT(DAYOFWEEK FROM DATE '"
+                                + anchorDate + "') + " + fromNum + ") DAY)";
                         break;
                     case "weekMonSun":
                         fromNum = 1 + (fromNum * 7) - 6;
-                        fromDate = "if(extract(dayofweek from date '" + anchorDate + "') = 1, " +
-                                "date_add('" + anchorDate + "', interval (7 - extract(dayofweek from date '"
-                                + anchorDate + "') + " + fromNum + ") - 7 day), " +
-                                "date_add('" + anchorDate + "', interval (7 - extract(dayofweek from date '"
-                                + anchorDate + "') + " + fromNum + ") day))";
+                        fromDate = "IF(EXTRACT(DAYOFWEEK FROM DATE '" + anchorDate + "') = 1, " +
+                                "DATE_ADD('" + anchorDate + "', INTERVAL (7 - EXTRACT(DAYOFWEEK FROM DATE '"
+                                + anchorDate + "') + " + fromNum + ") - 7 DAY), " +
+                                "DATE_ADD('" + anchorDate + "', INTERVAL (7 - EXTRACT(DAYOFWEEK FROM DATE '"
+                                + anchorDate + "') + " + fromNum + ") DAY))";
                         break;
-                    case "calendarMonth":
-                        fromDate = "format_date('%Y-%m-01', date_add(parse_date('%Y-%m-%d', '" + anchorDate
-                                + "'), interval " + fromNum + " month))";
+                    case "month":
+                        fromDate = "DATE_TRUNC(DATE_ADD('" + anchorDate
+                                + "', INTERVAL " + fromNum + " MONTH), MONTH)";
                         break;
-                    case "calendarYear":
-                        fromDate = "format_date('%Y-01-01', date_add(parse_date('%Y-%m-%d', '" + anchorDate
-                                + "'), interval " + fromNum + " year))";
+                    case "year":
+                        fromDate = "DATE_TRUNC(DATE_ADD('" + anchorDate
+                                + "', INTERVAL " + fromNum + " YEAR), YEAR)";
                         break;
-
                     default:
                         break;
                 }
@@ -230,43 +198,40 @@ public class RelativeFilterDateBigquery {
 
                 switch (toType) {
                     case "day":
-                        toDate = "date_sub('" + anchorDate + "', interval " + toNum + " day)";
+                        toDate = "DATE_SUB('" + anchorDate + "', INTERVAL " + toNum + " DAY)";
                         break;
                     case "rollingWeek":
-                        toDate = "date_sub('" + anchorDate + "', interval " + toNum + " week)";
+                        toDate = "DATE_SUB('" + anchorDate + "', INTERVAL " + toNum + " WEEK)";
                         break;
                     case "rollingMonth":
-                        toDate = "date_sub('" + anchorDate + "', interval " + toNum + " month)";
+                        toDate = "DATE_SUB('" + anchorDate + "', INTERVAL " + toNum + " MONTH)";
                         break;
                     case "rollingYear":
-                        toDate = "date_sub('" + anchorDate + "', interval " + toNum + " year)";
+                        toDate = "DATE_SUB('" + anchorDate + "', INTERVAL " + toNum + " YEAR)";
                         break;
                     case "weekSunSat":
                         toNum = (toNum * 7) - 1 - 6;
-                        toDate = "date_sub('" + anchorDate + "', interval (extract(dayofweek from date '" + anchorDate
-                                + "') + " + toNum + ") day)";
+                        toDate = "DATE_SUB('" + anchorDate + "', INTERVAL (EXTRACT(DAYOFWEEK FROM DATE '" + anchorDate
+                                + "') + " + toNum + ") DAY)";
                         break;
                     case "weekMonSun":
                         toNum = (toNum * 7) - 2 - 6;
-                        toDate = "if(extract(dayofweek from date '" + anchorDate + "') = 1, " +
-                                "date_sub('" + anchorDate + "', interval (extract(dayofweek from date '" + anchorDate
-                                + "') + " + toNum + " + 7) day), " +
-                                "date_sub('" + anchorDate + "', interval (extract(dayofweek from date '" + anchorDate
-                                + "') + " + toNum + ") day))";
+                        toDate = "IF(EXTRACT(DAYOFWEEK FROM DATE '" + anchorDate + "') = 1, " +
+                                "DATE_SUB('" + anchorDate + "', INTERVAL (EXTRACT(DAYOFWEEK FROM DATE '" + anchorDate
+                                + "') + " + toNum + " + 7) DAY), " +
+                                "DATE_SUB('" + anchorDate + "', INTERVAL (EXTRACT(DAYOFWEEK FROM DATE '" + anchorDate
+                                + "') + " + toNum + ") DAY))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         toNum = toNum - 1;
-                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-%m-01', date_sub(parse_date('%Y-%m-%d', '"
-                                + anchorDate
-                                + "'), interval " + toNum + " month))), interval 1 day)";
+                        toDate = "DATE_SUB(DATE_TRUNC(DATE_SUB('" + anchorDate
+                                + "', INTERVAL " + toNum + " MONTH), MONTH) , INTERVAL 1 DAY)";
                         break;
-                    case "calendarYear":
+                    case "year":
                         toNum = toNum - 1;
-                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-01-01', date_sub(parse_date('%Y-%m-%d', '"
-                                + anchorDate
-                                + "'), interval " + toNum + " year))), interval 1 day)";
+                        toDate = "DATE_SUB(DATE_TRUNC(DATE_SUB('" + anchorDate
+                                + "', INTERVAL " + toNum + " YEAR), YEAR) , INTERVAL 1 DAY)";
                         break;
-
                     default:
                         break;
                 }
@@ -276,42 +241,40 @@ public class RelativeFilterDateBigquery {
                 switch (toType) {
                     case "day":
                         toNum = 0;
-                        toDate = "date_add('" + anchorDate + "', interval " + toNum + " day)";
+                        toDate = "DATE_ADD('" + anchorDate + "', INTERVAL " + toNum + " DAY)";
                         break;
                     case "rollingWeek":
                         toNum = 0;
-                        toDate = "date_add('" + anchorDate + "', interval " + toNum + " day)";
+                        toDate = "DATE_ADD('" + anchorDate + "', INTERVAL " + toNum + " DAY)";
                         break;
                     case "rollingMonth":
                         toNum = 0;
-                        toDate = "date_add('" + anchorDate + "', interval " + toNum + " day)";
+                        toDate = "DATE_ADD('" + anchorDate + "', INTERVAL " + toNum + " DAY)";
                         break;
                     case "rollingYear":
                         toNum = 0;
-                        toDate = "date_add('" + anchorDate + "', interval " + toNum + " day)";
+                        toDate = "DATE_ADD('" + anchorDate + "', INTERVAL " + toNum + " DAY)";
                         break;
                     case "weekSunSat":
-                        toDate = "date_add('" + anchorDate + "', interval (7 - extract(dayofweek from date '"
-                                + anchorDate + "')) day)";
+                        toDate = "DATE_ADD('" + anchorDate + "', INTERVAL (7 - EXTRACT(DAYOFWEEK FROM DATE '"
+                                + anchorDate + "')) DAY)";
                         break;
                     case "weekMonSun":
-                        toDate = "if(extract(dayofweek from date '" + anchorDate + "') = 1, " +
-                                "date_add('" + anchorDate + "', interval (7 - extract(dayofweek from date '"
-                                + anchorDate + "') + 1 - 7) day), " +
-                                "date_add('" + anchorDate + "', interval (7 - extract(dayofweek from date '"
-                                + anchorDate + "') + 1) day))";
+                        toDate = "IF(EXTRACT(DAYOFWEEK FROM DATE '" + anchorDate + "') = 1, " +
+                                "DATE_ADD('" + anchorDate + "', INTERVAL (7 - EXTRACT(DAYOFWEEK FROM DATE '"
+                                + anchorDate + "') + 1 - 7) DAY), " +
+                                "DATE_ADD('" + anchorDate + "', INTERVAL (7 - EXTRACT(DAYOFWEEK FROM DATE '"
+                                + anchorDate + "') + 1) DAY))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         toNum = 1;
-                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-%m-01', date_add(parse_date('%Y-%m-%d', '"
-                                + anchorDate
-                                + "'), interval " + toNum + " month))), interval 1 day)";
+                        toDate = "DATE_SUB(DATE_TRUNC(DATE_ADD('" + anchorDate
+                                + "', INTERVAL " + toNum + " MONTH), MONTH) , INTERVAL 1 DAY)";
                         break;
-                    case "calendarYear":
+                    case "year":
                         toNum = 1;
-                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-01-01', date_add(parse_date('%Y-%m-%d', '"
-                                + anchorDate
-                                + "'), interval " + toNum + " year))), interval 1 day)";
+                        toDate = "DATE_SUB(DATE_TRUNC(DATE_ADD('" + anchorDate
+                                + "', INTERVAL " + toNum + " YEAR), YEAR) , INTERVAL 1 DAY)";
                         break;
                     default:
                         break;
@@ -320,41 +283,39 @@ public class RelativeFilterDateBigquery {
             if (toConditions.get(0).equals("next")) {
                 switch (toType) {
                     case "day":
-                        toDate = "date_add('" + anchorDate + "', interval " + toNum + " day)";
+                        toDate = "DATE_ADD('" + anchorDate + "', INTERVAL " + toNum + " DAY)";
                         break;
                     case "rollingWeek":
-                        toDate = "date_add('" + anchorDate + "', interval " + toNum + " week)";
+                        toDate = "DATE_ADD('" + anchorDate + "', INTERVAL " + toNum + " WEEK)";
                         break;
                     case "rollingMonth":
-                        toDate = "date_add('" + anchorDate + "', interval " + toNum + " month)";
+                        toDate = "DATE_ADD('" + anchorDate + "', INTERVAL " + toNum + " MONTH)";
                         break;
                     case "rollingYear":
-                        toDate = "date_add('" + anchorDate + "', interval " + toNum + " year)";
+                        toDate = "DATE_ADD('" + anchorDate + "', INTERVAL " + toNum + " YEAR)";
                         break;
                     case "weekSunSat":
                         toNum = toNum * 7;
-                        toDate = "date_add('" + anchorDate + "', interval (7 - extract(dayofweek from date '"
-                                + anchorDate + "') + " + toNum + ") day)";
+                        toDate = "DATE_ADD('" + anchorDate + "', INTERVAL (7 - EXTRACT(DAYOFWEEK FROM DATE '"
+                                + anchorDate + "')) + " + toNum + " DAY)";
                         break;
                     case "weekMonSun":
                         toNum = toNum * 7 + 1;
-                        toDate = "if(extract(dayofweek from date '" + anchorDate + "') = 1, " +
-                                "date_add('" + anchorDate + "', interval (7 - extract(dayofweek from date '"
-                                + anchorDate + "') + " + toNum + " - 7) day), " +
-                                "date_add('" + anchorDate + "', interval (7 - extract(dayofweek from date '"
-                                + anchorDate + "') + " + toNum + ") day))";
+                        toDate = "IF(EXTRACT(DAYOFWEEK FROM DATE '" + anchorDate + "') = 1, " +
+                                "DATE_ADD('" + anchorDate + "', INTERVAL (7 - EXTRACT(DAYOFWEEK FROM DATE '"
+                                + anchorDate + "')) + " + toNum + " - 7 DAY), " +
+                                "DATE_ADD('" + anchorDate + "', INTERVAL (7 - EXTRACT(DAYOFWEEK FROM DATE '"
+                                + anchorDate + "')) + " + toNum + " DAY))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         toNum = toNum + 1;
-                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-%m-01', date_add(parse_date('%Y-%m-%d', '"
-                                + anchorDate
-                                + "'), interval " + toNum + " month))), interval 1 day)";
+                        toDate = "DATE_SUB(DATE_TRUNC(DATE_ADD('" + anchorDate
+                                + "', INTERVAL " + toNum + " MONTH), MONTH), INTERVAL 1 DAY)";
                         break;
-                    case "calendarYear":
+                    case "year":
                         toNum = toNum + 1;
-                        toDate = "date_sub(parse_date('%Y-%m-%d', format_date('%Y-01-01', date_add(parse_date('%Y-%m-%d', '"
-                                + anchorDate
-                                + "'), interval " + toNum + " year))), interval 1 day)";
+                        toDate = "DATE_SUB(DATE_TRUNC(DATE_ADD('" + anchorDate
+                                + "', INTERVAL " + toNum + " YEAR), YEAR), INTERVAL 1 DAY)";
                         break;
                     default:
                         break;
@@ -379,7 +340,7 @@ public class RelativeFilterDateBigquery {
             throw new BadRequestException("there is no anchor date");
         }
         String query = "";
-       
+
         // table
         String tableName = table.getTable();
 
@@ -394,20 +355,20 @@ public class RelativeFilterDateBigquery {
         Matcher matcher = pattern.matcher(anchorDate);
 
         // Query
-        if (List.of("today", "tomorrow", "yesterday", "latest").contains(anchorDate)) {
+        if (List.of("today", "tomorrow", "yesterday", "columnMaxDate").contains(anchorDate)) {
             if (anchorDate.equals("today")) {
-                query = "SELECT CURRENT_DATE() AS anchorDate";
+                query = "SELECT CURRENT_DATE() AS anchordate";
             } else if (anchorDate.equals("tomorrow")) {
-                query = "SELECT DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY) AS anchorDate";
+                query = "SELECT DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY) AS anchordate";
             } else if (anchorDate.equals("yesterday")) {
-                query = "SELECT DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) AS anchorDate";
-            } else if (anchorDate.equals("latest")) {
+                query = "SELECT DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) AS anchordate";
+            } else if (anchorDate.equals("columnMaxDate")) {
                 query = "SELECT DATE(MAX(" + relativeFilter.getFilterTable().get(0).getFieldName()
-                        + ")) AS anchorDate FROM `" +
+                        + ")) AS anchordate FROM `" +
                         databaseName + "." + schemaName + "." + tableName + "`";
             }
         } else if (matcher.matches()) {
-            query = "SELECT 1 AS anchorDate";
+            query = "SELECT 1 AS anchordate";
         } else {
             throw new BadRequestException("Invalid anchor date");
         }

@@ -29,47 +29,21 @@ public class RelativeFilterDateDatabricks {
         List<String> toConditions = relativeFilter.getTo();
 
         // check three elements are there and type is correct or not
-        if (fromConditions.size() != 3 || toConditions.size() != 3) {
-            throw new BadRequestException("no valid number of conditions");
-        }
-
-        if (!List.of("last", "current", "next").contains(fromConditions.get(0)) ||
-                !List.of("last", "current", "next").contains(toConditions.get(0)) ||
-                !List.of("day", "rollingWeek", "rollingMonth", "rollingYear", "weekSunSat", "weekMonSun",
-                        "calendarYear",
-                        "calendarMonth").contains(fromConditions.get(2))
-                ||
-                !List.of("day", "rollingWeek", "rollingMonth", "rollingYear", "weekSunSat", "weekMonSun",
-                        "calendarYear",
-                        "calendarMonth").contains(toConditions.get(2))) {
-
-            throw new BadRequestException("Invalid type");
-        }
+        RelativeFilterDateValidationUtils.validateConditions(fromConditions, toConditions);
 
         // precedingorfollowingNumber
         int fromNum = Integer.parseInt(fromConditions.get(1));
         int toNum = Integer.parseInt(toConditions.get(1));
 
-        if (fromNum < 0 || toNum < 0) {
-            throw new BadRequestException("Preceding or Following number should be valid");
-        }
+        // check Number is valid or not
+        RelativeFilterDateValidationUtils.fromToNumValidation(fromNum, toNum);
 
         // tableDateType
         String tableDataType = relativeFilter.getFilterTable().get(0).getDataType().name();
 
         // anchorDate -- specificDate/date
-        // retriving a date
-        if (ancDateArray.isEmpty()) {
-            throw new BadRequestException("there is no anchor date");
-        }
-        String ancDate = String.valueOf(ancDateArray.getJSONObject(0).get("anchorDate"));
-
-        if (List.of("today", "tomorrow", "yesterday", "latest").contains(relativeFilter.getAnchorDate())
-                && !ancDate.equals("1")) {
-            anchorDate = ancDate;
-        } else if (ancDate.equals("1")) {
-            anchorDate = relativeFilter.getAnchorDate();
-        }
+        // retriving a date with validation
+        anchorDate = RelativeFilterDateValidationUtils.anchorDateValidation(relativeFilter, ancDateArray);
 
         if (!List.of("DATE", "TIMESTAMP").contains(tableDataType)) {
             throw new BadRequestException("DateType should be date or timestamp");
@@ -112,12 +86,12 @@ public class RelativeFilterDateDatabricks {
                                 + " + 7)), " +
                                 "date_sub('" + anchorDate + "', (dayofweek('" + anchorDate + "') + " + fromNum + ")))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         fromNum = fromNum * -1; // Invert fromNum to subtract months
                         fromDate = "date_format(date_sub('" + anchorDate + "', " + fromNum
                                 + ", 'month'), 'yyyy-MM-01')";
                         break;
-                    case "calendarYear":
+                    case "year":
                         fromDate = "date_format(date_sub('" + anchorDate + "', " + fromNum + ", 'year'), 'yyyy-01-01')";
                         break;
                     default:
@@ -152,13 +126,13 @@ public class RelativeFilterDateDatabricks {
                                 "date_sub('" + anchorDate + "', (dayofweek('" + anchorDate + "') - 2 + 7) ), " +
                                 "date_sub('" + anchorDate + "', (dayofweek('" + anchorDate + "') - 2) ))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         fromNum = 0;
                         fromDate = "date_format(date_sub('" + anchorDate + "', " + fromNum
                                 + ", 'month'), 'yyyy-MM-01')";
                         break;
 
-                    case "calendarYear":
+                    case "year":
                         fromNum = 0;
                         fromDate = "date_format(date_sub('" + anchorDate + "', " + fromNum + ", 'year'), 'yyyy-01-01')";
                         break;
@@ -196,11 +170,11 @@ public class RelativeFilterDateDatabricks {
                                 "date_add('" + anchorDate + "', 7 - dayofweek('" + anchorDate + "') + " + fromNum
                                 + "))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         fromDate = "date_format(date_add('" + anchorDate + "', " + fromNum
                                 + ", 'month'), 'yyyy-MM-01')";
                         break;
-                    case "calendarYear":
+                    case "year":
                         fromDate = "date_format(date_add('" + anchorDate + "', " + fromNum + ", 'year'), 'yyyy-01-01')";
                         break;
 
@@ -235,12 +209,12 @@ public class RelativeFilterDateDatabricks {
                                 + " + 7)), " +
                                 "date_sub('" + anchorDate + "', (dayofweek('" + anchorDate + "') + " + toNum + ")))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         toNum = toNum - 1;
                         toDate = "date_sub(date_format(date_sub('" + anchorDate + "', " + toNum
                                 + ", 'month'), 'yyyy-MM-01'), 1)";
                         break;
-                    case "calendarYear":
+                    case "year":
                         toNum = toNum - 1;
                         toDate = "date_sub(date_format(date_sub('" + anchorDate + "', " + toNum
                                 + ", 'year'), 'yyyy-01-01'), 1)";
@@ -277,13 +251,13 @@ public class RelativeFilterDateDatabricks {
                                 "date_add('" + anchorDate + "', (7 - dayofweek('" + anchorDate + "') + 1 - 7)), " +
                                 "date_add('" + anchorDate + "', (7 - dayofweek('" + anchorDate + "') + 1)))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         toNum = 1;
                         toDate = "date_sub(date_format(date_add('" + anchorDate + "', " + toNum
                                 + ", 'month'), 'yyyy-MM-01'), 1)";
 
                         break;
-                    case "calendarYear":
+                    case "year":
                         toNum = 1;
                         toDate = "date_sub(date_format(date_add('" + anchorDate + "', " + toNum
                                 + ", 'year'), 'yyyy-01-01'), 1)";
@@ -342,12 +316,12 @@ public class RelativeFilterDateDatabricks {
                                 "date_add('" + anchorDate + "', (7 - dayofweek('" + anchorDate + "') + " + toNum
                                 + ")))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         toNum = toNum + 1;
                         toDate = "date_sub(date_format(add_months('" + anchorDate + "', " + toNum
                                 + "), 'yyyy-MM-01'), 1)";
                         break;
-                    case "calendarYear":
+                    case "year":
                         toNum = toNum + 1;
                         toDate = "date_sub(date_format(date_add('" + anchorDate + "', " + toNum
                                 + ", 'year'), 'yyyy-01-01'), 1)";
@@ -390,19 +364,19 @@ public class RelativeFilterDateDatabricks {
         Matcher matcher = pattern.matcher(anchorDate);
 
         // Query
-         if (List.of("today", "tomorrow", "yesterday", "latest").contains(anchorDate)) {
+         if (List.of("today", "tomorrow", "yesterday", "columnMaxDate").contains(anchorDate)) {
             if (anchorDate.equals("today")) {
-                query = "select current_date() as anchorDate";
+                query = "select current_date() as anchordate";
             } else if (anchorDate.equals("tomorrow")) {
-                query = "select date_add(current_date(), 1) as anchorDate";
+                query = "select date_add(current_date(), 1) as anchordate";
             } else if (anchorDate.equals("yesterday")) {
-                query = "select date_sub(current_date(), 1) as anchorDate";
-            } else if (anchorDate.equals("latest")) {
-                query = "select date(max(" + relativeFilter.getFilterTable().get(0).getFieldName() + "))as anchorDate from "
+                query = "select date_sub(current_date(), 1) as anchordate";
+            } else if (anchorDate.equals("columnMaxDate")) {
+                query = "select date(max(" + relativeFilter.getFilterTable().get(0).getFieldName() + "))as anchordate from "
                         + databaseName + "." + tableName;
             }
         } else if (matcher.matches()) {
-            query = "select 1 as anchorDate";
+            query = "select 1 as anchordate";
         } else {
             throw new BadRequestException("Invalid anchor date");
         }

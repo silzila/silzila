@@ -7,8 +7,6 @@ import javax.annotation.Generated;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
-
 @Generated("jsonschema2pojo")
 public class RelativeFilterRequest implements Serializable {
 
@@ -21,13 +19,9 @@ public class RelativeFilterRequest implements Serializable {
     @JsonProperty("anchorDate")
     private String anchorDate;
 
-
     public RelativeFilterRequest() {
     }
 
-
- 
-    
     /**
      * @param filterTable
      * @param from
@@ -43,64 +37,45 @@ public class RelativeFilterRequest implements Serializable {
         this.anchorDate = anchorDate;
     }
 
-
-
     @JsonProperty("filterTable")
     public List<Filter> getFilterTable() {
         return filterTable;
     }
-
-
 
     @JsonProperty("filterTable")
     public void setFilterTable(List<Filter> filterTable) {
         this.filterTable = filterTable;
     }
 
-
-
     @JsonProperty("from")
     public List<String> getFrom() {
         return from;
     }
-
-
 
     @JsonProperty("from")
     public void setFrom(List<String> from) {
         this.from = from;
     }
 
-
-
     @JsonProperty("to")
     public List<String> getTo() {
         return to;
     }
-
-
 
     @JsonProperty("to")
     public void setTo(List<String> to) {
         this.to = to;
     }
 
-
-
     @JsonProperty("anchorDate")
     public String getAnchorDate() {
         return anchorDate;
     }
-
-
-            
+        
     @JsonProperty("anchorDate")
     public void setAnchorDate(String anchorDate) {
         this.anchorDate = anchorDate;   
     }
-
-
-
 
     @Override
     public String toString() {

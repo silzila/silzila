@@ -29,47 +29,21 @@ public class RelativeFilterDateDuckDB {
         List<String> toConditions = relativeFilter.getTo();
 
         // check three elements are there and type is correct or not
-        if (fromConditions.size() != 3 || toConditions.size() != 3) {
-            throw new BadRequestException("no valid number of conditions");
-        }
-
-        if (!List.of("last", "current", "next").contains(fromConditions.get(0)) ||
-                !List.of("last", "current", "next").contains(toConditions.get(0)) ||
-                !List.of("day", "rollingWeek", "rollingMonth", "rollingYear", "weekSunSat", "weekMonSun",
-                        "calendarYear",
-                        "calendarMonth").contains(fromConditions.get(2))
-                ||
-                !List.of("day", "rollingWeek", "rollingMonth", "rollingYear", "weekSunSat", "weekMonSun",
-                        "calendarYear",
-                        "calendarMonth").contains(toConditions.get(2))) {
-
-            throw new BadRequestException("Invalid type");
-        }
+        RelativeFilterDateValidationUtils.validateConditions(fromConditions, toConditions);
 
         // precedingorfollowingNumber
         int fromNum = Integer.parseInt(fromConditions.get(1));
         int toNum = Integer.parseInt(toConditions.get(1));
 
-        if (fromNum < 0 || toNum < 0) {
-            throw new BadRequestException("Preceding or Following number should be valid");
-        }
+        // check Number is valid or not
+        RelativeFilterDateValidationUtils.fromToNumValidation(fromNum, toNum);
 
         // tableDateType
         String tableDataType = relativeFilter.getFilterTable().get(0).getDataType().name();
 
         // anchorDate -- specificDate/date
-        // retriving a date
-        if (ancDateArray.isEmpty()) {
-            throw new BadRequestException("there is no anchor date");
-        }
-        String ancDate = String.valueOf(ancDateArray.getJSONObject(0).get("anchorDate"));
-
-        if (List.of("today", "tomorrow", "yesterday", "latest").contains(relativeFilter.getAnchorDate())
-                && !ancDate.equals("1")) {
-            anchorDate = ancDate;
-        } else if (ancDate.equals("1")) {
-            anchorDate = relativeFilter.getAnchorDate();
-        }
+        // retriving a date with validation
+        anchorDate = RelativeFilterDateValidationUtils.anchorDateValidation(relativeFilter, ancDateArray);
 
         if (!List.of("DATE", "TIMESTAMP").contains(tableDataType)) {
             throw new BadRequestException("DateType should be date or timestamp");
@@ -117,12 +91,12 @@ public class RelativeFilterDateDuckDB {
                                 + "')*-1 + "
                                 + fromNum + ") day))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         fromNum = -fromNum;
                         fromDate = "date_trunc('month',CAST(date_add(DATE '" + anchorDate + "' , interval (" + fromNum
                                 + ") month) as DATE))";
                         break;
-                    case "calendarYear":
+                    case "Year":
                         fromNum = -fromNum;
                         fromDate = "date_trunc('year',CAST(date_add(DATE '" + anchorDate + "' , interval (" + fromNum
                                 + ") year) as DATE))";
@@ -168,12 +142,12 @@ public class RelativeFilterDateDuckDB {
                                 + "')*-1 + "
                                 + fromNum + ") day))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         fromNum = 0;
                         fromDate = "date_trunc('month',CAST(date_add(DATE '" + anchorDate + "' , interval (" + fromNum
                                 + ") month) as DATE))";
                         break;
-                    case "calendarYear":
+                    case "Year":
                         fromNum = 0;
                         fromDate = "date_trunc('year',CAST(date_add(DATE '" + anchorDate + "' , interval (" + fromNum
                                 + ") year) as DATE))";
@@ -218,11 +192,11 @@ public class RelativeFilterDateDuckDB {
                                 + "') + "
                                 + fromNum + ") day))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         fromDate = "date_trunc('month',CAST(date_add(DATE '" + anchorDate + "' , interval (" + fromNum
                                 + ") month) as DATE))";
                         break;
-                    case "calendarYear":
+                    case "Year":
                         fromDate = "date_trunc('year',CAST(date_add(DATE '" + anchorDate + "' , interval (" + fromNum
                                 + ") year) as DATE))";
                         break;
@@ -270,12 +244,12 @@ public class RelativeFilterDateDuckDB {
                                 + "')*-1 + "
                                 + toNum + ") day))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         toNum = -toNum;
                         toDate = "last_day(CAST(date_add(DATE '" + anchorDate + "' , interval (" + toNum
                                 + ") month) as DATE))";
                         break;
-                    case "calendarYear":
+                    case "Year":
                         toNum = -(toNum -1);
                         toDate = "date_add(date_trunc('year',CAST(date_add(DATE '" + anchorDate + "' , interval (" + toNum
                                 + ") year) as DATE)),-1)";
@@ -321,12 +295,12 @@ public class RelativeFilterDateDuckDB {
                                 + "') + "
                                 + toNum + ") day))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         toNum = 0;
                         toDate = "last_day(CAST(date_add(DATE '" + anchorDate + "' , interval (" + toNum
                                 + ") month) as DATE))";
                         break;
-                    case "calendarYear":
+                    case "Year":
                         toNum = 1;
                         toDate = "date_add(date_trunc('year',CAST(date_add(DATE '" + anchorDate + "' , interval ("
                                 + toNum
@@ -345,26 +319,14 @@ public class RelativeFilterDateDuckDB {
                     case "rollingWeek":
                         toNum = (toNum * 7);
                         toDate = "date_add(DATE '" + anchorDate + "' ," + toNum + " )";
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "date_add(DATE '" + anchorDate + "' , interval " + toNum + " day)";
-                        }
                         break;
                     case "rollingMonth":
                         toDate = "date_add(DATE '" + anchorDate + "' , interval (" + toNum
                                 + ") month)";
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "date_add(DATE '" + anchorDate + "' , interval " + toNum + " day)";
-                        }
                         break;
                     case "rollingYear":
                         toDate = "date_add(DATE '" + anchorDate + "' , interval (" + toNum
                                 + ") year)";
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "date_add(DATE '" + anchorDate + "' , interval " + toNum + " day)";
-                        }
                         break;
                     case "weekSunSat":
                         toNum = ((toNum * 7) - 7 + 6);
@@ -383,11 +345,11 @@ public class RelativeFilterDateDuckDB {
                                 + "') + "
                                 + toNum + ") day))";
                         break;
-                    case "calendarMonth":
+                    case "month":
                         toDate = "last_day(CAST(date_add(DATE '" + anchorDate + "' , interval (" + toNum
                                 + ") month) as DATE))";
                         break;
-                    case "calendarYear":
+                    case "Year":
                         toNum = (toNum + 1);
                         toDate = "date_add(date_trunc('year',CAST(date_add(DATE '" + anchorDate + "' , interval ("
                                 + toNum
@@ -419,11 +381,6 @@ public class RelativeFilterDateDuckDB {
         }
         String query = "";
 
-        // table
-        String tableName = table.getTable();
-
-        String databaseName = table.getDatabase();
-
         String anchorDate = relativeFilter.getAnchorDate();
 
         // pattern checker of specific date
@@ -434,19 +391,19 @@ public class RelativeFilterDateDuckDB {
         String fromClause = " FROM vw_" + table.getAlias() + "_" + table.getFlatFileId().substring(0, 8) + " ";
 
         // Query
-        if (List.of("today", "tomorrow", "yesterday", "latest").contains(anchorDate)) {
+        if (List.of("today", "tomorrow", "yesterday", "columnMaxDate").contains(anchorDate)) {
             if (anchorDate.equals("today")) {
-                query = "SELECT CURRENT_DATE() AS anchorDate";
+                query = "SELECT CURRENT_DATE() AS anchordate";
             } else if (anchorDate.equals("tomorrow")) {
-                query = "SELECT DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY) AS anchorDate";
+                query = "SELECT DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY) AS anchordate";
             } else if (anchorDate.equals("yesterday")) {
-                query = "SELECT DATE_ADD(CURRENT_DATE(), INTERVAL (-1) DAY) AS anchorDate";
-            } else if (anchorDate.equals("latest")) {
-                query = "SELECT MAX(" + relativeFilter.getFilterTable().get(0).getFieldName() + ") AS anchorDate "
+                query = "SELECT DATE_ADD(CURRENT_DATE(), INTERVAL (-1) DAY) AS anchordate";
+            } else if (anchorDate.equals("columnMaxDate")) {
+                query = "SELECT CAST(MAX(" + relativeFilter.getFilterTable().get(0).getFieldName() + ") AS DATE) AS anchordate "
                         + fromClause;
             }
         } else if (matcher.matches()) {
-            query = "SELECT 1 AS anchorDate";
+            query = "SELECT 1 AS anchordate";
         } else {
             throw new BadRequestException("Invalid anchor date");
         }
