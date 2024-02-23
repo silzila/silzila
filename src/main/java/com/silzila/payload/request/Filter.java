@@ -42,7 +42,7 @@ public class Filter implements Serializable {
     @JsonProperty("userSelection")
     private List<String> userSelection = null;
     @JsonProperty("relativeCondition")
-    private List<RelativeCondition> relativeCondition = null;
+    private RelativeCondition relativeCondition = null;
     private final static long serialVersionUID = 4876626487235075859L;
 
     /**
@@ -66,7 +66,7 @@ public class Filter implements Serializable {
      */
     public Filter(String tableId, String fieldName, Filter.DataType dataType, Boolean shouldExclude,
             Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection, String filterType,
-            List<RelativeCondition> relativeCondition) {
+           RelativeCondition relativeCondition) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
@@ -160,12 +160,12 @@ public class Filter implements Serializable {
     }
 
     @JsonProperty("relativeCondition")
-    public List<RelativeCondition> getRelativeCondition() {
+    public RelativeCondition getRelativeCondition() {
         return relativeCondition;
     }
 
     @JsonProperty("relativeCondition")
-    public void setRelativeCondition(List<RelativeCondition> relativeCondition) {
+    public void setRelativeCondition(RelativeCondition relativeCondition) {
         this.relativeCondition = relativeCondition;
     }
 

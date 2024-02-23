@@ -8,7 +8,7 @@ import com.silzila.exception.BadRequestException;
 import com.silzila.payload.request.RelativeFilterRequest;
 
 public class RelativeFilterDateValidationUtils {
-    
+
     public static void validateConditions(List<String> fromConditions, List<String> toConditions)
             throws BadRequestException {
         if (fromConditions.size() != 3 || toConditions.size() != 3) {
@@ -28,7 +28,7 @@ public class RelativeFilterDateValidationUtils {
             throw new BadRequestException("Invalid type");
         }
     }
-    
+
     public static String anchorDateValidation(RelativeFilterRequest relativeFilter, JSONArray ancDateArray)
             throws BadRequestException {
         String anchorDate = "";
@@ -47,7 +47,7 @@ public class RelativeFilterDateValidationUtils {
 
         return anchorDate;
     }
-    
+
     public static void fromToNumValidation(int fromNum, int toNum) throws BadRequestException {
         if (fromNum < 0 || toNum < 0) {
             throw new BadRequestException("Preceding or Following number should be valid");

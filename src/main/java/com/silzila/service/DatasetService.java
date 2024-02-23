@@ -324,11 +324,9 @@ public class DatasetService {
                     for (Filter filter : filters) {
                         // Check if the filter is of type 'relative_filter'
                         if ("relativeFilter".equals(filter.getFilterType())) {
-                            // Get the relative condition associated with the filter panel
-                            List<RelativeCondition> relativeConditions = filter.getRelativeCondition();
-                            if (relativeConditions != null && !relativeConditions.isEmpty()) {
-                                // Get the first relative condition
-                                RelativeCondition relativeCondition = relativeConditions.get(0);
+                            // Get the relative condition associated with the filter   
+                            RelativeCondition relativeCondition = filter.getRelativeCondition();
+                            if (relativeCondition != null) {
 
                                 // Create a new RelativeFilterRequest object with the relative condition and
                                 // filter
@@ -356,6 +354,9 @@ public class DatasetService {
 
                                 // Set the user selection - date range
                                 filter.setUserSelection(Arrays.asList(fromDate, toDate));
+                            }
+                            else{
+                                throw new BadRequestException("Error: There is no relative filter condition");
                             }
                         }
                     }
