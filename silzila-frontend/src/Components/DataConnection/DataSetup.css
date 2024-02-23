@@ -559,7 +559,7 @@ DataHome
 		height: 3.5rem;
 		z-index: 1;
 		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgb(202, 0, 118);
+		border-top: 2px solid rgba(224, 224, 224, 1);
 		display: flex;
 		column-gap: 34%;
 		padding-left: 18.2%;
@@ -575,7 +575,7 @@ DataHome
 		height: 3.5rem;
 		z-index: 1;
 		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgb(206, 0, 0);
+		border-top: 2px solid rgba(224, 224, 224, 1);
 		display: flex;
 		column-gap: 32%;
 		padding-left: 17.9%;
@@ -591,7 +591,7 @@ DataHome
 		height: 3.5rem;
 		z-index: 1;
 		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgb(18, 31, 214);
+		border-top: 2px solid rgba(224, 224, 224, 1);
 		display: flex;
 		column-gap: 29.9%;
 		padding-left: 17.4%;
@@ -607,7 +607,7 @@ DataHome
 		height: 3.5rem;
 		z-index: 1;
 		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgb(0, 217, 233);
+		border-top: 2px solid rgba(224, 224, 224, 1);
 		display: flex;
 		column-gap: 28%;
 		padding-left: 17.1%;
@@ -623,7 +623,7 @@ DataHome
 		height: 3.5rem;
 		z-index: 1;
 		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgb(230, 0, 0);
+		border-top: 2px solid rgba(224, 224, 224, 1);
 		display: flex;
 		column-gap: 28%;
 		padding-left: 17%;
@@ -639,7 +639,7 @@ DataHome
 		height: 3.5rem;
 		z-index: 1;
 		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgb(0, 182, 24);
+		border-top: 2px solid rgba(224, 224, 224, 1);
 		display: flex;
 		column-gap: 27.8%;
 		padding-left: 16.9%;
@@ -655,7 +655,7 @@ DataHome
 		height: 3.5rem;
 		z-index: 1;
 		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgb(45, 5, 139);
+		border-top: 2px solid rgba(224, 224, 224, 1);
 		display: flex;
 		column-gap: 27.8%;
 		padding-left: 16.9%;
