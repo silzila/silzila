@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+        "filterType",
         "tableId",
         "fieldName",
         "dataType",
@@ -24,6 +25,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 @Generated("jsonschema2pojo")
 public class Filter implements Serializable {
 
+    @JsonProperty("filterType")
+    private String filterType;
     @JsonProperty("tableId")
     private String tableId;
     @JsonProperty("fieldName")
@@ -38,6 +41,8 @@ public class Filter implements Serializable {
     private Filter.Operator operator;
     @JsonProperty("userSelection")
     private List<String> userSelection = null;
+    @JsonProperty("relativeCondition")
+    private RelativeCondition relativeCondition = null;
     private final static long serialVersionUID = 4876626487235075859L;
 
     /**
@@ -49,6 +54,7 @@ public class Filter implements Serializable {
 
     /**
      *
+     * @param filterType
      * @param timeGrain
      * @param fieldName
      * @param dataType
@@ -56,9 +62,11 @@ public class Filter implements Serializable {
      * @param tableId
      * @param userSelection
      * @param operator
+     * @param relativeCondition
      */
     public Filter(String tableId, String fieldName, Filter.DataType dataType, Boolean shouldExclude,
-            Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection) {
+            Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection, String filterType,
+           RelativeCondition relativeCondition) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
@@ -67,6 +75,18 @@ public class Filter implements Serializable {
         this.timeGrain = timeGrain;
         this.operator = operator;
         this.userSelection = userSelection;
+        this.filterType = filterType;
+        this.relativeCondition = relativeCondition;
+    }
+
+    @JsonProperty("filterType")
+    public String getFilterType() {
+        return filterType;
+    }
+
+    @JsonProperty("filterType")
+    public void setFilterType(String filterType) {
+        this.filterType = filterType;
     }
 
     @JsonProperty("tableId")
@@ -139,11 +159,25 @@ public class Filter implements Serializable {
         this.userSelection = userSelection;
     }
 
+    @JsonProperty("relativeCondition")
+    public RelativeCondition getRelativeCondition() {
+        return relativeCondition;
+    }
+
+    @JsonProperty("relativeCondition")
+    public void setRelativeCondition(RelativeCondition relativeCondition) {
+        this.relativeCondition = relativeCondition;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(Filter.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this)))
                 .append('[');
+        sb.append("filterType");
+        sb.append('=');
+        sb.append(((this.filterType == null) ? "<null>" : this.filterType));
+        sb.append(',');
         sb.append("tableId");
         sb.append('=');
         sb.append(((this.tableId == null) ? "<null>" : this.tableId));
@@ -171,6 +205,10 @@ public class Filter implements Serializable {
         sb.append("userSelection");
         sb.append('=');
         sb.append(((this.userSelection == null) ? "<null>" : this.userSelection));
+        sb.append(',');
+        sb.append("relativeCondition");
+        sb.append('=');
+        sb.append(((this.relativeCondition == null) ? "<null>" : this.relativeCondition));
         sb.append(',');
         if (sb.charAt((sb.length() - 1)) == ',') {
             sb.setCharAt((sb.length() - 1), ']');
