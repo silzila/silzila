@@ -19,7 +19,7 @@ public class SelectClauseBigquery {
     private static final Logger logger = LogManager.getLogger(SelectClauseBigquery.class);
 
     /* SELECT clause for MySQL dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName) throws BadRequestException {
         logger.info("SelectClauseBigquery calling ***********");
 
         List<String> selectList = new ArrayList<>();
@@ -27,6 +27,7 @@ public class SelectClauseBigquery {
         List<String> selectMeasureList = new ArrayList<>();
         List<String> groupByDimList = new ArrayList<>();
         List<String> orderByDimList = new ArrayList<>();
+        List<String> windowFnList = new ArrayList<>();
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
         Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "QUARTER", "QUARTER",
@@ -87,8 +88,8 @@ public class SelectClauseBigquery {
                     String sortingFfield = "EXTRACT(MONTH FROM " + dim.getTableId() + "." + dim.getFieldName() + ")";
                     field = "FORMAT_DATE('%B', DATE(" + dim.getTableId() + "." + dim.getFieldName() + "))";
                     String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
-                    selectDimList.add(field + " AS " + alias);
                     selectDimList.add(sortingFfield + " AS __" + alias);
+                    selectDimList.add(field + " AS " + alias);
                     groupByDimList.add("__" + alias);
                     groupByDimList.add(alias);
                     orderByDimList.add("__" + alias);
@@ -125,8 +126,8 @@ public class SelectClauseBigquery {
                     String sortingFfield = "EXTRACT(DAYOFWEEK FROM " + dim.getTableId() + "." + dim.getFieldName() + ")";
                     field = "FORMAT_DATE('%A', DATE(" + dim.getTableId() + "." + dim.getFieldName() + "))";
                     String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
-                    selectDimList.add(field + " AS " + alias);
                     selectDimList.add(sortingFfield + " AS __" + alias);
+                    selectDimList.add(field + " AS " + alias);
                     groupByDimList.add("__" + alias);
                     groupByDimList.add(alias);
                     orderByDimList.add("__" + alias);
@@ -164,6 +165,7 @@ public class SelectClauseBigquery {
             // Text Aggregation Methods like COUNT
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
+            String windowfn = "";
             if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
                 // checking ('count', 'countnn', 'countn', 'countu')
                 if (meas.getAggr().name().equals("COUNT")) {
@@ -261,8 +263,15 @@ public class SelectClauseBigquery {
                             "Error: Aggregation is not correct for Numeric field " + meas.getFieldName());
                 }
             }
+            if(meas.getWindowFn()[0] != null){
+                String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+                windowfn = SelectClauseWindowFunction.windowFunction(meas, req, alias, vendorName);
+                selectMeasureList.add(field + " AS _*" + alias);
+                selectMeasureList.add(windowfn + " AS _0" + alias);
+            } else{
             String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
             selectMeasureList.add(field + " AS " + alias);
+            }
         }
         ;
 

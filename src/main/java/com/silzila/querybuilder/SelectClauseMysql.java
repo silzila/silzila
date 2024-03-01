@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +24,7 @@ public class SelectClauseMysql {
     private static final Logger logger = LogManager.getLogger(SelectClauseMysql.class);
 
     /* SELECT clause for MySQL dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName) throws BadRequestException {
         logger.info("SelectClauseMysql calling ***********");
 
         List<String> selectList = new ArrayList<>();
@@ -110,7 +114,7 @@ public class SelectClauseMysql {
                 else if (dim.getTimeGrain().name().equals("DAYOFWEEK")) {
                     String sortingFfield = "DAYOFWEEK(" + dim.getTableId() + "." + dim.getFieldName() + ")";
                     field = "DAYNAME(" + dim.getTableId() + "." + dim.getFieldName() + ")";
-                    groupByDimList.add(sortingFfield);
+                                        groupByDimList.add(sortingFfield);
                     groupByDimList.add(field);
                     orderByDimList.add(sortingFfield);
                 }
@@ -147,6 +151,7 @@ public class SelectClauseMysql {
             // Text Aggregation Methods like COUNT
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
+            String windowfn = "";
             if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
                 // checking ('count', 'countnn', 'countn', 'countu')
                 if (meas.getAggr().name().equals("COUNT")) {
@@ -237,8 +242,16 @@ public class SelectClauseMysql {
                             "Error: Aggregation is not correct for Numeric field " + meas.getFieldName());
                 }
             }
+            if(meas.getWindowFn()[0] != null){
+                windowfn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName);
+                String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+                // selectMeasureList.add(field + " AS " + alias);
+                selectMeasureList.add(windowfn + " AS " + alias);
+            } 
+            else{
             String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
             selectMeasureList.add(field + " AS " + alias);
+            }
         }
         ;
 

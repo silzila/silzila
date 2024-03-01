@@ -49,19 +49,19 @@ public class QueryComposer {
 
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             // System.out.println("------ inside postges block");
-            qMap = SelectClausePostgres.buildSelectClause(req);
+            qMap = SelectClausePostgres.buildSelectClause(req, vendorName);
         } else if (vendorName.equals("mysql") || vendorName.equals("duckdb")) {
             // System.out.println("------ inside mysql block");
-            qMap = SelectClauseMysql.buildSelectClause(req);
+            qMap = SelectClauseMysql.buildSelectClause(req, vendorName);
         } else if (vendorName.equals("sqlserver")) {
             // System.out.println("------ inside sql server block");
-            qMap = SelectClauseSqlserver.buildSelectClause(req);
+            qMap = SelectClauseSqlserver.buildSelectClause(req, vendorName);
         } else if (vendorName.equals("bigquery")) {
             // System.out.println("------ inside Big Query block");
-            qMap = SelectClauseBigquery.buildSelectClause(req);
+            qMap = SelectClauseBigquery.buildSelectClause(req, vendorName);
         } else if (vendorName.equals("databricks")) {
             // System.out.println("------ inside databricks block");
-            qMap = SelectClauseDatabricks.buildSelectClause(req);
+            qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
@@ -73,7 +73,7 @@ public class QueryComposer {
         String groupByClause = "\n\t" + qMap.getGroupByList().stream().distinct().collect(Collectors.joining(",\n\t"));
         String orderByClause = "\n\t" + qMap.getOrderByList().stream().distinct().collect(Collectors.joining(",\n\t"));
         String whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName);
-        // for bigquery only
+   
         if (vendorName.equals("bigquery")) {
             boolean isDateOrTimestamp = false;
             boolean isMonthOrDayOfWeek = false;
@@ -86,12 +86,42 @@ public class QueryComposer {
                     isMonthOrDayOfWeek = true;
                     break; // Exit the loop if any dimension meets the criteria
                 }
+            } // for window functions
+            if (qMap.getSelectList().stream().anyMatch(column -> column.contains("_0"))) {
+                System.out.println("========================================");
+                List<String> filteredlist = new ArrayList<>();
+                List<String> filteredSelectList = new ArrayList<>();
+                String filteredWindowFunction = qMap.getSelectList().stream().filter(column -> column.contains("_0")).map(column -> column.replace("_0", "")).collect(Collectors.joining(",\n\t"));
+                List<String> filteredSelect = qMap.getSelectList().stream().filter(column -> !column.contains("_0")).map(column -> column.replace("_*", "")).collect(Collectors.toList());
+                String filteredSelectClause = filteredSelect.stream().collect(Collectors.joining(",\n\t"));
+                if(isDateOrTimestamp && isMonthOrDayOfWeek){
+                    filteredSelectList = qMap.getSelectList().stream().filter(column -> (!column.contains("__") && !column.contains("_*") && !column.contains("_0"))).collect(Collectors.toList());
+                }
+                else {
+                    filteredSelectList = qMap.getSelectList().stream().filter(column -> (!column.contains("_*") && !column.contains("_0"))).collect(Collectors.toList());
+                } 
+                    for (int i = 0; i < filteredSelectList.size(); i++) {
+                        String regex = "\\bAS\\s+(\\w+)"; // using regex to get alias after 'AS'
+                        Pattern pattern = Pattern.compile(regex);
+                        Matcher matcher = pattern.matcher(filteredSelectList.get(i));
+                        while (matcher.find()) {
+                            String alias = matcher.group(1);
+                            filteredlist.add(alias); // aliases add into filteredlist
+                            logger.info("Alias: " + alias);
+                        }
+                    }
+                    String filteredSelectClauseList = "\n\t" + filteredlist.stream().collect(Collectors.joining(",\n\t"));          
+                    finalQuery = "SELECT " + filteredSelectClauseList + ",\n\t" + filteredWindowFunction + "\nFROM (" + "\nSELECT " + filteredSelectClause + "\nFROM"
+                    + fromClause + whereClause + "\nGROUP BY" + groupByClause
+                    + "\n) AS Tbl\nORDER BY" + orderByClause;
+                
             }
-            if (isDateOrTimestamp && isMonthOrDayOfWeek) {
+            // if time grain month or day of week
+            else if (isDateOrTimestamp && isMonthOrDayOfWeek) {
                 List<String> filteredlist = new ArrayList<>();
                 List<String> filteredSelectList = qMap.getSelectList().stream().filter(column -> !column.contains("__"))
                         .collect(Collectors.toList()); // remove double underscore columns('__')
-
+         
                 logger.info(filteredSelectList);
 
                 for (int i = 0; i < filteredSelectList.size(); i++) {
@@ -121,9 +151,9 @@ public class QueryComposer {
             } else if (!req.getMeasures().isEmpty()) {
                 finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause + whereClause;
             }
-
         } else if (!req.getDimensions().isEmpty()) {
-            finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause + whereClause + "\nGROUP BY" + groupByClause
+            finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause + whereClause + "\nGROUP BY"
+                    + groupByClause
                     + "\nORDER BY"
                     + orderByClause;
         } else if (!req.getMeasures().isEmpty()) {

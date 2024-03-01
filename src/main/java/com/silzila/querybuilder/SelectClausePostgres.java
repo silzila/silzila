@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.exception.BadRequestException;
@@ -15,7 +18,7 @@ import com.silzila.payload.request.Query;
 
 public class SelectClausePostgres {
     /* SELECT clause for Postgres dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName) throws BadRequestException {
 
         List<String> selectList = new ArrayList<>();
         List<String> selectDimList = new ArrayList<>();
@@ -144,6 +147,7 @@ public class SelectClausePostgres {
             // Text Aggregation Methods like COUNT
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
+            String windowfn = "";
             if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
                 // checking ('count', 'countnn', 'countn', 'countu')
                 if (meas.getAggr().name().equals("COUNT")) {
@@ -257,8 +261,15 @@ public class SelectClausePostgres {
                             "Error: Aggregation is not correct for Numeric field " + meas.getFieldName());
                 }
             }
-            String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-            selectMeasureList.add(field + " AS " + alias);
+            if(meas.getWindowFn()[0] != null){
+                windowfn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName);
+                String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+                // selectMeasureList.add(field + " AS " + alias);
+                selectMeasureList.add(windowfn + " AS " + alias);
+            } else {
+                String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+                selectMeasureList.add(field + " AS " + alias);
+            }
         }
         ;
 

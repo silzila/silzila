@@ -20,7 +20,7 @@ public class SelectClauseDatabricks {
     private static final Logger logger = LogManager.getLogger(SelectClauseDatabricks.class);
 
     /* SELECT clause for Databricks dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName) throws BadRequestException {
         logger.info("SelectClauseDatabricks calling ***********");
 
         List<String> selectList = new ArrayList<>();
@@ -51,7 +51,7 @@ public class SelectClauseDatabricks {
             // for non Date fields, Keep column as is
             if (List.of("TEXT", "BOOLEAN", "INTEGER", "DECIMAL").contains(dim.getDataType().name())) {
                 field = dim.getTableId() + "." + dim.getFieldName();
-                groupByDimList.add(field);
+                                groupByDimList.add(field);
                 orderByDimList.add(field);
             }
             // for date fields, need to Parse as year, month, etc.. to aggreate
@@ -147,6 +147,7 @@ public class SelectClauseDatabricks {
             // Text Aggregation Methods like COUNT
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
+            String windowfn = "";
             if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
                 // checking ('count', 'countnn', 'countn', 'countu')
                 if (meas.getAggr().name().equals("COUNT")) {
@@ -237,8 +238,15 @@ public class SelectClauseDatabricks {
                             "Error: Aggregation is not correct for Numeric field " + meas.getFieldName());
                 }
             }
+            if(meas.getWindowFn()[0] != null){
+                windowfn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName);
+                String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+                // selectMeasureList.add(field + " AS *" + alias);
+                selectMeasureList.add(windowfn + " AS " + alias);
+            } else{
             String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
             selectMeasureList.add(field + " AS " + alias);
+            }
         }
         ;
 
