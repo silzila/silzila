@@ -57,7 +57,7 @@ const chartProperties: ChartPropertiesProps = {
 				generateTitle: "Auto",
 			},
 			chartOptionSelected: "Title",
-			geoLocation: "usa"
+			geoLocation: "world"
 		},
 	},
 
@@ -146,7 +146,7 @@ const chartPropertiesState = (
 						},
 
 						chartOptionSelected: "Colors",
-						geoLocation: "usa"
+						geoLocation: "world"
 					},
 				},
 				propList: {
@@ -208,7 +208,7 @@ const chartPropertiesState = (
 						},
 
 						chartOptionSelected: "Colors",
-						geoLocation: "usa"
+						geoLocation: "world"
 					},
 				},
 				propList: { ...state.propList, [action.payload.tabId]: [tileKey2] },
