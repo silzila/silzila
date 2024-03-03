@@ -217,7 +217,8 @@ export const getChartData = async (
 				break;
 
 			case "Location":
-				dim = "dims";
+				/*	dim = "dims";	*/
+				dim = "dimensions";
 				break;
 
 			case "Measure":

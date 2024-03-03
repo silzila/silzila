@@ -268,6 +268,14 @@ export const updateBoxPlotStyleOptions = (
 	return { type: "UPDATE_BOXPLOT_STYLE_OPTIONS", payload: { propKey, option, value } };
 };
 
+export const updateGeoChartStyleOptions = (
+	propKey: string,
+	option: string | number,
+	value: string | number
+) => {
+	return { type: "UPDATE_GEOCHART_STYLE_OPTIONS", payload: { propKey, option, value } };
+};
+
 export const updateTreeMapStyleOptions = (
 	propKey: string,
 	option: string | number,

@@ -8,7 +8,7 @@ import ReactEcharts from "echarts-for-react";
 
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { ChartControlsProps } from "../../../redux/ChartPoperties/ChartControlsInterface";
+import { ChartControlsProps, ChartConGeoChartControls } from "../../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../../ChartOptions/Color/ColorScheme";
 import {
 	formatChartLabelValue,
@@ -20,6 +20,7 @@ import {
 	ChartsReduxStateProps,
 	FormatterValueProps,
 } from "../ChartsCommonInterfaces";
+
 
 import usaJson from './GeoJSON/USMapData.json';
 import worldJSON from './GeoJSON/WorldData.json';
@@ -81,7 +82,7 @@ async function registerGeoMap(name: string){
 			mapJSON = ukJSON;
 			break;
 		default:
-			mapJSON = usaJson;
+			mapJSON = worldJSON;
 			break;
 	}	
 
@@ -126,13 +127,55 @@ const GeoChart = ({
 	
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
+	var geoStyle: ChartConGeoChartControls =
+		chartControls.properties[propKey].geoChartControls || {};
+
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 	let mapData: any[] = [];
 	let _dimensionField = chartProperties.properties[propKey].chartAxes[1];
 	let _measureField = chartProperties.properties[propKey].chartAxes[2];
-
 	let keyName = fieldName(_dimensionField.fields[0]);
 	let valueName = fieldName(_measureField.fields[0]);
+	//var property = chartControls.properties[propKey];
+	//let chartPropData = property.chartData ? property.chartData : "";
+
+	//const [formatedChartPropData, setFormatedChartPropData] = useState([]);
+	//let tempFormatedChartPropData = JSON.parse(JSON.stringify(chartPropData));
+	
+	// useEffect(() => {
+	// 	if (tempFormatedChartPropData) {
+	// 		var chartDataKeys = Object.keys(tempFormatedChartPropData[0] || []);
+	// 		let _formChartData: any = [];
+
+	// 		tempFormatedChartPropData.forEach((item: any) => {
+	// 			let formattedValue: any = {};
+
+	// 			for (let i = 0; i < chartDataKeys.length; i++) {
+	// 				/*  Need to format only numeric values  */
+	// 				if (typeof item[chartDataKeys[i]] === "number") {
+	// 					let _isMeasureField = _measureField.fields.find(field =>
+	// 						chartDataKeys[i].includes(field.fieldname)
+	// 					);
+	// 					/*  Need to format Measure dustbin fields */
+	// 					if (_isMeasureField && chartDataKeys[i].includes("of")) {
+	// 						formattedValue[chartDataKeys[i]] = formatChartLabelValue(
+	// 							property,
+	// 							item[chartDataKeys[i]]
+	// 						);
+	// 					} else {
+	// 						formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]];
+	// 					}
+	// 				} else {
+	// 					formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]];
+	// 				}
+	// 			}
+
+	// 			_formChartData.push(formattedValue);
+	// 		});
+
+	// 		setFormatedChartPropData(_formChartData);
+	// 	}
+	// }, [chartPropData, property.formatOptions]);
 
 	const convertIntoMapData = ()=>{
 		//[ 		{ name: 'Puerto Rico', value: 3667084 }, ];	
@@ -167,34 +210,51 @@ const GeoChart = ({
 	registerGeoMap(chartProperties.properties[propKey].geoLocation);
 
 	const option = {
-		geo: {
+		geo: {		
 			map: chartProperties.properties[propKey].geoLocation,
+			silent:false,
+			aspectScale: geoStyle.aspectScale,
+			show: true,
+			emphasis:{
+				focus: geoStyle.enableSelfEmphasis ? 'self' : 'normal'
+			},
+			select:{
+				disabled : true
+			},
 			label: {
 				normal: {
-					show: true,
+					show: graphDimension.height > 140 && graphDimension.height > 150
+					? chartControl.labelOptions.showLabel
+					: false,
 					textStyle: {
-						color: "#feffff",
-						fontSize: 10,
+						color: chartControl.labelOptions.labelColorManual
+						? chartControl.labelOptions.labelColor
+						: null,
+						fontSize: chartControl.labelOptions.fontSize - 4,
 					},
 				},
 				emphasis: {
-					show: true,
+					show: graphDimension.height > 140 && graphDimension.height > 150
+					? chartControl.labelOptions.showLabel
+					: false,
 					textStyle: {
-						color: "#feffff",
-						fontSize: 10,
+						color: chartControl.labelOptions.labelColorManual
+						? chartControl.labelOptions.labelColor
+						: null,
+						fontSize: chartControl.labelOptions.fontSize - 4,
 					},
 				},
 			},
 			roam: true,
-			zoom: 1.2,
+			zoom: geoStyle.mapZoom,
 			itemStyle: {
 				normal: {
-					areaColor: "#eee",
-					borderColor: "#1a5cb5",
-					borderWidth: 2,
+					areaColor:  geoStyle.areaColor,
+					borderColor:  geoStyle.borderColor,
+					borderWidth:  geoStyle.boderWidth,
 				},
 				emphasis: {
-					areaColor: "#ed860d",
+					areaColor:  geoStyle.emphasisAreaColor,
 					shadowOffsetX: 0,
 					shadowOffsetY: 0,
 					shadowBlur: 20,
@@ -204,25 +264,32 @@ const GeoChart = ({
 			},
 			zlevel: 1,
 		},
-		visualMap: {
-			left: "right",
-			min: Number(mapMinMax.min),
-			max: Number(mapMinMax.max),
+		/* null / {}	*/
+		tooltip: chartControls.properties[propKey].mouseOver.enable ? {
+			trigger: 'item',
+			showDelay: 0,
+			transitionDuration: 0.2
+		  } : null,
+		visualMap: geoStyle.enableVisualMap ? {
+			left: 'right',
+			min: geoStyle.minValue === 0 ? Number(mapMinMax.min) : Number(geoStyle.minValue),
+			max: geoStyle.maxValue === 100 ?  Number(mapMinMax.max) : Number(geoStyle.maxValue),
 			inRange: {
-				color: interpolateColor("#313695", "#a50026", 20),
+				color: interpolateColor(geoStyle.minColor, geoStyle.maxColor, 20),
 			},
-			text: ['High', 'Low'],
-			calculable: true
-		},
+			text: ['Max', 'Min'],
+			calculable: true,
+			show: geoStyle.showVisualScale
+		} : null,		
 		series: [
 			{
-				name: "foo",
+				name: fieldName(chartProperties.properties[propKey]?.chartAxes[2]?.fields[0]),
 				type: "map",
 				roam: true,
 				map: 'USA',
 				geoIndex: 0,
-				data: mapData,
-				zlevel: 3,
+				data: mapData || [],
+				zlevel: 3,					
 			},
 			
 		],
@@ -235,7 +302,7 @@ const GeoChart = ({
 	};	
 	 
 
-	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
+	return <RenderChart />;
 };
 
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {

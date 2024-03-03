@@ -17,6 +17,7 @@ import TreeMapLegend from "./Legend/TreeMapLegend";
 import ChartMargin from "./Margin/ChartMargin";
 import ChartMouseOver from "./MouseOver/ChartMouseOver";
 import BoxPlotChartStyles from "./ChartStyle/BoxPlotChartStyles";
+import GeoChartStyles from "./ChartStyle/GeoChartStyles";
 import CalendarChartStyles from "./ChartStyle/CalendarChartStyles";
 import ChartStyle from "./ChartStyle/ChartStyle";
 import SankeyStyles from "./ChartStyle/SankeyStyles";
@@ -103,6 +104,8 @@ const ControlDetail = ({
 					return <CardStyle />;
 				} else if (chartType === "richText") {
 					return <DynamicMeasureStyle />;
+				}else if (chartType === "geoChart") {
+					return <GeoChartStyles />;
 				} else {
 					return <ChartStyle />;
 				}
