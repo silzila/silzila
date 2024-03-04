@@ -108,7 +108,6 @@ export interface ChartConGeoChartControls {
 	areaColor: string;
 	emphasisAreaColor: string;
 	aspectScale: number;
-	enableVisualMap:boolean;
 	enableSelfEmphasis : boolean;
 	minValue: number;
 	minColor: string;
