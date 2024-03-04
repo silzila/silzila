@@ -129,7 +129,7 @@ const GeoChartStyles = ({
 				</div>
 			</div>
 
-			<div className="optionDescription">EMPHASIS:</div>
+			<div className="optionDescription">EMPHASIS on MOUSEOVER:</div>
 			<div className="optionDescription">
 				<div style={{width: "50%",}}>
 					Area Color 
@@ -155,7 +155,7 @@ const GeoChartStyles = ({
 				</div>
 			</div>
 			<div className="optionDescription">
-				<div style={{ width: "50%", height: "1.25rem",}}>Self</div>
+				<div style={{ width: "50%", height: "1.25rem",}}>Blur Others</div>
 				<div style={{ width: "50%", height: "1.25rem", }}>
 					<SwitchWithInput
 
@@ -167,99 +167,83 @@ const GeoChartStyles = ({
 				</div>
 			</div>			
 
-			<div className="optionDescription">VISUAL SCALE:</div>
+			<div className="optionDescription">VISUAL SCALE:</div>	
 			<div className="optionDescription">
-				<div style={{ width: "50%",  height: "1.25rem",}}>Enable</div>
-				<div style={{ width: "50%", height: "1.25rem", }}>
-					<SwitchWithInput
-						isChecked={geoStyle.enableVisualMap}
-						onSwitch={() => {
-							updateGeoChartStyleOptions(propKey, "enableVisualMap", !geoStyle.enableVisualMap)
-						}}
-					/>
-				</div>
-			</div>			
-
-			{
-				geoStyle.enableVisualMap ? 
-				<>
-				<div className="optionDescription">
-				<div style={{ width: "50%", height: "1.25rem", }}>Show Scale</div>
-				<div style={{ width: "50%",height: "1.25rem", }}>
-				<SwitchWithInput
-					isChecked={geoStyle.showVisualScale}
-					onSwitch={() => {
-						updateGeoChartStyleOptions(propKey, "showVisualScale", !geoStyle.showVisualScale)
-					}}
-				/>
-				</div>
-				</div>
-			
-
-			<div className="optionDescription">Min</div>
-			<div className="optionDescription">
-				<InputBase
-					style={{height: "1.25rem",width: "35%",}}
-					value={geoStyle.minValue}
-					onChange={(e: any) => {
-						updateGeoChartStyleOptions(propKey, "minValue",e.target.value)
-					}}
-					sx={inputBaseStyle}
-					placeholder={"Enter Min Value"}
-				/>
-			
-				<div
-					style={{
-						height: "1.25rem",
-						width: "50%",
-						marginLeft: "20px",
-						backgroundColor: geoStyle.minColor,
-						color: geoStyle.minColor,
-						border: "2px solid darkgray",
-						margin: "auto",
-					}}
-					onClick={() => {
-						setColor(geoStyle.minColor);
-						setColorFieldName("minColor");
-						setColorPopOverOpen(!isColorPopoverOpen);
-					}}
-				>
-					{"  "}
-				</div>
+			<div style={{ width: "50%", height: "1.25rem", }}>Show Scale</div>
+			<div style={{ width: "50%",height: "1.25rem", }}>
+			<SwitchWithInput
+				isChecked={geoStyle.showVisualScale}
+				onSwitch={() => {
+					updateGeoChartStyleOptions(propKey, "showVisualScale", !geoStyle.showVisualScale)
+				}}
+			/>
 			</div>
-			<div className="optionDescription">Max</div>
-			<div className="optionDescription">
-				<InputBase
-					style={{height: "1.25rem",width: "35%",}}
-					value={geoStyle.maxValue}
-					onChange={(e: any) => {
-						updateGeoChartStyleOptions(propKey, "maxValue",e.target.value)
-					}}
-					sx={inputBaseStyle}
-					placeholder={"Enter Max Value"}
-				/>
-			
-				<div
-					style={{
-						height: "1.25rem",
-						width: "50%",
-						marginLeft: "20px",
-						backgroundColor: geoStyle.maxColor,
-						color: geoStyle.maxColor,
-						border: "2px solid darkgray",
-						margin: "auto",
-					}}
-					onClick={() => {
-						setColor(geoStyle.maxColor);
-						setColorFieldName("maxColor");
-						setColorPopOverOpen(!isColorPopoverOpen);
-					}}
-				>
-					{"  "}
-				</div>
 			</div>
-				</> : null
-			}
+		
+
+		<div className="optionDescription">Min</div>
+		<div className="optionDescription">
+			<InputBase
+				style={{height: "1.25rem",width: "35%",}}
+				value={geoStyle.minValue}
+				onChange={(e: any) => {
+					updateGeoChartStyleOptions(propKey, "minValue",e.target.value)
+				}}
+				sx={inputBaseStyle}
+				placeholder={"Enter Min Value"}
+			/>
+		
+			<div
+				style={{
+					height: "1.25rem",
+					width: "50%",
+					marginLeft: "20px",
+					backgroundColor: geoStyle.minColor,
+					color: geoStyle.minColor,
+					border: "2px solid darkgray",
+					margin: "auto",
+				}}
+				onClick={() => {
+					setColor(geoStyle.minColor);
+					setColorFieldName("minColor");
+					setColorPopOverOpen(!isColorPopoverOpen);
+				}}
+			>
+				{"  "}
+			</div>
+		</div>
+		<div className="optionDescription">Max</div>
+		<div className="optionDescription">
+			<InputBase
+				style={{height: "1.25rem",width: "35%",}}
+				value={geoStyle.maxValue}
+				onChange={(e: any) => {
+					updateGeoChartStyleOptions(propKey, "maxValue",e.target.value)
+				}}
+				sx={inputBaseStyle}
+				placeholder={"Enter Max Value"}
+			/>
+		
+			<div
+				style={{
+					height: "1.25rem",
+					width: "50%",
+					marginLeft: "20px",
+					backgroundColor: geoStyle.maxColor,
+					color: geoStyle.maxColor,
+					border: "2px solid darkgray",
+					margin: "auto",
+				}}
+				onClick={() => {
+					setColor(geoStyle.maxColor);
+					setColorFieldName("maxColor");
+					setColorPopOverOpen(!isColorPopoverOpen);
+				}}
+			>
+				{"  "}
+			</div>
+		</div>
+				
 			
 			<Popover
 				open={isColorPopoverOpen}

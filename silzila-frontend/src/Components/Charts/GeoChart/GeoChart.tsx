@@ -135,7 +135,11 @@ const GeoChart = ({
 	let _dimensionField = chartProperties.properties[propKey].chartAxes[1];
 	let _measureField = chartProperties.properties[propKey].chartAxes[2];
 	let keyName = fieldName(_dimensionField.fields[0]);
-	let valueName = fieldName(_measureField.fields[0]);
+	let valueName = fieldName(_measureField.fields[0]);	
+	const [options, setOptions] = useState({});
+
+	registerGeoMap(chartProperties.properties[propKey].geoLocation);
+
 	//var property = chartControls.properties[propKey];
 	//let chartPropData = property.chartData ? property.chartData : "";
 
@@ -178,20 +182,19 @@ const GeoChart = ({
 	// }, [chartPropData, property.formatOptions]);
 
 	const convertIntoMapData = ()=>{
-		//[ 		{ name: 'Puerto Rico', value: 3667084 }, ];	
-		if(chartData){
+		if(chartData && chartData.length > 0){
 			mapData = chartData?.map(item=>{
 				return {
-					name : item[keyName],
-					value : item[valueName]
+					name : item[keyName]?.trim(),
+					value : item[valueName] || 0
 				}
 			});	
 		}			
 	}
 
 	const getMinAndMaxValue = (column: string) => {
-		if(column && chartControls.properties[propKey]?.chartData){
-			const valuesArray = chartControls.properties[propKey]?.chartData?.map((el: any) => {
+		if(column && chartData){
+			const valuesArray = chartData?.map((el: any) => {
 				return el[column];
 			});		
 			const minValue = Number(Math.min(...valuesArray)).toFixed(2);
@@ -204,100 +207,103 @@ const GeoChart = ({
 		}		
 	};
 
-	let mapMinMax: any = getMinAndMaxValue(valueName);
+	useEffect(() => {	
+		let mapMinMax: any = getMinAndMaxValue(valueName);
+		convertIntoMapData();
 
-	convertIntoMapData();
-	registerGeoMap(chartProperties.properties[propKey].geoLocation);
-
-	const option = {
-		geo: {		
-			map: chartProperties.properties[propKey].geoLocation,
-			silent:false,
-			aspectScale: geoStyle.aspectScale,
-			show: true,
-			emphasis:{
-				focus: geoStyle.enableSelfEmphasis ? 'self' : 'normal'
-			},
-			select:{
-				disabled : true
-			},
-			label: {
-				normal: {
-					show: graphDimension.height > 140 && graphDimension.height > 150
-					? chartControl.labelOptions.showLabel
-					: false,
-					textStyle: {
-						color: chartControl.labelOptions.labelColorManual
-						? chartControl.labelOptions.labelColor
-						: null,
-						fontSize: chartControl.labelOptions.fontSize - 4,
+		setOptions({
+			geo: {		
+				map: chartProperties.properties[propKey].geoLocation,
+				silent:false,
+				aspectScale: geoStyle.aspectScale,
+				show: true,
+				emphasis:{
+					focus: geoStyle.enableSelfEmphasis ? 'self' : 'normal'
+				},
+				select:{
+					disabled : true
+				},
+				label: {
+					normal: {
+						show: graphDimension.height > 140 && graphDimension.height > 150
+						? chartControl.labelOptions.showLabel
+						: false,
+						textStyle: {
+							color: chartControl.labelOptions.labelColorManual
+							? chartControl.labelOptions.labelColor
+							: null,
+							fontSize: chartControl.labelOptions.fontSize - 4,
+						},
+					},
+					emphasis: {
+						show: graphDimension.height > 140 && graphDimension.height > 150
+						? chartControl.labelOptions.showLabel
+						: false,
+						textStyle: {
+							color: chartControl.labelOptions.labelColorManual
+							? chartControl.labelOptions.labelColor
+							: null,
+							fontSize: chartControl.labelOptions.fontSize - 4,
+						},
 					},
 				},
-				emphasis: {
-					show: graphDimension.height > 140 && graphDimension.height > 150
-					? chartControl.labelOptions.showLabel
-					: false,
-					textStyle: {
-						color: chartControl.labelOptions.labelColorManual
-						? chartControl.labelOptions.labelColor
-						: null,
-						fontSize: chartControl.labelOptions.fontSize - 4,
-					},
-				},
-			},
-			roam: true,
-			zoom: geoStyle.mapZoom,
-			itemStyle: {
-				normal: {
-					areaColor:  geoStyle.areaColor,
-					borderColor:  geoStyle.borderColor,
-					borderWidth:  geoStyle.boderWidth,
-				},
-				emphasis: {
-					areaColor:  geoStyle.emphasisAreaColor,
-					shadowOffsetX: 0,
-					shadowOffsetY: 0,
-					shadowBlur: 20,
-					borderWidth: 0,
-					shadowColor: "rgba(0, 0, 0, 0.5)",
-				},
-			},
-			zlevel: 1,
-		},
-		/* null / {}	*/
-		tooltip: chartControls.properties[propKey].mouseOver.enable ? {
-			trigger: 'item',
-			showDelay: 0,
-			transitionDuration: 0.2
-		  } : null,
-		visualMap: geoStyle.enableVisualMap ? {
-			left: 'right',
-			min: geoStyle.minValue === 0 ? Number(mapMinMax.min) : Number(geoStyle.minValue),
-			max: geoStyle.maxValue === 100 ?  Number(mapMinMax.max) : Number(geoStyle.maxValue),
-			inRange: {
-				color: interpolateColor(geoStyle.minColor, geoStyle.maxColor, 20),
-			},
-			text: ['Max', 'Min'],
-			calculable: true,
-			show: geoStyle.showVisualScale
-		} : null,		
-		series: [
-			{
-				name: fieldName(chartProperties.properties[propKey]?.chartAxes[2]?.fields[0]),
-				type: "map",
 				roam: true,
-				map: 'USA',
-				geoIndex: 0,
-				data: mapData || [],
-				zlevel: 3,					
+				zoom: geoStyle.mapZoom,
+				itemStyle: {
+					normal: {
+						areaColor:  geoStyle.areaColor,
+						borderColor:  geoStyle.borderColor,
+						borderWidth:  geoStyle.boderWidth,
+					},
+					emphasis: {
+						areaColor:  geoStyle.emphasisAreaColor,
+						shadowOffsetX: 0,
+						shadowOffsetY: 0,
+						shadowBlur: 20,
+						borderWidth: 0,
+						shadowColor: "rgba(0, 0, 0, 0.5)",
+					},
+				},
+				zlevel: 1,
 			},
-			
-		],
-	};
+			/* null / {}	*/
+			tooltip: chartControls.properties[propKey].mouseOver.enable ? {
+				trigger: 'item',
+				showDelay: 0,
+				transitionDuration: 0.2
+			  } : null,
+			visualMap: chartData && chartData.length > 0  ? {
+				left: 'right',
+				min: geoStyle.minValue === 0 ? Number(mapMinMax.min) : Number(geoStyle.minValue),
+				max: geoStyle.maxValue === 100 ?  Number(mapMinMax.max) : Number(geoStyle.maxValue),
+				inRange: {
+					color: interpolateColor(geoStyle.minColor, geoStyle.maxColor, 20),
+				},
+				text: ['Max', 'Min'],
+				calculable: true,
+				show: geoStyle.showVisualScale
+			} : null,		
+			series: [
+				{
+					name: valueName,
+					type: "map",
+					roam: true,
+					map: 'USA',
+					geoIndex: 0,
+					data: mapData || [],
+					zlevel: 3,					
+				},
+				
+			],
+		})
+
+	}, [chartData, chartControl]);
+
+
 
 	const RenderChart = () => {		
 		return (
-			<ReactEcharts option={option} style={{ width: graphDimension.width, height: graphDimension.height }} />
+			<ReactEcharts option={options} style={{ width: graphDimension.width, height: graphDimension.height }} />
 		)	
 	};	
 	 
