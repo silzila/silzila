@@ -357,48 +357,5 @@ public class Measure implements Serializable {
         }
 
     }
-
-    // @Generated("jsonschema2pojo")
-    // public enum WindowFn {
-    //     NULL("null"),
-    //     RANK("rank"),
-    //     RUNNINGTOTAL("runningTotal"),
-    //     PERCENTAGETOTAL("percentageTotal"),
-    //     MOVINGAVERAGE("movingAverage");
-
-    //     private final String value;
-    //     private final static Map<String, Measure.WindowFn> CONSTANTS = new HashMap<String, Measure.WindowFn>();
-
-    //     static {
-    //         for (Measure.WindowFn c : values()) {
-    //             CONSTANTS.put(c.value, c);
-    //         }
-    //     }
-
-    //     WindowFn(String value) {
-    //         this.value = value;
-    //     }
-
-    //     @Override
-    //     public String toString() {
-    //         return this.value;
-    //     }
-
-    //     @JsonValue
-    //     public String value() {
-    //         return this.value;
-    //     }
-
-    //     @JsonCreator
-    //     public static Measure.WindowFn fromValue(String value) {
-    //         Measure.WindowFn constant = CONSTANTS.get(value);
-    //         if (constant == null) {
-    //             throw new IllegalArgumentException(value);
-    //         } else {
-    //             return constant;
-    //         }
-    //     }
-
-    // }
        
 }

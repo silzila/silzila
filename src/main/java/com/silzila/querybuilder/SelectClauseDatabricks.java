@@ -238,6 +238,7 @@ public class SelectClauseDatabricks {
                             "Error: Aggregation is not correct for Numeric field " + meas.getFieldName());
                 }
             }
+            // if windowFn not null it will execute window function for databricks
             if(meas.getWindowFn()[0] != null){
                 windowfn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName);
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);

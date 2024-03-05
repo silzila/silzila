@@ -263,6 +263,9 @@ public class SelectClauseBigquery {
                             "Error: Aggregation is not correct for Numeric field " + meas.getFieldName());
                 }
             }
+            /*  if windowFn not null it will execute window function for bigquery
+             * here we given field name as alias
+             */
             if(meas.getWindowFn()[0] != null){
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
                 windowfn = SelectClauseWindowFunction.windowFunction(meas, req, alias, vendorName);
