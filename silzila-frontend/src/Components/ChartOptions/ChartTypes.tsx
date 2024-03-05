@@ -22,7 +22,7 @@ import heatMapIcon from "../../assets/new_heatMap.svg";
 import CrossTabIcon from "../../assets/new_crossTab.svg";
 import roseChartIcon from "../../assets/new_rose.svg";
 import simpleCard from "../../assets/simpleCard.svg";
-// import geoChartIcon from "../../assets/earth.svg";
+import geoChartIcon from "../../assets/geoMap.svg";
 import stackedAreaChartIcon from "../../assets/new_areaStacked.svg";
 import calendarChartIcon from "../../assets/new_calendar.svg";
 import "./ChartOptions.css";
@@ -62,7 +62,7 @@ export const chartTypes = [
 	{ name: "funnel", icon: funnelChartIcon, value: "Funnel Chart" },
 	{ name: "heatmap", icon: heatMapIcon, value: "Heat Map" },
 	{ name: "treeMap", icon: TreeMapIcon, value: "Tree Map" },
-	// { name: "geoChart", icon: geoChartIcon, value: "Geo Chart" },
+	{ name: "geoChart", icon: geoChartIcon, value: "Geo Chart" },
 	{ name: "calendar", icon: calendarChartIcon, value: "Calendar Chart" },
 	{ name: "boxPlot", icon: boxPlotIcon, value: "Box Plot Chart" },
 	{ name: "richText", icon: TextEditorIcon, value: "Rich Text" },
@@ -134,6 +134,7 @@ const ChartTypes = ({
 			case "area":
 			case "stackedArea":
 			case "treeMap":
+			case "geoChart":
 			case "table":
 			case "sankey":
 				if (
@@ -454,6 +455,7 @@ const ChartTypes = ({
 						"rose",
 						"stackedArea",
 						"treeMap",
+						"geoChart",
 						"sankey",
 					].includes(newChart)
 				) {
@@ -613,6 +615,7 @@ const ChartTypes = ({
 						"rose",
 						"stackedArea",
 						"treeMap",
+						"geoChart",
 						"sankey",
 					].includes(newChart)
 				) {
@@ -732,6 +735,7 @@ const ChartTypes = ({
 						"stackedArea",
 						"calendar",
 						"treeMap",
+						"geoChart",
 						"sankey",
 					].includes(newChart)
 				) {
@@ -814,6 +818,7 @@ const ChartTypes = ({
 						"stackedArea",
 						"calendar",
 						"treeMap",
+						"geoChart",
 						"sankey",
 					].includes(newChart)
 				) {
@@ -894,6 +899,7 @@ const ChartTypes = ({
 						"rose",
 						"stackedArea",
 						"treeMap",
+						"geoChart",
 						"sankey",
 					].includes(newChart)
 				) {
@@ -1021,6 +1027,7 @@ const ChartTypes = ({
 						"geoChart",
 						"stackedArea",
 						"treeMap",
+						"geoChart",
 						"sankey",
 					].includes(newChart)
 				) {
@@ -1166,7 +1173,7 @@ const ChartTypes = ({
 						"treeMap",
 						"sankey",
 						"calendar",
-
+						"geoChart",
 						"pie",
 						"table",
 						"donut",

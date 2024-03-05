@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import FetchData from "../ServerCall/FetchData";
+import { InfoOutlined } from "@mui/icons-material";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { connect } from "react-redux";
 import { SelectListItem } from "../CommonFunctions/SelectListItem";
@@ -26,6 +27,16 @@ const FlatFileList = (props: any) => {
 	const [confirmDialog, setConfirmDialog] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("Testing alert");
 	const [deleteItemId, setDeleteItemId] = useState<string>("");
+	const [isHovered, setIsHovered] = useState(false);
+
+    const handleMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+    };
+
 	var navigate = useNavigate();
 	useEffect(() => {
 		getInformation();
@@ -105,9 +116,23 @@ const FlatFileList = (props: any) => {
 	return (
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
-				<div className="containerTitle">
+				<div className="FFcontainerTitle">
 					<DescriptionOutlinedIcon style={{ marginRight: "10px", color: " #2bb9bb" }} />
 					Flat Files
+					<Tooltip title="Add your CSV file and use it as data table." arrow placement="top">
+							<InfoOutlined 
+								style={{ 
+									marginLeft: "5px", 
+									cursor: "pointer", 
+									marginTop: "4px",
+									color: isHovered ? "grey" : "LightGrey", // Change color based on hover state
+									fontSize: "1.2em", // Change font size based on hover state
+									transition: "color 0.3s, font-size 0.3s" // Transition for smooth hover effect
+								}}
+								onMouseEnter={handleMouseEnter}
+								onMouseLeave={handleMouseLeave}
+							/>
+					</Tooltip>
 				</div>
 
 				<div

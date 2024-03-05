@@ -19,6 +19,8 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import { SelectComponentStyle, menuItemStyle } from "../Labels/SnakeyLabelOptions";
 import "./tablechartCF.css";
+import { getContrastColor, generateRandomColorArray} from '../../CommonFunctions/CommonFunctions';
+import { ColorSchemes } from "../../ChartOptions/Color/ColorScheme";
 
 const RuleComponent = ({
 	chartControls,
@@ -30,6 +32,18 @@ const RuleComponent = ({
 }: any) => {
 	var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var uId = new ShortUniqueId({ length: 8 });
+
+	var chartThemes: any[];
+	var chartControl: any = chartControls.properties[propKey];
+	
+	chartThemes = ColorSchemes.filter(el => {
+		return el.name === chartControl.colorScheme;
+	});
+
+	let randomColors = generateRandomColorArray(15);
+	let colors = chartThemes[0].colors;
+
+	colors = [...colors, ...randomColors]
 
 	const onUpdateRule = (updatedArray: any, columnName: string) => {
 		const updatedValues = chartControls.properties[propKey].tableConditionalFormats.map(
@@ -45,6 +59,12 @@ const RuleComponent = ({
 		updatecfObjectOptions1(propKey, updatedValues);
 	};
 	const onAddCondition = (format: any, index: number) => {
+		let ruleCount = format.value?.length || 0;
+
+		if(ruleCount >= colors.length){
+			ruleCount = ruleCount - colors.length;
+		}
+
 		var obj = {
 			id: uId(),
 			isConditionSatisfied: false,
@@ -52,8 +72,8 @@ const RuleComponent = ({
 			target: null,
 			minValue: null,
 			maxValue: null,
-			backgroundColor: "white",
-			fontColor: "black",
+			backgroundColor: colors[ruleCount],
+			fontColor: getContrastColor(colors[ruleCount]),
 			isBold: false,
 			isItalic: false,
 			isUnderlined: false,
@@ -224,7 +244,7 @@ const RuleComponent = ({
 					onAddCondition(format, i);
 				}}
 			>
-				Add Condition
+				Add Rule
 			</Button>
 
 			<div>

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import update from "immutability-helper";
+import { InfoOutlined } from "@mui/icons-material";
 
 import { Dispatch } from "redux";
 import { setSelectedDsInTile } from "../../redux/ChartPoperties/ChartPropertiesActions";
@@ -54,6 +55,15 @@ const PlayBookList = ({
 	const [deleteItemId, setDeleteItemId] = useState<string>("");
 	const [testMessage, setTestMessage] = useState<string>("");
 	const [severity, setSeverity] = useState<AlertColor>("success");
+	const [isHovered, setIsHovered] = useState(false);
+
+    const handleMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+    };
 
 	var navigate = useNavigate();
 
@@ -322,9 +332,23 @@ const PlayBookList = ({
 	return (
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
-				<div className="containerTitle">
+				<div className="PBcontainerTitle">
 					<DashboardOutlinedIcon style={{ marginRight: "10px", color: "#2bb9bb" }} />
 					Playbooks
+					<Tooltip title="Explore data from dataset and create dashboard." arrow placement="top">
+							<InfoOutlined 
+								style={{ 
+									marginLeft: "5px", 
+									cursor: "pointer", 
+									marginTop: "4px",
+									color: isHovered ? "grey" : "LightGrey", // Change color based on hover state
+									fontSize: "1.2em", // Change font size based on hover state
+									transition: "color 0.3s, font-size 0.3s" // Transition for smooth hover effect
+								}}
+								onMouseEnter={handleMouseEnter}
+								onMouseLeave={handleMouseLeave}
+							/>
+					</Tooltip>
 				</div>
 				<DatasetListPopover
 					showCard={openPopOver}

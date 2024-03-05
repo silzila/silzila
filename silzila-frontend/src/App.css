@@ -2,7 +2,7 @@
 *:after,
 *:before {
   box-sizing: border-box;
-  scrollbar-width: thin;
+  /* scrollbar-width: ; */
 }
 
 *::-webkit-scrollbar {
@@ -28,9 +28,15 @@
 
 
 
-
 body {
   margin: 0;
   padding: 0;
 }
 
+@media only screen and (max-width: 860px) {
+  .App {
+    text-align: center;
+    overflow: auto;
+    
+  }  
+}

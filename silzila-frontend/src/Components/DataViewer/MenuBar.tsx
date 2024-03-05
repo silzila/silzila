@@ -493,7 +493,7 @@ const MenuBar = ({
 			case "dataHome":
 				return (
 					<div className="menuHomeIcon">
-						<HomeRounded sx={{ color: "grey" }} />
+						<HomeRounded sx={{ color: "#2bb9bb", fontSize: "1.7rem" }} />
 					</div>
 				);
 			case "dataSet":
@@ -504,7 +504,7 @@ const MenuBar = ({
 							navigate("/dataHome");
 						}}
 					>
-						<HomeRounded sx={{ color: "grey" }} />
+						<HomeRounded sx={{ color: "#2bb9bb", fontSize: "1.7rem" }} />
 					</div>
 				);
 			case "fileUpload":
@@ -518,7 +518,7 @@ const MenuBar = ({
 							navigate("/dataHome");
 						}}
 					>
-						<ArrowBackIcon sx={{ color: "grey" }} />
+						<HomeRounded sx={{ color: "#2bb9bb", fontSize: "1.7rem" }} />
 					</div>
 				);
 			case "dataViewer":
@@ -536,7 +536,7 @@ const MenuBar = ({
 							}
 						}}
 					>
-						<HomeRounded sx={{ color: "#666" }} />
+						<HomeRounded sx={{ color: "#2bb9bb", fontSize: "1.7rem" }} />
 					</div>
 				);
 		}
@@ -555,8 +555,8 @@ const MenuBar = ({
 			<SelectListItem
 				render={(xprops: any) => (
 					<div
-						onMouseOver={() => xprops.setOpen(true)}
-						onMouseLeave={() => xprops.setOpen(false)}
+						onMouseOver={() => xprops.setOpen(false)}
+						onMouseLeave={() => xprops.setOpen(true)}
 					>
 						{(xprops.open && from !== "dataHome") ||
 						from === "fileUpload" ||
@@ -565,6 +565,10 @@ const MenuBar = ({
 							<>{getHomeIcon()}</>
 						) : (
 							<>
+							<div
+								onClick={() => navigate("/dataHome")}
+								style={{ cursor: "pointer" }}
+							>
 								<img
 									src={silzilaNewLogo}
 									style={{
@@ -572,12 +576,15 @@ const MenuBar = ({
 										height: "80%",
 										// width: "3rem",
 										width: "2.5rem",
-										padding: "4px 4px 4px 6px",
-										margin: "4px 0px 0px 2px",
-										backgroundColor: "white",
+										 padding: "4px 4px 4px 6px",
+										// margin: "4px 0px 0px 2px",
+
+										
+									
 									}}
 									alt="Silzila Home"
 								/>
+							</div>
 							</>
 						)}
 					</div>

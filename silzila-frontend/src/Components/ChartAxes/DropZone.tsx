@@ -416,7 +416,7 @@ const DropZone = ({
 				<span
 					className="axisTitle"
 					style={
-						name === "Filter"
+						name === "Filter" && chartType !== "geoChart" 
 							? {
 									flex: 1,
 									paddingBottom: "2px",
