@@ -532,8 +532,9 @@ public class DatasetService {
 
             // Compose anchor date query for the specific vendor and run it
             String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery(vendorName, ds, relativeFilter);
+            System.out.println("Query " + anchorDateQuery);
             anchorDateArray = connectionPoolService.runQuery(dBConnectionId, userId, anchorDateQuery);
-
+            System.out.println("AD: " + anchorDateArray);
             // Compose main query for the specific vendor
             query = relativeFilterQueryComposer.composeQuery(vendorName, ds, relativeFilter, anchorDateArray);
         }

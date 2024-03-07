@@ -173,6 +173,8 @@ public class WhereClause {
                         where = WhereClauseDateDatabricks.buildWhereClauseDate(filter);
                     } else if (vendorName.equals("bigquery")) {
                         where = WhereClauseDateBigquery.buildWhereClauseDate(filter);
+                    } else if (vendorName.equals("Oracle")) {
+                        where = WhereClauseDateOracle.buildWhereClauseDate(filter);
                     }
                 }
 

@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -18,6 +19,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -42,11 +44,14 @@ import com.silzila.payload.response.MetadataColumn;
 import com.silzila.payload.response.MetadataDatabase;
 import com.silzila.payload.response.MetadataTable;
 import com.silzila.domain.entity.DBConnection;
+import com.silzila.dto.OracleDTO;
 
 @Service
 public class ConnectionPoolService {
 
     private static final Logger logger = LogManager.getLogger(ConnectionPoolService.class);
+
+    private static final String SILZILA_DIR = "F:\\Silzila\\Oracle DB";
 
     HikariDataSource dataSource = null;
     HikariConfig config = new HikariConfig();
@@ -87,28 +92,28 @@ public class ConnectionPoolService {
             if (dbConnection.getVendor().equals("bigquery")) {
                 String password = dbConnection.getToken();
                 String tempPath = null;
-            // Create a path for the temporary JSON file
-            try {
-            // Get the current timestamp
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-            String timestamp = dateFormat.format(new Date());
+                // Create a path for the temporary JSON file
+                try {
+                    // Get the current timestamp
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+                    String timestamp = dateFormat.format(new Date());
 
-            // Create a temporary file with a timestamp in the filename
-            Path tempFilePath = Files.createTempFile("tempfile_" + timestamp, ".json");
+                    // Create a temporary file with a timestamp in the filename
+                    Path tempFilePath = Files.createTempFile("tempfile_" + timestamp, ".json");
 
-            // Write the password to the temporary file
-            // Replace this with the actual password
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFilePath.toFile()))) {
-                writer.write(password);
-            }
-            tempPath = tempFilePath.toString();
-            // Print the path of the temporary file
-            logger.info("Temporary token file created for bigquery: " + tempPath);
+                    // Write the password to the temporary file
+                    // Replace this with the actual password
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFilePath.toFile()))) {
+                        writer.write(password);
+                    }
+                    tempPath = tempFilePath.toString();
+                    // Print the path of the temporary file
+                    logger.info("Temporary token file created for bigquery: " + tempPath);
 
-            } catch (IOException e) {
-            // Handle exception if file creation fails
-            e.printStackTrace();
-            }
+                } catch (IOException e) {
+                    // Handle exception if file creation fails
+                    e.printStackTrace();
+                }
                 fullUrl = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;OAuthType=0" +
                         ";ProjectId=" + dbConnection.getProjectId() +
                         ";OAuthServiceAcctEmail=" + dbConnection.getClientEmail() +
@@ -120,7 +125,6 @@ public class ConnectionPoolService {
                 dataSource.setDataSourceClassName("com.simba.googlebigquery.jdbc.DataSource");
                 dataSource.addDataSourceProperty("url", fullUrl);
             }
-
 
             // SQL Server is handled differently
             else if (dbConnection.getVendor().equals("sqlserver")) {
@@ -145,6 +149,26 @@ public class ConnectionPoolService {
                 config.setDriverClassName("com.databricks.client.jdbc.Driver");
                 config.addDataSourceProperty("minimulIdle", "1");
                 config.addDataSourceProperty("maximumPoolSize", "2");
+                dataSource = new HikariDataSource(config);
+            } else if (dbConnection.getVendor().equals("Oracle")) {
+                String url = "jdbc:oracle:thin:@(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port="
+                        + dbConnection.getPort() +
+                        ")(host=" + dbConnection.getServer() + "))(connect_data=(service_name="
+                        + dbConnection.getDatabase()
+                        + "))(security=(ssl_server_dn_match=yes)))";
+
+                config.setJdbcUrl(url);
+                config.setUsername(dbConnection.getUsername());
+                config.setPassword(dbConnection.getPasswordHash());
+                config.setMaximumPoolSize(5);
+                // SSL properties
+                config.addDataSourceProperty("javax.net.ssl.keyStore",
+                        SILZILA_DIR + "/jks_Collections/store/" + dbConnection.getKeystoreFileName());
+                config.addDataSourceProperty("javax.net.ssl.keyStorePassword", dbConnection.getKeystorePassword());
+                config.addDataSourceProperty("javax.net.ssl.trustStore",
+                        SILZILA_DIR + "/jks_Collections/store/" + dbConnection.getTruststoreFileName());
+                config.addDataSourceProperty("javax.net.ssl.trustStorePassword", dbConnection.getTruststorePassword());
+
                 dataSource = new HikariDataSource(config);
             }
 
@@ -233,16 +257,31 @@ public class ConnectionPoolService {
         // first create connection pool to query DB
         // when connection id is not available, RecordNotFoundException will be throws
         createConnectionPool(id, userId);
+
+        String vendorName = getVendorNameFromConnectionPool(id, userId);
+
         ArrayList<String> schemaList = new ArrayList<String>();
 
         try (Connection _connection = connectionPool.get(id).getConnection();) {
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
+
+            if (vendorName.equals("mysql") || vendorName.equals("Oracle")) {
+                ResultSet resultSet = databaseMetaData.getSchemas();
+                while (resultSet.next()) {
+                    String databaseName = resultSet.getString("TABLE_SCHEM");
+                    // append iterated result set into list
+                    schemaList.add(databaseName);
+                }
+            }
+
             // get database (catalog) names from metadata object
-            ResultSet resultSet = databaseMetaData.getCatalogs();
-            while (resultSet.next()) {
-                String databaseName = resultSet.getString("TABLE_CAT");
-                // append iterated result set into list
-                schemaList.add(databaseName);
+            else {
+                ResultSet resultSet = databaseMetaData.getCatalogs();
+                while (resultSet.next()) {
+                    String databaseName = resultSet.getString("TABLE_CAT");
+                    // append iterated result set into list
+                    schemaList.add(databaseName);
+                }
             }
             return schemaList;
         } catch (Exception e) {
@@ -310,20 +349,20 @@ public class ConnectionPoolService {
                 }
             }
             // for bigquery
-            else if (vendorName.equals("bigquery")){
+            else if (vendorName.equals("bigquery")) {
                 if (databaseName == null || databaseName.trim().isEmpty()) {
-                throw new BadRequestException("Error: Please specify Database Name for Databricks connection");
+                    throw new BadRequestException("Error: Please specify Database Name for Databricks connection");
                 }
-                try( Connection _connection = connectionPool.get(id).getConnection();){
-                DatabaseMetaData databaseMetaData = _connection.getMetaData();
-                ResultSet resultSet2 = databaseMetaData.getSchemas(databaseName, null);
-		        while (resultSet2.next()) {
-			    // TABLE_CATALOG is the DB name and we don't need
-			    // String dbName = resultSet2.getString("TABLE_CATALOG");
-			    String schemaName = resultSet2.getString("TABLE_SCHEM");
-			    schemaList.add(schemaName);
-		        }
-                return schemaList;
+                try (Connection _connection = connectionPool.get(id).getConnection();) {
+                    DatabaseMetaData databaseMetaData = _connection.getMetaData();
+                    ResultSet resultSet2 = databaseMetaData.getSchemas(databaseName, null);
+                    while (resultSet2.next()) {
+                        // TABLE_CATALOG is the DB name and we don't need
+                        // String dbName = resultSet2.getString("TABLE_CATALOG");
+                        String schemaName = resultSet2.getString("TABLE_SCHEM");
+                        schemaList.add(schemaName);
+                    }
+                    return schemaList;
                 }
             }
             // for Postgres & MySQL
@@ -421,15 +460,15 @@ public class ConnectionPoolService {
 
             }
             // for bigquery
-            else if(vendorName.equalsIgnoreCase("bigquery")){
+            else if (vendorName.equalsIgnoreCase("bigquery")) {
                 // throw error if db name or schema name is not passed
-                if(databaseName == null || databaseName.trim().isEmpty() || schemaName == null 
-                       || schemaName.trim().isEmpty()){
+                if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                        || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Database & Schema names are not provided!");
                 }
-                //Add Tables
+                // Add Tables
                 resultSetTables = databaseMetaData.getTables(databaseName, schemaName, null, new String[] { "TABLE" });
-                //Add Views
+                // Add Views
                 resultSetViews = databaseMetaData.getTables(databaseName, schemaName, null, new String[] { "VIEW" });
                 while (resultSetTables.next()) {
                     // TABLE_CATALOG is the DB name and we don't need
@@ -452,7 +491,8 @@ public class ConnectionPoolService {
 
                 // for POSTGRESQL DB
                 // throw error if schema name is not passed
-                if (vendorName.equalsIgnoreCase("postgresql") || vendorName.equalsIgnoreCase("redshift")) {
+                if (vendorName.equalsIgnoreCase("postgresql") || vendorName.equalsIgnoreCase("redshift") || vendorName
+                        .equalsIgnoreCase("Oracle")) {
                     if (schemaName == null || schemaName.trim().isEmpty()) {
                         throw new BadRequestException("Error: Schema name is not provided!");
                     }
@@ -513,7 +553,8 @@ public class ConnectionPoolService {
 
             // based on database dialect, we pass either DB name or schema name at different
             // position in the funciton for POSTGRESQL DB
-            if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+            if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName
+                    .equalsIgnoreCase("Oracle")) {
                 // schema name is must for postgres
                 if (schemaName == null || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Schema name is not provided!");
@@ -553,7 +594,7 @@ public class ConnectionPoolService {
                 resultSet = databaseMetaData.getColumns(databaseName, schemaName, tableName, null);
             }
             // for Bigquery
-            else if(vendorName.equals("bigquery")){
+            else if (vendorName.equals("bigquery")) {
                 // DB name & schema name are must for Bigquery
                 if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
                         || schemaName.trim().isEmpty()) {
@@ -636,6 +677,14 @@ public class ConnectionPoolService {
             }
             // construct query
             query = "SELECT * FROM " + databaseName + ".`" + schemaName + "`." + tableName + " LIMIT " + recordCount;
+        }
+        // oracle
+        else if (vendorName.equalsIgnoreCase("Oracle")) {
+            if (schemaName == null || schemaName.trim().isEmpty()) {
+                throw new BadRequestException("Error: Schema name is not provided!");
+            }
+
+            query = "SELECT * FROM " + schemaName + "." + tableName + " FETCH FIRST " + recordCount + " ROWS ONLY";
         }
         // RUN THE 'SELECT *' QUERY
         try (Connection _connection = connectionPool.get(id).getConnection();
@@ -781,17 +830,17 @@ public class ConnectionPoolService {
             statement.close();
             connection.close();
             dataSource.close();
-            if(request.getVendor().equals("bigquery")){
-            File tempFile = new File(tempPath);
-            if (tempFile.exists()) {
-            boolean deleted = tempFile.delete();
-            if (deleted) {
-            logger.info("Temporary token file for bigquery deleted successfully.");
-            } else {
-            logger.warn("Failed to delete temporary token file for bigquery.");
+            if (request.getVendor().equals("bigquery")) {
+                File tempFile = new File(tempPath);
+                if (tempFile.exists()) {
+                    boolean deleted = tempFile.delete();
+                    if (deleted) {
+                        logger.info("Temporary token file for bigquery deleted successfully.");
+                    } else {
+                        logger.warn("Failed to delete temporary token file for bigquery.");
+                    }
+                }
             }
-            }
-        }
         }
     }
 
@@ -843,5 +892,57 @@ public class ConnectionPoolService {
             }
         });
         logger.warn("clearAllConnectionPoolsInShutDown Fn Called..................");
+    }
+
+    // oracle Connection
+    public void testOracleConnection(DBConnectionRequest fileDTO) throws IOException {
+
+        Path path = Paths.get(SILZILA_DIR, "jks_Collections", "temptest");
+
+        HikariConfig config = new HikariConfig();
+
+        String url = "jdbc:oracle:thin:@(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port="
+                + fileDTO.getPort() +
+                ")(host=" + fileDTO.getServer() + "))(connect_data=(service_name=" + fileDTO.getDatabase()
+                + "))(security=(ssl_server_dn_match=yes)))";
+
+        config.setJdbcUrl(url);
+        config.setUsername(fileDTO.getUsername());
+        config.setPassword(fileDTO.getPassword());
+        config.setMaximumPoolSize(5);
+        // SSL properties
+        config.addDataSourceProperty("javax.net.ssl.keyStore",
+                SILZILA_DIR + "/jks_Collections/temptest/" + fileDTO.getKeystore());
+        config.addDataSourceProperty("javax.net.ssl.keyStorePassword", fileDTO.getKeystorePassword());
+        config.addDataSourceProperty("javax.net.ssl.trustStore",
+                SILZILA_DIR + "/jks_Collections/temptest/" + fileDTO.getTruststore());
+        config.addDataSourceProperty("javax.net.ssl.trustStorePassword", fileDTO.getTruststorePassword());
+
+        HikariDataSource dataSource = new HikariDataSource(config);
+
+        try (Connection connection = dataSource.getConnection()) {
+            System.out.println("Connected to Oracle Cloud Database");
+
+            Statement statement = connection.createStatement();
+            ResultSet data = statement.executeQuery("SELECT 1 FROM DUAL");
+            JSONArray jsonData = ResultSetToJson.convertToJson(data);
+                if (jsonData != null) {
+                    System.out.println("Test Success");
+                }
+
+        } catch (SQLException e) {
+            System.err.println("Error in DB: " + e.getMessage());
+        } finally {
+            dataSource.close();
+             try {
+            Files.walk(path)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+            System.out.println("Deleted 'temptest' folder successfully.");
+        } catch (IOException e) {
+            System.err.println("Error deleting 'temptest' folder: " + e.getMessage());
+        }
+        }
     }
 }

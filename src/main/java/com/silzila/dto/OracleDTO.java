@@ -1,0 +1,57 @@
+package com.silzila.dto;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class OracleDTO {
+    @JsonProperty("ConnectionName")
+    private String connectionName;
+
+    @JsonProperty("Vendor")
+    private String vendor;
+
+    @JsonProperty("host")
+    private String host;
+
+    @JsonProperty("port")
+    private String port;
+
+    @JsonProperty("service_name")
+    private String serviceName;
+
+    @JsonProperty("keystore")
+    private MultipartFile keystore;
+
+    @JsonProperty("keystore_password")
+    private String keystorePassword;
+
+    @JsonProperty("truststore")
+    private MultipartFile truststore;
+
+    @JsonProperty("truststore_password")
+    private String truststorePassword;
+
+    @JsonProperty("username")
+    private String username;
+
+    @JsonProperty("password")
+    private String password;
+
+    @JsonProperty("keyStore_fileName")
+    private String keyStoreStringFileName;
+
+    @JsonProperty("trustStore_fileName")
+    private String trustStoreStringFileName;
+}

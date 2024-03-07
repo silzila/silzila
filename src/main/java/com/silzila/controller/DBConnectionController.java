@@ -8,6 +8,7 @@ import org.json.simple.parser.ParseException;
 import org.modelmapper.ModelMapper;
 
 import com.silzila.dto.DBConnectionDTO;
+import com.silzila.dto.OracleDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.exception.RecordNotFoundException;
@@ -24,10 +25,6 @@ import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -214,6 +211,120 @@ public class DBConnectionController {
         JSONArray jsonArray = connectionPoolService.getSampleRecords(id, userId, databaseName,
                 schemaName, tableName, recordCount);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+    }
+
+    @PostMapping("/testOracleConnection")
+    public ResponseEntity<?> testOracleConnection(
+            @RequestParam("ConnectionName") String connectionName,
+            @RequestParam("Vendor") String vendor,
+            @RequestParam("host") String host,
+            @RequestParam("port") String port,
+            @RequestParam("service_name") String serviceName,
+            @RequestParam("keystore") MultipartFile keystore,
+            @RequestParam("keystore_password") String keystorePassword,
+            @RequestParam("truststore") MultipartFile truststore,
+            @RequestParam("truststore_password") String truststorePassword,
+            @RequestParam("username") String username,
+            @RequestParam("password") String password) throws IOException {
+
+        // OracleDTO dto = new OracleDTO(connectionName, vendor, host, port,
+        // serviceName, keystore,
+        // keystorePassword, truststore, truststorePassword, username,
+        // password, null, null);
+
+        // OracleDTO dtoAfterFileName = dbConnectionService.parseKeystoreTruststore(dto,
+        // false);
+
+        // connectionPoolService.testOracleConnection(dtoAfterFileName);
+
+        DBConnectionRequest reqWithoutFileName = new DBConnectionRequest(vendor, host, Integer.parseInt(port),
+                serviceName, username, password, null,
+                connectionName, null, keystorePassword, null, truststorePassword);
+
+        DBConnectionRequest req = dbConnectionService.keyStoreaAndTrustStore(reqWithoutFileName, keystore, truststore,
+                false);
+
+        connectionPoolService.testOracleConnection(req);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Test Success");
+    }
+
+    @PostMapping("/createOracleConnection")
+    public ResponseEntity<?> createOracleConnection(
+            @RequestHeader Map<String, String> reqHeader,
+            @RequestParam("ConnectionName") String connectionName,
+            @RequestParam("Vendor") String vendor,
+            @RequestParam("host") String host,
+            @RequestParam("port") String port,
+            @RequestParam("service_name") String serviceName,
+            @RequestParam("keystore") MultipartFile keystore,
+            @RequestParam("keystore_password") String keystorePassword,
+            @RequestParam("truststore") MultipartFile truststore,
+            @RequestParam("truststore_password") String truststorePassword,
+            @RequestParam("username") String username,
+            @RequestParam("password") String password) throws IOException, BadRequestException {
+
+        String userId = reqHeader.get("username");
+
+        // OracleDTO oracleDTO = new OracleDTO(connectionName, vendor, host, port,
+        // serviceName, keystore,
+        // keystorePassword, truststore, truststorePassword, username,
+        // password, null, null);
+
+        // DBConnectionDTO dto = dbConnectionService.createOracleDBConnection(oracleDTO,
+        // userId);
+
+        DBConnectionRequest reqWithoutFileName = new DBConnectionRequest(vendor, host, Integer.parseInt(port),
+                serviceName, username, password, null,
+                connectionName, null, keystorePassword, null, truststorePassword);
+
+        DBConnectionRequest req = dbConnectionService.keyStoreaAndTrustStore(reqWithoutFileName, keystore, truststore,
+                true);
+
+        DBConnectionDTO dto = dbConnectionService.createDBConnection(req, userId);
+
+        return ResponseEntity.ok(dto);
+    }
+
+    // update oracleDBconnection seperate
+
+    @PostMapping("/updateOracleConnection")
+    public ResponseEntity<?> updateOracleConnection(
+            @RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id,
+            @RequestParam("ConnectionName") String connectionName,
+            @RequestParam("Vendor") String vendor,
+            @RequestParam("host") String host,
+            @RequestParam("port") String port,
+            @RequestParam("service_name") String serviceName,
+            @RequestParam("keystore") MultipartFile keystore,
+            @RequestParam("keystore_password") String keystorePassword,
+            @RequestParam("truststore") MultipartFile truststore,
+            @RequestParam("truststore_password") String truststorePassword,
+            @RequestParam("username") String username,
+            @RequestParam("password") String password)
+            throws IOException, BadRequestException, RecordNotFoundException {
+
+        String userId = reqHeader.get("username");
+
+        // OracleDTO oracleDTO = new OracleDTO(connectionName, vendor, host, port,
+        // serviceName, keystore,
+        // keystorePassword, truststore, truststorePassword, username,
+        // password, null, null);
+
+        // DBConnectionDTO dto = dbConnectionService.createOracleDBConnection(oracleDTO,
+        // userId);
+
+        DBConnectionRequest reqWithoutFileName = new DBConnectionRequest(vendor, host, Integer.parseInt(port),
+                serviceName, username, password, null,
+                connectionName, null, keystorePassword, null, truststorePassword);
+
+        DBConnectionRequest req = dbConnectionService.keyStoreaAndTrustStore(reqWithoutFileName, keystore, truststore,
+                true);
+
+        DBConnectionDTO dto = dbConnectionService.updateDBConnection(id, req, userId);
+
+        return ResponseEntity.ok(dto);
     }
 
 }

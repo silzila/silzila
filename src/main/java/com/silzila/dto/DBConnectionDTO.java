@@ -31,4 +31,11 @@ public class DBConnectionDTO {
 
     private String fileName;
 
+    // oracle - SSL 
+    private String keystoreFileName;
+
+    private String truststoreFileName;
+
+    
+
 }

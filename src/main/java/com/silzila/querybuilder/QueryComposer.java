@@ -47,6 +47,8 @@ public class QueryComposer {
          * don't have alias
          */
 
+        System.out.println(fromClause);
+
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             // System.out.println("------ inside postges block");
             qMap = SelectClausePostgres.buildSelectClause(req);
@@ -62,7 +64,11 @@ public class QueryComposer {
         } else if (vendorName.equals("databricks")) {
             // System.out.println("------ inside databricks block");
             qMap = SelectClauseDatabricks.buildSelectClause(req);
-        } else {
+        }
+        else if (vendorName.equals("Oracle")) {
+            qMap = SelectClauseOracle.buildSelectClause(req);
+        }
+        else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
 
@@ -106,7 +112,11 @@ public class QueryComposer {
                 }
                 logger.info(filteredlist);
 
-                String filteredSelectClause = "\n\t" + filteredlist.stream().collect(Collectors.joining(",\n\t")); //convert arrayList values into String
+                String filteredSelectClause = "\n\t" + filteredlist.stream().collect(Collectors.joining(",\n\t")); // convert
+                                                                                                                   // arrayList
+                                                                                                                   // values
+                                                                                                                   // into
+                                                                                                                   // String
                 logger.info(filteredSelectClause);
 
                 finalQuery = "SELECT " + filteredSelectClause + "\nFROM (" + "\nSELECT " + selectClause + "\nFROM"

@@ -7,26 +7,37 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.silzila.dto.DBConnectionDTO;
+import com.silzila.dto.OracleDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.silzila.domain.entity.DBConnection;
 import com.silzila.exception.RecordNotFoundException;
+import com.silzila.helper.ResultSetToJson;
 import com.silzila.payload.request.DBConnectionRequest;
+import com.silzila.payload.response.MetadataColumn;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.security.encryption.AESEncryption;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 // import java.sql.Connection;
 // import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 // import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Comparator;
 // import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +46,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -45,8 +57,9 @@ public class DBConnectionService {
 
     private static final Logger logger = LogManager.getLogger(DBConnectionService.class);
     // all uploads are initially saved in tmp
-    final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
-
+    // final String SILZILA_DIR = System.getProperty("user.home") + "/" +
+    // "silzila-uploads";
+    private static final String SILZILA_DIR = "F:\\Silzila\\Oracle DB";
     @Autowired
     DBConnectionRepository dbConnectionRepository;
 
@@ -148,18 +161,19 @@ public class DBConnectionService {
                 + passwordHash);
         String projectId = null;
         String clientEmail = null;
-        if(dbConnectionRequest.getVendor().equals("bigquery")){
+
+        if (dbConnectionRequest.getVendor().equals("bigquery")) {
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode jsonNode = objectMapper.readTree(dbConnectionRequest.getPassword());
-    
+
                 projectId = jsonNode.get("project_id").asText();
                 clientEmail = jsonNode.get("client_email").asText();
-    
+
                 if (projectId.isEmpty() || clientEmail.isEmpty()) {
                     throw new RuntimeException("Project ID or Client Email not found in the token.");
                 }
-    
+
                 logger.info("Project ID: " + projectId);
                 logger.info("Client Email: " + clientEmail);
 
@@ -182,7 +196,11 @@ public class DBConnectionService {
                 projectId,
                 clientEmail,
                 null,
-                dbConnectionRequest.getPassword());
+                dbConnectionRequest.getPassword(),
+                dbConnectionRequest.getKeystore(),
+                dbConnectionRequest.getKeystorePassword(),
+                dbConnectionRequest.getTruststore(),
+                dbConnectionRequest.getTruststorePassword());
         dbConnectionRepository.save(dbConnection);
         DBConnectionDTO dto = mapper.map(dbConnection, DBConnectionDTO.class);
         return dto;
@@ -224,6 +242,10 @@ public class DBConnectionService {
         _dbConnection.setUsername(dbConnectionRequest.getUsername());
         _dbConnection.setSalt(saltString);
         _dbConnection.setPasswordHash(passwordHash);
+        _dbConnection.setKeystoreFileName(dbConnectionRequest.getKeystore());
+        _dbConnection.setKeystorePassword(dbConnectionRequest.getKeystorePassword());
+        _dbConnection.setTruststoreFileName(dbConnectionRequest.getTruststore());
+        _dbConnection.setTruststorePassword(dbConnectionRequest.getTruststorePassword());
         dbConnectionRepository.save(_dbConnection);
         DBConnectionDTO dto = mapper.map(_dbConnection, DBConnectionDTO.class);
         return dto;
@@ -241,17 +263,129 @@ public class DBConnectionService {
         // DBConnection _dbConnection = optionalDBConnection.get();
         // // delete old token file for BigQuery
         // if (_dbConnection.getVendor().equals("bigquery")) {
-        //     final String oldFilePath = System.getProperty("user.home") + "/silzila-uploads/tokens/"
-        //             + _dbConnection.getFileName();
-        //     try {
-        //         Files.delete(Paths.get(oldFilePath));
-        //     } catch (Exception e) {
-        //         // throw new FileNotFoundException("old token file could not be deleted");
-        //         logger.warn("Warning: old token file could not be deleted: " + e.getMessage());
-        //     }
+        // final String oldFilePath = System.getProperty("user.home") +
+        // "/silzila-uploads/tokens/"
+        // + _dbConnection.getFileName();
+        // try {
+        // Files.delete(Paths.get(oldFilePath));
+        // } catch (Exception e) {
+        // // throw new FileNotFoundException("old token file could not be deleted");
+        // logger.warn("Warning: old token file could not be deleted: " +
+        // e.getMessage());
+        // }
         // }
         // delete the record from DB
         dbConnectionRepository.deleteById(id);
+    }
+
+    public OracleDTO parseKeystoreTruststore(OracleDTO oracleDTO, boolean b) throws IOException {
+        Path path = Paths.get(SILZILA_DIR, "jks_Collections");
+
+        Files.createDirectories(path);
+
+        if (b) {
+            path = path.resolve("store");
+        } else {
+            path = path.resolve("temptest");
+        }
+
+        // Create the directory if it doesn't exist
+        Files.createDirectories(path);
+
+        // key store file
+        try {
+            MultipartFile ksFile = oracleDTO.getKeystore();
+            byte[] bytes = ksFile.getBytes();
+            String newFileName = UUID.randomUUID().toString().substring(0, 8) + ".jks";
+            Path filePath = path.resolve(newFileName);
+            Files.write(filePath, bytes);
+            System.out.println("Key Store File renamed and moved successfully.");
+            oracleDTO.setKeyStoreStringFileName(newFileName);
+        } catch (IOException e) {
+            System.out.println("Failed to rename and move key store file: " + e.getMessage());
+            throw e; // Rethrow the exception or handle it appropriately
+        }
+
+        // trust store file
+        try {
+            MultipartFile tsFile = oracleDTO.getTruststore();
+            byte[] bytes = tsFile.getBytes();
+            String newFileName = UUID.randomUUID().toString().substring(0, 8) + ".jks";
+            Path filePath = path.resolve(newFileName);
+            Files.write(filePath, bytes);
+            System.out.println("Trust Store File renamed and moved successfully.");
+            oracleDTO.setTrustStoreStringFileName(newFileName);
+        } catch (IOException e) {
+            System.out.println("Failed to rename and move trust store file: " + e.getMessage());
+            throw e; // Rethrow the exception or handle it appropriately
+        }
+
+        return oracleDTO;
+    }
+    // oracle connection
+    public DBConnectionDTO createOracleDBConnection(OracleDTO oracleDTO, String userId)
+            throws IOException, BadRequestException {
+
+        OracleDTO dtoAfterFileName = parseKeystoreTruststore(oracleDTO, true);
+
+        DBConnectionRequest dbOracleConnectionRequest = new DBConnectionRequest("Oracle",
+                oracleDTO.getHost(), Integer.parseInt(oracleDTO.getPort()),
+                oracleDTO.getServiceName(), oracleDTO.getUsername(), oracleDTO.getPassword(), null,
+                oracleDTO.getConnectionName(),
+                dtoAfterFileName.getKeyStoreStringFileName(), oracleDTO.getKeystorePassword(),
+                dtoAfterFileName.getTrustStoreStringFileName(), oracleDTO.getTruststorePassword());
+
+        return createDBConnection(dbOracleConnectionRequest, userId);
+
+    }
+
+
+    
+    // another 
+    public DBConnectionRequest keyStoreaAndTrustStore(DBConnectionRequest req, MultipartFile keyStore,
+            MultipartFile truststore, Boolean save) throws IOException {
+                Path path = Paths.get(SILZILA_DIR, "jks_Collections");
+
+        Files.createDirectories(path);
+
+        if (save) {
+            path = path.resolve("store");
+        } else {
+            path = path.resolve("temptest");
+        }
+
+        // Create the directory if it doesn't exist
+        Files.createDirectories(path);
+
+        // key store file
+        try {
+            
+            byte[] bytes = keyStore.getBytes();
+            String newFileName = UUID.randomUUID().toString().substring(0, 8) + ".jks";
+            Path filePath = path.resolve(newFileName);
+            Files.write(filePath, bytes);
+            System.out.println("Key Store File renamed and moved successfully.");
+            req.setKeystore(newFileName);
+        } catch (IOException e) {
+            System.out.println("Failed to rename and move key store file: " + e.getMessage());
+            throw e; // Rethrow the exception or handle it appropriately
+        }
+
+        // trust store file
+        try {
+           
+            byte[] bytes = truststore.getBytes();
+            String newFileName = UUID.randomUUID().toString().substring(0, 8) + ".jks";
+            Path filePath = path.resolve(newFileName);
+            Files.write(filePath, bytes);
+            System.out.println("Trust Store File renamed and moved successfully.");
+            req.setTruststore(newFileName);
+        } catch (IOException e) {
+            System.out.println("Failed to rename and move trust store file: " + e.getMessage());
+            throw e; // Rethrow the exception or handle it appropriately
+        }
+        return req;
+        
     }
 
 }

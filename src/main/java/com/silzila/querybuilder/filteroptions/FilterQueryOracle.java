@@ -5,15 +5,15 @@ import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import com.silzila.exception.BadRequestException;
 import com.silzila.payload.request.ColumnFilter;
 import com.silzila.payload.request.Table;
 
-public class FilterQueryMysql {
-
+public class FilterQueryOracle {
     private static final Logger logger = LogManager.getLogger(FilterQueryMysql.class);
 
-    public static String getFilterOptions(ColumnFilter req, Table table) throws BadRequestException {
+     public static String getFilterOptions(ColumnFilter req, Table table) throws BadRequestException {
         logger.info("=========== FilterQueryMysql fn calling...");
         /*
          * ************************************************
@@ -21,7 +21,7 @@ public class FilterQueryMysql {
          * ************************************************
          */
         String query = "";
-        String fromClause = " FROM " + table.getDatabase() + "." + table.getTable() + " ";
+        String fromClause = " FROM " + table.getSchema() + "." + table.getTable() + " ";
 
         if (List.of("TEXT", "BOOLEAN").contains(req.getDataType().name())) {
             query = "SELECT DISTINCT " + req.getFieldName() + fromClause + "ORDER BY 1";
@@ -61,38 +61,37 @@ public class FilterQueryMysql {
                 throw new BadRequestException("Error: Date/Timestamp Column should have Time Grain!");
             }
             /*
-             * Date - dictinct values
+             * Date - dictinct values // as DATE alias not working 
              */
             if (req.getFilterOption().name().equals("ALL_VALUES")) {
                 if (req.getTimeGrain().name().equals("YEAR")) {
-                    String field = "YEAR(" + req.getFieldName() + ")";
+                    String field = "TO_CHAR(" + req.getFieldName() + ",'yyyy')";    
                     query = "SELECT DISTINCT " + field + " AS Year" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("QUARTER")) {
-                    String field = "CONCAT('Q', QUARTER(" + req.getFieldName() + "))";
+                    String field = "TO_CHAR(" + req.getFieldName() + ",'\"Q\"Q')";
                     query = "SELECT DISTINCT " + field + " AS Quarter" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("MONTH")) {
-                    String sortField = "MONTH(" + req.getFieldName() + ")";
-                    String field = "MONTHNAME(" + req.getFieldName() + ")";
+                    String sortField = "TO_CHAR(" + req.getFieldName() + ",'mm')";
+                    String field = "TO_CHAR(" + req.getFieldName() + ",'fmMonth')";
                     query = "SELECT " + field + " AS Month" + fromClause + "GROUP BY " + sortField + ", "
                             + field + " ORDER BY " + sortField;
                 } else if (req.getTimeGrain().name().equals("YEARQUARTER")) {
-                    String field = "CONCAT(YEAR(" + req.getFieldName() + "), '-Q', QUARTER("
-                            + req.getFieldName() + "))";
+                    String field = "TO_CHAR(" + req.getFieldName() + ", 'YYYY-\"Q\"Q')";
                     query = "SELECT DISTINCT " + field + " AS YearQuarter" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("YEARMONTH")) {
-                    String field = "DATE_FORMAT(" + req.getFieldName() + ", '%Y-%m')";
+                    String field = "TO_CHAR(" + req.getFieldName() + ", 'yyyy-mm')";
                     query = "SELECT DISTINCT " + field + " AS YearMonth" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("DATE")) {
-                    String field = "DATE(" + req.getFieldName() + ")";
-                    query = "SELECT DISTINCT " + field + " AS Date" + fromClause + "ORDER BY 1";
+                    String field = "TO_CHAR(" + req.getFieldName() + ",'yyyy-mm-dd')";
+                    query = "SELECT DISTINCT " + field + " AS \"Date\"" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    String sortField = "DAYOFWEEK(" + req.getFieldName() + ")";
-                    String field = "DAYNAME(" + req.getFieldName() + ")";
+                    String sortField = "TO_CHAR(" + req.getFieldName() + ",'D')";
+                    String field = "TO_CHAR(" + req.getFieldName() + ", 'fmDay')";
                     query = "SELECT " + field + " AS DayOfWeek" + fromClause + "GROUP BY " + sortField + ", "
                             + field
                             + " ORDER BY " + sortField;
                 } else if (req.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    String field = "DAY(" + req.getFieldName() + ")";
+                    String field = "TO_CHAR(" + req.getFieldName() + ", 'dd')";
                     query = "SELECT DISTINCT " + field + " AS DayOfMonth" + fromClause + "ORDER BY 1";
                 }
 
@@ -102,22 +101,22 @@ public class FilterQueryMysql {
              */
             else if (req.getFilterOption().name().equals("MIN_MAX")) {
                 if (req.getTimeGrain().name().equals("YEAR")) {
-                    String col = "YEAR(" + req.getFieldName() + ")";
+                    String col = "TO_CHAR(" + req.getFieldName() + ",'yyyy')";
                     query = "SELECT MIN(" + col + ") AS min, MAX(" + col + ") AS max" + fromClause;
                 } else if (req.getTimeGrain().name().equals("QUARTER")) {
-                    String col = "QUARTER(" + req.getFieldName() + ")";
+                    String col = "TO_CHAR(" + req.getFieldName() + ",'\"Q\"Q')";
                     query = "SELECT MIN(" + col + ") AS min, MAX(" + col + ") AS max" + fromClause;
                 } else if (req.getTimeGrain().name().equals("MONTH")) {
-                    String col = "MONTH(" + req.getFieldName() + ")";
+                    String col = "TO_CHAR(" + req.getFieldName() + ",'mm')";
                     query = "SELECT MIN(" + col + ") AS min, MAX(" + col + ") AS max" + fromClause;
-                } else if (req.getTimeGrain().name().equals("DATE")) {
-                    String col = "DATE(" + req.getFieldName() + ")";
+                } else if (req.getTimeGrain().name().equals("DAT")) {
+                    String col = "TO_CHAR(" + req.getFieldName() + ",'yyyy-mm-dd')";
                     query = "SELECT MIN(" + col + ") AS min, MAX(" + col + ") AS max" + fromClause;
                 } else if (req.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    String col = "DAYOFWEEK(" + req.getFieldName() + ")";
+                    String col = "TO_CHAR(" + req.getFieldName() + ",'D')";
                     query = "SELECT MIN(" + col + ") AS min, MAX(" + col + ") AS max" + fromClause;
                 } else if (req.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    String col = "DAY(" + req.getFieldName() + ")";
+                    String col = "TO_CHAR(" + req.getFieldName() + ", 'dd')";
                     query = "SELECT MIN(" + col + ") AS min, MAX(" + col + ") AS max" + fromClause;
                 }
             }
@@ -127,5 +126,4 @@ public class FilterQueryMysql {
         return query;
 
     }
-
 }
