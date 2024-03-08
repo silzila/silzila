@@ -182,7 +182,7 @@ public class RelationshipClauseGeneric {
                         + table.getId();
             }
             // schema name . table name , -- no 'AS', alias without as
-            else if (vendorName.equals("Oracle")) {
+            else if (vendorName.equals("oracle")) {
                 fromClause = "\n\t" + table.getSchema() + "." + table.getTable() + " " + table.getId();
             }
 
@@ -608,7 +608,7 @@ public class RelationshipClauseGeneric {
             }
  
  
-            else if (vendorName.equals("Oracle")) {
+            else if (vendorName.equals("oracle")) {
                 if (i == 0) {
                     fromClause += "\n\t" + fromTable.getSchema() + "." + fromTable.getTable() + " "
                             + fromTable.getId()

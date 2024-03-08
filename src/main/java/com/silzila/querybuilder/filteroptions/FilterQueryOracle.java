@@ -13,8 +13,8 @@ import com.silzila.payload.request.Table;
 public class FilterQueryOracle {
     private static final Logger logger = LogManager.getLogger(FilterQueryMysql.class);
 
-     public static String getFilterOptions(ColumnFilter req, Table table) throws BadRequestException {
-        logger.info("=========== FilterQueryMysql fn calling...");
+    public static String getFilterOptions(ColumnFilter req, Table table) throws BadRequestException {
+        logger.info("=========== FilterQueryOracle fn calling...");
         /*
          * ************************************************
          * get distinct values - binary, text
@@ -61,11 +61,11 @@ public class FilterQueryOracle {
                 throw new BadRequestException("Error: Date/Timestamp Column should have Time Grain!");
             }
             /*
-             * Date - dictinct values // as DATE alias not working 
+             * Date - dictinct values // as DATE alias not working
              */
             if (req.getFilterOption().name().equals("ALL_VALUES")) {
                 if (req.getTimeGrain().name().equals("YEAR")) {
-                    String field = "TO_CHAR(" + req.getFieldName() + ",'yyyy')";    
+                    String field = "TO_CHAR(" + req.getFieldName() + ",'yyyy')";
                     query = "SELECT DISTINCT " + field + " AS Year" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("QUARTER")) {
                     String field = "TO_CHAR(" + req.getFieldName() + ",'\"Q\"Q')";

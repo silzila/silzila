@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.silzila.VizApplication;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
+import com.silzila.helper.OracleDbJksRequestProcess;
 import com.silzila.helper.ResultSetToJson;
 import com.silzila.payload.request.DBConnectionRequest;
 import com.silzila.payload.response.MetadataColumn;
@@ -51,7 +52,9 @@ public class ConnectionPoolService {
 
     private static final Logger logger = LogManager.getLogger(ConnectionPoolService.class);
 
-    private static final String SILZILA_DIR = "F:\\Silzila\\Oracle DB";
+    final String SILZILA_DIR = System.getProperty("user.home") + "/" +
+            "silzila-uploads";
+    // private static final String SILZILA_DIR = "F:\\Silzila\\Oracle DB";
 
     HikariDataSource dataSource = null;
     HikariConfig config = new HikariConfig();
@@ -150,7 +153,7 @@ public class ConnectionPoolService {
                 config.addDataSourceProperty("minimulIdle", "1");
                 config.addDataSourceProperty("maximumPoolSize", "2");
                 dataSource = new HikariDataSource(config);
-            } else if (dbConnection.getVendor().equals("Oracle")) {
+            } else if (dbConnection.getVendor().equals("oracle")) {
                 String url = "jdbc:oracle:thin:@(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port="
                         + dbConnection.getPort() +
                         ")(host=" + dbConnection.getServer() + "))(connect_data=(service_name="
@@ -265,7 +268,7 @@ public class ConnectionPoolService {
         try (Connection _connection = connectionPool.get(id).getConnection();) {
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
 
-            if (vendorName.equals("mysql") || vendorName.equals("Oracle")) {
+            if (vendorName.equals("mysql") || vendorName.equals("oracle")) {
                 ResultSet resultSet = databaseMetaData.getSchemas();
                 while (resultSet.next()) {
                     String databaseName = resultSet.getString("TABLE_SCHEM");
@@ -492,7 +495,7 @@ public class ConnectionPoolService {
                 // for POSTGRESQL DB
                 // throw error if schema name is not passed
                 if (vendorName.equalsIgnoreCase("postgresql") || vendorName.equalsIgnoreCase("redshift") || vendorName
-                        .equalsIgnoreCase("Oracle")) {
+                        .equalsIgnoreCase("oracle")) {
                     if (schemaName == null || schemaName.trim().isEmpty()) {
                         throw new BadRequestException("Error: Schema name is not provided!");
                     }
@@ -554,7 +557,7 @@ public class ConnectionPoolService {
             // based on database dialect, we pass either DB name or schema name at different
             // position in the funciton for POSTGRESQL DB
             if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName
-                    .equalsIgnoreCase("Oracle")) {
+                    .equalsIgnoreCase("oracle")) {
                 // schema name is must for postgres
                 if (schemaName == null || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Schema name is not provided!");
@@ -679,7 +682,7 @@ public class ConnectionPoolService {
             query = "SELECT * FROM " + databaseName + ".`" + schemaName + "`." + tableName + " LIMIT " + recordCount;
         }
         // oracle
-        else if (vendorName.equalsIgnoreCase("Oracle")) {
+        else if (vendorName.equalsIgnoreCase("oracle")) {
             if (schemaName == null || schemaName.trim().isEmpty()) {
                 throw new BadRequestException("Error: Schema name is not provided!");
             }
@@ -894,55 +897,63 @@ public class ConnectionPoolService {
         logger.warn("clearAllConnectionPoolsInShutDown Fn Called..................");
     }
 
-    // oracle Connection
-    public void testOracleConnection(DBConnectionRequest fileDTO) throws IOException {
+    // test oracle Connection
+    public void testOracleConnection(OracleDTO oracleDTO) throws IOException, BadRequestException {
 
         Path path = Paths.get(SILZILA_DIR, "jks_Collections", "temptest");
+
+        DBConnectionRequest req = OracleDbJksRequestProcess.parseOracleConnectionRequest(oracleDTO, false);
 
         HikariConfig config = new HikariConfig();
 
         String url = "jdbc:oracle:thin:@(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port="
-                + fileDTO.getPort() +
-                ")(host=" + fileDTO.getServer() + "))(connect_data=(service_name=" + fileDTO.getDatabase()
+                + req.getPort() +
+                ")(host=" + req.getServer() + "))(connect_data=(service_name=" + req.getDatabase()
                 + "))(security=(ssl_server_dn_match=yes)))";
 
         config.setJdbcUrl(url);
-        config.setUsername(fileDTO.getUsername());
-        config.setPassword(fileDTO.getPassword());
+        config.setUsername(req.getUsername());
+        config.setPassword(req.getPassword());
         config.setMaximumPoolSize(5);
         // SSL properties
         config.addDataSourceProperty("javax.net.ssl.keyStore",
-                SILZILA_DIR + "/jks_Collections/temptest/" + fileDTO.getKeystore());
-        config.addDataSourceProperty("javax.net.ssl.keyStorePassword", fileDTO.getKeystorePassword());
+                SILZILA_DIR + "/jks_Collections/temptest/" + req.getKeystore());
+        config.addDataSourceProperty("javax.net.ssl.keyStorePassword", req.getKeystorePassword());
         config.addDataSourceProperty("javax.net.ssl.trustStore",
-                SILZILA_DIR + "/jks_Collections/temptest/" + fileDTO.getTruststore());
-        config.addDataSourceProperty("javax.net.ssl.trustStorePassword", fileDTO.getTruststorePassword());
+                SILZILA_DIR + "/jks_Collections/temptest/" + req.getTruststore());
+        config.addDataSourceProperty("javax.net.ssl.trustStorePassword", req.getTruststorePassword());
 
         HikariDataSource dataSource = new HikariDataSource(config);
 
         try (Connection connection = dataSource.getConnection()) {
-            System.out.println("Connected to Oracle Cloud Database");
-
+            Integer rowCount = 0;
             Statement statement = connection.createStatement();
-            ResultSet data = statement.executeQuery("SELECT 1 FROM DUAL");
-            JSONArray jsonData = ResultSetToJson.convertToJson(data);
-                if (jsonData != null) {
-                    System.out.println("Test Success");
-                }
 
+            ResultSet data = statement.executeQuery("SELECT 1 FROM DUAL");
+            while (data.next()) {
+                rowCount++;
+            }
+            // return error if no record is fetched
+            if (rowCount == 0) {
+                throw new BadRequestException("Error: Something wrong!");
+            }
         } catch (SQLException e) {
-            System.err.println("Error in DB: " + e.getMessage());
+            logger.warn("Error in connecting to Oracle DB");
+            e.printStackTrace();
         } finally {
             dataSource.close();
-             try {
-            Files.walk(path)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
-            System.out.println("Deleted 'temptest' folder successfully.");
-        } catch (IOException e) {
-            System.err.println("Error deleting 'temptest' folder: " + e.getMessage());
-        }
+            // deleting the file after test the connection
+            try {
+                Files.walk(path)
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            } catch (IOException e) {
+                logger.warn("Error in deleting the temptest folder");
+                // Handle exception if file deletion fails after testing
+                e.printStackTrace();
+                ;
+            }
         }
     }
 }

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.silzila.domain.entity.DBConnection;
 import com.silzila.exception.RecordNotFoundException;
+import com.silzila.helper.OracleDbJksRequestProcess;
 import com.silzila.helper.ResultSetToJson;
 import com.silzila.payload.request.DBConnectionRequest;
 import com.silzila.payload.response.MetadataColumn;
@@ -57,9 +58,9 @@ public class DBConnectionService {
 
     private static final Logger logger = LogManager.getLogger(DBConnectionService.class);
     // all uploads are initially saved in tmp
-    // final String SILZILA_DIR = System.getProperty("user.home") + "/" +
-    // "silzila-uploads";
-    private static final String SILZILA_DIR = "F:\\Silzila\\Oracle DB";
+    final String SILZILA_DIR = System.getProperty("user.home") + "/" +
+    "silzila-uploads";
+    // private static final String SILZILA_DIR = "F:\\Silzila\\Oracle DB";
     @Autowired
     DBConnectionRepository dbConnectionRepository;
 
@@ -206,7 +207,7 @@ public class DBConnectionService {
         return dto;
     }
 
-    private DBConnection checkDBConnectionNameAlreadyExist(String id, String connectionName,
+    public DBConnection checkDBConnectionNameAlreadyExist(String id, String connectionName,
             String userId) throws RecordNotFoundException, BadRequestException {
         // fetch the particular DB connection for the user
         Optional<DBConnection> optionalDBConnection = dbConnectionRepository.findByIdAndUserId(id, userId);
@@ -252,7 +253,7 @@ public class DBConnectionService {
     }
 
     public void deleteDBConnection(String id, String userId)
-            throws RecordNotFoundException, FileNotFoundException {
+            throws RecordNotFoundException, FileNotFoundException, BadRequestException {
         // fetch the particular DB connection for the user
         Optional<DBConnection> optionalDBConnection = dbConnectionRepository.findByIdAndUserId(id, userId);
         // if no connection details, then send NOT FOUND Error
@@ -274,118 +275,65 @@ public class DBConnectionService {
         // e.getMessage());
         // }
         // }
+        // delete the store file
+        if ("oracle".equals(optionalDBConnection.get().getVendor())) {
+            deleteExistingFile(id, userId, optionalDBConnection.get().getConnectionName());
+        }
+
         // delete the record from DB
         dbConnectionRepository.deleteById(id);
-    }
-
-    public OracleDTO parseKeystoreTruststore(OracleDTO oracleDTO, boolean b) throws IOException {
-        Path path = Paths.get(SILZILA_DIR, "jks_Collections");
-
-        Files.createDirectories(path);
-
-        if (b) {
-            path = path.resolve("store");
-        } else {
-            path = path.resolve("temptest");
-        }
-
-        // Create the directory if it doesn't exist
-        Files.createDirectories(path);
-
-        // key store file
-        try {
-            MultipartFile ksFile = oracleDTO.getKeystore();
-            byte[] bytes = ksFile.getBytes();
-            String newFileName = UUID.randomUUID().toString().substring(0, 8) + ".jks";
-            Path filePath = path.resolve(newFileName);
-            Files.write(filePath, bytes);
-            System.out.println("Key Store File renamed and moved successfully.");
-            oracleDTO.setKeyStoreStringFileName(newFileName);
-        } catch (IOException e) {
-            System.out.println("Failed to rename and move key store file: " + e.getMessage());
-            throw e; // Rethrow the exception or handle it appropriately
-        }
-
-        // trust store file
-        try {
-            MultipartFile tsFile = oracleDTO.getTruststore();
-            byte[] bytes = tsFile.getBytes();
-            String newFileName = UUID.randomUUID().toString().substring(0, 8) + ".jks";
-            Path filePath = path.resolve(newFileName);
-            Files.write(filePath, bytes);
-            System.out.println("Trust Store File renamed and moved successfully.");
-            oracleDTO.setTrustStoreStringFileName(newFileName);
-        } catch (IOException e) {
-            System.out.println("Failed to rename and move trust store file: " + e.getMessage());
-            throw e; // Rethrow the exception or handle it appropriately
-        }
-
-        return oracleDTO;
-    }
-    // oracle connection
-    public DBConnectionDTO createOracleDBConnection(OracleDTO oracleDTO, String userId)
-            throws IOException, BadRequestException {
-
-        OracleDTO dtoAfterFileName = parseKeystoreTruststore(oracleDTO, true);
-
-        DBConnectionRequest dbOracleConnectionRequest = new DBConnectionRequest("Oracle",
-                oracleDTO.getHost(), Integer.parseInt(oracleDTO.getPort()),
-                oracleDTO.getServiceName(), oracleDTO.getUsername(), oracleDTO.getPassword(), null,
-                oracleDTO.getConnectionName(),
-                dtoAfterFileName.getKeyStoreStringFileName(), oracleDTO.getKeystorePassword(),
-                dtoAfterFileName.getTrustStoreStringFileName(), oracleDTO.getTruststorePassword());
-
-        return createDBConnection(dbOracleConnectionRequest, userId);
 
     }
 
+    // deleting the file after updating te OracleDB connection
+    public void deleteExistingFile(String id, String userId, String connectionName)
+            throws RecordNotFoundException, BadRequestException, FileNotFoundException {
+        DBConnection _dbConnection = checkDBConnectionNameAlreadyExist(id, connectionName,
+                userId);
 
-    
-    // another 
-    public DBConnectionRequest keyStoreaAndTrustStore(DBConnectionRequest req, MultipartFile keyStore,
-            MultipartFile truststore, Boolean save) throws IOException {
-                Path path = Paths.get(SILZILA_DIR, "jks_Collections");
+        String FilePath = SILZILA_DIR + "/jks_Collections/store";
 
-        Files.createDirectories(path);
+        String[] fileToDelete = { _dbConnection.getKeystoreFileName(), _dbConnection.getTruststoreFileName() };
 
-        if (save) {
-            path = path.resolve("store");
-        } else {
-            path = path.resolve("temptest");
+        for (String fileName : fileToDelete) {
+            File file = new File(FilePath + File.separator + fileName);
+            if (file.exists()) {
+
+                try {
+                    file.delete();
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to delete the file");
+                }
+
+            } else {
+                throw new FileNotFoundException("File not found to delete");
+            }
         }
 
-        // Create the directory if it doesn't exist
-        Files.createDirectories(path);
+    }
 
-        // key store file
-        try {
-            
-            byte[] bytes = keyStore.getBytes();
-            String newFileName = UUID.randomUUID().toString().substring(0, 8) + ".jks";
-            Path filePath = path.resolve(newFileName);
-            Files.write(filePath, bytes);
-            System.out.println("Key Store File renamed and moved successfully.");
-            req.setKeystore(newFileName);
-        } catch (IOException e) {
-            System.out.println("Failed to rename and move key store file: " + e.getMessage());
-            throw e; // Rethrow the exception or handle it appropriately
-        }
+    // oracle connection - creation
+    public DBConnectionDTO createOracleDBConnection(String userId, OracleDTO oracleDTO)
+            throws BadRequestException, IOException {
 
-        // trust store file
-        try {
-           
-            byte[] bytes = truststore.getBytes();
-            String newFileName = UUID.randomUUID().toString().substring(0, 8) + ".jks";
-            Path filePath = path.resolve(newFileName);
-            Files.write(filePath, bytes);
-            System.out.println("Trust Store File renamed and moved successfully.");
-            req.setTruststore(newFileName);
-        } catch (IOException e) {
-            System.out.println("Failed to rename and move trust store file: " + e.getMessage());
-            throw e; // Rethrow the exception or handle it appropriately
-        }
-        return req;
-        
+        DBConnectionRequest req = OracleDbJksRequestProcess.parseOracleConnectionRequest(oracleDTO, true);
+
+        DBConnectionDTO dto = createDBConnection(req, userId);
+
+        return dto;
+    }
+
+    // Oracle DB connection update
+    public DBConnectionDTO updateOracleDBConnection(String id, String userId, OracleDTO oracleDTO)
+            throws BadRequestException, IOException, RecordNotFoundException {
+
+        DBConnectionRequest req = OracleDbJksRequestProcess.parseOracleConnectionRequest(oracleDTO, true);
+
+        deleteExistingFile(id, userId, req.getConnectionName());
+
+        DBConnectionDTO dto = updateDBConnection(id, req, userId);
+
+        return dto;
     }
 
 }

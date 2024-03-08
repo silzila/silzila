@@ -65,7 +65,7 @@ public class QueryComposer {
             // System.out.println("------ inside databricks block");
             qMap = SelectClauseDatabricks.buildSelectClause(req);
         }
-        else if (vendorName.equals("Oracle")) {
+        else if (vendorName.equals("oracle")) {
             qMap = SelectClauseOracle.buildSelectClause(req);
         }
         else {

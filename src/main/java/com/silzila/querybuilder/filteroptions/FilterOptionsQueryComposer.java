@@ -64,7 +64,7 @@ public class FilterOptionsQueryComposer {
         } else if (vendorName.equals("bigquery")) {
             logger.info("------ inside bigquery block");
             finalQuery = FilterQueryBigquery.getFilterOptions(cf, table);
-        } else if (vendorName.equals("Oracle")){
+        } else if (vendorName.equals("oracle")){
             logger.info("------ inside Oracle block");
             finalQuery = FilterQueryOracle.getFilterOptions(cf, table);
         }

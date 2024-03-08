@@ -16,7 +16,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class OracleDTO {
-    @JsonProperty("ConnectionName")
+    @JsonProperty("connectionName")
     private String connectionName;
 
     @JsonProperty("Vendor")
@@ -28,19 +28,19 @@ public class OracleDTO {
     @JsonProperty("port")
     private String port;
 
-    @JsonProperty("service_name")
+    @JsonProperty("serviceName")
     private String serviceName;
 
     @JsonProperty("keystore")
     private MultipartFile keystore;
 
-    @JsonProperty("keystore_password")
+    @JsonProperty("keystorePassword")
     private String keystorePassword;
 
     @JsonProperty("truststore")
     private MultipartFile truststore;
 
-    @JsonProperty("truststore_password")
+    @JsonProperty("truststorePassword")
     private String truststorePassword;
 
     @JsonProperty("username")
