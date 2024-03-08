@@ -211,13 +211,14 @@ const TableConditionalFormatting = ({
 			const zones = chartProperties.properties[propKey].chartAxes;
 
 			const output = zones.reduce((accumulator: any, zone: any) => {
-				accumulator = accumulator.concat(
-					zone.fields.map((value: any) => ({
-						isLabel: zone.name !== "Measure",
-						columnName: fieldName(value),
-					}))
-				);
-
+				if(zone.name !== "Column"){
+					accumulator = accumulator.concat(
+						zone.fields.map((value: any) => ({
+							isLabel: zone.name !== "Measure",
+							columnName: fieldName(value),
+						}))
+					);					
+				}	
 				return accumulator;
 			}, []);
 

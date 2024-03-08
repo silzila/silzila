@@ -1,7 +1,9 @@
 package com.silzila.payload.request;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -16,7 +18,11 @@ import com.fasterxml.jackson.annotation.JsonValue;
         "fieldName",
         "dataType",
         "timeGrain",
-        "aggr"
+        "aggr",
+        "windowFn",
+        "windowFnOption",
+        "windowFnMatrix",
+        "windowFnPartition"
 })
 @Generated("jsonschema2pojo")
 public class Measure implements Serializable {
@@ -31,8 +37,16 @@ public class Measure implements Serializable {
     private Measure.TimeGrain timeGrain = Measure.TimeGrain.fromValue("year");
     @JsonProperty("aggr")
     private Measure.Aggr aggr = Measure.Aggr.fromValue("count");
+    @JsonProperty("windowFn")
+    private String[] windowFn = new String[]{null};
+    @JsonProperty("windowFnOption")
+    private int[] windowFnOption = new int[]{};
+    @JsonProperty("windowFnMatrix")
+    private int[] windowFnMatrix = new int[]{};
+    @JsonProperty("windowFnPartition")
+    private int[] windowFnPartition = new int[]{};
     private final static long serialVersionUID = 1754801202036436076L;
-
+      
     /**
      * No args constructor for use in serialization
      *
@@ -47,15 +61,23 @@ public class Measure implements Serializable {
      * @param dataType
      * @param tableId
      * @param aggr
+     * @param windowFn
+     * @param windowFnOption
+     * @param windowFnMatrix
+     * @param windowFnPartition
      */
-    public Measure(String tableId, String fieldName, Measure.DataType dataType, Measure.TimeGrain timeGrain,
-            Measure.Aggr aggr) {
+    public Measure(String tableId, String fieldName, Measure.DataType dataType, Measure.TimeGrain timeGrain, Measure.Aggr aggr,
+            String[] windowFn, int[] windowFnOption, int[] windowFnMatrix, int[] windowFnPartition) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
         this.dataType = dataType;
         this.timeGrain = timeGrain;
         this.aggr = aggr;
+        this.windowFn = windowFn;
+        this.windowFnOption = windowFnOption;
+        this.windowFnMatrix = windowFnMatrix;
+        this.windowFnPartition = windowFnPartition;
     }
 
     @JsonProperty("tableId")
@@ -107,6 +129,46 @@ public class Measure implements Serializable {
     public void setAggr(Measure.Aggr aggr) {
         this.aggr = aggr;
     }
+    
+    @JsonProperty("windowFn")
+    public String[] getWindowFn() {
+        return windowFn;
+    }
+    
+    @JsonProperty("windowFn")
+    public void setWindowFn(String[] windowFn) {
+        this.windowFn = windowFn;
+    }
+    
+    @JsonProperty("windowFnOption")
+    public int[] getWindowFnOption() {
+        return windowFnOption;
+    }
+     
+    @JsonProperty("windowFnOption")
+    public void setWindowFnOption(int[] windowFnOption) {
+        this.windowFnOption = windowFnOption;
+    }
+
+    @JsonProperty("windowFnMatrix")
+    public int[] getWindowFnMatrix() {
+        return windowFnMatrix;
+    }
+    
+    @JsonProperty("windowFnMatrix")
+    public void setWindowFnMatrix(int[] windowFnMatrix) {
+        this.windowFnMatrix = windowFnMatrix;
+    }
+
+    @JsonProperty("windowFnPartition")
+    public int[] getWindowFnPartition() {
+        return windowFnPartition;
+    }
+
+    @JsonProperty("windowFnPartition")
+    public void setWindowFnPartition(int[] windowFnPartition) {
+        this.windowFnPartition = windowFnPartition;
+    }
 
     @Override
     public String toString() {
@@ -132,6 +194,22 @@ public class Measure implements Serializable {
         sb.append("aggr");
         sb.append('=');
         sb.append(((this.aggr == null) ? "<null>" : this.aggr));
+        sb.append(',');
+        sb.append("windowFn");
+        sb.append('=');
+        sb.append(((this.windowFn == null) ? "<null>" : this.windowFn));
+        sb.append(',');
+        sb.append("windowFnOption");
+        sb.append('=');
+        sb.append(((this.windowFnOption == null) ? "<null>" : this.windowFnOption));
+        sb.append(',');
+        sb.append("windowFnMatrix");
+        sb.append('=');
+        sb.append(((this.windowFnMatrix == null) ? "<null>" : this.windowFnMatrix));
+        sb.append(',');
+        sb.append("windowFnPartition");
+        sb.append('=');
+        sb.append(((this.windowFnPartition == null) ? "<null>" : this.windowFnPartition));
         sb.append(',');
         if (sb.charAt((sb.length() - 1)) == ',') {
             sb.setCharAt((sb.length() - 1), ']');
@@ -279,5 +357,5 @@ public class Measure implements Serializable {
         }
 
     }
-
+       
 }

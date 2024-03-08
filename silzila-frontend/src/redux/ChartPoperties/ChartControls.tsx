@@ -134,6 +134,21 @@ const chartControl = {
 				flipAxis: false,
 			},
 
+			geoChartControls: {
+				boderWidth: 1,
+				borderColor:"grey",
+				mapZoom: 1,
+				areaColor: "#e7e8ea",
+				emphasisAreaColor: "yellow",
+				aspectScale : 1,
+				enableSelfEmphasis : true,
+				minValue: 0,
+				minColor: "#AF99DB",	
+				maxValue: 100,
+				maxColor: "#2BB9BB",
+				showVisualScale : true,
+			},
+
 			treeMapChartControls: {
 				treeMapWidth: 80, //%
 				treeMapHeight: 80, //%
@@ -466,6 +481,21 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 							flipAxis: false,
 						},
 
+						geoChartControls: {
+							boderWidth: 1,
+							borderColor:"grey",
+							mapZoom: 1,
+							areaColor: "#e7e8ea",
+							emphasisAreaColor: "yellow",
+							aspectScale : 1,
+							enableSelfEmphasis : true,
+							minValue: 0,
+							minColor: "#AF99DB",	
+							maxValue: 100,
+							maxColor: "#2BB9BB",
+							showVisualScale : true,
+						},
+
 						treeMapChartControls: {
 							treeMapWidth: 80, //%
 							treeMapHeight: 80, //%
@@ -795,6 +825,21 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 							maxBoxWidth: 30,
 							boxborderWidth: "2", //px
 							flipAxis: false,
+						},
+						
+						geoChartControls: {
+							boderWidth: 1,
+							borderColor:"grey",
+							mapZoom: 1,
+							areaColor: "#e7e8ea",
+							emphasisAreaColor: "yellow",
+							aspectScale : 1,
+							enableSelfEmphasis : true,
+							minValue: 0,
+							minColor: "#AF99DB",	
+							maxValue: 100,
+							maxColor: "#2BB9BB",
+							showVisualScale : true,
 						},
 
 						treeMapChartControls: {
@@ -1414,6 +1459,20 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 					},
 				},
 			});
+
+			case "UPDATE_GEOCHART_STYLE_OPTIONS":
+				return update(state, {
+					properties: {
+						[action.payload.propKey]: {
+							geoChartControls: {
+								[action.payload.option]: {
+									$set: action.payload.value,
+								},
+							},
+						},
+					},
+				});
+
 		case "UPDATE_TREEMAP_STYLE_OPTIONS":
 			return update(state, {
 				properties: {
