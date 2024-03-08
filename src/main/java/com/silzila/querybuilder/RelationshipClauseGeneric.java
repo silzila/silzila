@@ -181,6 +181,10 @@ public class RelationshipClauseGeneric {
                 fromClause = "\n\t`" + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + "` AS "
                         + table.getId();
             }
+            // schema name . table name , -- no 'AS', alias without as
+            else if (vendorName.equals("oracle")) {
+                fromClause = "\n\t" + table.getSchema() + "." + table.getTable() + " " + table.getId();
+            }
 
         }
 
@@ -598,6 +602,51 @@ public class RelationshipClauseGeneric {
                                     + "vw_" + _from.getAlias() + "_" + _from.getFlatFileId().substring(0, 8)
                                     + " AS " + _from.getId()
                                     + " ON \n\t\t " + joinString;
+                        }
+                    }
+                }
+            }
+ 
+ 
+            else if (vendorName.equals("oracle")) {
+                if (i == 0) {
+                    fromClause += "\n\t" + fromTable.getSchema() + "." + fromTable.getTable() + " "
+                            + fromTable.getId()
+                            + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getSchema() + "."
+                            + toTable.getTable() + " " + toTable.getId() + " ON \n\t\t " + joinString;
+                } else if (i > 0) {
+                    if (_rship.getTable1().equals(_relationships.get(i - 1).getTable1()) ||
+                            _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
+                        fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
+                                + toTable.getSchema() + "."
+                                + toTable.getTable() + " " + toTable.getId() + " ON \n\t\t " + joinString;
+                    } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
+                            _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
+                        fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
+                                + fromTable.getSchema() + "."
+                                + fromTable.getTable() + " " + fromTable.getId() + " ON \n\t\t " + joinString;
+                    }
+                    // when not matching with one level above - need to check the whole list
+                    else {
+                        List<String> existingTables = new ArrayList<>();
+                        for (int k = 0; k <= i; k++) {
+                            existingTables.add(_relationships.get(k).getTable1());
+                            existingTables.add(_relationships.get(k).getTable2());
+                        }
+                        if (existingTables.contains(_rship.getTable1())) {
+                            Optional<Table> _tbl2Optional = ds.getTables().stream()
+                                    .filter(_r -> _r.getId().equals(_rship.getTable2())).findFirst();
+                            Table _to = _tbl2Optional.get();
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
+                                    + _to.getSchema() + "."
+                                    + _to.getTable() + " " + _to.getId() + " ON \n\t\t " + joinString;
+                        } else if (existingTables.contains(_rship.getTable2())) {
+                            Optional<Table> _tbl1Optional = ds.getTables().stream()
+                                    .filter(_r -> _r.getId().equals(_rship.getTable1())).findFirst();
+                            Table _from = _tbl1Optional.get();
+                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
+                                    + _from.getSchema() + "."
+                                    + _from.getTable() + " " + _from.getId() + " ON \n\t\t " + joinString;
                         }
                     }
                 }

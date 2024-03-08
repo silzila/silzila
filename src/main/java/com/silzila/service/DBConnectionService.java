@@ -7,26 +7,38 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.silzila.dto.DBConnectionDTO;
+import com.silzila.dto.OracleDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.silzila.domain.entity.DBConnection;
 import com.silzila.exception.RecordNotFoundException;
+import com.silzila.helper.OracleDbJksRequestProcess;
+import com.silzila.helper.ResultSetToJson;
 import com.silzila.payload.request.DBConnectionRequest;
+import com.silzila.payload.response.MetadataColumn;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.security.encryption.AESEncryption;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 // import java.sql.Connection;
 // import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 // import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Comparator;
 // import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +47,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -45,8 +58,9 @@ public class DBConnectionService {
 
     private static final Logger logger = LogManager.getLogger(DBConnectionService.class);
     // all uploads are initially saved in tmp
-    final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
-
+    final String SILZILA_DIR = System.getProperty("user.home") + "/" +
+    "silzila-uploads";
+    // private static final String SILZILA_DIR = "F:\\Silzila\\Oracle DB";
     @Autowired
     DBConnectionRepository dbConnectionRepository;
 
@@ -148,18 +162,19 @@ public class DBConnectionService {
                 + passwordHash);
         String projectId = null;
         String clientEmail = null;
-        if(dbConnectionRequest.getVendor().equals("bigquery")){
+
+        if (dbConnectionRequest.getVendor().equals("bigquery")) {
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode jsonNode = objectMapper.readTree(dbConnectionRequest.getPassword());
-    
+
                 projectId = jsonNode.get("project_id").asText();
                 clientEmail = jsonNode.get("client_email").asText();
-    
+
                 if (projectId.isEmpty() || clientEmail.isEmpty()) {
                     throw new RuntimeException("Project ID or Client Email not found in the token.");
                 }
-    
+
                 logger.info("Project ID: " + projectId);
                 logger.info("Client Email: " + clientEmail);
 
@@ -182,13 +197,17 @@ public class DBConnectionService {
                 projectId,
                 clientEmail,
                 null,
-                dbConnectionRequest.getPassword());
+                dbConnectionRequest.getPassword(),
+                dbConnectionRequest.getKeystore(),
+                dbConnectionRequest.getKeystorePassword(),
+                dbConnectionRequest.getTruststore(),
+                dbConnectionRequest.getTruststorePassword());
         dbConnectionRepository.save(dbConnection);
         DBConnectionDTO dto = mapper.map(dbConnection, DBConnectionDTO.class);
         return dto;
     }
 
-    private DBConnection checkDBConnectionNameAlreadyExist(String id, String connectionName,
+    public DBConnection checkDBConnectionNameAlreadyExist(String id, String connectionName,
             String userId) throws RecordNotFoundException, BadRequestException {
         // fetch the particular DB connection for the user
         Optional<DBConnection> optionalDBConnection = dbConnectionRepository.findByIdAndUserId(id, userId);
@@ -224,13 +243,17 @@ public class DBConnectionService {
         _dbConnection.setUsername(dbConnectionRequest.getUsername());
         _dbConnection.setSalt(saltString);
         _dbConnection.setPasswordHash(passwordHash);
+        _dbConnection.setKeystoreFileName(dbConnectionRequest.getKeystore());
+        _dbConnection.setKeystorePassword(dbConnectionRequest.getKeystorePassword());
+        _dbConnection.setTruststoreFileName(dbConnectionRequest.getTruststore());
+        _dbConnection.setTruststorePassword(dbConnectionRequest.getTruststorePassword());
         dbConnectionRepository.save(_dbConnection);
         DBConnectionDTO dto = mapper.map(_dbConnection, DBConnectionDTO.class);
         return dto;
     }
 
     public void deleteDBConnection(String id, String userId)
-            throws RecordNotFoundException, FileNotFoundException {
+            throws RecordNotFoundException, FileNotFoundException, BadRequestException {
         // fetch the particular DB connection for the user
         Optional<DBConnection> optionalDBConnection = dbConnectionRepository.findByIdAndUserId(id, userId);
         // if no connection details, then send NOT FOUND Error
@@ -241,17 +264,76 @@ public class DBConnectionService {
         // DBConnection _dbConnection = optionalDBConnection.get();
         // // delete old token file for BigQuery
         // if (_dbConnection.getVendor().equals("bigquery")) {
-        //     final String oldFilePath = System.getProperty("user.home") + "/silzila-uploads/tokens/"
-        //             + _dbConnection.getFileName();
-        //     try {
-        //         Files.delete(Paths.get(oldFilePath));
-        //     } catch (Exception e) {
-        //         // throw new FileNotFoundException("old token file could not be deleted");
-        //         logger.warn("Warning: old token file could not be deleted: " + e.getMessage());
-        //     }
+        // final String oldFilePath = System.getProperty("user.home") +
+        // "/silzila-uploads/tokens/"
+        // + _dbConnection.getFileName();
+        // try {
+        // Files.delete(Paths.get(oldFilePath));
+        // } catch (Exception e) {
+        // // throw new FileNotFoundException("old token file could not be deleted");
+        // logger.warn("Warning: old token file could not be deleted: " +
+        // e.getMessage());
         // }
+        // }
+        // delete the store file
+        if ("oracle".equals(optionalDBConnection.get().getVendor())) {
+            deleteExistingFile(id, userId, optionalDBConnection.get().getConnectionName());
+        }
+
         // delete the record from DB
         dbConnectionRepository.deleteById(id);
+
+    }
+
+    // deleting the file after updating te OracleDB connection
+    public void deleteExistingFile(String id, String userId, String connectionName)
+            throws RecordNotFoundException, BadRequestException, FileNotFoundException {
+        DBConnection _dbConnection = checkDBConnectionNameAlreadyExist(id, connectionName,
+                userId);
+
+        String FilePath = SILZILA_DIR + "/jks_Collections/store";
+
+        String[] fileToDelete = { _dbConnection.getKeystoreFileName(), _dbConnection.getTruststoreFileName() };
+
+        for (String fileName : fileToDelete) {
+            File file = new File(FilePath + File.separator + fileName);
+            if (file.exists()) {
+
+                try {
+                    file.delete();
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to delete the file");
+                }
+
+            } else {
+                throw new FileNotFoundException("File not found to delete");
+            }
+        }
+
+    }
+
+    // oracle connection - creation
+    public DBConnectionDTO createOracleDBConnection(String userId, OracleDTO oracleDTO)
+            throws BadRequestException, IOException {
+
+        DBConnectionRequest req = OracleDbJksRequestProcess.parseOracleConnectionRequest(oracleDTO, true);
+
+        DBConnectionDTO dto = createDBConnection(req, userId);
+
+        return dto;
+    }
+
+    // Oracle DB connection update
+    public DBConnectionDTO updateOracleDBConnection(String id, String userId, OracleDTO oracleDTO)
+            throws BadRequestException, IOException, RecordNotFoundException {
+
+        DBConnectionRequest req = OracleDbJksRequestProcess.parseOracleConnectionRequest(oracleDTO, true);
+
+        deleteExistingFile(id, userId, req.getConnectionName());
+
+        DBConnectionDTO dto = updateDBConnection(id, req, userId);
+
+        return dto;
     }
 
 }

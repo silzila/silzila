@@ -66,7 +66,7 @@ public class Filter implements Serializable {
      */
     public Filter(String tableId, String fieldName, Filter.DataType dataType, Boolean shouldExclude,
             Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection, String filterType,
-           RelativeCondition relativeCondition) {
+            RelativeCondition relativeCondition) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
@@ -268,6 +268,7 @@ public class Filter implements Serializable {
 
         IN("in"),
         EQUAL_TO("equalTo"),
+        NOT_EQUAL_TO("notEqualTo"),
         CONTAINS("contains"),
         BEGINS_WITH("beginsWith"),
         ENDS_WITH("endsWith"),

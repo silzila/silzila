@@ -1,5 +1,6 @@
 package com.silzila.payload.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -10,6 +11,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
 public class DBConnectionRequest {
     @NotBlank
     @Size(max = 100)
@@ -38,4 +40,12 @@ public class DBConnectionRequest {
     @NotBlank
     @Size(max = 255)
     private String connectionName;
+
+    private String keystore;
+    
+    private String keystorePassword;
+
+    private String truststore;
+
+    private String truststorePassword;
 }
