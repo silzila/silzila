@@ -64,6 +64,8 @@ public class QueryComposer {
         } else if (vendorName.equals("databricks")) {
             // System.out.println("------ inside databricks block");
             qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName);
+        } else if (vendorName.equals("oracle")) {
+            qMap = SelectClauseOracle.buildSelectClause(req);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
@@ -144,7 +146,11 @@ public class QueryComposer {
                 }
                 logger.info(filteredlist);
 
-                String filteredSelectClause = "\n\t" + filteredlist.stream().collect(Collectors.joining(",\n\t")); //convert arrayList values into String
+                String filteredSelectClause = "\n\t" + filteredlist.stream().collect(Collectors.joining(",\n\t")); // convert
+                                                                                                                   // arrayList
+                                                                                                                   // values
+                                                                                                                   // into
+                                                                                                                   // String
                 logger.info(filteredSelectClause);
 
                 finalQuery = "SELECT " + filteredSelectClause + "\nFROM (" + "\nSELECT " + selectClause + "\nFROM"

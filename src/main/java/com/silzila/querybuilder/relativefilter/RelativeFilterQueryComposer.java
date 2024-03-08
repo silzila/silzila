@@ -43,6 +43,9 @@ public class RelativeFilterQueryComposer {
         } else if (vendorName.equals("bigquery")) {
             logger.info("------ inside bigquery block");
             finalQuery = RelativeFilterDateBigquery.getRelativeDate(relativeFilter, anchorDateArray);
+        } else if (vendorName.equals("oracle")) {
+            logger.info("------ inside Oracle block");
+            finalQuery = RelativeFilterDateOracle.getRelativeDate(relativeFilter, anchorDateArray);
         }
         else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
@@ -87,6 +90,9 @@ public class RelativeFilterQueryComposer {
         } else if (vendorName.equals("bigquery")) {
             logger.info("------ inside bigquery block");
             finalQuery = RelativeFilterDateBigquery.getRelativeAnchorDate(table, relativeFilter);
+        } else if (vendorName.equals("oracle")) {
+            logger.info("------ inside Oracle block");
+            finalQuery = RelativeFilterDateOracle.getRelativeAnchorDate(table,relativeFilter);
         }
 
         else {

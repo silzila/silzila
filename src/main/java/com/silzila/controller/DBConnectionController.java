@@ -8,6 +8,7 @@ import org.json.simple.parser.ParseException;
 import org.modelmapper.ModelMapper;
 
 import com.silzila.dto.DBConnectionDTO;
+import com.silzila.dto.OracleDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.exception.RecordNotFoundException;
@@ -24,10 +25,6 @@ import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -113,7 +110,7 @@ public class DBConnectionController {
 
     @DeleteMapping("/database-connection/{id}")
     public ResponseEntity<?> deleteDBConnection(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id) throws RecordNotFoundException, FileNotFoundException {
+            @PathVariable(value = "id") String id) throws RecordNotFoundException, FileNotFoundException, BadRequestException {
         // get the rquester user id
         String userId = reqHeader.get("username");
         // service call to delete
@@ -214,6 +211,51 @@ public class DBConnectionController {
         JSONArray jsonArray = connectionPoolService.getSampleRecords(id, userId, databaseName,
                 schemaName, tableName, recordCount);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+    }
+
+    @PostMapping("/testOracleConnection")
+    public ResponseEntity<?> testOracleConnection( @ModelAttribute OracleDTO oracleDTO
+    ) throws IOException, BadRequestException {
+
+        connectionPoolService.testOracleConnection(oracleDTO);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Test Success");
+    }
+
+    @PostMapping("/createOracleConnection")
+    public ResponseEntity<?> createOracleConnection(
+            @RequestHeader Map<String, String> reqHeader,
+            @ModelAttribute OracleDTO oracleDTO) throws IOException, BadRequestException {
+
+        String userId = reqHeader.get("username");
+
+        DBConnectionDTO dto = dbConnectionService.createOracleDBConnection(userId, oracleDTO);
+
+        return ResponseEntity.ok(dto);
+    }
+
+    // update oracleDBconnection seperate
+
+    @PostMapping("/updateOracleConnection/{id}")
+    public ResponseEntity<?> updateOracleConnection(
+            @RequestHeader Map<String, String> reqHeader,
+            @PathVariable(value = "id") String id,
+            @ModelAttribute OracleDTO oracleDTO)
+            throws IOException, BadRequestException, RecordNotFoundException {
+
+        String userId = reqHeader.get("username");
+
+        // DBConnectionRequest reqWithoutFileName = new DBConnectionRequest(vendor, host, Integer.parseInt(port),
+        //         serviceName, username, password, null,
+        //         connectionName, null, keystorePassword, null, truststorePassword);
+
+        // DBConnectionDTO dto = dbConnectionService.updateOracleDBConnection(id,userId,reqWithoutFileName,keystore,truststore);
+            
+       
+
+        DBConnectionDTO dto = dbConnectionService.updateOracleDBConnection(id, userId,oracleDTO);
+
+        return ResponseEntity.ok(dto);
     }
 
 }

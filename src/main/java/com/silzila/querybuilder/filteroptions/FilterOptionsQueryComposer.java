@@ -38,8 +38,9 @@ public class FilterOptionsQueryComposer {
             if (ds.getDataSchema().getTables().get(i).getId().equals(cf.getTableId())) {
                 table = ds.getDataSchema().getTables().get(i);
                 break;
-            }
+            }   
         }
+       
 
         if (Objects.isNull(table)) {
             throw new BadRequestException("Error: RequestedFiter Column is not available in Dataset!");
@@ -63,6 +64,9 @@ public class FilterOptionsQueryComposer {
         } else if (vendorName.equals("bigquery")) {
             logger.info("------ inside bigquery block");
             finalQuery = FilterQueryBigquery.getFilterOptions(cf, table);
+        } else if (vendorName.equals("oracle")){
+            logger.info("------ inside Oracle block");
+            finalQuery = FilterQueryOracle.getFilterOptions(cf, table);
         }
 
         else {

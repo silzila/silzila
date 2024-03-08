@@ -324,7 +324,7 @@ public class DatasetService {
                     for (Filter filter : filters) {
                         // Check if the filter is of type 'relative_filter'
                         if ("relativeFilter".equals(filter.getFilterType())) {
-                            // Get the relative condition associated with the filter   
+                            // Get the relative condition associated with the filter
                             RelativeCondition relativeCondition = filter.getRelativeCondition();
                             if (relativeCondition != null) {
 
@@ -354,8 +354,7 @@ public class DatasetService {
 
                                 // Set the user selection - date range
                                 filter.setUserSelection(Arrays.asList(fromDate, toDate));
-                            }
-                            else{
+                            } else {
                                 throw new BadRequestException("Error: There is no relative filter condition");
                             }
                         }
@@ -491,7 +490,8 @@ public class DatasetService {
 
     public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,
             @Valid RelativeFilterRequest relativeFilter)
-            throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException, JsonMappingException, JsonProcessingException {
+            throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
+            JsonMappingException, JsonProcessingException {
 
         // Load dataset into memory buffer
         DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
@@ -532,6 +532,7 @@ public class DatasetService {
 
             // Compose anchor date query for the specific vendor and run it
             String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery(vendorName, ds, relativeFilter);
+
             anchorDateArray = connectionPoolService.runQuery(dBConnectionId, userId, anchorDateQuery);
 
             // Compose main query for the specific vendor
