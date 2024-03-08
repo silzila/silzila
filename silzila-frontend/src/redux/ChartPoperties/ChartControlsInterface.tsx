@@ -12,6 +12,7 @@ export interface ChartControlsProps {
 	chartMargin: ChartConChartMargin;
 	calendarStyleOptions: ChartConCalenderStyleOptions;
 	boxPlotChartControls: ChartConBoxPlotChartControls;
+	geoChartControls: ChartConGeoChartControls;
 	treeMapChartControls: ChartConTreeMapChartControls;
 	sankeyControls: ChartConSankeyControls;
 	crossTabStyleOptions: ChartConCrossTabStyleOptions;
@@ -98,6 +99,21 @@ export interface ChartConBoxPlotChartControls {
 	maxBoxWidth: number;
 	boxborderWidth: number; //px
 	flipAxis: boolean;
+}
+
+export interface ChartConGeoChartControls {	
+	boderWidth: number; //px	
+	borderColor: string;
+	mapZoom: number;
+	areaColor: string;
+	emphasisAreaColor: string;
+	aspectScale: number;
+	enableSelfEmphasis : boolean;
+	minValue: number;
+	minColor: string;
+	maxValue: number;
+	maxColor: string;
+	showVisualScale: boolean;
 }
 
 interface ChartConTreeMapChartControls {

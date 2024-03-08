@@ -10,6 +10,8 @@ import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { ChartAxesProps } from "./ChartAxesInterfaces";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import ChartData from "./ChartData";
+import { Dispatch } from "redux";
+import {changeLocation} from "../../redux/ChartPoperties/ChartPropertiesActions";
 
 const ChartAxes = ({
 	// props
@@ -53,17 +55,38 @@ const ChartAxes = ({
 		<div className="charAxesArea">
 			{chartProp.properties[propKey].chartType === "geoChart" && (
 				<div
-					style={{ backgroundColor: "#d3d3d3", display: "flex", flexDirection: "column" }}
+					style={{display: "flex", flexDirection: "column" }}
 				>
 					<span className="axisTitle"></span>
-					<FormControl size="small" sx={{ margin: "0.5rem" }}>
-						<InputLabel sx={{ fontSize: "12px", lineHeight: "1.5rem" }}>
+					<FormControl size="small" sx={{ margin: "0.5rem", "& .MuiInputBase-root": {
+										borderRadius: "0px",
+									} }}
+									style={{
+										background: "white",
+										fontSize: "12px",
+										borderRadius: "4px",
+									}}>
+						<InputLabel sx={{ fontSize: "12px", lineHeight: "1.5rem","&.Mui-focused": {
+											color: "#2bb9bb",
+										} }}>
 							Select Map
 						</InputLabel>
 						<Select
-							sx={{ fontSize: "14px", height: "1.5rem", backgroundColor: "white" }}
+							sx={{ fontSize: "13px", height: "1.5rem", backgroundColor: "white",color: "grey",
+
+							"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+								borderColor: "#2bb9bb",
+								color: "#2bb9bb",
+							},
+							"&:hover .MuiOutlinedInput-notchedOutline": {
+								borderColor: "#2bb9bb",
+								color: "#2bb9bb",
+							},
+							"&.Mui-focused .MuiSvgIcon-root ": {
+								fill: "#2bb9bb !important",
+							}, }}
 							label="Select Map"
-							value={chartProp.properties[propKey].geoLocation}
+							value={chartProp.properties[propKey].geoLocation || "world"}
 							onChange={e => {
 								changeLocation(propKey, e.target.value);
 							}}
@@ -71,7 +94,9 @@ const ChartAxes = ({
 							<MenuItem sx={menuItemStyle} value="world">
 								World
 							</MenuItem>
-
+							<MenuItem sx={menuItemStyle} value="australia">
+								Australia
+							</MenuItem>
 							<MenuItem sx={menuItemStyle} value="brazil">
 								Brazil
 							</MenuItem>
@@ -89,7 +114,7 @@ const ChartAxes = ({
 							</MenuItem>
 							<MenuItem sx={menuItemStyle} value="japan">
 								Japan
-							</MenuItem>
+							</MenuItem>							
 							<MenuItem sx={menuItemStyle} value="nigeria">
 								Nigeria
 							</MenuItem>
@@ -120,4 +145,11 @@ const mapStateToProps = (state: ChartPropertiesStateProps, ownProps: any) => {
 	};
 };
 
-export default connect(mapStateToProps, null)(ChartAxes);
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+	return {
+		changeLocation: (propKey: string, geoLocation: any) =>
+			dispatch(changeLocation(propKey, geoLocation)),
+	}
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ChartAxes);

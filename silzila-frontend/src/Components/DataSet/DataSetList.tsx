@@ -23,7 +23,7 @@ import { DatasetItem, UserTableProps } from "../../redux/DataSet/DatasetStateInt
 import DataConnectionListPopover from "../CommonFunctions/PopOverComponents/DataConnectionListPopover";
 import AddIcon from "@mui/icons-material/Add";
 import SchemaOutlinedIcon from "@mui/icons-material/SchemaOutlined";
-
+import { InfoOutlined } from "@mui/icons-material";
 import ShortUniqueId from "short-unique-id";
 import { AlertColor } from "@mui/material/Alert";
 
@@ -58,6 +58,15 @@ const DataSetList = ({
 	const uid: any = new ShortUniqueId({ length: 8 });
 	const [confirmDialog, setConfirmDialog] = useState<boolean>(false);
 	const [deleteItemId, setDeleteItemId] = useState<string>("");
+	const [isHovered, setIsHovered] = useState(false);
+
+    const handleMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+    };
 
 	useEffect(() => {
 		resetState();
@@ -150,9 +159,23 @@ const DataSetList = ({
 	return (
 		<div className="dataConnectionContainer">
 			<div className="containersHead">
-				<div className="containerTitle">
+				<div className="DScontainerTitle">
 					<SchemaOutlinedIcon style={{ marginRight: "10px", color: " #2bb9bb" }} />
 					Datasets
+					<Tooltip title="Add table and create connection between tables to use it as data set for later use." arrow placement="top">
+							<InfoOutlined 
+								style={{ 
+									marginLeft: "5px", 
+									cursor: "pointer", 
+									marginTop: "4px",
+									color: isHovered ? "grey" : "LightGrey", // Change color based on hover state
+									fontSize: "1.2em", // Change font size based on hover state
+									transition: "color 0.3s, font-size 0.3s" // Transition for smooth hover effect
+								}}
+								onMouseEnter={handleMouseEnter}
+								onMouseLeave={handleMouseLeave}
+							/>
+					</Tooltip>
 				</div>
 				<div
 					className="containerButton"

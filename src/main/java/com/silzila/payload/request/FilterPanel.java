@@ -36,6 +36,7 @@ public class FilterPanel implements Serializable {
      * @param shouldAllConditionsMatch
      * @param filters
      * @param panelName
+     * @param relativeCondition
      */
     public FilterPanel(String panelName, Boolean shouldAllConditionsMatch, List<Filter> filters) {
         super();
@@ -73,6 +74,7 @@ public class FilterPanel implements Serializable {
     public void setFilters(List<Filter> filters) {
         this.filters = filters;
     }
+
 
     @Override
     public String toString() {

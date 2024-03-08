@@ -1,54 +1,48 @@
 .dataViewer {
-	height: 100vh;
-	display: flex;
-	flex-direction: column;
-	color: #333;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: #333;
 }
 
 .dataViewerMenu {
-	background-color: white;
-	height: 2.5rem;
-	width: 100%;
-	align-self: center;
-	display: flex;
-	/* padding-right: 0.5rem; */
-	/* border-bottom: 2px solid rgba(224,224,224,1); */
-	justify-content: space-between;
+  background-color: white;
+  height: 2.5rem;
+  width: 100%;
+  align-self: center;
+  display: flex;
+  /* padding-right: 0.5rem; */
+  /* border-bottom: 2px solid rgba(224,224,224,1); */
+  justify-content: space-between;
 }
 
 /* ========================================================================================== */
 /* Menu items styling */
 .menuHome {
-
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	/* height: 2rem; */
-	width: 3rem;
-	cursor: pointer;
-	padding-right: 12px;
-	/* margin:8px */
-
-
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* height: 2rem; */
+  width: 3rem;
+  cursor: pointer;
+  padding-right: 12px;
+  /* margin:8px */
 }
 
 .accountIcon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2rem;
-	cursor: pointer;
-	margin-right: 16px;
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  cursor: pointer;
+  margin-right: 16px;
 }
 
 .menuHomeIcon {
-
-	height: 80%;
-	width: 2.5rem;
-	padding: 4px 4px 4px 0px;
-	margin: 0 0 6px 2px;
+  height: 80%;
+  width: 2.5rem;
+  padding: 4px 4px 4px 0px;
+  margin: 0 0 6px 2px;
 }
 
 /* .menuHome:hover {
@@ -56,136 +50,178 @@
 } */
 
 .menuItemsGroup {
-	flex: 1;
-	display: flex;
+  flex: 1;
+  display: flex;
 }
 
 .menuItem {
-	border-radius: 2px;
-	cursor: pointer;
-	transition: 0.2s;
-	line-height: 2rem;
-	padding: 0 8px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: 0.2s;
+  line-height: 2rem;
+  padding: 0 8px;
 }
 
 .menuItem:hover {
-	transition: 0.2s;
-	background-color: rgb(238, 238, 238);
+  transition: 0.2s;
+  background-color: rgb(238, 238, 238);
 }
 
 .playbookName {
-	flex: 2;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: 600;
-	color: #666;
+  flex: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #666;
 }
 
 .userInfo {
-	margin-right: 7px;
-	flex: 1;
-	display: flex;
-	justify-content: flex-end;
-	align-items: center;
+  margin-right: 7px;
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .menuPopover {
-	font-size: 12px;
+  font-size: 12px;
 }
 
 /* ========================================================================================== */
 /* TabRibbon styling */
 
 .tabArea {
-	display: flex;
-	background-color: white;
-	border-bottom: 2px solid rgba(224, 224, 224, 1);
-	height: 2.5rem;
-	/* background-color: rgb(238, 238, 238); */
-	padding-left: 6px;
+  display: flex;
+  background-color: white;
+  border-bottom: 2px solid rgba(224, 224, 224, 1);
+  height: 2.5rem;
+  /* background-color: rgb(238, 238, 238); */
+  padding-left: 6px;
+  overflow-x: hidden;
 }
 
 .tabItems {
-	flex: 1;
-	height: 1.75rem;
-	font-size: 12px;
-	margin: 0;
-	padding: 2px 0 0 0;
-	text-align: left;
+  display: flex;
+  flex: 1;
+  height: 1.75rem;
+  font-size: 12px;
+  margin: 0;
+  /* padding: 2px 0 0 0; */
+  text-align: left;
+  overflow: hidden;
 
-	/* border-bottom: 1px solid rgb(211, 211, 211); */
+  /* border-bottom: 1px solid rgb(211, 211, 211); */
 }
 
 /* ========================================================================================== */
 /* TileRibbon Styling */
 .tilearea {
-	width: 100%;
-	/* background-color: rgb(238, 238, 238); */
-	display: flex;
+  width: 100%;
+  /* background-color: rgb(238, 238, 238); */
+  display: flex;
 
-	background-color: white;
-	border-top: 2px solid rgba(224, 224, 224, 1);
-	height: 2.7rem;
-	padding: 4px 0 0 8px;
+  background-color: white;
+  border-top: 2px solid rgba(224, 224, 224, 1);
+  height: 2.7rem;
+  padding: 4px 0 0 8px;
+  overflow-x: "hidden";
+}
+
+.tileDashboard {
+  display: flex;
+  text-align: left;
+  font-size: 12px;
+  padding: 4px 0 0 0;
+  height: 1.8rem;
+  overflow: hidden;
+  justify-content: flex-start;
 }
 
 .tileItems {
-	display: flex;
-	text-align: left;
-	flex: 1;
-	font-size: 12px;
-	padding: 4px 0 0 0;
-	height: 1.8rem
-		/* padding-left: 0.5rem; */
-
-
+  display: flex;
+  text-align: left;
+  flex: 1;
+  font-size: 12px;
+  padding: 4px 0 0 0;
+  height: 1.8rem;
+  overflow: hidden;
+  justify-content: flex-start;
+  /* padding-left: 0.5rem; */
 }
 
 .showTableColumns {
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.5rem;
-	margin-bottom: 5px;
-	/* color:rgb(102, 102, 102) */
-	/* margin: 0 2px; */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  /* margin-bottom: 5px; */
+  margin: 0px 0px 5px 0px;
+  /* color:rgb(102, 102, 102) */
+  /* margin: 0 2px; */
+}
+
+.tabArowLeftIcon {
+  font-size: small;
+  color: #808080;
+}
+
+.tabArowRightIcon {
+  font-size: small;
+  color: #808080;
+}
+
+.tileArrowLeftIcon {
+  margin: 6px 0px 0px 20px;
+  color: "#808080";
+}
+
+.tileArrowRightIcon {
+  font-size: small;
+  color: #808080;
 }
 
 .showTableColumns:hover {
-	border: 1px solid rgba(224, 224, 224, 1)
+  border: 1px solid rgba(224, 224, 224, 1);
 }
 
 .tableDisplayToggle {
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.5rem;
-	margin: 0 16px 5px 2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  margin: 0px 16px 5px 2rem;
 }
 
 .tableDisplayToggle:hover {
-	border: 1px solid rgba(224, 224, 224, 1)
+  border: 1px solid rgba(224, 224, 224, 1);
 }
 
 .dashboardMenuIconStyle {
-	color: rgb(108, 108, 108);
-	border: 2px solid white;
-	width: 2.5rem;
-	height: 1.75rem;
-	margin-bottom: 5px;
+  color: rgb(108, 108, 108);
+  border: 2px solid white;
+  width: 2.5rem;
+  height: 1.75rem;
+  margin-bottom: 5px;
 }
 
 .dashboardMenuIconStyleSelected {
-	color: rgb(108, 108, 108);
-	border: 2px solid rgba(224, 224, 224, 1);
-	width: 2.5rem;
-	height: 1.75rem;
-	margin-bottom: 5px;
+  color: rgb(108, 108, 108);
+  border: 2px solid rgba(224, 224, 224, 1);
+  width: 2.5rem;
+  height: 1.75rem;
+  margin-bottom: 5px;
 }
 
 .dashboardMenuIconStyle:hover {
-	border: 2px solid rgba(224, 224, 224, 1)
+  border: 2px solid rgba(224, 224, 224, 1);
+}
+
+.tabRibbonList {
+  cursor: pointer;
+  width: 1.5rem;
+  margin-top: 5px;
+  border-radius: 100%;
 }

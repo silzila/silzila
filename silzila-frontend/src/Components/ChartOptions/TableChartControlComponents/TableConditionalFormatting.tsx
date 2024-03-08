@@ -14,8 +14,8 @@ import LabelComponent from "./LabelComponent";
 import GradientComponent from "./GradientComponent";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import RuleComponent from "./RuleComponent";
-import {interpolateColor} from '../../CommonFunctions/CommonFunctions';
-import FetchData from "../../ServerCall/FetchData";
+import { getContrastColor, getLabelValues, fieldName} from '../../CommonFunctions/CommonFunctions';
+
 
 export const addConditionButtonStyle = {
 	backgroundColor: "rgb(43, 185, 187)",
@@ -39,8 +39,8 @@ interface Props {
 	chartControls: any;
 	tabTileProps: any;
 	chartProperties: any;
-	chartProp:any;
 	token:any;
+	chartGroup:any;
 
 	addTableConditionalFormats: (propKey: string, item: any) => void;
 	updatecfObjectOptions: (propKey: string, removeIndex: number, item: any) => void;
@@ -52,8 +52,8 @@ const TableConditionalFormatting = ({
 	chartControls,
 	tabTileProps,
 	chartProperties,
-	chartProp,
 	token,
+	chartGroup,
 
 	//dispatch
 	addTableConditionalFormats,
@@ -68,81 +68,29 @@ const TableConditionalFormatting = ({
 	const [menu, setMenu] = useState<any>([]);
 	const [openMenu, setOpenMenu] = useState<boolean>(false);
 	const [openSubMenu, setOpenSubMenu] = useState<boolean>(false);
-
+	////const [isUpdate, setIsUpdate] = useState<boolean>(false);
 	const [gradientMinAndMax, setGradientMinAndMax] = useState<any>({
 		min: 0,
 		max: 0,
 	});
 
-	const getLabelValues = async (columnName: string) => {
-		try {
-			let fieldValues: any = [];
-			let field: any = {}
 
-			// checking the column type To generate the name as it is in the chartData
-			chartProperties.properties[propKey].chartAxes[1].fields.forEach(async (el: any) => {
-				//if (el.dataType === "date") {
-				//console.log();
-				if (el.fieldname === columnName) {
-					//formattedColumnName = `${el.timeGrain} of ${el.fieldname}`;
-					field = el;
-				}
-				//}
-			});
-
-			let formattedColumnName = field.dataType === "date" ? field.timeGrain : columnName;
-			fieldValues = await fetchFieldData(field);
-
-			let colors = interpolateColor("#2BB9BB", "#D87A80", chartControls.properties[propKey]?.chartData?.length);
-
-			const values = fieldValues?.data?.map((item: any, idx: number) => {
-				//console.log(item, columnName);
-				return {
-					colValue: item[formattedColumnName],
-					backgroundColor: colors[idx],
-					isBold: false,
-					isItalic: false,
-					isUnderlined: false,
-					fontColor: "black",
-				};
-			});
-
-			return values;
+	const _getLabelValues = async (columnName: string) => {
+		try {		
+			return getLabelValues(columnName,chartControls,chartProperties,propKey, token);
 		}
 		catch (err) {
 			console.error(err)
 		}
 	};
 
-	const fetchFieldData = (bodyData: any) => {
-
-		//  bodyData: any = {
-		// 	tableId: tableId,
-		// 	fieldName: displayname,
-		// 	dataType: dataType,
-		// 	filterOption: "allValues",
-		// };
-
-		bodyData.filterOption = "allValues";
-		bodyData.fieldName = bodyData.fieldname
-
-		
-
-		return FetchData({
-			requestType: "withData",
-			method: "POST",
-			url: `filter-options?dbconnectionid=${chartProp.properties[propKey].selectedDs.connectionId}&datasetid=${chartProp.properties[propKey].selectedDs.id}`,
-			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-			data: bodyData,
-		});
-	};
-
 	const getMinAndMaxValue = (column: string) => {
 		const valuesArray = chartControls.properties[propKey].chartData.map((el: any) => {
 			return el[column];
-		});
-		const minValue = Math.min(...valuesArray);
-		const maxValue = Math.max(...valuesArray);
+		});		
+		const minValue = Number(Math.min(...valuesArray)).toFixed(2);
+		const maxValue =  Number(Math.max(...valuesArray)).toFixed(2);	
+
 		setGradientMinAndMax({ min: minValue, max: maxValue });
 		return { min: minValue, max: maxValue };
 	};
@@ -155,7 +103,7 @@ const TableConditionalFormatting = ({
 				isLabel: false,
 				isGradient: false,
 				name: selectedColumnName,
-				isCollapsed: false,
+				isCollapsed: false,				
 				value: [],
 			});
 		}
@@ -168,18 +116,7 @@ const TableConditionalFormatting = ({
 				isGradient: true,
 				name: selectedColumnName,
 				isCollapsed: false,
-				value: [
-					{
-						id: uId(),
-						forNull: true,
-						name: "Null",
-						value: "null",
-						isBold: false,
-						isItalic: false,
-						isUnderlined: false,
-						backgroundColor: "#AF99DB",
-						fontColor: "black",
-					},
+				value: [					
 					{
 						id: uId(),
 						forNull: false,
@@ -189,8 +126,8 @@ const TableConditionalFormatting = ({
 						isBold: false,
 						isItalic: false,
 						isUnderlined: false,
-						backgroundColor: "#2BB9BB",
-						fontColor: "black",
+						backgroundColor: "#AF99DB",
+						fontColor: getContrastColor("#2BB9BB"),
 					},
 
 					{
@@ -202,8 +139,19 @@ const TableConditionalFormatting = ({
 						isBold: false,
 						isItalic: false,
 						isUnderlined: false,
+						backgroundColor: "#2BB9BB",
+						fontColor: getContrastColor("#D87A80"),
+					},
+					{
+						id: uId(),
+						forNull: true,
+						name: "Null",
+						value: "null",
+						isBold: false,
+						isItalic: false,
+						isUnderlined: false,
 						backgroundColor: "#D87A80",
-						fontColor: "black",
+						fontColor: getContrastColor("#AF99DB"),
 					},
 				],
 			});
@@ -211,7 +159,7 @@ const TableConditionalFormatting = ({
 	};
 
 	// when select any column from dimension
-	const onSelectColumn = (column: any) => {
+	const onSelectColumn = async(column: any) => {
 		var canAdd = false;
 		/* checking length of array to check whether this item is already exist or not, if the lenth 
 		is zero then this is the first item else check the array with columnname */
@@ -229,11 +177,13 @@ const TableConditionalFormatting = ({
 		/* if the is is not already exist or this is the first item */
 		if (canAdd) {
 			if (column.isLabel) {
+				let _colValues = column.isLabel ? await _getLabelValues(column.columnName) : "";
+
 				addTableConditionalFormats(propKey, {
 					isLabel: column.isLabel,
 					name: column.columnName,
 					// getLabelValues - function to get all values of selected column
-					value: column.isLabel ? getLabelValues(column.columnName) : "",
+					value: _colValues,
 					isCollapsed: false,
 					backgroundColor: "white",
 					fontColor: "black",
@@ -249,28 +199,33 @@ const TableConditionalFormatting = ({
 		}
 	};
 
+	// useEffect(()=>{
+	// 	setIsUpdate(!isUpdate);
+	// },
+	// [chartControls.properties[propKey].tableConditionalFormats]);
+
 	// getting the list of columns with isLabel key (it is true if it is a dimension column else it will be false) whenever the chartData changes
-	useEffect(() => {
+	useEffect(() => {		
+
 		if (chartControls.properties[propKey].chartData.length > 0) {
 			const zones = chartProperties.properties[propKey].chartAxes;
 
 			const output = zones.reduce((accumulator: any, zone: any) => {
-				accumulator = accumulator.concat(
-					zone.fields.map((value: any) => ({
-						isLabel: zone.name === "Row",
-						columnName:
-							zone.name === "Row"
-								? value.fieldname
-								: `${value.agg} of ${value.fieldname}`,
-					}))
-				);
-
+				if(zone.name !== "Column"){
+					accumulator = accumulator.concat(
+						zone.fields.map((value: any) => ({
+							isLabel: zone.name !== "Measure",
+							columnName: fieldName(value),
+						}))
+					);					
+				}	
 				return accumulator;
 			}, []);
 
 			setMenu(output);
 		}
 	}, [chartControls.properties[propKey].chartData]);
+
 
 	return (
 		<div className="optionsInfo">
@@ -450,9 +405,9 @@ const mapStateToProps = (state: any) => {
 	return {
 		chartControls: state.chartControls,
 		tabTileProps: state.tabTileProps,
-		chartProperties: state.chartProperties,
-		chartProp: state.chartProperties,
-		token: state.isLogged.accessToken
+		chartProperties: state.chartProperties,		
+		token: state.isLogged.accessToken,
+		chartGroup: state.chartFilterGroup,
 	};
 };
 

@@ -56,30 +56,35 @@ const getConditionalFormat = (crossTabData: any, colIndex: number, rowIndex: num
 
         if (Object.keys(_colNameConditions).length > 0) {
             if (_colNameConditions?.isGradient) {
-                return getGradientBasedStyle(_colNameConditions, crossTabData, rowIndex, colData);
-            }
-            else {  //Rule Based
-                let field = getColumnField(colIndex, chartProperties, propKey);
+                let currentCellData = crossTabData[rowIndex].columnItems[colIndex];
 
-                switch (field.dataType) {
-
-                    case 'text':
-                        return _colNameConditions.value.find((item: any) => item.colValue === colData)
-                    default:
-                        if (!isNaN(colData) && !isNaN(colData.toString().substring(colData.length - 1))) {
-                            let lastSatisfiedCondition = getLastSatisfiedCondition(colData, _colNameConditions);
-                            return lastSatisfiedCondition || {};
-                        }
-                        else if (['K', 'M', 'B', 'T'].includes(colData.toString().substring(colData.length - 1))) {
-                            let lastSatisfiedCondition = getLastSatisfiedCondition(getActualNumber(colData), _colNameConditions);
-                            return lastSatisfiedCondition || {};
-                        }
-                        else {
-                            return {};
-                        }
+                if(!currentCellData.isHeaderField){
+                    return getGradientBasedStyle(_colNameConditions, crossTabData, rowIndex, colData);
+                }
+                else {
+                    return {};
                 }
             }
+            else {  //Rule Based
+                let currentCellData = crossTabData[rowIndex].columnItems[colIndex];
 
+                if(currentCellData.isHeaderField || currentCellData.isRowField){
+                    return _colNameConditions.value.find((item: any) => item.colValue?.toString() === colData?.toString())
+                }
+                else{
+                    if (!isNaN(colData) && !isNaN(colData.toString().substring(colData.length - 1))) {
+                        let lastSatisfiedCondition = getLastSatisfiedCondition(colData, _colNameConditions);
+                        return lastSatisfiedCondition || {};
+                    }
+                    else if (['K', 'M', 'B', 'T'].includes(colData.toString().substring(colData.length - 1))) {
+                        let lastSatisfiedCondition = getLastSatisfiedCondition(getActualNumber(colData), _colNameConditions);
+                        return lastSatisfiedCondition || {};
+                    }
+                    else {
+                        return {};
+                    }
+                }
+            }
         }
         else {
             return {};
@@ -110,13 +115,13 @@ const getGradientBasedStyle = (_colNameConditions: any, crossTabData: any, rowIn
 const checkColumnValueForGradient = (startStyle: any, midStyle: any, endStyle: any, crossTabData: any, colData: any)=>{
     let _colValue:Number = 0;
 
-    if(isNaN(colData.toString().substring(0, 1))){
+    if(isNaN(colData?.toString().substring(0, 1))){
         return {};
     }
-    else if (!isNaN(colData) && !isNaN(colData.toString().substring(colData.length - 1))) {
+    else if (!isNaN(colData) && !isNaN(colData?.toString().substring(colData.length - 1))) {
         _colValue = Number(colData);
     }
-    else if (['K', 'M', 'B', 'T'].includes(colData.toString().substring(colData.length - 1))) {
+    else if (['K', 'M', 'B', 'T'].includes(colData?.toString().substring(colData.length - 1))) {
         _colValue = Number(getActualNumber(colData));
     }
 
@@ -190,9 +195,7 @@ const checkColumnValueForGradient = (startStyle: any, midStyle: any, endStyle: a
             }
 
             return style;
-        }
-
-        return {};
+        }      
     }
 }
 
@@ -234,19 +237,6 @@ const getActualNumber = (colData: string) => {
     }
 }
 
-const getColumnField = (colIndex: number, chartProperties: any, propKey: string) => {
-
-    let columns: any = [];
-
-    for (let i = 1; i < chartProperties.properties[propKey].chartAxes.length; i++) {
-        chartProperties.properties[propKey].chartAxes[i].fields.forEach((field: any) => {
-            columns.push(field)
-        })
-    }
-
-    return columns[colIndex] || {};
-}
-
 const getLastSatisfiedCondition = (value: any, colNameConditions: any) => {
     for (let i = colNameConditions.value.length - 1; i >= 0; i--) {
         let item = colNameConditions.value[i];
@@ -257,11 +247,17 @@ const getLastSatisfiedCondition = (value: any, colNameConditions: any) => {
     }
 }
 
-const checkNumberAgaintConditionType = (conditionType: number, target: number, value: number, minValue: number, maxValue: number): boolean => {
+const checkNumberAgaintConditionType = (conditionType: number, target: any, value: number, minValue: number, maxValue: number): boolean => {
     let result = false;
+
+    if(target === null || target?.trim() === ""){
+       return false;
+    }
 
     value = Number(value);
     target = Number(target);
+
+  
 
     switch (conditionType) {
         case 1://greater than

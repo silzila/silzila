@@ -100,6 +100,7 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 									generateTitle: "Auto",
 								},
 								chartOptionSelected: "Format",
+								geoLocation: "world",
 								formatOptions: {
 									labelFormats: {
 										formatValue: "Number",
@@ -193,6 +194,7 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 										generateTitle: "Auto",
 									},
 									chartOptionSelected: "Format",
+									geoLocation: "world",
 									formatOptions: {
 										labelFormats: {
 											formatValue: "Number",
@@ -283,6 +285,7 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 										generateTitle: "Auto",
 									},
 									chartOptionSelected: "Format",
+									geoLocation: "world",
 									formatOptions: {
 										labelFormats: {
 											formatValue: "Number",

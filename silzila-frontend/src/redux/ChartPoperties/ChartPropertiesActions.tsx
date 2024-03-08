@@ -311,3 +311,11 @@ export const addMeasureInTextEditor = (propKey: string, value: boolean) => {
 		payload: { propKey, value },
 	};
 };
+
+
+export const changeLocation = (propKey: string, value: string) => {
+	return {
+		type: "CHANGE_GEOMAP_LOCATION",
+		payload: { propKey, value },
+	};
+};

@@ -1,0 +1,99 @@
+package com.silzila.querybuilder.relativefilter;
+
+import java.sql.SQLException;
+import java.util.Objects;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
+import org.springframework.stereotype.Service;
+
+import com.silzila.dto.DatasetDTO;
+import com.silzila.exception.BadRequestException;
+import com.silzila.exception.RecordNotFoundException;
+import com.silzila.payload.request.RelativeFilterRequest;
+import com.silzila.payload.request.Table;
+
+
+@Service
+public class RelativeFilterQueryComposer {
+
+    private static final Logger logger = LogManager.getLogger(RelativeFilterQueryComposer.class);
+
+    public String composeQuery(String vendorName, DatasetDTO ds, RelativeFilterRequest relativeFilter,
+            JSONArray anchorDateArray) throws BadRequestException, RecordNotFoundException, SQLException {
+        logger.info("----------- RelativeFilterQueryComposer calling......");
+        String finalQuery = "";
+
+        if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+            logger.info("------ inside postges/redshift block");
+            finalQuery = RelativeFilterDatePostgres.getRelativeDate(relativeFilter, anchorDateArray);
+        } else if (vendorName.equals("mysql")) {
+            logger.info("------ inside mysql block");
+            finalQuery = RelativeFilterDateMySQL.getRelativeDate(relativeFilter, anchorDateArray);
+        } else if (vendorName.equals("sqlserver")) {
+            logger.info("------ inside sql server block");
+            finalQuery = RelativeFilterDateSqlserver.getRelativeDate(relativeFilter, anchorDateArray);
+        } else if (vendorName.equals("databricks")) {
+            logger.info("------ inside databricks block");
+            finalQuery = RelativeFilterDateDatabricks.getRelativeDate(relativeFilter, anchorDateArray);
+        } else if (vendorName.equals("duckdb")) {
+            logger.info("------ inside duckdb block");
+            finalQuery = RelativeFilterDateDuckDB.getRelativeDate(relativeFilter, anchorDateArray);
+        } else if (vendorName.equals("bigquery")) {
+            logger.info("------ inside bigquery block");
+            finalQuery = RelativeFilterDateBigquery.getRelativeDate(relativeFilter, anchorDateArray);
+        }
+        else {
+            throw new BadRequestException("Error: DB vendor Name is wrong!");
+        }
+
+        return finalQuery;
+    }
+
+    public String anchorDateComposeQuery(String vendorName, DatasetDTO ds, RelativeFilterRequest relativeFilter)
+            throws BadRequestException, RecordNotFoundException, SQLException {
+        logger.info("----------- RelativeFilteranchorDateQueryComposer calling......");
+        String finalQuery = "";
+        Table table = null;
+        for (int i = 0; i < ds.getDataSchema().getTables().size(); i++) {
+            if (ds.getDataSchema().getTables().get(i).getId()
+                    .equals(relativeFilter.getFilterTable().get(0).getTableId())) {
+                table = ds.getDataSchema().getTables().get(i);
+                break;
+            }
+        }
+        ;
+
+        if (Objects.isNull(table)) {
+            throw new BadRequestException("Error: RequestedFiter Column is not available in Dataset!");
+        }
+
+        if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+            logger.info("------ inside postges/redshift block");
+            finalQuery = RelativeFilterDatePostgres.getRelativeAnchorDate(table, relativeFilter);
+        } else if (vendorName.equals("mysql")) {
+            logger.info("------ inside mysql block");
+            finalQuery = RelativeFilterDateMySQL.getRelativeAnchorDate(table, relativeFilter);
+        } else if (vendorName.equals("sqlserver")) {
+            logger.info("------ inside sql server block");
+            finalQuery = RelativeFilterDateSqlserver.getRelativeAnchorDate(table, relativeFilter);
+        } else if (vendorName.equals("databricks")) {
+            logger.info("------ inside databricks block");
+            finalQuery = RelativeFilterDateDatabricks.getRelativeAnchorDate(table, relativeFilter);
+        } else if (vendorName.equals("duckdb")) {
+            logger.info("------ inside duckdb block");
+            finalQuery = RelativeFilterDateDuckDB.getRelativeAnchorDate(table, relativeFilter);
+        } else if (vendorName.equals("bigquery")) {
+            logger.info("------ inside bigquery block");
+            finalQuery = RelativeFilterDateBigquery.getRelativeAnchorDate(table, relativeFilter);
+        }
+
+        else {
+            throw new BadRequestException("Error: DB vendor Name is wrong!");
+        }
+
+        return finalQuery;
+    }
+
+}
