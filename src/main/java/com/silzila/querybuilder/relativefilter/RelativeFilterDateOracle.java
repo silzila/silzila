@@ -329,7 +329,7 @@ public class RelativeFilterDateOracle {
                     + " , 'YYYY-MM-DD' ) as \"todate\" FROM DUAL";
 
             // String finalQuery = "SELECT 1";
-            System.out.println(finalQuery);
+    
             return finalQuery;
         }
 
