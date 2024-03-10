@@ -109,9 +109,9 @@ export interface ChartConGeoChartControls {
 	emphasisAreaColor: string;
 	aspectScale: number;
 	enableSelfEmphasis : boolean;
-	minValue: number;
+	minValue: string;
 	minColor: string;
-	maxValue: number;
+	maxValue: string;
 	maxColor: string;
 	showVisualScale: boolean;
 }
