@@ -65,7 +65,7 @@ public class QueryComposer {
             // System.out.println("------ inside databricks block");
             qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName);
         } else if (vendorName.equals("oracle")) {
-            qMap = SelectClauseOracle.buildSelectClause(req);
+            qMap = SelectClauseOracle.buildSelectClause(req, vendorName);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
