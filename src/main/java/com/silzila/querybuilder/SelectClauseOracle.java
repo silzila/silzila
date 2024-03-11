@@ -30,8 +30,6 @@ public class SelectClauseOracle {
         List<String> orderByDimList = new ArrayList<>();
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
-        Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "QUARTER", "QUARTER",
-                "MONTH", "MONTH", "DATE", "DATE", "DAYOFWEEK", "DAYOFWEEK", "DAYOFMONTH", "DAY");
 
         /*
          * --------------------------------------------------------
