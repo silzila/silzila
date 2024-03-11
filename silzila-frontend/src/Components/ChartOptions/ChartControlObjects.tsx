@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { changeChartOptionSelected } from "../../redux/ChartPoperties/ChartPropertiesActions";
@@ -25,6 +25,8 @@ const ChartControlObjects = ({
 			`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
 		];
 	const richTextOptionList: string[] = ["Format", "Style", "Conditional Formatting"];
+
+	const [value, setValue] = useState(false);
 
 	const barOptionsList: string[] = [
 		"Title",
@@ -117,6 +119,10 @@ const ChartControlObjects = ({
 		"Tooltip",		
 		"Style",
 	];
+
+	useEffect(()=>{
+		changeChartOption(propKey, "Title")
+	},[chartProp.properties[propKey].chartType])
 
 	const RenderOptions: any = () => {
 		switch (selectedChart) {

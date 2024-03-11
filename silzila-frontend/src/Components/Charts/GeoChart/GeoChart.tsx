@@ -274,8 +274,8 @@ const GeoChart = ({
 			  } : null,
 			visualMap: chartData && chartData.length > 0  ? {
 				left: 'right',
-				min: geoStyle.minValue === 0 ? Number(mapMinMax.min) : Number(geoStyle.minValue),
-				max: geoStyle.maxValue === 100 ?  Number(mapMinMax.max) : Number(geoStyle.maxValue),
+				min: geoStyle.minValue === '' ? Number(isNaN(mapMinMax.min) ? 0 : mapMinMax.min) : isNaN(Number(geoStyle.minValue)) ? 0 : Number(geoStyle.minValue),
+				max: geoStyle.maxValue === '' ?  Number(isNaN(mapMinMax.max) ? 100 : mapMinMax.max) :isNaN(Number(geoStyle.maxValue)) ? 100 : Number(geoStyle.maxValue),
 				inRange: {
 					color: interpolateColor(geoStyle.minColor, geoStyle.maxColor, 20),
 				},
@@ -297,7 +297,7 @@ const GeoChart = ({
 			],
 		})
 
-	}, [chartData, chartControl]);
+	}, [chartData, chartControl,chartProperties ]);
 
 
 
