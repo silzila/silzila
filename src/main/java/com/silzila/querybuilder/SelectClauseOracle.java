@@ -20,7 +20,7 @@ public class SelectClauseOracle {
     private static final Logger logger = LogManager.getLogger(SelectClauseOracle.class);
 
     /* SELECT clause for MySQL dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName) throws BadRequestException {
         logger.info("SelectClauseOracle calling ***********");
 
         List<String> selectList = new ArrayList<>();
@@ -87,7 +87,7 @@ public class SelectClauseOracle {
                 }
                 // yearquarter name -> 2015-Q3
                 else if (dim.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName()+", 'YYYY-\"Q\"Q')";
+                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'YYYY-\"Q\"Q')";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
@@ -146,6 +146,7 @@ public class SelectClauseOracle {
             // Text Aggregation Methods like COUNT
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
+            String windowFn = "";
             if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
                 // checking ('count', 'countnn', 'countn', 'countu')
                 if (meas.getAggr().name().equals("COUNT")) {
@@ -175,25 +176,30 @@ public class SelectClauseOracle {
 
                 List<String> aggrList = List.of("MIN", "MAX");
                 List<String> timeGrainList = List.of("YEAR", "QUARTER", "MONTH", "DATE", "DAYOFMONTH", "DAYOFWEEK");
+                Map<String, String> timeGrainEqualent = Map.of("YEAR", "'YYYY'", "QUARTER", "'\"Q\"Q'", "MONTH", "'mm'",
+                        "DATE", "'yyyy-mm-dd'",
+                        "DAYOFMONTH", "'dd'", "DAYOFWEEK", "'D'");
                 // checking Aggregations: ('min', 'max', 'count', 'countnn', 'countn', 'countu')
                 // checking Time Grains: ('year', 'quarter', 'month', 'yearmonth',
                 // 'yearquarter', 'dayofmonth')
 
+                // min & max
                 if (aggrList.contains(meas.getAggr().name()) && timeGrainList.contains(meas.getTimeGrain().name())) {
-                    field = meas.getAggr().name() + "(" + timeGrainMap.get(meas.getTimeGrain().name())
-                            + "(" + meas.getTableId() + "." + meas.getFieldName() + "))";
+                    field = meas.getAggr().name() + "(TO_CHAR" + "(" + meas.getTableId() + "." + meas.getFieldName()
+                            + "," + timeGrainEqualent.get(meas.getTimeGrain().name()) + "))";
                 }
 
                 /*
                  * countu is a special case & we can use time grain for this measure
                  */
                 else if (meas.getAggr().name().equals("COUNTU") && timeGrainList.contains(meas.getTimeGrain().name())) {
-                    field = "COUNT(DISTINCT(" + timeGrainMap.get(meas.getTimeGrain().name())
-                            + "(" + meas.getTableId() + "." + meas.getFieldName() + ")))";
+                    field = "COUNT(DISTINCT(TO_CHAR" + "(" + meas.getTableId() + "." + meas.getFieldName()
+                            + "," + timeGrainEqualent.get(meas.getTimeGrain().name()) + ")))";
                 }
                 // checking ('yearquarter')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "COUNT(DISTINCT(TO_CHAR(" + meas.getTableId() + "." + meas.getFieldName()+  ", 'YYYY-\"Q\"Q')))";
+                    field = "COUNT(DISTINCT(TO_CHAR(" + meas.getTableId() + "." + meas.getFieldName()
+                            + ", 'YYYY-\"Q\"Q')))";
                 }
                 // checking ('yearmonth')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARMONTH")) {
@@ -235,8 +241,16 @@ public class SelectClauseOracle {
                             "Error: Aggregation is not correct for Numeric field " + meas.getFieldName());
                 }
             }
+            // if windowFn not null it will execute window function for oracle
+            if(meas.getWindowFn()[0] != null){
+                windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName);
+                String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+                // selectMeasureList.add(field + " AS " + alias);
+                selectMeasureList.add(windowFn + " AS " + alias);
+            } else {
             String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
             selectMeasureList.add(field + " AS " + alias);
+            }
         }
         ;
 

@@ -165,7 +165,7 @@ public class SelectClauseBigquery {
             // Text Aggregation Methods like COUNT
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
-            String windowfn = "";
+            String windowFn = "";
             if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
                 // checking ('count', 'countnn', 'countn', 'countu')
                 if (meas.getAggr().name().equals("COUNT")) {
@@ -268,9 +268,9 @@ public class SelectClauseBigquery {
              */
             if(meas.getWindowFn()[0] != null){
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-                windowfn = SelectClauseWindowFunction.windowFunction(meas, req, alias, vendorName);
+                windowFn = SelectClauseWindowFunction.windowFunction(meas, req, alias, vendorName);
                 selectMeasureList.add(field + " AS _*" + alias);
-                selectMeasureList.add(windowfn + " AS _0" + alias);
+                selectMeasureList.add(windowFn + " AS _0" + alias);
             } else{
             String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
             selectMeasureList.add(field + " AS " + alias);

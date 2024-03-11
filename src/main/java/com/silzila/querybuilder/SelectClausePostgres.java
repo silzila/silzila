@@ -147,7 +147,7 @@ public class SelectClausePostgres {
             // Text Aggregation Methods like COUNT
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
-            String windowfn = "";
+            String windowFn = "";
             if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
                 // checking ('count', 'countnn', 'countn', 'countu')
                 if (meas.getAggr().name().equals("COUNT")) {
@@ -263,10 +263,10 @@ public class SelectClausePostgres {
             }
             // if windowFn not null it will execute window function for postgresql
             if(meas.getWindowFn()[0] != null){
-                windowfn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName);
+                windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName);
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
                 // selectMeasureList.add(field + " AS " + alias);
-                selectMeasureList.add(windowfn + " AS " + alias);
+                selectMeasureList.add(windowFn + " AS " + alias);
             } else {
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
                 selectMeasureList.add(field + " AS " + alias);

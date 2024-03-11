@@ -38,6 +38,8 @@ public class SelectClauseWindowFunction {
             qMap = SelectClauseDatabricks.buildSelectClause(dim, vendorName);
         } else if ("redshift".equals(vendorName)) {
             qMap = SelectClausePostgres.buildSelectClause(dim, vendorName);
+        } else if ("oracle".equals(vendorName)) {
+            qMap = SelectClauseOracle.buildSelectClause(dim, vendorName);
         } else {
             throw new BadRequestException("Unsupported vendor: " + vendorName);
         }
@@ -277,12 +279,22 @@ public class SelectClauseWindowFunction {
                 partitionName = finalPartitionList.stream().collect(Collectors.joining(",\n\t"));
                 partition = finalPartitionList.isEmpty()? "" : "PARTITION BY " + partitionName + " ";
                 // for order by values
-                if(windowFunction1.equals("STANDING")){                  
+                if(windowFunction1.equals("STANDING")){  
+                    if(vendorName.equals("oracle")){
+                    orderBy = (finalPartitionList.size() == selectDimensionList.size())? "ORDER BY NULL": "ORDER BY " + field + " " + sortingFunction(finalPartitionList, selectDimensionList, windowFunction3);
+                    } 
+                    else{               
                     orderBy = (finalPartitionList.size() == selectDimensionList.size())? "ORDER BY (SELECT NULL)": "ORDER BY " + field + " " + sortingFunction(finalPartitionList, selectDimensionList, windowFunction3);
+                    }
                 } else if (List.of("SLIDING", "DIFFERENCEFROM", "PERCENTAGEDIFFERENCEFROM", "PERCENTAGETOTAL").contains(windowFunction1)){
                     orderByList = selectDimensionList.stream().filter(element -> !finalPartitionList.contains(element)).collect(Collectors.toList());
                     orderByName = orderByList.stream().collect(Collectors.joining(",\n\t"));
+                    if(vendorName.equals("oracle")){
+                    orderBy = (finalPartitionList.size() == selectDimensionList.size())? "ORDER BY NULL": "ORDER BY " + orderByName;    
+                    } 
+                    else{
                     orderBy = (finalPartitionList.size() == selectDimensionList.size())? "ORDER BY (SELECT NULL)": "ORDER BY " + orderByName;
+                    }
                 }    
             } 
             // partition value for row & column
@@ -353,14 +365,22 @@ public class SelectClauseWindowFunction {
             * window function partition length must be 2 for standing because we don't have slide direction
             */
             if(windowFunction1.equals("STANDING") && meas.getWindowFnPartition().length == 2){
-                orderBy = (finalPartitionList.size() == selectDimensionList.size())? "ORDER BY (SELECT NULL)": "ORDER BY " + field + " " + sortingFunction(finalPartitionList, selectDimensionList, windowFunction3);
+                if(vendorName.equals("oracle")){
+                orderBy = (finalPartitionList.size() == selectDimensionList.size())? "ORDER BY NULL": "ORDER BY " + field + " " + sortingFunction(finalPartitionList, selectDimensionList, windowFunction3);
+                }
+                else{
+                orderBy = (finalPartitionList.size() == selectDimensionList.size())? "ORDER BY (SELECT NULL)": "ORDER BY " + field + " " + sortingFunction(finalPartitionList, selectDimensionList, windowFunction3);    
+                }
             } else if (List.of("SLIDING", "DIFFERENCEFROM", "PERCENTAGEDIFFERENCEFROM", "PERCENTAGETOTAL").contains(windowFunction1)){
             if(finalPartitionList.size() != selectDimensionList.size() && meas.getWindowFnPartition().length < 3){
                 throw new BadRequestException("Error: slide direction not given");
             }
             // given order by (select null) because all dimensions given in partition by
-            if(finalPartitionList.size() == selectDimensionList.size()){
-                orderBy = "ORDER BY (SELECT NULL)";                
+            if(vendorName.equals("oracle") && finalPartitionList.size() == selectDimensionList.size()){
+                orderBy = "ORDER BY NULL";                
+            }
+            else if(finalPartitionList.size() == selectDimensionList.size()){
+                orderBy = "ORDER BY (SELECT NULL)";
             }
             else{
             int orderByWise = meas.getWindowFnPartition()[2];
@@ -419,23 +439,23 @@ public class SelectClauseWindowFunction {
             } else if (windowFunction1.equals("SLIDING") && slidingList.contains(windowFunction2)) {
                 String sqlFunction = windowOptionMap.get(windowFunction2);
                 if(!sqlFunction.equals("COUNT(")){
-                window = sqlFunction + field + ") OVER(" + partition + orderBy + rows + ")";
+                window = sqlFunction + "CAST(" + field + " AS DECIMAL)) OVER(" + partition + orderBy + rows + ")";
                 }
                 else{
                 window = sqlFunction + "*) OVER(" + partition + orderBy + rows + ")";  
                 }
             } else if (windowFunction1.equals("DIFFERENCEFROM") && standingVsSlidingList.contains(windowFunction2)) {
                 String sqlFunction = windowOptionMap.get(windowFunction2);
-                window = field + "-" + sqlFunction + field + ") OVER(" + partition + orderBy + rows + ")";
+                window = field + "-" + sqlFunction + "CAST(" + field + " AS DECIMAL)) OVER(" + partition + orderBy + rows + ")";
                 
             } else if (windowFunction1.equals("PERCENTAGEDIFFERENCEFROM") && standingVsSlidingList.contains(windowFunction2)) {
                 String sqlFunction = windowOptionMap.get(windowFunction2);
-                window = "(CAST(" + field + " AS DECIMAL) - " + sqlFunction + field + ") OVER(" + partition + orderBy + rows + 
+                window = "(" + field + "-" + sqlFunction + "CAST(" + field + " AS DECIMAL)) OVER(" + partition + orderBy + rows + 
                          ")) / " + sqlFunction + field + ") OVER(" + partition + orderBy + rows + 
                          ")" ;
             } else if (windowFunction1.equals("PERCENTAGETOTAL") && standingVsSlidingList.contains(windowFunction2)) {
                 String sqlFunction = windowOptionMap.get(windowFunction2);
-                window = field + " / " + sqlFunction + field + ") OVER(" + partition + orderBy + rows + ")";
+                window = field + " / " + sqlFunction + "CAST(" + field + " AS DECIMAL)) OVER(" + partition + orderBy + rows + ")";
             } else{
                 throw new BadRequestException("Error: bad request! accepts only matching window function");
             }
