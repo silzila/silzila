@@ -197,7 +197,6 @@ public class DBConnectionService {
                 projectId,
                 clientEmail,
                 null,
-                dbConnectionRequest.getPassword(),
                 dbConnectionRequest.getKeystore(),
                 dbConnectionRequest.getKeystorePassword(),
                 dbConnectionRequest.getTruststore(),

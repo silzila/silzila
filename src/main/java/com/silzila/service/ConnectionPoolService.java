@@ -93,7 +93,7 @@ public class ConnectionPoolService {
 
             // BigQuery - token file path to be sent in URL
             if (dbConnection.getVendor().equals("bigquery")) {
-                String password = dbConnection.getToken();
+                String password = dbConnection.getPasswordHash();
                 String tempPath = null;
                 // Create a path for the temporary JSON file
                 try {
