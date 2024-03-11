@@ -30,9 +30,6 @@ public class SelectClauseOracle {
         List<String> orderByDimList = new ArrayList<>();
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
-        Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "QUARTER", "QUARTER",
-                "MONTH", "MONTH", "DATE", "DATE", "DAYOFWEEK", "DAYOFWEEK", "DAYOFMONTH", "DAY");
-
         /*
          * --------------------------------------------------------
          * ---------------- Iterate List of Dim Fields ------------
@@ -87,7 +84,7 @@ public class SelectClauseOracle {
                 }
                 // yearquarter name -> 2015-Q3
                 else if (dim.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName()+", 'YYYY-\"Q\"Q')";
+                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'YYYY-\"Q\"Q')";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
@@ -175,25 +172,30 @@ public class SelectClauseOracle {
 
                 List<String> aggrList = List.of("MIN", "MAX");
                 List<String> timeGrainList = List.of("YEAR", "QUARTER", "MONTH", "DATE", "DAYOFMONTH", "DAYOFWEEK");
+                Map<String, String> timeGrainMap = Map.of("YEAR", "'YYYY'", "QUARTER", "'\"Q\"Q'", "MONTH", "'mm'",
+                        "DATE", "'yyyy-mm-dd'",
+                        "DAYOFMONTH", "'dd'", "DAYOFWEEK", "'D'");
                 // checking Aggregations: ('min', 'max', 'count', 'countnn', 'countn', 'countu')
                 // checking Time Grains: ('year', 'quarter', 'month', 'yearmonth',
                 // 'yearquarter', 'dayofmonth')
 
+                // min & max
                 if (aggrList.contains(meas.getAggr().name()) && timeGrainList.contains(meas.getTimeGrain().name())) {
-                    field = meas.getAggr().name() + "(" + timeGrainMap.get(meas.getTimeGrain().name())
-                            + "(" + meas.getTableId() + "." + meas.getFieldName() + "))";
+                    field = meas.getAggr().name() + "(TO_CHAR" + "(" + meas.getTableId() + "." + meas.getFieldName()
+                            + "," + timeGrainMap.get(meas.getTimeGrain().name()) + "))";
                 }
 
                 /*
                  * countu is a special case & we can use time grain for this measure
                  */
                 else if (meas.getAggr().name().equals("COUNTU") && timeGrainList.contains(meas.getTimeGrain().name())) {
-                    field = "COUNT(DISTINCT(" + timeGrainMap.get(meas.getTimeGrain().name())
-                            + "(" + meas.getTableId() + "." + meas.getFieldName() + ")))";
+                    field = "COUNT(DISTINCT(TO_CHAR" + "(" + meas.getTableId() + "." + meas.getFieldName()
+                            + "," + timeGrainMap.get(meas.getTimeGrain().name()) + ")))";
                 }
                 // checking ('yearquarter')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "COUNT(DISTINCT(TO_CHAR(" + meas.getTableId() + "." + meas.getFieldName()+  ", 'YYYY-\"Q\"Q')))";
+                    field = "COUNT(DISTINCT(TO_CHAR(" + meas.getTableId() + "." + meas.getFieldName()
+                            + ", 'YYYY-\"Q\"Q')))";
                 }
                 // checking ('yearmonth')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARMONTH")) {
