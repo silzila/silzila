@@ -19,7 +19,7 @@ public class OracleDTO {
     @JsonProperty("connectionName")
     private String connectionName;
 
-    @JsonProperty("Vendor")
+    @JsonProperty("vendor")
     private String vendor;
 
     @JsonProperty("host")
@@ -49,9 +49,4 @@ public class OracleDTO {
     @JsonProperty("password")
     private String password;
 
-    @JsonProperty("keyStore_fileName")
-    private String keyStoreStringFileName;
-
-    @JsonProperty("trustStore_fileName")
-    private String trustStoreStringFileName;
 }
