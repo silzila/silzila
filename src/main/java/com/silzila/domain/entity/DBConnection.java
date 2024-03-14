@@ -46,8 +46,6 @@ public class DBConnection extends BaseEntity {
     private String clientEmail;
     @Column(name = "file_name")
     private String fileName;
-    @Column(name = "token", length = 5000)
-    private String token;
     @Column(name = "keystore_fileName")
     private String keystoreFileName;
     @Column(name = "keystore_password")
