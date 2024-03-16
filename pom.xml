@@ -249,6 +249,11 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>net.snowflake</groupId>
+			<artifactId>snowflake-jdbc</artifactId>
+			<version>3.6.27</version>
+		</dependency>
 	</dependencies>
 
 	<!-- Build information -->

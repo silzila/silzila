@@ -167,8 +167,8 @@ public class RelationshipClauseGeneric {
             else if (vendorName.equals("mysql")) {
                 fromClause = "\n\t" + table.getDatabase() + "." + table.getTable() + " AS " + table.getId();
             }
-            // SQL Server has the format of Database_name.Schema_name.Table_name
-            else if (vendorName.equals("sqlserver")) {
+            // SQL Server & Snowflake has the format of Database_name.Schema_name.Table_name
+            else if (vendorName.equals("sqlserver") || (vendorName.equals("snowflake"))) {
                 fromClause = "\n\t" + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + " AS "
                         + table.getId();
             } else if (vendorName.equals("databricks")) {
@@ -418,7 +418,7 @@ public class RelationshipClauseGeneric {
             /*
              * SQL Server has the format of Database_name.Schema_name.Table_name
              */
-            else if (vendorName.equals("sqlserver")) {
+            else if (vendorName.equals("sqlserver") || vendorName.equals("snowflake")) {
                 if (i == 0) {
                     fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getSchema() + "."
                             + fromTable.getTable() + " AS "

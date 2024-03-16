@@ -56,5 +56,7 @@ public class DBConnection extends BaseEntity {
     private String truststoreFileName;
     @Column(name = "truststore_password")
     private String truststorePassword;
+    @Column(name = "warehouse")
+    private String warehouse;
 
 }

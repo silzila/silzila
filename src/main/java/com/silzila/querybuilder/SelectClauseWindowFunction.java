@@ -40,6 +40,8 @@ public class SelectClauseWindowFunction {
             qMap = SelectClausePostgres.buildSelectClause(dim, vendorName);
         } else if ("oracle".equals(vendorName)) {
             qMap = SelectClauseOracle.buildSelectClause(dim, vendorName);
+        } else if ("snowflake".equals(vendorName)) {
+            qMap = SelectClauseSnowflake.buildSelectClause(dim, vendorName);
         } else {
             throw new BadRequestException("Unsupported vendor: " + vendorName);
         }
@@ -55,13 +57,13 @@ public class SelectClauseWindowFunction {
     // get ordering value for analytical functions like rank, etc.,
     public static String sortingFunction(List<String> finalPartitionList, List<String> selectDimensionList, String windowFunction3) throws BadRequestException{
         String windowFunction4 = "";
-        if(finalPartitionList.size() == selectDimensionList.size()){
+        if (finalPartitionList.size() == selectDimensionList.size()) {
             windowFunction4 = "";
         }
-        else if(List.of("ASCENDING", "DESCENDING").contains(windowFunction3)){
+        else if (List.of("ASCENDING", "DESCENDING").contains(windowFunction3)) {
             windowFunction4 = "DESCENDING".equals(windowFunction3) ? "DESC" : "ASC";
         }
-        else{
+        else {
         throw new BadRequestException("Error: badRequest! not mentioned standard ordering values");
         }
         return windowFunction4;
@@ -75,7 +77,7 @@ public class SelectClauseWindowFunction {
         String orderBy = "";
         Query dim = null;
         QueryClauseFieldListMap qMap = new QueryClauseFieldListMap();
-            if(meas.getWindowFn().length > 3 || meas.getWindowFn().length == 1){
+            if (meas.getWindowFn().length > 3 || meas.getWindowFn().length == 1) {
                 throw new BadRequestException("Error: Invalid windowFunction length");
             }
             
@@ -99,7 +101,7 @@ public class SelectClauseWindowFunction {
             for (int m = 0; m < meas.getWindowFn().length; m++) {
                 switch (m) {
                     case 0:
-                        if(List.of("STANDING", "SLIDING", "DIFFERENCEFROM", "PERCENTAGEDIFFERENCEFROM", "PERCENTAGETOTAL").contains(meas.getWindowFn()[m].toUpperCase())){
+                        if (List.of("STANDING", "SLIDING", "DIFFERENCEFROM", "PERCENTAGEDIFFERENCEFROM", "PERCENTAGEFROM").contains(meas.getWindowFn()[m].toUpperCase())) {
                         windowFunction1 = meas.getWindowFn()[m].toUpperCase();
                         }
                         else {
@@ -107,10 +109,10 @@ public class SelectClauseWindowFunction {
                         }
                         break;
                     case 1:
-                        if(List.of("DEFAULT", "DENSE", "UNIQUE", "SUM", "AVG", "MIN", "MAX", "COUNT", "FIRST", "LAST").contains(meas.getWindowFn()[m].toUpperCase())){
+                        if (List.of("DEFAULT", "DENSE", "UNIQUE", "SUM", "AVG", "MIN", "MAX", "COUNT", "FIRST", "LAST").contains(meas.getWindowFn()[m].toUpperCase())) {
                         windowFunction2 = meas.getWindowFn()[m].toUpperCase();
                         }
-                        else{
+                        else {
                             throw new BadRequestException("Error: windowFunction2 accepts only standard values");
                         }
                         break;
@@ -129,12 +131,12 @@ public class SelectClauseWindowFunction {
             int current_row = meas.getWindowFnOption()[1];
             int following_value = meas.getWindowFnOption()[2];
             // for sliding & standing vs sliding 
-            if(windowFunction1.equals("SLIDING") || ((windowFunction1.equals("DIFFERENCEFROM") || windowFunction1.equals("PERCENTAGEDIFFERENCEFROM") || windowFunction1.equals("PERCENTAGETOTAL")) 
-            && List.of("SUM", "AVG", "MAX", "MIN").contains(windowFunction2))){
-            if(preceding_value != 0 && current_row != 1 && following_value != 0){
+            if (windowFunction1.equals("SLIDING") || ((windowFunction1.equals("DIFFERENCEFROM") || windowFunction1.equals("PERCENTAGEDIFFERENCEFROM") || windowFunction1.equals("PERCENTAGEFROM")) 
+            && List.of("SUM", "AVG", "MAX", "MIN").contains(windowFunction2))) {
+            if (preceding_value != 0 && current_row != 1 && following_value != 0) {
                 throw new BadRequestException("Error: current row value should be equal to 1");
             }
-            if(preceding_value == 0 && current_row == 0 && following_value == 0){
+            if (preceding_value == 0 && current_row == 0 && following_value == 0) {
                 throw new BadRequestException("Error: rows betweeen frame clause values not given");
             }
             if (preceding_value == 0 && current_row == 1 && following_value == 0) {
@@ -189,80 +191,80 @@ public class SelectClauseWindowFunction {
             } else {
                 throw new BadRequestException("Error: previous value cannot be less than -1");
             }
-            } else{
+            } else {
                 throw new BadRequestException("Error: STANDING, FIRST AND LAST should not have any window function option values");
             }
-            } else if (meas.getWindowFnOption().length != 0){
+            } else if (meas.getWindowFnOption().length != 0) {
                 throw new BadRequestException("Error: windowFnOption length should not be less than or greater than 3");
             }
             // if first & last rows must be between unbounded preceding and unbounded following 
-            if(windowFunction2.equals("FIRST") || windowFunction2.equals("LAST")){
+            if (windowFunction2.equals("FIRST") || windowFunction2.equals("LAST")) {
                 rows = " ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING";
             }
             // if sliding, standing vs sliding does have null for preceding and following string
-            else if (!windowFunction1.equals("STANDING") && preceding_string == null && following_string == null){
+            else if (!windowFunction1.equals("STANDING") && preceding_string == null && following_string == null) {
                 throw new BadRequestException("Error: bad request! doesn't have any window function option values");
             }
-            else{
+            else {
                 rows = preceding_string + following_string;
             }  
 
             /* for partition by
              * window function partition length must be between 1 and 3
              */
-            if(meas.getWindowFnPartition().length < 1 || meas.getWindowFnPartition().length > 3){
+            if (meas.getWindowFnPartition().length < 1 || meas.getWindowFnPartition().length > 3) { 
                 throw new BadRequestException("Error: bad request! partition length should not exceeds or fall below the limit");
             }        
             // partition values for only one dimension
-            if(meas.getWindowFnPartition().length == 1){
+            if (meas.getWindowFnPartition().length == 1) {
                 // partition value shouldn't be less than -1 as well as shouldn't exceeds dimension size
-                if(meas.getWindowFnPartition()[0] < -1 || meas.getWindowFnPartition()[0] > req.getDimensions().size() - 1){
+                if (meas.getWindowFnPartition()[0] < -1 || meas.getWindowFnPartition()[0] > req.getDimensions().size() - 1) {
                     throw new BadRequestException("Error: bad request! partition dimensional size is invalid");
                 }// if matrix value given this condition will work
-                if(meas.getWindowFnMatrix().length > 0){
-                    if(meas.getWindowFnMatrix().length != 2){
+                if (meas.getWindowFnMatrix().length > 0) {
+                    if (meas.getWindowFnMatrix().length != 2) {
                         throw new BadRequestException("Error: Invalid matrix length");
                     }
-                    if((meas.getWindowFnMatrix()[0] != 0 && meas.getWindowFnMatrix()[1] != 0) || (meas.getWindowFnMatrix()[0] < 0 && meas.getWindowFnMatrix()[1] < 0)){
+                    if ((meas.getWindowFnMatrix()[0] != 0 && meas.getWindowFnMatrix()[1] != 0) || (meas.getWindowFnMatrix()[0] < 0 && meas.getWindowFnMatrix()[1] < 0)) {
                         throw new BadRequestException("Error: bad request! atleast one matrix element should be zero or matrix element should not be less than -1");
                     }
-                    if(req.getDimensions().size() != (meas.getWindowFnMatrix()[0] + meas.getWindowFnMatrix()[1])){
+                    if (req.getDimensions().size() != (meas.getWindowFnMatrix()[0] + meas.getWindowFnMatrix()[1])) {
                         throw new BadRequestException("Error: invalid matrix dimensional size");
                     }
                     // split row and column
-                    for(int x = 0; x < meas.getWindowFnMatrix()[0]; x++){
+                    for (int x = 0; x < meas.getWindowFnMatrix()[0]; x++) {
                         row.add(req.getDimensions().get(x));
                     }
-                    for(int y = meas.getWindowFnMatrix()[0]; y < meas.getWindowFnMatrix()[0] + meas.getWindowFnMatrix()[1]; y++){
+                    for (int y = meas.getWindowFnMatrix()[0]; y < meas.getWindowFnMatrix()[0] + meas.getWindowFnMatrix()[1]; y++) {
                         column.add(req.getDimensions().get(y));
                     }        
                 }
-                if(meas.getWindowFnPartition()[0] == -1){
+                if (meas.getWindowFnPartition()[0] == -1) {
                     //NO PARTITION
                 }
                 // if dimension size equals to 1 it will execute
-                else if(meas.getWindowFnPartition()[0] == 0 && req.getDimensions().size() == 1){
-                if(!row.isEmpty())
+                else if (meas.getWindowFnPartition()[0] == 0 && req.getDimensions().size() == 1) {
+                if (!row.isEmpty())
                     rowVsColumnList.add(row.get(0));
-                else if(!column.isEmpty())
+                else if (!column.isEmpty())
                     rowVsColumnList.add(column.get(0));
                 else
                     rowVsColumnList.add(req.getDimensions().get(0));
                 }
                 // if it greater than 1 it will execute
-                else if(meas.getWindowFnPartition()[0] >= 0 && req.getDimensions().size() > 1){
-                if(!row.isEmpty()){
-                    for(int d = 0; d < meas.getWindowFnPartition()[0] + 1; d++){
+                else if (meas.getWindowFnPartition()[0] >= 0 && req.getDimensions().size() > 1) {
+                if (!row.isEmpty()) {
+                    for (int d = 0; d < meas.getWindowFnPartition()[0] + 1; d++) {
                     rowVsColumnList.add(row.get(d));
                     }
                 }
-                else if(!column.isEmpty()){
-                    for(int d = 0; d < meas.getWindowFnPartition()[0] + 1; d++){
+                else if (!column.isEmpty()) {
+                    for (int d = 0; d < meas.getWindowFnPartition()[0] + 1; d++) {
                     rowVsColumnList.add(column.get(d));
                     }
                 }
-                else{
-                    for(int d = 0; d < meas.getWindowFnPartition()[0] + 1; d++){
+                else {
+                    for (int d = 0; d < meas.getWindowFnPartition()[0] + 1; d++) {
                     rowVsColumnList.add(req.getDimensions().get(d));
                     }  
                 }    
@@ -279,40 +281,40 @@ public class SelectClauseWindowFunction {
                 partitionName = finalPartitionList.stream().collect(Collectors.joining(",\n\t"));
                 partition = finalPartitionList.isEmpty()? "" : "PARTITION BY " + partitionName + " ";
                 // for order by values
-                if(windowFunction1.equals("STANDING")){  
-                    if(vendorName.equals("oracle")){
+                if (windowFunction1.equals("STANDING")) {  
+                    if (vendorName.equals("oracle")) {
                     orderBy = (finalPartitionList.size() == selectDimensionList.size())? "ORDER BY NULL": "ORDER BY " + field + " " + sortingFunction(finalPartitionList, selectDimensionList, windowFunction3);
                     } 
-                    else{               
+                    else {               
                     orderBy = (finalPartitionList.size() == selectDimensionList.size())? "ORDER BY (SELECT NULL)": "ORDER BY " + field + " " + sortingFunction(finalPartitionList, selectDimensionList, windowFunction3);
                     }
-                } else if (List.of("SLIDING", "DIFFERENCEFROM", "PERCENTAGEDIFFERENCEFROM", "PERCENTAGETOTAL").contains(windowFunction1)){
+                } else if (List.of("SLIDING", "DIFFERENCEFROM", "PERCENTAGEDIFFERENCEFROM", "PERCENTAGEFROM").contains(windowFunction1)) {
                     orderByList = selectDimensionList.stream().filter(element -> !finalPartitionList.contains(element)).collect(Collectors.toList());
                     orderByName = orderByList.stream().collect(Collectors.joining(",\n\t"));
-                    if(vendorName.equals("oracle")){
+                    if (vendorName.equals("oracle")) {
                     orderBy = (finalPartitionList.size() == selectDimensionList.size())? "ORDER BY NULL": "ORDER BY " + orderByName;    
                     } 
-                    else{
+                    else {
                     orderBy = (finalPartitionList.size() == selectDimensionList.size())? "ORDER BY (SELECT NULL)": "ORDER BY " + orderByName;
                     }
                 }    
             } 
             // partition value for row & column
-            else if(meas.getWindowFnPartition().length == 2 || meas.getWindowFnPartition().length == 3){
-            if(meas.getWindowFnMatrix().length != 2 || meas.getWindowFnMatrix()[0] < 0 || meas.getWindowFnMatrix()[1] < 0 || meas.getWindowFnPartition()[0] < -1 || meas.getWindowFnPartition()[1] < -1){
+            else if (meas.getWindowFnPartition().length == 2 || meas.getWindowFnPartition().length == 3) {
+            if (meas.getWindowFnMatrix().length != 2 || meas.getWindowFnMatrix()[0] < 0 || meas.getWindowFnMatrix()[1] < 0 || meas.getWindowFnPartition()[0] < -1 || meas.getWindowFnPartition()[1] < -1) {
                 throw new BadRequestException("Error: matrix & partition (length or value) should not exceeds or fall below the limit");
             }
-            if(req.getDimensions().size() != (meas.getWindowFnMatrix()[0] + meas.getWindowFnMatrix()[1])){
+            if (req.getDimensions().size() != (meas.getWindowFnMatrix()[0] + meas.getWindowFnMatrix()[1])) {
                 throw new BadRequestException("Error: invalid matrix dimensional size");
             }
             // get rowValue & columnValue from api
             int rowValue = meas.getWindowFnMatrix()[0];
             int columnValue = meas.getWindowFnMatrix()[1];
             // split dimensions into row and column  
-            for(int x = 0; x < rowValue; x++){
+            for (int x = 0; x < rowValue; x++) {
                 row.add(req.getDimensions().get(x));
             }
-            for(int y = rowValue; y < rowValue + columnValue; y++){
+            for (int y = rowValue; y < rowValue + columnValue; y++) {
                 column.add(req.getDimensions().get(y));
             }
             // getting row values from database
@@ -325,28 +327,28 @@ public class SelectClauseWindowFunction {
             columnList = qMap.getGroupByList().stream().collect(Collectors.toList());
 
             // get rowPartition & columnPartition from api
-            if(meas.getWindowFnPartition()[0] > row.size() - 1 || meas.getWindowFnPartition()[1] > column.size() -1){
+            if (meas.getWindowFnPartition()[0] > row.size() - 1 || meas.getWindowFnPartition()[1] > column.size() -1) {
                 throw new BadRequestException("Error: invalid partition dimensional size");
             }
             int rowPartition =  meas.getWindowFnPartition()[0];
             int columnPartition = meas.getWindowFnPartition()[1];
             
-            if(rowPartition == -1){
-                if(columnPartition == -1){
+            if (rowPartition == -1) {
+                if (columnPartition == -1) {
                     //NO PARTITION
-                } else if (columnPartition > -1){
-                    for(int a = 0; a < columnPartition + 1; a++){
+                } else if (columnPartition > -1) {
+                    for (int a = 0; a < columnPartition + 1; a++){
                         rowVsColumnList.add(column.get(a));           
                     }
                 }
             } else if (rowPartition > -1){
-                if(columnPartition == -1){
-                    for(int c = 0; c < rowPartition + 1; c++)
+                if (columnPartition == -1) {
+                    for (int c = 0; c < rowPartition + 1; c++)
                     rowVsColumnList.add(row.get(c));
-                } else if (columnPartition > -1){
-                    for(int c = 0; c < rowPartition + 1; c++)
+                } else if (columnPartition > -1) {
+                    for (int c = 0; c < rowPartition + 1; c++)
                     rowVsColumnList.add(row.get(c));
-                    for(int c = 0; c < columnPartition + 1; c++)
+                    for (int c = 0; c < columnPartition + 1; c++)
                     rowVsColumnList.add(column.get(c));
                 }
             } 
@@ -364,51 +366,50 @@ public class SelectClauseWindowFunction {
             /*rowwise & columnwise ordering
             * window function partition length must be 2 for standing because we don't have slide direction
             */
-            if(windowFunction1.equals("STANDING") && meas.getWindowFnPartition().length == 2){
-                if(vendorName.equals("oracle")){
+            if (windowFunction1.equals("STANDING") && meas.getWindowFnPartition().length == 2) {
+                if (vendorName.equals("oracle")) {
                 orderBy = (finalPartitionList.size() == selectDimensionList.size())? "ORDER BY NULL": "ORDER BY " + field + " " + sortingFunction(finalPartitionList, selectDimensionList, windowFunction3);
                 }
-                else{
+                else {
                 orderBy = (finalPartitionList.size() == selectDimensionList.size())? "ORDER BY (SELECT NULL)": "ORDER BY " + field + " " + sortingFunction(finalPartitionList, selectDimensionList, windowFunction3);    
                 }
-            } else if (List.of("SLIDING", "DIFFERENCEFROM", "PERCENTAGEDIFFERENCEFROM", "PERCENTAGETOTAL").contains(windowFunction1)){
-            if(finalPartitionList.size() != selectDimensionList.size() && meas.getWindowFnPartition().length < 3){
+            } else if (List.of("SLIDING", "DIFFERENCEFROM", "PERCENTAGEDIFFERENCEFROM", "PERCENTAGEFROM").contains(windowFunction1)) {
+            if (finalPartitionList.size() != selectDimensionList.size() && meas.getWindowFnPartition().length < 3) {
                 throw new BadRequestException("Error: slide direction not given");
             }
             // given order by (select null) because all dimensions given in partition by
-            if(vendorName.equals("oracle") && finalPartitionList.size() == selectDimensionList.size()){
+            if (vendorName.equals("oracle") && finalPartitionList.size() == selectDimensionList.size()) {
                 orderBy = "ORDER BY NULL";                
             }
-            else if(finalPartitionList.size() == selectDimensionList.size()){
+            else if (finalPartitionList.size() == selectDimensionList.size()) {
                 orderBy = "ORDER BY (SELECT NULL)";
             }
-            else{
+            else {
             int orderByWise = meas.getWindowFnPartition()[2];
             List<String> orderByListForRow = rowList.stream().filter(element -> !finalPartitionList.contains(element)).collect(Collectors.toList());
             List<String> orderByListForColumn = columnList.stream().filter(element -> !finalPartitionList.contains(element)).collect(Collectors.toList());
+            // here 0 for rowwise & 1 for columnwise
+            if (orderByWise != 0 && orderByWise != 1) {
+                throw new BadRequestException("Error: slide direction value is wrong");
+            }
             // if all rowlist values matches final partition list, column values will be placed in order by
-            if(rowList.stream().allMatch(finalPartitionList::contains) && orderByWise == 1){
+            if (rowList.stream().allMatch(finalPartitionList::contains)) {
                 orderByList.addAll(orderByListForColumn);
             } 
             // if all columnlist values matches final partition list, row values will be placed in order by
-            else if (columnList.stream().allMatch(finalPartitionList::contains) && orderByWise == 0){
+            else if (columnList.stream().allMatch(finalPartitionList::contains)) {
                 orderByList.addAll(orderByListForRow);
             } 
             // if any element of rowlist and columnlist doesn't match final partition list it will be place din order by
-            else if (rowList.stream().anyMatch(element -> !finalPartitionList.contains(element)) && columnList.stream().anyMatch(element -> !finalPartitionList.contains(element))){
-            if(orderByWise == 0){
+            else if (rowList.stream().anyMatch(element -> !finalPartitionList.contains(element)) && columnList.stream().anyMatch(element -> !finalPartitionList.contains(element))) {
+            if (orderByWise == 0) {
                 orderByList.addAll(orderByListForRow);
                 orderByList.addAll(orderByListForColumn);
             }
-            else if (orderByWise == 1){
+            else if (orderByWise == 1) {
                 orderByList.addAll(orderByListForColumn);
                 orderByList.addAll(orderByListForRow);
             }
-            else{
-                throw new BadRequestException("Error: badRequest! slide direction value " + orderByWise + " is not equal to 0 or 1");
-            }
-            } else{
-                throw new BadRequestException("Error: slide direction doesn't match");
             }
                 orderByName = orderByList.stream().collect(Collectors.joining(",\n\t"));
                 orderBy = "ORDER BY " + orderByName;
@@ -453,10 +454,10 @@ public class SelectClauseWindowFunction {
                 window = "(" + field + "-" + sqlFunction + "CAST(" + field + " AS DECIMAL)) OVER(" + partition + orderBy + rows + 
                          ")) / " + sqlFunction + field + ") OVER(" + partition + orderBy + rows + 
                          ")" ;
-            } else if (windowFunction1.equals("PERCENTAGETOTAL") && standingVsSlidingList.contains(windowFunction2)) {
+            } else if (windowFunction1.equals("PERCENTAGEFROM") && standingVsSlidingList.contains(windowFunction2)) {
                 String sqlFunction = windowOptionMap.get(windowFunction2);
                 window = field + " / " + sqlFunction + "CAST(" + field + " AS DECIMAL)) OVER(" + partition + orderBy + rows + ")";
-            } else{
+            } else {
                 throw new BadRequestException("Error: bad request! accepts only matching window function");
             }
 
