@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,6 +34,8 @@ import org.json.JSONObject;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.silzila.VizApplication;
@@ -176,23 +179,23 @@ public class ConnectionPoolService {
             }
             // snowflake
             else if (dbConnection.getVendor().equals("snowflake")){
+                String port = "";
                 String database = "";
                 String warehouse = "";
-                if (dbConnection.getDatabase() != null && dbConnection.getWarehouse() != null) {
-                    database = "?db=" + dbConnection.getDatabase();
-                    warehouse = "&warehouse=" + dbConnection.getWarehouse();
-                } else if (dbConnection.getDatabase() != null) {
-                    database = "?db=" + dbConnection.getDatabase();
-                } else if (dbConnection.getWarehouse() != null) {
-                    warehouse = "?warehouse=" + dbConnection.getWarehouse();
-                }
-                // if have port number 1st url executes
                 if (dbConnection.getPort() != null) {
-                    fullUrl = "jdbc:" + dbConnection.getVendor() + "://" + dbConnection.getServer() + ":" + dbConnection.getPort() + "/" 
-                    + database + warehouse;
-                } else {
-                    fullUrl = "jdbc:" + dbConnection.getVendor() + "://" + dbConnection.getServer() + "/" + database + warehouse;
+                    port = ":" + dbConnection.getPort();
                 }
+                if (dbConnection.getDatabase() != null) {
+                    database = "db=" + dbConnection.getDatabase();
+                } 
+                if (dbConnection.getWarehouse() != null) {
+                    warehouse = "warehouse=" + dbConnection.getWarehouse();
+                }
+                List<String> StringArray = Arrays.asList(database, warehouse);
+                StringArray = StringArray.stream().filter(value -> value != "").toList();
+                String properties = StringArray.isEmpty() ? "" : "?" + String.join("&", StringArray);
+                fullUrl = "jdbc:" + dbConnection.getVendor() + "://" + dbConnection.getServer() + port  + "/" 
+                    + properties;
                 dataSource = new HikariDataSource();
                 config.setJdbcUrl(fullUrl);
                 config.setDriverClassName("net.snowflake.client.jdbc.SnowflakeDriver");
@@ -766,23 +769,23 @@ public class ConnectionPoolService {
         }
         // snowflake
         else if (request.getVendor().equals("snowflake")) {
+            String port = "";
             String database = "";
             String warehouse = "";
-            if (request.getDatabase() != null && request.getWarehouse() != null) {
-                database = "?db=" + request.getDatabase();
-                warehouse = "&warehouse=" + request.getWarehouse();
-            } else if (request.getDatabase() != null) {
-                database = "?db=" + request.getDatabase();
-            } else if (request.getWarehouse() != null) {
-                warehouse = "?warehouse=" + request.getWarehouse();
-            }
-            // if have port number 1st url executes 
-            String fullUrl = "";
             if (request.getPort() != null) {
-                fullUrl = "jdbc:" + request.getVendor() + "://" + request.getServer() + ":" + request.getPort() + "/" + database + warehouse;
-            } else {
-                fullUrl = "jdbc:" + request.getVendor() + "://" + request.getServer() + "/" + database + warehouse;
+                port = ":" + request.getPort();
             }
+            if (request.getDatabase() != null) {
+                database = "db=" + request.getDatabase();
+            } 
+            if (request.getWarehouse() != null) {
+                warehouse = "warehouse=" + request.getWarehouse();
+            }
+            List<String> StringArray = Arrays.asList(database, warehouse);
+            StringArray = StringArray.stream().filter(value -> value != "").toList();
+            String properties = StringArray.isEmpty() ? "" : "?" + String.join("&", StringArray);
+            String fullUrl = "jdbc:" + request.getVendor() + "://" + request.getServer() + port  + "/" 
+                + properties;
             dataSource = new HikariDataSource();
             config.setJdbcUrl(fullUrl);
             config.setDriverClassName("net.snowflake.client.jdbc.SnowflakeDriver");
