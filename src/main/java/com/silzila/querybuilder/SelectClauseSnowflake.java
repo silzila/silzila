@@ -19,7 +19,7 @@ import com.silzila.payload.request.Query;
 public class SelectClauseSnowflake {
     private static final Logger logger = LogManager.getLogger(SelectClauseSnowflake.class);
 
-    /* SELECT clause for MySQL dialect */
+    /* SELECT clause for Snowflake dialect */
     public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName) throws BadRequestException {
         logger.info("SelectClauseSnowflake calling ***********");
 

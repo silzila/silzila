@@ -416,7 +416,7 @@ public class RelationshipClauseGeneric {
                 }
             }
             /*
-             * SQL Server has the format of Database_name.Schema_name.Table_name
+             * SQL Server & Snowflake has the format of Database_name.Schema_name.Table_name
              */
             else if (vendorName.equals("sqlserver") || vendorName.equals("snowflake")) {
                 if (i == 0) {
