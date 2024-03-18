@@ -179,31 +179,20 @@ public class ConnectionPoolService {
             }
             // snowflake
             else if (dbConnection.getVendor().equals("snowflake")){
-                String port = "";
-                String database = "";
-                String warehouse = "";
-                if (dbConnection.getPort() != null) {
-                    port = ":" + dbConnection.getPort();
-                }
-                if (dbConnection.getDatabase() != null) {
-                    database = "db=" + dbConnection.getDatabase();
-                } 
-                if (dbConnection.getWarehouse() != null) {
-                    warehouse = "warehouse=" + dbConnection.getWarehouse();
-                }
-                List<String> StringArray = Arrays.asList(database, warehouse);
-                StringArray = StringArray.stream().filter(value -> value != "").toList();
-                String properties = StringArray.isEmpty() ? "" : "?" + String.join("&", StringArray);
-                fullUrl = "jdbc:" + dbConnection.getVendor() + "://" + dbConnection.getServer() + port  + "/" 
-                    + properties;
-                dataSource = new HikariDataSource();
-                config.setJdbcUrl(fullUrl);
-                config.setDriverClassName("net.snowflake.client.jdbc.SnowflakeDriver");
-                config.setUsername(dbConnection.getUsername());
-                config.setPassword(dbConnection.getPasswordHash());
-                config.addDataSourceProperty("minimulIdle", "1");
-                config.addDataSourceProperty("maximumPoolSize", "2");
-                dataSource = new HikariDataSource(config);
+            String port = dbConnection.getPort() != null ? Integer.toString(dbConnection.getPort()) : "";
+            String database = dbConnection.getDatabase() != null ? dbConnection.getDatabase() : "" ;
+            String warehouse = dbConnection.getWarehouse() != null ? dbConnection.getWarehouse() : "";
+            fullUrl = "jdbc:" + dbConnection.getVendor() + "://" + dbConnection.getServer() + "/";
+            config.setJdbcUrl(fullUrl);
+            config.setDriverClassName("net.snowflake.client.jdbc.SnowflakeDriver");
+            config.addDataSourceProperty("port", port);
+            config.setUsername(dbConnection.getUsername());
+            config.setPassword(dbConnection.getPasswordHash());
+            config.addDataSourceProperty("databaseName", database);
+            config.addDataSourceProperty("warehouse", warehouse);
+            config.addDataSourceProperty("minimulIdle", "1");
+            config.addDataSourceProperty("maximumPoolSize", "2");
+            dataSource = new HikariDataSource(config);
             }
             // for Postgres & MySQL
             else {
@@ -769,28 +758,17 @@ public class ConnectionPoolService {
         }
         // snowflake
         else if (request.getVendor().equals("snowflake")) {
-            String port = "";
-            String database = "";
-            String warehouse = "";
-            if (request.getPort() != null) {
-                port = ":" + request.getPort();
-            }
-            if (request.getDatabase() != null) {
-                database = "db=" + request.getDatabase();
-            } 
-            if (request.getWarehouse() != null) {
-                warehouse = "warehouse=" + request.getWarehouse();
-            }
-            List<String> StringArray = Arrays.asList(database, warehouse);
-            StringArray = StringArray.stream().filter(value -> value != "").toList();
-            String properties = StringArray.isEmpty() ? "" : "?" + String.join("&", StringArray);
-            String fullUrl = "jdbc:" + request.getVendor() + "://" + request.getServer() + port  + "/" 
-                + properties;
-            dataSource = new HikariDataSource();
+            String port = request.getPort() != null ? Integer.toString(request.getPort()) : "";
+            String database = request.getDatabase() != null ? request.getDatabase() : "" ;
+            String warehouse = request.getWarehouse() != null ? request.getWarehouse() : "";
+            String fullUrl = "jdbc:" + request.getVendor() + "://" + request.getServer() + "/";
             config.setJdbcUrl(fullUrl);
             config.setDriverClassName("net.snowflake.client.jdbc.SnowflakeDriver");
+            config.addDataSourceProperty("port", port);
             config.setUsername(request.getUsername());
             config.setPassword(request.getPassword());
+            config.addDataSourceProperty("databaseName", database);
+            config.addDataSourceProperty("warehouse", warehouse);
             config.addDataSourceProperty("minimulIdle", "1");
             config.addDataSourceProperty("maximumPoolSize", "2");
             dataSource = new HikariDataSource(config);
