@@ -197,11 +197,11 @@ public class DBConnectionService {
                 projectId,
                 clientEmail,
                 null,
-                dbConnectionRequest.getPassword(),
                 dbConnectionRequest.getKeystore(),
                 dbConnectionRequest.getKeystorePassword(),
                 dbConnectionRequest.getTruststore(),
-                dbConnectionRequest.getTruststorePassword());
+                dbConnectionRequest.getTruststorePassword(),
+                dbConnectionRequest.getWarehouse());
         dbConnectionRepository.save(dbConnection);
         DBConnectionDTO dto = mapper.map(dbConnection, DBConnectionDTO.class);
         return dto;

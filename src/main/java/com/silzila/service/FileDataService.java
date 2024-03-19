@@ -274,6 +274,10 @@ public class FileDataService {
             throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
             SQLException {
 
+        // flatfile name can't have any spaces and special characters not more than one underscore- contiuously
+        if (revisedInfoRequest.getName() != null) {
+            revisedInfoRequest.setName(revisedInfoRequest.getName().trim().replaceAll("[^a-zA-Z0-9]", "_").replaceAll("_+","_"));
+        }
         // check in DB if file data name is already taken
         isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName());
 

@@ -175,6 +175,8 @@ public class WhereClause {
                         where = WhereClauseDateBigquery.buildWhereClauseDate(filter);
                     } else if (vendorName.equals("oracle")) {
                         where = WhereClauseDateOracle.buildWhereClauseDate(filter);
+                    } else if (vendorName.equals("snowflake")) {
+                        where = WhereClauseSnowflake.buildWhereClauseDate(filter);
                     }
                 }
 

@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,6 +34,8 @@ import org.json.JSONObject;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.silzila.VizApplication;
@@ -93,7 +96,7 @@ public class ConnectionPoolService {
 
             // BigQuery - token file path to be sent in URL
             if (dbConnection.getVendor().equals("bigquery")) {
-                String password = dbConnection.getToken();
+                String password = dbConnection.getPasswordHash();
                 String tempPath = null;
                 // Create a path for the temporary JSON file
                 try {
@@ -174,7 +177,27 @@ public class ConnectionPoolService {
 
                 dataSource = new HikariDataSource(config);
             }
-
+            // snowflake
+            else if (dbConnection.getVendor().equals("snowflake")){
+                String port = "";
+                if (dbConnection.getPort() != null) {
+                    port = ":" + dbConnection.getPort();
+                }
+                if (dbConnection.getDatabase() != null) {
+                    config.addDataSourceProperty("db", dbConnection.getDatabase());
+                }
+                if (dbConnection.getWarehouse() != null) {
+                    config.addDataSourceProperty("warehouse", dbConnection.getWarehouse());
+                }
+                fullUrl = "jdbc:" + dbConnection.getVendor() + "://" + dbConnection.getServer() + port + "/";
+                config.setJdbcUrl(fullUrl);
+                config.setDriverClassName("net.snowflake.client.jdbc.SnowflakeDriver");
+                config.addDataSourceProperty("user", dbConnection.getUsername());
+                config.addDataSourceProperty("password", dbConnection.getPasswordHash());
+                config.addDataSourceProperty("minimulIdle", "1");
+                config.addDataSourceProperty("maximumPoolSize", "2");
+                dataSource = new HikariDataSource(config);
+            }
             // for Postgres & MySQL
             else {
                 // dbConnection.getPasswordHash() now holds decrypted password
@@ -335,8 +358,8 @@ public class ConnectionPoolService {
                     return schemaList;
                 }
             }
-            // Databricks
-            else if (vendorName.equals("databricks")) {
+            // Databricks & Snowflake
+            else if (vendorName.equals("databricks")|| vendorName.equals("snowflake")) {
                 if (databaseName == null || databaseName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Please specify Database Name for Databricks connection");
                 }
@@ -437,8 +460,8 @@ public class ConnectionPoolService {
                 resultSetTables.close();
 
             }
-            // for Databricks
-            else if (vendorName.equalsIgnoreCase("databricks")) {
+            // for Databricks $ Snowflake
+            else if (vendorName.equalsIgnoreCase("databricks") || vendorName.equalsIgnoreCase("snowflake")) {
                 // throw error if db name or schema name is not passed
                 if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
                         || schemaName.trim().isEmpty()) {
@@ -586,8 +609,8 @@ public class ConnectionPoolService {
                 resultSet = databaseMetaData.getColumns(databaseName, schemaName, tableName, null);
 
             }
-            // for Databricks
-            else if (vendorName.equals("databricks")) {
+            // for Databricks & Snowflake
+            else if (vendorName.equals("databricks") || vendorName.equals("snowflake")) {
                 // DB name & schema name are must for Databricks
                 if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
                         || schemaName.trim().isEmpty()) {
@@ -689,6 +712,16 @@ public class ConnectionPoolService {
 
             query = "SELECT * FROM " + schemaName + "." + tableName + " FETCH FIRST " + recordCount + " ROWS ONLY";
         }
+        // snowflake
+        else if (vendorName.equalsIgnoreCase("snowflake")) {
+            // DB name & schema name are must for snowflake
+            if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                    || schemaName.trim().isEmpty()) {
+                throw new BadRequestException("Error: Database & Schema names are not provided!");
+            }
+            // construct query
+            query = "SELECT * FROM " + databaseName + "." + schemaName + "." + tableName + " LIMIT " + recordCount; 
+        }
         // RUN THE 'SELECT *' QUERY
         try (Connection _connection = connectionPool.get(id).getConnection();
                 PreparedStatement pst = _connection.prepareStatement(query);
@@ -726,6 +759,27 @@ public class ConnectionPoolService {
             dataSource.setMaximumPoolSize(1);
             dataSource.setDataSourceClassName("com.microsoft.sqlserver.jdbc.SQLServerDataSource");
             dataSource.addDataSourceProperty("url", fullUrl);
+        }
+        // snowflake
+        else if (request.getVendor().equals("snowflake")) {
+            String port = "";
+            if (request.getPort() != null) {
+                port = ":" + request.getPort();
+            }
+            if (request.getDatabase() != null) {
+                config.addDataSourceProperty("db", request.getDatabase());
+            }
+            if (request.getWarehouse() != null) {
+                config.addDataSourceProperty("warehouse", request.getWarehouse());
+            }
+            String fullUrl = "jdbc:" + request.getVendor() + "://" + request.getServer() + port + "/";
+            config.setJdbcUrl(fullUrl);
+            config.setDriverClassName("net.snowflake.client.jdbc.SnowflakeDriver");
+            config.addDataSourceProperty("user", request.getUsername());
+            config.addDataSourceProperty("password", request.getPassword());
+            config.addDataSourceProperty("minimulIdle", "1");
+            config.addDataSourceProperty("maximumPoolSize", "2");
+            dataSource = new HikariDataSource(config);
         }
         // Databricks
         else if (request.getVendor().equals("databricks")) {

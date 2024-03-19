@@ -35,7 +35,9 @@ public class DBConnectionDTO {
     private String keystoreFileName;
 
     private String truststoreFileName;
-
+   
+    // snowflake
+    private String warehouse;
     
 
 }

@@ -48,4 +48,7 @@ public class DBConnectionRequest {
     private String truststore;
 
     private String truststorePassword;
+    
+    @Size(max = 255)
+    private String warehouse;
 }

@@ -55,7 +55,7 @@ public class OracleDbJksRequestProcess {
         DBConnectionRequest reqWithoutFileName = new DBConnectionRequest(oracleDTO.getVendor(), oracleDTO.getHost(),
                 Integer.parseInt(oracleDTO.getPort()), oracleDTO.getServiceName(), oracleDTO.getUsername(),
                 oracleDTO.getPassword(), null, oracleDTO.getConnectionName(), null, oracleDTO.getKeystorePassword(),
-                null, oracleDTO.getTruststorePassword());
+                null, oracleDTO.getTruststorePassword(), null);
 
         DBConnectionRequest req = processKeyStoreAndTrustStore(reqWithoutFileName,
                 oracleDTO.getKeystore(), oracleDTO.getTruststore(), store);
