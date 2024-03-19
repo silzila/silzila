@@ -66,6 +66,8 @@ public class QueryComposer {
             qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName);
         } else if (vendorName.equals("oracle")) {
             qMap = SelectClauseOracle.buildSelectClause(req, vendorName);
+        } else if (vendorName.equals("snowflake")) {
+            qMap = SelectClauseSnowflake.buildSelectClause(req, vendorName);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
