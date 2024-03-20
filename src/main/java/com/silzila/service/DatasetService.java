@@ -335,7 +335,7 @@ public class DatasetService {
                                 relativeFilter.setAnchorDate(relativeCondition.getAnchorDate());
                                 relativeFilter.setFrom(relativeCondition.getFrom());
                                 relativeFilter.setTo(relativeCondition.getTo());
-                                relativeFilter.setFilterTable(Collections.singletonList(filter));
+                                relativeFilter.setFilterTable(filter);
 
                                 // Call a method to get the relative date range
                                 JSONArray relativeDateJson = relativeFilter(userId, dBConnectionId, datasetId,
@@ -503,7 +503,7 @@ public class DatasetService {
         // Check if dataset is flat file data or not
         if (ds.getIsFlatFileData()) {
             // Get the table ID from the filter request
-            String tableId = relativeFilter.getFilterTable().get(0).getTableId();
+            String tableId = relativeFilter.getFilterTable().getTableId();
 
             // Find the table object in the dataset schema
             Table tableObj = ds.getDataSchema().getTables().stream()
