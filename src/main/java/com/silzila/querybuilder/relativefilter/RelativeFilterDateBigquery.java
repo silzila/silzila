@@ -40,7 +40,7 @@ public class RelativeFilterDateBigquery {
         RelativeFilterDateValidationUtils.fromToNumValidation(fromNum, toNum);
 
         // tableDateType
-        String tableDataType = relativeFilter.getFilterTable().get(0).getDataType().name();
+        String tableDataType = relativeFilter.getFilterTable().getDataType().name();
 
         // anchorDate -- specificDate/date
         // retriving a date with validation
@@ -363,7 +363,7 @@ public class RelativeFilterDateBigquery {
             } else if (anchorDate.equals("yesterday")) {
                 query = "SELECT DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) AS anchordate";
             } else if (anchorDate.equals("columnMaxDate")) {
-                query = "SELECT DATE(MAX(" + relativeFilter.getFilterTable().get(0).getFieldName()
+                query = "SELECT DATE(MAX(" + relativeFilter.getFilterTable().getFieldName()
                         + ")) AS anchordate FROM `" +
                         databaseName + "." + schemaName + "." + tableName + "`";
             }
