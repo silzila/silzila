@@ -47,6 +47,10 @@ public class RelativeFilterQueryComposer {
             logger.info("------ inside Oracle block");
             finalQuery = RelativeFilterDateOracle.getRelativeDate(relativeFilter, anchorDateArray);
         }
+        else if (vendorName.equals("snowflake")) {
+            logger.info("------ inside snowflake block");
+            finalQuery = RelativeFilterDateSnowflake.getRelativeDate(relativeFilter, anchorDateArray);
+        }
         else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
@@ -61,7 +65,7 @@ public class RelativeFilterQueryComposer {
         Table table = null;
         for (int i = 0; i < ds.getDataSchema().getTables().size(); i++) {
             if (ds.getDataSchema().getTables().get(i).getId()
-                    .equals(relativeFilter.getFilterTable().get(0).getTableId())) {
+                    .equals(relativeFilter.getFilterTable().getTableId())) {
                 table = ds.getDataSchema().getTables().get(i);
                 break;
             }
@@ -93,8 +97,10 @@ public class RelativeFilterQueryComposer {
         } else if (vendorName.equals("oracle")) {
             logger.info("------ inside Oracle block");
             finalQuery = RelativeFilterDateOracle.getRelativeAnchorDate(table,relativeFilter);
+        } else if (vendorName.equals("snowflake")) {
+            logger.info("------ inside snowflake block");
+            finalQuery = RelativeFilterDateSnowflake.getRelativeAnchorDate(table,relativeFilter);
         }
-
         else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }

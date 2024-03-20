@@ -43,7 +43,7 @@ public class RelativeFilterDateOracle {
         RelativeFilterDateValidationUtils.fromToNumValidation(fromNum, toNum);
 
         // tableDateType
-        String tableDataType = relativeFilter.getFilterTable().get(0).getDataType().name();
+        String tableDataType = relativeFilter.getFilterTable().getDataType().name();
 
         // anchorDate -- specificDate/date
         // retriving a date with validation
@@ -365,7 +365,7 @@ public class RelativeFilterDateOracle {
             } else if (anchorDate.equals("yesterday")) {
                 query = "SELECT TO_CHAR(TRUNC(SYSDATE - 1),'YYYY-MM-DD') AS \"anchordate\" FROM DUAL";
             } else if (anchorDate.equals("columnMaxDate")) {
-                query = "SELECT TO_CHAR(TRUNC(MAX(" + relativeFilter.getFilterTable().get(0).getFieldName()
+                query = "SELECT TO_CHAR(TRUNC(MAX(" + relativeFilter.getFilterTable().getFieldName()
                         + ")),'YYYY-MM-DD') AS \"anchordate\" FROM "
                         +
                         schemaName + "." + tableName;

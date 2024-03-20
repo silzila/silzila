@@ -39,7 +39,7 @@ public class RelativeFilterDateDuckDB {
         RelativeFilterDateValidationUtils.fromToNumValidation(fromNum, toNum);
 
         // tableDateType
-        String tableDataType = relativeFilter.getFilterTable().get(0).getDataType().name();
+        String tableDataType = relativeFilter.getFilterTable().getDataType().name();
 
         // anchorDate -- specificDate/date
         // retriving a date with validation
@@ -399,7 +399,7 @@ public class RelativeFilterDateDuckDB {
             } else if (anchorDate.equals("yesterday")) {
                 query = "SELECT DATE_ADD(CURRENT_DATE(), INTERVAL (-1) DAY) AS anchordate";
             } else if (anchorDate.equals("columnMaxDate")) {
-                query = "SELECT CAST(MAX(" + relativeFilter.getFilterTable().get(0).getFieldName() + ") AS DATE) AS anchordate "
+                query = "SELECT CAST(MAX(" + relativeFilter.getFilterTable().getFieldName() + ") AS DATE) AS anchordate "
                         + fromClause;
             }
         } else if (matcher.matches()) {

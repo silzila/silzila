@@ -39,7 +39,7 @@ public class RelativeFilterDateDatabricks {
         RelativeFilterDateValidationUtils.fromToNumValidation(fromNum, toNum);
 
         // tableDateType
-        String tableDataType = relativeFilter.getFilterTable().get(0).getDataType().name();
+        String tableDataType = relativeFilter.getFilterTable().getDataType().name();
 
         // anchorDate -- specificDate/date
         // retriving a date with validation
@@ -372,7 +372,7 @@ public class RelativeFilterDateDatabricks {
             } else if (anchorDate.equals("yesterday")) {
                 query = "select date_sub(current_date(), 1) as anchordate";
             } else if (anchorDate.equals("columnMaxDate")) {
-                query = "select date(max(" + relativeFilter.getFilterTable().get(0).getFieldName() + "))as anchordate from "
+                query = "select date(max(" + relativeFilter.getFilterTable().getFieldName() + "))as anchordate from "
                         + databaseName + "." + tableName;
             }
         } else if (matcher.matches()) {
