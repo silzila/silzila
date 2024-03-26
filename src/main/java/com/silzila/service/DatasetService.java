@@ -282,15 +282,12 @@ public class DatasetService {
 
     // RUN QUERY
     public String runQuery(String userId, String dBConnectionId, String datasetId, Boolean isSqlOnly,
-            Query req)
+            List<Query> queries)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
             BadRequestException, ClassNotFoundException, ParseException {
-        // need at least one dim or measure or field for query execution
-        if (req.getDimensions().isEmpty() && req.getMeasures().isEmpty() && req.getFields().isEmpty()) {
+        
+        
 
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Error: At least one Dimension/Measure/Field should be there!");
-        }
         // get dataset details in buffer
         DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
         // System.out.println("*****************" + ds.toString());
@@ -310,62 +307,70 @@ public class DatasetService {
             // System.out.println("Dialect *****************" + vendorName);
         }
 
-        // relative Date filter
-        // Get the first filter panel from the request
-        // Assuming req.getFilterPanels() returns a list of FilterPanel objects
-        List<FilterPanel> filterPanels = req.getFilterPanels();
-        if (filterPanels != null) {
-            // Loop through each FilterPanel
-            for (FilterPanel filterPanel : filterPanels) {
-                // Get the list of filters from the filter panel
-                List<Filter> filters = filterPanel.getFilters();
-                if (filters != null) {
-                    // Iterate over each filter in the list
-                    for (Filter filter : filters) {
-                        // Check if the filter is of type 'relative_filter'
-                        if ("relativeFilter".equals(filter.getFilterType())) {
-                            // Get the relative condition associated with the filter
-                            RelativeCondition relativeCondition = filter.getRelativeCondition();
-                            if (relativeCondition != null) {
+        for (Query req : queries) {
+            // need at least one dim or measure or field for query execution
+            if (req.getDimensions().isEmpty() && req.getMeasures().isEmpty() && req.getFields().isEmpty()) {
 
-                                // Create a new RelativeFilterRequest object with the relative condition and
-                                // filter
-                                RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Error: At least one Dimension/Measure/Field should be there!");
+            }
+            // relative Date filter
+            // Get the first filter panel from the request
+            // Assuming req.getFilterPanels() returns a list of FilterPanel objects
+            List<FilterPanel> filterPanels = req.getFilterPanels();
+            if (filterPanels != null) {
+                // Loop through each FilterPanel
+                for (FilterPanel filterPanel : filterPanels) {
+                    // Get the list of filters from the filter panel
+                    List<Filter> filters = filterPanel.getFilters();
+                    if (filters != null) {
+                        // Iterate over each filter in the list
+                        for (Filter filter : filters) {
+                            // Check if the filter is of type 'relative_filter'
+                            if ("relativeFilter".equals(filter.getFilterType())) {
+                                // Get the relative condition associated with the filter
+                                RelativeCondition relativeCondition = filter.getRelativeCondition();
+                                if (relativeCondition != null) {
 
-                                relativeFilter.setAnchorDate(relativeCondition.getAnchorDate());
-                                relativeFilter.setFrom(relativeCondition.getFrom());
-                                relativeFilter.setTo(relativeCondition.getTo());
-                                relativeFilter.setFilterTable(filter);
+                                    // Create a new RelativeFilterRequest object with the relative condition and
+                                    // filter
+                                    RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
 
-                                // Call a method to get the relative date range
-                                JSONArray relativeDateJson = relativeFilter(userId, dBConnectionId, datasetId,
-                                        relativeFilter);
+                                    relativeFilter.setAnchorDate(relativeCondition.getAnchorDate());
+                                    relativeFilter.setFrom(relativeCondition.getFrom());
+                                    relativeFilter.setTo(relativeCondition.getTo());
+                                    relativeFilter.setFilterTable(filter);
 
-                                // Extract the 'fromdate' and 'todate' values from the JSON response
-                                String fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("fromdate"));
-                                String toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("todate"));
+                                    // Call a method to get the relative date range
+                                    JSONArray relativeDateJson = relativeFilter(userId, dBConnectionId, datasetId,
+                                            relativeFilter);
 
-                                // Ensure fromDate is before toDate
-                                if (fromDate.compareTo(toDate) > 0) {
-                                    String tempDate = fromDate;
-                                    fromDate = toDate;
-                                    toDate = tempDate;
+                                    // Extract the 'fromdate' and 'todate' values from the JSON response
+                                    String fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("fromdate"));
+                                    String toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("todate"));
+
+                                    // Ensure fromDate is before toDate
+                                    if (fromDate.compareTo(toDate) > 0) {
+                                        String tempDate = fromDate;
+                                        fromDate = toDate;
+                                        toDate = tempDate;
+                                    }
+
+                                    // Set the user selection - date range
+                                    filter.setUserSelection(Arrays.asList(fromDate, toDate));
+                                } else {
+                                    throw new BadRequestException("Error: There is no relative filter condition");
                                 }
-
-                                // Set the user selection - date range
-                                filter.setUserSelection(Arrays.asList(fromDate, toDate));
-                            } else {
-                                throw new BadRequestException("Error: There is no relative filter condition");
                             }
                         }
                     }
                 }
             }
-        }
 
+        }
         /* DB based Dataset */
         if (ds.getIsFlatFileData() == false) {
-            String query = queryComposer.composeQuery(req, ds, vendorName);
+            String query = queryComposer.composeQuery(queries, ds, vendorName);
 
             logger.info("\n******* QUERY **********\n" + query);
             // when the request is just Raw SQL query Text
@@ -385,18 +390,20 @@ public class DatasetService {
 
             // get all the table ids used in query
             List<String> tableIds = new ArrayList<String>();
-            for (int i = 0; i < req.getDimensions().size(); i++) {
-                tableIds.add(req.getDimensions().get(i).getTableId());
-            }
-            for (int i = 0; i < req.getMeasures().size(); i++) {
-                tableIds.add(req.getMeasures().get(i).getTableId());
-            }
-            for (int i = 0; i < req.getFields().size(); i++) {
-                tableIds.add(req.getFields().get(i).getTableId());
-            }
-            for (int i = 0; i < req.getFilterPanels().size(); i++) {
-                for (int j = 0; j < req.getFilterPanels().get(i).getFilters().size(); j++) {
-                    tableIds.add(req.getFilterPanels().get(i).getFilters().get(j).getTableId());
+            for (Query req : queries) {
+                for (int i = 0; i < req.getDimensions().size(); i++) {
+                    tableIds.add(req.getDimensions().get(i).getTableId());
+                }
+                for (int i = 0; i < req.getMeasures().size(); i++) {
+                    tableIds.add(req.getMeasures().get(i).getTableId());
+                }
+                for (int i = 0; i < req.getFields().size(); i++) {
+                    tableIds.add(req.getFields().get(i).getTableId());
+                }
+                for (int i = 0; i < req.getFilterPanels().size(); i++) {
+                    for (int j = 0; j < req.getFilterPanels().get(i).getFilters().size(); j++) {
+                        tableIds.add(req.getFilterPanels().get(i).getFilters().get(j).getTableId());
+                    }
                 }
             }
             // get distinct table ids
@@ -404,7 +411,7 @@ public class DatasetService {
 
             // get all file Ids (which is inside table obj)
             List<Table> tableObjList = ds.getDataSchema().getTables().stream()
-                    .filter(table -> uniqueTableIds.contains(table.getId()))
+                     .filter(table -> uniqueTableIds.contains(table.getId()))
                     .collect(Collectors.toList());
 
             logger.info("unique table id =======\n" + uniqueTableIds.toString() +
@@ -417,7 +424,7 @@ public class DatasetService {
             // get files names from file ids and load the files as Views
             fileDataService.getFileNameFromFileId(userId, tableObjList);
             // come here
-            String query = queryComposer.composeQuery(req, ds, "duckdb");
+            String query = queryComposer.composeQuery(queries, ds, "duckdb");
             logger.info("\n******* QUERY **********\n" + query);
 
             // when the request is just Raw SQL query Text
