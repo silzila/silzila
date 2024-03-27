@@ -193,12 +193,16 @@ public class QueryComposer {
         if (queries.size() == 1) {
             updatedQuery = finalQuery;
         } else if (queries.size() > 1) {
+
             String baseQuery = composeQuery(Collections.singletonList(queries.get(0)), ds, vendorName);
 
-            List<Dimension> baseDimensions = queries.get(0).getDimensions();
-            // for CTE  override dimension
-            List<String> allOverrideCTE = new ArrayList<>();
+            String overrideCTEQuery = "";
 
+            List<Dimension> baseDimensions = queries.get(0).getDimensions();
+            // for CTE override dimension
+            List<String> allOverrideCTE = new ArrayList<>();
+            // for clause
+            List<String> selectMeasure = new ArrayList<>();
             // for table for joining
             List<String> joinTableQuery = new ArrayList<>();
 
@@ -240,67 +244,95 @@ public class QueryComposer {
                 // override base CTE
                 String baseCTEquery = composeQuery(Collections.singletonList(reqCTE), ds, vendorName);
 
-                //override query 
-                String overrideQuery = ", tbl" + tblNum + " ( " + baseCTEquery + " )";
+                // override query
+                String overrideQuery = ", tbl" + tblNum + " AS ( " + baseCTEquery + " )";
+
+                System.out.println("Override : " + overrideQuery);
 
                 tblNum++; // increment
 
                 // remove leftover last dimension
-                combinedDimensions.remove(combinedDimensions.size() - 1);
-
-                //CTE expression
-                for (int k = 0; k < leftOverDimension.size(); k++) {
-
-                    for (Dimension dim : combinedDimensions) {
-                        dim.setTableId("tbl" + (tblNum - 1));
-                    }
-
-                    reqCTE.getMeasures().get(0).setTableId("tbl" + (tblNum - 1));
-
-                    reqCTE.setDimensions(combinedDimensions);
-
-                    QueryClauseFieldListMap qMapOd = SelectClauseMysql.buildSelectClause(reqCTE, vendorName);
-
-                    String selectClauseOd = "\n\t"
-                            + qMapOd.getSelectList().stream().collect(Collectors.joining(",\n\t"));
-                    String groupByClauseOd = "\n\t"
-                            + qMapOd.getGroupByList().stream().distinct().collect(Collectors.joining(",\n\t"));
-
-                    overrideQuery += ", tbl" + tblNum + " AS ( SELECT " + selectClauseOd + " FROM tbl" + (tblNum - 1)
-                            + " GROUP BY " + groupByClauseOd + ")";
-
+                if (!leftOverDimension.isEmpty()) {
                     combinedDimensions.remove(combinedDimensions.size() - 1);
 
-                    tblNum++;
+                    for (int k = 0; k < leftOverDimension.size(); k++) {
+
+                        for (Dimension dim : combinedDimensions) {
+                            dim.setTableId("tbl" + (tblNum - 1));
+                        }
+
+                        reqCTE.getMeasures().get(0).setTableId("tbl" + (tblNum - 1));
+
+                        reqCTE.setDimensions(combinedDimensions);
+
+                        QueryClauseFieldListMap qMapOd = SelectClauseMysql.buildSelectClause(reqCTE, vendorName);
+
+                        String selectClauseOd = "\n\t"
+                                + qMapOd.getSelectList().stream().collect(Collectors.joining(",\n\t"));
+                        String groupByClauseOd = "\n\t"
+                                + qMapOd.getGroupByList().stream().distinct().collect(Collectors.joining(",\n\t"));
+
+                        overrideQuery += ", tbl" + tblNum + " AS ( SELECT " + selectClauseOd + " FROM tbl"
+                                + (tblNum - 1);
+                                
+
+                        if (combinedDimensions.size() > 0) {
+                            overrideQuery += " GROUP BY " + groupByClauseOd + " )";
+                            combinedDimensions.remove(combinedDimensions.size() - 1);
+                        }
+                        else {
+                            overrideQuery += " )";
+                        }
+
+                        tblNum++;
+                    }
                 }
+
+                // CTE expression
 
                 allOverrideCTE.add(overrideQuery);
 
-                String join = "";
+                selectMeasure.add(" , tbl" + (tblNum - 1) + "." + reqCTE.getMeasures().get(0).getFieldName());
+
                 // join clause
-                if (combinedDimensions.size() == 0) {
+                String join = "";
+
+                if (commonDimensions.isEmpty()) {
                     join = " cross join " + "tbl" + (tblNum - 1);
-                }
-                else {
+                } else {
                     join += " left join " + "tbl" + (tblNum - 1) + " on ";
                     int dimensionCount = commonDimensions.size();
                     for (int l = 0; l < dimensionCount; l++) {
-                        Dimension dim = commonDimensions.get(i);
-                        join += dim.getTableId() + "." + dim.getFieldName() + " = tbl" + (tblNum - 1) + "."
+                        Dimension dim = commonDimensions.get(l); // Use 'l' instead of 'i'
+                        join += "tbl1" + "." + dim.getFieldName() + " = tbl" + (tblNum - 1) + "."
                                 + dim.getFieldName();
                         if (l < dimensionCount - 1) {
                             join += " and ";
                         }
                     }
-
                 }
 
                 joinTableQuery.add(join);
-                
             }
             
+            // override query builder
+            overrideCTEQuery = " WITH tbl1 as (" + baseQuery + ") ";
+            for (String s : allOverrideCTE) {
+                overrideCTEQuery += s;
+            }
+            overrideCTEQuery += " SELECT tbl1.* ";
+            for (String s : selectMeasure) {
+                overrideCTEQuery += s;
+            }
+            overrideCTEQuery += " FROM tbl1 ";
+            for (String s : joinTableQuery) {
+                overrideCTEQuery += s;
+            }
+
+            System.out.println(overrideCTEQuery);
 
             updatedQuery = baseQuery;
+            
         }
 
         return updatedQuery;
