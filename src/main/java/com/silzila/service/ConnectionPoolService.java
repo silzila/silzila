@@ -265,6 +265,7 @@ public class ConnectionPoolService {
         try (Connection _connection = connectionPool.get(id).getConnection();
                 PreparedStatement pst = _connection.prepareStatement(query);
                 ResultSet rs = pst.executeQuery();) {
+            System.out.println("ResultSet" + rs);
             // statement = _connection.createStatement();
             // resultSet = statement.executeQuery(query);
             JSONArray jsonArray = ResultSetToJson.convertToJson(rs);

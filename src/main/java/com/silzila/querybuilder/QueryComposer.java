@@ -2,7 +2,9 @@ package com.silzila.querybuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -10,8 +12,11 @@ import java.util.stream.Collectors;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
+import com.silzila.helper.AilasMaker;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Query;
+import com.silzila.payload.request.Dimension.DataType;
+import com.silzila.querybuilder.override.overrideCTE;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +26,8 @@ import org.springframework.stereotype.Service;
 public class QueryComposer {
 
     private static final Logger logger = LogManager.getLogger(QueryComposer.class);
+
+    private static Boolean queryCTE = false;
 
     /*
      * Builds query based on Dimensions and Measures of user selection.
@@ -36,6 +43,12 @@ public class QueryComposer {
         String finalQuery = "";
 
         Query req = queries.get(0);
+
+        System.out.println(queryCTE);
+
+        if (queries.size() > 1) {
+            queryCTE = true;
+        }
         /*
          * builds JOIN Clause of SQL - same for all dialects
          */
@@ -190,6 +203,12 @@ public class QueryComposer {
             finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause + whereClause;
         }
 
+        if (queryCTE && !req.getDimensions().isEmpty()) {
+
+            finalQuery = "SELECT " + selectClause + "\nFROM " + fromClause + whereClause + "\nGROUP BY "
+                    + groupByClause;
+        }
+
         if (queries.size() == 1) {
             updatedQuery = finalQuery;
         } else if (queries.size() > 1) {
@@ -197,6 +216,8 @@ public class QueryComposer {
             String baseQuery = composeQuery(Collections.singletonList(queries.get(0)), ds, vendorName);
 
             String overrideCTEQuery = "";
+
+            Map<String, Integer> aliasNumbering = new HashMap<>();
 
             List<Dimension> baseDimensions = queries.get(0).getDimensions();
             // for CTE override dimension
@@ -214,7 +235,12 @@ public class QueryComposer {
 
                 List<Dimension> leftOverDimension = new ArrayList<>();
                 List<Dimension> overrideDimensions = new ArrayList<>();
-                List<Dimension> commonDimensions = new ArrayList<>(baseDimensions);
+                List<Dimension> commonDimensions = new ArrayList<>();
+                for (Dimension dim : baseDimensions) {
+                    // Create a new Dimension object with the same properties as dim
+                    Dimension newDim = new Dimension(dim.getTableId(),dim.getFieldName() , dim.getDataType(), dim.getTimeGrain(),dim.isRollupDepth());
+                    commonDimensions.add(newDim);
+                }
 
                 for (Dimension dim : reqCTE.getDimensions()) {
                     if (dim.isRollupDepth()) {
@@ -234,85 +260,61 @@ public class QueryComposer {
                 }
                 commonDimensions.retainAll(overrideDimensions);
 
-                List<Dimension> combinedDimensions = new ArrayList<>(leftOverDimension);
+                List<Dimension> combinedDimensions = new ArrayList<>();
+                for (Dimension dim : leftOverDimension) {
+                    // Create a new Dimension object with the same properties as dim
+                    Dimension newDim = new Dimension(dim.getTableId(), dim.getFieldName(), dim.getDataType(),
+                            dim.getTimeGrain(), dim.isRollupDepth());
+                    combinedDimensions.add(newDim);
+                }
 
                 int j = 0;
                 for (Dimension dim : commonDimensions) {
                     combinedDimensions.add(j, dim);
                     j++;
                 }
+                List<String> joinValues = overrideCTE.joinValues(commonDimensions, baseDimensions);
                 // override base CTE
+                queryCTE = true;
+                System.out.println(combinedDimensions);
+                reqCTE.setDimensions(combinedDimensions);
                 String baseCTEquery = composeQuery(Collections.singletonList(reqCTE), ds, vendorName);
 
                 // override query
                 String overrideQuery = ", tbl" + tblNum + " AS ( " + baseCTEquery + " )";
 
-                System.out.println("Override : " + overrideQuery);
+                // setting the datatype for date and timestamp
+                for (Dimension dim : combinedDimensions) {
+                    dim.setDataType(DataType.TEXT);
+                }
 
                 tblNum++; // increment
 
                 // remove leftover last dimension
                 if (!leftOverDimension.isEmpty()) {
-                    combinedDimensions.remove(combinedDimensions.size() - 1);
+                    
+                    String CTEQuery = overrideCTE.overrideCTEq(tblNum, reqCTE, leftOverDimension, combinedDimensions,
+                            baseDimensions,
+                            vendorName);
 
-                    for (int k = 0; k < leftOverDimension.size(); k++) {
-
-                        for (Dimension dim : combinedDimensions) {
-                            dim.setTableId("tbl" + (tblNum - 1));
-                        }
-
-                        reqCTE.getMeasures().get(0).setTableId("tbl" + (tblNum - 1));
-
-                        reqCTE.setDimensions(combinedDimensions);
-
-                        QueryClauseFieldListMap qMapOd = SelectClauseMysql.buildSelectClause(reqCTE, vendorName);
-
-                        String selectClauseOd = "\n\t"
-                                + qMapOd.getSelectList().stream().collect(Collectors.joining(",\n\t"));
-                        String groupByClauseOd = "\n\t"
-                                + qMapOd.getGroupByList().stream().distinct().collect(Collectors.joining(",\n\t"));
-
-                        overrideQuery += ", tbl" + tblNum + " AS ( SELECT " + selectClauseOd + " FROM tbl"
-                                + (tblNum - 1);
-                                
-
-                        if (combinedDimensions.size() > 0) {
-                            overrideQuery += " GROUP BY " + groupByClauseOd + " )";
-                            combinedDimensions.remove(combinedDimensions.size() - 1);
-                        }
-                        else {
-                            overrideQuery += " )";
-                        }
-
-                        tblNum++;
-                    }
+                    overrideQuery += CTEQuery;
                 }
 
                 // CTE expression
 
                 allOverrideCTE.add(overrideQuery);
 
-                selectMeasure.add(" , tbl" + (tblNum - 1) + "." + reqCTE.getMeasures().get(0).getFieldName());
+                tblNum += leftOverDimension.size();
+
+                String aliasCTE = AilasMaker.aliasing("OD" + reqCTE.getMeasures().get(0).getFieldName(),
+                        aliasNumbering);
+                selectMeasure
+                        .add(",tbl" + (tblNum -1) + "." + reqCTE.getMeasures().get(0).getFieldName() + " AS " + aliasCTE);
 
                 // join clause
-                String join = "";
-
-                if (commonDimensions.isEmpty()) {
-                    join = " cross join " + "tbl" + (tblNum - 1);
-                } else {
-                    join += " left join " + "tbl" + (tblNum - 1) + " on ";
-                    int dimensionCount = commonDimensions.size();
-                    for (int l = 0; l < dimensionCount; l++) {
-                        Dimension dim = commonDimensions.get(l); // Use 'l' instead of 'i'
-                        join += "tbl1" + "." + dim.getFieldName() + " = tbl" + (tblNum - 1) + "."
-                                + dim.getFieldName();
-                        if (l < dimensionCount - 1) {
-                            join += " and ";
-                        }
-                    }
-                }
-
+                String join = overrideCTE.joinCTE((tblNum -1), commonDimensions, joinValues);
                 joinTableQuery.add(join);
+
             }
             
             // override query builder
@@ -324,17 +326,30 @@ public class QueryComposer {
             for (String s : selectMeasure) {
                 overrideCTEQuery += s;
             }
-            overrideCTEQuery += " FROM tbl1 ";
+            overrideCTEQuery += " \nFROM tbl1 ";
             for (String s : joinTableQuery) {
                 overrideCTEQuery += s;
             }
 
-            System.out.println(overrideCTEQuery);
+            if (!baseDimensions.contains(null)) {
+                overrideCTEQuery += " \nORDER BY ";
 
-            updatedQuery = baseQuery;
+                int index = 0;
+                for (Dimension dim : baseDimensions) {
+                    String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
+                    overrideCTEQuery += "tbl1." + alias;
+                    if (index < baseDimensions.size() - 1) {
+                        overrideCTEQuery += ",";
+                    }
+                    index++;
+                }
+            }
+
             
-        }
 
+            updatedQuery = overrideCTEQuery;
+        }
+        queryCTE = false;
         return updatedQuery;
     }
 }
