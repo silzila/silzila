@@ -205,15 +205,19 @@ public class QueryComposer {
 
         if (queryCTE && !req.getDimensions().isEmpty()) {
 
-            finalQuery = "SELECT " + selectClause + "\nFROM " + fromClause + whereClause + "\nGROUP BY "
-                    + groupByClause;
+            if (!vendorName.equals("bigquery")) {
+                finalQuery = "SELECT " + selectClause + "\nFROM " + fromClause + whereClause + "\nGROUP BY "
+                        + groupByClause;
+            }
+            
         }
 
         if (queries.size() == 1) {
             updatedQuery = finalQuery;
         } else if (queries.size() > 1) {
-
+            System.out.println(vendorName);
             String baseQuery = composeQuery(Collections.singletonList(queries.get(0)), ds, vendorName);
+            System.out.println(baseQuery);
 
             String overrideCTEQuery = "";
 
@@ -309,7 +313,7 @@ public class QueryComposer {
                 String aliasCTE = AilasMaker.aliasing("OD" + reqCTE.getMeasures().get(0).getFieldName(),
                         aliasNumbering);
                 selectMeasure
-                        .add(",tbl" + (tblNum -1) + "." + reqCTE.getMeasures().get(0).getFieldName() + " AS " + aliasCTE);
+                        .add(",tbl" + (tblNum -1) + "." + reqCTE.getMeasures().get(0).getFieldName() + " AS \"" + aliasCTE + "\"");
 
                 // join clause
                 String join = overrideCTE.joinCTE((tblNum -1), commonDimensions, joinValues);
