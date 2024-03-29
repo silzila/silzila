@@ -60,7 +60,7 @@ public class overrideCTE {
 
     public static String overrideCTEq(int tblNum, Query reqCTE, List<Dimension> leftOverDimension,
             List<Dimension> combinedDimensions, List<Dimension> baseDimensions, String vendorName) throws BadRequestException {
-        combinedDimensions.remove(combinedDimensions.size() - 1);
+        
 
         String overrideQuery = "";
 
@@ -70,6 +70,40 @@ public class overrideCTE {
         List<Dimension> columnDimensions = new ArrayList<>();
 
         List<Dimension> Dimensions = reqCTE.getDimensions();
+        if (reqCTE.getMeasures().get(0).getWindowFn()[0] != null) {
+
+            int rowNum = reqCTE.getMeasures().get(0).getWindowFnMatrix()[0];
+
+            int columnNum = reqCTE.getMeasures().get(0).getWindowFnMatrix()[1];
+
+            for (int i = 0; i < Dimensions.size(); i++) {
+                Dimensions.get(i).setDataType(DataType.TEXT);
+                if (i < rowNum) {
+                    rowDimensions.add(Dimensions.get(i));
+                } else if (i >= Dimensions.size() - columnNum) {
+                    columnDimensions.add(Dimensions.get(i));
+                }
+            }
+        }
+
+        // remove last in leftover before
+        Dimension removedItem = combinedDimensions.remove(combinedDimensions.size() - 1);
+        if (reqCTE.getMeasures().get(0).getWindowFn()[0] != null) {
+            if (rowDimensions.contains(removedItem)) {
+                int[] newMatrix = {
+                        reqCTE.getMeasures().get(0).getWindowFnMatrix()[0] - 1,
+                        reqCTE.getMeasures().get(0).getWindowFnMatrix()[1]
+                };
+                reqCTE.getMeasures().get(0).setWindowFnMatrix(newMatrix);
+            }
+            if (columnDimensions.contains(removedItem)) {
+                int[] newMatrix = {
+                        reqCTE.getMeasures().get(0).getWindowFnMatrix()[0],
+                        reqCTE.getMeasures().get(0).getWindowFnMatrix()[1] - 1
+                };
+                reqCTE.getMeasures().get(0).setWindowFnMatrix(newMatrix);
+            }
+        }
 
         
         for (int k = 0; k < leftOverDimension.size(); k++) {
@@ -99,6 +133,23 @@ public class overrideCTE {
             if (combinedDimensions.size() > 0) {
                 overrideQuery += " GROUP BY " + groupByClauseOd + " )";
                 Dimension removeItem = combinedDimensions.remove(combinedDimensions.size() - 1);
+                if (reqCTE.getMeasures().get(0).getWindowFn()[0] != null) {
+
+                    if (rowDimensions.contains(removeItem)) {
+                        int[] newMatrix = {
+                                reqCTE.getMeasures().get(0).getWindowFnMatrix()[0] - 1,
+                                reqCTE.getMeasures().get(0).getWindowFnMatrix()[1]
+                        };
+                        reqCTE.getMeasures().get(0).setWindowFnMatrix(newMatrix);
+                    }
+                    if (columnDimensions.contains(removeItem)) {
+                        int[] newMatrix = {
+                                reqCTE.getMeasures().get(0).getWindowFnMatrix()[0],
+                                reqCTE.getMeasures().get(0).getWindowFnMatrix()[1] - 1
+                        };
+                        reqCTE.getMeasures().get(0).setWindowFnMatrix(newMatrix);
+                    }
+                }
             } else {
                 overrideQuery += " )";
             }
