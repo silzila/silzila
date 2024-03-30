@@ -13,6 +13,7 @@ export interface ChartAxesProps {
 	chartGroup: any;
 	dashBoardGroup: any;
 	changeLocation: any;
+	changeGeoKey: any;
 
 	// dispatch
 	updateChartData: (propKey: string, chartData: any) => void;

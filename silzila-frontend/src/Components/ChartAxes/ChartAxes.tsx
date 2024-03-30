@@ -2,6 +2,7 @@
 // Number of dropzones and its name is returned according to the chart type selected.
 // Once minimum number of fields are met for the given chart type, server call is made to get chart data and saved in store
 
+import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import ChartsInfo from "./ChartsInfo2";
 import "./ChartAxes.css";
@@ -11,7 +12,15 @@ import { ChartAxesProps } from "./ChartAxesInterfaces";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import ChartData from "./ChartData";
 import { Dispatch } from "redux";
-import {changeLocation} from "../../redux/ChartPoperties/ChartPropertiesActions";
+import {changeLocation, changeGeoKey} from "../../redux/ChartPoperties/ChartPropertiesActions";
+import {getGeoJSON, getMismachedLocationArray} from '../Charts/GeoChart/GeoJSON/MapCommonFunctions';
+import WarningIcon from "@mui/icons-material/WarningAmber";
+import GoeMismatch from '../Charts/GeoChart/Components/GeoMismatch';
+import GoeHelp from '../Charts/GeoChart/Components/GeoHelp';
+import {fieldName} from '../CommonFunctions/CommonFunctions';
+import { VisibilitySharp, InfoOutlined } from "@mui/icons-material";
+import { Tooltip } from "@mui/material";
+
 
 const ChartAxes = ({
 	// props
@@ -21,12 +30,40 @@ const ChartAxes = ({
 	// state
 
 	chartProp,
+	chartControls,
 	changeLocation,
-}: ChartAxesProps) => {
+	changeGeoKey,
+}: ChartAxesProps & any) => {
 	var propKey: string = `${tabId}.${tileId}`;
 	var dropZones: any = [];
+
+	const [mapKeys, setMapKeys] = useState<any>([]);
+	const [anchorHelpElm, setAnchorHelpElm] = useState<any | null>(null);
+	const [anchorMismatchElm, setAnchorMismatchElm] = useState<any | null>(null);
+	const [showOptions, setShowOptions] = useState<boolean>(false);
+	const [showOptionsMismatch, setShowOptionsMismatch] = useState<boolean>(false);
+	const [showMismatchIcon, setShowMismatchIcon] = useState<boolean>(false);
+	const [misMatchList, setMismatchList] = useState<any>([]);
+	const [isHelpHovered, setIsHelpHovered] = useState(false);
+	const [isUnMatchedHovered, setIsUnMatchedHovered] = useState(false);
+	
+	var chartControl: any = chartControls.properties[propKey];
+	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
+
+	//const isOpenHelp: boolean = Boolean(anchorHelpElm);
+
 	for (let i = 0; i < ChartsInfo[chartProp.properties[propKey].chartType].dropZones.length; i++) {
 		dropZones.push(ChartsInfo[chartProp.properties[propKey].chartType].dropZones[i].name);
+	}
+	
+	const handleClose = () => {
+		setAnchorHelpElm(null);
+		setShowOptions(false);
+	}
+
+	const handleCloseWarningMismatch = () => {
+		setAnchorMismatchElm(null);
+		setShowOptionsMismatch(false);
 	}
 
 	// const usePrevious = (value) => {
@@ -50,6 +87,29 @@ const ChartAxes = ({
 		padding: "2px 1rem",
 		// borderBottom: "1px solid lightgray",
 	};
+
+	useEffect(() => {
+		let mapJSON = getGeoJSON(chartProp.properties[propKey].Geo.geoLocation);
+		let keys = Object.keys(mapJSON.features[0].properties).filter(item=> ["continent","hc-a2","iso-a2","iso-a3","region-wb", "subregion"].includes(item));
+		keys.sort();
+
+		setMapKeys(["name", ...keys]);
+	}, [chartProp.properties[propKey].Geo.geoLocation]);
+
+	useEffect(()=>{
+		let misMatchArray = [];
+		if(chartProp.properties[propKey].chartType === "geoChart" && chartData.length >0){
+			let dimensionName = chartProp.properties[propKey].chartAxes[1].fields[0];
+			misMatchArray = getMismachedLocationArray(chartData, fieldName(dimensionName),chartProp.properties[propKey].Geo.geoLocation,chartProp.properties[propKey].Geo.geoMapKey);
+			
+			////TODO save to redux			
+			setShowMismatchIcon(misMatchArray.length > 0);
+			setMismatchList(misMatchArray);			
+		}
+		else{
+			setShowMismatchIcon(false);
+		}
+	},[chartData, chartProp.properties[propKey].Geo])
 
 	return (
 		<div className="charAxesArea">
@@ -86,7 +146,7 @@ const ChartAxes = ({
 								fill: "#2bb9bb !important",
 							}, }}
 							label="Select Map"
-							value={chartProp.properties[propKey].geoLocation || "world"}
+							value={chartProp.properties[propKey].Geo.geoLocation || "world"}
 							onChange={e => {
 								changeLocation(propKey, e.target.value);
 							}}
@@ -131,6 +191,96 @@ const ChartAxes = ({
 					</FormControl>
 				</div>
 			)}
+			{chartProp.properties[propKey].chartType === "geoChart" && (
+				<div
+					style={{display: "flex", flexDirection: "row" }}
+				>
+					
+					<FormControl size="small" sx={{ width:"9rem", margin: "0.5rem", "& .MuiInputBase-root": {
+										borderRadius: "0px",
+									} }}
+									style={{
+										background: "white",
+										fontSize: "12px",
+										borderRadius: "4px",
+									}}>
+						<InputLabel sx={{ fontSize: "12px", lineHeight: "1.5rem","&.Mui-focused": {
+											color: "#2bb9bb",
+										} }}>
+							Select Key
+						</InputLabel>
+						<Select
+							sx={{ fontSize: "13px", height: "1.5rem", backgroundColor: "white",color: "grey",
+
+							"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+								borderColor: "#2bb9bb",
+								color: "#2bb9bb",
+							},
+							"&:hover .MuiOutlinedInput-notchedOutline": {
+								borderColor: "#2bb9bb",
+								color: "#2bb9bb",
+							},
+							"&.Mui-focused .MuiSvgIcon-root ": {
+								fill: "#2bb9bb !important",
+							}, }}
+							label="Select Map"
+							value={chartProp.properties[propKey].Geo.geoMapKey || "name"}
+							onChange={e => {
+								changeGeoKey(propKey, e.target.value);
+							}}
+						>
+						{
+							mapKeys.map((key: any) => (
+								<MenuItem sx={menuItemStyle} value={key}>
+									{key}
+								</MenuItem>
+							))
+						}	
+						</Select>
+					</FormControl>
+					{
+						showMismatchIcon ?	<Tooltip title="UnMatched Locations." arrow placement="top"><WarningIcon 
+						style={{ 
+							marginLeft: "5px", 
+							cursor: "pointer", 
+							marginTop: "4px",
+							color: isUnMatchedHovered ? "red" : "orange", // Change color based on hover state
+							fontSize: "1.2em", // Change font size based on hover state
+							transition: "color 0.3s, font-size 0.3s" // Transition for smooth hover effect
+						}}
+						onMouseEnter={()=>{ setIsUnMatchedHovered(true)}}
+						onMouseLeave={()=>{setIsUnMatchedHovered(false)}}
+						onClick={(event)=>{
+							setAnchorMismatchElm(event.currentTarget);
+							setShowOptionsMismatch(!showOptions);
+							}}>
+
+						</WarningIcon></Tooltip> : null
+					}
+					
+					<Tooltip title="Help." arrow placement="top">
+					<InfoOutlined 
+								style={{ 
+									marginLeft: "5px", 
+									cursor: "pointer", 
+									marginTop: "4px",
+									color: isHelpHovered ? "grey" : "LightGrey", // Change color based on hover state
+									fontSize: "1.2em", // Change font size based on hover state
+									transition: "color 0.3s, font-size 0.3s" // Transition for smooth hover effect
+								}}
+								onMouseEnter={()=>{ setIsHelpHovered(true)}}
+								onMouseLeave={()=>{setIsHelpHovered(false)}}
+								onClick={(event)=>{
+									setAnchorHelpElm(event.currentTarget);
+									setShowOptions(!showOptions);
+									}}
+							/>
+					</Tooltip>
+					
+					<GoeHelp propKey={propKey} open={showOptions} anchorElement={anchorHelpElm} handleClose={handleClose}></GoeHelp>
+					<GoeMismatch propKey={propKey} misMatchList={misMatchList} open={showOptionsMismatch} anchorElement={anchorMismatchElm} handleClose={handleCloseWarningMismatch}></GoeMismatch>
+				</div>
+			)}
 			{dropZones.map((zone: any, zoneI: any) => (
 				<DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} />
 			))}
@@ -139,9 +289,11 @@ const ChartAxes = ({
 	);
 };
 
-const mapStateToProps = (state: ChartPropertiesStateProps, ownProps: any) => {
+
+const mapStateToProps = (state: ChartPropertiesStateProps & any, ownProps: any) => {
 	return {
 		chartProp: state.chartProperties,
+		chartControls: state.chartControls,
 	};
 };
 
@@ -149,6 +301,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		changeLocation: (propKey: string, geoLocation: any) =>
 			dispatch(changeLocation(propKey, geoLocation)),
+		changeGeoKey: (propKey: string, key: any) =>
+			dispatch(changeGeoKey(propKey, key)),
 	}
 };
 

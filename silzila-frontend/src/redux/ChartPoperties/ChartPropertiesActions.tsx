@@ -319,3 +319,17 @@ export const changeLocation = (propKey: string, value: string) => {
 		payload: { propKey, value },
 	};
 };
+
+export const changeGeoKey = (propKey: string, value: string) => {
+	return {
+		type: "CHANGE_GEOMAP_KEY",
+		payload: { propKey, value },
+	};
+};
+
+export const changeGeoMapUnMatched = (propKey: string, value: string, index:number) => {
+	return {
+		type: "CHANGE_GEOMAP_UNMATCHED",
+		payload: { propKey, value, index },
+	};
+};
