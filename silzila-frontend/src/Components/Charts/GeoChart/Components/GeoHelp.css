@@ -1,0 +1,13 @@
+.geoHelpTable{
+    width: 100%;
+    height: 100%;
+}
+
+.geoHelpTable th{
+    width:8rem;
+}
+
+.geoHelpTable td{
+    width:8rem;
+    word-wrap: normal;
+}

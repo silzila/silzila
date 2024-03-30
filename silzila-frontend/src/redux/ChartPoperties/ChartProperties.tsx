@@ -57,7 +57,12 @@ const chartProperties: ChartPropertiesProps = {
 				generateTitle: "Auto",
 			},
 			chartOptionSelected: "Title",
-			geoLocation: "world"
+			Geo:{
+				geoLocation: "world",
+				geoMapKey:"name",
+				unMatchedChartData: []
+			}
+			
 		},
 	},
 
@@ -146,7 +151,11 @@ const chartPropertiesState = (
 						},
 
 						chartOptionSelected: "Colors",
-						geoLocation: "world"
+						Geo:{
+							geoLocation: "world",
+							geoMapKey:"name",
+							unMatchedChartData: []
+						}
 					},
 				},
 				propList: {
@@ -208,7 +217,11 @@ const chartPropertiesState = (
 						},
 
 						chartOptionSelected: "Colors",
-						geoLocation: "world"
+						Geo:{
+							geoLocation: "world",
+							geoMapKey:"name",
+							unMatchedChartData: []
+						}
 					},
 				},
 				propList: { ...state.propList, [action.payload.tabId]: [tileKey2] },
@@ -617,10 +630,34 @@ const chartPropertiesState = (
 				return update(state, {
 					properties: {
 						[action.payload.propKey]: {
-							geoLocation: { $set: action.payload.value },
+							Geo:{
+								geoLocation: { $set: action.payload.value },
+							}
 						},
 					},
 				});
+
+			case "CHANGE_GEOMAP_KEY":
+				return update(state, {
+					properties: {
+						[action.payload.propKey]: {
+							Geo:{
+								geoMapKey: { $set: action.payload.value },
+							}
+						},
+					},
+				});
+
+			case "CHANGE_GEOMAP_UNMATCHED":
+			return update(state, {
+				properties: {
+					[action.payload.propKey]: {
+						Geo:{
+							unMatchedChartData: { $splice: [[action.payload.index, 1, action.payload.value]], },
+						}
+					},
+				},
+			});
 
 		default:
 			return state;

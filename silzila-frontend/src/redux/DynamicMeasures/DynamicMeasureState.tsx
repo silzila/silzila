@@ -100,7 +100,11 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 									generateTitle: "Auto",
 								},
 								chartOptionSelected: "Format",
-								geoLocation: "world",
+								Geo:{
+									geoLocation: "world",
+									geoMapKey:"name",
+									unMatchedChartData: []
+								},
 								formatOptions: {
 									labelFormats: {
 										formatValue: "Number",
@@ -194,7 +198,11 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 										generateTitle: "Auto",
 									},
 									chartOptionSelected: "Format",
-									geoLocation: "world",
+									Geo:{
+										geoLocation: "world",
+										geoMapKey:"name",
+										unMatchedChartData: []
+									},
 									formatOptions: {
 										labelFormats: {
 											formatValue: "Number",
@@ -285,7 +293,11 @@ const DynamicMeasureReducer = (state: any = initialProperties, action: any) => {
 										generateTitle: "Auto",
 									},
 									chartOptionSelected: "Format",
-									geoLocation: "world",
+									Geo:{
+										geoLocation: "world",
+										geoMapKey:"name",
+										unMatchedChartData: []
+									},
 									formatOptions: {
 										labelFormats: {
 											formatValue: "Number",
