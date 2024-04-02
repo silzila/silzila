@@ -64,28 +64,7 @@ async function registerGeoMap(name: string){
 
 	mapJSON = getGeoJSON(name);
 
-	if(name == 'usa'){
-		echarts.registerMap(name, mapJSON, {
-			Alaska: {     
-			  left: -149,
-			  top: 49,
-			  width: 23
-			},
-			Hawaii: {
-			  left: -141,
-			  top: 28,
-			  width: 5
-			},
-			'Puerto Rico': {     
-			  left: -76,
-			  top: 20,
-			  width: 2
-			}
-		  });
-	}
-	else{
-		echarts.registerMap(name, mapJSON, {});
-	}	
+	echarts.registerMap(name, mapJSON, {});	
 }
 
 	registerGeoMap(chartProperties.properties[propKey].Geo.geoLocation);
