@@ -60,6 +60,8 @@ const FlatFileList = (props: any) => {
 
 	const deleteFlatFile = async () => {
 		const fileId = deleteItemId;
+		setConfirmDialog(false);
+		
 		var result: any = await FetchData({
 			requestType: "noData",
 			method: "DELETE",

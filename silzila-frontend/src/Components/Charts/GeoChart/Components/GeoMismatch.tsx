@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { Menu, Autocomplete,TextField,Button } from "@mui/material";
+import { Menu, Autocomplete,TextField,Button, Dialog,
+	DialogContent,
+	DialogTitle, } from "@mui/material";
+import { CloseOutlined } from "@mui/icons-material";
+
 import {fieldName} from '../../../CommonFunctions/CommonFunctions';
 import {getGeoJSON} from '../GeoJSON/MapCommonFunctions';
 import { Dispatch } from "redux";
@@ -9,7 +13,6 @@ import {changeGeoMapUnMatched} from '../../../../redux/ChartPoperties/ChartPrope
 
 const GoeMismatch = ({  
     propKey,
-    anchorElement,
     open,
     handleClose,
     misMatchList,
@@ -66,58 +69,57 @@ const GoeMismatch = ({
 
         }
 
-    return(
-        <Menu
-        id="basic-menu"
-        className="geoHelpTable"
-        anchorEl={anchorElement}
-        open={open}       
-        MenuListProps={{
-            "aria-labelledby": "basic-button",
-        }}
-        >      
-        <div>
-           <h3  style={{paddingLeft:"1rem"}}>Unmatched Locations</h3>
-        </div>
-            <div style={{"height":"25rem" ,"width":"40rem", "overflowY":"auto", "marginBottom":"15px"}}>
-            {
+        const UnMatchedListComponent = ()=>{
+            return (
                 misMatchList.map((item:any, index:number)=>{
                     let defaultVal = chartProperties.properties[propKey].Geo.unMatchedChartData.find((selectedItem:any)=>{
                         return selectedItem[dimensionName] === item[dimensionName]
                     })?.selectedKey;
 
                     return(                   
-                    <div key={index} style={{"display":"flex","flexDirection":"row", "columnGap":"5rem", "justifyContent":"space-around", "marginTop": "15px"}}>
-                        <span style={{width:"10rem", wordWrap:"normal"}}>{item[dimensionName]}</span>
+                    <div key={index} style={{width:"100%", "display":"flex","flexDirection":"row", "columnGap":"4rem", "marginTop": "15px"}}>
+                        <span style={{width:"12rem", wordWrap:"normal"}}>{item[dimensionName]}</span>
 
                         <Autocomplete
-
                             defaultValue={defaultVal || ""}                           
                             disablePortal
                             id="combo-box-demo"
                             onChange={(e:any)=>handleLocationOnChange(e, item[dimensionName])}
                             options={options}
-                            sx={{ width: "20rem" }}
+                            sx={{ width: "18rem" }}
                             renderInput={(params) => <TextField {...params} label="Location" />}
                             />
                     </div>  
                     )
                 })
-            }
+            )
+        }
 
-            </div>
-            <Button
-                value="cancel"
-                onClick={handleOkButtonClick}
-                sx={{                 
-                    border: "2px solid grey",
-                    color: "grey",
-                    float: "right"
-                }}
-            >
-                Ok
-            </Button>
-        </Menu>        
+    return(
+        <Dialog
+        id="basic-menu"
+        className="geoHelpTable"
+        open={open}      
+        PaperProps={{
+            sx: {
+                minHeight: "20%",
+            },
+        }}
+        >      
+            <DialogTitle sx={{
+						display: "flex",
+						flexDirection: "row",
+						columnGap: "2rem",
+						justifyContent: "space-between",
+						fontSize: "16px",
+					}}>
+                <h3  style={{paddingLeft:"1rem"}} tabIndex={-1}>Unmatched Locations</h3>
+                <CloseOutlined onClick={handleOkButtonClick} style={{ float: "right" }} />
+            </DialogTitle>
+            <DialogContent sx={{"height":"25rem" ,"overflowY":"auto"}}>               
+                <UnMatchedListComponent></UnMatchedListComponent>                
+            </DialogContent>           
+        </Dialog>        
     )
 }
 
