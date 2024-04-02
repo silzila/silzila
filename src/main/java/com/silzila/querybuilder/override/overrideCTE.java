@@ -95,6 +95,7 @@ public class overrideCTE {
                         reqCTE.getMeasures().get(0).getWindowFnMatrix()[1]
                 };
                 reqCTE.getMeasures().get(0).setWindowFnMatrix(newMatrix);
+                System.out.println("row :" + reqCTE.getMeasures().get(0).getWindowFnMatrix() );
             }
             if (columnDimensions.contains(removedItem)) {
                 int[] newMatrix = {
@@ -102,6 +103,16 @@ public class overrideCTE {
                         reqCTE.getMeasures().get(0).getWindowFnMatrix()[1] - 1
                 };
                 reqCTE.getMeasures().get(0).setWindowFnMatrix(newMatrix);
+                System.out.println("column :" + reqCTE.getMeasures().get(0).getWindowFnMatrix() );
+            }
+
+            if(reqCTE.getMeasures().get(0).getWindowFn()[0].equals("standing")){
+            int[] partitionMatrix = {-1,-1};
+            reqCTE.getMeasures().get(0).setWindowFnPartition(partitionMatrix);
+            }
+            else{
+            int[] partitionMatrix = {-1,-1,0};
+            reqCTE.getMeasures().get(0).setWindowFnPartition(partitionMatrix);
             }
         }
 
@@ -133,6 +144,8 @@ public class overrideCTE {
             if (combinedDimensions.size() > 0) {
                 overrideQuery += " GROUP BY " + groupByClauseOd + " )";
                 Dimension removeItem = combinedDimensions.remove(combinedDimensions.size() - 1);
+
+                //reducing the Window matrix
                 if (reqCTE.getMeasures().get(0).getWindowFn()[0] != null) {
 
                     if (rowDimensions.contains(removeItem)) {
@@ -141,6 +154,7 @@ public class overrideCTE {
                                 reqCTE.getMeasures().get(0).getWindowFnMatrix()[1]
                         };
                         reqCTE.getMeasures().get(0).setWindowFnMatrix(newMatrix);
+                        System.out.println("row :" + reqCTE.getMeasures().get(0).getWindowFnMatrix() );
                     }
                     if (columnDimensions.contains(removeItem)) {
                         int[] newMatrix = {
@@ -148,6 +162,7 @@ public class overrideCTE {
                                 reqCTE.getMeasures().get(0).getWindowFnMatrix()[1] - 1
                         };
                         reqCTE.getMeasures().get(0).setWindowFnMatrix(newMatrix);
+                        
                     }
                 }
             } else {

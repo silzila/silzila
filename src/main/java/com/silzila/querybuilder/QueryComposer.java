@@ -14,6 +14,7 @@ import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
 import com.silzila.payload.request.Dimension;
+import com.silzila.payload.request.Measure;
 import com.silzila.payload.request.Query;
 import com.silzila.payload.request.Dimension.DataType;
 import com.silzila.querybuilder.override.overrideCTE;
@@ -36,7 +37,8 @@ public class QueryComposer {
      * Group By clause & Order By clause
      * Different dialects will have different syntaxes.
      */
-    public String composeQuery(List<Query> queries, DatasetDTO ds, String vendorName) throws BadRequestException {
+    @SuppressWarnings("unchecked")
+    public String composeQuery(List<Query> queries, DatasetDTO ds, String vendorName,Map<String,Integer>... aliasnumber) throws BadRequestException {
 
         QueryClauseFieldListMap qMap = new QueryClauseFieldListMap();
         String updatedQuery = "";
@@ -72,7 +74,7 @@ public class QueryComposer {
             qMap = SelectClausePostgres.buildSelectClause(req, vendorName);
         } else if (vendorName.equals("mysql") || vendorName.equals("duckdb")) {
             // System.out.println("------ inside mysql block");
-            qMap = SelectClauseMysql.buildSelectClause(req, vendorName);
+            qMap = SelectClauseMysql.buildSelectClause(req, vendorName,aliasnumber);
         } else if (vendorName.equals("sqlserver")) {
             // System.out.println("------ inside sql server block");
             qMap = SelectClauseSqlserver.buildSelectClause(req, vendorName);
@@ -215,13 +217,19 @@ public class QueryComposer {
         if (queries.size() == 1) {
             updatedQuery = finalQuery;
         } else if (queries.size() > 1) {
-            System.out.println(vendorName);
+
+
+            // aliasing measure names
+            Map<String, Integer> aliasNumberingCTE = new HashMap<>();
+            for(Measure meas : queries.get(0).getMeasures()){
+                AilasMaker.aliasing(meas.getFieldName(), aliasNumberingCTE);
+            }
+
+            // baseQuery
             String baseQuery = composeQuery(Collections.singletonList(queries.get(0)), ds, vendorName);
-            System.out.println(baseQuery);
 
-            String overrideCTEQuery = "";
 
-            Map<String, Integer> aliasNumbering = new HashMap<>();
+            StringBuilder overrideCTEQuery = new StringBuilder();
 
             List<Dimension> baseDimensions = queries.get(0).getDimensions();
             // for CTE override dimension
@@ -280,9 +288,14 @@ public class QueryComposer {
                 List<String> joinValues = overrideCTE.joinValues(commonDimensions, baseDimensions);
                 // override base CTE
                 queryCTE = true;
-                System.out.println(combinedDimensions);
+                
                 reqCTE.setDimensions(combinedDimensions);
-                String baseCTEquery = composeQuery(Collections.singletonList(reqCTE), ds, vendorName);
+
+                String baseCTEquery = composeQuery(Collections.singletonList(reqCTE), ds, vendorName,aliasNumberingCTE);
+
+                // measure alias
+                String alias = AilasMaker.aliasing(reqCTE.getMeasures().get(0).getFieldName(), aliasNumberingCTE);
+                reqCTE.getMeasures().get(0).setFieldName(alias);
 
                 // override query
                 String overrideQuery = ", tbl" + tblNum + " AS ( " + baseCTEquery + " )";
@@ -294,7 +307,6 @@ public class QueryComposer {
 
                 tblNum++; // increment
 
-                // remove leftover last dimension
                 if (!leftOverDimension.isEmpty()) {
                     
                     String CTEQuery = overrideCTE.overrideCTEq(tblNum, reqCTE, leftOverDimension, combinedDimensions,
@@ -310,10 +322,9 @@ public class QueryComposer {
 
                 tblNum += leftOverDimension.size();
 
-                String aliasCTE = AilasMaker.aliasing("OD" + reqCTE.getMeasures().get(0).getFieldName(),
-                        aliasNumbering);
+                
                 selectMeasure
-                        .add(",tbl" + (tblNum -1) + "." + reqCTE.getMeasures().get(0).getFieldName() + " AS \"" + aliasCTE + "\"");
+                        .add(",tbl" + (tblNum -1) + "." + reqCTE.getMeasures().get(0).getFieldName() );
 
                 // join clause
                 String join = overrideCTE.joinCTE((tblNum -1), commonDimensions, joinValues);
@@ -322,36 +333,26 @@ public class QueryComposer {
             }
             
             // override query builder
-            overrideCTEQuery = " WITH tbl1 as (" + baseQuery + ") ";
-            for (String s : allOverrideCTE) {
-                overrideCTEQuery += s;
-            }
-            overrideCTEQuery += " SELECT tbl1.* ";
-            for (String s : selectMeasure) {
-                overrideCTEQuery += s;
-            }
-            overrideCTEQuery += " \nFROM tbl1 ";
-            for (String s : joinTableQuery) {
-                overrideCTEQuery += s;
-            }
+            overrideCTEQuery .append(" WITH tbl1 as (" + baseQuery + ") ");
+            allOverrideCTE.forEach(s -> overrideCTEQuery.append(s));
+            overrideCTEQuery.append(" SELECT tbl1.* ");
+            selectMeasure.forEach(s -> overrideCTEQuery.append(s));
+            overrideCTEQuery.append(" FROM tbl1 ");
+            joinTableQuery.forEach(s -> overrideCTEQuery.append(s));
 
             if (!baseDimensions.contains(null)) {
-                overrideCTEQuery += " \nORDER BY ";
-
-                int index = 0;
-                for (Dimension dim : baseDimensions) {
-                    String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
-                    overrideCTEQuery += "tbl1." + alias;
-                    if (index < baseDimensions.size() - 1) {
-                        overrideCTEQuery += ",";
+                overrideCTEQuery.append(" \nORDER BY ");
+                Map<String, Integer> aliasNumbering = new HashMap<>();
+                for (int i = 0; i < baseDimensions.size(); i++) {
+                    String alias = AilasMaker.aliasing(baseDimensions.get(i).getFieldName(), aliasNumbering);
+                    overrideCTEQuery.append("tbl1.").append(alias);
+                    if (i < baseDimensions.size() - 1) {
+                        overrideCTEQuery.append(",");
                     }
-                    index++;
                 }
             }
 
-            
-
-            updatedQuery = overrideCTEQuery;
+            updatedQuery = overrideCTEQuery.toString();
         }
         queryCTE = false;
         return updatedQuery;
