@@ -32,7 +32,7 @@ public class Dimension implements Serializable {
     @JsonProperty("timeGrain")
     private Dimension.TimeGrain timeGrain = Dimension.TimeGrain.fromValue("year");
     @JsonProperty("rollupDepth")
-    private Boolean rollupDepth;
+    private Boolean rollupDepth = false;
     private final static long serialVersionUID = -6693625304963309989L;
 
     /**

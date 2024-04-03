@@ -17,6 +17,7 @@ import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
 import com.silzila.payload.request.Query;
 import com.silzila.payload.request.Dimension.DataType;
+import com.silzila.payload.request.FilterPanel;
 import com.silzila.querybuilder.override.overrideCTE;
 
 import org.apache.logging.log4j.LogManager;
@@ -46,7 +47,7 @@ public class QueryComposer {
 
         Query req = queries.get(0);
 
-        System.out.println(queryCTE);
+        
 
         if (queries.size() > 1) {
             queryCTE = true;
@@ -71,23 +72,23 @@ public class QueryComposer {
          */
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             // System.out.println("------ inside postges block");
-            qMap = SelectClausePostgres.buildSelectClause(req, vendorName);
+            qMap = SelectClausePostgres.buildSelectClause(req, vendorName,aliasnumber);
         } else if (vendorName.equals("mysql") || vendorName.equals("duckdb")) {
             // System.out.println("------ inside mysql block");
             qMap = SelectClauseMysql.buildSelectClause(req, vendorName,aliasnumber);
         } else if (vendorName.equals("sqlserver")) {
             // System.out.println("------ inside sql server block");
-            qMap = SelectClauseSqlserver.buildSelectClause(req, vendorName);
+            qMap = SelectClauseSqlserver.buildSelectClause(req, vendorName,aliasnumber);
         } else if (vendorName.equals("bigquery")) {
             // System.out.println("------ inside Big Query block");
-            qMap = SelectClauseBigquery.buildSelectClause(req, vendorName);
+            qMap = SelectClauseBigquery.buildSelectClause(req, vendorName,aliasnumber);
         } else if (vendorName.equals("databricks")) {
             // System.out.println("------ inside databricks block");
-            qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName);
+            qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName,aliasnumber);
         } else if (vendorName.equals("oracle")) {
-            qMap = SelectClauseOracle.buildSelectClause(req, vendorName);
+            qMap = SelectClauseOracle.buildSelectClause(req, vendorName,aliasnumber);
         } else if (vendorName.equals("snowflake")) {
-            qMap = SelectClauseSnowflake.buildSelectClause(req, vendorName);
+            qMap = SelectClauseSnowflake.buildSelectClause(req, vendorName,aliasnumber);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
@@ -217,16 +218,17 @@ public class QueryComposer {
         if (queries.size() == 1) {
             updatedQuery = finalQuery;
         } else if (queries.size() > 1) {
-
-
             // aliasing measure names
             Map<String, Integer> aliasNumberingCTE = new HashMap<>();
             for(Measure meas : queries.get(0).getMeasures()){
                 AilasMaker.aliasing(meas.getFieldName(), aliasNumberingCTE);
             }
 
+            Boolean windowFn = false;
             // baseQuery
             String baseQuery = composeQuery(Collections.singletonList(queries.get(0)), ds, vendorName);
+
+            HashMap<String, Measure> windowMeasures = new HashMap<>();
 
 
             StringBuilder overrideCTEQuery = new StringBuilder();
@@ -245,6 +247,23 @@ public class QueryComposer {
                 boolean isRollupDepthEncountered = false;
                 Query reqCTE = queries.get(i);
 
+            if (reqCTE.getMeasures().get(0).getDisableReportFilters() && reqCTE.getFilterPanels() != null) {
+                    List<FilterPanel> updatedFilterPanels = new ArrayList<>();
+                    for (FilterPanel panel : reqCTE.getFilterPanels()) {
+                        if (!"reportFilters".equals(panel.getPanelName())) {
+                            updatedFilterPanels.add(panel);
+                        }
+                    }
+                    reqCTE.setFilterPanels(updatedFilterPanels);
+        }
+
+
+                Measure unalteredMeasure = reqCTE.getMeasures().get(0);
+
+                Measure Meas = reqCTE.getMeasures().get(0);
+                Measure windowMeasure = null;
+                
+                
                 List<Dimension> leftOverDimension = new ArrayList<>();
                 List<Dimension> overrideDimensions = new ArrayList<>();
                 List<Dimension> commonDimensions = new ArrayList<>();
@@ -291,6 +310,25 @@ public class QueryComposer {
                 
                 reqCTE.setDimensions(combinedDimensions);
 
+                if(leftOverDimension.size()>0){
+                    if(reqCTE.getMeasures().get(0).getWindowFn()[0]!=null){
+                        Measure measure = Measure.builder().tableId(Meas.getTableId()).fieldName(Meas.getFieldName())
+                                                            .dataType(Meas.getDataType())
+                                                            .timeGrain(Meas.getTimeGrain())
+                                                            .aggr(Meas.getAggr())
+                                                            .windowFn(new String[]{null})
+                                                            .build();
+                        windowMeasure = Measure.builder()
+                                        .windowFn(Meas.getWindowFn())
+                                                            .windowFnOption(Meas.getWindowFnOption())
+                                                            .windowFnMatrix(Meas.getWindowFnMatrix())
+                                                            .windowFnPartition(Meas.getWindowFnPartition())
+                                                            .build();
+                        reqCTE.getMeasures().set(0,measure);
+                        windowFn = true;
+                        }
+                }
+
                 String baseCTEquery = composeQuery(Collections.singletonList(reqCTE), ds, vendorName,aliasNumberingCTE);
 
                 // measure alias
@@ -311,7 +349,7 @@ public class QueryComposer {
                     
                     String CTEQuery = overrideCTE.overrideCTEq(tblNum, reqCTE, leftOverDimension, combinedDimensions,
                             baseDimensions,
-                            vendorName);
+                            vendorName,windowMeasure);
 
                     overrideQuery += CTEQuery;
                 }
@@ -322,6 +360,7 @@ public class QueryComposer {
 
                 tblNum += leftOverDimension.size();
 
+                windowMeasures.put( reqCTE.getMeasures().get(0).getFieldName() , unalteredMeasure);
                 
                 selectMeasure
                         .add(",tbl" + (tblNum -1) + "." + reqCTE.getMeasures().get(0).getFieldName() );
@@ -353,6 +392,11 @@ public class QueryComposer {
             }
 
             updatedQuery = overrideCTEQuery.toString();
+
+            
+            if(windowFn){
+                overrideCTE.windowQuery(updatedQuery,windowMeasures,queries.get(0),vendorName);
+            }
         }
         queryCTE = false;
         return updatedQuery;

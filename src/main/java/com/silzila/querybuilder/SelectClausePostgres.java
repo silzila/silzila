@@ -18,7 +18,13 @@ import com.silzila.payload.request.Query;
 
 public class SelectClausePostgres {
     /* SELECT clause for Postgres dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,Map<String,Integer>... aliasnumber) throws BadRequestException {
+
+        Map<String, Integer> aliasNumbering = new HashMap<>();
+        if (aliasnumber != null && aliasnumber.length > 0) {
+            Map<String, Integer> aliasNumber = aliasnumber[0];
+            aliasNumber.forEach((key, value) -> aliasNumbering.put(key, value));
+        }  
 
         List<String> selectList = new ArrayList<>();
         List<String> selectDimList = new ArrayList<>();
@@ -26,7 +32,6 @@ public class SelectClausePostgres {
         List<String> groupByDimList = new ArrayList<>();
         List<String> orderByDimList = new ArrayList<>();
 
-        Map<String, Integer> aliasNumbering = new HashMap<>();
         Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "QUARTER", "QUARTER",
                 "MONTH", "MONTH", "DAYOFWEEK", "DOW", "DAYOFMONTH", "DAY");
 

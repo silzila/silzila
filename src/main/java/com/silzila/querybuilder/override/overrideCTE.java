@@ -1,6 +1,7 @@
 package com.silzila.querybuilder.override;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.Dimension;
+import com.silzila.payload.request.Measure;
 import com.silzila.payload.request.Query;
 import com.silzila.payload.request.Dimension.DataType;
 import com.silzila.querybuilder.SelectClauseMysql;
@@ -59,63 +61,18 @@ public class overrideCTE {
     }
 
     public static String overrideCTEq(int tblNum, Query reqCTE, List<Dimension> leftOverDimension,
-            List<Dimension> combinedDimensions, List<Dimension> baseDimensions, String vendorName) throws BadRequestException {
+            List<Dimension> combinedDimensions, List<Dimension> baseDimensions, String vendorName, Measure windowMeasure) throws BadRequestException {
         
+  
 
         String overrideQuery = "";
 
         // window function
-        List<Dimension> rowDimensions = new ArrayList<>();
-
-        List<Dimension> columnDimensions = new ArrayList<>();
-
-        List<Dimension> Dimensions = reqCTE.getDimensions();
-        if (reqCTE.getMeasures().get(0).getWindowFn()[0] != null) {
-
-            int rowNum = reqCTE.getMeasures().get(0).getWindowFnMatrix()[0];
-
-            int columnNum = reqCTE.getMeasures().get(0).getWindowFnMatrix()[1];
-
-            for (int i = 0; i < Dimensions.size(); i++) {
-                Dimensions.get(i).setDataType(DataType.TEXT);
-                if (i < rowNum) {
-                    rowDimensions.add(Dimensions.get(i));
-                } else if (i >= Dimensions.size() - columnNum) {
-                    columnDimensions.add(Dimensions.get(i));
-                }
-            }
-        }
+       
+        
 
         // remove last in leftover before
-        Dimension removedItem = combinedDimensions.remove(combinedDimensions.size() - 1);
-        if (reqCTE.getMeasures().get(0).getWindowFn()[0] != null) {
-            if (rowDimensions.contains(removedItem)) {
-                int[] newMatrix = {
-                        reqCTE.getMeasures().get(0).getWindowFnMatrix()[0] - 1,
-                        reqCTE.getMeasures().get(0).getWindowFnMatrix()[1]
-                };
-                reqCTE.getMeasures().get(0).setWindowFnMatrix(newMatrix);
-                System.out.println("row :" + reqCTE.getMeasures().get(0).getWindowFnMatrix() );
-            }
-            if (columnDimensions.contains(removedItem)) {
-                int[] newMatrix = {
-                        reqCTE.getMeasures().get(0).getWindowFnMatrix()[0],
-                        reqCTE.getMeasures().get(0).getWindowFnMatrix()[1] - 1
-                };
-                reqCTE.getMeasures().get(0).setWindowFnMatrix(newMatrix);
-                System.out.println("column :" + reqCTE.getMeasures().get(0).getWindowFnMatrix() );
-            }
-
-            if(reqCTE.getMeasures().get(0).getWindowFn()[0].equals("standing")){
-            int[] partitionMatrix = {-1,-1};
-            reqCTE.getMeasures().get(0).setWindowFnPartition(partitionMatrix);
-            }
-            else{
-            int[] partitionMatrix = {-1,-1,0};
-            reqCTE.getMeasures().get(0).setWindowFnPartition(partitionMatrix);
-            }
-        }
-
+       combinedDimensions.remove(combinedDimensions.size() - 1);
         
         for (int k = 0; k < leftOverDimension.size(); k++) {
 
@@ -131,6 +88,11 @@ public class overrideCTE {
 
             reqCTE.setDimensions(combinedDimensions);
 
+            if(k == leftOverDimension.size() - 1 && windowMeasure != null){
+                reqCTE.setMeasures(Collections.singletonList(windowFnDimPartition(baseDimensions,leftOverDimension,reqCTE,windowMeasure)));
+            }
+
+
             QueryClauseFieldListMap qMapOd = SelectClauseMysql.buildSelectClause(reqCTE, vendorName);
 
             String selectClauseOd = "\n\t"
@@ -143,28 +105,7 @@ public class overrideCTE {
 
             if (combinedDimensions.size() > 0) {
                 overrideQuery += " GROUP BY " + groupByClauseOd + " )";
-                Dimension removeItem = combinedDimensions.remove(combinedDimensions.size() - 1);
-
-                //reducing the Window matrix
-                if (reqCTE.getMeasures().get(0).getWindowFn()[0] != null) {
-
-                    if (rowDimensions.contains(removeItem)) {
-                        int[] newMatrix = {
-                                reqCTE.getMeasures().get(0).getWindowFnMatrix()[0] - 1,
-                                reqCTE.getMeasures().get(0).getWindowFnMatrix()[1]
-                        };
-                        reqCTE.getMeasures().get(0).setWindowFnMatrix(newMatrix);
-                        System.out.println("row :" + reqCTE.getMeasures().get(0).getWindowFnMatrix() );
-                    }
-                    if (columnDimensions.contains(removeItem)) {
-                        int[] newMatrix = {
-                                reqCTE.getMeasures().get(0).getWindowFnMatrix()[0],
-                                reqCTE.getMeasures().get(0).getWindowFnMatrix()[1] - 1
-                        };
-                        reqCTE.getMeasures().get(0).setWindowFnMatrix(newMatrix);
-                        
-                    }
-                }
+                combinedDimensions.remove(combinedDimensions.size() - 1);
             } else {
                 overrideQuery += " )";
             }
@@ -174,4 +115,161 @@ public class overrideCTE {
 
         return overrideQuery;
     }
+
+    private static Measure windowFnDimPartition(List<Dimension> baseDimensions, List<Dimension> leftoverDimensions, Query reqCTE, Measure windowMeasure) {
+        int rowPartition = windowMeasure.getWindowFnPartition()[0];
+        int colPartition = windowMeasure.getWindowFnPartition()[1];
+
+        List<Dimension> rowDimensions = new ArrayList<>();
+        List<Dimension> columnDimensions = new ArrayList<>();
+        int rowNum = 0;
+        int columnNum = 0;
+        
+    
+        if (windowMeasure != null) {
+            rowNum = windowMeasure.getWindowFnMatrix()[0];
+            columnNum = windowMeasure.getWindowFnMatrix()[1];
+    
+            for (int i = 0; i < baseDimensions.size(); i++) {
+                baseDimensions.get(i).setDataType(DataType.TEXT);
+                if (i < rowNum) {
+                    rowDimensions.add(baseDimensions.get(i));
+                } else  {
+                    columnDimensions.add(baseDimensions.get(i)); 
+                }
+            }
+            
+
+            for (Dimension baseDim : baseDimensions) {
+                for (Dimension leftDim : leftoverDimensions) {
+                    if (baseDim.equals(leftDim)) {
+                        if (rowDimensions.contains(baseDim)) {
+                            rowNum--;
+                        }
+                        if (columnDimensions.contains(baseDim)) {
+                            columnNum--;
+                        }
+                    }
+                }
+            }
+        }
+
+   
+    
+        // Calculate new windowFnMatrix
+        int[] newMatrix = {rowNum, columnNum};
+        windowMeasure.setWindowFnMatrix(newMatrix);
+    
+        // Calculate new rowPartition and colPartition
+        rowPartition = calculatePartition(rowNum, rowPartition);
+        colPartition = calculatePartition(columnNum, colPartition);
+    
+        // Update windowMeasure
+        windowMeasure.setWindowFnPartition(new int[]{rowPartition, colPartition});
+    
+    
+        if ("standing".equals(windowMeasure.getWindowFn()[0])) {
+            return buildMeasure(reqCTE, windowMeasure);
+        } else {
+            int orderPartition =0;
+            windowMeasure.setWindowFnPartition(new int[]{rowPartition, colPartition, orderPartition});
+            return buildMeasure(reqCTE, windowMeasure);
+        }
+    }
+    
+    private static int calculatePartition(int num, int partition) {
+        if (num < partition + 1 && partition != -1 || num == 0) {
+            if (num == 0 && num <= partition) {
+                return -1;
+            } else {
+                int value = (partition + 1) - num;
+                return partition - value;
+            }
+        }
+        return partition;
+    }
+    
+    private static Measure buildMeasure(Query reqCTE, Measure windowMeasure) {
+        Measure Meas = reqCTE.getMeasures().get(0);
+        return Measure.builder()
+                .tableId(Meas.getTableId())
+                .fieldName(Meas.getFieldName())
+                .dataType(Meas.getDataType())
+                .timeGrain(Meas.getTimeGrain())
+                .aggr(Meas.getAggr())
+                .windowFn(windowMeasure.getWindowFn())
+                .windowFnOption(windowMeasure.getWindowFnOption())
+                .windowFnMatrix(windowMeasure.getWindowFnMatrix())
+                .windowFnPartition(windowMeasure.getWindowFnPartition())
+                .build();
+    }
+
+        public static String windowQuery(String CTEQuery, HashMap<String,Measure> windowMeasure, Query baseQuery, String vendorName) throws BadRequestException{
+            String finalQuery = "";
+
+           
+            
+            List<String> nonWnMeasure = new ArrayList<>();
+            List<Measure> overrideMeasures = new ArrayList<>();
+            Map<String, Integer> aliasNumberingM = new HashMap<>();
+            for(Measure meas : baseQuery.getMeasures()){
+                String alias = AilasMaker.aliasing(meas.getFieldName(),aliasNumberingM);
+                nonWnMeasure.add(alias);
+            }
+
+            Map<String, Integer> aliasNumbering = new HashMap<>();
+            for(Dimension dim : baseQuery.getDimensions()){
+               String alias = AilasMaker.aliasing(dim.getFieldName(),aliasNumbering);
+                dim.setTableId("wnCTE");
+                dim.setDataType(DataType.TEXT);
+                dim.setFieldName(alias);
+            }
+            
+
+            for (HashMap.Entry<String,Measure> entry : windowMeasure.entrySet()) {
+                String key = entry.getKey();
+                if(windowMeasure.get(key).getWindowFn()[0]!=null){
+                    Measure value = windowMeasure.get(key);
+                    value.setTableId("wnCTE");
+                    value.setFieldName(key);
+                    overrideMeasures.add(value);
+                }
+                else{
+                    nonWnMeasure.add(key);
+                }
+                
+            }
+
+            baseQuery.setMeasures(overrideMeasures);
+            QueryClauseFieldListMap qMapOd = SelectClauseMysql.buildSelectClause(baseQuery, vendorName);
+
+            String selectClauseOd = "\n\t"
+                    + qMapOd.getSelectList().stream().collect(Collectors.joining(",\n\t"));
+            String groupByClauseOd = "\n\t"
+                    + qMapOd.getGroupByList().stream().distinct().collect(Collectors.joining(",\n\t"));
+            String orderByClause = "\n\t" + qMapOd.getOrderByList().stream().distinct().collect(Collectors.joining(",\n\t"));
+
+           
+            
+           finalQuery  += "WITH wnCTE as (" + CTEQuery ;
+           finalQuery += ") SELECT ";
+           finalQuery += selectClauseOd;
+           if(nonWnMeasure.size()>0){
+               for(String s : nonWnMeasure){
+                   finalQuery += " ," + s;
+               } 
+           }
+          
+
+           finalQuery += " FROM wnCTE \nGROUP BY " ;
+           finalQuery += groupByClauseOd;
+           finalQuery += "\nORDER BY";
+           finalQuery += orderByClause;
+
+           System.out.println(finalQuery);
+
+            return finalQuery;
+        }
+    
+    
 }

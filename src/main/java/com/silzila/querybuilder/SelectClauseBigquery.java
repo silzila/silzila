@@ -19,9 +19,14 @@ public class SelectClauseBigquery {
     private static final Logger logger = LogManager.getLogger(SelectClauseBigquery.class);
 
     /* SELECT clause for MySQL dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,Map<String,Integer>... aliasnumber) throws BadRequestException {
         logger.info("SelectClauseBigquery calling ***********");
 
+        Map<String, Integer> aliasNumbering = new HashMap<>();
+        if (aliasnumber != null && aliasnumber.length > 0) {
+            Map<String, Integer> aliasNumber = aliasnumber[0];
+            aliasNumber.forEach((key, value) -> aliasNumbering.put(key, value));
+        }  
         List<String> selectList = new ArrayList<>();
         List<String> selectDimList = new ArrayList<>();
         List<String> selectMeasureList = new ArrayList<>();
@@ -29,7 +34,6 @@ public class SelectClauseBigquery {
         List<String> orderByDimList = new ArrayList<>();
         List<String> windowFnList = new ArrayList<>();
 
-        Map<String, Integer> aliasNumbering = new HashMap<>();
         Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "QUARTER", "QUARTER",
                 "MONTH", "MONTH", "DATE", "DATE", "DAYOFWEEK", "DAYOFWEEK", "DAYOFMONTH", "DAY");
 
