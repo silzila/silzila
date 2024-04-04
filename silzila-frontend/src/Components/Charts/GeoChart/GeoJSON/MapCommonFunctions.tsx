@@ -15,7 +15,7 @@ import nigeriaJSON from './NigeriaMapData.json';
 export const getGeoJSON = (name:string) =>{
     let mapJSON:any = {};
 
-    switch (name) {
+    switch (name.toLowerCase()) {
 		case 'usa':
 			mapJSON = usaJson;
 			break;

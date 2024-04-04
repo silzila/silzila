@@ -653,7 +653,7 @@ const chartPropertiesState = (
 				properties: {
 					[action.payload.propKey]: {
 						Geo:{
-							unMatchedChartData: { $splice: [[action.payload.index, 1, action.payload.value]], },
+							unMatchedChartData: { $set: action.payload.value, },
 						}
 					},
 				},

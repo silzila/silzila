@@ -69,7 +69,7 @@ const GeoChartStyles = ({
 			<SliderWithInput
 				percent={false}
 				sliderValue={geoStyle.aspectScale}
-				sliderMinMax={{ min: 0.7, max: 5, step: 0.1 }}
+				sliderMinMax={{ min: 0.5, max: 3, step: 0.05 }}
 				changeValue={value => updateGeoChartStyleOptions(propKey, "aspectScale", value)}
 			/>
 

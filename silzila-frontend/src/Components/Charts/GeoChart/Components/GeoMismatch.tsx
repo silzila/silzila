@@ -26,11 +26,26 @@ const GoeMismatch = ({
         let dimensionName = chartProperties.properties[propKey].chartAxes[1].fields[0];
         dimensionName = fieldName(dimensionName)
         //changeGeoMapUnMatched(propKey, misMatchList);
-       // const [unMatchedArray, setUnMatchedArray] = useState([]);
 
-        // useEffect(()=>{
-        //     setUnMatchedArray(misMatchList);
-        // },[misMatchList])
+        let tempArray = [];
+
+        if(chartProperties.properties[propKey].Geo.unMatchedChartData && chartProperties.properties[propKey].Geo.unMatchedChartData.length > 0){
+            tempArray = chartProperties.properties[propKey].Geo.unMatchedChartData;
+        }
+        else{
+            tempArray = misMatchList;
+        }
+
+        const [unMatchedArray, setUnMatchedArray] = useState<any>(tempArray);
+
+        useEffect(()=>{
+            if(chartProperties.properties[propKey].Geo.unMatchedChartData && chartProperties.properties[propKey].Geo.unMatchedChartData.length > 0){
+                setUnMatchedArray(chartProperties.properties[propKey].Geo.unMatchedChartData);
+            }
+            else{
+                setUnMatchedArray(misMatchList);
+            }
+        },[misMatchList, chartProperties.properties[propKey].Geo.unMatchedChartData])
 
        
         let mapJSON = getGeoJSON(chartProperties.properties[propKey].Geo.geoLocation);
@@ -50,29 +65,43 @@ const GoeMismatch = ({
 
 
         const handleLocationOnChange =(e:any, name:string)=>{
-            console.log(e.currentTarget.innerText, name);
-            let list  = JSON.parse(JSON.stringify(misMatchList));
+          //  console.log(e.currentTarget.innerText, name);
+            let list  = JSON.parse(JSON.stringify(unMatchedArray));
            // let list = chartProperties.properties[propKey].Geo.unMatchedChartData?.length > 0 ? chartProperties.properties[propKey].Geo.unMatchedChartData : misMatchList;
 
             let matchIndex = list.findIndex((item:any)=>{
                     return item[dimensionName] === name;
                 })
 
-                list[matchIndex].selectedKey = e.currentTarget.innerText
+                list[matchIndex].selectedKey = e.currentTarget.innerText;
 
-            changeGeoMapUnMatched(propKey, list[matchIndex], matchIndex);
+            setUnMatchedArray(list);
+
+           // changeGeoMapUnMatched(propKey, list[matchIndex], matchIndex);
         }
 
         const handleOkButtonClick = () =>{
+
+            changeGeoMapUnMatched(propKey, unMatchedArray);
             handleClose();
+        }
 
+        const handleCloseButtonClick = ()=>{
 
+            if(chartProperties.properties[propKey].Geo.unMatchedChartData && chartProperties.properties[propKey].Geo.unMatchedChartData.length > 0){
+                setUnMatchedArray(chartProperties.properties[propKey].Geo.unMatchedChartData);
+            }
+            else{
+                setUnMatchedArray(misMatchList);
+            }
+
+            handleClose();
         }
 
         const UnMatchedListComponent = ()=>{
             return (
-                misMatchList.map((item:any, index:number)=>{
-                    let defaultVal = chartProperties.properties[propKey].Geo.unMatchedChartData.find((selectedItem:any)=>{
+                unMatchedArray.map((item:any, index:number)=>{
+                    let defaultVal = unMatchedArray.find((selectedItem:any)=>{
                         return selectedItem[dimensionName] === item[dimensionName]
                     })?.selectedKey;
 
@@ -81,7 +110,8 @@ const GoeMismatch = ({
                         <span style={{width:"12rem", wordWrap:"normal"}}>{item[dimensionName]}</span>
 
                         <Autocomplete
-                            defaultValue={defaultVal || ""}                           
+                            defaultValue={""}   
+                            value={defaultVal}                        
                             disablePortal
                             id="combo-box-demo"
                             onChange={(e:any)=>handleLocationOnChange(e, item[dimensionName])}
@@ -114,11 +144,20 @@ const GoeMismatch = ({
 						fontSize: "16px",
 					}}>
                 <h3  style={{paddingLeft:"1rem"}} tabIndex={-1}>Unmatched Locations</h3>
-                <CloseOutlined onClick={handleOkButtonClick} style={{ float: "right" }} />
+                <CloseOutlined onClick={handleCloseButtonClick} style={{ float: "right" }} />
             </DialogTitle>
             <DialogContent sx={{"height":"25rem" ,"overflowY":"auto"}}>               
-                <UnMatchedListComponent></UnMatchedListComponent>                
-            </DialogContent>           
+                <UnMatchedListComponent></UnMatchedListComponent>     
+                      
+            </DialogContent> 
+            <div style={{
+						display: "flex",
+						flexDirection: "row-reverse",					
+						fontSize: "16px",
+					}}>
+                <Button onClick={handleCloseButtonClick}>Cancel</Button>  
+                <Button onClick={handleOkButtonClick}>Save</Button>          
+            </div>                               
         </Dialog>        
     )
 }
@@ -133,8 +172,8 @@ const mapStateToProps = (state:  any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		changeGeoMapUnMatched: (propKey: string, value: string, index: number) =>
-			dispatch(changeGeoMapUnMatched(propKey, value, index)),
+		changeGeoMapUnMatched: (propKey: string, value: string) =>
+			dispatch(changeGeoMapUnMatched(propKey, value)),
         }
     };
 
