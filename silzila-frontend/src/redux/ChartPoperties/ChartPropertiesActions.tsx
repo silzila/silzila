@@ -327,9 +327,9 @@ export const changeGeoKey = (propKey: string, value: string) => {
 	};
 };
 
-export const changeGeoMapUnMatched = (propKey: string, value: string, index:number) => {
+export const changeGeoMapUnMatched = (propKey: string, value: string) => {
 	return {
 		type: "CHANGE_GEOMAP_UNMATCHED",
-		payload: { propKey, value, index },
+		payload: { propKey, value },
 	};
 };

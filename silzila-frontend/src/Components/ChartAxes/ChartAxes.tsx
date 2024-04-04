@@ -20,6 +20,7 @@ import GoeHelp from '../Charts/GeoChart/Components/GeoHelp';
 import {fieldName} from '../CommonFunctions/CommonFunctions';
 import { VisibilitySharp, InfoOutlined } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
+import {  Autocomplete,TextField, } from "@mui/material";
 
 
 const ChartAxes = ({
@@ -45,7 +46,7 @@ const ChartAxes = ({
 	const [showMismatchIcon, setShowMismatchIcon] = useState<boolean>(false);
 	const [misMatchList, setMismatchList] = useState<any>([]);
 	const [isHelpHovered, setIsHelpHovered] = useState(false);
-	const [isUnMatchedHovered, setIsUnMatchedHovered] = useState(false);
+	const [isUnMatchedFixed, setIsUnMatchedFixed] = useState(false);
 	
 	var chartControl: any = chartControls.properties[propKey];
 	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
@@ -98,18 +99,32 @@ const ChartAxes = ({
 
 	useEffect(()=>{
 		let misMatchArray = [];
+
 		if(chartProp.properties[propKey].chartType === "geoChart" && chartData.length >0){
 			let dimensionName = chartProp.properties[propKey].chartAxes[1].fields[0];
 			misMatchArray = getMismachedLocationArray(chartData, fieldName(dimensionName),chartProp.properties[propKey].Geo.geoLocation,chartProp.properties[propKey].Geo.geoMapKey);
 			
 			////TODO save to redux			
-			setShowMismatchIcon(misMatchArray.length > 0);
+			setShowMismatchIcon(misMatchArray.length > 0);			
 			setMismatchList(misMatchArray);			
+
+
+			let emptySelectedKey = chartProp.properties[propKey].Geo.unMatchedChartData.find((item:any)=>item.selectedKey == "");	
+			setIsUnMatchedFixed(!emptySelectedKey);		
 		}
 		else{
 			setShowMismatchIcon(false);
 		}
+		
 	},[chartData, chartProp.properties[propKey].Geo])
+
+	const handleLocationOnChange =(e:any)=>{
+		changeLocation(propKey, e.currentTarget.innerText);
+	}
+
+	const [options, setOptions] = useState(["World", "Australia", "Brazil", "China"
+	,"France", "Germany", "India", "Japan", "Nigeria", "South Africa", "United Kingdom",
+	"USA"])
 
 	return (
 		<div className="charAxesArea">
@@ -118,7 +133,18 @@ const ChartAxes = ({
 					style={{display: "flex", flexDirection: "column" }}
 				>
 					<span className="axisTitle"></span>
-					<FormControl size="small" sx={{ margin: "0.5rem", "& .MuiInputBase-root": {
+					<Autocomplete
+                            defaultValue={"World"}         
+							value={chartProp.properties[propKey].Geo.geoLocation}                  
+                            disablePortal
+                            id="combo-box-demo"
+                            onChange={(e:any)=>{handleLocationOnChange(e)}}
+                            options={options}
+                            sx={{ width: "12rem" }}
+                            renderInput={(params) => <TextField {...params} label="Select Map" />}
+                            />
+
+					{/*<FormControl size="small" sx={{ margin: "0.5rem", "& .MuiInputBase-root": {
 										borderRadius: "0px",
 									} }}
 									style={{
@@ -188,7 +214,7 @@ const ChartAxes = ({
 								USA
 							</MenuItem>
 						</Select>
-					</FormControl>
+						</FormControl>*/}
 				</div>
 			)}
 			{chartProp.properties[propKey].chartType === "geoChart" && (
@@ -230,8 +256,8 @@ const ChartAxes = ({
 							}}
 						>
 						{
-							mapKeys.map((key: any) => (
-								<MenuItem sx={menuItemStyle} value={key}>
+							mapKeys.map((key: any, index:number) => (
+								<MenuItem sx={menuItemStyle} value={key} key={index}>
 									{key}
 								</MenuItem>
 							))
@@ -244,12 +270,10 @@ const ChartAxes = ({
 							marginLeft: "5px", 
 							cursor: "pointer", 
 							marginTop: "4px",
-							color: isUnMatchedHovered ? "red" : "orange", // Change color based on hover state
+							color: isUnMatchedFixed ? "green" : "orange", // Change color based on hover state
 							fontSize: "1.2em", // Change font size based on hover state
 							transition: "color 0.3s, font-size 0.3s" // Transition for smooth hover effect
-						}}
-						onMouseEnter={()=>{ setIsUnMatchedHovered(true)}}
-						onMouseLeave={()=>{setIsUnMatchedHovered(false)}}
+						}}					
 						onClick={(event)=>{
 							setAnchorMismatchElm(event.currentTarget);
 							setShowOptionsMismatch(!showOptions);
