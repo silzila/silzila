@@ -48,7 +48,7 @@ public class QueryComposer {
         Query req = queries.get(0);
 
         
-
+        // flag --> override function or not
         if (queries.size() > 1) {
             queryCTE = true;
         }
@@ -206,30 +206,25 @@ public class QueryComposer {
             finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause + whereClause;
         }
 
-        if (queryCTE && !req.getDimensions().isEmpty()) {
-
-            if (!vendorName.equals("bigquery")) {
-                finalQuery = "SELECT " + selectClause + "\nFROM " + fromClause + whereClause + "\nGROUP BY "
-                        + groupByClause;
-            }
-            
-        }
+        // override does not require orderbyclause
+        if (queryCTE && !req.getDimensions().isEmpty() && !vendorName.equals("bigquery")) {
+            finalQuery = "SELECT " + selectClause + "\nFROM " + fromClause + whereClause + "\nGROUP BY " + groupByClause;
+        }        
 
         if (queries.size() == 1) {
             updatedQuery = finalQuery;
         } else if (queries.size() > 1) {
-            // aliasing measure names
+            // aliasing measure names --> example: sales,sales_2,sales_3
             Map<String, Integer> aliasNumberingCTE = new HashMap<>();
             for(Measure meas : queries.get(0).getMeasures()){
                 AilasMaker.aliasing(meas.getFieldName(), aliasNumberingCTE);
             }
 
+            // windowfn --> flag
             Boolean windowFn = false;
+            HashMap<String, Measure> windowMeasures = new HashMap<>();
             // baseQuery
             String baseQuery = composeQuery(Collections.singletonList(queries.get(0)), ds, vendorName);
-
-            HashMap<String, Measure> windowMeasures = new HashMap<>();
-
 
             StringBuilder overrideCTEQuery = new StringBuilder();
 
@@ -241,12 +236,14 @@ public class QueryComposer {
             // for table for joining
             List<String> joinTableQuery = new ArrayList<>();
 
+            //initializing a CTE table number
             int tblNum = 2;
-
+            // Loop through override Request
             for (int i = 1; i < queries.size(); i++) {
                 boolean isRollupDepthEncountered = false;
                 Query reqCTE = queries.get(i);
 
+            // reportfilter is disabled or not --> it can be disabled by user 
             if (reqCTE.getMeasures().get(0).getDisableReportFilters() && reqCTE.getFilterPanels() != null) {
                     List<FilterPanel> updatedFilterPanels = new ArrayList<>();
                     for (FilterPanel panel : reqCTE.getFilterPanels()) {
@@ -255,18 +252,17 @@ public class QueryComposer {
                         }
                     }
                     reqCTE.setFilterPanels(updatedFilterPanels);
-        }
+            }
 
-
-                Measure unalteredMeasure = reqCTE.getMeasures().get(0);
-
-                Measure Meas = reqCTE.getMeasures().get(0);
-                Measure windowMeasure = null;
+            // unalteredmeasure -- used for creating windowFnCTE
+            Measure Meas = reqCTE.getMeasures().get(0);
                 
                 
                 List<Dimension> leftOverDimension = new ArrayList<>();
                 List<Dimension> overrideDimensions = new ArrayList<>();
                 List<Dimension> commonDimensions = new ArrayList<>();
+                List<Dimension> combinedDimensions = new ArrayList<>();
+
                 for (Dimension dim : baseDimensions) {
                     // Create a new Dimension object with the same properties as dim
                     Dimension newDim = new Dimension(dim.getTableId(),dim.getFieldName() , dim.getDataType(), dim.getTimeGrain(),dim.isRollupDepth());
@@ -291,7 +287,7 @@ public class QueryComposer {
                 }
                 commonDimensions.retainAll(overrideDimensions);
 
-                List<Dimension> combinedDimensions = new ArrayList<>();
+                
                 for (Dimension dim : leftOverDimension) {
                     // Create a new Dimension object with the same properties as dim
                     Dimension newDim = new Dimension(dim.getTableId(), dim.getFieldName(), dim.getDataType(),
@@ -304,12 +300,16 @@ public class QueryComposer {
                     combinedDimensions.add(j, dim);
                     j++;
                 }
+
+                //join CTE column--> join with all common column between base and override
                 List<String> joinValues = overrideCTE.joinValues(commonDimensions, baseDimensions);
+
                 // override base CTE
                 queryCTE = true;
-                
+        
                 reqCTE.setDimensions(combinedDimensions);
 
+                //setting measures -->window Function separetly in new CTE 
                 if(leftOverDimension.size()>0){
                     if(reqCTE.getMeasures().get(0).getWindowFn()[0]!=null){
                         Measure measure = Measure.builder().tableId(Meas.getTableId()).fieldName(Meas.getFieldName())
@@ -318,52 +318,41 @@ public class QueryComposer {
                                                             .aggr(Meas.getAggr())
                                                             .windowFn(new String[]{null})
                                                             .build();
-                        windowMeasure = Measure.builder()
-                                        .windowFn(Meas.getWindowFn())
-                                                            .windowFnOption(Meas.getWindowFnOption())
-                                                            .windowFnMatrix(Meas.getWindowFnMatrix())
-                                                            .windowFnPartition(Meas.getWindowFnPartition())
-                                                            .build();
                         reqCTE.getMeasures().set(0,measure);
                         windowFn = true;
                         }
                 }
 
+                // override base query
                 String baseCTEquery = composeQuery(Collections.singletonList(reqCTE), ds, vendorName,aliasNumberingCTE);
 
-                // measure alias
+                //fieldname aliass
                 String alias = AilasMaker.aliasing(reqCTE.getMeasures().get(0).getFieldName(), aliasNumberingCTE);
                 reqCTE.getMeasures().get(0).setFieldName(alias);
 
                 // override query
-                String overrideQuery = ", tbl" + tblNum + " AS ( " + baseCTEquery + " )";
+                String overrideQuery = ", \ntbl" + tblNum + " AS ( " + baseCTEquery + " )";
 
-                // setting the datatype for date and timestamp
+                // setting the datatype for date and timestamp -- year(date) not required in aggregation
                 for (Dimension dim : combinedDimensions) {
                     dim.setDataType(DataType.TEXT);
                 }
 
                 tblNum++; // increment
 
-                if (!leftOverDimension.isEmpty()) {
-                    
-                    String CTEQuery = overrideCTE.overrideCTEq(tblNum, reqCTE, leftOverDimension, combinedDimensions,
-                            baseDimensions,
-                            vendorName,windowMeasure);
-
+                 // CTE expression
+                if (!leftOverDimension.isEmpty()) {                
+                    String CTEQuery = overrideCTE.overrideCTEq(tblNum, reqCTE, leftOverDimension, combinedDimensions,vendorName);
                     overrideQuery += CTEQuery;
                 }
-
-                // CTE expression
 
                 allOverrideCTE.add(overrideQuery);
 
                 tblNum += leftOverDimension.size();
-
-                windowMeasures.put( reqCTE.getMeasures().get(0).getFieldName() , unalteredMeasure);
+                // window fn 
+                windowMeasures.put( reqCTE.getMeasures().get(0).getFieldName() , Meas);
                 
-                selectMeasure
-                        .add(",tbl" + (tblNum -1) + "." + reqCTE.getMeasures().get(0).getFieldName() );
+                selectMeasure.add(", \n\ttbl" + (tblNum -1) + "." + reqCTE.getMeasures().get(0).getFieldName() );
 
                 // join clause
                 String join = overrideCTE.joinCTE((tblNum -1), commonDimensions, joinValues);
@@ -372,31 +361,30 @@ public class QueryComposer {
             }
             
             // override query builder
-            overrideCTEQuery .append(" WITH tbl1 as (" + baseQuery + ") ");
+            overrideCTEQuery .append("WITH tbl1 as (" + baseQuery + ") ");
             allOverrideCTE.forEach(s -> overrideCTEQuery.append(s));
-            overrideCTEQuery.append(" SELECT tbl1.* ");
-            selectMeasure.forEach(s -> overrideCTEQuery.append(s));
-            overrideCTEQuery.append(" FROM tbl1 ");
-            joinTableQuery.forEach(s -> overrideCTEQuery.append(s));
 
-            if (!baseDimensions.contains(null)) {
-                overrideCTEQuery.append(" \nORDER BY ");
-                Map<String, Integer> aliasNumbering = new HashMap<>();
-                for (int i = 0; i < baseDimensions.size(); i++) {
-                    String alias = AilasMaker.aliasing(baseDimensions.get(i).getFieldName(), aliasNumbering);
-                    overrideCTEQuery.append("tbl1.").append(alias);
-                    if (i < baseDimensions.size() - 1) {
-                        overrideCTEQuery.append(",");
-                    }
+            StringBuilder CTEmainQuery = new StringBuilder();
+            CTEmainQuery.append(" \nSELECT \n\ttbl1.* ");
+            selectMeasure.forEach(s -> CTEmainQuery.append(s));
+            CTEmainQuery.append(" \nFROM tbl1 ");
+            joinTableQuery.forEach(s -> CTEmainQuery.append(s));
+
+            if (!windowFn) {
+                if (!baseDimensions.isEmpty()) {
+                    CTEmainQuery.append(" \nORDER BY ");
+                    CTEmainQuery.append(overrideCTE.generateOrderByClause(baseDimensions,"tbl1"));
                 }
             }
 
-            updatedQuery = overrideCTEQuery.toString();
-
-            
             if(windowFn){
-                overrideCTE.windowQuery(updatedQuery,windowMeasures,queries.get(0),vendorName);
+                updatedQuery = overrideCTE.windowQuery(overrideCTEQuery.toString(),CTEmainQuery.toString(),baseDimensions,windowMeasures,queries.get(0),vendorName);
             }
+            else{
+                overrideCTEQuery.append(CTEmainQuery.toString());
+                updatedQuery = overrideCTEQuery.toString();
+            }
+            
         }
         queryCTE = false;
         return updatedQuery;

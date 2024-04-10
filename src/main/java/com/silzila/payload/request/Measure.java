@@ -49,6 +49,7 @@ public class Measure implements Serializable {
     private int[] windowFnMatrix = new int[]{};
     @JsonProperty("windowFnPartition")
     private int[] windowFnPartition = new int[]{};
+    @JsonProperty("disableReportFilters")
     private Boolean disableReportFilters = false;
     private final static long serialVersionUID = 1754801202036436076L;
       
