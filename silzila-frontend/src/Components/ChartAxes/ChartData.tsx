@@ -194,6 +194,7 @@ export const getChartData = async (
 	/*	PRS 21/07/2022 */
 
 	var formattedAxes: ChartAxesFormattedAxes = {};
+	
 	axesValues.forEach((axis: AxesValuProps) => {
 		var dim = "";
 		switch (axis.name) {
@@ -232,7 +233,7 @@ export const getChartData = async (
 				tableId: field.tableId,
 				displayName: field.displayname,
 				fieldName: field.fieldname,
-				dataType: field.dataType.toLowerCase(),
+				dataType: field.dataType.toLowerCase(), 
 			};
 			if (field.dataType === "date" || field.dataType === "timestamp") {
 				formattedField.timeGrain = field.timeGrain;
@@ -240,8 +241,212 @@ export const getChartData = async (
 
 			if (axis.name === "Measure") {
 				formattedField.aggr = field.agg;
-			}
+				
+				//Updating windowFunction in QueryAPI 
+		        if(field.windowfn){
+				
+				//Function used to convert all the values of windowFunction in camelCase
+				function toCamelCase(str: any) {
+					return str.replace(/(?:^\w|[A-Z]|\b\w)/g, (word: any, index: any) => {
+						return index === 0 ? word.toLowerCase() : word.toUpperCase();
+					}).replace(/\s+/g, '');
+				}
+                
+				//If standing gets selected in windowFunction, then below data will be send to API
 
+				if(field.windowfn.windowFnOptions === "standing"){
+					//sending windowFn for all charts except richtext
+					if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+						if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){}
+						else{
+							formattedField.windowFn= [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.rank), toCamelCase(field.windowfn.order)];
+						}
+					} else {
+						if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+							if(_chartAxes[1].fields.length === 0){}
+							else {
+								formattedField.windowFn= [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.rank), toCamelCase(field.windowfn.order)];}
+						}
+					}
+
+					//sending windowFnMatrix for two dimensional charts 
+					if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+						if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
+						else {
+							formattedField.windowFnMatrix = [_chartAxes[1].fields.length, _chartAxes[2].fields.length];
+						}
+					}
+
+					//sending windowFnPartition for two dimensional charts
+					if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+						if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length === 0){
+							formattedField.windowFnPartition= [field.windowfn.standingRowIndex];
+						} else {
+							if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length > 0){
+								formattedField.windowFnPartition= [field.windowfn.standingColumnIndex];
+							} else {
+								if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length > 0){
+									formattedField.windowFnPartition= [field.windowfn.standingRowIndex, field.windowfn.standingColumnIndex];
+								} else {
+									if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){}
+								}
+							}
+						}	
+					} else {
+						//sending windowFnPartition for one dimensional charts
+						if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+							if(_chartAxes[1].fields.length === 0){}
+							else {
+								formattedField.windowFnPartition= [field.windowfn.standingRowIndex];
+							}
+						}
+					}
+
+				} else {
+
+					//If sliding gets selected in windowFunction then, below data will be send to API
+
+					if(field.windowfn.windowFnOptions === "sliding"){
+						//sending windowFn for all charts except richtext
+						if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+							if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
+							else {
+								formattedField.windowFn = [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.slidingAggregation)];
+							}	
+						} else {
+							if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+								if(_chartAxes[1].fields.length === 0){} 
+								else {
+									formattedField.windowFn = [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.slidingAggregation)];
+								}
+							}
+						}
+                        
+						//sending windowFnOption for all charts except richtext 
+						if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+							if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
+							else {
+								formattedField.windowFnOption= [field.windowfn.slidingPreInc, field.windowfn.slidingCurrent, field.windowfn.slidingNextInc];
+							}	
+						} else {
+							if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+								if(_chartAxes[1].fields.length === 0){} 
+								else {
+									formattedField.windowFnOption= [field.windowfn.slidingPreInc, field.windowfn.slidingCurrent, field.windowfn.slidingNextInc];
+								}
+							}
+						}
+
+						//sending windowFnMatrix for two dimensional charts 
+						if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+							if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
+							else {
+							formattedField.windowFnMatrix = [_chartAxes[1].fields.length, _chartAxes[2].fields.length] ;
+							}
+						}
+
+						//sending windowFnPartition for two dimensional charts
+						if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+						if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length === 0){
+							formattedField.windowFnPartition= [field.windowfn.slidingRowIndex];
+						} else {
+							if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length > 0){
+								formattedField.windowFnPartition= [field.windowfn.slidingColumnIndex];
+							} else {
+								if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length > 0){
+									formattedField.windowFnPartition= [field.windowfn.slidingRowIndex, field.windowfn.slidingColumnIndex, 
+									["rowwise"].includes(field.windowfn.slidingSlideDirection) ? 0 : 1 ];
+								} else {
+									if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
+								}
+							}
+						}
+					} else {
+						//sending windowFnPartition for one dimensional charts
+						if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+							if(_chartAxes[1].fields.length === 0){} 
+							else {
+								formattedField.windowFnPartition= [field.windowfn.slidingRowIndex];
+							}
+						}
+					}
+
+				} else {
+
+					    //If standingsvssliding gets selected in windowFunction, then below data will be send to API
+
+						if(field.windowfn.windowFnOptions === "standingsvssliding"){
+							//sending windowFn for all charts except richtext
+							if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+								if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
+								else {
+									formattedField.windowFn = [toCamelCase(field.windowfn.percentage),
+										["First", "Last"].includes(field.windowfn.standingSlidingReferenceWn) ? toCamelCase(field.windowfn.standingSlidingReferenceWn) :
+										toCamelCase(field.windowfn.standingSlidingAggregation)];
+								}
+							} else {
+								if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+									if(_chartAxes[1].fields.length === 0){} 
+									else {
+										formattedField.windowFn = [toCamelCase(field.windowfn.percentage),
+											["First", "Last"].includes(field.windowfn.standingSlidingReferenceWn) ? toCamelCase(field.windowfn.standingSlidingReferenceWn) :
+											toCamelCase(field.windowfn.standingSlidingAggregation)];
+									}
+								}	
+							}
+
+							//sending windowFnOption for all charts except richtext
+							if(["PNC"].includes(field.windowfn.standingSlidingReferenceWn)){
+								if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+									if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
+									else {
+										formattedField.windowFnOption= [field.windowfn.standingSlidingPreInc, field.windowfn.standingSlidingCurrent, field.windowfn.standingSlidingNextInc];
+									}
+								} else {
+									if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+										if(_chartAxes[1].fields.length === 0){} 
+										else {
+											formattedField.windowFnOption= [field.windowfn.standingSlidingPreInc, field.windowfn.standingSlidingCurrent, field.windowfn.standingSlidingNextInc];
+										}
+									}	
+								}
+							}
+								
+							//sending windowFnMatrix for two dimensional charts 
+							if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+								if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0) {}
+								else{
+								formattedField.windowFnMatrix = [_chartAxes[1].fields.length, _chartAxes[2].fields.length];
+								}
+							}
+	
+							//sending windowFnPartition for two dimensional charts
+							if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+							if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length === 0){
+								formattedField.windowFnPartition= [field.windowfn.standingSlidingRowIndex];
+							} else {
+								if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length > 0){
+									formattedField.windowFnPartition= [field.windowfn.standingSlidingColumnIndex];
+								} else {
+									if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length > 0){
+										formattedField.windowFnPartition= [field.windowfn.standingSlidingRowIndex, field.windowfn.standingSlidingColumnIndex, 
+										["rowwise"].includes(field.windowfn.standingSlidingSlideDirection) ? 0 : 1 ];
+									} else {
+										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0) {}
+									}
+								}
+							}} else {
+								//sending windowFnPartition for one dimensional charts
+								if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+									if(_chartAxes[1].fields.length === 0) {}
+									else {
+										formattedField.windowFnPartition= [field.windowfn.standingSlidingRowIndex];
+									}	
+								}
+							}
+						}}}  
+			    } 
+		    }
 			formattedFields.push(formattedField);
 		});
 		formattedAxes[dim] = formattedFields;
@@ -339,6 +544,7 @@ export const getChartData = async (
 				Logger("error", "Get Table Data Error", res.data.message);
 			}
 		}
+		
 	}
 };
 

@@ -12,7 +12,7 @@ import {
 	sortAxes,
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { Divider, Menu, MenuItem } from "@mui/material";
-import Aggregators, { AggregatorKeys } from "./Aggregators";
+import { AggregatorKeys } from "./Aggregators";
 import { useDrag, useDrop } from "react-dnd";
 import { Dispatch } from "redux";
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
@@ -23,7 +23,11 @@ import {
 	revertAxesForDm,
 	sortAxesForDm,
 } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+import { SiWindows11 } from "react-icons/si";
+import { IoMdCheckmark } from "react-icons/io";
 import Logger from "../../Logger";
+import { CardOption } from "./CardOption";
+import WindowFunction from "./CardComponents/WindowFuction";
 
 const Card = ({
 	// props
@@ -51,6 +55,7 @@ const Card = ({
 	sortAxesForDm,
 	revertAxesForDm,
 }: CardProps) => {
+
 	field.dataType = field.dataType.toLowerCase();
 
 	var chartType =
@@ -78,8 +83,11 @@ const Card = ({
 	};
 
 	const [showOptions, setShowOptions] = useState<boolean>(false);
-
-	const [anchorEl, setAnchorEl] = useState<any | null>(null);
+    const [anchorEl, setAnchorEl] = useState<any | null>(null);
+	
+    //Window function open/close and enable/disable
+	const [windowFunction, setWindowFunction] = useState<boolean>(false);
+	const [windowFunctionDisable, setWindowFunctionDisable] = useState<boolean>(false);
 
 	const open: boolean = Boolean(anchorEl);
 
@@ -90,10 +98,10 @@ const Card = ({
 	const handleClose = (closeFrom: any, queryParam?: any) => {
 		setAnchorEl(null);
 		setShowOptions(false);
-
+       
 		if (closeFrom === "agg" || closeFrom === "timeGrain") {
 			var field2 = JSON.parse(JSON.stringify(field));
-
+            
 			if (closeFrom === "agg") {
 				Logger("info", "Aggregate Choice selected", queryParam);
 				field2.agg = queryParam;
@@ -109,10 +117,10 @@ const Card = ({
 		}
 	};
 
-	var menuStyle = { fontSize: "12px", padding: "2px 1rem" };
+	var menuStyle = { fontSize: "12px", padding: "2px 1.5rem"};
 	var menuSelectedStyle = {
 		fontSize: "12px",
-		padding: "2px 1rem",
+		padding: "2px 1.5rem",
 		backgroundColor: "rgba(25, 118, 210, 0.08)",
 	};
 
@@ -162,83 +170,164 @@ const Card = ({
 			}
 		},
 	});
-
+    
+	// Getting values from CardOption.tsx
 	// List of options to show at the end of each card
-	// (like, year, month, day, or Count, sum, avg etc)
-
-	const RenderMenu = () => {
-		var options: any[] = [];
-		var options2: any[] = [];
-
-		if (axisTitle === "Measure" || axisTitle === "X" || axisTitle === "Y") {
-			if (field.dataType === "date" || field.dataType === "timestamp") {
-				options = options.concat(Aggregators[axisTitle][field.dataType].aggr);
-				options2 = options2.concat(Aggregators[axisTitle][field.dataType].timeGrain);
-			} else {
-				options = options.concat(Aggregators[axisTitle][field.dataType]);
-			}
+	// (like, year, month, day, or Count, sum, avg, windowFunction etc)
+	    const RenderMenu = () => {
+		var aggr= [];
+		var timegrain= [];
+		var windowfn= [];
+		var options = CardOption(axisTitle, field);
+		if(options){
+			aggr = options[0];
+			timegrain = options[1];
+			windowfn = options[2];
 		}
-
-		if (
-			axisTitle === "Dimension" ||
-			axisTitle === "Row" ||
-			axisTitle === "Column" ||
-			axisTitle === "Distribution"
-		) {
-			if (field.dataType === "date" || field.dataType === "timestamp") {
-				options2 = options2.concat(Aggregators[axisTitle][field.dataType].timeGrain);
-			} else {
-				options = options.concat(Aggregators[axisTitle][field.dataType]);
+		
+        return (
+			 <Menu
+			id="basic-menu"
+			anchorEl={anchorEl}
+			open={open}
+			onClose={() => handleClose("clickOutside")}
+			MenuListProps={{
+				"aria-labelledby": "basic-button",
+			}}
+		>
+			{aggr?.length > 0 
+				? aggr?.map((opt: any) => {
+						return (
+							<MenuItem
+								onClick={() => handleClose("agg", opt.id)}
+								sx={opt.id === field.agg ? menuSelectedStyle : menuStyle}
+								key={opt.id}
+							>
+								{opt.name}
+							</MenuItem>
+						);
+				  })
+			: null
 			}
-		}
-		return (
-			<Menu
-				id="basic-menu"
-				anchorEl={anchorEl}
-				open={open}
-				onClose={() => handleClose("clickOutside")}
-				MenuListProps={{
-					"aria-labelledby": "basic-button",
-				}}
-			>
-				{options.length > 0
-					? options.map(opt => {
-							return (
-								<MenuItem
-									onClick={() => handleClose("agg", opt.id)}
-									sx={opt.id === field.agg ? menuSelectedStyle : menuStyle}
-									key={opt.id}
-								>
-									{opt.name}
-								</MenuItem>
-							);
-					  })
-					: null}
 
-				{options.length > 0 && options2.length > 0 ? <Divider /> : null}
+			{
+				axisTitle  === "Dimension" ||
+				axisTitle === "Row" ||
+				axisTitle === "Column" ||
+				axisTitle === "Distribution" ||
+				chartType === "gauge" ||
+				chartType === "funnel" ||
+				chartType === "simplecard" ? null 
+				: <Divider/>
+			}
 
-				{options2.length > 0
-					? options2.map(opt2 => {
-							return (
-								<MenuItem
-									onClick={() => handleClose("timeGrain", opt2.id)}
-									sx={opt2.id === field.timeGrain ? menuSelectedStyle : menuStyle}
-									key={opt2.id}
-								>
-									{opt2.name}
-								</MenuItem>
-							);
-					  })
-					: null}
+			{
+				chartType === "gauge" && timegrain?.length > 0 ||
+				chartType === "funnel" && timegrain?.length > 0 ||
+				chartType === "simplecard" && timegrain?.length > 0
+				? <Divider/> 
+				: null
+			}
 
-				{options.length === 0 && options2.length === 0 ? (
-					<MenuItem onClick={handleClose} sx={menuStyle} key="optNa">
-						<i>-- No options --</i>
-					</MenuItem>
-				) : null}
-			</Menu>
+			{timegrain?.length > 0
+				? timegrain?.map((opt2: any) => {
+						return (
+							<MenuItem
+								onClick={() => handleClose("timeGrain", opt2.id)}
+								sx={opt2.id === field.timeGrain ? menuSelectedStyle : menuStyle}
+								key={opt2.id}
+							>
+								{opt2.name}
+							</MenuItem>
+						);
+				  })
+			: null
+			}
+			
+			{
+				axisTitle  === "Dimension" ||
+				axisTitle === "Row" ||
+				axisTitle === "Column" ||
+				axisTitle === "Distribution" ||
+				chartType === "gauge" ||
+				chartType === "funnel" ||
+				chartType === "simplecard"  ? null 
+				: timegrain?.length > 0 ? <Divider/> 
+				: null
+			}
+
+			{ 
+			chartType === "gauge" ||
+			chartType === "funnel" ||
+			chartType === "simplecard" 
+			? null 
+			:
+			windowfn?.length > 0
+				?
+				windowfn?.map((opt: any) => {
+					//If two dimensional charts dimension, row, column, distribution without any fields, then window function will get disable
+					if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+						if(chartProp.properties[propKey].chartAxes[1].fields.length === 0 && chartProp.properties[propKey].chartAxes[2].fields.length === 0){
+							setWindowFunctionDisable(true); 
+
+							//while window function get disabled, it check window function having any values in redux state. If yes, then window function value will be null
+						    if(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn){
+								chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn = null;
+							} 
+						} else {
+							//If two dimensional charts dimension, row, column, distribution with fields, then window function will get enable
+							if(chartProp.properties[propKey].chartAxes[1].fields.length > 0 || chartProp.properties[propKey].chartAxes[2].fields.length > 0){
+								setWindowFunctionDisable(false);
+							}
+						}} else {
+							//If one dimensional charts dimension or row without any fields, then window function will get disable
+							if(!["heatmap", "crossTab", "boxPlot", "richText"].includes(chartType)){
+								if(chartProp.properties[propKey].chartAxes[1].fields.length === 0){
+									setWindowFunctionDisable(true); 
+
+									//while window function get disabled, it check window function having any values in redux state. If yes, then window function value will be null
+									if(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn){	
+										chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn = null;
+									} 
+								} else {
+									//If one dimensional charts dimension or row with fields, then window function will get enable
+									if(chartProp.properties[propKey].chartAxes[1].fields.length > 0){
+										setWindowFunctionDisable(false);
+									}
+								}
+							} 
+						}
+					return (
+						<div style={{display: "flex"}}>
+						<span style={{color: "rgb(211, 211, 211)", paddingLeft: "5px", position:"absolute"}}>
+							{chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn ? <IoMdCheckmark /> : null}
+						</span> 
+						<MenuItem
+						disabled= {windowFunctionDisable}
+						onClick={() => { 
+							setWindowFunction(true);
+							handleClose("clickOutside");
+						}}
+							sx={{ fontSize: "12px", padding: "2px 1.5rem"}}
+							key={opt.id}
+						>
+							{opt.name}      
+						</MenuItem>
+						</div>
+					);
+			  })
+				:  null 
+			}  	
+
+			{ aggr?.length === 0 && timegrain?.length === 0 && windowfn?.length === 0 ? (
+				<MenuItem onClick={handleClose} sx={menuStyle} key="optNa">
+					<i>-- No options --</i>
+				</MenuItem>
+			) : null}     
+		</Menu> 
+		
 		);
-	};
+}; 
 
 	return field ? (
 		<div
@@ -261,7 +350,18 @@ const Card = ({
 				<CloseRoundedIcon style={{ fontSize: "13px", margin: "auto" }} />
 			</button>
 
-			<span className="columnName ">{field.fieldname}</span>
+			<span className="columnName">{field.fieldname}</span>
+			
+			{/* window function have any values in state, then window icon will get enable */}
+			{
+				chartType === "gauge" ||
+			    chartType === "funnel" ||
+			    chartType === "simplecard" ? null :
+				chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn? 
+				<span style={{display: "flex", alignItems: "center", paddingRight: "5px", color: "rgb(211, 211, 211)"}}><SiWindows11/></span> 
+			    : null
+			}   
+
 			<span className="columnPrefix">
 				{field.agg ? AggregatorKeys[field.agg] : null}
 
@@ -280,7 +380,15 @@ const Card = ({
 			>
 				<KeyboardArrowDownRoundedIcon style={{ fontSize: "14px", margin: "auto" }} />
 			</button>
-			<RenderMenu />
+			<RenderMenu/> 
+			<WindowFunction 
+			windowfn= {windowFunction}
+			setWindowfn= {setWindowFunction}
+			propKey= {propKey}
+			bIndex= {bIndex}
+			itemIndex= {itemIndex}
+			/> 
+			
 		</div>
 	) : null;
 };
