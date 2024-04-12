@@ -62,6 +62,12 @@ export interface AggregatorsProps {
 	Distribution: DimensionPrefixesProps;
 }
 
+export interface WindowFunction {
+	Measure: MeasurePrefixes;
+	X: MeasurePrefixes;
+	Y: MeasurePrefixes;
+}
+
 export interface AggregatorKeysProps {
 	[key: string]: string;
 	// avg: string;

@@ -116,13 +116,26 @@ const Sort = ({
 								*Select a Column name*
 							</Typography>}
 
-							<Select sx={{width: "95.5%", height: "26px", fontSize: "13px"}}
+							<Select sx={{width: "95.5%", height: "26px", fontSize: "13px",'&.MuiOutlinedInput-root': {
+								'& fieldset': {
+									border: '1px solid rgb(211, 211, 211)', // Change the border color here
+								},
+								'&:hover fieldset': {
+									border: '1px solid #2bb9bb', // Change the hover border color here
+								},
+			                    '&.Mui-focused fieldset': {
+			                         border: '1px solid #2bb9bb', // Change the focused border color here
+			                    },
+			                    '&.Mui-focused svg': {
+				                    color: '#2bb9bb', // Change the arrow color when focused
+			                    },
+		                        },}}
 							onChange={handleSelectedColumnValue}
 							value={chartControls.properties[propKey].sortedValue}>
 
 								{firstObjKey.map((data,index) => (
 									<MenuItem key={index} value={data} 
-									sx={{color: "black", fontSize: "13px", "&:hover" : {backgroundColor: "rgb(238, 238, 238)"}}}>
+									sx={{color: "black", fontSize: "13px", "&:hover" : {backgroundColor: "rgb(238, 238, 238)"},}}>
 										{data}
 									</MenuItem>
 									))}	

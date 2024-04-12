@@ -41,6 +41,7 @@ interface ChartPropChartAxesFieldsProps {
 	userSelection: string[];
 	timeGrain?: string;
 	agg?: string;
+	windowfn?: any;
 }
 
 interface ChartPropChartAxes {
