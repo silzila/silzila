@@ -859,7 +859,7 @@ const GraphArea = ({
 			</div>
 			{/* <ChartThemes /> */}
 			{fullScreen ? (
-				<>
+				<>			
 					<div
 						tabIndex={0}
 						id="graphFullScreen"
@@ -869,6 +869,7 @@ const GraphArea = ({
 							removeFullScreen(e);
 						}}
 					>
+						<div style={{height:"3rem"}}></div>
 						<div style={{ display: "flex" }}>
 							<span
 								className="graphTitle"

@@ -55,7 +55,8 @@ Data Setup Page
 
 .listContainer {
 	height: 100%;
-	overflow: hidden;;
+	overflow: auto;
+	max-height: calc(35vh - 10px);
 }
 
 .connectionListContainer {
@@ -447,7 +448,7 @@ DataHome
 .dataHomeItemsContainer > div {
     display: flex;
     justify-content: center;
-	padding: 1rem 2rem 12.5rem 2rem;
+	padding: 1rem 2rem 2.5rem 2rem;
     align-items: center;
     border: 0.2px solid rgba(224, 224, 224, 1);
    

@@ -10,6 +10,10 @@ import {getGeoJSON} from '../GeoJSON/MapCommonFunctions';
 import { Dispatch } from "redux";
 import {changeGeoMapUnMatched} from '../../../../redux/ChartPoperties/ChartPropertiesActions';
 
+import {ffDialogTitle,
+	ffButtonStyle,	
+} from "../../../DataConnection/muiStyles";
+
 
 const GoeMismatch = ({  
     propKey,
@@ -106,8 +110,8 @@ const GoeMismatch = ({
                     })?.selectedKey;
 
                     return(                   
-                    <div key={index} style={{width:"100%", "display":"flex","flexDirection":"row", "columnGap":"4rem", "marginTop": "15px"}}>
-                        <span style={{width:"12rem", wordWrap:"normal"}}>{item[dimensionName]}</span>
+                    <div key={index} style={{width:"100%", "display":"flex","flexDirection":"row", "columnGap":"0.5rem", "marginTop": "15px"}}>
+                        <span style={{width:"10rem", wordWrap:"normal", verticalAlign:"center"}}>{item[dimensionName]}</span>
 
                         <Autocomplete
                             defaultValue={""}   
@@ -116,8 +120,13 @@ const GoeMismatch = ({
                             id="combo-box-demo"
                             onChange={(e:any)=>handleLocationOnChange(e, item[dimensionName])}
                             options={options}
-                            sx={{ width: "18rem" }}
-                            renderInput={(params) => <TextField {...params} label="Location" />}
+                          
+                            sx={{                              
+                                width : "15rem"                               
+                              }}
+                              
+                            renderInput={(params) => <TextField {...params} label="Location" 
+                             variant="outlined" />}
                             />
                     </div>  
                     )
@@ -136,14 +145,11 @@ const GoeMismatch = ({
             },
         }}
         >      
-            <DialogTitle sx={{
-						display: "flex",
-						flexDirection: "row",
-						columnGap: "2rem",
-						justifyContent: "space-between",
-						fontSize: "16px",
-					}}>
-                <h3  style={{paddingLeft:"1rem"}} tabIndex={-1}>Unmatched Locations</h3>
+            <DialogTitle sx={{...ffDialogTitle, background:"#8eedef"}}>
+                <div>
+                    <b>Fix Unmatched Locations</b>
+                </div>
+              
                 <CloseOutlined onClick={handleCloseButtonClick} style={{ float: "right" }} />
             </DialogTitle>
             <DialogContent sx={{"height":"25rem" ,"overflowY":"auto"}}>               
@@ -154,9 +160,21 @@ const GoeMismatch = ({
 						display: "flex",
 						flexDirection: "row-reverse",					
 						fontSize: "16px",
+                        columnGap:"1rem",
+                        paddingRight:"1rem",
+                        paddingBottom:"1rem",
+                        paddingTop:"1rem"
+
 					}}>
-                <Button onClick={handleCloseButtonClick}>Cancel</Button>  
-                <Button onClick={handleOkButtonClick}>Save</Button>          
+                <Button onClick={handleCloseButtonClick} sx={{
+							...ffButtonStyle,
+							border: "2px solid grey",
+							color: "grey",
+						}}>Cancel</Button>  
+                <Button onClick={handleOkButtonClick} sx={{ ...ffButtonStyle,
+                    backgroundColor: "#2bb9bb",
+                     border: "2px solid #2bb9bb",
+                      color: "black" }}>Save</Button>          
             </div>                               
         </Dialog>        
     )

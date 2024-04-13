@@ -109,8 +109,11 @@ const ChartAxes = ({
 			setMismatchList(misMatchArray);			
 
 
-			let emptySelectedKey = chartProp.properties[propKey].Geo.unMatchedChartData.find((item:any)=>item.selectedKey == "");	
-			setIsUnMatchedFixed(!emptySelectedKey);		
+			if(chartProp.properties[propKey].Geo.unMatchedChartData?.length >0){
+				let emptySelectedKey = chartProp.properties[propKey].Geo.unMatchedChartData.find((item:any)=>item.selectedKey == "");	
+				setIsUnMatchedFixed(!emptySelectedKey);		
+			}
+			
 		}
 		else{
 			setShowMismatchIcon(false);
@@ -133,17 +136,18 @@ const ChartAxes = ({
 					style={{display: "flex", flexDirection: "column" }}
 				>
 					<span className="axisTitle"></span>
-					<Autocomplete
-                            defaultValue={"World"}         
+					<div>
+						<Autocomplete
+							defaultValue={"World"}         
 							value={chartProp.properties[propKey].Geo.geoLocation}                  
-                            disablePortal
-                            id="combo-box-demo"
-                            onChange={(e:any)=>{handleLocationOnChange(e)}}
-                            options={options}
-                            sx={{ width: "12rem" }}
-                            renderInput={(params) => <TextField {...params} label="Select Map" />}
-                            />
-
+							disablePortal
+							id="combo-box-demo"
+							onChange={(e:any)=>{handleLocationOnChange(e)}}
+							options={options}
+							sx={{ width: "12rem" }}
+							renderInput={(params) => <TextField {...params} label="Select Map" />}
+							/>
+					</div>
 					{/*<FormControl size="small" sx={{ margin: "0.5rem", "& .MuiInputBase-root": {
 										borderRadius: "0px",
 									} }}
