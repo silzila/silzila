@@ -29,8 +29,7 @@ public class QueryComposer {
 
     private static final Logger logger = LogManager.getLogger(QueryComposer.class);
 
-    private static Boolean queryCTE = false;
-
+    private Boolean queryCTE = false;
     /*
      * Builds query based on Dimensions and Measures of user selection.
      * Query building is split into many sections:
@@ -47,7 +46,6 @@ public class QueryComposer {
 
         Query req = queries.get(0);
 
-        
         // flag --> override function or not
         if (queries.size() > 1) {
             queryCTE = true;
@@ -214,8 +212,12 @@ public class QueryComposer {
         if (queries.size() == 1) {
             updatedQuery = finalQuery;
         } else if (queries.size() > 1) {
-            // aliasing measure names --> example: sales,sales_2,sales_3
+            try {
+                // aliasing measure names --> example: sales,sales_2,sales_3
             Map<String, Integer> aliasNumberingCTE = new HashMap<>();
+            for(Dimension dim : queries.get(0).getDimensions()){
+                AilasMaker.aliasing(dim.getFieldName(), aliasNumberingCTE);
+            }
             for(Measure meas : queries.get(0).getMeasures()){
                 AilasMaker.aliasing(meas.getFieldName(), aliasNumberingCTE);
             }
@@ -326,7 +328,7 @@ public class QueryComposer {
                 // override base query
                 String baseCTEquery = composeQuery(Collections.singletonList(reqCTE), ds, vendorName,aliasNumberingCTE);
 
-                //fieldname aliass
+                //fieldname alias
                 String alias = AilasMaker.aliasing(reqCTE.getMeasures().get(0).getFieldName(), aliasNumberingCTE);
                 reqCTE.getMeasures().get(0).setFieldName(alias);
 
@@ -383,6 +385,9 @@ public class QueryComposer {
             else{
                 overrideCTEQuery.append(CTEmainQuery.toString());
                 updatedQuery = overrideCTEQuery.toString();
+            }
+            } catch (Exception e) {
+                throw new BadRequestException("An error occurred while processing the override: " + e.getMessage());
             }
             
         }

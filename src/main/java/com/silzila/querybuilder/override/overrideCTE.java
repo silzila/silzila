@@ -3,8 +3,10 @@ package com.silzila.querybuilder.override;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.silzila.exception.BadRequestException;
@@ -23,6 +25,10 @@ public static String joinCTE(int tblNum, List<Dimension> commonDimensions, List<
     // Create a map to keep track of alias numbering
     Map<String, Integer> aliasNumbering = new HashMap<>();
 
+    if (commonDimensions.size() != joinValues.size()) {
+        throw new IllegalArgumentException("Sizes of commonDimensions and joinValues must be the same");
+    }
+
     if (commonDimensions.isEmpty()) {
         // If there are no common dimensions, use cross join
         join = " \nCROSS JOIN " + " \n\ttbl" + tblNum;
@@ -37,7 +43,7 @@ public static String joinCTE(int tblNum, List<Dimension> commonDimensions, List<
             join += "tbl1" + "." + joinValues.get(l) + " = tbl" + tblNum + "." + alias;
             // Add "and" if it's not the last join condition
             if (l < commonDimensions.size() - 1) {
-                join += " AND ";
+                join += " AND ";     
             }
         }
     }
@@ -57,6 +63,9 @@ public static String joinCTE(int tblNum, List<Dimension> commonDimensions, List<
             String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
             // Check if the dimension is common and add the alias to the join values list
             if (commonDimensions.contains(dim)) {
+                if (alias == null || alias.isEmpty()) {
+                    throw new IllegalStateException("Alias not found for dimension: " + dim.getFieldName());
+                }
                 joinValues.add(alias);
             }
         }
@@ -68,18 +77,29 @@ public static String joinCTE(int tblNum, List<Dimension> commonDimensions, List<
                                    List<Dimension> combinedDimensions, String vendorName) throws BadRequestException {
 
     StringBuilder overrideQuery = new StringBuilder();
-
+    try{
     // Iterate over leftover dimensions
     for (Dimension leftOverDim : leftOverDimension) {
         combinedDimensions.remove(combinedDimensions.size() - 1); // Remove last dimension
 
         // Set tableId and fieldName for combinedDimensions
         Map<String, Integer> aliasNumbering = new HashMap<>();
-        for (Dimension dim : combinedDimensions) {
-            String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
-            dim.setTableId("tbl" + (tblNum - 1));
-            dim.setFieldName(alias);
-        }
+            for (Dimension dim : combinedDimensions) {
+                String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
+                dim.setTableId("tbl" + (tblNum - 1));
+
+                //to maintain alias sequence
+                String[] parts = reqCTE.getMeasures().get(0).getFieldName().split("_(?=[0-9])");
+                if (parts.length == 2) {
+                    String key = parts[0];
+                    if (aliasNumbering.containsKey(key) && aliasNumbering.get(key).equals(Integer.parseInt(parts[1]) - 1)) {
+                        aliasNumbering.put(key, aliasNumbering.get(key) + 1);
+                    }
+                }
+                
+                dim.setFieldName(alias);
+            }
+
 
         // Set tableId for measures in reqCTE
         reqCTE.getMeasures().get(0).setTableId("tbl" + (tblNum - 1));
@@ -106,7 +126,9 @@ public static String joinCTE(int tblNum, List<Dimension> commonDimensions, List<
 
         tblNum++;
     }
-
+    } catch(Exception e) {
+        throw new BadRequestException("An error occurred while overriding CTE query: " + e.getMessage());
+    }
     return overrideQuery.toString();
 }
 
@@ -120,14 +142,7 @@ public static String windowQuery(String CTEQuery, String CTEmainQuery, List<Dime
     List<String> nonWnMeasure = new ArrayList<>();
     List<Measure> overrideMeasures = new ArrayList<>();
 
-    // Generate non-window measures
-    // separate aliasNumbering for measure and dimensions --> avoid fieldname collision
-    Map<String, Integer> aliasNumberingM = new HashMap<>();
-    for (Measure meas : baseQuery.getMeasures()) {
-        // Generate alias for the measure
-        String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
-        nonWnMeasure.add(alias);
-    }
+
 
     // Set tableId, dataType, and fieldName for dimensions
     Map<String, Integer> aliasNumbering = new HashMap<>();
@@ -137,6 +152,14 @@ public static String windowQuery(String CTEQuery, String CTEmainQuery, List<Dime
         dim.setTableId("wnCTE");
         dim.setDataType(DataType.TEXT);
         dim.setFieldName(alias);
+    }
+
+    // Generate non-window measures
+    // separate aliasNumbering for measure and dimensions --> avoid fieldname collision
+    for (Measure meas : baseQuery.getMeasures()) {
+        // Generate alias for the measure
+        String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+        nonWnMeasure.add(alias);
     }
 
     // Process window measures
@@ -186,6 +209,7 @@ public static String windowQuery(String CTEQuery, String CTEmainQuery, List<Dime
 
     return finalQuery.toString();
 }
+
 
 
     

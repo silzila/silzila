@@ -14,6 +14,7 @@ import com.silzila.helper.AilasMaker;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
 import com.silzila.payload.request.Query;
+import com.silzila.querybuilder.override.overrideUtils;
 
 public class SelectClauseBigquery {
     private static final Logger logger = LogManager.getLogger(SelectClauseBigquery.class);
@@ -23,10 +24,13 @@ public class SelectClauseBigquery {
         logger.info("SelectClauseBigquery calling ***********");
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
-        if (aliasnumber != null && aliasnumber.length > 0) {
-            Map<String, Integer> aliasNumber = aliasnumber[0];
-            aliasNumber.forEach((key, value) -> aliasNumbering.put(key, value));
-        }  
+         // aliasing for only measure  override 
+         Map<String,Integer> aliasNumberingM = new HashMap<>();
+
+         if (aliasnumber != null && aliasnumber.length > 0) {
+             Map<String, Integer> aliasNumber = aliasnumber[0];
+             aliasNumber.forEach((key, value) -> aliasNumberingM.put(key, value));
+         }  
         List<String> selectList = new ArrayList<>();
         List<String> selectDimList = new ArrayList<>();
         List<String> selectMeasureList = new ArrayList<>();
@@ -49,7 +53,9 @@ public class SelectClauseBigquery {
          */
         for (int i = 0; i < req.getDimensions().size(); i++) {
             Dimension dim = req.getDimensions().get(i);
-
+            // If the base dimension goes up to order_date_2 and the measure is order_date, it should be order_date_3.
+            // If the overridden dimension includes additional order_date values, we want to keep the measure as order_date_3.
+            overrideUtils.incrementAliasNumber(aliasNumbering, aliasNumberingM, req.getMeasures().get(0));
             String field = "";
 
             // for non Date fields, Keep column as is
@@ -273,10 +279,18 @@ public class SelectClauseBigquery {
             if(meas.getWindowFn()[0] != null){
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
                 windowFn = SelectClauseWindowFunction.windowFunction(meas, req, alias, vendorName);
+                // if aliasnumber is not null, to maintain alias sequence for measure field
+            if(aliasnumber != null && aliasnumber.length > 0){
+                alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
+                }
                 selectMeasureList.add(field + " AS _*" + alias);
                 selectMeasureList.add(windowFn + " AS _0" + alias);
             } else{
             String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+            // if aliasnumber is not null, to maintain alias sequence for measure field
+            if(aliasnumber != null && aliasnumber.length > 0){
+                alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
+                }
             selectMeasureList.add(field + " AS " + alias);
             }
         }
