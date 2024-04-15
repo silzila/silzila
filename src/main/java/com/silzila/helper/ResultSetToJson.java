@@ -26,7 +26,6 @@ public class ResultSetToJson {
                     }
                 })
                 .collect(Collectors.toList());
-        System.out.println(colNames);
 
         JSONArray result = new JSONArray();
         while (resultSet.next()) {

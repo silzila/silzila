@@ -311,8 +311,7 @@ public class QueryComposer {
         
                 reqCTE.setDimensions(combinedDimensions);
 
-                //setting measures -->window Function separetly in new CTE 
-                if(leftOverDimension.size()>0){
+                //setting measures -->window Function separetly in new CTE
                     if(reqCTE.getMeasures().get(0).getWindowFn()[0]!=null){
                         Measure measure = Measure.builder().tableId(Meas.getTableId()).fieldName(Meas.getFieldName())
                                                             .dataType(Meas.getDataType())
@@ -323,7 +322,7 @@ public class QueryComposer {
                         reqCTE.getMeasures().set(0,measure);
                         windowFn = true;
                         }
-                }
+
 
                 // override base query
                 String baseCTEquery = composeQuery(Collections.singletonList(reqCTE), ds, vendorName,aliasNumberingCTE);
@@ -387,6 +386,7 @@ public class QueryComposer {
                 updatedQuery = overrideCTEQuery.toString();
             }
             } catch (Exception e) {
+                queryCTE = false;
                 throw new BadRequestException("An error occurred while processing the override: " + e.getMessage());
             }
             

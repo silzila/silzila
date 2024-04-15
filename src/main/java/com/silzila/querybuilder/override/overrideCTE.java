@@ -139,10 +139,9 @@ public static String joinCTE(int tblNum, List<Dimension> commonDimensions, List<
 public static String windowQuery(String CTEQuery, String CTEmainQuery, List<Dimension> baseDimensions, HashMap<String, Measure> windowMeasure, Query baseQuery, String vendorName) throws BadRequestException {
     StringBuilder finalQuery = new StringBuilder();
 
+    try{
     List<String> nonWnMeasure = new ArrayList<>();
     List<Measure> overrideMeasures = new ArrayList<>();
-
-
 
     // Set tableId, dataType, and fieldName for dimensions
     Map<String, Integer> aliasNumbering = new HashMap<>();
@@ -162,16 +161,17 @@ public static String windowQuery(String CTEQuery, String CTEmainQuery, List<Dime
         nonWnMeasure.add(alias);
     }
 
+
     // Process window measures
     for (HashMap.Entry<String, Measure> entry : windowMeasure.entrySet()) {
         String key = entry.getKey();
         Measure value = entry.getValue();
-        if (value.getWindowFn()[0] != null) {
+        if (value.getWindowFn().length > 0 && value.getWindowFn()[0] != null) {
             // Set tableId and fieldName for window measures
             value.setTableId("wnCTE");
             value.setFieldName(key);
             overrideMeasures.add(value);
-        } else {
+        }  else {
             // Add non-window measures to the list
             nonWnMeasure.add(key);
         }
@@ -190,7 +190,6 @@ public static String windowQuery(String CTEQuery, String CTEmainQuery, List<Dime
               .append(CTEmainQuery)
               .append(") \nSELECT ")
               .append(selectClauseOd);
-
     // Add non-window measures to the SELECT clause
     if (!nonWnMeasure.isEmpty()) {
         nonWnMeasure.forEach(s -> finalQuery.append(", ").append("\n\t" + s));
@@ -201,11 +200,15 @@ public static String windowQuery(String CTEQuery, String CTEmainQuery, List<Dime
 
     // Add non-window measures to the GROUP BY clause
     if (!nonWnMeasure.isEmpty()) {
-        nonWnMeasure.forEach(s -> finalQuery.append(", ").append("\n\t"+s));
+        nonWnMeasure.forEach(s -> finalQuery.append(", ").append("\n\t"+ s));
     }
 
     // Add ORDER BY clause
     finalQuery.append("\nORDER BY ").append(generateOrderByClause(baseDimensions, "wnCTE"));
+    }
+    catch(Exception e) {
+        throw new BadRequestException("An error occurred while window query: " + e.getMessage());
+    }
 
     return finalQuery.toString();
 }

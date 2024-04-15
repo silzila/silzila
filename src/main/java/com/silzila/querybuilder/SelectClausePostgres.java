@@ -15,7 +15,7 @@ import com.silzila.helper.AilasMaker;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
 import com.silzila.payload.request.Query;
-import com.silzila.querybuilder.override.overrideUtils;
+
 
 public class SelectClausePostgres {
     /* SELECT clause for Postgres dialect */
@@ -53,7 +53,18 @@ public class SelectClausePostgres {
             Dimension dim = req.getDimensions().get(i);
             // If the base dimension goes up to order_date_2 and the measure is order_date, it should be order_date_3.
             // If the overridden dimension includes additional order_date values, we want to keep the measure as order_date_3.
-            overrideUtils.incrementAliasNumber(aliasNumbering, aliasNumberingM, req.getMeasures().get(0));
+            if(aliasnumber != null && aliasnumber.length > 0){
+                
+                for(String key : aliasNumberingM.keySet()){
+
+                    for(String key1 : aliasNumbering.keySet()){
+                    if(key.equals(req.getMeasures().get(0).getFieldName()) && key.equals(key1) && aliasNumbering.get(key).equals(aliasNumberingM.get(key1))){
+                            aliasNumbering.put(key, aliasNumbering.get(key) + 1);
+                    }
+                }
+                }
+               
+            }
             String field = "";
 
             // for non Date fields, Keep column as is
