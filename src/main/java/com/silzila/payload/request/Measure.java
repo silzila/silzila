@@ -12,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import lombok.Builder;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
         "tableId",
@@ -22,8 +24,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
         "windowFn",
         "windowFnOption",
         "windowFnMatrix",
-        "windowFnPartition"
+        "windowFnPartition",
+        "disableReportFilters"
 })
+@Builder
 @Generated("jsonschema2pojo")
 public class Measure implements Serializable {
 
@@ -45,6 +49,8 @@ public class Measure implements Serializable {
     private int[] windowFnMatrix = new int[]{};
     @JsonProperty("windowFnPartition")
     private int[] windowFnPartition = new int[]{};
+    @JsonProperty("disableReportFilters")
+    private Boolean disableReportFilters = false;
     private final static long serialVersionUID = 1754801202036436076L;
       
     /**
@@ -65,9 +71,10 @@ public class Measure implements Serializable {
      * @param windowFnOption
      * @param windowFnMatrix
      * @param windowFnPartition
+     * @param disableReportFilters
      */
     public Measure(String tableId, String fieldName, Measure.DataType dataType, Measure.TimeGrain timeGrain, Measure.Aggr aggr,
-            String[] windowFn, int[] windowFnOption, int[] windowFnMatrix, int[] windowFnPartition) {
+            String[] windowFn, int[] windowFnOption, int[] windowFnMatrix, int[] windowFnPartition, Boolean disableReportFilters) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
@@ -78,11 +85,20 @@ public class Measure implements Serializable {
         this.windowFnOption = windowFnOption;
         this.windowFnMatrix = windowFnMatrix;
         this.windowFnPartition = windowFnPartition;
+        this.disableReportFilters = disableReportFilters;
     }
 
     @JsonProperty("tableId")
     public String getTableId() {
         return tableId;
+    }
+
+    public Boolean getDisableReportFilters() {
+        return disableReportFilters;
+    }
+
+    public void setDisableReportFilters(Boolean disableReportFilters) {
+        this.disableReportFilters = disableReportFilters;
     }
 
     @JsonProperty("tableId")
