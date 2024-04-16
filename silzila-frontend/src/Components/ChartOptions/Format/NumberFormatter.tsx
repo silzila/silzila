@@ -3,15 +3,19 @@
 // Given a number this function returns an abbreviated number
 // Eg 1000000 will be returned as 1M
 export const formatNumberWithAbbrev = (value: any, digits: any) => {
-	return Math.abs(Number(value)) >= 1.0e9
-		? (Math.abs(Number(value)) / 1.0e9).toFixed(digits) + "B"
+	let multipyWithOne = value > 0 ? 1 : -1;
+
+	let curValue = Math.abs(Number(value)) >= 1.0e9
+		? ((Math.abs(Number(value)) / 1.0e9) * multipyWithOne).toFixed(digits)  + "B"
 		: // Six Zeroes for Millions
 		Math.abs(Number(value)) >= 1.0e6
-		? (Math.abs(Number(value)) / 1.0e6).toFixed(digits) + "M"
+		? ((Math.abs(Number(value)) / 1.0e6) * multipyWithOne).toFixed(digits) + "M"
 		: // Three Zeroes for Thousands
 		Math.abs(Number(value)) >= 1.0e3
-		? (Math.abs(Number(value)) / 1.0e3).toFixed(digits) + "K"
-		: Math.abs(Number(value));
+		? ((Math.abs(Number(value)) / 1.0e3) * multipyWithOne).toFixed(digits) + "K"
+		: (Math.abs(Number(value)) * multipyWithOne);	
+
+		return curValue;
 };
 
 // Given a number this function returns comma separated number

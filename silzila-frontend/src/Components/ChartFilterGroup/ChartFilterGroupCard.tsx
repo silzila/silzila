@@ -95,11 +95,11 @@ const ChartFilterGroupCard = ({
 		{ key: "dayofweek", value: "Day Of Week" },
 	];
 	const equalPatternCollections: PatternCollectionType[] = [
-		{ key: "greaterThan", value: "> Greater than" },
-		{ key: "lessThan", value: "< Less than" },
+		{ key: "greaterThan", value: ">  Greater than" },
+		{ key: "lessThan", value: "<  Less than" },
 		{ key: "greaterThanOrEqualTo", value: ">= Greater than or Equal to" },
 		{ key: "lessThanOrEqualTo", value: "<= Less than or Equal to" },
-		{ key: "equalTo", value: "= Equal to" },
+		{ key: "equalTo", value: "=  Equal to" },
 		{ key: "notEqualTo", value: "<> Not Equal to" },
 		{ key: "between", value: ">= Between <=" },
 	];
