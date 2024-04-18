@@ -148,7 +148,10 @@ public class WhereClauseDateBigquery {
 
 
         }
-
+        //tillDate
+        if(filter.getIsTillDate() && List.of("MONTH","DAYOFMONTH","YEARMONTH","YEAR","DAYOFWEEK","QUARTER","YEARQUARTER").contains(filter.getTimeGrain().name())){
+            where = "(\n\t\t" + where + TillDate.tillDate("bigquery", filter) + "\n\t\t)";
+        }
         return where;
 
     }
