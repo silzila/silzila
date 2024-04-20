@@ -43,6 +43,8 @@ public class Filter implements Serializable {
     private List<String> userSelection = null;
     @JsonProperty("relativeCondition")
     private RelativeCondition relativeCondition = null;
+    @JsonProperty("isTillDate")
+    private Boolean isTillDate = false; 
     private final static long serialVersionUID = 4876626487235075859L;
 
     /**
@@ -66,7 +68,7 @@ public class Filter implements Serializable {
      */
     public Filter(String tableId, String fieldName, Filter.DataType dataType, Boolean shouldExclude,
             Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection, String filterType,
-            RelativeCondition relativeCondition) {
+            RelativeCondition relativeCondition, Boolean  isTillDate) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
@@ -77,6 +79,7 @@ public class Filter implements Serializable {
         this.userSelection = userSelection;
         this.filterType = filterType;
         this.relativeCondition = relativeCondition;
+        this.isTillDate = isTillDate;
     }
 
     @JsonProperty("filterType")
@@ -169,6 +172,14 @@ public class Filter implements Serializable {
         this.relativeCondition = relativeCondition;
     }
 
+    public Boolean getIsTillDate() {
+        return isTillDate;
+    }
+
+    public void setIsTillDate(Boolean isTillDate) {
+        this.isTillDate = isTillDate;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -209,6 +220,10 @@ public class Filter implements Serializable {
         sb.append("relativeCondition");
         sb.append('=');
         sb.append(((this.relativeCondition == null) ? "<null>" : this.relativeCondition));
+        sb.append(',');
+        sb.append("isTillDate");
+        sb.append('=');
+        sb.append(((this.isTillDate == null) ? "<null>" : this.isTillDate));
         sb.append(',');
         if (sb.charAt((sb.length() - 1)) == ',') {
             sb.setCharAt((sb.length() - 1), ']');

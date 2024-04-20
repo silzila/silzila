@@ -119,7 +119,10 @@ public class WhereClauseSnowflake {
                 }
             }
         }
-
+        //tillDate
+        if(filter.getIsTillDate() && List.of("MONTH","DAYOFMONTH","YEARMONTH","YEAR","DAYOFWEEK","QUARTER","YEARQUARTER").contains(filter.getTimeGrain().name())){
+            where = "(\n\t\t" + where + TillDate.tillDate("snowflake", filter) + "\n\t\t)";
+        }
         return where;
 
     }
