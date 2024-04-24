@@ -1,6 +1,7 @@
 // This component houses the dropzones for table fields
 // Number of dropzones and its name is returned according to the chart type selected.
 // Once minimum number of fields are met for the given chart type, server call is made to get chart data and saved in store
+// This is another comment
 
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
