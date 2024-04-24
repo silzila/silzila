@@ -70,7 +70,7 @@ export const chartTypes = [
 	{ name: "simplecard", icon: simpleCard, value: "Simple Card" },
 	{ name: "table", icon: CrossTabIcon, value: "Table" },
 ];
-
+//testing switch
 const ChartTypes = ({
 	//props
 	propKey,
