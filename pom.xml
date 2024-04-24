@@ -218,7 +218,7 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/libs/GoogleBigQueryJDBC42.jar</systemPath>
 		</dependency>
-
+		
 		<!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-bigquery -->
 		<dependency>
 			<groupId>com.google.cloud</groupId>
