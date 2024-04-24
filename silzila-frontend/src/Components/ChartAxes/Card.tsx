@@ -1,7 +1,7 @@
 // This component represent each individual table field dropped inside dropzone
 // Each card has some aggregate values and option to select different aggregate and/or timeGrain values
 
-//commentttt
+//comment
 
 import React, { useState } from "react";
 import "./Card.css";
