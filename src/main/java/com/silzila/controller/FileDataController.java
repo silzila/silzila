@@ -14,12 +14,10 @@ import com.silzila.exception.BadRequestException;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.payload.request.FileUploadRevisedInfoRequest;
-import com.silzila.payload.request.FileUploadRevisedInfoRequestForExcel;
 import com.silzila.payload.response.FileUploadColumnInfo;
 import com.silzila.payload.response.FileUploadResponse;
 import com.silzila.payload.response.FileUploadResponseDuckDb;
 import com.silzila.payload.response.MessageResponse;
-import com.silzila.service.ExcelFileDataService;
 import com.silzila.service.FileDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,8 +46,7 @@ public class FileDataController {
     @Autowired
     FileDataService fileDataService;
 
-    @Autowired
-    ExcelFileDataService excelFileDataService;
+   
     
     @GetMapping("/file-upload-test")
     public ResponseEntity<?> protectedRoute(@RequestHeader Map<String, String> reqHeder) {
@@ -60,38 +57,18 @@ public class FileDataController {
     // upload CSV File
     @PostMapping("/file-upload")
     public ResponseEntity<?> fileUpload(
-            @RequestParam("file") MultipartFile file)
-            throws ExpectationFailedException, JsonMappingException, JsonProcessingException, SQLException,
-            ClassNotFoundException {
-        // calling Service function
-        FileUploadResponseDuckDb fileUploadResponse = fileDataService.fileUpload(file);
-        return ResponseEntity.status(HttpStatus.OK).body(fileUploadResponse);
-
-    }
-    
-    @PostMapping("/json-file-upload")
-    public ResponseEntity<?> jsonFileUpload(
-            @RequestParam("file") MultipartFile file)
-            throws ExpectationFailedException, JsonMappingException, JsonProcessingException, SQLException,
-            ClassNotFoundException {
-        // calling Service function
-        FileUploadResponseDuckDb fileUploadResponse = fileDataService.jsonFileUpload(file);
-        return ResponseEntity.status(HttpStatus.OK).body(fileUploadResponse);
-
-    }
-    
-    @PostMapping("/excel-file-upload")
-    public ResponseEntity<?> fileExcelUpload(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("sheetName") String sheetName)
+            @RequestParam(name = "sheetName", required = false) String sheetName)
             throws ExpectationFailedException, JsonMappingException, JsonProcessingException, SQLException,
             ClassNotFoundException {
         // calling Service function
-        FileUploadResponseDuckDb fileUploadResponse = excelFileDataService.excelFileUpload(file,sheetName);
+        FileUploadResponseDuckDb fileUploadResponse = fileDataService.fileUpload(file,sheetName);
+        System.out.println(fileUploadResponse);
         return ResponseEntity.status(HttpStatus.OK).body(fileUploadResponse);
 
     }
-
+    
+    
     // step 2:
     // (this step can be repeated by user
     // until user is satisfied with col data types & col names)
@@ -108,17 +85,7 @@ public class FileDataController {
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
     
-    @PostMapping("/json-file-upload-change-schema")
-    public ResponseEntity<?> jsonFileUploadChangeSchema(@RequestHeader Map<String, String> reqHeader,
-            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
-            throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
-            SQLException {
-        // get the requester user Id
-        String userId = reqHeader.get("username");
-        // calling Service function
-        JSONArray jsonArray = fileDataService.jsonFileUploadChangeSchema(revisedInfoRequest, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
-    }
+   
 
     // step 3:
     // save file data
@@ -134,31 +101,8 @@ public class FileDataController {
         return ResponseEntity.status(HttpStatus.OK).body(fileDataDTO);
     }
     
-    @PostMapping("/json-file-upload-save-data")
-    public ResponseEntity<?> jsonFileUploadSaveData(@RequestHeader Map<String, String> reqHeader,
-            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
-            throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
-            SQLException {
-        // get the requester user Id
-        String userId = reqHeader.get("username");
-        // calling Service function
-        FileDataDTO fileDataDTO = fileDataService.jsonFileUploadSave(revisedInfoRequest, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(fileDataDTO);
-    }
+   
     
-    @PostMapping("/excel-file-upload-save-data")
-    public ResponseEntity<?> excelFileUploadSaveData(@RequestHeader Map<String, String> reqHeader,
-            @Valid @RequestBody FileUploadRevisedInfoRequestForExcel revisedInfoRequest,
-            @RequestBody String sheetName)
-            throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
-            SQLException {
-        // get the requester user Id
-        String userId = reqHeader.get("username");
-        // calling Service function
-        FileDataDTO fileDataDTO = excelFileDataService.excelFileUploadSave(revisedInfoRequest, userId,sheetName);
-        return ResponseEntity.status(HttpStatus.OK).body(fileDataDTO);
-    }
-
     // list file datas
     @GetMapping("/file-data")
     public List<FileDataDTO> getAllFileDatas(@RequestHeader Map<String, String> reqHeader) {

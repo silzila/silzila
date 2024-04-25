@@ -21,7 +21,6 @@ import com.silzila.helper.DuckDbMetadataToJson;
 import com.silzila.helper.ResultSetToJson;
 import com.silzila.payload.request.FileUploadRevisedColumnInfo;
 import com.silzila.payload.request.FileUploadRevisedInfoRequest;
-import com.silzila.payload.request.FileUploadRevisedInfoRequestForExcel;
 import com.silzila.payload.request.Table;
 import com.silzila.payload.response.FileUploadResponseDuckDb;
 import com.silzila.domain.entity.FileData;
@@ -482,7 +481,7 @@ public class DuckDbService {
 	}
 	
 	public void writeExcelToParquet(
-	        FileUploadRevisedInfoRequestForExcel revisedInfoRequest, String userId,String sheetName) throws SQLException {
+	        FileUploadRevisedInfoRequest revisedInfoRequest, String userId) throws SQLException {
 
 	    String fileName = revisedInfoRequest.getFileId();
 	    String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/"
@@ -535,7 +534,7 @@ public class DuckDbService {
 	    final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
 	            + "/" + revisedInfoRequest.getFileId() + ".parquet";
 	    String query = "COPY (SELECT * from st_read('" + filePath
-	            + "', layer= ' " + sheetName + " ')) TO '" + writeFile
+	            + "', layer= '" + revisedInfoRequest.getSheetName() + "')) TO '" + writeFile
 	            + "' (FORMAT PARQUET, COMPRESSION ZSTD);";
 	    stmtRecords.execute(query);
 	    logger.info("************************\n" + query);
@@ -545,6 +544,7 @@ public class DuckDbService {
 	}
 	
 	public FileUploadResponseDuckDb readJson(String fileName) throws SQLException {
+		
         // String filePath = SILZILA_DIR + "/" + fileName;
         String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/"
                 + fileName;
@@ -553,10 +553,16 @@ public class DuckDbService {
         Statement stmtRecords = conn2.createStatement();
         Statement stmtMeta = conn2.createStatement();
         Statement stmtDeleteTbl = conn2.createStatement();
-
-        String query = "CREATE OR REPLACE TABLE tbl_" + fileName + " AS SELECT * from read_json('" + filePath
+        try {
+        String query = "CREATE OR REPLACE TABLE tbl_" + fileName + " AS SELECT * from read_json_auto('" + filePath
                 + "',SAMPLE_SIZE=200)";
-        stmtRecords.execute(query);
+        stmtRecords.execute(query);}
+        catch (SQLException e) {
+           
+        	throw new RuntimeException("Could not upload because WRONG JSON FORMAT. Errorr: " + e.getMessage());
+        
+        }
+        	
         ResultSet rsRecords = stmtRecords.executeQuery("SELECT * FROM tbl_" + fileName + " LIMIT 200");
         ResultSet rsMeta = stmtMeta.executeQuery("DESCRIBE tbl_" + fileName);
         
@@ -612,7 +618,11 @@ public class DuckDbService {
         FileUploadResponseDuckDb fileUploadResponseDuckDb = new FileUploadResponseDuckDb(null, fileName,
                 metaList,
                 recordList);
+        
+    
         return fileUploadResponseDuckDb;
+	
+		
     }
 
     // edit schema of already uploaded file
@@ -740,8 +750,8 @@ public class DuckDbService {
         // read CSV and write as Parquet file
         final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
                 + "/" + revisedInfoRequest.getFileId() + ".parquet";
-        String query = "COPY (SELECT * from read_csv_auto('" + filePath
-                + "', columnss=" + columnsMapString
+        String query = "COPY (SELECT * from read_json_auto('" + filePath
+                + "', columns=" + columnsMapString
                 + dateFormatCondition
                 + timeStampFormatCondition + ")) TO '" + writeFile
                 + "' (FORMAT PARQUET, COMPRESSION ZSTD);";

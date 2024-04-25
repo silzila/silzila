@@ -13,6 +13,9 @@ import com.silzila.payload.response.FileUploadResponseDuckDb;
 import com.silzila.domain.entity.FileData;
 import com.silzila.dto.FileDataDTO;
 import com.silzila.repository.FileDataRepository;
+
+import net.snowflake.client.jdbc.internal.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,7 +52,7 @@ public class FileDataService {
     final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
 
     // 1. upload File Data
-    public FileUploadResponseDuckDb fileUpload(MultipartFile file)
+    public FileUploadResponseDuckDb fileUpload(MultipartFile file,String sheetName)
             throws ExpectationFailedException, JsonMappingException, JsonProcessingException, SQLException,
             ClassNotFoundException {
         Path path = Paths.get(SILZILA_DIR, "tmp");
@@ -64,9 +67,13 @@ public class FileDataService {
         } catch (Exception e) {
             throw new RuntimeException("Could not initialize folder for upload. Errorr: " + e.getMessage());
         }
-        // only CSV file is allowed and throws error if otherwise
-        if (!(file.getContentType() == null || file.getContentType().equals("text/csv"))) {
-            throw new ExpectationFailedException("Error: Only CSV file is allowed!");
+        // only CSV and JSON file is allowed and throws error if otherwise
+        if (file.getContentType() == null || 
+        		(!file.getContentType().equals("text/csv")
+        		&& !file.getContentType().equals("application/json")
+        		&&!(file.getContentType().equals("application/vnd.ms-excel") ||
+        	    file.getContentType().equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")))) {
+            throw new ExpectationFailedException("Error: Only CSV or JSON or Excel files are allowed!");
         }
         // upload file
         try {
@@ -91,64 +98,44 @@ public class FileDataService {
         // calling spark service function,
         // this will have sample records & column name and type
         // FileUploadResponse fileUploadResponse = sparkService.readCsv(filePath);
+        if(file.getContentType().equals("text/csv")) {
         FileUploadResponseDuckDb fileUploadResponseDuckDb = duckDbService.readCsv(savedFileName);
+       
 
         // also pass file name & dataframe name to the response
         fileUploadResponseDuckDb.setFileId(savedFileName);
         fileUploadResponseDuckDb.setName(uploadedFileNameWithoutExtn);
         return fileUploadResponseDuckDb;
+        }
+        
+        else if(file.getContentType().equals("application/json")) {
+        	FileUploadResponseDuckDb fileUploadResponseDuckDb = duckDbService.readJson(savedFileName);
+            
+
+            // also pass file name & dataframe name to the response
+            fileUploadResponseDuckDb.setFileId(savedFileName);
+            fileUploadResponseDuckDb.setName(uploadedFileNameWithoutExtn);
+            return fileUploadResponseDuckDb;
+        }
+        
+        else if(file.getContentType().equals("application/vnd.ms-excel") ||
+        	    file.getContentType().equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+        {
+        	FileUploadResponseDuckDb fileUploadResponseDuckDb = duckDbService.readExcel(savedFileName, sheetName);
+            
+
+            // also pass file name & dataframe name to the response
+            fileUploadResponseDuckDb.setFileId(savedFileName);
+            fileUploadResponseDuckDb.setName(uploadedFileNameWithoutExtn);
+            return fileUploadResponseDuckDb;
+        }
+        
+		return null;
+        
+        
     }
     
-    public FileUploadResponseDuckDb jsonFileUpload(MultipartFile file)
-            throws ExpectationFailedException, JsonMappingException, JsonProcessingException, SQLException,
-            ClassNotFoundException {
-        Path path = Paths.get(SILZILA_DIR, "tmp");
-        String uploadedFileNameWithoutExtn = "";
-        String savedFileName = "";
-
-        // TODO: creating tmp folder - can be moved into main function as one time call.
-        // create tmp folder
-        try {
-            Files.createDirectories(path);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Could not initialize folder for upload. Errorr: " + e.getMessage());
-        }
-        // only CSV file is allowed and throws error if otherwise
-        if (!(file.getContentType() == null || file.getContentType().equals("application/json"))) {
-            throw new ExpectationFailedException("Error: Only JSON file is allowed!");
-        }
-        // upload file
-        try {
-            // rename to random id while saving file
-            savedFileName = UUID.randomUUID().toString().substring(0, 8);
-            // trim file name without file extension - used for naming data frame
-            uploadedFileNameWithoutExtn = file.getOriginalFilename().substring(0,
-                    file.getOriginalFilename().lastIndexOf("."));
-            // persisting file
-            Files.copy(file.getInputStream(), path.resolve(savedFileName));
-        } catch (Exception e) {
-            throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
-        }
-
-        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/"
-                + savedFileName;
-
-        // Open file in spark to get metadata
-        // first, start spark session
-        // sparkService.startSparkSession();
-        duckDbService.startDuckDb();
-        // calling spark service function,
-        // this will have sample records & column name and type
-        // FileUploadResponse fileUploadResponse = sparkService.readCsv(filePath);
-        FileUploadResponseDuckDb fileUploadResponseDuckDb = duckDbService.readCsv(savedFileName);
-
-        // also pass file name & dataframe name to the response
-        fileUploadResponseDuckDb.setFileId(savedFileName);
-        fileUploadResponseDuckDb.setName(uploadedFileNameWithoutExtn);
-        return fileUploadResponseDuckDb;
-    }
-
+    
 
     // // helper function to build query from revised columns for meta data changes
     // // like change of data type or column name
@@ -314,23 +301,19 @@ public class FileDataService {
 
         // start duckdb in memory
         duckDbService.startDuckDb();
+        if(revisedInfoRequest.getFileType().equalsIgnoreCase("csv")) {
         JSONArray jsonArray = duckDbService.readCsvChangeSchema(revisedInfoRequest);
         return jsonArray;
+        }
+        else if(revisedInfoRequest.getFileType().equalsIgnoreCase("json")) {
+            JSONArray jsonArray = duckDbService.readJsonChangeSchema(revisedInfoRequest);
+            return jsonArray;
+            }
+		return null;
+        
     }
     
-    public JSONArray jsonFileUploadChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
-            throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
-            SQLException {
-
-        // check in DB if file data name is already taken
-        isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName());
-
-        // start duckdb in memory
-        duckDbService.startDuckDb();
-        JSONArray jsonArray = duckDbService.readJsonChangeSchema(revisedInfoRequest);
-        return jsonArray;
-    }
-
+   
     // 3. persist uploaded file (with/witout changed schema) as parquet file to disk
     // Steps: read uploaded file + change metadata if needed
     // + save the data as Parquet file + delete uploaded file
@@ -356,7 +339,7 @@ public class FileDataService {
 
         // start duckdb in memory
         duckDbService.startDuckDb();
-
+        if(revisedInfoRequest.getFileType().equalsIgnoreCase("csv")) {
         duckDbService.writeToParquet(revisedInfoRequest, userId);
 
         // save metadata to DB and return as response
@@ -382,59 +365,70 @@ public class FileDataService {
         }
 
         return fileDataDTO;
+        }
+        else if(revisedInfoRequest.getFileType().equalsIgnoreCase("json")){
+        	duckDbService.writeJsonToParquet(revisedInfoRequest, userId);
+
+            // save metadata to DB and return as response
+            String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
+            FileData fileData = new FileData(
+                    userId,
+                    revisedInfoRequest.getName(),
+                    fileNameToBeSaved);
+            fileDataRepository.save(fileData);
+
+            FileDataDTO fileDataDTO = new FileDataDTO(
+                    fileData.getId(),
+                    fileData.getUserId(),
+                    fileData.getName());
+
+            // delete the read file which was uploaded by user
+            final String readFile = System.getProperty("user.home") + "/" + "silzila-uploads"
+                    + "/" + "tmp" + "/" + revisedInfoRequest.getFileId();
+            try {
+                Files.deleteIfExists(Paths.get(readFile));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return fileDataDTO;
+        	
+        }
+        else if(revisedInfoRequest.getFileType().equalsIgnoreCase("excel")){
+        	duckDbService.writeExcelToParquet(revisedInfoRequest, userId);
+
+            // save metadata to DB and return as response
+            String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
+            FileData fileData = new FileData(
+                    userId,
+                    revisedInfoRequest.getName(),
+                    fileNameToBeSaved);
+            fileDataRepository.save(fileData);
+
+            FileDataDTO fileDataDTO = new FileDataDTO(
+                    fileData.getId(),
+                    fileData.getUserId(),
+                    fileData.getName());
+
+            // delete the read file which was uploaded by user
+            final String readFile = System.getProperty("user.home") + "/" + "silzila-uploads"
+                    + "/" + "tmp" + "/" + revisedInfoRequest.getFileId();
+            try {
+                Files.deleteIfExists(Paths.get(readFile));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return fileDataDTO;
+        	
+        }
+        
+        
+		return null;
 
     }
 
-    public FileDataDTO jsonFileUploadSave(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
-            throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
-            SQLException {
-
-        // flatfile name can't have any spaces and special characters not more than one underscore- contiuously
-        if (revisedInfoRequest.getName() != null) {
-            revisedInfoRequest.setName(revisedInfoRequest.getName().trim().replaceAll("[^a-zA-Z0-9]", "_").replaceAll("_+","_"));
-        }
-        // check in DB if file data name is already taken
-        isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName());
-
-        // if not exists, create folder for user - to save file
-        Path path = Paths.get(SILZILA_DIR, userId);
-        try {
-            Files.createDirectories(path);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Could not initialize folder for upload. Errorr: " + e.getMessage());
-        }
-
-        // start duckdb in memory
-        duckDbService.startDuckDb();
-
-        duckDbService.writeJsonToParquet(revisedInfoRequest, userId);
-
-        // save metadata to DB and return as response
-        String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
-        FileData fileData = new FileData(
-                userId,
-                revisedInfoRequest.getName(),
-                fileNameToBeSaved);
-        fileDataRepository.save(fileData);
-
-        FileDataDTO fileDataDTO = new FileDataDTO(
-                fileData.getId(),
-                fileData.getUserId(),
-                fileData.getName());
-
-        // delete the read file which was uploaded by user
-        final String readFile = System.getProperty("user.home") + "/" + "silzila-uploads"
-                + "/" + "tmp" + "/" + revisedInfoRequest.getFileId();
-        try {
-            Files.deleteIfExists(Paths.get(readFile));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return fileDataDTO;
-
-    }
+   
     
     
     // read all file datas
