@@ -953,7 +953,7 @@ interface WindowFunctionProps {
 	};
 
 	const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-		return {
+		return { 
 			updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any) =>
 			    dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item })),
 			
