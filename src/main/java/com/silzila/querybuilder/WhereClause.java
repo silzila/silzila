@@ -177,6 +177,8 @@ public class WhereClause {
                         where = WhereClauseDateOracle.buildWhereClauseDate(filter);
                     } else if (vendorName.equals("snowflake")) {
                         where = WhereClauseSnowflake.buildWhereClauseDate(filter);
+                    } else if (vendorName.equals("motherduck")) {
+                        where = WhereClauseDateMotherduck.buildWhereClauseDate(filter);
                     }
                 }
 
