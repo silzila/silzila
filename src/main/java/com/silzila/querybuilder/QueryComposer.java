@@ -70,23 +70,25 @@ public class QueryComposer {
          */
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             // System.out.println("------ inside postges block");
-            qMap = SelectClausePostgres.buildSelectClause(req, vendorName,aliasnumber);
+            qMap = SelectClausePostgres.buildSelectClause(req, vendorName, aliasnumber);
         } else if (vendorName.equals("mysql") || vendorName.equals("duckdb")) {
             // System.out.println("------ inside mysql block");
-            qMap = SelectClauseMysql.buildSelectClause(req, vendorName,aliasnumber);
+            qMap = SelectClauseMysql.buildSelectClause(req, vendorName, aliasnumber);
         } else if (vendorName.equals("sqlserver")) {
             // System.out.println("------ inside sql server block");
-            qMap = SelectClauseSqlserver.buildSelectClause(req, vendorName,aliasnumber);
+            qMap = SelectClauseSqlserver.buildSelectClause(req, vendorName, aliasnumber);
         } else if (vendorName.equals("bigquery")) {
             // System.out.println("------ inside Big Query block");
-            qMap = SelectClauseBigquery.buildSelectClause(req, vendorName,aliasnumber);
+            qMap = SelectClauseBigquery.buildSelectClause(req, vendorName, aliasnumber);
         } else if (vendorName.equals("databricks")) {
             // System.out.println("------ inside databricks block");
-            qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName,aliasnumber);
+            qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName, aliasnumber);
         } else if (vendorName.equals("oracle")) {
-            qMap = SelectClauseOracle.buildSelectClause(req, vendorName,aliasnumber);
+            qMap = SelectClauseOracle.buildSelectClause(req, vendorName, aliasnumber);
         } else if (vendorName.equals("snowflake")) {
-            qMap = SelectClauseSnowflake.buildSelectClause(req, vendorName,aliasnumber);
+            qMap = SelectClauseSnowflake.buildSelectClause(req, vendorName, aliasnumber);
+        } else if (vendorName.equals("motherduck")) {
+            qMap = SelectClauseMotherduck.buildSelectClause(req, vendorName, aliasnumber);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }

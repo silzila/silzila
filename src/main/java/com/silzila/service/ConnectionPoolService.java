@@ -198,6 +198,12 @@ public class ConnectionPoolService {
                 config.addDataSourceProperty("maximumPoolSize", "2");
                 dataSource = new HikariDataSource(config);
             }
+            //motherduck
+            else if (dbConnection.getVendor().equals("motherduck")) {
+                fullUrl = "jdbc:duckdb:md:" + dbConnection.getDatabase() +  "?motherduck_token=" + dbConnection.getPasswordHash();
+                config.setJdbcUrl(fullUrl);
+                dataSource = new HikariDataSource(config);
+            }
             // for Postgres & MySQL
             else {
                 // dbConnection.getPasswordHash() now holds decrypted password
@@ -333,7 +339,7 @@ public class ConnectionPoolService {
             if (vendorName.equals("sqlserver")) {
                 // DB Name is must as SQL Server may contain many DB's in single server
                 if (databaseName == null || databaseName.trim().isEmpty()) {
-                    throw new BadRequestException("Error: Please specify Database Name for SQL Server connection");
+                    throw new BadRequestException("Error: Database name is not provided");
                 }
                 String query = """
                         select s.name as schema_name
@@ -362,7 +368,7 @@ public class ConnectionPoolService {
             // Databricks & Snowflake
             else if (vendorName.equals("databricks")|| vendorName.equals("snowflake")) {
                 if (databaseName == null || databaseName.trim().isEmpty()) {
-                    throw new BadRequestException("Error: Please specify Database Name for Databricks connection");
+                    throw new BadRequestException("Error: Database name is not provided");
                 }
                 try (Connection _connection = connectionPool.get(id).getConnection();) {
                     DatabaseMetaData databaseMetaData = _connection.getMetaData();
@@ -376,9 +382,9 @@ public class ConnectionPoolService {
                 }
             }
             // for bigquery
-            else if (vendorName.equals("bigquery")) {
+            else if (vendorName.equals("bigquery") || vendorName.equals("motherduck")) {
                 if (databaseName == null || databaseName.trim().isEmpty()) {
-                    throw new BadRequestException("Error: Please specify Database Name for Databricks connection");
+                    throw new BadRequestException("Error: Database name is not provided");
                 }
                 try (Connection _connection = connectionPool.get(id).getConnection();) {
                     DatabaseMetaData databaseMetaData = _connection.getMetaData();
@@ -512,10 +518,25 @@ public class ConnectionPoolService {
                 resultSetTables.close();
                 resultSetViews.close();
 
+            } // for motherduck
+            else if (vendorName.equals("motherduck")) {
+                // throw error if db name or schema name is not passed
+                if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                        || schemaName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Database & Schema names are not provided!");
+                }
+                // Add Tables
+                resultSetTables = databaseMetaData.getTables(databaseName, schemaName, null, null);
+                while (resultSetTables.next()) {
+                    // TABLE_CATALOG is the DB name and we don't need
+                    // String dbName = resultSet3.getString("TABLE_CATALOG");
+                    String tableName = resultSetTables.getString("TABLE_NAME");
+                    metadataTable.getTables().add(tableName);
+                }
+                resultSetTables.close();
             }
             // postgres & MySql are handled the same but different from SQL Server
             else {
-
                 // for POSTGRESQL DB
                 // throw error if schema name is not passed
                 if (vendorName.equalsIgnoreCase("postgresql") || vendorName.equalsIgnoreCase("redshift") || vendorName
@@ -612,7 +633,7 @@ public class ConnectionPoolService {
             }
             // for Databricks & Snowflake
             else if (vendorName.equals("databricks") || vendorName.equals("snowflake")) {
-                // DB name & schema name are must for Databricks
+                // DB name & schema name are must for Databricks & Snowflake
                 if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
                         || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Database & Schema names are not provided!");
@@ -620,9 +641,9 @@ public class ConnectionPoolService {
                 // get column names from the given schema and Table name
                 resultSet = databaseMetaData.getColumns(databaseName, schemaName, tableName, null);
             }
-            // for Bigquery
-            else if (vendorName.equals("bigquery")) {
-                // DB name & schema name are must for Bigquery
+            // for Bigquery & Motherduck
+            else if (vendorName.equals("bigquery") || vendorName.equals("motherduck")) {
+                // DB name & schema name are must for Bigquery & Motherduck
                 if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
                         || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Database & Schema names are not provided!");
@@ -658,7 +679,7 @@ public class ConnectionPoolService {
         // based on database dialect, we pass different SELECT * Statement
         // for POSTGRESQL DB
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
-            // schema name is must for postgres
+            // schema name is must for postgres & redshift
             if (schemaName == null || schemaName.trim().isEmpty()) {
                 throw new BadRequestException("Error: Schema name is not provided!");
             }
@@ -667,7 +688,7 @@ public class ConnectionPoolService {
         }
         // for BIGQUERY DB
         else if (vendorName.equals("bigquery")) {
-            // schema name is must for postgres
+            // schema name is must for Bigquery
             if (schemaName == null || schemaName.trim().isEmpty()) {
                 throw new BadRequestException("Error: Schema name is not provided!");
             }
@@ -675,8 +696,8 @@ public class ConnectionPoolService {
             query = "SELECT * FROM `" + databaseName + "." + schemaName + "." + tableName + "` LIMIT " + recordCount;
         }
         // for MYSQL DB
-        else if (vendorName.equals("mysql")) {
-            // DB name is must for MySQL
+        else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
+            // DB name is must for MySQL & Motherduck
             if (databaseName == null || databaseName.trim().isEmpty()) {
                 throw new BadRequestException("Error: Database name is not provided!");
             }
@@ -854,6 +875,12 @@ public class ConnectionPoolService {
                     clientEmail);
             dataSource.addDataSourceProperty("OAuthPvtKeyFilePath",
                     tempPath);
+        }
+        //motherduck
+        else if (request.getVendor().equals("motherduck")) {
+            String fullUrl = "jdbc:duckdb:md:" + request.getDatabase() +  "?motherduck_token=" + request.getPassword();
+            config.setJdbcUrl(fullUrl);
+            dataSource = new HikariDataSource(config);
         }
         // Postgres & MySQL
         else {
