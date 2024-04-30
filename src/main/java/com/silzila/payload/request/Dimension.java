@@ -3,6 +3,8 @@ package com.silzila.payload.request;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,7 +17,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
         "tableId",
         "fieldName",
         "dataType",
-        "timeGrain"
+        "timeGrain",
+        "rollupDepth"
 })
 @Generated("jsonschema2pojo")
 public class Dimension implements Serializable {
@@ -28,6 +31,8 @@ public class Dimension implements Serializable {
     private Dimension.DataType dataType;
     @JsonProperty("timeGrain")
     private Dimension.TimeGrain timeGrain = Dimension.TimeGrain.fromValue("year");
+    @JsonProperty("rollupDepth")
+    private Boolean rollupDepth = false;
     private final static long serialVersionUID = -6693625304963309989L;
 
     /**
@@ -44,17 +49,26 @@ public class Dimension implements Serializable {
      * @param dataType
      * @param tableId
      */
-    public Dimension(String tableId, String fieldName, Dimension.DataType dataType, Dimension.TimeGrain timeGrain) {
+    public Dimension(String tableId, String fieldName, Dimension.DataType dataType, Dimension.TimeGrain timeGrain,Boolean rollupDepth) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
         this.dataType = dataType;
         this.timeGrain = timeGrain;
+        this.rollupDepth = rollupDepth;
     }
 
     @JsonProperty("tableId")
     public String getTableId() {
         return tableId;
+    }
+
+    public Boolean isRollupDepth() {
+        return rollupDepth;
+    }
+
+    public void setRollupDepth(Boolean rollupDepth) {
+        this.rollupDepth = rollupDepth;
     }
 
     @JsonProperty("tableId")
@@ -211,6 +225,24 @@ public class Dimension implements Serializable {
             }
         }
 
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Dimension dimension = (Dimension) obj;
+        return Objects.equals(fieldName, dimension.fieldName) &&
+                Objects.equals(timeGrain, dimension.timeGrain);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fieldName, timeGrain);
     }
 
 }
