@@ -136,8 +136,7 @@ public class DuckDbService {
         ArrayList<String> columnList = new ArrayList<String>();
         ArrayList<String> dataTypeList = new ArrayList<String>();
 
-        ArrayList<String> columns = new ArrayList<String>();
-        ArrayList<String> dataTypes = new ArrayList<String>();
+      
 
         for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
             FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
@@ -148,9 +147,7 @@ public class DuckDbService {
             String dataTypeString = "'" + duckDbDataType + "'";
             columnList.add(columnString);
             dataTypeList.add(dataTypeString);
-            columns.add(colName);
-            dataTypes.add(duckDbDataType);
-        }
+          }
         // build stringified list of columns
         String colMapString = "[" + String.join(", ", columnList) + "]";
         // build stringified list of data types
@@ -789,9 +786,7 @@ public class DuckDbService {
         ArrayList<String> columnList = new ArrayList<String>();
         ArrayList<String> dataTypeList = new ArrayList<String>();
 
-        ArrayList<String> columns = new ArrayList<String>();
-        ArrayList<String> dataTypes = new ArrayList<String>();
-
+       
         for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
             FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
             String colName = col.getFieldName().replaceAll("[^a-zA-Z0-9]", "_");
@@ -801,9 +796,7 @@ public class DuckDbService {
             String dataTypeString = "'" + duckDbDataType + "'";
             columnList.add(columnString);
             dataTypeList.add(dataTypeString);
-            columns.add(colName);
-            dataTypes.add(duckDbDataType);
-        }
+         }
         // build stringified list of columns
         String colMapString = "[" + String.join(", ", columnList) + "]";
         // build stringified list of data types
