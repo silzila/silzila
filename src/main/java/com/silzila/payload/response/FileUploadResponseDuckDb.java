@@ -15,13 +15,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Getter
 @Setter
 public class FileUploadResponseDuckDb {
-	@JsonProperty
-    private String fileId;
-	@JsonProperty
+    
+	private String fileId;
     private String name;
-	@JsonProperty
     private List<Map<String, Object>> columnInfos;
-	@JsonProperty
     private List<Map<String, Object>> sampleRecords;
 
     public FileUploadResponseDuckDb() {

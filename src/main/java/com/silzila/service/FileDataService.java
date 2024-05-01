@@ -13,8 +13,6 @@ import com.silzila.payload.response.FileUploadResponseDuckDb;
 import com.silzila.domain.entity.FileData;
 import com.silzila.dto.FileDataDTO;
 import com.silzila.repository.FileDataRepository;
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -95,6 +93,7 @@ public class FileDataService {
 		// calling spark service function,
 		// this will have sample records & column name and type
 		// FileUploadResponse fileUploadResponse = sparkService.readCsv(filePath);
+		//checking condition for csv file upload
 		if (file.getContentType().equals("text/csv")) {
 			FileUploadResponseDuckDb fileUploadResponseDuckDb = duckDbService.readCsv(savedFileName);
 
@@ -103,7 +102,7 @@ public class FileDataService {
 			fileUploadResponseDuckDb.setName(uploadedFileNameWithoutExtn);
 			return fileUploadResponseDuckDb;
 		}
-
+        //checking condition for json file upload
 		else if (file.getContentType().equals("application/json")) {
 			FileUploadResponseDuckDb fileUploadResponseDuckDb = duckDbService.readJson(savedFileName);
 
@@ -112,9 +111,11 @@ public class FileDataService {
 			fileUploadResponseDuckDb.setName(uploadedFileNameWithoutExtn);
 			return fileUploadResponseDuckDb;
 		}
-
+		//checking condition for excel file upload
 		else if (file.getContentType().equals("application/vnd.ms-excel")
 				|| file.getContentType().equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+			
+			//creating a new path to upload csv file for further operation 
 			Path pathForCSV = Paths.get(SILZILA_DIR, "csv");
 			try {
 				Files.createDirectories(pathForCSV);
@@ -127,7 +128,8 @@ public class FileDataService {
 			// also pass file name & dataframe name to the response
 			fileUploadResponseDuckDb.setFileId(savedFileName + ".csv");
 			fileUploadResponseDuckDb.setName(uploadedFileNameWithoutExtn);
-
+			
+			//deleting the file which is there in tmp folder
 			final String readFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/"
 					+ savedFileName;
 			try {
@@ -305,6 +307,8 @@ public class FileDataService {
 
 		// start duckdb in memory
 		duckDbService.startDuckDb();
+		
+		// using condition to find the file type to do the operation
 		if (revisedInfoRequest.getFileType().equalsIgnoreCase("csv")) {
 			JSONArray jsonArray = duckDbService.readCsvChangeSchema(revisedInfoRequest);
 			return jsonArray;
@@ -346,6 +350,8 @@ public class FileDataService {
 
 		// start duckdb in memory
 		duckDbService.startDuckDb();
+		
+		//using condition to find the file type ad do the operation
 		if (revisedInfoRequest.getFileType().equalsIgnoreCase("csv")) {
 			duckDbService.writeToParquet(revisedInfoRequest, userId);
 
@@ -414,7 +420,7 @@ public class FileDataService {
 
 	}
 
-	// read all file datas
+	// read all file data
 	public List<FileDataDTO> getAllFileDatas(String userId) {
 		// read all file data for the user from DB
 		List<FileData> fileDatas = fileDataRepository.findByUserId(userId);
@@ -499,11 +505,11 @@ public class FileDataService {
 		fileDataRepository.deleteById(id);
 	}
 
-	// HELPER FUNCTION - read all file datas with file name
+	// HELPER FUNCTION - read all file data with file name
 	public void getFileNameFromFileId(String userId, List<Table> tableObjList)
 			throws BadRequestException, SQLException, ClassNotFoundException {
 		List<FileData> fileDataList;
-		// first try to get all file datas for a user from cache
+		// first try to get all file data for a user from cache
 		if (usersFileDatas.containsKey(userId)) {
 			fileDataList = usersFileDatas.get(userId);
 		}

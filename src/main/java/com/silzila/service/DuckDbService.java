@@ -169,17 +169,14 @@ public class DuckDbService {
 				&& !revisedInfoRequest.getTimestampFormat().trim().isEmpty()) {
 			timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
 		}
-		// creating a map to send values to columns parameter
-		Map<String, String> colMap = convertToMap(columns, dataTypes);
-		// Converting a map to string to pass correct format to column
-		// String columnsMapString = mapToString(map);
-
-		logger.info("************************\n" + colMap);
+		
 
 		String query = "SELECT * from read_csv_auto('" + filePath + "', SAMPLE_SIZE=200,names=" + colMapString
 				+ ", types=" + dataTypeMapString + dateFormatCondition + timeStampFormatCondition + ");";
 
 		logger.info("************************\n" + query);
+		
+		//handling the unmatched data type error
 		ResultSet resultSet = null;
 		try {
 			resultSet = stmtRecords.executeQuery(query);
@@ -187,7 +184,6 @@ public class DuckDbService {
 			throw new ExpectationFailedException("you are trying for unmatched data type. Error: " + e.getMessage());
 		}
 		JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
-		// stmtRecords.execute("END");
 		stmtRecords.close();
 		conn2.close();
 
@@ -274,7 +270,9 @@ public class DuckDbService {
 				+ revisedInfoRequest.getFileId() + ".parquet";
 		String query = "COPY (SELECT * from read_csv_auto('" + filePath + "', names=" + colMapString + ", types="
 				+ dataTypeMapString + dateFormatCondition + timeStampFormatCondition + ")) TO '" + writeFile
-				+ "' (FORMAT PARQUET, COMPRESSION ZSTD);";
+		        + "' (FORMAT PARQUET, COMPRESSION ZSTD);";
+		
+		//handling the data type mismatch
 		try {
 			stmtRecords.execute(query);
 		} catch (SQLException e) {
@@ -563,6 +561,7 @@ public class DuckDbService {
 		Statement stmtRecords = conn2.createStatement();
 		Statement stmtMeta = conn2.createStatement();
 		Statement stmtDeleteTbl = conn2.createStatement();
+		// checking for correct format and do the operation on json
 		try {
 			String query = "CREATE OR REPLACE TABLE tbl_" + fileName + " AS SELECT * from read_json_auto('" + filePath
 					+ "',SAMPLE_SIZE=200)";
@@ -688,6 +687,7 @@ public class DuckDbService {
 
 		logger.info("************************\n" + query);
 		ResultSet resultSet = null;
+		//handling data type mismatch 
 		try {
 			resultSet = stmtRecords.executeQuery(query);
 		} catch (SQLException e) {
@@ -755,6 +755,8 @@ public class DuckDbService {
 		String query = "COPY (SELECT * from read_json_auto('" + filePath
 				+ "',ignore_errors=true, format='auto', columns=" + columnsMapString + dateFormatCondition
 				+ timeStampFormatCondition + ")) TO '" + writeFile + "' (FORMAT PARQUET, COMPRESSION ZSTD);";
+		
+		//handling data type mismatch
 		try {
 			stmtRecords.execute(query);
 		} catch (SQLException e) {
@@ -772,7 +774,6 @@ public class DuckDbService {
 
 		String fileName = revisedInfoRequest.getFileId();
 
-		// String filePath = SILZILA_DIR + "/" + fileName;
 		String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "csv" + "/" + fileName;
 		Connection conn2 = ((DuckDBConnection) conn).duplicate();
 
@@ -815,25 +816,20 @@ public class DuckDbService {
 				&& !revisedInfoRequest.getTimestampFormat().trim().isEmpty()) {
 			timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
 		}
-		// creating a map to send values to columns parameter
-		Map<String, String> colMap = convertToMap(columns, dataTypes);
-		// Converting a map to string to pass correct format to column
-		// String columnsMapString = mapToString(map);
-
-		logger.info("************************\n" + colMap);
 
 		String query = "SELECT * from read_csv_auto('" + filePath + "', SAMPLE_SIZE=200,names=" + colMapString
 				+ ", types=" + dataTypeMapString + dateFormatCondition + timeStampFormatCondition + ");";
 
 		logger.info("************************\n" + query);
 		ResultSet resultSet = null;
+		
+		// handling data type mismatch error
 		try {
 			resultSet = stmtRecords.executeQuery(query);
 		} catch (SQLException e) {
 			throw new ExpectationFailedException("you are trying for unmatched data type. Error: " + e.getMessage());
 		}
 		JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
-		// stmtRecords.execute("END");
 		stmtRecords.close();
 		conn2.close();
 
