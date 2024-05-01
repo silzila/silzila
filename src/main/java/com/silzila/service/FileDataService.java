@@ -115,14 +115,6 @@ public class FileDataService {
 		else if (file.getContentType().equals("application/vnd.ms-excel")
 				|| file.getContentType().equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
 			
-			//creating a new path to upload csv file for further operation 
-			Path pathForCSV = Paths.get(SILZILA_DIR, "csv");
-			try {
-				Files.createDirectories(pathForCSV);
-
-			} catch (Exception e) {
-				throw new RuntimeException("Could not initialize folder for upload. Errorr: " + e.getMessage());
-			}
 			FileUploadResponseDuckDb fileUploadResponseDuckDb = duckDbService.readExcel(savedFileName, sheetName);
 
 			// also pass file name & dataframe name to the response
@@ -404,7 +396,7 @@ public class FileDataService {
 			FileDataDTO fileDataDTO = new FileDataDTO(fileData.getId(), fileData.getUserId(), fileData.getName());
 
 			// delete the read file which was uploaded by user
-			final String readFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "csv" + "/"
+			final String readFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/"
 					+ revisedInfoRequest.getFileId() + ".csv";
 			try {
 				Files.deleteIfExists(Paths.get(readFile));

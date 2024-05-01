@@ -402,11 +402,10 @@ public class DuckDbService {
 		return jsonArray;
 	}
 
-	public FileUploadResponseDuckDb readExcel(String fileName, String sheetName) throws SQLException {
+	public FileUploadResponseDuckDb readExcel(String fileName, String sheetName) throws SQLException, ExpectationFailedException {
 		// String filePath = SILZILA_DIR + "/" + fileName;
 		String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
-		String filePathForCSV = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "csv" + "/" + fileName
-				+ ".csv";
+		
 		Connection conn2 = ((DuckDBConnection) conn).duplicate();
 
 		Statement stmtInstallLoad = conn2.createStatement();
@@ -422,7 +421,13 @@ public class DuckDbService {
 
 		String query = "CREATE OR REPLACE TABLE tbl_" + fileName + " AS SELECT * from st_read('" + filePath
 				+ "',layer ='" + sheetName + "')";
-		stmtRecords.execute(query);
+		try{
+		stmtRecords.execute(query);}
+		catch (SQLException e) 
+		{
+			throw new ExpectationFailedException(
+					"Could not upload because SHEETNAME is NULL. Errorr: " + e.getMessage());}
+
 		ResultSet rsRecords = stmtRecords.executeQuery("SELECT * FROM tbl_" + fileName + " LIMIT 200");
 		ResultSet rsMeta = stmtMeta.executeQuery("DESCRIBE tbl_" + fileName);
 
@@ -469,8 +474,8 @@ public class DuckDbService {
 		// System.out.println(jsonArrayMeta.toString());
 		// delete the in-memory table as it's not required
 
-		String copyQuery = "COPY (SELECT * FROM tbl_" + fileName + ") TO '" + filePathForCSV
-				+ "' (FORMAT csv,HEADER, DELIMITER ',')";
+		//copying excel file to csv for further operation
+		String copyQuery = "COPY (SELECT * FROM tbl_" + fileName + ") TO '" + filePath+".csv' (FORMAT csv,HEADER, DELIMITER ',')";
 		logger.info("************************\n" + copyQuery);
 		stmtCopyQuery.execute(copyQuery);
 
@@ -495,7 +500,7 @@ public class DuckDbService {
 			throws SQLException, ExpectationFailedException {
 
 		String fileName = revisedInfoRequest.getFileId();
-		String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "csv" + "/" + fileName;
+		String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
 
 		Connection conn2 = ((DuckDBConnection) conn).duplicate();
 		Statement stmtRecords = conn2.createStatement();
@@ -774,7 +779,7 @@ public class DuckDbService {
 
 		String fileName = revisedInfoRequest.getFileId();
 
-		String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "csv" + "/" + fileName;
+		String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
 		Connection conn2 = ((DuckDBConnection) conn).duplicate();
 
 		Statement stmtRecords = conn2.createStatement();
