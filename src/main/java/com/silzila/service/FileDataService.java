@@ -14,7 +14,6 @@ import com.silzila.domain.entity.FileData;
 import com.silzila.dto.FileDataDTO;
 import com.silzila.repository.FileDataRepository;
 
-import net.snowflake.client.jdbc.internal.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
