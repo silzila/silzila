@@ -43,108 +43,97 @@ import com.fasterxml.jackson.databind.JsonNode;
 // @RequestMapping("/api")
 public class FileDataController {
 
-    @Autowired
-    FileDataService fileDataService;
+	@Autowired
+	FileDataService fileDataService;
 
-   
-    
-    @GetMapping("/file-upload-test")
-    public ResponseEntity<?> protectedRoute(@RequestHeader Map<String, String> reqHeder) {
-        return ResponseEntity.ok(new MessageResponse("file upload test protected route!"));
-    }
+	@GetMapping("/file-upload-test")
+	public ResponseEntity<?> protectedRoute(@RequestHeader Map<String, String> reqHeder) {
+		return ResponseEntity.ok(new MessageResponse("file upload test protected route!"));
+	}
 
-    // step 1:
-    // upload CSV File
-    @PostMapping("/file-upload")
-    public ResponseEntity<?> fileUpload(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(name = "sheetName", required = false) String sheetName)
-            throws ExpectationFailedException, JsonMappingException, JsonProcessingException, SQLException,
-            ClassNotFoundException {
-        // calling Service function
-        FileUploadResponseDuckDb fileUploadResponse = fileDataService.fileUpload(file,sheetName);
-        System.out.println(fileUploadResponse);
-        return ResponseEntity.status(HttpStatus.OK).body(fileUploadResponse);
+	// step 1:
+	// upload CSV File
+	@PostMapping("/file-upload")
+	public ResponseEntity<?> fileUpload(@RequestParam("file") MultipartFile file,
+			@RequestParam(name = "sheetName", required = false) String sheetName) throws ExpectationFailedException,
+			JsonMappingException, JsonProcessingException, SQLException, ClassNotFoundException {
+		// calling Service function
 
-    }
-    
-    
-    // step 2:
-    // (this step can be repeated by user
-    // until user is satisfied with col data types & col names)
-    // edit schema of upload file
-    @PostMapping("/file-upload-change-schema")
-    public ResponseEntity<?> fileUploadChangeSchema(@RequestHeader Map<String, String> reqHeader,
-            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
-            throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
-            SQLException {
-        // get the requester user Id
-        String userId = reqHeader.get("username");
-        // calling Service function
-        JSONArray jsonArray = fileDataService.fileUploadChangeSchema(revisedInfoRequest, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
-    }
-    
-   
+		FileUploadResponseDuckDb fileUploadResponse = fileDataService.fileUpload(file, sheetName);
+		return ResponseEntity.status(HttpStatus.OK).body(fileUploadResponse);
 
-    // step 3:
-    // save file data
-    @PostMapping("/file-upload-save-data")
-    public ResponseEntity<?> fileUploadSaveData(@RequestHeader Map<String, String> reqHeader,
-            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
-            throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
-            SQLException {
-        // get the requester user Id
-        String userId = reqHeader.get("username");
-        // calling Service function
-        FileDataDTO fileDataDTO = fileDataService.fileUploadSave(revisedInfoRequest, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(fileDataDTO);
-    }
-    
-   
-    
-    // list file datas
-    @GetMapping("/file-data")
-    public List<FileDataDTO> getAllFileDatas(@RequestHeader Map<String, String> reqHeader) {
-        // get the requester user Id
-        String userId = reqHeader.get("username");
-        List<FileDataDTO> fileDataDTOs = fileDataService.getAllFileDatas(userId);
-        return fileDataDTOs;
-    }
+	}
 
-    // file data - sample records
-    @GetMapping("/file-data-sample-records/{id}")
-    public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id)
-            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException,
-            ClassNotFoundException, SQLException {
-        // get the requester user Id
-        String userId = reqHeader.get("username");
-        JSONArray jsonArray = fileDataService.getSampleRecords(id, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
-    }
+	// step 2:
+	// (this step can be repeated by user
+	// until user is satisfied with col data types & col names)
+	// edit schema of upload file
+	@PostMapping("/file-upload-change-schema")
+	public ResponseEntity<?> fileUploadChangeSchema(@RequestHeader Map<String, String> reqHeader,
+			@Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
+			throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
+			SQLException, ExpectationFailedException {
+		// get the requester user Id
+		String userId = reqHeader.get("username");
+		// calling Service function
+		JSONArray jsonArray = fileDataService.fileUploadChangeSchema(revisedInfoRequest, userId);
+		return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+	}
 
-    // file data - Column details
-    @GetMapping("/file-data-column-details/{id}")
-    public ResponseEntity<?> getColumnDetails(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id)
-            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException,
-            ClassNotFoundException, SQLException {
-        // get the requester user Id
-        String userId = reqHeader.get("username");
-        List<Map<String, Object>> metaList = fileDataService.getColumns(id, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(metaList);
-    }
+	// step 3:
+	// save file data
+	@PostMapping("/file-upload-save-data")
+	public ResponseEntity<?> fileUploadSaveData(@RequestHeader Map<String, String> reqHeader,
+			@Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
+			throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
+			SQLException, ExpectationFailedException {
+		// get the requester user Id
+		String userId = reqHeader.get("username");
+		// calling Service function
+		FileDataDTO fileDataDTO = fileDataService.fileUploadSave(revisedInfoRequest, userId);
+		return ResponseEntity.status(HttpStatus.OK).body(fileDataDTO);
+	}
 
-    // Delete File Data
-    @DeleteMapping("/file-data/{id}")
-    public ResponseEntity<?> deleteFileData(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id) throws RecordNotFoundException {
-        // get the requester user Id
-        String userId = reqHeader.get("username");
-        fileDataService.deleteFileData(id, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("File Data is deleted"));
+	// list file datas
+	@GetMapping("/file-data")
+	public List<FileDataDTO> getAllFileDatas(@RequestHeader Map<String, String> reqHeader) {
+		// get the requester user Id
+		String userId = reqHeader.get("username");
+		List<FileDataDTO> fileDataDTOs = fileDataService.getAllFileDatas(userId);
+		return fileDataDTOs;
+	}
 
-    }
+	// file data - sample records
+	@GetMapping("/file-data-sample-records/{id}")
+	public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
+			@PathVariable(value = "id") String id) throws JsonMappingException, JsonProcessingException,
+			RecordNotFoundException, BadRequestException, ClassNotFoundException, SQLException {
+		// get the requester user Id
+		String userId = reqHeader.get("username");
+		JSONArray jsonArray = fileDataService.getSampleRecords(id, userId);
+		return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+	}
+
+	// file data - Column details
+	@GetMapping("/file-data-column-details/{id}")
+	public ResponseEntity<?> getColumnDetails(@RequestHeader Map<String, String> reqHeader,
+			@PathVariable(value = "id") String id) throws JsonMappingException, JsonProcessingException,
+			RecordNotFoundException, BadRequestException, ClassNotFoundException, SQLException {
+		// get the requester user Id
+		String userId = reqHeader.get("username");
+		List<Map<String, Object>> metaList = fileDataService.getColumns(id, userId);
+		return ResponseEntity.status(HttpStatus.OK).body(metaList);
+	}
+
+	// Delete File Data
+	@DeleteMapping("/file-data/{id}")
+	public ResponseEntity<?> deleteFileData(@RequestHeader Map<String, String> reqHeader,
+			@PathVariable(value = "id") String id) throws RecordNotFoundException {
+		// get the requester user Id
+		String userId = reqHeader.get("username");
+		fileDataService.deleteFileData(id, userId);
+		return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("File Data is deleted"));
+
+	}
 
 }

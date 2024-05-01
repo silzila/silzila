@@ -32,7 +32,12 @@ public class ResultSetToJson {
             JSONObject row = new JSONObject();
             colNames.forEach(cn -> {
                 try {
-                    row.put(cn, resultSet.getObject(cn));
+                	Object value = resultSet.getObject(cn);
+                    if (value == null) {
+                        row.put(cn, JSONObject.NULL);
+                    } else {
+                        row.put(cn, value);
+                    }
                 } catch (JSONException | SQLException e) {
                     e.printStackTrace();
                 }
