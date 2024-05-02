@@ -1,5 +1,6 @@
 package com.silzila.controller;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -56,7 +57,7 @@ public class FileDataController {
     @PostMapping("/file-upload")
     public ResponseEntity<?> fileUpload(@RequestParam("file") MultipartFile file,
             @RequestParam(name = "sheetName", required = false) String sheetName) throws ExpectationFailedException,
-            JsonMappingException, JsonProcessingException, SQLException, ClassNotFoundException {
+            IOException, SQLException, ClassNotFoundException {
         // calling Service function
 
         FileUploadResponseDuckDb fileUploadResponse = fileDataService.fileUpload(file, sheetName);

@@ -1,32 +1,27 @@
 package com.silzila.service;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.duckdb.DuckDBConnection;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.silzila.domain.entity.FileData;
+import com.silzila.exception.ExpectationFailedException;
 import com.silzila.helper.ConvertDuckDbDataType;
 import com.silzila.helper.DuckDbMetadataToJson;
+import com.silzila.helper.JsonValidator;
 import com.silzila.helper.ResultSetToJson;
 import com.silzila.payload.request.FileUploadRevisedColumnInfo;
 import com.silzila.payload.request.FileUploadRevisedInfoRequest;
 import com.silzila.payload.request.Table;
 import com.silzila.payload.response.FileUploadResponseDuckDb;
-import com.silzila.domain.entity.FileData;
-import com.silzila.exception.ExpectationFailedException;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.duckdb.DuckDBConnection;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.*;
+import java.util.*;
 
 @Service
 public class DuckDbService {
@@ -555,10 +550,15 @@ public class DuckDbService {
         conn2.close();
     }
 
-    public FileUploadResponseDuckDb readJson(String fileName) throws SQLException, ExpectationFailedException {
+
+    public FileUploadResponseDuckDb readJson(String fileName) throws SQLException, ExpectationFailedException, IOException {
 
         // String filePath = SILZILA_DIR + "/" + fileName;
         String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
+        String jsonStr = new String(Files.readAllBytes(Paths.get(filePath))).trim();
+
+        JsonValidator.validate(jsonStr);
+
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
 
         Statement stmtRecords = conn2.createStatement();

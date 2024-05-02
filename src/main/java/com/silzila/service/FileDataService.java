@@ -50,7 +50,7 @@ public class FileDataService {
 
     // 1. upload File Data
     public FileUploadResponseDuckDb fileUpload(MultipartFile file, String sheetName) throws ExpectationFailedException,
-            JsonMappingException, JsonProcessingException, SQLException, ClassNotFoundException {
+            IOException, SQLException, ClassNotFoundException {
         Path path = Paths.get(SILZILA_DIR, "tmp");
         String uploadedFileNameWithoutExtn = "";
         String savedFileName = "";
