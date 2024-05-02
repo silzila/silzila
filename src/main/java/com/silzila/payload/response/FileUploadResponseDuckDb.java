@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Getter
 @Setter
 public class FileUploadResponseDuckDb {
-    
+  
 	private String fileId;
     private String name;
     private List<Map<String, Object>> columnInfos;
