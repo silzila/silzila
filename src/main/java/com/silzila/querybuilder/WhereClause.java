@@ -166,7 +166,7 @@ public class WhereClause {
                     if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
                         where = WhereClauseDatePostgres.buildWhereClauseDate(filter);
                     } else if (vendorName.equals("mysql") || vendorName.equals("duckdb")) {
-                        where = WhereClauseDateMysql.buildWhereClauseDate(filter);
+                        where = WhereClauseDateMysql.buildWhereClauseDate(filter,vendorName);
                     } else if (vendorName.equals("sqlserver")) {
                         where = WhereClauseDateSqlserver.buildWhereClauseDate(filter);
                     } else if (vendorName.equals("databricks")) {
@@ -177,6 +177,8 @@ public class WhereClause {
                         where = WhereClauseDateOracle.buildWhereClauseDate(filter);
                     } else if (vendorName.equals("snowflake")) {
                         where = WhereClauseSnowflake.buildWhereClauseDate(filter);
+                    } else if (vendorName.equals("motherduck")) {
+                        where = WhereClauseDateMotherduck.buildWhereClauseDate(filter);
                     }
                 }
 

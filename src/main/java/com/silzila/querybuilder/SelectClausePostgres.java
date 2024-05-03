@@ -16,9 +16,19 @@ import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
 import com.silzila.payload.request.Query;
 
+
 public class SelectClausePostgres {
     /* SELECT clause for Postgres dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,Map<String,Integer>... aliasnumber) throws BadRequestException {
+
+        Map<String, Integer> aliasNumbering = new HashMap<>();
+        // aliasing for only measure  override 
+        Map<String,Integer> aliasNumberingM = new HashMap<>();
+
+        if (aliasnumber != null && aliasnumber.length > 0) {
+            Map<String, Integer> aliasNumber = aliasnumber[0];
+            aliasNumber.forEach((key, value) -> aliasNumberingM.put(key, value));
+        }  
 
         List<String> selectList = new ArrayList<>();
         List<String> selectDimList = new ArrayList<>();
@@ -26,7 +36,6 @@ public class SelectClausePostgres {
         List<String> groupByDimList = new ArrayList<>();
         List<String> orderByDimList = new ArrayList<>();
 
-        Map<String, Integer> aliasNumbering = new HashMap<>();
         Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "QUARTER", "QUARTER",
                 "MONTH", "MONTH", "DAYOFWEEK", "DOW", "DAYOFMONTH", "DAY");
 
@@ -42,7 +51,20 @@ public class SelectClausePostgres {
          */
         for (int i = 0; i < req.getDimensions().size(); i++) {
             Dimension dim = req.getDimensions().get(i);
+            // If the base dimension goes up to order_date_2 and the measure is order_date, it should be order_date_3.
+            // If the overridden dimension includes additional order_date values, we want to keep the measure as order_date_3.
+            if(aliasnumber != null && aliasnumber.length > 0){
+                
+                for(String key : aliasNumberingM.keySet()){
 
+                    for(String key1 : aliasNumbering.keySet()){
+                    if(key.equals(req.getMeasures().get(0).getFieldName()) && key.equals(key1) && aliasNumbering.get(key).equals(aliasNumberingM.get(key1))){
+                            aliasNumbering.put(key, aliasNumbering.get(key) + 1);
+                    }
+                }
+                }
+               
+            }
             String field = "";
 
             // for non Date fields, Keep column as is
@@ -265,10 +287,18 @@ public class SelectClausePostgres {
             if(meas.getWindowFn()[0] != null){
                 windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName);
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+                // if aliasnumber is not null, to maintain alias sequence for measure field
+                if(aliasnumber != null && aliasnumber.length > 0){
+                alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
+                }
                 // selectMeasureList.add(field + " AS " + alias);
                 selectMeasureList.add(windowFn + " AS " + alias);
             } else {
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+                // if aliasnumber is not null, to maintain alias sequence for measure field
+                if(aliasnumber != null && aliasnumber.length > 0){
+                alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
+                }
                 selectMeasureList.add(field + " AS " + alias);
             }
         }

@@ -22,94 +22,8 @@ import {
 } from "../ChartsCommonInterfaces";
 
 
-import usaJson from './GeoJSON/USMapData.json';
-import worldJSON from './GeoJSON/WorldData.json';
-import indiaJSON from './GeoJSON/IndiaMapData.json';
-import brazilJSON from './GeoJSON/BrazilMapData.json';
-import chinaJSON from './GeoJSON/ChinaMapData.json';
-import franceJSON from './GeoJSON/FranceMapData.json';
-import germanyJSON from './GeoJSON/GermanyMapData.json';
-import japanMapJSON from './GeoJSON/JapanMapData.json';
-import australiaJSON from './GeoJSON/AustraliaMapData.json';
-import southAfricaJSON from './GeoJSON/SouthAfricaMapData.json';
-import ukJSON from './GeoJSON/UKMapData.json';
-import nigeriaJSON from './GeoJSON/NigeriaMapData.json';
-
 import {interpolateColor, generateRandomColorArray, fieldName, getLabelValues} from '../../CommonFunctions/CommonFunctions';
-
-
-async function registerGeoMap(name: string){
-	//https://code.highcharts.com/mapdata/
-	//https://github.com/adarshbiradar/maps-geojson/tree/master/states
-	var ROOT_PATH = 'https://echarts.apache.org/examples';
-	var mapJSON:any = {};
-
-	switch (name) {
-		case 'usa':
-			mapJSON = usaJson;
-			break;
-		case 'world':
-			mapJSON = worldJSON;
-			break;
-		case 'india':
-			mapJSON = indiaJSON;
-			break;
-		case 'brazil':
-			mapJSON = brazilJSON;
-			break;
-		case 'china':
-			mapJSON = chinaJSON;
-			break;
-		case 'france':
-			mapJSON = franceJSON;
-			break;
-		case 'germany':
-			mapJSON = germanyJSON;
-			break;
-		case 'nigeria':
-			mapJSON = nigeriaJSON;
-			break;
-		case 'japan':
-			mapJSON = japanMapJSON;
-			break;
-		case 'australia':			
-			mapJSON = australiaJSON;
-			break;
-		case 'southAfrica':
-			mapJSON = southAfricaJSON;
-			break;
-		case 'uk':
-			mapJSON = ukJSON;
-			break;
-		default:
-			mapJSON = worldJSON;
-			break;
-	}	
-
-
-	if(name == 'usa'){
-		echarts.registerMap(name, mapJSON, {
-			Alaska: {     
-			  left: -149,
-			  top: 49,
-			  width: 23
-			},
-			Hawaii: {
-			  left: -141,
-			  top: 28,
-			  width: 5
-			},
-			'Puerto Rico': {     
-			  left: -76,
-			  top: 20,
-			  width: 2
-			}
-		  });
-	}
-	else{
-		echarts.registerMap(name, mapJSON, {});
-	}	
-}
+import {getGeoJSON} from './GeoJSON/MapCommonFunctions';
 
 
 
@@ -124,6 +38,8 @@ const GeoChart = ({
 	chartControls,
 	chartProperties
 }: ChartsReduxStateProps) => {
+
+	var type = chartProperties.properties[propKey].Geo.geoMapKey;
 	
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
@@ -138,57 +54,69 @@ const GeoChart = ({
 	let valueName = fieldName(_measureField.fields[0]);	
 	const [options, setOptions] = useState({});
 
-	registerGeoMap(chartProperties.properties[propKey].geoLocation);
-
-	//var property = chartControls.properties[propKey];
-	//let chartPropData = property.chartData ? property.chartData : "";
-
-	//const [formatedChartPropData, setFormatedChartPropData] = useState([]);
-	//let tempFormatedChartPropData = JSON.parse(JSON.stringify(chartPropData));
 	
-	// useEffect(() => {
-	// 	if (tempFormatedChartPropData) {
-	// 		var chartDataKeys = Object.keys(tempFormatedChartPropData[0] || []);
-	// 		let _formChartData: any = [];
+var mapJSON:any = {};
 
-	// 		tempFormatedChartPropData.forEach((item: any) => {
-	// 			let formattedValue: any = {};
+async function registerGeoMap(name: string){
+	//https://code.highcharts.com/mapdata/
+	//https://github.com/adarshbiradar/maps-geojson/tree/master/states
+	var ROOT_PATH = 'https://echarts.apache.org/examples';		
 
-	// 			for (let i = 0; i < chartDataKeys.length; i++) {
-	// 				/*  Need to format only numeric values  */
-	// 				if (typeof item[chartDataKeys[i]] === "number") {
-	// 					let _isMeasureField = _measureField.fields.find(field =>
-	// 						chartDataKeys[i].includes(field.fieldname)
-	// 					);
-	// 					/*  Need to format Measure dustbin fields */
-	// 					if (_isMeasureField && chartDataKeys[i].includes("of")) {
-	// 						formattedValue[chartDataKeys[i]] = formatChartLabelValue(
-	// 							property,
-	// 							item[chartDataKeys[i]]
-	// 						);
-	// 					} else {
-	// 						formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]];
-	// 					}
-	// 				} else {
-	// 					formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]];
-	// 				}
-	// 			}
+	mapJSON = getGeoJSON(name);
 
-	// 			_formChartData.push(formattedValue);
-	// 		});
+	echarts.registerMap(name, mapJSON, {});	
+}
 
-	// 		setFormatedChartPropData(_formChartData);
-	// 	}
-	// }, [chartPropData, property.formatOptions]);
+	registerGeoMap(chartProperties.properties[propKey].Geo.geoLocation);
+	
 
 	const convertIntoMapData = ()=>{
 		if(chartData && chartData.length > 0){
-			mapData = chartData?.map(item=>{
+			let keyNameArray :string[] = [];
+			let matchingMapJSONArray : any = [];
+
+			chartData?.map(item=>{				
+				keyNameArray.push(item[keyName]?.trim());				
+			});	
+
+			mapJSON.features.forEach((item:any)=>{
+				if(keyNameArray.includes(item.properties[type])){
+					matchingMapJSONArray.push({key : item.properties[type], name : item.properties["name"]});
+				}
+			});
+
+			mapData = chartData?.map(item=>{	
 				return {
-					name : item[keyName]?.trim(),
-					value : item[valueName] || 0
+					name :  matchingMapJSONArray.find((match:any)=> match.key === item[keyName]?.trim())?.name,
+					value : item[valueName] || 0,
+					key : item[keyName]
 				}
 			});	
+
+
+			if(chartProperties.properties[propKey].Geo.unMatchedChartData?.length > 0 ){
+				chartProperties.properties[propKey].Geo.unMatchedChartData.forEach((item:any)=>{
+					if(item.selectedKey != ""){
+
+						let data:any = mapData.find((dataItem:any)=>{
+							return dataItem.key == item[keyName]
+						});
+
+						// if(chartProperties.properties[propKey].Geo.geoMapKey === "name"){	
+						// 	if(data){
+						// 		data["name"] = item.selectedKey;
+						// 	}
+						// }
+						// else{	
+						if(data){
+							let name = item.selectedKey.includes(';') ? item.selectedKey.split(';')[1]?.trim() : item.selectedKey;
+							data["name"] = name;
+						}
+						//}
+					}
+				})
+			}
+
 		}			
 	}
 
@@ -213,7 +141,7 @@ const GeoChart = ({
 
 		setOptions({
 			geo: {		
-				map: chartProperties.properties[propKey].geoLocation,
+				map: chartProperties.properties[propKey].Geo.geoLocation,
 				silent:false,
 				aspectScale: geoStyle.aspectScale,
 				show: true,
@@ -291,13 +219,14 @@ const GeoChart = ({
 					map: 'USA',
 					geoIndex: 0,
 					data: mapData || [],
-					zlevel: 3,					
+					zlevel: 3,		
+					dimensions: ["name", "value"]			
 				},
 				
 			],
 		})
 
-	}, [chartData, chartControl,chartProperties ]);
+	}, [chartControl, chartProperties.properties[propKey].Geo, type ]);
 
 
 

@@ -4,16 +4,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.silzila.payload.request.Filter;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.QueryNegator;
-import com.silzila.payload.request.Filter;
 
-public class WhereClauseSnowflake {
-    
+public class WhereClauseDateMotherduck {
+
     public static String buildWhereClauseDate(Filter filter) throws BadRequestException {
         // MAP of request time grain to date function parameter in Postgres
         Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "MONTH", "MONTH", "QUARTER", "QUARTER",
-                "DAYOFMONTH", "DAYOFMONTH");
+                "DATE", "DATE", "DAYOFWEEK", "DAYOFWEEK", "DAYOFMONTH", "DAY");
         // MAP of request comparison operator name to symbol in Postgres
         Map<String, String> comparisonOperator = Map.of("GREATER_THAN", " > ", "GREATER_THAN_OR_EQUAL_TO", " >= ",
                 "LESS_THAN", " < ", "LESS_THAN_OR_EQUAL_TO", " <= ");
@@ -38,18 +38,19 @@ public class WhereClauseSnowflake {
                 } else if (filter.getTimeGrain().name().equals("QUARTER")) {
                     field = "CONCAT('Q', QUARTER(" + filter.getTableId() + "." + filter.getFieldName() + "))";
                 } else if (filter.getTimeGrain().name().equals("MONTH")) {
-                    field = "TO_VARCHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'MMMM')";
+                    field = "MONTHNAME(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 } else if (filter.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
-                            + "), '-Q', QUARTER(" + filter.getTableId() + "." + filter.getFieldName() + "))";
+                    field = "CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "), '-Q', QUARTER("
+                            + filter.getTableId() + "." + filter.getFieldName() + "))";
                 } else if (filter.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "TO_VARCHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'yyyy-MM')";
+                    field = "CONCAT(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + "), '-', LPAD(EXTRACT(MONTH FROM " 
+                    + filter.getTableId() + "." + filter.getFieldName() + "), 2, '0'))";
                 } else if (filter.getTimeGrain().name().equals("DATE")) {
-                    field = "TO_DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE)";
                 } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    field = "TO_VARCHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", '%A')";
+                    field = "DAYNAME(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    field = "DAYOFMONTH(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "DAY(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 }
 
                 String options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
@@ -66,12 +67,13 @@ public class WhereClauseSnowflake {
                             + filter.getFieldName() + " in Filter!");
                 }
                 if (filter.getTimeGrain().name().equals("DATE")) {
-                    field = "TO_DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE)";
                 } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    field = "DAYOFWEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") + 1";
+                    field = timeGrainMap.get(filter.getTimeGrain().name()) + "(" + filter.getTableId() + "."
+                        + filter.getFieldName() + ") + 1";
                 } else {
-                    field = timeGrainMap.get(filter.getTimeGrain().name()) + "(" + filter.getTableId()
-                            + "." + filter.getFieldName() + ")";
+                    field = timeGrainMap.get(filter.getTimeGrain().name()) + "(" + filter.getTableId() + "."
+                        + filter.getFieldName() + ")";
                 }
                 where = field + excludeOperator + "= '" + filter.getUserSelection().get(0) + "'";
             }
@@ -90,14 +92,14 @@ public class WhereClauseSnowflake {
                 throw new BadRequestException("Error: Time grain is not correct for Comparsion Operator in the field "
                         + filter.getFieldName() + " in Filter!");
             }
-
             if (filter.getTimeGrain().name().equals("DATE")) {
-                field = "TO_DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+                field = "CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE)";
             } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
-                field = "DAYOFWEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") + 1";
+                field = timeGrainMap.get(filter.getTimeGrain().name()) + "(" + filter.getTableId() + "."
+                    + filter.getFieldName() + ") + 1";
             } else {
-                field = timeGrainMap.get(filter.getTimeGrain().name()) + "(" + filter.getTableId()
-                        + "." + filter.getFieldName() + ")";
+                field = timeGrainMap.get(filter.getTimeGrain().name()) + "(" + filter.getTableId() + "."
+                    + filter.getFieldName() + ")";
             }
             // decides if it is '=' or '!='
             String excludeOperator = QueryNegator.makeNegateCondition(filter.getShouldExclude());
@@ -119,11 +121,9 @@ public class WhereClauseSnowflake {
                 }
             }
         }
-        //tillDate
-        if(filter.getIsTillDate() && List.of("MONTH","DAYOFMONTH","YEARMONTH","YEAR","DAYOFWEEK","QUARTER","YEARQUARTER").contains(filter.getTimeGrain().name())){
-            where = "(\n\t\t" + where + TillDate.tillDate("snowflake", filter) + "\n\t\t)";
-        }
+
         return where;
 
     }
+
 }

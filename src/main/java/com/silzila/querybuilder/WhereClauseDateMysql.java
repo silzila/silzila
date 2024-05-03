@@ -10,7 +10,7 @@ import com.silzila.helper.QueryNegator;
 
 public class WhereClauseDateMysql {
 
-    public static String buildWhereClauseDate(Filter filter) throws BadRequestException {
+    public static String buildWhereClauseDate(Filter filter,String vendorName ) throws BadRequestException {
         // MAP of request time grain to date function parameter in Postgres
         Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "MONTH", "MONTH", "QUARTER", "QUARTER",
                 "DATE", "DATE", "DAYOFWEEK", "DAYOFWEEK", "DAYOFMONTH", "DAY");
@@ -107,9 +107,12 @@ public class WhereClauseDateMysql {
                 }
             }
         }
-
+        //tillDate
+        if(filter.getIsTillDate() && List.of("MONTH","DAYOFMONTH","YEARMONTH","YEAR","DAYOFWEEK","QUARTER","YEARQUARTER").contains(filter.getTimeGrain().name())){
+            where = "(\n\t\t" + where + TillDate.tillDate(vendorName, filter) + "\n\t\t)";
+        }
         return where;
-
+      
     }
 
 }

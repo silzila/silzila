@@ -108,7 +108,7 @@ public class DatasetController {
 
     @PostMapping("/query")
     public ResponseEntity<?> runQuery(@RequestHeader Map<String, String> reqHeader,
-            @Valid @RequestBody Query query,
+            @Valid @RequestBody List<Query> query,
             @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
             @RequestParam(name = "datasetid") String datasetId,
             @RequestParam(name = "sql", required = false) Boolean isSqlOnly)
