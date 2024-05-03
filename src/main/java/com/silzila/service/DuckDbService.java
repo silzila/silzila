@@ -1,5 +1,6 @@
 package com.silzila.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.silzila.domain.entity.FileData;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.helper.ConvertDuckDbDataType;
@@ -17,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -556,10 +558,9 @@ public class DuckDbService {
         // String filePath = SILZILA_DIR + "/" + fileName;
         String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
         String jsonStr = new String(Files.readAllBytes(Paths.get(filePath))).trim();
+        Connection conn2 = ((DuckDBConnection) conn).duplicate();
 
         JsonValidator.validate(jsonStr);
-
-        Connection conn2 = ((DuckDBConnection) conn).duplicate();
 
         Statement stmtRecords = conn2.createStatement();
         Statement stmtMeta = conn2.createStatement();
