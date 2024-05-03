@@ -25,7 +25,7 @@ public class RelativeFilterQueryComposer {
         logger.info("----------- RelativeFilterQueryComposer calling......");
         String finalQuery = "";
 
-        if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+        if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("motherduck")) {
             logger.info("------ inside postges/redshift block");
             finalQuery = RelativeFilterDatePostgres.getRelativeDate(relativeFilter, anchorDateArray);
         } else if (vendorName.equals("mysql")) {
@@ -76,7 +76,7 @@ public class RelativeFilterQueryComposer {
             throw new BadRequestException("Error: RequestedFiter Column is not available in Dataset!");
         }
 
-        if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+        if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("motherduck")) {
             logger.info("------ inside postges/redshift block");
             finalQuery = RelativeFilterDatePostgres.getRelativeAnchorDate(table, relativeFilter);
         } else if (vendorName.equals("mysql")) {
