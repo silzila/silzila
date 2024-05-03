@@ -1,6 +1,16 @@
 package com.silzila.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import com.silzila.domain.entity.FileData;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.helper.ConvertDuckDbDataType;
@@ -17,13 +27,10 @@ import org.duckdb.DuckDBConnection;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.*;
-import java.util.*;
+
 
 @Service
 public class DuckDbService {
@@ -157,7 +164,7 @@ public class DuckDbService {
         if (revisedInfoRequest.getDateFormat() != null && !revisedInfoRequest.getDateFormat().trim().isEmpty()) {
             dateFormatCondition = ", dateformat='" + revisedInfoRequest.getDateFormat().trim() + "'";
         }
-        // when user provides custom time stamp format
+        // when user provides custom timestamp format
         String timeStampFormatCondition = "";
         if (revisedInfoRequest.getTimestampFormat() != null
                 && !revisedInfoRequest.getTimestampFormat().trim().isEmpty()) {

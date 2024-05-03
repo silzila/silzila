@@ -33,8 +33,7 @@ public class ResultSetToJson {
             colNames.forEach(cn -> {
                 try {
                     row.put(cn, resultSet.getObject(cn));         	               
-                    } 
-                catch (JSONException | SQLException e) {
+                    } catch (JSONException | SQLException e) {
                     e.printStackTrace();
                 }
             });
