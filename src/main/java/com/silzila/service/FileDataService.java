@@ -1,5 +1,6 @@
 package com.silzila.service;
 
+import com.silzila.helper.SaltGenerator;
 import org.json.JSONArray;
 
 import com.silzila.exception.BadRequestException;
@@ -14,6 +15,7 @@ import com.silzila.domain.entity.FileData;
 import com.silzila.dto.FileDataDTO;
 import com.silzila.repository.FileDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,13 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class FileDataService {
@@ -47,7 +43,20 @@ public class FileDataService {
 
     // all uploads are initially saved in tmp
     final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
+    @Value("${pepper}")
+    private String pepper;
 
+    int saltLength =4; // You can adjust the length as needed
+
+    // Generate salt using SaltGenerator class
+    byte[] salt = SaltGenerator.generateSalt(saltLength);
+
+
+    private String saltVal = SaltGenerator.bytesToHex(salt);
+    // Convert byte array to a base64 encoded string
+    //generating random value to encrypt
+    final String encryptPwd = saltVal+"silzila*";
+    //UUID.randomUUID().toString().substring(0, 32)
     // 1. upload File Data
     public FileUploadResponseDuckDb fileUpload(MultipartFile file, String sheetName) throws ExpectationFailedException,
             IOException, SQLException, ClassNotFoundException {
@@ -345,7 +354,7 @@ public class FileDataService {
 
         // using condition to find the file type ad do the operation
         if (revisedInfoRequest.getFileType().equalsIgnoreCase("csv")) {
-            duckDbService.writeToParquet(revisedInfoRequest, userId);
+            duckDbService.writeCsvToParquet(revisedInfoRequest, userId, encryptPwd+pepper);
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
@@ -365,7 +374,7 @@ public class FileDataService {
 
             return fileDataDTO;
         } else if (revisedInfoRequest.getFileType().equalsIgnoreCase("json")) {
-            duckDbService.writeJsonToParquet(revisedInfoRequest, userId);
+            duckDbService.writeJsonToParquet(revisedInfoRequest, userId, encryptPwd+pepper);
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
@@ -386,7 +395,7 @@ public class FileDataService {
             return fileDataDTO;
 
         } else if (revisedInfoRequest.getFileType().equalsIgnoreCase("excel")) {
-            duckDbService.writeExcelToParquet(revisedInfoRequest, userId);
+            duckDbService.writeExcelToParquet(revisedInfoRequest, userId, encryptPwd+pepper);
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
@@ -444,7 +453,7 @@ public class FileDataService {
 
         // start duckdb in memory
         duckDbService.startDuckDb();
-        JSONArray jsonArray = duckDbService.getSampleRecords(parquetFilePath);
+        JSONArray jsonArray = duckDbService.getSampleRecords(parquetFilePath, encryptPwd+pepper);
         return jsonArray;
     }
 
@@ -466,7 +475,7 @@ public class FileDataService {
         }
         // start duckdb in memory
         duckDbService.startDuckDb();
-        List<Map<String, Object>> metaList = duckDbService.getColumnMetaData(parquetFilePath);
+        List<Map<String, Object>> metaList = duckDbService.getColumnMetaData(parquetFilePath, encryptPwd+pepper);
         return metaList;
     }
 
@@ -511,7 +520,7 @@ public class FileDataService {
         }
 
         // sparkService.createDfForFlatFiles(userId, tableObjList, fileDataList);
-        duckDbService.createViewForFlatFiles(userId, tableObjList, fileDataList);
+        duckDbService.createViewForFlatFiles(userId, tableObjList, fileDataList, encryptPwd+pepper);
 
     }
 

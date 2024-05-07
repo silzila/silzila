@@ -6,11 +6,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+
 import com.silzila.domain.entity.FileData;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.helper.ConvertDuckDbDataType;
@@ -221,7 +218,7 @@ public class DuckDbService {
     }
 
     // save CSV to Parquet
-    public void writeToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+    public void writeCsvToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId, String saltValue)
             throws SQLException, ExpectationFailedException {
 
         String fileName = revisedInfoRequest.getFileId();
@@ -265,12 +262,20 @@ public class DuckDbService {
             timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
         }
 
+        System.out.println(saltValue);
+        //creating Encryption key to save parquet file securely
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+saltValue+"')";
+       // System.out.println(encryptKey);
         // read CSV and write as Parquet file
-        final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/" + "/"
+        final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/" +"/"
                 + revisedInfoRequest.getFileId() + ".parquet";
         String query = "COPY (SELECT * from read_csv_auto('" + filePath + "', names=" + colMapString + ", types="
                 + dataTypeMapString + dateFormatCondition + timeStampFormatCondition + ")) TO '" + writeFile
-                + "' (FORMAT PARQUET, COMPRESSION ZSTD);";
+                + "' (ENCRYPTION_CONFIG {footer_key: 'key256'});";
+
+        stmtRecords.execute(encryptKey);
+
+        logger.info("************************\n" + query);
 
         // handling the data type mismatch
         try {
@@ -278,19 +283,23 @@ public class DuckDbService {
         } catch (SQLException e) {
             throw new ExpectationFailedException("you are trying for unmatched data type. Error:" + e.getMessage());
         }
-        logger.info("************************\n" + query);
+
 
         stmtRecords.close();
         conn2.close();
     }
 
     // get sample records from Parquet file
-    public JSONArray getSampleRecords(String parquetFilePath) throws SQLException {
+    public JSONArray getSampleRecords(String parquetFilePath,String saltValue) throws SQLException {
 
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtRecords = conn2.createStatement();
 
-        String query = "SELECT * from read_parquet('" + parquetFilePath + "') LIMIT 200;";
+        //creating Encryption key to save parquet file securely
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+saltValue+"')";
+        stmtRecords.execute(encryptKey);
+
+        String query = "SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'}) LIMIT 200;";
         logger.info("************************\n" + query);
 
         ResultSet resultSet = stmtRecords.executeQuery(query);
@@ -302,12 +311,18 @@ public class DuckDbService {
     }
 
     // get sample records from Parquet file
-    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath) throws SQLException {
+    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath,String saltValue) throws SQLException {
 
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtMeta = conn2.createStatement();
+        Statement stmtRecords = conn2.createStatement();
 
-        String query = "DESCRIBE SELECT * from read_parquet('" + parquetFilePath + "') LIMIT 1;";
+
+        //creating Encryption key to save parquet file securely
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+saltValue+"')";
+        stmtRecords.execute(encryptKey);
+
+        String query = "DESCRIBE SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'}) LIMIT 1;";
         logger.info("************************\n" + query);
 
         ResultSet rsMeta = stmtMeta.executeQuery(query);
@@ -339,7 +354,7 @@ public class DuckDbService {
     }
 
     // create DF for flat files
-    public void createViewForFlatFiles(String userId, List<Table> tableObjList, List<FileData> fileDataList)
+    public void createViewForFlatFiles(String userId, List<Table> tableObjList, List<FileData> fileDataList,String saltValue)
             throws SQLException, ClassNotFoundException {
         // System.out.println("Table Obj ============\n" + tableObjList.toString());
         // System.out.println("File Data List ============\n" +
@@ -373,7 +388,12 @@ public class DuckDbService {
                         startDuckDb();
                         Connection conn2 = ((DuckDBConnection) conn).duplicate();
                         Statement stmt = conn2.createStatement();
-                        String query = "CREATE OR REPLACE VIEW " + viewName + " AS (SELECT * FROM '" + filePath + "')";
+
+                        //creating Encryption key to save parquet file securely
+                        String encryptKey= "PRAGMA add_parquet_key('key256', '"+saltValue+"')";
+                        stmt.execute(encryptKey);
+
+                        String query = "CREATE OR REPLACE VIEW " + viewName + " AS (SELECT * FROM read_parquet('"+filePath+"', encryption_config = {footer_key: 'key256'}))";
                         logger.info("View creating query ==============\n" + query);
                         stmt.execute(query);
                         stmt.close();
@@ -498,7 +518,7 @@ public class DuckDbService {
         return fileUploadResponseDuckDb;
     }
 
-    public void writeExcelToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+    public void writeExcelToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId,String saltValue)
             throws SQLException, ExpectationFailedException {
 
         String fileName = revisedInfoRequest.getFileId();
@@ -542,18 +562,28 @@ public class DuckDbService {
             timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
         }
 
+        //creating Encryption key to save parquet file securely
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+saltValue+"')";
+        stmtRecords.execute(encryptKey);
+
+        String trimmedFilename = revisedInfoRequest.getFileId().substring(0, revisedInfoRequest.getFileId().lastIndexOf('.'));
+        System.out.println( trimmedFilename);
+
         // read CSV and write as Parquet file
         final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/" + "/"
-                + revisedInfoRequest.getFileId() + ".parquet";
+                + trimmedFilename+ ".parquet";
         String query = "COPY (SELECT * from read_csv_auto('" + filePath + "', names=" + colMapString + ", types="
                 + dataTypeMapString + dateFormatCondition + timeStampFormatCondition + ")) TO '" + writeFile
-                + "' (FORMAT PARQUET, COMPRESSION ZSTD);";
+                + "' (ENCRYPTION_CONFIG {footer_key: 'key256'});";
+
+        logger.info("************************\n" + query);
+
         try {
             stmtRecords.execute(query);
         } catch (SQLException e) {
             throw new ExpectationFailedException("you are trying for unmatched data type. Error:" + e.getMessage());
         }
-        logger.info("************************\n" + query);
+
 
         stmtRecords.close();
         conn2.close();
@@ -711,7 +741,7 @@ public class DuckDbService {
         return jsonArray;
     }
 
-    public void writeJsonToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+    public void writeJsonToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId,String saltValue)
             throws SQLException, ExpectationFailedException {
 
         String fileName = revisedInfoRequest.getFileId();
@@ -760,12 +790,16 @@ public class DuckDbService {
         // Converting a map to string to pass correct format to column
         String columnsMapString = mapToString(map);
 
+        //creating Encryption key to save parquet file securely
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+saltValue+"')";
+        stmtRecords.execute(encryptKey);
+
         // read CSV and write as Parquet file
         final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/" + "/"
                 + revisedInfoRequest.getFileId() + ".parquet";
         String query = "COPY (SELECT * from read_json_auto('" + filePath
                 + "',ignore_errors=true, format='auto', columns=" + columnsMapString + dateFormatCondition
-                + timeStampFormatCondition + ")) TO '" + writeFile + "' (FORMAT PARQUET, COMPRESSION ZSTD);";
+                + timeStampFormatCondition + ")) TO '" + writeFile + "' (ENCRYPTION_CONFIG {footer_key: 'key256'});";
 
         // handling data type mismatch
         try {
