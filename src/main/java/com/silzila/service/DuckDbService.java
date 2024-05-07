@@ -566,12 +566,9 @@ public class DuckDbService {
         String encryptKey= "PRAGMA add_parquet_key('key256', '"+saltValue+"')";
         stmtRecords.execute(encryptKey);
 
-        String trimmedFilename = revisedInfoRequest.getFileId().substring(0, revisedInfoRequest.getFileId().lastIndexOf('.'));
-        System.out.println( trimmedFilename);
-
-        // read CSV and write as Parquet file
+               // read CSV and write as Parquet file
         final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/" + "/"
-                + trimmedFilename+ ".parquet";
+                +  revisedInfoRequest.getFileId() + ".parquet";
         String query = "COPY (SELECT * from read_csv_auto('" + filePath + "', names=" + colMapString + ", types="
                 + dataTypeMapString + dateFormatCondition + timeStampFormatCondition + ")) TO '" + writeFile
                 + "' (ENCRYPTION_CONFIG {footer_key: 'key256'});";
