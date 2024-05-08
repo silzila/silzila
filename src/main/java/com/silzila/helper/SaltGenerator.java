@@ -5,15 +5,15 @@ import java.security.SecureRandom;
 import java.security.SecureRandom;
 
 public class SaltGenerator {
-    public static byte[] generateSalt(int length) {
+    public static String generateSalt(int length) {
         byte[] salt = new byte[length];
         SecureRandom random = new SecureRandom();
         random.nextBytes(salt);
-        return salt;
+        return bytesToHex(salt);
     }
 
     // Utility method to convert byte array to hexadecimal string
-    public static String bytesToHex(byte[] bytes) {
+    private static String bytesToHex(byte[] bytes) {
         StringBuilder hexString = new StringBuilder();
         for (byte b : bytes) {
             String hex = Integer.toHexString(0xff & b);
@@ -24,6 +24,8 @@ public class SaltGenerator {
         }
         return hexString.toString();
     }
+
+
 }
 
 

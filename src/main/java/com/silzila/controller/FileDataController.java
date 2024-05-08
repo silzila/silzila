@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import com.silzila.domain.entity.FileData;
 import org.json.JSONArray;
 
 import com.silzila.dto.FileDataDTO;
@@ -46,6 +47,7 @@ public class FileDataController {
 
     @Autowired
     FileDataService fileDataService;
+
 
     @GetMapping("/file-upload-test")
     public ResponseEntity<?> protectedRoute(@RequestHeader Map<String, String> reqHeder) {

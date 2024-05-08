@@ -46,16 +46,9 @@ public class FileDataService {
     @Value("${pepper}")
     private String pepper;
 
-    int saltLength =4; // You can adjust the length as needed
-
-    // Generate salt using SaltGenerator class
-    byte[] salt = SaltGenerator.generateSalt(saltLength);
-
-
-    private String saltVal = SaltGenerator.bytesToHex(salt);
-    // Convert byte array to a base64 encoded string
+   // Convert byte array to a base64 encoded string
     //generating random value to encrypt
-    final String encryptPwd = saltVal+"silzila*";
+    final String encryptPwd ="silzila*";
     //UUID.randomUUID().toString().substring(0, 32)
     // 1. upload File Data
     public FileUploadResponseDuckDb fileUpload(MultipartFile file, String sheetName) throws ExpectationFailedException,
@@ -354,11 +347,17 @@ public class FileDataService {
 
         // using condition to find the file type ad do the operation
         if (revisedInfoRequest.getFileType().equalsIgnoreCase("csv")) {
-            duckDbService.writeCsvToParquet(revisedInfoRequest, userId, encryptPwd+pepper);
+
+
+            int saltLength =4; // You can adjust the length as needed
+            // Generate salt using SaltGenerator class
+            String salt = SaltGenerator.generateSalt(saltLength);
+
+            duckDbService.writeCsvToParquet(revisedInfoRequest, userId, salt+encryptPwd+pepper);
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
-            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved);
+            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved,salt);
             fileDataRepository.save(fileData);
 
             FileDataDTO fileDataDTO = new FileDataDTO(fileData.getId(), fileData.getUserId(), fileData.getName());
@@ -374,11 +373,16 @@ public class FileDataService {
 
             return fileDataDTO;
         } else if (revisedInfoRequest.getFileType().equalsIgnoreCase("json")) {
-            duckDbService.writeJsonToParquet(revisedInfoRequest, userId, encryptPwd+pepper);
+
+            int saltLength =4; // You can adjust the length as needed
+            // Generate salt using SaltGenerator class
+            String salt = SaltGenerator.generateSalt(saltLength);
+
+            duckDbService.writeJsonToParquet(revisedInfoRequest, userId, salt+encryptPwd+pepper);
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
-            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved);
+            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved,salt);
             fileDataRepository.save(fileData);
 
             FileDataDTO fileDataDTO = new FileDataDTO(fileData.getId(), fileData.getUserId(), fileData.getName());
@@ -395,11 +399,16 @@ public class FileDataService {
             return fileDataDTO;
 
         } else if (revisedInfoRequest.getFileType().equalsIgnoreCase("excel")) {
-            duckDbService.writeExcelToParquet(revisedInfoRequest, userId, encryptPwd+pepper);
+
+            int saltLength =4; // You can adjust the length as needed
+            // Generate salt using SaltGenerator class
+            String salt = SaltGenerator.generateSalt(saltLength);
+
+            duckDbService.writeExcelToParquet(revisedInfoRequest, userId, salt+encryptPwd+pepper);
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
-            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved);
+            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved,salt);
             fileDataRepository.save(fileData);
 
             FileDataDTO fileDataDTO = new FileDataDTO(fileData.getId(), fileData.getUserId(), fileData.getName());
@@ -435,7 +444,7 @@ public class FileDataService {
     }
 
     // get sample records
-    public JSONArray getSampleRecords(String id, String userId) throws RecordNotFoundException, JsonMappingException,
+    public JSONArray  getSampleRecords(String id, String userId) throws RecordNotFoundException, JsonMappingException,
             JsonProcessingException, BadRequestException, ClassNotFoundException, SQLException {
         // if no file data inside optional wrapper, then send NOT FOUND Error
         Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
@@ -443,6 +452,7 @@ public class FileDataService {
             throw new RecordNotFoundException("Error: No such File Data Id exists!");
         }
         FileData fileData = fdOptional.get();
+        String salt=fileData.getSaltValue();
 
         // if file not exists, throw error:
         final String parquetFilePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
@@ -453,7 +463,7 @@ public class FileDataService {
 
         // start duckdb in memory
         duckDbService.startDuckDb();
-        JSONArray jsonArray = duckDbService.getSampleRecords(parquetFilePath, encryptPwd+pepper);
+        JSONArray jsonArray = duckDbService.getSampleRecords(parquetFilePath, salt+encryptPwd+pepper);
         return jsonArray;
     }
 
@@ -466,6 +476,7 @@ public class FileDataService {
             throw new RecordNotFoundException("Error: No such File Data Id exists!");
         }
         FileData fileData = fdOptional.get();
+        String salt=fileData.getSaltValue();
 
         // if file not exists, throw error:
         final String parquetFilePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
@@ -475,7 +486,7 @@ public class FileDataService {
         }
         // start duckdb in memory
         duckDbService.startDuckDb();
-        List<Map<String, Object>> metaList = duckDbService.getColumnMetaData(parquetFilePath, encryptPwd+pepper);
+        List<Map<String, Object>> metaList = duckDbService.getColumnMetaData(parquetFilePath, salt+encryptPwd+pepper);
         return metaList;
     }
 

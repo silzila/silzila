@@ -218,7 +218,7 @@ public class DuckDbService {
     }
 
     // save CSV to Parquet
-    public void writeCsvToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId, String saltValue)
+    public void writeCsvToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId, String encryptVal)
             throws SQLException, ExpectationFailedException {
 
         String fileName = revisedInfoRequest.getFileId();
@@ -262,9 +262,9 @@ public class DuckDbService {
             timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
         }
 
-        System.out.println(saltValue);
+        System.out.println(encryptVal);
         //creating Encryption key to save parquet file securely
-        String encryptKey= "PRAGMA add_parquet_key('key256', '"+saltValue+"')";
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
        // System.out.println(encryptKey);
         // read CSV and write as Parquet file
         final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/" +"/"
@@ -290,13 +290,13 @@ public class DuckDbService {
     }
 
     // get sample records from Parquet file
-    public JSONArray getSampleRecords(String parquetFilePath,String saltValue) throws SQLException {
+    public JSONArray getSampleRecords(String parquetFilePath,String encryptVal) throws SQLException {
 
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtRecords = conn2.createStatement();
 
         //creating Encryption key to save parquet file securely
-        String encryptKey= "PRAGMA add_parquet_key('key256', '"+saltValue+"')";
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
         stmtRecords.execute(encryptKey);
 
         String query = "SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'}) LIMIT 200;";
@@ -311,7 +311,7 @@ public class DuckDbService {
     }
 
     // get sample records from Parquet file
-    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath,String saltValue) throws SQLException {
+    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath,String encryptVal) throws SQLException {
 
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtMeta = conn2.createStatement();
@@ -319,7 +319,7 @@ public class DuckDbService {
 
 
         //creating Encryption key to save parquet file securely
-        String encryptKey= "PRAGMA add_parquet_key('key256', '"+saltValue+"')";
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
         stmtRecords.execute(encryptKey);
 
         String query = "DESCRIBE SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'}) LIMIT 1;";
@@ -354,7 +354,7 @@ public class DuckDbService {
     }
 
     // create DF for flat files
-    public void createViewForFlatFiles(String userId, List<Table> tableObjList, List<FileData> fileDataList,String saltValue)
+    public void createViewForFlatFiles(String userId, List<Table> tableObjList, List<FileData> fileDataList,String encryptVal)
             throws SQLException, ClassNotFoundException {
         // System.out.println("Table Obj ============\n" + tableObjList.toString());
         // System.out.println("File Data List ============\n" +
@@ -384,13 +384,14 @@ public class DuckDbService {
                     if (flatFileId.equals(fileDataList.get(j).getId())) {
                         final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId
                                 + "/" + fileDataList.get(j).getFileName();
+                        String salt= fileDataList.get(j).getSaltValue();
                         // create view on DF and maintain the view name to know if view is already there
                         startDuckDb();
                         Connection conn2 = ((DuckDBConnection) conn).duplicate();
                         Statement stmt = conn2.createStatement();
 
                         //creating Encryption key to save parquet file securely
-                        String encryptKey= "PRAGMA add_parquet_key('key256', '"+saltValue+"')";
+                        String encryptKey= "PRAGMA add_parquet_key('key256', '"+salt+encryptVal+"')";
                         stmt.execute(encryptKey);
 
                         String query = "CREATE OR REPLACE VIEW " + viewName + " AS (SELECT * FROM read_parquet('"+filePath+"', encryption_config = {footer_key: 'key256'}))";
@@ -518,7 +519,7 @@ public class DuckDbService {
         return fileUploadResponseDuckDb;
     }
 
-    public void writeExcelToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId,String saltValue)
+    public void writeExcelToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId,String encryptVal)
             throws SQLException, ExpectationFailedException {
 
         String fileName = revisedInfoRequest.getFileId();
@@ -563,7 +564,7 @@ public class DuckDbService {
         }
 
         //creating Encryption key to save parquet file securely
-        String encryptKey= "PRAGMA add_parquet_key('key256', '"+saltValue+"')";
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
         stmtRecords.execute(encryptKey);
 
                // read CSV and write as Parquet file
@@ -738,8 +739,9 @@ public class DuckDbService {
         return jsonArray;
     }
 
-    public void writeJsonToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId,String saltValue)
+    public void writeJsonToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId,String encryptVal)
             throws SQLException, ExpectationFailedException {
+
 
         String fileName = revisedInfoRequest.getFileId();
         String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
@@ -788,7 +790,7 @@ public class DuckDbService {
         String columnsMapString = mapToString(map);
 
         //creating Encryption key to save parquet file securely
-        String encryptKey= "PRAGMA add_parquet_key('key256', '"+saltValue+"')";
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
         stmtRecords.execute(encryptKey);
 
         // read CSV and write as Parquet file
