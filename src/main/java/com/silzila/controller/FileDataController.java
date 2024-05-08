@@ -1,5 +1,6 @@
 package com.silzila.controller;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -54,12 +55,12 @@ public class FileDataController {
     // step 1:
     // upload CSV File
     @PostMapping("/file-upload")
-    public ResponseEntity<?> fileUpload(
-            @RequestParam("file") MultipartFile file)
-            throws ExpectationFailedException, JsonMappingException, JsonProcessingException, SQLException,
-            ClassNotFoundException {
+    public ResponseEntity<?> fileUpload(@RequestParam("file") MultipartFile file,
+            @RequestParam(name = "sheetName", required = false) String sheetName) throws ExpectationFailedException,
+            IOException, SQLException, ClassNotFoundException {
         // calling Service function
-        FileUploadResponseDuckDb fileUploadResponse = fileDataService.fileUpload(file);
+
+        FileUploadResponseDuckDb fileUploadResponse = fileDataService.fileUpload(file, sheetName);
         return ResponseEntity.status(HttpStatus.OK).body(fileUploadResponse);
 
     }
@@ -72,7 +73,7 @@ public class FileDataController {
     public ResponseEntity<?> fileUploadChangeSchema(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
             throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
-            SQLException {
+            SQLException, ExpectationFailedException {
         // get the requester user Id
         String userId = reqHeader.get("username");
         // calling Service function
@@ -86,7 +87,7 @@ public class FileDataController {
     public ResponseEntity<?> fileUploadSaveData(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
             throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
-            SQLException {
+            SQLException, ExpectationFailedException {
         // get the requester user Id
         String userId = reqHeader.get("username");
         // calling Service function
@@ -106,9 +107,8 @@ public class FileDataController {
     // file data - sample records
     @GetMapping("/file-data-sample-records/{id}")
     public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id)
-            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException,
-            ClassNotFoundException, SQLException {
+            @PathVariable(value = "id") String id) throws JsonMappingException, JsonProcessingException,
+            RecordNotFoundException, BadRequestException, ClassNotFoundException, SQLException {
         // get the requester user Id
         String userId = reqHeader.get("username");
         JSONArray jsonArray = fileDataService.getSampleRecords(id, userId);
@@ -118,9 +118,8 @@ public class FileDataController {
     // file data - Column details
     @GetMapping("/file-data-column-details/{id}")
     public ResponseEntity<?> getColumnDetails(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id)
-            throws JsonMappingException, JsonProcessingException, RecordNotFoundException, BadRequestException,
-            ClassNotFoundException, SQLException {
+            @PathVariable(value = "id") String id) throws JsonMappingException, JsonProcessingException,
+            RecordNotFoundException, BadRequestException, ClassNotFoundException, SQLException {
         // get the requester user Id
         String userId = reqHeader.get("username");
         List<Map<String, Object>> metaList = fileDataService.getColumns(id, userId);
