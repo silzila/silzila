@@ -21,6 +21,8 @@ import { Tooltip, Menu, MenuItem } from "@mui/material";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { red } from "@mui/material/colors";
+import "./tileRibbon.css"
 
 const TileRibbon = ({
   // state
@@ -39,6 +41,7 @@ const TileRibbon = ({
   removeTile,
   addChartFilterTabTileName,
 }: TileRibbonProps) => {
+  const [isTileListStyled, setIsTileListStyled] = useState(false);
   const addReportFilterGroup = (nextPropKey: string) => {
     var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
     let selectedDatasetID = chartProp.properties[propKey].selectedDs.id;
@@ -179,7 +182,7 @@ const TileRibbon = ({
   const tileList = tilesForSelectedTab.map((tile: number) => {
     let currentObj: any = tileState.tiles[tile];
     return (
-      <IndividualTile
+      <IndividualTile 
         key={currentObj.tileId}
         tabName={currentObj.tabName}
         tileName={currentObj.tileName}
@@ -209,6 +212,7 @@ const TileRibbon = ({
 
   const handleTileScroll = (step: number) => {
     tileWrapperRef.current!.scrollLeft += step;
+    setIsTileListStyled(true);
   };
 
   const handleClose = () => {
@@ -217,18 +221,21 @@ const TileRibbon = ({
 
   return (
     <div style={{ display: "flex", overflow: "hidden" }}>
-      <Tooltip title="Display Tile List">
+      <Tooltip title="Display Tile List" >
         <KeyboardArrowUpIcon
-          style={{ fontSize: "20px", color: "#808080", marginTop: "3px" }}
+          style={{ fontSize: "20px", 
+          color: "#808080", 
+          marginTop: "3px" }}
           onClick={(e) => {
             setAnchorEl(e.currentTarget);
           }}
         />
       </Tooltip>
-      <Menu
+      <Menu 
         id="long-menu"
         MenuListProps={{
           "aria-labelledby": "long-button",
+           
         }}
         anchorEl={anchorEl}
         open={tileOpen}
@@ -238,19 +245,25 @@ const TileRibbon = ({
             minHeight: ITEM_HEIGHT * 4.5,
             maxHeight: ITEM_HEIGHT * 12.3,
             width: "26ch",
-            margin: "-26px 0px 0px -85px",
+            margin: "-26px 0px 0px -70px",
             padding: "0px 45px",
+            paddingLeft: "0px"
           },
         }}
       >
-        {tileList.map((tileItem) => (
-          <MenuItem onClick={handleClose}>{tileItem}</MenuItem>
+         {tileList.map((tileItem) => (
+    <MenuItem onClick={handleClose} className="menu-item" style={{ marginLeft: "0px", paddingLeft: "0px"}}>
+      <div className="individual-tile2">
+        {React.cloneElement(tileItem, { stylingClass: "popupTile",  inPopup: true  })}
+      </div> 
+    </MenuItem>
         ))}
       </Menu>
-      <div style={{ display: "flex", overflow: "hidden" }} ref={tileWrapperRef}>
+      <div 
+      style={{ display: "flex", overflow: "hidden"}} ref={tileWrapperRef}>
         {tileList}
       </div>
-      <div style={{ display: "flex" }}>
+      <div style={{ display: "flex"}}>
         <span
           title="Create a new tile"
           // className="plusTile commonTile"
@@ -263,15 +276,16 @@ const TileRibbon = ({
           />
         </span>
         {currentTileLength >= 10 ? (
-          <div
+           <div
             style={{
               margin: "0px 5px 6px 0px",
               display: "flex",
               justifyContent: "flex-end",
               overflow: "hidden",
+              
             }}
           >
-            <ArrowLeftIcon onClick={() => handleTileScroll(-100)} />
+             <ArrowLeftIcon onClick={() => { handleTileScroll(-100); setIsTileListStyled(true); }} />
             <ArrowRightIcon onClick={() => handleTileScroll(100)} />
           </div>
         ) : null}

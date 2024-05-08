@@ -1,0 +1,20 @@
+.individual-tile2 {
+  padding-left: 0;
+  padding-right: 0;
+  width: 224px;
+  height: 35px;
+}
+
+.individual-tile2:hover {
+  padding-left: 0;
+  padding-right: 0;
+  width: 224px;
+  height: 35px;
+}
+.menu-item{
+   margin-left: 0px;
+    padding-left: 0px;
+    width: 220px;
+    height: 35px;
+   background-color: red
+}

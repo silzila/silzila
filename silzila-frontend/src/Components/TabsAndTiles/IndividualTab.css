@@ -8,6 +8,7 @@
   padding: 0 5px 0 5px;
   cursor: pointer;
   background-color: rgb(211, 211, 211);
+  height: 24.8px;
 }
 .commonTab:hover {
   color: rgb(64, 64, 64);

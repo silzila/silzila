@@ -220,14 +220,19 @@ const TabRibbon = ({
             minHeight: ITEM_HEIGHT * 4.5,
             maxHeight: ITEM_HEIGHT * 12.3,
             width: "26ch",
-            margin: "11px 0px 0px -12px",
+            margin: "11px 0px 0px 1px",
             padding: "0px 45px",
+           
           },
         }}
       >
         {tablist.map((tabItem) => (
-          <MenuItem style={{ padding: "8px 20px" }} onClick={handleClose}>
-            {tabItem}
+          <MenuItem style={{ padding: "8px 20px",
+            backgroundColor: "none",
+            width: 220,
+            paddingLeft: "4px"
+           }} onClick={handleClose}>
+            {tabItem} 
           </MenuItem>
         ))}
       </Menu>
@@ -249,7 +254,11 @@ const TabRibbon = ({
         ) : null}
 
         {currentTabLength >= 10 ? (
-          <div style={{ display: "flex", overflow: "hidden" }}>
+          <div style={{ display: "flex", 
+          overflow: "hidden",
+          margin: "0px 5px 6px 0px",
+          justifyContent: "flex-end",
+          }}>
             <ArrowLeftIcon
               className="tabArowLeftIcon"
               onClick={() => handleTabScroll(-200)}

@@ -62,7 +62,8 @@ interface IndividualTileProps {
   tabId: number;
   tileId: number;
   showDash: boolean;
-
+  stylingClass?: string;
+  inPopup?: boolean;
   //functions
   renameTileBegin: (tabId: number, tileId: number) => void;
   renameTileComplete: (
@@ -98,6 +99,7 @@ interface IndividualTileProps {
     tabTileName: string,
     selectedGroups: any
   ) => void;
+  
 }
 
 const IndividualTile = ({
@@ -130,9 +132,12 @@ const IndividualTile = ({
   tileState,
   chartControls,
   chartProperties,
-  chartGroup
+  chartGroup,
+  stylingClass,
+  inPopup = false
 }: IndividualTileProps) => {
   const [renameValue, setRenameValue] = useState<string>(tileName);
+  
 
   const handleTileNameValue = (e: any) => {
     setRenameValue(e.target.value);
@@ -293,11 +298,11 @@ const IndividualTile = ({
   } else {
     return (
       <span
-        className={
-          selectedTile === tileId && !showDash
-            ? "commonTile indiItemHighlightTile"
-            : "commonTile indiItemTile"
-        }
+      className={`${
+        selectedTile === tileId && !showDash
+          ? "commonTile indiItemHighlightTile"
+          : "commonTile indiItemTile"
+      } ${stylingClass}`}
         onDoubleClick={(e) => {
           e.stopPropagation();
           Logger("info", "Double clicked");
@@ -317,11 +322,11 @@ const IndividualTile = ({
         }}
       >
         <span className="tabText">
-          {tileName.length > 20 ? tileName.substring(0, 15) + ".." : tileName}
+          {tileName.length > 20 ? tileName.substring(0, 25) + ".." : tileName}
         </span>
         <span
           title="Delete Tile"
-          className="closeTile"
+          className={`closeTile ${selectedTile !== tileId && inPopup ? "popupClose" : "hidden"}`}
           onClick={(e) => {
             e.stopPropagation();
             removeTile(tabId, tileId);

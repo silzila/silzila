@@ -1,5 +1,7 @@
 import update from "immutability-helper";
 import { ActionsOfTileState, TileStateProps } from "./TileStateInterfaces";
+import { color } from "echarts";
+import { red } from "@mui/material/colors";
 
 const initialTileState = {
 	tiles: {
@@ -8,6 +10,7 @@ const initialTileState = {
 			tileId: 1,
 			tileName: "Tile - 1",
 			graphSizeFull: true,
+			backgroundColor: red
 		},
 	},
 	tileList: { 1: ["1.1"] },
@@ -25,6 +28,7 @@ const tileStateReducer = (state: TileStateProps = initialTileState, action: Acti
 						tileId: action.payload.tileId,
 						tileName: `Tile - ${action.payload.tileId}`,
 						graphSizeFull: true,
+						backgroundColor: red
 					},
 				},
 				tileList: {
@@ -43,6 +47,7 @@ const tileStateReducer = (state: TileStateProps = initialTileState, action: Acti
 						tileId: action.payload.tileId,
 						tileName: `Tile - ${action.payload.tileId}`,
 						graphSizeFull: true,
+						backgroundColor: red
 					},
 				},
 				tileList: {

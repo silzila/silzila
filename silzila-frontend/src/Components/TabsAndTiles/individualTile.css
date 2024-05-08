@@ -1,3 +1,4 @@
+/*tile */
 .commonTile {
   transition: 0.2s;
   /* box-sizing: border-box; */
@@ -8,27 +9,46 @@
   /* padding: 0 0 0 10px; */
   cursor: pointer;
   /* background-color: rgb(211, 211, 211); */
-
+  /* background-color: rgb(217, 181, 168); */
   padding: 0 5px 0 5px;
   line-height: 1.3rem;
   margin: 0 4px;
+  padding-left: 9px;
+  padding-bottom: 5px;
+  white-space: nowrap; /* Prevent wrapping of long content */
+  overflow: hidden; /* Hide content that exceeds the width */
+  text-overflow: ellipsis; /* Display ellipsis (...) for overflowed content */
 }
 .commonTile:hover {
   color: #404040;
   /* border-bottom: 1px solid gray;
+
 	border-left: 1px solid gray;
 	border-right: 1px solid gray; */
   background: #fff;
 }
- changes required */
-.indiItemTile {
-  color: red;
+
+.plusTile {
+  color: rgb(96, 96, 96);
+  padding: 0 5px;
   border: 2px solid rgba(224, 224, 224, 1);
-  margin-left: "20px";
+  background-color: transparent;
+  margin-left: 4px;
+  /* border-bottom: 1px solid #a9a9a9;
+	border-left: 1px solid #a9a9a9;
+	border-right: 1px solid #a9a9a9; */
+}
+/* changes required */
+.indiItemTile { 
+  color: gray;
+  border: 2px solid rgba(224, 224, 224, 1);
+  margin-left: 0px;
+
   /* border-top: 2px solid transparent; */
   /* border-bottom: 1px solid #a9a9a9;
 	border-left: 1px solid #a9a9a9;
 	border-right: 1px solid #a9a9a9; */
+  
 }
 .indiItemHighlightTile {
   /* border-top: 2px solid #007bff; */
@@ -37,6 +57,7 @@
 	border-right: 1px solid #a9a9a9; */
   background: rgba(224, 224, 224, 1);
   border: 2px solid rgba(224, 224, 224, 1);
+  
 }
 .closeTile {
   /* border-radius: 2px;
@@ -44,13 +65,24 @@
 	margin-right: 5px;
 	padding: 0px 5px; */
   color: #606060;
-  font-size: 9px;
-  margin: 0.5px;
+  font-size: 10px;
 }
 .closeTile:hover {
-  background-color: #eee;
-  color: red;
+  /*background-color: #2d2626; */
+  color: rgb(235, 46, 46);
+ 
 }
+/*.closeIcon {
+  margin-top: 5px;
+}
+.tabText {
+  padding: 0;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 5px;
+  align-items: center;
+  justify-content: center;
+} */
 .editTileSelected {
   transition: 0.2s;
   display: inline-block;
@@ -67,4 +99,44 @@
   outline: none;
   border-top: 2px solid #0076f6;
   margin: 0 0 0 5px;
+}
+/* Separate styling for IndividualTile components within the popup list */
+.popupTile {
+  border: none;
+  padding-right: 0;
+  width: 224px;
+  margin-left: 0px;
+  margin-right: 0px;
+  height: 35px;
+  padding-left: 15px;
+  display: flex;
+  align-items: center;
+}
+.popupTile:hover {
+  background-color: rgb(183, 181, 181);
+  height: 35px;
+}
+.popupClose {
+  color: rgb(0, 0, 0);
+  font-size: 11px;
+  position: absolute;
+  opacity: 0; /* Initially hide the close icon */
+  transition: opacity 0.2s;
+  right: 15px; 
+  top: 50%;
+  transform: translateY(-50%);
+}
+.popupTile:hover .closeTile, 
+.popupTile:focus .closeTile  {
+ opacity: 1;
+} 
+.hidden {
+  display: visible;
+  opacity: 1;
+  color: rgb(0, 0, 0);
+  font-size: 11px;
+  position: absolute;
+  right: 15px; 
+  top: 50%;
+  transform: translateY(-50%);
 }

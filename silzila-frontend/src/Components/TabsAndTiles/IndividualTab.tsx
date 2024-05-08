@@ -3,6 +3,7 @@
 
 import React, { useState } from "react";
 import "./IndividualTab.css";
+import { Widgets } from "@mui/icons-material";
 
 interface IndividualTabProps {
   tabName: string;
@@ -79,7 +80,7 @@ function IndividualTab({
         title={`${tabName}. Double click to edit name`}
       >
         <span className="tabText">
-          {tabName.length > 20 ? tabName.substring(0, 15) + ".." : tabName}
+          {tabName.length > 20 ? tabName.substring(0, 25) + ".." : tabName}
         </span>
 
         {/* If dashboard is in presentation mode, the 'X'(close tab icon) will disappear */}
