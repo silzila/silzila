@@ -48,6 +48,7 @@ const LineChart = ({
 
 						formatter: (value: FormatterValueProps) => {
 							var formattedValue = value.value[chartDataKeys[i + 1]];
+							console.log(i + ":" + chartDataKeys[i + 1]);
 							formattedValue = formatChartLabelValue(chartControl, formattedValue);
 
 							return formattedValue;
@@ -59,6 +60,7 @@ const LineChart = ({
 			setSeriesData(seriesDataTemp);
 		}
 	}, [chartData, chartControl]);
+	
 	var chartThemes: any[] = ColorSchemes.filter(el => {
 		return el.name === chartControl.colorScheme;
 	});
