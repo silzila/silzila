@@ -1,12 +1,22 @@
 package com.silzila.service;
 
+import java.io.IOException;
+import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.duckdb.DuckDBConnection;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.stereotype.Service;
 
 import com.silzila.domain.entity.FileData;
 import com.silzila.exception.ExpectationFailedException;
@@ -18,15 +28,8 @@ import com.silzila.payload.request.FileUploadRevisedColumnInfo;
 import com.silzila.payload.request.FileUploadRevisedInfoRequest;
 import com.silzila.payload.request.Table;
 import com.silzila.payload.response.FileUploadResponseDuckDb;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.duckdb.DuckDBConnection;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.springframework.stereotype.Service;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+
+
 
 
 @Service

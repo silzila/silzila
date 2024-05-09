@@ -1,10 +1,10 @@
 package com.silzila.helper;
 
-import com.silzila.exception.ExpectationFailedException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.Iterator;
+import com.silzila.exception.ExpectationFailedException;
+
 
 public class JsonValidator {
     public static void validate(String jsonStr) throws ExpectationFailedException {
@@ -22,9 +22,7 @@ public class JsonValidator {
                     throw new ExpectationFailedException("Invalid JSON format: array found for key '" + key + "'");
                 }
             }
-
-
-            }catch(Exception e){
+        }catch(Exception e){
                 throw new ExpectationFailedException("JSON Object not in the expected format");
             }
 

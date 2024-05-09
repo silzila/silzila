@@ -2,7 +2,6 @@ package com.silzila.helper;
 
 import java.security.SecureRandom;
 
-import java.security.SecureRandom;
 
 public class SaltGenerator {
     public static String generateSalt(int length) {

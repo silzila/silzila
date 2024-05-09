@@ -27,7 +27,7 @@ public class FileData extends BaseEntity {
     @Column(name = "file_name")
     private String fileName;
     @NotBlank
-    @Column(name = "encryption_value")
+    @Column(name = "salt")
     private String saltValue;
 
 }
