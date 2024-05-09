@@ -200,7 +200,7 @@ const TabRibbon = ({
             color: "808080",
             margin: "0px",
             height: "1.75rem",
-            width: "1.6rem",
+            width: "1.6rem",            
           }}
           onClick={(e) => {
             setAnchorEl(e.currentTarget);
@@ -225,8 +225,8 @@ const TabRibbon = ({
           },
         }}
       >
-        {tablist.map((tabItem) => (
-          <MenuItem style={{ padding: "8px 20px" }} onClick={handleClose}>
+        {tablist.map((tabItem,index) => (
+          <MenuItem key={index} style={{ padding: "8px 20px" }} onClick={handleClose}>
             {tabItem}
           </MenuItem>
         ))}

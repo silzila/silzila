@@ -57,6 +57,22 @@ export const getChartData = async (
 		_chartAxes = chartProp.properties[propKey].chartAxes;
 	}
 
+	// if(forQueryData && axesValues.length === 4){
+	// 	if (
+	// 		chartType === "heatmap" ||
+	// 		chartType === "crossTab" ||
+	// 		chartType === "boxPlot"
+	// 	) {
+	// 		var combinedValuesForDimension = { name: "Dimension", fields: [] };
+	// 		var values1 = _chartAxes[1].fields;
+	// 		var values2 = _chartAxes[2].fields;
+	// 		var allValues = values1.concat(values2);
+	// 		combinedValuesForDimension.fields = allValues;
+	// 		_chartAxes.splice(1, 2, combinedValuesForDimension);
+	// 	}
+	// }
+	
+
 	/*	PRS 21/07/2022	Construct filter object for service call */
 	const getChartLeftFilter = (filters: any) => {
 		let _type: any = {};
@@ -458,7 +474,13 @@ export const getChartData = async (
 		    }
 			formattedFields.push(formattedField);
 		});
-		formattedAxes[dim] = formattedFields;
+		
+		if(!formattedAxes[dim]){
+			formattedAxes[dim] = formattedFields;
+		}
+		else{
+			formattedAxes[dim] = [...formattedAxes[dim], ...formattedFields]
+		}
 	});
 
 	formattedAxes.fields = [];

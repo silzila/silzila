@@ -243,8 +243,8 @@ const TileRibbon = ({
           },
         }}
       >
-        {tileList.map((tileItem) => (
-          <MenuItem onClick={handleClose}>{tileItem}</MenuItem>
+        {tileList.map((tileItem,index) => (
+          <MenuItem key={index} onClick={handleClose}>{tileItem}</MenuItem>
         ))}
       </Menu>
       <div style={{ display: "flex", overflow: "hidden" }} ref={tileWrapperRef}>
