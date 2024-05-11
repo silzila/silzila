@@ -311,7 +311,10 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 						<MenuItem
 						disabled= {windowFunctionDisable}
 						onClick={() => { 
-							setWindowFunction(true);
+							//setTimeout(() => {
+							setWindowFunction(true);								
+							//}, 300);
+
 							handleClose("clickOutside");
 						}}
 							sx={{ fontSize: "12px", padding: "2px 1.5rem"}}

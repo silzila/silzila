@@ -32,6 +32,7 @@ import { AlertColor } from "@mui/material/Alert";
 import { setSelectedDatasetForDynamicMeasure } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import { CloseRounded } from "@mui/icons-material";
 import "./DataSetup.css";
+import {changeChartDataToAxesOrder} from "../CommonFunctions/CommonFunctions";
 
 const PlayBookList = ({
 	// state
@@ -148,7 +149,17 @@ const PlayBookList = ({
 
 			pb.content = JSON.parse(JSON.stringify(pb.content))
 
-			pb.content.content = JSON.parse(pb.content.content)
+			pb.content.content = JSON.parse(pb.content.content);
+
+			let listOfPropKeys = Object.keys(pb.content.content.chartControl.properties)
+
+			listOfPropKeys.forEach((propKey:string)=>{
+				if(pb.content.content.chartControl.properties[propKey].chartData && pb.content.content.chartControl.properties[propKey].chartData.length > 0){
+					pb.content.content.chartControl.properties[propKey].chartData = changeChartDataToAxesOrder(pb.content.content.chartControl.properties[propKey].chartData
+						, pb.content.content.chartProperty, propKey);	
+				}
+				
+			})
 
 			var selectedDatasetsInPlaybook = pb.content.content?.tabTileProps?.selectedDataSetList || [];
 
