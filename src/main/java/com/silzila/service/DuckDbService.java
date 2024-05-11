@@ -5,6 +5,7 @@ import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -17,6 +18,11 @@ import org.duckdb.DuckDBConnection;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import com.silzila.domain.entity.FileData;
 import com.silzila.exception.ExpectationFailedException;
@@ -28,9 +34,6 @@ import com.silzila.payload.request.FileUploadRevisedColumnInfo;
 import com.silzila.payload.request.FileUploadRevisedInfoRequest;
 import com.silzila.payload.request.Table;
 import com.silzila.payload.response.FileUploadResponseDuckDb;
-
-
-
 
 @Service
 public class DuckDbService {
@@ -221,6 +224,7 @@ public class DuckDbService {
     }
 
     // save CSV to Parquet
+
     public void writeCsvToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId, String encryptVal)
             throws SQLException, ExpectationFailedException {
 
@@ -268,7 +272,6 @@ public class DuckDbService {
         System.out.println(encryptVal);
         //creating Encryption key to save parquet file securely
         String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
-       // System.out.println(encryptKey);
         // read CSV and write as Parquet file
         final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/" +"/"
                 + revisedInfoRequest.getFileId() + ".parquet";
@@ -286,8 +289,6 @@ public class DuckDbService {
         } catch (SQLException e) {
             throw new ExpectationFailedException("you are trying for unmatched data type. Error:" + e.getMessage());
         }
-
-
         stmtRecords.close();
         conn2.close();
     }
@@ -388,6 +389,7 @@ public class DuckDbService {
                         final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId
                                 + "/" + fileDataList.get(j).getFileName();
                         String salt= fileDataList.get(j).getSaltValue();
+
                         // create view on DF and maintain the view name to know if view is already there
                         startDuckDb();
                         Connection conn2 = ((DuckDBConnection) conn).duplicate();
@@ -578,14 +580,11 @@ public class DuckDbService {
                 + "' (ENCRYPTION_CONFIG {footer_key: 'key256'});";
 
         logger.info("************************\n" + query);
-
         try {
             stmtRecords.execute(query);
         } catch (SQLException e) {
             throw new ExpectationFailedException("you are trying for unmatched data type. Error:" + e.getMessage());
         }
-
-
         stmtRecords.close();
         conn2.close();
     }
@@ -744,7 +743,6 @@ public class DuckDbService {
 
     public void writeJsonToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId,String encryptVal)
             throws SQLException, ExpectationFailedException {
-
 
         String fileName = revisedInfoRequest.getFileId();
         String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;

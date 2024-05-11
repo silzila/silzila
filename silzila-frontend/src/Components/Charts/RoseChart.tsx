@@ -9,6 +9,8 @@ import {
 	ChartsReduxStateProps,
 	FormatterValueProps,
 } from "./ChartsCommonInterfaces";
+import {fieldName} from '../CommonFunctions/CommonFunctions';
+
 
 const RoseChart = ({
 	//props
@@ -115,7 +117,7 @@ const RoseChart = ({
 
 									formatter: (value: FormatterValueProps) => {
 										if (chartDataKeys) {
-											var formattedValue = value.value[chartDataKeys[1]];
+											var formattedValue = value.value[fieldName(chartProperties.properties[propKey].chartAxes[2].fields[0])];
 											formattedValue = formatChartLabelValue(
 												chartControl,
 												formattedValue

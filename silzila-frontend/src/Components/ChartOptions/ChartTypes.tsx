@@ -43,6 +43,8 @@ import {
 import ChartsInfo from "../ChartAxes/ChartsInfo2";
 import { addChartFilterTabTileName } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 import Logger from "../../Logger";
+import {fieldName} from "../CommonFunctions/CommonFunctions";
+
 
 export const chartTypes = [
 	{ name: "crossTab", icon: CrossTabIcon, value: " Cross Tab" },
@@ -70,7 +72,7 @@ export const chartTypes = [
 	{ name: "simplecard", icon: simpleCard, value: "Simple Card" },
 	{ name: "table", icon: CrossTabIcon, value: "Table" },
 ];
-
+//testing switch
 const ChartTypes = ({
 	//props
 	propKey,
@@ -118,8 +120,44 @@ const ChartTypes = ({
 		}
 	};
 
+//TODO:New Function for allowed numbers
+
+	const IsOldChartFieldsCountIsGreater = (newChartName: string, chartAxesIndex: number) =>{
+		let oldChartAxesFieldsCount = chartProp.properties[propKey].chartAxes[chartAxesIndex]?.fields?.length;
+		//let oldAllowedNumbers = ChartsInfo[oldChartName].dropZones[chartAxesIndex].allowedNumbers;
+		let newAllowedNumbers = ChartsInfo[newChartName].dropZones[chartAxesIndex].allowedNumbers;
+
+		return Number(oldChartAxesFieldsCount) > Number(newAllowedNumbers);
+	}
+
+	const UpdateChartDataWithNewChartAxes = (oldAxes:any, newAxes:any, index:number) =>{
+		let chartData:any = [],  keys:any = [], keysToRemove:any = [];
+
+		if(chartControls.properties[propKey].chartData && chartControls.properties[propKey].chartData.length > 0){
+			chartData = JSON.parse(JSON.stringify(chartControls.properties[propKey].chartData));			
+		}	
+				
+		newAxes[index].fields.forEach((newField:any)=>{
+			keys.push(newField.fieldname);
+		})
+
+		oldAxes[index].fields.forEach((field:any)=>{
+			if(!keys.includes(field.fieldname)){
+				keysToRemove.push(fieldName(field))
+			}
+		})
+
+		chartData.forEach((data:any)=>{
+			keysToRemove.forEach((key:string)=>{
+				delete data[key]
+			})
+		})
+
+		updateChartData(propKey, chartData);
+	}
+
 	const switchAxesForCharts = (oldChart: string, newChart: string) => {
-		var oldChartAxes = chartProp.properties[propKey].chartAxes;
+		var oldChartAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes));
 		var newChartAxes: any = [];
 		for (let i = 0; i < ChartsInfo[newChart].dropZones.length; i++) {
 			newChartAxes.push({ name: ChartsInfo[newChart].dropZones[i].name, fields: [] });
@@ -151,9 +189,36 @@ const ChartTypes = ({
 						"sankey",
 					].includes(newChart)
 				) {
-					keepOldData(propKey, true);
+					if(IsOldChartFieldsCountIsGreater(newChart, 1) || IsOldChartFieldsCountIsGreater(newChart, 2)){									
+						if(IsOldChartFieldsCountIsGreater(newChart, 1))
+						{
+							oldChartAxes[1].fields = getFieldsToChartAllowedNumbers(
+								newChart,
+								1,
+								oldChartAxes[1].fields
+							);	
 
-					return oldChartAxes;
+							keepOldData(propKey, false);
+						}
+						
+						if(IsOldChartFieldsCountIsGreater(newChart, 2)){
+							newChartAxes[2].fields = getFieldsToChartAllowedNumbers(
+								newChart,
+								2,
+								oldChartAxes[2].fields
+							);	
+
+							UpdateChartDataWithNewChartAxes(oldChartAxes, newChartAxes, 2);
+							oldChartAxes[2].fields = newChartAxes[2].fields;
+							keepOldData(propKey, true);
+						}	
+						
+						return oldChartAxes;						
+					}					
+					else{	
+						keepOldData(propKey, true);
+						return oldChartAxes;
+					}				
 				}
 
 				if (newChart === "calendar") {
@@ -451,6 +516,7 @@ const ChartTypes = ({
 						"line",
 						"area",
 						"pie",
+						"table",
 						"donut",
 						"rose",
 						"stackedArea",
@@ -459,9 +525,36 @@ const ChartTypes = ({
 						"sankey",
 					].includes(newChart)
 				) {
-					keepOldData(propKey, true);
+					if(IsOldChartFieldsCountIsGreater(newChart, 1) || IsOldChartFieldsCountIsGreater(newChart, 2)){									
+						if(IsOldChartFieldsCountIsGreater(newChart, 1))
+						{
+							oldChartAxes[1].fields = getFieldsToChartAllowedNumbers(
+								newChart,
+								1,
+								oldChartAxes[1].fields
+							);	
 
-					return oldChartAxes;
+							keepOldData(propKey, false);
+						}
+						
+						if(IsOldChartFieldsCountIsGreater(newChart, 2)){
+							newChartAxes[2].fields = getFieldsToChartAllowedNumbers(
+								newChart,
+								2,
+								oldChartAxes[2].fields
+							);	
+
+							UpdateChartDataWithNewChartAxes(oldChartAxes, newChartAxes, 2);
+							oldChartAxes[2].fields = newChartAxes[2].fields;
+							keepOldData(propKey, true);
+						}	
+						
+						return oldChartAxes;						
+					}					
+					else{	
+						keepOldData(propKey, true);
+						return oldChartAxes;
+					}
 				}
 
 				if (newChart === "calendar") {

@@ -350,7 +350,6 @@ public class FileDataService {
         // using condition to find the file type ad do the operation
         if (revisedInfoRequest.getFileType().equalsIgnoreCase("csv")) {
 
-
             int saltLength =4; // You can adjust the length as needed
             // Generate salt using SaltGenerator class
             String salt = SaltGenerator.generateSalt(saltLength);
@@ -375,7 +374,6 @@ public class FileDataService {
 
             return fileDataDTO;
         } else if (revisedInfoRequest.getFileType().equalsIgnoreCase("json")) {
-
             int saltLength =4; // You can adjust the length as needed
             // Generate salt using SaltGenerator class
             String salt = SaltGenerator.generateSalt(saltLength);
@@ -401,7 +399,6 @@ public class FileDataService {
             return fileDataDTO;
 
         } else if (revisedInfoRequest.getFileType().equalsIgnoreCase("excel")) {
-
             int saltLength =4; // You can adjust the length as needed
             // Generate salt using SaltGenerator class
             String salt = SaltGenerator.generateSalt(saltLength);
@@ -446,7 +443,7 @@ public class FileDataService {
     }
 
     // get sample records
-    public JSONArray  getSampleRecords(String id, String userId) throws RecordNotFoundException, JsonMappingException,
+    public JSONArray getSampleRecords(String id, String userId) throws RecordNotFoundException, JsonMappingException,
             JsonProcessingException, BadRequestException, ClassNotFoundException, SQLException {
         // if no file data inside optional wrapper, then send NOT FOUND Error
         Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);

@@ -12,6 +12,8 @@ import {
 	formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
 import { ChartsReduxStateProps, FormatterValueProps } from "./ChartsCommonInterfaces";
+import {fieldName} from '../CommonFunctions/CommonFunctions';
+
 
 const LineChart = ({
 	//props
@@ -22,6 +24,7 @@ const LineChart = ({
 
 	//state
 	chartControls,
+	chartProperties
 }: ChartsReduxStateProps) => {
 	var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
@@ -30,11 +33,13 @@ const LineChart = ({
 	const [seriesData, setSeriesData] = useState<any>([]);
 
 	useEffect(() => {
-		var seriesDataTemp = [];
+		let seriesDataTemp = [];
 		if (chartData.length >= 1) {
-			var chartDataKeys = Object.keys(chartData[0]);
-			for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
-				var seriesObj = {
+			//let chartDataKeys = Object.keys(chartData[0]);
+			//var formattedValue = value.value[fieldName(chartProperties.properties[propKey].chartAxes[2].fields[0])];
+
+			for (let field of chartProperties.properties[propKey].chartAxes[2].fields) {
+				let seriesObj = {
 					type: "line",
 					label: {
 						show:
@@ -47,7 +52,7 @@ const LineChart = ({
 							: null,
 
 						formatter: (value: FormatterValueProps) => {
-							var formattedValue = value.value[chartDataKeys[i + 1]];
+							let formattedValue = value.value[fieldName(field)];							
 							formattedValue = formatChartLabelValue(chartControl, formattedValue);
 
 							return formattedValue;
@@ -58,7 +63,8 @@ const LineChart = ({
 			}
 			setSeriesData(seriesDataTemp);
 		}
-	}, [chartData, chartControl]);
+	}, [chartData, chartControl,chartProperties]);
+	
 	var chartThemes: any[] = ColorSchemes.filter(el => {
 		return el.name === chartControl.colorScheme;
 	});
@@ -215,9 +221,10 @@ const LineChart = ({
 	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
 
-const mapStateToProps = (state: ChartControlStateProps, ownProps: any) => {
+const mapStateToProps = (state: ChartControlStateProps & any, ownProps: any) => {
 	return {
 		chartControls: state.chartControls,
+		chartProperties: state.chartProperties,
 	};
 };
 

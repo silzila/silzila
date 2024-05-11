@@ -5,7 +5,6 @@ import org.json.JSONObject;
 
 import com.silzila.exception.ExpectationFailedException;
 
-
 public class JsonValidator {
     public static void validate(String jsonStr) throws ExpectationFailedException {
         try {
@@ -22,9 +21,9 @@ public class JsonValidator {
                     throw new ExpectationFailedException("Invalid JSON format: array found for key '" + key + "'");
                 }
             }
-        }catch(Exception e){
+        } catch(Exception e){
                 throw new ExpectationFailedException("JSON Object not in the expected format");
             }
 
         }
-        }
+}

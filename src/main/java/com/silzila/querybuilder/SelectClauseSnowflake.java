@@ -21,7 +21,7 @@ public class SelectClauseSnowflake {
     private static final Logger logger = LogManager.getLogger(SelectClauseSnowflake.class);
 
     /* SELECT clause for Snowflake dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,Map<String,Integer>... aliasnumber) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, Map<String,Integer>... aliasnumber) throws BadRequestException {
         logger.info("SelectClauseSnowflake calling ***********");
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
