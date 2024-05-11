@@ -1,7 +1,22 @@
 package com.silzila.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.SQLException;
+import java.util.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import org.json.JSONArray;
 
+import com.silzila.helper.SaltGenerator;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.exception.RecordNotFoundException;
@@ -13,26 +28,9 @@ import com.silzila.payload.response.FileUploadResponseDuckDb;
 import com.silzila.domain.entity.FileData;
 import com.silzila.dto.FileDataDTO;
 import com.silzila.repository.FileDataRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 public class FileDataService {
@@ -47,7 +45,13 @@ public class FileDataService {
 
     // all uploads are initially saved in tmp
     final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
+    @Value("${pepper}")
+    private String pepper;
 
+   // Convert byte array to a base64 encoded string
+    //generating random value to encrypt
+    final String encryptPwd ="#VaNgaL#";
+    //UUID.randomUUID().toString().substring(0, 32)
     // 1. upload File Data
     public FileUploadResponseDuckDb fileUpload(MultipartFile file, String sheetName) throws ExpectationFailedException,
             IOException, SQLException, ClassNotFoundException {
@@ -345,11 +349,16 @@ public class FileDataService {
 
         // using condition to find the file type ad do the operation
         if (revisedInfoRequest.getFileType().equalsIgnoreCase("csv")) {
-            duckDbService.writeToParquet(revisedInfoRequest, userId);
+
+            int saltLength =4; // You can adjust the length as needed
+            // Generate salt using SaltGenerator class
+            String salt = SaltGenerator.generateSalt(saltLength);
+
+            duckDbService.writeCsvToParquet(revisedInfoRequest, userId, salt+encryptPwd+pepper);
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
-            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved);
+            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved,salt);
             fileDataRepository.save(fileData);
 
             FileDataDTO fileDataDTO = new FileDataDTO(fileData.getId(), fileData.getUserId(), fileData.getName());
@@ -365,11 +374,15 @@ public class FileDataService {
 
             return fileDataDTO;
         } else if (revisedInfoRequest.getFileType().equalsIgnoreCase("json")) {
-            duckDbService.writeJsonToParquet(revisedInfoRequest, userId);
+            int saltLength =4; // You can adjust the length as needed
+            // Generate salt using SaltGenerator class
+            String salt = SaltGenerator.generateSalt(saltLength);
+
+            duckDbService.writeJsonToParquet(revisedInfoRequest, userId, salt+encryptPwd+pepper);
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
-            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved);
+            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved,salt);
             fileDataRepository.save(fileData);
 
             FileDataDTO fileDataDTO = new FileDataDTO(fileData.getId(), fileData.getUserId(), fileData.getName());
@@ -386,11 +399,15 @@ public class FileDataService {
             return fileDataDTO;
 
         } else if (revisedInfoRequest.getFileType().equalsIgnoreCase("excel")) {
-            duckDbService.writeExcelToParquet(revisedInfoRequest, userId);
+            int saltLength =4; // You can adjust the length as needed
+            // Generate salt using SaltGenerator class
+            String salt = SaltGenerator.generateSalt(saltLength);
+
+            duckDbService.writeExcelToParquet(revisedInfoRequest, userId, salt+encryptPwd+pepper);
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
-            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved);
+            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved,salt);
             fileDataRepository.save(fileData);
 
             FileDataDTO fileDataDTO = new FileDataDTO(fileData.getId(), fileData.getUserId(), fileData.getName());
@@ -434,6 +451,7 @@ public class FileDataService {
             throw new RecordNotFoundException("Error: No such File Data Id exists!");
         }
         FileData fileData = fdOptional.get();
+        String salt=fileData.getSaltValue();
 
         // if file not exists, throw error:
         final String parquetFilePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
@@ -444,7 +462,7 @@ public class FileDataService {
 
         // start duckdb in memory
         duckDbService.startDuckDb();
-        JSONArray jsonArray = duckDbService.getSampleRecords(parquetFilePath);
+        JSONArray jsonArray = duckDbService.getSampleRecords(parquetFilePath, salt+encryptPwd+pepper);
         return jsonArray;
     }
 
@@ -457,6 +475,7 @@ public class FileDataService {
             throw new RecordNotFoundException("Error: No such File Data Id exists!");
         }
         FileData fileData = fdOptional.get();
+        String salt=fileData.getSaltValue();
 
         // if file not exists, throw error:
         final String parquetFilePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
@@ -466,7 +485,7 @@ public class FileDataService {
         }
         // start duckdb in memory
         duckDbService.startDuckDb();
-        List<Map<String, Object>> metaList = duckDbService.getColumnMetaData(parquetFilePath);
+        List<Map<String, Object>> metaList = duckDbService.getColumnMetaData(parquetFilePath, salt+encryptPwd+pepper);
         return metaList;
     }
 
@@ -511,7 +530,7 @@ public class FileDataService {
         }
 
         // sparkService.createDfForFlatFiles(userId, tableObjList, fileDataList);
-        duckDbService.createViewForFlatFiles(userId, tableObjList, fileDataList);
+        duckDbService.createViewForFlatFiles(userId, tableObjList, fileDataList, encryptPwd+pepper);
 
     }
 
