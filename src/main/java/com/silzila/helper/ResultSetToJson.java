@@ -39,4 +39,7 @@ public class ResultSetToJson {
             });
             result.put(row);
         }
+        return result;
+    }
+        
 }
