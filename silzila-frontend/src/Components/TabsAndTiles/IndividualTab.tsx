@@ -3,6 +3,8 @@
 
 import React, { useState } from "react";
 import "./IndividualTab.css";
+import { Widgets } from "@mui/icons-material";
+import style from "react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark";
 
 interface IndividualTabProps {
   tabName: string;
@@ -11,6 +13,8 @@ interface IndividualTabProps {
   tabId: number;
   showDash: boolean;
   dashMode: string;
+  popupClass?: string;
+  inPopup?: boolean;
 
   selectTab: (tabName: string, tabId: number) => void;
   removeTab: (tabName: string, tabId: number) => void;
@@ -26,6 +30,8 @@ function IndividualTab({
   tabId,
   showDash,
   dashMode,
+  popupClass,
+  inPopup = false,
 
   // functions in parent
   selectTab,
@@ -38,6 +44,7 @@ function IndividualTab({
   const handleTabNameValue = (e: any) => {
     setRenameValue(e.target.value);
   };
+  const tabWidth = inPopup ? "" : tabName.length > 10 ? "180px" : "70px";
 
   if (selectedTab === tabId && editing) {
     return (
@@ -60,12 +67,12 @@ function IndividualTab({
     );
   } else {
     return (
-      <span
-        className={
+      <span style={{ width: tabWidth }}
+        className={`${
           selectedTab === tabId
             ? "commonTab indiItemHighlightTab"
             : "commonTab indiItemTab"
-        }
+        } ${popupClass}`}
         onDoubleClick={(e) => {
           if (dashMode !== "Present") {
             e.stopPropagation();
@@ -74,31 +81,29 @@ function IndividualTab({
         }}
         onClick={(e) => {
           e.stopPropagation();
-          selectTab(tabName, tabId);
+          setTimeout(() => {
+            selectTab(tabName, tabId);
+          }, 100);
         }}
         title={`${tabName}. Double click to edit name`}
       >
         <span className="tabText">
-          {tabName.length > 20 ? tabName.substring(0, 15) + ".." : tabName}
+          {tabName.length > 20 ? tabName.substring(0, 25) + ".." : tabName}
         </span>
 
-        {/* If dashboard is in presentation mode, the 'X'(close tab icon) will disappear */}
-
-        <span
+        <div className={!inPopup ? "close-container" : ""}>
+        <span style={{ backgroundColor: "transparent" }}
           title="Delete Tab"
-          className="closeTab"
+          className={`closeTab ${inPopup && selectedTab !== tabId ? "popupClose" : ""}
+          ${inPopup && selectedTab === tabId ? "hidden" : ""}`}
           onClick={(e) => {
             e.stopPropagation();
             removeTab(tabName, tabId);
           }}
-          style={
-            dashMode !== "Present"
-              ? { visibility: "visible" }
-              : { visibility: "hidden" }
-          }
         >
           X
         </span>
+        </div>
       </span>
     );
   }
