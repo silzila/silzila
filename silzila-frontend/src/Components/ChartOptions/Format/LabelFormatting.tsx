@@ -93,7 +93,7 @@ const LabelFormatting = ({
 							: "radioButton"
 					}
 					onClick={() => {
-						Logger("info", "sdfsdf");
+						
 						handleUpdateFormat("formatValue", item.value, "labelFormats");
 					}}
 				>

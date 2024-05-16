@@ -164,7 +164,7 @@ public class RelationshipClauseGeneric {
                 fromClause = "\n\t" + table.getSchema() + "." + table.getTable() + " AS " + table.getId();
             }
             // MySQL has the format of Database_name.Table_name
-            else if (vendorName.equals("mysql")) {
+            else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
                 fromClause = "\n\t" + table.getDatabase() + "." + table.getTable() + " AS " + table.getId();
             }
             // SQL Server & Snowflake has the format of Database_name.Schema_name.Table_name
@@ -372,7 +372,7 @@ public class RelationshipClauseGeneric {
             /*
              * MySQL has the format of Database_name.Table_name
              */
-            else if (vendorName.equals("mysql")) {
+            else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
                 if (i == 0) {
                     fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getTable() + " AS "
                             + fromTable.getId()

@@ -42,6 +42,8 @@ public class SelectClauseWindowFunction {
             qMap = SelectClauseOracle.buildSelectClause(dim, vendorName);
         } else if ("snowflake".equals(vendorName)) {
             qMap = SelectClauseSnowflake.buildSelectClause(dim, vendorName);
+        } else if ("motherduck".equals(vendorName)) {
+            qMap = SelectClauseMotherduck.buildSelectClause(dim, vendorName);
         } else {
             throw new BadRequestException("Unsupported vendor: " + vendorName);
         }

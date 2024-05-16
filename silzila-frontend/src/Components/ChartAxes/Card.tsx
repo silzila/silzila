@@ -1,9 +1,7 @@
 // This component represent each individual table field dropped inside dropzone
 // Each card has some aggregate values and option to select different aggregate and/or timeGrain values
 
-//comment
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Card.css";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
@@ -83,10 +81,11 @@ const Card = ({
 		}
 		// chartPropUpdated(true);
 	};
-
+	
 	const [showOptions, setShowOptions] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = useState<any | null>(null);
-	
+	const [anchorElment, setAnchorElement] = useState<any | null>(null);
+
     //Window function open/close and enable/disable
 	const [windowFunction, setWindowFunction] = useState<boolean>(false);
 	const [windowFunctionDisable, setWindowFunctionDisable] = useState<boolean>(false);
@@ -95,6 +94,7 @@ const Card = ({
 
 	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);
+		//setAnchorElement(event.currentTarget)
 	};
 
 	const handleClose = (closeFrom: any, queryParam?: any) => {
@@ -172,6 +172,41 @@ const Card = ({
 			}
 		},
 	});
+
+	useEffect(()=>{
+//If two dimensional charts dimension, row, column, distribution without any fields, then window function will get disable
+if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+	if(chartProp.properties[propKey].chartAxes[1].fields.length === 0 && chartProp.properties[propKey].chartAxes[2].fields.length === 0){
+		setWindowFunctionDisable(true); 
+
+		//while window function get disabled, it check window function having any values in redux state. If yes, then window function value will be null
+		if(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn){
+			chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn = null;
+		} 
+	} else {
+		//If two dimensional charts dimension, row, column, distribution with fields, then window function will get enable
+		if(chartProp.properties[propKey].chartAxes[1].fields.length > 0 || chartProp.properties[propKey].chartAxes[2].fields.length > 0){
+			setWindowFunctionDisable(false);
+		}
+	}} else {
+		//If one dimensional charts dimension or row without any fields, then window function will get disable
+		if(!["heatmap", "crossTab", "boxPlot", "richText"].includes(chartType)){
+			if(chartProp.properties[propKey].chartAxes[1].fields.length === 0){
+				setWindowFunctionDisable(true); 
+
+				//while window function get disabled, it check window function having any values in redux state. If yes, then window function value will be null
+				if(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn){	
+					chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn = null;
+				} 
+			} else {
+				//If one dimensional charts dimension or row with fields, then window function will get enable
+				if(chartProp.properties[propKey].chartAxes[1].fields.length > 0){
+					setWindowFunctionDisable(false);
+				}
+			}
+		} 
+	}
+	},[chartProp.properties[propKey].chartAxes])
     
 	// Getting values from CardOption.tsx
 	// List of options to show at the end of each card
@@ -266,48 +301,20 @@ const Card = ({
 			:
 			windowfn?.length > 0
 				?
-				windowfn?.map((opt: any) => {
-					//If two dimensional charts dimension, row, column, distribution without any fields, then window function will get disable
-					if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-						if(chartProp.properties[propKey].chartAxes[1].fields.length === 0 && chartProp.properties[propKey].chartAxes[2].fields.length === 0){
-							setWindowFunctionDisable(true); 
-
-							//while window function get disabled, it check window function having any values in redux state. If yes, then window function value will be null
-						    if(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn){
-								chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn = null;
-							} 
-						} else {
-							//If two dimensional charts dimension, row, column, distribution with fields, then window function will get enable
-							if(chartProp.properties[propKey].chartAxes[1].fields.length > 0 || chartProp.properties[propKey].chartAxes[2].fields.length > 0){
-								setWindowFunctionDisable(false);
-							}
-						}} else {
-							//If one dimensional charts dimension or row without any fields, then window function will get disable
-							if(!["heatmap", "crossTab", "boxPlot", "richText"].includes(chartType)){
-								if(chartProp.properties[propKey].chartAxes[1].fields.length === 0){
-									setWindowFunctionDisable(true); 
-
-									//while window function get disabled, it check window function having any values in redux state. If yes, then window function value will be null
-									if(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn){	
-										chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn = null;
-									} 
-								} else {
-									//If one dimensional charts dimension or row with fields, then window function will get enable
-									if(chartProp.properties[propKey].chartAxes[1].fields.length > 0){
-										setWindowFunctionDisable(false);
-									}
-								}
-							} 
-						}
+				windowfn?.map((opt: any, idx:number) => {
+					
 					return (
-						<div style={{display: "flex"}}>
+						<div style={{display: "flex"}} key={idx}>
 						<span style={{color: "rgb(211, 211, 211)", paddingLeft: "5px", position:"absolute"}}>
 							{chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn ? <IoMdCheckmark /> : null}
 						</span> 
 						<MenuItem
 						disabled= {windowFunctionDisable}
 						onClick={() => { 
-							setWindowFunction(true);
+							//setTimeout(() => {
+							setWindowFunction(true);								
+							//}, 300);
+
 							handleClose("clickOutside");
 						}}
 							sx={{ fontSize: "12px", padding: "2px 1.5rem"}}
@@ -384,7 +391,8 @@ const Card = ({
 			</button>
 			<RenderMenu/> 
 			<WindowFunction 
-			windowfn= {windowFunction}
+			anchorElm={anchorElment}
+			haswindowfn= {windowFunction}
 			setWindowfn= {setWindowFunction}
 			propKey= {propKey}
 			bIndex= {bIndex}
