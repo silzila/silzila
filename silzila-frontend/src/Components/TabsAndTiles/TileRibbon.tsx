@@ -21,8 +21,6 @@ import { Tooltip, Menu, MenuItem } from "@mui/material";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { red } from "@mui/material/colors";
-import "./tileRibbon.css"
 
 const TileRibbon = ({
   // state
@@ -41,7 +39,6 @@ const TileRibbon = ({
   removeTile,
   addChartFilterTabTileName,
 }: TileRibbonProps) => {
-  const [isTileListStyled, setIsTileListStyled] = useState(false);
   const addReportFilterGroup = (nextPropKey: string) => {
     var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
     let selectedDatasetID = chartProp.properties[propKey].selectedDs.id;
@@ -80,6 +77,9 @@ const TileRibbon = ({
     let propKey: string = `${tabId}.${tileId}`;
     let chartObj: any = chartProp.properties[propKey];
     selectTile(tabId, tileName, tileId, nextTileId, false, chartObj.fileId);
+    setTimeout(() => {
+      handleClose();
+    }, 300);
   };
 
   const handleRenameTileBegin = (tabId: number, tileId: number) => {
@@ -182,7 +182,7 @@ const TileRibbon = ({
   const tileList = tilesForSelectedTab.map((tile: number) => {
     let currentObj: any = tileState.tiles[tile];
     return (
-      <IndividualTile 
+      <IndividualTile
         key={currentObj.tileId}
         tabName={currentObj.tabName}
         tileName={currentObj.tileName}
@@ -200,7 +200,7 @@ const TileRibbon = ({
     );
   });
 
-  const ITEM_HEIGHT = 48;
+  const ITEM_HEIGHT = 34;
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const tileOpen = Boolean(anchorEl);
   const [currentTileLength, setCurrentTileLength] = useState<number>(0);
@@ -212,30 +212,26 @@ const TileRibbon = ({
 
   const handleTileScroll = (step: number) => {
     tileWrapperRef.current!.scrollLeft += step;
-    setIsTileListStyled(true);
   };
-
+  
   const handleClose = () => {
     setAnchorEl(null);
   };
 
   return (
     <div style={{ display: "flex", overflow: "hidden" }}>
-      <Tooltip title="Display Tile List" >
+      <Tooltip title="Display Tile List">
         <KeyboardArrowUpIcon
-          style={{ fontSize: "20px", 
-          color: "#808080", 
-          marginTop: "3px" }}
+          style={{ fontSize: "20px", color: "#808080", marginTop: "3px" }}
           onClick={(e) => {
             setAnchorEl(e.currentTarget);
           }}
         />
       </Tooltip>
-      <Menu 
+      <Menu
         id="long-menu"
         MenuListProps={{
           "aria-labelledby": "long-button",
-           
         }}
         anchorEl={anchorEl}
         open={tileOpen}
@@ -251,19 +247,25 @@ const TileRibbon = ({
           },
         }}
       >
-         {tileList.map((tileItem) => (
-    <MenuItem onClick={handleClose} className="menu-item" style={{ marginLeft: "0px", paddingLeft: "0px"}}>
-      <div className="individual-tile2">
-        {React.cloneElement(tileItem, { stylingClass: "popupTile",  inPopup: true  })}
-      </div> 
-    </MenuItem>
+        {tileList.map((tileItem,index) => (
+          <MenuItem key={index} onClick={handleClose} 
+          style={{ 
+            width: "225px", 
+            marginLeft: "0px", 
+            paddingLeft: "0px",
+            padding: "0px",
+            height: "35px",
+            backgroundColor: "transparent"
+            }}
+            >
+           {React.cloneElement(tileItem, { popupClass: "popupTile",  inPopup: true })}
+      </MenuItem>
         ))}
       </Menu>
-      <div 
-      style={{ display: "flex", overflow: "hidden"}} ref={tileWrapperRef}>
+      <div style={{ display: "flex", overflow: "hidden"}} ref={tileWrapperRef}>
         {tileList}
       </div>
-      <div style={{ display: "flex"}}>
+      <div style={{ display: "flex" }}>
         <span
           title="Create a new tile"
           // className="plusTile commonTile"
@@ -276,16 +278,15 @@ const TileRibbon = ({
           />
         </span>
         {currentTileLength >= 10 ? (
-           <div
+          <div
             style={{
               margin: "0px 5px 6px 0px",
               display: "flex",
               justifyContent: "flex-end",
               overflow: "hidden",
-              
             }}
           >
-             <ArrowLeftIcon onClick={() => { handleTileScroll(-100); setIsTileListStyled(true); }} />
+            <ArrowLeftIcon onClick={() => handleTileScroll(-100)} />
             <ArrowRightIcon onClick={() => handleTileScroll(100)} />
           </div>
         ) : null}

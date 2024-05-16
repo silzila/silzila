@@ -94,6 +94,9 @@ const TabRibbon = ({
     // let chartObj: IndChartPropProperties = chartProp.properties[propKey];
 
     selectTile(tabId, tileName, tileId, nextTileId, true);
+    setTimeout(() => {
+      handleClose();
+    }, 300);
   };
 
   const handleRemoveTab = (tabName: string, tabId: number) => {
@@ -172,7 +175,7 @@ const TabRibbon = ({
     );
   });
 
-  const ITEM_HEIGHT = 48;
+  const ITEM_HEIGHT = 34;
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const tabOpen = Boolean(anchorEl);
   const [currentTabLength, setCurrentTabLength] = useState<number>(0);
@@ -222,18 +225,20 @@ const TabRibbon = ({
             width: "26ch",
             margin: "11px 0px 0px 1px",
             padding: "0px 45px",
-           
+            paddingLeft: "0px"
           },
         }}
       >
         {tablist.map((tabItem) => (
-          <MenuItem style={{ padding: "8px 20px",
-            backgroundColor: "none",
-            width: 220,
-            paddingLeft: "4px"
+          <MenuItem style={{ 
+            padding: "0px",
+            margin: "0px",
+            width: "225px",
+            height: "35px",
+            backgroundColor: "transparent"
            }} onClick={handleClose}>
-            {tabItem} 
-          </MenuItem>
+                {React.cloneElement(tabItem, { popupClass: "popupTab",  inPopup: true  })} 
+           </MenuItem>
         ))}
       </Menu>
       <div style={{ overflow: "hidden", display: "flex" }} ref={tabWrapperRef}>
@@ -254,7 +259,8 @@ const TabRibbon = ({
         ) : null}
 
         {currentTabLength >= 10 ? (
-          <div style={{ display: "flex", 
+          <div style={{ 
+          display: "flex", 
           overflow: "hidden",
           margin: "0px 5px 6px 0px",
           justifyContent: "flex-end",
