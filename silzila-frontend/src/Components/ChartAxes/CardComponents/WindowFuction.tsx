@@ -7,6 +7,7 @@ import { TabTileStateProps2 } from "../../../redux/TabTile/TabTilePropsInterface
 import { ChartPropertiesStateProps } from "../../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { Dispatch } from "redux";
 import { editChartPropItem } from "../../../redux/ChartPoperties/ChartPropertiesActions";
+import {fieldName} from '../../CommonFunctions/CommonFunctions';
 
 interface WindowFunctionProps {
 	anchorElm: any;
@@ -81,6 +82,25 @@ interface WindowFunctionProps {
 		field.windowfn ? field.windowfn  : JSON.parse(JSON.stringify(defaultWFObject))  
 		);
 
+	//Fetch fields from Dimension, Row, Column, Distribution
+	var rows: any[] = [];
+	var columns: any[] = [];
+	
+	if(chartProp.properties[propKey].chartAxes[1].fields.length > 0){
+		chartProp.properties[propKey].chartAxes[1].fields.forEach((item:any)=>{
+			rows.push(fieldName(item));
+		})
+	} 
+	
+	if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+		if(chartProp.properties[propKey].chartAxes[2].fields.length > 0){
+			chartProp.properties[propKey].chartAxes[2].fields.forEach((item:any)=>{
+				columns.push(fieldName(item));
+			})
+			
+		}
+	} 
+
 	const chartAxesTwoDim = chartProp.properties[propKey].chartAxes[2] ? chartProp.properties[propKey].chartAxes[2].fields : null;
 
 	//If below condition get satisfied, then window function get disabled and its state values retain to its default values
@@ -93,12 +113,34 @@ interface WindowFunctionProps {
 	const standingSlidingCurrentDisable = windowFnValues.standingSlidingPreInc !== 0 && windowFnValues.standingSlidingNextInc !== 0 || windowFnValues.standingSlidingPreInc === 0 && windowFnValues.standingSlidingNextInc === 0;
 
 
-	useEffect(()=>{ 		
+	useEffect(()=>{ 	
 		
-		if(chartAxesDimEmpty){
+		if(rows.length !== 0 || columns.length !== 0){
+		const rowValues = ["(Entire Table)", ...rows];
+		const columnValues = ["(Entire Table)", ...columns];
+		const isStandingRowPresent = [windowFnValues.standingRow].some(value => rowValues.includes(value));
+		const isSlidingRowPresent = [windowFnValues.slidingRow].some(value => rowValues.includes(value));
+		const isStandingSlidingRowPresent = [windowFnValues.standingSlidingRow].some(value => rowValues.includes(value));
+		const isStandingColumnPresent = [windowFnValues.standingColumn].some(value => columnValues.includes(value));
+		const isSlidingColumnPresent = [windowFnValues.slidingColumn].some(value => columnValues.includes(value));
+		const isStandingSlidingColumnPresent = [windowFnValues.standingSlidingColumn].some(value => columnValues.includes(value));
+		
+		
+	   if(isStandingRowPresent === false || isSlidingRowPresent === false || isStandingSlidingRowPresent === false ||
+			isStandingColumnPresent === false || isSlidingColumnPresent === false || isStandingSlidingColumnPresent === false 
+		 ){
 			setWindowFnValues((prevState: any) => ({ 
 				...prevState, 
 				...defaultWFObject 
+			}));
+
+		}
+	}
+
+	if(chartAxesDimEmpty){
+		setWindowFnValues((prevState: any) => ({ 
+			...prevState, 
+			...defaultWFObject 
 		}));
 
 		//setStandingSlidingPNC(false);
@@ -110,6 +152,43 @@ interface WindowFunctionProps {
 
 		if(standingSlidingCurrentDisable) {
 			setWindowFnValues((prevState: any) => ({ ...prevState, standingSlidingCurrent: 1 }));
+		}
+
+		//If mismatch of values between local and redux state of window function, then window function redux state value will be null and local state values retain to its default values
+		if(field.windowfn){
+			if(rows.length !== 0 || columns.length !== 0){
+				const windowfnvalue = field.windowfn;
+				const standingRowValue = [windowfnvalue.standingRow];
+				const slidingRowValue = [windowfnvalue.slidingRow];
+				const standingSlidingRowValue = [windowfnvalue.standingSlidingRow];
+				const standingColumnValue = [windowfnvalue.standingColumn];
+				const slidingColumnValue = [windowfnvalue.slidingColumn];
+				const standingSlidingColumnValue = [windowfnvalue.standingSlidingColumn];
+				const rowValues = ["(Entire Table)", ...rows];
+				const columnValues = ["(Entire Table)", ...columns];
+				const isStandingRowPresentInRows = standingRowValue.some(value => rowValues.includes(value));
+				const isSlidingRowPresentInRows = slidingRowValue.some(value => rowValues.includes(value));
+				const isStandingSlidingRowPresentInRows = standingSlidingRowValue.some(value => rowValues.includes(value));
+				const isStandingColumnsPresentInColumns = standingColumnValue.some(value => columnValues.includes(value));
+				const isSlidingColumnsPresentInColumns = slidingColumnValue.some(value => columnValues.includes(value));
+				const isStandingSlidingColumnsPresentInColumns = standingSlidingColumnValue.some(value => columnValues.includes(value));
+
+				if (isStandingRowPresentInRows === false || isSlidingRowPresentInRows === false || isStandingSlidingRowPresentInRows === false ||
+					isStandingColumnsPresentInColumns === false || isSlidingColumnsPresentInColumns === false|| isStandingSlidingColumnsPresentInColumns === false
+				)
+					{
+						const field2 = {...field};
+						field2.windowfn = null;
+						updateQueryParam(propKey,bIndex,itemIndex,field2);
+
+						setWindowFnValues((prevState: any) => ({ 
+							...prevState, 
+							...defaultWFObject 
+						}));
+
+					}
+				
+			}
 		}
 
 	
@@ -184,24 +263,7 @@ interface WindowFunctionProps {
 	const slidingAggregation : any[] = ["Sum", "Avg", "Min", "Max", "Count"];   
 	const standingSlidingAggregation : any[] = ["Sum", "Avg", "Min", "Max"];
 
-	//Fetch fields from Dimension, Row, Column, Distribution
-	var rows: any[] = [];
-	var columns: any[] = [];
 	
-	if(chartProp.properties[propKey].chartAxes[1].fields.length > 0){
-		chartProp.properties[propKey].chartAxes[1].fields.forEach((item:any)=>{
-			rows.push(item?.fieldname);
-		})
-	} 
-	
-	if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-		if(chartProp.properties[propKey].chartAxes[2].fields.length > 0){
-			chartProp.properties[propKey].chartAxes[2].fields.forEach((item:any)=>{
-				columns.push(item?.fieldname);
-			})
-			
-		}
-	} 	
 //windowFnValues
 
 // Update individual properties within the object
@@ -461,7 +523,7 @@ const handleChange = (value: any, subOption?: string) => {
 									checked= {windowFnValues.standingSlidingReferenceWn === "First"}
 							        onChange={(e) => { 
 										setWindowFnValues((prevState: any) => ({ ...prevState, standingSlidingReferenceWn: e.target.value }));
-									//	setStandingSlidingPNC(false);
+										//setStandingSlidingPNC(false);
 									}}
 							        value= "First"
 							        sx={{ ...radioButton, marginTop: "0", paddingTop: "0",}}/>
@@ -473,7 +535,7 @@ const handleChange = (value: any, subOption?: string) => {
 									checked= {windowFnValues.standingSlidingReferenceWn === "Last"}
 							        onChange={(e) => { 
 										setWindowFnValues((prevState: any) => ({ ...prevState, standingSlidingReferenceWn: e.target.value }));
-									//	setStandingSlidingPNC(false);
+										//setStandingSlidingPNC(false);
 									}}
 							        value= "Last" 
 							        sx={{ ...radioButton, marginTop: "0", paddingTop: "0",}}/> 
@@ -568,7 +630,7 @@ const handleChange = (value: any, subOption?: string) => {
 											<Checkbox size= "small"  
 											sx={{...radioButton}}
 											checked={windowFnValues.standingSlidingCurrent === 1} 
-											disabled = {standingSlidingPNC === false}
+											disabled = {windowFnValues.standingSlidingReferenceWn !== "PNC"}
 											onChange={(e) =>
 												setWindowFnValues((prevState: any) => ({ ...prevState, standingSlidingCurrent: e.target.checked ? 1 : 0}))
 											}
@@ -610,9 +672,9 @@ const handleChange = (value: any, subOption?: string) => {
 						<Select
 						disabled= {chartProp.properties[propKey].chartAxes[1].fields.length === 0}
 						onChange={(e) => handleChange(e.target.value,  "row")  }
-				        value={rows[windowFnValues.windowFnOptions === "standing" ?  windowFnValues.standingRowIndex :
-						windowFnValues.windowFnOptions === "sliding" ? windowFnValues.slidingRowIndex :
-						windowFnValues.windowFnOptions === "standingsvssliding" ? windowFnValues.standingSlidingRowIndex : -1] || "(Entire Table)"}
+				        value={windowFnValues.windowFnOptions === "standing" ?  windowFnValues.standingRow :
+						windowFnValues.windowFnOptions === "sliding" ? windowFnValues.slidingRow :
+						windowFnValues.windowFnOptions === "standingsvssliding" ? windowFnValues.standingSlidingRow : null}
 						
 						sx={{...dropDownSelectStyle, margin: "3px 15px 0 15px",}}
 						>
@@ -644,10 +706,10 @@ const handleChange = (value: any, subOption?: string) => {
 								<Select 
 								disabled= {chartProp.properties[propKey].chartAxes[2].fields.length === 0}
 								onChange={(e) => handleChange(e.target.value,  "column")}
-								value={columns[windowFnValues.windowFnOptions === "standing" ? windowFnValues.standingColumnIndex :
-								windowFnValues.windowFnOptions === "sliding" ? windowFnValues.slidingColumnIndex :
-								windowFnValues.windowFnOptions === "standingsvssliding" ? windowFnValues.standingSlidingColumnIndex :
-									-1] || "(Entire Table)"
+								value={windowFnValues.windowFnOptions === "standing" ? windowFnValues.standingColumn :
+								windowFnValues.windowFnOptions === "sliding" ? windowFnValues.slidingColumn :
+								windowFnValues.windowFnOptions === "standingsvssliding" ? windowFnValues.standingSlidingColumn :
+									null
 								}
 								sx={{...dropDownSelectStyle, margin: "3px 15px 0 15px",}}>
 									<MenuItem value= "(Entire Table)" sx={{ fontSize: "12px", padding: "2px 1rem" }}>(Entire Table)</MenuItem>
