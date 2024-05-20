@@ -8,6 +8,7 @@ import { ChartPropertiesStateProps } from "../../../redux/ChartPoperties/ChartPr
 import { Dispatch } from "redux";
 import { editChartPropItem } from "../../../redux/ChartPoperties/ChartPropertiesActions";
 import {fieldName} from '../../CommonFunctions/CommonFunctions';
+import { Height } from "@mui/icons-material";
 
 interface WindowFunctionProps {
 	anchorElm: any;
@@ -78,9 +79,9 @@ interface WindowFunctionProps {
 	
 	field.dataType = field.dataType.toLowerCase();
 
-	const [windowFnValues, setWindowFnValues] = useState<any>(
-		field.windowfn ? field.windowfn  : JSON.parse(JSON.stringify(defaultWFObject))  
-		);
+	const [windowFnValues, setWindowFnValues] = useState<any>(JSON.parse(JSON.stringify(defaultWFObject)));
+
+	const [selectedWindowFnOptions, setSelectedWindowFnOptions] = useState<string>("");
 
 	//Fetch fields from Dimension, Row, Column, Distribution
 	var rows: any[] = [];
@@ -112,6 +113,13 @@ interface WindowFunctionProps {
 	const slidingCurrentDisable = windowFnValues.slidingPreInc !== 0 && windowFnValues.slidingNextInc !== 0 || windowFnValues.slidingPreInc === 0 && windowFnValues.slidingNextInc === 0;
 	const standingSlidingCurrentDisable = windowFnValues.standingSlidingPreInc !== 0 && windowFnValues.standingSlidingNextInc !== 0 || windowFnValues.standingSlidingPreInc === 0 && windowFnValues.standingSlidingNextInc === 0;
 
+	useEffect(()=>{
+		setSelectedWindowFnOptions(field.windowfn?.windowFnOptions);
+	},[field.windowfn])
+
+	useEffect(()=>{		
+		setWindowFnValues(field.windowfn ? field.windowfn  : JSON.parse(JSON.stringify(defaultWFObject)));
+	},[haswindowfn])
 
 	useEffect(()=>{ 	
 		
@@ -225,6 +233,9 @@ interface WindowFunctionProps {
 		  },
 	};
 
+	const selectedButtonStyle1 = { backgroundColor: "orange", width: "5px", height:"auto"}
+	const selectedButtonStyle2 = { height:"auto"}
+
 	const buttonStyle1 = {width: "100%", textTransform: "initial", border: "1px solid transparent", borderRadius: "0", backgroundColor: "rgba(224,224,224,1)", fontSize: "12px", fontWeight: "600", boxShadow: "none",
 	"&:hover" : {backgroundColor: "rgba(224,224,224,1)", boxShadow: "none", color: "rgb(87, 87, 87)", border: "1px solid transparent"}}
 	
@@ -313,34 +324,37 @@ const handleChange = (value: any, subOption?: string) => {
 				}}
 				>
 					<div className="standingBtn">
+						<div style={selectedWindowFnOptions === "standing" ? selectedButtonStyle1 : selectedButtonStyle2}></div>
 						<Button variant="contained" color= "inherit" size= "small"
 						onClick={() => {
 							setWindowFnValues((prevState: any) => ({ ...prevState, windowFnOptions: "standing" }));
 						}}
 						sx= {windowFnValues.windowFnOptions === "standing" ? buttonStyle1 : buttonStyle2}
-					>
-					Standing
-					</Button>
+						>
+						Standing
+						</Button>
 					</div>
-
+					
 					<div className="standingslidingBtn">
+						<div style={selectedWindowFnOptions === "sliding" ? selectedButtonStyle1 : selectedButtonStyle2}></div>
 						<Button variant="contained" color= "inherit" size= "small"
 						onClick={() => {
 							setWindowFnValues((prevState: any) => ({ ...prevState, windowFnOptions: "sliding" }));
 						}}
 						sx={windowFnValues.windowFnOptions === "sliding" ? buttonStyle1 : buttonStyle2}>
-					Sliding
-					</Button>
+						Sliding
+						</Button>
 					</div>
 
 					<div className="standingslidingBtn">
+						<div style={selectedWindowFnOptions === "standingsvssliding" ? selectedButtonStyle1 : selectedButtonStyle2}></div>
 						<Button variant="contained" color= "inherit" size= "small"
 						onClick={() => {
 							setWindowFnValues((prevState: any) => ({ ...prevState, windowFnOptions: "standingsvssliding" }));
 						}}
 						sx={windowFnValues.windowFnOptions === "standingsvssliding" ? buttonStyle1 : buttonStyle2}>
-					Standing vs Sliding
-					</Button>
+						Standing vs Sliding
+						</Button>
 				    </div>
 
 					{windowFnValues.windowFnOptions === "standing" ?

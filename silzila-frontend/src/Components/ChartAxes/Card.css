@@ -93,11 +93,13 @@
 }
 
 .standingBtn{
+	display: flex;
 	text-align: center;
 	color: rgb(87, 87, 87);
 }
 
 .standingslidingBtn{
+	display: flex;
 	text-align: center;
 	margin-top: 3px;
 	color: rgb(87, 87, 87);

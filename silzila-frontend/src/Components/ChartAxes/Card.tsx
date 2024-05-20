@@ -342,6 +342,7 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 		<div
 			ref={(node: any) => drag(drop(node))}
 			className="axisField"
+			style={windowFunction ? {border:"1.5px solid blue"} : {}}
 			onMouseOver={() => setShowOptions(true)}
 			onMouseLeave={() => {
 				if (!open) {
