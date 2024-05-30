@@ -1,4 +1,4 @@
-import { Button, Typography } from "@mui/material";
+import { Button} from "@mui/material";
 import { useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
