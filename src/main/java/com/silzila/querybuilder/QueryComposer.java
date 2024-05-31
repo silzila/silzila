@@ -1,10 +1,6 @@
 package com.silzila.querybuilder;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -13,15 +9,13 @@ import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
-import com.silzila.payload.request.Dimension;
-import com.silzila.payload.request.Measure;
-import com.silzila.payload.request.Query;
+import com.silzila.payload.request.*;
 import com.silzila.payload.request.Dimension.DataType;
-import com.silzila.payload.request.FilterPanel;
 import com.silzila.querybuilder.override.overrideCTE;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -46,6 +40,8 @@ public class QueryComposer {
 
         Query req = queries.get(0);
 
+
+
         // flag --> override function or not
         if (queries.size() > 1) {
             queryCTE = true;
@@ -54,6 +50,7 @@ public class QueryComposer {
          * builds JOIN Clause of SQL - same for all dialects
          */
         String fromClause = RelationshipClauseGeneric.buildRelationship(req, ds.getDataSchema(), vendorName);
+
         // System.out.println("from clause ================\n" + fromClause);
         /*
          * builds SELECT Clause of SQL

@@ -1,5 +1,6 @@
 package com.silzila.service;
 
+import com.silzila.exception.ExpectationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,13 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 // import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
@@ -71,6 +67,7 @@ public class ConnectionPoolService {
 
     @Autowired
     DBConnectionService dbConnectionService;
+
 
     // creates connection pool & gets vendor name
     public String getVendorNameFromConnectionPool(String id, String userId)
@@ -271,7 +268,6 @@ public class ConnectionPoolService {
         try (Connection _connection = connectionPool.get(id).getConnection();
                 PreparedStatement pst = _connection.prepareStatement(query);
                 ResultSet rs = pst.executeQuery();) {
-            System.out.println("ResultSet" + rs);
             // statement = _connection.createStatement();
             // resultSet = statement.executeQuery(query);
             JSONArray jsonArray = ResultSetToJson.convertToJson(rs);
@@ -284,6 +280,73 @@ public class ConnectionPoolService {
         }
     }
 
+    public static boolean customQueryValidator(String query) {
+        return Pattern.compile("^SELECT\\b(?!\\s*(?:CREATE|DELETE|UPDATE)\\b).*", Pattern.CASE_INSENSITIVE).matcher(query).find();
+    }
+
+    public List<Map<String,String>> getColumForCustomQuery(String id, String userId, String query) throws RecordNotFoundException, SQLException, ExpectationFailedException {
+        if(customQueryValidator(query)) {
+            createConnectionPool(id, userId);
+            try {
+                try (Connection _connection = connectionPool.get(id).getConnection();
+                     PreparedStatement pst = _connection.prepareStatement(query);
+                     ResultSet rs = pst.executeQuery();) {
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    int count = rsmd.getColumnCount();
+                    List<Map<String, String>> columnList = new ArrayList<Map<String, String>>();
+                    for (int i = 1; i <= count; i++) {
+                        Map<String, String> columnDataTypeMap = new HashMap<>();
+                        columnDataTypeMap.put("columnName", rsmd.getColumnName(i));
+                        columnDataTypeMap.put("dataType", rsmd.getColumnTypeName(i));
+                        columnList.add(columnDataTypeMap);
+                    }
+                    return columnList;
+                } catch (Exception e) {
+                    logger.warn("runQuery Exception ----------------");
+                    logger.warn("error: " + e.toString());
+                    throw e;
+                }
+            }catch (Exception e){
+                throw new ExpectationFailedException("Wrong query!!Please check your query format");
+            }
+
+        }else {
+            throw new ExpectationFailedException("Wrong query!!CustomQuery is only allowed with SELECT");
+        }
+    }
+    public JSONArray getSampleRecordsForCustomQuery(String dBConnectionId, String userId, String query,Integer recordCount) throws RecordNotFoundException, SQLException, ExpectationFailedException {
+        if (customQueryValidator(query)) {
+            String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId);
+            String queryWithLimit="";
+            try{
+                createConnectionPool(dBConnectionId, userId);
+                if(recordCount<=100) {
+                    if (vendorName.equals("oracle")) {
+                        queryWithLimit = "select * from( " + query + ") WHERE ROWNUM <= " + recordCount;
+                    } else if (vendorName.equals("sqlserver")) {
+                        queryWithLimit = "WITH CTE AS ( " + query + ") SELECT TOP " + recordCount + " * FROM CTE;";
+                    } else {
+                        queryWithLimit = "select * from( " + query + ") AS CQ limit " + recordCount;
+                    }
+                }else {
+                    if (vendorName.equals("oracle")) {
+                        queryWithLimit = "select * from( " + query + ") WHERE ROWNUM <= 100";
+                    } else if (vendorName.equals("sqlserver")) {
+                        queryWithLimit = "WITH CTE AS ( " + query + ") SELECT TOP 100  * FROM CTE;";
+                    }
+                    else {
+                        queryWithLimit = "select * from( " + query + ") AS CQ limit 100";
+                    }
+                }
+            JSONArray jsonArray = runQuery(dBConnectionId, userId, queryWithLimit);
+            return jsonArray;
+            }catch (Exception e) {
+                throw new ExpectationFailedException("Wrong query!!Please check your query format");
+            }
+        }else {
+            throw new ExpectationFailedException("Wrong query!!CustomQuery is only allowed with SELECT");
+        }
+    }
     // Metadata discovery - Get Database names
     public ArrayList<String> getDatabase(String id, String userId)
             throws RecordNotFoundException, SQLException {
@@ -663,6 +726,8 @@ public class ConnectionPoolService {
             throw e;
         }
     }
+
+
 
     // Metadata discovery - Get Sample Records of table
     public JSONArray getSampleRecords(String id, String userId, String databaseName, String schemaName,

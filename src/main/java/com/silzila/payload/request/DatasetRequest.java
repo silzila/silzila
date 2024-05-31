@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "connectionId",
         "datasetName",
         "isFlatFileData",
+        "isCustomTablePresent",
         "dataSchema"
 })
 @Generated("jsonschema2pojo")
@@ -29,8 +30,11 @@ public class DatasetRequest implements Serializable {
     private String datasetName;
     @JsonProperty("isFlatFileData")
     private Boolean isFlatFileData;
+    @JsonProperty("isCustomTablePresent")
+    private Boolean isCustomTablePresent;
     @JsonProperty("dataSchema")
     private DataSchema dataSchema;
+
     private final static long serialVersionUID = -3299944099507340042L;
 
     /**
@@ -49,8 +53,8 @@ public class DatasetRequest implements Serializable {
      * @throws BadRequestException
      */
     @JsonCreator
-    public DatasetRequest(String connectionId, String datasetName, Boolean isFlatFileData,
-            DataSchema dataSchema) throws BadRequestException {
+    public DatasetRequest(String connectionId, String datasetName, Boolean isFlatFileData,Boolean isCustomTablePresent,
+            DataSchema dataSchema ) throws BadRequestException {
         super();
         if (datasetName == null || datasetName.length() == 0) {
             throw new BadRequestException("Error: DataSet Name Field cannot be empty!");
@@ -64,7 +68,9 @@ public class DatasetRequest implements Serializable {
         this.connectionId = connectionId;
         this.datasetName = datasetName;
         this.isFlatFileData = isFlatFileData;
+        this.isCustomTablePresent=isCustomTablePresent;
         this.dataSchema = dataSchema;
+
     }
 
     @JsonProperty("connectionId")
@@ -97,6 +103,15 @@ public class DatasetRequest implements Serializable {
         this.isFlatFileData = isFlatFileData;
     }
 
+    @JsonProperty("isCustomTablePresent")
+    public Boolean getIsCustomTablePresent() {
+        return isCustomTablePresent;
+    }
+    @JsonProperty("isCustomTablePresent")
+    public void setIsCustomTablePresent(Boolean isCustomTablePresent) {
+        this.isCustomTablePresent = isCustomTablePresent;
+    }
+
     @JsonProperty("dataSchema")
     public DataSchema getDataSchema() {
         return dataSchema;
@@ -106,6 +121,7 @@ public class DatasetRequest implements Serializable {
     public void setDataSchema(DataSchema dataSchema) {
         this.dataSchema = dataSchema;
     }
+
 
     @Override
     public String toString() {
@@ -123,6 +139,9 @@ public class DatasetRequest implements Serializable {
         sb.append("isFlatFileData");
         sb.append('=');
         sb.append(((this.isFlatFileData == null) ? "<null>" : this.isFlatFileData));
+        sb.append(',');
+        sb.append("isCustomTablePresent");
+        sb.append(((this.isCustomTablePresent == null) ? "<null>" : this.isCustomTablePresent));
         sb.append(',');
         sb.append("dataSchema");
         sb.append('=');

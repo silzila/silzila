@@ -359,6 +359,8 @@ public class RelativeFilterDateDatabricks {
 
         String anchorDate = relativeFilter.getAnchorDate();
 
+        String customQuery = table.getCustomQuery();
+
         // pattern checker of specific date
         Pattern pattern = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
         Matcher matcher = pattern.matcher(anchorDate);
@@ -372,8 +374,14 @@ public class RelativeFilterDateDatabricks {
             } else if (anchorDate.equals("yesterday")) {
                 query = "select date_sub(current_date(), 1) as anchordate";
             } else if (anchorDate.equals("columnMaxDate")) {
-                query = "select date(max(" + relativeFilter.getFilterTable().getFieldName() + "))as anchordate from "
-                        + databaseName + "." + tableName;
+                //checking for custom query
+                if(!table.isCustomQuery()){
+                    query = "select date(max(" + relativeFilter.getFilterTable().getFieldName() + "))as anchordate from "
+                            + databaseName + "." + tableName;
+                }else {
+                    query = "select date(max(" + relativeFilter.getFilterTable().getFieldName() + "))as anchordate from "
+                            + "(" + customQuery + ") as cq ";
+                }
             }
         } else if (matcher.matches()) {
             query = "select 1 as anchordate";

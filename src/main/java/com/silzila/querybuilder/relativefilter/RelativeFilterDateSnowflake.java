@@ -336,6 +336,8 @@ public class RelativeFilterDateSnowflake {
 
         String anchorDate = relativeFilter.getAnchorDate();
 
+        String customquery = table.getCustomQuery();
+
         // pattern checker of specific date
         Pattern pattern = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])");
         Matcher matcher = pattern.matcher(anchorDate);
@@ -349,8 +351,14 @@ public class RelativeFilterDateSnowflake {
             } else if (anchorDate.equals("yesterday")) {
                 query = "SELECT DATEADD(DAY, -1, CURRENT_DATE) AS \"anchordate\"";
             } else if (anchorDate.equals("columnMaxDate")) {
-                query = "SELECT DATE(MAX(" + relativeFilter.getFilterTable().getFieldName() +
-                        ")) AS \"anchordate\" FROM "+ databaseName + "." + schemaName + "." + tableName;
+                //checking for custom query
+                if(!table.isCustomQuery()) {
+                    query = "SELECT DATE(MAX(" + relativeFilter.getFilterTable().getFieldName() +
+                            ")) AS \"anchordate\" FROM " + databaseName + "." + schemaName + "." + tableName;
+                }else {
+                    query = "SELECT DATE(MAX(" + relativeFilter.getFilterTable().getFieldName() +
+                            ")) AS \"anchordate\" FROM " +"("+ customquery +")";
+                }
             }
         } else if (matcher.matches()) {
             query = "SELECT 1 AS \"anchordate\"";

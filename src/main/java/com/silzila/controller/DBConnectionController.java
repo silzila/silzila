@@ -1,5 +1,6 @@
 package com.silzila.controller;
 
+import com.silzila.payload.request.CustomQueryRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -198,6 +199,18 @@ public class DBConnectionController {
         return ResponseEntity.status(HttpStatus.OK).body(metadataColumns);
     }
 
+    @GetMapping("/metadata-columns-customQuery/{id}")
+    public ResponseEntity<?> getColumnForCustomQuery(@RequestHeader Map<String, String> reqHeader,
+                                                     @PathVariable(value = "id") String id,
+                                         @RequestBody CustomQueryRequest customQueryRequest) throws RecordNotFoundException, SQLException, ExpectationFailedException
+    {
+        String userId = reqHeader.get("username");
+        List<Map<String,String>> columnList=connectionPoolService.getColumForCustomQuery(id, userId, customQueryRequest.getQuery());
+        return ResponseEntity.status(HttpStatus.OK).body(columnList);
+    }
+
+
+
     // Metadata discovery - get sample records
     @GetMapping("/sample-records/{id}/{recordCount}")
     public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
@@ -210,6 +223,18 @@ public class DBConnectionController {
         String userId = reqHeader.get("username");
         JSONArray jsonArray = connectionPoolService.getSampleRecords(id, userId, databaseName,
                 schemaName, tableName, recordCount);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+    }
+
+    @GetMapping("/sample-records-customQuery/{id}/{recordCount}")
+    public ResponseEntity<?> getSampleRecordsCustomQuery(@RequestHeader Map<String, String> reqHeader,
+                                              @PathVariable(value = "id") String id,
+                                              @PathVariable(value = "recordCount") Integer recordCount,
+                                                         @RequestBody CustomQueryRequest customQueryRequest
+                                             )
+            throws RecordNotFoundException, SQLException, BadRequestException, ExpectationFailedException {
+        String userId = reqHeader.get("username");
+        JSONArray jsonArray =connectionPoolService.getSampleRecordsForCustomQuery(id, userId,customQueryRequest.getQuery(), recordCount);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 

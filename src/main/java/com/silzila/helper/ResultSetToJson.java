@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -12,6 +13,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ResultSetToJson {
+
+    private static Object JSONObject;
 
     public static JSONArray convertToJson(ResultSet resultSet) throws SQLException {
         ResultSetMetaData metaData = resultSet.getMetaData();
@@ -31,12 +34,21 @@ public class ResultSetToJson {
         while (resultSet.next()) {
             JSONObject row = new JSONObject();
             colNames.forEach(cn -> {
+
                 try {
-                    row.put(cn, resultSet.getObject(cn));         	               
-                } catch (JSONException | SQLException e) {
+                    Object rowVal = resultSet.getObject(cn);
+                    if(rowVal==null) {
+                        row.put(cn,org.json.JSONObject.NULL);
+                    }else{
+                        row.put(cn, rowVal);
+                    }
+
+                }catch (JSONException | SQLException e) {
                     e.printStackTrace();
                 }
             });
             result.put(row);
         }
+        return result;
+    }
 }
