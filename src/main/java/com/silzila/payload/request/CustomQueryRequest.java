@@ -10,6 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CustomQueryRequest {
-        private String customTableName;
-        private String query;
+    private String customTableName;
+    private String query;
 }

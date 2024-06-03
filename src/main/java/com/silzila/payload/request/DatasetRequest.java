@@ -30,8 +30,6 @@ public class DatasetRequest implements Serializable {
     private String datasetName;
     @JsonProperty("isFlatFileData")
     private Boolean isFlatFileData;
-    @JsonProperty("isCustomTablePresent")
-    private Boolean isCustomTablePresent;
     @JsonProperty("dataSchema")
     private DataSchema dataSchema;
 
@@ -53,7 +51,7 @@ public class DatasetRequest implements Serializable {
      * @throws BadRequestException
      */
     @JsonCreator
-    public DatasetRequest(String connectionId, String datasetName, Boolean isFlatFileData,Boolean isCustomTablePresent,
+    public DatasetRequest(String connectionId, String datasetName, Boolean isFlatFileData,
             DataSchema dataSchema ) throws BadRequestException {
         super();
         if (datasetName == null || datasetName.length() == 0) {
@@ -68,7 +66,6 @@ public class DatasetRequest implements Serializable {
         this.connectionId = connectionId;
         this.datasetName = datasetName;
         this.isFlatFileData = isFlatFileData;
-        this.isCustomTablePresent=isCustomTablePresent;
         this.dataSchema = dataSchema;
 
     }
@@ -103,15 +100,6 @@ public class DatasetRequest implements Serializable {
         this.isFlatFileData = isFlatFileData;
     }
 
-    @JsonProperty("isCustomTablePresent")
-    public Boolean getIsCustomTablePresent() {
-        return isCustomTablePresent;
-    }
-    @JsonProperty("isCustomTablePresent")
-    public void setIsCustomTablePresent(Boolean isCustomTablePresent) {
-        this.isCustomTablePresent = isCustomTablePresent;
-    }
-
     @JsonProperty("dataSchema")
     public DataSchema getDataSchema() {
         return dataSchema;
@@ -139,9 +127,6 @@ public class DatasetRequest implements Serializable {
         sb.append("isFlatFileData");
         sb.append('=');
         sb.append(((this.isFlatFileData == null) ? "<null>" : this.isFlatFileData));
-        sb.append(',');
-        sb.append("isCustomTablePresent");
-        sb.append(((this.isCustomTablePresent == null) ? "<null>" : this.isCustomTablePresent));
         sb.append(',');
         sb.append("dataSchema");
         sb.append('=');

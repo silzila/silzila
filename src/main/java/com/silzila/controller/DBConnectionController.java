@@ -5,7 +5,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.simple.parser.ParseException;
 import org.modelmapper.ModelMapper;
 
 import com.silzila.dto.DBConnectionDTO;
@@ -13,7 +12,6 @@ import com.silzila.dto.OracleDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.exception.RecordNotFoundException;
-import com.silzila.helper.ResultSetToJson;
 import com.silzila.payload.request.DBConnectionRequest;
 import com.silzila.payload.response.MessageResponse;
 import com.silzila.payload.response.MetadataColumn;
@@ -26,18 +24,12 @@ import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 // import com.simba.googlebigquery.jdbc.DataSource;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.validation.Valid;
 
