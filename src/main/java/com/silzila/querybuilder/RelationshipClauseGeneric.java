@@ -95,9 +95,6 @@ public class RelationshipClauseGeneric {
         List<String> fieldList = new ArrayList<>();
         List<String> filterList = new ArrayList<>();
         List<String> allColumnList = new ArrayList<>();
-        ds.getTables().stream()
-                .filter(table -> table.isCustomQuery());
-
         // take list of unique dim tables & another list on all unique tables
         req.getDimensions().forEach((dim) -> {
             if (!dimList.contains(dim.getTableId())) {
@@ -317,7 +314,7 @@ public class RelationshipClauseGeneric {
 
         for (int i = 0; i < _relationships.size(); i++) {
             Relationship _rship = _relationships.get(i);
-            Table fromTable = null;
+            Table fromTable;
             Table toTable;
             Optional<Table> tbl1Optional = ds.getTables().stream()
                     .filter(_r -> _r.getId().equals(_rship.getTable1())).findFirst();

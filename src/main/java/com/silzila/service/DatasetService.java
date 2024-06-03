@@ -3,7 +3,6 @@ package com.silzila.service;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
@@ -29,6 +28,7 @@ import com.silzila.querybuilder.QueryComposer;
 import com.silzila.querybuilder.filteroptions.FilterOptionsQueryComposer;
 import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.repository.DatasetRepository;
+import com.silzila.helper.CustomQueryValidator;
 
 
 @Service
@@ -58,6 +58,9 @@ public class DatasetService {
 
     @Autowired
     DuckDbService duckDbService;
+
+    @Autowired
+    CustomQueryValidator customQueryValidator;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -167,7 +170,7 @@ public class DatasetService {
             List<Table> tables=datasetRequest.getDataSchema().getTables();
             for (int i = 0; i < tables.size(); i++) {
                 if(tables.get(i).isCustomQuery()) {
-                    if (customQueryValidator(datasetRequest.getDataSchema().getTables().get(i).getCustomQuery())) {
+                    if (customQueryValidator.customQueryValidator(datasetRequest.getDataSchema().getTables().get(i).getCustomQuery())) {
                         isProperQuery = true;
                     } else {
                        throw new ExpectationFailedException("Cannot proceed with dataset creation,CustomQuery is only allowed with SELECT");
@@ -249,7 +252,7 @@ public class DatasetService {
             List<Table> tables = datasetRequest.getDataSchema().getTables();
             for (int i = 0; i < tables.size(); i++) {
                 if (tables.get(i).isCustomQuery()) {
-                    if (customQueryValidator(datasetRequest.getDataSchema().getTables().get(i).getCustomQuery())) {
+                    if (customQueryValidator.customQueryValidator(datasetRequest.getDataSchema().getTables().get(i).getCustomQuery())) {
                         isProperQuery = true;
                     } else {
                         throw new ExpectationFailedException("Cannot proceed with dataset updation,CustomQuery is only allowed with SELECT");
@@ -625,9 +628,6 @@ public class DatasetService {
         return jsonArray;
     }
 
-    public static boolean customQueryValidator(String query) {
-        return Pattern.compile("^SELECT\\b(?!\\s*(?:CREATE|DELETE|UPDATE)\\b).*", Pattern.CASE_INSENSITIVE).matcher(query).find();
-    }
 
 
     }

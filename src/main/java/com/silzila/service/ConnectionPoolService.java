@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 // import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
@@ -45,6 +44,7 @@ import com.silzila.payload.response.MetadataDatabase;
 import com.silzila.payload.response.MetadataTable;
 import com.silzila.domain.entity.DBConnection;
 import com.silzila.dto.OracleDTO;
+import com.silzila.helper.CustomQueryValidator;
 
 @Service
 public class ConnectionPoolService {
@@ -67,6 +67,9 @@ public class ConnectionPoolService {
 
     @Autowired
     DBConnectionService dbConnectionService;
+
+    @Autowired
+    CustomQueryValidator customQueryValidator;
 
 
     // creates connection pool & gets vendor name
@@ -280,12 +283,8 @@ public class ConnectionPoolService {
         }
     }
 
-    public static boolean customQueryValidator(String query) {
-        return Pattern.compile("^SELECT\\b(?!\\s*(?:CREATE|DELETE|UPDATE)\\b).*", Pattern.CASE_INSENSITIVE).matcher(query).find();
-    }
-
-    public List<Map<String,String>> getColumForCustomQuery(String id, String userId, String query) throws RecordNotFoundException, SQLException, ExpectationFailedException {
-        if(customQueryValidator(query)) {
+       public List<Map<String,String>> getColumForCustomQuery(String id, String userId, String query) throws RecordNotFoundException, SQLException, ExpectationFailedException {
+        if(customQueryValidator.customQueryValidator(query)) {
             createConnectionPool(id, userId);
             try {
                 try (Connection _connection = connectionPool.get(id).getConnection();
@@ -315,7 +314,7 @@ public class ConnectionPoolService {
         }
     }
     public JSONArray getSampleRecordsForCustomQuery(String dBConnectionId, String userId, String query,Integer recordCount) throws RecordNotFoundException, SQLException, ExpectationFailedException {
-        if (customQueryValidator(query)) {
+        if (customQueryValidator.customQueryValidator(query)) {
             String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId);
             String queryWithLimit="";
             try{
