@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "alias",
         "tablePositionX",
         "tablePositionY",
+        "isCustomQurey",
         "customQuery"
 })
 @Generated("jsonschema2pojo")
@@ -60,8 +61,8 @@ public class Table implements Serializable {
      * @param tablePositionX
      * @param table
      * @param tablePositionY
+     * @param isCustomQuery
      * @param customQuery
-     * @param customQueryId
      */
     public Table(String id, String flatFileId, String database, String schema, String table, String alias,
                  Integer tablePositionX, Integer tablePositionY, Boolean isCustomQuery, String customQuery) {
