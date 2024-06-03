@@ -166,13 +166,16 @@ Data Connections
 	display: flex;
 	align-items: center;
 	text-align: left;
-    column-gap: 32px;
-	padding: 12px 12px 12px 12px;
+	column-gap: 34px;
+  padding: 6px 6px 6px 8px;
 	border: 1px solid transparent;
 	border-radius: 4px;
-	margin-bottom: 1px;
+	margin-bottom: 10px;
+	cursor: pointer;
+	width: 200px;
+	height: 45px;
+	white-space: nowrap;
 	background-color: black;
-	
 }
 
 .listItem{
