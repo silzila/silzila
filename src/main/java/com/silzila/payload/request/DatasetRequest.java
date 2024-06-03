@@ -16,7 +16,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "connectionId",
         "datasetName",
         "isFlatFileData",
-        "isCustomTablePresent",
         "dataSchema"
 })
 @Generated("jsonschema2pojo")
