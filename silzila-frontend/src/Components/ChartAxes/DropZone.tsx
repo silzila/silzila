@@ -40,6 +40,7 @@ const DropZone = ({
 	bIndex,
 	name,
 	propKey,
+	uID,
 
 	// state
 	chartProp,
@@ -84,6 +85,9 @@ const DropZone = ({
 			.substring(1);
 	};
 
+	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
+	let currentChartAxes = chartProp.properties[propKey][currentChartAxesName];
+
 	var chartType = chartProp.properties[propKey].chartType;
 
 	// DropZoneDropItem
@@ -110,7 +114,7 @@ const DropZone = ({
 						let newFieldData = JSON.parse(
 							JSON.stringify(setPrefix(fieldData, name, chartType))
 						);
-						updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
+						updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers, currentChartAxesName);
 					} else {
 						setSeverity("error");
 						setOpenAlert(true);
@@ -136,7 +140,7 @@ const DropZone = ({
 					if (chartType === "richText") {
 						updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
 					} else {
-						updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
+						updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers, currentChartAxesName);
 					}
 				}
 			}
@@ -148,7 +152,7 @@ const DropZone = ({
 				if (chartType === "richText") {
 					updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
 				} else {
-					updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
+					updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers, currentChartAxesName);
 				}
 			}
 		} else if (item.bIndex !== bIndex) {
@@ -165,7 +169,8 @@ const DropZone = ({
 							item.uId,
 							newFieldData,
 							bIndex,
-							allowedNumbers
+							allowedNumbers,
+							currentChartAxesName
 						);
 					} else {
 						setSeverity("error");
@@ -189,7 +194,8 @@ const DropZone = ({
 							item.uId,
 							newFieldData,
 							bIndex,
-							allowedNumbers
+							allowedNumbers,
+							currentChartAxesName
 						);
 					} else {
 						moveItemChartProp(
@@ -198,7 +204,8 @@ const DropZone = ({
 							item.uId,
 							newFieldData,
 							bIndex,
-							allowedNumbers
+							allowedNumbers,
+							currentChartAxesName
 						);
 					}
 				}
@@ -214,7 +221,8 @@ const DropZone = ({
 						item.uId,
 						newFieldData,
 						bIndex,
-						allowedNumbers
+						allowedNumbers,
+						currentChartAxesName
 					);
 				} else {
 					moveItemChartProp(
@@ -223,14 +231,15 @@ const DropZone = ({
 						item.uId,
 						newFieldData,
 						bIndex,
-						allowedNumbers
+						allowedNumbers,
+						currentChartAxesName
 					);
 				}
 			}
 		}
 
 		if (name === "Filter") {
-			setModalData(newFieldData);
+			//setModalData(newFieldData);
 		}
 	};
 
@@ -242,7 +251,7 @@ const DropZone = ({
 		//setShowOptions(false);
 
 		if (closeFrom === "opt1" && queryParam === "Clear") {
-			clearDropZoneFieldsChartPropLeft(propKey, bIndex);
+			clearDropZoneFieldsChartPropLeft(propKey, bIndex, currentChartAxesName, currentChartAxesName);
 		}
 
 		// updateLeftFilterItem(propKey,0,constructChartAxesFieldObject());
@@ -310,14 +319,15 @@ const DropZone = ({
 										updateFilterAnyContidionMatchPropLeft(
 											propKey,
 											0,
-											!chartProp.properties[propKey].chartAxes[0]
-												.any_condition_match
+											!currentChartAxes[0]
+												.any_condition_match,
+												currentChartAxesName
 										);
 									}}
 								>
 									<span style={{ width: "2rem", paddingLeft: "5px" }}>
 										{opt ===
-										(chartProp.properties[propKey].chartAxes[0]
+										(currentChartAxes[0]
 											.any_condition_match
 											? "Any Condition Met"
 											: "All Conditions Met") ? (
@@ -358,14 +368,15 @@ const DropZone = ({
 										updateIsAutoFilterEnabledPropLeft(
 											propKey,
 											0,
-											!chartProp.properties[propKey].chartAxes[0]
-												.is_auto_filter_enabled
+											!currentChartAxes[0]
+												.is_auto_filter_enabled,
+												currentChartAxesName
 										);
 									}}
 								>
 									<span style={{ width: "2rem", paddingLeft: "5px" }}>
 										{opt ===
-										(chartProp.properties[propKey].chartAxes[0]
+										(currentChartAxes[0]
 											.is_auto_filter_enabled
 											? "Auto Refresh"
 											: "Manual Run") ? (
@@ -394,7 +405,7 @@ const DropZone = ({
 		);
 	};
 
-	const [setModalData] = useState<any>(null);
+	//const [modalData, setModalData] = useState<any>(null);
 
 	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);
@@ -428,7 +439,7 @@ const DropZone = ({
 							  }
 					}
 				>
-					{name === "Filter" ? "Chart Filter" : name}
+					{name === "Filter" ? uID ? "Filter Override": "Chart Filter" : uID ? name +  " Override" : name}
 					{chartType === "richText" ? (
 						<span style={{ marginLeft: "5px" }} className="axisInfo">
 							({selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.length}/
@@ -436,7 +447,7 @@ const DropZone = ({
 						</span>
 					) : (
 						<span style={{ marginLeft: "5px" }} className="axisInfo">
-							({chartProp.properties[propKey].chartAxes[bIndex].fields.length}/
+							({currentChartAxes[bIndex].fields.length}/
 							{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
 						</span>
 					)}
@@ -455,7 +466,7 @@ const DropZone = ({
 								style={{ height: "16px", width: "16px", color: "#878786" }}
 							/>
 							{!isFilterCollapsed ? (
-								// {!chartProp.properties[propKey].chartAxes[bIndex].isCollapsed ? (
+								// {!currentChartAxes[bIndex].isCollapsed ? (
 								<Tooltip title="Expand">
 									<ExpandMoreIcon
 										style={{
@@ -485,7 +496,7 @@ const DropZone = ({
 							)}
 
 							{bIndex === 0 &&
-							chartProp.properties[propKey].chartAxes[0].is_auto_filter_enabled ===
+							currentChartAxes[0].is_auto_filter_enabled ===
 								false ? (
 								<button
 									onClick={e =>
@@ -503,60 +514,14 @@ const DropZone = ({
 				</span>
 			</div>
 
-			{/* {!chartProp.properties[propKey].chartAxes[bIndex].isCollapsed ? ( */}
+			{/* {!currentChartAxes[bIndex].isCollapsed ? ( */}
 			<div
 				className="chartAxisBody"
 				style={{
 					minHeight: bIndex === 0 ? (isFilterCollapsed ? "auto" : "4em") : "4em",
 					display: bIndex === 0 ? (isFilterCollapsed ? "none" : "unset") : "unset",
 				}}
-			>
-				{/* The subtext displayed under each dropzone  */}
-				{/* How many minimum fields required & maximum allowed  */}
-				{/* {bIndex === 0 ? (
-					<span className="axisInfo">
-						Drop (0 - max {ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
-						field(s) here
-					</span>
-				) : null}
-				{bIndex === 1 && ChartsInfo[chartType]?.dropZones[bIndex]?.allowedNumbers === 1 ? (
-					<span className="axisInfo"> Drop (1) field(s) here</span>
-				) : null}
-				{bIndex === 1 && ChartsInfo[chartType]?.dropZones[bIndex]?.allowedNumbers > 1 ? (
-					<span className="axisInfo">
-						Drop (atleast {ChartsInfo[chartType].dropZones[bIndex]?.min} - max{" "}
-						{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers}) field(s) here
-					</span>
-				) : null}
-				{bIndex === 2 && ChartsInfo[chartType]?.dropZones[bIndex]?.allowedNumbers === 1 ? (
-					<span className="axisInfo"> Drop (1) field(s) here</span>
-				) : null}
-				{bIndex === 2 && ChartsInfo[chartType]?.dropZones[bIndex]?.allowedNumbers > 1 ? (
-					<span className="axisInfo">
-						Drop (atleast {ChartsInfo[chartType].dropZones[bIndex]?.min} - max{" "}
-						{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers}) field(s) here
-					</span>
-				) : null} */}
-				{/* {bIndex === 3 &&
-				ChartsInfo[chartType].dropZones[bIndex] &&
-				ChartsInfo[chartType].dropZones[bIndex].min === 0 ? (
-					<span className="axisInfo">
-						Drop (atleast {ChartsInfo[chartType].dropZones[bIndex]?.min} - max{" "}
-						{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers}) here
-					</span>
-				) : null} */}
-				{/* {bIndex === 3 &&
-				ChartsInfo[chartType].dropZones[bIndex] &&
-				ChartsInfo[chartType].dropZones[bIndex].allowedNumbers === 1 ? (
-					<span className="axisInfo"> Drop (1) field(s) here</span>
-				) : null} */}
-				{/* ChartsInfo[chartType].dropZones[bIndex].allowedNumbers === 1 && ChartsInfo[chartType].dropZones[bIndex].min === 1 ? (
-					<span className="axisInfo"> Drop (1) field(s) here</span>
-				) : ChartsInfo[chartType].dropZones[bIndex].allowedNumbers > 1 && ChartsInfo[chartType].dropZones[bIndex].min === 1 ? (
-					<span className="axisInfo"> Drop (atleast 1 - max {ChartsInfo[chartType].dropZones[bIndex].allowedNumbers}) field(s) here</span>
-				) : ChartsInfo[chartType].dropZones[bIndex].allowedNumbers > 1 && ChartsInfo[chartType].dropZones[bIndex].min === 0 ? (
-					<span className="axisInfo"> Drop (0 - max {ChartsInfo[chartType].dropZones[bIndex].allowedNumbers}) field(s) here</span>
-				) : null */}
+			>				
 
 				{bIndex === 0 ? (
 					<>
@@ -565,6 +530,7 @@ const DropZone = ({
 									(field: any, index: number) => (
 										<UserFilterCardForDm
 											field={field}
+											uID={uID}
 											bIndex={bIndex}
 											axisTitle={name}
 											key={index}
@@ -573,10 +539,11 @@ const DropZone = ({
 										/>
 									)
 							  )
-							: chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
+							: currentChartAxes[bIndex]?.fields?.map(
 									(field: any, index: number) => (
 										<UserFilterCard
 											field={field}
+											uID={uID}
 											bIndex={bIndex}
 											axisTitle={name}
 											key={index}
@@ -593,6 +560,7 @@ const DropZone = ({
 									(field: any, index: number) => (
 										<Card
 											field={field}
+											uID={uID}
 											bIndex={bIndex}
 											axisTitle={name}
 											key={index}
@@ -601,10 +569,11 @@ const DropZone = ({
 										/>
 									)
 							  )
-							: chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map(
+							: currentChartAxes[bIndex]?.fields?.map(
 									(field: any, index: number) => (
 										<Card
 											field={field}
+											uID={uID}
 											bIndex={bIndex}
 											axisTitle={name}
 											key={index}
@@ -616,19 +585,6 @@ const DropZone = ({
 					</>
 				)}
 			</div>
-
-			{/* ) : (
-				chartProp.properties[propKey].chartAxes[bIndex]?.fields?.map((field, index) => (
-					<UserFilterCard
-						field={field}
-						bIndex={bIndex}
-						axisTitle={name}
-						key={index}
-						itemIndex={index}
-						propKey={propKey}
-					/>
-				))
-			)} */}
 
 			<NotificationDialog
 				onCloseAlert={() => {
@@ -654,22 +610,26 @@ const mapStateToProps = (state: ChartPropertiesStateProps & any) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		clearDropZoneFieldsChartPropLeft: (propKey: string, bIndex: number) =>
-			dispatch(clearDropZoneFieldsChartPropLeft(propKey, bIndex)),
+		clearDropZoneFieldsChartPropLeft: (propKey: string, bIndex: number, currentChartAxesName : string) =>
+			dispatch(clearDropZoneFieldsChartPropLeft(propKey, bIndex, currentChartAxesName)),
 		updateFilterAnyContidionMatchPropLeft: (
 			propKey: string,
 			bIndex: number,
-			any_condition_match: any
-		) => dispatch(updateFilterAnyContidionMatchPropLeft(propKey, 0, any_condition_match)),
+			any_condition_match: any,
+			currentChartAxesName : string
+		) => dispatch(updateFilterAnyContidionMatchPropLeft(propKey, 0, any_condition_match, currentChartAxesName)),
 		updateIsAutoFilterEnabledPropLeft: (
 			propKey: string,
 			bIndex: number,
 			is_auto_filter_enabled: any
-		) => dispatch(updateIsAutoFilterEnabledPropLeft(propKey, 0, is_auto_filter_enabled)),
+			, currentChartAxesName : string
+		) => dispatch(updateIsAutoFilterEnabledPropLeft(propKey, 0, is_auto_filter_enabled,currentChartAxesName)),
 		toggleFilterRunState: (propKey: string, runState: any) =>
 			dispatch(toggleFilterRunState(propKey, runState)),
-		updateDropZoneItems: (propKey: string, bIndex: number, item: any, allowedNumbers: any) =>
-			dispatch(editChartPropItem("update", { propKey, bIndex, item, allowedNumbers })),
+
+		updateDropZoneItems: (propKey: string, bIndex: number, item: any, allowedNumbers: any, currentChartAxesName : string) =>
+			dispatch(editChartPropItem("update", { propKey, bIndex, item, allowedNumbers, currentChartAxesName })),
+
 		updateDynamicMeasureAxes: (bIndex: number, allowedNumbers: number, fieldData: any) =>
 			dispatch(updateDynamicMeasureAxes(bIndex, allowedNumbers, fieldData)),
 
@@ -679,7 +639,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			fromUID: any,
 			item: any,
 			toBIndex: any,
-			allowedNumbers: any
+			allowedNumbers: any,
+			currentChartAxesName : string
 		) =>
 			dispatch(
 				editChartPropItem("move", {
@@ -689,6 +650,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 					item,
 					toBIndex,
 					allowedNumbers,
+					currentChartAxesName
 				})
 			),
 		moveItemChartPropForDm: (
@@ -697,7 +659,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			fromUID: any,
 			item: any,
 			toBIndex: any,
-			allowedNumbers: any
+			allowedNumbers: any,
+			currentChartAxesName : string
 		) =>
 			dispatch(
 				editChartPropItemForDm("move", {
@@ -707,6 +670,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 					item,
 					toBIndex,
 					allowedNumbers,
+					currentChartAxesName
 				})
 			),
 	};

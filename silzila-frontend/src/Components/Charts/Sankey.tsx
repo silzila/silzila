@@ -29,7 +29,7 @@ const Sankey = ({
 
 	useEffect(() => {
 		if (chartData.length >= 1) {
-			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map(el => {
+			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map((el:any) => {
 				if ("timeGrain" in el) {
 					return `${el.timeGrain} of ${el.fieldname}`;
 				} else if ("agg" in el) {
@@ -41,7 +41,7 @@ const Sankey = ({
 
 			//getting measure value as string since allowed numof measure is 1 for this chart
 
-			chartProperties.properties[propKey].chartAxes[2].fields.forEach(el => {
+			chartProperties.properties[propKey].chartAxes[2].fields.forEach((el:any) => {
 				// measure = `${el.fieldname}__${el.agg}`;
 				measure = `${el.agg} of ${el.fieldname}`;
 			});

@@ -42,6 +42,7 @@ const UserFilterCard = ({
 	bIndex,
 	itemIndex,
 	token,
+	uID,
 
 	// state
 	chartProp,
@@ -52,22 +53,25 @@ const UserFilterCard = ({
 	sortAxes,
 	revertAxes,
 	updtateFilterExpandeCollapse,
-}: UserFilterCardProps) => {
+}: UserFilterCardProps & any) => {
 	field.dataType = field.dataType.toLowerCase();
 
+	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
+	let currentChartAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey][currentChartAxesName]));
+
 	const { uId, fieldname, displayname, dataType, tableId } = field;
-	var isCollapsed: boolean = chartProp.properties[propKey].chartAxes[0].isCollapsed;
+	var isCollapsed: boolean = currentChartAxes[0].isCollapsed;
 
 	useEffect(() => {
-		var res = chartProp.properties[propKey].chartAxes[0].fields.map(el => {
-			el.isCollapsed = !chartProp.properties[propKey].chartAxes[0].isCollapsed;
+		var res = currentChartAxes[0].fields.map((el:any) => {
+			el.isCollapsed = !currentChartAxes[0].isCollapsed;
 			return el;
 		});
 		updtateFilterExpandeCollapse(propKey, bIndex, res);
 	}, [isCollapsed]);
 
-	const originalIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
-		item => item.uId === uId
+	const originalIndex = currentChartAxes[bIndex].fields.findIndex(
+		(item:any) => item.uId === uId
 	);
 
 	//const [showOptions, setShowOptions] = useState(false);
@@ -192,7 +196,7 @@ const UserFilterCard = ({
 			_preFetchData();
 		}
 
-		updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
+		//updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 		// eslint-disable-next-line
 	}, []);
 
@@ -252,7 +256,7 @@ const UserFilterCard = ({
 
 			filterFieldData["rawselectmembers"] = [...tempResult];
 			filterFieldData["userSelection"] = tempResult;
-			updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
+			updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 		}
 	};
 
@@ -276,7 +280,7 @@ const UserFilterCard = ({
 			const didDrop = monitor.didDrop();
 
 			if (!didDrop) {
-				revertAxes(propKey, bIndex, uId, originalIndex);
+				revertAxes(propKey, bIndex, uId, originalIndex, currentChartAxesName);
 			}
 		},
 	});
@@ -290,7 +294,7 @@ const UserFilterCard = ({
 		}),
 		hover({ uId: dragUId, bIndex: fromBIndex }: any) {
 			if (fromBIndex === bIndex && dragUId !== uId) {
-				sortAxes(propKey, bIndex, dragUId, uId);
+				sortAxes(propKey, bIndex, dragUId, uId, currentChartAxesName);
 			}
 		},
 	});
@@ -336,7 +340,7 @@ const UserFilterCard = ({
 				filterFieldData.userSelection.splice(AllIdx, 1);
 			}
 		}
-		updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
+		updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 	};
 
 	///Render Pick list card from raw select members
@@ -473,7 +477,7 @@ const UserFilterCard = ({
 			filterFieldData.includeexclude = queryParam;
 		}
 
-		updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
+		updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 	};
 
 	/// List of options to show at the end of each filter card
@@ -594,7 +598,7 @@ const UserFilterCard = ({
 	// 	filterFieldData["greaterThanOrEqualTo"] = newValue[0];
 	// 	filterFieldData["lessThanOrEqualTo"] = newValue[1];
 	// 	sliderRange = newValue;
-	// 	updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
+	// 	updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 	// };
 
 	const checkValidDate = (val: any) => {
@@ -646,7 +650,7 @@ const UserFilterCard = ({
 
 		setSearchConditionDate();
 
-		updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
+		updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 	};
 
 	///Handle Menu button on click
@@ -656,7 +660,7 @@ const UserFilterCard = ({
 
 	///Remove filter card from dropzone
 	const deleteItem = () => {
-		deleteDropZoneItems(propKey, bIndex, itemIndex);
+		deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName);
 	};
 
 	///Handle Date time grain dropdown list change
@@ -680,7 +684,7 @@ const UserFilterCard = ({
 		// }
 		setSearchConditionDate();
 
-		updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
+		updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 	};
 
 	const checkForValidData = () => {
@@ -724,7 +728,7 @@ const UserFilterCard = ({
 				];
 			}
 
-			updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
+			updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 		}
 	};
 
@@ -1051,7 +1055,7 @@ const UserFilterCard = ({
 				style={{ height: "18px", width: "18px", color: "#999999" }}
 				onClick={e => {
 					filterFieldData.isCollapsed = false;
-					updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
+					updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 				}}
 			/>
 		) : (
@@ -1059,7 +1063,7 @@ const UserFilterCard = ({
 				style={{ height: "18px", width: "18px", color: "#999999" }}
 				onClick={e => {
 					filterFieldData.isCollapsed = true;
-					updateLeftFilterItem(propKey, 0, constructChartAxesFieldObject());
+					updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 				}}
 			/>
 		);
@@ -1176,17 +1180,17 @@ const mapStateToProps = (
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		updateLeftFilterItem: (propKey: string, bIndex: number, item: any) =>
-			dispatch(updateLeftFilterItem(propKey, bIndex, item)),
-		updtateFilterExpandeCollapse: (propKey: string, bIndex: number, item: any) =>
-			dispatch(updtateFilterExpandeCollapse(propKey, bIndex, item)),
-		deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: any) =>
-			dispatch(editChartPropItem("delete", { propKey, binIndex, itemIndex })),
+		updateLeftFilterItem: (propKey: string, binIndex: number, itemIndex:number, item: any,  currentChartAxesName : string) =>
+			dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item, currentChartAxesName })),
+		updtateFilterExpandeCollapse: (propKey: string, bIndex: number, item: any,  currentChartAxesName : string) =>
+			dispatch(updtateFilterExpandeCollapse(propKey, bIndex, item, currentChartAxesName)),
+		deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: any,  currentChartAxesName : string) =>
+			dispatch(editChartPropItem("delete", { propKey, binIndex, itemIndex, currentChartAxesName })),
 
-		sortAxes: (propKey: string, bIndex: number, dragUId: any, uId: any) =>
-			dispatch(sortAxes(propKey, bIndex, dragUId, uId)),
-		revertAxes: (propKey: string, bIndex: number, uId: any, originalIndex: any) =>
-			dispatch(revertAxes(propKey, bIndex, uId, originalIndex)),
+		sortAxes: (propKey: string, bIndex: number, dragUId: any, uId: string, currentChartAxesName : string) =>
+			dispatch(sortAxes(propKey, bIndex, dragUId, uId, currentChartAxesName)),
+		revertAxes: (propKey: string, bIndex: number, uId: string, originalIndex: any, currentChartAxesName : string) =>
+			dispatch(revertAxes(propKey, bIndex, uId, originalIndex, currentChartAxesName)),
 	};
 };
 

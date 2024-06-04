@@ -7,18 +7,23 @@ import Aggregators from "./Aggregators";
 const measurePrefixes: MeasurePrefixes = {
 		integer: [
 			{ name: "Window Function", id: "windowfn" },
+			{ name: "Override", id: "override" },
 		],
 		decimal: [
 			{ name: "Window Function", id: "windowfn" },
+			{ name: "Override", id: "override" },
 		],
 		text: [
 			{ name: "Window Function", id: "windowfn" },
+			{ name: "Override", id: "override" },
 		],
 		date:  [
 			{ name: "Window Function", id: "windowfn" },
+			{ name: "Override", id: "override" },
 		],
 		timestamp:  [
 			{ name: "Window Function", id: "windowfn" },
+			{ name: "Override", id: "override" },
 		],
 	};
 	

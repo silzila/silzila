@@ -75,8 +75,13 @@ async function registerGeoMap(name: string){
 			let keyNameArray :string[] = [];
 			let matchingMapJSONArray : any = [];
 
-			chartData?.map(item=>{				
-				keyNameArray.push(item[keyName]?.trim());				
+			chartData?.map(item=>{			
+				//if(typeof item[keyName] === "string"){
+					keyNameArray.push(item[keyName]?.toString().trim());	
+				// }
+				// else{
+				// 	keyNameArray.push(item[keyName]);
+				// }	
 			});	
 
 			mapJSON.features.forEach((item:any)=>{
