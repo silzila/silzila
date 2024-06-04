@@ -1,10 +1,10 @@
 package com.silzila.controller;
 
+import com.silzila.payload.request.CustomQueryRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.simple.parser.ParseException;
 import org.modelmapper.ModelMapper;
 
 import com.silzila.dto.DBConnectionDTO;
@@ -12,7 +12,6 @@ import com.silzila.dto.OracleDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.exception.RecordNotFoundException;
-import com.silzila.helper.ResultSetToJson;
 import com.silzila.payload.request.DBConnectionRequest;
 import com.silzila.payload.response.MessageResponse;
 import com.silzila.payload.response.MetadataColumn;
@@ -25,18 +24,12 @@ import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 // import com.simba.googlebigquery.jdbc.DataSource;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.validation.Valid;
 
@@ -198,6 +191,18 @@ public class DBConnectionController {
         return ResponseEntity.status(HttpStatus.OK).body(metadataColumns);
     }
 
+    @GetMapping("/metadata-columns-customquery/{id}")
+    public ResponseEntity<?> getColumnForCustomQuery(@RequestHeader Map<String, String> reqHeader,
+                                                     @PathVariable(value = "id") String id,
+                                         @RequestBody CustomQueryRequest customQueryRequest) throws RecordNotFoundException, SQLException, ExpectationFailedException
+    {
+        String userId = reqHeader.get("username");
+        List<Map<String,String>> columnList=connectionPoolService.getColumForCustomQuery(id, userId, customQueryRequest.getQuery());
+        return ResponseEntity.status(HttpStatus.OK).body(columnList);
+    }
+
+
+
     // Metadata discovery - get sample records
     @GetMapping("/sample-records/{id}/{recordCount}")
     public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
@@ -210,6 +215,18 @@ public class DBConnectionController {
         String userId = reqHeader.get("username");
         JSONArray jsonArray = connectionPoolService.getSampleRecords(id, userId, databaseName,
                 schemaName, tableName, recordCount);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+    }
+
+    @GetMapping("/sample-records-customquery/{id}/{recordCount}")
+    public ResponseEntity<?> getSampleRecordsCustomQuery(@RequestHeader Map<String, String> reqHeader,
+                                              @PathVariable(value = "id") String id,
+                                              @PathVariable(value = "recordCount") Integer recordCount,
+                                                         @RequestBody CustomQueryRequest customQueryRequest
+                                             )
+            throws RecordNotFoundException, SQLException, BadRequestException, ExpectationFailedException {
+        String userId = reqHeader.get("username");
+        JSONArray jsonArray =connectionPoolService.getSampleRecordsForCustomQuery(id, userId,customQueryRequest.getQuery(), recordCount);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 

@@ -352,6 +352,8 @@ public class RelativeFilterDateOracle {
 
         String anchorDate = relativeFilter.getAnchorDate();
 
+        String customQuery = table.getCustomQuery();
+
         // pattern checker of specific date
         Pattern pattern = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])");
         Matcher matcher = pattern.matcher(anchorDate);
@@ -365,10 +367,17 @@ public class RelativeFilterDateOracle {
             } else if (anchorDate.equals("yesterday")) {
                 query = "SELECT TO_CHAR(TRUNC(SYSDATE - 1),'YYYY-MM-DD') AS \"anchordate\" FROM DUAL";
             } else if (anchorDate.equals("columnMaxDate")) {
-                query = "SELECT TO_CHAR(TRUNC(MAX(" + relativeFilter.getFilterTable().getFieldName()
-                        + ")),'YYYY-MM-DD') AS \"anchordate\" FROM "
-                        +
-                        schemaName + "." + tableName;
+                //checking for custom query
+                if(!table.isCustomQuery()){
+                    query = "SELECT TO_CHAR(TRUNC(MAX(" + relativeFilter.getFilterTable().getFieldName()
+                            + ")),'YYYY-MM-DD') AS \"anchordate\" FROM "
+                            +
+                            schemaName + "." + tableName;
+                }else {
+                    query = "SELECT TO_CHAR(TRUNC(MAX(" + relativeFilter.getFilterTable().getFieldName()
+                            + ")),'YYYY-MM-DD') AS \"anchordate\" FROM "
+                            +"("+ customQuery +")";
+                }
             }
         } else if (matcher.matches()) {
             query = "SELECT 1 AS \"anchordate\" FROM DUAL";

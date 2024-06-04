@@ -1,31 +1,22 @@
 package com.silzila.service;
 
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
+import com.silzila.exception.ExpectationFailedException;
+import com.silzila.payload.request.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.silzila.dto.DatasetDTO;
@@ -33,20 +24,11 @@ import com.silzila.dto.DatasetNoSchemaDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.domain.entity.Dataset;
-import com.silzila.payload.request.ColumnFilter;
-import com.silzila.payload.request.DataSchema;
-import com.silzila.payload.request.DatasetRequest;
-import com.silzila.payload.request.Filter;
-import com.silzila.payload.request.FilterPanel;
-import com.silzila.payload.request.Query;
-import com.silzila.payload.request.RelativeCondition;
-import com.silzila.payload.request.RelativeFilterRequest;
-import com.silzila.payload.request.Table;
 import com.silzila.querybuilder.QueryComposer;
 import com.silzila.querybuilder.filteroptions.FilterOptionsQueryComposer;
-import com.silzila.querybuilder.relativefilter.RelativeFilterDateMySQL;
 import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.repository.DatasetRepository;
+import com.silzila.helper.CustomQueryValidator;
 
 
 @Service
@@ -76,6 +58,9 @@ public class DatasetService {
 
     @Autowired
     DuckDbService duckDbService;
+
+    @Autowired
+    CustomQueryValidator customQueryValidator;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -147,38 +132,88 @@ public class DatasetService {
 
     // CREATE DATASET
     public DatasetDTO registerDataset(DatasetRequest datasetRequest, String userId)
-            throws JsonProcessingException, BadRequestException {
-
+            throws JsonProcessingException, BadRequestException, ExpectationFailedException {
         // if dataset name already exists, send error
         List<Dataset> datasets = datasetRepository.findByUserIdAndDatasetName(userId, datasetRequest.getDatasetName());
         if (!datasets.isEmpty()) {
             throw new BadRequestException("Error: Dataset Name is already taken!");
         }
-        DataSchema dataSchema = createTableAliasName(datasetRequest.getDataSchema());
-        // datasetRequest.setDataSchema(dataSchema);
-        // stringify dataschema (table + relationship section of API) to save in DB
-        String jsonString = objectMapper.writeValueAsString(dataSchema);
-        // crete dataset object and save in DB
-        Dataset dataset = new Dataset(
-                datasetRequest.getConnectionId(),
-                userId,
-                datasetRequest.getDatasetName(),
-                datasetRequest.getIsFlatFileData(),
-                jsonString);
-        datasetRepository.save(dataset);
-        // repackage request object + dataset Id (from saved object) to return response
-        DatasetDTO dto = new DatasetDTO(
-                dataset.getId(),
-                datasetRequest.getConnectionId(),
-                datasetRequest.getDatasetName(),
-                datasetRequest.getIsFlatFileData(),
-                dataSchema);
-        return dto;
+        //checking whether the dataset is having custom query
+        long count = datasetRequest.getDataSchema().getTables().stream().filter(table -> table.isCustomQuery()).count();
+        if(count==0) {
+            DataSchema dataSchema = createTableAliasName(datasetRequest.getDataSchema());
+            // datasetRequest.setDataSchema(dataSchema);
+            // stringify dataschema (table + relationship section of API) to save in DB
+            String jsonString = objectMapper.writeValueAsString(dataSchema);
+            // crete dataset object and save in DB
+            Dataset dataset = new Dataset(
+                    datasetRequest.getConnectionId(),
+                    userId,
+                    datasetRequest.getDatasetName(),
+                    datasetRequest.getIsFlatFileData(),
+                    jsonString
+            );
+            datasetRepository.save(dataset);
+            // repackage request object + dataset Id (from saved object) to return response
+            DatasetDTO dto = new DatasetDTO(
+                    dataset.getId(),
+                    datasetRequest.getConnectionId(),
+                    datasetRequest.getDatasetName(),
+                    datasetRequest.getIsFlatFileData(),
+                    dataSchema
+            );
+            return dto;
+        }
+        //if the data set contains custom query, validating the query
+        else {
+            Boolean isProperQuery=false;
+            List<Table> tables=datasetRequest.getDataSchema().getTables();
+            for (int i = 0; i < tables.size(); i++) {
+                if(tables.get(i).isCustomQuery()) {
+                    if (customQueryValidator.customQueryValidator(datasetRequest.getDataSchema().getTables().get(i).getCustomQuery())) {
+                        isProperQuery = true;
+                    } else {
+                       throw new ExpectationFailedException("Cannot proceed with dataset creation,CustomQuery is only allowed with SELECT");
+                    }
+                }
+            }
+            if(isProperQuery){
+                DataSchema dataSchema = createTableAliasName(datasetRequest.getDataSchema());
+                // datasetRequest.setDataSchema(dataSchema);
+                // stringify dataschema (table + relationship section of API) to save in DB
+                String jsonString = objectMapper.writeValueAsString(dataSchema);
+                // crete dataset object and save in DB
+                Dataset dataset = new Dataset(
+                        datasetRequest.getConnectionId(),
+                        userId,
+                        datasetRequest.getDatasetName(),
+                        datasetRequest.getIsFlatFileData(),
+                        jsonString
+                );
+                datasetRepository.save(dataset);
+                // repackage request object + dataset Id (from saved object) to return response
+                DatasetDTO dto = new DatasetDTO(
+                        dataset.getId(),
+                        datasetRequest.getConnectionId(),
+                        datasetRequest.getDatasetName(),
+                        datasetRequest.getIsFlatFileData(),
+                        dataSchema
+                );
+                return dto;
+
+            }else {
+                throw new ExpectationFailedException("Cannot proceed with dataset creation,CustomQuery is only allowed with SELECT");
+            }
+        }
     }
+
+
+
 
     // UPDATE DATASET
     public DatasetDTO updateDataset(DatasetRequest datasetRequest, String id, String userId)
-            throws RecordNotFoundException, JsonProcessingException, JsonMappingException, BadRequestException {
+            throws RecordNotFoundException, JsonProcessingException, JsonMappingException, BadRequestException, ExpectationFailedException
+    {
 
         Optional<Dataset> dOptional = datasetRepository.findByIdAndUserId(id, userId);
         // if no connection details inside optional warpper, then send NOT FOUND Error
@@ -192,22 +227,61 @@ public class DatasetService {
             throw new BadRequestException("Error: Dataset Name is already taken!");
         }
         // rename id to table alias (short name)
-        DataSchema dataSchema = createTableAliasName(datasetRequest.getDataSchema());
-        // stringify dataschema (table + relationship section of API) to save in DB
-        String jsonString = objectMapper.writeValueAsString(dataSchema);
+        long count = datasetRequest.getDataSchema().getTables().stream().filter(table -> table.isCustomQuery()).count();
+        System.out.println(count);
+        if (count == 0) {
+            DataSchema dataSchema = createTableAliasName(datasetRequest.getDataSchema());
+            // stringify dataschema (table + relationship section of API) to save in DB
+            String jsonString = objectMapper.writeValueAsString(dataSchema);
 
-        Dataset _dataset = dOptional.get();
-        _dataset.setDatasetName(datasetRequest.getDatasetName());
-        _dataset.setDataSchema(jsonString);
-        datasetRepository.save(_dataset);
-        // repackage request object + dataset Id (from saved object) to return response
-        DatasetDTO dto = new DatasetDTO(
-                _dataset.getId(),
-                _dataset.getConnectionId(),
-                _dataset.getDatasetName(),
-                _dataset.getIsFlatFileData(),
-                dataSchema);
-        return dto;
+            Dataset _dataset = dOptional.get();
+            _dataset.setDatasetName(datasetRequest.getDatasetName());
+            _dataset.setDataSchema(jsonString);
+            datasetRepository.save(_dataset);
+            // repackage request object + dataset Id (from saved object) to return response
+            DatasetDTO dto = new DatasetDTO(
+                    _dataset.getId(),
+                    _dataset.getConnectionId(),
+                    _dataset.getDatasetName(),
+                    _dataset.getIsFlatFileData(),
+                    dataSchema
+            );
+            return dto;
+        } else {
+            Boolean isProperQuery = null;
+            List<Table> tables = datasetRequest.getDataSchema().getTables();
+            for (int i = 0; i < tables.size(); i++) {
+                if (tables.get(i).isCustomQuery()) {
+                    if (customQueryValidator.customQueryValidator(datasetRequest.getDataSchema().getTables().get(i).getCustomQuery())) {
+                        isProperQuery = true;
+                    } else {
+                        throw new ExpectationFailedException("Cannot proceed with dataset updation,CustomQuery is only allowed with SELECT");
+                    }
+                }
+            }
+            if (isProperQuery) {
+                DataSchema dataSchema = createTableAliasName(datasetRequest.getDataSchema());
+                // stringify dataschema (table + relationship section of API) to save in DB
+                String jsonString = objectMapper.writeValueAsString(dataSchema);
+
+                Dataset _dataset = dOptional.get();
+                _dataset.setDatasetName(datasetRequest.getDatasetName());
+                _dataset.setDataSchema(jsonString);
+                datasetRepository.save(_dataset);
+                // repackage request object + dataset Id (from saved object) to return response
+                DatasetDTO dto = new DatasetDTO(
+                        _dataset.getId(),
+                        _dataset.getConnectionId(),
+                        _dataset.getDatasetName(),
+                        _dataset.getIsFlatFileData(),
+                        dataSchema
+                );
+                return dto;
+            } else {
+                throw new ExpectationFailedException("Cannot proceed with dataset updation,CustomQuery is only allowed with SELECT");
+            }
+
+        }
     }
 
     // READ ALL DATASETS
@@ -289,9 +363,10 @@ public class DatasetService {
 
         // get dataset details in buffer
         DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
-        // System.out.println("*****************" + ds.toString());
 
         String vendorName = "";
+
+
         // for DB based datasets, connection id is must
         if (ds.getIsFlatFileData() == false) {
             if (dBConnectionId == null || dBConnectionId.isEmpty()) {
@@ -407,14 +482,13 @@ public class DatasetService {
             }
             // get distinct table ids
             final List<String> uniqueTableIds = tableIds.stream().distinct().collect(Collectors.toList());
-
             // get all file Ids (which is inside table obj)
             List<Table> tableObjList = ds.getDataSchema().getTables().stream()
                      .filter(table -> uniqueTableIds.contains(table.getId()))
                     .collect(Collectors.toList());
 
             logger.info("unique table id =======\n" + uniqueTableIds.toString() +
-                    "\n\tableObjectList ======== \n" + tableObjList.toString());
+                    "\ntableObjectList ======== \n" + tableObjList.toString() );
             // throw error when any requested table id is not in dataset
             if (uniqueTableIds.size() != tableObjList.size()) {
                 throw new BadRequestException("Error: some table id is not present in Dataset!");
@@ -475,6 +549,7 @@ public class DatasetService {
             List<Table> tableObjList = ds.getDataSchema().getTables().stream()
                     .filter(table -> table.getId().equals(tableId))
                     .collect(Collectors.toList());
+
 
             // throw error when requested table id is not in dataset
             if (tableObjList.size() != 1) {
@@ -539,6 +614,7 @@ public class DatasetService {
             // Compose anchor date query for the specific vendor and run it
             String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery(vendorName, ds, relativeFilter);
 
+
             anchorDateArray = connectionPoolService.runQuery(dBConnectionId, userId, anchorDateQuery);
 
             // Compose main query for the specific vendor
@@ -552,4 +628,6 @@ public class DatasetService {
         return jsonArray;
     }
 
-}
+
+
+    }

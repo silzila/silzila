@@ -452,7 +452,7 @@ public class DuckDbService {
             stmtRecords.execute(query);
         } catch (SQLException e) {
             throw new ExpectationFailedException(
-                    "Could not upload because SHEETNAME is NULL. Errorr: " + e.getMessage());
+                    "Could not upload because SHEETNAME is NULL or WRONG. Errorr: " + e.getMessage());
         }
 
         ResultSet rsRecords = stmtRecords.executeQuery("SELECT * FROM tbl_" + fileName + " LIMIT 200");

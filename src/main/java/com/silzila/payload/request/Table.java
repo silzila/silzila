@@ -15,7 +15,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "table",
         "alias",
         "tablePositionX",
-        "tablePositionY"
+        "tablePositionY",
+        "isCustomQurey",
+        "customQuery"
 })
 @Generated("jsonschema2pojo")
 public class Table implements Serializable {
@@ -36,6 +38,10 @@ public class Table implements Serializable {
     private Integer tablePositionX;
     @JsonProperty("tablePositionY")
     private Integer tablePositionY;
+    @JsonProperty("isCustomQuery")
+    private boolean isCustomQuery;
+    @JsonProperty("customQuery")
+    private String customQuery;
     private final static long serialVersionUID = -2228296700900428346L;
 
     /**
@@ -55,9 +61,11 @@ public class Table implements Serializable {
      * @param tablePositionX
      * @param table
      * @param tablePositionY
+     * @param isCustomQuery
+     * @param customQuery
      */
     public Table(String id, String flatFileId, String database, String schema, String table, String alias,
-            Integer tablePositionX, Integer tablePositionY) {
+                 Integer tablePositionX, Integer tablePositionY, Boolean isCustomQuery, String customQuery) {
         super();
         this.id = id;
         this.flatFileId = flatFileId;
@@ -67,6 +75,9 @@ public class Table implements Serializable {
         this.alias = alias;
         this.tablePositionX = tablePositionX;
         this.tablePositionY = tablePositionY;
+        this.isCustomQuery = isCustomQuery;
+        this.customQuery = customQuery;
+
     }
 
     @JsonProperty("id")
@@ -149,6 +160,23 @@ public class Table implements Serializable {
         this.tablePositionY = tablePositionY;
     }
 
+    @JsonProperty("isCustomQuery")
+    public boolean isCustomQuery() {
+        return isCustomQuery;
+    }
+    @JsonProperty("isCustomQuery")
+    public void setCustomQuery(boolean customQuery) {
+        this.isCustomQuery = customQuery;
+    }
+    @JsonProperty("customQuery")
+    public String getCustomQuery() {
+        return customQuery;
+    }
+    @JsonProperty("customQuery")
+    public void setCustomQuery(String customQuery) {
+        this.customQuery = customQuery;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -185,6 +213,14 @@ public class Table implements Serializable {
         sb.append("tablePositionY");
         sb.append('=');
         sb.append(((this.tablePositionY == null) ? "<null>" : this.tablePositionY));
+        sb.append(',');
+        sb.append("customQuery");
+        sb.append('=');
+        sb.append(((this.customQuery == null) ? "<null>" : this.customQuery));
+        sb.append(',');
+        sb.append("isCustomQuery");
+        sb.append('=');
+        sb.append(((this.isCustomQuery) ? this.isCustomQuery : "<null>" ));
         sb.append(',');
         if (sb.charAt((sb.length() - 1)) == ',') {
             sb.setCharAt((sb.length() - 1), ']');

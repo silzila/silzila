@@ -358,6 +358,8 @@ public class RelativeFilterDateSqlserver {
 
         String anchorDate = relativeFilter.getAnchorDate();
 
+        String customQuery= table.getCustomQuery();
+
         // pattern checker of specific date
         Pattern pattern = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])");
         Matcher matcher = pattern.matcher(anchorDate);
@@ -371,9 +373,16 @@ public class RelativeFilterDateSqlserver {
             } else if (anchorDate.equals("yesterday")) {
                 query = "select dateadd(day, -1, convert(date, getdate())) as anchordate";
             } else if (anchorDate.equals("columnMaxDate")) {
-                query = "select CAST(max(" + relativeFilter.getFilterTable().getFieldName()
-                        + ") as DATE)as anchordate from "
-                        + schemaName + "." + tableName;
+                //checking for custom query
+                if(!table.isCustomQuery()) {
+                    query = "select CAST(max(" + relativeFilter.getFilterTable().getFieldName()
+                            + ") as DATE)as anchordate from "
+                            + schemaName + "." + tableName;
+                }else {
+                    query = "select CAST(max(" + relativeFilter.getFilterTable().getFieldName()
+                            + ") as DATE) as anchordate from "
+                            +"("+ customQuery + ") as cq";
+                }
             }
         } else if (matcher.matches()) {
             query = "select 1 as anchordate";

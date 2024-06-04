@@ -18,7 +18,7 @@ public class RelationshipClauseGeneric {
      * Recursively searches relationships to build network of tabels & joins
      * this function traverses in Relationship Network (list of object) and finds
      * if the path is needed or not.
-     * 
+     *
      * tList = user given table list for which we need to fing relationships
      * rList = contains all relationships - ref node diagram
      * tableX = table to be searched iteratively till the breadh and depth
@@ -31,8 +31,8 @@ public class RelationshipClauseGeneric {
      * in ok dict as complete
      */
     public static void schemaRecursiveSearch(List<String> tList, List<Relationship> rList,
-            String tableX, Integer i, List<Boolean> isT1T2MatchingList,
-            Boolean noInitialMatch, String tableToSearch) {
+                                             String tableX, Integer i, List<Boolean> isT1T2MatchingList,
+                                             Boolean noInitialMatch, String tableToSearch) {
         // System.out.println("-------- schemaRecursiveSearch fn-----");
         for (int j = 0; j < rList.size(); j++) {
             if (!i.equals(j)) {
@@ -95,7 +95,6 @@ public class RelationshipClauseGeneric {
         List<String> fieldList = new ArrayList<>();
         List<String> filterList = new ArrayList<>();
         List<String> allColumnList = new ArrayList<>();
-
         // take list of unique dim tables & another list on all unique tables
         req.getDimensions().forEach((dim) -> {
             if (!dimList.contains(dim.getTableId())) {
@@ -147,7 +146,6 @@ public class RelationshipClauseGeneric {
 
         String fromClause = "";
         List<Relationship> relationships = new ArrayList<>();
-
         /*
          * Build relationship - when ONLY ONE TABLE in qry
          */
@@ -159,34 +157,42 @@ public class RelationshipClauseGeneric {
                 throw new BadRequestException("Error: Table Id" + allColumnList.get(0) + "is not present in Dataset!");
             }
             Table table = tOptional.get();
-            // Postgres has the format of Schema_name.Table_name
-            if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
-                fromClause = "\n\t" + table.getSchema() + "." + table.getTable() + " AS " + table.getId();
-            }
-            // MySQL has the format of Database_name.Table_name
-            else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
-                fromClause = "\n\t" + table.getDatabase() + "." + table.getTable() + " AS " + table.getId();
-            }
-            // SQL Server & Snowflake has the format of Database_name.Schema_name.Table_name
-            else if (vendorName.equals("sqlserver") || (vendorName.equals("snowflake"))) {
-                fromClause = "\n\t" + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + " AS "
-                        + table.getId();
-            } else if (vendorName.equals("databricks")) {
-                fromClause = "\n\t" + table.getDatabase() + ".`" + table.getSchema() + "`." + table.getTable() + " AS "
-                        + table.getId();
-            } else if (vendorName.equals("duckdb")) {
-                fromClause = "\n\t" + "vw_" + table.getAlias() + "_" + table.getFlatFileId().substring(0, 8) + " AS "
-                        + table.getId();
-            } else if (vendorName.equals("bigquery")) {
-                fromClause = "\n\t`" + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + "` AS "
-                        + table.getId();
-            }
-            // schema name . table name , -- no 'AS', alias without as
-            else if (vendorName.equals("oracle")) {
-                fromClause = "\n\t" + table.getSchema() + "." + table.getTable() + " " + table.getId();
-            }
+            if (!table.isCustomQuery()) {
+                // Postgres has the format of Schema_name.Table_name
+                if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+                    fromClause = "\n\t" + table.getSchema() + "." + table.getTable() + " AS " + table.getId();
+                }
+                // MySQL has the format of Database_name.Table_name
+                else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
+                    fromClause = "\n\t" + table.getDatabase() + "." + table.getTable() + " AS " + table.getId();
+                }
+                // SQL Server & Snowflake has the format of Database_name.Schema_name.Table_name
+                else if (vendorName.equals("sqlserver") || (vendorName.equals("snowflake"))) {
+                    fromClause = "\n\t" + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + " AS "
+                            + table.getId();
+                } else if (vendorName.equals("databricks")) {
+                    fromClause = "\n\t" + table.getDatabase() + ".`" + table.getSchema() + "`." + table.getTable() + " AS "
+                            + table.getId();
+                } else if (vendorName.equals("duckdb")) {
+                    fromClause = "\n\t" + "vw_" + table.getAlias() + "_" + table.getFlatFileId().substring(0, 8) + " AS "
+                            + table.getId();
+                } else if (vendorName.equals("bigquery")) {
+                    fromClause = "\n\t`" + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + "` AS "
+                            + table.getId();
+                }
+                // schema name . table name , -- no 'AS', alias without as
+                else if (vendorName.equals("oracle")) {
+                    fromClause = "\n\t" + table.getSchema() + "." + table.getTable() + " " + table.getId();
+                }
 
+            } else if (vendorName.equals("oracle") && table.isCustomQuery() ){
+                fromClause = "\n\t(" + table.getCustomQuery() + ") " + table.getId();
+            } else {
+                fromClause = "\n\t(" + table.getCustomQuery() + ") AS " + table.getId();
+            }
         }
+
+
 
         /*
          * Build relationship - when MANY TABLES in qry
@@ -242,6 +248,7 @@ public class RelationshipClauseGeneric {
             }
 
         }
+
 
         // System.out.println("Relationships =======" + relationships.toString());
 
@@ -299,6 +306,12 @@ public class RelationshipClauseGeneric {
         Map<String, String> mirrorJoins = Map.of("inner", "INNER JOIN", "left", "RIGHT OUTER JOIN", "right",
                 "LEFT OUTER JOIN", "full", "FULL OUTER JOIN");
 
+        Map<String, String> mySQLJoins = Map.of("inner", "INNER JOIN", "left", "RIGHT JOIN", "right",
+                "LEFT JOIN", "full", "CROSS JOIN");
+
+        Map<String, String> mySQLMirrorJoins = Map.of("inner", "INNER JOIN", "left", "RIGHT JOIN", "right",
+                "LEFT JOIN", "full", "CROSS JOIN");
+
         for (int i = 0; i < _relationships.size(); i++) {
             Relationship _rship = _relationships.get(i);
             Table fromTable;
@@ -326,24 +339,56 @@ public class RelationshipClauseGeneric {
             /*
              * Postgres has the format of Schema_name.Table_name
              */
+
             if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
                 if (i == 0) {
-                    fromClause += "\n\t" + fromTable.getSchema() + "." + fromTable.getTable() + " AS "
-                            + fromTable.getId()
-                            + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getSchema() + "."
-                            + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
-                } else if (i > 0) {
-                    if (_rship.getTable1().equals(_relationships.get(i - 1).getTable1()) ||
-                            _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
-                        fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
-                                + toTable.getSchema() + "."
+                    if (!fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + fromTable.getSchema() + "." + fromTable.getTable() + " AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getSchema() + "."
                                 + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
-                    } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
-                            _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
-                        fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
-                                + fromTable.getSchema() + "."
-                                + fromTable.getTable() + " AS " + fromTable.getId() + " ON \n\t\t " + joinString;
+                    } else if (fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + "(" + fromTable.getCustomQuery() + ") AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getSchema() + "."
+                                + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                    } else if (toTable.isCustomQuery() && !fromTable.isCustomQuery()) {
+                        fromClause += "\n\t" + fromTable.getSchema() + "." + fromTable.getTable() + " AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()
+                                + ") AS " + toTable.getId() + " ON \n\t\t " + joinString;
+
+                    } else if (fromTable.isCustomQuery() && toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + "(" + fromTable.getCustomQuery() + ") AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()
+                                + ") AS " + toTable.getId() + " ON \n\t\t " + joinString;
                     }
+                } else if (i > 0) {
+
+                    if (_rship.getTable1().equals(_relationships.get(i - 1).getTable1()) ||
+                                _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
+                        if(!toTable.isCustomQuery()){
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
+                                    + toTable.getSchema() + "."
+                                    + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                        }
+                        else{
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " ("
+                                    + toTable.getCustomQuery()+ ") AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                        }
+                    } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
+                                _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
+                        if(!fromTable.isCustomQuery()) {
+                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
+                                    + fromTable.getSchema() + "."
+                                    + fromTable.getTable() + " AS " + fromTable.getId() + " ON \n\t\t " + joinString;
+                        }else{
+                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " ("
+                                    + fromTable.getCustomQuery() +") AS " + fromTable.getId() + " ON \n\t\t " + joinString;
+                        }
+                    }
+
                     // when not matching with one level above - need to check the whole list
                     else {
                         List<String> existingTables = new ArrayList<>();
@@ -355,40 +400,170 @@ public class RelationshipClauseGeneric {
                             Optional<Table> _tbl2Optional = ds.getTables().stream()
                                     .filter(_r -> _r.getId().equals(_rship.getTable2())).findFirst();
                             Table _to = _tbl2Optional.get();
-                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
-                                    + _to.getSchema() + "."
-                                    + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t " + joinString;
+                            if (!_to.isCustomQuery()) {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
+                                        + _to.getSchema() + "."
+                                        + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t " + joinString;
+                            } else {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " ("
+                                        + _to.getCustomQuery()
+                                        + ") AS " + _to.getId() + " ON \n\t\t " + joinString;
+                            }
                         } else if (existingTables.contains(_rship.getTable2())) {
                             Optional<Table> _tbl1Optional = ds.getTables().stream()
                                     .filter(_r -> _r.getId().equals(_rship.getTable1())).findFirst();
                             Table _from = _tbl1Optional.get();
-                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
-                                    + _from.getSchema() + "."
-                                    + _from.getTable() + " AS " + _from.getId() + " ON \n\t\t " + joinString;
+                            if (!_from.isCustomQuery()) {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
+                                        + _from.getSchema() + "."
+                                        + _from.getTable() + " AS " + _from.getId() + " ON \n\t\t " + joinString;
+                            } else {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " ("
+                                        + _from.getCustomQuery()
+                                        + ") AS " + _from.getId() + " ON \n\t\t " + joinString;
+                            }
                         }
                     }
                 }
             }
+
+
+
             /*
              * MySQL has the format of Database_name.Table_name
              */
-            else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
+           
+            else if (vendorName.equals("mysql")) {
                 if (i == 0) {
-                    fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getTable() + " AS "
-                            + fromTable.getId()
-                            + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
-                            + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                    if (!fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getTable() + " AS "
+                                + fromTable.getId()
+                                + "\n\t" + mySQLJoins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
+                                + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                    } else if (fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + "(" + fromTable.getCustomQuery() + ") AS "
+                                + fromTable.getId()
+                                + "\n\t" + mySQLJoins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
+                                + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                    } else if (toTable.isCustomQuery() && !fromTable.isCustomQuery()) {
+                        fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getTable() + " AS "
+                                + fromTable.getId()
+                                + "\n\t" + mySQLJoins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()
+                                + ") AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                    } else if (fromTable.isCustomQuery() && toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + "(" + fromTable.getCustomQuery() + ") AS "
+                                + fromTable.getId()
+                                + "\n\t" + mySQLJoins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()
+                                + ") AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                    }
                 } else if (i > 0) {
                     if (_rship.getTable1().equals(_relationships.get(i - 1).getTable1()) ||
                             _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
-                        fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
-                                + toTable.getDatabase() + "."
-                                + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                        if(!toTable.isCustomQuery()) {
+                            fromClause += "\n\t" + mySQLJoins.get(_rship.getRefIntegrity()) + " "
+                                    + toTable.getDatabase() + "."
+                                    + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                        }else {
+                            fromClause += "\n\t" + mySQLJoins.get(_rship.getRefIntegrity()) + " ("
+                                    + toTable.getCustomQuery() + ") AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                        }
                     } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
                             _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
-                        fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
-                                + fromTable.getDatabase() + "."
-                                + fromTable.getTable() + " AS " + fromTable.getId() + " ON \n\t\t " + joinString;
+                        if(!fromTable.isCustomQuery()) {
+                            fromClause += "\n\t" + mySQLMirrorJoins.get(_rship.getRefIntegrity()) + " "
+                                    + fromTable.getDatabase() + "."
+                                    + fromTable.getTable() + " AS " + fromTable.getId() + " ON \n\t\t " + joinString;
+                        }
+                        else{
+                            fromClause += "\n\t" + mySQLMirrorJoins.get(_rship.getRefIntegrity()) + " ("
+                                    + fromTable.getCustomQuery() + ") AS " + fromTable.getId() + " ON \n\t\t " + joinString;
+                        }
+                    }
+
+                    // when not matching with one level above - need to check the whole list
+                    else {
+                        List<String> existingTables = new ArrayList<>();
+                        for (int k = 0; k <= i; k++) {
+                            existingTables.add(_relationships.get(k).getTable1());
+                            existingTables.add(_relationships.get(k).getTable2());
+                        }
+                        if (existingTables.contains(_rship.getTable1())) {
+                            Optional<Table> _tbl2Optional = ds.getTables().stream()
+                                    .filter(_r -> _r.getId().equals(_rship.getTable2())).findFirst();
+                            Table _to = _tbl2Optional.get();
+                            if (!_to.isCustomQuery()) {
+                                fromClause += "\n\t" + mySQLJoins.get(_rship.getRefIntegrity()) + " "
+                                        + _to.getDatabase() + "."
+                                        + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t " + joinString;
+                            } else {
+                                fromClause += "\n\t" + mySQLJoins.get(_rship.getRefIntegrity()) + " ("
+                                        + _to.getCustomQuery()
+                                        + ") AS " + _to.getId() + " ON \n\t\t " + joinString;
+                            }
+                        } else if (existingTables.contains(_rship.getTable2())) {
+                            Optional<Table> _tbl1Optional = ds.getTables().stream()
+                                    .filter(_r -> _r.getId().equals(_rship.getTable1())).findFirst();
+                            Table _from = _tbl1Optional.get();
+                            if (!_from.isCustomQuery()) {
+                                fromClause += "\n\t" + mySQLMirrorJoins.get(_rship.getRefIntegrity()) + " "
+                                        + _from.getDatabase() + "." + _from.getTable() + " AS " + _from.getId()
+                                        + " ON \n\t\t " + joinString;
+                            } else {
+                                fromClause += "\n\t" + mySQLMirrorJoins.get(_rship.getRefIntegrity()) + " ("
+                                        + _from.getCustomQuery() + ") AS " + _from.getId()
+                                        + " ON \n\t\t " + joinString;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            else if (vendorName.equals("motherduck")) {
+                if (i == 0) {
+                    if (!fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getTable() + " AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
+                                + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                    } else if (fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + "(" + fromTable.getCustomQuery() + ") AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
+                                + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                    } else if (toTable.isCustomQuery() && !fromTable.isCustomQuery()) {
+                        fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getTable() + " AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()
+                                + ") AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                    } else if (fromTable.isCustomQuery() && toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + "(" + fromTable.getCustomQuery() + ") AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()
+                                + ") AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                    }
+                } else if (i > 0) {
+                    if (_rship.getTable1().equals(_relationships.get(i - 1).getTable1()) ||
+                            _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
+                        if(!toTable.isCustomQuery()) {
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
+                                    + toTable.getDatabase() + "."
+                                    + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                        }else {
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " ("
+                                    + toTable.getCustomQuery() + ") AS " + toTable.getId() + " ON \n\t\t " + joinString;
+                        }
+                    } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
+                            _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
+                        if(!fromTable.isCustomQuery()) {
+                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
+                                    + fromTable.getDatabase() + "."
+                                    + fromTable.getTable() + " AS " + fromTable.getId() + " ON \n\t\t " + joinString;
+                        }
+                        else{
+                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " ("
+                                    + fromTable.getCustomQuery() + ") AS " + fromTable.getId() + " ON \n\t\t " + joinString;
+                        }
                     }
                     // when not matching with one level above - need to check the whole list
                     else {
@@ -401,16 +576,28 @@ public class RelationshipClauseGeneric {
                             Optional<Table> _tbl2Optional = ds.getTables().stream()
                                     .filter(_r -> _r.getId().equals(_rship.getTable2())).findFirst();
                             Table _to = _tbl2Optional.get();
-                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
-                                    + _to.getDatabase() + "."
-                                    + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t " + joinString;
+                            if (!_to.isCustomQuery()) {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
+                                        + _to.getDatabase() + "."
+                                        + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t " + joinString;
+                            } else {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " ("
+                                        + _to.getCustomQuery()
+                                        + ") AS " + _to.getId() + " ON \n\t\t " + joinString;
+                            }
                         } else if (existingTables.contains(_rship.getTable2())) {
                             Optional<Table> _tbl1Optional = ds.getTables().stream()
                                     .filter(_r -> _r.getId().equals(_rship.getTable1())).findFirst();
                             Table _from = _tbl1Optional.get();
-                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
-                                    + _from.getDatabase() + "." + _from.getTable() + " AS " + _from.getId()
-                                    + " ON \n\t\t " + joinString;
+                            if (!_from.isCustomQuery()) {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
+                                        + _from.getDatabase() + "." + _from.getTable() + " AS " + _from.getId()
+                                        + " ON \n\t\t " + joinString;
+                            } else {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " ("
+                                        + _from.getCustomQuery() + ") AS " + _from.getId()
+                                        + " ON \n\t\t " + joinString;
+                            }
                         }
                     }
                 }
@@ -420,24 +607,60 @@ public class RelationshipClauseGeneric {
              */
             else if (vendorName.equals("sqlserver") || vendorName.equals("snowflake")) {
                 if (i == 0) {
-                    fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getSchema() + "."
-                            + fromTable.getTable() + " AS "
-                            + fromTable.getId()
-                            + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
-                            + toTable.getSchema() + "." + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t "
-                            + joinString;
+                    //checking for custom query
+                    if (!fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getSchema() + "."
+                                + fromTable.getTable() + " AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
+                                + toTable.getSchema() + "." + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t "
+                                + joinString;
+                    } else if (fromTable.isCustomQuery()&&!toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + "(" +
+                                fromTable.getCustomQuery() + ") AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
+                                + toTable.getSchema() + "." + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t "
+                                + joinString;
+                    } else if (toTable.isCustomQuery()&&!fromTable.isCustomQuery()) {
+                        fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getSchema() + "."
+                                + fromTable.getTable() + " AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" +
+                                toTable.getCustomQuery() + ") AS " + toTable.getId() + " ON \n\t\t "
+                                + joinString;
+                    }else if(fromTable.isCustomQuery()&& toTable.isCustomQuery()){
+                        fromClause += "\n\t" +"("+ fromTable.getCustomQuery() + ") AS " + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" +
+                                toTable.getCustomQuery() + ") AS " + toTable.getId() + " ON \n\t\t "
+                                + joinString;
+                    }
                 } else if (i > 0) {
                     if (_rship.getTable1().equals(_relationships.get(i - 1).getTable1()) ||
-                            _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
-                        fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
-                                + toTable.getSchema() + "." + toTable.getTable() + " AS " + toTable.getId()
-                                + " ON \n\t\t " + joinString;
-                    } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
-                            _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
-                        fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " " + fromTable.getDatabase()
-                                + "." + fromTable.getSchema() + "." + fromTable.getTable() + " AS " + fromTable.getId()
-                                + " ON \n\t\t " + joinString;
+                                _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
+                        if (!toTable.isCustomQuery()) {
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
+                                    + toTable.getSchema() + "." + toTable.getTable() + " AS " + toTable.getId()
+                                    + " ON \n\t\t " + joinString;
+                        }
+                         else {
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()
+                                    + ") AS " + toTable.getId() + " ON \n\t\t " + joinString;}
+                        }
+                    else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
+                                _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
+                            if(!fromTable.isCustomQuery()) {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " " + fromTable.getDatabase()
+                                        + "." + fromTable.getSchema() + "." + fromTable.getTable() + " AS " + fromTable.getId()
+                                        + " ON \n\t\t " + joinString;
+                            }else {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " (" + fromTable.getCustomQuery()
+                                        + ") AS " + fromTable.getId()
+                                        + " ON \n\t\t " + joinString;
+                            }
                     }
+
+
                     // when not matching with one level above - need to check the whole list
                     else {
                         List<String> existingTables = new ArrayList<>();
@@ -449,42 +672,89 @@ public class RelationshipClauseGeneric {
                             Optional<Table> _tbl2Optional = ds.getTables().stream()
                                     .filter(_r -> _r.getId().equals(_rship.getTable2())).findFirst();
                             Table _to = _tbl2Optional.get();
-                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + _to.getDatabase() + "."
-                                    + _to.getSchema() + "." + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t "
-                                    + joinString;
+                            //checking for custom query
+                            if (!_to.isCustomQuery()) {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + _to.getDatabase() + "."
+                                        + _to.getSchema() + "." + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t "
+                                        + joinString;
+                            } else {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + _to.getCustomQuery()
+                                        + ") AS " + _to.getId() + " ON \n\t\t "
+                                        + joinString;
+                            }
                         } else if (existingTables.contains(_rship.getTable2())) {
                             Optional<Table> _tbl1Optional = ds.getTables().stream()
                                     .filter(_r -> _r.getId().equals(_rship.getTable1())).findFirst();
                             Table _from = _tbl1Optional.get();
-                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " " + _from.getDatabase()
-                                    + "." + _from.getSchema() + "." + _from.getTable() + " AS " + _from.getId()
-                                    + " ON \n\t\t " + joinString;
+                            if (!_from.isCustomQuery()) {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " " + _from.getDatabase()
+                                        + "." + _from.getSchema() + "." + _from.getTable() + " AS " + _from.getId()
+                                        + " ON \n\t\t " + joinString;
+                            } else {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " (" + _from.getCustomQuery()
+                                        + ") AS " + _from.getId()
+                                        + " ON \n\t\t " + joinString;
+                            }
                         }
                     }
                 }
             }
+
             // Databricks has the format of Database_name.Schema_name.Table_name
             else if (vendorName.equals("databricks")) {
                 if (i == 0) {
-                    fromClause += "\n\t" + fromTable.getDatabase() + ".`" + fromTable.getSchema() + "`."
-                            + fromTable.getTable() + " AS "
-                            + fromTable.getId()
-                            + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + ".`"
-                            + toTable.getSchema() + "`." + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t "
-                            + joinString;
+                    if (!fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + fromTable.getDatabase() + ".`" + fromTable.getSchema() + "`."
+                                + fromTable.getTable() + " AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + ".`"
+                                + toTable.getSchema() + "`." + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t "
+                                + joinString;
+                    } else if (fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + "(" + fromTable.getCustomQuery() + ") AS " + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + ".`"
+                                + toTable.getSchema() + "`." + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t "
+                                + joinString;
+                    } else if (toTable.isCustomQuery() && !fromTable.isCustomQuery()) {
+                        fromClause += "\n\t" + fromTable.getDatabase() + ".`" + fromTable.getSchema() + "`."
+                                + fromTable.getTable() + " AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()
+                                + ") AS " + toTable.getId() + " ON \n\t\t "
+                                + joinString;
+                    }else if(toTable.isCustomQuery() && fromTable.isCustomQuery()){
+                        fromClause += "\n\t" + "("+fromTable.getCustomQuery() + ") AS " + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()
+                                + ") AS " + toTable.getId() + " ON \n\t\t "
+                                + joinString;
+                    }
                 } else if (i > 0) {
                     if (_rship.getTable1().equals(_relationships.get(i - 1).getTable1()) ||
                             _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
-                        fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + ".`"
-                                + toTable.getSchema() + "`." + toTable.getTable() + " AS " + toTable.getId()
-                                + " ON \n\t\t " + joinString;
+                        if (!toTable.isCustomQuery()) {
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + ".`"
+                                    + toTable.getSchema() + "`." + toTable.getTable() + " AS " + toTable.getId()
+                                    + " ON \n\t\t " + joinString;
+                        } else {
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()
+                                    + ") AS " + toTable.getId()
+                                    + " ON \n\t\t " + joinString;
+                        }
                     } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
                             _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
-                        fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " " + fromTable.getDatabase()
-                                + ".`" + fromTable.getSchema() + "`." + fromTable.getTable() + " AS "
-                                + fromTable.getId()
-                                + " ON \n\t\t " + joinString;
+
+                        if (!fromTable.isCustomQuery()) {
+                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " " + fromTable.getDatabase()
+                                    + ".`" + fromTable.getSchema() + "`." + fromTable.getTable() + " AS "
+                                    + fromTable.getId()
+                                    + " ON \n\t\t " + joinString;
+                        } else {
+                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " (" + fromTable.getCustomQuery()
+                                    + ") AS " + fromTable.getId()
+                                    + " ON \n\t\t " + joinString;
+                        }
                     }
+
                     // when not matching with one level above - need to check the whole list
                     else {
                         List<String> existingTables = new ArrayList<>();
@@ -496,41 +766,88 @@ public class RelationshipClauseGeneric {
                             Optional<Table> _tbl2Optional = ds.getTables().stream()
                                     .filter(_r -> _r.getId().equals(_rship.getTable2())).findFirst();
                             Table _to = _tbl2Optional.get();
-                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + _to.getDatabase() + ".`"
-                                    + _to.getSchema() + "`." + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t "
-                                    + joinString;
+                            //checking for custom query
+                            if (!_to.isCustomQuery()) {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + _to.getDatabase() + ".`"
+                                        + _to.getSchema() + "`." + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t "
+                                        + joinString;
+                            } else {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + _to.getCustomQuery()
+                                        + ") AS " + _to.getId() + " ON \n\t\t "
+                                        + joinString;
+                            }
                         } else if (existingTables.contains(_rship.getTable2())) {
                             Optional<Table> _tbl1Optional = ds.getTables().stream()
                                     .filter(_r -> _r.getId().equals(_rship.getTable1())).findFirst();
                             Table _from = _tbl1Optional.get();
-                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " " + _from.getDatabase()
-                                    + ".`" + _from.getSchema() + "`." + _from.getTable() + " AS " + _from.getId()
-                                    + " ON \n\t\t " + joinString;
+                            //cheking for custom qurey
+                            if (!_from.isCustomQuery()) {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " " + _from.getDatabase()
+                                        + ".`" + _from.getSchema() + "`." + _from.getTable() + " AS " + _from.getId()
+                                        + " ON \n\t\t " + joinString;
+                            } else {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " (" + _from.getCustomQuery()
+                                        + ") AS " + _from.getId()
+                                        + " ON \n\t\t " + joinString;
+                            }
                         }
+
                     }
                 }
             }
+
             //Bigquery has the format of Database_name.Schema_name.Table_name
             else if (vendorName.equals("bigquery")) {
                 if (i == 0) {
-                    fromClause += "\n\t`" + fromTable.getDatabase() + "." + fromTable.getSchema() + "."
-                            + fromTable.getTable() + "` AS "
-                            + fromTable.getId()
-                            + "\n\t" + joins.get(_rship.getRefIntegrity()) + " `" + toTable.getDatabase() + "."
-                            + toTable.getSchema() + "." + toTable.getTable() + "` AS " + toTable.getId() + " ON \n\t\t "
-                            + joinString;
+                    //checking for custom qurey
+                    if (!fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
+                        fromClause += "\n\t`" + fromTable.getDatabase() + "." + fromTable.getSchema() + "."
+                                + fromTable.getTable() + "` AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " `" + toTable.getDatabase() + "."
+                                + toTable.getSchema() + "." + toTable.getTable() + "` AS " + toTable.getId() + " ON \n\t\t "
+                                + joinString;
+                    } else if (fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + "(" + fromTable.getCustomQuery() + ")" + " AS "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " `" + toTable.getDatabase() + "."
+                                + toTable.getSchema() + "." + toTable.getTable() + "` AS " + toTable.getId() + " ON \n\t\t "
+                                + joinString;
+                    } else if (toTable.isCustomQuery() && !fromTable.isCustomQuery()) {
+                        fromClause += "\n\t`" + fromTable.getDatabase() + "." + fromTable.getSchema() + "."
+                                + fromTable.getTable() + "` AS " + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + "(" + toTable.getCustomQuery()
+                                + ")" + " AS " + toTable.getId() + " ON \n\t\t "
+                                + joinString;
+                    } else if (toTable.isCustomQuery() && fromTable.isCustomQuery()) {
+                        fromClause += "\n\t" + "(" + fromTable.getCustomQuery() + ") AS " + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + "(" + toTable.getCustomQuery()
+                                + ")" + " AS " + toTable.getId() + " ON \n\t\t "
+                                + joinString;
+                    }
                 } else if (i > 0) {
                     if (_rship.getTable1().equals(_relationships.get(i - 1).getTable1()) ||
-                            _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
-                        fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " `" + toTable.getDatabase() + "."
-                                + toTable.getSchema() + "." + toTable.getTable() + "` AS " + toTable.getId()
-                                + " ON \n\t\t " + joinString;
+                                _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
+                            if(!toTable.isCustomQuery()) {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " `" + toTable.getDatabase() + "."
+                                        + toTable.getSchema() + "." + toTable.getTable() + "` AS " + toTable.getId()
+                                        + " ON \n\t\t " + joinString;
+                            }else {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()+ ") AS "
+                                        + toTable.getId() + " ON \n\t\t " + joinString;
+                            }
                     } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
-                            _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
-                        fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " `" + fromTable.getDatabase()
-                                + "." + fromTable.getSchema() + "." + fromTable.getTable() + "` AS " + fromTable.getId()
-                                + " ON \n\t\t " + joinString;
+                                _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
+                          if(!fromTable.isCustomQuery()){
+                              fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " `" + fromTable.getDatabase()
+                                      + "." + fromTable.getSchema() + "." + fromTable.getTable() + "` AS " + fromTable.getId()
+                                      + " ON \n\t\t " + joinString;
+                          }else {
+                              fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " (" + fromTable.getCustomQuery()
+                                      + ") AS " + fromTable.getId() + " ON \n\t\t " + joinString;
+                          }
                     }
+
                     // when not matching with one level above - need to check the whole list
                     else {
                         List<String> existingTables = new ArrayList<>();
@@ -542,16 +859,31 @@ public class RelationshipClauseGeneric {
                             Optional<Table> _tbl2Optional = ds.getTables().stream()
                                     .filter(_r -> _r.getId().equals(_rship.getTable2())).findFirst();
                             Table _to = _tbl2Optional.get();
-                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " `" + _to.getDatabase() + "."
-                                    + _to.getSchema() + "." + _to.getTable() + "` AS " + _to.getId() + " ON \n\t\t "
-                                    + joinString;
+                            //checking for custom qurey
+                            if (!_to.isCustomQuery()) {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " `" + _to.getDatabase() + "."
+                                        + _to.getSchema() + "." + _to.getTable() + "` AS " + _to.getId() + " ON \n\t\t "
+                                        + joinString;
+                            } else {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + "(" + _to.getCustomQuery()
+                                        + ")" + " AS " + _to.getId() + " ON \n\t\t "
+                                        + joinString;
+                            }
+
                         } else if (existingTables.contains(_rship.getTable2())) {
                             Optional<Table> _tbl1Optional = ds.getTables().stream()
                                     .filter(_r -> _r.getId().equals(_rship.getTable1())).findFirst();
                             Table _from = _tbl1Optional.get();
-                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " `" + _from.getDatabase()
-                                    + "." + _from.getSchema() + "." + _from.getTable() + "` AS " + _from.getId()
-                                    + " ON \n\t\t " + joinString;
+                            //checking for custom query
+                            if (!_from.isCustomQuery()) {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " `" + _from.getDatabase()
+                                        + "." + _from.getSchema() + "." + _from.getTable() + "` AS " + _from.getId()
+                                        + " ON \n\t\t " + joinString;
+                            } else {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " " + "(" + _from.getCustomQuery()
+                                        + ")" + " AS " + _from.getId()
+                                        + " ON \n\t\t " + joinString;
+                            }
                         }
                     }
                 }
@@ -605,26 +937,53 @@ public class RelationshipClauseGeneric {
                         }
                     }
                 }
-            }
- 
- 
-            else if (vendorName.equals("oracle")) {
+            } else if (vendorName.equals("oracle")) {
                 if (i == 0) {
-                    fromClause += "\n\t" + fromTable.getSchema() + "." + fromTable.getTable() + " "
-                            + fromTable.getId()
-                            + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getSchema() + "."
-                            + toTable.getTable() + " " + toTable.getId() + " ON \n\t\t " + joinString;
+                    //checking for custom qurey
+                    if (!fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + fromTable.getSchema() + "." + fromTable.getTable() + " "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getSchema() + "."
+                                + toTable.getTable() + " " + toTable.getId() + " ON \n\t\t " + joinString;
+                    } else if (fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
+                        fromClause += "\n\t" + "(" + fromTable.getCustomQuery() + ") "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getSchema() + "."
+                                + toTable.getTable() + " " + toTable.getId() + " ON \n\t\t " + joinString;
+                    } else if (toTable.isCustomQuery() && !fromTable.isCustomQuery()) {
+                        fromClause += "\n\t" + fromTable.getSchema() + "." + fromTable.getTable() + " "
+                                + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()
+                                + ") " + toTable.getId() + " ON \n\t\t " + joinString;
+                    } else if(fromTable.isCustomQuery() && toTable.isCustomQuery()) {
+                        fromClause += "\n\t" +"("+ fromTable.getCustomQuery() + ") " + fromTable.getId()
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()
+                                + ") " + toTable.getId() + " ON \n\t\t " + joinString;
+                    }
                 } else if (i > 0) {
                     if (_rship.getTable1().equals(_relationships.get(i - 1).getTable1()) ||
                             _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
-                        fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
-                                + toTable.getSchema() + "."
-                                + toTable.getTable() + " " + toTable.getId() + " ON \n\t\t " + joinString;
+                        if (!toTable.isCustomQuery()) {
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
+                                    + toTable.getSchema() + "."
+                                    + toTable.getTable() + " " + toTable.getId() + " ON \n\t\t " + joinString;
+                        } else {
+                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " ("
+                                    + toTable.getCustomQuery()
+                                    + ") " + toTable.getId() + " ON \n\t\t " + joinString;
+                        }
                     } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
                             _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
-                        fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
-                                + fromTable.getSchema() + "."
-                                + fromTable.getTable() + " " + fromTable.getId() + " ON \n\t\t " + joinString;
+                        //checking for custom query
+                        if (fromTable.isCustomQuery()) {
+                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
+                                    + fromTable.getSchema() + "."
+                                    + fromTable.getTable() + " " + fromTable.getId() + " ON \n\t\t " + joinString;
+                        } else {
+                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " ("
+                                    + fromTable.getCustomQuery()
+                                    + ") " + fromTable.getId() + " ON \n\t\t " + joinString;
+                        }
                     }
                     // when not matching with one level above - need to check the whole list
                     else {
@@ -637,22 +996,39 @@ public class RelationshipClauseGeneric {
                             Optional<Table> _tbl2Optional = ds.getTables().stream()
                                     .filter(_r -> _r.getId().equals(_rship.getTable2())).findFirst();
                             Table _to = _tbl2Optional.get();
-                            fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
-                                    + _to.getSchema() + "."
-                                    + _to.getTable() + " " + _to.getId() + " ON \n\t\t " + joinString;
+                            //checking for custom query
+                            if (_to.isCustomQuery()) {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
+                                        + _to.getSchema() + "."
+                                        + _to.getTable() + " " + _to.getId() + " ON \n\t\t " + joinString;
+                            } else {
+                                fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " ("
+                                        + _to.getCustomQuery()
+                                        + ") " + _to.getId() + " ON \n\t\t " + joinString;
+                            }
                         } else if (existingTables.contains(_rship.getTable2())) {
                             Optional<Table> _tbl1Optional = ds.getTables().stream()
                                     .filter(_r -> _r.getId().equals(_rship.getTable1())).findFirst();
                             Table _from = _tbl1Optional.get();
-                            fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
-                                    + _from.getSchema() + "."
-                                    + _from.getTable() + " " + _from.getId() + " ON \n\t\t " + joinString;
+                            //checking for custom query
+                            if (!_from.isCustomQuery()) {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
+                                        + _from.getSchema() + "."
+                                        + _from.getTable() + " " + _from.getId() + " ON \n\t\t " + joinString;
+                            } else {
+                                fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " ("
+                                        + _from.getCustomQuery()
+                                        + ") " + _from.getId() + " ON \n\t\t " + joinString;
+                            }
                         }
                     }
                 }
             }
+
         }
         return fromClause;
     }
 
 }
+
+
