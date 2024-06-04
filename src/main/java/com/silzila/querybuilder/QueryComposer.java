@@ -42,6 +42,7 @@ public class QueryComposer {
 
 
 
+
         // flag --> override function or not
         if (queries.size() > 1) {
             queryCTE = true;

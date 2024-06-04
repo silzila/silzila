@@ -319,7 +319,7 @@ public class ConnectionPoolService {
             String queryWithLimit="";
             try{
                 createConnectionPool(dBConnectionId, userId);
-                if(recordCount<=100) {
+                if(recordCount<=200) {
                     if (vendorName.equals("oracle")) {
                         queryWithLimit = "select * from( " + query + ") WHERE ROWNUM <= " + recordCount;
                     } else if (vendorName.equals("sqlserver")) {
@@ -329,12 +329,12 @@ public class ConnectionPoolService {
                     }
                 }else {
                     if (vendorName.equals("oracle")) {
-                        queryWithLimit = "select * from( " + query + ") WHERE ROWNUM <= 100";
+                        queryWithLimit = "select * from( " + query + ") WHERE ROWNUM <= 200";
                     } else if (vendorName.equals("sqlserver")) {
-                        queryWithLimit = "WITH CTE AS ( " + query + ") SELECT TOP 100  * FROM CTE;";
+                        queryWithLimit = "WITH CTE AS ( " + query + ") SELECT TOP 200  * FROM CTE;";
                     }
                     else {
-                        queryWithLimit = "select * from( " + query + ") AS CQ limit 100";
+                        queryWithLimit = "select * from( " + query + ") AS CQ limit 200";
                     }
                 }
             JSONArray jsonArray = runQuery(dBConnectionId, userId, queryWithLimit);
