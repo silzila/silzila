@@ -101,7 +101,7 @@ export interface UserFilterCardProps extends Card {
 
 	updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any) => void;
 
-	updateLeftFilterItem: (propKey: string, bIndex: number, item: any) => void;
+	updateLeftFilterItem: (propKey: string, bIndex: number, itemIndex: number, item: any) => void;
 
 	updtateFilterExpandeCollapse: (propKey: string, bIndex: number, item: any) => void;
 
