@@ -62,7 +62,7 @@ const Card = ({
 	sortAxesForDm,
 	revertAxesForDm,
 }: CardProps) => {
-
+	
 	field.dataType = field?.dataType?.toLowerCase();
 
 	var chartType =
@@ -90,7 +90,7 @@ const Card = ({
 	};
 
 	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
-	console.log(currentChartAxesName)
+	
 	//let currentChartAxes = chartProp.properties[propKey][currentChartAxesName];
 	
 	const [showOptions, setShowOptions] = useState<boolean>(false);
@@ -133,13 +133,16 @@ const Card = ({
 
 	const handleOverrideOnClick = () =>{
 		setOverrideFn(true);
+
+		let oldChartAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes || []));
+		let overRideAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override || []));
+
 		createChartAxesForUID(propKey , chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].uId, 
-			chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override ? chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override :
-			chartProp.properties[propKey].chartAxes
+			chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override ? overRideAxes : oldChartAxes
 		);
+
 		enableOverrideForUIDAction(propKey , chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].uId);
 		handleClose("clickOutside");
-
 	}
 
 	const handleWindowFunctionOnClick = () =>{

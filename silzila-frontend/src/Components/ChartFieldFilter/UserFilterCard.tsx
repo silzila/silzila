@@ -54,8 +54,8 @@ const UserFilterCard = ({
 	revertAxes,
 	updtateFilterExpandeCollapse,
 }: UserFilterCardProps & any) => {
-	field.dataType = field.dataType.toLowerCase();
-
+	field.dataType = field.dataType.toLowerCase();	
+	
 	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
 	let currentChartAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey][currentChartAxesName]));
 
@@ -67,7 +67,8 @@ const UserFilterCard = ({
 			el.isCollapsed = !currentChartAxes[0].isCollapsed;
 			return el;
 		});
-		updtateFilterExpandeCollapse(propKey, bIndex, res);
+
+		updtateFilterExpandeCollapse(propKey, bIndex, res, currentChartAxesName);
 	}, [isCollapsed]);
 
 	const originalIndex = currentChartAxes[bIndex].fields.findIndex(
@@ -196,9 +197,21 @@ const UserFilterCard = ({
 			_preFetchData();
 		}
 
-		//updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
+		//updateUserFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 		// eslint-disable-next-line
 	}, []);
+
+	const updateUserFilterItem = (propKey:string, bIndex:number, itemIndex:number, field:any, axesName:string) =>{
+		//if(chartProp.properties[propKey].droppedFieldChartAxesUID === uID){
+			updateLeftFilterItem(propKey, bIndex, itemIndex, field, axesName);
+		//}		
+	}
+
+	// const updateUserFilterItemExpandCollapse = (propKey:string, bIndex:number, itemIndex:number, field:any, axesName:string) =>{
+	// 	if(chartProp.properties[propKey].droppedFieldChartAxesUID === uID){
+	// 		updateLeftFilterItem(propKey, bIndex, itemIndex, field, axesName);
+	// 	}		
+	// }
 
 	///Fech Field data for Pick List
 	const fetchFieldData = (type: string) => {
@@ -256,7 +269,7 @@ const UserFilterCard = ({
 
 			filterFieldData["rawselectmembers"] = [...tempResult];
 			filterFieldData["userSelection"] = tempResult;
-			updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
+			updateUserFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 		}
 	};
 
@@ -340,7 +353,7 @@ const UserFilterCard = ({
 				filterFieldData.userSelection.splice(AllIdx, 1);
 			}
 		}
-		updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
+		updateUserFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 	};
 
 	///Render Pick list card from raw select members
@@ -477,7 +490,7 @@ const UserFilterCard = ({
 			filterFieldData.includeexclude = queryParam;
 		}
 
-		updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
+		updateUserFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 	};
 
 	/// List of options to show at the end of each filter card
@@ -598,7 +611,7 @@ const UserFilterCard = ({
 	// 	filterFieldData["greaterThanOrEqualTo"] = newValue[0];
 	// 	filterFieldData["lessThanOrEqualTo"] = newValue[1];
 	// 	sliderRange = newValue;
-	// 	updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
+	// 	updateUserFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 	// };
 
 	const checkValidDate = (val: any) => {
@@ -650,7 +663,7 @@ const UserFilterCard = ({
 
 		setSearchConditionDate();
 
-		updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
+		updateUserFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 	};
 
 	///Handle Menu button on click
@@ -684,7 +697,7 @@ const UserFilterCard = ({
 		// }
 		setSearchConditionDate();
 
-		updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
+		updateUserFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 	};
 
 	const checkForValidData = () => {
@@ -728,7 +741,7 @@ const UserFilterCard = ({
 				];
 			}
 
-			updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
+			updateUserFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 		}
 	};
 
@@ -1055,7 +1068,7 @@ const UserFilterCard = ({
 				style={{ height: "18px", width: "18px", color: "#999999" }}
 				onClick={e => {
 					filterFieldData.isCollapsed = false;
-					updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
+					updateUserFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 				}}
 			/>
 		) : (
@@ -1063,7 +1076,7 @@ const UserFilterCard = ({
 				style={{ height: "18px", width: "18px", color: "#999999" }}
 				onClick={e => {
 					filterFieldData.isCollapsed = true;
-					updateLeftFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
+					updateUserFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
 				}}
 			/>
 		);
