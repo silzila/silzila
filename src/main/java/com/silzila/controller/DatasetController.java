@@ -10,27 +10,16 @@ import javax.validation.Valid;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.dto.DatasetNoSchemaDTO;
 import com.silzila.exception.BadRequestException;
+import com.silzila.exception.ExpectationFailedException;
 import com.silzila.exception.RecordNotFoundException;
-import com.silzila.payload.request.ColumnFilter;
-import com.silzila.payload.request.DatasetRequest;
-import com.silzila.payload.request.Query;
-import com.silzila.payload.request.RelativeFilterRequest;
+import com.silzila.payload.request.*;
 import com.silzila.payload.response.MessageResponse;
 import com.silzila.service.ConnectionPoolService;
 import com.silzila.service.DatasetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -49,7 +38,7 @@ public class DatasetController {
     // create dataset
     @PostMapping("/dataset")
     public ResponseEntity<?> registerDataset(@RequestHeader Map<String, String> reqHeader,
-            @Valid @RequestBody DatasetRequest datasetRequest) throws JsonProcessingException, BadRequestException {
+            @Valid @RequestBody DatasetRequest datasetRequest) throws JsonProcessingException, BadRequestException, ExpectationFailedException {
         // get the rquester user id
         String userId = reqHeader.get("username");
 
@@ -62,7 +51,7 @@ public class DatasetController {
     public ResponseEntity<?> updateDataset(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody DatasetRequest datasetRequest,
             @PathVariable(value = "id") String id)
-            throws JsonProcessingException, JsonMappingException, BadRequestException, RecordNotFoundException {
+            throws JsonProcessingException, JsonMappingException, BadRequestException, RecordNotFoundException, ExpectationFailedException {
         // get the rquester user id
         String userId = reqHeader.get("username");
         DatasetDTO dto = datasetService.updateDataset(datasetRequest, id, userId);
@@ -142,4 +131,5 @@ public class DatasetController {
         return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
             }
 
-}
+
+   }

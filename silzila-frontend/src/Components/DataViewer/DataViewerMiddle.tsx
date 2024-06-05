@@ -149,7 +149,16 @@ const DataViewerMiddle = ({
 				</>
 			) : (
 				<>
-					<ChartAxes tabId={tabId} tileId={tileId} />
+					<ChartAxes tabId={tabId} tileId={tileId} uID=""/>
+					{
+						(chartProp.properties[propKey].enableOverrideForUID !== null && 
+							chartProp.properties[propKey].enableOverrideForUID !== undefined && 
+							chartProp.properties[propKey].enableOverrideForUID !== "") ?
+							<>
+								<ChartAxes tabId={tabId} tileId={tileId} uID={chartProp.properties[propKey].enableOverrideForUID} /> 
+							</> 
+						: null
+					}
 					<GraphArea />
 					<div className="rightColumn">{controlDisplayed()}</div>
 				</>

@@ -70,6 +70,9 @@ public class FilterOptionsQueryComposer {
         } else if (vendorName.equals("snowflake")) {
             logger.info("------ inside snowflake block");
             finalQuery = FilterQuerySnowflake.getFilterOptions(cf, table);
+        } else if (vendorName.equals("motherduck")) {
+            logger.info("------ inside motherduck block");
+            finalQuery = FilterQueryMotherduck.getFilterOptions(cf, table);
         }
 
         else {

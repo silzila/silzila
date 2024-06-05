@@ -31,6 +31,7 @@ public class DatasetRequest implements Serializable {
     private Boolean isFlatFileData;
     @JsonProperty("dataSchema")
     private DataSchema dataSchema;
+
     private final static long serialVersionUID = -3299944099507340042L;
 
     /**
@@ -50,7 +51,7 @@ public class DatasetRequest implements Serializable {
      */
     @JsonCreator
     public DatasetRequest(String connectionId, String datasetName, Boolean isFlatFileData,
-            DataSchema dataSchema) throws BadRequestException {
+            DataSchema dataSchema ) throws BadRequestException {
         super();
         if (datasetName == null || datasetName.length() == 0) {
             throw new BadRequestException("Error: DataSet Name Field cannot be empty!");
@@ -65,6 +66,7 @@ public class DatasetRequest implements Serializable {
         this.datasetName = datasetName;
         this.isFlatFileData = isFlatFileData;
         this.dataSchema = dataSchema;
+
     }
 
     @JsonProperty("connectionId")
@@ -106,6 +108,7 @@ public class DatasetRequest implements Serializable {
     public void setDataSchema(DataSchema dataSchema) {
         this.dataSchema = dataSchema;
     }
+
 
     @Override
     public String toString() {

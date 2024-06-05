@@ -36,7 +36,7 @@ const SankeyColorControls = ({
 		if (chartData) {
 			if (chartControls.properties[propKey].sankeyControls.nodesAndColors.length === 0) {
 				let values = [];
-				values = chartProperties.properties[propKey].chartAxes[1].fields.map((el, i) => {
+				values = chartProperties.properties[propKey].chartAxes[1].fields.map((el:any, i:number) => {
 					return { nodeName: el.fieldname, nodeColor: colorSchemes[i] };
 				});
 				setdims(values);

@@ -28,7 +28,7 @@ const TreeMapStyles = ({
 	useEffect(() => {
 		if (chartData) {
 			treeMapLeafDepthOptions = chartProperties.properties[propKey].chartAxes[1].fields.map(
-				(el, i) => {
+				(el:any, i:number) => {
 					return { name: el.fieldname, value: i + 1 };
 				}
 			);
@@ -36,7 +36,7 @@ const TreeMapStyles = ({
 	}, [chartData, chartControls]);
 
 	treeMapLeafDepthOptions = chartProperties.properties[propKey].chartAxes[1].fields.map(
-		(el, i) => {
+		(el:any, i:number) => {
 			return { name: el.fieldname, value: i + 1 };
 		}
 	);

@@ -22,11 +22,12 @@ public class FileUploadResponseDuckDb {
     public FileUploadResponseDuckDb() {
     }
 
-    public FileUploadResponseDuckDb(String fileId, String name, List<Map<String, Object>> columnInfos,
-            List<Map<String, Object>> sampleRecords) {
+    public FileUploadResponseDuckDb(String fileId, String name, List<Map<String, Object>> columnInfos, List<Map<String, Object>> sampleRecords) {
         this.fileId = fileId;
         this.name = name;
         this.columnInfos = columnInfos;
         this.sampleRecords = sampleRecords;
     }
 }
+   
+

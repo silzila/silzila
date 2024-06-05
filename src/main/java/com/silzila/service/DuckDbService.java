@@ -1,31 +1,39 @@
 package com.silzila.service;
 
+import java.io.IOException;
+import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.duckdb.DuckDBConnection;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.stereotype.Service;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import com.silzila.domain.entity.FileData;
+import com.silzila.exception.ExpectationFailedException;
 import com.silzila.helper.ConvertDuckDbDataType;
 import com.silzila.helper.DuckDbMetadataToJson;
+import com.silzila.helper.JsonValidator;
 import com.silzila.helper.ResultSetToJson;
 import com.silzila.payload.request.FileUploadRevisedColumnInfo;
 import com.silzila.payload.request.FileUploadRevisedInfoRequest;
 import com.silzila.payload.request.Table;
 import com.silzila.payload.response.FileUploadResponseDuckDb;
-import com.silzila.domain.entity.FileData;
-
-import org.springframework.stereotype.Service;
 
 @Service
 public class DuckDbService {
@@ -52,8 +60,7 @@ public class DuckDbService {
     // read csv file and get metadata
     public FileUploadResponseDuckDb readCsv(String fileName) throws SQLException {
         // String filePath = SILZILA_DIR + "/" + fileName;
-        String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/"
-                + fileName;
+        String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
 
         Statement stmtRecords = conn2.createStatement();
@@ -65,7 +72,7 @@ public class DuckDbService {
         stmtRecords.execute(query);
         ResultSet rsRecords = stmtRecords.executeQuery("SELECT * FROM tbl_" + fileName + " LIMIT 200");
         ResultSet rsMeta = stmtMeta.executeQuery("DESCRIBE tbl_" + fileName);
-        
+
         JSONArray jsonArrayRecords = ResultSetToJson.convertToJson(rsRecords);
         // keep only column name & data type
         JSONArray jsonArrayMeta = DuckDbMetadataToJson.convertToJson(rsMeta);
@@ -115,21 +122,19 @@ public class DuckDbService {
         stmtDeleteTbl.close();
         conn2.close();
 
-        FileUploadResponseDuckDb fileUploadResponseDuckDb = new FileUploadResponseDuckDb(null, fileName,
-                metaList,
+        FileUploadResponseDuckDb fileUploadResponseDuckDb = new FileUploadResponseDuckDb(null, fileName, metaList,
                 recordList);
         return fileUploadResponseDuckDb;
     }
 
-    // edit schema of alreay uploaded file
-    public JSONArray readCsvChangeSchema(
-            FileUploadRevisedInfoRequest revisedInfoRequest) throws SQLException {
+    // edit schema of already uploaded file
+    public JSONArray readCsvChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest)
+            throws SQLException, ExpectationFailedException {
 
         String fileName = revisedInfoRequest.getFileId();
 
         // String filePath = SILZILA_DIR + "/" + fileName;
-        String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/"
-                + fileName;
+        String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
 
         Statement stmtRecords = conn2.createStatement();
@@ -138,8 +143,105 @@ public class DuckDbService {
         ArrayList<String> columnList = new ArrayList<String>();
         ArrayList<String> dataTypeList = new ArrayList<String>();
 
+      
+
         for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
             FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
+            String colName = col.getFieldName().replaceAll("[^a-zA-Z0-9]", "_");
+            String silzilaDataType = col.getDataType().name().toLowerCase();
+            String duckDbDataType = ConvertDuckDbDataType.toDuckDbDataType(silzilaDataType);
+            String columnString = "'" + colName + "'";
+            String dataTypeString = "'" + duckDbDataType + "'";
+            columnList.add(columnString);
+            dataTypeList.add(dataTypeString);
+          }
+        // build stringified list of columns
+        String colMapString = "[" + String.join(", ", columnList) + "]";
+        // build stringified list of data types
+        String dataTypeMapString = "[" + String.join(", ", dataTypeList) + "]";
+        logger.info("====================\n" + colMapString);
+        logger.info("====================\n" + dataTypeMapString);
+
+        // when user provides custom data format
+        String dateFormatCondition = "";
+        if (revisedInfoRequest.getDateFormat() != null && !revisedInfoRequest.getDateFormat().trim().isEmpty()) {
+            dateFormatCondition = ", dateformat='" + revisedInfoRequest.getDateFormat().trim() + "'";
+        }
+        // when user provides custom timestamp format
+        String timeStampFormatCondition = "";
+        if (revisedInfoRequest.getTimestampFormat() != null
+                && !revisedInfoRequest.getTimestampFormat().trim().isEmpty()) {
+            timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
+        }
+
+        String query = "SELECT * from read_csv_auto('" + filePath + "', SAMPLE_SIZE=200,names=" + colMapString
+                + ", types=" + dataTypeMapString + dateFormatCondition + timeStampFormatCondition + ");";
+
+        logger.info("************************\n" + query);
+
+        // handling the unmatched data type error
+        ResultSet resultSet = null;
+        try {
+            resultSet = stmtRecords.executeQuery(query);
+        } catch (SQLException e) {
+            throw new ExpectationFailedException("you are trying for unmatched data type. Error: " + e.getMessage());
+        }
+        JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
+        stmtRecords.close();
+        conn2.close();
+
+        return jsonArray;
+
+    }
+
+    // creating a map from column and dtype list to send as a columns parameter to
+    // read_csv_auto query
+    public static Map<String, String> convertToMap(ArrayList<String> keys, ArrayList<String> values) {
+        if (keys.size() != values.size()) {
+            throw new IllegalArgumentException("ArrayLists must have the same length");
+        }
+
+        Map<String, String> map = new HashMap<>();
+        for (int i = 0; i < keys.size(); i++) {
+            map.put(keys.get(i), values.get(i));
+        }
+        return map;
+    }
+
+    // converting a map to string to send to column parameter
+    public static String mapToString(Map<String, String> map) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            sb.append(entry.getKey()).append(": ").append(entry.getValue()).append(", ");
+        }
+        if (!map.isEmpty()) {
+            // Remove the trailing comma and space
+            sb.delete(sb.length() - 2, sb.length());
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    // save CSV to Parquet
+
+    public void writeCsvToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId, String encryptVal)
+            throws SQLException, ExpectationFailedException {
+
+        String fileName = revisedInfoRequest.getFileId();
+        String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
+
+        Connection conn2 = ((DuckDBConnection) conn).duplicate();
+        Statement stmtRecords = conn2.createStatement();
+
+        // put column name & data type into separate list
+        ArrayList<String> columnList = new ArrayList<String>();
+        ArrayList<String> dataTypeList = new ArrayList<String>();
+
+        for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
+            FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
+
+            // Replace spaces and special characters with underscores
             String colName = col.getFieldName().replaceAll("[^a-zA-Z0-9]", "_");
             String silzilaDataType = col.getDataType().name().toLowerCase();
             String duckDbDataType = ConvertDuckDbDataType.toDuckDbDataType(silzilaDataType);
@@ -155,103 +257,53 @@ public class DuckDbService {
         logger.info("====================\n" + colMapString);
         logger.info("====================\n" + dataTypeMapString);
 
-        // when user provieds custom data format
+        // when user provides custom data format
         String dateFormatCondition = "";
-        if (revisedInfoRequest.getDateFormat() != null
-                && !revisedInfoRequest.getDateFormat().trim().isEmpty()) {
+        if (revisedInfoRequest.getDateFormat() != null && !revisedInfoRequest.getDateFormat().trim().isEmpty()) {
             dateFormatCondition = ", dateformat='" + revisedInfoRequest.getDateFormat().trim() + "'";
         }
-        // when user provieds custom timestamp format
+        // when user provides custom timestamp format
         String timeStampFormatCondition = "";
         if (revisedInfoRequest.getTimestampFormat() != null
                 && !revisedInfoRequest.getTimestampFormat().trim().isEmpty()) {
             timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
         }
 
-        String query = "SELECT * from read_csv_auto('" + filePath
-                + "', SAMPLE_SIZE=200, names=" + colMapString + ", types=" + dataTypeMapString
-                + dateFormatCondition
-                + timeStampFormatCondition + ");";
+        System.out.println(encryptVal);
+        //creating Encryption key to save parquet file securely
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
+        // read CSV and write as Parquet file
+        final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/" +"/"
+                + revisedInfoRequest.getFileId() + ".parquet";
+        String query = "COPY (SELECT * from read_csv_auto('" + filePath + "', names=" + colMapString + ", types="
+                + dataTypeMapString + dateFormatCondition + timeStampFormatCondition + ")) TO '" + writeFile
+                + "' (ENCRYPTION_CONFIG {footer_key: 'key256'});";
+
+        stmtRecords.execute(encryptKey);
+
         logger.info("************************\n" + query);
 
-        ResultSet resultSet = stmtRecords.executeQuery(query);
-        JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
+        // handling the data type mismatch
+        try {
+            stmtRecords.execute(query);
+        } catch (SQLException e) {
+            throw new ExpectationFailedException("you are trying for unmatched data type. Error:" + e.getMessage());
+        }
         stmtRecords.close();
         conn2.close();
-
-        return jsonArray;
-
     }
-
-    // save CSV to Parquet
-    public void writeToParquet(
-        FileUploadRevisedInfoRequest revisedInfoRequest, String userId) throws SQLException {
-
-    String fileName = revisedInfoRequest.getFileId();
-    String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/"
-            + fileName;
-    
-    Connection conn2 = ((DuckDBConnection) conn).duplicate();
-    Statement stmtRecords = conn2.createStatement();
-
-    // put column name & data type into separate list
-    ArrayList<String> columnList = new ArrayList<String>();
-    ArrayList<String> dataTypeList = new ArrayList<String>();
-
-    for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
-        FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
-
-        // Replace spaces and special characters with underscores
-        String colName = col.getFieldName().replaceAll("[^a-zA-Z0-9]", "_"); 
-        String silzilaDataType = col.getDataType().name().toLowerCase();
-        String duckDbDataType = ConvertDuckDbDataType.toDuckDbDataType(silzilaDataType);
-        String columnString = "'" + colName + "'";
-        String dataTypeString = "'" + duckDbDataType + "'";
-        columnList.add(columnString);
-        dataTypeList.add(dataTypeString);
-    }
-    // build stringified list of columns
-    String colMapString = "[" + String.join(", ", columnList) + "]";
-    // build stringified list of data types
-    String dataTypeMapString = "[" + String.join(", ", dataTypeList) + "]";
-    logger.info("====================\n" + colMapString);
-    logger.info("====================\n" + dataTypeMapString);
-
-    // when user provides custom data format
-    String dateFormatCondition = "";
-    if (revisedInfoRequest.getDateFormat() != null
-            && !revisedInfoRequest.getDateFormat().trim().isEmpty()) {
-        dateFormatCondition = ", dateformat='" + revisedInfoRequest.getDateFormat().trim() + "'";
-    }
-    // when user provides custom timestamp format
-    String timeStampFormatCondition = "";
-    if (revisedInfoRequest.getTimestampFormat() != null
-            && !revisedInfoRequest.getTimestampFormat().trim().isEmpty()) {
-        timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
-    }
-
-    // read CSV and write as Parquet file
-    final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
-            + "/" + revisedInfoRequest.getFileId() + ".parquet";
-    String query = "COPY (SELECT * from read_csv_auto('" + filePath
-            + "', names=" + colMapString + ", types=" + dataTypeMapString
-            + dateFormatCondition
-            + timeStampFormatCondition + ")) TO '" + writeFile
-            + "' (FORMAT PARQUET, COMPRESSION ZSTD);";
-    stmtRecords.execute(query);
-    logger.info("************************\n" + query);
-
-    stmtRecords.close();
-    conn2.close();
-}
 
     // get sample records from Parquet file
-    public JSONArray getSampleRecords(String parquetFilePath) throws SQLException {
+    public JSONArray getSampleRecords(String parquetFilePath,String encryptVal) throws SQLException {
 
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtRecords = conn2.createStatement();
 
-        String query = "SELECT * from read_parquet('" + parquetFilePath + "') LIMIT 200;";
+        //creating Encryption key to save parquet file securely
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
+        stmtRecords.execute(encryptKey);
+
+        String query = "SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'}) LIMIT 200;";
         logger.info("************************\n" + query);
 
         ResultSet resultSet = stmtRecords.executeQuery(query);
@@ -263,12 +315,18 @@ public class DuckDbService {
     }
 
     // get sample records from Parquet file
-    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath) throws SQLException {
+    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath,String encryptVal) throws SQLException {
 
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtMeta = conn2.createStatement();
+        Statement stmtRecords = conn2.createStatement();
 
-        String query = "DESCRIBE SELECT * from read_parquet('" + parquetFilePath + "') LIMIT 1;";
+
+        //creating Encryption key to save parquet file securely
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
+        stmtRecords.execute(encryptKey);
+
+        String query = "DESCRIBE SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'}) LIMIT 1;";
         logger.info("************************\n" + query);
 
         ResultSet rsMeta = stmtMeta.executeQuery(query);
@@ -300,7 +358,7 @@ public class DuckDbService {
     }
 
     // create DF for flat files
-    public void createViewForFlatFiles(String userId, List<Table> tableObjList, List<FileData> fileDataList)
+    public void createViewForFlatFiles(String userId, List<Table> tableObjList, List<FileData> fileDataList,String encryptVal)
             throws SQLException, ClassNotFoundException {
         // System.out.println("Table Obj ============\n" + tableObjList.toString());
         // System.out.println("File Data List ============\n" +
@@ -308,8 +366,7 @@ public class DuckDbService {
         // iterate file table list and create DF & SQL view if not already created
         for (int i = 0; i < tableObjList.size(); i++) {
             /*
-             * check if the view name is already existing
-             * else create
+             * check if the view name is already existing else create
              */
             String flatFileId = tableObjList.get(i).getFlatFileId();
             // create user
@@ -329,13 +386,20 @@ public class DuckDbService {
                 // iterate flat file list and get flat file name corresponding to file id
                 for (int j = 0; j < fileDataList.size(); j++) {
                     if (flatFileId.equals(fileDataList.get(j).getId())) {
-                        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/"
-                                + userId + "/" + fileDataList.get(j).getFileName();
+                        final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId
+                                + "/" + fileDataList.get(j).getFileName();
+                        String salt= fileDataList.get(j).getSaltValue();
+
                         // create view on DF and maintain the view name to know if view is already there
                         startDuckDb();
                         Connection conn2 = ((DuckDBConnection) conn).duplicate();
                         Statement stmt = conn2.createStatement();
-                        String query = "CREATE OR REPLACE VIEW " + viewName + " AS (SELECT * FROM '" + filePath + "')";
+
+                        //creating Encryption key to save parquet file securely
+                        String encryptKey= "PRAGMA add_parquet_key('key256', '"+salt+encryptVal+"')";
+                        stmt.execute(encryptKey);
+
+                        String query = "CREATE OR REPLACE VIEW " + viewName + " AS (SELECT * FROM read_parquet('"+filePath+"', encryption_config = {footer_key: 'key256'}))";
                         logger.info("View creating query ==============\n" + query);
                         stmt.execute(query);
                         stmt.close();
@@ -362,6 +426,456 @@ public class DuckDbService {
         conn2.close();
 
         return jsonArray;
+    }
+
+    public FileUploadResponseDuckDb readExcel(String fileName, String sheetName)
+            throws SQLException, ExpectationFailedException {
+        // String filePath = SILZILA_DIR + "/" + fileName;
+        String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
+
+        Connection conn2 = ((DuckDBConnection) conn).duplicate();
+
+        Statement stmtInstallLoad = conn2.createStatement();
+        Statement stmtRecords = conn2.createStatement();
+        Statement stmtMeta = conn2.createStatement();
+        Statement stmtDeleteTbl = conn2.createStatement();
+        Statement stmtCopyQuery = conn2.createStatement();
+
+        // to install and load spatial since duckDB wouldn't support Excel without
+        // extension
+        stmtInstallLoad.execute("INSTALL spatial;");
+        stmtInstallLoad.execute("LOAD spatial;");
+
+        String query = "CREATE OR REPLACE TABLE tbl_" + fileName + " AS SELECT * from st_read('" + filePath
+                + "',layer ='" + sheetName + "')";
+        try {
+            stmtRecords.execute(query);
+        } catch (SQLException e) {
+            throw new ExpectationFailedException(
+                    "Could not upload because SHEETNAME is NULL or WRONG. Errorr: " + e.getMessage());
+        }
+
+        ResultSet rsRecords = stmtRecords.executeQuery("SELECT * FROM tbl_" + fileName + " LIMIT 200");
+        ResultSet rsMeta = stmtMeta.executeQuery("DESCRIBE tbl_" + fileName);
+
+        JSONArray jsonArrayRecords = ResultSetToJson.convertToJson(rsRecords);
+        // keep only column name & data type
+        JSONArray jsonArrayMeta = DuckDbMetadataToJson.convertToJson(rsMeta);
+
+        List<Map<String, Object>> recordList = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> metaList = new ArrayList<Map<String, Object>>();
+
+        // Sample Records
+        // convert JsonArray -> List of JsonObject -> List of Map(String, Object)
+        if (jsonArrayRecords != null) {
+            for (int i = 0; i < jsonArrayRecords.length(); i++) {
+                JSONObject rec = jsonArrayRecords.getJSONObject(i);
+                Map<String, Object> rowObj = new HashMap<String, Object>();
+                rec.keySet().forEach(keyStr -> {
+                    Object keyValue = rec.get(keyStr);
+                    rowObj.put(keyStr, keyValue);
+                });
+                recordList.add(rowObj);
+            }
+        }
+        // Meta data - column name & data type
+        // convert JsonArray -> List of JsonObject -> List of Map(String, Object)
+        if (jsonArrayMeta != null) {
+            for (int i = 0; i < jsonArrayMeta.length(); i++) {
+                JSONObject rec = jsonArrayMeta.getJSONObject(i);
+                Map<String, Object> rowObj = new HashMap<String, Object>();
+                rec.keySet().forEach(keyStr -> {
+                    Object keyValue = rec.get(keyStr);
+                    // DuckDB Data type -> Silzila Data Type
+                    if (keyStr.equals("dataType")) {
+                        String silzilaDataType = ConvertDuckDbDataType.toSilzilaDataType(keyValue.toString());
+                        rowObj.put(keyStr, silzilaDataType);
+                    } else {
+                        rowObj.put(keyStr, keyValue);
+                    }
+                });
+                metaList.add(rowObj);
+            }
+        }
+        // System.out.println(jsonArrayRecords.toString());
+        // System.out.println(jsonArrayMeta.toString());
+        // delete the in-memory table as it's not required
+
+        // copying excel file to csv for further operation
+        String copyQuery = "COPY (SELECT * FROM tbl_" + fileName + ") TO '" + filePath
+                + ".csv' (FORMAT csv,HEADER, DELIMITER ',')";
+        logger.info("************************\n" + copyQuery);
+        stmtCopyQuery.execute(copyQuery);
+
+        String deleteQuery = "DROP TABLE IF EXISTS tbl_" + fileName;
+        stmtDeleteTbl.execute(deleteQuery);
+
+        stmtRecords.close();
+        stmtMeta.close();
+        stmtDeleteTbl.close();
+        conn2.close();
+
+        FileUploadResponseDuckDb fileUploadResponseDuckDb = new FileUploadResponseDuckDb(null, fileName, metaList,
+                recordList);
+
+        // FileUploadResponseDuckDb a= changeSchemaForExcel(FileUploadRevisedInfoRequest
+        // revisedInfoRequest ,FileUploadResponseDuckDb fileUploadResponseDuckDb);
+
+        return fileUploadResponseDuckDb;
+    }
+
+    public void writeExcelToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId,String encryptVal)
+            throws SQLException, ExpectationFailedException {
+
+        String fileName = revisedInfoRequest.getFileId();
+        String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
+
+        Connection conn2 = ((DuckDBConnection) conn).duplicate();
+        Statement stmtRecords = conn2.createStatement();
+
+        // put column name & data type into separate list
+        ArrayList<String> columnList = new ArrayList<String>();
+        ArrayList<String> dataTypeList = new ArrayList<String>();
+
+        for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
+            FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
+
+            // Replace spaces and special characters with underscores
+            String colName = col.getFieldName().replaceAll("[^a-zA-Z0-9]", "_");
+            String silzilaDataType = col.getDataType().name().toLowerCase();
+            String duckDbDataType = ConvertDuckDbDataType.toDuckDbDataType(silzilaDataType);
+            String columnString = "'" + colName + "'";
+            String dataTypeString = "'" + duckDbDataType + "'";
+            columnList.add(columnString);
+            dataTypeList.add(dataTypeString);
+        }
+        // build stringified list of columns
+        String colMapString = "[" + String.join(", ", columnList) + "]";
+        // build stringified list of data types
+        String dataTypeMapString = "[" + String.join(", ", dataTypeList) + "]";
+        logger.info("====================\n" + colMapString);
+        logger.info("====================\n" + dataTypeMapString);
+
+        // when user provides custom data format
+        String dateFormatCondition = "";
+        if (revisedInfoRequest.getDateFormat() != null && !revisedInfoRequest.getDateFormat().trim().isEmpty()) {
+            dateFormatCondition = ", dateformat='" + revisedInfoRequest.getDateFormat().trim() + "'";
+        }
+        // when user provides custom timestamp format
+        String timeStampFormatCondition = "";
+        if (revisedInfoRequest.getTimestampFormat() != null
+                && !revisedInfoRequest.getTimestampFormat().trim().isEmpty()) {
+            timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
+        }
+
+        //creating Encryption key to save parquet file securely
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
+        stmtRecords.execute(encryptKey);
+
+               // read CSV and write as Parquet file
+        final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/" + "/"
+                +  revisedInfoRequest.getFileId() + ".parquet";
+        String query = "COPY (SELECT * from read_csv_auto('" + filePath + "', names=" + colMapString + ", types="
+                + dataTypeMapString + dateFormatCondition + timeStampFormatCondition + ")) TO '" + writeFile
+                + "' (ENCRYPTION_CONFIG {footer_key: 'key256'});";
+
+        logger.info("************************\n" + query);
+        try {
+            stmtRecords.execute(query);
+        } catch (SQLException e) {
+            throw new ExpectationFailedException("you are trying for unmatched data type. Error:" + e.getMessage());
+        }
+        stmtRecords.close();
+        conn2.close();
+    }
+
+
+    public FileUploadResponseDuckDb readJson(String fileName) throws SQLException, ExpectationFailedException, IOException {
+
+        // String filePath = SILZILA_DIR + "/" + fileName;
+        String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
+        String jsonStr = new String(Files.readAllBytes(Paths.get(filePath))).trim();
+        Connection conn2 = ((DuckDBConnection) conn).duplicate();
+
+        JsonValidator.validate(jsonStr);
+
+        Statement stmtRecords = conn2.createStatement();
+        Statement stmtMeta = conn2.createStatement();
+        Statement stmtDeleteTbl = conn2.createStatement();
+        // checking for correct format and do the operation on json
+        try {
+            String query = "CREATE OR REPLACE TABLE tbl_" + fileName + " AS SELECT * from read_json_auto('" + filePath
+                    + "',SAMPLE_SIZE=200)";
+            stmtRecords.execute(query);
+        } catch (SQLException e) {
+
+            throw new ExpectationFailedException(
+                    "Could not upload because WRONG JSON FORMAT. Errorr: " + e.getMessage());
+
+        }
+
+        ResultSet rsRecords = stmtRecords.executeQuery("SELECT * FROM tbl_" + fileName + " LIMIT 200");
+        ResultSet rsMeta = stmtMeta.executeQuery("DESCRIBE tbl_" + fileName);
+
+        JSONArray jsonArrayRecords = ResultSetToJson.convertToJson(rsRecords);
+        // keep only column name & data type
+        JSONArray jsonArrayMeta = DuckDbMetadataToJson.convertToJson(rsMeta);
+
+        List<Map<String, Object>> recordList = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> metaList = new ArrayList<Map<String, Object>>();
+
+        // Sample Records
+        // convert JsonArray -> List of JsonObject -> List of Map(String, Object)
+        if (jsonArrayRecords != null) {
+            for (int i = 0; i < jsonArrayRecords.length(); i++) {
+                JSONObject rec = jsonArrayRecords.getJSONObject(i);
+                Map<String, Object> rowObj = new HashMap<String, Object>();
+                rec.keySet().forEach(keyStr -> {
+                    Object keyValue = rec.get(keyStr);
+                    rowObj.put(keyStr, keyValue);
+                });
+                recordList.add(rowObj);
+            }
+        }
+        // Meta data - column name & data type
+        // convert JsonArray -> List of JsonObject -> List of Map(String, Object)
+        if (jsonArrayMeta != null) {
+            for (int i = 0; i < jsonArrayMeta.length(); i++) {
+                JSONObject rec = jsonArrayMeta.getJSONObject(i);
+                Map<String, Object> rowObj = new HashMap<String, Object>();
+                rec.keySet().forEach(keyStr -> {
+                    Object keyValue = rec.get(keyStr);
+                    // DuckDB Data type -> Silzila Data Type
+                    if (keyStr.equals("dataType")) {
+                        String silzilaDataType = ConvertDuckDbDataType.toSilzilaDataType(keyValue.toString());
+                        rowObj.put(keyStr, silzilaDataType);
+                    } else {
+                        rowObj.put(keyStr, keyValue);
+                    }
+                });
+                metaList.add(rowObj);
+            }
+        }
+        // System.out.println(jsonArrayRecords.toString());
+        // System.out.println(jsonArrayMeta.toString());
+        // delete the in-memory table as it's not required
+        String deleteQuery = "DROP TABLE IF EXISTS tbl_" + fileName;
+        stmtDeleteTbl.execute(deleteQuery);
+        stmtRecords.close();
+        stmtMeta.close();
+        stmtDeleteTbl.close();
+        conn2.close();
+
+        FileUploadResponseDuckDb fileUploadResponseDuckDb = new FileUploadResponseDuckDb(null, fileName, metaList,
+                recordList);
+
+        return fileUploadResponseDuckDb;
+
+    }
+
+    // edit schema of already uploaded file
+    public JSONArray readJsonChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest)
+            throws SQLException, ExpectationFailedException {
+
+        String fileName = revisedInfoRequest.getFileId();
+
+        // String filePath = SILZILA_DIR + "/" + fileName;
+        String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
+        Connection conn2 = ((DuckDBConnection) conn).duplicate();
+
+        Statement stmtRecords = conn2.createStatement();
+
+        // put column name & data type into separate list
+        ArrayList<String> columnList = new ArrayList<String>();
+        ArrayList<String> dataTypeList = new ArrayList<String>();
+
+        for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
+            FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
+            String colName = col.getFieldName().replaceAll("[^a-zA-Z0-9]", "_");
+            String silzilaDataType = col.getDataType().name().toLowerCase();
+            String duckDbDataType = ConvertDuckDbDataType.toDuckDbDataType(silzilaDataType);
+            String columnString = "'" + colName + "'";
+            String dataTypeString = "'" + duckDbDataType + "'";
+            columnList.add(columnString);
+            dataTypeList.add(dataTypeString);
+        }
+        // build stringified list of columns
+        String colMapString = "[" + String.join(", ", columnList) + "]";
+        // build stringified list of data types
+        String dataTypeMapString = "[" + String.join(", ", dataTypeList) + "]";
+        logger.info("====================\n" + colMapString);
+        logger.info("====================\n" + dataTypeMapString);
+
+        // when user provieds custom data format
+        String dateFormatCondition = "";
+        if (revisedInfoRequest.getDateFormat() != null && !revisedInfoRequest.getDateFormat().trim().isEmpty()) {
+            dateFormatCondition = ", dateformat='" + revisedInfoRequest.getDateFormat().trim() + "'";
+        }
+        // when user provieds custom timestamp format
+        String timeStampFormatCondition = "";
+        if (revisedInfoRequest.getTimestampFormat() != null
+                && !revisedInfoRequest.getTimestampFormat().trim().isEmpty()) {
+            timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
+        }
+        // creating a map to send values to columns parameter
+        Map<String, String> map = convertToMap(columnList, dataTypeList);
+        // Converting a map to string to pass correct format to column
+        String columnsMapString = mapToString(map);
+
+        String query = "SELECT * from read_json_auto('" + filePath
+                + "', SAMPLE_SIZE=200, ignore_errors=true, format='auto', columns=" + columnsMapString
+                + dateFormatCondition + timeStampFormatCondition + ");";
+
+        logger.info("************************\n" + query);
+        ResultSet resultSet = null;
+        // handling data type mismatch
+        try {
+            resultSet = stmtRecords.executeQuery(query);
+        } catch (SQLException e) {
+            throw new ExpectationFailedException("you are trying for unmatched data type. Error: " + e.getMessage());
+        }
+        JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
+        stmtRecords.close();
+        conn2.close();
+
+        return jsonArray;
+    }
+
+    public void writeJsonToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId,String encryptVal)
+            throws SQLException, ExpectationFailedException {
+
+        String fileName = revisedInfoRequest.getFileId();
+        String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
+
+        Connection conn2 = ((DuckDBConnection) conn).duplicate();
+        Statement stmtRecords = conn2.createStatement();
+
+        // put column name & data type into separate list
+        ArrayList<String> columnList = new ArrayList<String>();
+        ArrayList<String> dataTypeList = new ArrayList<String>();
+
+        for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
+            FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
+
+            // Replace spaces and special characters with underscores
+            String colName = col.getFieldName().replaceAll("[^a-zA-Z0-9]", "_");
+            String silzilaDataType = col.getDataType().name().toLowerCase();
+            String duckDbDataType = ConvertDuckDbDataType.toDuckDbDataType(silzilaDataType);
+            String columnString = "'" + colName + "'";
+            String dataTypeString = "'" + duckDbDataType + "'";
+            columnList.add(columnString);
+            dataTypeList.add(dataTypeString);
+        }
+        // build stringified list of columns
+        String colMapString = "[" + String.join(", ", columnList) + "]";
+        // build stringified list of data types
+        String dataTypeMapString = "[" + String.join(", ", dataTypeList) + "]";
+        logger.info("====================\n" + colMapString);
+        logger.info("====================\n" + dataTypeMapString);
+
+        // when user provides custom data format
+        String dateFormatCondition = "";
+        if (revisedInfoRequest.getDateFormat() != null && !revisedInfoRequest.getDateFormat().trim().isEmpty()) {
+            dateFormatCondition = ", dateformat='" + revisedInfoRequest.getDateFormat().trim() + "'";
+        }
+        // when user provides custom timestamp format
+        String timeStampFormatCondition = "";
+        if (revisedInfoRequest.getTimestampFormat() != null
+                && !revisedInfoRequest.getTimestampFormat().trim().isEmpty()) {
+            timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
+        }
+
+        // creating a map to send values to columns parameter
+        Map<String, String> map = convertToMap(columnList, dataTypeList);
+        // Converting a map to string to pass correct format to column
+        String columnsMapString = mapToString(map);
+
+        //creating Encryption key to save parquet file securely
+        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
+        stmtRecords.execute(encryptKey);
+
+        // read CSV and write as Parquet file
+        final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/" + "/"
+                + revisedInfoRequest.getFileId() + ".parquet";
+        String query = "COPY (SELECT * from read_json_auto('" + filePath
+                + "',ignore_errors=true, format='auto', columns=" + columnsMapString + dateFormatCondition
+                + timeStampFormatCondition + ")) TO '" + writeFile + "' (ENCRYPTION_CONFIG {footer_key: 'key256'});";
+
+        // handling data type mismatch
+        try {
+            stmtRecords.execute(query);
+        } catch (SQLException e) {
+            throw new ExpectationFailedException("you are trying for unmatched data type. Error:" + e.getMessage());
+        }
+
+        logger.info("************************\n" + query);
+
+        stmtRecords.close();
+        conn2.close();
+    }
+
+    public JSONArray changeSchmaforExcel(FileUploadRevisedInfoRequest revisedInfoRequest)
+            throws SQLException, ExpectationFailedException {
+
+        String fileName = revisedInfoRequest.getFileId();
+
+        String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
+        Connection conn2 = ((DuckDBConnection) conn).duplicate();
+
+        Statement stmtRecords = conn2.createStatement();
+
+        // put column name & data type into separate list
+        ArrayList<String> columnList = new ArrayList<String>();
+        ArrayList<String> dataTypeList = new ArrayList<String>();
+
+       
+        for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
+            FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
+            String colName = col.getFieldName().replaceAll("[^a-zA-Z0-9]", "_");
+            String silzilaDataType = col.getDataType().name().toLowerCase();
+            String duckDbDataType = ConvertDuckDbDataType.toDuckDbDataType(silzilaDataType);
+            String columnString = "'" + colName + "'";
+            String dataTypeString = "'" + duckDbDataType + "'";
+            columnList.add(columnString);
+            dataTypeList.add(dataTypeString);
+         }
+        // build stringified list of columns
+        String colMapString = "[" + String.join(", ", columnList) + "]";
+        // build stringified list of data types
+        String dataTypeMapString = "[" + String.join(", ", dataTypeList) + "]";
+        logger.info("====================\n" + colMapString);
+        logger.info("====================\n" + dataTypeMapString);
+
+        // when user provides custom data format
+        String dateFormatCondition = "";
+        if (revisedInfoRequest.getDateFormat() != null && !revisedInfoRequest.getDateFormat().trim().isEmpty()) {
+            dateFormatCondition = ", dateformat='" + revisedInfoRequest.getDateFormat().trim() + "'";
+        }
+        // when user provides custom time stamp format
+        String timeStampFormatCondition = "";
+        if (revisedInfoRequest.getTimestampFormat() != null
+                && !revisedInfoRequest.getTimestampFormat().trim().isEmpty()) {
+            timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
+        }
+
+        String query = "SELECT * from read_csv_auto('" + filePath + "', SAMPLE_SIZE=200,names=" + colMapString
+                + ", types=" + dataTypeMapString + dateFormatCondition + timeStampFormatCondition + ");";
+
+        logger.info("************************\n" + query);
+        ResultSet resultSet = null;
+
+        // handling data type mismatch error
+        try {
+            resultSet = stmtRecords.executeQuery(query);
+        } catch (SQLException e) {
+            throw new ExpectationFailedException("you are trying for unmatched data type. Error: " + e.getMessage());
+        }
+        JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
+        stmtRecords.close();
+        conn2.close();
+
+        return jsonArray;
+
     }
 
 }

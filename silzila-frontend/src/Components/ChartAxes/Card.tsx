@@ -1,7 +1,7 @@
 // This component represent each individual table field dropped inside dropzone
 // Each card has some aggregate values and option to select different aggregate and/or timeGrain values
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Card.css";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
@@ -10,6 +10,8 @@ import {
 	editChartPropItem,
 	revertAxes,
 	sortAxes,
+	enableOverrideForUIDAction,
+	createChartAxesForUID
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { Divider, Menu, MenuItem } from "@mui/material";
 import { AggregatorKeys } from "./Aggregators";
@@ -21,13 +23,15 @@ import { CardProps } from "./ChartAxesInterfaces";
 import {
 	editChartPropItemForDm,
 	revertAxesForDm,
-	sortAxesForDm,
+	sortAxesForDm,	
 } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import { SiWindows11 } from "react-icons/si";
+import { FaRocket } from "react-icons/fa";
 import { IoMdCheckmark } from "react-icons/io";
 import Logger from "../../Logger";
 import { CardOption } from "./CardOption";
 import WindowFunction from "./CardComponents/WindowFuction";
+import ChartAxes from "./ChartAxes";
 
 const Card = ({
 	// props
@@ -36,6 +40,7 @@ const Card = ({
 	itemIndex,
 	propKey,
 	axisTitle,
+	uID,
 
 	// state
 	tabTileProps,
@@ -48,6 +53,8 @@ const Card = ({
 	updateQueryParam,
 	sortAxes,
 	revertAxes,
+	enableOverrideForUIDAction,
+	createChartAxesForUID,
 
 	//dynamicMeasure dispatch
 	deleteDropZoneItemsForDm,
@@ -55,8 +62,8 @@ const Card = ({
 	sortAxesForDm,
 	revertAxesForDm,
 }: CardProps) => {
-
-	field.dataType = field.dataType.toLowerCase();
+	
+	field.dataType = field?.dataType?.toLowerCase();
 
 	var chartType =
 		chartProp.properties[`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`]
@@ -77,22 +84,29 @@ const Card = ({
 		if (chartType === "richText") {
 			deleteDropZoneItemsForDm(propKey, bIndex, itemIndex);
 		} else {
-			deleteDropZoneItems(propKey, bIndex, itemIndex);
+			deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName);
 		}
 		// chartPropUpdated(true);
 	};
 
+	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
+	
+	//let currentChartAxes = chartProp.properties[propKey][currentChartAxesName];
+	
 	const [showOptions, setShowOptions] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = useState<any | null>(null);
-	
+	const [anchorElment, setAnchorElement] = useState<any | null>(null);
+
     //Window function open/close and enable/disable
 	const [windowFunction, setWindowFunction] = useState<boolean>(false);
+	const [overrideFn, setOverrideFn] = useState<boolean>(false);
 	const [windowFunctionDisable, setWindowFunctionDisable] = useState<boolean>(false);
 
 	const open: boolean = Boolean(anchorEl);
 
 	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);
+		//setAnchorElement(event.currentTarget)
 	};
 
 	const handleClose = (closeFrom: any, queryParam?: any) => {
@@ -112,10 +126,32 @@ const Card = ({
 				Logger("info", "queryparam");
 				updateAxesQueryParamForDm(propKey, bIndex, itemIndex, field2);
 			} else {
-				updateQueryParam(propKey, bIndex, itemIndex, field2);
+				updateQueryParam(propKey, bIndex, itemIndex, field2, currentChartAxesName);
 			}
 		}
 	};
+
+	const handleOverrideOnClick = () =>{
+		setOverrideFn(true);
+
+		let oldChartAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes || []));
+		let overRideAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override || []));
+
+		createChartAxesForUID(propKey , chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].uId, 
+			chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override ? overRideAxes : oldChartAxes
+		);
+
+		enableOverrideForUIDAction(propKey , chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].uId);
+		handleClose("clickOutside");
+	}
+
+	const handleWindowFunctionOnClick = () =>{
+	//setTimeout(() => {
+		setWindowFunction(true);								
+		//}, 300);
+
+		handleClose("clickOutside");
+	}
 
 	var menuStyle = { fontSize: "12px", padding: "2px 1.5rem"};
 	var menuSelectedStyle = {
@@ -146,7 +182,7 @@ const Card = ({
 				if (chartType === "richText") {
 					revertAxesForDm(propKey, bIndex, uId, originalIndex);
 				} else {
-					revertAxes(propKey, bIndex, uId, originalIndex);
+					revertAxes(propKey, bIndex, uId, originalIndex, currentChartAxesName);
 				}
 			}
 		},
@@ -164,12 +200,53 @@ const Card = ({
 				if (chartType === "richText") {
 					sortAxesForDm(propKey, bIndex, dragUId, field.uId);
 				} else {
-					sortAxes(propKey, bIndex, dragUId, field.uId);
+					sortAxes(propKey, bIndex, dragUId, field.uId, currentChartAxesName);
 				}
 				Logger("info", "============HOVER BLOCK END ==============");
 			}
 		},
 	});
+
+	useEffect(()=>{
+		if(chartProp.properties[propKey].enableOverrideForUID === ""){
+			setOverrideFn(false);
+		}
+	},[chartProp.properties[propKey].enableOverrideForUID])
+
+	useEffect(()=>{
+//If two dimensional charts dimension, row, column, distribution without any fields, then window function will get disable
+if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+	if(chartProp.properties[propKey].chartAxes[1].fields.length === 0 && chartProp.properties[propKey].chartAxes[2].fields.length === 0){
+		setWindowFunctionDisable(true); 
+
+		//while window function get disabled, it check window function having any values in redux state. If yes, then window function value will be null
+		if(chartProp.properties[propKey].chartAxes[bIndex].fields && chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.windowfn){
+			chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn = null;
+		} 
+	} else {
+		//If two dimensional charts dimension, row, column, distribution with fields, then window function will get enable
+		if(chartProp.properties[propKey].chartAxes[1].fields.length > 0 || chartProp.properties[propKey].chartAxes[2].fields.length > 0){
+			setWindowFunctionDisable(false);
+		}
+	}} else {
+		//If one dimensional charts dimension or row without any fields, then window function will get disable
+		if(!["heatmap", "crossTab", "boxPlot", "richText"].includes(chartType)){
+			if(chartProp.properties[propKey].chartAxes[1].fields.length === 0){
+				setWindowFunctionDisable(true); 
+
+				//while window function get disabled, it check window function having any values in redux state. If yes, then window function value will be null
+				if(chartProp.properties[propKey].chartAxes[bIndex].fields && chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.windowfn){	
+					chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn = null;
+				} 
+			} else {
+				//If one dimensional charts dimension or row with fields, then window function will get enable
+				if(chartProp.properties[propKey].chartAxes[1].fields.length > 0){
+					setWindowFunctionDisable(false);
+				}
+			}
+		} 
+	}
+	},[chartProp.properties[propKey].chartAxes])
     
 	// Getting values from CardOption.tsx
 	// List of options to show at the end of each card
@@ -196,15 +273,20 @@ const Card = ({
 			}}
 		>
 			{aggr?.length > 0 
-				? aggr?.map((opt: any) => {
+				? aggr?.map((opt: any, idx:number) => {
 						return (
-							<MenuItem
-								onClick={() => handleClose("agg", opt.id)}
-								sx={opt.id === field.agg ? menuSelectedStyle : menuStyle}
-								key={opt.id}
-							>
-								{opt.name}
-							</MenuItem>
+							<div style={{display: "flex"}} key={idx}>
+								<span style={{color: "rgb(211, 211, 211)", paddingLeft: "5px", position:"absolute"}}>
+									{chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.agg?.toUpperCase() ===  opt.name?.toUpperCase() ? <IoMdCheckmark /> : null}
+								</span> 
+								<MenuItem
+									onClick={() => handleClose("agg", opt.id)}
+									sx={opt.id === field.agg ? menuSelectedStyle : menuStyle}
+									key={opt.id}
+								>
+									{opt.name}
+								</MenuItem>
+							</div>
 						);
 				  })
 			: null
@@ -230,15 +312,20 @@ const Card = ({
 			}
 
 			{timegrain?.length > 0
-				? timegrain?.map((opt2: any) => {
+				? timegrain?.map((opt2: any, idx:number) => {
 						return (
-							<MenuItem
-								onClick={() => handleClose("timeGrain", opt2.id)}
-								sx={opt2.id === field.timeGrain ? menuSelectedStyle : menuStyle}
-								key={opt2.id}
-							>
-								{opt2.name}
-							</MenuItem>
+							<div style={{display: "flex"}} key={idx}>
+								<span style={{color: "rgb(211, 211, 211)", paddingLeft: "5px", position:"absolute"}}>
+									{chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.agg?.toUpperCase() ===  opt2.name?.toUpperCase() ? <IoMdCheckmark /> : null}
+								</span> 
+								<MenuItem
+									onClick={() => handleClose("timeGrain", opt2.id)}
+									sx={opt2.id === field.timeGrain ? menuSelectedStyle : menuStyle}
+									key={opt2.id}
+								>
+									{opt2.name}
+								</MenuItem>
+							</div>
 						);
 				  })
 			: null
@@ -264,60 +351,53 @@ const Card = ({
 			:
 			windowfn?.length > 0
 				?
-				windowfn?.map((opt: any) => {
-					//If two dimensional charts dimension, row, column, distribution without any fields, then window function will get disable
-					if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-						if(chartProp.properties[propKey].chartAxes[1].fields.length === 0 && chartProp.properties[propKey].chartAxes[2].fields.length === 0){
-							setWindowFunctionDisable(true); 
-
-							//while window function get disabled, it check window function having any values in redux state. If yes, then window function value will be null
-						    if(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn){
-								chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn = null;
-							} 
-						} else {
-							//If two dimensional charts dimension, row, column, distribution with fields, then window function will get enable
-							if(chartProp.properties[propKey].chartAxes[1].fields.length > 0 || chartProp.properties[propKey].chartAxes[2].fields.length > 0){
-								setWindowFunctionDisable(false);
-							}
-						}} else {
-							//If one dimensional charts dimension or row without any fields, then window function will get disable
-							if(!["heatmap", "crossTab", "boxPlot", "richText"].includes(chartType)){
-								if(chartProp.properties[propKey].chartAxes[1].fields.length === 0){
-									setWindowFunctionDisable(true); 
-
-									//while window function get disabled, it check window function having any values in redux state. If yes, then window function value will be null
-									if(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn){	
-										chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn = null;
-									} 
-								} else {
-									//If one dimensional charts dimension or row with fields, then window function will get enable
-									if(chartProp.properties[propKey].chartAxes[1].fields.length > 0){
-										setWindowFunctionDisable(false);
-									}
-								}
-							} 
-						}
+				[...windowfn.filter((item:any)=> item.id === "windowfn" )]?.map((opt: any, idx:number) => {
+					
 					return (
-						<div style={{display: "flex"}}>
-						<span style={{color: "rgb(211, 211, 211)", paddingLeft: "5px", position:"absolute"}}>
-							{chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn ? <IoMdCheckmark /> : null}
-						</span> 
-						<MenuItem
-						disabled= {windowFunctionDisable}
-						onClick={() => { 
-							setWindowFunction(true);
-							handleClose("clickOutside");
-						}}
-							sx={{ fontSize: "12px", padding: "2px 1.5rem"}}
-							key={opt.id}
-						>
-							{opt.name}      
-						</MenuItem>
+						<div style={{display: "flex"}} key={idx}>
+							<span style={{color: "rgb(211, 211, 211)", paddingLeft: "5px", position:"absolute"}}>
+								{chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.windowfn ? <IoMdCheckmark /> : null}
+							</span> 
+							<MenuItem
+							disabled= {windowFunctionDisable}
+							onClick={handleWindowFunctionOnClick}
+								sx={{ fontSize: "12px", padding: "2px 1.5rem"}}
+								key={opt.id}
+							>
+								{opt.name}      
+							</MenuItem>
 						</div>
 					);
 			  })
 				:  null 
 			}  	
+
+			{					
+				chartType === "simplecard" 
+				? null 
+				:
+				windowfn?.length > 0
+					?
+					[...windowfn.filter((item:any)=> item.id === "override" )]?.map((opt: any, idx:number) => {
+						
+						return (
+							<div style={{display: "flex"}} key={idx}>
+							<span style={{color: "rgb(211, 211, 211)", paddingLeft: "5px", position:"absolute"}}>
+								{chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override ? <IoMdCheckmark /> : null}
+							</span> 
+							<MenuItem
+							disabled= {windowFunctionDisable}
+							onClick={handleOverrideOnClick}
+								sx={{ fontSize: "12px", padding: "2px 1.5rem"}}
+								key={opt.id}
+							>
+								{opt.name}      
+							</MenuItem>
+							</div>
+						);
+					})
+					:  null 
+			}
 
 			{ aggr?.length === 0 && timegrain?.length === 0 && windowfn?.length === 0 ? (
 				<MenuItem onClick={handleClose} sx={menuStyle} key="optNa">
@@ -333,6 +413,7 @@ const Card = ({
 		<div
 			ref={(node: any) => drag(drop(node))}
 			className="axisField"
+			style={windowFunction || overrideFn ? {border:"1.5px solid blue"} : {}}
 			onMouseOver={() => setShowOptions(true)}
 			onMouseLeave={() => {
 				if (!open) {
@@ -357,8 +438,26 @@ const Card = ({
 				chartType === "gauge" ||
 			    chartType === "funnel" ||
 			    chartType === "simplecard" ? null :
-				chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].windowfn? 
-				<span style={{display: "flex", alignItems: "center", paddingRight: "5px", color: "rgb(211, 211, 211)"}}><SiWindows11/></span> 
+				chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.windowfn? 
+				<button
+				type="button"
+				className="buttonCommon columnDown"
+				title="Window Function"				
+				onClick={handleWindowFunctionOnClick}
+				>
+				<span style={{display: "flex", alignItems: "center", paddingRight: "5px", color: "rgb(211, 211, 211)"}}><SiWindows11/></span> </button>
+			    : null
+			}   
+				{				
+			    chartType === "simplecard" ? null :
+				chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.override? 
+				<button
+				type="button"
+				className="buttonCommon columnDown"
+				title="Override Function"				
+				onClick={handleOverrideOnClick}
+				>
+				<span style={{display: "flex", alignItems: "center", paddingRight: "5px", color: "rgb(211, 211, 211)"}}><FaRocket/></span> </button>
 			    : null
 			}   
 
@@ -372,7 +471,7 @@ const Card = ({
 			<button
 				type="button"
 				className="buttonCommon columnDown"
-				title="Remove field"
+				title="Menu"
 				style={showOptions ? { visibility: "visible" } : { visibility: "hidden" }}
 				onClick={(e: any) => {
 					handleClick(e);
@@ -381,13 +480,17 @@ const Card = ({
 				<KeyboardArrowDownRoundedIcon style={{ fontSize: "14px", margin: "auto" }} />
 			</button>
 			<RenderMenu/> 
-			<WindowFunction 
-			windowfn= {windowFunction}
-			setWindowfn= {setWindowFunction}
-			propKey= {propKey}
-			bIndex= {bIndex}
-			itemIndex= {itemIndex}
-			/> 
+			{
+				windowFunction ? 
+				<WindowFunction 
+					anchorElm={anchorElment}
+					haswindowfn= {windowFunction}
+					setWindowfn= {setWindowFunction}
+					propKey= {propKey}
+					bIndex= {bIndex}
+					itemIndex= {itemIndex}
+					/> : null
+			}			
 			
 		</div>
 	) : null;
@@ -403,14 +506,14 @@ const mapStateToProps = (state: TabTileStateProps2 & ChartPropertiesStateProps &
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
-		deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: number) =>
-			dispatch(editChartPropItem("delete", { propKey, binIndex, itemIndex })),
-		updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any) =>
-			dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item })),
-		sortAxes: (propKey: string, bIndex: number, dragUId: string, uId: string) =>
-			dispatch(sortAxes(propKey, bIndex, dragUId, uId)),
-		revertAxes: (propKey: string, bIndex: number, uId: string, originalIndex: number) =>
-			dispatch(revertAxes(propKey, bIndex, uId, originalIndex)),
+		deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: number,  currentChartAxesName : string) =>
+			dispatch(editChartPropItem("delete", { propKey, binIndex, itemIndex, currentChartAxesName })),
+		updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any,  currentChartAxesName : string) =>
+			dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item, currentChartAxesName })),
+		sortAxes: (propKey: string, bIndex: number, dragUId: string, uId: string, currentChartAxesName : string) =>
+			dispatch(sortAxes(propKey, bIndex, dragUId, uId, currentChartAxesName)),
+		revertAxes: (propKey: string, bIndex: number, uId: string, originalIndex: number,  currentChartAxesName : string) =>
+			dispatch(revertAxes(propKey, bIndex, uId, originalIndex, currentChartAxesName)),
 
 		//dynamic measure actions
 		deleteDropZoneItemsForDm: (propKey: string, binIndex: number, itemIndex: any) =>
@@ -426,6 +529,11 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(editChartPropItemForDm("updateQuery", { propKey, binIndex, itemIndex, item })),
 		revertAxesForDm: (propKey: string, bIndex: number, uId: string, originalIndex: number) =>
 			dispatch(revertAxesForDm(propKey, bIndex, uId, originalIndex)),
+		enableOverrideForUIDAction: (propKey: string, uId: string) =>
+			dispatch(enableOverrideForUIDAction(propKey, uId)),
+		createChartAxesForUID: (propKey: string, uId: string, chartAxes:any) =>
+			dispatch(createChartAxesForUID(propKey, uId, chartAxes)),
+
 	};
 };
 

@@ -1,5 +1,6 @@
 package com.silzila.service;
 
+import com.silzila.exception.ExpectationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,13 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +44,7 @@ import com.silzila.payload.response.MetadataDatabase;
 import com.silzila.payload.response.MetadataTable;
 import com.silzila.domain.entity.DBConnection;
 import com.silzila.dto.OracleDTO;
+import com.silzila.helper.CustomQueryValidator;
 
 @Service
 public class ConnectionPoolService {
@@ -71,6 +67,10 @@ public class ConnectionPoolService {
 
     @Autowired
     DBConnectionService dbConnectionService;
+
+    @Autowired
+    CustomQueryValidator customQueryValidator;
+
 
     // creates connection pool & gets vendor name
     public String getVendorNameFromConnectionPool(String id, String userId)
@@ -198,6 +198,12 @@ public class ConnectionPoolService {
                 config.addDataSourceProperty("maximumPoolSize", "2");
                 dataSource = new HikariDataSource(config);
             }
+            //motherduck
+            else if (dbConnection.getVendor().equals("motherduck")) {
+                fullUrl = "jdbc:duckdb:md:" + dbConnection.getDatabase() +  "?motherduck_token=" + dbConnection.getPasswordHash();
+                config.setJdbcUrl(fullUrl);
+                dataSource = new HikariDataSource(config);
+            }
             // for Postgres & MySQL
             else {
                 // dbConnection.getPasswordHash() now holds decrypted password
@@ -265,7 +271,6 @@ public class ConnectionPoolService {
         try (Connection _connection = connectionPool.get(id).getConnection();
                 PreparedStatement pst = _connection.prepareStatement(query);
                 ResultSet rs = pst.executeQuery();) {
-            System.out.println("ResultSet" + rs);
             // statement = _connection.createStatement();
             // resultSet = statement.executeQuery(query);
             JSONArray jsonArray = ResultSetToJson.convertToJson(rs);
@@ -278,6 +283,69 @@ public class ConnectionPoolService {
         }
     }
 
+       public List<Map<String,String>> getColumForCustomQuery(String id, String userId, String query) throws RecordNotFoundException, SQLException, ExpectationFailedException {
+        if(customQueryValidator.customQueryValidator(query)) {
+            createConnectionPool(id, userId);
+            try {
+                try (Connection _connection = connectionPool.get(id).getConnection();
+                     PreparedStatement pst = _connection.prepareStatement(query);
+                     ResultSet rs = pst.executeQuery();) {
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    int count = rsmd.getColumnCount();
+                    List<Map<String, String>> columnList = new ArrayList<Map<String, String>>();
+                    for (int i = 1; i <= count; i++) {
+                        Map<String, String> columnDataTypeMap = new HashMap<>();
+                        columnDataTypeMap.put("columnName", rsmd.getColumnName(i));
+                        columnDataTypeMap.put("dataType", rsmd.getColumnTypeName(i));
+                        columnList.add(columnDataTypeMap);
+                    }
+                    return columnList;
+                } catch (Exception e) {
+                    logger.warn("runQuery Exception ----------------");
+                    logger.warn("error: " + e.toString());
+                    throw e;
+                }
+            }catch (Exception e){
+                throw new ExpectationFailedException("Wrong query!!Please check your query format");
+            }
+
+        }else {
+            throw new ExpectationFailedException("Wrong query!!CustomQuery is only allowed with SELECT");
+        }
+    }
+    public JSONArray getSampleRecordsForCustomQuery(String dBConnectionId, String userId, String query,Integer recordCount) throws RecordNotFoundException, SQLException, ExpectationFailedException {
+        if (customQueryValidator.customQueryValidator(query)) {
+            String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId);
+            String queryWithLimit="";
+            try{
+                createConnectionPool(dBConnectionId, userId);
+                if(recordCount<=200) {
+                    if (vendorName.equals("oracle")) {
+                        queryWithLimit = "select * from( " + query + ") WHERE ROWNUM <= " + recordCount;
+                    } else if (vendorName.equals("sqlserver")) {
+                        queryWithLimit = "WITH CTE AS ( " + query + ") SELECT TOP " + recordCount + " * FROM CTE;";
+                    } else {
+                        queryWithLimit = "select * from( " + query + ") AS CQ limit " + recordCount;
+                    }
+                }else {
+                    if (vendorName.equals("oracle")) {
+                        queryWithLimit = "select * from( " + query + ") WHERE ROWNUM <= 200";
+                    } else if (vendorName.equals("sqlserver")) {
+                        queryWithLimit = "WITH CTE AS ( " + query + ") SELECT TOP 200  * FROM CTE;";
+                    }
+                    else {
+                        queryWithLimit = "select * from( " + query + ") AS CQ limit 200";
+                    }
+                }
+            JSONArray jsonArray = runQuery(dBConnectionId, userId, queryWithLimit);
+            return jsonArray;
+            }catch (Exception e) {
+                throw new ExpectationFailedException("Wrong query!!Please check your query format");
+            }
+        }else {
+            throw new ExpectationFailedException("Wrong query!!CustomQuery is only allowed with SELECT");
+        }
+    }
     // Metadata discovery - Get Database names
     public ArrayList<String> getDatabase(String id, String userId)
             throws RecordNotFoundException, SQLException {
@@ -333,7 +401,7 @@ public class ConnectionPoolService {
             if (vendorName.equals("sqlserver")) {
                 // DB Name is must as SQL Server may contain many DB's in single server
                 if (databaseName == null || databaseName.trim().isEmpty()) {
-                    throw new BadRequestException("Error: Please specify Database Name for SQL Server connection");
+                    throw new BadRequestException("Error: Database name is not provided");
                 }
                 String query = """
                         select s.name as schema_name
@@ -362,7 +430,7 @@ public class ConnectionPoolService {
             // Databricks & Snowflake
             else if (vendorName.equals("databricks")|| vendorName.equals("snowflake")) {
                 if (databaseName == null || databaseName.trim().isEmpty()) {
-                    throw new BadRequestException("Error: Please specify Database Name for Databricks connection");
+                    throw new BadRequestException("Error: Database name is not provided");
                 }
                 try (Connection _connection = connectionPool.get(id).getConnection();) {
                     DatabaseMetaData databaseMetaData = _connection.getMetaData();
@@ -376,9 +444,9 @@ public class ConnectionPoolService {
                 }
             }
             // for bigquery
-            else if (vendorName.equals("bigquery")) {
+            else if (vendorName.equals("bigquery") || vendorName.equals("motherduck")) {
                 if (databaseName == null || databaseName.trim().isEmpty()) {
-                    throw new BadRequestException("Error: Please specify Database Name for Databricks connection");
+                    throw new BadRequestException("Error: Database name is not provided");
                 }
                 try (Connection _connection = connectionPool.get(id).getConnection();) {
                     DatabaseMetaData databaseMetaData = _connection.getMetaData();
@@ -512,10 +580,25 @@ public class ConnectionPoolService {
                 resultSetTables.close();
                 resultSetViews.close();
 
+            } // for motherduck
+            else if (vendorName.equals("motherduck")) {
+                // throw error if db name or schema name is not passed
+                if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                        || schemaName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Database & Schema names are not provided!");
+                }
+                // Add Tables
+                resultSetTables = databaseMetaData.getTables(databaseName, schemaName, null, null);
+                while (resultSetTables.next()) {
+                    // TABLE_CATALOG is the DB name and we don't need
+                    // String dbName = resultSet3.getString("TABLE_CATALOG");
+                    String tableName = resultSetTables.getString("TABLE_NAME");
+                    metadataTable.getTables().add(tableName);
+                }
+                resultSetTables.close();
             }
             // postgres & MySql are handled the same but different from SQL Server
             else {
-
                 // for POSTGRESQL DB
                 // throw error if schema name is not passed
                 if (vendorName.equalsIgnoreCase("postgresql") || vendorName.equalsIgnoreCase("redshift") || vendorName
@@ -612,7 +695,7 @@ public class ConnectionPoolService {
             }
             // for Databricks & Snowflake
             else if (vendorName.equals("databricks") || vendorName.equals("snowflake")) {
-                // DB name & schema name are must for Databricks
+                // DB name & schema name are must for Databricks & Snowflake
                 if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
                         || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Database & Schema names are not provided!");
@@ -620,9 +703,9 @@ public class ConnectionPoolService {
                 // get column names from the given schema and Table name
                 resultSet = databaseMetaData.getColumns(databaseName, schemaName, tableName, null);
             }
-            // for Bigquery
-            else if (vendorName.equals("bigquery")) {
-                // DB name & schema name are must for Bigquery
+            // for Bigquery & Motherduck
+            else if (vendorName.equals("bigquery") || vendorName.equals("motherduck")) {
+                // DB name & schema name are must for Bigquery & Motherduck
                 if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
                         || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Database & Schema names are not provided!");
@@ -643,6 +726,8 @@ public class ConnectionPoolService {
         }
     }
 
+
+
     // Metadata discovery - Get Sample Records of table
     public JSONArray getSampleRecords(String id, String userId, String databaseName, String schemaName,
             String tableName, Integer recordCount)
@@ -658,7 +743,7 @@ public class ConnectionPoolService {
         // based on database dialect, we pass different SELECT * Statement
         // for POSTGRESQL DB
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
-            // schema name is must for postgres
+            // schema name is must for postgres & redshift
             if (schemaName == null || schemaName.trim().isEmpty()) {
                 throw new BadRequestException("Error: Schema name is not provided!");
             }
@@ -667,7 +752,7 @@ public class ConnectionPoolService {
         }
         // for BIGQUERY DB
         else if (vendorName.equals("bigquery")) {
-            // schema name is must for postgres
+            // schema name is must for Bigquery
             if (schemaName == null || schemaName.trim().isEmpty()) {
                 throw new BadRequestException("Error: Schema name is not provided!");
             }
@@ -675,8 +760,8 @@ public class ConnectionPoolService {
             query = "SELECT * FROM `" + databaseName + "." + schemaName + "." + tableName + "` LIMIT " + recordCount;
         }
         // for MYSQL DB
-        else if (vendorName.equals("mysql")) {
-            // DB name is must for MySQL
+        else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
+            // DB name is must for MySQL & Motherduck
             if (databaseName == null || databaseName.trim().isEmpty()) {
                 throw new BadRequestException("Error: Database name is not provided!");
             }
@@ -854,6 +939,12 @@ public class ConnectionPoolService {
                     clientEmail);
             dataSource.addDataSourceProperty("OAuthPvtKeyFilePath",
                     tempPath);
+        }
+        //motherduck
+        else if (request.getVendor().equals("motherduck")) {
+            String fullUrl = "jdbc:duckdb:md:" + request.getDatabase() +  "?motherduck_token=" + request.getPassword();
+            config.setJdbcUrl(fullUrl);
+            dataSource = new HikariDataSource(config);
         }
         // Postgres & MySQL
         else {

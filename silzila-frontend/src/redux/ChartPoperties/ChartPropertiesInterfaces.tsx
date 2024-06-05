@@ -7,6 +7,7 @@ export interface IndChartPropProperties {
 	chartType: string;
 	isDynamicMeasureWindowOpened: boolean;
 	addMeasureInTextEditor: boolean;
+	enableOverrideForUID : string;
 
 	axesEdited: boolean;
 	filterRunState: boolean;
@@ -25,7 +26,7 @@ export interface IndChartPropProperties {
 	
 }
 export interface ChartPropProperties {
-	[key: string]: IndChartPropProperties;
+	[key: string]: IndChartPropProperties | any;
 }
 
 interface ChartPropChartAxesFieldsProps {
@@ -42,6 +43,7 @@ interface ChartPropChartAxesFieldsProps {
 	timeGrain?: string;
 	agg?: string;
 	windowfn?: any;
+	override?:any;
 }
 
 interface ChartPropChartAxes {

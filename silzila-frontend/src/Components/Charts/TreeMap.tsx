@@ -85,7 +85,7 @@ const Treemap = ({
 			var formattedData: any = []; // Final data structure to feed to the map
 
 			// columns in dimension
-			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map(el => {
+			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map((el:any) => {
 				if ("timeGrain" in el) {
 					return `${el.timeGrain} of ${el.fieldname}`;
 				} else if ("agg" in el) {
@@ -96,7 +96,7 @@ const Treemap = ({
 			});
 
 			// column in measure
-			chartProperties.properties[propKey].chartAxes[2].fields.forEach(el => {
+			chartProperties.properties[propKey].chartAxes[2].fields.forEach((el:any) => {
 				if (el.agg) {
 					measure = `${el.agg} of ${el.fieldname}`;
 				}
@@ -148,7 +148,7 @@ const Treemap = ({
 	}, [chartControls.properties[propKey], chartData]);
 
 	function getTooltipData(treePath: any, value: any, info: any) {
-		const dimsLength = chartProperties.properties[propKey].chartAxes[1].fields.map(el => {
+		const dimsLength = chartProperties.properties[propKey].chartAxes[1].fields.map((el:any) => {
 			return el.fieldname;
 		});
 

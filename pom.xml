@@ -121,8 +121,9 @@
 		<dependency>
 			<groupId>org.duckdb</groupId>
 			<artifactId>duckdb_jdbc</artifactId>
-			<version>0.10.0</version>
+			<version>0.10.2</version>
 		</dependency>
+
 
 		<!-- https://mvnrepository.com/artifact/com.amazon.redshift/redshift-jdbc42 -->
 		<dependency>
@@ -216,7 +217,7 @@
 			<artifactId>bigquery-jdbc</artifactId>
 			<version>42</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/src/lib/GoogleBigQueryJDBC42.jar</systemPath>
+			<systemPath>${basedir}/libs/GoogleBigQueryJDBC42.jar</systemPath>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-bigquery -->
