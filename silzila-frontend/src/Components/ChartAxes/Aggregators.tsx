@@ -45,6 +45,7 @@ const measurePrefixes: MeasurePrefixes = {
 		{ name: "Count Non Null", id: "countnn" },
 		{ name: "Count Null", id: "countn" },
 		{ name: "Count Unique", id: "countu" },
+
 	],
 	decimal: [
 		{ name: "Sum", id: "sum" },
@@ -119,6 +120,9 @@ export const AggregatorKeys: AggregatorKeysProps = {
 	countnn: "Count NN",
 	countn: "Count Null",
 	countu: "Count Unique",
+	
+
+
 
 	year: "Year",
 	yearquarter: "Year Qtr",

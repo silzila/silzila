@@ -11,7 +11,7 @@ import {
 	revertAxes,
 	sortAxes,
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
-import { Divider, Menu, MenuItem } from "@mui/material";
+import { Button, Divider, Menu, MenuItem,Tooltip, styled, withStyles} from "@mui/material";
 import { AggregatorKeys } from "./Aggregators";
 import { useDrag, useDrop } from "react-dnd";
 import { Dispatch } from "redux";
@@ -28,6 +28,59 @@ import { IoMdCheckmark } from "react-icons/io";
 import Logger from "../../Logger";
 import { CardOption } from "./CardOption";
 import WindowFunction from "./CardComponents/WindowFuction";
+import RenameFunction from "./CardComponents/RenameFunction";
+import { fieldName } from "../CommonFunctions/CommonFunctions";
+import { ClassNames } from "@emotion/react";
+import { id } from "date-fns/locale";
+import { TooltipProps } from '@mui/material/Tooltip';
+
+// interface PriceTagTooltipProps {
+//     text: string|undefined;
+//     fillColor?: string;
+//     textColor?: string;
+//     fontSize?: number;
+// 	open:boolean;
+// 	display:string; 
+// 	alignItems: string;
+// 	marginLeft: string;
+//   }
+  
+
+// const PriceTagTooltip: React.FC<PriceTagTooltipProps> = ({ text, fillColor = 'white', textColor = 'black', fontSize =30, }) => (
+// 	<svg width="30" height="30" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+// 	  <path d="M10,10 L90,10 L90,80 L50,100 L10,80 Z" fill={fillColor} stroke="black" />
+// 	  <text 
+// 		x="50%" 
+// 		y="50%" 
+// 		dominantBaseline="middle" 
+// 		textAnchor="middle" 
+// 		fontSize={fontSize} 
+// 		fill={textColor}
+// 		transform="rotate(-90 50 50)"
+// 	  >
+// 		{text}
+// 	  </text>
+// 	</svg>
+//   );
+
+const CustomTooltip = styled(({ className, ...props }: TooltipProps) => (
+	<Tooltip {...props} classes={{ popper: className }} />
+  ))(() => ({
+	[`& .MuiTooltip-tooltip`]: {
+	  backgroundColor: 'white',
+	  color: '#2bb9bb',
+	  fontSize: '13px',
+	  border:'1px solid  #2bb9bb'
+	},
+	[`& .MuiTooltip-arrow`]: {
+	  color: 'white',
+	  '&::before': {
+		width: '10px', // Adjust arrow width
+		height: '14px', // Adjust arrow height
+		border:'1px solid  #2bb9bb'
+	  },
+	},
+  }));
 
 const Card = ({
 	// props
@@ -88,12 +141,32 @@ const Card = ({
     //Window function open/close and enable/disable
 	const [windowFunction, setWindowFunction] = useState<boolean>(false);
 	const [windowFunctionDisable, setWindowFunctionDisable] = useState<boolean>(false);
+	const [renameFunction, setRenameFunction] = useState<boolean>(false);
+    // const [renameText, setRenameText] = useState<string>("");
+
+    const [showTooltip, setShowTooltip] = useState(false);
+	// const [anchorElTooltip, setAnchorElTooltip] = useState<any| null>(null); // State for Tooltip Popover
+
+    // Handlers for Tooltip
+    // const handleTooltipOpen = (event:any) => {
+        // setAnchorElTooltip(event.currentTarget);
+		// setShowTooltip(true);
+    // };
+
+    // const handleTooltipClose = () => {
+		// setAnchorElTooltip(null);
+	// 	setShowTooltip(false);
+    // };
 
 	const open: boolean = Boolean(anchorEl);
+	// const on:boolean=Boolean(anchorElTooltip)
 
 	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);
+		setShowTooltip(false);
 	};
+
+	
 
 	const handleClose = (closeFrom: any, queryParam?: any) => {
 		setAnchorEl(null);
@@ -115,7 +188,9 @@ const Card = ({
 				updateQueryParam(propKey, bIndex, itemIndex, field2);
 			}
 		}
-	};
+
+    };
+
 
 	var menuStyle = { fontSize: "12px", padding: "2px 1.5rem"};
 	var menuSelectedStyle = {
@@ -138,6 +213,7 @@ const Card = ({
 			originalIndex,
 		},
 		type: "card",
+		
 
 		end: (dropResult, monitor) => {
 			const { uId, bIndex, originalIndex } = monitor.getItem();
@@ -170,6 +246,8 @@ const Card = ({
 			}
 		},
 	});
+
+	
     
 	// Getting values from CardOption.tsx
 	// List of options to show at the end of each card
@@ -178,15 +256,18 @@ const Card = ({
 		var aggr= [];
 		var timegrain= [];
 		var windowfn= [];
+		var renamefn=[];
 		var options = CardOption(axisTitle, field);
 		if(options){
 			aggr = options[0];
 			timegrain = options[1];
 			windowfn = options[2];
+			renamefn=options[3]
+			
 		}
 		
         return (
-			 <Menu
+			 <Menu 
 			id="basic-menu"
 			anchorEl={anchorEl}
 			open={open}
@@ -205,10 +286,12 @@ const Card = ({
 							>
 								{opt.name}
 							</MenuItem>
+
 						);
 				  })
 			: null
 			}
+
 
 			{
 				axisTitle  === "Dimension" ||
@@ -319,28 +402,55 @@ const Card = ({
 				:  null 
 			}  	
 
-			{ aggr?.length === 0 && timegrain?.length === 0 && windowfn?.length === 0 ? (
-				<MenuItem onClick={handleClose} sx={menuStyle} key="optNa">
-					<i>-- No options --</i>
+			{ aggr?.length === 0 && timegrain?.length === 0 && windowfn?.length === 0 ?
+			(
+				// <MenuItem onClick={handleClose} sx={menuStyle} key="optNa">
+				<MenuItem onClick={() => { handleClose("rename"); setRenameFunction(true); setShowTooltip(false)}} sx={menuStyle} key="optNa" >
+					{/* <i>-- No options --</i> */}
+					Rename for Visual
 				</MenuItem>
-			) : null}     
+			) : null}   
+
+{ windowfn?.length !== 0 ?
+<MenuItem onClick={() => { handleClose("rename"); setRenameFunction(true); setShowTooltip(false)}} sx={menuStyle} >
+	Rename for Visual
+</MenuItem>:null }
+
 		</Menu> 
 		
 		);
 }; 
 
 	return field ? (
-		<div
+		<div className="axisField"
 			ref={(node: any) => drag(drop(node))}
-			className="axisField"
-			onMouseOver={() => setShowOptions(true)}
+			onMouseOver={(event:any) =>{
+				 setShowOptions(true)
+				 if (event.target.classList.contains('columnName'))
+                        // setTimeout(() => {
+							// handleTooltipOpen(event); // Open the tooltip when mouseover
+							setShowTooltip(true);
+						//  }, 500);
+					  }
+					}
+					
+				
+
 			onMouseLeave={() => {
+
 				if (!open) {
 					setShowOptions(false);
-				}
+			}
+				// handleTooltipClose(); // Close the tooltip when mouse leaves 
+				 setShowTooltip(false);
 			}}
+
 		>
+						
+		
+
 			<button
+			   
 				type="button"
 				className="buttonCommon columnClose"
 				onClick={deleteItem}
@@ -348,10 +458,12 @@ const Card = ({
 				style={showOptions ? { visibility: "visible" } : { visibility: "hidden" }}
 			>
 				<CloseRoundedIcon style={{ fontSize: "13px", margin: "auto" }} />
+				
 			</button>
-
+ 
 			<span className="columnName">{field.fieldname}</span>
-			
+
+
 			{/* window function have any values in state, then window icon will get enable */}
 			{
 				chartType === "gauge" ||
@@ -372,13 +484,15 @@ const Card = ({
 			<button
 				type="button"
 				className="buttonCommon columnDown"
-				title="Remove field"
-				style={showOptions ? { visibility: "visible" } : { visibility: "hidden" }}
-				onClick={(e: any) => {
+	            onClick={(e: any) => {
 					handleClick(e);
 				}}
+				title="Click for Menu Options"
+				style={showOptions ? { visibility: "visible" } : { visibility: "hidden" }}
+				
 			>
-				<KeyboardArrowDownRoundedIcon style={{ fontSize: "14px", margin: "auto" }} />
+
+			<KeyboardArrowDownRoundedIcon style={{ fontSize: "14px", margin: "auto" }} />
 			</button>
 			<RenderMenu/> 
 			<WindowFunction 
@@ -388,10 +502,78 @@ const Card = ({
 			bIndex= {bIndex}
 			itemIndex= {itemIndex}
 			/> 
+
+           <RenameFunction 
+			renamefn= {renameFunction}
+			setRenamefn= {setRenameFunction}
+			propKey= {propKey}
+			bIndex= {bIndex}
+			itemIndex= {itemIndex}
+			/> 
 			
+
+
+            
+			 {/* <Tooltip 
+			 title={field.displayname} 
+			 arrow
+			 style={{ display: 'flex', alignItems: 'center', marginLeft: '8px', fontSize: '14px',color:'whitesmoke' }}
+			 componentsProps={{
+				tooltip: {
+				  sx: {
+					bgcolor: 'common.red',
+					'& .MuiTooltip-arrow': {
+					  color: 'common.red',
+					  width: 16, // Adjust arrow width
+                      height: 16,
+
+					},
+				  },
+				},
+			  }}
+			 open={showTooltip}
+			 placement="right-end"
+			 >
+				{/* Content to which the tooltip should apply */}
+				<span></span>
+		  {/* </Tooltip>   */} 
+
+                
+					<CustomTooltip
+				title={field.displayname}
+				arrow
+				open={showTooltip}
+				placement="right-end"
+				style={{ display: 'flex', alignItems: 'center', marginLeft: '8px', fontSize: '14px' }}
+				>
+				<span></span>
+				</CustomTooltip>
+		   
+		   {/* {showTooltip && (
+			<div style={{ position: "relative" }}>
+			<PriceTagTooltip
+			text={field.displayname} 
+			fillColor="white" 
+			textColor="black" 
+			fontSize={10} 
+			open={showTooltip}  
+			display="flex"
+			alignItems="center"
+			marginLeft="8px"
+
+        />
+		</div>
+      )} */}
+ 
+            
+
 		</div>
 	) : null;
 };
+
+
+
+
 
 const mapStateToProps = (state: TabTileStateProps2 & ChartPropertiesStateProps & any) => {
 	return {

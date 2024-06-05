@@ -7,15 +7,19 @@ import Aggregators from "./Aggregators";
 const measurePrefixes: MeasurePrefixes = {
 		integer: [
 			{ name: "Window Function", id: "windowfn" },
+			
 		],
 		decimal: [
 			{ name: "Window Function", id: "windowfn" },
+			
 		],
 		text: [
 			{ name: "Window Function", id: "windowfn" },
+			
 		],
 		date:  [
 			{ name: "Window Function", id: "windowfn" },
+			
 		],
 		timestamp:  [
 			{ name: "Window Function", id: "windowfn" },
@@ -28,11 +32,13 @@ const measurePrefixes: MeasurePrefixes = {
 		Y: measurePrefixes,
 	};
 
+
 //function used to display aggregators and windowFunction based on axistitle and datatype
 export const CardOption = (axisTitle: string, field: any) => {
     var aggr: any[] = [];
 	var timegrain: any[] = [];
 	var windowfn: any[] = [];
+
 
 	if (axisTitle === "Measure" || axisTitle === "X" || axisTitle === "Y") {
 		if (field.dataType === "date" || field.dataType === "timestamp") {
