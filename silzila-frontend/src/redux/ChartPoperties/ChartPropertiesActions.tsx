@@ -142,6 +142,15 @@ export const updateAxesQueryParam = (
 	return { type: "UPDATE_AXES_QUERY_PARAM", payload: { propKey, binIndex, itemIndex, item,currentChartAxesName } };
 };
 
+export const updateisTextRenamed = (propKey:string,isTextRenamed:boolean) => {
+	return {
+		type:  "UPDATE_IS_TEXT_RENAMED",
+		payload: {propKey,isTextRenamed},
+	};
+};
+
+
+
 export const toggleAxesEdited = (propKey: string, axesEdited: any) => {
 	return { type: "TOGGLE_AXES_EDITED", payload: { propKey, axesEdited } };
 };
@@ -203,6 +212,7 @@ export const editChartPropItem = (action: any, details: any) => {
 		}
 	};
 };
+
 
 export const changeChartType = (propKey: string, chartType: string) => {
 	return {

@@ -20,6 +20,7 @@ const measurePrefixes: MeasurePrefixes = {
 		date:  [
 			{ name: "Window Function", id: "windowfn" },
 			{ name: "Override", id: "override" },
+
 		],
 		timestamp:  [
 			{ name: "Window Function", id: "windowfn" },
@@ -33,11 +34,13 @@ const measurePrefixes: MeasurePrefixes = {
 		Y: measurePrefixes,
 	};
 
+
 //function used to display aggregators and windowFunction based on axistitle and datatype
 export const CardOption = (axisTitle: string, field: any) => {
     var aggr: any[] = [];
 	var timegrain: any[] = [];
 	var windowfn: any[] = [];
+
 
 	if (axisTitle === "Measure" || axisTitle === "X" || axisTitle === "Y") {
 		if (field.dataType === "date" || field.dataType === "timestamp") {
