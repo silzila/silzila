@@ -99,6 +99,54 @@ export const generateRandomColorArray = (length:number) => {
   }
 
 
+  const _changeJSONObjectOrder = (orderedArray:any, item:any)=>{	
+
+	const entries = Object.entries(item);
+
+	entries.sort(([keyA], [keyB]) => {
+	return orderedArray.indexOf(keyA) - orderedArray.indexOf(keyB);
+	});
+
+	return Object.fromEntries(entries);
+  }
+
+  export const changeChartDataToAxesOrder = (chartData:any, chartProp:any, propKey:string)=>{
+	let fields:any = [];
+	let fieldsNames:string[] = [];
+	let orderedChartData:any = [];
+
+	switch(chartProp.properties[propKey].chartType){
+		case "pie":
+		case "rose":
+		case "donut":
+		case "line":
+		case "area":
+		case "step line":
+		case "stackedArea":
+		case "multibar":
+		case "stackedBar":
+		case "horizontalStacked":
+		case "horizontalBar":
+			fields = chartProp.properties[propKey].chartAxes[1].fields;
+			fields = [...fields, ...chartProp.properties[propKey].chartAxes[2].fields];
+		break;
+	}
+
+	if(fields && fields.length > 0){
+		for(let field of fields){
+			fieldsNames.push(fieldName(field));
+		}
+	
+		chartData.forEach((data:any)=>{
+			orderedChartData.push(_changeJSONObjectOrder(fieldsNames, data))
+		})
+	
+		return orderedChartData;
+	}
+	else{
+		return chartData;
+	}	
+  }
 
 
   

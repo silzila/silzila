@@ -13,7 +13,7 @@ import { ChartAxesProps } from "./ChartAxesInterfaces";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import ChartData from "./ChartData";
 import { Dispatch } from "redux";
-import {changeLocation, changeGeoKey} from "../../redux/ChartPoperties/ChartPropertiesActions";
+import {changeLocation, changeGeoKey, enableOverrideForUIDAction, editChartPropItem, removeChartAxesForUID} from "../../redux/ChartPoperties/ChartPropertiesActions";
 import {getGeoJSON, getMismachedLocationArray} from '../Charts/GeoChart/GeoJSON/MapCommonFunctions';
 import WarningIcon from "@mui/icons-material/WarningAmber";
 import GoeMismatch from '../Charts/GeoChart/Components/GeoMismatch';
@@ -21,14 +21,20 @@ import GoeHelp from '../Charts/GeoChart/Components/GeoHelp';
 import {fieldName} from '../CommonFunctions/CommonFunctions';
 import { VisibilitySharp, InfoOutlined } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
-import {  Autocomplete,TextField, } from "@mui/material";
+import {  Menu, Autocomplete,TextField,Button, Dialog,
+	DialogContent,
+	DialogTitle, } from "@mui/material";
 
 
 const ChartAxes = ({
 	// props
 	tabId,
 	tileId,
+	uID,
 
+	enableOverrideForUIDAction,
+	updateQueryParam,
+	removeChartAxesForUID,
 	// state
 
 	chartProp,
@@ -55,8 +61,17 @@ const ChartAxes = ({
 	//const isOpenHelp: boolean = Boolean(anchorHelpElm);
 
 	for (let i = 0; i < ChartsInfo[chartProp.properties[propKey].chartType].dropZones.length; i++) {
-		dropZones.push(ChartsInfo[chartProp.properties[propKey].chartType].dropZones[i].name);
+		// if(uID){
+		// 	if(ChartsInfo[chartProp.properties[propKey].chartType].dropZones[i].name !== "Measure"){
+		// 		dropZones.push(ChartsInfo[chartProp.properties[propKey].chartType].dropZones[i].name);
+		// 	}
+		// }
+		// else{
+			dropZones.push(ChartsInfo[chartProp.properties[propKey].chartType].dropZones[i].name);
+		//}	
 	}
+
+
 	
 	const handleClose = () => {
 		setAnchorHelpElm(null);
@@ -66,6 +81,27 @@ const ChartAxes = ({
 	const handleCloseWarningMismatch = () => {
 		setAnchorMismatchElm(null);
 		setShowOptionsMismatch(false);
+	}
+
+	const OverrideMeasureDropZone = ()=>{
+		return(
+			<>
+				<span style={ {
+					borderTop: "2px solid rgba(224, 224, 224, 1)",
+					flex: 1,
+					paddingBottom: "2px",}}>
+				</span>
+				<div style={{display:"block", position:"sticky", top:"0",  marginTop:"auto"}}>
+					<Button
+						onClick={()=>{
+							enableOverrideForUIDAction(propKey , "");
+							removeChartAxesForUID(propKey, uID);
+						}}
+					>Cancel</Button>
+					<Button onClick={handleOverrideSave}>Save</Button> 
+				</div>
+			</>
+		)
 	}
 
 	// const usePrevious = (value) => {
@@ -124,6 +160,22 @@ const ChartAxes = ({
 
 	const handleLocationOnChange =(e:any)=>{
 		changeLocation(propKey, e.currentTarget.innerText);
+	}
+
+	const handleOverrideSave = (e:any) =>{
+		enableOverrideForUIDAction(propKey , "");		
+		let bIndex = ChartsInfo[chartProp.properties[propKey].chartType].dropZones.findIndex((item:any)=> item.name === "Measure");
+		let itemIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex((item:any)=> item.uId === uID);
+		let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
+		let tempField:any = {};
+
+		if(field){
+			tempField = JSON.parse(JSON.stringify(field));
+			tempField.override = chartProp.properties[propKey]["chartAxes_" + uID];
+			updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
+		}		
+
+		removeChartAxesForUID(propKey, uID);
 	}
 
 	const [options, setOptions] = useState(["World", "Australia", "Brazil", "China"
@@ -310,10 +362,17 @@ const ChartAxes = ({
 					<GoeMismatch propKey={propKey} misMatchList={misMatchList} open={showOptionsMismatch} anchorElement={anchorMismatchElm} handleClose={handleCloseWarningMismatch}></GoeMismatch>
 				</div>
 			)}
-			{dropZones.map((zone: any, zoneI: any) => (
-				<DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} />
+			{dropZones.map((zone: any, zoneI: any) => (				
+					uID ? zone !== "Measure" ?
+					<DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} uID={uID}/>
+					: <OverrideMeasureDropZone/>
+					: <DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} uID={uID}/>				
+				
 			))}
-			<ChartData tabId={tabId} tileId={tileId} screenFrom="Chartaxes"></ChartData>
+			{
+				uID ? null : <ChartData tabId={tabId} tileId={tileId} screenFrom="Chartaxes"></ChartData> //TODO chartdata
+			}
+			
 		</div>
 	);
 };
@@ -332,6 +391,12 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(changeLocation(propKey, geoLocation)),
 		changeGeoKey: (propKey: string, key: any) =>
 			dispatch(changeGeoKey(propKey, key)),
+		enableOverrideForUIDAction: (propKey: string, uId: string) =>
+			dispatch(enableOverrideForUIDAction(propKey, uId)),		
+		updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any,  currentChartAxesName : string) =>
+			dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item, currentChartAxesName })),
+		removeChartAxesForUID: (propKey: string, uId: string) =>
+			dispatch(removeChartAxesForUID(propKey, uId)),
 	}
 };
 

@@ -385,30 +385,42 @@ public class RelativeFilterDatePostgres {
 
         String anchorDate = relativeFilter.getAnchorDate();
 
+        String customQuery = table.getCustomQuery();
+
         // pattern checker of specific date
         Pattern pattern = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])");
         Matcher matcher = pattern.matcher(anchorDate);
 
         // Query
-        if (List.of("today", "tomorrow", "yesterday", "columnMaxDate").contains(anchorDate)) {
-            if (anchorDate.equals("today")) {
-                query = "SELECT CURRENT_DATE AS anchordate";
-            } else if (anchorDate.equals("tomorrow")) {
-                query = "SELECT CURRENT_DATE + INTERVAL '1 DAY' AS anchordate";
-            } else if (anchorDate.equals("yesterday")) {
-                query = "SELECT CURRENT_DATE - INTERVAL '1 DAY' AS anchordate";
-            } else if (anchorDate.equals("columnMaxDate")) {
-                query = "SELECT CAST(MAX(" + relativeFilter.getFilterTable().getFieldName()
-                        + ") AS DATE) AS anchordate FROM "
-                        + schemaName + "." + tableName;
+
+
+            if (List.of("today", "tomorrow", "yesterday", "columnMaxDate").contains(anchorDate)) {
+                if (anchorDate.equals("today")) {
+                    query = "SELECT CURRENT_DATE AS anchordate";
+                } else if (anchorDate.equals("tomorrow")) {
+                    query = "SELECT CURRENT_DATE + INTERVAL '1 DAY' AS anchordate";
+                } else if (anchorDate.equals("yesterday")) {
+                    query = "SELECT CURRENT_DATE - INTERVAL '1 DAY' AS anchordate";
+                } else if (anchorDate.equals("columnMaxDate")) {
+                    if(!table.isCustomQuery()) {
+                        query = "SELECT CAST(MAX(" + relativeFilter.getFilterTable().getFieldName()
+                                + ") AS DATE) AS anchordate FROM "
+                                + schemaName + "." + tableName;
+                    }else{
+                        query = "SELECT CAST(MAX(" + relativeFilter.getFilterTable().getFieldName()
+                                + ") AS DATE) AS anchordate FROM ("
+                                + customQuery+")";
+                    }
+                }
+            } else if (matcher.matches()) {
+                query = "SELECT 1 AS anchordate";
+            } else {
+                throw new BadRequestException("Invalid anchor date");
             }
-        } else if (matcher.matches()) {
-            query = "SELECT 1 AS anchordate";
-        } else {
-            throw new BadRequestException("Invalid anchor date");
+
+            return query;
         }
 
-        return query;
-    }
+
 
 }

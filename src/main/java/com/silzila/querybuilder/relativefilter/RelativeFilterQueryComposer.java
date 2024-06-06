@@ -25,7 +25,7 @@ public class RelativeFilterQueryComposer {
         logger.info("----------- RelativeFilterQueryComposer calling......");
         String finalQuery = "";
 
-        if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+        if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("motherduck")) {
             logger.info("------ inside postges/redshift block");
             finalQuery = RelativeFilterDatePostgres.getRelativeDate(relativeFilter, anchorDateArray);
         } else if (vendorName.equals("mysql")) {
@@ -63,20 +63,29 @@ public class RelativeFilterQueryComposer {
         logger.info("----------- RelativeFilteranchorDateQueryComposer calling......");
         String finalQuery = "";
         Table table = null;
+        String query = null;
         for (int i = 0; i < ds.getDataSchema().getTables().size(); i++) {
             if (ds.getDataSchema().getTables().get(i).getId()
                     .equals(relativeFilter.getFilterTable().getTableId())) {
                 table = ds.getDataSchema().getTables().get(i);
-                break;
+                if(table.isCustomQuery()) {
+                     query = table.getCustomQuery();
+                }
+               break;
             }
         }
         ;
+        if(table.isCustomQuery()) {
+            if (!query.contains(relativeFilter.getFilterTable().getFieldName())) {
+                throw new BadRequestException("Error: Requested Filter Column is not available in Dataset!");
+            }
 
+        }
         if (Objects.isNull(table)) {
-            throw new BadRequestException("Error: RequestedFiter Column is not available in Dataset!");
+            throw new BadRequestException("Error: Requested Filter Column is not available in Dataset!");
         }
 
-        if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+        if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("motherduck")) {
             logger.info("------ inside postges/redshift block");
             finalQuery = RelativeFilterDatePostgres.getRelativeAnchorDate(table, relativeFilter);
         } else if (vendorName.equals("mysql")) {

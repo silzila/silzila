@@ -69,36 +69,40 @@ export const updateDropZoneExpandCollapsePropLeft = (
 export const updateFilterAnyContidionMatchPropLeft = (
 	propKey: string,
 	bIndex: number | string,
-	any_condition_match: any
+	any_condition_match: any,
+	currentChartAxesName : string = "chartAxes"
 ) => {
 	return {
 		type: "UPDATE_FILTER_ANY_CONDITION_MATCH",
-		payload: { propKey, bIndex, any_condition_match },
+		payload: { propKey, bIndex, any_condition_match, currentChartAxesName },
 	};
 };
 
 export const updateIsAutoFilterEnabledPropLeft = (
 	propKey: string,
 	bIndex: number | string,
-	is_auto_filter_enabled: any
+	is_auto_filter_enabled: any,
+	currentChartAxesName : string= "chartAxes"
 ) => {
 	return {
 		type: "UPDATE_IS_AUTO_FILTER_ENABLED",
-		payload: { propKey, bIndex, is_auto_filter_enabled },
+		payload: { propKey, bIndex, is_auto_filter_enabled, currentChartAxesName },
 	};
 };
 
-export const clearDropZoneFieldsChartPropLeft = (propKey: string, bIndex: number | string) => {
-	return { type: "CLEAR_DROPZONE_FIELDS", payload: { propKey, bIndex } };
+export const clearDropZoneFieldsChartPropLeft = (propKey: string, bIndex: number | string, currentChartAxesName : string = "chartAxes") => {
+	return { type: "CLEAR_DROPZONE_FIELDS", payload: { propKey, bIndex, currentChartAxesName } };
 };
 
 export const updateChartPropLeft = (
 	propKey: string,
 	bIndex: number,
 	item: any,
-	allowedNumbers: any
+	allowedNumbers: any,
+	currentChartAxesName : string = "chartAxes"
+
 ) => {
-	return { type: "UPDATE_PROP", payload: { propKey, bIndex, item, allowedNumbers } };
+	return { type: "UPDATE_PROP", payload: { propKey, bIndex, item, allowedNumbers,currentChartAxesName } };
 };
 
 export const moveItemChartProp = (
@@ -107,21 +111,23 @@ export const moveItemChartProp = (
 	fromUID: any,
 	item: any,
 	toBIndex: any,
-	allowedNumbers: any
+	allowedNumbers: any,
+	currentChartAxesName : string = "chartAxes"
 ) => {
 	return {
 		type: "MOVE_ITEM",
-		payload: { propKey, fromBIndex, fromUID, item, toBIndex, allowedNumbers },
+		payload: { propKey, fromBIndex, fromUID, item, toBIndex, allowedNumbers, currentChartAxesName },
 	};
 };
 
-export const deleteItemInChartProp = (propKey: string, binIndex: number, itemIndex: number) => {
+export const deleteItemInChartProp = (propKey: string, binIndex: number, itemIndex: number, currentChartAxesName : string = "chartAxes") => {
 	return {
 		type: "DELETE_ITEM_FROM_PROP",
 		payload: {
 			propKey,
 			binIndex,
 			itemIndex,
+			currentChartAxesName
 		},
 	};
 };
@@ -130,9 +136,10 @@ export const updateAxesQueryParam = (
 	propKey: string,
 	binIndex: number,
 	itemIndex: number,
-	item: any
+	item: any,
+	currentChartAxesName : string = "chartAxes"
 ) => {
-	return { type: "UPDATE_AXES_QUERY_PARAM", payload: { propKey, binIndex, itemIndex, item } };
+	return { type: "UPDATE_AXES_QUERY_PARAM", payload: { propKey, binIndex, itemIndex, item,currentChartAxesName } };
 };
 
 export const updateisTextRenamed = (propKey:string,isTextRenamed:boolean) => {
@@ -162,7 +169,8 @@ export const editChartPropItem = (action: any, details: any) => {
 						details.propKey,
 						details.bIndex,
 						details.item,
-						details.allowedNumbers
+						details.allowedNumbers,
+						details.currentChartAxesName || "chartAxes"
 					)
 				);
 				break;
@@ -175,14 +183,15 @@ export const editChartPropItem = (action: any, details: any) => {
 						details.fromUID,
 						details.item,
 						details.toBIndex,
-						details.allowedNumbers
+						details.allowedNumbers,
+						details.currentChartAxesName || "chartAxes"
 					)
 				);
 				break;
 
 			case "delete":
 				dispatch(
-					deleteItemInChartProp(details.propKey, details.binIndex, details.itemIndex)
+					deleteItemInChartProp(details.propKey, details.binIndex, details.itemIndex,details.currentChartAxesName || "chartAxes")
 				);
 				break;
 
@@ -192,7 +201,8 @@ export const editChartPropItem = (action: any, details: any) => {
 						details.propKey,
 						details.binIndex,
 						details.itemIndex,
-						details.item
+						details.item,
+						details.currentChartAxesName || "chartAxes"
 					)
 				);
 				break;
@@ -211,14 +221,14 @@ export const changeChartType = (propKey: string, chartType: string) => {
 	};
 };
 
-export const changeChartAxes = (propKey: string, newAxes: any) => {
-	return { type: "CHANGE_CHART_AXES", payload: { propKey, newAxes } };
+export const changeChartAxes = (propKey: string, newAxes: any, currentChartAxesName : string = "chartAxes") => {
+	return { type: "CHANGE_CHART_AXES", payload: { propKey, newAxes, currentChartAxesName } };
 };
 
-export const changeChartTypeAndAxes = (propKey: string, chartType: string, newAxes: any) => {
+export const changeChartTypeAndAxes = (propKey: string, chartType: string, newAxes: any, currentChartAxesName : string = "chartAxes") => {
 	return (dispatch: Dispatch<any>) => {
 		dispatch(toggleAxesEdited(propKey, true));
-		dispatch(changeChartAxes(propKey, newAxes));
+		dispatch(changeChartAxes(propKey, newAxes, currentChartAxesName));
 		dispatch(changeChartType(propKey, chartType));
 	};
 };
@@ -255,11 +265,12 @@ export const sortAxes = (
 	propKey: string,
 	bIndex: number,
 	dragUId: string | number,
-	dropUId: string | number
+	dropUId: string | number,
+	currentChartAxesName : string = "chartAxes"
 ) => {
 	return {
 		type: "SORT_ITEM",
-		payload: { propKey, bIndex, dragUId, dropUId },
+		payload: { propKey, bIndex, dragUId, dropUId, currentChartAxesName },
 	};
 };
 
@@ -267,11 +278,12 @@ export const revertAxes = (
 	propKey: string,
 	bIndex: number,
 	uId: string | number,
-	originalIndex: any
+	originalIndex: any,
+	currentChartAxesName : string = "chartAxes"
 ) => {
 	return {
 		type: "REVERT_ITEM",
-		payload: { propKey, bIndex, uId, originalIndex },
+		payload: { propKey, bIndex, uId, originalIndex,currentChartAxesName },
 	};
 };
 
@@ -297,15 +309,16 @@ export const resetChartProperties = () => {
 	return { type: "RESET_CHART_PROPERTY" };
 };
 
-export const updateLeftFilterItem = (propKey: string, bIndex: number, item: any) => {
-	return { type: "UPDATE_LEFT_FILTER_ITEM", payload: { propKey, bIndex, item } };
+export const updateLeftFilterItem = (propKey: string, bIndex: number, item: any, currentChartAxesName : string = "chartAxes") => {
+	return { type: "UPDATE_LEFT_FILTER_ITEM", payload: { propKey, bIndex, item, currentChartAxesName } };
 };
 export const updtateFilterExpandeCollapse = (
 	propKey: string,
 	bIndex: number | string,
-	item: any
+	item: any,
+	currentChartAxesName : string = "chartAxes"
 ) => {
-	return { type: "UPDATE_FILTER_EXPAND_COLLAPSE", payload: { propKey, bIndex, item } };
+	return { type: "UPDATE_FILTER_EXPAND_COLLAPSE", payload: { propKey, bIndex, item, currentChartAxesName } };
 };
 
 export const setDynamicMeasureWindowOpen = (propKey: string, value: boolean) => {
@@ -341,5 +354,26 @@ export const changeGeoMapUnMatched = (propKey: string, value: string) => {
 	return {
 		type: "CHANGE_GEOMAP_UNMATCHED",
 		payload: { propKey, value },
+	};
+};
+
+export const enableOverrideForUIDAction = (propKey: string, uId: string) => {
+	return {
+		type: "ENABLE_OVERRIDE_FOR_UID_ACTION",
+		payload: { propKey, uId },
+	};
+};
+
+export const createChartAxesForUID = (propKey: string, uId: string, chartAxes:any) => {
+	return {
+		type: "CREATE_CHARTAXES_FOR_UID",
+		payload: { propKey, uId, chartAxes },
+	};	
+};
+
+export const removeChartAxesForUID = (propKey: string, uId: string) => {
+	return {
+		type: "REMOVE_CHARTAXES_FOR_UID",
+		payload: { propKey, uId },
 	};
 };

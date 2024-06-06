@@ -77,6 +77,9 @@ const TileRibbon = ({
     let propKey: string = `${tabId}.${tileId}`;
     let chartObj: any = chartProp.properties[propKey];
     selectTile(tabId, tileName, tileId, nextTileId, false, chartObj.fileId);
+    setTimeout(() => {
+      handleClose();
+    }, 300);
   };
 
   const handleRenameTileBegin = (tabId: number, tileId: number) => {
@@ -197,7 +200,7 @@ const TileRibbon = ({
     );
   });
 
-  const ITEM_HEIGHT = 48;
+  const ITEM_HEIGHT = 34;
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const tileOpen = Boolean(anchorEl);
   const [currentTileLength, setCurrentTileLength] = useState<number>(0);
@@ -210,7 +213,7 @@ const TileRibbon = ({
   const handleTileScroll = (step: number) => {
     tileWrapperRef.current!.scrollLeft += step;
   };
-
+  
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -238,16 +241,28 @@ const TileRibbon = ({
             minHeight: ITEM_HEIGHT * 4.5,
             maxHeight: ITEM_HEIGHT * 12.3,
             width: "26ch",
-            margin: "-26px 0px 0px -85px",
+            margin: "-26px 0px 0px -70px",
             padding: "0px 45px",
+            paddingLeft: "0px"
           },
         }}
       >
-        {tileList.map((tileItem) => (
-          <MenuItem onClick={handleClose}>{tileItem}</MenuItem>
+        {tileList.map((tileItem,index) => (
+          <MenuItem key={index} onClick={handleClose} 
+          style={{ 
+            width: "225px", 
+            marginLeft: "0px", 
+            paddingLeft: "0px",
+            padding: "0px",
+            height: "35px",
+            backgroundColor: "transparent"
+            }}
+            >
+           {React.cloneElement(tileItem, { popupClass: "popupTile",  inPopup: true })}
+      </MenuItem>
         ))}
       </Menu>
-      <div style={{ display: "flex", overflow: "hidden" }} ref={tileWrapperRef}>
+      <div style={{ display: "flex", overflow: "hidden"}} ref={tileWrapperRef}>
         {tileList}
       </div>
       <div style={{ display: "flex" }}>

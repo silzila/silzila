@@ -18,6 +18,7 @@ const chartProperties: ChartPropertiesProps = {
 			// Left Column
 			axesEdited: false,
 			filterRunState: false,
+			enableOverrideForUID: "",
 			chartAxes: [
 				{
 					name: "Filter",
@@ -72,18 +73,20 @@ const chartPropertiesState = (
 	state: ChartPropertiesProps = chartProperties,
 	action: ChartPropertiesActionsProps & any
 ) => {
-	const findCardIndex = (propKey: any, fromBIndex: any, fromUid: any) => {
-		var removeIndex = state.properties[propKey].chartAxes[fromBIndex].fields.findIndex(
+	const findCardIndex = (propKey: any, fromBIndex: any, fromUid: any, currentChartAxesName : string = "chartAxes") => {
+		let chartAxes : any = state.properties[propKey][currentChartAxesName];
+		var removeIndex = chartAxes[fromBIndex].fields.findIndex(
 			(obj: any) => obj.uId === fromUid
 		);
 		return removeIndex;
 	};
 
-	const findCardObject = (propKey: any, bIndex: any, uId: any) => {
-		var cardIndex = state.properties[propKey].chartAxes[bIndex].fields.findIndex(
+	const findCardObject = (propKey: any, bIndex: any, uId: any, currentChartAxesName : string = "chartAxes") => {
+		var cardIndex = state.properties[propKey][currentChartAxesName][bIndex].fields.findIndex(
 			(obj: any) => obj.uId === uId
 		);
-		var card = state.properties[propKey].chartAxes[bIndex].fields[cardIndex];
+
+		var card = state.properties[propKey][currentChartAxesName][bIndex].fields[cardIndex];
 
 		return {
 			cardIndex,
@@ -112,6 +115,7 @@ const chartPropertiesState = (
 						// Left Column
 						axesEdited: false,
 						filterRunState: false,
+						enableOverrideForUID: "",
 						chartAxes: [
 							{
 								name: "Filter",
@@ -179,6 +183,7 @@ const chartPropertiesState = (
 						// Left Column
 						axesEdited: false,
 						filterRunState: false,
+						enableOverrideForUID: "",
 						chartAxes: [
 							{
 								name: "Filter",
@@ -268,7 +273,7 @@ const chartPropertiesState = (
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
-						chartAxes: {
+						[action.payload.currentChartAxesName]: {
 							[action.payload.bIndex]: {
 								fields: {
 									$set: [],
@@ -279,11 +284,11 @@ const chartPropertiesState = (
 				},
 			});
 
-		case "UPDATE_DROPZONE_EXPAND_COLLAPSE":
+		case "UPDATE_DROPZONE_EXPAND_COLLAPSE": //TODO:
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
-						chartAxes: {
+						[action.payload.currentChartAxesName]: {
 							[action.payload.bIndex]: {
 								isCollapsed: {
 									$set: action.payload.isCollapsed,
@@ -298,7 +303,7 @@ const chartPropertiesState = (
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
-						chartAxes: {
+						[action.payload.currentChartAxesName]: {
 							[action.payload.bIndex]: {
 								any_condition_match: {
 									$set: action.payload.any_condition_match,
@@ -314,7 +319,7 @@ const chartPropertiesState = (
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
-						chartAxes: {
+						[action.payload.currentChartAxesName]: {
 							[action.payload.bIndex]: {
 								is_auto_filter_enabled: {
 									$set: action.payload.is_auto_filter_enabled,
@@ -333,7 +338,7 @@ const chartPropertiesState = (
 				return update(state, {
 					properties: {
 						[action.payload.propKey]: {
-							chartAxes: {
+							[action.payload.currentChartAxesName]: {
 								[action.payload.bIndex]: {
 									fields: { $push: [action.payload.item] },
 								},
@@ -345,7 +350,7 @@ const chartPropertiesState = (
 				return update(state, {
 					properties: {
 						[action.payload.propKey]: {
-							chartAxes: {
+							[action.payload.currentChartAxesName]: {
 								[action.payload.bIndex]: {
 									fields: { $splice: [[0, 1]], $push: [action.payload.item] },
 								},
@@ -359,7 +364,9 @@ const chartPropertiesState = (
 			var removeIndex = findCardIndex(
 				action.payload.propKey,
 				action.payload.fromBIndex,
-				action.payload.fromUID
+				action.payload.fromUID,
+				action.payload.currentChartAxesName
+
 			);
 
 			if (
@@ -369,7 +376,7 @@ const chartPropertiesState = (
 				return update(state, {
 					properties: {
 						[action.payload.propKey]: {
-							chartAxes: {
+							[action.payload.currentChartAxesName]: {
 								[action.payload.toBIndex]: {
 									fields: { $push: [action.payload.item] },
 								},
@@ -384,7 +391,7 @@ const chartPropertiesState = (
 				return update(state, {
 					properties: {
 						[action.payload.propKey]: {
-							chartAxes: {
+							[action.payload.currentChartAxesName]: {
 								[action.payload.toBIndex]: {
 									fields: { $splice: [[0, 1]], $push: [action.payload.item] },
 								},
@@ -401,7 +408,7 @@ const chartPropertiesState = (
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
-						chartAxes: {
+						[action.payload.currentChartAxesName]: {
 							[action.payload.binIndex]: {
 								fields: { $splice: [[action.payload.itemIndex, 1]] },
 							},
@@ -431,7 +438,7 @@ const chartPropertiesState = (
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
-						chartAxes: {
+						[action.payload.currentChartAxesName]: {
 							[action.payload.binIndex]: {
 								fields: {
 									$splice: [[action.payload.itemIndex, 1, action.payload.item]],
@@ -461,7 +468,7 @@ const chartPropertiesState = (
 		case "CHANGE_CHART_AXES":
 			return update(state, {
 				properties: {
-					[action.payload.propKey]: { chartAxes: { $set: action.payload.newAxes } },
+					[action.payload.propKey]: { [action.payload.currentChartAxesName]: { $set: action.payload.newAxes } },
 				},
 			});
 
@@ -518,18 +525,20 @@ const chartPropertiesState = (
 			var dropIndex = findCardIndex(
 				action.payload.propKey,
 				action.payload.bIndex,
-				action.payload.dropUId
+				action.payload.dropUId,
+				action.payload.currentChartAxesName
 			);
 			var dragObj = findCardObject(
 				action.payload.propKey,
 				action.payload.bIndex,
-				action.payload.dragUId
+				action.payload.dragUId,
+				action.payload.currentChartAxesName
 			);
 
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
-						chartAxes: {
+						[action.payload.currentChartAxesName]: {
 							[action.payload.bIndex]: {
 								fields: {
 									$splice: [
@@ -547,12 +556,13 @@ const chartPropertiesState = (
 			var dragObj2 = findCardObject(
 				action.payload.propKey,
 				action.payload.bIndex,
-				action.payload.uId
+				action.payload.uId,
+				action.payload.currentChartAxesName
 			);
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
-						chartAxes: {
+						[action.payload.currentChartAxesName]: {
 							[action.payload.bIndex]: {
 								fields: {
 									$splice: [
@@ -585,12 +595,13 @@ const chartPropertiesState = (
 			var cardIndex = findCardIndex(
 				action.payload.propKey,
 				action.payload.bIndex,
-				action.payload.item.uId
+				action.payload.item.uId,
+				action.payload.currentChartAxesName
 			);
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
-						chartAxes: {
+						[action.payload.currentChartAxesName]: {
 							[action.payload.bIndex]: {
 								fields: {
 									$splice: [[cardIndex, 1, action.payload.item]],
@@ -606,7 +617,7 @@ const chartPropertiesState = (
 			return update(state, {
 				properties: {
 					[action.payload.propKey]: {
-						chartAxes: {
+						[action.payload.currentChartAxesName]: {
 							[action.payload.bIndex]: {
 								fields: {
 									$set: action.payload.item,
@@ -657,15 +668,39 @@ const chartPropertiesState = (
 				});
 
 			case "CHANGE_GEOMAP_UNMATCHED":
-			return update(state, {
-				properties: {
-					[action.payload.propKey]: {
-						Geo:{
-							unMatchedChartData: { $set: action.payload.value, },
-						}
+				return update(state, {
+					properties: {
+						[action.payload.propKey]: {
+							Geo:{
+								unMatchedChartData: { $set: action.payload.value, },
+							}
+						},
 					},
-				},
-			});
+				});
+
+			case "ENABLE_OVERRIDE_FOR_UID_ACTION":
+				return update(state, {
+					properties: {
+						[action.payload.propKey]: {
+							enableOverrideForUID: { $set: action.payload.uId },
+						},
+					},
+				});
+
+			case "CREATE_CHARTAXES_FOR_UID":
+				return update(state, {
+					properties: {
+						[action.payload.propKey]: {
+							["chartAxes_" + action.payload.uId]: { $set: action.payload.chartAxes },
+						},
+					},
+				});
+			
+			case "REMOVE_CHARTAXES_FOR_UID":
+				delete state.properties[action.payload.propKey]["chartAxes_" + action.payload.uId];
+
+				return state;
+			
 
 		default:
 			return state;

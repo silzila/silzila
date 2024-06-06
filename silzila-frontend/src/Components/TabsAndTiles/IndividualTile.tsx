@@ -62,7 +62,9 @@ interface IndividualTileProps {
   tabId: number;
   tileId: number;
   showDash: boolean;
-
+  popupClass?: string;
+  inPopup?: boolean;
+  style?: React.CSSProperties; 
   //functions
   renameTileBegin: (tabId: number, tileId: number) => void;
   renameTileComplete: (
@@ -98,6 +100,7 @@ interface IndividualTileProps {
     tabTileName: string,
     selectedGroups: any
   ) => void;
+  
 }
 
 const IndividualTile = ({
@@ -109,6 +112,7 @@ const IndividualTile = ({
   tabId,
   tileId,
   showDash,
+
 
   // functions in parent
   renameTileBegin,
@@ -130,13 +134,17 @@ const IndividualTile = ({
   tileState,
   chartControls,
   chartProperties,
-  chartGroup
+  chartGroup,
+  popupClass,
+  inPopup = false
 }: IndividualTileProps) => {
   const [renameValue, setRenameValue] = useState<string>(tileName);
-
+  
   const handleTileNameValue = (e: any) => {
     setRenameValue(e.target.value);
   };
+ 
+  const tileWidth = inPopup ? "" : tileName.length >= 20 ? "170px" : tileName.length >= 15 ? "150px" : tileName.length >= 10 ? "110px" : "70px";
 
   var menuStyle = { fontSize: "12px", padding: "2px 1rem" };
 
@@ -147,8 +155,10 @@ const IndividualTile = ({
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => setAnchorEl(null);
-
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  
   function setDuplicateName(
     fromTileName: string,
     newName: string,
@@ -220,7 +230,7 @@ const IndividualTile = ({
 
   const RightClickMenu = () => {
     return (
-      <Menu
+      <Menu 
         id="basic-menu"
         anchorEl={anchorEl}
         anchorOrigin={{
@@ -237,7 +247,7 @@ const IndividualTile = ({
           "aria-labelledby": "basic-button"
         }}
       >
-        <MenuItem
+        <MenuItem 
           onClick={(e) => {
             e.stopPropagation();
             renameTileBegin(tabId, tileId);
@@ -270,6 +280,7 @@ const IndividualTile = ({
       </Menu>
     );
   };
+  
 
   if (selectedTile === tileId && editing) {
     return (
@@ -292,12 +303,13 @@ const IndividualTile = ({
     );
   } else {
     return (
-      <span
-        className={
-          selectedTile === tileId && !showDash
-            ? "commonTile indiItemHighlightTile"
-            : "commonTile indiItemTile"
-        }
+      <span style={{ width: tileWidth }}
+      className={`${
+        selectedTile === tileId && !showDash
+          ? "commonTile indiItemHighlightTile"
+          : "commonTile indiItemTile"
+      } ${popupClass}`}
+    
         onDoubleClick={(e) => {
           e.stopPropagation();
           Logger("info", "Double clicked");
@@ -313,15 +325,20 @@ const IndividualTile = ({
           e.preventDefault();
           e.stopPropagation();
           Logger("info", "Right Click");
+          setTimeout(() => {
           handleClick(e);
+          }, 100);
         }}
       >
+
         <span className="tabText">
-          {tileName.length > 20 ? tileName.substring(0, 15) + ".." : tileName}
+          {tileName.length > 15 ? tileName.substring(0, 25) + ".." : tileName}
         </span>
+        <div className={!inPopup ? "close-container" : ""}>
         <span
           title="Delete Tile"
-          className="closeTile"
+          className={`closeTile ${inPopup && selectedTile !== tileId ? "popupClose" : ""}
+          ${inPopup && selectedTile === tileId ? "hidden" : ""}`}
           onClick={(e) => {
             e.stopPropagation();
             removeTile(tabId, tileId);
@@ -329,6 +346,7 @@ const IndividualTile = ({
         >
           X
         </span>
+        </div>
         <RightClickMenu />
       </span>
     );

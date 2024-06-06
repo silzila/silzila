@@ -363,6 +363,8 @@ public class RelativeFilterDateMySQL {
 
         String anchorDate = relativeFilter.getAnchorDate();
 
+        String customQuery =table.getCustomQuery();
+
         // pattern checker of specific date
         Pattern pattern = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])");
         Matcher matcher = pattern.matcher(anchorDate);
@@ -376,10 +378,17 @@ public class RelativeFilterDateMySQL {
             } else if (anchorDate.equals("yesterday")) {
                 query = "SELECT DATE_SUB(CURDATE(), INTERVAL 1 DAY) AS anchordate";
             } else if (anchorDate.equals("columnMaxDate")) {
-                query = "SELECT DATE(MAX(" + relativeFilter.getFilterTable().getFieldName()
-                        + ")) AS anchordate FROM "
-                        +
-                        databaseName + "." + tableName;
+                //Checking for custom Query
+                if(!table.isCustomQuery()){
+                    query = "SELECT DATE(MAX(" + relativeFilter.getFilterTable().getFieldName()
+                            + ")) AS anchordate FROM "
+                            +
+                            databaseName + "." + tableName;
+                }else {
+                    query = "SELECT DATE(MAX(" + relativeFilter.getFilterTable().getFieldName()
+                            + ")) AS anchordate FROM "
+                            + "(" + customQuery + ") AS "+table.getId();
+                }
             }
         } else if (matcher.matches()) {
             query = "SELECT 1 AS anchordate";

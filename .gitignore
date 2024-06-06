@@ -6,7 +6,7 @@ appdb.trace.db
 *.iml
 *.ipr
 *.iws
-*.jar
+# *.jar
 *.sw?
 *~
 .#*

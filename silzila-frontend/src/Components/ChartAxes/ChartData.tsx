@@ -201,289 +201,292 @@ export const getChartData = async (
 		return _type;
 	};
 
-	/*	PRS 21/07/2022 */
+	const getFormattedAxes = (axesValuesParam: any)=>{		
+		/*	PRS 21/07/2022 */
+		let formattedAxes: ChartAxesFormattedAxes = {};
+		
+		axesValuesParam.forEach((axis: AxesValuProps) => {
+			var dim = "";
+			switch (axis.name) {
+				case "Filter":
+					dim = "filters";
+					break;
 
-	var formattedAxes: ChartAxesFormattedAxes = {};
-	
-	axesValues.forEach((axis: AxesValuProps) => {
-		var dim = "";
-		switch (axis.name) {
-			case "Filter":
-				dim = "filters";
-				break;
+				case "Dimension":
+				case "Date":
+				case "Row":
+				case "Column":
+					dim = "dimensions";
+					break;
 
-			case "Dimension":
-			case "Date":
-			case "Row":
-			case "Column":
-				dim = "dimensions";
-				break;
+				case "Location":
+					/*	dim = "dims";	*/
+					dim = "dimensions";
+					break;
 
-			case "Location":
-				/*	dim = "dims";	*/
-				dim = "dimensions";
-				break;
+				case "Measure":
+					dim = "measures";
+					break;
 
-			case "Measure":
-				dim = "measures";
-				break;
+				case "X":
+					dim = "measures";
+					break;
 
-			case "X":
-				dim = "measures";
-				break;
-
-			case "Y":
-				dim = "measures";
-				break;
-		}
-
-		var formattedFields: any = [];
-
-		axis.fields.forEach((field: any) => {
-			var formattedField: any = {
-				tableId: field.tableId,
-				displayName: field.displayname,
-				fieldName: field.fieldname,
-				dataType: field.dataType.toLowerCase(), 
-			};
-			if (field.dataType === "date" || field.dataType === "timestamp") {
-				formattedField.timeGrain = field.timeGrain;
+				case "Y":
+					dim = "measures";
+					break;
 			}
 
-			if (axis.name === "Measure") {
-				formattedField.aggr = field.agg;
-				
-				//Updating windowFunction in QueryAPI 
-		        if(field.windowfn){
-				
-				//Function used to convert all the values of windowFunction in camelCase
-				function toCamelCase(str: any) {
-					return str.replace(/(?:^\w|[A-Z]|\b\w)/g, (word: any, index: any) => {
-						return index === 0 ? word.toLowerCase() : word.toUpperCase();
-					}).replace(/\s+/g, '');
+			var formattedFields: any = [];
+
+			axis.fields.forEach((field: any) => {
+				var formattedField: any = {
+					tableId: field.tableId,
+					displayName: field.displayname,
+					fieldName: field.fieldname,
+					dataType: field.dataType.toLowerCase(), 
+				};
+				if (field.dataType === "date" || field.dataType === "timestamp") {
+					formattedField.timeGrain = field.timeGrain;
 				}
-                
-				//If standing gets selected in windowFunction, then below data will be send to API
 
-				if(field.windowfn.windowFnOptions === "standing"){
-					//sending windowFn for all charts except richtext
-					if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-						if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){}
-						else{
-							formattedField.windowFn= [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.rank), toCamelCase(field.windowfn.order)];
-						}
-					} else {
-						if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-							if(_chartAxes[1].fields.length === 0){}
-							else {
-								formattedField.windowFn= [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.rank), toCamelCase(field.windowfn.order)];}
-						}
-					}
-
-					//sending windowFnMatrix for two dimensional charts 
-					if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-						if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-						else {
-							formattedField.windowFnMatrix = [_chartAxes[1].fields.length, _chartAxes[2].fields.length];
-						}
-					}
-
-					//sending windowFnPartition for two dimensional charts
-					if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-						if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length === 0){
-							formattedField.windowFnPartition= [field.windowfn.standingRowIndex];
-						} else {
-							if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length > 0){
-								formattedField.windowFnPartition= [field.windowfn.standingColumnIndex];
-							} else {
-								if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length > 0){
-									formattedField.windowFnPartition= [field.windowfn.standingRowIndex, field.windowfn.standingColumnIndex];
-								} else {
-									if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){}
-								}
-							}
-						}	
-					} else {
-						//sending windowFnPartition for one dimensional charts
-						if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-							if(_chartAxes[1].fields.length === 0){}
-							else {
-								formattedField.windowFnPartition= [field.windowfn.standingRowIndex];
-							}
-						}
-					}
-
-				} else {
-
-					//If sliding gets selected in windowFunction then, below data will be send to API
-
-					if(field.windowfn.windowFnOptions === "sliding"){
-						//sending windowFn for all charts except richtext
-						if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-							if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-							else {
-								formattedField.windowFn = [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.slidingAggregation)];
-							}	
-						} else {
-							if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-								if(_chartAxes[1].fields.length === 0){} 
-								else {
-									formattedField.windowFn = [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.slidingAggregation)];
-								}
-							}
-						}
-                        
-						//sending windowFnOption for all charts except richtext 
-						if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-							if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-							else {
-								formattedField.windowFnOption= [field.windowfn.slidingPreInc, field.windowfn.slidingCurrent, field.windowfn.slidingNextInc];
-							}	
-						} else {
-							if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-								if(_chartAxes[1].fields.length === 0){} 
-								else {
-									formattedField.windowFnOption= [field.windowfn.slidingPreInc, field.windowfn.slidingCurrent, field.windowfn.slidingNextInc];
-								}
-							}
-						}
-
-						//sending windowFnMatrix for two dimensional charts 
-						if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-							if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-							else {
-							formattedField.windowFnMatrix = [_chartAxes[1].fields.length, _chartAxes[2].fields.length] ;
-							}
-						}
-
-						//sending windowFnPartition for two dimensional charts
-						if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-						if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length === 0){
-							formattedField.windowFnPartition= [field.windowfn.slidingRowIndex];
-						} else {
-							if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length > 0){
-								formattedField.windowFnPartition= [field.windowfn.slidingColumnIndex];
-							} else {
-								if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length > 0){
-									formattedField.windowFnPartition= [field.windowfn.slidingRowIndex, field.windowfn.slidingColumnIndex, 
-									["rowwise"].includes(field.windowfn.slidingSlideDirection) ? 0 : 1 ];
-								} else {
-									if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-								}
-							}
-						}
-					} else {
-						//sending windowFnPartition for one dimensional charts
-						if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-							if(_chartAxes[1].fields.length === 0){} 
-							else {
-								formattedField.windowFnPartition= [field.windowfn.slidingRowIndex];
-							}
-						}
-					}
-
-				} else {
-
-					    //If standingsvssliding gets selected in windowFunction, then below data will be send to API
-
-						if(field.windowfn.windowFnOptions === "standingsvssliding"){
-							//sending windowFn for all charts except richtext
-							if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-								if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-								else {
-									formattedField.windowFn = [toCamelCase(field.windowfn.percentage),
-										["First", "Last"].includes(field.windowfn.standingSlidingReferenceWn) ? toCamelCase(field.windowfn.standingSlidingReferenceWn) :
-										toCamelCase(field.windowfn.standingSlidingAggregation)];
-								}
-							} else {
-								if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-									if(_chartAxes[1].fields.length === 0){} 
-									else {
-										formattedField.windowFn = [toCamelCase(field.windowfn.percentage),
-											["First", "Last"].includes(field.windowfn.standingSlidingReferenceWn) ? toCamelCase(field.windowfn.standingSlidingReferenceWn) :
-											toCamelCase(field.windowfn.standingSlidingAggregation)];
-									}
-								}	
-							}
-
-							//sending windowFnOption for all charts except richtext
-							if(["PNC"].includes(field.windowfn.standingSlidingReferenceWn)){
+				if (axis.name === "Measure") {
+					formattedField.aggr = field.agg;
+					
+					//Updating windowFunction in QueryAPI 
+					if(field.windowfn){
+					
+						//Function used to convert all the values of windowFunction in camelCase
+						function toCamelCase(str: any) {
+							return str.replace(/(?:^\w|[A-Z]|\b\w)/g, (word: any, index: any) => {
+								return index === 0 ? word.toLowerCase() : word.toUpperCase();
+							}).replace(/\s+/g, '');
+						}					
+						
+						switch(field.windowfn.windowFnOptions)
+						{
+							case "standing": //If standing gets selected in windowFunction, then below data will be send to API
+								//sending windowFn for all charts except richtext
 								if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-									if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-									else {
-										formattedField.windowFnOption= [field.windowfn.standingSlidingPreInc, field.windowfn.standingSlidingCurrent, field.windowfn.standingSlidingNextInc];
+									if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){}
+									else{
+										formattedField.windowFn= [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.rank), toCamelCase(field.windowfn.order)];
 									}
 								} else {
 									if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-										if(_chartAxes[1].fields.length === 0){} 
+										if(_chartAxes[1].fields.length === 0){}
 										else {
-											formattedField.windowFnOption= [field.windowfn.standingSlidingPreInc, field.windowfn.standingSlidingCurrent, field.windowfn.standingSlidingNextInc];
-										}
-									}	
-								}
-							}
-								
-							//sending windowFnMatrix for two dimensional charts 
-							if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-								if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0) {}
-								else{
-								formattedField.windowFnMatrix = [_chartAxes[1].fields.length, _chartAxes[2].fields.length];
-								}
-							}
-	
-							//sending windowFnPartition for two dimensional charts
-							if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-							if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length === 0){
-								formattedField.windowFnPartition= [field.windowfn.standingSlidingRowIndex];
-							} else {
-								if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length > 0){
-									formattedField.windowFnPartition= [field.windowfn.standingSlidingColumnIndex];
-								} else {
-									if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length > 0){
-										formattedField.windowFnPartition= [field.windowfn.standingSlidingRowIndex, field.windowfn.standingSlidingColumnIndex, 
-										["rowwise"].includes(field.windowfn.standingSlidingSlideDirection) ? 0 : 1 ];
-									} else {
-										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0) {}
+											formattedField.windowFn= [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.rank), toCamelCase(field.windowfn.order)];}
 									}
 								}
-							}} else {
-								//sending windowFnPartition for one dimensional charts
-								if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-									if(_chartAxes[1].fields.length === 0) {}
+
+								//sending windowFnMatrix for two dimensional charts 
+								if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+									if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
 									else {
-										formattedField.windowFnPartition= [field.windowfn.standingSlidingRowIndex];
-									}	
+										formattedField.windowFnMatrix = [_chartAxes[1].fields.length, _chartAxes[2].fields.length];
+									}
 								}
-							}
-						}}}  
-			    } 
-		    }
-			formattedFields.push(formattedField);
+
+								//sending windowFnPartition for two dimensional charts
+								if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+									if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length === 0){
+										formattedField.windowFnPartition= [field.windowfn.standingRowIndex];
+									} else {
+										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length > 0){
+											formattedField.windowFnPartition= [field.windowfn.standingColumnIndex];
+										} else {
+											if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length > 0){
+												formattedField.windowFnPartition= [field.windowfn.standingRowIndex, field.windowfn.standingColumnIndex];
+											} else {
+												if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){}
+											}
+										}
+									}	
+								} else {
+									//sending windowFnPartition for one dimensional charts
+									if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+										if(_chartAxes[1].fields.length === 0){}
+										else {
+											formattedField.windowFnPartition= [field.windowfn.standingRowIndex];
+										}
+									}
+								}
+
+							break;
+							case "sliding": //If sliding gets selected in windowFunction then, below data will be send to API
+									//sending windowFn for all charts except richtext
+									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
+										else {
+											formattedField.windowFn = [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.slidingAggregation)];
+										}	
+									} else {
+										if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+											if(_chartAxes[1].fields.length === 0){} 
+											else {
+												formattedField.windowFn = [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.slidingAggregation)];
+											}
+										}
+									}
+									
+									//sending windowFnOption for all charts except richtext 
+									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
+										else {
+											formattedField.windowFnOption= [field.windowfn.slidingPreInc, field.windowfn.slidingCurrent, field.windowfn.slidingNextInc];
+										}	
+									} else {
+										if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+											if(_chartAxes[1].fields.length === 0){} 
+											else {
+												formattedField.windowFnOption= [field.windowfn.slidingPreInc, field.windowfn.slidingCurrent, field.windowfn.slidingNextInc];
+											}
+										}
+									}
+		
+									//sending windowFnMatrix for two dimensional charts 
+									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
+										else {
+										formattedField.windowFnMatrix = [_chartAxes[1].fields.length, _chartAxes[2].fields.length] ;
+										}
+									}
+		
+									//sending windowFnPartition for two dimensional charts
+									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+									if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length === 0){
+										formattedField.windowFnPartition= [field.windowfn.slidingRowIndex];
+									} else {
+										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length > 0){
+											formattedField.windowFnPartition= [field.windowfn.slidingColumnIndex];
+										} else {
+											if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length > 0){
+												formattedField.windowFnPartition= [field.windowfn.slidingRowIndex, field.windowfn.slidingColumnIndex, 
+												["rowwise"].includes(field.windowfn.slidingSlideDirection) ? 0 : 1 ];
+											} else {
+												if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
+											}
+										}
+									}
+								} else {
+									//sending windowFnPartition for one dimensional charts
+									if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+										if(_chartAxes[1].fields.length === 0){} 
+										else {
+											formattedField.windowFnPartition= [field.windowfn.slidingRowIndex];
+										}
+									}
+								}
+		
+							break;
+							case "standingsvssliding": //If standingsvssliding gets selected in windowFunction, then below data will be send to API
+									//sending windowFn for all charts except richtext
+									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
+										else {
+											formattedField.windowFn = [toCamelCase(field.windowfn.percentage),
+												["First", "Last"].includes(field.windowfn.standingSlidingReferenceWn) ? toCamelCase(field.windowfn.standingSlidingReferenceWn) :
+												toCamelCase(field.windowfn.standingSlidingAggregation)];
+										}
+									} else {
+										if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+											if(_chartAxes[1].fields.length === 0){} 
+											else {
+												formattedField.windowFn = [toCamelCase(field.windowfn.percentage),
+													["First", "Last"].includes(field.windowfn.standingSlidingReferenceWn) ? toCamelCase(field.windowfn.standingSlidingReferenceWn) :
+													toCamelCase(field.windowfn.standingSlidingAggregation)];
+											}
+										}	
+									}
+
+									//sending windowFnOption for all charts except richtext
+									if(["PNC"].includes(field.windowfn.standingSlidingReferenceWn)){
+										if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+											if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
+											else {
+												formattedField.windowFnOption= [field.windowfn.standingSlidingPreInc, field.windowfn.standingSlidingCurrent, field.windowfn.standingSlidingNextInc];
+											}
+										} else {
+											if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+												if(_chartAxes[1].fields.length === 0){} 
+												else {
+													formattedField.windowFnOption= [field.windowfn.standingSlidingPreInc, field.windowfn.standingSlidingCurrent, field.windowfn.standingSlidingNextInc];
+												}
+											}	
+										}
+									}
+										
+									//sending windowFnMatrix for two dimensional charts 
+									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0) {}
+										else{
+										formattedField.windowFnMatrix = [_chartAxes[1].fields.length, _chartAxes[2].fields.length];
+										}
+									}
+			
+									//sending windowFnPartition for two dimensional charts
+									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+									if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length === 0){
+										formattedField.windowFnPartition= [field.windowfn.standingSlidingRowIndex];
+									} else {
+										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length > 0){
+											formattedField.windowFnPartition= [field.windowfn.standingSlidingColumnIndex];
+										} else {
+											if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length > 0){
+												formattedField.windowFnPartition= [field.windowfn.standingSlidingRowIndex, field.windowfn.standingSlidingColumnIndex, 
+												["rowwise"].includes(field.windowfn.standingSlidingSlideDirection) ? 0 : 1 ];
+											} else {
+												if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0) {}
+											}
+										}
+									}} else {
+										//sending windowFnPartition for one dimensional charts
+										if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
+											if(_chartAxes[1].fields.length === 0) {}
+											else {
+												formattedField.windowFnPartition= [field.windowfn.standingSlidingRowIndex];
+											}	
+										}
+									}
+							break;
+						}
+					} 
+				}
+				formattedFields.push(formattedField);
+			});
+			
+			if(!formattedAxes[dim]){
+				formattedAxes[dim] = formattedFields;
+			}
+			else{
+				formattedAxes[dim] = [...formattedAxes[dim], ...formattedFields]
+			}
 		});
-		formattedAxes[dim] = formattedFields;
-	});
 
-	formattedAxes.fields = [];
+		formattedAxes.fields = [];
 
-	if (
-		chartType === "funnel" ||
-		chartType === "gauge" ||
-		chartType === "simplecard" ||
-		chartType === "richText"
-	) {
-		formattedAxes.dimensions = [];
-	}
+		if (
+			chartType === "funnel" ||
+			chartType === "gauge" ||
+			chartType === "simplecard" ||
+			chartType === "richText"
+		) {
+			formattedAxes.dimensions = [];
+		}
 
-	formattedAxes.filterPanels = [];
+		formattedAxes.filterPanels = [];
 
-	/*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
-	
-	let _filterZoneFields = _chartAxes[0].fields;
-	let _hasInvalidFilterData = _filterZoneFields.filter((field: any) => field.isInValidData);
+		/*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
+		
+		let _filterZoneFields = _chartAxes[0].fields;
+		let _hasInvalidFilterData = _filterZoneFields.filter((field: any) => field.isInValidData);
 
-	if (_filterZoneFields.length > 0 && _hasInvalidFilterData && _hasInvalidFilterData.length > 0) {
-		Logger("info", "Filter has invalid data.");
-	} else {
+		if (_filterZoneFields.length > 0 && _hasInvalidFilterData && _hasInvalidFilterData.length > 0) {
+			Logger("info", "Filter has invalid data.");
+			return;
+		} 
+
 		let _filterObj = getChartLeftFilter(_chartAxes[0]);
 
 		if (_filterObj.filters.length > 0) {
@@ -515,48 +518,80 @@ export const getChartData = async (
 			});
 		}
 
-		let _selectedDS: any = {};
+		return formattedAxes;
+	}
 
-		if(chartProp.selectedDs){
-			_selectedDS = chartProp.selectedDs;
-		}
-		else{
-			_selectedDS = chartProp.properties[propKey].selectedDs;
-		}
+	let hasMeasureOverride = axesValues.find((axis:any)=>axis.name === "Measure")?.fields.filter((field:any)=>{ return field.override? true : false });
 
-		var url: string = "";
-		if (_selectedDS.isFlatFileData) {
-			url = `query?datasetid=${_selectedDS.id}`;
-		} else {
-			url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}`;
-		}
+	let hasNoMeasureOverride = axesValues.find((axis:any)=>axis.name === "Measure")?.fields.filter((field:any)=>{ return field.override? false : true });
 
-		/*	PRS 21/07/2022	*/
-		if (formattedAxes.dimensions.length > 0 || formattedAxes.measures.length > 0) {
-			var res: any = await FetchData({
-				requestType: "withData",
-				method: "POST",
-				url: url,
-				headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-				data: formattedAxes,
-			});
+	let formattedAxes:any = [];
 
-			if (res.status) {
-				if (res.data && res.data.length > 0) {
-					if (forQueryData) {
-						return formattedAxes;
-					} else {
-						return res.data;
-					}
+	if(hasMeasureOverride && hasMeasureOverride.length > 0){
+		let hasNoMeasureOverrideFields = JSON.parse(JSON.stringify(hasNoMeasureOverride));
+		let tempAxesValues = JSON.parse(JSON.stringify(axesValues));
+
+		tempAxesValues.find((axis:any)=>axis.name === "Measure").fields = [];
+		tempAxesValues.find((axis:any)=>axis.name === "Measure").fields = hasNoMeasureOverrideFields;
+
+		formattedAxes.push(getFormattedAxes(tempAxesValues));
+
+		hasMeasureOverride.forEach((measureField:any)=>{
+			let tempMeasureField = JSON.parse(JSON.stringify(measureField));
+			let tempOverrideAxes = JSON.parse(JSON.stringify(tempMeasureField.override));
+			delete tempMeasureField.override;
+
+			tempOverrideAxes.find((axis:any)=>axis.name === "Measure").fields = [];
+			tempOverrideAxes.find((axis:any)=>axis.name === "Measure").fields.push(tempMeasureField)
+
+			let overrideFormattedAxes:any = getFormattedAxes(tempOverrideAxes);
+			
+			formattedAxes.push(overrideFormattedAxes)
+		});
+	}else{
+		formattedAxes.push(getFormattedAxes(axesValues));
+	}
+
+	let _selectedDS: any = {};
+
+	if(chartProp.selectedDs){
+		_selectedDS = chartProp.selectedDs;
+	}
+	else{
+		_selectedDS = chartProp.properties[propKey].selectedDs;
+	}
+
+	var url: string = "";
+	if (_selectedDS.isFlatFileData) {
+		url = `query?datasetid=${_selectedDS.id}`;
+	} else {
+		url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}`;
+	}
+
+	/*	PRS 21/07/2022	*/
+	if (formattedAxes && formattedAxes.length > 0 && (formattedAxes[0].dimensions.length > 0 || formattedAxes[0].measures.length > 0)) {
+		var res: any = await FetchData({
+			requestType: "withData",
+			method: "POST",
+			url: url,
+			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+			data: formattedAxes,
+		});		
+
+		if (res.status) {
+			if (res.data && res.data.length > 0) {
+				if (forQueryData) {
+					return formattedAxes;
 				} else {
-					Logger("info", "Change filter conditions.");
+					return res.data;
 				}
 			} else {
-				Logger("error", "Get Table Data Error", res.data.message);
+				Logger("info", "Change filter conditions.");
 			}
+		} else {
+			Logger("error", "Get Table Data Error", res.data.message);
 		}
-		
-	}
+	}		
 };
 
 // given chart type, check if the dropzones have required number of fields
@@ -741,14 +776,14 @@ const ChartData = ({
 
 	useEffect(() => {
 		const makeServiceCall = async () => {
-			const axesValues = JSON.parse(JSON.stringify(chartProp.chartAxes));
+			const axesValues1 = JSON.parse(JSON.stringify(chartProp.chartAxes));
 
 			/*	To sort chart data	based on field name	*/
 			const sortChartData = (chartData: any[]): any[] => {
 				let result: any[] = [];
 
 				if (chartData && chartData.length > 0) {
-					let _zones: any = axesValues.filter((zones: any) => zones.name !== "Filter");
+					let _zones: any = axesValues1.filter((zones: any) => zones.name !== "Filter");
 					//let _zonesFields:any = [];
 					let _fieldTempObject: any = {};
 					let _chartFieldTempObject: any = {};
@@ -890,11 +925,11 @@ const ChartData = ({
 
 			if (chartProp.chartType === "scatterPlot") {
 				var combinedValuesForMeasure = { name: "Measure", fields: [] };
-				var values1 = axesValues[2].fields;
-				var values2 = axesValues[3].fields;
+				var values1 = axesValues1[2].fields;
+				var values2 = axesValues1[3].fields;
 				var allValues = values1.concat(values2);
 				combinedValuesForMeasure.fields = allValues;
-				axesValues.splice(2, 2, combinedValuesForMeasure);
+				axesValues1.splice(2, 2, combinedValuesForMeasure);
 			}
 
 			if (
@@ -902,25 +937,25 @@ const ChartData = ({
 				chartProp.chartType === "crossTab" ||
 				chartProp.chartType === "boxPlot"
 			) {
+
 				var combinedValuesForDimension = { name: "Dimension", fields: [] }
 				var values1 = axesValues[1].fields;
 				var values2 = axesValues[2].fields;
+
 				var allValues = values1.concat(values2);
 				combinedValuesForDimension.fields = allValues;
-				axesValues.splice(1, 2, combinedValuesForDimension);
+				axesValues1.splice(1, 2, combinedValuesForDimension);
 			}
 
 			if (chartProp.chartType === "table") {
 				var combinedValuesForDimension = { name: "Dimension", fields: [] };
-				// var values1 = axesValues[1].fields;
-				// var values2 = axesValues[2].fields;
-				// var allValues = values1.concat(values2);
-				combinedValuesForDimension.fields = axesValues[1].fields;
+				
+				combinedValuesForDimension.fields = axesValues1[1].fields;
 
-				if (axesValues.length === 4) {
-					axesValues.splice(1, 2, combinedValuesForDimension);
-				} else if (axesValues.length === 3) {
-					axesValues.splice(1, 1, combinedValuesForDimension);
+				if (axesValues1.length === 4) {
+					axesValues1.splice(1, 2, combinedValuesForDimension);
+				} else if (axesValues1.length === 3) {
+					axesValues1.splice(1, 1, combinedValuesForDimension);
 				}
 			}
 
@@ -931,8 +966,8 @@ const ChartData = ({
 			if (serverCall) {
 				setLoading(true);
 
-				serverData  = await getChartData(
-						axesValues,
+				serverData =	await getChartData(
+						axesValues1,
 						chartProp,
 						chartGroup,
 						dashBoardGroup,
@@ -982,35 +1017,7 @@ const ChartData = ({
 					return false;
 				}
 
-				return compareArrays(_dashBoardTilesGroups, _tileGroups);
-
-				// if(_tileGroups){
-				// 	_tileGroups.forEach((grp:string)=>{
-				// 		//if(chartGroup.groups[grp].filters.length > 0){
-				// 		let _attachedTabTiles = dashBoardGroup.filterGroupTabTiles[grp];
-
-				// 		if(_attachedTabTiles && _attachedTabTiles.length > 0){
-				// 			_count += _attachedTabTiles.includes(_tabTile) ? 1 : 0;
-				// 		}
-				// 		else{
-				// 			_count = 999;
-				// 		}
-				// 		// }
-				// 		// else{
-				// 		// 	return true;
-				// 		// }
-				// 	})
-
-				// 	if(_count > 0){
-				// 		return _count === _tileGroups.length;
-				// 	}
-				// 	else{
-				// 		return true;
-				// 	}
-				// }
-				// else{
-				// 	return true;
-				// }
+				return compareArrays(_dashBoardTilesGroups, _tileGroups);				
 			} else {
 				return true;
 			}

@@ -19,7 +19,7 @@ import com.silzila.payload.request.Query;
 
 public class SelectClausePostgres {
     /* SELECT clause for Postgres dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,Map<String,Integer>... aliasnumber) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, Map<String,Integer>... aliasnumber) throws BadRequestException {
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
         // aliasing for only measure  override 

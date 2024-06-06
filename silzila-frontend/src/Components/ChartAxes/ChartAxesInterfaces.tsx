@@ -171,6 +171,7 @@ export interface Card {
 	itemIndex: number;
 	propKey: string;
 	axisTitle: string;
+	uID: string;
 
 	// state
 	tabTileProps: TabTileStateProps;
@@ -180,10 +181,12 @@ export interface Card {
 
 export interface CardProps extends Card {
 	// dispatch
-	deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: number) => void;
-	updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any) => void;
-	sortAxes: (propKey: string, bIndex: number, dragUId: any, uId: any) => void;
-	revertAxes: (propKey: string, bIndex: number, uId: any, originalIndex: number) => void;
+	deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: number,  currentChartAxesName : string) => void;
+	updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any,  currentChartAxesName : string) => void;
+	sortAxes: (propKey: string, bIndex: number, dragUId: any, uId: any,  currentChartAxesName : string) => void;
+	revertAxes: (propKey: string, bIndex: number, uId: any, originalIndex: number,  currentChartAxesName : string) => void;
+	enableOverrideForUIDAction: (propKey: string, uId: any) => void;
+	createChartAxesForUID: (propKey: string, uId: string, chartAxes:any) => void;
 
 	//dynamicMeasure dispatch
 	deleteDropZoneItemsForDm: (propKey: string, binIndex: number, itemIndex: number) => void;
