@@ -19,6 +19,10 @@ public class DataSchema implements Serializable {
     private List<Table> tables = null;
     @JsonProperty("relationships")
     private List<Relationship> relationships = null;
+
+
+    @JsonProperty("filterPanels")
+    private List<FilterPanel> filterPanels = null;
     private final static long serialVersionUID = -2188466840486676788L;
 
     /**
@@ -32,11 +36,13 @@ public class DataSchema implements Serializable {
      *
      * @param relationships
      * @param tables
+     * @param filters
      */
-    public DataSchema(List<Table> tables, List<Relationship> relationships) {
+    public DataSchema(List<Table> tables, List<Relationship> relationships,List<FilterPanel> filterPanels) {
         super();
         this.tables = tables;
         this.relationships = relationships;
+        this.filterPanels = filterPanels;
     }
 
     @JsonProperty("tables")
@@ -59,6 +65,17 @@ public class DataSchema implements Serializable {
         this.relationships = relationships;
     }
 
+    @JsonProperty("filterPanels")
+    public List<FilterPanel> getFilterPanels() {
+        return filterPanels;
+    }
+
+    @JsonProperty("filterPanels")
+    public void setFilterPanels(List<FilterPanel> filterPanels) {
+        this.filterPanels = filterPanels;
+    }
+
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -71,6 +88,10 @@ public class DataSchema implements Serializable {
         sb.append("relationships");
         sb.append('=');
         sb.append(((this.relationships == null) ? "<null>" : this.relationships));
+        sb.append(',');
+        sb.append("filters");
+        sb.append('=');
+        sb.append(((this.filterPanels == null) ? "<null>" : this.filterPanels));
         sb.append(',');
         if (sb.charAt((sb.length() - 1)) == ',') {
             sb.setCharAt((sb.length() - 1), ']');

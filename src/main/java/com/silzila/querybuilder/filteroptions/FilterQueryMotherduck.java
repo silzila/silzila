@@ -21,7 +21,12 @@ public class FilterQueryMotherduck {
          * ************************************************
          */
         String query = "";
-        String fromClause = " FROM " + table.getDatabase() + "." + table.getTable() + " ";
+        String fromClause= "";
+        if(!table.isCustomQuery()) {
+            fromClause = " FROM " + table.getDatabase() + "." + table.getTable() + " ";
+        }else{
+            fromClause = " FROM (" + table.getCustomQuery() + ") ";
+        }
 
         if (List.of("TEXT", "BOOLEAN").contains(req.getDataType().name())) {
             query = "SELECT DISTINCT " + req.getFieldName() + fromClause + "ORDER BY 1";

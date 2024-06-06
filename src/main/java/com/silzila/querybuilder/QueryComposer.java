@@ -40,13 +40,24 @@ public class QueryComposer {
 
         Query req = queries.get(0);
 
-
-
-
         // flag --> override function or not
         if (queries.size() > 1) {
             queryCTE = true;
         }
+
+        //creating tableId list to check the filter list id which is present in query
+        List<String> tableIDList = new ArrayList<String>();
+
+        req.getMeasures().forEach(measure -> tableIDList.add(measure.getTableId()));
+        req.getFields().forEach(field -> tableIDList.add(field.getTableId()));
+        req.getDimensions().forEach(dimension -> tableIDList.add(dimension.getTableId()));
+        for (int i = 0; i < req.getFilterPanels().size(); i++) {
+            for (int j = 0; j < req.getFilterPanels().get(i).getFilters().size(); j++) {
+                tableIDList.add(req.getFilterPanels().get(i).getFilters().get(j).getTableId());
+            }
+        }
+
+        System.out.println("***************** "+tableIDList);
         /*
          * builds JOIN Clause of SQL - same for all dialects
          */
@@ -97,7 +108,22 @@ public class QueryComposer {
         // same col twice in dimension
         String groupByClause = "\n\t" + qMap.getGroupByList().stream().distinct().collect(Collectors.joining(",\n\t"));
         String orderByClause = "\n\t" + qMap.getOrderByList().stream().distinct().collect(Collectors.joining(",\n\t"));
-        String whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName);
+        String whereClause="";
+        // checking the filter panel size to add where condition
+        long countOfFilterPanels=ds.getDataSchema().getFilterPanels().size();
+        if(countOfFilterPanels==0) {
+             whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName);
+        }else {
+            for(int i=0;i<countOfFilterPanels;i++) {
+                for (int j = 0; j < ds.getDataSchema().getFilterPanels().get(i).getFilters().size(); j++)
+                {
+                    if(tableIDList.contains(ds.getDataSchema().getFilterPanels().get(i).getFilters().get(j).getTableId())) {
+                        req.getFilterPanels().add(ds.getDataSchema().getFilterPanels().get(i));
+                    }
+                }
+            }
+            whereClause=WhereClause.buildWhereClause(req.getFilterPanels(), vendorName);
+        }
         // for bigquery only
         if (vendorName.equals("bigquery")) {
             boolean isDateOrTimestamp = false;
