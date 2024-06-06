@@ -29,6 +29,8 @@ background-color: rgba(224, 224, 224, 1);
             margin: 0 auto;
             text-align: left;
             padding: 2rem;
+          
+           
 }
 
 .uploadFileTitle{
@@ -42,8 +44,51 @@ background-color: rgba(224, 224, 224, 1);
             justify-content: space-between;
             padding: 1rem;
 }
-
-
+.header{
+    color: #b4b4b3;
+    font-size: 20px;
+    white-space: nowrap;
+    width: 200px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+.icon-container{
+    border: 1px solid transparent;
+}
+.select-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid transparent;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+.csv-icon,
+.json-icon,
+.excel-icon{
+  display: flex;
+  align-items: center; 
+  margin-left: 20px;
+  margin-right: 20px;
+  color: #5d5c5c;
+}
+.csv-container,
+.json-container,
+.excel-container{
+    border: 1px solid transparent;
+    width: 140px;
+    margin-bottom: 10px;
+    color: #9E9E9E;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+.csv-container:hover,
+.json-container:hover,
+.excel-container:hover{
+    border: 1px solid #9E9E9E;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
 /* File Drop Zone */
 #form-file-upload {
