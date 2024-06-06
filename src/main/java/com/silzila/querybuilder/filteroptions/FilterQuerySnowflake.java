@@ -23,13 +23,13 @@ public class FilterQuerySnowflake {
         String query = "";
         String fromClause= "" ;
         if(!table.isCustomQuery()) {
-            fromClause = " FROM " + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + " ";
+            fromClause = " FROM " + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + " AS "+table.getId()+" ";
         }else{
-            fromClause = " FROM (" + table.getCustomQuery() + ") ";
+            fromClause = " FROM (" + table.getCustomQuery() + ") AS "+table.getId()+" ";
         }
 
         if (List.of("TEXT", "BOOLEAN").contains(req.getDataType().name())) {
-            query = "SELECT DISTINCT " + req.getFieldName() + fromClause + "ORDER BY 1";
+            query = "SELECT DISTINCT " + req.getTableId() + "." + req.getFieldName() + fromClause + "ORDER BY 1";
         }
 
         /*
@@ -42,12 +42,12 @@ public class FilterQuerySnowflake {
             if (!Objects.isNull(req.getFilterOption())) {
                 // get distinct values
                 if (req.getFilterOption().name().equals("ALL_VALUES")) {
-                    query = "SELECT DISTINCT " + req.getFieldName() + fromClause + "ORDER BY 1";
+                    query = "SELECT DISTINCT " + req.getTableId() + "." + req.getFieldName() + fromClause + "ORDER BY 1";
                 }
                 // get Range values
                 else if (req.getFilterOption().name().equals("MIN_MAX")) {
-                    query = "SELECT MIN(" + req.getFieldName() + ") AS min, MAX("
-                            + req.getFieldName() + ") AS max" + fromClause;
+                    query = "SELECT MIN(" + req.getTableId() + "." + req.getFieldName() + ") AS min, MAX("
+                            + req.getTableId() + "." + req.getFieldName() + ") AS max" + fromClause;
                 }
                 // if filter option is not provided, throw error
             } else {
@@ -70,32 +70,32 @@ public class FilterQuerySnowflake {
              */
             if (req.getFilterOption().name().equals("ALL_VALUES")) {
                 if (req.getTimeGrain().name().equals("YEAR")) {
-                    String field = "YEAR(" + req.getFieldName() + ")";
+                    String field = "YEAR(" + req.getTableId() + "." + req.getFieldName() + ")";
                     query = "SELECT DISTINCT " + field + " AS Year" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("QUARTER")) {
-                    String field = "CONCAT('Q', QUARTER(" + req.getFieldName() + "))";
+                    String field = "CONCAT('Q', QUARTER(" + req.getTableId() + "." + req.getFieldName() + "))";
                     query = "SELECT DISTINCT " + field + " AS Quarter" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("MONTH")) {
-                    String sortField = "MONTH(" + req.getFieldName() + ")";
-                    String field = "TO_VARCHAR(" + req.getFieldName() + ", 'MMMM')";
+                    String sortField = "MONTH(" + req.getTableId() + "." + req.getFieldName() + ")";
+                    String field = "TO_VARCHAR("+ req.getTableId() + "."  + req.getFieldName() + ", 'MMMM')";
                     query = "SELECT " + field + " AS Month" + fromClause + "GROUP BY " + sortField + ", "
                             + field + " ORDER BY " + sortField;
                 } else if (req.getTimeGrain().name().equals("YEARQUARTER")) {
-                    String field = "CONCAT(YEAR(" + req.getFieldName() + "), '-Q', QUARTER(" + req.getFieldName() + "))";
+                    String field = "CONCAT(YEAR(" + req.getTableId() + "." + req.getFieldName() + "), '-Q', QUARTER(" + req.getFieldName() + "))";
                     query = "SELECT DISTINCT " + field + " AS YearQuarter" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("YEARMONTH")) {
-                    String field = "TO_VARCHAR(" + req.getFieldName() + ", 'yyyy-MM')";
+                    String field = "TO_VARCHAR(" + req.getTableId() + "." + req.getFieldName() + ", 'yyyy-MM')";
                     query = "SELECT DISTINCT " + field + " AS YearMonth" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("DATE")) {
-                    String field = "TO_DATE(" + req.getFieldName() + ")";
+                    String field = "TO_DATE(" + req.getTableId() + "." + req.getFieldName() + ")";
                     query = "SELECT DISTINCT " + field + " AS Date" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    String sortField = "DAYOFWEEK(" + req.getFieldName() + ") + 1";
-                    String field = "TO_VARCHAR(" + req.getFieldName() + ", '%A')";
+                    String sortField = "DAYOFWEEK(" + req.getTableId() + "." + req.getFieldName() + ") + 1";
+                    String field = "TO_VARCHAR(" + req.getTableId() + "." + req.getFieldName() + ", '%A')";
                     query = "SELECT " + field + " AS DayOfWeek" + fromClause + "GROUP BY " + sortField + ", "
                             + field + " ORDER BY " + sortField;
                 } else if (req.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    String field = "DAYOFMONTH(" + req.getFieldName() + ")";
+                    String field = "DAYOFMONTH(" + req.getTableId() + "." + req.getFieldName() + ")";
                     query = "SELECT DISTINCT " + field + " AS DayOfMonth" + fromClause + "ORDER BY 1";
                 }
 
@@ -106,22 +106,22 @@ public class FilterQuerySnowflake {
              */
             else if (req.getFilterOption().name().equals("MIN_MAX")) {
                 if (req.getTimeGrain().name().equals("YEAR")) {
-                    String col = "YEAR(" + req.getFieldName() + ")";
+                    String col = "YEAR(" + req.getTableId() + "." + req.getFieldName() + ")";
                     query = "SELECT MIN(" + col + ") AS min, MAX(" + col + ") AS max" + fromClause;
                 } else if (req.getTimeGrain().name().equals("QUARTER")) {
-                    String col = "QUARTER(" + req.getFieldName() + ")";
+                    String col = "QUARTER(" + req.getTableId() + "." + req.getFieldName() + ")";
                     query = "SELECT MIN(" + col + ") AS min, MAX(" + col + ") AS max" + fromClause;
                 } else if (req.getTimeGrain().name().equals("MONTH")) {
-                    String col = "MONTH(" + req.getFieldName() + ")";
+                    String col = "MONTH(" + req.getTableId() + "." + req.getFieldName() + ")";
                     query = "SELECT MIN(" + col + ") AS min, MAX(" + col + ") AS max" + fromClause;
                 } else if (req.getTimeGrain().name().equals("DATE")) {
-                    String col = "TO_DATE(" + req.getFieldName() + ")";
+                    String col = "TO_DATE(" + req.getTableId() + "." + req.getFieldName() + ")";
                     query = "SELECT MIN(" + col + ") AS min, MAX(" + col + ") AS max" + fromClause;
                 } else if (req.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    String col = "DAYOFWEEK(" + req.getFieldName() + ") + 1";
+                    String col = "DAYOFWEEK(" + req.getTableId() + "." + req.getFieldName() + ") + 1";
                     query = "SELECT MIN(" + col + ") AS min, MAX(" + col + ") AS max" + fromClause;
                 } else if (req.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    String col = "DAYOFMONTH(" + req.getFieldName() + ")";
+                    String col = "DAYOFMONTH(" + req.getTableId() + "." + req.getFieldName() + ")";
                     query = "SELECT MIN(" + col + ") AS min, MAX(" + col + ") AS max" + fromClause;
                 }
             }
