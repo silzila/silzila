@@ -27,6 +27,8 @@ import update from "immutability-helper";
 const chartControl = {
 	properties: {
 		1.1: {
+			// SetNameWithAgg:"",
+			serverData:"",
 			chartData: "",
 			queryResult: "",
 			sortOrder: "",
@@ -1073,6 +1075,25 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 				properties: { $unset: propsToRemove },
 				propList: { $unset: [action.payload] },
 			});
+
+		// case "SET_NAME_WITH_AGG":
+		// 	return update(state, {
+		// 		properties: {
+        //             [action.payload.propKey]: {
+		// 				SetNameWithAgg:{$set:action.payload.SetNameWithAgg},
+		// 			},
+        //         }
+        //     });		
+
+		case "STORE_SERVER_DATA":
+			return update(state, {
+				properties: {
+                    [action.payload.propKey]: {
+						serverData:{$set:action.payload.serverData},
+					},
+                }
+            });	
+
 
 		case "UPDATE_CHART_DATA":
 			return update(state, {

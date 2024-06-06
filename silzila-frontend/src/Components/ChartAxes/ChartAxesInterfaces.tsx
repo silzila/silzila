@@ -68,6 +68,12 @@ export interface WindowFunction {
 	Y: MeasurePrefixes;
 }
 
+export interface RenameFunction {
+	Measure: MeasurePrefixes;
+	X: MeasurePrefixes;
+	Y: MeasurePrefixes;
+}
+
 export interface AggregatorKeysProps {
 	[key: string]: string;
 	// avg: string;
@@ -134,9 +140,11 @@ export interface DropZoneDropItem {
 export interface SetPrefixFieldData {
 	fieldname: string;
 	displayname: string;
+	aggname?:string;
 	dataType: string;
 	tableId: string;
 	uId: string;
+	
 }
 
 export interface ChartAxesFormattedAxes {
@@ -156,6 +164,7 @@ export interface Card {
 		prefix?: any;
 		tableId?: string;
 		agg?: any;
+		aggname?:string;
 		timeGrain?: any;
 	};
 	bIndex: number;
