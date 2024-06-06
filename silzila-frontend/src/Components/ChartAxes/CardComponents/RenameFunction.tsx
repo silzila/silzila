@@ -66,8 +66,8 @@ const RenameFunction = ({
 
 
      // Get all fieldnames except the current field's fieldname
-     const allFieldNames = chartProp.properties[propKey].chartAxes.flatMap(axis => axis.fields.map(field => field.fieldname));
-     const otherFieldNames = allFieldNames.filter(name => name !== displayfield.fieldname);
+     const allFieldNames = chartProp.properties[propKey].chartAxes.flatMap((axis:any) => axis.fields.map((field:any) => field.fieldname));
+     const otherFieldNames = allFieldNames.filter((name:string) => name !== displayfield.fieldname);
     
         const handleRenameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
             const newText = event.target.value;

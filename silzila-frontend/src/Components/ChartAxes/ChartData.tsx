@@ -776,7 +776,7 @@ const ChartData = ({
 
 	useEffect(() => {
 		const makeServiceCall = async () => {
-			const axesValues1 = JSON.parse(JSON.stringify(chartProp.chartAxes));
+			const axesValues1:any = JSON.parse(JSON.stringify(chartProp.chartAxes));
 
 			/*	To sort chart data	based on field name	*/
 			const sortChartData = (chartData: any[]): any[] => {
@@ -939,8 +939,8 @@ const ChartData = ({
 			) {
 
 				var combinedValuesForDimension = { name: "Dimension", fields: [] }
-				var values1 = axesValues[1].fields;
-				var values2 = axesValues[2].fields;
+				var values1 = axesValues1[1].fields;
+				var values2 = axesValues1[2].fields;
 
 				var allValues = values1.concat(values2);
 				combinedValuesForDimension.fields = allValues;

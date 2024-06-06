@@ -428,6 +428,7 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 			}
 
 			{ 
+			
 			chartType === "gauge" ||
 			chartType === "funnel" ||
 			chartType === "simplecard" 
@@ -456,14 +457,6 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 				:  null 
 			}  	
 
-
-			{ aggr?.length === 0 && timegrain?.length === 0 && windowfn?.length === 0 ?
-			(
-				// <MenuItem onClick={handleClose} sx={menuStyle} key="optNa">
-				<MenuItem onClick={() => { handleClose("rename"); setRenameFunction(true); setShowTooltip(false)}} sx={menuStyle} key="optNa" >
-					{/* <i>-- No options --</i> */}
-					Rename for Visual
-
 			{					
 				chartType === "simplecard" 
 				? null 
@@ -489,19 +482,12 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 						);
 					})
 					:  null 
-			}
+			}		   
 
-			{ aggr?.length === 0 && timegrain?.length === 0 && windowfn?.length === 0 ? (
-				<MenuItem onClick={handleClose} sx={menuStyle} key="optNa">
-					<i>-- No options --</i>
-
-				</MenuItem>
-			) : null}   
-
-{ windowfn?.length !== 0 ?
-<MenuItem onClick={() => { handleClose("rename"); setRenameFunction(true); setShowTooltip(false)}} sx={menuStyle} >
-	Rename for Visual
-</MenuItem>:null }
+			{ windowfn?.length !== 0 ?
+			<MenuItem onClick={() => { handleClose("rename"); setRenameFunction(true); setShowTooltip(false)}} sx={menuStyle} >
+				Rename for Visual
+			</MenuItem>:null }
 
 		</Menu> 
 		
