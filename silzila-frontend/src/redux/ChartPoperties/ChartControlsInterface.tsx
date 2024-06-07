@@ -1,4 +1,6 @@
+
 export interface ChartControlsProps {
+	// SetNameWithAgg:string,
 	chartData: any;
 	queryResult: any;
 	richText: string;
@@ -31,6 +33,11 @@ export interface ChartControlsProps {
 export interface ChartControlProperties {
 	[key: string]: ChartControlsProps;
 }
+
+// export interface  SetNameWithAgg{
+// 	type: "SET_NAME_WITH_AGG";
+// 	payload:{propKey:string,SetNameWithAgg:string}
+// }
 
 interface ChartConColorScale {
 	colorScaleType: string;

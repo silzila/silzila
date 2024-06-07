@@ -1,5 +1,20 @@
 import { ChartControlsProps } from "./ChartControlsInterface";
 
+export const storeServerData = (propKey: string, serverData: string | any) => {
+	return {
+		type:  "STORE_SERVER_DATA",
+		payload: { propKey, serverData },
+	};
+};
+
+// export const setNameWithAgg = (propKey: string,SetNameWithAgg:string) => {
+// 	return {
+// 	  type: "SET_NAME_WITH_AGG",
+// 	  payload: {propKey,SetNameWithAgg},
+// 	};
+//   };
+
+
 export const updateChartData = (propKey: string, chartData: string | any) => {
 	return {
 		type: "UPDATE_CHART_DATA",

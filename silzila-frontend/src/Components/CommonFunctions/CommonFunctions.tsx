@@ -164,6 +164,26 @@ export const generateRandomColorArray = (length:number) => {
 		  
 
 			// checking the column type To generate the name as it is in the chartData
+			// chartProperties.properties[propKey].chartAxes[1].fields.forEach(async (el: any) => {
+			// 	//if (el.dataType === "date") {
+			// 	//console.log();
+			// 	if (columnName.includes(el.fieldname)) {
+			// 		//formattedColumnName = `${el.timeGrain} of ${el.fieldname}`;
+			// 		if(["date", "timestamp"].includes(el.dataType)){
+			// 			if(columnName.split(' of ')[0] === el.timeGrain){
+			// 				field = el;
+			// 				return;
+			// 			}
+			// 		}
+			// 		else{
+			// 			field = el;
+			// 			return;
+			// 		}
+			// 	}
+			// 	//}
+			// });
+
+			// checking the column type To generate the name as it is in the chartData
 			chartProperties.properties[propKey].chartAxes[1].fields.forEach(async (el: any) => {
 				//if (el.dataType === "date") {
 				//console.log();
@@ -182,6 +202,7 @@ export const generateRandomColorArray = (length:number) => {
 				}
 				//}
 			});
+
 
 			let formattedColumnName = ["date", "timestamp"].includes(field.dataType) ? field.timeGrain : columnName;
 			fieldValues = await fetchFieldData(field, chartProperties, propKey, token);
@@ -233,6 +254,14 @@ export const generateRandomColorArray = (length:number) => {
 		}				
 	}
 
+	
+	export const displayName = (field: any) => {
+		if (field) {
+			return field.displayname;
+		}
+		return field;
+	};
+
 	const fetchFieldData = (bodyData: any, chartProperties:any, propKey:string, token:string) => {
 
 		//  bodyData: any = {
@@ -247,6 +276,7 @@ export const generateRandomColorArray = (length:number) => {
 
 		bodyData.filterOption = "allValues";
 		bodyData.fieldName = bodyData.fieldname
+		// bodyData.displayName = bodyData.displayname
 
 		
 

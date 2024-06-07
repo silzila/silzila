@@ -3,17 +3,18 @@
 // Once minimum number of fields are met for the given chart type, server call is made to get chart data and saved in store
 
 import React, { useEffect, useState } from "react";
+
 import { connect } from "react-redux";
 import ChartsInfo from "./ChartsInfo2";
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import { Dispatch } from "redux";
 import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
-import { canReUseData, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
+import{storeServerData}from "../../redux/ChartPoperties/ChartControlsActions";
+import { canReUseData, toggleAxesEdited,updateisTextRenamed } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import FetchData from "../ServerCall/FetchData";
 import { AxesValuProps, ChartAxesFormattedAxes, ChartAxesProps } from "./ChartAxesInterfaces";
-import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartPropertiesStateProps,UpdateisTextRenamed} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
-
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { chartFilterGroupEdited } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 import {
@@ -32,7 +33,7 @@ import {
 	updatecfObjectOptions,
 } from "../../redux/ChartPoperties/ChartControlsActions";
 
-import {interpolateColor, generateRandomColorArray, fieldName, getLabelValues} from '../CommonFunctions/CommonFunctions';
+import {interpolateColor, generateRandomColorArray, fieldName,displayName, getLabelValues} from '../CommonFunctions/CommonFunctions';
 
 
 // format the chartAxes into the way it is needed for api call
@@ -45,7 +46,7 @@ export const getChartData = async (
 	screenFrom: string,
 	token: string,
 	chartType: any,
-	forQueryData?: boolean
+	forQueryData?: boolean,
 ) => {
 
 	let _chartAxes:any = [];
@@ -166,12 +167,13 @@ export const getChartData = async (
 		if (_chartProp.fields) _items = _chartProp.fields;
 		else _items = _chartProp;
 
-		/*	Iterate through each fileds added in the Filter Dropzone	*/
+		/*	Iterate through each fields added in the Filter Dropzone	*/
 		_items.forEach((item: any) => {
 			let _filter: any = {};
 			_filter.filterType = _getFilterType(item);
 			_filter.tableId = item.tableId;
 			_filter.fieldName = item.fieldname;
+			_filter.displayName=item.displayname;
 			_filter.dataType = item.dataType.toLowerCase();
 			_filter.shouldExclude = item.includeexclude === "Exclude";
 
@@ -633,13 +635,15 @@ const ChartData = ({
 	tileState,
 	tabState,
 	chartControls,
-
+    
 	chartProperties,
 	chartGroup,
 	dashBoardGroup,
 	dynamicMeasureState,
 
 	// dispatch
+
+	storeServerData,
 	updateChartData,
 	toggleAxesEdit,
 	reUseOldData,
@@ -729,13 +733,18 @@ const ChartData = ({
 					else{
 						let findMeasureField = measureFields.find((item:any)=>{
 							return item.fieldname == name;
+							
 						})
 
-						if(!findMeasureField){								
-								let _colValues = format.isLabel ? await getLabelValues(format.name,chartControls,chartProperties,_propKey, token) : "";								
 
+						if(!findMeasureField){								
+								let _colValues = format.isLabel ? await getLabelValues(format.name,chartControls,chartProperties,_propKey, token) : "";
+
+								// if (fieldName(findField).isTextRenamed===true) {
+								// 	format.name  = findField.displayname; // Use displayname if renamed
+								// }
 							format.value = _colValues;
-							format.name = fieldName(findField);								
+							format.name = fieldName(findField);							
 
 							updatecfObjectOptions(_propKey, index, format);								
 						}
@@ -752,6 +761,7 @@ const ChartData = ({
 								if(midObject && !midObject.isUserChanged) midObject.value = (parseFloat(minMaxValue.min) + parseFloat(minMaxValue.max)) / 2;
 
 								format.name = fieldName(findField);
+
 								updatecfObjectOptions(_propKey, index, format);
 							}								
 						}
@@ -766,7 +776,7 @@ const ChartData = ({
 
 	useEffect(() => {
 		const makeServiceCall = async () => {
-			const axesValues1 = JSON.parse(JSON.stringify(chartProp.chartAxes));
+			const axesValues1:any = JSON.parse(JSON.stringify(chartProp.chartAxes));
 
 			/*	To sort chart data	based on field name	*/
 			const sortChartData = (chartData: any[]): any[] => {
@@ -791,6 +801,7 @@ const ChartData = ({
 							return `${name}(${i})`;
 						}
 					};
+					
 
 					/*	Find and return field's new name	*/
 					const findFieldIndexName = (name: string, i: number = 2): string => {
@@ -801,15 +812,18 @@ const ChartData = ({
 							return `${name}_${i}`;
 						}
 					};
-
+					
+				
 					_zones.forEach((zoneItem: any) => {
 						zoneItem.fields.forEach((field: any, index: number) => {
 							let _nameWithAgg: string = "";
+                            
+                            
 
 							if (zoneItem.name === "Measure") {
 								if (field.dataType !== "date" && field.dataType !== "timestamp") {
 									_nameWithAgg = field.agg
-										? `${field.agg} of ${field.fieldname}`
+										?`${field.agg} of ${field.fieldname}`
 										: field.fieldname;
 								} else {
 									let _timeGrain: string = field.timeGrain || "";
@@ -819,16 +833,25 @@ const ChartData = ({
 								}
 							} else {
 								if (field.dataType !== "date" && field.dataType !== "timestamp") {
+
 									_nameWithAgg = field.agg
 										? `${field.agg} of ${field.fieldname}`
 										: field.fieldname;
 								} else {
 									let _timeGrain: string = field.timeGrain || "";
+									
 									_nameWithAgg = _timeGrain
 										? `${_timeGrain} of ${field.fieldname}`
 										: field.fieldname;
 								}
+								
 							}
+							
+								if (field.isTextRenamed===true) {
+									_nameWithAgg = field.displayname; 
+								}
+
+						
 
 							if (_chartFieldTempObject[field.fieldname] !== undefined) {
 								let _name = findFieldIndexName(field.fieldname);
@@ -838,11 +861,11 @@ const ChartData = ({
 							} else {
 								field["NameWithIndex"] = field.fieldname;
 								_chartFieldTempObject[field.fieldname] = "";
+								
 							}
 
 							if (_fieldTempObject[_nameWithAgg] !== undefined) {
 								let _name = findFieldName(_nameWithAgg);
-
 								field["NameWithAgg"] = _name;
 								_fieldTempObject[_name] = "";
 							} else {
@@ -851,6 +874,7 @@ const ChartData = ({
 							}
 						});
 					});
+					
 
 					chartData.forEach((data: any) => {
 						let _chartDataObj: any = {};
@@ -860,6 +884,8 @@ const ChartData = ({
 								_chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
 							});
 						});
+
+
 
 						result.push(_chartDataObj);
 					});
@@ -886,6 +912,7 @@ const ChartData = ({
 
 					if (minReq) {
 						serverCall = true;
+						storeServerData(_propKey,"")
 					} else {
 						if (chartProperties.properties[_propKey].chartType === "richText") {
 							updateChartDataForDm("");
@@ -910,9 +937,11 @@ const ChartData = ({
 				chartProp.chartType === "crossTab" ||
 				chartProp.chartType === "boxPlot"
 			) {
-				var combinedValuesForDimension = { name: "Dimension", fields: [] };
+
+				var combinedValuesForDimension = { name: "Dimension", fields: [] }
 				var values1 = axesValues1[1].fields;
 				var values2 = axesValues1[2].fields;
+
 				var allValues = values1.concat(values2);
 				combinedValuesForDimension.fields = allValues;
 				axesValues1.splice(1, 2, combinedValuesForDimension);
@@ -930,6 +959,8 @@ const ChartData = ({
 				}
 			}
 
+			
+			
 			let serverData = [];
 
 			if (serverCall) {
@@ -946,9 +977,14 @@ const ChartData = ({
 						chartProperties.properties[_propKey].chartType
 					)
 					
+					
+                
 				Logger("info", "", serverData);
-
+                 
+				// Dispatch action to store server data
+				storeServerData(_propKey, serverData);
 				if (chartProperties.properties[_propKey].chartType === "richText") {
+
 					updateChartDataForDm(sortChartData(serverData));
 				} else {
 					updateChartData(_propKey, sortChartData(serverData));
@@ -1017,6 +1053,7 @@ const ChartData = ({
 		chartProp.chartAxes,
 		chartProp.chartType,
 		chartProp.filterRunState,
+		// isTextRenamed,
 
 		chartGroup.chartFilterGroupEdited,
 		dashBoardGroup.dashBoardGroupEdited,
@@ -1030,7 +1067,7 @@ const ChartData = ({
 	const resetStore = () => {
 		toggleAxesEdit(_propKey);
 		reUseOldData(_propKey);
-
+	
 		chartFilterGroupEdited(false);
 		dashBoardFilterGroupsEdited(false);
 		setDashTileSwitched(false);
@@ -1045,10 +1082,13 @@ const mapStateToProps = (
 		TileRibbonStateProps &
 		isLoggedProps &
 		ChartFilterGroupStateProps &
+		UpdateisTextRenamed&
 		DashBoardFilterGroupStateProps,
 
 	ownProps: any
 ) => {
+	const { tabId, tileId } = ownProps;
+	var _propKey: string = `${tabId}.${tileId}`;
 	return {
 		tabTileProps: state.tabTileProps,
 		tileState: state.tileState,
@@ -1061,13 +1101,19 @@ const mapStateToProps = (
 		chartGroup: state.chartFilterGroup,
 		dashBoardGroup: state.dashBoardFilterGroup,
 		dynamicMeasureState: state.dynamicMeasuresState,
+		isTextRenamed:state.chartProperties.properties[_propKey].isTextRenamed
 	};
 };
 
+
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
+		storeServerData:(propKey:string,serverData:any)=>
+			dispatch(storeServerData(propKey,serverData)),
 		updateChartData: (propKey: string, chartData: any) =>
 			dispatch(updateChartData(propKey, chartData)),
+		updateisTextRenamed: (propKey: string, isTextRenamed: boolean) =>
+			dispatch(updateisTextRenamed(propKey, isTextRenamed)),
 		toggleAxesEdit: (propKey: string) => dispatch(toggleAxesEdited(propKey, false)),
 		reUseOldData: (propKey: string) => dispatch(canReUseData(propKey, false)),
 		chartFilterGroupEdited: (isEdited: boolean) => dispatch(chartFilterGroupEdited(isEdited)),
