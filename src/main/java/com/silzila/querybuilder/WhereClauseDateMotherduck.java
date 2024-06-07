@@ -43,8 +43,7 @@ public class WhereClauseDateMotherduck {
                     field = "CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "), '-Q', QUARTER("
                             + filter.getTableId() + "." + filter.getFieldName() + "))";
                 } else if (filter.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "CONCAT(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + "), '-', LPAD(EXTRACT(MONTH FROM " 
-                    + filter.getTableId() + "." + filter.getFieldName() + "), 2, '0'))";
+                    field = "STRFTIME(" + filter.getTableId() + "." + filter.getFieldName() + ", '%Y-%m')";
                 } else if (filter.getTimeGrain().name().equals("DATE")) {
                     field = "CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE)";
                 } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {

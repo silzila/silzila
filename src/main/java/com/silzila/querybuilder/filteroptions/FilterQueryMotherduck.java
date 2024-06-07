@@ -85,8 +85,7 @@ public class FilterQueryMotherduck {
                             + req.getTableId() + "." + req.getFieldName() + "))";
                     query = "SELECT DISTINCT " + field + " AS YearQuarter" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("YEARMONTH")) {
-                    String field = "CONCAT(EXTRACT(YEAR FROM " + req.getTableId() + "." + req.getFieldName() + "), '-', LPAD(EXTRACT(MONTH FROM " + req.getFieldName() + "), 2, '0'))";
-                    query = "SELECT DISTINCT " + field + " AS YearMonth" + fromClause + "ORDER BY 1";
+                    String field = "STRFTIME(" + req.getTableId() + "." + req.getFieldName() + ", '%Y-%m')";
                 } else if (req.getTimeGrain().name().equals("DATE")) {
                     String field = "CAST(" + req.getTableId() + "." + req.getFieldName() + " AS DATE)";
                     query = "SELECT DISTINCT " + field + " AS Date" + fromClause + "ORDER BY 1";

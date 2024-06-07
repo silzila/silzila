@@ -80,10 +80,10 @@ public class FilterQueryDuckDb {
                             + req.getFieldName() + "))";
                     query = "SELECT DISTINCT " + field + " AS YearQuarter" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("YEARMONTH")) {
-                    String field = "DATE_FORMAT(" + req.getFieldName() + ", '%Y-%m')";
+                    String field = "STRFTIME(" + req.getFieldName() + ", '%Y-%m')";
                     query = "SELECT DISTINCT " + field + " AS YearMonth" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("DATE")) {
-                    String field = "DATE(" + req.getFieldName() + ")";
+                    String field = "CAST(" + req.getFieldName() + " AS DATE)";
                     query = "SELECT DISTINCT " + field + " AS Date" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("DAYOFWEEK")) {
                     String sortField = "DAYOFWEEK(" + req.getFieldName() + ")";
@@ -92,7 +92,7 @@ public class FilterQueryDuckDb {
                             + field
                             + " ORDER BY " + sortField;
                 } else if (req.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    String field = "DAY(" + req.getFieldName() + ") AS DayOfMonth";
+                    String field = "DAY(" + req.getFieldName() + ") ";
                     query = "SELECT DISTINCT " + field + " AS DayOfMonth" + fromClause + "ORDER BY 1";
                 }
 

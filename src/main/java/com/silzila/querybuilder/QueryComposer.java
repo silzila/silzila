@@ -80,7 +80,7 @@ public class QueryComposer {
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             // System.out.println("------ inside postges block");
             qMap = SelectClausePostgres.buildSelectClause(req, vendorName, aliasnumber);
-        } else if (vendorName.equals("mysql") || vendorName.equals("duckdb")) {
+        } else if (vendorName.equals("mysql")) {
             // System.out.println("------ inside mysql block");
             qMap = SelectClauseMysql.buildSelectClause(req, vendorName, aliasnumber);
         } else if (vendorName.equals("sqlserver")) {
@@ -96,7 +96,7 @@ public class QueryComposer {
             qMap = SelectClauseOracle.buildSelectClause(req, vendorName, aliasnumber);
         } else if (vendorName.equals("snowflake")) {
             qMap = SelectClauseSnowflake.buildSelectClause(req, vendorName, aliasnumber);
-        } else if (vendorName.equals("motherduck")) {
+        } else if (vendorName.equals("motherduck") || vendorName.equals("duckdb") ) {
             qMap = SelectClauseMotherduck.buildSelectClause(req, vendorName, aliasnumber);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
