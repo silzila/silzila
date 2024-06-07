@@ -96,7 +96,7 @@ public class RelativeFilterDateDuckDB {
                         fromDate = "date_trunc('month',CAST(date_add(DATE '" + anchorDate + "' , interval (" + fromNum
                                 + ") month) as DATE))";
                         break;
-                    case "Year":
+                    case "year":
                         fromNum = -fromNum;
                         fromDate = "date_trunc('year',CAST(date_add(DATE '" + anchorDate + "' , interval (" + fromNum
                                 + ") year) as DATE))";
@@ -113,7 +113,7 @@ public class RelativeFilterDateDuckDB {
                         break;
                     case "rollingWeek":
                         fromNum = -7;
-                        fromDate = "date_add(CAST(date_add(DATE '" + anchorDate + "' ," + fromNum + " ) as DATE),1)";
+                        fromDate = "date_add(CAST(date_add(DATE '" + anchorDate + "' ," + fromNum + " ) as DATE),1) ";
                         break;
                     case "rollingMonth":
                         fromNum = -1;
@@ -130,7 +130,7 @@ public class RelativeFilterDateDuckDB {
                         fromDate = "date_add(DATE '" + anchorDate + "', interval ((dayofweek(DATE '" + anchorDate
                                 + "') * -1) + "
                                 + fromNum
-                                + ") day)";
+                                + ") day)" ;
                         break;
                     case "weekMonSun":
                         fromNum = 1;
@@ -147,7 +147,7 @@ public class RelativeFilterDateDuckDB {
                         fromDate = "date_trunc('month',CAST(date_add(DATE '" + anchorDate + "' , interval (" + fromNum
                                 + ") month) as DATE))";
                         break;
-                    case "Year":
+                    case "year":
                         fromNum = 0;
                         fromDate = "date_trunc('year',CAST(date_add(DATE '" + anchorDate + "' , interval (" + fromNum
                                 + ") year) as DATE))";
@@ -159,7 +159,7 @@ public class RelativeFilterDateDuckDB {
             if (fromConditions.get(0).equals("next")) {
                 switch (fromType) {
                     case "day":
-                        fromDate = "date_add(DATE '" + anchorDate + "' ," + fromNum + ")";
+                        fromDate = "date_add(DATE '" + anchorDate + "' ," + fromNum + ") ";
                         break;
                     case "rollingWeek":
                         fromNum = ((fromNum * 7) - 7);
@@ -196,7 +196,7 @@ public class RelativeFilterDateDuckDB {
                         fromDate = "date_trunc('month',CAST(date_add(DATE '" + anchorDate + "' , interval (" + fromNum
                                 + ") month) as DATE))";
                         break;
-                    case "Year":
+                    case "year":
                         fromDate = "date_trunc('year',CAST(date_add(DATE '" + anchorDate + "' , interval (" + fromNum
                                 + ") year) as DATE))";
                         break;
@@ -249,7 +249,7 @@ public class RelativeFilterDateDuckDB {
                         toDate = "last_day(CAST(date_add(DATE '" + anchorDate + "' , interval (" + toNum
                                 + ") month) as DATE))";
                         break;
-                    case "Year":
+                    case "year":
                         toNum = -(toNum -1);
                         toDate = "date_add(date_trunc('year',CAST(date_add(DATE '" + anchorDate + "' , interval (" + toNum
                                 + ") year) as DATE)),-1)";
@@ -300,7 +300,7 @@ public class RelativeFilterDateDuckDB {
                         toDate = "last_day(CAST(date_add(DATE '" + anchorDate + "' , interval (" + toNum
                                 + ") month) as DATE))";
                         break;
-                    case "Year":
+                    case "year":
                         toNum = 1;
                         toDate = "date_add(date_trunc('year',CAST(date_add(DATE '" + anchorDate + "' , interval ("
                                 + toNum
@@ -349,11 +349,11 @@ public class RelativeFilterDateDuckDB {
                         toDate = "last_day(CAST(date_add(DATE '" + anchorDate + "' , interval (" + toNum
                                 + ") month) as DATE))";
                         break;
-                    case "Year":
+                    case "year":
                         toNum = (toNum + 1);
                         toDate = "date_add(date_trunc('year',CAST(date_add(DATE '" + anchorDate + "' , interval ("
                                 + toNum
-                                + ") year) as DATE)),-1)";
+                                + ") year) as DATE)),-1) ";
                         break;
                     default:
                         break;
@@ -361,8 +361,8 @@ public class RelativeFilterDateDuckDB {
             }
             // finalQuery to get date
 
-            String finalQuery = "SELECT CAST(" + fromDate + " as DATE )as fromdate, CAST( " + toDate
-                    + " as DATE )as todate;";
+            String finalQuery = "SELECT CAST(" + fromDate + " as DATE ) as fromdate, CAST( " + toDate
+                    + " as DATE ) as todate;";
 
             // String finalQuery = "SELECT 1";
           
@@ -408,6 +408,5 @@ public class RelativeFilterDateDuckDB {
             throw new BadRequestException("Invalid anchor date");
         }
         return query;
-
     }
 }

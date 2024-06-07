@@ -102,8 +102,7 @@ public class SelectClauseMotherduck {
                 }
                 // yearmonth name -> 2015-08
                 else if (dim.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "CONCAT(EXTRACT(YEAR FROM " + dim.getTableId() + "." + dim.getFieldName() + "), '-', LPAD(EXTRACT(MONTH FROM " 
-                    + dim.getTableId() + "." + dim.getFieldName() + "), 2, '0'))";
+                    field = "STRFTIME(" + dim.getTableId() + "." + dim.getFieldName() + ", '%Y-%m')";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }

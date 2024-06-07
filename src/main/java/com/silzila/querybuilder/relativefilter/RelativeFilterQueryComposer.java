@@ -26,7 +26,7 @@ public class RelativeFilterQueryComposer {
         String finalQuery = "";
 
         if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("motherduck")) {
-            logger.info("------ inside postges/redshift block");
+            logger.info("------ inside postgres/redshift block");
             finalQuery = RelativeFilterDatePostgres.getRelativeDate(relativeFilter, anchorDateArray);
         } else if (vendorName.equals("mysql")) {
             logger.info("------ inside mysql block");
@@ -86,7 +86,7 @@ public class RelativeFilterQueryComposer {
         }
 
         if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("motherduck")) {
-            logger.info("------ inside postges/redshift block");
+            logger.info("------ inside postgres/redshift block");
             finalQuery = RelativeFilterDatePostgres.getRelativeAnchorDate(table, relativeFilter);
         } else if (vendorName.equals("mysql")) {
             logger.info("------ inside mysql block");

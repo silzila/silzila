@@ -45,7 +45,7 @@ public class WhereClauseDateMysql {
                 } else if (filter.getTimeGrain().name().equals("YEARMONTH")) {
                     field = "DATE_FORMAT(" + filter.getTableId() + "." + filter.getFieldName() + ", '%Y-%m')";
                 } else if (filter.getTimeGrain().name().equals("DATE")) {
-                    field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "DATE(" +  filter.getTableId() + "." + filter.getFieldName() + ")";
                 } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
                     field = "DAYNAME(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
@@ -86,7 +86,7 @@ public class WhereClauseDateMysql {
             }
 
             field = timeGrainMap.get(filter.getTimeGrain().name()) + "(" + filter.getTableId() + "."
-                    + filter.getFieldName() + ")";
+                        + filter.getFieldName() + ")";
             // decides if it is '=' or '!='
             String excludeOperator = QueryNegator.makeNegateCondition(filter.getShouldExclude());
 
