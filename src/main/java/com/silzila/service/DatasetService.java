@@ -123,10 +123,27 @@ public class DatasetService {
             relationship.setTable1(table1Alias);
             relationship.setTable2(table2Alias);
         });
-        // chane id to alias name in every table
+        if(dataSchema.getFilterPanels().size()!=0) {
+            Map<String, String> aliasMap = new HashMap<>();
+            for (int i = 0; i < tableNameList.size(); i++) {
+                aliasMap.put(tableNameList.get(i), aliasNameList.get(i));
+            }
+
+            // changing tableId in every filters
+            for (int i = 0; i < dataSchema.getFilterPanels().size(); i++) {
+                for (int j = 0; j < dataSchema.getFilterPanels().get(i).getFilters().size(); j++) {
+                    String tableId = dataSchema.getFilterPanels().get(i).getFilters().get(j).getTableId();
+                    dataSchema.getFilterPanels().get(i).getFilters().get(j).setTableId(aliasMap.get(tableId));
+                }
+            }
+        }
+
+
+        // change id to alias name in every table
         for (int i = 0; i < dataSchema.getTables().size(); i++) {
             dataSchema.getTables().get(i).setId(aliasNameList.get(i));
         }
+
         return dataSchema;
     }
 
@@ -178,6 +195,7 @@ public class DatasetService {
                 }
             }
             if(isProperQuery){
+                System.out.println("::::::::::::::::::::::::::::::::: "+datasetRequest.getDataSchema());
                 DataSchema dataSchema = createTableAliasName(datasetRequest.getDataSchema());
                 // datasetRequest.setDataSchema(dataSchema);
                 // stringify dataschema (table + relationship section of API) to save in DB
