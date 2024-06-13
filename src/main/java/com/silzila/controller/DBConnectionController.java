@@ -191,7 +191,7 @@ public class DBConnectionController {
         return ResponseEntity.status(HttpStatus.OK).body(metadataColumns);
     }
 
-    @GetMapping("/metadata-columns-customquery/{id}")
+    @PostMapping("/metadata-columns-customquery/{id}")
     public ResponseEntity<?> getColumnForCustomQuery(@RequestHeader Map<String, String> reqHeader,
                                                      @PathVariable(value = "id") String id,
                                          @RequestBody CustomQueryRequest customQueryRequest) throws RecordNotFoundException, SQLException, ExpectationFailedException
@@ -218,7 +218,7 @@ public class DBConnectionController {
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
-    @GetMapping("/sample-records-customquery/{id}/{recordCount}")
+    @PostMapping("/sample-records-customquery/{id}/{recordCount}")
     public ResponseEntity<?> getSampleRecordsCustomQuery(@RequestHeader Map<String, String> reqHeader,
                                               @PathVariable(value = "id") String id,
                                               @PathVariable(value = "recordCount") Integer recordCount,
