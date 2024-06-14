@@ -374,9 +374,10 @@ public class FileDataService {
 
             return fileDataDTO;
         } else if (revisedInfoRequest.getFileType().equalsIgnoreCase("json")) {
-            int saltLength =4; // You can adjust the length as needed
+            //int saltLength =4; // You can adjust the length as needed
             // Generate salt using SaltGenerator class
-            String salt = SaltGenerator.generateSalt(saltLength);
+           // String salt = SaltGenerator.generateSalt(saltLength);
+            String salt="pYuGazNh";
 
             duckDbService.writeJsonToParquet(revisedInfoRequest, userId, salt+encryptPwd+pepper);
 
