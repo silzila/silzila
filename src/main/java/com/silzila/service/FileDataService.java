@@ -45,10 +45,10 @@ public class FileDataService {
 
     // all uploads are initially saved in tmp
     final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
-    @Value("${pepper}")
+    @Value("${pepperForFlatFiles}")
     private String pepper;
 
-    @Value("${salt}")
+    @Value("${saltForFlatFiles}")
     private String salt;
 
    // Convert byte array to a base64 encoded string
