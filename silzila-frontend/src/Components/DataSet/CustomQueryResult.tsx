@@ -1,5 +1,3 @@
-// Sample records of selected table shown in Create / Edit dataset page
-
 import React, { useState } from "react";
 import {
   Button,
@@ -14,8 +12,10 @@ import {
   Tooltip,
 } from "@mui/material";
 import "./Dataset.css";
+import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 
 interface savedData {
+  id: number;
   name: string;
   querydata: string;
 }
@@ -31,6 +31,7 @@ export interface tableDataComponentProps {
   setCustomQuerySavedData: React.Dispatch<React.SetStateAction<savedData[]>>;
   CustomQuerySavedData: savedData[];
   CustomQueryData: string;
+  setCustomQuery: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function CustomQueryResult({
@@ -44,28 +45,49 @@ function CustomQueryResult({
   setCustomQuerySavedData,
   CustomQuerySavedData,
   CustomQueryData,
+  setCustomQuery,
 }: tableDataComponentProps) {
   const handleClose = () => {
     setShowTableData(false);
     setSelectedTable("");
     setTableData([]);
   };
+
   const [savedData, setsavedData] = useState<savedData>({
+    id: 0,
     name: "",
     querydata: "",
   });
+  const [error, seterror] = useState<string>("");
+  const [OpenAlert, setOpenAlert] = useState<boolean>(false);
+
   const handleSavedData = () => {
-    if (savedData) {
+    if (savedData.name.length > 0) {
       setCustomQuerySavedData((prev) => {
         const exists = prev.find((data) => data.name === savedData.name);
         if (!exists) {
-          return [...prev, savedData];
+          const newId =
+            prev.length > 0 ? Math.max(...prev.map((data) => data.id)) + 1 : 1;
+          const newdata: savedData = { ...savedData, id: newId };
+
+          setsavedData({ id: 0, name: "", querydata: "" });
+          handleClose();
+          setCustomQuery(false);
+          return [...prev, newdata];
+        } else {
+          setOpenAlert(true);
+          seterror(
+            "A query with that name already exists. Please use a different name."
+          );
+          return prev;
         }
-        return prev;
       });
-      setsavedData({ name: "", querydata: "" });
+    } else {
+      seterror("Please provide a name for the query.");
+      setOpenAlert(true);
     }
   };
+
   return (
     <>
       <Dialog
@@ -107,7 +129,11 @@ function CustomQueryResult({
                 return (
                   <TableRow key={i} id="TRow">
                     {objKeys.map((obj: string) => {
-                      return <TableCell id="TColumn">{data[obj]}</TableCell>;
+                      return (
+                        <TableCell key={obj} id="TColumn">
+                          {data[obj]}
+                        </TableCell>
+                      );
                     })}
                   </TableRow>
                 );
@@ -148,7 +174,7 @@ function CustomQueryResult({
                 inputProps={{
                   style: {
                     fontSize: "14px",
-                    color: "#3B3C36",
+                    outlineColor: "green",
                   },
                 }}
                 onChange={(e) =>
@@ -161,7 +187,7 @@ function CustomQueryResult({
                 id="outlined-size-small"
                 size="small"
                 value={savedData.name}
-                label="Name Table Data"
+                label="Name Custom Query"
               />
             </Tooltip>
             <Button
@@ -169,13 +195,32 @@ function CustomQueryResult({
               onClick={handleSavedData}
               id="setButton"
               sx={{ textTransform: "none" }}
+              style={{
+                backgroundColor: "white",
+                color: "black",
+                outlineColor: "green",
+                outline: "1px solid green",
+                border: "none",
+              }}
             >
-              Ok
+              OK
             </Button>
           </div>
         </div>
       </Dialog>
+      {error.length > 0 ? (
+        <NotificationDialog
+          onCloseAlert={() => {
+            setOpenAlert(false);
+            seterror("");
+          }}
+          severity={"error"}
+          testMessage={error}
+          openAlert={OpenAlert}
+        />
+      ) : null}
     </>
   );
 }
+
 export default CustomQueryResult;

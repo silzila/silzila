@@ -545,6 +545,25 @@ DataHome
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
+.optionlist {
+  position: absolute;
+  display: flex;
+  border: 1px solid black;
+  justify-content: start;
+  background-color: white;
+  border-radius: 2px;
+}
+
+.optionlist ul li {
+  cursor: pointer;
+  text-align: left;
+  margin: 0%;
+  padding: 0%;
+}
+.optionlist ul {
+  margin: 0%;
+  padding: 0%;
+}
 @media only screen and (max-width: 860px) {
   .dataHomeItemsContainer {
     grid-template-columns: 1fr;

@@ -48,6 +48,7 @@ import Logger from "../../Logger";
 import CustomQueryResult from "./CustomQueryResult";
 import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
 interface savedData {
+  id: number;
   name: string;
   querydata: string;
 }
@@ -97,6 +98,11 @@ const Sidebar = ({
   const [CustomQuerySavedData, setCustomQuerySavedData] = useState<savedData[]>(
     []
   );
+  const [SelectQueryoption, setSelectQueryoption] = useState<number>(0);
+  const [customQueryExpand, setcustomQueryExpand] = useState<boolean>(false);
+  const [editCustomQueryname, seteditCustomQueryname] = useState<string>("");
+
+  const [EditNameQuery, setEditNameQuery] = useState("");
 
   // tableData  will be type of any
   const [tableData, setTableData] = useState<any[]>([]);
@@ -118,6 +124,7 @@ const Sidebar = ({
     setCustomQuerySavedData,
     CustomQuerySavedData,
     CustomQueryData,
+    setCustomQuery,
   };
 
   const onConnectionChange = (e: string) => {
@@ -371,6 +378,8 @@ const Sidebar = ({
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
+    seteditCustomQueryname("");
+    setSelectQueryoption(0);
   };
 
   //fetch data from custom query button
@@ -424,6 +433,42 @@ const Sidebar = ({
       });
       console.log(res);
     } catch (error) {}
+  };
+
+  const handleEdit = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+    name: string
+  ) => {
+    if (event.key === "Enter") {
+      if (editCustomQueryname.length > 0) {
+        const isDuplicate = CustomQuerySavedData.some(
+          (item) => item.name === editCustomQueryname && item.name !== name
+        );
+
+        if (isDuplicate) {
+          setQueryErrorMessage(
+            "please write a different name of the query it is Already exists"
+          );
+          setOpenAlert(true);
+        } else {
+          setCustomQuerySavedData((prevData) =>
+            prevData.map((item) =>
+              item.name === name ? { ...item, name: editCustomQueryname } : item
+            )
+          );
+          seteditCustomQueryname("");
+          setEditNameQuery("");
+          setSelectQueryoption(0);
+        }
+      } else {
+        alert("Please write at least 1 character.");
+      }
+    }
+  };
+
+  const DeleteNameCustomQuery = (id: number) => {
+    const updatedData = CustomQuerySavedData.filter((item) => item.id !== id);
+    setCustomQuerySavedData(updatedData);
   };
 
   return (
@@ -731,40 +776,107 @@ const Sidebar = ({
           maxHeight: "330px",
           overflowY: "auto",
           color: "#3F3F3F",
-          flexDirection: "column",
         }}
       >
         <Typography>Custom Query</Typography>
-        {CustomQuerySavedData.length > 0 ? (
-          <>
-            {CustomQuerySavedData.map((item, index) => (
-              <div
-                key={index}
-                style={{ display: "flex", justifyContent: "space-between" }}
-              >
-                <div
-                  onClick={() => OpentableColumnsCustomquery(item.querydata)}
-                >
-                  {item.name}
-                </div>
-                <div style={{ cursor: "pointer" }}>
-                  <MoreVertSharpIcon />
-                </div>
-              </div>
-            ))}
-          </>
-        ) : null}
-        <button
-          onClick={handleCustomQueryAddButton}
-          style={{
-            width: "40%",
-            padding: "1%",
-            outline: "none",
-          }}
-        >
-          Add
-        </button>
+        {customQueryExpand ? (
+          <Tooltip title="Collapse">
+            <ArrowDropDownIcon
+              onClick={() => setcustomQueryExpand(!customQueryExpand)}
+            />
+          </Tooltip>
+        ) : (
+          <Tooltip title="Expand">
+            <ArrowRightIcon
+              onClick={() => setcustomQueryExpand(!customQueryExpand)}
+            />
+          </Tooltip>
+        )}
       </div>
+      {customQueryExpand ? (
+        <div>
+          {CustomQuerySavedData.length > 0 ? (
+            <>
+              {CustomQuerySavedData.map((item) => (
+                <div key={item.id} style={{ display: "flex" }}>
+                  <div>
+                    <div
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        setSelectQueryoption(
+                          SelectQueryoption === item.id ? 0 : item.id
+                        );
+                        setEditNameQuery("");
+                      }}
+                    >
+                      <MoreVertSharpIcon />
+                    </div>
+                    {SelectQueryoption === item.id ? (
+                      <div className="optionlist">
+                        <ul style={{ listStyle: "none" }}>
+                          <li
+                            onClick={() => {
+                              setSelectQueryoption(item.id);
+                              seteditCustomQueryname(item.name);
+                              setEditNameQuery(item.name);
+                              console.log(item.name, EditNameQuery);
+                            }}
+                          >
+                            Rename
+                          </li>
+                          <li
+                            onClick={() => {
+                              DeleteNameCustomQuery(item.id);
+                            }}
+                          >
+                            Delete
+                          </li>
+                          <li>Edit</li>
+                        </ul>
+                      </div>
+                    ) : null}
+                  </div>
+                  <div
+                    onClick={() => OpentableColumnsCustomquery(item.querydata)}
+                  >
+                    {SelectQueryoption === item.id &&
+                    EditNameQuery === item.name ? (
+                      <input
+                        type="text"
+                        value={editCustomQueryname}
+                        onChange={(e) => {
+                          seteditCustomQueryname(e.target.value);
+                        }}
+                        onKeyDown={(event) => handleEdit(event, item.name)}
+                        autoFocus
+                      />
+                    ) : (
+                      <span onClick={() => seteditCustomQueryname(item.name)}>
+                        {item.name}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </>
+          ) : null}
+          <button
+            onClick={handleCustomQueryAddButton}
+            style={{
+              backgroundColor: "white",
+              color: "black",
+              padding: "2%",
+              width: "100%",
+              outlineColor: "green",
+              outline: "1px solid green",
+              border: "none",
+              borderRadius: "0.5rem",
+            }}
+          >
+            Add
+          </button>
+        </div>
+      ) : null}
 
       {isCustomQuery ? (
         <Dialog
