@@ -381,7 +381,6 @@ public class FileDataService {
             // Generate salt using SaltGenerator class
            // String salt = SaltGenerator.generateSalt(saltLength);
 
-
             duckDbService.writeJsonToParquet(revisedInfoRequest, userId, salt+encryptPwd+pepper);
 
             // save metadata to DB and return as response
