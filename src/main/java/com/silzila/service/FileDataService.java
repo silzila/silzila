@@ -45,8 +45,11 @@ public class FileDataService {
 
     // all uploads are initially saved in tmp
     final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
-    @Value("${pepper}")
+    @Value("${pepperForFlatFiles}")
     private String pepper;
+
+    @Value("${saltForFlatFiles}")
+    private String salt;
 
    // Convert byte array to a base64 encoded string
     //generating random value to encrypt
@@ -350,9 +353,9 @@ public class FileDataService {
         // using condition to find the file type ad do the operation
         if (revisedInfoRequest.getFileType().equalsIgnoreCase("csv")) {
 
-            int saltLength =4; // You can adjust the length as needed
-            // Generate salt using SaltGenerator class
-            String salt = SaltGenerator.generateSalt(saltLength);
+//            int saltLength =4; // You can adjust the length as needed
+//            // Generate salt using SaltGenerator class
+//            String salt = SaltGenerator.generateSalt(saltLength);
 
             duckDbService.writeCsvToParquet(revisedInfoRequest, userId, salt+encryptPwd+pepper);
 
@@ -377,7 +380,6 @@ public class FileDataService {
             //int saltLength =4; // You can adjust the length as needed
             // Generate salt using SaltGenerator class
            // String salt = SaltGenerator.generateSalt(saltLength);
-            String salt="pYuGazNh";
 
             duckDbService.writeJsonToParquet(revisedInfoRequest, userId, salt+encryptPwd+pepper);
 
