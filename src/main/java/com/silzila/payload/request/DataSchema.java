@@ -1,6 +1,7 @@
 package com.silzila.payload.request;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -22,7 +23,7 @@ public class DataSchema implements Serializable {
 
 
     @JsonProperty("filterPanels")
-    private List<FilterPanel> filterPanels = null;
+    private List<FilterPanel> filterPanels = new ArrayList<>();
     private final static long serialVersionUID = -2188466840486676788L;
 
     /**
