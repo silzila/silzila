@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// this components is use for display customquery result and take custom query name
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Dialog,
@@ -13,6 +14,7 @@ import {
 } from "@mui/material";
 import "./Dataset.css";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
+import ShortUniqueId from "short-unique-id";
 
 interface savedData {
   id: number;
@@ -28,10 +30,12 @@ export interface tableDataComponentProps {
   tableData: any[];
   setTableData: React.Dispatch<React.SetStateAction<any[]>>;
   objKeys: any[];
-  setCustomQuerySavedData: React.Dispatch<React.SetStateAction<savedData[]>>;
-  CustomQuerySavedData: savedData[];
+  setCustomQuerysArray: React.Dispatch<React.SetStateAction<savedData[]>>;
+  CustomQuerysArray: savedData[];
   CustomQueryData: string;
   setCustomQuery: React.Dispatch<React.SetStateAction<boolean>>;
+  EditCustomQuery: any;
+  setEditCustomQuery: React.Dispatch<React.SetStateAction<any>>;
 }
 
 function CustomQueryResult({
@@ -42,10 +46,12 @@ function CustomQueryResult({
   tableData,
   setTableData,
   objKeys,
-  setCustomQuerySavedData,
-  CustomQuerySavedData,
+  setCustomQuerysArray,
+  CustomQuerysArray,
   CustomQueryData,
   setCustomQuery,
+  EditCustomQuery,
+  setEditCustomQuery,
 }: tableDataComponentProps) {
   const handleClose = () => {
     setShowTableData(false);
@@ -61,19 +67,51 @@ function CustomQueryResult({
   const [error, seterror] = useState<string>("");
   const [OpenAlert, setOpenAlert] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (EditCustomQuery !== 0) {
+      const data = CustomQuerysArray.find(
+        (item) => item.id === EditCustomQuery
+      );
+      if (data) {
+        setsavedData({
+          id: EditCustomQuery,
+          name: data.name,
+          querydata: data.querydata,
+        });
+      }
+    }
+  }, [EditCustomQuery, CustomQuerysArray]);
+
   const handleSavedData = () => {
     if (savedData.name.length > 0) {
-      setCustomQuerySavedData((prev) => {
-        const exists = prev.find((data) => data.name === savedData.name);
+      setCustomQuerysArray((prev) => {
+        const exists = prev.find(
+          (data) => data.name === savedData.name && data.id !== savedData.id
+        );
         if (!exists) {
-          const newId =
-            prev.length > 0 ? Math.max(...prev.map((data) => data.id)) + 1 : 1;
-          const newdata: savedData = { ...savedData, id: newId };
-
-          setsavedData({ id: 0, name: "", querydata: "" });
-          handleClose();
-          setCustomQuery(false);
-          return [...prev, newdata];
+          if (EditCustomQuery !== 0) {
+            const updatedArray = prev.map((data) =>
+              data.id === EditCustomQuery
+                ? { ...data, name: savedData.name, querydata: CustomQueryData }
+                : data
+            );
+            setEditCustomQuery(0);
+            setsavedData({ id: 0, name: "", querydata: "" });
+            handleClose();
+            setCustomQuery(false);
+            return updatedArray;
+          } else {
+            const uid: any = new ShortUniqueId({ length: 8 });
+            const newdata: savedData = {
+              ...savedData,
+              id: uid(),
+              querydata: CustomQueryData,
+            };
+            setsavedData({ id: 0, name: "", querydata: "" });
+            handleClose();
+            setCustomQuery(false);
+            return [...prev, newdata];
+          }
         } else {
           setOpenAlert(true);
           seterror(
@@ -181,7 +219,6 @@ function CustomQueryResult({
                   setsavedData((prev) => ({
                     ...prev,
                     name: e.target.value,
-                    querydata: CustomQueryData,
                   }))
                 }
                 id="outlined-size-small"
