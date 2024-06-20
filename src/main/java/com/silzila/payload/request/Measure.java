@@ -51,6 +51,8 @@ public class Measure implements Serializable {
     private int[] windowFnPartition = new int[]{};
     @JsonProperty("disableReportFilters")
     private Boolean disableReportFilters = false;
+    @JsonProperty("measureOrder")
+    private Integer measureOrder = 0;
     private final static long serialVersionUID = 1754801202036436076L;
       
     /**
@@ -72,9 +74,11 @@ public class Measure implements Serializable {
      * @param windowFnMatrix
      * @param windowFnPartition
      * @param disableReportFilters
+     * @param isOverrideMeasure
      */
     public Measure(String tableId, String fieldName, Measure.DataType dataType, Measure.TimeGrain timeGrain, Measure.Aggr aggr,
-            String[] windowFn, int[] windowFnOption, int[] windowFnMatrix, int[] windowFnPartition, Boolean disableReportFilters) {
+            String[] windowFn, int[] windowFnOption, int[] windowFnMatrix, int[] windowFnPartition, Boolean disableReportFilters,
+            Integer measureOrder) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
@@ -86,19 +90,12 @@ public class Measure implements Serializable {
         this.windowFnMatrix = windowFnMatrix;
         this.windowFnPartition = windowFnPartition;
         this.disableReportFilters = disableReportFilters;
+        this.measureOrder = measureOrder;
     }
 
     @JsonProperty("tableId")
     public String getTableId() {
         return tableId;
-    }
-
-    public Boolean getDisableReportFilters() {
-        return disableReportFilters;
-    }
-
-    public void setDisableReportFilters(Boolean disableReportFilters) {
-        this.disableReportFilters = disableReportFilters;
     }
 
     @JsonProperty("tableId")
@@ -184,6 +181,26 @@ public class Measure implements Serializable {
     @JsonProperty("windowFnPartition")
     public void setWindowFnPartition(int[] windowFnPartition) {
         this.windowFnPartition = windowFnPartition;
+    }
+
+    @JsonProperty("disableReportFilters")
+    public Boolean getDisableReportFilters() {
+        return disableReportFilters;
+    }
+
+    @JsonProperty("disableReportFilters")
+    public void setDisableReportFilters(Boolean disableReportFilters) {
+        this.disableReportFilters = disableReportFilters;
+    }
+
+    @JsonProperty("measureOrder")
+    public Integer getMeasureOrder() {
+        return measureOrder;
+    }
+
+    @JsonProperty("measureOrder")
+    public void setMeasureOrder(Integer measureOrder) {
+        this.measureOrder = measureOrder;
     }
 
     @Override
