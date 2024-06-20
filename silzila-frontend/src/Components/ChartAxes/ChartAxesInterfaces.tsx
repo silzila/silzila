@@ -166,6 +166,9 @@ export interface Card {
 		agg?: any;
 		aggname?:string;
 		timeGrain?: any;
+		disableReportFilterForOverride?:boolean;
+		rollupDepth?:boolean;
+		override?:any;
 	};
 	bIndex: number;
 	itemIndex: number;
