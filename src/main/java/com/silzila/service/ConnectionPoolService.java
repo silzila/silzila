@@ -283,23 +283,24 @@ public class ConnectionPoolService {
         }
     }
 
-       public List<Map<String,String>> getColumForCustomQuery(String id, String userId, String query) throws RecordNotFoundException, SQLException, ExpectationFailedException {
+       public ArrayList<MetadataColumn> getColumForCustomQuery(String id, String userId, String query) throws RecordNotFoundException, SQLException, ExpectationFailedException {
         if(customQueryValidator.customQueryValidator(query)) {
             createConnectionPool(id, userId);
             try {
                 try (Connection _connection = connectionPool.get(id).getConnection();
                      PreparedStatement pst = _connection.prepareStatement(query);
-                     ResultSet rs = pst.executeQuery();) {
+                     ResultSet rs = pst.executeQuery();)
+                {
                     ResultSetMetaData rsmd = rs.getMetaData();
                     int count = rsmd.getColumnCount();
-                    List<Map<String, String>> columnList = new ArrayList<Map<String, String>>();
+                    ArrayList<MetadataColumn> metadataColumns = new ArrayList<MetadataColumn>();
                     for (int i = 1; i <= count; i++) {
-                        Map<String, String> columnDataTypeMap = new HashMap<>();
-                        columnDataTypeMap.put("columnName", rsmd.getColumnName(i));
-                        columnDataTypeMap.put("dataType", rsmd.getColumnTypeName(i));
-                        columnList.add(columnDataTypeMap);
+                        String columnName= rsmd.getColumnName(i);
+                        String dataType = rsmd.getColumnTypeName(i);
+                        MetadataColumn metadataColumn = new MetadataColumn(columnName, dataType);
+                        metadataColumns.add(metadataColumn);
                     }
-                    return columnList;
+                    return metadataColumns;
                 } catch (Exception e) {
                     logger.warn("runQuery Exception ----------------");
                     logger.warn("error: " + e.toString());

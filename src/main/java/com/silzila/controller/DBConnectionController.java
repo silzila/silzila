@@ -197,7 +197,7 @@ public class DBConnectionController {
                                          @RequestBody CustomQueryRequest customQueryRequest) throws RecordNotFoundException, SQLException, ExpectationFailedException
     {
         String userId = reqHeader.get("username");
-        List<Map<String,String>> columnList=connectionPoolService.getColumForCustomQuery(id, userId, customQueryRequest.getQuery());
+        ArrayList<MetadataColumn> columnList=connectionPoolService.getColumForCustomQuery(id, userId, customQueryRequest.getQuery());
         return ResponseEntity.status(HttpStatus.OK).body(columnList);
     }
 
