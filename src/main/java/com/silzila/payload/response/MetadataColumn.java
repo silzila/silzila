@@ -31,7 +31,7 @@ public class MetadataColumn {
                 Set.of("91","date","DATE"));
         HashSet<String> timestampType = new HashSet<String>(
                 Set.of("92","93","timestamp","TIMESTAMP","datetime2","TIMESTAMPNTZ","DATETIME","DATETIME2","timestamptz"));
-        System.out.println("###############\n"+dataType);
+
         if (integerType.contains(dataType)) {
             this.dataType = "integer";
         } else if (decimalType.contains(dataType)) {
