@@ -717,9 +717,10 @@ public class ConnectionPoolService {
             // iterate table names and add it to List
             while (resultSet.next()) {
                 String columnName = resultSet.getString("COLUMN_NAME");
-                String dataType = resultSet.getString("DATA_TYPE");
+                String dataType = resultSet.getString("TYPE_NAME");
                 MetadataColumn metadataColumn = new MetadataColumn(columnName, dataType);
                 metadataColumns.add(metadataColumn);
+
             }
             return metadataColumns;
         } catch (Exception e) {
