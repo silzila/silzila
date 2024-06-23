@@ -296,7 +296,7 @@ public class ConnectionPoolService {
                     ArrayList<MetadataColumn> metadataColumns = new ArrayList<MetadataColumn>();
                     for (int i = 1; i <= count; i++) {
                         String columnName= rsmd.getColumnName(i);
-                        String dataType = String.valueOf(rsmd.getColumnType(i));
+                        String dataType = String.valueOf(rsmd.getColumnTypeName(i));
                         MetadataColumn metadataColumn = new MetadataColumn(columnName, dataType);
                         metadataColumns.add(metadataColumn);
                     }
@@ -715,11 +715,13 @@ public class ConnectionPoolService {
                 resultSet = databaseMetaData.getColumns(databaseName, schemaName, tableName, null);
             }
             // iterate table names and add it to List
+            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
             while (resultSet.next()) {
                 String columnName = resultSet.getString("COLUMN_NAME");
-                String dataType = resultSet.getString("DATA_TYPE");
+                String dataType = resultSet.getString("TYPE_NAME");
                 MetadataColumn metadataColumn = new MetadataColumn(columnName, dataType);
                 metadataColumns.add(metadataColumn);
+
             }
             return metadataColumns;
         } catch (Exception e) {
