@@ -37,7 +37,7 @@ const RenameFunction = ({
 }: RenameFunctionProps) => {
      
    
-    const displayfield = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
+    const displayfield = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex] || {};
 
      // Initialize renameText with the current name_with_aggr value
     const Aggname=`${displayfield.agg} of ${displayfield.fieldname}`;
@@ -45,7 +45,7 @@ const RenameFunction = ({
     const initialRenameText= displayfield.agg && displayfield.agg.trim() !== "" 
     ? Aggname:displayfield.displayname;
      
-    const [renameText, setRenameText] = useState( initialRenameText);
+    const [renameText, setRenameText] = useState(initialRenameText || "");
     const [error, setError] = useState("");
     const [isManualInput, setIsManualInput] = useState(false); // Track if the value was manually entered
 
