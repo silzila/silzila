@@ -715,7 +715,6 @@ public class ConnectionPoolService {
                 resultSet = databaseMetaData.getColumns(databaseName, schemaName, tableName, null);
             }
             // iterate table names and add it to List
-            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
             while (resultSet.next()) {
                 String columnName = resultSet.getString("COLUMN_NAME");
                 String dataType = resultSet.getString("TYPE_NAME");
