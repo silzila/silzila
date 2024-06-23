@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @Setter
 @ToString
@@ -18,11 +21,11 @@ public class MetadataColumn {
 
     public MetadataColumn(String columnName, String dataType) {
         this.columnName = columnName;
-        if (dataType.matches("4|5|-5|-6|int4|INT64|INT|int|NUMBER|BIGINT")) {
+        if (dataType.matches("4|5|-5|-6")) {
             this.dataType = "integer";
         } else if (dataType.matches("2|3|6|7|8|numeric|FLOAT64|DECIMAL|decimal|NUMBER|DOUBLE")) {
             this.dataType = "decimal";
-        } else if (dataType.matches("-1|1|12|7|8|-9|varchar|STRING|VARCHAR|nvarchar")) {
+        } else if (dataType.matches("-1|1|12|-9")) {
             this.dataType = "text";
         } else if (dataType.matches("91|date|DATE")) {
             this.dataType = "date";
