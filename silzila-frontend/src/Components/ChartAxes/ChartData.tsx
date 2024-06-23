@@ -59,13 +59,13 @@ export const getChartData = async (
 	}
 
 	/*	PRS 21/07/2022	Construct filter object for service call */
-	const getChartLeftFilter = (filters: any) => {
+	const getChartLeftFilter = (filters: any, name:string) => {
 		let _type: any = {};
 
 		//let _chartProp = chartProp.properties[propKey].chartAxes[0];
 		let _chartProp = filters;
 
-		_type.panelName = "chartFilters";
+		_type.panelName = name;
 		_type.shouldAllConditionsMatch = !_chartProp.any_condition_match;
 		_type.filters = [];
 
@@ -245,7 +245,14 @@ export const getChartData = async (
 					displayName: field.displayname,
 					fieldName: field.fieldname,
 					dataType: field.dataType.toLowerCase(), 
+					rollupDepth: field.rollupDepth ? true : false,
+					measureOrder: field.measureOrder
 				};
+
+				if(field.rollupDepth !== undefined){
+					formattedField.rollupDepth = field.rollupDepth;// ? true : false
+				}
+
 				if (field.dataType === "date" || field.dataType === "timestamp") {
 					formattedField.timeGrain = field.timeGrain;
 				}
@@ -479,7 +486,8 @@ export const getChartData = async (
 
 		/*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
 		
-		let _filterZoneFields = _chartAxes[0].fields;
+		//let _filterZoneFields = _chartAxes[0].fields; /*	PRS For Override	*/
+		let _filterZoneFields = axesValuesParam[0].fields;
 		let _hasInvalidFilterData = _filterZoneFields.filter((field: any) => field.isInValidData);
 
 		if (_filterZoneFields.length > 0 && _hasInvalidFilterData && _hasInvalidFilterData.length > 0) {
@@ -487,7 +495,8 @@ export const getChartData = async (
 			return;
 		} 
 
-		let _filterObj = getChartLeftFilter(_chartAxes[0]);
+		//let _filterObj = getChartLeftFilter(_chartAxes[0]); /*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
+		let _filterObj = getChartLeftFilter(axesValuesParam[0], "chartFilters");
 
 		if (_filterObj.filters.length > 0) {
 			formattedAxes.filterPanels.push(_filterObj);
@@ -495,35 +504,45 @@ export const getChartData = async (
 			formattedAxes.filterPanels = [];
 		}
 
-		if (screenFrom === "Dashboard") {
-			dashBoardGroup.groups.forEach((grp: string) => {
-				if (dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)) {
-					////Check this condition 1. group check if cont 2. propkey
-
-					let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
-
+		if(axesValuesParam.find((axes:any)=>axes.name == "Measure")?.fields[0]?.disableReportFilterForOverride){
+			Logger("info", axesValuesParam.find((axes:any)=>axes.name == "Measure").fields[0])
+		}else{
+			if (screenFrom === "Dashboard") {
+				dashBoardGroup.groups.forEach((grp: string) => {
+					if (dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)) {
+						////Check this condition 1. group check if cont 2. propkey
+	
+						let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters, "reportFilters");
+	
+						if (rightFilterObj.filters.length > 0) {
+							formattedAxes.filterPanels.push(rightFilterObj);
+						}
+					}
+				});
+			} else {
+				//chartGroup
+				chartGroup.tabTile[propKey]?.forEach((grp: any) => {
+					let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters, "reportFilters");
+	
 					if (rightFilterObj.filters.length > 0) {
 						formattedAxes.filterPanels.push(rightFilterObj);
 					}
-				}
-			});
-		} else {
-			//chartGroup
-			chartGroup.tabTile[propKey]?.forEach((grp: any) => {
-				let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
-
-				if (rightFilterObj.filters.length > 0) {
-					formattedAxes.filterPanels.push(rightFilterObj);
-				}
-			});
-		}
+				});
+			}
+		}		
 
 		return formattedAxes;
 	}
 
-	let hasMeasureOverride = axesValues.find((axis:any)=>axis.name === "Measure")?.fields.filter((field:any)=>{ return field.override? true : false });
+	let allMeasureFields:any = axesValues.find((axis:any)=>axis.name === "Measure");
 
-	let hasNoMeasureOverride = axesValues.find((axis:any)=>axis.name === "Measure")?.fields.filter((field:any)=>{ return field.override? false : true });
+	[...allMeasureFields?.fields].forEach((field:any, idx:number) => {
+		field.measureOrder = idx + 1;
+	});
+
+	let hasMeasureOverride = allMeasureFields?.fields.filter((field:any)=>{ return field.override? true : false });
+
+	let hasNoMeasureOverride = allMeasureFields?.fields.filter((field:any)=>{ return field.override? false : true });
 
 	let formattedAxes:any = [];
 

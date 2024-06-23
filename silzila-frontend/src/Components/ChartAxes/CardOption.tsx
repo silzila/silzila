@@ -7,24 +7,19 @@ import Aggregators from "./Aggregators";
 const measurePrefixes: MeasurePrefixes = {
 		integer: [
 			{ name: "Window Function", id: "windowfn" },
-			{ name: "Override", id: "override" },
 		],
 		decimal: [
 			{ name: "Window Function", id: "windowfn" },
-			{ name: "Override", id: "override" },
 		],
 		text: [
 			{ name: "Window Function", id: "windowfn" },
-			{ name: "Override", id: "override" },
 		],
 		date:  [
 			{ name: "Window Function", id: "windowfn" },
-			{ name: "Override", id: "override" },
 
 		],
 		timestamp:  [
 			{ name: "Window Function", id: "windowfn" },
-			{ name: "Override", id: "override" },
 		],
 	};
 	
@@ -34,12 +29,43 @@ const measurePrefixes: MeasurePrefixes = {
 		Y: measurePrefixes,
 	};
 
+	
+const overridePrefixes: any = {
+	integer: [		
+		{ name: "Override", id: "override" },
+		{ name: "Disable Report Filter", id: "disableFilter" },
+	],
+	decimal: [		
+		{ name: "Override", id: "override" },
+		{ name: "Disable Report Filter", id: "disableFilter" },
+	],
+	text: [
+		{ name: "Override", id: "override" },
+		{ name: "Disable Report Filter", id: "disableFilter" },
+	],
+	date:  [		
+		{ name: "Override", id: "override" },
+		{ name: "Disable Report Filter", id: "disableFilter" },
+	],
+	timestamp:  [
+		{ name: "Override", id: "override" },
+		{ name: "Disable Report Filter", id: "disableFilter" },
+	],
+};
+
+const OverrideFuction: any = {
+	Measure: overridePrefixes,
+	X: overridePrefixes,
+	Y: overridePrefixes,
+};
+
 
 //function used to display aggregators and windowFunction based on axistitle and datatype
 export const CardOption = (axisTitle: string, field: any) => {
     var aggr: any[] = [];
 	var timegrain: any[] = [];
 	var windowfn: any[] = [];
+	let overRidefn: any[] = [];
 
 
 	if (axisTitle === "Measure" || axisTitle === "X" || axisTitle === "Y") {
@@ -47,11 +73,14 @@ export const CardOption = (axisTitle: string, field: any) => {
 			aggr= aggr.concat(Aggregators[axisTitle][field.dataType].aggr);
 			timegrain = timegrain.concat(Aggregators[axisTitle][field.dataType].timeGrain);
 			windowfn = windowfn.concat(WindowFuction[axisTitle][field.dataType]);
-			return [aggr, timegrain, windowfn];
+			overRidefn = overRidefn.concat(OverrideFuction[axisTitle][field.dataType]);
+
+			return [aggr, timegrain, windowfn, overRidefn];
 		} else {
 			aggr = aggr.concat(Aggregators[axisTitle][field.dataType]);
 			windowfn = windowfn.concat(WindowFuction[axisTitle][field.dataType]);
-			return [aggr, timegrain, windowfn];
+			overRidefn = overRidefn.concat(OverrideFuction[axisTitle][field.dataType]);
+			return [aggr, timegrain, windowfn, overRidefn];
 		}
 	}
 
@@ -63,10 +92,10 @@ export const CardOption = (axisTitle: string, field: any) => {
 	) {
 		if (field.dataType === "date" || field.dataType === "timestamp") {
 			timegrain = timegrain.concat(Aggregators[axisTitle][field.dataType].timeGrain);
-			return [aggr, timegrain, windowfn];
+			return [aggr, timegrain, windowfn, overRidefn];
         } else {
 			aggr = aggr.concat(Aggregators[axisTitle][field.dataType]);
-			return [aggr, timegrain, windowfn];
+			return [aggr, timegrain, windowfn, overRidefn];
 		}
 	} 
 

@@ -264,11 +264,19 @@ public class SelectClauseMotherduck {
             if(meas.getWindowFn()[0] != null){
                 windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName);
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+                // if aliasnumber is not null, to maintain alias sequence for measure field
+                if(aliasnumber != null && aliasnumber.length > 0){
+                alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
+                }
                 // selectMeasureList.add(field + " AS " + alias);
                 selectMeasureList.add(windowFn + " AS " + alias);
             } 
             else{
             String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+            // if aliasnumber is not null, to maintain alias sequence for measure field
+            if(aliasnumber != null && aliasnumber.length > 0){
+                alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
+            }
             selectMeasureList.add(field + " AS " + alias);
             }
         }
