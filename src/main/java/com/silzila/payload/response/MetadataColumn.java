@@ -18,7 +18,7 @@ public class MetadataColumn {
     public MetadataColumn() {
 
     }
-
+    // creating list for each bucket of data types
     public MetadataColumn(String columnName, String dataType) {
         this.columnName = columnName;
         HashSet<String> integerType = new HashSet<String>(
@@ -31,7 +31,7 @@ public class MetadataColumn {
                 Set.of("date","DATE"));
         HashSet<String> timestampType = new HashSet<String>(
                 Set.of("timestamp","TIMESTAMP","datetime2","TIMESTAMPNTZ","DATETIME","DATETIME2","timestamptz"));
-
+        // checking the DB specific datatypes with the bucket data types
         if (integerType.contains(dataType)) {
             this.dataType = "integer";
         } else if (decimalType.contains(dataType)) {
@@ -45,9 +45,6 @@ public class MetadataColumn {
         } else if (dataType.matches("null|NULL")) {
             this.dataType = "null";
         }
-        // else if (dataType.matches("-2|-3|-4")) {
-        // this.dataType = "binary";
-        // } else
         else {
             this.dataType = "unsuppoted";
         }
