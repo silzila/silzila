@@ -17,7 +17,6 @@ import {
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { useDispatch } from "react-redux";
 import ShortUniqueId from "short-unique-id";
 import {
   setConnectionValue,
@@ -49,8 +48,6 @@ import Logger from "../../Logger";
 import CustomQueryResult from "./CustomQueryResult";
 import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
 
-import { addTable } from "../../redux/DataSet/datasetActions";
-
 interface savedData {
   id: any;
   name: any;
@@ -81,7 +78,6 @@ const Sidebar = ({
   setDatabaseNametoState,
   setViews,
 }: SidebarProps) => {
-  const dispatch = useDispatch();
   const [schemaList, setSchemaList] = useState<string[]>([]);
   const [selectedSchema, setSelectedSchema] = useState<string>("");
   const [isSchemaAvailable, setIsSchemaAvailable] = useState<boolean>(true);
@@ -98,7 +94,7 @@ const Sidebar = ({
 
   const [QueryErrorMessage, setQueryErrorMessage] = useState<string>("");
   // Props to table data to for shows result for custom query data
-  const [selectedTable, setSelectedTable] = useState<string>("");
+
   const [showTableData, setShowTableData] = useState<boolean>(false);
   const [CustomQuerysArray, setCustomQuerysArray] = useState<savedData[]>([]);
   const [SelectQueryoption, setSelectQueryoption] = useState<number>(0);
@@ -114,15 +110,15 @@ const Sidebar = ({
   const [objKeys, setObjKeys] = useState<string[]>([]);
   const [openAlert, setOpenAlert] = useState<boolean>(true);
 
+  const [deleteCustomQuery, setdeleteCustomQuery] = useState<any>(0);
+
   // Actions performed when dataConnection is changed
   // If user already selected some tables from another dataset
-  // 		to display in canvas, provide a warning to reset data
+  // to display in canvas, provide a warning to reset data
 
   const propertiesForCustomQueryData = {
     showTableData,
     setShowTableData,
-    selectedTable,
-    setSelectedTable,
     tableData,
     setTableData,
     objKeys,
@@ -132,6 +128,10 @@ const Sidebar = ({
     setCustomQuery,
     EditCustomQuery,
     setEditCustomQuery,
+    connectionValue,
+    token,
+    databaseName,
+    deleteCustomQuery,
   };
 
   const onConnectionChange = (e: string) => {
@@ -391,11 +391,9 @@ const Sidebar = ({
     setSelectQueryoption(0);
   };
 
-  //fetch data from custom query button
-
   const handleCustomPreviewButton = async (e: FormEvent) => {
     e.preventDefault();
-    const num: Number = 250;
+    const num = 250;
     const data = {
       query: CustomQueryData,
     };
@@ -415,9 +413,8 @@ const Sidebar = ({
       if (res.status) {
         setShowTableData(true);
         setTableData(res.data);
-        var keys: string[] = Object.keys(res.data[0]);
+        const keys = Object.keys(res.data[0]);
         setObjKeys([...keys]);
-        setSelectedTable(CustomQueryData.split("from")[1]);
       } else {
         setOpenAlert(true);
         setQueryErrorMessage(res.data.message);
@@ -427,44 +424,10 @@ const Sidebar = ({
     }
   };
 
-  const OpentableColumnsCustomquery = async (data: any) => {
-    try {
-      const url = `metadata-columns-customquery/${connectionValue}`;
-      const res: any = await FetchData({
-        requestType: "withData",
-        method: "POST",
-        url: url,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        data: data.querydata,
-      });
-
-      const uid: any = new ShortUniqueId({ length: 8 });
-
-      const tableData = {
-        id: uid(data.id),
-        alias: data.name,
-        columns: res.data,
-        databaseName: databaseName,
-        dcId: connectionValue,
-        isNewTable: true,
-        isSelected: true,
-        schema: "",
-        tableName: data.name,
-        tablePositionX: 0,
-        tablePositionY: 0,
-        table_uid: data.name,
-      };
-
-      dispatch(addTable(tableData));
-    } catch (error) {
-      console.log(error);
-    }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCustomQueryData(e.target.value);
   };
 
-  // rename the queryname by handleRename
   const handleRename = (
     event: React.KeyboardEvent<HTMLInputElement>,
     name: string
@@ -501,6 +464,7 @@ const Sidebar = ({
   };
   //delete custom query from custom query data
   const DeleteNameCustomQuery = (id: any) => {
+    setdeleteCustomQuery(id);
     const updatedData = CustomQuerysArray.filter((item) => item.id !== id);
     setCustomQuerysArray(updatedData);
   };
@@ -509,11 +473,10 @@ const Sidebar = ({
     const data = CustomQuerysArray.filter((item) => item.id === id);
     const query = data[0].querydata;
     const name = data[0].name;
+
     setCustomQuery(true);
     setCustomQueryData(query);
     setSelectQueryoption(0);
-
-    // setCustomQuerysArray((prev)=>[])
   };
   return (
     <div className="sidebar">
@@ -878,6 +841,7 @@ const Sidebar = ({
                             onClick={() => {
                               setEditCustomQuery(item.id);
                               handleEditCustomQuery(item.id);
+                              setRenameNameQuery(item.name);
                             }}
                           >
                             Edit
@@ -886,26 +850,21 @@ const Sidebar = ({
                       </div>
                     ) : null}
                   </div>
-                  <div onClick={() => OpentableColumnsCustomquery(item)}>
+                  {/* <div onClick={() => OpentableColumnsCustomquery(item)}> */}
+                  <div>
                     {SelectQueryoption === item.id &&
                     RenameNameQuery === item.name ? (
                       <input
                         type="text"
                         value={RenameInputValueCustomQueryname}
-                        onChange={(e) => {
-                          setRenameInputValueCustomQueryname(e.target.value);
-                        }}
+                        onChange={(e) =>
+                          setRenameInputValueCustomQueryname(e.target.value)
+                        }
                         onKeyDown={(event) => handleRename(event, item.name)}
                         autoFocus
                       />
                     ) : (
-                      <span
-                      // onClick={() =>
-                      //   setRenameInputValueCustomQueryname(item.name)
-                      // }
-                      >
-                        {item.name}
-                      </span>
+                      <span>{item.name}</span>
                     )}
                   </div>
                 </div>
@@ -916,11 +875,12 @@ const Sidebar = ({
             onClick={handleCustomQueryAddButton}
             style={{
               backgroundColor: "white",
-              color: "black",
+              color: "#00A4B4",
               padding: "2%",
-              width: "100%",
+              position: "relative",
+              width: "80%",
               outlineColor: "green",
-              outline: "1px solid green",
+              outline: "1px solid #00A4B4",
               border: "none",
               borderRadius: "0.5rem",
             }}
@@ -948,9 +908,9 @@ const Sidebar = ({
                 className="customTextArea"
                 name="customQuery"
                 id="customQuery"
-                placeholder="SELECT * FROM Employee"
+                placeholder="SELECT * FROM TableName"
                 ref={textareaRef}
-                value={CustomQueryData}
+                value={CustomQueryData || "SELECT * FROM TableName"}
                 onChange={(e) => setCustomQueryData(e.target.value)}
               />
               <div

@@ -548,17 +548,24 @@ DataHome
 .optionlist {
   position: absolute;
   display: flex;
-  border: 1px solid black;
+  border: 0.2px solid #48e1e3;
   justify-content: start;
   background-color: white;
-  border-radius: 2px;
+  outline: none;
 }
 
 .optionlist ul li {
   cursor: pointer;
   text-align: left;
+  /* border: 0.2px solid rgb(40, 40, 40); */
   margin: 0%;
   padding: 0%;
+  outline: none;
+}
+
+.optionlist ul li:hover {
+  background-color: #48e1e3;
+  color: white;
 }
 .optionlist ul {
   margin: 0%;

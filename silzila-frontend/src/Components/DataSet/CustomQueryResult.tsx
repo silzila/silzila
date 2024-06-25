@@ -1,4 +1,4 @@
-// this components is use for display customquery result and take custom query name
+//this component is use for getting the result after the writing the custom query in textarea and after preview button
 import React, { useState, useEffect } from "react";
 import {
   Button,
@@ -15,9 +15,21 @@ import {
 import "./Dataset.css";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import ShortUniqueId from "short-unique-id";
+import FetchData from "../ServerCall/FetchData";
+import { useDispatch } from "react-redux";
+import {
+  addTable,
+  removeRelationshipFromTableList,
+} from "../../redux/DataSet/datasetActions";
+import { setTempTables } from "../../redux/DataSet/datasetActions";
+import { tableObjProps } from "../../redux/DataSet/DatasetStateInterfaces";
+import { UserTableProps } from "../../redux/DataSet/DatasetStateInterfaces";
+import { removeArrows } from "../../redux/DataSet/datasetActions";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux";
 
 interface savedData {
-  id: number;
+  id: any;
   name: string;
   querydata: string;
 }
@@ -25,8 +37,6 @@ interface savedData {
 export interface tableDataComponentProps {
   showTableData: boolean;
   setShowTableData: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedTable: string;
-  setSelectedTable: React.Dispatch<React.SetStateAction<string>>;
   tableData: any[];
   setTableData: React.Dispatch<React.SetStateAction<any[]>>;
   objKeys: any[];
@@ -36,13 +46,15 @@ export interface tableDataComponentProps {
   setCustomQuery: React.Dispatch<React.SetStateAction<boolean>>;
   EditCustomQuery: any;
   setEditCustomQuery: React.Dispatch<React.SetStateAction<any>>;
+  connectionValue: string;
+  token: string;
+  databaseName: string;
+  deleteCustomQuery: any;
 }
 
 function CustomQueryResult({
   showTableData,
   setShowTableData,
-  selectedTable,
-  setSelectedTable,
   tableData,
   setTableData,
   objKeys,
@@ -52,13 +64,17 @@ function CustomQueryResult({
   setCustomQuery,
   EditCustomQuery,
   setEditCustomQuery,
+  connectionValue,
+  token,
+  databaseName,
+  deleteCustomQuery,
 }: tableDataComponentProps) {
   const handleClose = () => {
     setShowTableData(false);
-    setSelectedTable("");
     setTableData([]);
   };
 
+  const dispatch = useDispatch();
   const [savedData, setsavedData] = useState<savedData>({
     id: 0,
     name: "",
@@ -66,37 +82,143 @@ function CustomQueryResult({
   });
   const [error, seterror] = useState<string>("");
   const [OpenAlert, setOpenAlert] = useState<boolean>(false);
+  const [userTableArray, setUserTableArray] = useState<UserTableProps[]>([]);
+  const [tempTableforCanvas, setTempTablesforCanvas] = useState<
+    tableObjProps[]
+  >([]);
+
+  const tempTable = useSelector(
+    (state: RootState) => state.dataSetState.tempTable
+  ); //state from redux store
+
+  const OpentableColumnsCustomquery = async (data: any) => {
+    try {
+      const url = `metadata-columns-customquery/${connectionValue}`;
+      const res: any = await FetchData({
+        requestType: "withData",
+        method: "POST",
+        url: url,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        data: data.querydata,
+      });
+      const tableData = {
+        id: data.id,
+        alias: data.name,
+        columns: res.data,
+        databaseName: databaseName,
+        dcId: connectionValue,
+        isNewTable: true,
+        isSelected: true,
+        schema: "",
+        tableName: data.name,
+        tablePositionX: 0,
+        tablePositionY: 0,
+        table_uid: data.name,
+      };
+
+      let updatedTempTables: any;
+
+      if (EditCustomQuery !== 0) {
+        updatedTempTables = tempTable.map((item: any) =>
+          item.id === EditCustomQuery && item.dcId === connectionValue
+            ? tableData
+            : item
+        );
+
+        setTempTablesforCanvas(updatedTempTables);
+        dispatch(setTempTables([...updatedTempTables]));
+        setEditCustomQuery(0);
+        return;
+      } else {
+        updatedTempTables = [...tempTableforCanvas, tableData];
+      }
+
+      setTempTablesforCanvas(updatedTempTables);
+      dispatch(addTable(tableData));
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    if (EditCustomQuery !== 0) {
-      const data = CustomQuerysArray.find(
-        (item) => item.id === EditCustomQuery
+    if (deleteCustomQuery !== 0) {
+      //remove the data custom query from canvas table
+      const updatedtemptableforcanvas = tempTableforCanvas.filter(
+        (item) => item.id !== deleteCustomQuery
       );
-      if (data) {
-        setsavedData({
-          id: EditCustomQuery,
-          name: data.name,
-          querydata: data.querydata,
-        });
-      }
+      const data = tempTableforCanvas.find(
+        (item) => item.id === deleteCustomQuery
+      );
+      const DataforSetUserTabel: UserTableProps = {
+        schema: data?.schema || "",
+        databaseName: data?.databaseName || "",
+        id: deleteCustomQuery,
+        isNewTable: true,
+        isSelected: false,
+        tableName: data?.tableName || "",
+        table_uid: data?.table_uid || "",
+      };
+
+      setUserTableArray((prev: UserTableProps[]) => {
+        const index = prev.findIndex(
+          (item) => item.id === DataforSetUserTabel.id
+        );
+        if (index !== -1) {
+          const updatedTable = [...prev];
+          updatedTable[index] = DataforSetUserTabel;
+          return updatedTable;
+        } else {
+          return [...prev, DataforSetUserTabel];
+        }
+      });
+      // dispatch(setUserTable(userTableArray));
+      setTempTablesforCanvas(updatedtemptableforcanvas); //remove the delete the temptable data from it and updated
+      const updatedtemptable = tempTable.filter(
+        (item: any) => item.id !== deleteCustomQuery
+      );
+      dispatch(setTempTables(updatedtemptable));
+
+      // dispatch(setTempTables([...tempTable, ...tempTableforCanvas]));
+      dispatch(removeArrows(deleteCustomQuery));
+      dispatch(removeRelationshipFromTableList(deleteCustomQuery));
     }
-  }, [EditCustomQuery, CustomQuerysArray]);
+  }, [deleteCustomQuery]);
 
   const handleSavedData = () => {
     if (savedData.name.length > 0) {
       setCustomQuerysArray((prev) => {
+        //check for duplicate data
         const exists = prev.find(
           (data) => data.name === savedData.name && data.id !== savedData.id
         );
-        if (!exists) {
+        if (exists) {
+          //duplicate name of custom query
+          setOpenAlert(true);
+          seterror(
+            "A query with that name already exists. Please use a different name."
+          );
+          return prev;
+        } else {
+          //for edit the query by click on edit on threedot
           if (EditCustomQuery !== 0) {
             const updatedArray = prev.map((data) =>
               data.id === EditCustomQuery
-                ? { ...data, name: savedData.name, querydata: CustomQueryData }
+                ? {
+                    id: EditCustomQuery,
+                    name: savedData.name,
+                    querydata: CustomQueryData,
+                  }
                 : data
             );
+
+            OpentableColumnsCustomquery(
+              updatedArray.find((data) => data.id === EditCustomQuery)
+            );
             setEditCustomQuery(0);
-            setsavedData({ id: 0, name: "", querydata: "" });
+            // setsavedData({ id: 0, name: "", querydata: "" });
             handleClose();
             setCustomQuery(false);
             return updatedArray;
@@ -107,17 +229,12 @@ function CustomQueryResult({
               id: uid(),
               querydata: CustomQueryData,
             };
+            OpentableColumnsCustomquery(newdata);
             setsavedData({ id: 0, name: "", querydata: "" });
             handleClose();
             setCustomQuery(false);
             return [...prev, newdata];
           }
-        } else {
-          setOpenAlert(true);
-          seterror(
-            "A query with that name already exists. Please use a different name."
-          );
-          return prev;
         }
       });
     } else {
@@ -125,6 +242,21 @@ function CustomQueryResult({
       setOpenAlert(true);
     }
   };
+
+  // useEffect(() => {
+  //   const updatedTable = tempTable.map((item: any) => {
+  //     const match = CustomQuerysArray.find(
+  //       (anotherItem: any) => anotherItem.id === item.id
+  //     );
+  //     if (match) {
+  //       return { match }; // Update value if there's a match
+  //     }
+  //     return {}; // Return original item if no match
+  //   });
+
+  //   // dispatch(setTempTables(updatedTable));
+  //   setCustomQuerysArray(updatedTable); // Update the state with the updated array
+  // }, [tempTable]);
 
   return (
     <>
@@ -212,17 +344,19 @@ function CustomQueryResult({
                 inputProps={{
                   style: {
                     fontSize: "14px",
-                    outlineColor: "green",
+                    outlineColor: "purple",
                   },
                 }}
                 onChange={(e) =>
                   setsavedData((prev) => ({
                     ...prev,
                     name: e.target.value,
+                    querydata: CustomQueryData,
                   }))
                 }
                 id="outlined-size-small"
                 size="small"
+                color="primary"
                 value={savedData.name}
                 label="Name Custom Query"
               />
@@ -234,9 +368,9 @@ function CustomQueryResult({
               sx={{ textTransform: "none" }}
               style={{
                 backgroundColor: "white",
-                color: "black",
-                outlineColor: "green",
-                outline: "1px solid green",
+                color: "#00A4B4",
+                outlineColor: "#00A4B4",
+                outline: "1px solid #00A4B4",
                 border: "none",
               }}
             >
