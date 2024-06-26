@@ -132,6 +132,8 @@ const Sidebar = ({
     token,
     databaseName,
     deleteCustomQuery,
+    RenameInputValueCustomQueryname,
+    SelectQueryoption,
   };
 
   const onConnectionChange = (e: string) => {
@@ -452,7 +454,7 @@ const Sidebar = ({
                 : item
             )
           );
-          setRenameInputValueCustomQueryname("");
+          // setRenameInputValueCustomQueryname("");
           setRenameNameQuery("");
           setSelectQueryoption(0);
         }
@@ -478,6 +480,7 @@ const Sidebar = ({
     setCustomQueryData(query);
     setSelectQueryoption(0);
   };
+  useEffect(() => {}, [CustomQuerysArray]);
   return (
     <div className="sidebar">
       {isFlatFile ? (
@@ -852,8 +855,9 @@ const Sidebar = ({
                   </div>
                   {/* <div onClick={() => OpentableColumnsCustomquery(item)}> */}
                   <div>
-                    {SelectQueryoption === item.id &&
-                    RenameNameQuery === item.name ? (
+                    {/* {SelectQueryoption === item.id &&
+                    RenameNameQuery === item.name ? ( */}
+                    {SelectQueryoption === item.id ? (
                       <input
                         type="text"
                         value={RenameInputValueCustomQueryname}
@@ -879,7 +883,7 @@ const Sidebar = ({
               padding: "2%",
               position: "relative",
               width: "80%",
-              outlineColor: "green",
+              outlineColor: "#00A4B4",
               outline: "1px solid #00A4B4",
               border: "none",
               borderRadius: "0.5rem",

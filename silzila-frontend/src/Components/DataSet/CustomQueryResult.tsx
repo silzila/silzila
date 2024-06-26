@@ -50,6 +50,8 @@ export interface tableDataComponentProps {
   token: string;
   databaseName: string;
   deleteCustomQuery: any;
+  RenameInputValueCustomQueryname: string;
+  SelectQueryoption: Number;
 }
 
 function CustomQueryResult({
@@ -68,6 +70,8 @@ function CustomQueryResult({
   token,
   databaseName,
   deleteCustomQuery,
+  RenameInputValueCustomQueryname,
+  SelectQueryoption,
 }: tableDataComponentProps) {
   const handleClose = () => {
     setShowTableData(false);
@@ -90,7 +94,7 @@ function CustomQueryResult({
   const tempTable = useSelector(
     (state: RootState) => state.dataSetState.tempTable
   ); //state from redux store
-
+  //  const removeArrows=useSelector((state:RootState)=>state.dataSetState.)
   const OpentableColumnsCustomquery = async (data: any) => {
     try {
       const url = `metadata-columns-customquery/${connectionValue}`;
@@ -242,21 +246,46 @@ function CustomQueryResult({
       setOpenAlert(true);
     }
   };
+  // for changes made in canvas table it will be reflect in temptable like name of query
+  useEffect(() => {
+    const updatedCustomQueryArray = CustomQuerysArray.filter((item) =>
+      tempTable.some((tempItem: any) => tempItem.id === item.id)
+    ).map((item) => {
+      const found = tempTable.find((tempItem: any) => tempItem.id === item.id);
+      return found ? { ...item, name: found.alias } : item;
+    });
 
+    setCustomQuerysArray(updatedCustomQueryArray);
+    console.log(updatedCustomQueryArray);
+  }, [tempTable]);
+
+  //when changes made in customquery data will reflected in canvas area
   // useEffect(() => {
-  //   const updatedTable = tempTable.map((item: any) => {
-  //     const match = CustomQuerysArray.find(
-  //       (anotherItem: any) => anotherItem.id === item.id
-  //     );
-  //     if (match) {
-  //       return { match }; // Update value if there's a match
-  //     }
-  //     return {}; // Return original item if no match
-  //   });
+  //   const updatedTemptables = tempTable
+  //     .map((item: any) =>
+  //       CustomQuerysArray.some((tempItem) => tempItem.id === item.id)
+  //     )
+  //     .map((item: any) => {
+  //       const found = CustomQuerysArray.find(
+  //         (tempItem: any) => tempItem.id === item.id
+  //       );
+  //       return found ? { ...item, name: found.name } : item;
+  //     });
+  //   console.log(updatedTemptables);
+  //   // dispatch(setTempTables(updatedTemptables));
+  // }, [RenameInputValueCustomQueryname]);
+  useEffect(() => {
+    const updatedTemptables = tempTable.map((item: any) => {
+      const found = CustomQuerysArray.find(
+        (tempItem: any) =>
+          tempItem.id === item.id && item.id === SelectQueryoption
+      );
+      return found ? { ...item, alias: RenameInputValueCustomQueryname } : item;
+    });
 
-  //   // dispatch(setTempTables(updatedTable));
-  //   setCustomQuerysArray(updatedTable); // Update the state with the updated array
-  // }, [tempTable]);
+    console.log(updatedTemptables);
+    dispatch(setTempTables(updatedTemptables));
+  }, [RenameInputValueCustomQueryname]);
 
   return (
     <>

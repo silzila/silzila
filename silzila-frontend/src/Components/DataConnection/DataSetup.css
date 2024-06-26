@@ -552,6 +552,7 @@ DataHome
   justify-content: start;
   background-color: white;
   outline: none;
+  z-index: 999;
 }
 
 .optionlist ul li {
