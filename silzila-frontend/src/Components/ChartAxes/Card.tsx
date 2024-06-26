@@ -28,6 +28,7 @@ import {
 import { SiWindows11 } from "react-icons/si";
 import { FaRocket } from "react-icons/fa";
 import { IoMdCheckmark } from "react-icons/io";
+import { MdOutlineSwipeUpAlt } from "react-icons/md";
 import Logger from "../../Logger";
 import { CardOption } from "./CardOption";
 import WindowFunction from "./CardComponents/WindowFuction";
@@ -137,11 +138,42 @@ const Card = ({
 	const deleteItem = () => {
 		if (chartType === "richText") {
 			deleteDropZoneItemsForDm(propKey, bIndex, itemIndex);
-		} else {
-			deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName);
+		} else {		
+			// let _charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
+
+			// if(_charAxesFields[itemIndex].rollupDepth){
+			// 	if(itemIndex === _charAxesFields?.length - 1){
+			// 		let _field = _charAxesFields[_charAxesFields?.length - 2];
+
+			// 		if(_field){
+			// 			let _tempField = JSON.parse(JSON.stringify(_field));
+	
+			// 			if(_tempField){
+			// 				_tempField.rollupDepth = true;
+			// 				updateQueryParam(propKey, bIndex, _charAxesFields?.length - 2, _tempField, currentChartAxesName);
+			// 			}	
+			// 		}
+			// 	}
+			// 	else{
+			// 		let _field = _charAxesFields[_charAxesFields?.length - 1];
+
+			// 		if(_field){
+			// 			let _tempField = JSON.parse(JSON.stringify(_field));
+	
+			// 			if(_tempField){
+			// 				_tempField.rollupDepth = true;
+			// 				updateQueryParam(propKey, bIndex, _charAxesFields?.length - 1, _tempField, currentChartAxesName);
+			// 			}	
+			// 		}
+			// 	}				
+			// }	
+
+			deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName);		
 		}
 		// chartPropUpdated(true);
 	};
+
+	
 
 	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
 	
@@ -174,6 +206,41 @@ const Card = ({
 
 	const open: boolean = Boolean(anchorEl);
 	// const on:boolean=Boolean(anchorElTooltip)
+
+	// useEffect(()=>{
+	// 	let _charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
+
+	// 	let rollupFieldIndex = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.findIndex((field:any)=>field.rollupDepth);
+
+	// 	if(uID){
+	// 		if(rollupFieldIndex > -1){
+	// 			let isManual = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.find((field:any)=>field.isManual);		
+	
+	// 			if(!isManual){
+	// 				updateField();
+	// 				console.log("no manual")
+	// 			}
+	// 		}
+	// 		else{
+	// 			updateField();
+	// 			console.log("no roll")
+	// 		}
+	// 	}
+		
+
+	// 	function updateField() {
+	// 		let _field = _charAxesFields[_charAxesFields?.length - 1];
+
+	// 		if (_field) {
+	// 			let _tempField = JSON.parse(JSON.stringify(_field));
+
+	// 			if (_tempField) {
+	// 				_tempField.rollupDepth = true;
+	// 				updateQueryParam(propKey, bIndex, _charAxesFields?.length - 1, _tempField, currentChartAxesName);
+	// 			}
+	// 		}
+	// 	}
+	// },[chartProp.properties[propKey][currentChartAxesName][bIndex].fields])
 
 	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);
@@ -241,15 +308,16 @@ const Card = ({
 		let field2 = JSON.parse(JSON.stringify(field));
 		setAnchorEl(null);
 		field2.rollupDepth = !field2.rollupDepth;
+		field2.isManual = field2.rollupDepth;
 		updateQueryParam(propKey, bIndex, itemIndex, field2, currentChartAxesName);
 
+		let _charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
+
 		if(field2.rollupDepth){
-			let _charAxesFields = chartProp.properties[propKey].chartAxes[bIndex].fields;
-		
-			if(_charAxesFields?.length > itemIndex + 1){
-				for(let i = itemIndex + 1; i < _charAxesFields?.length; i++){
-					let _field = chartProp.properties[propKey].chartAxes[bIndex].fields[i];
-	
+			for(let i = 0; i < _charAxesFields?.length; i++){
+				if(itemIndex !== i){
+					let _field = _charAxesFields[i];
+
 					if(_field){
 						let _tempField = JSON.parse(JSON.stringify(_field));
 	
@@ -257,8 +325,20 @@ const Card = ({
 							_tempField.rollupDepth = false;
 							updateQueryParam(propKey, bIndex, i, _tempField, currentChartAxesName);
 						}	
-					}							
-				}
+					}	
+				}									
+			}		
+		}
+		else{
+			let _field = _charAxesFields[_charAxesFields?.length - 1];
+
+			if(_field){
+				let _tempField = JSON.parse(JSON.stringify(_field));
+
+				if(_tempField){
+					_tempField.rollupDepth = true;
+					updateQueryParam(propKey, bIndex, _charAxesFields?.length - 1, _tempField, currentChartAxesName);
+				}	
 			}
 		}	
 	}
@@ -394,14 +474,14 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 						return (
 							<div style={{display: "flex"}} key={idx}>
 								<span style={{color: "rgb(211, 211, 211)", paddingLeft: "5px", position:"absolute"}}>
-									{chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.agg?.toUpperCase() ===  opt.name?.toUpperCase() ? <IoMdCheckmark /> : null}
+									{chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.agg?.toUpperCase() ===  opt?.name?.toUpperCase() ? <IoMdCheckmark /> : null}
 								</span> 
 								<MenuItem
 									onClick={() => handleClose("agg", opt.id)}
-									sx={opt.id === field.agg ? menuSelectedStyle : menuStyle}
-									key={opt.id}
+									sx={opt?.id === field?.agg ? menuSelectedStyle : menuStyle}
+									key={opt?.id}
 								>
-									{opt.name}
+									{opt?.name}
 								</MenuItem>
 							</div>
 						);
@@ -597,7 +677,7 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 				<span style={{display: "flex", alignItems: "center", paddingRight: "5px", color: "rgb(211, 211, 211)"}}><SiWindows11/></span> </button>
 			    : null
 			}   
-				{				
+			{				
 			    chartType === "simplecard" ? null :
 				chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.override? 
 				<button
@@ -609,6 +689,18 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 				<span style={{display: "flex", alignItems: "center", paddingRight: "5px", color: "rgb(211, 211, 211)"}}><FaRocket/></span> </button>
 			    : null
 			}   
+			{				
+			    chartType === "simplecard" ? null :
+				chartProp.properties[propKey][currentChartAxesName][bIndex].fields[itemIndex]?.rollupDepth? 
+				<button
+				type="button"
+				className="buttonCommon columnDown"
+				title="Roll-Up"								
+				>
+				<span style={{display: "flex", alignItems: "center", paddingRight: "5px", color: "rgb(211, 211, 211)"}}><MdOutlineSwipeUpAlt style={{height:"1rem", width:"1rem"}}/></span> </button>
+			    : null
+			}   
+			
 
 			<span className="columnPrefix">
 				{field.agg ? AggregatorKeys[field.agg] : null}

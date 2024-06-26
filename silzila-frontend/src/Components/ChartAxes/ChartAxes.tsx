@@ -91,14 +91,21 @@ const ChartAxes = ({
 					flex: 1,
 					paddingBottom: "2px",}}>
 				</span>
-				<div style={{display:"block", position:"sticky", top:"0",  marginTop:"auto"}}>
-					<Button
+				<div style={{display:"flex", flexDirection:"row", columnGap:"0.3rem", position:"sticky", top:"0", bottom:"0.3rem",  marginTop:"auto"}}>
+					<Button variant="outlined" color= "inherit" size="small" onClick={handleOverrideRemove}
+					sx={{fontSize: "10px", boxShadow: "none", border: "2px solid #b6b6b6", borderRadius: "2px", textTransform: "initial",
+						"&:hover" : {color:"white",backgroundColor: "red", boxShadow: "0px 0px 2px 1px rgb(199, 199, 199)"}}}>Remove</Button> 
+					<Button variant="outlined" color= "inherit" size="small"
 						onClick={()=>{
 							enableOverrideForUIDAction(propKey , "");
 							removeChartAxesForUID(propKey, uID);
 						}}
+						sx={{fontSize: "10px", boxShadow: "none", border: "2px solid #b6b6b6;", borderRadius: "2px", textTransform: "initial",
+					        "&:hover" : {color:"white",backgroundColor: "#b6b6b6", boxShadow: "0px 0px 2px 1px rgb(199, 199, 199)"}}}
 					>Cancel</Button>
-					<Button onClick={handleOverrideSave}>Save</Button> 
+					<Button variant="outlined" color= "inherit" size="small" onClick={handleOverrideSave}
+					sx={{fontSize: "10px", boxShadow: "none", border: "2px solid #2bb9bb", borderRadius: "1px", textTransform: "initial",
+						"&:hover" : {color:"white", backgroundColor: "#2bb9bb", boxShadow: "0px 0px 2px 1px #af99db"}}}>Save</Button> 
 				</div>
 			</>
 		)
@@ -125,6 +132,7 @@ const ChartAxes = ({
 		padding: "2px 1rem",
 		// borderBottom: "1px solid lightgray",
 	};
+
 
 	useEffect(() => {
 		let mapJSON = getGeoJSON(chartProp.properties[propKey].Geo.geoLocation);
@@ -172,6 +180,22 @@ const ChartAxes = ({
 		if(field){
 			tempField = JSON.parse(JSON.stringify(field));
 			tempField.override = chartProp.properties[propKey]["chartAxes_" + uID];
+			updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
+		}		
+
+		removeChartAxesForUID(propKey, uID);
+	}
+
+	const handleOverrideRemove = ()=>{
+		enableOverrideForUIDAction(propKey , "");		
+		let bIndex = ChartsInfo[chartProp.properties[propKey].chartType].dropZones.findIndex((item:any)=> item.name === "Measure");
+		let itemIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex((item:any)=> item.uId === uID);
+		let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
+		let tempField:any = {};
+
+		if(field){
+			tempField = JSON.parse(JSON.stringify(field));
+			tempField.override = null;
 			updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
 		}		
 
