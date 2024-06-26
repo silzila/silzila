@@ -244,7 +244,7 @@ export const getChartData = async (
 					tableId: field.tableId,
 					displayName: field.displayname,
 					fieldName: field.fieldname,
-					dataType: field.dataType.toLowerCase(), 
+					dataType: field.dataType?.toLowerCase(), 
 					rollupDepth: field.rollupDepth ? true : false,
 					measureOrder: field.measureOrder
 				};
