@@ -52,6 +52,7 @@ export interface tableDataComponentProps {
   deleteCustomQuery: any;
   RenameInputValueCustomQueryname: string;
   SelectQueryoption: Number;
+  RenameToCanvasProps: string;
 }
 
 function CustomQueryResult({
@@ -72,6 +73,7 @@ function CustomQueryResult({
   deleteCustomQuery,
   RenameInputValueCustomQueryname,
   SelectQueryoption,
+  RenameToCanvasProps,
 }: tableDataComponentProps) {
   const handleClose = () => {
     setShowTableData(false);
@@ -141,6 +143,7 @@ function CustomQueryResult({
       }
 
       setTempTablesforCanvas(updatedTempTables);
+
       dispatch(addTable(tableData));
     } catch (error) {
       console.log(error);
@@ -194,41 +197,53 @@ function CustomQueryResult({
   const handleSavedData = () => {
     if (savedData.name.length > 0) {
       setCustomQuerysArray((prev) => {
-        //check for duplicate data
-        const exists = prev.find(
-          (data) => data.name === savedData.name && data.id !== savedData.id
-        );
-        if (exists) {
-          //duplicate name of custom query
-          setOpenAlert(true);
-          seterror(
-            "A query with that name already exists. Please use a different name."
+        // Check for duplicate data
+        if (EditCustomQuery !== 0) {
+          //check for duplicate or not exept self
+          const exists = prev.find(
+            (data) =>
+              data.name === savedData.name && data.id !== EditCustomQuery
           );
-          return prev;
-        } else {
-          //for edit the query by click on edit on threedot
-          if (EditCustomQuery !== 0) {
-            const updatedArray = prev.map((data) =>
-              data.id === EditCustomQuery
-                ? {
-                    id: EditCustomQuery,
-                    name: savedData.name,
-                    querydata: CustomQueryData,
-                  }
-                : data
+          if (exists) {
+            setOpenAlert(true);
+            seterror(
+              "A query with that name already exists.Please use a different name."
             );
+            return prev;
+          }
+          const updatedArray = prev.map((data) =>
+            data.id === EditCustomQuery
+              ? {
+                  id: EditCustomQuery,
+                  name: savedData.name,
+                  querydata: CustomQueryData,
+                }
+              : data
+          );
 
-            OpentableColumnsCustomquery(
-              updatedArray.find((data) => data.id === EditCustomQuery)
+          OpentableColumnsCustomquery(
+            updatedArray.find((data) => data.id === EditCustomQuery)
+          );
+          setEditCustomQuery(0);
+          setsavedData({ id: 0, name: "", querydata: "" });
+          handleClose();
+          setCustomQuery(false);
+          return updatedArray;
+        } else {
+          // Check for duplicate name when adding a new query
+          const exists = prev.find(
+            (data) => data.name === savedData.name && data.id !== savedData.id
+          );
+          if (exists) {
+            // Duplicate name of custom query
+            setOpenAlert(true);
+            seterror(
+              "A query with that name already exists. Please use a different name."
             );
-            setEditCustomQuery(0);
-            // setsavedData({ id: 0, name: "", querydata: "" });
-            handleClose();
-            setCustomQuery(false);
-            return updatedArray;
+            return prev;
           } else {
             const uid: any = new ShortUniqueId({ length: 8 });
-            const newdata: savedData = {
+            const newdata = {
               ...savedData,
               id: uid(),
               querydata: CustomQueryData,
@@ -246,46 +261,129 @@ function CustomQueryResult({
       setOpenAlert(true);
     }
   };
-  // for changes made in canvas table it will be reflect in temptable like name of query
+
+  // const handleSavedData = () => {
+  //   if (savedData.name.length > 0) {
+  //     setCustomQuerysArray((prev) => {
+  //       //check for duplicate data
+  //       const exists = prev.find(
+  //         (data) => data.name === savedData.name && data.id !== savedData.id
+  //       );
+  //       if (exists) {
+  //         //duplicate name of custom query
+  //         setOpenAlert(true);
+  //         seterror(
+  //           "A query with that name already exists. Please use a different name."
+  //         );
+  //         return prev;
+  //       } else {
+  //         //for edit the query by click on edit on threedot
+  //         if (EditCustomQuery !== 0) {
+  //           const updatedArray = prev.map((data) =>
+  //             data.id === EditCustomQuery
+  //               ? {
+  //                   id: EditCustomQuery,
+  //                   name: savedData.name,
+  //                   querydata: CustomQueryData,
+  //                 }
+  //               : data
+  //           );
+
+  //           OpentableColumnsCustomquery(
+  //             updatedArray.find((data) => data.id === EditCustomQuery)
+  //           );
+  //           setEditCustomQuery(0);
+  //           setsavedData({ id: 0, name: "", querydata: "" });
+  //           handleClose();
+  //           setCustomQuery(false);
+  //           return updatedArray;
+  //         } else {
+  //           const uid: any = new ShortUniqueId({ length: 8 });
+  //           const newdata: savedData = {
+  //             ...savedData,
+  //             id: uid(),
+  //             querydata: CustomQueryData,
+  //           };
+  //           OpentableColumnsCustomquery(newdata);
+  //           setsavedData({ id: 0, name: "", querydata: "" });
+  //           handleClose();
+  //           setCustomQuery(false);
+  //           return [...prev, newdata];
+  //         }
+  //       }
+  //     });
+  //   } else {
+  //     seterror("Please provide a name for the query.");
+  //     setOpenAlert(true);
+  //   }
+  // };
+
   useEffect(() => {
     const updatedCustomQueryArray = CustomQuerysArray.filter((item) =>
       tempTable.some((tempItem: any) => tempItem.id === item.id)
     ).map((item) => {
       const found = tempTable.find((tempItem: any) => tempItem.id === item.id);
-      return found ? { ...item, name: found.alias } : item;
+
+      // Check if the name is a duplicate in tempTable
+      const isDuplicateName = tempTable.some(
+        (tempItem: any) =>
+          tempItem.alias === found.alias && tempItem.id !== found.id
+      );
+
+      return found && !isDuplicateName ? { ...item, name: found.alias } : item;
     });
 
     setCustomQuerysArray(updatedCustomQueryArray);
     console.log(updatedCustomQueryArray);
   }, [tempTable]);
 
-  //when changes made in customquery data will reflected in canvas area
-  // useEffect(() => {
-  //   const updatedTemptables = tempTable
-  //     .map((item: any) =>
-  //       CustomQuerysArray.some((tempItem) => tempItem.id === item.id)
-  //     )
-  //     .map((item: any) => {
-  //       const found = CustomQuerysArray.find(
-  //         (tempItem: any) => tempItem.id === item.id
-  //       );
-  //       return found ? { ...item, name: found.name } : item;
-  //     });
-  //   console.log(updatedTemptables);
-  //   // dispatch(setTempTables(updatedTemptables));
-  // }, [RenameInputValueCustomQueryname]);
+  // when changes made in customquery data will reflected in canvas area
+
   useEffect(() => {
-    const updatedTemptables = tempTable.map((item: any) => {
+    // Create a new array with updated values based on the comparison
+    const updatedTempTables = tempTable.map((item: any) => {
+      // Find the corresponding item in the CustomQuerysArray
       const found = CustomQuerysArray.find(
-        (tempItem: any) =>
-          tempItem.id === item.id && item.id === SelectQueryoption
+        (tempItem: any) => tempItem.id === item.id // Compare the ids
       );
-      return found ? { ...item, alias: RenameInputValueCustomQueryname } : item;
+      // const ExitsAlias = CustomQuerysArray.find(
+      //   (temItem: any) => temItem.name === item.alias
+      // );
+      // if (ExitsAlias) {
+      //   seterror("Please provide a Different Name it is Already Exits");
+      //   setOpenAlert(true);
+      //   return item;
+      // }
+
+      // If an item is found and SelectQueryoption matches the current item id
+      if (found && found.id === SelectQueryoption) {
+        return { ...item, alias: RenameToCanvasProps };
+      }
+
+      // Return the original item if no match is found
+      return item;
     });
 
-    console.log(updatedTemptables);
-    dispatch(setTempTables(updatedTemptables));
-  }, [RenameInputValueCustomQueryname]);
+    // Log the updated tempTables array
+    console.log(SelectQueryoption);
+    console.log(updatedTempTables);
+
+    // Dispatch the updated tempTables array to the store
+    dispatch(setTempTables(updatedTempTables));
+  }, [RenameToCanvasProps]);
+
+  //update the value for Edit Custom Query
+  useEffect(() => {
+    const finddata = CustomQuerysArray.find(
+      (item) => item.id === EditCustomQuery
+    );
+    if (finddata) {
+      setsavedData((prevState) => ({
+        ...prevState,
+        name: finddata.name,
+      }));
+    }
+  }, [EditCustomQuery]);
 
   return (
     <>
@@ -313,6 +411,7 @@ function CustomQueryResult({
                       <TableCell
                         style={{
                           fontWeight: "bold",
+
                           backgroundColor: "#e8eaf6",
                         }}
                         key={i}
@@ -369,11 +468,11 @@ function CustomQueryResult({
                   flex: 1,
                   margin: "auto 20px",
                   maxWidth: "200px",
+                  outlineColor: "purple",
                 }}
                 inputProps={{
                   style: {
                     fontSize: "14px",
-                    outlineColor: "purple",
                   },
                 }}
                 onChange={(e) =>
@@ -385,7 +484,7 @@ function CustomQueryResult({
                 }
                 id="outlined-size-small"
                 size="small"
-                color="primary"
+                color="secondary"
                 value={savedData.name}
                 label="Name Custom Query"
               />

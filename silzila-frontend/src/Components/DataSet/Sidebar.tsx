@@ -98,12 +98,14 @@ const Sidebar = ({
   const [showTableData, setShowTableData] = useState<boolean>(false);
   const [CustomQuerysArray, setCustomQuerysArray] = useState<savedData[]>([]);
   const [SelectQueryoption, setSelectQueryoption] = useState<number>(0);
-  const [customQueryExpand, setcustomQueryExpand] = useState<boolean>(false);
+  const [customQueryExpand, setcustomQueryExpand] = useState<boolean>(true);
   const [RenameInputValueCustomQueryname, setRenameInputValueCustomQueryname] =
     useState<string>("");
 
   const [RenameNameQuery, setRenameNameQuery] = useState<string>("");
+  const [RenameID, setRenameID] = useState<any>(0);
   const [EditCustomQuery, setEditCustomQuery] = useState<any>(0);
+  const [RenameToCanvasProps, setRenameToCanvasProps] = useState<string>("");
 
   // tableData  will be type of any
   const [tableData, setTableData] = useState<any[]>([]);
@@ -134,6 +136,7 @@ const Sidebar = ({
     deleteCustomQuery,
     RenameInputValueCustomQueryname,
     SelectQueryoption,
+    RenameToCanvasProps,
   };
 
   const onConnectionChange = (e: string) => {
@@ -426,9 +429,7 @@ const Sidebar = ({
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCustomQueryData(e.target.value);
-  };
+  useEffect(() => {}, [CustomQuerysArray]);
 
   const handleRename = (
     event: React.KeyboardEvent<HTMLInputElement>,
@@ -438,32 +439,42 @@ const Sidebar = ({
       if (RenameInputValueCustomQueryname.length > 0) {
         const isDuplicate = CustomQuerysArray.some(
           (item) =>
-            item.name === RenameInputValueCustomQueryname && item.name !== name
+            item.name === RenameInputValueCustomQueryname &&
+            item.id !== SelectQueryoption
         );
 
         if (isDuplicate) {
           setQueryErrorMessage(
-            "please write a different name of the query it is Already exists"
+            "Please write a different name. The query name already exists."
           );
           setOpenAlert(true);
+          console.log("duplicate is apply pleaase handle");
         } else {
+          console.log(RenameInputValueCustomQueryname);
+          setRenameInputValueCustomQueryname(RenameNameQuery);
           setCustomQuerysArray((prevData) =>
             prevData.map((item) =>
-              item.name === name
-                ? { ...item, name: RenameInputValueCustomQueryname }
-                : item
+              item.name === name ? { ...item, name: RenameNameQuery } : item
             )
           );
-          // setRenameInputValueCustomQueryname("");
-          setRenameNameQuery("");
-          setSelectQueryoption(0);
+          console.log(CustomQuerysArray);
+          console.log(RenameInputValueCustomQueryname);
+          console.log(RenameNameQuery);
+          // setRenameInputValueCustomQueryname(""); // Reset the input value
+          console.log(SelectQueryoption);
+          setRenameToCanvasProps(RenameInputValueCustomQueryname);
+
+          // setSelectQueryoption(0); // Reset the selected query option
+          setRenameID(0); // Reset the rename ID
         }
-      } else {
-        setQueryErrorMessage("minimum 1 character is required ");
+      } else if (RenameInputValueCustomQueryname.length === 0) {
+        setQueryErrorMessage("At least one character is required.");
         setOpenAlert(true);
+        console.log("blandk");
       }
     }
   };
+
   //delete custom query from custom query data
   const DeleteNameCustomQuery = (id: any) => {
     setdeleteCustomQuery(id);
@@ -806,9 +817,15 @@ const Sidebar = ({
       {customQueryExpand ? (
         <div>
           {CustomQuerysArray.length > 0 ? (
-            <>
+            <div style={{ margin: "0 0 10% 0" }}>
               {CustomQuerysArray.map((item) => (
-                <div key={item.id} style={{ display: "flex" }}>
+                <div
+                  key={item.id}
+                  style={{
+                    display: "flex",
+                    position: "relative",
+                  }}
+                >
                   <div>
                     <div
                       style={{ cursor: "pointer" }}
@@ -817,6 +834,9 @@ const Sidebar = ({
                           SelectQueryoption === item.id ? 0 : item.id
                         );
                         setRenameNameQuery("");
+                        // setRenameInputValueCustomQueryname(item.name);
+                        // setRenameToCanvasProps(item.name);
+                        setRenameID(0);
                       }}
                     >
                       <MoreVertSharpIcon />
@@ -826,8 +846,10 @@ const Sidebar = ({
                         <ul style={{ listStyle: "none" }}>
                           <li
                             onClick={() => {
+                              setRenameID(item.id);
                               setSelectQueryoption(item.id);
                               setRenameInputValueCustomQueryname(item.name);
+                              // setRenameToCanvasProps(item.name);
                               setRenameNameQuery(item.name);
                             }}
                           >
@@ -853,27 +875,27 @@ const Sidebar = ({
                       </div>
                     ) : null}
                   </div>
-                  {/* <div onClick={() => OpentableColumnsCustomquery(item)}> */}
+
                   <div>
-                    {/* {SelectQueryoption === item.id &&
-                    RenameNameQuery === item.name ? ( */}
-                    {SelectQueryoption === item.id ? (
+                    {SelectQueryoption === item.id && RenameID === item.id ? (
                       <input
                         type="text"
                         value={RenameInputValueCustomQueryname}
-                        onChange={(e) =>
-                          setRenameInputValueCustomQueryname(e.target.value)
-                        }
+                        onChange={(e) => {
+                          setRenameInputValueCustomQueryname(e.target.value);
+                        }}
                         onKeyDown={(event) => handleRename(event, item.name)}
                         autoFocus
                       />
                     ) : (
-                      <span>{item.name}</span>
+                      <span>
+                        {item.name === "" ? setRenameID(item.id) : item.name}
+                      </span>
                     )}
                   </div>
                 </div>
               ))}
-            </>
+            </div>
           ) : null}
           <button
             onClick={handleCustomQueryAddButton}
@@ -881,6 +903,7 @@ const Sidebar = ({
               backgroundColor: "white",
               color: "#00A4B4",
               padding: "2%",
+
               position: "relative",
               width: "80%",
               outlineColor: "#00A4B4",
@@ -912,7 +935,7 @@ const Sidebar = ({
                 className="customTextArea"
                 name="customQuery"
                 id="customQuery"
-                placeholder="SELECT * FROM TableName"
+                placeholder="SELECT * FROM tablename"
                 ref={textareaRef}
                 value={CustomQueryData || "SELECT * FROM TableName"}
                 onChange={(e) => setCustomQueryData(e.target.value)}
