@@ -296,7 +296,7 @@ public class ConnectionPoolService {
                     ArrayList<MetadataColumn> metadataColumns = new ArrayList<MetadataColumn>();
                     for (int i = 1; i <= count; i++) {
                         String columnName= rsmd.getColumnName(i);
-                        String dataType = String.valueOf(rsmd.getColumnType(i));
+                        String dataType = rsmd.getColumnTypeName(i);
                         MetadataColumn metadataColumn = new MetadataColumn(columnName, dataType);
                         metadataColumns.add(metadataColumn);
                     }
