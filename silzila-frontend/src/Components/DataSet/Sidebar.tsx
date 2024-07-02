@@ -137,6 +137,8 @@ const Sidebar = ({
     RenameInputValueCustomQueryname,
     SelectQueryoption,
     RenameToCanvasProps,
+    setSelectQueryoption,
+    setRenameToCanvasProps,
   };
 
   const onConnectionChange = (e: string) => {
@@ -485,8 +487,6 @@ const Sidebar = ({
   const handleEditCustomQuery = (id: any) => {
     const data = CustomQuerysArray.filter((item) => item.id === id);
     const query = data[0].querydata;
-    const name = data[0].name;
-
     setCustomQuery(true);
     setCustomQueryData(query);
     setSelectQueryoption(0);

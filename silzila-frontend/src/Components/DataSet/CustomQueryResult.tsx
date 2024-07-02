@@ -53,6 +53,8 @@ export interface tableDataComponentProps {
   RenameInputValueCustomQueryname: string;
   SelectQueryoption: Number;
   RenameToCanvasProps: string;
+  setSelectQueryoption: React.Dispatch<React.SetStateAction<any>>;
+  setRenameToCanvasProps: React.Dispatch<React.SetStateAction<string>>;
 }
 
 function CustomQueryResult({
@@ -74,6 +76,8 @@ function CustomQueryResult({
   RenameInputValueCustomQueryname,
   SelectQueryoption,
   RenameToCanvasProps,
+  setSelectQueryoption,
+  setRenameToCanvasProps,
 }: tableDataComponentProps) {
   const handleClose = () => {
     setShowTableData(false);
@@ -97,6 +101,12 @@ function CustomQueryResult({
     (state: RootState) => state.dataSetState.tempTable
   ); //state from redux store
   //  const removeArrows=useSelector((state:RootState)=>state.dataSetState.)
+  function AddUidInColumnData(data: any) {
+    const uid = new ShortUniqueId({ length: 8 });
+    const updatedData = data.map((item: any) => ({ ...item, uid: uid() }));
+    return updatedData;
+  }
+
   const OpentableColumnsCustomquery = async (data: any) => {
     try {
       const url = `metadata-columns-customquery/${connectionValue}`;
@@ -110,10 +120,12 @@ function CustomQueryResult({
         },
         data: data.querydata,
       });
+      const createResDatawithUId = AddUidInColumnData(res.data);
+      console.log(createResDatawithUId);
       const tableData = {
         id: data.id,
         alias: data.name,
-        columns: res.data,
+        columns: createResDatawithUId,
         databaseName: databaseName,
         dcId: connectionValue,
         isNewTable: true,
@@ -128,16 +140,26 @@ function CustomQueryResult({
       let updatedTempTables: any;
 
       if (EditCustomQuery !== 0) {
-        updatedTempTables = tempTable.map((item: any) =>
-          item.id === EditCustomQuery && item.dcId === connectionValue
-            ? tableData
-            : item
+        const isNamePresent = tempTable.find(
+          (item: any) => item.alias === data.name && item.id !== EditCustomQuery
         );
+        if (isNamePresent) {
+          seterror("Name is Already is present Please write different Name");
+          setOpenAlert(true);
+          setSelectQueryoption(0);
+          return;
+        } else {
+          updatedTempTables = tempTable.map((item: any) =>
+            item.id === EditCustomQuery && item.dcId === connectionValue
+              ? tableData
+              : item
+          );
 
-        setTempTablesforCanvas(updatedTempTables);
-        dispatch(setTempTables([...updatedTempTables]));
-        setEditCustomQuery(0);
-        return;
+          setTempTablesforCanvas(updatedTempTables);
+          dispatch(setTempTables([...updatedTempTables]));
+          setEditCustomQuery(0);
+          return;
+        }
       } else {
         updatedTempTables = [...tempTableforCanvas, tableData];
       }
@@ -204,11 +226,18 @@ function CustomQueryResult({
             (data) =>
               data.name === savedData.name && data.id !== EditCustomQuery
           );
-          if (exists) {
+          const isNamePresent = tempTable.find(
+            (item: any) =>
+              item.id !== EditCustomQuery && item.alias === savedData.name
+          );
+          if (exists || isNamePresent) {
+            console.log(exists);
+            console.log(isNamePresent);
             setOpenAlert(true);
             seterror(
-              "A query with that name already exists.Please use a different name."
+              "A query with that name already exists. Please use a different name."
             );
+            // setEditCustomQuery(0);
             return prev;
           }
           const updatedArray = prev.map((data) =>
@@ -234,7 +263,11 @@ function CustomQueryResult({
           const exists = prev.find(
             (data) => data.name === savedData.name && data.id !== savedData.id
           );
-          if (exists) {
+          const exitsInTempTable = tempTable.find(
+            (item: any) => item.alias === savedData.name
+          );
+
+          if (exists || exitsInTempTable) {
             // Duplicate name of custom query
             setOpenAlert(true);
             seterror(
@@ -262,62 +295,6 @@ function CustomQueryResult({
     }
   };
 
-  // const handleSavedData = () => {
-  //   if (savedData.name.length > 0) {
-  //     setCustomQuerysArray((prev) => {
-  //       //check for duplicate data
-  //       const exists = prev.find(
-  //         (data) => data.name === savedData.name && data.id !== savedData.id
-  //       );
-  //       if (exists) {
-  //         //duplicate name of custom query
-  //         setOpenAlert(true);
-  //         seterror(
-  //           "A query with that name already exists. Please use a different name."
-  //         );
-  //         return prev;
-  //       } else {
-  //         //for edit the query by click on edit on threedot
-  //         if (EditCustomQuery !== 0) {
-  //           const updatedArray = prev.map((data) =>
-  //             data.id === EditCustomQuery
-  //               ? {
-  //                   id: EditCustomQuery,
-  //                   name: savedData.name,
-  //                   querydata: CustomQueryData,
-  //                 }
-  //               : data
-  //           );
-
-  //           OpentableColumnsCustomquery(
-  //             updatedArray.find((data) => data.id === EditCustomQuery)
-  //           );
-  //           setEditCustomQuery(0);
-  //           setsavedData({ id: 0, name: "", querydata: "" });
-  //           handleClose();
-  //           setCustomQuery(false);
-  //           return updatedArray;
-  //         } else {
-  //           const uid: any = new ShortUniqueId({ length: 8 });
-  //           const newdata: savedData = {
-  //             ...savedData,
-  //             id: uid(),
-  //             querydata: CustomQueryData,
-  //           };
-  //           OpentableColumnsCustomquery(newdata);
-  //           setsavedData({ id: 0, name: "", querydata: "" });
-  //           handleClose();
-  //           setCustomQuery(false);
-  //           return [...prev, newdata];
-  //         }
-  //       }
-  //     });
-  //   } else {
-  //     seterror("Please provide a name for the query.");
-  //     setOpenAlert(true);
-  //   }
-  // };
-
   useEffect(() => {
     const updatedCustomQueryArray = CustomQuerysArray.filter((item) =>
       tempTable.some((tempItem: any) => tempItem.id === item.id)
@@ -337,39 +314,38 @@ function CustomQueryResult({
     console.log(updatedCustomQueryArray);
   }, [tempTable]);
 
-  // when changes made in customquery data will reflected in canvas area
-
   useEffect(() => {
     // Create a new array with updated values based on the comparison
-    const updatedTempTables = tempTable.map((item: any) => {
-      // Find the corresponding item in the CustomQuerysArray
-      const found = CustomQuerysArray.find(
-        (tempItem: any) => tempItem.id === item.id // Compare the ids
-      );
-      // const ExitsAlias = CustomQuerysArray.find(
-      //   (temItem: any) => temItem.name === item.alias
-      // );
-      // if (ExitsAlias) {
-      //   seterror("Please provide a Different Name it is Already Exits");
-      //   setOpenAlert(true);
-      //   return item;
-      // }
+    const isNamePresent = tempTable.find(
+      (item: any) => item.alias === RenameToCanvasProps
+    );
 
-      // If an item is found and SelectQueryoption matches the current item id
-      if (found && found.id === SelectQueryoption) {
-        return { ...item, alias: RenameToCanvasProps };
-      }
+    if (isNamePresent) {
+      seterror("Name is Already is present Please write different Name");
+      setOpenAlert(true);
+      setSelectQueryoption(0);
+      setRenameToCanvasProps("");
+      console.log("tgus");
+      return;
+    } else {
+      const updatedTempTables = tempTable.map((item: any) => {
+        // Find the corresponding item in the CustomQuerysArray
+        const found = CustomQuerysArray.find(
+          (tempItem: any) => tempItem.id === item.id // Compare the ids
+        );
 
-      // Return the original item if no match is found
-      return item;
-    });
+        // If an item is found and SelectQueryoption matches the current item id
+        if (found && found.id === SelectQueryoption && !isNamePresent) {
+          return { ...item, alias: RenameToCanvasProps };
+        }
+        console.log(RenameToCanvasProps);
+        // Return the original item if no match is found
+        return item;
+      });
 
-    // Log the updated tempTables array
-    console.log(SelectQueryoption);
-    console.log(updatedTempTables);
-
-    // Dispatch the updated tempTables array to the store
-    dispatch(setTempTables(updatedTempTables));
+      // Dispatch the updated tempTables array to the store
+      dispatch(setTempTables(updatedTempTables));
+    }
   }, [RenameToCanvasProps]);
 
   //update the value for Edit Custom Query
@@ -377,6 +353,14 @@ function CustomQueryResult({
     const finddata = CustomQuerysArray.find(
       (item) => item.id === EditCustomQuery
     );
+    // const isNamePresent = tempTable.map(
+    //   (item: any) => item.alias === finddata?.name
+    // );
+    // if (isNamePresent && EditCustomQuery !== 0) {
+    //   seterror("please write different name it is ssssalready present");
+    //   setOpenAlert(true);
+    //   return;
+    // }
     if (finddata) {
       setsavedData((prevState) => ({
         ...prevState,
