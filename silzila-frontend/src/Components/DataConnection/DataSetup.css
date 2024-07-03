@@ -175,7 +175,6 @@ Data Connections
 	width: 200px;
 	height: 45px;
 	white-space: nowrap;
-	background-color: black;
 }
 
 .listItem{
@@ -206,7 +205,7 @@ Data Connections
 	text-align: left;
 	column-gap: 34px;
 	padding: 6px 6px 6px 6px;
-	/* cursor: pointer; */
+	cursor: pointer; 
 	margin-bottom: 10px;
 	border: 1px solid #2bb9bb;
 	border-radius: 4px;
@@ -232,7 +231,8 @@ Data Connections
 .dbDeleteDialogMsg {
 	font-weight: bold;
 	text-align: center;
-	margin-top: 20px
+	margin-top: 20px;
+	color: #5d5c5c;
 }
 
 .dbDeleteDialogBtnContainer {
@@ -242,9 +242,10 @@ Data Connections
 }
 
 .dbDeleteDialogBtn1 {
-	background-color: grey;
+	background-color: white;
 	float: right;
 	text-transform: none;
+	color: #5d5c5c;
 }
 
 .dbDeleteDialogBtn2 {

@@ -70,14 +70,18 @@ const EditFlatFileData = ({
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("");
 	const [severity, setSeverity] = useState<AlertColor>("success");
-
+	const [selectedFileType, setSelectedFileType] = useState<string | undefined>(
+  editApiResponse.fileType);
+	
 	const setDataToEditApiResponse = async () => {
+
 		var fileObj = {
 			fileId: editApiResponse.fileId,
 			name: editApiResponse.name,
 			dateFormat: dateFormat,
 			timestampFormat: timestampFormat,
 			revisedColumnInfos: editApiResponse.columnInfos,
+			fileType: selectedFileType,
 		};
 		var result: any = await FetchData({
 			requestType: "withData",
@@ -89,15 +93,23 @@ const EditFlatFileData = ({
 				"Content-Type": "application/json",
 			},
 		});
+
 		if (result.status) {
 			setEditApiResponse("sampleRecordes", result.data);
+			setOpenAlert(true);
+			setSeverity("success");
+			setTestMessage("Preview Successful!");
 		} else {
+			let errorMessage = result.data.message;
+        
+			// Check for specific data type change error
+			if (errorMessage.includes('Conversion Error') && errorMessage.includes('Could not convert string')) {
+					errorMessage = "You are trying for unmatched datatype";
+			}
+
 			setOpenAlert(true);
 			setSeverity("error");
-			setTestMessage(result.data.message);
-			// setTimeout(() => {
-			// 	setOpenAlert(false);
-			// }, 3000);
+			setTestMessage(errorMessage);
 		}
 	};
 
@@ -108,6 +120,7 @@ const EditFlatFileData = ({
 			dateFormat: editApiResponse.dateFormat,
 			timestampFormat: editApiResponse.timestampFormat,
 			revisedColumnInfos: editApiResponse.columnInfos,
+			fileType: selectedFileType,
 		};
 
 		var result: any = await FetchData({
@@ -120,6 +133,7 @@ const EditFlatFileData = ({
 				"Content-Type": "application/json",
 			},
 		});
+
 		if (result.status) {
 			setOpenAlert(true);
 			setSeverity("success");
@@ -130,12 +144,16 @@ const EditFlatFileData = ({
 				resetFlatFileState();
 			}, 3000);
 		} else {
+			let errorMessage = result.data.message;
+        
+			// Check for specific data type change error
+			if (errorMessage.includes('Conversion Error')) {
+					errorMessage = "You are trying for unmatched datatype!";
+			}
+
 			setOpenAlert(true);
 			setSeverity("error");
-			setTestMessage(result.data.message);
-			// setTimeout(() => {
-			// 	setOpenAlert(false);
-			// }, 3000);
+			setTestMessage(errorMessage);
 		}
 	};
 

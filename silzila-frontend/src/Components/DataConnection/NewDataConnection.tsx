@@ -84,13 +84,13 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		{
 			id: 4,
 			value: "mysql",
-			name: "MySql",
+			name: "My SQL",
 			img: mysqlicon,
 		},
 		{
 			id: 5,
 			value: "postgresql",
-			name: "PostgreSql",
+			name: "PostgreSQL",
 			img: postgresicon,
 		},
 		{
@@ -1177,8 +1177,40 @@ const NewDataConnection = (props: DataConnectionProps) => {
 						<br />
 					</div>
 					<div className="dbDeleteDialogBtnContainer">
-						<Button
+					<Button
 							className="dbDeleteDialogBtn1"
+							sx={{backgroundColor: "white",
+								color: "#5d5c5c",
+								border: "1px solid gray",
+								marginLeft: "8px",
+								width: "105px",
+								boxShadow: 'none',
+								'&:hover': {
+								backgroundColor: "gray",
+								color: "white"
+							}
+							}}
+							variant="contained"
+							onClick={() => {
+								setChangeDB(false);
+								handleListItem(account.vendor);
+							}}
+						>
+							Cancel
+						</Button>
+
+						<Button
+							className="dbDeleteDialogBtn2"
+							sx={{backgroundColor: "white",
+								color: "#5d5c5c",
+								border: "1px solid gray",
+								marginRight: "6px",
+								boxShadow: 'none',
+								'&:hover': {
+								backgroundColor: " #8c6bb1",
+								color: "white"
+							}
+							}}
 							variant="contained"
 							onClick={() => {
 										setChangeDB(false);
@@ -1186,22 +1218,11 @@ const NewDataConnection = (props: DataConnectionProps) => {
 										setDataConnection(values);
 								}}
 						>
-							Continue
-						</Button>
-
-						<Button
-							className="dbDeleteDialogBtn2"
-							variant="contained"
-							onClick={() => {
-								setChangeDB(false);
-								handleListItem(account.vendor);
-							}}
-						>
-							Cancle
+									Continue
 						</Button>
 					 </div>
 				</div>
-			</Dialog>		
+			</Dialog>
             
             <Dialog open={openConfirmDialog} sx={{marginLeft:'16.7rem'}}>
 				<div className="dbDeleteDialog">
