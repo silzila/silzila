@@ -72,8 +72,8 @@ public class DuckDbService {
         stmtRecords.execute(query);
         ResultSet rsRecords = stmtRecords.executeQuery("SELECT * FROM tbl_" + fileName + " LIMIT 200");
         ResultSet rsMeta = stmtMeta.executeQuery("DESCRIBE tbl_" + fileName);
-
-        JSONArray jsonArrayRecords = ResultSetToJson.convertToJson(rsRecords);
+        
+        JSONArray jsonArrayRecords = ResultSetToJson.convertToJsonFlatFiles(rsRecords);
         // keep only column name & data type
         JSONArray jsonArrayMeta = DuckDbMetadataToJson.convertToJson(rsMeta);
 
@@ -186,7 +186,7 @@ public class DuckDbService {
         } catch (SQLException e) {
             throw new ExpectationFailedException("you are trying for unmatched data type. Error: " + e.getMessage());
         }
-        JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
+        JSONArray jsonArray = ResultSetToJson.convertToJsonFlatFiles(resultSet);
         stmtRecords.close();
         conn2.close();
 
@@ -458,7 +458,7 @@ public class DuckDbService {
         ResultSet rsRecords = stmtRecords.executeQuery("SELECT * FROM tbl_" + fileName + " LIMIT 200");
         ResultSet rsMeta = stmtMeta.executeQuery("DESCRIBE tbl_" + fileName);
 
-        JSONArray jsonArrayRecords = ResultSetToJson.convertToJson(rsRecords);
+        JSONArray jsonArrayRecords = ResultSetToJson.convertToJsonFlatFiles(rsRecords);
         // keep only column name & data type
         JSONArray jsonArrayMeta = DuckDbMetadataToJson.convertToJson(rsMeta);
 
@@ -617,7 +617,7 @@ public class DuckDbService {
         ResultSet rsRecords = stmtRecords.executeQuery("SELECT * FROM tbl_" + fileName + " LIMIT 200");
         ResultSet rsMeta = stmtMeta.executeQuery("DESCRIBE tbl_" + fileName);
 
-        JSONArray jsonArrayRecords = ResultSetToJson.convertToJson(rsRecords);
+        JSONArray jsonArrayRecords = ResultSetToJson.convertToJsonFlatFiles(rsRecords);
         // keep only column name & data type
         JSONArray jsonArrayMeta = DuckDbMetadataToJson.convertToJson(rsMeta);
 
@@ -734,7 +734,7 @@ public class DuckDbService {
         } catch (SQLException e) {
             throw new ExpectationFailedException("you are trying for unmatched data type. Error: " + e.getMessage());
         }
-        JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
+        JSONArray jsonArray = ResultSetToJson.convertToJsonFlatFiles(resultSet);
         stmtRecords.close();
         conn2.close();
 
@@ -870,7 +870,7 @@ public class DuckDbService {
         } catch (SQLException e) {
             throw new ExpectationFailedException("you are trying for unmatched data type. Error: " + e.getMessage());
         }
-        JSONArray jsonArray = ResultSetToJson.convertToJson(resultSet);
+        JSONArray jsonArray = ResultSetToJson.convertToJsonFlatFiles(resultSet);
         stmtRecords.close();
         conn2.close();
 
