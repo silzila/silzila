@@ -37,7 +37,7 @@ public class TillDate {
 
             if (vendorName.equals("mysql")) {
                 where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") BETWEEN CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "), '-01-01') AND \n\t\tCONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "), '-', LPAD(MONTH(CURRENT_DATE()), 2, '0'), \n\t\t'-', LPAD(DAY(CURRENT_DATE()), 2, '0'))";
-            } else if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+            } else if (vendorName.equals("postgresql") || vendorName.equals("redshift")|| vendorName.equals("db2")) {
                 where += filter.getTableId() + "." + filter.getFieldName() + " :: date  BETWEEN (DATE_TRUNC('year'," + filter.getTableId() + "." + filter.getFieldName() + ")::date) AND \n\t\t(( extract(YEAR from " + filter.getTableId() + "." + filter.getFieldName() + ") || '-' || EXTRACT(MONTH FROM CURRENT_DATE) \n\t\t|| '-' || EXTRACT(DAY FROM CURRENT_DATE))::date)";
             } else if (vendorName.equals("sqlserver")) {
                 where +="CONVERT(date," + filter.getTableId() + "." + filter.getFieldName() + ") BETWEEN CONVERT(DATE,DATETRUNC(year," + filter.getTableId() + "." + filter.getFieldName() + ")) AND \n\t\tCONCAT(year(convert(date," + filter.getTableId() + "." + filter.getFieldName() + ")) , '-', FORMAT(GETDATE(), 'MM') , \n\t\t'-', FORMAT(GETDATE(), 'dd'))";
@@ -59,7 +59,7 @@ public class TillDate {
         else if(filter.getTimeGrain().name().equals("DAYOFWEEK")){
             if (vendorName.equals("mysql")) {
                 where += "DAYOFWEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") <= DAYOFWEEK(CURRENT_DATE())";
-            } else if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+            } else if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
                 where += "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ") <= EXTRACT(DOW FROM CURRENT_DATE)";
             } else if (vendorName.equals("sqlserver")) {
                 where += "DATEPART(WEEKDAY, " + filter.getTableId() + "." + filter.getFieldName() + ") <= DATEPART(WEEKDAY, GETDATE())";

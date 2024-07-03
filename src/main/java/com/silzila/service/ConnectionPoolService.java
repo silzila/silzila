@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 // import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
@@ -131,7 +132,6 @@ public class ConnectionPoolService {
                 dataSource.setDataSourceClassName("com.simba.googlebigquery.jdbc.DataSource");
                 dataSource.addDataSourceProperty("url", fullUrl);
             }
-
             // SQL Server is handled differently
             else if (dbConnection.getVendor().equals("sqlserver")) {
                 fullUrl = "jdbc:sqlserver://" + dbConnection.getServer() + ":" + dbConnection.getPort()
@@ -203,6 +203,19 @@ public class ConnectionPoolService {
                 fullUrl = "jdbc:duckdb:md:" + dbConnection.getDatabase() +  "?motherduck_token=" + dbConnection.getPasswordHash();
                 config.setJdbcUrl(fullUrl);
                 dataSource = new HikariDataSource(config);
+            }
+            //IBM-DB2 DBConnection
+            else if (dbConnection.getVendor().equals("db2"))
+            {
+                fullUrl = "jdbc:db2://" + dbConnection.getServer() + ":" + dbConnection.getPort()
+                            + "/" + dbConnection.getDatabase()+":user="+dbConnection.getUsername()
+                            +";password="+dbConnection.getPasswordHash()+";sslConnection=true;";
+                config.setJdbcUrl(fullUrl);
+//              config.addDataSourceProperty("user", dbConnection.getUsername());
+//              config.addDataSourceProperty("password", dbConnection.getPassword());
+                config.setDriverClassName("com.ibm.db2.jcc.DB2Driver");
+                dataSource = new HikariDataSource(config);
+
             }
             // for Postgres & MySQL
             else {
@@ -296,7 +309,7 @@ public class ConnectionPoolService {
                     ArrayList<MetadataColumn> metadataColumns = new ArrayList<MetadataColumn>();
                     for (int i = 1; i <= count; i++) {
                         String columnName= rsmd.getColumnName(i);
-                        String dataType = String.valueOf(rsmd.getColumnType(i));
+                        String dataType = rsmd.getColumnTypeName(i);
                         MetadataColumn metadataColumn = new MetadataColumn(columnName, dataType);
                         metadataColumns.add(metadataColumn);
                     }
@@ -307,11 +320,11 @@ public class ConnectionPoolService {
                     throw e;
                 }
             }catch (Exception e){
-                throw new ExpectationFailedException("Wrong query!!Please check your query format");
+                throw new ExpectationFailedException("Wrong query!! Please check your query format");
             }
 
         }else {
-            throw new ExpectationFailedException("Wrong query!!CustomQuery is only allowed with SELECT");
+            throw new ExpectationFailedException("Wrong query!! CustomQuery is only allowed only with SELECT clause");
         }
     }
     public JSONArray getSampleRecordsForCustomQuery(String dBConnectionId, String userId, String query,Integer recordCount) throws RecordNotFoundException, SQLException, ExpectationFailedException {
@@ -341,10 +354,10 @@ public class ConnectionPoolService {
             JSONArray jsonArray = runQuery(dBConnectionId, userId, queryWithLimit);
             return jsonArray;
             }catch (Exception e) {
-                throw new ExpectationFailedException("Wrong query!!Please check your query format");
+                throw new ExpectationFailedException("Wrong query!! Please check your query format");
             }
         }else {
-            throw new ExpectationFailedException("Wrong query!!CustomQuery is only allowed with SELECT");
+            throw new ExpectationFailedException("Wrong query!! CustomQuery is only allowed with SELECT clause");
         }
     }
     // Metadata discovery - Get Database names
@@ -355,6 +368,10 @@ public class ConnectionPoolService {
         createConnectionPool(id, userId);
 
         String vendorName = getVendorNameFromConnectionPool(id, userId);
+
+        DBConnection dbConnection = dbConnectionService.getDBConnectionWithPasswordById(id, userId);
+
+        String dataBaseNameFromUser = dbConnection.getDatabase();
 
         ArrayList<String> schemaList = new ArrayList<String>();
 
@@ -378,6 +395,20 @@ public class ConnectionPoolService {
                     // append iterated result set into list
                     schemaList.add(databaseName);
                 }
+            }
+            // returning the dataBaseNameFromUser for IBM_DB2
+            if(vendorName.equals("db2")) {
+                if(!schemaList.contains(dataBaseNameFromUser))
+                {
+                    schemaList.add(dataBaseNameFromUser);
+                }
+                //checking for null value and removing it
+                List<String> filteredList = schemaList.stream()
+                        .filter(element -> element != null)
+                        .collect(Collectors.toList());
+                // Convert filteredList to ArrayList
+                ArrayList<String> filteredSchemaList = new ArrayList<>(filteredList);
+                return filteredSchemaList;
             }
             return schemaList;
         } catch (Exception e) {
@@ -461,7 +492,7 @@ public class ConnectionPoolService {
                     return schemaList;
                 }
             }
-            // for Postgres & MySQL
+            // for Postgres & MySQL & IBM_DB2
             else {
                 try (Connection _connection = connectionPool.get(id).getConnection();) {
 
@@ -598,6 +629,26 @@ public class ConnectionPoolService {
                 }
                 resultSetTables.close();
             }
+            else if (vendorName.equalsIgnoreCase("db2"))
+            {
+                if (schemaName == null || schemaName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Schema name is not provided!");
+                }
+                resultSetTables = databaseMetaData.getTables(null, schemaName, null, new String[] {"TABLE", "VIEW"});
+                while (resultSetTables.next()) {
+                    String tableName = resultSetTables.getString("TABLE_NAME");
+                    String tableType = resultSetTables.getString("TABLE_TYPE");
+
+                    if ("TABLE".equalsIgnoreCase(tableType)) {
+                        metadataTable.getTables().add(tableName);
+                    } else if ("VIEW".equalsIgnoreCase(tableType)) {
+                        metadataTable.getViews().add(tableName);
+                    }
+                }
+                resultSetTables.close();
+
+            }
+
             // postgres & MySql are handled the same but different from SQL Server
             else {
                 // for POSTGRESQL DB
@@ -626,7 +677,6 @@ public class ConnectionPoolService {
                     resultSetViews = databaseMetaData.getTables(databaseName, null, null,
                             new String[] { "VIEW" });
                 }
-
                 // iterate table names and add it to List
                 while (resultSetTables.next()) {
                     String tableName = resultSetTables.getString("TABLE_NAME");
@@ -665,7 +715,7 @@ public class ConnectionPoolService {
             // based on database dialect, we pass either DB name or schema name at different
             // position in the funciton for POSTGRESQL DB
             if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName
-                    .equalsIgnoreCase("oracle")) {
+                    .equalsIgnoreCase("oracle") || vendorName.equals("db2")) {
                 // schema name is must for postgres
                 if (schemaName == null || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Schema name is not provided!");
@@ -744,7 +794,7 @@ public class ConnectionPoolService {
 
         // based on database dialect, we pass different SELECT * Statement
         // for POSTGRESQL DB
-        if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+        if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
             // schema name is must for postgres & redshift
             if (schemaName == null || schemaName.trim().isEmpty()) {
                 throw new BadRequestException("Error: Schema name is not provided!");
@@ -948,6 +998,18 @@ public class ConnectionPoolService {
             config.setJdbcUrl(fullUrl);
             dataSource = new HikariDataSource(config);
         }
+        //Testing IBM-DB2 connection
+        else if (request.getVendor().equals("db2"))
+        {
+            String fullUrl = "jdbc:db2://" + request.getServer() + ":" + request.getPort()
+                    + "/" + request.getDatabase()+":user="+request.getUsername()
+                    +";password="+request.getPassword()+";sslConnection=true;";
+            config.setJdbcUrl(fullUrl);
+//          config.addDataSourceProperty("user", request.getUsername());
+//          config.addDataSourceProperty("password", request.getPassword());
+            config.setDriverClassName("com.ibm.db2.jcc.DB2Driver");
+            dataSource = new HikariDataSource(config);
+        }
         // Postgres & MySQL
         else {
             String fullUrl = "jdbc:" + request.getVendor() + "://" + request.getServer() + ":" + request.getPort() + "/"
@@ -964,7 +1026,11 @@ public class ConnectionPoolService {
         // run a simple query and see it record is fetched
         try {
             statement = connection.createStatement();
-            resultSet = statement.executeQuery("select 1");
+            if(request.getVendor().equals("db2")) {
+                resultSet = statement.executeQuery("SELECT 1 FROM SYSIBM.SYSDUMMY1 ");
+            }else {
+                resultSet = statement.executeQuery("SELECT 1 ");
+            }
             while (resultSet.next()) {
                 rowCount++;
             }
