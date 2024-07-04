@@ -56,8 +56,6 @@ const DropZone = ({
 	moveItemChartPropForDm,
 	updateQueryParam
 }: DropZoneProps & any) => {
-	// var geoLocation = chartProp.properties[propKey].geoLocation;
-
 
 	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
@@ -105,13 +103,11 @@ const DropZone = ({
 				if(!isManual){
 					updateField(charAxesFields?.length - 1, true);
 					updateField(rollupFieldIndex, false);
-					//console.log("no manual")
 				}
 			}
 			else{
 				updateField(charAxesFields?.length - 1, true);
 				updateField(rollupFieldIndex, false);
-				//console.log("no roll")
 			}
 		}
 		
@@ -289,7 +285,7 @@ const DropZone = ({
 
 	useEffect(()=>{
 		updateRollUp();
-	},[chatAxesFieldsLength])
+	},[chatAxesFieldsLength, chartProp.properties[propKey].enableOverrideForUID])
 
 	const [anchorEl, setAnchorEl] = useState(null);
 	const open = Boolean(anchorEl);

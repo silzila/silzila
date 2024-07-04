@@ -4,7 +4,6 @@ import { Box, Button, Menu, MenuItem, TextField, Typography } from "@mui/materia
 import { connect } from "react-redux";
 import { ChartPropertiesProps} from "../../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { editChartPropItem } from "../../../redux/ChartPoperties/ChartPropertiesActions";
-import { updateisTextRenamed } from "../../../redux/ChartPoperties/ChartPropertiesActions";
 import { initial } from "lodash";
 
 
@@ -16,13 +15,14 @@ interface RenameFunctionProps {
     bIndex: number;
     itemIndex: number;
     chartProp: ChartPropertiesProps ;
+    uID:String;
     updateQueryParam: (
         propKey: string,
         binIndex: number,
         itemIndex: number,
-        item: any
+        item: any,
+        currentChartAxesName:string
     ) => void;
-    updateisTextRenamed: (propKey:string,isTextRenamed: boolean) => void;
 }
 
 const RenameFunction = ({
@@ -31,43 +31,45 @@ const RenameFunction = ({
     propKey,
     bIndex,
     itemIndex,
+    uID,
     chartProp,
     updateQueryParam,
-    updateisTextRenamed,
 }: RenameFunctionProps) => {
      
    
-    const displayfield = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex] || {};
+	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
+
+    const field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex] || {};
 
      // Initialize renameText with the current name_with_aggr value
-    const Aggname=`${displayfield.agg} of ${displayfield.fieldname}`;
+    const Aggname=`${field.agg} of ${field.fieldname}`;
 
-    const initialRenameText= displayfield.agg && displayfield.agg.trim() !== "" 
-    ? Aggname:displayfield.displayname;
+    const initialRenameText= field.agg && field.agg.trim() !== "" 
+    ? Aggname:field.displayname;
      
     const [renameText, setRenameText] = useState(initialRenameText || "");
     const [error, setError] = useState("");
     const [isManualInput, setIsManualInput] = useState(false); // Track if the value was manually entered
 
     useEffect(() => {
-        if ( !isManualInput) {
-        const displayCopy = { ...displayfield, displayname: initialRenameText, Aggname: Aggname };
-        updateQueryParam(propKey, bIndex, itemIndex, displayCopy);
+        if (initialRenameText && !isManualInput) {
+        const displayCopy = { ...field, displayname: initialRenameText, Aggname: Aggname };
+        updateQueryParam(propKey, bIndex, itemIndex, displayCopy, currentChartAxesName);
     }
-    // }, [ displayfield.agg, displayfield.displayname,isManualInput]);
+    // }, [ field.agg, field.displayname,isManualInput]);
 }, [ initialRenameText]);
 
     useEffect(() => {
         if (renamefn && !isManualInput) {
-            setRenameText(displayfield.agg && displayfield.agg.trim() !== "" ? Aggname :displayfield.displayname );
+            setRenameText(field.agg && field.agg.trim() !== "" ? Aggname :field.displayname );
             setError(""); // Clear any previous error when renaming starts
         }
-    }, [renamefn, displayfield.agg, displayfield.displayname,isManualInput]);
+    }, [renamefn, field.agg, field.displayname,isManualInput]);
 
 
      // Get all fieldnames except the current field's fieldname
      const allFieldNames = chartProp.properties[propKey].chartAxes.flatMap((axis:any) => axis.fields.map((field:any) => field.fieldname));
-     const otherFieldNames = allFieldNames.filter((name:string) => name !== displayfield.fieldname);
+     const otherFieldNames = allFieldNames.filter((name:string) => name !== field.fieldname);
     
         const handleRenameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
             const newText = event.target.value;
@@ -99,10 +101,9 @@ const RenameFunction = ({
             setError("Input some value!");
         }
         else {
-        const displayCopy = { ...displayfield, displayname:renameText,isTextRenamed: true,Aggname:Aggname}; // Update the displayname with the entered text
-        updateQueryParam(propKey, bIndex, itemIndex, displayCopy); // Update Redux store with the new displayname
-        setRenamefn(false); // Close the rename menu
-        updateisTextRenamed(propKey,true); // Update Redux store with the new rename status
+            const displayCopy = { ...field, displayname:renameText, isTextRenamed: true, Aggname:Aggname }; // Update the displayname with the entered text
+            updateQueryParam(propKey, bIndex, itemIndex, displayCopy, currentChartAxesName); // Update Redux store with the new displayname
+            setRenamefn(false); // Close the rename menu
         }
     };
     const handleCancelClick=()=>{
@@ -200,54 +201,52 @@ const RenameFunction = ({
                         }}
                         
                     />
-                {/* </MenuItem>
-                <MenuItem> */}
-                     {error && <Typography color="error">{error}</Typography>}
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%',marginTop:'30px'}}>
-                    <Button
-                        onClick={handleCancelClick}
-                        sx={{
-                            fontSize: "10px",
-                            color:"#b6b6b6",
-                            border: "2px solid  #b6b6b6",
-                            borderRadius: "2px",
-                            "&:hover": {
-                                backgroundColor: "transparent",
-                                boxShadow: "0px 0px 2px 1px  #b6b6b6",
-                            },
-                            '&:focus': {
-                                backgroundColor: "transparent",
-                                boxShadow: "0px 0px 2px 1px #b6b6b6",
-                            },
-                        }}
-                    >
-                        CANCEL
-                    </Button>
-                   
-                    {/* {renameText.trim() !== "" && (                   */}
-                    <Button
-                        onClick={handleOkClick}
-                        disabled={renameText.trim() === ""||otherFieldNames.includes(renameText.trim())}
-                        sx={{
-                            fontSize: "10px",
-                            color:"#2bb9bb",
-                            border:renameText.trim() === ""||otherFieldNames.includes(renameText.trim())?"2px solid #b6b6b6" :"2px solid #2bb9bb",
-                            borderRadius: "2px",
-                            // textTransform: "initial",
-                            "&:hover": {
-                                backgroundColor: "transparent",
-                                boxShadow: "0px 0px 2px 1px #2bb9bb",
-                            },
-                            '&:focus': {
-                                backgroundColor: "transparent",
-                                boxShadow: "0px 0px 2px 1px #2bb9bb",
-                            },
-                        }}
-                    >
-                        OK
-                    </Button>
-             {/* )}  */}
-                    </Box>
+                    {/* </MenuItem>
+                    <MenuItem> */}
+                        {error && <Typography color="error">{error}</Typography>}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%',marginTop:'30px'}}>
+                            <Button
+                                onClick={handleCancelClick}
+                                sx={{
+                                    fontSize: "10px",
+                                    color:"#b6b6b6",
+                                    border: "2px solid  #b6b6b6",
+                                    borderRadius: "2px",
+                                    "&:hover": {
+                                        backgroundColor: "transparent",
+                                        boxShadow: "0px 0px 2px 1px  #b6b6b6",
+                                    },
+                                    '&:focus': {
+                                        backgroundColor: "transparent",
+                                        boxShadow: "0px 0px 2px 1px #b6b6b6",
+                                    },
+                                }}
+                            >
+                                CANCEL
+                            </Button>
+                        
+                            <Button
+                                onClick={handleOkClick}
+                                disabled={renameText.trim() === ""||otherFieldNames.includes(renameText.trim())}
+                                sx={{
+                                    fontSize: "10px",
+                                    color:"#2bb9bb",
+                                    border:renameText.trim() === ""||otherFieldNames.includes(renameText.trim())?"2px solid #b6b6b6" :"2px solid #2bb9bb",
+                                    borderRadius: "2px",
+                                    // textTransform: "initial",
+                                    "&:hover": {
+                                        backgroundColor: "transparent",
+                                        boxShadow: "0px 0px 2px 1px #2bb9bb",
+                                    },
+                                    '&:focus': {
+                                        backgroundColor: "transparent",
+                                        boxShadow: "0px 0px 2px 1px #2bb9bb",
+                                    },
+                                }}
+                            >
+                                OK
+                            </Button>             
+                        </Box>
                     </Box>
                   
                 </MenuItem>
@@ -268,10 +267,10 @@ const mapDispatchToProps = (dispatch: any) => {
             propKey: string,
             binIndex: number,
             itemIndex: number,
-            item: any
-        ) => dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item })),
-        updateisTextRenamed:(propKey:string,isTextRenamed:boolean)=>
-			dispatch(updateisTextRenamed(propKey,isTextRenamed)),
+            item: any,
+            currentChartAxesName : string
+        ) => dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item,currentChartAxesName })),
+      
     };
 };
 

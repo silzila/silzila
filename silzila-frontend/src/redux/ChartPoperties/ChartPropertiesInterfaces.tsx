@@ -3,7 +3,6 @@ import { TabTilPropsSelectedDatasetList } from "../TabTile/TabTilePropsInterface
 export interface IndChartPropProperties {
 	tabId: number;
 	tileId: number;
-    isTextRenamed:boolean;
 	chartType: string;
 	isDynamicMeasureWindowOpened: boolean;
 	addMeasureInTextEditor: boolean;
@@ -170,10 +169,6 @@ interface UpdateAxesQueryParam {
 	};
 }
 
-export interface  UpdateisTextRenamed{
-	type: "UPDATE_IS_TEXT_RENAMED";
-	payload:{propKey:string,isTextRenamed:boolean}
-}
 
 interface ToggleAxesEdited {
 	type: "TOGGLE_AXES_EDITED";
