@@ -159,7 +159,7 @@ public class RelationshipClauseGeneric {
             Table table = tOptional.get();
             if (!table.isCustomQuery()) {
                 // Postgres has the format of Schema_name.Table_name
-                if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+                if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
                     fromClause = "\n\t" + table.getSchema() + "." + table.getTable() + " AS " + table.getId();
                 }
                 // MySQL has the format of Database_name.Table_name
@@ -340,7 +340,7 @@ public class RelationshipClauseGeneric {
              * Postgres has the format of Schema_name.Table_name
              */
 
-            if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+            if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
                 if (i == 0) {
                     if (!fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
                         fromClause += "\n\t" + fromTable.getSchema() + "." + fromTable.getTable() + " AS "
