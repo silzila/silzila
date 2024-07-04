@@ -395,7 +395,7 @@ public class RelativeFilterDateMotherDuck {
         // fromClause
         String fromClause="";
         if(table.isCustomQuery()) {
-            fromClause = "( "+customQuery+" )";
+            fromClause = "("+customQuery+")";
         }else{
             fromClause = schemaName + "." + tableName;
         }
@@ -409,7 +409,7 @@ public class RelativeFilterDateMotherDuck {
             } else if (anchorDate.equals("yesterday")) {
                 query = "SELECT DATE_ADD(CURRENT_DATE(), INTERVAL (-1) DAY) AS anchordate";
             } else if (anchorDate.equals("columnMaxDate")) {
-                query = "SELECT CAST(MAX(" + relativeFilter.getFilterTable().getFieldName() + ") AS DATE) AS anchordate "
+                query = "SELECT CAST(MAX(" + relativeFilter.getFilterTable().getFieldName() + ") AS DATE) AS anchordate  FROM"
                         + fromClause;
             }
         } else if (matcher.matches()) {
