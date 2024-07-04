@@ -88,9 +88,11 @@ public class FilterQueryDB2 {
                 } else if (req.getTimeGrain().name().equals("YEARMONTH")) {
                     String field = "YEAR(" + req.getTableId()+ "." + req.getFieldName() + ") || '-' || RIGHT('0' || MONTH("+ req.getTableId()+ "." + req.getFieldName() +"), 2)";
                     query = "SELECT DISTINCT " + field + " AS YearMonth" + fromClause + "ORDER BY 1";
-                } else if (req.getTimeGrain().name().equals("DATE")) {
-                    String field =  "DATE("+req.getTableId()+ "." + req.getFieldName() +")" ;
-                    query = "SELECT DISTINCT " + field + "AS "+ req.getFieldName()+" " +fromClause + "ORDER BY 1 ";
+                }
+                //taking the alias as same as the column name because there is issue while converting to resultsetToJson
+                else if (req.getTimeGrain().name().equals("DATE")) {
+                    String field =  "DATE("+ req.getTableId()+ "." + req.getFieldName()+")" ;
+                    query = "SELECT DISTINCT " + field + " AS " +req.getFieldName()+" " +fromClause + "ORDER BY 1 ";
                 }
                 // in postgres, dayofweek starts from 0. So we add +1 to be consistent across DB
                 else if (req.getTimeGrain().name().equals("DAYOFWEEK")) {
