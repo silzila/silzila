@@ -179,6 +179,8 @@ public class WhereClause {
                         where = WhereClauseSnowflake.buildWhereClauseDate(filter);
                     } else if (vendorName.equals("motherduck") || vendorName.equals("duckdb")) {
                         where = WhereClauseDateMotherduck.buildWhereClauseDate(filter);
+                    }else if (vendorName.equals("db2")) {
+                        where = WhereClauseDateDB2.buildWhereClauseDate(filter);
                     }
                 }
 

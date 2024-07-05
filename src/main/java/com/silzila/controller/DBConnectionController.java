@@ -224,7 +224,7 @@ public class DBConnectionController {
                                               @PathVariable(value = "recordCount") Integer recordCount,
                                                          @RequestBody CustomQueryRequest customQueryRequest
                                              )
-            throws RecordNotFoundException, SQLException, BadRequestException, ExpectationFailedException {
+            throws RecordNotFoundException, SQLException,ExpectationFailedException {
         String userId = reqHeader.get("username");
         JSONArray jsonArray =connectionPoolService.getSampleRecordsForCustomQuery(id, userId,customQueryRequest.getQuery(), recordCount);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());

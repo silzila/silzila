@@ -430,6 +430,11 @@ public class DuckDbService {
 
     public FileUploadResponseDuckDb readExcel(String fileName, String sheetName)
             throws SQLException, ExpectationFailedException {
+
+        if(sheetName.equalsIgnoreCase(""))
+        {
+            throw new ExpectationFailedException("Could not upload because SHEETNAME is NULL") ;
+        }
         // String filePath = SILZILA_DIR + "/" + fileName;
         String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
 
@@ -450,9 +455,14 @@ public class DuckDbService {
                 + "',layer ='" + sheetName + "')";
         try {
             stmtRecords.execute(query);
-        } catch (SQLException e) {
-            throw new ExpectationFailedException(
-                    "Could not upload because SHEETNAME is NULL or WRONG. Errorr: " + e.getMessage());
+        }
+        catch (SQLException e)
+        {
+            if(e.getMessage().contains("not recognized as a supported file format")) {
+                throw new ExpectationFailedException("Sorry!!! You are trying to upload unsupported file format ");
+            } else if (e.getMessage().contains("Binder Error: Layer")) {
+                throw new ExpectationFailedException("Please check the SheetName, '"+sheetName+"' is not exist" );
+            }
         }
 
         ResultSet rsRecords = stmtRecords.executeQuery("SELECT * FROM tbl_" + fileName + " LIMIT 200");
@@ -597,20 +607,20 @@ public class DuckDbService {
         String jsonStr = new String(Files.readAllBytes(Paths.get(filePath))).trim();
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
 
-        JsonValidator.validate(jsonStr);
+         JsonValidator.validate(jsonStr);
 
         Statement stmtRecords = conn2.createStatement();
         Statement stmtMeta = conn2.createStatement();
         Statement stmtDeleteTbl = conn2.createStatement();
         // checking for correct format and do the operation on json
-        try {
+        try{
             String query = "CREATE OR REPLACE TABLE tbl_" + fileName + " AS SELECT * from read_json_auto('" + filePath
                     + "',SAMPLE_SIZE=200)";
             stmtRecords.execute(query);
         } catch (SQLException e) {
-
-            throw new ExpectationFailedException(
-                    "Could not upload because WRONG JSON FORMAT. Errorr: " + e.getMessage());
+            if(e.getMessage().contains("Invalid Input Error: Malformed JSON")) {
+                throw new ExpectationFailedException("Sorry!!! Invalid JSON format");
+            }
 
         }
 
