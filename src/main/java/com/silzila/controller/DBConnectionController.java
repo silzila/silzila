@@ -253,7 +253,7 @@ public class DBConnectionController {
 
     // update oracleDBconnection seperate
 
-    @PostMapping("/updateOracleConnection/{id}")
+    @PutMapping("/updateOracleConnection/{id}")
     public ResponseEntity<?> updateOracleConnection(
             @RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id,

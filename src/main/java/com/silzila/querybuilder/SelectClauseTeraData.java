@@ -1,36 +1,32 @@
 package com.silzila.querybuilder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
+import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
 import com.silzila.payload.request.Query;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public class SelectClauseSqlserver {
+import java.util.*;
+
+public class SelectClauseTeraData {
 
     private static final Logger logger = LogManager.getLogger(SelectClauseSqlserver.class);
 
     /* SELECT clause for SqlServer dialect */
     public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, Map<String,Integer>... aliasnumber) throws BadRequestException {
-        logger.info("SelectClauseSqlserver calling ***********");
+        logger.info("SelectClauseTeraData calling ***********");
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
-        // aliasing for only measure  override 
+        // aliasing for only measure  override
         Map<String,Integer> aliasNumberingM = new HashMap<>();
 
         if (aliasnumber != null && aliasnumber.length > 0) {
             Map<String, Integer> aliasNumber = aliasnumber[0];
             aliasNumber.forEach((key, value) -> aliasNumberingM.put(key, value));
-        }  
+        }
 
         List<String> selectList = new ArrayList<>();
         List<String> selectDimList = new ArrayList<>();
@@ -38,7 +34,7 @@ public class SelectClauseSqlserver {
         List<String> groupByDimList = new ArrayList<>();
         List<String> orderByDimList = new ArrayList<>();
 
-      
+
         Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "MONTH", "MONTH", "QUARTER", "QUARTER",
                 "DAYOFWEEK", "WEEKDAY", "DAYOFMONTH", "DAY");
 
@@ -48,7 +44,7 @@ public class SelectClauseSqlserver {
          * --------------------------------------------------------
          * Dim fields are added in Group by and Order by clause. Some Dims (like month)
          * require extra index for sorting.
-         * 
+         *
          * So, Group by and Order by clause are added at column level and Select clause
          * is added at the end of Dim/Measure
          */
@@ -57,16 +53,16 @@ public class SelectClauseSqlserver {
             // If the base dimension goes up to order_date_2 and the measure is order_date, it should be order_date_3.
             // If the overridden dimension includes additional order_date values, we want to keep the measure as order_date_3.
             if(aliasnumber != null && aliasnumber.length > 0){
-                
+
                 for(String key : aliasNumberingM.keySet()){
 
                     for(String key1 : aliasNumbering.keySet()){
-                    if(key.equals(req.getMeasures().get(0).getFieldName()) && key.equals(key1) && aliasNumbering.get(key).equals(aliasNumberingM.get(key1))){
+                        if(key.equals(req.getMeasures().get(0).getFieldName()) && key.equals(key1) && aliasNumbering.get(key).equals(aliasNumberingM.get(key1))){
                             aliasNumbering.put(key, aliasNumbering.get(key) + 1);
+                        }
                     }
                 }
-                }
-               
+
             }
             String field = "";
 
@@ -217,7 +213,7 @@ public class SelectClauseSqlserver {
                 // checking ('year', 'month', 'quarter', 'dayofweek', 'dayofmonth')
                 else if (meas.getAggr().name().equals("COUNTU")
                         && List.of("YEAR", "QUARTER", "MONTH", "DAYOFMONTH", "DAYOFWEEK")
-                                .contains(meas.getTimeGrain().name())) {
+                        .contains(meas.getTimeGrain().name())) {
                     field = "COUNT(DISTINCT(DATEPART(" + timeGrainMap.get(meas.getTimeGrain().name())
                             + ", " + meas.getTableId() + "." + meas.getFieldName() + ")))";
                 }
@@ -278,16 +274,16 @@ public class SelectClauseSqlserver {
                 // if aliasnumber is not null, to maintain alias sequence for measure field
                 if(aliasnumber != null && aliasnumber.length > 0){
                     alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
-                    }
+                }
                 // selectMeasureList.add(field + " AS " + alias);
                 selectMeasureList.add(windowFn + " AS " + alias);
-            } else{         
-            String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-            // if aliasnumber is not null, to maintain alias sequence for measure field
+            } else{
+                String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+                // if aliasnumber is not null, to maintain alias sequence for measure field
                 if(aliasnumber != null && aliasnumber.length > 0){
                     alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
-                    }
-            selectMeasureList.add(field + " AS " + alias);
+                }
+                selectMeasureList.add(field + " AS " + alias);
             }
         }
         ;

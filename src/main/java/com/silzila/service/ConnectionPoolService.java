@@ -215,7 +215,14 @@ public class ConnectionPoolService {
 //              config.addDataSourceProperty("password", dbConnection.getPassword());
                 config.setDriverClassName("com.ibm.db2.jcc.DB2Driver");
                 dataSource = new HikariDataSource(config);
-
+            }
+            //teradata
+            else if (dbConnection.getVendor().equals("teradata")) {
+                fullUrl = "jdbc:teradata://"+dbConnection.getServer()+"/DATABASE="+dbConnection.getDatabase()+",DBS_PORT="+dbConnection.getPort();
+                config.setJdbcUrl(fullUrl);
+                config.setUsername(dbConnection.getUsername());
+                config.setPassword(dbConnection.getPasswordHash());
+                dataSource = new HikariDataSource(config);
             }
             // for Postgres & MySQL
             else {
@@ -332,25 +339,19 @@ public class ConnectionPoolService {
             String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId);
             String queryWithLimit="";
             try{
-                createConnectionPool(dBConnectionId, userId);
-                if(recordCount<=200) {
-                    if (vendorName.equals("oracle")) {
-                        queryWithLimit = "select * from( " + query + ") WHERE ROWNUM <= " + recordCount;
-                    } else if (vendorName.equals("sqlserver")) {
-                        queryWithLimit = "WITH CTE AS ( " + query + ") SELECT TOP " + recordCount + " * FROM CTE;";
-                    } else {
-                        queryWithLimit = "select * from( " + query + ") AS CQ limit " + recordCount;
-                    }
-                }else {
-                    if (vendorName.equals("oracle")) {
-                        queryWithLimit = "select * from( " + query + ") WHERE ROWNUM <= 200";
-                    } else if (vendorName.equals("sqlserver")) {
-                        queryWithLimit = "WITH CTE AS ( " + query + ") SELECT TOP 200  * FROM CTE;";
-                    }
-                    else {
-                        queryWithLimit = "select * from( " + query + ") AS CQ limit 200";
-                    }
-                }
+            createConnectionPool(dBConnectionId, userId);
+            if(recordCount>250|| recordCount==null)
+            {
+                recordCount=250;
+            }
+            if (vendorName.equals("oracle")) {
+                queryWithLimit = "select * from( " + query + ") WHERE ROWNUM <= " + recordCount;
+            } else if (vendorName.equals("sqlserver") || vendorName.equalsIgnoreCase("teradata")) {
+                queryWithLimit = "WITH CTE AS ( " + query + ") SELECT TOP " + recordCount + " * FROM CTE;";
+            } else {
+                queryWithLimit = "select * from( " + query + ") AS CQ limit " + recordCount;
+            }
+
             JSONArray jsonArray = runQuery(dBConnectionId, userId, queryWithLimit);
             return jsonArray;
             }catch (Exception e) {
@@ -378,7 +379,7 @@ public class ConnectionPoolService {
         try (Connection _connection = connectionPool.get(id).getConnection();) {
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
 
-            if (vendorName.equals("mysql") || vendorName.equals("oracle")) {
+            if (vendorName.equals("mysql") || vendorName.equals("oracle") ) {
                 ResultSet resultSet = databaseMetaData.getSchemas();
                 while (resultSet.next()) {
                     String databaseName = resultSet.getString("TABLE_SCHEM");
@@ -492,7 +493,7 @@ public class ConnectionPoolService {
                     return schemaList;
                 }
             }
-            // for Postgres & MySQL & IBM_DB2
+            // for Postgres & MySQL & IBM_DB2 & teradata also oracle
             else {
                 try (Connection _connection = connectionPool.get(id).getConnection();) {
 
@@ -629,7 +630,8 @@ public class ConnectionPoolService {
                 }
                 resultSetTables.close();
             }
-            else if (vendorName.equalsIgnoreCase("db2"))
+            //fetching table for ibm_db2 and teradata
+            else if (vendorName.equalsIgnoreCase("db2") || vendorName.equalsIgnoreCase("teradata"))
             {
                 if (schemaName == null || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Schema name is not provided!");
@@ -648,6 +650,7 @@ public class ConnectionPoolService {
                 resultSetTables.close();
 
             }
+
 
             // postgres & MySql are handled the same but different from SQL Server
             else {
@@ -715,7 +718,7 @@ public class ConnectionPoolService {
             // based on database dialect, we pass either DB name or schema name at different
             // position in the funciton for POSTGRESQL DB
             if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName
-                    .equalsIgnoreCase("oracle") || vendorName.equals("db2")) {
+                    .equalsIgnoreCase("oracle") || vendorName.equals("db2") || vendorName.equalsIgnoreCase("teradata")) {
                 // schema name is must for postgres
                 if (schemaName == null || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Schema name is not provided!");
@@ -859,6 +862,14 @@ public class ConnectionPoolService {
             }
             // construct query
             query = "SELECT * FROM " + databaseName + "." + schemaName + "." + tableName + " LIMIT " + recordCount; 
+        }
+        else if (vendorName.equals("teradata")){
+            // schema name is must for teradata
+            if (schemaName == null || schemaName.trim().isEmpty()) {
+                throw new BadRequestException("Error: Schema name is not provided!");
+            }
+            // construct query
+            query = "SELECT TOP "+recordCount+" * FROM " + tableName ;
         }
         // RUN THE 'SELECT *' QUERY
         try (Connection _connection = connectionPool.get(id).getConnection();
@@ -1010,6 +1021,16 @@ public class ConnectionPoolService {
             config.setDriverClassName("com.ibm.db2.jcc.DB2Driver");
             dataSource = new HikariDataSource(config);
         }
+        //teradata
+        else if (request.getVendor().equals("teradata")) {
+            String fullUrl = "jdbc:teradata://"+request.getServer()+"/DATABASE="+request.getDatabase()+",DBS_PORT="+request.getPort();
+            config.setJdbcUrl(fullUrl);
+            config.setUsername(request.getUsername());
+            config.setPassword(request.getPassword());
+            dataSource = new HikariDataSource(config);
+        }
+
+
         // Postgres & MySQL
         else {
             String fullUrl = "jdbc:" + request.getVendor() + "://" + request.getServer() + ":" + request.getPort() + "/"
