@@ -14,7 +14,6 @@ import com.silzila.exception.RecordNotFoundException;
 import com.silzila.payload.request.RelativeFilterRequest;
 import com.silzila.payload.request.Table;
 
-
 @Service
 public class RelativeFilterQueryComposer {
 
@@ -37,7 +36,7 @@ public class RelativeFilterQueryComposer {
         } else if (vendorName.equals("databricks")) {
             logger.info("------ inside databricks block");
             finalQuery = RelativeFilterDateDatabricks.getRelativeDate(relativeFilter, anchorDateArray);
-        } else if (vendorName.equals("duckdb") ) {
+        } else if (vendorName.equals("duckdb")) {
             logger.info("------ inside duckdb block");
             finalQuery = RelativeFilterDateDuckDB.getRelativeDate(relativeFilter, anchorDateArray);
         } else if (vendorName.equals("bigquery")) {
@@ -46,19 +45,16 @@ public class RelativeFilterQueryComposer {
         } else if (vendorName.equals("oracle")) {
             logger.info("------ inside Oracle block");
             finalQuery = RelativeFilterDateOracle.getRelativeDate(relativeFilter, anchorDateArray);
-        }
-        else if (vendorName.equals("snowflake")) {
+        } else if (vendorName.equals("snowflake")) {
             logger.info("------ inside snowflake block");
             finalQuery = RelativeFilterDateSnowflake.getRelativeDate(relativeFilter, anchorDateArray);
-        }
-        else if (vendorName.equals("motherduck")) {
+        } else if (vendorName.equals("motherduck")) {
             logger.info("------ inside motherduck block");
             finalQuery = RelativeFilterDateMotherDuck.getRelativeDate(relativeFilter, anchorDateArray);
-        else if (vendorName.equals("db2")) {
+        } else if (vendorName.equals("db2")) {
             logger.info("------ inside db2 block");
             finalQuery = RelativeFilterDateDB2.getRelativeDate(relativeFilter, anchorDateArray);
-        }
-        else {
+        } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
 
@@ -75,22 +71,23 @@ public class RelativeFilterQueryComposer {
             if (ds.getDataSchema().getTables().get(i).getId()
                     .equals(relativeFilter.getFilterTable().getTableId())) {
                 table = ds.getDataSchema().getTables().get(i);
-                if(table.isCustomQuery()) {
-                     query = table.getCustomQuery();
+                if (table.isCustomQuery()) {
+                    query = table.getCustomQuery();
                 }
-               break;
+                break;
             }
         }
         ;
-        if(table.isCustomQuery()) {
+        if (table.isCustomQuery()) {
             if (!query.contains(relativeFilter.getFilterTable().getFieldName())) {
                 throw new BadRequestException("Error: Requested Filter Column is not available in Dataset!");
             }
 
         }
-        if (Objects.isNull(table)) {
-            throw new BadRequestException("Error: Requested Filter Column is not available in Dataset!");
-        }
+        // if (Objects.isNull(table)) {
+        // throw new BadRequestException("Error: Requested Filter Column is not
+        // available in Dataset!");
+        // }
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             logger.info("------ inside postgres/redshift block");
             finalQuery = RelativeFilterDatePostgres.getRelativeAnchorDate(table, relativeFilter);
@@ -103,7 +100,7 @@ public class RelativeFilterQueryComposer {
         } else if (vendorName.equals("databricks")) {
             logger.info("------ inside databricks block");
             finalQuery = RelativeFilterDateDatabricks.getRelativeAnchorDate(table, relativeFilter);
-        } else if (vendorName.equals("duckdb") ) {
+        } else if (vendorName.equals("duckdb")) {
             logger.info("------ inside duckdb block");
             finalQuery = RelativeFilterDateDuckDB.getRelativeAnchorDate(table, relativeFilter);
         } else if (vendorName.equals("bigquery")) {
@@ -111,19 +108,17 @@ public class RelativeFilterQueryComposer {
             finalQuery = RelativeFilterDateBigquery.getRelativeAnchorDate(table, relativeFilter);
         } else if (vendorName.equals("oracle")) {
             logger.info("------ inside Oracle block");
-            finalQuery = RelativeFilterDateOracle.getRelativeAnchorDate(table,relativeFilter);
+            finalQuery = RelativeFilterDateOracle.getRelativeAnchorDate(table, relativeFilter);
         } else if (vendorName.equals("snowflake")) {
             logger.info("------ inside snowflake block");
-            finalQuery = RelativeFilterDateSnowflake.getRelativeAnchorDate(table,relativeFilter);
-        }else if (vendorName.equals("motherduck")) {
+            finalQuery = RelativeFilterDateSnowflake.getRelativeAnchorDate(table, relativeFilter);
+        } else if (vendorName.equals("motherduck")) {
             logger.info("------ inside motherduck block");
-            finalQuery = RelativeFilterDateMotherDuck.getRelativeAnchorDate(table,relativeFilter);
-        }
-        else if (vendorName.equals("db2")) {
+            finalQuery = RelativeFilterDateMotherDuck.getRelativeAnchorDate(table, relativeFilter);
+        } else if (vendorName.equals("db2")) {
             logger.info("------ inside db2 block");
-            finalQuery = RelativeFilterDateDB2.getRelativeAnchorDate(table,relativeFilter);
-        }
-        else {
+            finalQuery = RelativeFilterDateDB2.getRelativeAnchorDate(table, relativeFilter);
+        } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
 
