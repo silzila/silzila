@@ -61,6 +61,7 @@ public class RelativeFilterQueryComposer {
         return finalQuery;
     }
 
+    @SuppressWarnings("unused")
     public String anchorDateComposeQuery(String vendorName, DatasetDTO ds, RelativeFilterRequest relativeFilter)
             throws BadRequestException, RecordNotFoundException, SQLException {
         logger.info("----------- RelativeFilteranchorDateQueryComposer calling......");
@@ -77,17 +78,15 @@ public class RelativeFilterQueryComposer {
                 break;
             }
         }
-        ;
         if (table.isCustomQuery()) {
             if (!query.contains(relativeFilter.getFilterTable().getFieldName())) {
                 throw new BadRequestException("Error: Requested Filter Column is not available in Dataset!");
             }
 
         }
-        // if (Objects.isNull(table)) {
-        // throw new BadRequestException("Error: Requested Filter Column is not
-        // available in Dataset!");
-        // }
+        if (Objects.isNull(table)) {
+            throw new BadRequestException("Error: Requested Filter Column is not available in Dataset!");
+        }
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             logger.info("------ inside postgres/redshift block");
             finalQuery = RelativeFilterDatePostgres.getRelativeAnchorDate(table, relativeFilter);
