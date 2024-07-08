@@ -88,11 +88,11 @@ public class RelativeFilterDateTeraData {
                                 "END";
                         break;
                     case "month":
-                        fromDate = "DATETRUNC(MONTH, DATEADD(MONTH, -" + fromNum
+                        fromDate = "TRUNC(MONTH, DATEADD(MONTH, -" + fromNum
                                 + ", CONVERT(DATE, '" + anchorDate + "', 23))) ";
                         break;
                     case "year":
-                        fromDate = "DATETRUNC(YEAR, DATEADD(YEAR, -" + fromNum
+                        fromDate = "TRUNC(YEAR, DATEADD(YEAR, -" + fromNum
                                 + ", CONVERT(DATE, '" + anchorDate + "', 23))) ";
                         break;
                     default:
@@ -131,12 +131,12 @@ public class RelativeFilterDateTeraData {
                         break;
                     case "month":
                         fromNum = 0;
-                        fromDate = "DATETRUNC(MONTH, DATEADD(MONTH, -" + fromNum
+                        fromDate = "TRUNC(MONTH, DATEADD(MONTH, -" + fromNum
                                 + ", CONVERT(DATE, '" + anchorDate + "', 23))) ";
                         break;
                     case "year":
                         fromNum = 0;
-                        fromDate = "DATETRUNC(YEAR, DATEADD(YEAR, -" + fromNum
+                        fromDate = "TRUNC(YEAR, DATEADD(YEAR, -" + fromNum
                                 + ", CONVERT(DATE, '" + anchorDate + "', 23))) ";
                         break;
                     default:
@@ -176,12 +176,12 @@ public class RelativeFilterDateTeraData {
 
                         break;
                     case "month":
-                        fromDate = "DATETRUNC(MONTH, DATEADD(MONTH, " + fromNum
+                        fromDate = "TRUNC(MONTH, DATEADD(MONTH, " + fromNum
                                 + ", CONVERT(DATE, '" + anchorDate + "', 23))) ";
 
                         break;
                     case "year":
-                        fromDate = "DATETRUNC(YEAR, DATEADD(YEAR, " + fromNum
+                        fromDate = "TRUNC(YEAR, DATEADD(YEAR, " + fromNum
                                 + ", CONVERT(DATE, '" + anchorDate + "', 23))) ";
 
                         break;
@@ -226,13 +226,13 @@ public class RelativeFilterDateTeraData {
                         break;
                     case "month":
                         toNum = toNum - 1;
-                        toDate = "DATEADD(DAY, -1, DATETRUNC(MONTH, DATEADD(MONTH, -" + toNum
+                        toDate = "DATEADD(DAY, -1, TRUNC(MONTH, DATEADD(MONTH, -" + toNum
                                 + ", CONVERT(DATE, '" + anchorDate + "', 23))))";
 
                         break;
                     case "year":
                         toNum = toNum - 1;
-                        toDate = "DATEADD(DAY, -1, DATETRUNC(YEAR, DATEADD(YEAR, -" + toNum
+                        toDate = "DATEADD(DAY, -1, TRUNC(YEAR, DATEADD(YEAR, -" + toNum
                                 + ", CONVERT(DATE, '" + anchorDate + "', 23))))";
 
                         break;
@@ -274,13 +274,13 @@ public class RelativeFilterDateTeraData {
                         break;
                     case "month":
                         toNum = 1;
-                        toDate = "DATEADD(DAY, -1, DATETRUNC(MONTH, DATEADD(MONTH," + toNum
+                        toDate = "DATEADD(DAY, -1, TRUNC(MONTH, DATEADD(MONTH," + toNum
                                 + ", CONVERT(DATE, '" + anchorDate + "', 23))))";
 
                         break;
                     case "year":
                         toNum = 1;
-                        toDate = "DATEADD(DAY, -1, DATETRUNC(YEAR, DATEADD(YEAR," + toNum
+                        toDate = "DATEADD(DAY, -1, TRUNC(YEAR, DATEADD(YEAR," + toNum
                                 + ", CONVERT(DATE, '" + anchorDate + "', 23))))";
 
                         break;
@@ -322,7 +322,7 @@ public class RelativeFilterDateTeraData {
                         break;
                     case "year":
                         toNum = toNum + 1;
-                        toDate = "DATEADD(day, -1, DATETRUNC(year, DATEADD(year, " + toNum
+                        toDate = "DATEADD(day, -1, TRUNC(year, DATEADD(year, " + toNum
                                 + ", CONVERT(date, '" + anchorDate + "', 23))))";
                         break;
                     default:
@@ -375,15 +375,16 @@ public class RelativeFilterDateTeraData {
                 //checking for custom query
                 if(!table.isCustomQuery()) {
                     query = "select CAST(max(" + relativeFilter.getFilterTable().getFieldName()
-                            + ") as DATE) as anchordate from " + tableName;
+                            + ") as DATE)as anchordate from "
+                            + schemaName + "." + tableName;
                 }else {
                     query = "select CAST(max(" + relativeFilter.getFilterTable().getFieldName()
                             + ") as DATE) as anchordate from "
-                            +"("+ customQuery + ")  cq";
+                            +"("+ customQuery + ") as cq";
                 }
             }
         } else if (matcher.matches()) {
-            query = "select 1  anchordate";
+            query = "select 1 as anchordate";
         } else {
             throw new BadRequestException("Invalid anchor date");
         }

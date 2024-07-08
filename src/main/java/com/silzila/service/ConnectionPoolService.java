@@ -288,6 +288,7 @@ public class ConnectionPoolService {
     // generates SQL and runs in DB and gives response based on
     // user drag & drop columns
     public JSONArray runQuery(String id, String userId, String query) throws RecordNotFoundException, SQLException {
+        System.out.println("::::::::::::::::::::"+query);
         try (Connection _connection = connectionPool.get(id).getConnection();
                 PreparedStatement pst = _connection.prepareStatement(query);
                 ResultSet rs = pst.executeQuery();) {
@@ -369,22 +370,34 @@ public class ConnectionPoolService {
         createConnectionPool(id, userId);
 
         String vendorName = getVendorNameFromConnectionPool(id, userId);
+        String dataBaseNameFromUser="";
 
-        DBConnection dbConnection = dbConnectionService.getDBConnectionWithPasswordById(id, userId);
-
-        String dataBaseNameFromUser = dbConnection.getDatabase();
+        if(vendorName.equalsIgnoreCase("db2")){
+            DBConnection dbConnection = dbConnectionService.getDBConnectionWithPasswordById(id, userId);
+            dataBaseNameFromUser = dbConnection.getDatabase();
+        }
 
         ArrayList<String> schemaList = new ArrayList<String>();
 
         try (Connection _connection = connectionPool.get(id).getConnection();) {
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
 
-            if (vendorName.equals("mysql") || vendorName.equals("oracle") ) {
+            if (vendorName.equals("mysql") || vendorName.equals("oracle")  ) {
                 ResultSet resultSet = databaseMetaData.getSchemas();
                 while (resultSet.next()) {
                     String databaseName = resultSet.getString("TABLE_SCHEM");
                     // append iterated result set into list
                     schemaList.add(databaseName);
+                }
+            }
+            if (vendorName.equalsIgnoreCase("teradata")   ) {
+                ResultSet resultSet = databaseMetaData.getSchemas();
+                while (resultSet.next()) {
+                    String databaseName = resultSet.getString("TABLE_SCHEM");
+                    // ignoring inbuilt database/schema which starts with sys and system
+                    if (!databaseName.matches("(?i)^(SYS|SYSTEM|TD).*")) {
+                        schemaList.add(databaseName);
+                    }
                 }
             }
 
@@ -492,8 +505,22 @@ public class ConnectionPoolService {
                     }
                     return schemaList;
                 }
+            } else if (vendorName.equalsIgnoreCase("db2") || vendorName.equalsIgnoreCase("teradata")) {
+                try (Connection _connection = connectionPool.get(id).getConnection();) {
+                    DatabaseMetaData databaseMetaData = _connection.getMetaData();
+                    ResultSet resultSet = databaseMetaData.getSchemas();
+                    while (resultSet.next()) {
+                        String schemaName = resultSet.getString("TABLE_SCHEM");
+                        // ignoring inbuilt database/schema which starts with ibm,sys,system,td
+                        if (!schemaName.matches("(?i)^(SYS|SYSTEM|IBM|TD).*")){
+                            schemaList.add(schemaName);
+                        }
+                    }
+                    return schemaList;
+                }
+
             }
-            // for Postgres & MySQL & IBM_DB2 & teradata also oracle
+            // for Postgres & MySQL & oracle
             else {
                 try (Connection _connection = connectionPool.get(id).getConnection();) {
 
