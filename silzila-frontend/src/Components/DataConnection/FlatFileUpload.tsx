@@ -48,13 +48,14 @@ const FlatFileUpload = ({ token, setApiResponse, setEditApiResponse }: FlatFileU
 
 const MAX_FILE_SIZE_MB = 500;  // File size limit
 
+// function to handle file select
 const handleFileSelect = (file: File | undefined) => {
   if (file) {
       const fileExtension = file.name.split('.').pop()?.toLowerCase();
       if (
           (selectedFileType === 'csv' && fileExtension !== 'csv') ||
-          (selectedFileType === 'json' && fileExtension !== 'json') ||
-          (selectedFileType === 'excel' && fileExtension !== 'xlsx')
+          (selectedFileType === 'json' && fileExtension !== 'json') 
+          
       ) {
           setErrorDialogMessage(`Invalid file type. Expected a ${selectedFileType.toUpperCase()} file.`);
           setErrorDialogOpen(true);
@@ -107,8 +108,8 @@ const handleFileSelect = (file: File | undefined) => {
                       return;
                   }
                 } else if (selectedFileType === 'excel') {
-                      const workbook = XLSX.read(fileContent, { type: 'array' });
-                      const sheetNames = workbook.SheetNames;
+                      const worksheet = XLSX.read(fileContent, { type: 'array' });
+                      const sheetNames = worksheet.SheetNames;
 
                       if (!selectedSheetName) {
                           setErrorDialogMessage('Could not upload. SHEETNAME is NULL');

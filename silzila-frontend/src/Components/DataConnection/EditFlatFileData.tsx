@@ -144,8 +144,7 @@ const EditFlatFileData = ({
 				resetFlatFileState();
 			}, 3000);
 		} else {
-			let errorMessage = result.data.message;
-        
+			let errorMessage = result.data.message; 
 			// Check for specific data type change error
 			if (errorMessage.includes('Conversion Error')) {
 					errorMessage = "You are trying for unmatched datatype!";
