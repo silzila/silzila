@@ -88,8 +88,7 @@ public class RelativeFilterDateTeraData {
                                 "END";
                         break;
                     case "month":
-                        fromDate = "TRUNC(MONTH, DATEADD(MONTH, -" + fromNum
-                                + ", CONVERT(DATE, '" + anchorDate + "', 23))) ";
+                        fromDate = "CAST(((ADD_MONTHS(DATE '"+anchorDate+"', -"+fromNum+")/100)*100+1) AS DATE)";
                         break;
                     case "year":
                         fromDate = "TRUNC(YEAR, DATEADD(YEAR, -" + fromNum
@@ -131,8 +130,7 @@ public class RelativeFilterDateTeraData {
                         break;
                     case "month":
                         fromNum = 0;
-                        fromDate = "TRUNC(MONTH, DATEADD(MONTH, -" + fromNum
-                                + ", CONVERT(DATE, '" + anchorDate + "', 23))) ";
+                        fromDate = "CAST(((ADD_MONTHS(DATE '"+anchorDate+"', -"+fromNum+")/100)*100+1) AS DATE)";
                         break;
                     case "year":
                         fromNum = 0;
@@ -176,8 +174,7 @@ public class RelativeFilterDateTeraData {
 
                         break;
                     case "month":
-                        fromDate = "TRUNC(MONTH, DATEADD(MONTH, " + fromNum
-                                + ", CONVERT(DATE, '" + anchorDate + "', 23))) ";
+                        fromDate = "CAST(((ADD_MONTHS(DATE '"+anchorDate+"', +"+fromNum+")/100)*100+1) AS DATE)";
 
                         break;
                     case "year":
@@ -225,9 +222,7 @@ public class RelativeFilterDateTeraData {
                                 "END";
                         break;
                     case "month":
-                        toNum = toNum - 1;
-                        toDate = "DATEADD(DAY, -1, TRUNC(MONTH, DATEADD(MONTH, -" + toNum
-                                + ", CONVERT(DATE, '" + anchorDate + "', 23))))";
+                        toDate = "CAST(LAST_DAY(ADD_MONTHS(DATE '"+anchorDate+"', -"+toNum+") - 1)AS DATE)";;
 
                         break;
                     case "year":
@@ -273,9 +268,8 @@ public class RelativeFilterDateTeraData {
                                 "END";
                         break;
                     case "month":
-                        toNum = 1;
-                        toDate = "DATEADD(DAY, -1, TRUNC(MONTH, DATEADD(MONTH," + toNum
-                                + ", CONVERT(DATE, '" + anchorDate + "', 23))))";
+                        toNum = 0;
+                        toDate = "CAST(LAST_DAY(ADD_MONTHS(DATE '"+anchorDate+"', "+toNum+") - 1)AS DATE)";
 
                         break;
                     case "year":
@@ -318,7 +312,7 @@ public class RelativeFilterDateTeraData {
                                 "END";
                         break;
                     case "month":
-                        toDate = "EOMONTH(DATEADD(month, " + toNum + ", '" + anchorDate + "'))";
+                        toDate = "CAST(LAST_DAY(ADD_MONTHS(DATE '"+anchorDate+"', "+toNum+") - 1)AS DATE)";
                         break;
                     case "year":
                         toNum = toNum + 1;
