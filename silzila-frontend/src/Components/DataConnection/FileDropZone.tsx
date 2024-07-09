@@ -10,6 +10,13 @@ import { FileDropZoneProps } from "./FlatFileInterfaces";
 
 const useStyles: any = makeStyles(() =>
 	createStyles({
+		root: {
+			"& .MuiSvgIcon-root": {
+				fontSize: "3rem",
+				color: "#3b3a3a",
+				margin: " 20px auto",
+			},
+		},
 		uploadIcon: {
 			fontSize: "2.5rem",
 			color: "#5d5c5c",
@@ -17,6 +24,7 @@ const useStyles: any = makeStyles(() =>
 		},
 		closeIcon: {
 			margin: "auto 0px auto 5px",
+			// fontSize: "4px",
 			maxHeight: "14px",
 			maxWidth: "12px",
 			"&:hover": {
@@ -25,6 +33,7 @@ const useStyles: any = makeStyles(() =>
 		}
 	})
 );
+
 
 const FileDropZone = ({ setSelectedFile, selectedFile, fileType}: FileDropZoneProps) => {
 	// drag state

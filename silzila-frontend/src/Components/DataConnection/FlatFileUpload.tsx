@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogActions, DialogContentText, DialogTitle } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Dispatch } from "redux";
