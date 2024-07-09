@@ -55,7 +55,7 @@ public class RelativeFilterDateTeraData {
 
                 switch (fromType) {
                     case "day":
-                        fromDate = "DATEADD(DAY, -" + fromNum + ", CONVERT(DATE, '" + anchorDate + "', 23))";
+                        fromDate = "CAST((DATE '" + anchorDate + "') -"+fromNum+" AS DATE)";
                         break;
                     case "rollingWeek":
                         fromNum = fromNum + 1;
@@ -104,7 +104,7 @@ public class RelativeFilterDateTeraData {
                 switch (fromType) {
                     case "day":
                         fromNum = 0;
-                        fromDate = "DATEADD(DAY, -" + fromNum + ", '" + anchorDate + "')";
+                        fromDate = "CAST((DATE '"+anchorDate+"')-"+fromNum+" AS DATE)" ;
                         break;
                     case "rollingWeek":
                         fromNum = 1;
@@ -146,7 +146,7 @@ public class RelativeFilterDateTeraData {
             if (fromConditions.get(0).equals("next")) {
                 switch (fromType) {
                     case "day":
-                        fromDate = "DATEADD(DAY, " + fromNum + ", '" + anchorDate + "')";
+                        fromDate = "CAST((DATE '"+anchorDate+"')+"+fromNum+" AS DATE)";
                         break;
                     case "rollingWeek":
                         fromNum = fromNum - 1;
@@ -196,7 +196,7 @@ public class RelativeFilterDateTeraData {
 
                 switch (toType) {
                     case "day":
-                        toDate = "DATEADD(DAY, -" + toNum + ", CONVERT(DATE, '" + anchorDate + "', 23))";
+                        toDate = "CAST((DATE '" + anchorDate + "') -"+toNum+" AS DATE)";
                         break;
                     case "rollingWeek":
                         toDate = "DATEADD(WEEK, -" + toNum + ", '" + anchorDate + "')";
@@ -247,7 +247,7 @@ public class RelativeFilterDateTeraData {
                 switch (toType) {
                     case "day":
                         toNum = 0;
-                        toDate = "DATEADD(DAY, " + toNum + ", '" + anchorDate + "')";
+                        toDate = "CAST((DATE '"+anchorDate+"')+"+toNum+" AS DATE)";
                         break;
                     case "rollingWeek":
                         toNum = 0;
@@ -292,7 +292,7 @@ public class RelativeFilterDateTeraData {
             if (toConditions.get(0).equals("next")) {
                 switch (toType) {
                     case "day":
-                        toDate = "DATEADD(day, " + toNum + ", '" + anchorDate + "')";
+                        toDate = "CAST((DATE '"+anchorDate+"')+"+toNum+" AS DATE)";
                         break;
                     case "rollingWeek":
                         toDate = "DATEADD(week, " + toNum + ", '" + anchorDate + "')";
@@ -331,8 +331,7 @@ public class RelativeFilterDateTeraData {
             }
             // finalQuery to get date
 
-            String finalQuery = "SELECT CONVERT(DATE, " + fromDate + ") as fromdate, CONVERT(DATE, " + toDate
-                    + ") as todate";
+            String finalQuery = "SELECT \n " + fromDate + " as fromdate,\n " + toDate + " as todate";
 
             // String finalQuery = "SELECT 1";
             return finalQuery;
