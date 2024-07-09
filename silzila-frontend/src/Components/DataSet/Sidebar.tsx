@@ -57,6 +57,7 @@ interface savedData {
 const Sidebar = ({
   //props
   editMode,
+  dsId,
 
   // state
   token,
@@ -169,7 +170,7 @@ const Sidebar = ({
         getAllMetaDb();
         setSelectedDb(databaseName);
         setSelectedSchema(schemaValue);
-
+        getCustomQueryFromSavedDataSetlist(); //get the custom query array from dataset table list
         getSchemaList(databaseName);
       } else {
         getAllMetaDb();
@@ -305,6 +306,8 @@ const Sidebar = ({
               table_uid: schema.concat(el),
               id: id,
               isNewTable: bool,
+              isCustomQuery: false,
+              customQuery: "",
             };
           }
           return {
@@ -316,6 +319,8 @@ const Sidebar = ({
             table_uid: schema[0].concat(el),
             id: uid(),
             isNewTable: true,
+            isCustomQuery: false,
+            customQuery: "",
           };
         });
       }
@@ -325,13 +330,13 @@ const Sidebar = ({
 
         // Checking if the table is already selected to canvas by user
         // TODO: (p-1) check and mention type
-        var tableAlreadyChecked: any = tempTable.filter(
+        var tableAlreadyChecked: any = tempTable.find(
           (tbl: tableObjProps) =>
             // tbl.dcId === connectionId && tbl.schema === schema && tbl.tableName === el
             tbl.dcId === connectionValue &&
             tbl.schema === schema &&
             tbl.tableName === el
-        )[0];
+        );
 
         // Checking if the selected table is new or previously added to this dataset
         // Required as editing a dataset doesn't allow for deleting already added tables
@@ -357,6 +362,8 @@ const Sidebar = ({
             table_uid: schema.concat(el),
             id: id,
             isNewTable: bool,
+            isCustomQuery: false,
+            customQuery: "",
           };
         }
 
@@ -369,6 +376,8 @@ const Sidebar = ({
           table_uid: schema.concat(el),
           id: uid(),
           isNewTable: true,
+          isCustomQuery: false,
+          customQuery: "",
         };
       });
       setUserTable(userTable);
@@ -431,8 +440,7 @@ const Sidebar = ({
     }
   };
 
-  useEffect(() => {}, [CustomQuerysArray]);
-
+  // rename the custom query in
   const handleRename = (
     event: React.KeyboardEvent<HTMLInputElement>,
     name: string
@@ -450,7 +458,6 @@ const Sidebar = ({
             "Please write a different name. The query name already exists."
           );
           setOpenAlert(true);
-          console.log("duplicate is apply pleaase handle");
         } else {
           console.log(RenameInputValueCustomQueryname);
           setRenameInputValueCustomQueryname(RenameNameQuery);
@@ -459,12 +466,11 @@ const Sidebar = ({
               item.name === name ? { ...item, name: RenameNameQuery } : item
             )
           );
-          console.log(CustomQuerysArray);
-          console.log(RenameInputValueCustomQueryname);
-          console.log(RenameNameQuery);
           // setRenameInputValueCustomQueryname(""); // Reset the input value
-          console.log(SelectQueryoption);
           setRenameToCanvasProps(RenameInputValueCustomQueryname);
+          if (editMode) {
+            //to maintain the relationship b/t rename
+          }
 
           // setSelectQueryoption(0); // Reset the selected query option
           setRenameID(0); // Reset the rename ID
@@ -472,7 +478,6 @@ const Sidebar = ({
       } else if (RenameInputValueCustomQueryname.length === 0) {
         setQueryErrorMessage("At least one character is required.");
         setOpenAlert(true);
-        console.log("blandk");
       }
     }
   };
@@ -490,6 +495,28 @@ const Sidebar = ({
     setCustomQuery(true);
     setCustomQueryData(query);
     setSelectQueryoption(0);
+  };
+
+  // sidebar in edit mode get the list of saved custom query from dataset
+  const getCustomQueryFromSavedDataSetlist: any = async () => {
+    var res: any = await FetchData({
+      requestType: "noData",
+      method: "GET",
+      url: `dataset/${dsId}`,
+      headers: { Authorization: `Bearer ${token}` },
+      token: token,
+    });
+    console.log(res);
+    console.log(res.data.dataSchema.tables);
+    const updatedCustomQueryArray = res.data.dataSchema.tables
+      .filter((item: any) => item.isCustomQuery)
+      .map((item: any) => ({
+        id: item.id,
+        name: item.alias,
+        dataquery: item.customQuery,
+      }));
+    setCustomQuerysArray(updatedCustomQueryArray);
+    console.log(updatedCustomQueryArray);
   };
   useEffect(() => {}, [CustomQuerysArray]);
   return (
@@ -903,7 +930,6 @@ const Sidebar = ({
               backgroundColor: "white",
               color: "#00A4B4",
               padding: "2%",
-
               position: "relative",
               width: "80%",
               outlineColor: "#00A4B4",
@@ -935,9 +961,10 @@ const Sidebar = ({
                 className="customTextArea"
                 name="customQuery"
                 id="customQuery"
-                placeholder="SELECT * FROM tablename"
+                placeholder="// SELECT * FROM table_name"
+                style={{ color: "grey" }}
                 ref={textareaRef}
-                value={CustomQueryData || "SELECT * FROM TableName"}
+                value={CustomQueryData}
                 onChange={(e) => setCustomQueryData(e.target.value)}
               />
               <div
@@ -985,6 +1012,7 @@ const Sidebar = ({
 
 const mapStateToProps = (state: isLoggedProps & DataSetStateProps) => {
   return {
+    dsId: state.dataSetState.dsId,
     token: state.isLogged.accessToken,
     tableList: state.dataSetState.tables,
     views: state.dataSetState.views,

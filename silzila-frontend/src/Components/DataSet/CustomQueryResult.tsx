@@ -1,4 +1,5 @@
 //this component is use for getting the result after the writing the custom query in textarea and after preview button
+// get the result of custom query and tables, data related to custom query
 import React, { useState, useEffect } from "react";
 import {
   Button,
@@ -101,12 +102,16 @@ function CustomQueryResult({
     (state: RootState) => state.dataSetState.tempTable
   ); //state from redux store
   //  const removeArrows=useSelector((state:RootState)=>state.dataSetState.)
-  function AddUidInColumnData(data: any) {
-    const uid = new ShortUniqueId({ length: 8 });
-    const updatedData = data.map((item: any) => ({ ...item, uid: uid() }));
+
+  function AddUidInColumnData(data: any, name: string) {
+    const updatedData = data.map((item: any, index: number = 1) => ({
+      ...item,
+      uid: name.concat(item.columnName),
+    }));
     return updatedData;
   }
 
+  //
   const OpentableColumnsCustomquery = async (data: any) => {
     try {
       const url = `metadata-columns-customquery/${connectionValue}`;
@@ -120,13 +125,12 @@ function CustomQueryResult({
         },
         data: data.querydata,
       });
-      const createResDatawithUId = AddUidInColumnData(res.data);
-      console.log(createResDatawithUId);
+      const createResDatawithUId = AddUidInColumnData(res.data, data.name);
       const tableData = {
         id: data.id,
         alias: data.name,
         columns: createResDatawithUId,
-        databaseName: databaseName,
+        databaseName: "",
         dcId: connectionValue,
         isNewTable: true,
         isSelected: true,
@@ -135,8 +139,10 @@ function CustomQueryResult({
         tablePositionX: 0,
         tablePositionY: 0,
         table_uid: data.name,
+        isCustomQuery: true,
+        customQuery: data.querydata,
       };
-
+      console.log(tableData);
       let updatedTempTables: any;
 
       if (EditCustomQuery !== 0) {
@@ -181,6 +187,7 @@ function CustomQueryResult({
       const data = tempTableforCanvas.find(
         (item) => item.id === deleteCustomQuery
       );
+      console.log(data);
       const DataforSetUserTabel: UserTableProps = {
         schema: data?.schema || "",
         databaseName: data?.databaseName || "",
@@ -189,6 +196,8 @@ function CustomQueryResult({
         isSelected: false,
         tableName: data?.tableName || "",
         table_uid: data?.table_uid || "",
+        isCustomQuery: true,
+        customQuery: data?.customQuery || "",
       };
 
       setUserTableArray((prev: UserTableProps[]) => {
@@ -231,8 +240,6 @@ function CustomQueryResult({
               item.id !== EditCustomQuery && item.alias === savedData.name
           );
           if (exists || isNamePresent) {
-            console.log(exists);
-            console.log(isNamePresent);
             setOpenAlert(true);
             seterror(
               "A query with that name already exists. Please use a different name."
@@ -311,7 +318,6 @@ function CustomQueryResult({
     });
 
     setCustomQuerysArray(updatedCustomQueryArray);
-    console.log(updatedCustomQueryArray);
   }, [tempTable]);
 
   useEffect(() => {
@@ -336,7 +342,11 @@ function CustomQueryResult({
 
         // If an item is found and SelectQueryoption matches the current item id
         if (found && found.id === SelectQueryoption && !isNamePresent) {
-          return { ...item, alias: RenameToCanvasProps };
+          return {
+            ...item,
+            alias: RenameToCanvasProps,
+            tableName: RenameToCanvasProps,
+          };
         }
         console.log(RenameToCanvasProps);
         // Return the original item if no match is found
@@ -384,9 +394,11 @@ function CustomQueryResult({
         <DialogContent
           sx={{
             maxWidth: "fit-content",
+            paddingTop: "0px",
+            marginTop: "1%",
           }}
         >
-          <Table stickyHeader>
+          <Table stickyHeader padding="normal">
             <TableHead>
               <TableRow>
                 {objKeys &&
@@ -406,7 +418,7 @@ function CustomQueryResult({
                   })}
               </TableRow>
             </TableHead>
-            <TableBody style={{ width: "auto" }}>
+            <TableBody style={{ width: "auto", paddingTop: "200px" }}>
               {tableData.map((data: any, i: number) => {
                 return (
                   <TableRow key={i} id="TRow">
@@ -452,7 +464,7 @@ function CustomQueryResult({
                   flex: 1,
                   margin: "auto 20px",
                   maxWidth: "200px",
-                  outlineColor: "purple",
+                  // outlineColor: "#af99db",
                 }}
                 inputProps={{
                   style: {
@@ -468,8 +480,8 @@ function CustomQueryResult({
                 }
                 id="outlined-size-small"
                 size="small"
-                color="secondary"
                 value={savedData.name}
+                color="secondary"
                 label="Name Custom Query"
               />
             </Tooltip>

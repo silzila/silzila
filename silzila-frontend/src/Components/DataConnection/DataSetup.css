@@ -564,10 +564,12 @@ DataHome
 .optionlist ul li {
   cursor: pointer;
   text-align: left;
-  padding: 0px 5px 5px 5px;
+  padding: 8px 15px 8px 15px;
   margin: 0%;
   outline: none;
   font-size: medium;
+  text-align: start;
+  align-items: center;
 }
 
 .optionlist ul li:hover {
