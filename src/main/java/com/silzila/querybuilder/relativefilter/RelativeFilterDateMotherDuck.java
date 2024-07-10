@@ -1,20 +1,18 @@
 package com.silzila.querybuilder.relativefilter;
 
+import com.silzila.exception.BadRequestException;
+import com.silzila.exception.RecordNotFoundException;
+import com.silzila.payload.request.RelativeFilterRequest;
+import com.silzila.payload.request.Table;
+import org.json.JSONArray;
+
+import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.validation.Valid;
-
-import org.json.JSONArray;
-
-import com.silzila.exception.BadRequestException;
-import com.silzila.exception.RecordNotFoundException;
-import com.silzila.payload.request.RelativeFilterRequest;
-import com.silzila.payload.request.Table;
-
-public class RelativeFilterDateDuckDB {
+public class RelativeFilterDateMotherDuck {
     public static String anchorDate = "";
 
     public static String getRelativeDate(RelativeFilterRequest relativeFilter, JSONArray ancDateArray)
@@ -365,7 +363,7 @@ public class RelativeFilterDateDuckDB {
                     + " as DATE ) as todate;";
 
             // String finalQuery = "SELECT 1";
-          
+
 
             return finalQuery;
         }
@@ -375,20 +373,32 @@ public class RelativeFilterDateDuckDB {
     // based on date
 
     public static String getRelativeAnchorDate(Table table,
-            @Valid RelativeFilterRequest relativeFilter) throws BadRequestException {
+                                               @Valid RelativeFilterRequest relativeFilter) throws BadRequestException {
         if (relativeFilter.getAnchorDate() == null) {
             throw new BadRequestException("there is no anchor date");
         }
         String query = "";
 
+        // table
+        String tableName = table.getTable();
+
+        String schemaName = table.getSchema();
+
         String anchorDate = relativeFilter.getAnchorDate();
+
+        String customQuery = table.getCustomQuery();
 
         // pattern checker of specific date
         Pattern pattern = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])");
         Matcher matcher = pattern.matcher(anchorDate);
 
         // fromClause
-        String fromClause = " FROM vw_" + table.getAlias() + "_" + table.getFlatFileId().substring(0, 8) + " ";
+        String fromClause="";
+        if(table.isCustomQuery()) {
+            fromClause = "("+customQuery+")";
+        }else{
+            fromClause = schemaName + "." + tableName;
+        }
 
         // Query
         if (List.of("today", "tomorrow", "yesterday", "columnMaxDate").contains(anchorDate)) {
@@ -399,7 +409,7 @@ public class RelativeFilterDateDuckDB {
             } else if (anchorDate.equals("yesterday")) {
                 query = "SELECT DATE_ADD(CURRENT_DATE(), INTERVAL (-1) DAY) AS anchordate";
             } else if (anchorDate.equals("columnMaxDate")) {
-                query = "SELECT CAST(MAX(" + relativeFilter.getFilterTable().getFieldName() + ") AS DATE) AS anchordate "
+                query = "SELECT CAST(MAX(" + relativeFilter.getFilterTable().getFieldName() + ") AS DATE) AS anchordate  FROM"
                         + fromClause;
             }
         } else if (matcher.matches()) {

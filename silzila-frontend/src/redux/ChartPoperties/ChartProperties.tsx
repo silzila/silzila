@@ -10,7 +10,6 @@ const chartProperties: ChartPropertiesProps = {
 			// General Tab Info
 			tabId: 1,
 			tileId: 1,
-            isTextRenamed:false,
 			chartType: "crossTab",
 			isDynamicMeasureWindowOpened: false,
 			addMeasureInTextEditor: false,
@@ -448,15 +447,7 @@ const chartPropertiesState = (
 					},
 				},
 			});
-
-			case "UPDATE_IS_TEXT_RENAMED":
-				return update(state, {
-					properties: {
-						[action.payload.propKey]: {
-							isTextRenamed: { $set: action.payload.isTextRenamed },
-						},
-					},
-				});	
+		
 
 		case "CHANGE_CHART_TYPE":
 			return update(state, {

@@ -58,9 +58,9 @@ public class FilterOptionsQueryComposer {
         } else if (vendorName.equals("databricks")) {
             logger.info("------ inside databricks block");
             finalQuery = FilterQueryDatabricks.getFilterOptions(cf, table);
-        } else if (vendorName.equals("duckdb")) {
-            logger.info("------ inside duckdb block");
-            finalQuery = FilterQueryDuckDb.getFilterOptions(cf, table);
+        }else if (vendorName.equals("duckdb")) {
+                logger.info("------ inside databricks block");
+                finalQuery = FilterQueryDuckDb.getFilterOptions(cf, table);
         } else if (vendorName.equals("bigquery")) {
             logger.info("------ inside bigquery block");
             finalQuery = FilterQueryBigquery.getFilterOptions(cf, table);
@@ -71,8 +71,11 @@ public class FilterOptionsQueryComposer {
             logger.info("------ inside snowflake block");
             finalQuery = FilterQuerySnowflake.getFilterOptions(cf, table);
         } else if (vendorName.equals("motherduck")) {
-            logger.info("------ inside motherduck block");
+            logger.info("------ inside motherduck/duckdb block");
             finalQuery = FilterQueryMotherduck.getFilterOptions(cf, table);
+        }else if (vendorName.equals("db2")) {
+            logger.info("------ inside DB2 block");
+            finalQuery = FilterQueryDB2.getFilterOptions(cf, table);
         }
 
         else {

@@ -9,6 +9,8 @@ import { Dispatch } from "redux";
 import { editChartPropItem } from "../../../redux/ChartPoperties/ChartPropertiesActions";
 import {fieldName} from '../../CommonFunctions/CommonFunctions';
 import { Height } from "@mui/icons-material";
+import { display } from "html2canvas/dist/types/css/property-descriptors/display";
+import { BsColumnsGap } from "react-icons/bs";
 
 interface WindowFunctionProps {
 	anchorElm: any;
@@ -815,16 +817,20 @@ const handleChange = (value: any, subOption?: string) => {
 					}
 					
 					<div className="canelOkBtn">
-						<div className="cancelBtn">
-							<Button variant="outlined" color= "inherit" size="small"
-							onClick={() => setWindowfn(false)}
-					 		sx={{fontSize: "12px", boxShadow: "none", border: "2px solid rgba(224,224,224,1)", borderRadius: "2px", textTransform: "initial",
-					        "&:hover" : {backgroundColor: "transparent", boxShadow: "0px 0px 2px 1px rgb(199, 199, 199)"}}}>
-								Cancel
-			                </Button> 
-			            </div>
-						
-						<div className="okBtn">
+						<div className="cancelBtn" style={{display:"flex", flexDirection:"row", columnGap:"0.2rem"}}>
+						<Button variant="outlined" color= "inherit" size="small"
+						sx={{fontSize: "10px", boxShadow: "none", border: "2px solid #b6b6b6", borderRadius: "2px", textTransform: "initial",
+					        "&:hover" : {color:"white",backgroundColor: "red", boxShadow: "0px 0px 2px 1px rgb(199, 199, 199)"}}}
+						onClick={() => {
+							setWindowfn(false);
+							var field2 = JSON.parse(JSON.stringify(field));
+							field2.windowfn = null;
+							updateQueryParam(propKey, bIndex, itemIndex, field2);
+						}}
+							>
+								Remove
+			                </Button> 						
+			          
 							<Button variant="outlined" color= "inherit" size="small"
 							onClick={() => {
 								setWindowfn(false);
@@ -832,9 +838,9 @@ const handleChange = (value: any, subOption?: string) => {
 								field2.windowfn = windowFnValues;
 								updateQueryParam(propKey, bIndex, itemIndex, field2);
 							}}
-							sx={{fontSize: "12px", boxShadow: "none", border: "2px solid #af99db", borderRadius: "2px", textTransform: "initial",
-							"&:hover" : {backgroundColor: "transparent", boxShadow: "0px 0px 2px 1px #af99db"}}}>
-								Ok
+							sx={{fontSize: "10px", boxShadow: "none", border: "2px solid #2bb9bb", borderRadius: "1px", textTransform: "initial",
+							"&:hover" : {color:"white", backgroundColor: "#2bb9bb", boxShadow: "0px 0px 2px 1px #af99db"}}}>
+								Save
 							</Button> 
 			            </div>
 			        </div>

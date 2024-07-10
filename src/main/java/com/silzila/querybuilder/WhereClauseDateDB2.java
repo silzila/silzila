@@ -1,19 +1,18 @@
 package com.silzila.querybuilder;
 
+import com.silzila.exception.BadRequestException;
+import com.silzila.helper.QueryNegator;
+import com.silzila.payload.request.Filter;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.silzila.payload.request.Filter;
-import com.silzila.exception.BadRequestException;
-import com.silzila.helper.QueryNegator;
-
-public class WhereClauseDateMysql {
-
-    public static String buildWhereClauseDate(Filter filter,String vendorName ) throws BadRequestException {
+public class WhereClauseDateDB2 {
+    public static String buildWhereClauseDate(Filter filter) throws BadRequestException {
         // MAP of request time grain to date function parameter in Postgres
-        Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "MONTH", "MONTH", "QUARTER", "QUARTER",
-                "DATE", "DATE", "DAYOFWEEK", "DAYOFWEEK", "DAYOFMONTH", "DAY");
+        Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "MONTH", "MONTH", "QUARTER", "QUARTER", "DAYOFWEEK",
+                "DOW", "DAYOFMONTH", "DAY");
         // MAP of request comparison operator name to symbol in Postgres
         Map<String, String> comparisonOperator = Map.of("GREATER_THAN", " > ", "GREATER_THAN_OR_EQUAL_TO", " >= ",
                 "LESS_THAN", " < ", "LESS_THAN_OR_EQUAL_TO", " <= ");
@@ -34,26 +33,29 @@ public class WhereClauseDateMysql {
             if (filter.getOperator().name().equals("IN")) {
 
                 if (filter.getTimeGrain().name().equals("YEAR")) {
-                    field = "YEAR(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
                 } else if (filter.getTimeGrain().name().equals("QUARTER")) {
-                    field = "CONCAT('Q', QUARTER(" + filter.getTableId() + "." + filter.getFieldName() + "))";
+                    field = "CONCAT('Q', EXTRACT(QUARTER FROM " + filter.getTableId() + "." + filter.getFieldName()
+                            + ")::INTEGER)";
                 } else if (filter.getTimeGrain().name().equals("MONTH")) {
-                    field = "MONTHNAME(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "TRIM(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Month'))";
                 } else if (filter.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "), '-Q', QUARTER("
-                            + filter.getTableId() + "." + filter.getFieldName() + "))";
+                    field = "CONCAT(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName()
+                            + ", 'YYYY'), '-Q', TO_CHAR(" + filter.getTableId() + "."
+                            + filter.getFieldName() + ", 'Q'))";
                 } else if (filter.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "DATE_FORMAT(" + filter.getTableId() + "." + filter.getFieldName() + ", '%Y-%m')";
+                    field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'YYYY-MM')";
                 } else if (filter.getTimeGrain().name().equals("DATE")) {
-                    field = "DATE(" +  filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    field = "DAYNAME(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "TRIM(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Day'))";
                 } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    field = "DAY(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
                 }
 
                 String options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
                 where = field + excludeOperator + "IN (" + options + ")";
+
             }
 
             // SLIDER - numerical time grain match - eg., year = 2018
@@ -65,8 +67,21 @@ public class WhereClauseDateMysql {
                     throw new BadRequestException("Error: Time grain is not correct for Equal To Operator in the field "
                             + filter.getFieldName() + " in Filter!");
                 }
-                field = timeGrainMap.get(filter.getTimeGrain().name()) + "(" + filter.getTableId() + "."
-                        + filter.getFieldName() + ")";
+                // Allowable Time Grains
+                if (filter.getTimeGrain().name().equals("YEAR")) {
+                    field = "EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
+                } else if (filter.getTimeGrain().name().equals("QUARTER")) {
+                    field = "EXTRACT(QUARTER FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
+                } else if (filter.getTimeGrain().name().equals("MONTH")) {
+                    field = "EXTRACT(MONTH FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
+                } else if (filter.getTimeGrain().name().equals("DATE")) {
+                    field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+                } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
+                    // in postgres, day of week starts at 0, to offset +1 is added
+                    field = "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER +1";
+                } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
+                    field = "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
+                }
                 where = field + excludeOperator + "= '" + filter.getUserSelection().get(0) + "'";
             }
         }
@@ -84,9 +99,17 @@ public class WhereClauseDateMysql {
                 throw new BadRequestException("Error: Time grain is not correct for Comparsion Operator in the field "
                         + filter.getFieldName() + " in Filter!");
             }
-
-            field = timeGrainMap.get(filter.getTimeGrain().name()) + "(" + filter.getTableId() + "."
-                        + filter.getFieldName() + ")";
+            // Allowable Time Grins
+            if (List.of("YEAR", "QUARTER", "MONTH", "DAYOFMONTH").contains(filter.getTimeGrain().name())) {
+                field = "EXTRACT(" + timeGrainMap.get(filter.getTimeGrain().name()) + " FROM " + filter.getTableId()
+                        + "." + filter.getFieldName() + ")::INTEGER";
+            } else if (filter.getTimeGrain().name().equals("DATE")) {
+                field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+            }
+            // In postgres, dayofweek starts at 0 not 1, so need to add 1 to the function
+            else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
+                field = "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER +1";
+            }
             // decides if it is '=' or '!='
             String excludeOperator = QueryNegator.makeNegateCondition(filter.getShouldExclude());
 
@@ -106,13 +129,14 @@ public class WhereClauseDateMysql {
                             + filter.getFieldName() + " in Filter!");
                 }
             }
+
         }
         //tillDate
         if(filter.getIsTillDate() && List.of("MONTH","DAYOFMONTH","YEARMONTH","YEAR","DAYOFWEEK","QUARTER","YEARQUARTER").contains(filter.getTimeGrain().name())){
-            where = "(\n\t\t" + where + TillDate.tillDate(vendorName, filter) + "\n\t\t)";
+            where = "(\n\t\t" + where+ TillDate.tillDate("postgresql", filter) + "\n\t\t)";
         }
-        return where;
-      
-    }
 
+        return where;
+
+    }
 }

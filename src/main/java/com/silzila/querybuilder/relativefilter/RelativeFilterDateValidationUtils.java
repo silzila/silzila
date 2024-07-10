@@ -35,8 +35,13 @@ public class RelativeFilterDateValidationUtils {
         if (ancDateArray.isEmpty()) {
             throw new BadRequestException("there is no anchor date");
         }
-        // get a anchorDate
-        String ancDate = String.valueOf(ancDateArray.getJSONObject(0).get("anchordate"));
+        String ancDate="";
+        // get a anchorDate for IBM_DB2
+        if(ancDateArray.getJSONObject(0).has("ANCHORDATE")) {
+            ancDate = String.valueOf(ancDateArray.getJSONObject(0).get("ANCHORDATE"));
+        }else {
+            ancDate = String.valueOf(ancDateArray.getJSONObject(0).get("anchordate"));
+        }
 
         if (List.of("today", "tomorrow", "yesterday", "columnMaxDate").contains(relativeFilter.getAnchorDate())
                 && !ancDate.equals("1")) {

@@ -10,10 +10,10 @@ import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover"
 import { Dispatch } from "redux";
 import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
 import{storeServerData}from "../../redux/ChartPoperties/ChartControlsActions";
-import { canReUseData, toggleAxesEdited,updateisTextRenamed } from "../../redux/ChartPoperties/ChartPropertiesActions";
+import { canReUseData, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import FetchData from "../ServerCall/FetchData";
 import { AxesValuProps, ChartAxesFormattedAxes, ChartAxesProps } from "./ChartAxesInterfaces";
-import { ChartPropertiesStateProps,UpdateisTextRenamed} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartPropertiesStateProps} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { chartFilterGroupEdited } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
@@ -59,13 +59,13 @@ export const getChartData = async (
 	}
 
 	/*	PRS 21/07/2022	Construct filter object for service call */
-	const getChartLeftFilter = (filters: any) => {
+	const getChartLeftFilter = (filters: any, name:string) => {
 		let _type: any = {};
 
 		//let _chartProp = chartProp.properties[propKey].chartAxes[0];
 		let _chartProp = filters;
 
-		_type.panelName = "chartFilters";
+		_type.panelName = name;
 		_type.shouldAllConditionsMatch = !_chartProp.any_condition_match;
 		_type.filters = [];
 
@@ -244,8 +244,15 @@ export const getChartData = async (
 					tableId: field.tableId,
 					displayName: field.displayname,
 					fieldName: field.fieldname,
-					dataType: field.dataType.toLowerCase(), 
+					dataType: field.dataType?.toLowerCase(), 
+					rollupDepth: field.rollupDepth ? true : false,
+					measureOrder: field.measureOrder
 				};
+
+				if(field.rollupDepth !== undefined){
+					formattedField.rollupDepth = field.rollupDepth;// ? true : false
+				}
+
 				if (field.dataType === "date" || field.dataType === "timestamp") {
 					formattedField.timeGrain = field.timeGrain;
 				}
@@ -479,7 +486,8 @@ export const getChartData = async (
 
 		/*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
 		
-		let _filterZoneFields = _chartAxes[0].fields;
+		//let _filterZoneFields = _chartAxes[0].fields; /*	PRS For Override	*/
+		let _filterZoneFields = axesValuesParam[0].fields;
 		let _hasInvalidFilterData = _filterZoneFields.filter((field: any) => field.isInValidData);
 
 		if (_filterZoneFields.length > 0 && _hasInvalidFilterData && _hasInvalidFilterData.length > 0) {
@@ -487,7 +495,8 @@ export const getChartData = async (
 			return;
 		} 
 
-		let _filterObj = getChartLeftFilter(_chartAxes[0]);
+		//let _filterObj = getChartLeftFilter(_chartAxes[0]); /*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
+		let _filterObj = getChartLeftFilter(axesValuesParam[0], "chartFilters");
 
 		if (_filterObj.filters.length > 0) {
 			formattedAxes.filterPanels.push(_filterObj);
@@ -495,35 +504,45 @@ export const getChartData = async (
 			formattedAxes.filterPanels = [];
 		}
 
-		if (screenFrom === "Dashboard") {
-			dashBoardGroup.groups.forEach((grp: string) => {
-				if (dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)) {
-					////Check this condition 1. group check if cont 2. propkey
-
-					let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
-
+		if(axesValuesParam.find((axes:any)=>axes.name == "Measure")?.fields[0]?.disableReportFilterForOverride){
+			Logger("info", axesValuesParam.find((axes:any)=>axes.name == "Measure").fields[0])
+		}else{
+			if (screenFrom === "Dashboard") {
+				dashBoardGroup.groups.forEach((grp: string) => {
+					if (dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)) {
+						////Check this condition 1. group check if cont 2. propkey
+	
+						let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters, "reportFilters");
+	
+						if (rightFilterObj.filters.length > 0) {
+							formattedAxes.filterPanels.push(rightFilterObj);
+						}
+					}
+				});
+			} else {
+				//chartGroup
+				chartGroup.tabTile[propKey]?.forEach((grp: any) => {
+					let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters, "reportFilters");
+	
 					if (rightFilterObj.filters.length > 0) {
 						formattedAxes.filterPanels.push(rightFilterObj);
 					}
-				}
-			});
-		} else {
-			//chartGroup
-			chartGroup.tabTile[propKey]?.forEach((grp: any) => {
-				let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters);
-
-				if (rightFilterObj.filters.length > 0) {
-					formattedAxes.filterPanels.push(rightFilterObj);
-				}
-			});
-		}
+				});
+			}
+		}		
 
 		return formattedAxes;
 	}
 
-	let hasMeasureOverride = axesValues.find((axis:any)=>axis.name === "Measure")?.fields.filter((field:any)=>{ return field.override? true : false });
+	let allMeasureFields:any = axesValues.find((axis:any)=>axis.name === "Measure");
 
-	let hasNoMeasureOverride = axesValues.find((axis:any)=>axis.name === "Measure")?.fields.filter((field:any)=>{ return field.override? false : true });
+	[...allMeasureFields?.fields].forEach((field:any, idx:number) => {
+		field.measureOrder = idx + 1;
+	});
+
+	let hasMeasureOverride = allMeasureFields?.fields.filter((field:any)=>{ return field.override? true : false });
+
+	let hasNoMeasureOverride = allMeasureFields?.fields.filter((field:any)=>{ return field.override? false : true });
 
 	let formattedAxes:any = [];
 
@@ -738,11 +757,8 @@ const ChartData = ({
 
 
 						if(!findMeasureField){								
-								let _colValues = format.isLabel ? await getLabelValues(format.name,chartControls,chartProperties,_propKey, token) : "";
-
-								// if (fieldName(findField).isTextRenamed===true) {
-								// 	format.name  = findField.displayname; // Use displayname if renamed
-								// }
+							let _colValues = format.isLabel ? await getLabelValues(format.name,chartControls,chartProperties,_propKey, token) : "";
+							
 							format.value = _colValues;
 							format.name = fieldName(findField);							
 
@@ -1053,7 +1069,6 @@ const ChartData = ({
 		chartProp.chartAxes,
 		chartProp.chartType,
 		chartProp.filterRunState,
-		// isTextRenamed,
 
 		chartGroup.chartFilterGroupEdited,
 		dashBoardGroup.dashBoardGroupEdited,
@@ -1082,7 +1097,6 @@ const mapStateToProps = (
 		TileRibbonStateProps &
 		isLoggedProps &
 		ChartFilterGroupStateProps &
-		UpdateisTextRenamed&
 		DashBoardFilterGroupStateProps,
 
 	ownProps: any
@@ -1101,7 +1115,6 @@ const mapStateToProps = (
 		chartGroup: state.chartFilterGroup,
 		dashBoardGroup: state.dashBoardFilterGroup,
 		dynamicMeasureState: state.dynamicMeasuresState,
-		isTextRenamed:state.chartProperties.properties[_propKey].isTextRenamed
 	};
 };
 
@@ -1111,9 +1124,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		storeServerData:(propKey:string,serverData:any)=>
 			dispatch(storeServerData(propKey,serverData)),
 		updateChartData: (propKey: string, chartData: any) =>
-			dispatch(updateChartData(propKey, chartData)),
-		updateisTextRenamed: (propKey: string, isTextRenamed: boolean) =>
-			dispatch(updateisTextRenamed(propKey, isTextRenamed)),
+			dispatch(updateChartData(propKey, chartData)),		
 		toggleAxesEdit: (propKey: string) => dispatch(toggleAxesEdited(propKey, false)),
 		reUseOldData: (propKey: string) => dispatch(canReUseData(propKey, false)),
 		chartFilterGroupEdited: (isEdited: boolean) => dispatch(chartFilterGroupEdited(isEdited)),

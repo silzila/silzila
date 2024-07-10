@@ -2,11 +2,13 @@ package com.silzila.querybuilder.override;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.silzila.exception.BadRequestException;
@@ -135,11 +137,12 @@ public static String joinCTE(int tblNum, List<Dimension> commonDimensions, List<
 
 
 
-
-public static String windowQuery(String CTEQuery, String CTEmainQuery, List<Dimension> baseDimensions, HashMap<String, Measure> windowMeasure, Query baseQuery, String vendorName) throws BadRequestException {
+// to generate override query, while window function is there
+public static String windowQuery(String CTEQuery, String CTEmainQuery, List<Dimension> baseDimensions, HashMap<Integer, Measure> windowMeasure, List<String> aliasMeasureOrder,Query baseQuery, String vendorName) throws BadRequestException {
     StringBuilder finalQuery = new StringBuilder();
 
     try{
+    Integer baseDimensionSize = baseDimensions.size() -1 ;
     List<String> nonWnMeasure = new ArrayList<>();
     List<Measure> overrideMeasures = new ArrayList<>();
 
@@ -157,23 +160,33 @@ public static String windowQuery(String CTEQuery, String CTEmainQuery, List<Dime
     // separate aliasNumbering for measure and dimensions --> avoid fieldname collision
     for (Measure meas : baseQuery.getMeasures()) {
         // Generate alias for the measure
-        String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-        nonWnMeasure.add(alias);
-    }
+        Integer aliasNumber = meas.getMeasureOrder();
+        nonWnMeasure.add(aliasMeasureOrder.get((baseDimensionSize + aliasNumber)));
+    }   
 
 
     // Process window measures
-    for (HashMap.Entry<String, Measure> entry : windowMeasure.entrySet()) {
-        String key = entry.getKey();
+    for (HashMap.Entry<Integer, Measure> entry : windowMeasure.entrySet()) {
+
+        Integer key = entry.getKey();
         Measure value = entry.getValue();
         if (value.getWindowFn().length > 0 && value.getWindowFn()[0] != null) {
             // Set tableId and fieldName for window measures
             value.setTableId("wnCTE");
-            value.setFieldName(key);
+            value.setFieldName(aliasMeasureOrder.get((baseDimensionSize+key)));
+
+            // changed the datatype -> it already convert to specific timegrain in baseCTE
+            if (List.of("DATE", "TIMESTAMP","TEXT","BOOLEAN").contains(value.getDataType().name())) {
+                value.setDataType(com.silzila.payload.request.Measure.DataType.INTEGER);
+            }
+            //Count does not require aggregation of aggregation
+            if(List.of("COUNT", "COUNTU","COUNTN","COUNTNN").contains(value.getAggr().name())){
+                value.setAggr(com.silzila.payload.request.Measure.Aggr.SUM);
+            }
             overrideMeasures.add(value);
         }  else {
             // Add non-window measures to the list
-            nonWnMeasure.add(key);
+            nonWnMeasure.add(aliasMeasureOrder.get((baseDimensionSize + key)));
         }
     }
 
@@ -268,5 +281,76 @@ public static String generateOrderByClause(List<Dimension> baseDimensions, Strin
 
     return orderByClause.toString();
 }
+
+// reorder the alias array to send a value in sequence
+// array-> aliases
+// n -> size of dimensions
+// map -> whether the measure is override or not, check by measureOrder
+public static List<String> reorderArray(List<String> aliasArray, int n, Map<Integer, Boolean> overrideMap) {
+    if (aliasArray == null || overrideMap == null || n < 0 || n >= aliasArray.size() || overrideMap.size() != aliasArray.size() - n) {
+        throw new IllegalArgumentException("Invalid input parameters");
+    }
+
+    TreeMap<Integer, Boolean> sortedoverrideMap = new TreeMap<>(overrideMap);
+
+    // Extract values in the sorted order of keys
+    boolean[] result = new boolean[sortedoverrideMap.size()];
+    int index = 0;
+    for (Boolean value : sortedoverrideMap.values()) {
+        result[index++] = value;
+    }
+
+    List<String> resultList = new ArrayList<>();
+    List<String> pushToEndList = new ArrayList<>();
+
+    // Add the first n elements to the result list unchanged
+    for (int i = 0; i < n; i++) {
+        resultList.add(aliasArray.get(i));
+    }
+
+    // Process the remaining elements based on the pushToEnd array
+    for (int i = n; i < aliasArray.size(); i++) {
+        if (result[i - n]) {
+            pushToEndList.add(aliasArray.get(i));
+        } else {
+            resultList.add(aliasArray.get(i));
+        }
+    }
+
+    // Add the elements that need to be pushed to the end
+    resultList.addAll(pushToEndList);
+
+    return resultList;
+}
+
+
+// aliasing the measure order, it requires, while window function is there in override uery
+public static List<String> aliasingMeasureOrder(List<Query> queries) {
+    List<String> aliases = new ArrayList<>();
+
+    List<Measure> measures = new ArrayList<>();
+    Map<String, Integer> aliasNumbering = new HashMap<>();
+
+    // Extract and alias dimensions
+    for (Dimension dim : queries.get(0).getDimensions()) {
+        aliases.add(AilasMaker.aliasing(dim.getFieldName(), aliasNumbering));
+    }
+
+    // Extract all measures from the queries
+    for (Query query : queries) {
+        measures.addAll(query.getMeasures());
+    }
+
+    // Sort measures by their measureOrder field
+    measures.sort(Comparator.comparingInt(Measure::getMeasureOrder));
+
+    // Generate aliases for the sorted measures
+    for (Measure measure : measures) {
+        aliases.add(AilasMaker.aliasing(measure.getFieldName(), aliasNumbering));
+    }
+
+    return aliases;
+}
+
 
 }

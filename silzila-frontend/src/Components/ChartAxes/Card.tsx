@@ -28,6 +28,7 @@ import {
 import { SiWindows11 } from "react-icons/si";
 import { FaRocket } from "react-icons/fa";
 import { IoMdCheckmark } from "react-icons/io";
+import { MdOutlineSwipeUpAlt } from "react-icons/md";
 import Logger from "../../Logger";
 import { CardOption } from "./CardOption";
 import WindowFunction from "./CardComponents/WindowFuction";
@@ -137,11 +138,42 @@ const Card = ({
 	const deleteItem = () => {
 		if (chartType === "richText") {
 			deleteDropZoneItemsForDm(propKey, bIndex, itemIndex);
-		} else {
-			deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName);
+		} else {		
+			// let _charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
+
+			// if(_charAxesFields[itemIndex].rollupDepth){
+			// 	if(itemIndex === _charAxesFields?.length - 1){
+			// 		let _field = _charAxesFields[_charAxesFields?.length - 2];
+
+			// 		if(_field){
+			// 			let _tempField = JSON.parse(JSON.stringify(_field));
+	
+			// 			if(_tempField){
+			// 				_tempField.rollupDepth = true;
+			// 				updateQueryParam(propKey, bIndex, _charAxesFields?.length - 2, _tempField, currentChartAxesName);
+			// 			}	
+			// 		}
+			// 	}
+			// 	else{
+			// 		let _field = _charAxesFields[_charAxesFields?.length - 1];
+
+			// 		if(_field){
+			// 			let _tempField = JSON.parse(JSON.stringify(_field));
+	
+			// 			if(_tempField){
+			// 				_tempField.rollupDepth = true;
+			// 				updateQueryParam(propKey, bIndex, _charAxesFields?.length - 1, _tempField, currentChartAxesName);
+			// 			}	
+			// 		}
+			// 	}				
+			// }	
+
+			deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName);		
 		}
 		// chartPropUpdated(true);
 	};
+
+	
 
 	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
 	
@@ -175,14 +207,47 @@ const Card = ({
 	const open: boolean = Boolean(anchorEl);
 	// const on:boolean=Boolean(anchorElTooltip)
 
+	// useEffect(()=>{
+	// 	let _charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
+
+	// 	let rollupFieldIndex = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.findIndex((field:any)=>field.rollupDepth);
+
+	// 	if(uID){
+	// 		if(rollupFieldIndex > -1){
+	// 			let isManual = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.find((field:any)=>field.isManual);		
+	
+	// 			if(!isManual){
+	// 				updateField();
+	// 				console.log("no manual")
+	// 			}
+	// 		}
+	// 		else{
+	// 			updateField();
+	// 			console.log("no roll")
+	// 		}
+	// 	}
+		
+
+	// 	function updateField() {
+	// 		let _field = _charAxesFields[_charAxesFields?.length - 1];
+
+	// 		if (_field) {
+	// 			let _tempField = JSON.parse(JSON.stringify(_field));
+
+	// 			if (_tempField) {
+	// 				_tempField.rollupDepth = true;
+	// 				updateQueryParam(propKey, bIndex, _charAxesFields?.length - 1, _tempField, currentChartAxesName);
+	// 			}
+	// 		}
+	// 	}
+	// },[chartProp.properties[propKey][currentChartAxesName][bIndex].fields])
+
 	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);
 
 		setShowTooltip(false);
 
 	};
-
-	
 
 	const handleClose = (closeFrom: any, queryParam?: any) => {
 		setAnchorEl(null);
@@ -208,18 +273,27 @@ const Card = ({
     };
 
 
-	const handleOverrideOnClick = () =>{
-		setOverrideFn(true);
-
-		let oldChartAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes || []));
-		let overRideAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override || []));
-
-		createChartAxesForUID(propKey , chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].uId, 
-			chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override ? overRideAxes : oldChartAxes
-		);
-
-		enableOverrideForUIDAction(propKey , chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].uId);
-		handleClose("clickOutside");
+	const handleOverrideOnClick = (event:any, optionName:any) =>{
+		if(optionName.id == "override"){
+			setAnchorEl(null);
+			setOverrideFn(true);			
+	
+			let oldChartAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes || []));
+			let overRideAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override || []));
+	
+			createChartAxesForUID(propKey , chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].uId, 
+				chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override ? overRideAxes : oldChartAxes
+			);
+	
+			enableOverrideForUIDAction(propKey , chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].uId);
+			//handleClose("clickOutside");
+		}
+		else{
+			let field2 = JSON.parse(JSON.stringify(field));
+			setAnchorEl(null);
+			field2.disableReportFilterForOverride = !field2.disableReportFilterForOverride;
+			updateQueryParam(propKey, bIndex, itemIndex, field2, currentChartAxesName);
+		}		
 	}
 
 	const handleWindowFunctionOnClick = () =>{
@@ -228,6 +302,45 @@ const Card = ({
 		//}, 300);
 
 		handleClose("clickOutside");
+	}
+
+	const handleRollup = () =>{
+		let field2 = JSON.parse(JSON.stringify(field));
+		setAnchorEl(null);
+		field2.rollupDepth = !field2.rollupDepth;
+		field2.isManual = field2.rollupDepth;
+		updateQueryParam(propKey, bIndex, itemIndex, field2, currentChartAxesName);
+
+		let _charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
+
+		if(field2.rollupDepth){
+			for(let i = 0; i < _charAxesFields?.length; i++){
+				if(itemIndex !== i){
+					let _field = _charAxesFields[i];
+
+					if(_field){
+						let _tempField = JSON.parse(JSON.stringify(_field));
+	
+						if(_tempField){
+							_tempField.rollupDepth = false;
+							updateQueryParam(propKey, bIndex, i, _tempField, currentChartAxesName);
+						}	
+					}	
+				}									
+			}		
+		}
+		else{
+			let _field = _charAxesFields[_charAxesFields?.length - 1];
+
+			if(_field){
+				let _tempField = JSON.parse(JSON.stringify(_field));
+
+				if(_tempField){
+					_tempField.rollupDepth = true;
+					updateQueryParam(propKey, bIndex, _charAxesFields?.length - 1, _tempField, currentChartAxesName);
+				}	
+			}
+		}	
 	}
 
 	var menuStyle = { fontSize: "12px", padding: "2px 1.5rem"};
@@ -335,14 +448,15 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 		var aggr= [];
 		var timegrain= [];
 		var windowfn= [];
-		var renamefn=[];
+		//var renamefn=[];
+		let overRideMenuList = []
 		var options = CardOption(axisTitle, field);
 		if(options){
 			aggr = options[0];
 			timegrain = options[1];
 			windowfn = options[2];
-			renamefn=options[3]
-			
+			//renamefn=options[3]
+			overRideMenuList = options[3];
 		}
 		
         return (
@@ -360,14 +474,14 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 						return (
 							<div style={{display: "flex"}} key={idx}>
 								<span style={{color: "rgb(211, 211, 211)", paddingLeft: "5px", position:"absolute"}}>
-									{chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.agg?.toUpperCase() ===  opt.name?.toUpperCase() ? <IoMdCheckmark /> : null}
+									{chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.agg?.toUpperCase() ===  opt?.name?.toUpperCase() ? <IoMdCheckmark /> : null}
 								</span> 
 								<MenuItem
 									onClick={() => handleClose("agg", opt.id)}
-									sx={opt.id === field.agg ? menuSelectedStyle : menuStyle}
-									key={opt.id}
+									sx={opt?.id === field?.agg ? menuSelectedStyle : menuStyle}
+									key={opt?.id}
 								>
-									{opt.name}
+									{opt?.name}
 								</MenuItem>
 							</div>
 						);
@@ -461,18 +575,18 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 				chartType === "simplecard" 
 				? null 
 				:
-				windowfn?.length > 0
+				overRideMenuList?.length > 0
 					?
-					[...windowfn.filter((item:any)=> item.id === "override" )]?.map((opt: any, idx:number) => {
+					[...overRideMenuList].map((opt: any, idx:number) => {
 						
 						return (
 							<div style={{display: "flex"}} key={idx}>
 							<span style={{color: "rgb(211, 211, 211)", paddingLeft: "5px", position:"absolute"}}>
-								{chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override ? <IoMdCheckmark /> : null}
+								{ (opt.id=="override" && field.override) || (opt.id=="disableFilter" && field.disableReportFilterForOverride) ? <IoMdCheckmark /> : null}
 							</span> 
 							<MenuItem
-							disabled= {windowFunctionDisable}
-							onClick={handleOverrideOnClick}
+							disabled= {(opt.id == "disableFilter" && !field.override)}
+							onClick={(e:any)=>handleOverrideOnClick(e, opt)}
 								sx={{ fontSize: "12px", padding: "2px 1.5rem"}}
 								key={opt.id}
 							>
@@ -488,6 +602,19 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 			<MenuItem onClick={() => { handleClose("rename"); setRenameFunction(true); setShowTooltip(false)}} sx={menuStyle} >
 				Rename for Visual
 			</MenuItem>:null }
+
+
+			{ uID ?
+				<div style={{display: "flex"}}>
+					<span style={{color: "rgb(211, 211, 211)", paddingLeft: "5px", position:"absolute"}}>
+						{ field.rollupDepth ? <IoMdCheckmark /> : null}
+					</span> 
+					<MenuItem onClick={handleRollup} sx={menuStyle} >
+						Roll-Up
+					</MenuItem>
+				</div>
+				:null 
+			}			
 
 		</Menu> 
 		
@@ -550,18 +677,30 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 				<span style={{display: "flex", alignItems: "center", paddingRight: "5px", color: "rgb(211, 211, 211)"}}><SiWindows11/></span> </button>
 			    : null
 			}   
-				{				
+			{				
 			    chartType === "simplecard" ? null :
 				chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.override? 
 				<button
 				type="button"
 				className="buttonCommon columnDown"
 				title="Override Function"				
-				onClick={handleOverrideOnClick}
+				onClick={(e:any)=>handleOverrideOnClick(e, {id : "override"})}
 				>
 				<span style={{display: "flex", alignItems: "center", paddingRight: "5px", color: "rgb(211, 211, 211)"}}><FaRocket/></span> </button>
 			    : null
 			}   
+			{				
+			    chartType === "simplecard" ? null :
+				chartProp.properties[propKey][currentChartAxesName][bIndex].fields[itemIndex]?.rollupDepth? 
+				<button
+				type="button"
+				className="buttonCommon columnDown"
+				title="Roll-Up"								
+				>
+				<span style={{display: "flex", alignItems: "center", paddingRight: "5px", color: "rgb(211, 211, 211)"}}><MdOutlineSwipeUpAlt style={{height:"1rem", width:"1rem"}}/></span> </button>
+			    : null
+			}   
+			
 
 			<span className="columnPrefix">
 				{field.agg ? AggregatorKeys[field.agg] : null}
@@ -604,6 +743,7 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
         propKey= {propKey}
         bIndex= {bIndex}
         itemIndex= {itemIndex}
+		uID={uID}
         /> 
 			
 
@@ -704,7 +844,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		revertAxesForDm: (propKey: string, bIndex: number, uId: string, originalIndex: number) =>
 			dispatch(revertAxesForDm(propKey, bIndex, uId, originalIndex)),
 		enableOverrideForUIDAction: (propKey: string, uId: string) =>
-			dispatch(enableOverrideForUIDAction(propKey, uId)),
+			dispatch(enableOverrideForUIDAction(propKey, uId)),	
 		createChartAxesForUID: (propKey: string, uId: string, chartAxes:any) =>
 			dispatch(createChartAxesForUID(propKey, uId, chartAxes)),
 
