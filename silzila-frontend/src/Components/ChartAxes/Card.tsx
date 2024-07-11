@@ -743,6 +743,7 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
         propKey= {propKey}
         bIndex= {bIndex}
         itemIndex= {itemIndex}
+		uID={uID}
         /> 
 			
 

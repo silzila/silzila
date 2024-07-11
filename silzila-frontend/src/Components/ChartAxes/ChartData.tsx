@@ -10,10 +10,10 @@ import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover"
 import { Dispatch } from "redux";
 import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
 import{storeServerData}from "../../redux/ChartPoperties/ChartControlsActions";
-import { canReUseData, toggleAxesEdited,updateisTextRenamed } from "../../redux/ChartPoperties/ChartPropertiesActions";
+import { canReUseData, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import FetchData from "../ServerCall/FetchData";
 import { AxesValuProps, ChartAxesFormattedAxes, ChartAxesProps } from "./ChartAxesInterfaces";
-import { ChartPropertiesStateProps,UpdateisTextRenamed} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { ChartPropertiesStateProps} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { chartFilterGroupEdited } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
@@ -757,11 +757,8 @@ const ChartData = ({
 
 
 						if(!findMeasureField){								
-								let _colValues = format.isLabel ? await getLabelValues(format.name,chartControls,chartProperties,_propKey, token) : "";
-
-								// if (fieldName(findField).isTextRenamed===true) {
-								// 	format.name  = findField.displayname; // Use displayname if renamed
-								// }
+							let _colValues = format.isLabel ? await getLabelValues(format.name,chartControls,chartProperties,_propKey, token) : "";
+							
 							format.value = _colValues;
 							format.name = fieldName(findField);							
 
@@ -1072,7 +1069,6 @@ const ChartData = ({
 		chartProp.chartAxes,
 		chartProp.chartType,
 		chartProp.filterRunState,
-		// isTextRenamed,
 
 		chartGroup.chartFilterGroupEdited,
 		dashBoardGroup.dashBoardGroupEdited,
@@ -1101,7 +1097,6 @@ const mapStateToProps = (
 		TileRibbonStateProps &
 		isLoggedProps &
 		ChartFilterGroupStateProps &
-		UpdateisTextRenamed&
 		DashBoardFilterGroupStateProps,
 
 	ownProps: any
@@ -1120,7 +1115,6 @@ const mapStateToProps = (
 		chartGroup: state.chartFilterGroup,
 		dashBoardGroup: state.dashBoardFilterGroup,
 		dynamicMeasureState: state.dynamicMeasuresState,
-		isTextRenamed:state.chartProperties.properties[_propKey].isTextRenamed
 	};
 };
 
@@ -1130,9 +1124,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 		storeServerData:(propKey:string,serverData:any)=>
 			dispatch(storeServerData(propKey,serverData)),
 		updateChartData: (propKey: string, chartData: any) =>
-			dispatch(updateChartData(propKey, chartData)),
-		updateisTextRenamed: (propKey: string, isTextRenamed: boolean) =>
-			dispatch(updateisTextRenamed(propKey, isTextRenamed)),
+			dispatch(updateChartData(propKey, chartData)),		
 		toggleAxesEdit: (propKey: string) => dispatch(toggleAxesEdited(propKey, false)),
 		reUseOldData: (propKey: string) => dispatch(canReUseData(propKey, false)),
 		chartFilterGroupEdited: (isEdited: boolean) => dispatch(chartFilterGroupEdited(isEdited)),
