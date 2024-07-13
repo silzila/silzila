@@ -19,7 +19,7 @@ public class SelectClauseSqlserver {
 
     private static final Logger logger = LogManager.getLogger(SelectClauseSqlserver.class);
 
-    /* SELECT clause for MySQL dialect */
+    /* SELECT clause for SqlServer dialect */
     public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, Map<String,Integer>... aliasnumber) throws BadRequestException {
         logger.info("SelectClauseSqlserver calling ***********");
 

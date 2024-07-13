@@ -6,12 +6,18 @@ import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
 import com.silzila.payload.request.Query;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
-public class SelectClauseDB2 {
-    /* SELECT clause for DB2 dialect */
+public class SelectClauseTeraData {
+
+    private static final Logger logger = LogManager.getLogger(SelectClauseSqlserver.class);
+
+    /* SELECT clause for SqlServer dialect */
     public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, Map<String,Integer>... aliasnumber) throws BadRequestException {
+        logger.info("SelectClauseTeraData calling ***********");
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
         // aliasing for only measure  override
@@ -28,8 +34,9 @@ public class SelectClauseDB2 {
         List<String> groupByDimList = new ArrayList<>();
         List<String> orderByDimList = new ArrayList<>();
 
-        Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "QUARTER", "QUARTER",
-                "MONTH", "MONTH", "DAYOFWEEK", "DOW", "DAYOFMONTH", "DAY");
+
+        Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "MONTH", "MONTH", "QUARTER", "QUARTER",
+                "DAYOFWEEK", "WEEKDAY", "DAYOFMONTH", "DAY");
 
         /*
          * --------------------------------------------------------
@@ -67,21 +74,18 @@ public class SelectClauseDB2 {
             }
             // for date fields, need to Parse as year, month, etc.. to aggreate
             else if (List.of("DATE", "TIMESTAMP").contains(dim.getDataType().name())) {
-                // if time grain is null then assign default value 'year'
-                // if (dim.getTimeGrain() == null || dim.getTimeGrain().isBlank()) {
-                // dim.setTimeGrain("year");
-                // }
+
                 // checking ('year', 'quarter', 'month', 'yearmonth', 'yearquarter',
                 // 'dayofweek', 'date', 'dayofmonth')
                 // year -> 2015
                 if (dim.getTimeGrain().name().equals("YEAR")) {
-                    field = "EXTRACT(YEAR FROM " + dim.getTableId() + "." + dim.getFieldName() + ")::INTEGER";
+                    field = "YEAR(" + dim.getTableId() + "." + dim.getFieldName() + ")";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // quarter name -> Q3
                 else if (dim.getTimeGrain().name().equals("QUARTER")) {
-                    field = "'Q' || EXTRACT(QUARTER FROM " + dim.getTableId() + "." + dim.getFieldName() + ")";
+                    field = "CONCAT('Q', LTRIM(TD_QUARTER_OF_YEAR( " + dim.getTableId() + "." + dim.getFieldName() + ")))";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
@@ -89,29 +93,42 @@ public class SelectClauseDB2 {
                 // for month, need to give month number also for column sorting
                 // which should be available in group by list but not in select list
                 else if (dim.getTimeGrain().name().equals("MONTH")) {
-                    String sortingFfield = "EXTRACT(MONTH FROM " + dim.getTableId() + "." + dim.getFieldName()
-                            + ")::INTEGER";
-                    field = "TRIM(TO_CHAR( " + dim.getTableId() + "." + dim.getFieldName() + ", 'Month'))";
-                    groupByDimList.add(sortingFfield);
+                    String sortingField = "MONTH(" + dim.getTableId() + "." + dim.getFieldName() + ")";
+                    field = "case " +sortingField+"\n"+
+                            "    when '01' then 'January'\n" +
+                            "    when '02' then 'February'\n" +
+                            "    when '03' then 'March'\n" +
+                            "    when '04' then 'April'\n" +
+                            "    when '05' then 'May'\n" +
+                            "    when '06' then 'June'\n" +
+                            "    when '07' then 'July'\n" +
+                            "    when '08' then 'August'\n" +
+                            "    when '09' then 'September'\n" +
+                            "    when '10' then 'October'\n" +
+                            "    when '11' then 'November'\n" +
+                            "    when '12' then 'December'\n" +
+                            "    else ''\n" +
+                            "    end";
+                    groupByDimList.add(sortingField);
                     groupByDimList.add(field);
-                    orderByDimList.add(sortingFfield);
+                    orderByDimList.add(sortingField);
                 }
                 // yearquarter name -> 2015-Q3
                 else if (dim.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "TO_CHAR(YEAR(" + dim.getTableId() + "." + dim.getFieldName()
-                            + ")) || '-Q' || TO_CHAR(QUARTER(" + dim.getTableId() + "." + dim.getFieldName() + "))";
+                    field = "CONCAT(LTRIM(YEAR(" + dim.getTableId() + "." + dim.getFieldName()
+                            + ")), '-Q', LTRIM(TD_QUARTER_OF_YEAR( " + dim.getTableId() + "." + dim.getFieldName() + ")))";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // yearmonth name -> 2015-08
                 else if (dim.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "TO_CHAR(YEAR(" + dim.getTableId() + "." + dim.getFieldName()+")) || '-' || LPAD(TO_CHAR(MONTH(" + dim.getTableId() + "." + dim.getFieldName() + ")),2,0)";
+                    field = "CONCAT(LTRIM(YEAR("+ dim.getTableId() + "." + dim.getFieldName() +")),'-',LTRIM(MONTH("+ dim.getTableId() + "." + dim.getFieldName() +")(format '99')))";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // date -> 2022-08-31
                 else if (dim.getTimeGrain().name().equals("DATE")) {
-                    field = "DATE(" + dim.getTableId() + "." + dim.getFieldName() + ")";
+                    field = "(" + dim.getTableId() + "." + dim.getFieldName() + ")";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
@@ -119,17 +136,23 @@ public class SelectClauseDB2 {
                 // for day of week, also give day of week number for column sorting
                 // which should be available in group by list but not in select list
                 else if (dim.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    String sortingFfield = "EXTRACT(DOW FROM " + dim.getTableId() + "." + dim.getFieldName()
-                            + ")::INTEGER ";
-                    field = "TRIM(TO_CHAR( " + dim.getTableId() + "." + dim.getFieldName() + ", 'Day'))";
-                    groupByDimList.add(sortingFfield);
+                    String sortingField = "TD_DAY_OF_WEEK(" + dim.getTableId() + "." + dim.getFieldName() + ")";
+                    field = " case  "+sortingField+"\n" +
+                            "\t\twhen 1 then 'Sunday'\n" +
+                            "\t\twhen 2 then 'Monday'\n" +
+                            "\t\twhen 3 then 'Tuesday'\n" +
+                            "\t\twhen 4 then 'Wednesday'\n" +
+                            "\t\twhen 5 then 'Thursday'\n" +
+                            "\t\twhen 6 then 'Friday'\n" +
+                            "\t\twhen 7 then 'Saturday'\n" +
+                            "\t\tend";
+                    groupByDimList.add(sortingField);
                     groupByDimList.add(field);
-                    orderByDimList.add(sortingFfield);
+                    orderByDimList.add(sortingField);
                 }
                 // day of month -> 31
                 else if (dim.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    field = "EXTRACT(DAY FROM " + dim.getTableId() + "." + dim.getFieldName()
-                            + ")::INTEGER";
+                    field = "MONTH(" + dim.getTableId() + "." + dim.getFieldName() + ")";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 } else {
@@ -189,55 +212,75 @@ public class SelectClauseDB2 {
                 }
 
                 List<String> aggrList = List.of("MIN", "MAX");
-                List<String> timeGrainList = List.of("YEAR", "QUARTER", "MONTH", "DAYOFMONTH");
+                List<String> timeGrainList = List.of("YEAR", "QUARTER", "MONTH", "DATE", "DAYOFMONTH", "DAYOFWEEK");
                 // checking Aggregations: ('min', 'max', 'count', 'countnn', 'countn', 'countu')
                 // checking Time Grains: ('year', 'quarter', 'month', 'yearmonth',
                 // 'yearquarter', 'dayofmonth')
 
                 if (aggrList.contains(meas.getAggr().name()) && timeGrainList.contains(meas.getTimeGrain().name())) {
-                    field = meas.getAggr().name() + "(EXTRACT("
-                            + timeGrainMap.get(meas.getTimeGrain().name())
-                            + " FROM " + meas.getTableId() + "." + meas.getFieldName() + ")::INTEGER)";
-                }
-                // checking ('date')
-                else if (aggrList.contains(meas.getAggr().name()) && meas.getTimeGrain().name().equals("DATE")) {
-                    field = meas.getAggr().name() + "(DATE(" + meas.getTableId() + "."
-                            + meas.getFieldName() + "))";
-                }
-                // checking ('dayofweek')
-                // In postgres, dayofweek starts at 0 not 1, so need to add 1 to the function
-                else if (aggrList.contains(meas.getAggr().name()) && meas.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    field = meas.getAggr().name() + "(EXTRACT("
-                            + timeGrainMap.get(meas.getTimeGrain().name())
-                            + " FROM " + meas.getTableId() + "." + meas.getFieldName() + ")::INTEGER) +1";
+
+                    //checking for ('date','quarter,year, month,dayofmonth and dayofweek)
+                    if (meas.getTimeGrain().name().equals("DATE")) {
+                        field = meas.getAggr().name() + " (CAST( " + meas.getTableId() + "."
+                                + meas.getFieldName() + ") AS DATE)";
+                    } else if((meas.getTimeGrain().name().equals("QUARTER"))){
+                        field = meas.getAggr().name() + " CAST(TD_QUARTER_OF_YEAR(" + meas.getTableId()
+                                + "." + meas.getFieldName() + ") AS INT)";
+                    }else if((meas.getTimeGrain().name().equals("YEAR"))){
+                        field = meas.getAggr().name() + " CAST(Extract(" + timeGrainMap.get(meas.getTimeGrain().name())
+                                + " FROM " + meas.getTableId()
+                                + "." + meas.getFieldName() + ") AS INT)";
+                    }else if((meas.getTimeGrain().name().equals("MONTH"))){
+                        field = meas.getAggr().name() + " CAST(Extract(" + timeGrainMap.get(meas.getTimeGrain().name())
+                                + " FROM " + meas.getTableId()
+                                + "." + meas.getFieldName() + ") AS INT)";
+                    }
+                    else if((meas.getTimeGrain().name().equals("DAYOFMONTH"))){
+                        field = meas.getAggr().name() + "CAST(TD_DAY_OF_MONTH (" + meas.getTableId()
+                                + "." + meas.getFieldName() + ") AS INT)";
+                    }else if((meas.getTimeGrain().name().equals("DAYOFWEEK"))){
+                        field = meas.getAggr().name() + "CAST(TD_DAY_OF_WEEK (" + meas.getTableId()
+                                + "." + meas.getFieldName() + ") AS INT)";
+                    }
                 }
 
                 /*
                  * countu is a special case & we can use time grain for this measure
                  */
-                else if (meas.getAggr().name().equals("COUNTU") && timeGrainList.contains(meas.getTimeGrain().name())) {
-                    field = "COUNT(DISTINCT(EXTRACT(" + timeGrainMap.get(meas.getTimeGrain().name())
-                            + " FROM " + meas.getTableId() + "." + meas.getFieldName() + ")::INTEGER))";
+                // checking ('year', 'month')
+                else if (meas.getAggr().name().equals("COUNTU")
+                        && List.of("YEAR", "MONTH")
+                        .contains(meas.getTimeGrain().name())) {
+                    field = "COUNT(DISTINCT EXTRACT(" + timeGrainMap.get(meas.getTimeGrain().name())
+                            + " FROM " + meas.getTableId() + "." + meas.getFieldName() + "))";
                 }
                 // checking ('date')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("DATE")) {
-                    field = "COUNT(DISTINCT(DATE(" + meas.getTableId() + "." + meas.getFieldName() + ")))";
+                    field = "COUNT(DISTINCT CAST( " + meas.getTableId() + "." + meas.getFieldName() + " AS DATE))";
                 }
-                // checking ('dayofweek')
-                else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    field = "COUNT(DISTINCT(EXTRACT(" + timeGrainMap.get(meas.getTimeGrain().name())
-                            + " FROM " + meas.getTableId() + "." + meas.getFieldName() + ")::INTEGER) +1)";
-                }
-
                 // checking ('yearquarter')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "COUNT(DISTINCT(CONCAT(TO_CHAR(" + meas.getTableId() + "." + meas.getFieldName()
-                            + ", 'YYYY'), '-Q', TO_CHAR(" + meas.getTableId() + "." + meas.getFieldName() + ", 'Q'))))";
+                    field = "COUNT(DISTINCT(CONCAT(LTRIM(YEAR(" + meas.getTableId() + "." + meas.getFieldName()
+                            + ")), '-Q', LTRIM(TD_QUARTER_OF_YEAR( " + meas.getTableId() + "." + meas.getFieldName() + "))))";
                 }
                 // checking ('yearmonth')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "COUNT(DISTINCT(TO_CHAR(" + meas.getTableId() + "." + meas.getFieldName()
-                            + ", 'YYYY-MM')))";
+                    field = "COUNT(DISTINCT(CONCAT(LTRIM(YEAR("+ meas.getTableId() + "." + meas.getFieldName() +")),'-',LTRIM(MONTH("+ meas.getTableId() + "." + meas.getFieldName() +")(format '99'))))";
+                }
+                // checking ('quarter')
+                else if(meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("QUARTER")){
+                    field= "COUNT(DISTINCT CAST(TD_QUARTER_OF_YEAR(" + meas.getTableId()
+                            + "." + meas.getFieldName() + ") AS INT)";
+                }
+                // checking ('dayofweek')
+                else if(meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("DAYOFWEEK")){
+                    field= "COUNT(DISTINCT CAST(TD_DAY_OF_WEEK (" + meas.getTableId()
+                            + "." + meas.getFieldName() + ") AS INT)";
+                }
+                // checking ('dayofmonth')
+                else if(meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("DAYOFMONTH")){
+                    field= "COUNT(DISTINCT CAST(TD_DAY_OF_MONTH (" + meas.getTableId()
+                            + "." + meas.getFieldName() + ") AS INT)";
                 }
 
                 /*
@@ -255,11 +298,12 @@ public class SelectClauseDB2 {
                             " should have timegrain!");
                 }
             }
+
             // for number fields, do aggregation
             else if (List.of("INTEGER", "DECIMAL").contains(meas.getDataType().name())) {
-                List<String> aggrList = List.of("SUM", "AVG", "MIN", "MAX");
-                if (aggrList.contains(meas.getAggr().name())) {
-                    field = meas.getAggr().name() + "(" + meas.getTableId() + "." + meas.getFieldName() + ")";
+                if (List.of("SUM", "AVG", "MIN", "MAX").contains(meas.getAggr().name())) {
+                    field = meas.getAggr().name() + "(" + meas.getTableId() + "." + meas.getFieldName()
+                            + ")";
                 } else if (meas.getAggr().name().equals("COUNT")) {
                     field = "COUNT(*)";
                 } else if (meas.getAggr().name().equals("COUNTNN")) {
@@ -274,7 +318,7 @@ public class SelectClauseDB2 {
                             "Error: Aggregation is not correct for Numeric field " + meas.getFieldName());
                 }
             }
-            // if windowFn not null it will execute window function for postgresql
+            // if windowFn not null it will execute window function for sqlserver
             if(meas.getWindowFn()[0] != null){
                 windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName);
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
@@ -284,7 +328,7 @@ public class SelectClauseDB2 {
                 }
                 // selectMeasureList.add(field + " AS " + alias);
                 selectMeasureList.add(windowFn + " AS " + alias);
-            } else {
+            } else{
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
                 // if aliasnumber is not null, to maintain alias sequence for measure field
                 if(aliasnumber != null && aliasnumber.length > 0){

@@ -20,7 +20,7 @@ import com.silzila.payload.request.Query;
 public class SelectClauseOracle {
     private static final Logger logger = LogManager.getLogger(SelectClauseOracle.class);
 
-    /* SELECT clause for MySQL dialect */
+    /* SELECT clause for OracleSQL dialect */
     public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, Map<String,Integer>... aliasnumber) throws BadRequestException {
         logger.info("SelectClauseOracle calling ***********");
         
@@ -144,7 +144,7 @@ public class SelectClauseOracle {
                 }
             }
             String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
-            selectDimList.add(field + " AS " + alias);
+            selectDimList.add(field + " " + alias);
         }
         ;
 
@@ -277,7 +277,7 @@ public class SelectClauseOracle {
                 if(aliasnumber != null && aliasnumber.length > 0){
                     alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
                 }
-            selectMeasureList.add(field + " AS " + alias);
+            selectMeasureList.add(field + " " + alias);
             }
         }
         ;

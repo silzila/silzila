@@ -32,6 +32,8 @@ export interface ConnectionItem {
 	username: string;
 	connectionName: string;
 	httpPath: string;
+	keystore: File|null;
+	truststore: File|null;
 }
 
 export interface DataSetStateProps {
