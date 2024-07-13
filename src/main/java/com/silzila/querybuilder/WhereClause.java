@@ -181,6 +181,8 @@ public class WhereClause {
                         where = WhereClauseDateMotherduck.buildWhereClauseDate(filter);
                     }else if (vendorName.equals("db2")) {
                         where = WhereClauseDateDB2.buildWhereClauseDate(filter);
+                    }else if (vendorName.equals("teradata")) {
+                        where = WhereClauseDateTeraData.buildWhereClauseDate(filter);
                     }
                 }
 

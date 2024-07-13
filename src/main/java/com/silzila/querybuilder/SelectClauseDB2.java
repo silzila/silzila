@@ -81,8 +81,7 @@ public class SelectClauseDB2 {
                 }
                 // quarter name -> Q3
                 else if (dim.getTimeGrain().name().equals("QUARTER")) {
-                    field = "CONCAT('Q', EXTRACT(QUARTER FROM " + dim.getTableId() + "." + dim.getFieldName()
-                            + ")::INTEGER)";
+                    field = "'Q' || EXTRACT(QUARTER FROM " + dim.getTableId() + "." + dim.getFieldName() + ")";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
@@ -99,14 +98,14 @@ public class SelectClauseDB2 {
                 }
                 // yearquarter name -> 2015-Q3
                 else if (dim.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "CONCAT(TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName()
-                            + ", 'YYYY'), '-Q', TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'Q'))";
+                    field = "TO_CHAR(YEAR(" + dim.getTableId() + "." + dim.getFieldName()
+                            + ")) || '-Q' || TO_CHAR(QUARTER(" + dim.getTableId() + "." + dim.getFieldName() + "))";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // yearmonth name -> 2015-08
                 else if (dim.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'YYYY-MM')";
+                    field = "TO_CHAR(YEAR(" + dim.getTableId() + "." + dim.getFieldName()+")) || '-' || LPAD(TO_CHAR(MONTH(" + dim.getTableId() + "." + dim.getFieldName() + ")),2,0)";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
@@ -121,7 +120,7 @@ public class SelectClauseDB2 {
                 // which should be available in group by list but not in select list
                 else if (dim.getTimeGrain().name().equals("DAYOFWEEK")) {
                     String sortingFfield = "EXTRACT(DOW FROM " + dim.getTableId() + "." + dim.getFieldName()
-                            + ")::INTEGER +1";
+                            + ")::INTEGER ";
                     field = "TRIM(TO_CHAR( " + dim.getTableId() + "." + dim.getFieldName() + ", 'Day'))";
                     groupByDimList.add(sortingFfield);
                     groupByDimList.add(field);

@@ -97,7 +97,7 @@ public class WhereClauseDatePostgres {
             // in that case give error
             if (!List.of("YEAR", "MONTH", "QUARTER", "DATE", "DAYOFMONTH", "DAYOFWEEK")
                     .contains(filter.getTimeGrain().name())) {
-                throw new BadRequestException("Error: Time grain is not correct for Comparsion Operator in the field "
+                throw new BadRequestException("Error: Time grain is not correct for Comparison Operator in the field "
                         + filter.getFieldName() + " in Filter!");
             }
             // Allowable Time Grins

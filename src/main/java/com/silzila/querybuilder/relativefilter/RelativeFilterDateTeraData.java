@@ -59,40 +59,30 @@ public class RelativeFilterDateTeraData {
                         break;
                     case "rollingWeek":
                         fromNum = fromNum + 1;
-                        fromDate = "DATEADD(DAY, 1, DATEADD(WEEK, -" + fromNum + ", CONVERT(DATE, '" + anchorDate
-                                + "', 23)))";
+                        fromDate = "CAST((DATE '"+anchorDate+"')-(7*"+fromNum+")+1 AS DATE)";
                         break;
                     case "rollingMonth":
                         fromNum = fromNum + 1;
-                        fromDate = "DATEADD(DAY, 1, DATEADD(MONTH, -" + fromNum + ", CONVERT(DATE, '" + anchorDate
-                                + "', 23)))";
+                        fromDate = "CAST(CAST((DATE '"+anchorDate+"')+ 1 AS DATE) - INTERVAL '"+fromNum+"' MONTH AS DATE)";
                         break;
                     case "rollingYear":
                         fromNum = fromNum + 1;
-                        fromDate = "DATEADD(DAY, 1, DATEADD(YEAR, -" + fromNum + ", CONVERT(DATE, '" + anchorDate
-                                + "', 23)))";
+                        fromDate = "CAST(CAST((DATE '"+anchorDate+"')+ 1 AS DATE) - INTERVAL '"+fromNum+"' YEAR AS DATE)";
                         break;
                     case "weekSunSat":
-                        fromNum = (fromNum * 7) - 1;
-                        fromDate = "DATEADD(DAY, -((DATEPART(DW, '" + anchorDate + "') + " + fromNum
-                                + ")), CONVERT(DATE, '" + anchorDate + "', 23))";
+                        fromDate = "CAST((DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 1 + 7 *"+fromNum+") AS DATE)";
                         break;
                     case "weekMonSun":
-                        fromNum = (fromNum * 7 - 2);
-                        fromDate = "CASE WHEN DATEPART(WEEKDAY, '" + anchorDate + "') = 1 THEN " +
-                                "DATEADD(DAY, -(DATEPART(WEEKDAY, '" + anchorDate + "') + " + fromNum + " + 7), '"
-                                + anchorDate + "') " +
-                                "ELSE " +
-                                "DATEADD(DAY, -(DATEPART(WEEKDAY, '" + anchorDate + "') + " + fromNum + "), '"
-                                + anchorDate + "') " +
-                                "END";
+                        fromDate = "CAST(CASE\n"+
+                                "WHEN TD_DAY_OF_WEEK(DATE '"+anchorDate+"') = 1 THEN (DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 2 + 7 *"+(fromNum+1)+")\n"+
+                                "ELSE (DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 2 + 7 *"+fromNum+")\n"+
+                                "END AS DATE)";
                         break;
                     case "month":
                         fromDate = "CAST(((ADD_MONTHS(DATE '"+anchorDate+"', -"+fromNum+")/100)*100+1) AS DATE)";
                         break;
                     case "year":
-                        fromDate = "TRUNC(YEAR, DATEADD(YEAR, -" + fromNum
-                                + ", CONVERT(DATE, '" + anchorDate + "', 23))) ";
+                        fromDate = "CAST(trim(EXTRACT(YEAR FROM DATE '"+anchorDate+"')-"+fromNum+") || '-01-01' AS DATE)";
                         break;
                     default:
                         break;
@@ -106,27 +96,23 @@ public class RelativeFilterDateTeraData {
                         fromDate = "CAST((DATE '"+anchorDate+"')-"+fromNum+" AS DATE)" ;
                         break;
                     case "rollingWeek":
-                        fromNum = 1;
-                        fromDate = "DATEADD(DAY, 1, DATEADD(WEEK, -" + fromNum + ", '" + anchorDate + "'))";
+                        fromDate = "CAST((DATE '"+anchorDate+"')-(7*"+fromNum+")+1 AS DATE)";
                         break;
                     case "rollingMonth":
                         fromNum = 1;
-                        fromDate = "DATEADD(DAY, 1, DATEADD(MONTH, -" + fromNum + ", '" + anchorDate + "'))";
+                        fromDate = "CAST(CAST((DATE '"+anchorDate+"')+ 1 AS DATE) - INTERVAL '"+fromNum+"' MONTH AS DATE)";
                         break;
                     case "rollingYear":
-                        fromNum = 1;
-                        fromDate = "DATEADD(DAY, 1, DATEADD(YEAR, -" + fromNum + ", '" + anchorDate + "'))";
+                        fromDate = "CAST(CAST((DATE '"+anchorDate+"')+ 1 AS DATE) - INTERVAL '"+fromNum+"' YEAR AS DATE)";
                         break;
                     case "weekSunSat":
-                        fromDate = "DATEADD(DAY, -(DATEPART(DW, '" + anchorDate + "') - 1), '" + anchorDate + "')";
+                        fromDate = "CAST((DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 1 + 7 *"+(fromNum-1)+") AS DATE)";
                         break;
                     case "weekMonSun":
-                        fromDate = "CASE " +
-                                "WHEN DATEPART(DW, '" + anchorDate + "') = 1 THEN DATEADD(DAY, -6, '" + anchorDate
-                                + "') " +
-                                "ELSE DATEADD(DAY, - (DATEPART(DW, '" + anchorDate + "') - 2), '" + anchorDate
-                                + "') " +
-                                "END";
+                        fromDate = "CAST(CASE\n"+
+                                "WHEN TD_DAY_OF_WEEK(DATE '"+anchorDate+"') = 1 THEN (DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 2 + 7 *"+fromNum+")\n"+
+                                "ELSE (DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 2 + 7 *"+(fromNum-1)+")\n"+
+                                "END AS DATE)";
                         break;
                     case "month":
                         fromNum = 0;
@@ -134,8 +120,7 @@ public class RelativeFilterDateTeraData {
                         break;
                     case "year":
                         fromNum = 0;
-                        fromDate = "TRUNC(YEAR, DATEADD(YEAR, -" + fromNum
-                                + ", CONVERT(DATE, '" + anchorDate + "', 23))) ";
+                        fromDate = "CAST(trim(EXTRACT(YEAR FROM DATE '"+anchorDate+"')-"+fromNum+") || '-01-01' AS DATE)";
                         break;
                     default:
                         break;
@@ -147,30 +132,23 @@ public class RelativeFilterDateTeraData {
                         fromDate = "CAST((DATE '"+anchorDate+"')+"+fromNum+" AS DATE)";
                         break;
                     case "rollingWeek":
-                        fromNum = fromNum - 1;
-                        fromDate = "DATEADD(DAY, 1, DATEADD(WEEK, " + fromNum + ", '" + anchorDate + "'))";
+                        fromDate = "CAST((DATE '" + anchorDate + "')+1 AS DATE)";
                         break;
                     case "rollingMonth":
-                        fromNum = fromNum - 1;
-                        fromDate = "DATEADD(DAY, 1, DATEADD(MONTH, " + fromNum + ", '" + anchorDate + "'))";
+                        fromDate = "CAST((DATE '" + anchorDate + "')+1 AS DATE)";
                         break;
                     case "rollingYear":
-                        fromNum = fromNum - 1;
-                        fromDate = "DATEADD(DAY, 1, DATEADD(YEAR, " + fromNum + ", '" + anchorDate + "'))";
+                        fromDate = "CAST((DATE '" + anchorDate + "')+1 AS DATE)";
                         break;
                     case "weekSunSat":
-                        fromNum = (fromNum * 7) - 6;
-                        fromDate = "DATEADD(DAY, (7 - DATEPART(DW, '" + anchorDate + "') + " + fromNum + "), '"
-                                + anchorDate + "')";
+                        fromDate = "CAST((DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 1 - 7 *"+fromNum+") AS DATE)";;
                         break;
                     case "weekMonSun":
-                        fromNum = 1 + (fromNum * 7) - 6;
-                        fromDate = "CASE " +
-                                "WHEN DATEPART(DW, '" + anchorDate + "') = 1 THEN DATEADD(DAY, (7 - DATEPART(DW, '"
-                                + anchorDate + "') + " + fromNum + ") - 7, '" + anchorDate + "') " +
-                                "ELSE DATEADD(DAY, (7 - DATEPART(DW, '" + anchorDate + "') + " + fromNum + "), '"
-                                + anchorDate + "') " +
-                                "END";
+
+                        fromDate = "CAST(CASE\n"+
+                                "WHEN TD_DAY_OF_WEEK(DATE '"+anchorDate+"') = 1 THEN (DATE '"+anchorDate+"') + (TD_DAY_OF_WEEK(DATE '"+anchorDate+"')  + 7 *"+(fromNum-1)+")\n"+
+                                "ELSE (DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 2 - 7 *"+fromNum+")\n"+
+                                "END AS DATE)";
 
                         break;
                     case "month":
@@ -178,8 +156,7 @@ public class RelativeFilterDateTeraData {
 
                         break;
                     case "year":
-                        fromDate = "TRUNC(YEAR, DATEADD(YEAR, " + fromNum
-                                + ", CONVERT(DATE, '" + anchorDate + "', 23))) ";
+                        fromDate = "CAST(trim(EXTRACT(YEAR FROM DATE '"+anchorDate+"')+"+fromNum+") || '-01-01' AS DATE)";
 
                         break;
 
@@ -196,39 +173,32 @@ public class RelativeFilterDateTeraData {
                         toDate = "CAST((DATE '" + anchorDate + "') -"+toNum+" AS DATE)";
                         break;
                     case "rollingWeek":
-                        toDate = "DATEADD(WEEK, -" + toNum + ", '" + anchorDate + "')";
+                        toDate = "CAST((DATE '"+anchorDate+"')-(7*"+toNum+") AS DATE)";
 
                         break;
                     case "rollingMonth":
-                        toDate = "DATEADD(MONTH, -" + toNum + ", '" + anchorDate + "')";
+                        toDate = "CAST((DATE '"+anchorDate+"') - INTERVAL '"+toNum+"' MONTH AS DATE)";
 
                         break;
                     case "rollingYear":
-                        toDate = "DATEADD(YEAR, -" + toNum + ", '" + anchorDate + "')";
+                        toDate = "CAST((DATE '"+anchorDate+"') - INTERVAL '"+toNum+"' YEAR AS DATE)";
 
                         break;
                     case "weekSunSat":
-                        toNum = (toNum * 7) - 1 - 6;
-                        toDate = "DATEADD(DAY, - (DATEPART(DW, '" + anchorDate + "') + " + toNum + "), '" + anchorDate
-                                + "')";
+                        toDate = "CAST((DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 7 + 7 *"+toNum+") AS DATE)";
                         break;
                     case "weekMonSun":
-                        toNum = (toNum * 7) - 2 - 6;
-                        toDate = "CASE " +
-                                "WHEN DATEPART(DW, '" + anchorDate + "') = 1 THEN DATEADD(DAY, - (DATEPART(DW, '"
-                                + anchorDate + "') + " + toNum + " + 7), '" + anchorDate + "') " +
-                                "ELSE DATEADD(DAY, - (DATEPART(DW, '" + anchorDate + "') + " + toNum + "), '"
-                                + anchorDate + "') " +
-                                "END";
+                        toDate = "CAST(CASE\n"+
+                                "WHEN TD_DAY_OF_WEEK(DATE '"+anchorDate+"') = 1 THEN (DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 1 + 7 *"+toNum+")\n"+
+                                "ELSE (DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 1 + 7 *"+(toNum+1)+")\n"+
+                                "END AS DATE)";
                         break;
                     case "month":
                         toDate = "CAST(LAST_DAY(ADD_MONTHS(DATE '"+anchorDate+"', -"+toNum+") - 1)AS DATE)";;
 
                         break;
                     case "year":
-                        toNum = toNum - 1;
-                        toDate = "DATEADD(DAY, -1, TRUNC(YEAR, DATEADD(YEAR, -" + toNum
-                                + ", CONVERT(DATE, '" + anchorDate + "', 23))))";
+                        toDate = "CAST(trim(EXTRACT(YEAR FROM DATE '"+anchorDate+"')-"+toNum+") || '-12-31' AS DATE)";
 
                         break;
 
@@ -245,27 +215,26 @@ public class RelativeFilterDateTeraData {
                         toDate = "CAST((DATE '"+anchorDate+"')+"+toNum+" AS DATE)";
                         break;
                     case "rollingWeek":
-                        toNum = 0;
-                        toDate = "DATEADD(DAY, " + toNum + ", '" + anchorDate + "')";
+
+                        toDate = "CAST('"+anchorDate+"' AS DATE)";
                         break;
                     case "rollingMonth":
                         toNum = 0;
-                        toDate = "DATEADD(DAY, " + toNum + ", '" + anchorDate + "')";
+                        toDate = "CAST((DATE '"+anchorDate+"') - INTERVAL '"+toNum+"' MONTH AS DATE)";
                         break;
                     case "rollingYear":
                         toNum = 0;
-                        toDate = "DATEADD(DAY, " + toNum + ", '" + anchorDate + "')";
+                        toDate = "CAST((DATE '"+anchorDate+"') - INTERVAL '"+toNum+"' YEAR AS DATE)";
                         break;
                     case "weekSunSat":
-                        toDate = "DATEADD(DAY, (7 - DATEPART(DW, '" + anchorDate + "')), '" + anchorDate + "')";
+                        toDate = "CAST((DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 7 + 7 *"+(toNum-1)+") AS DATE)";
 
                         break;
                     case "weekMonSun":
-                        toDate = "CASE " +
-                                "WHEN DATEPART(DW, '" + anchorDate + "') = 1 THEN DATEADD(DAY,0, '" + anchorDate
-                                + "') " +
-                                "ELSE DATEADD(DAY, (8 - DATEPART(DW, '" + anchorDate + "')), '" + anchorDate + "') " +
-                                "END";
+                        toDate = "CAST(CASE\n"+
+                                "WHEN TD_DAY_OF_WEEK(DATE '"+anchorDate+"') = 1 THEN (DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 1 + 7 *"+(toNum-1)+")\n"+
+                                "ELSE (DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 1 - 7 *"+toNum+")\n"+
+                                "END AS DATE)";
                         break;
                     case "month":
                         toNum = 0;
@@ -273,9 +242,8 @@ public class RelativeFilterDateTeraData {
 
                         break;
                     case "year":
-                        toNum = 1;
-                        toDate = "DATEADD(DAY, -1, TRUNC(YEAR, DATEADD(YEAR," + toNum
-                                + ", CONVERT(DATE, '" + anchorDate + "', 23))))";
+                        toNum = 0;
+                        toDate = "CAST(trim(EXTRACT(YEAR FROM DATE '"+anchorDate+"')-"+toNum+") || '-12-31' AS DATE)";
 
                         break;
 
@@ -289,35 +257,28 @@ public class RelativeFilterDateTeraData {
                         toDate = "CAST((DATE '"+anchorDate+"')+"+toNum+" AS DATE)";
                         break;
                     case "rollingWeek":
-                        toDate = "DATEADD(week, " + toNum + ", '" + anchorDate + "')";
+                        toDate = " CAST((DATE '"+anchorDate+"')+(7*"+toNum+") AS DATE)";
                         break;
                     case "rollingMonth":
-                        toDate = "DATEADD(month, " + toNum + ", '" + anchorDate + "')";
+                        toDate = "CAST((DATE '"+anchorDate+"') + INTERVAL '"+toNum+"' MONTH AS DATE)";
                         break;
                     case "rollingYear":
-                        toDate = "DATEADD(year, " + toNum + ", '" + anchorDate + "')";
+                        toDate = "CAST((DATE '"+anchorDate+"') + INTERVAL '"+toNum+"' YEAR AS DATE)";
                         break;
                     case "weekSunSat":
-                        toNum = toNum * 7;
-                        toDate = "DATEADD(day, (7 - DATEPART(dw, '" + anchorDate + "')) + " + toNum + ", '" + anchorDate
-                                + "')";
+                        toDate = "CAST((DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 7 - 7 *"+toNum+") AS DATE)";
                         break;
                     case "weekMonSun":
-                        toNum = toNum * 7 + 1;
-                        toDate = "CASE " +
-                                "WHEN DATEPART(dw, '" + anchorDate + "') = 1 THEN DATEADD(day, (7 - DATEPART(dw, '"
-                                + anchorDate + "')) + " + toNum + " - 7, '" + anchorDate + "') " +
-                                "ELSE DATEADD(day, (7 - DATEPART(dw, '" + anchorDate + "')) + " + toNum + ", '"
-                                + anchorDate + "') " +
-                                "END";
+                        toDate ="CAST(CASE\n"+
+                                "WHEN TD_DAY_OF_WEEK(DATE '"+anchorDate+"') = 1 THEN (DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 1 - 7 *"+toNum+")\n"+
+                                "ELSE (DATE '"+anchorDate+"') - (TD_DAY_OF_WEEK(DATE '"+anchorDate+"') - 1 - 7 *"+(toNum+1)+")\n"+
+                                "END AS DATE)";
                         break;
                     case "month":
                         toDate = "CAST(LAST_DAY(ADD_MONTHS(DATE '"+anchorDate+"', "+toNum+") - 1)AS DATE)";
                         break;
                     case "year":
-                        toNum = toNum + 1;
-                        toDate = "DATEADD(day, -1, TRUNC(year, DATEADD(year, " + toNum
-                                + ", CONVERT(date, '" + anchorDate + "', 23))))";
+                        toDate="CAST(trim(EXTRACT(YEAR FROM DATE '"+anchorDate+"')+"+toNum+") || '-12-31' AS DATE)";
                         break;
                     default:
                         break;
@@ -359,21 +320,20 @@ public class RelativeFilterDateTeraData {
         // Query
         if (List.of("today", "tomorrow", "yesterday", "columnMaxDate").contains(anchorDate)) {
             if (anchorDate.equals("today")) {
-                query = "select convert(date, getdate()) as anchordate";
+                query = "SELECT CURRENT_DATE AS anchordate";
             } else if (anchorDate.equals("tomorrow")) {
-                query = "select dateadd(day, 1, convert(date, getdate())) as anchordate";
+                query = "SELECT CURRENT_DATE+1 AS anchordate";
             } else if (anchorDate.equals("yesterday")) {
-                query = "select dateadd(day, -1, convert(date, getdate())) as anchordate";
+                query = "SELECT CURRENT_DATE-1 AS anchordate";
             } else if (anchorDate.equals("columnMaxDate")) {
                 //checking for custom query
                 if(!table.isCustomQuery()) {
                     query = "select CAST(max(" + relativeFilter.getFilterTable().getFieldName()
-                            + ") as DATE)as anchordate from "
-                            + schemaName + "." + tableName;
+                            + ") as DATE) as anchordate from " + tableName;
                 }else {
                     query = "select CAST(max(" + relativeFilter.getFilterTable().getFieldName()
                             + ") as DATE) as anchordate from "
-                            +"("+ customQuery + ") as cq";
+                            +"("+ customQuery + ")  cq";
                 }
             }
         } else if (matcher.matches()) {

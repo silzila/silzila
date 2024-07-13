@@ -35,20 +35,42 @@ public class WhereClauseDateTeraData {
                 if (filter.getTimeGrain().name().equals("YEAR")) {
                     field = "YEAR(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 } else if (filter.getTimeGrain().name().equals("QUARTER")) {
-                    field = "CONCAT('Q', DATEPART(QUARTER, " + filter.getTableId() + "." + filter.getFieldName() + "))";
+                    field = "CONCAT('Q', LTRIM(TD_QUARTER_OF_YEAR( " + filter.getTableId() + "." + filter.getFieldName() + ")))";
                 } else if (filter.getTimeGrain().name().equals("MONTH")) {
-                    field = "DATENAME(MONTH, " + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "case MONTH(" +filter.getTableId() + "." + filter.getFieldName()+")\n"+
+                            "    when '01' then 'January'\n" +
+                            "    when '02' then 'February'\n" +
+                            "    when '03' then 'March'\n" +
+                            "    when '04' then 'April'\n" +
+                            "    when '05' then 'May'\n" +
+                            "    when '06' then 'June'\n" +
+                            "    when '07' then 'July'\n" +
+                            "    when '08' then 'August'\n" +
+                            "    when '09' then 'September'\n" +
+                            "    when '10' then 'October'\n" +
+                            "    when '11' then 'November'\n" +
+                            "    when '12' then 'December'\n" +
+                            "    else ''\n" +
+                            "    end";
                 } else if (filter.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
-                            + "), '-Q', DATEPART(QUARTER, " + filter.getTableId() + "." + filter.getFieldName() + "))";
+                    field = "CONCAT( LTRIM(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
+                            + ")), '-Q', LTRIM(TD_QUARTER_OF_YEAR( " + filter.getTableId() + "." + filter.getFieldName() + ")))";
                 } else if (filter.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "FORMAT(" + filter.getTableId() + "." + filter.getFieldName() + ", 'yyyy-MM')";
+                    field = "CONCAT(LTRIM(YEAR("+ filter.getTableId() + "." + filter.getFieldName() +")),'-',LTRIM(MONTH("+ filter.getTableId() + "." + filter.getFieldName() +")(format '99')))";
                 } else if (filter.getTimeGrain().name().equals("DATE")) {
-                    field = "CONVERT(DATE, " + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    field = "DATENAME(WEEKDAY, " + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "case  TD_DAY_OF_WEEK("+ filter.getTableId() + "." + filter.getFieldName() +")\n" +
+                            "\t\twhen 1 then 'Sunday'\n" +
+                            "\t\twhen 2 then 'Monday'\n" +
+                            "\t\twhen 3 then 'Tuesday'\n" +
+                            "\t\twhen 4 then 'Wednesday'\n" +
+                            "\t\twhen 5 then 'Thursday'\n" +
+                            "\t\twhen 6 then 'Friday'\n" +
+                            "\t\twhen 7 then 'Saturday'\n" +
+                            "\t\tend";
                 } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    field = "DATEPART(DAY, " + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "MONTH(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 }
 
                 String options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
@@ -65,10 +87,23 @@ public class WhereClauseDateTeraData {
                             + filter.getFieldName() + " in Filter!");
                 }
                 if (filter.getTimeGrain().name().equals("DATE")) {
-                    field = "CONVERT(DATE, " + filter.getTableId() + "." + filter.getFieldName() + ")";
-                } else {
-                    field = "DATEPART(" + timeGrainMap.get(filter.getTimeGrain().name()) + ", " + filter.getTableId()
-                            + "." + filter.getFieldName() + ")";
+                    field = "CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE)";
+                } else if(filter.getTimeGrain().name().equals("YEAR")){
+                    field = "CAST(EXTRACT(" + timeGrainMap.get(filter.getTimeGrain().name()) + " FROM " + filter.getTableId()
+                            + "." + filter.getFieldName() + ") AS INT)";
+                }else if(filter.getTimeGrain().name().equals("MONTH")){
+                    field = "CAST(EXTRACT(" + timeGrainMap.get(filter.getTimeGrain().name()) + " FROM " + filter.getTableId()
+                            + "." + filter.getFieldName() + ") AS INT)";
+                }else if(filter.getTimeGrain().name().equals("DAYOFMONTH"))
+                {
+                    field = "CAST(TD_DAY_OF_MONTH(" + filter.getTableId() + "." + filter.getFieldName() + ") AS INT)";
+                }
+                else if(filter.getTimeGrain().name().equals("DAYOFWEEK"))
+                {
+                    field = "CAST(TD_DAY_OF_WEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") AS INT)";
+                }
+                else if(filter.getTimeGrain().name().equals("QUARTER")){
+                    field = "CAST(TD_QUARTER_OF_YEAR(" + filter.getTableId() + "." + filter.getFieldName() + ") AS INT)";
                 }
                 where = field + excludeOperator + "= '" + filter.getUserSelection().get(0) + "'";
             }
@@ -84,15 +119,28 @@ public class WhereClauseDateTeraData {
             // in that case give error
             if (!List.of("YEAR", "MONTH", "QUARTER", "DATE", "DAYOFMONTH", "DAYOFWEEK")
                     .contains(filter.getTimeGrain().name())) {
-                throw new BadRequestException("Error: Time grain is not correct for Comparsion Operator in the field "
+                throw new BadRequestException("Error: Time grain is not correct for Comparison Operator in the field "
                         + filter.getFieldName() + " in Filter!");
             }
 
             if (filter.getTimeGrain().name().equals("DATE")) {
-                field = "CONVERT(DATE, " + filter.getTableId() + "." + filter.getFieldName() + ")";
-            } else {
-                field = "DATEPART(" + timeGrainMap.get(filter.getTimeGrain().name()) + ", " + filter.getTableId()
-                        + "." + filter.getFieldName() + ")";
+                field = "CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE)";
+            } else if(filter.getTimeGrain().name().equals("YEAR")){
+                field = "CAST(EXTRACT(" + timeGrainMap.get(filter.getTimeGrain().name()) + " FROM " + filter.getTableId()
+                        + "." + filter.getFieldName() + ") AS INT)";
+            }else if(filter.getTimeGrain().name().equals("MONTH")){
+                field = "CAST(EXTRACT(" + timeGrainMap.get(filter.getTimeGrain().name()) + " FROM " + filter.getTableId()
+                        + "." + filter.getFieldName() + ") AS INT)";
+            }else if(filter.getTimeGrain().name().equals("DAYOFMONTH"))
+            {
+                field = "CAST(TD_DAY_OF_MONTH(" + filter.getTableId() + "." + filter.getFieldName() + ") AS INT)";
+            }
+            else if(filter.getTimeGrain().name().equals("DAYOFWEEK"))
+            {
+                field = "CAST(TD_DAY_OF_WEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") AS INT)";
+            }
+            else if(filter.getTimeGrain().name().equals("QUARTER")){
+                field = "CAST(TD_QUARTER_OF_YEAR(" + filter.getTableId() + "." + filter.getFieldName() + ") AS INT)";
             }
             // decides if it is '=' or '!='
             String excludeOperator = QueryNegator.makeNegateCondition(filter.getShouldExclude());
@@ -116,7 +164,7 @@ public class WhereClauseDateTeraData {
         }
         //tillDate
         if(filter.getIsTillDate() && List.of("MONTH","DAYOFMONTH","YEARMONTH","YEAR","DAYOFWEEK","QUARTER","YEARQUARTER").contains(filter.getTimeGrain().name())){
-            where = "(\n\t\t" + where + TillDate.tillDate("sqlserver", filter) + "\n\t\t)";
+            where = "(\n\t\t" + where + TillDate.tillDate("teradata", filter) + "\n\t\t)";
         }
         return where;
 

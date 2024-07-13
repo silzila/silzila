@@ -72,32 +72,21 @@ public class FilterQueryTeraData {
                     String field = "YEAR("  + req.getTableId()+"."+req.getFieldName() + ")";
                     query = "SELECT DISTINCT " + field + " AS \"Year\"" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("QUARTER")) {
-                    String field = " 'Q' ||\n"+
-                            "CASE \n"+
-                            "WHEN EXTRACT(MONTH FROM "+ req.getTableId()+"."+req.getFieldName() +") BETWEEN 1 AND 3 THEN '1' \n"+
-                            "WHEN EXTRACT(MONTH FROM "+ req.getTableId()+"."+req.getFieldName() +") BETWEEN 4 AND 6 THEN '2' \n"+
-                            "WHEN EXTRACT(MONTH FROM "+ req.getTableId()+"."+req.getFieldName()+") BETWEEN 7 AND 9 THEN '3' \n"+
-                            "WHEN EXTRACT(MONTH FROM "+ req.getTableId()+"."+req.getFieldName()+") BETWEEN 10 AND 12 THEN '4' \n"+
-                            "END \n";
+                    String field = " 'Q' || LTRIM(TD_QUARTER_OF_YEAR(" + req.getTableId()+"."+ req.getFieldName() + "))";
                     query = "SELECT DISTINCT " + field + "AS Quarter\n" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("MONTH")) {
                     String field = "MONTH("  + req.getTableId()+"."+req.getFieldName() + ")";
                     query = "SELECT DISTINCT " + field + " AS \"Month\"" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("YEARQUARTER")) {
-                    String field =  "CAST(EXTRACT(YEAR FROM pc.order_date) AS VARCHAR(4)) || '-Q' ||\n"+
-                            "CASE\n"+
-                            "WHEN EXTRACT(MONTH FROM "+ req.getTableId()+"."+req.getFieldName()+") BETWEEN 1 AND 3 THEN '1'\n"+
-                            "WHEN EXTRACT(MONTH FROM "+ req.getTableId()+"."+req.getFieldName()+") BETWEEN 4 AND 6 THEN '2'\n"+
-                            "WHEN EXTRACT(MONTH FROM "+ req.getTableId()+"."+req.getFieldName()+") BETWEEN 7 AND 9 THEN '3'\n"+
-                            "WHEN EXTRACT(MONTH FROM "+ req.getTableId()+"."+req.getFieldName()+") BETWEEN 10 AND 12 THEN '4'\n"+
-                            "END\n";
+                    String field =  "CAST(EXTRACT(YEAR FROM " + req.getTableId()+"."+req.getFieldName() + ") AS VARCHAR(4)) || '-Q' ||\n"+
+                            "LTRIM(TD_QUARTER_OF_YEAR(" + req.getTableId()+"."+ req.getFieldName() + "))";
                     query = "SELECT DISTINCT " + field + " AS YearQuarter" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("YEARMONTH")) {
                     String field = "CAST(EXTRACT(YEAR FROM "+  req.getTableId()+"."+req.getFieldName()+") AS VARCHAR(4)) || '-' ||"+
                             "\nLPAD(CAST(EXTRACT(MONTH FROM "+  req.getTableId()+"."+req.getFieldName()+") AS VARCHAR(2)), 2, '0')";
                     query = "SELECT DISTINCT " + field + " AS YearMonth" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("DATE")) {
-                    String field ="("+ req.getTableId()+"."+ req.getFieldName() + ")";
+                    String field ="CAST("+ req.getTableId()+"."+ req.getFieldName() + " AS DATE)";
                     query = "SELECT DISTINCT " + field + " AS \"Date\" " + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("DAYOFWEEK")) {
                     String sortField = "TD_Day_of_Week(" +  req.getTableId()+"." + req.getFieldName() + ")";
@@ -126,19 +115,13 @@ public class FilterQueryTeraData {
                     String col = "YEAR(" + req.getTableId()+"." + req.getFieldName() + ")";
                     query = "SELECT MIN(" + col + ") AS \"min\", MAX(" + col + ") AS \"max\"" + fromClause;
                 } else if (req.getTimeGrain().name().equals("QUARTER")) {
-                    String col = " 'Q' ||\n"+
-                            "CASE \n"+
-                            "WHEN EXTRACT(MONTH FROM "+ req.getTableId()+"."+req.getFieldName() +") BETWEEN 1 AND 3 THEN '1' \n"+
-                            "WHEN EXTRACT(MONTH FROM "+ req.getTableId()+"."+req.getFieldName() +") BETWEEN 4 AND 6 THEN '2' \n"+
-                            "WHEN EXTRACT(MONTH FROM "+ req.getTableId()+"."+req.getFieldName()+") BETWEEN 7 AND 9 THEN '3' \n"+
-                            "WHEN EXTRACT(MONTH FROM "+ req.getTableId()+"."+req.getFieldName()+") BETWEEN 10 AND 12 THEN '4' \n"+
-                            "END\n";
+                    String col = " 'Q' || LTRIM(TD_QUARTER_OF_YEAR(" + req.getTableId()+"."+ req.getFieldName() + "))";
                     query = "SELECT MIN(" + col + ") AS \"min\", MAX(" + col + ") AS \"max\"" + fromClause;
                 } else if (req.getTimeGrain().name().equals("MONTH")) {
                     String col = "MONTH(" + req.getTableId()+"."+ req.getFieldName() + ")";
                     query = "SELECT MIN(" + col + ") AS \"min\", MAX(" + col + ") AS \"max\"" + fromClause;
                 } else if (req.getTimeGrain().name().equals("DATE")) {
-                    String col = "(" + req.getTableId()+"."+ req.getFieldName() + ")";
+                    String col = "CAST(" + req.getTableId()+"."+ req.getFieldName() + " AS DATE)";
                     query = "SELECT MIN(" + col + ") AS \"min\", MAX(" + col + ") AS \"max\"" + fromClause;
                 } else if (req.getTimeGrain().name().equals("DAYOFWEEK")) {
                     String minCol = "CASE MIN(TD_Day_of_Week(" +  req.getTableId()+"."+  req.getFieldName() + "))\n"+
