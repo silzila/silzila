@@ -162,7 +162,11 @@ public class WhereClause {
 
                     }
 
-                    // Calling Dialect specific methods
+                    
+                   if(filter.getFilterType().equals("tillDate")){
+                    where = TillDate.tillDate(vendorName, filter);
+                    }
+                    else{// Calling Dialect specific methods
                     if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
                         where = WhereClauseDatePostgres.buildWhereClauseDate(filter);
                     } else if (vendorName.equals("mysql")) {
@@ -184,6 +188,7 @@ public class WhereClause {
                     }else if (vendorName.equals("teradata")) {
                         where = WhereClauseDateTeraData.buildWhereClauseDate(filter);
                     }
+                }
                 }
 
                 whereList.add(where);
