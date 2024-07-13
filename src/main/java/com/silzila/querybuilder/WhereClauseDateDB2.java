@@ -23,7 +23,7 @@ public class WhereClauseDateDB2 {
         String where = "";
         Boolean shouldExcludeTillDate = filter.getShouldExclude();
 
-        if(filter.getIsTillDate() && filter.getShouldExclude()){
+        if (filter.getIsTillDate() && filter.getShouldExclude()) {
             filter.setShouldExclude(false);
         }
 
@@ -48,8 +48,16 @@ public class WhereClauseDateDB2 {
                     field = "TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
                             + ")) || '-Q' || TO_CHAR(QUARTER(" + filter.getTableId() + "."
                             + filter.getFieldName() + "))";
+                    field = "TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
+                            + ")) || '-Q' || TO_CHAR(QUARTER(" + filter.getTableId() + "."
+                            + filter.getFieldName() + "))";
                 } else if (filter.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "))|| '-' || LPAD(TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + ")),2,0)";
+                    field = "TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
+                            + "))|| '-' || LPAD(TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
+                            + ")),2,0)";
+                    field = "TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
+                            + "))|| '-' || LPAD(TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
+                            + ")),2,0)";
                 } else if (filter.getTimeGrain().name().equals("DATE")) {
                     field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
@@ -83,6 +91,7 @@ public class WhereClauseDateDB2 {
                     field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
                     field = "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER ";
+                    field = "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER ";
                 } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
                     field = "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
                 }
@@ -109,8 +118,8 @@ public class WhereClauseDateDB2 {
                         + "." + filter.getFieldName() + ")::INTEGER";
             } else if (filter.getTimeGrain().name().equals("DATE")) {
                 field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
-            }
-            else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
+            } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
+                field = "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER ";
                 field = "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER ";
             }
             // decides if it is '=' or '!='
@@ -134,12 +143,11 @@ public class WhereClauseDateDB2 {
             }
 
         }
-        //tillDate
-        if(filter.getIsTillDate() && List.of("MONTH","DAYOFMONTH","YEARMONTH","YEAR","DAYOFWEEK","QUARTER","YEARQUARTER").contains(filter.getTimeGrain().name())){
-            where = "(\n\t\t" + where+ TillDate.tillDate("db2", filter) + "\n\t\t)";
-            if(shouldExcludeTillDate){
-                where = " NOT " + where;
-            }
+        // tillDate
+        if (filter.getIsTillDate()
+                && List.of("MONTH", "DAYOFMONTH", "YEARMONTH", "YEAR", "DAYOFWEEK", "QUARTER", "YEARQUARTER")
+                        .contains(filter.getTimeGrain().name())) {
+            where = "(\n\t\t" + where + TillDate.tillDate("db2", filter) + "\n\t\t)";
         }
 
         return where;

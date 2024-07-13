@@ -24,7 +24,7 @@ public class WhereClauseDateMotherduck {
         String where = "";
         Boolean shouldExcludeTillDate = filter.getShouldExclude();
 
-        if(filter.getIsTillDate() && filter.getShouldExclude()){
+        if (filter.getIsTillDate() && filter.getShouldExclude()) {
             filter.setShouldExclude(false);
         }
 
@@ -74,10 +74,10 @@ public class WhereClauseDateMotherduck {
                     field = "CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE)";
                 } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
                     field = timeGrainMap.get(filter.getTimeGrain().name()) + "(" + filter.getTableId() + "."
-                        + filter.getFieldName() + ") + 1";
+                            + filter.getFieldName() + ") + 1";
                 } else {
                     field = timeGrainMap.get(filter.getTimeGrain().name()) + "(" + filter.getTableId() + "."
-                        + filter.getFieldName() + ")";
+                            + filter.getFieldName() + ")";
                 }
                 where = field + excludeOperator + "= '" + filter.getUserSelection().get(0) + "'";
             }
@@ -100,10 +100,10 @@ public class WhereClauseDateMotherduck {
                 field = "CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE)";
             } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
                 field = timeGrainMap.get(filter.getTimeGrain().name()) + "(" + filter.getTableId() + "."
-                    + filter.getFieldName() + ") + 1";
+                        + filter.getFieldName() + ") + 1";
             } else {
                 field = timeGrainMap.get(filter.getTimeGrain().name()) + "(" + filter.getTableId() + "."
-                    + filter.getFieldName() + ")";
+                        + filter.getFieldName() + ")";
             }
             // decides if it is '=' or '!='
             String excludeOperator = QueryNegator.makeNegateCondition(filter.getShouldExclude());
@@ -125,12 +125,11 @@ public class WhereClauseDateMotherduck {
                 }
             }
         }
-        //tillDate
-        if(filter.getIsTillDate() && List.of("MONTH","DAYOFMONTH","YEARMONTH","YEAR","DAYOFWEEK","QUARTER","YEARQUARTER").contains(filter.getTimeGrain().name())){
+        // tillDate
+        if (filter.getIsTillDate()
+                && List.of("MONTH", "DAYOFMONTH", "YEARMONTH", "YEAR", "DAYOFWEEK", "QUARTER", "YEARQUARTER")
+                        .contains(filter.getTimeGrain().name())) {
             where = "(\n\t\t" + where + TillDate.tillDate("motherduck", filter) + "\n\t\t)";
-            if(shouldExcludeTillDate){
-                where = " NOT " + where;
-            }
         }
 
         return where;
