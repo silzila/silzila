@@ -167,6 +167,14 @@
 			<version>11.5.9.0</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.teradata.jdbc/terajdbc -->
+		<dependency>
+			<groupId>com.teradata.jdbc</groupId>
+			<artifactId>terajdbc</artifactId>
+			<version>20.00.00.24</version>
+		</dependency>
+
+
 
 
 		<dependency>

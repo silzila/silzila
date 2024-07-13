@@ -74,13 +74,13 @@ public class RelativeFilterDateDB2 {
                         break;
                     case "weekSunSat":
                         fromDate ="CASE WHEN DAYOFWEEK_ISO(DATE('"+anchorDate+"')) = 7  THEN \n" +
-                                "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('"+anchorDate+"'))) DAYS \n" +
+                                "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('"+anchorDate+"'))+7*("+fromNum+"-1)) DAYS \n" +
                                 "ELSE \n"+
-                                "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('"+anchorDate+"')) + 7) DAYS \n"+
+                                "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('"+anchorDate+"')) + 7*"+fromNum+") DAYS \n"+
                                 "END" ;
                         break;
                     case "weekMonSun":
-                        fromDate = "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('"+anchorDate+"')) + 7 -1) DAYS";
+                        fromDate = "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('"+anchorDate+"')) + (7 *"+fromNum+") -1) DAYS";
                         break;
                     case "month":
                         fromDate = " DATE_TRUNC('MONTH', DATE '" + anchorDate + "' - INTERVAL '" + fromNum
@@ -165,13 +165,13 @@ public class RelativeFilterDateDB2 {
                         break;
                     case "weekSunSat":
                         fromDate =  "CASE WHEN DAYOFWEEK_ISO(DATE('"+anchorDate+"')) = 7  THEN \n" +
-                                "DATE('"+anchorDate+"') + 7 DAYS \n"+
+                                "DATE('"+anchorDate+"') + (7 * "+fromNum+") DAYS \n"+
                                 "ELSE \n"+
-                                "DATE('"+anchorDate+"') + 7 - (DAYOFWEEK_ISO(DATE('"+anchorDate+"'))) DAYS \n" +
+                                "DATE('"+anchorDate+"') + (7 * "+fromNum+") - (DAYOFWEEK_ISO(DATE('"+anchorDate+"'))) DAYS \n" +
                                 "END" ;
                         break;
                     case "weekMonSun":
-                        fromDate = "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('"+anchorDate+"')) -1 ) + 7 DAYS";
+                        fromDate = "DATE '"+anchorDate+"' + (7 * "+fromNum+") - (DAYOFWEEK_ISO(DATE '"+anchorDate+"')) + 1";
                         break;
                     case "month":
 
@@ -208,13 +208,13 @@ public class RelativeFilterDateDB2 {
                         break;
                     case "weekSunSat":
                         toDate ="CASE WHEN DAYOFWEEK_ISO(DATE('"+anchorDate+"')) = 7  THEN \n" +
-                                "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('"+anchorDate+"')) -6) DAYS \n" +
+                                "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('"+anchorDate+"'))+7*("+toNum+"-1) -6) DAYS \n" +
                                 "ELSE \n"+
-                                "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('"+anchorDate+"')) + 1) DAYS \n"+
+                                "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('"+anchorDate+"'))+7*("+toNum+"-1) + 1) DAYS \n"+
                                 "END" ;
                         break;
                     case "weekMonSun":
-                        toDate = "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('"+anchorDate+"'))) DAYS";
+                        toDate = "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('"+anchorDate+"'))) - (7 * ("+toNum+" - 1)) DAYS";
                         break;
                     case "month":
 
@@ -304,17 +304,16 @@ public class RelativeFilterDateDB2 {
                         break;
                     case "weekSunSat":
                         toDate="CASE WHEN DAYOFWEEK_ISO(DATE('"+anchorDate+"')) = 7  THEN \n" +
-                                "DATE('"+anchorDate+"') + 7 + 6 DAYS \n"+
+                                "DATE('"+anchorDate+"') + (7 * "+toNum+") + 6 DAYS \n"+
                                 "ELSE \n"+
-                                "DATE('"+anchorDate+"') + 7 - (DAYOFWEEK_ISO(DATE('"+anchorDate+"'))-6) DAYS \n" +
+                                "DATE('"+anchorDate+"') + (7 * "+toNum+") - (DAYOFWEEK_ISO(DATE('"+anchorDate+"'))-6) DAYS \n" +
                                 "END" ;
                         break;
                     case "weekMonSun":
-                        toDate =  "CASE WHEN DAYOFWEEK_ISO(DATE('"+anchorDate+"')) = 7  THEN \n" +
-                                "DATE('"+anchorDate+"') + 7 \n"+
-                                "ELSE \n"+
-                                "DATE('"+anchorDate+"') - (DAYOFWEEK_ISO(DATE('2024-02-15'))) + 14 DAYS \n" +
-                                "END" ;
+                        toDate =  "CASE \n" +
+                                  "WHEN DAYOFWEEK_ISO(DATE '"+anchorDate+"') = 7 THEN DATE '"+anchorDate+"' + ( 7 * "+toNum+")\n" +
+                                  "ELSE DATE '"+anchorDate+"' + (7 * "+toNum+") - (DAYOFWEEK_ISO(DATE '"+anchorDate+"')) + 7\n" +
+                                  "END" ;
                         break;
 
                     case "month":
