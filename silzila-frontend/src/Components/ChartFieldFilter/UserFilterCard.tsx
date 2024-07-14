@@ -556,7 +556,7 @@ const UserFilterCard = ({
       >
         {/* {(filterFieldData.fieldtypeoption === "Search Condition" && */}
         {filterFieldData.prefix !== "date" &&
-        ((filterFieldData.fieldTypeoption === "Search Condition" &&
+        ((filterFieldData.fieldtypeoption === "Search Condition" &&
           filterFieldData.switchEnableSearchCondition) ||
           (filterFieldData.fieldtypeoption === "Pick List" &&
             filterFieldData.switchenable !== "disabled")) ? (
@@ -906,7 +906,7 @@ const UserFilterCard = ({
         // ) {
         //   filterFieldData.switchEnableSearchCondition = false;
         // } else {
-        //   filterFieldData.switchEnableSearchCondition = true;
+        filterFieldData.switchEnableSearchCondition = true;
         // }
       } else {
         if (!filterFieldData.exprInput || !filterFieldData.exprInput.length) {
@@ -1002,10 +1002,10 @@ const UserFilterCard = ({
 
   const handleCustomRequiredValueOnBlur = (
     val: number | string,
-    key?: string,
+    key = "exprInput",
     type?: string
   ) => {
-    key = key || "exprInput";
+    // key = key || "exprInput";
     // if (key === "exprInput")
     filterFieldData["switchEnableSearchCondition"] = true;
     if (type && type === "date") {

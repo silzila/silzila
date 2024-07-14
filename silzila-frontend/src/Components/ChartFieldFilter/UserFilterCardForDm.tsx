@@ -111,7 +111,7 @@ const UserFilterCardForDm = ({
     { key: "year", value: "Year" },
     { key: "quarter", value: "Quarter" },
     { key: "month", value: "Month" },
-    { key: "yearquarter", value: "Year Quater" },
+    { key: "yearquarter", value: "Year Quarter" },
     { key: "yearmonth", value: "Year Month" },
     { key: "date", value: "Date" },
     { key: "dayofmonth", value: "Day Of Month" },
@@ -499,6 +499,16 @@ const UserFilterCardForDm = ({
 
   ///Render Upto Till Date Switch
   const SelecTillDate = () => {
+    var labelTillDate = datePatternCollections.find(
+      (item) => item.key === filterFieldData.prefix
+    );
+    var labelName = labelTillDate ? labelTillDate.value : null;
+    if (labelName === "Year Quarter") {
+      labelName = "Quarter";
+    }
+    if (labelName === "Year Month") {
+      labelName = "Month";
+    }
     return (
       // <Switch size="small" />
       <FormGroup
@@ -508,8 +518,11 @@ const UserFilterCardForDm = ({
           paddingBottom: "8px",
         }}
       >
-        {filterFieldData.fieldtypeoption === "Search Condition" ||
-        filterFieldData.switchenable !== "disabled" ? (
+        {filterFieldData.prefix !== "date" &&
+        ((filterFieldData.fieldtypeoption === "Search Condition" &&
+          filterFieldData.switchEnableSearchCondition) ||
+          (filterFieldData.fieldtypeoption === "Pick List" &&
+            filterFieldData.switchenable !== "disabled")) ? (
           <FormControlLabel
             value="end"
             control={
@@ -526,7 +539,7 @@ const UserFilterCardForDm = ({
                   paddingRight: "15px",
                 }}
               >
-                Upto Till Date
+                {labelName} Till Date
               </Typography>
             }
             labelPlacement="end"
@@ -537,7 +550,7 @@ const UserFilterCardForDm = ({
             disabled
             control={
               <GreenSwitch
-                checked={filterFieldData.exprTypeTillDate}
+                checked={false}
                 size="small"
                 onChange={handleChangeTillDate}
               />
@@ -549,7 +562,7 @@ const UserFilterCardForDm = ({
                   paddingRight: "15px",
                 }}
               >
-                Upto Till Date
+                {labelName} Till Date
               </Typography>
             }
             labelPlacement="end"
@@ -762,12 +775,18 @@ const UserFilterCardForDm = ({
       ["date", "timestamp"].includes(dataType) &&
       filterFieldData.prefix !== "date"
     ) {
-      filterFieldData.greaterThanOrEqualTo =
-        filterFieldData.rawselectmembers[1];
-      filterFieldData.lessThanOrEqualTo =
-        filterFieldData.rawselectmembers[
-          filterFieldData.rawselectmembers.length - 1
-        ];
+      if (filterFieldData.prefix !== "year") {
+        filterFieldData.greaterThanOrEqualTo = 1;
+        filterFieldData.lessThanOrEqualTo =
+          filterFieldData.rawselectmembers.length - 1;
+      } else {
+        filterFieldData.greaterThanOrEqualTo =
+          filterFieldData.rawselectmembers[1];
+        filterFieldData.lessThanOrEqualTo =
+          filterFieldData.rawselectmembers[
+            filterFieldData.rawselectmembers.length - 1
+          ];
+      }
     }
   };
 
@@ -831,6 +850,19 @@ const UserFilterCardForDm = ({
 
     setSearchConditionDate();
 
+    if (filterFieldData.fieldtypeoption === "Search Condition") {
+      if (filterFieldData.exprType === "between") {
+        filterFieldData.switchEnableSearchCondition = true;
+      } else {
+        if (!filterFieldData.exprInput || !filterFieldData.exprInput.length) {
+          filterFieldData.switchEnableSearchCondition = false;
+          filterFieldData.exprTypeTillDate = false;
+        } else {
+          filterFieldData.switchEnableSearchCondition = true;
+        }
+      }
+    }
+
     updateLeftFilterItemForDm(propKey, 0, constructChartAxesFieldObject());
   };
 
@@ -851,6 +883,10 @@ const UserFilterCardForDm = ({
     filterFieldData["lessThanOrEqualTo"] = "";
     filterFieldData.switchenable = "disabled";
     filterFieldData.exprTypeTillDate = false;
+    if (!filterFieldData.exprInput) {
+      filterFieldData["switchEnableSearchCondition"] = false;
+      filterFieldData.exprTypeTillDate = false;
+    }
 
     if (
       filterFieldData.fieldtypeoption === "Search Condition" &&
@@ -891,10 +927,11 @@ const UserFilterCardForDm = ({
 
   const handleCustomRequiredValueOnBlur = (
     val: number | string,
-    key?: string,
+    key = "exprInput",
     type?: string
   ) => {
-    key = key || "exprInput";
+    // key = key || "exprInput";
+    filterFieldData["switchEnableSearchCondition"] = true;
 
     if (type && type === "date") {
       val = moment(val).format("yyyy-MM-DD");
@@ -908,11 +945,27 @@ const UserFilterCardForDm = ({
         checkForValidData();
       }
 
+      if (
+        key === "exprTnput" ||
+        key === "greaterThanOrEqualTo" ||
+        key === "lessThanOrEqualTo"
+      ) {
+        if (val === null || val === "" || val === undefined) {
+          filterFieldData["switchEnableSearchCondition"] = false;
+          filterFieldData.exprTypeTillDate = false;
+        } else {
+          filterFieldData["switchEnableSearchCondition"] = true;
+        }
+      }
+
       if (filterFieldData.exprType === "between") {
         sliderRange = [
           filterFieldData.greaterThanOrEqualTo,
           filterFieldData.lessThanOrEqualTo,
         ];
+      } else if (!filterFieldData.exprInput.length) {
+        filterFieldData["switchEnableSearchCondition"] = false;
+        filterFieldData.exprTypeTillDate = false;
       }
 
       updateLeftFilterItemForDm(propKey, 0, constructChartAxesFieldObject());
@@ -1377,18 +1430,16 @@ const UserFilterCardForDm = ({
             {filterFieldData.fieldtypeoption === "Pick List" ? (
               <>
                 <SelecPickListCard></SelecPickListCard>
-                {(filterFieldData.dataType === "timestamp" ||
-                  filterFieldData.dataType === "date") &&
-                filterFieldData.prefix !== "date" ? (
+                {filterFieldData.dataType === "timestamp" ||
+                filterFieldData.dataType === "date" ? (
                   <SelecTillDate></SelecTillDate>
                 ) : null}
               </>
             ) : (
               <>
                 <CustomCard></CustomCard>
-                {(filterFieldData.dataType === "timestamp" ||
-                  filterFieldData.dataType === "date") &&
-                filterFieldData.prefix !== "date" ? (
+                {filterFieldData.dataType === "timestamp" ||
+                filterFieldData.dataType === "date" ? (
                   <SelecTillDate></SelecTillDate>
                 ) : null}
               </>
