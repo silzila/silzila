@@ -9,17 +9,19 @@ import ChartsInfo from "./ChartsInfo2";
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import { Dispatch } from "redux";
 import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
+
 import{storeServerData}from "../../redux/ChartPoperties/ChartControlsActions";
 import { canReUseData, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import FetchData from "../ServerCall/FetchData";
 import { AxesValuProps, ChartAxesFormattedAxes, ChartAxesProps } from "./ChartAxesInterfaces";
 import { ChartPropertiesStateProps} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { chartFilterGroupEdited } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 import {
-	ChartFilterGroupProps,
-	ChartFilterGroupStateProps,
+  ChartFilterGroupProps,
+  ChartFilterGroupStateProps,
 } from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 import { dashBoardFilterGroupsEdited } from "../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction";
 import { DashBoardFilterGroupStateProps } from "../../redux/DashBoardFilterGroup/DashBoardFilterGroupInterface";
@@ -28,651 +30,915 @@ import { setDashTileSwitched } from "../../redux/TabTile/TabTileActionsAndMultip
 import { updateChartDataForDm } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import Logger from "../../Logger";
 
-import {	
-	deleteTablecf,
-	updatecfObjectOptions,
+import {
+  deleteTablecf,
+  updatecfObjectOptions,
 } from "../../redux/ChartPoperties/ChartControlsActions";
 
-import {interpolateColor, generateRandomColorArray, fieldName,displayName, getLabelValues} from '../CommonFunctions/CommonFunctions';
-
+import {
+  interpolateColor,
+  generateRandomColorArray,
+  fieldName,
+  displayName,
+  getLabelValues,
+} from "../CommonFunctions/CommonFunctions";
 
 // format the chartAxes into the way it is needed for api call
 export const getChartData = async (
-	axesValues: AxesValuProps[],
-	chartProp: any,
-	chartGroup: ChartFilterGroupProps,
-	dashBoardGroup: any,
-	propKey: string,
-	screenFrom: string,
-	token: string,
-	chartType: any,
-	forQueryData?: boolean,
+  axesValues: AxesValuProps[],
+  chartProp: any,
+  chartGroup: ChartFilterGroupProps,
+  dashBoardGroup: any,
+  propKey: string,
+  screenFrom: string,
+  token: string,
+  chartType: any,
+  forQueryData?: boolean
 ) => {
+  let _chartAxes: any = [];
 
-	let _chartAxes:any = [];
+  if (chartProp.chartAxes) {
+    _chartAxes = chartProp.chartAxes;
+  } else {
+    _chartAxes = chartProp.properties[propKey].chartAxes;
+  }
 
-	if(chartProp.chartAxes){
-		_chartAxes = chartProp.chartAxes;
-	}
-	else{
-		_chartAxes = chartProp.properties[propKey].chartAxes;
-	}
+  /*	PRS 21/07/2022	Construct filter object for service call */
+  const getChartLeftFilter = (filters: any, name: string) => {
+    let _type: any = {};
 
-	/*	PRS 21/07/2022	Construct filter object for service call */
-	const getChartLeftFilter = (filters: any, name:string) => {
-		let _type: any = {};
+    //let _chartProp = chartProp.properties[propKey].chartAxes[0];
+    let _chartProp = filters;
 
-		//let _chartProp = chartProp.properties[propKey].chartAxes[0];
-		let _chartProp = filters;
+    _type.panelName = name;
+    _type.shouldAllConditionsMatch = !_chartProp.any_condition_match;
+    _type.filters = [];
 
-		_type.panelName = name;
-		_type.shouldAllConditionsMatch = !_chartProp.any_condition_match;
-		_type.filters = [];
+    /*	To determine filter type	*/
+    const _getFilterType = (item: any) => {
+      let _type = "";
 
-		/*	To determine filter type	*/
-		const _getFilterType = (item: any) => {
-			let _type = "";
+      if (item.fieldtypeoption === "Relative Filter") return "relativeFilter";
 
-			switch (item.dataType) {
-				case "integer":
-				case "decimal":
-					_type = "number";
-					break;
-				case "timestamp":
-				case "date":
-					_type = "date";
-					break;
-				default:
-					_type = "text";
-					break;
-			}
+      switch (item.dataType) {
+        case "integer":
+        case "decimal":
+          _type = "number";
+          break;
+        case "timestamp":
+        case "date":
+          _type = "date";
+          break;
+        default:
+          _type = "text";
+          break;
+      }
 
-			return _type.concat(
-				"_",
-				item.fieldtypeoption === "Search Condition" ? "search" : "user_selection"
-			);
-		};
+      return _type.concat(
+        "_",
+        item.fieldtypeoption === "Search Condition"
+          ? "search"
+          : "user_selection"
+      );
+    };
 
-		/*	Set User Selection property */
-		const _getUserSelection = (item: any) => {
-			if (item.fieldtypeoption === "Search Condition") {
-				if (
-					item.exprType === "between" &&
-					(item.greaterThanOrEqualTo || item.lessThanOrEqualTo)
-				) {
-					return [item.greaterThanOrEqualTo, item.lessThanOrEqualTo];
-				} else if (item.exprInput) {
-					return [item.exprInput];
-				} else {
-					return [""];
-				}
-			} else {
-				return item.userSelection;
-			}
-		};
+    /*	Set User Selection property */
+    const _getUserSelection = (item: any) => {
+      if (item.fieldtypeoption === "Search Condition") {
+        if (
+          item.exprType === "between" &&
+          (item.greaterThanOrEqualTo || item.lessThanOrEqualTo)
+        ) {
+          return [item.greaterThanOrEqualTo, item.lessThanOrEqualTo];
+        } else if (item.exprInput) {
+          return [item.exprInput];
+        } else {
+          return [""];
+        }
+      } else if (item.fieldtypeoption === "Pick List") {
+        return item.userSelection;
+      } else {
+        return [""];
+      }
+    };
 
-		const _isInvalidValue = (val: any) => {
-			if (val === undefined || val === null || val === "") {
-				return true;
-			}
+    const _isInvalidValue = (val: any) => {
+      if (val === undefined || val === null || val === "") {
+        return true;
+      }
 
-			return false;
-		};
+      return false;
+    };
 
-		/*	Determine whether to add a particular field	*/
-		const _getIsFilterValidToAdd = (item: any) => {
-			if (!item.fieldtypeoption) {
-				return false;
-			}
+    /*	Determine whether to add a particular field	*/
+    const _getIsFilterValidToAdd = (item: any) => {
+      if (!item.fieldtypeoption) {
+        return false;
+      }
 
-			if (
-				item.fieldtypeoption === "Pick List" &&
-				item.userSelection &&
-				item.userSelection.length > 0
-			) {
-				return !item.userSelection.includes("(All)");
-			} else if (item.fieldtypeoption === "Search Condition") {
-				//   if (
-				//     item.exprType === "between" &&
-				//     item.greaterThanOrEqualTo &&
-				//     item.lessThanOrEqualTo &&
-				//     item.rawselectmembers?.length > 0
-				//   ) {
-				//     if (
-				//       item.greaterThanOrEqualTo <= item.rawselectmembers[1] &&
-				//       item.lessThanOrEqualTo >= item.rawselectmembers[item.rawselectmembers.length - 1]
-				//     ){
-				//       return false;
-				// 	}
-				//   } else
+      if (
+        item.fieldtypeoption === "Pick List" &&
+        item.userSelection &&
+        item.userSelection.length > 0
+      ) {
+        return !item.userSelection.includes("(All)");
+      } else if (item.fieldtypeoption === "Search Condition") {
+        //   if (
+        //     item.exprType === "between" &&
+        //     item.greaterThanOrEqualTo &&
+        //     item.lessThanOrEqualTo &&
+        //     item.rawselectmembers?.length > 0
+        //   ) {
+        //     if (
+        //       item.greaterThanOrEqualTo <= item.rawselectmembers[1] &&
+        //       item.lessThanOrEqualTo >= item.rawselectmembers[item.rawselectmembers.length - 1]
+        //     ){
+        //       return false;
+        // 	}
+        //   } else
 
-				if (
-					item.exprType === "between" &&
-					(_isInvalidValue(item.greaterThanOrEqualTo) ||
-						_isInvalidValue(item.lessThanOrEqualTo))
-				) {
-					return false;
-				} else if (item.exprType !== "between" && _isInvalidValue(item.exprInput)) {
-					return false;
-				}
-			} else {
-				return false;
-			}
+        if (
+          item.exprType === "between" &&
+          (_isInvalidValue(item.greaterThanOrEqualTo) ||
+            _isInvalidValue(item.lessThanOrEqualTo))
+        ) {
+          return false;
+        } else if (
+          item.exprType !== "between" &&
+          _isInvalidValue(item.exprInput)
+        ) {
+          return false;
+        }
+      } else if (item.fieldtypeoption === "Relative Filter") {
+        return true;
+        // return false;
+      } else {
+        return false;
+      }
 
-			return true;
-		};
+      return true;
+    };
 
-		let _items = [];
+    let _items = [];
 
-		if (_chartProp.fields) _items = _chartProp.fields;
-		else _items = _chartProp;
+    if (_chartProp.fields) _items = _chartProp.fields;
+    else _items = _chartProp;
 
-		/*	Iterate through each fields added in the Filter Dropzone	*/
-		_items.forEach((item: any) => {
-			let _filter: any = {};
-			_filter.filterType = _getFilterType(item);
-			_filter.tableId = item.tableId;
-			_filter.fieldName = item.fieldname;
-			_filter.displayName=item.displayname;
-			_filter.dataType = item.dataType.toLowerCase();
-			_filter.shouldExclude = item.includeexclude === "Exclude";
+    /*	Iterate through each fields added in the Filter Dropzone	*/
+    _items.forEach((item: any) => {
+      let _filter: any = {};
+      _filter.filterType = _getFilterType(item);
+      _filter.tableId = item.tableId;
+      _filter.fieldName = item.fieldname;
+      _filter.displayName = item.displayname;
+      _filter.dataType = item.dataType.toLowerCase();
+      _filter.shouldExclude = item.includeexclude === "Exclude";
 
-			if (item.fieldtypeoption === "Search Condition") {
-				if (item.exprType) {
-					_filter.operator = item.exprType;
-				} else {
-					_filter.operator = item.dataType === "text" ? "begins_with" : "greater_than";
-				}
-			} else {
-				_filter.operator = "in";
-			}
+      if (item.fieldtypeoption === "Search Condition") {
+        if (item.exprType) {
+          _filter.operator = item.exprType;
+        } else {
+          _filter.operator =
+            item.dataType === "text" ? "begins_with" : "greater_than";
+        }
+      } else if (item.fieldtypeoption === "Pick List") {
+        _filter.operator = "in";
+      } else {
+        _filter.operator = "between";
+      }
 
-			if (item.dataType === "timestamp" || item.dataType === "date") {
-				_filter.timeGrain = item.prefix;
-			}
+      if (item.dataType === "timestamp" || item.dataType === "date") {
+        _filter.timeGrain = item.prefix;
+      }
+      if (item.fieldtypeoption === "Relative Filter") {
+        _filter.timeGrain = "date";
+        _filter.relativeCondition = {
+          from: [
+            item.expTypeFromRelativeDate,
+            item.exprInputFromValueType,
+            item.expTypeFromdate,
+          ],
+          to: [
+            item.expTypeToRelativeDate,
+            item.exprInputToValueType,
+            item.expTypeTodate,
+          ],
+          anchorDate:
+            item.expTypeAnchorDate !== "specificDate"
+              ? item.expTypeAnchorDate
+              : item.exprInputSpecificDate,
+        };
+      }
 
-			_filter.userSelection = _getUserSelection(item);
+      _filter.userSelection = _getUserSelection(item);
 
-			if (_getIsFilterValidToAdd(item)) {
-				_type.filters.push(_filter);
-			}
-		});
+      if (_getIsFilterValidToAdd(item)) {
+        _type.filters.push(_filter);
+      }
+    });
 
-		return _type;
-	};
+    return _type;
+  };
 
-	const getFormattedAxes = (axesValuesParam: any)=>{		
-		/*	PRS 21/07/2022 */
-		let formattedAxes: ChartAxesFormattedAxes = {};
-		
-		axesValuesParam.forEach((axis: AxesValuProps) => {
-			var dim = "";
-			switch (axis.name) {
-				case "Filter":
-					dim = "filters";
-					break;
+  const getFormattedAxes = (axesValuesParam: any) => {
+    /*	PRS 21/07/2022 */
+    let formattedAxes: ChartAxesFormattedAxes = {};
 
-				case "Dimension":
-				case "Date":
-				case "Row":
-				case "Column":
-					dim = "dimensions";
-					break;
+    axesValuesParam.forEach((axis: AxesValuProps) => {
+      var dim = "";
+      switch (axis.name) {
+        case "Filter":
+          dim = "filters";
+          break;
 
-				case "Location":
-					/*	dim = "dims";	*/
-					dim = "dimensions";
-					break;
+        case "Dimension":
+        case "Date":
+        case "Row":
+        case "Column":
+          dim = "dimensions";
+          break;
 
-				case "Measure":
-					dim = "measures";
-					break;
+        case "Location":
+          /*	dim = "dims";	*/
+          dim = "dimensions";
+          break;
 
-				case "X":
-					dim = "measures";
-					break;
+        case "Measure":
+          dim = "measures";
+          break;
 
-				case "Y":
-					dim = "measures";
-					break;
-			}
+        case "X":
+          dim = "measures";
+          break;
 
-			var formattedFields: any = [];
+        case "Y":
+          dim = "measures";
+          break;
+      }
 
-			axis.fields.forEach((field: any) => {
-				var formattedField: any = {
-					tableId: field.tableId,
-					displayName: field.displayname,
-					fieldName: field.fieldname,
-					dataType: field.dataType?.toLowerCase(), 
-					rollupDepth: field.rollupDepth ? true : false,
-					measureOrder: field.measureOrder
-				};
+      var formattedFields: any = [];
 
-				if(field.rollupDepth !== undefined){
-					formattedField.rollupDepth = field.rollupDepth;// ? true : false
-				}
+      axis.fields.forEach((field: any) => {
+        var formattedField: any = {
+          tableId: field.tableId,
+          displayName: field.displayname,
+          fieldName: field.fieldname,
+          dataType: field.dataType?.toLowerCase(),
+          rollupDepth: field.rollupDepth ? true : false,
+          measureOrder: field.measureOrder,
+        };
 
-				if (field.dataType === "date" || field.dataType === "timestamp") {
-					formattedField.timeGrain = field.timeGrain;
-				}
+        if (field.rollupDepth !== undefined) {
+          formattedField.rollupDepth = field.rollupDepth; // ? true : false
+        }
 
-				if (axis.name === "Measure") {
-					formattedField.aggr = field.agg;
-					
-					//Updating windowFunction in QueryAPI 
-					if(field.windowfn){
-					
-						//Function used to convert all the values of windowFunction in camelCase
-						function toCamelCase(str: any) {
-							return str.replace(/(?:^\w|[A-Z]|\b\w)/g, (word: any, index: any) => {
-								return index === 0 ? word.toLowerCase() : word.toUpperCase();
-							}).replace(/\s+/g, '');
-						}					
-						
-						switch(field.windowfn.windowFnOptions)
-						{
-							case "standing": //If standing gets selected in windowFunction, then below data will be send to API
-								//sending windowFn for all charts except richtext
-								if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-									if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){}
-									else{
-										formattedField.windowFn= [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.rank), toCamelCase(field.windowfn.order)];
-									}
-								} else {
-									if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-										if(_chartAxes[1].fields.length === 0){}
-										else {
-											formattedField.windowFn= [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.rank), toCamelCase(field.windowfn.order)];}
-									}
-								}
+        if (field.dataType === "date" || field.dataType === "timestamp") {
+          formattedField.timeGrain = field.timeGrain;
+        }
 
-								//sending windowFnMatrix for two dimensional charts 
-								if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-									if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-									else {
-										formattedField.windowFnMatrix = [_chartAxes[1].fields.length, _chartAxes[2].fields.length];
-									}
-								}
+        if (axis.name === "Measure") {
+          formattedField.aggr = field.agg;
 
-								//sending windowFnPartition for two dimensional charts
-								if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-									if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length === 0){
-										formattedField.windowFnPartition= [field.windowfn.standingRowIndex];
-									} else {
-										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length > 0){
-											formattedField.windowFnPartition= [field.windowfn.standingColumnIndex];
-										} else {
-											if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length > 0){
-												formattedField.windowFnPartition= [field.windowfn.standingRowIndex, field.windowfn.standingColumnIndex];
-											} else {
-												if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){}
-											}
-										}
-									}	
-								} else {
-									//sending windowFnPartition for one dimensional charts
-									if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-										if(_chartAxes[1].fields.length === 0){}
-										else {
-											formattedField.windowFnPartition= [field.windowfn.standingRowIndex];
-										}
-									}
-								}
+          //Updating windowFunction in QueryAPI
+          if (field.windowfn) {
+            //Function used to convert all the values of windowFunction in camelCase
+            function toCamelCase(str: any) {
+              return str
+                .replace(/(?:^\w|[A-Z]|\b\w)/g, (word: any, index: any) => {
+                  return index === 0 ? word.toLowerCase() : word.toUpperCase();
+                })
+                .replace(/\s+/g, "");
+            }
 
-							break;
-							case "sliding": //If sliding gets selected in windowFunction then, below data will be send to API
-									//sending windowFn for all charts except richtext
-									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-										else {
-											formattedField.windowFn = [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.slidingAggregation)];
-										}	
-									} else {
-										if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-											if(_chartAxes[1].fields.length === 0){} 
-											else {
-												formattedField.windowFn = [toCamelCase(field.windowfn.windowFnOptions), toCamelCase(field.windowfn.slidingAggregation)];
-											}
-										}
-									}
-									
-									//sending windowFnOption for all charts except richtext 
-									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-										else {
-											formattedField.windowFnOption= [field.windowfn.slidingPreInc, field.windowfn.slidingCurrent, field.windowfn.slidingNextInc];
-										}	
-									} else {
-										if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-											if(_chartAxes[1].fields.length === 0){} 
-											else {
-												formattedField.windowFnOption= [field.windowfn.slidingPreInc, field.windowfn.slidingCurrent, field.windowfn.slidingNextInc];
-											}
-										}
-									}
-		
-									//sending windowFnMatrix for two dimensional charts 
-									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-										else {
-										formattedField.windowFnMatrix = [_chartAxes[1].fields.length, _chartAxes[2].fields.length] ;
-										}
-									}
-		
-									//sending windowFnPartition for two dimensional charts
-									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-									if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length === 0){
-										formattedField.windowFnPartition= [field.windowfn.slidingRowIndex];
-									} else {
-										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length > 0){
-											formattedField.windowFnPartition= [field.windowfn.slidingColumnIndex];
-										} else {
-											if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length > 0){
-												formattedField.windowFnPartition= [field.windowfn.slidingRowIndex, field.windowfn.slidingColumnIndex, 
-												["rowwise"].includes(field.windowfn.slidingSlideDirection) ? 0 : 1 ];
-											} else {
-												if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-											}
-										}
-									}
-								} else {
-									//sending windowFnPartition for one dimensional charts
-									if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-										if(_chartAxes[1].fields.length === 0){} 
-										else {
-											formattedField.windowFnPartition= [field.windowfn.slidingRowIndex];
-										}
-									}
-								}
-		
-							break;
-							case "standingsvssliding": //If standingsvssliding gets selected in windowFunction, then below data will be send to API
-									//sending windowFn for all charts except richtext
-									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-										else {
-											formattedField.windowFn = [toCamelCase(field.windowfn.percentage),
-												["First", "Last"].includes(field.windowfn.standingSlidingReferenceWn) ? toCamelCase(field.windowfn.standingSlidingReferenceWn) :
-												toCamelCase(field.windowfn.standingSlidingAggregation)];
-										}
-									} else {
-										if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-											if(_chartAxes[1].fields.length === 0){} 
-											else {
-												formattedField.windowFn = [toCamelCase(field.windowfn.percentage),
-													["First", "Last"].includes(field.windowfn.standingSlidingReferenceWn) ? toCamelCase(field.windowfn.standingSlidingReferenceWn) :
-													toCamelCase(field.windowfn.standingSlidingAggregation)];
-											}
-										}	
-									}
+            switch (field.windowfn.windowFnOptions) {
+              case "standing": //If standing gets selected in windowFunction, then below data will be send to API
+                //sending windowFn for all charts except richtext
+                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                  if (
+                    _chartAxes[1].fields.length === 0 &&
+                    _chartAxes[2].fields.length === 0
+                  ) {
+                  } else {
+                    formattedField.windowFn = [
+                      toCamelCase(field.windowfn.windowFnOptions),
+                      toCamelCase(field.windowfn.rank),
+                      toCamelCase(field.windowfn.order),
+                    ];
+                  }
+                } else {
+                  if (
+                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
+                      chartType
+                    )
+                  ) {
+                    if (_chartAxes[1].fields.length === 0) {
+                    } else {
+                      formattedField.windowFn = [
+                        toCamelCase(field.windowfn.windowFnOptions),
+                        toCamelCase(field.windowfn.rank),
+                        toCamelCase(field.windowfn.order),
+                      ];
+                    }
+                  }
+                }
 
-									//sending windowFnOption for all charts except richtext
-									if(["PNC"].includes(field.windowfn.standingSlidingReferenceWn)){
-										if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-											if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0){} 
-											else {
-												formattedField.windowFnOption= [field.windowfn.standingSlidingPreInc, field.windowfn.standingSlidingCurrent, field.windowfn.standingSlidingNextInc];
-											}
-										} else {
-											if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-												if(_chartAxes[1].fields.length === 0){} 
-												else {
-													formattedField.windowFnOption= [field.windowfn.standingSlidingPreInc, field.windowfn.standingSlidingCurrent, field.windowfn.standingSlidingNextInc];
-												}
-											}	
-										}
-									}
-										
-									//sending windowFnMatrix for two dimensional charts 
-									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0) {}
-										else{
-										formattedField.windowFnMatrix = [_chartAxes[1].fields.length, _chartAxes[2].fields.length];
-										}
-									}
-			
-									//sending windowFnPartition for two dimensional charts
-									if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
-									if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length === 0){
-										formattedField.windowFnPartition= [field.windowfn.standingSlidingRowIndex];
-									} else {
-										if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length > 0){
-											formattedField.windowFnPartition= [field.windowfn.standingSlidingColumnIndex];
-										} else {
-											if(_chartAxes[1].fields.length > 0 && _chartAxes[2].fields.length > 0){
-												formattedField.windowFnPartition= [field.windowfn.standingSlidingRowIndex, field.windowfn.standingSlidingColumnIndex, 
-												["rowwise"].includes(field.windowfn.standingSlidingSlideDirection) ? 0 : 1 ];
-											} else {
-												if(_chartAxes[1].fields.length === 0 && _chartAxes[2].fields.length === 0) {}
-											}
-										}
-									}} else {
-										//sending windowFnPartition for one dimensional charts
-										if(!["heatmap", "crossTab", "boxPlot", "richtext"].includes(chartType)){
-											if(_chartAxes[1].fields.length === 0) {}
-											else {
-												formattedField.windowFnPartition= [field.windowfn.standingSlidingRowIndex];
-											}	
-										}
-									}
-							break;
-						}
-					} 
-				}
-				formattedFields.push(formattedField);
-			});
-			
-			if(!formattedAxes[dim]){
-				formattedAxes[dim] = formattedFields;
-			}
-			else{
-				formattedAxes[dim] = [...formattedAxes[dim], ...formattedFields]
-			}
-		});
+                //sending windowFnMatrix for two dimensional charts
+                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                  if (
+                    _chartAxes[1].fields.length === 0 &&
+                    _chartAxes[2].fields.length === 0
+                  ) {
+                  } else {
+                    formattedField.windowFnMatrix = [
+                      _chartAxes[1].fields.length,
+                      _chartAxes[2].fields.length,
+                    ];
+                  }
+                }
 
-		formattedAxes.fields = [];
+                //sending windowFnPartition for two dimensional charts
+                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                  if (
+                    _chartAxes[1].fields.length > 0 &&
+                    _chartAxes[2].fields.length === 0
+                  ) {
+                    formattedField.windowFnPartition = [
+                      field.windowfn.standingRowIndex,
+                    ];
+                  } else {
+                    if (
+                      _chartAxes[1].fields.length === 0 &&
+                      _chartAxes[2].fields.length > 0
+                    ) {
+                      formattedField.windowFnPartition = [
+                        field.windowfn.standingColumnIndex,
+                      ];
+                    } else {
+                      if (
+                        _chartAxes[1].fields.length > 0 &&
+                        _chartAxes[2].fields.length > 0
+                      ) {
+                        formattedField.windowFnPartition = [
+                          field.windowfn.standingRowIndex,
+                          field.windowfn.standingColumnIndex,
+                        ];
+                      } else {
+                        if (
+                          _chartAxes[1].fields.length === 0 &&
+                          _chartAxes[2].fields.length === 0
+                        ) {
+                        }
+                      }
+                    }
+                  }
+                } else {
+                  //sending windowFnPartition for one dimensional charts
+                  if (
+                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
+                      chartType
+                    )
+                  ) {
+                    if (_chartAxes[1].fields.length === 0) {
+                    } else {
+                      formattedField.windowFnPartition = [
+                        field.windowfn.standingRowIndex,
+                      ];
+                    }
+                  }
+                }
 
-		if (
-			chartType === "funnel" ||
-			chartType === "gauge" ||
-			chartType === "simplecard" ||
-			chartType === "richText"
-		) {
-			formattedAxes.dimensions = [];
-		}
+                break;
+              case "sliding": //If sliding gets selected in windowFunction then, below data will be send to API
+                //sending windowFn for all charts except richtext
+                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                  if (
+                    _chartAxes[1].fields.length === 0 &&
+                    _chartAxes[2].fields.length === 0
+                  ) {
+                  } else {
+                    formattedField.windowFn = [
+                      toCamelCase(field.windowfn.windowFnOptions),
+                      toCamelCase(field.windowfn.slidingAggregation),
+                    ];
+                  }
+                } else {
+                  if (
+                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
+                      chartType
+                    )
+                  ) {
+                    if (_chartAxes[1].fields.length === 0) {
+                    } else {
+                      formattedField.windowFn = [
+                        toCamelCase(field.windowfn.windowFnOptions),
+                        toCamelCase(field.windowfn.slidingAggregation),
+                      ];
+                    }
+                  }
+                }
 
-		formattedAxes.filterPanels = [];
+                //sending windowFnOption for all charts except richtext
+                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                  if (
+                    _chartAxes[1].fields.length === 0 &&
+                    _chartAxes[2].fields.length === 0
+                  ) {
+                  } else {
+                    formattedField.windowFnOption = [
+                      field.windowfn.slidingPreInc,
+                      field.windowfn.slidingCurrent,
+                      field.windowfn.slidingNextInc,
+                    ];
+                  }
+                } else {
+                  if (
+                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
+                      chartType
+                    )
+                  ) {
+                    if (_chartAxes[1].fields.length === 0) {
+                    } else {
+                      formattedField.windowFnOption = [
+                        field.windowfn.slidingPreInc,
+                        field.windowfn.slidingCurrent,
+                        field.windowfn.slidingNextInc,
+                      ];
+                    }
+                  }
+                }
 
-		/*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
-		
-		//let _filterZoneFields = _chartAxes[0].fields; /*	PRS For Override	*/
-		let _filterZoneFields = axesValuesParam[0].fields;
-		let _hasInvalidFilterData = _filterZoneFields.filter((field: any) => field.isInValidData);
+                //sending windowFnMatrix for two dimensional charts
+                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                  if (
+                    _chartAxes[1].fields.length === 0 &&
+                    _chartAxes[2].fields.length === 0
+                  ) {
+                  } else {
+                    formattedField.windowFnMatrix = [
+                      _chartAxes[1].fields.length,
+                      _chartAxes[2].fields.length,
+                    ];
+                  }
+                }
 
-		if (_filterZoneFields.length > 0 && _hasInvalidFilterData && _hasInvalidFilterData.length > 0) {
-			Logger("info", "Filter has invalid data.");
-			return;
-		} 
+                //sending windowFnPartition for two dimensional charts
+                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                  if (
+                    _chartAxes[1].fields.length > 0 &&
+                    _chartAxes[2].fields.length === 0
+                  ) {
+                    formattedField.windowFnPartition = [
+                      field.windowfn.slidingRowIndex,
+                    ];
+                  } else {
+                    if (
+                      _chartAxes[1].fields.length === 0 &&
+                      _chartAxes[2].fields.length > 0
+                    ) {
+                      formattedField.windowFnPartition = [
+                        field.windowfn.slidingColumnIndex,
+                      ];
+                    } else {
+                      if (
+                        _chartAxes[1].fields.length > 0 &&
+                        _chartAxes[2].fields.length > 0
+                      ) {
+                        formattedField.windowFnPartition = [
+                          field.windowfn.slidingRowIndex,
+                          field.windowfn.slidingColumnIndex,
+                          ["rowwise"].includes(
+                            field.windowfn.slidingSlideDirection
+                          )
+                            ? 0
+                            : 1,
+                        ];
+                      } else {
+                        if (
+                          _chartAxes[1].fields.length === 0 &&
+                          _chartAxes[2].fields.length === 0
+                        ) {
+                        }
+                      }
+                    }
+                  }
+                } else {
+                  //sending windowFnPartition for one dimensional charts
+                  if (
+                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
+                      chartType
+                    )
+                  ) {
+                    if (_chartAxes[1].fields.length === 0) {
+                    } else {
+                      formattedField.windowFnPartition = [
+                        field.windowfn.slidingRowIndex,
+                      ];
+                    }
+                  }
+                }
 
-		//let _filterObj = getChartLeftFilter(_chartAxes[0]); /*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
-		let _filterObj = getChartLeftFilter(axesValuesParam[0], "chartFilters");
+                break;
+              case "standingsvssliding": //If standingsvssliding gets selected in windowFunction, then below data will be send to API
+                //sending windowFn for all charts except richtext
+                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                  if (
+                    _chartAxes[1].fields.length === 0 &&
+                    _chartAxes[2].fields.length === 0
+                  ) {
+                  } else {
+                    formattedField.windowFn = [
+                      toCamelCase(field.windowfn.percentage),
+                      ["First", "Last"].includes(
+                        field.windowfn.standingSlidingReferenceWn
+                      )
+                        ? toCamelCase(field.windowfn.standingSlidingReferenceWn)
+                        : toCamelCase(
+                            field.windowfn.standingSlidingAggregation
+                          ),
+                    ];
+                  }
+                } else {
+                  if (
+                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
+                      chartType
+                    )
+                  ) {
+                    if (_chartAxes[1].fields.length === 0) {
+                    } else {
+                      formattedField.windowFn = [
+                        toCamelCase(field.windowfn.percentage),
+                        ["First", "Last"].includes(
+                          field.windowfn.standingSlidingReferenceWn
+                        )
+                          ? toCamelCase(
+                              field.windowfn.standingSlidingReferenceWn
+                            )
+                          : toCamelCase(
+                              field.windowfn.standingSlidingAggregation
+                            ),
+                      ];
+                    }
+                  }
+                }
 
-		if (_filterObj.filters.length > 0) {
-			formattedAxes.filterPanels.push(_filterObj);
-		} else {
-			formattedAxes.filterPanels = [];
-		}
+                //sending windowFnOption for all charts except richtext
+                if (
+                  ["PNC"].includes(field.windowfn.standingSlidingReferenceWn)
+                ) {
+                  if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                    if (
+                      _chartAxes[1].fields.length === 0 &&
+                      _chartAxes[2].fields.length === 0
+                    ) {
+                    } else {
+                      formattedField.windowFnOption = [
+                        field.windowfn.standingSlidingPreInc,
+                        field.windowfn.standingSlidingCurrent,
+                        field.windowfn.standingSlidingNextInc,
+                      ];
+                    }
+                  } else {
+                    if (
+                      !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
+                        chartType
+                      )
+                    ) {
+                      if (_chartAxes[1].fields.length === 0) {
+                      } else {
+                        formattedField.windowFnOption = [
+                          field.windowfn.standingSlidingPreInc,
+                          field.windowfn.standingSlidingCurrent,
+                          field.windowfn.standingSlidingNextInc,
+                        ];
+                      }
+                    }
+                  }
+                }
 
-		if(axesValuesParam.find((axes:any)=>axes.name == "Measure")?.fields[0]?.disableReportFilterForOverride){
-			Logger("info", axesValuesParam.find((axes:any)=>axes.name == "Measure").fields[0])
-		}else{
-			if (screenFrom === "Dashboard") {
-				dashBoardGroup.groups.forEach((grp: string) => {
-					if (dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)) {
-						////Check this condition 1. group check if cont 2. propkey
-	
-						let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters, "reportFilters");
-	
-						if (rightFilterObj.filters.length > 0) {
-							formattedAxes.filterPanels.push(rightFilterObj);
-						}
-					}
-				});
-			} else {
-				//chartGroup
-				chartGroup.tabTile[propKey]?.forEach((grp: any) => {
-					let rightFilterObj = getChartLeftFilter(chartGroup.groups[grp].filters, "reportFilters");
-	
-					if (rightFilterObj.filters.length > 0) {
-						formattedAxes.filterPanels.push(rightFilterObj);
-					}
-				});
-			}
-		}		
+                //sending windowFnMatrix for two dimensional charts
+                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                  if (
+                    _chartAxes[1].fields.length === 0 &&
+                    _chartAxes[2].fields.length === 0
+                  ) {
+                  } else {
+                    formattedField.windowFnMatrix = [
+                      _chartAxes[1].fields.length,
+                      _chartAxes[2].fields.length,
+                    ];
+                  }
+                }
 
-		return formattedAxes;
-	}
+                //sending windowFnPartition for two dimensional charts
+                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                  if (
+                    _chartAxes[1].fields.length > 0 &&
+                    _chartAxes[2].fields.length === 0
+                  ) {
+                    formattedField.windowFnPartition = [
+                      field.windowfn.standingSlidingRowIndex,
+                    ];
+                  } else {
+                    if (
+                      _chartAxes[1].fields.length === 0 &&
+                      _chartAxes[2].fields.length > 0
+                    ) {
+                      formattedField.windowFnPartition = [
+                        field.windowfn.standingSlidingColumnIndex,
+                      ];
+                    } else {
+                      if (
+                        _chartAxes[1].fields.length > 0 &&
+                        _chartAxes[2].fields.length > 0
+                      ) {
+                        formattedField.windowFnPartition = [
+                          field.windowfn.standingSlidingRowIndex,
+                          field.windowfn.standingSlidingColumnIndex,
+                          ["rowwise"].includes(
+                            field.windowfn.standingSlidingSlideDirection
+                          )
+                            ? 0
+                            : 1,
+                        ];
+                      } else {
+                        if (
+                          _chartAxes[1].fields.length === 0 &&
+                          _chartAxes[2].fields.length === 0
+                        ) {
+                        }
+                      }
+                    }
+                  }
+                } else {
+                  //sending windowFnPartition for one dimensional charts
+                  if (
+                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
+                      chartType
+                    )
+                  ) {
+                    if (_chartAxes[1].fields.length === 0) {
+                    } else {
+                      formattedField.windowFnPartition = [
+                        field.windowfn.standingSlidingRowIndex,
+                      ];
+                    }
+                  }
+                }
+                break;
+            }
+          }
+        }
+        formattedFields.push(formattedField);
+      });
 
-	let allMeasureFields:any = axesValues.find((axis:any)=>axis.name === "Measure");
+      if (!formattedAxes[dim]) {
+        formattedAxes[dim] = formattedFields;
+      } else {
+        formattedAxes[dim] = [...formattedAxes[dim], ...formattedFields];
+      }
+    });
 
-	[...allMeasureFields?.fields].forEach((field:any, idx:number) => {
-		field.measureOrder = idx + 1;
-	});
+    formattedAxes.fields = [];
 
-	let hasMeasureOverride = allMeasureFields?.fields.filter((field:any)=>{ return field.override? true : false });
+    if (
+      chartType === "funnel" ||
+      chartType === "gauge" ||
+      chartType === "simplecard" ||
+      chartType === "richText"
+    ) {
+      formattedAxes.dimensions = [];
+    }
 
-	let hasNoMeasureOverride = allMeasureFields?.fields.filter((field:any)=>{ return field.override? false : true });
+    formattedAxes.filterPanels = [];
 
-	let formattedAxes:any = [];
+    /*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
 
-	if(hasMeasureOverride && hasMeasureOverride.length > 0){
-		let hasNoMeasureOverrideFields = JSON.parse(JSON.stringify(hasNoMeasureOverride));
-		let tempAxesValues = JSON.parse(JSON.stringify(axesValues));
+    //let _filterZoneFields = _chartAxes[0].fields; /*	PRS For Override	*/
+    let _filterZoneFields = axesValuesParam[0].fields;
+    let _hasInvalidFilterData = _filterZoneFields.filter(
+      (field: any) => field.isInValidData
+    );
 
-		tempAxesValues.find((axis:any)=>axis.name === "Measure").fields = [];
-		tempAxesValues.find((axis:any)=>axis.name === "Measure").fields = hasNoMeasureOverrideFields;
+    if (
+      _filterZoneFields.length > 0 &&
+      _hasInvalidFilterData &&
+      _hasInvalidFilterData.length > 0
+    ) {
+      Logger("info", "Filter has invalid data.");
+      return;
+    }
 
-		formattedAxes.push(getFormattedAxes(tempAxesValues));
+    //let _filterObj = getChartLeftFilter(_chartAxes[0]); /*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
+    let _filterObj = getChartLeftFilter(axesValuesParam[0], "chartFilters");
 
-		hasMeasureOverride.forEach((measureField:any)=>{
-			let tempMeasureField = JSON.parse(JSON.stringify(measureField));
-			let tempOverrideAxes = JSON.parse(JSON.stringify(tempMeasureField.override));
-			delete tempMeasureField.override;
+    if (_filterObj.filters.length > 0) {
+      formattedAxes.filterPanels.push(_filterObj);
+    } else {
+      formattedAxes.filterPanels = [];
+    }
 
-			tempOverrideAxes.find((axis:any)=>axis.name === "Measure").fields = [];
-			tempOverrideAxes.find((axis:any)=>axis.name === "Measure").fields.push(tempMeasureField)
+    if (
+      axesValuesParam.find((axes: any) => axes.name == "Measure")?.fields[0]
+        ?.disableReportFilterForOverride
+    ) {
+      Logger(
+        "info",
+        axesValuesParam.find((axes: any) => axes.name == "Measure").fields[0]
+      );
+    } else {
+      if (screenFrom === "Dashboard") {
+        dashBoardGroup.groups.forEach((grp: string) => {
+          if (dashBoardGroup.filterGroupTabTiles[grp].includes(propKey)) {
+            ////Check this condition 1. group check if cont 2. propkey
 
-			let overrideFormattedAxes:any = getFormattedAxes(tempOverrideAxes);
-			
-			formattedAxes.push(overrideFormattedAxes)
-		});
-	}else{
-		formattedAxes.push(getFormattedAxes(axesValues));
-	}
+            let rightFilterObj = getChartLeftFilter(
+              chartGroup.groups[grp].filters,
+              "reportFilters"
+            );
 
-	let _selectedDS: any = {};
+            if (rightFilterObj.filters.length > 0) {
+              formattedAxes.filterPanels.push(rightFilterObj);
+            }
+          }
+        });
+      } else {
+        //chartGroup
+        chartGroup.tabTile[propKey]?.forEach((grp: any) => {
+          let rightFilterObj = getChartLeftFilter(
+            chartGroup.groups[grp].filters,
+            "reportFilters"
+          );
 
-	if(chartProp.selectedDs){
-		_selectedDS = chartProp.selectedDs;
-	}
-	else{
-		_selectedDS = chartProp.properties[propKey].selectedDs;
-	}
+          if (rightFilterObj.filters.length > 0) {
+            formattedAxes.filterPanels.push(rightFilterObj);
+          }
+        });
+      }
+    }
 
-	var url: string = "";
-	if (_selectedDS.isFlatFileData) {
-		url = `query?datasetid=${_selectedDS.id}`;
-	} else {
-		url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}`;
-	}
+    return formattedAxes;
+  };
 
-	/*	PRS 21/07/2022	*/
-	if (formattedAxes && formattedAxes.length > 0 && (formattedAxes[0].dimensions.length > 0 || formattedAxes[0].measures.length > 0)) {
-		var res: any = await FetchData({
-			requestType: "withData",
-			method: "POST",
-			url: url,
-			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-			data: formattedAxes,
-		});		
+  let allMeasureFields: any = axesValues.find(
+    (axis: any) => axis.name === "Measure"
+  );
 
-		if (res.status) {
-			if (res.data && res.data.length > 0) {
-				if (forQueryData) {
-					return formattedAxes;
-				} else {
-					return res.data;
-				}
-			} else {
-				Logger("info", "Change filter conditions.");
-			}
-		} else {
-			Logger("error", "Get Table Data Error", res.data.message);
-		}
-	}		
+  [...allMeasureFields?.fields].forEach((field: any, idx: number) => {
+    field.measureOrder = idx + 1;
+  });
+
+  let hasMeasureOverride = allMeasureFields?.fields.filter((field: any) => {
+    return field.override ? true : false;
+  });
+
+  let hasNoMeasureOverride = allMeasureFields?.fields.filter((field: any) => {
+    return field.override ? false : true;
+  });
+
+  let formattedAxes: any = [];
+
+  if (hasMeasureOverride && hasMeasureOverride.length > 0) {
+    let hasNoMeasureOverrideFields = JSON.parse(
+      JSON.stringify(hasNoMeasureOverride)
+    );
+    let tempAxesValues = JSON.parse(JSON.stringify(axesValues));
+
+    tempAxesValues.find((axis: any) => axis.name === "Measure").fields = [];
+    tempAxesValues.find((axis: any) => axis.name === "Measure").fields =
+      hasNoMeasureOverrideFields;
+
+    formattedAxes.push(getFormattedAxes(tempAxesValues));
+
+    hasMeasureOverride.forEach((measureField: any) => {
+      let tempMeasureField = JSON.parse(JSON.stringify(measureField));
+      let tempOverrideAxes = JSON.parse(
+        JSON.stringify(tempMeasureField.override)
+      );
+      delete tempMeasureField.override;
+
+      tempOverrideAxes.find((axis: any) => axis.name === "Measure").fields = [];
+      tempOverrideAxes
+        .find((axis: any) => axis.name === "Measure")
+        .fields.push(tempMeasureField);
+
+      let overrideFormattedAxes: any = getFormattedAxes(tempOverrideAxes);
+
+      formattedAxes.push(overrideFormattedAxes);
+    });
+  } else {
+    formattedAxes.push(getFormattedAxes(axesValues));
+  }
+
+  let _selectedDS: any = {};
+
+  if (chartProp.selectedDs) {
+    _selectedDS = chartProp.selectedDs;
+  } else {
+    _selectedDS = chartProp.properties[propKey].selectedDs;
+  }
+
+  var url: string = "";
+  if (_selectedDS.isFlatFileData) {
+    url = `query?datasetid=${_selectedDS.id}`;
+  } else {
+    url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}`;
+  }
+
+  /*	PRS 21/07/2022	*/
+  if (
+    formattedAxes &&
+    formattedAxes.length > 0 &&
+    (formattedAxes[0].dimensions.length > 0 ||
+      formattedAxes[0].measures.length > 0)
+  ) {
+    var res: any = await FetchData({
+      requestType: "withData",
+      method: "POST",
+      url: url,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      data: formattedAxes,
+    });
+
+    if (res.status) {
+      if (res.data && res.data.length > 0) {
+        if (forQueryData) {
+          return formattedAxes;
+        } else {
+          return res.data;
+        }
+      } else {
+        Logger("info", "Change filter conditions.");
+      }
+    } else {
+      Logger("error", "Get Table Data Error", res.data.message);
+    }
+  }
 };
 
 // given chart type, check if the dropzones have required number of fields
 
 export const checkMinRequiredCards = (chartProp: any, chartType: any) => {
-	var minReqMet = [];
-	ChartsInfo[chartType].dropZones.forEach((zone: any, zoneI: number) => {
-		chartProp.chartAxes[zoneI].fields.length >= zone.min
-			? minReqMet.push(true)
-			: minReqMet.push(false);
-	});
+  var minReqMet = [];
+  ChartsInfo[chartType].dropZones.forEach((zone: any, zoneI: number) => {
+    chartProp.chartAxes[zoneI].fields.length >= zone.min
+      ? minReqMet.push(true)
+      : minReqMet.push(false);
+  });
 
-	if (chartType === "crossTab") {
-		if (
-			chartProp.chartAxes[1].fields.length > 0 ||
-			chartProp.chartAxes[2].fields.length > 0 ||
-			chartProp.chartAxes[3].fields.length > 0
-		) {
-			minReqMet.push(true);
-		} else {
-			minReqMet.push(false);
-		}
-	}
+  if (chartType === "crossTab") {
+    if (
+      chartProp.chartAxes[1].fields.length > 0 ||
+      chartProp.chartAxes[2].fields.length > 0 ||
+      chartProp.chartAxes[3].fields.length > 0
+    ) {
+      minReqMet.push(true);
+    } else {
+      minReqMet.push(false);
+    }
+  }
 
-	if (minReqMet.includes(false)) {
-		return false;
-	} else {
-		return true;
-	}
+  if (minReqMet.includes(false)) {
+    return false;
+  } else {
+    return true;
+  }
 };
 
 const ChartData = ({
-	// props
-	tabId,
-	tileId,
-	screenFrom,
+  // props
+  tabId,
+  tileId,
+  screenFrom,
 
-	// state
-	token,
-	tabTileProps,
-	tileState,
-	tabState,
-	chartControls,
-    
-	chartProperties,
-	chartGroup,
-	dashBoardGroup,
-	dynamicMeasureState,
+  // state
+  token,
+  tabTileProps,
+  tileState,
+  tabState,
+  chartControls,
 
-	// dispatch
+  chartProperties,
+  chartGroup,
+  dashBoardGroup,
+  dynamicMeasureState,
 
-	storeServerData,
-	updateChartData,
-	toggleAxesEdit,
-	reUseOldData,
-	chartFilterGroupEdited,
-	dashBoardFilterGroupsEdited,
-	setDashTileSwitched,
-	updateChartDataForDm,
-	updatecfObjectOptions,
-	deleteTablecf,
+  // dispatch
+
+  storeServerData,
+  updateChartData,
+  toggleAxesEdit,
+  reUseOldData,
+  chartFilterGroupEdited,
+  dashBoardFilterGroupsEdited,
+  setDashTileSwitched,
+  updateChartDataForDm,
+  updatecfObjectOptions,
+  deleteTablecf,
 }: ChartAxesProps & TileRibbonStateProps) => {
+
 	const [loading, setLoading] = useState<boolean>(false);
 
 	var _propKey: string = `${tabId}.${tileId}`;
@@ -1116,10 +1382,11 @@ const mapStateToProps = (
 		dashBoardGroup: state.dashBoardFilterGroup,
 		dynamicMeasureState: state.dynamicMeasuresState,
 	};
+
 };
 
-
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+
 	return {
 		storeServerData:(propKey:string,serverData:any)=>
 			dispatch(storeServerData(propKey,serverData)),
@@ -1136,6 +1403,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(updatecfObjectOptions(propKey, removeIndex, item)),
 		deleteTablecf: (propKey: string, index: number) => dispatch(deleteTablecf(propKey, index)),
 	};
+
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChartData);
