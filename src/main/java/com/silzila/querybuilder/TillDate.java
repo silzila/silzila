@@ -9,56 +9,63 @@ import com.silzila.payload.request.Filter;
 public class TillDate {
     
     public static String tillDate(String vendorName, Filter filter) throws BadRequestException{
-        String where = " AND \n\t\t";
+        String where = "";
+
+        Boolean shouldExclude = filter.getFilterType().equals("tillDate") && filter.getShouldExclude();
+
+        if(!filter.getFilterType().equals("tillDate")){
+             where += " AND \n\t\t";
+        }
 
         if(List.of("MONTH","DAYOFMONTH","YEARMONTH").contains(filter.getTimeGrain().name())){
+            String operator = shouldExclude ? ">" : "<=";
             if (vendorName.equals("mysql")) {
-                where += "DAY(" + filter.getTableId() + "." + filter.getFieldName() + ") <= DAY(CURRENT_DATE())";
+                where += "DAY(" + filter.getTableId() + "." + filter.getFieldName() + ")"+ operator + " DAY(CURRENT_DATE())";
             } else if (vendorName.equals("postgresql") || vendorName.equals("redshift")  ) {
-                where += "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER <= EXTRACT(DAY FROM CURRENT_DATE)";
+                where += "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER "+ operator + " EXTRACT(DAY FROM CURRENT_DATE)";
             } else if (vendorName.equals("sqlserver")) {
-                where += "DAY(" + filter.getTableId() + "." + filter.getFieldName() + ") <= DAY(GETDATE())";
+                where += "DAY(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " DAY(GETDATE())";
             } else if (vendorName.equals("bigquery")) {
-                where += "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ") <= EXTRACT(DAY FROM CURRENT_DATE())";
+                where += "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " EXTRACT(DAY FROM CURRENT_DATE())";
             } else if (vendorName.equals("databricks")) {
-                where += "DAYOFMONTH(" + filter.getTableId() + "." + filter.getFieldName() + ") <= DAY(CURRENT_DATE())";
+                where += "DAYOFMONTH(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " DAY(CURRENT_DATE())";
             } else if (vendorName.equals("oracle")) {
-                where += "TO_NUMBER(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'DD')) <= TO_NUMBER(TO_CHAR(CURRENT_DATE, 'DD'))";
+                where += "TO_NUMBER(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'DD')) "+ operator + " TO_NUMBER(TO_CHAR(CURRENT_DATE, 'DD'))";
             } else if (vendorName.equals("snowflake")) {
-                where += "DAYOFMONTH(" + filter.getTableId() + "." + filter.getFieldName() + ") <= DAYOFMONTH(CURRENT_DATE())";
+                where += "DAYOFMONTH(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " DAYOFMONTH(CURRENT_DATE())";
             } else if (vendorName.equals("duckdb") || vendorName.equals("motherduck")) {
-                where += "EXTRACT(day FROM " + filter.getTableId() + "." + filter.getFieldName() + ") <= EXTRACT(day FROM CURRENT_DATE())";
+                where += "EXTRACT(day FROM " + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " EXTRACT(day FROM CURRENT_DATE())";
             }else if (vendorName.equals("db2")) {
-                where += "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER <= EXTRACT(DAY FROM CURRENT_DATE)";
+                where += "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER "+ operator + " EXTRACT(DAY FROM CURRENT_DATE)";
             }else if (vendorName.equals("teradata")) {
-                where += "EXTRACT(day FROM " + filter.getTableId() + "." + filter.getFieldName() + ") <= EXTRACT(day FROM CURRENT_DATE)";
+                where += "EXTRACT(day FROM " + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " EXTRACT(day FROM CURRENT_DATE)";
             }
             else {
                 throw new BadRequestException("Error: DB vendor Name is wrong!");
             }
         }
         else if(filter.getTimeGrain().name().equals("YEAR")){
-
+            String operator = shouldExclude ? "NOT" : "";
             if (vendorName.equals("mysql")) {
-                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") BETWEEN CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "), '-01-01') AND \n\t\tCONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "), '-', LPAD(MONTH(CURRENT_DATE()), 2, '0'), \n\t\t'-', LPAD(DAY(CURRENT_DATE()), 2, '0'))";
+                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "), '-01-01') AND \n\t\tCONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "), '-', LPAD(MONTH(CURRENT_DATE()), 2, '0'), \n\t\t'-', LPAD(DAY(CURRENT_DATE()), 2, '0'))";
             } else if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
-                where += filter.getTableId() + "." + filter.getFieldName() + " :: date  BETWEEN (DATE_TRUNC('year'," + filter.getTableId() + "." + filter.getFieldName() + ")::date) AND \n\t\t(( extract(YEAR from " + filter.getTableId() + "." + filter.getFieldName() + ") || '-' || EXTRACT(MONTH FROM CURRENT_DATE) \n\t\t|| '-' || EXTRACT(DAY FROM CURRENT_DATE))::date)";
+                where += filter.getTableId() + "." + filter.getFieldName() + " :: date "+ operator + " BETWEEN (DATE_TRUNC('year'," + filter.getTableId() + "." + filter.getFieldName() + ")::date) AND \n\t\t(( extract(YEAR from " + filter.getTableId() + "." + filter.getFieldName() + ") || '-' || EXTRACT(MONTH FROM CURRENT_DATE) \n\t\t|| '-' || EXTRACT(DAY FROM CURRENT_DATE))::date)";
             } else if (vendorName.equals("sqlserver")) {
-                where +="CONVERT(date," + filter.getTableId() + "." + filter.getFieldName() + ") BETWEEN CONVERT(DATE,DATETRUNC(year," + filter.getTableId() + "." + filter.getFieldName() + ")) AND \n\t\tCONCAT(year(convert(date," + filter.getTableId() + "." + filter.getFieldName() + ")) , '-', FORMAT(GETDATE(), 'MM') , \n\t\t'-', FORMAT(GETDATE(), 'dd'))";
+                where +="CONVERT(date," + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN CONVERT(DATE,DATETRUNC(year," + filter.getTableId() + "." + filter.getFieldName() + ")) AND \n\t\tCONCAT(year(convert(date," + filter.getTableId() + "." + filter.getFieldName() + ")) , '-', FORMAT(GETDATE(), 'MM') , \n\t\t'-', FORMAT(GETDATE(), 'dd'))";
             } else if (vendorName.equals("bigquery")) {
-                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") BETWEEN DATE_TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", YEAR) AND \n\t\tDATE(CONCAT(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + "), '-', EXTRACT(MONTH FROM CURRENT_DATE()), \n\t\t'-', EXTRACT(DAY FROM CURRENT_DATE())))";
+                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN DATE_TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", YEAR) AND \n\t\tDATE(CONCAT(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + "), '-', EXTRACT(MONTH FROM CURRENT_DATE()), \n\t\t'-', EXTRACT(DAY FROM CURRENT_DATE())))";
             } else if (vendorName.equals("databricks")) {
-                where += "TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", 'YEAR') BETWEEN TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\tTO_DATE(CONCAT(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + "), '-', EXTRACT(MONTH FROM CURRENT_DATE()), \n\t\t'-', EXTRACT(DAY FROM CURRENT_DATE())), 'YYYY-MM-DD')";
+                where += "TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", 'YEAR') "+ operator + " BETWEEN TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\tTO_DATE(CONCAT(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + "), '-', EXTRACT(MONTH FROM CURRENT_DATE()), \n\t\t'-', EXTRACT(DAY FROM CURRENT_DATE())), 'YYYY-MM-DD')";
             } else if (vendorName.equals("oracle")) {
-                where += "TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ") BETWEEN TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ",'YEAR') AND \n\t\tTO_DATE(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'YYYY') || '-' || TO_CHAR(SYSDATE, 'MM-DD'), 'YYYY-MM-DD')";
+                where += "TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ",'YEAR') AND \n\t\tTO_DATE(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'YYYY') || '-' || TO_CHAR(SYSDATE, 'MM-DD'), 'YYYY-MM-DD')";
             } else if (vendorName.equals("snowflake")) {
-                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") BETWEEN DATE_TRUNC('YEAR'," + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\t(TO_VARCHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'YYYY') || '-' || TO_VARCHAR(CURRENT_DATE(), 'MM-DD'))::DATE";
+                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN DATE_TRUNC('YEAR'," + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\t(TO_VARCHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'YYYY') || '-' || TO_VARCHAR(CURRENT_DATE(), 'MM-DD'))::DATE";
             } else if (vendorName.equals("duckdb")||vendorName.equals("motherduck")) {
-                where += "CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE) BETWEEN DATE_TRUNC('year', " + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\tCAST(EXTRACT('year' FROM " + filter.getTableId() + "." + filter.getFieldName() + ") || '-' || extract('month' from current_date())||'-'||extract('day' from current_date()) AS DATE)"; 
+                where += "CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE) "+ operator + " BETWEEN DATE_TRUNC('year', " + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\tCAST(EXTRACT('year' FROM " + filter.getTableId() + "." + filter.getFieldName() + ") || '-' || extract('month' from current_date())||'-'||extract('day' from current_date()) AS DATE)"; 
             } else if (vendorName.equals("db2")) {
-                where += filter.getTableId() + "." + filter.getFieldName() + " :: date  BETWEEN (DATE_TRUNC('year'," + filter.getTableId() + "." + filter.getFieldName() + ")::date) AND \n\t\t(( extract(YEAR from " + filter.getTableId() + "." + filter.getFieldName() + ") || '-' || EXTRACT(MONTH FROM CURRENT_DATE) \n\t\t|| '-' || EXTRACT(DAY FROM CURRENT_DATE))::date)";
+                where += filter.getTableId() + "." + filter.getFieldName() + " :: date "+ operator + " BETWEEN (DATE_TRUNC('year'," + filter.getTableId() + "." + filter.getFieldName() + ")::date) AND \n\t\t(( extract(YEAR from " + filter.getTableId() + "." + filter.getFieldName() + ") || '-' || EXTRACT(MONTH FROM CURRENT_DATE) \n\t\t|| '-' || EXTRACT(DAY FROM CURRENT_DATE))::date)";
             }else if (vendorName.equals("teradata")) {
-                where += "CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE) BETWEEN \nCAST(CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "), '-01-01') AS DATE)  AND \nCAST(CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "), '-', LTRIM(MONTH(CURRENT_DATE())(format '99')),'-', LTRIM(EXTRACT(DAY from CURRENT_DATE()))) AS DATE)";
+                where += "CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE) "+ operator + " BETWEEN \nCAST(CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "), '-01-01') AS DATE)  AND \nCAST(CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + "), '-', LTRIM(MONTH(CURRENT_DATE())(format '99')),'-', LTRIM(EXTRACT(DAY from CURRENT_DATE()))) AS DATE)";
             }
             else {
                 throw new BadRequestException("Error: DB vendor Name is wrong!");
@@ -66,26 +73,27 @@ public class TillDate {
             
         }
         else if(filter.getTimeGrain().name().equals("DAYOFWEEK")){
+            String operator = shouldExclude ? ">" : "<=";
             if (vendorName.equals("mysql")) {
-                where += "DAYOFWEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") <= DAYOFWEEK(CURRENT_DATE())";
+                where += "DAYOFWEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " DAYOFWEEK(CURRENT_DATE())";
             } else if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
-                where += "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ") <= EXTRACT(DOW FROM CURRENT_DATE)";
+                where += "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " EXTRACT(DOW FROM CURRENT_DATE)";
             } else if (vendorName.equals("sqlserver")) {
-                where += "DATEPART(WEEKDAY, " + filter.getTableId() + "." + filter.getFieldName() + ") <= DATEPART(WEEKDAY, GETDATE())";
+                where += "DATEPART(WEEKDAY, " + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " DATEPART(WEEKDAY, GETDATE())";
             } else if (vendorName.equals("bigquery")) {
-                where += "EXTRACT(DAYOFWEEK FROM " + filter.getTableId() + "." + filter.getFieldName() + ") <= EXTRACT(DAYOFWEEK FROM CURRENT_DATE())";
+                where += "EXTRACT(DAYOFWEEK FROM " + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " EXTRACT(DAYOFWEEK FROM CURRENT_DATE())";
             } else if (vendorName.equals("databricks")) {
-                where += "DAYOFWEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") <= DAYOFWEEK(CURRENT_DATE())";
+                where += "DAYOFWEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " DAYOFWEEK(CURRENT_DATE())";
             } else if (vendorName.equals("oracle")) {
-                where += "TO_NUMBER(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'D')) <= TO_NUMBER(TO_CHAR(CURRENT_DATE, 'D'))";
+                where += "TO_NUMBER(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'D')) "+ operator + " TO_NUMBER(TO_CHAR(CURRENT_DATE, 'D'))";
             } else if (vendorName.equals("snowflake")) {
-                where += "DAYOFWEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") <= DAYOFWEEK(CURRENT_DATE())";
+                where += "DAYOFWEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " DAYOFWEEK(CURRENT_DATE())";
             }else if (vendorName.equals("duckdb")||vendorName.equals("motherduck")) {
-                where += "DAYOFWEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") <= DAYOFWEEK(CURRENT_DATE())";
+                where += "DAYOFWEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " DAYOFWEEK(CURRENT_DATE())";
             } else if (vendorName.equals("db2")) {
-                where += "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ") <= EXTRACT(DOW FROM CURRENT_DATE)";
+                where += "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " EXTRACT(DOW FROM CURRENT_DATE)";
             }else if (vendorName.equals("teradata")) {
-                where += "TD_DAY_OF_WEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") <= TD_DAY_OF_WEEK(CURRENT_DATE)";
+                where += "TD_DAY_OF_WEEK(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " TD_DAY_OF_WEEK(CURRENT_DATE)";
             }
             else {
                 throw new BadRequestException("Error: DB vendor Name is wrong!");
@@ -93,8 +101,9 @@ public class TillDate {
         }
 
         else if(List.of("QUARTER","YEARQUARTER").contains(filter.getTimeGrain().name())){
+            String operator = shouldExclude ? "NOT" : "";
             if(vendorName.equals("mysql")){
-                where+="DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") BETWEEN CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() +
+                where+="DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() +
                  "), '-', LPAD(1 + (QUARTER(" + filter.getTableId() + "." + filter.getFieldName() + ") - 1) * 3, 2, '0'), '-01')AND \n\t\tCONCAT(YEAR("
                 + filter.getTableId() + "." + filter.getFieldName() + "), '-'\n\t\t,LPAD(1 + (((QUARTER(" + filter.getTableId() + "." + filter.getFieldName() + 
                 ")) - 1) * 3 + \n\t\t(TIMESTAMPDIFF(MONTH, CONCAT(YEAR(current_date()), '-',LPAD(1 + (QUARTER(current_date()) - 1) * 3, 2, '0'), '-01'), \n\t\tcurrent_date()))), 2, '0'), '-'\n\t\t,LPAD(case WHEN (DAY(current_date()) in (30,31) AND LPAD(1 + (((QUARTER("
@@ -103,7 +112,7 @@ public class TillDate {
                 + filter.getTableId() + "." + filter.getFieldName() + 
                 ")) - 1) * 3 + (TIMESTAMPDIFF(MONTH, CONCAT(YEAR(current_date()), '-',\n\t\t LPAD(1 + (QUARTER(current_date()) - 1) * 3, 2, '0'), '-01'), current_date()))), 2, '0') IN (\"04\", \"06\", \"09\", \"11\"))\n\t\t THEN 30 ELSE DAY(current_date()) END, 2, '0'))";
             } else if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
-                where += " "+filter.getTableId() + "." + filter.getFieldName() + "::date BETWEEN DATE_TRUNC('quarter', " + filter.getTableId() + "." + filter.getFieldName() + ")::date AND \n\t\t" +
+                where += " "+filter.getTableId() + "." + filter.getFieldName() + "::date "+ operator + " BETWEEN DATE_TRUNC('quarter', " + filter.getTableId() + "." + filter.getFieldName() + ")::date AND \n\t\t" +
                 "to_date( " +
                 "extract(year from " + filter.getTableId() + "." + filter.getFieldName() + ") || '-'|| \n\t\t((date_part('month', DATE_TRUNC('quarter', " + filter.getTableId() + "." + filter.getFieldName() + "))::int) + \n\t\t" +
                 "(extract(month from age(CURRENT_DATE::date, DATE_TRUNC('quarter', CURRENT_DATE)::date)))::int) || '-' || \n\t\t" +
@@ -120,7 +129,7 @@ public class TillDate {
                 "THEN '30' ELSE TO_CHAR(EXTRACT(DAY FROM CURRENT_DATE), 'FM00') " +
                 "END,  'YYYY-MM-DD' )";
             } else if (vendorName.equals("sqlserver")) {
-                where += "CONVERT (DATE, " + filter.getTableId() + "." + filter.getFieldName() + ") BETWEEN DATETRUNC(quarter, " + filter.getTableId() + "." + filter.getFieldName() + ") " +
+                where += "CONVERT (DATE, " + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN DATETRUNC(quarter, " + filter.getTableId() + "." + filter.getFieldName() + ") " +
                 "AND \n\t\t" +
                 "CAST(" +
                 "CONCAT(" +
@@ -141,7 +150,7 @@ public class TillDate {
                 "ELSE CAST(DAY(GETDATE()) AS VARCHAR) " +
                 "END) AS DATE)";
             } else if (vendorName.equals("bigquery")) {
-                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") BETWEEN DATE_TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", QUARTER) AND \n\t\t" +
+                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN DATE_TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", QUARTER) AND \n\t\t" +
                 "CAST(" +
                 "CONCAT(" +
                 "EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + ")," +
@@ -161,7 +170,7 @@ public class TillDate {
                 "ELSE CAST(EXTRACT(DAY FROM CURRENT_DATE()) AS STRING) \n\t\t" +
                 "END) AS DATE)";
             } else if (vendorName.equals("databricks")) {
-                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") BETWEEN DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\t" +
+                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\t" +
                 "TO_DATE(CAST(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + ") AS STRING) || '-' || \n\t\t" +
                 "LPAD(CAST(EXTRACT(MONTH FROM DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ")) + \n\t\t" +
                 "MONTHS_BETWEEN(CURRENT_DATE(), DATE_TRUNC(CURRENT_DATE(), 'QUARTER')) AS STRING), 2, '0') || '-' || \n\t\t" +
@@ -177,7 +186,7 @@ public class TillDate {
                 "ELSE LPAD(CAST(DAY(CURRENT_DATE()) AS STRING), 2, '0') \n\t\t" +
                 "END)"; 
             } else if (vendorName.equals("oracle")) {
-                where += "TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ") BETWEEN TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q') AND \n\t\t" +
+                where += "TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q') AND \n\t\t" +
                 "TO_DATE(" +
                 "TO_CHAR(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + ")) || '-' || \n\t\t" +
                 "LPAD(TO_NUMBER(EXTRACT(MONTH FROM TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q'))) + \n\t\tTO_NUMBER(TO_CHAR(" +
@@ -201,7 +210,7 @@ public class TillDate {
                 "THEN '30' " +
                 "ELSE TO_CHAR(SYSDATE, 'DD') END , 'YYYY-MM-DD')";            
             } else if (vendorName.equals("snowflake")) {
-                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") BETWEEN DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\t" +
+                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\t" +
                 "TO_DATE(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::STRING || '-' || \n\t\t" +
                 "LPAD(CAST(EXTRACT(MONTH FROM DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ")) + \n\t\t" +
                 "DATEDIFF(MONTH, DATE_TRUNC('QUARTER', CURRENT_DATE()), CURRENT_DATE()) AS STRING), 2, '0') || '-' || \n\t\t" +
@@ -218,7 +227,7 @@ public class TillDate {
                 "END, 'YYYY-MM-DD')";
             }
             else if (vendorName.equals("duckdb")||vendorName.equals("motherduck")) {
-                where +="CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE) BETWEEN DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\t" +
+                where +="CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE) "+ operator + " BETWEEN DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\t" +
                 "CAST(CAST(EXTRACT('year' FROM " + filter.getTableId() + "." + filter.getFieldName() + ") AS VARCHAR)|| '-' || \n\t\t" +
                 "CAST(EXTRACT('MONTH' FROM DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ")) + \n\t\t" +
                 "DATEDIFF('MONTH', DATE_TRUNC('QUARTER', CURRENT_DATE()), CURRENT_DATE()) AS VARCHAR) || '-' || \n\t\t" +
@@ -234,7 +243,7 @@ public class TillDate {
                 "ELSE CAST(DAY(CURRENT_DATE()) AS VARCHAR)" +
                 "END AS DATE) ";
             }else if (vendorName.equals("db2")) {
-                where += " " + filter.getTableId() + "." + filter.getFieldName() + "::date BETWEEN DATE_TRUNC('quarter', " + filter.getTableId() + "." + filter.getFieldName() + ")::date AND \n\t\t" +
+                where += " " + filter.getTableId() + "." + filter.getFieldName() + "::date "+ operator + " BETWEEN DATE_TRUNC('quarter', " + filter.getTableId() + "." + filter.getFieldName() + ")::date AND \n\t\t" +
                         "( extract(year from " + filter.getTableId() + "." + filter.getFieldName() + "::date) || '-'|| \n" +
                         "\t\tLPAD(\n" +
                         "           CAST((date_part('month', DATE_TRUNC('quarter', " + filter.getTableId() + "." + filter.getFieldName() + "::date))::integer) + \n" +
@@ -252,7 +261,7 @@ public class TillDate {
                         "\t\t(MONTHS_BETWEEN(CURRENT date , DATE_TRUNC('quarter', CURRENT date)::date)::integer)) IN (4,6,9,11) \n" +
                         "\t\tTHEN '30' ELSE LPAD(TO_CHAR(EXTRACT(DAY FROM CURRENT DATE)), 2, '0') END )::date";
             }else if(vendorName.equals("teradata")){
-                where+="CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE) BETWEEN \nCAST(Trunc(" + filter.getTableId() + "." + filter.getFieldName() + " , 'Q') AS DATE) AND CAST(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + ") || '-'|| TRIM(MONTH( Trunc(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q')) +\n"+
+                where+="CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE) "+ operator + " BETWEEN \nCAST(Trunc(" + filter.getTableId() + "." + filter.getFieldName() + " , 'Q') AS DATE) AND CAST(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + ") || '-'|| TRIM(MONTH( Trunc(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q')) +\n"+
                        "\tmonth(current_date)- MONTH( Trunc(current_date, 'Q'))(format '99'))\n\t || '-' || \n CASE\n"+
                        "WHEN EXTRACT(DAY FROM CURRENT_DATE) IN (30, 31)\n"+
                         "AND (MONTH(Trunc(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q')) + MONTH(CURRENT_DATE) - MONTH(Trunc(CURRENT_DATE, 'Q')) = 2)\n"+
