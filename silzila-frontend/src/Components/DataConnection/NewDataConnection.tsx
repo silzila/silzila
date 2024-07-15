@@ -96,7 +96,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		{
 			id: 4,
 			value: "db2",
-			name: "IBM_DB2",
+			name: "IBM DB2",
 			img: ibmdb2icon,
 		},
 		{
@@ -1262,6 +1262,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 				{
 				dataconnection.map((data)=>{
 					const {id, value, name, img} = data;
+					const vendorIconClass = (data.value === 'databricks'||  data.value === 'redshift') ? 'separateVendorIcon' : 'vendorIconStyle';
 					return(
 						<div 
 						onClick={() =>dataConnectionOnclick(value)}
@@ -1276,25 +1277,26 @@ const NewDataConnection = (props: DataConnectionProps) => {
 							}
 						}} >
 							<div key={id} onClick={() =>{ handleListItemBasedOnVendor(value)}} >
+			
 								{ viewMode ? (
 									<div className={selected === value ? 'active': 'listItems'}>
-										<img src={img} alt="Icon" className="vendorIconStyle" />
+										<img src={img} alt="Icon" className={vendorIconClass} />
 						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
 									</div>
 								): !viewMode && enable ? (
 									<div className={selected === value ? 'active': 'listItems'}>
-										<img src={img} alt="Icon" className="vendorIconStyle" />
+										<img src={img} alt="Icon" className={vendorIconClass} />
 						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
 									</div>
 								 ): 
 								 !viewMode && !enable ? (
 									<div className={selected === value ? 'active': 'listItem'}>
-										<img src={img} alt="Icon" className="vendorIconStyle" />
+										<img src={img} alt="Icon" className= {vendorIconClass} />
 						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
 									</div>
 								 ):
 								 <div className={selected === value ? 'active': 'listItem'}>
-										<img src={img} alt="Icon" className="vendorIconStyle" />
+										<img src={img} alt="Icon" className={vendorIconClass} />
 						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
 								 </div>
 								 }
