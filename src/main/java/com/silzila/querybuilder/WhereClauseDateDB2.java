@@ -148,6 +148,9 @@ public class WhereClauseDateDB2 {
                 && List.of("MONTH", "DAYOFMONTH", "YEARMONTH", "YEAR", "DAYOFWEEK", "QUARTER", "YEARQUARTER")
                         .contains(filter.getTimeGrain().name())) {
             where = "(\n\t\t" + where + TillDate.tillDate("db2", filter) + "\n\t\t)";
+            if (shouldExcludeTillDate) {
+                where = " NOT " + where;
+            }
         }
 
         return where;

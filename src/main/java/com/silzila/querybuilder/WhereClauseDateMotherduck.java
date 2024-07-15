@@ -130,6 +130,9 @@ public class WhereClauseDateMotherduck {
                 && List.of("MONTH", "DAYOFMONTH", "YEARMONTH", "YEAR", "DAYOFWEEK", "QUARTER", "YEARQUARTER")
                         .contains(filter.getTimeGrain().name())) {
             where = "(\n\t\t" + where + TillDate.tillDate("motherduck", filter) + "\n\t\t)";
+            if (shouldExcludeTillDate) {
+                where = " NOT " + where;
+            }
         }
 
         return where;

@@ -288,7 +288,6 @@ public class ConnectionPoolService {
     // generates SQL and runs in DB and gives response based on
     // user drag & drop columns
     public JSONArray runQuery(String id, String userId, String query) throws RecordNotFoundException, SQLException {
-        System.out.println("::::::::::::::::::::"+query);
         try (Connection _connection = connectionPool.get(id).getConnection();
                 PreparedStatement pst = _connection.prepareStatement(query);
                 ResultSet rs = pst.executeQuery();) {
