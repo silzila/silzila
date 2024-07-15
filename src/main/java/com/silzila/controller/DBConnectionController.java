@@ -224,7 +224,7 @@ public class DBConnectionController {
                                               @PathVariable(value = "recordCount") Integer recordCount,
                                                          @RequestBody CustomQueryRequest customQueryRequest
                                              )
-            throws RecordNotFoundException, SQLException, BadRequestException, ExpectationFailedException {
+            throws RecordNotFoundException, SQLException,ExpectationFailedException {
         String userId = reqHeader.get("username");
         JSONArray jsonArray =connectionPoolService.getSampleRecordsForCustomQuery(id, userId,customQueryRequest.getQuery(), recordCount);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
@@ -253,7 +253,7 @@ public class DBConnectionController {
 
     // update oracleDBconnection seperate
 
-    @PostMapping("/updateOracleConnection/{id}")
+    @PutMapping("/updateOracleConnection/{id}")
     public ResponseEntity<?> updateOracleConnection(
             @RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id,

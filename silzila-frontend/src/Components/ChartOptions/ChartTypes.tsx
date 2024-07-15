@@ -34,6 +34,7 @@ import { Dispatch } from "redux";
 import {
 	canReUseData,
 	changeChartTypeAndAxes,
+	editChartPropItem
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
 import {
@@ -91,6 +92,7 @@ const ChartTypes = ({
 	updateChartData,
 	addTile,
 	selectTile,
+	updateQueryParam
 }: any) => {
 	var selectedChart = chartProp.properties[propKey].chartType;
 
@@ -119,6 +121,48 @@ const ChartTypes = ({
 			return [];
 		}
 	};
+
+	const clearOverRideOnChartChange = (newChart:string, oldChart:string, newChartAxes:any)=>{
+
+		let _isNewChart:boolean = [
+			"multibar",
+			"stackedBar",
+			"horizontalBar",
+			"horizontalStacked",
+			"line",
+			"area",
+			"stackedArea",
+			"pie",
+			"donut",
+			"rose"
+		].includes(newChart) 
+		
+		let _oldChart:boolean = 	[
+			"multibar",
+			"stackedBar",
+			"horizontalBar",
+			"horizontalStacked",
+			"line",
+			"area",
+			"stackedArea",
+			"pie",
+			"donut",
+			"rose"
+		].includes(oldChart)
+
+		
+		if(!_isNewChart || !_oldChart){
+			let axes: any[] = newChartAxes.filter((axes:any)=>axes.name !== "Filter");
+
+			[...axes].forEach((axis:any, _bIndex:number)=>{
+				[...axis.fields].forEach((field:any, idx:number) => {
+					let _field = JSON.parse(JSON.stringify(field));
+					_field.override = null;
+					updateQueryParam(propKey, _bIndex + 1, idx, _field, "chartAxes");	
+				});	
+			});				
+		}
+	}
 
 //TODO:New Function for allowed numbers
 
@@ -1331,6 +1375,7 @@ const ChartTypes = ({
 	const getAndUpdateNewChartAxes = (oldChart: string, newChart: string) => {
 		const newChartAxes = switchAxesForCharts(oldChart, newChart);
 		updateChartTypeAndAxes(propKey, newChart, newChartAxes);
+		clearOverRideOnChartChange(oldChart, newChart, newChartAxes);
 	};
 
 	const renderChartTypes = chartTypes.map(chart => {
@@ -1511,6 +1556,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			),
 		addChartFilterTabTileName: (selectedDatasetID: string, tabTileName: string) =>
 			dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName)),
+		updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any,  currentChartAxesName : string) =>
+			dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item, currentChartAxesName })),
 	};
 };
 

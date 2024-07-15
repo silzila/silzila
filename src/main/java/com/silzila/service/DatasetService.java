@@ -190,12 +190,11 @@ public class DatasetService {
                     if (customQueryValidator.customQueryValidator(datasetRequest.getDataSchema().getTables().get(i).getCustomQuery())) {
                         isProperQuery = true;
                     } else {
-                       throw new ExpectationFailedException("Cannot proceed with dataset creation,CustomQuery is only allowed with SELECT");
+                       throw new ExpectationFailedException("Cannot proceed with dataset creation,CustomQuery is only allowed with SELECT clause");
                     }
                 }
             }
             if(isProperQuery){
-                System.out.println("::::::::::::::::::::::::::::::::: "+datasetRequest.getDataSchema());
                 DataSchema dataSchema = createTableAliasName(datasetRequest.getDataSchema());
                 // datasetRequest.setDataSchema(dataSchema);
                 // stringify dataschema (table + relationship section of API) to save in DB
@@ -220,7 +219,7 @@ public class DatasetService {
                 return dto;
 
             }else {
-                throw new ExpectationFailedException("Cannot proceed with dataset creation,CustomQuery is only allowed with SELECT");
+                throw new ExpectationFailedException("Cannot proceed with dataset creation, CustomQuery is only allowed with SELECT clause");
             }
         }
     }
@@ -438,8 +437,19 @@ public class DatasetService {
                                             relativeFilter);
 
                                     // Extract the 'fromdate' and 'todate' values from the JSON response
-                                    String fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("fromdate"));
-                                    String toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("todate"));
+                                    String fromDate = "";
+                                    String toDate = "";
+
+                                    if(relativeDateJson.getJSONObject(0).has("FROMDATE")) {
+                                         fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("FROMDATE"));
+                                    }else{
+                                         fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("fromdate"));
+                                    }
+                                    if(relativeDateJson.getJSONObject(0).has("TODATE")) {
+                                         toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("TODATE"));
+                                    }else{
+                                         toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("todate"));
+                                    }
 
                                     // Ensure fromDate is before toDate
                                     if (fromDate.compareTo(toDate) > 0) {
@@ -550,7 +560,6 @@ public class DatasetService {
              * SQL Dialect will be different based on vendor name
              */
             vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
-            // System.out.println("Dialect *****************" + vendorName);
             String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, vendorName);
             logger.info("\n******* QUERY **********\n" + query);
             JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
@@ -628,7 +637,6 @@ public class DatasetService {
 
             // Get the vendor name from the connection pool using the DB connection ID
             String vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
-
             // Compose anchor date query for the specific vendor and run it
             String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery(vendorName, ds, relativeFilter);
 

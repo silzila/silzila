@@ -9,22 +9,13 @@ import ChartsInfo from "./ChartsInfo2";
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import { Dispatch } from "redux";
 import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
-import { storeServerData } from "../../redux/ChartPoperties/ChartControlsActions";
-import {
-  canReUseData,
-  toggleAxesEdited,
-  updateisTextRenamed,
-} from "../../redux/ChartPoperties/ChartPropertiesActions";
+
+import{storeServerData}from "../../redux/ChartPoperties/ChartControlsActions";
+import { canReUseData, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import FetchData from "../ServerCall/FetchData";
-import {
-  AxesValuProps,
-  ChartAxesFormattedAxes,
-  ChartAxesProps,
-} from "./ChartAxesInterfaces";
-import {
-  ChartPropertiesStateProps,
-  UpdateisTextRenamed,
-} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+import { AxesValuProps, ChartAxesFormattedAxes, ChartAxesProps } from "./ChartAxesInterfaces";
+import { ChartPropertiesStateProps} from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { chartFilterGroupEdited } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
@@ -947,501 +938,472 @@ const ChartData = ({
   updatecfObjectOptions,
   deleteTablecf,
 }: ChartAxesProps & TileRibbonStateProps) => {
-  const [loading, setLoading] = useState<boolean>(false);
 
-  var _propKey: string = `${tabId}.${tileId}`;
+	const [loading, setLoading] = useState<boolean>(false);
 
-  // every time chartAxes or chartType is changed, check if
-  // new data must be obtained from server
-  // check for minimum requirements in each dropzone for the given chart type
-  // if not reset the data
+	var _propKey: string = `${tabId}.${tileId}`;
 
-  var chartProp: any =
-    chartProperties.properties[_propKey].chartType === "richText" &&
-    chartProperties.properties[_propKey].isDynamicMeasureWindowOpened
-      ? dynamicMeasureState.dynamicMeasureProps?.[
-          dynamicMeasureState.selectedTabId
-        ]?.[dynamicMeasureState.selectedTileId]?.[
-          `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
-        ]
-      : chartProperties.properties[_propKey];
+	// every time chartAxes or chartType is changed, check if
+	// new data must be obtained from server
+	// check for minimum requirements in each dropzone for the given chart type
+	// if not reset the data
 
-  // chartProperties.properties[_propKey].chartType === "richText" &&
-  // chartProperties.properties[_propKey].isDynamicMeasureWindowOpened
-  // 	? dynamicMeasureState.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
-  // 			dynamicMeasureState.selectedTileId
-  // 	  ]?.[
-  // 			`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
-  // 	  ]
-  // 	: chartProperties;
+	var chartProp: any =
+		chartProperties.properties[_propKey].chartType === "richText" &&
+		chartProperties.properties[_propKey].isDynamicMeasureWindowOpened
+			? dynamicMeasureState.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
+					dynamicMeasureState.selectedTileId
+			  ]?.[
+					`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+			  ]
+			: chartProperties.properties[_propKey];
 
-  const getMinAndMaxValue = (column: string) => {
-    const valuesArray = chartControls.properties[_propKey].chartData.map(
-      (el: any) => {
-        return el[column];
-      }
-    );
-    const minValue = Number(Math.min(...valuesArray)).toFixed(2);
-    const maxValue = Number(Math.max(...valuesArray)).toFixed(2);
+	// chartProperties.properties[_propKey].chartType === "richText" &&
+	// chartProperties.properties[_propKey].isDynamicMeasureWindowOpened
+	// 	? dynamicMeasureState.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
+	// 			dynamicMeasureState.selectedTileId
+	// 	  ]?.[
+	// 			`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+	// 	  ]
+	// 	: chartProperties;
 
-    return { min: minValue, max: maxValue };
-  };
+	const getMinAndMaxValue = (column: string) => {
+		const valuesArray = chartControls.properties[_propKey].chartData.map((el: any) => {
+			return el[column];
+		});		
+		const minValue = Number(Math.min(...valuesArray)).toFixed(2);
+		const maxValue =  Number(Math.max(...valuesArray)).toFixed(2);	
 
-  const updateConditionalFormattingMinMax = () => {
-    if (
-      ["crossTab", "table"].includes(
-        chartProperties.properties[_propKey].chartType
-      )
-    ) {
-      let conditionalFormat = JSON.parse(
-        JSON.stringify(
-          chartControls.properties[_propKey]?.tableConditionalFormats
-        )
-      );
+		return { min: minValue, max: maxValue };
+	};
 
-      if (conditionalFormat && conditionalFormat.length > 0) {
-        [...conditionalFormat].forEach(async (format: any, index: number) => {
-          let names = format.name.split(" of ");
-          let name = names.length > 1 ? names[1] : names[0];
-          let agg = names.length > 1 ? names[0] : "";
+	const updateConditionalFormattingMinMax = ()=>{
+		if(["crossTab", "table"].includes(chartProperties.properties[_propKey].chartType)){
+			let conditionalFormat = JSON.parse(JSON.stringify(chartControls.properties[_propKey]?.tableConditionalFormats));
 
-          let axesAllFields = [];
-          let measureFields = [];
+			if(conditionalFormat && conditionalFormat.length >0){
+				[...conditionalFormat].forEach(async (format:any, index:number) => {
+					let names = format.name.split(' of ');
+					let name = names.length > 1 ? names[1] : names[0];
+					let agg = names.length > 1 ? names[0] : "";
 
-          if (chartProperties.properties[_propKey].chartType == "table") {
-            axesAllFields = [
-              ...chartProp.chartAxes[1].fields,
-              ...chartProp.chartAxes[2].fields,
-            ];
-            measureFields = chartProp.chartAxes[2].fields;
-          } else {
-            axesAllFields = [
-              ...chartProp.chartAxes[1].fields,
-              ...chartProp.chartAxes[2].fields,
-              ...chartProp.chartAxes[3].fields,
-            ];
-            measureFields = chartProp.chartAxes[3].fields;
-          }
+					let axesAllFields = []; let measureFields = [];
 
-          let findField = axesAllFields.find((item: any) => {
-            if (format.name.includes(item.fieldname)) {
-              if (["date", "timestamp"].includes(item.dataType)) {
-                if (format.name.split(" of ")[0] === item.timeGrain) {
-                  return true;
-                }
-              } else {
-                return true;
-              }
-            }
-          });
 
-          if (!findField) {
-            deleteTablecf(_propKey, index);
-          } else {
-            let findMeasureField = measureFields.find((item: any) => {
-              return item.fieldname == name;
-            });
+					if(chartProperties.properties[_propKey].chartType == "table"){
+						axesAllFields = [...chartProp.chartAxes[1].fields, ...chartProp.chartAxes[2].fields];
+						measureFields = chartProp.chartAxes[2].fields;
+					}
+					else{
+						axesAllFields = [...chartProp.chartAxes[1].fields, ...chartProp.chartAxes[2].fields, ...chartProp.chartAxes[3].fields];
+						measureFields = chartProp.chartAxes[3].fields;
+					}
 
-            if (!findMeasureField) {
-              let _colValues = format.isLabel
-                ? await getLabelValues(
-                    format.name,
-                    chartControls,
-                    chartProperties,
-                    _propKey,
-                    token
-                  )
-                : "";
+					let findField = axesAllFields.find((item:any)=>{
+						if (format.name.includes(item.fieldname)) {
+							if(["date", "timestamp"].includes(item.dataType)){
+								if(format.name.split(' of ')[0] === item.timeGrain){
+									return true;									
+								}
+							}
+							else{
+								return true;								
+							}
+						}		
+					})
 
-              // if (fieldName(findField).isTextRenamed===true) {
-              // 	format.name  = findField.displayname; // Use displayname if renamed
-              // }
-              format.value = _colValues;
-              format.name = fieldName(findField);
+					if(!findField){
+						deleteTablecf(_propKey, index)
+					}
+					else{
+						let findMeasureField = measureFields.find((item:any)=>{
+							return item.fieldname == name;
+							
+						})
 
-              updatecfObjectOptions(_propKey, index, format);
-            } else {
-              if (format.isGradient && !format.isUserChanged) {
-                let minMaxValue: any = getMinAndMaxValue(fieldName(findField));
 
-                let minObject = format.value.find(
-                    (val: any) => val.name == "Min"
-                  ),
-                  maxObject = format.value.find(
-                    (val: any) => val.name == "Max"
-                  ),
-                  midObject = format.value.find(
-                    (val: any) => val.name?.trim() == "Mid Value"
-                  );
+						if(!findMeasureField){								
+							let _colValues = format.isLabel ? await getLabelValues(format.name,chartControls,chartProperties,_propKey, token) : "";
+							
+							format.value = _colValues;
+							format.name = fieldName(findField);							
 
-                if (!minObject.isUserChanged) minObject.value = minMaxValue.min;
-                if (!maxObject.isUserChanged) maxObject.value = minMaxValue.max;
-                if (midObject && !midObject.isUserChanged)
-                  midObject.value =
-                    (parseFloat(minMaxValue.min) +
-                      parseFloat(minMaxValue.max)) /
-                    2;
+							updatecfObjectOptions(_propKey, index, format);								
+						}
+						else{								
+							if(format.isGradient && !format.isUserChanged){
+								let minMaxValue:any = getMinAndMaxValue(fieldName(findField));
 
-                format.name = fieldName(findField);
+								let minObject = format.value.find((val:any)=>val.name == 'Min'),
+								maxObject = format.value.find((val:any)=>val.name == 'Max'),
+								midObject = format.value.find((val:any)=>val.name?.trim() == 'Mid Value');
 
-                updatecfObjectOptions(_propKey, index, format);
-              }
-            }
-          }
-        });
-      }
-    }
-  };
+								if(!minObject.isUserChanged) minObject.value = minMaxValue.min;
+								if(!maxObject.isUserChanged) maxObject.value = minMaxValue.max;
+								if(midObject && !midObject.isUserChanged) midObject.value = (parseFloat(minMaxValue.min) + parseFloat(minMaxValue.max)) / 2;
 
-  useEffect(() => {
-    const makeServiceCall = async () => {
-      const axesValues1: any = JSON.parse(JSON.stringify(chartProp.chartAxes));
+								format.name = fieldName(findField);
 
-      /*	To sort chart data	based on field name	*/
-      const sortChartData = (chartData: any[]): any[] => {
-        let result: any[] = [];
+								updatecfObjectOptions(_propKey, index, format);
+							}								
+						}
+					}					
+				});	
+			}
+		}
+	}
 
-        if (chartData && chartData.length > 0) {
-          let _zones: any = axesValues1.filter(
-            (zones: any) => zones.name !== "Filter"
-          );
-          //let _zonesFields:any = [];
-          let _fieldTempObject: any = {};
-          let _chartFieldTempObject: any = {};
 
-          // _zones.forEach((zone:any)=>{
-          // 	_zonesFields = [..._zonesFields, ...zone.fields]
-          // });
 
-          /*	Find and return field's new name	*/
-          const findFieldName = (name: string, i: number = 2): string => {
-            if (_fieldTempObject[`${name}(${i})`] !== undefined) {
-              i++;
-              return findFieldName(name, i);
-            } else {
-              return `${name}(${i})`;
-            }
-          };
 
-          /*	Find and return field's new name	*/
-          const findFieldIndexName = (name: string, i: number = 2): string => {
-            if (_chartFieldTempObject[`${name}_${i}`] !== undefined) {
-              i++;
-              return findFieldIndexName(name, i);
-            } else {
-              return `${name}_${i}`;
-            }
-          };
+	useEffect(() => {
+		const makeServiceCall = async () => {
+			const axesValues1:any = JSON.parse(JSON.stringify(chartProp.chartAxes));
 
-          _zones.forEach((zoneItem: any) => {
-            zoneItem.fields.forEach((field: any, index: number) => {
-              let _nameWithAgg: string = "";
+			/*	To sort chart data	based on field name	*/
+			const sortChartData = (chartData: any[]): any[] => {
+				let result: any[] = [];
 
-              if (zoneItem.name === "Measure") {
-                if (
-                  field.dataType !== "date" &&
-                  field.dataType !== "timestamp"
-                ) {
-                  _nameWithAgg = field.agg
-                    ? `${field.agg} of ${field.fieldname}`
-                    : field.fieldname;
-                } else {
-                  let _timeGrain: string = field.timeGrain || "";
-                  _nameWithAgg = field.agg
-                    ? `${field.agg} ${_timeGrain} of ${field.fieldname}`
-                    : field.fieldname;
-                }
-              } else {
-                if (
-                  field.dataType !== "date" &&
-                  field.dataType !== "timestamp"
-                ) {
-                  _nameWithAgg = field.agg
-                    ? `${field.agg} of ${field.fieldname}`
-                    : field.fieldname;
-                } else {
-                  let _timeGrain: string = field.timeGrain || "";
+				if (chartData && chartData.length > 0) {
+					let _zones: any = axesValues1.filter((zones: any) => zones.name !== "Filter");
+					//let _zonesFields:any = [];
+					let _fieldTempObject: any = {};
+					let _chartFieldTempObject: any = {};
 
-                  _nameWithAgg = _timeGrain
-                    ? `${_timeGrain} of ${field.fieldname}`
-                    : field.fieldname;
-                }
-              }
+					// _zones.forEach((zone:any)=>{
+					// 	_zonesFields = [..._zonesFields, ...zone.fields]
+					// });
 
-              if (field.isTextRenamed === true) {
-                _nameWithAgg = field.displayname;
-              }
+					/*	Find and return field's new name	*/
+					const findFieldName = (name: string, i: number = 2): string => {
+						if (_fieldTempObject[`${name}(${i})`] !== undefined) {
+							i++;
+							return findFieldName(name, i);
+						} else {
+							return `${name}(${i})`;
+						}
+					};
+					
 
-              if (_chartFieldTempObject[field.fieldname] !== undefined) {
-                let _name = findFieldIndexName(field.fieldname);
+					/*	Find and return field's new name	*/
+					const findFieldIndexName = (name: string, i: number = 2): string => {
+						if (_chartFieldTempObject[`${name}_${i}`] !== undefined) {
+							i++;
+							return findFieldIndexName(name, i);
+						} else {
+							return `${name}_${i}`;
+						}
+					};
+					
+				
+					_zones.forEach((zoneItem: any) => {
+						zoneItem.fields.forEach((field: any, index: number) => {
+							let _nameWithAgg: string = "";
+                            
+                            
 
-                field["NameWithIndex"] = _name;
-                _chartFieldTempObject[_name] = "";
-              } else {
-                field["NameWithIndex"] = field.fieldname;
-                _chartFieldTempObject[field.fieldname] = "";
-              }
+							if (zoneItem.name === "Measure") {
+								if (field.dataType !== "date" && field.dataType !== "timestamp") {
+									_nameWithAgg = field.agg
+										?`${field.agg} of ${field.fieldname}`
+										: field.fieldname;
+								} else {
+									let _timeGrain: string = field.timeGrain || "";
+									_nameWithAgg = field.agg
+										? `${field.agg} ${_timeGrain} of ${field.fieldname}`
+										: field.fieldname;
+								}
+							} else {
+								if (field.dataType !== "date" && field.dataType !== "timestamp") {
 
-              if (_fieldTempObject[_nameWithAgg] !== undefined) {
-                let _name = findFieldName(_nameWithAgg);
-                field["NameWithAgg"] = _name;
-                _fieldTempObject[_name] = "";
-              } else {
-                field["NameWithAgg"] = _nameWithAgg;
-                _fieldTempObject[_nameWithAgg] = "";
-              }
-            });
-          });
+									_nameWithAgg = field.agg
+										? `${field.agg} of ${field.fieldname}`
+										: field.fieldname;
+								} else {
+									let _timeGrain: string = field.timeGrain || "";
+									
+									_nameWithAgg = _timeGrain
+										? `${_timeGrain} of ${field.fieldname}`
+										: field.fieldname;
+								}
+								
+							}
+							
+								if (field.isTextRenamed===true) {
+									_nameWithAgg = field.displayname; 
+								}
 
-          chartData.forEach((data: any) => {
-            let _chartDataObj: any = {};
+						
 
-            _zones.forEach((zoneItem: any) => {
-              zoneItem.fields.forEach((field: any) => {
-                _chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
-              });
-            });
+							if (_chartFieldTempObject[field.fieldname] !== undefined) {
+								let _name = findFieldIndexName(field.fieldname);
 
-            result.push(_chartDataObj);
-          });
-        }
+								field["NameWithIndex"] = _name;
+								_chartFieldTempObject[_name] = "";
+							} else {
+								field["NameWithIndex"] = field.fieldname;
+								_chartFieldTempObject[field.fieldname] = "";
+								
+							}
 
-        return result;
-      };
+							if (_fieldTempObject[_nameWithAgg] !== undefined) {
+								let _name = findFieldName(_nameWithAgg);
+								field["NameWithAgg"] = _name;
+								_fieldTempObject[_name] = "";
+							} else {
+								field["NameWithAgg"] = _nameWithAgg;
+								_fieldTempObject[_nameWithAgg] = "";
+							}
+						});
+					});
+					
 
-      let serverCall = false;
-      if (
-        chartProp.axesEdited ||
-        chartGroup.chartFilterGroupEdited ||
-        dashBoardGroup.dashBoardGroupEdited ||
-        tabTileProps.isDashboardTileSwitched
-      ) {
-        //add resuse key in dynamic measure state
-        if (chartProp.reUseData) {
-          serverCall = false;
-        } else {
-          var minReq = checkMinRequiredCards(
-            chartProp,
-            chartProperties.properties[_propKey].chartType
-          );
+					chartData.forEach((data: any) => {
+						let _chartDataObj: any = {};
 
-          if (minReq) {
-            serverCall = true;
-            storeServerData(_propKey, "");
-          } else {
-            if (chartProperties.properties[_propKey].chartType === "richText") {
-              updateChartDataForDm("");
-            } else {
-              updateChartData(_propKey, "");
-            }
-          }
-        }
-      }
+						_zones.forEach((zoneItem: any) => {
+							zoneItem.fields.forEach((field: any) => {
+								_chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
+							});
+						});
 
-      if (chartProp.chartType === "scatterPlot") {
-        var combinedValuesForMeasure = { name: "Measure", fields: [] };
-        var values1 = axesValues1[2].fields;
-        var values2 = axesValues1[3].fields;
-        var allValues = values1.concat(values2);
-        combinedValuesForMeasure.fields = allValues;
-        axesValues1.splice(2, 2, combinedValuesForMeasure);
-      }
 
-      if (
-        chartProp.chartType === "heatmap" ||
-        chartProp.chartType === "crossTab" ||
-        chartProp.chartType === "boxPlot"
-      ) {
-        var combinedValuesForDimension = { name: "Dimension", fields: [] };
-        var values1 = axesValues1[1].fields;
-        var values2 = axesValues1[2].fields;
 
-        var allValues = values1.concat(values2);
-        combinedValuesForDimension.fields = allValues;
-        axesValues1.splice(1, 2, combinedValuesForDimension);
-      }
+						result.push(_chartDataObj);
+					});
+				}
 
-      if (chartProp.chartType === "table") {
-        var combinedValuesForDimension = { name: "Dimension", fields: [] };
+				return result;
+			};
 
-        combinedValuesForDimension.fields = axesValues1[1].fields;
+			let serverCall = false;
+			if (
+				chartProp.axesEdited ||
+				chartGroup.chartFilterGroupEdited ||
+				dashBoardGroup.dashBoardGroupEdited ||
+				tabTileProps.isDashboardTileSwitched
+			) {
+				//add resuse key in dynamic measure state
+				if (chartProp.reUseData) {
+					serverCall = false;
+				} else {
+					var minReq = checkMinRequiredCards(
+						chartProp,
+						chartProperties.properties[_propKey].chartType
+					);
 
-        if (axesValues1.length === 4) {
-          axesValues1.splice(1, 2, combinedValuesForDimension);
-        } else if (axesValues1.length === 3) {
-          axesValues1.splice(1, 1, combinedValuesForDimension);
-        }
-      }
+					if (minReq) {
+						serverCall = true;
+						storeServerData(_propKey,"")
+					} else {
+						if (chartProperties.properties[_propKey].chartType === "richText") {
+							updateChartDataForDm("");
+						} else {
+							updateChartData(_propKey, "");
+						}
+					}
+				}
+			}
 
-      let serverData = [];
+			if (chartProp.chartType === "scatterPlot") {
+				var combinedValuesForMeasure = { name: "Measure", fields: [] };
+				var values1 = axesValues1[2].fields;
+				var values2 = axesValues1[3].fields;
+				var allValues = values1.concat(values2);
+				combinedValuesForMeasure.fields = allValues;
+				axesValues1.splice(2, 2, combinedValuesForMeasure);
+			}
 
-      if (serverCall) {
-        setLoading(true);
+			if (
+				chartProp.chartType === "heatmap" ||
+				chartProp.chartType === "crossTab" ||
+				chartProp.chartType === "boxPlot"
+			) {
 
-        serverData = await getChartData(
-          axesValues1,
-          chartProp,
-          chartGroup,
-          dashBoardGroup,
-          _propKey,
-          screenFrom,
-          token,
-          chartProperties.properties[_propKey].chartType
-        );
+				var combinedValuesForDimension = { name: "Dimension", fields: [] }
+				var values1 = axesValues1[1].fields;
+				var values2 = axesValues1[2].fields;
 
-        Logger("info", "", serverData);
+				var allValues = values1.concat(values2);
+				combinedValuesForDimension.fields = allValues;
+				axesValues1.splice(1, 2, combinedValuesForDimension);
+			}
 
-        // Dispatch action to store server data
-        storeServerData(_propKey, serverData);
-        if (chartProperties.properties[_propKey].chartType === "richText") {
-          updateChartDataForDm(sortChartData(serverData));
-        } else {
-          updateChartData(_propKey, sortChartData(serverData));
-        }
-        setLoading(false);
-      }
-    };
+			if (chartProp.chartType === "table") {
+				var combinedValuesForDimension = { name: "Dimension", fields: [] };
+				
+				combinedValuesForDimension.fields = axesValues1[1].fields;
 
-    const compareArrays = (a: any, b: any) =>
-      a.length === b.length &&
-      a.every((element: string, index: number) => element === b[index]);
+				if (axesValues1.length === 4) {
+					axesValues1.splice(1, 2, combinedValuesForDimension);
+				} else if (axesValues1.length === 3) {
+					axesValues1.splice(1, 1, combinedValuesForDimension);
+				}
+			}
 
-    const _checkGroupsNotSame = (_tabTile: string) => {
-      if (
-        tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(
-          _tabTile
-        ) &&
-        dashBoardGroup.groups.length > 0
-      ) {
-        let _tileGroups = chartGroup.tabTile[_tabTile];
-        let _dashBoardTilesCount = 0;
-        let _dashBoardTilesGroups: any = [];
+			
+			
+			let serverData = [];
 
-        Object.keys(dashBoardGroup.filterGroupTabTiles).forEach((grp) => {
-          if (dashBoardGroup.filterGroupTabTiles[grp].includes(_tabTile)) {
-            _dashBoardTilesCount += 1;
-            _dashBoardTilesGroups.push(grp);
-          }
-        });
+			if (serverCall) {
+				setLoading(true);
 
-        if (_tileGroups && _tileGroups.length !== _dashBoardTilesCount) {
-          return false;
-        }
+				serverData =	await getChartData(
+						axesValues1,
+						chartProp,
+						chartGroup,
+						dashBoardGroup,
+						_propKey,
+						screenFrom,
+						token,
+						chartProperties.properties[_propKey].chartType
+					)
+					
+					
+                
+				Logger("info", "", serverData);
+                 
+				// Dispatch action to store server data
+				storeServerData(_propKey, serverData);
+				if (chartProperties.properties[_propKey].chartType === "richText") {
 
-        return compareArrays(_dashBoardTilesGroups, _tileGroups);
-      } else {
-        return true;
-      }
-    };
+					updateChartDataForDm(sortChartData(serverData));
+				} else {
+					updateChartData(_propKey, sortChartData(serverData));
+				}
+				setLoading(false);				
+			}		
+		};
 
-    if (screenFrom === "Dashboard") {
-      [...tileState.tileList[tabTileProps.selectedTabId]].forEach((tile) => {
-        if (
-          !_checkGroupsNotSame(tile) ||
-          (chartProp.properties && chartProp.properties[tile].axesEdited) ||
-          chartGroup.chartFilterGroupEdited ||
-          dashBoardGroup.dashBoardGroupEdited
-        ) {
-          makeServiceCall();
-        }
-      });
-    } else {
-      if (
-        tabTileProps.previousTabId === 0 ||
-        tabTileProps.previousTileId === 0 ||
-        // &&
-        // !_checkGroupsNotSame(_propKey)
-        chartProp.axesEdited ||
-        chartGroup.chartFilterGroupEdited ||
-        dashBoardGroup.dashBoardGroupEdited
-      ) {
-        makeServiceCall();
-      }
-    }
+		const compareArrays = (a: any, b: any) =>
+			a.length === b.length &&
+			a.every((element: string, index: number) => element === b[index]);
 
-    resetStore();
-  }, [
-    chartProp.chartAxes,
-    chartProp.chartType,
-    chartProp.filterRunState,
-    // isTextRenamed,
+		const _checkGroupsNotSame = (_tabTile: string) => {
+			if (
+				tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(_tabTile) &&
+				dashBoardGroup.groups.length > 0
+			) {
+				let _tileGroups = chartGroup.tabTile[_tabTile];
+				let _dashBoardTilesCount = 0;
+				let _dashBoardTilesGroups: any = [];
 
-    chartGroup.chartFilterGroupEdited,
-    dashBoardGroup.dashBoardGroupEdited,
-    tabTileProps.isDashboardTileSwitched,
-  ]);
+				Object.keys(dashBoardGroup.filterGroupTabTiles).forEach(grp => {
+					if (dashBoardGroup.filterGroupTabTiles[grp].includes(_tabTile)) {
+						_dashBoardTilesCount += 1;
+						_dashBoardTilesGroups.push(grp);
+					}
+				});
 
-  useEffect(() => {
-    updateConditionalFormattingMinMax();
-  }, [chartControls.properties[_propKey].chartData]);
+				if (_tileGroups && _tileGroups.length !== _dashBoardTilesCount) {
+					return false;
+				}
 
-  const resetStore = () => {
-    toggleAxesEdit(_propKey);
-    reUseOldData(_propKey);
+				return compareArrays(_dashBoardTilesGroups, _tileGroups);				
+			} else {
+				return true;
+			}
+		};
 
-    chartFilterGroupEdited(false);
-    dashBoardFilterGroupsEdited(false);
-    setDashTileSwitched(false);
-  };
+		if (screenFrom === "Dashboard") {
+			[...tileState.tileList[tabTileProps.selectedTabId]].forEach(tile => {
+				if (
+					!_checkGroupsNotSame(tile) ||
+					(chartProp.properties && chartProp.properties[tile].axesEdited) ||
+					chartGroup.chartFilterGroupEdited ||
+					dashBoardGroup.dashBoardGroupEdited
+				) {
+					makeServiceCall();
+				}
+			});
+		} else {
+			if (
+				tabTileProps.previousTabId === 0 ||
+				tabTileProps.previousTileId === 0 ||
+				// &&
+				// !_checkGroupsNotSame(_propKey)
+				chartProp.axesEdited ||
+				chartGroup.chartFilterGroupEdited ||
+				dashBoardGroup.dashBoardGroupEdited
+			) {
+				makeServiceCall();
+			}
+		}
 
-  return (
-    <div className="charAxesArea">{loading ? <LoadingPopover /> : null}</div>
-  );
+		resetStore();
+	}, [
+		chartProp.chartAxes,
+		chartProp.chartType,
+		chartProp.filterRunState,
+
+		chartGroup.chartFilterGroupEdited,
+		dashBoardGroup.dashBoardGroupEdited,
+		tabTileProps.isDashboardTileSwitched,
+	]);
+
+	useEffect(()=>{
+		updateConditionalFormattingMinMax();
+	},[chartControls.properties[_propKey].chartData])
+
+	const resetStore = () => {
+		toggleAxesEdit(_propKey);
+		reUseOldData(_propKey);
+	
+		chartFilterGroupEdited(false);
+		dashBoardFilterGroupsEdited(false);
+		setDashTileSwitched(false);
+	};
+
+	return <div className="charAxesArea">{loading ? <LoadingPopover /> : null}</div>;
 };
 
 const mapStateToProps = (
-  state: ChartPropertiesStateProps &
-    TabTileStateProps2 &
-    TileRibbonStateProps &
-    isLoggedProps &
-    ChartFilterGroupStateProps &
-    UpdateisTextRenamed &
-    DashBoardFilterGroupStateProps,
+	state: ChartPropertiesStateProps &
+		TabTileStateProps2 &
+		TileRibbonStateProps &
+		isLoggedProps &
+		ChartFilterGroupStateProps &
+		DashBoardFilterGroupStateProps,
 
-  ownProps: any
+	ownProps: any
 ) => {
-  const { tabId, tileId } = ownProps;
-  var _propKey: string = `${tabId}.${tileId}`;
-  return {
-    tabTileProps: state.tabTileProps,
-    tileState: state.tileState,
-    tabState: state.tabState,
-    chartControls: state.chartControls,
+	const { tabId, tileId } = ownProps;
+	var _propKey: string = `${tabId}.${tileId}`;
+	return {
+		tabTileProps: state.tabTileProps,
+		tileState: state.tileState,
+		tabState: state.tabState,
+		chartControls: state.chartControls,
 
-    // userFilterGroup: state.userFilterGroup,
-    chartProperties: state.chartProperties,
-    token: state.isLogged.accessToken,
-    chartGroup: state.chartFilterGroup,
-    dashBoardGroup: state.dashBoardFilterGroup,
-    dynamicMeasureState: state.dynamicMeasuresState,
-    isTextRenamed: state.chartProperties.properties[_propKey].isTextRenamed,
-  };
+		// userFilterGroup: state.userFilterGroup,
+		chartProperties: state.chartProperties,
+		token: state.isLogged.accessToken,
+		chartGroup: state.chartFilterGroup,
+		dashBoardGroup: state.dashBoardFilterGroup,
+		dynamicMeasureState: state.dynamicMeasuresState,
+	};
+
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-  return {
-    storeServerData: (propKey: string, serverData: any) =>
-      dispatch(storeServerData(propKey, serverData)),
-    updateChartData: (propKey: string, chartData: any) =>
-      dispatch(updateChartData(propKey, chartData)),
-    updateisTextRenamed: (propKey: string, isTextRenamed: boolean) =>
-      dispatch(updateisTextRenamed(propKey, isTextRenamed)),
-    toggleAxesEdit: (propKey: string) =>
-      dispatch(toggleAxesEdited(propKey, false)),
-    reUseOldData: (propKey: string) => dispatch(canReUseData(propKey, false)),
-    chartFilterGroupEdited: (isEdited: boolean) =>
-      dispatch(chartFilterGroupEdited(isEdited)),
-    dashBoardFilterGroupsEdited: (isEdited: boolean) =>
-      dispatch(dashBoardFilterGroupsEdited(isEdited)),
-    setDashTileSwitched: (isSwitched: boolean) =>
-      dispatch(setDashTileSwitched(isSwitched)),
-    updateChartDataForDm: (chartData: any) =>
-      dispatch(updateChartDataForDm(chartData)),
-    updatecfObjectOptions: (propKey: string, removeIndex: number, item: any) =>
-      dispatch(updatecfObjectOptions(propKey, removeIndex, item)),
-    deleteTablecf: (propKey: string, index: number) =>
-      dispatch(deleteTablecf(propKey, index)),
-  };
+
+	return {
+		storeServerData:(propKey:string,serverData:any)=>
+			dispatch(storeServerData(propKey,serverData)),
+		updateChartData: (propKey: string, chartData: any) =>
+			dispatch(updateChartData(propKey, chartData)),		
+		toggleAxesEdit: (propKey: string) => dispatch(toggleAxesEdited(propKey, false)),
+		reUseOldData: (propKey: string) => dispatch(canReUseData(propKey, false)),
+		chartFilterGroupEdited: (isEdited: boolean) => dispatch(chartFilterGroupEdited(isEdited)),
+		dashBoardFilterGroupsEdited: (isEdited: boolean) =>
+			dispatch(dashBoardFilterGroupsEdited(isEdited)),
+		setDashTileSwitched: (isSwitched: boolean) => dispatch(setDashTileSwitched(isSwitched)),
+		updateChartDataForDm: (chartData: any) => dispatch(updateChartDataForDm(chartData)),
+		updatecfObjectOptions: (propKey: string, removeIndex: number, item: any) =>
+			dispatch(updatecfObjectOptions(propKey, removeIndex, item)),
+		deleteTablecf: (propKey: string, index: number) => dispatch(deleteTablecf(propKey, index)),
+	};
+
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChartData);

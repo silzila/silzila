@@ -160,6 +160,22 @@
 			<version>12.3.0.jre17-preview</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.ibm.db2/jcc -->
+		<dependency>
+			<groupId>com.ibm.db2</groupId>
+			<artifactId>jcc</artifactId>
+			<version>11.5.9.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.teradata.jdbc/terajdbc -->
+		<dependency>
+			<groupId>com.teradata.jdbc</groupId>
+			<artifactId>terajdbc</artifactId>
+			<version>20.00.00.24</version>
+		</dependency>
+
+
+
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>

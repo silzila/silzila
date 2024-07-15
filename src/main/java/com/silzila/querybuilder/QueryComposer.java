@@ -57,7 +57,6 @@ public class QueryComposer {
             }
         }
 
-        System.out.println("***************** "+tableIDList);
         /*
          * builds JOIN Clause of SQL - same for all dialects
          */
@@ -98,7 +97,12 @@ public class QueryComposer {
             qMap = SelectClauseSnowflake.buildSelectClause(req, vendorName, aliasnumber);
         } else if (vendorName.equals("motherduck") || vendorName.equals("duckdb") ) {
             qMap = SelectClauseMotherduck.buildSelectClause(req, vendorName, aliasnumber);
-        } else {
+        } else if (vendorName.equals("db2") ) {
+            qMap = SelectClauseDB2.buildSelectClause(req, vendorName, aliasnumber);
+        }else if (vendorName.equals("teradata") ) {
+            qMap = SelectClauseTeraData.buildSelectClause(req, vendorName, aliasnumber);
+        }
+        else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
 

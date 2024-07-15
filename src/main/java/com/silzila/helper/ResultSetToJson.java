@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 public class ResultSetToJson {
 
+    // for converting a resultset from DB
     public static JSONArray convertToJson(ResultSet resultSet) throws SQLException {
         ResultSetMetaData metaData = resultSet.getMetaData();
         int numCols = metaData.getColumnCount();
@@ -32,7 +33,44 @@ public class ResultSetToJson {
             JSONObject row = new JSONObject();
             colNames.forEach(cn -> {
                 try {
-                    row.put(cn, resultSet.getObject(cn));
+                    Object cnValue = resultSet.getObject(cn);
+                    if(cnValue== null){ 
+                        row.put(cn,JSONObject.NULL);
+                    }
+                    else{
+                        row.put(cn, cnValue);
+                    }
+                } catch (JSONException | SQLException e) {
+                    e.printStackTrace();
+                }
+            });
+            result.put(row);
+        }
+        return result;
+    }
+
+    // for file uploads,preview schema changes 
+    public static JSONArray convertToJsonFlatFiles(ResultSet resultSet) throws SQLException {
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int numCols = metaData.getColumnCount();
+        List<String> colNames = IntStream.range(0, numCols)
+                .mapToObj(i -> {
+                    try {
+                        return metaData.getColumnName(i + 1);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        return "?";
+                    }
+                })
+                .collect(Collectors.toList());
+
+        JSONArray result = new JSONArray();
+        while (resultSet.next()) {
+            JSONObject row = new JSONObject();
+            colNames.forEach(cn -> {
+                try {
+                    Object cnValue = resultSet.getObject(cn);
+                    row.put(cn, cnValue);
                 } catch (JSONException | SQLException e) {
                     e.printStackTrace();
                 }
