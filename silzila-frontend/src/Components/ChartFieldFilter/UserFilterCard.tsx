@@ -358,7 +358,7 @@ const UserFilterCard = ({
         filterFieldData["userSelection"] = [
           ...filterFieldData.rawselectmembers,
         ];
-        filterFieldData["exprTypeTillDate"] = false;
+        // filterFieldData["exprTypeTillDate"] = false;
         filterFieldData["switchenable"] = "disabled";
       } else {
         // filterFieldData["switchenable"] = "enabled";
@@ -390,7 +390,7 @@ const UserFilterCard = ({
       }
       if (!filterFieldData.userSelection.length) {
         filterFieldData["switchenable"] = "disabled";
-        filterFieldData["exprTypeTillDate"] = false;
+        // filterFieldData["exprTypeTillDate"] = false;
       }
 
       let AllIdx = filterFieldData.userSelection.findIndex(
@@ -558,8 +558,8 @@ const UserFilterCard = ({
         {filterFieldData.prefix !== "date" &&
         ((filterFieldData.fieldtypeoption === "Search Condition" &&
           filterFieldData.switchEnableSearchCondition) ||
-          (filterFieldData.fieldtypeoption === "Pick List" &&
-            filterFieldData.switchenable !== "disabled")) ? (
+          // filterFieldData.switchenable !== "disabled" &&
+          filterFieldData.fieldtypeoption === "Pick List") ? (
           <FormControlLabel
             value="end"
             control={
@@ -943,16 +943,18 @@ const UserFilterCard = ({
     filterFieldData["greaterThanOrEqualTo"] = "";
     filterFieldData["lessThanOrEqualTo"] = "";
     filterFieldData.switchenable = "disabled";
-    filterFieldData.exprTypeTillDate = false;
+    if (filterFieldData.prefix === "date")
+      filterFieldData.exprTypeTillDate = false;
     if (!filterFieldData.exprInput) {
       filterFieldData["switchEnableSearchCondition"] = false;
       filterFieldData.exprTypeTillDate = false;
     }
     if (
       filterFieldData.fieldtypeoption === "Search Condition" &&
-      event.target.value === "Date"
+      event.target.value === "date"
     ) {
-      filterFieldData["exprInput"] = "";
+      filterFieldData["exprInput"] = moment(new Date()).format("YYYY-MM-DD");
+      // filterFieldData["exprInput"] = "";
     }
     if (
       filterFieldData.fieldtypeoption === "Search Condition" &&

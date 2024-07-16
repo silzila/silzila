@@ -83,9 +83,13 @@ export const getChartData = async (
     const _getFilterType = (item: any) => {
       let _type = "";
 
-      // if (item.switchenable !== "disabled") {
-      //   return "tillDate";
-      // }
+      if (
+        item.switchenable === "disabled" &&
+        item.fieldtypeoption === "Pick List" &&
+        item.exprTypeTillDate
+      ) {
+        return "tillDate";
+      }
 
       switch (item.dataType) {
         case "integer":
@@ -111,9 +115,13 @@ export const getChartData = async (
 
     /*	Set User Selection property */
     const _getUserSelection = (item: any) => {
-      // if (item.switchenable === "disabled") {
-      //   return [""];
-      // }
+      if (
+        item.switchenable === "disabled" &&
+        item.fieldtypeoption === "Pick List" &&
+        item.exprTypeTillDate
+      ) {
+        return [""];
+      }
       if (item.fieldtypeoption === "Search Condition") {
         if (
           item.exprType === "between" &&
@@ -145,13 +153,19 @@ export const getChartData = async (
       }
 
       if (
-        item.fieldtypeoption === "Pick List" &&
-        item.userSelection &&
-        item.userSelection.length > 0
+        item.fieldtypeoption === "Pick List" //&&
+        // item.userSelection &&
+        // item.userSelection.length > 0
       ) {
-        // if (item.switchenable !== "disabled")
-        return !item.userSelection.includes("(All)");
-        // else return true;
+        if (item.switchenable !== "disabled") {
+          return true;
+        } else {
+          if (item.exprTypeTillDate) {
+            return true;
+          } else {
+            return false;
+          }
+        }
       } else if (item.fieldtypeoption === "Search Condition") {
         //   if (
         //     item.exprType === "between" &&
@@ -218,8 +232,8 @@ export const getChartData = async (
 
       if (item.dataType === "timestamp" || item.dataType === "date") {
         _filter.timeGrain = item.prefix;
-        // if (_filter.filterType !== "tillDate")
-        _filter.isTillDate = item.exprTypeTillDate;
+        if (_filter.filterType !== "tillDate")
+          _filter.isTillDate = item.exprTypeTillDate;
       }
 
       _filter.userSelection = _getUserSelection(item);
