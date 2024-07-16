@@ -39,7 +39,6 @@ Data Setup Page
 	height: 100%;
 	background-color: #fff;
 	padding: 1rem 10rem;
-	gap: 10px;
 }
 
 .dataSetContainer {
@@ -133,7 +132,7 @@ Data Setup Page
 .containerButton:hover {
 	background-color: #2bb9bb;
 	border: 1px solid #2bb9bb;
-	color: white;
+	color: white; 
 }
 
 /* 
@@ -141,7 +140,13 @@ Data Setup Page
 Data Connections
 =================================================== 
 */
-
+.addScrollBar{
+	display: flex;
+	flex-direction: column;	
+	overflow-y: auto;
+	overflow-x: auto;
+	max-height: calc(100vh - 50px);
+}
 .dbFormContainer {
 	padding: 10px;
 	width: 400px
@@ -175,7 +180,8 @@ Data Connections
 	width: 200px;
 	height: 45px;
 	white-space: nowrap;
-	background-color: rgb(211, 211, 211);
+	background-color: rgba(224,224,224,1);
+	
 }
 
 .listItem{
@@ -313,6 +319,7 @@ Data Connections
     white-space: nowrap;
     overflow: hidden;
     display: block;
+
 }
 
 .inputFieldStyle {
