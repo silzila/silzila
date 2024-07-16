@@ -54,6 +54,9 @@ public class RelativeFilterQueryComposer {
         } else if (vendorName.equals("db2")) {
             logger.info("------ inside db2 block");
             finalQuery = RelativeFilterDateDB2.getRelativeDate(relativeFilter, anchorDateArray);
+        } else if (vendorName.equals("teradata")) {
+            logger.info("------ inside teradata block");
+            finalQuery = RelativeFilterDateTeraData.getRelativeDate(relativeFilter, anchorDateArray);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }
@@ -78,11 +81,11 @@ public class RelativeFilterQueryComposer {
                 break;
             }
         }
-        if (table.isCustomQuery()) {
+      
+        if(table.isCustomQuery()) {
             if (!query.contains(relativeFilter.getFilterTable().getFieldName())) {
                 throw new BadRequestException("Error: Requested Filter Column is not available in Dataset!");
             }
-
         }
         if (Objects.isNull(table)) {
             throw new BadRequestException("Error: Requested Filter Column is not available in Dataset!");
@@ -116,7 +119,10 @@ public class RelativeFilterQueryComposer {
             finalQuery = RelativeFilterDateMotherDuck.getRelativeAnchorDate(table, relativeFilter);
         } else if (vendorName.equals("db2")) {
             logger.info("------ inside db2 block");
-            finalQuery = RelativeFilterDateDB2.getRelativeAnchorDate(table, relativeFilter);
+            finalQuery = RelativeFilterDateDB2.getRelativeAnchorDate(table,relativeFilter);
+        } else if (vendorName.equals("teradata")) {
+            logger.info("------ inside teradata block");
+            finalQuery = RelativeFilterDateTeraData.getRelativeAnchorDate(table,relativeFilter);
         } else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
         }

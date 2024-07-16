@@ -19,6 +19,14 @@ export interface DataConnectionDetails {
 	passwordError: string;
 	httpPath: string;
 	httpPathError: string;
+	keystore: File| null;
+	keystoreError:string;
+	keystorePassword:string;
+	keystorePasswordError:string;
+	truststore: File | null;
+	truststoreError:string;
+	truststorePassword:string;
+	truststorePasswordError:string;
 }
 
 export interface DataConnectionProps {

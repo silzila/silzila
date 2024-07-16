@@ -18,6 +18,11 @@ public class WhereClauseDateOracle {
         // condition for the field
         String field = "";
         String where = "";
+        Boolean shouldExcludeTillDate = filter.getShouldExclude();
+
+        if(filter.getIsTillDate() && filter.getShouldExclude()){
+            filter.setShouldExclude(false);
+        }
 
         // input of number less than 10 in userSelection is should be in '01','02'
         // format not '1','2'
@@ -121,6 +126,9 @@ public class WhereClauseDateOracle {
         //tillDate
         if(filter.getIsTillDate() && List.of("MONTH","DAYOFMONTH","YEARMONTH","YEAR","DAYOFWEEK","QUARTER","YEARQUARTER").contains(filter.getTimeGrain().name())){
             where = "(\n\t\t" + where+ TillDate.tillDate("oracle", filter) + "\n\t\t)";
+            if(shouldExcludeTillDate){
+                where = " NOT " + where;
+            }
         }
         return where;
 

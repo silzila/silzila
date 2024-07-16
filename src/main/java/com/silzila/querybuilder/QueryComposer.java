@@ -99,6 +99,8 @@ public class QueryComposer {
             qMap = SelectClauseMotherduck.buildSelectClause(req, vendorName, aliasnumber);
         } else if (vendorName.equals("db2") ) {
             qMap = SelectClauseDB2.buildSelectClause(req, vendorName, aliasnumber);
+        }else if (vendorName.equals("teradata") ) {
+            qMap = SelectClauseTeraData.buildSelectClause(req, vendorName, aliasnumber);
         }
         else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
