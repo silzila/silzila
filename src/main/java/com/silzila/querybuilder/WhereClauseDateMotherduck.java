@@ -22,6 +22,11 @@ public class WhereClauseDateMotherduck {
         // condition for the field
         String field = "";
         String where = "";
+        Boolean shouldExcludeTillDate = filter.getShouldExclude();
+
+        if(filter.getIsTillDate() && filter.getShouldExclude()){
+            filter.setShouldExclude(false);
+        }
 
         /*
          * EXACT MATCH - Can be single match or multiple matches
@@ -123,6 +128,9 @@ public class WhereClauseDateMotherduck {
         //tillDate
         if(filter.getIsTillDate() && List.of("MONTH","DAYOFMONTH","YEARMONTH","YEAR","DAYOFWEEK","QUARTER","YEARQUARTER").contains(filter.getTimeGrain().name())){
             where = "(\n\t\t" + where + TillDate.tillDate("motherduck", filter) + "\n\t\t)";
+            if(shouldExcludeTillDate){
+                where = " NOT " + where;
+            }
         }
 
         return where;
