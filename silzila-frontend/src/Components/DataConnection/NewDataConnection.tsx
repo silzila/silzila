@@ -12,6 +12,7 @@ import oracleicon from "../../assets/oracleicon.svg";
 import snowflakeicon from "../../assets/snowflakeicon.svg";
 import motherduckicon from "../../assets/motherduckicon.png";
 import ibmdb2icon from "../../assets/ibmdb2icon.png";
+import teradataicon from "../../assets/teradataicon.png";
 import TextFieldComponent from "../../Components/CommonFunctions/TextFieldComponent";
 import FetchData from "../ServerCall/FetchData";
 import "./DataSetup.css";
@@ -96,7 +97,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		{
 			id: 4,
 			value: "db2",
-			name: "IBM_DB2",
+			name: "IBM DB2",
 			img: ibmdb2icon,
 		},
 		{
@@ -136,7 +137,12 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			name: "Snowflake",
 			img: snowflakeicon,
 		},
-		
+		{
+			id: 11,
+			value: "teradata",
+			name: "Teradata",
+			img: teradataicon,
+		},
 	];
 
 	useEffect(() => {
@@ -1071,6 +1077,8 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			return "1522";
 		}if (connection === "db2") {
 			return "32459";
+		}if (connection === "teradata") {
+			return "1025";
 		}else {
 			return "";
 		}
@@ -1240,16 +1248,19 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		
     <Box 
     sx={{ 
-    minHeight: '100vh', 
+    // minHeight: '100vh', 
     display: 'flex', 
     flexDirection: 'column', 
     flex: 0.15, 
     borderRight: '2px solid rgba(224, 224, 224, 1)', 
     padding: '1rem 2rem',
-    alignItems: 'flex-start'
+    alignItems: 'flex-start',
+	// overflow:'auto'
     }}
+	className="addScrollBar"
     >    
-           <div>
+           <div >
+
 		   {viewMode ? (
                 <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Database</Typography>
 							) : !viewMode && enable ? (
@@ -1258,10 +1269,11 @@ const NewDataConnection = (props: DataConnectionProps) => {
                 <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Select a Database</Typography>
 							)
 			}
-			<div> 
+			<div > 
 				{
 				dataconnection.map((data)=>{
 					const {id, value, name, img} = data;
+					const vendorIconClass = (data.value === 'databricks'||  data.value === 'redshift' || data.value === 'teradata') ? 'separateVendorIcon' : 'vendorIconStyle';
 					return(
 						<div 
 						onClick={() =>dataConnectionOnclick(value)}
@@ -1275,26 +1287,28 @@ const NewDataConnection = (props: DataConnectionProps) => {
 								btnEnabelDisable();
 							}
 						}} >
+							
 							<div key={id} onClick={() =>{ handleListItemBasedOnVendor(value)}} >
+					        
 								{ viewMode ? (
 									<div className={selected === value ? 'active': 'listItems'}>
-										<img src={img} alt="Icon" className="vendorIconStyle" />
+										<img src={img} alt="Icon" className={vendorIconClass} />
 						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
 									</div>
 								): !viewMode && enable ? (
 									<div className={selected === value ? 'active': 'listItems'}>
-										<img src={img} alt="Icon" className="vendorIconStyle" />
+										<img src={img} alt="Icon" className={vendorIconClass} />
 						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
 									</div>
 								 ): 
 								 !viewMode && !enable ? (
 									<div className={selected === value ? 'active': 'listItem'}>
-										<img src={img} alt="Icon" className="vendorIconStyle" />
+										<img src={img} alt="Icon" className= {vendorIconClass} />
 						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
 									</div>
 								 ):
 								 <div className={selected === value ? 'active': 'listItem'}>
-										<img src={img} alt="Icon" className="vendorIconStyle" />
+										<img src={img} alt="Icon" className={vendorIconClass} />
 						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
 								 </div>
 								 }
@@ -1351,7 +1365,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
                                         setAccount({
                                             ...account,
                                             serverError: account.vendor === "databricks" ? "Server Hostname should not be empty" 
-											: account.vendor==="snowflake" || account.vendor==="db2" ? "Server should not be empty"
+											: account.vendor==="snowflake" || account.vendor==="db2"||account.vendor==="teradata" ? "Server should not be empty"
 											: account.vendor==="oracle" ? "Host should not be Empty"
 											: "Server Url should not be empty"
 											,
@@ -1360,7 +1374,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
                                     }
                                 }}
                                 {...{ viewMode, value: account.server, lable: account.vendor === "databricks" ? "Server Hostname" 
-									 : account.vendor==="snowflake" || account.vendor==="db2" ? "Server": account.vendor==="oracle" ?"Host" 
+									 : account.vendor==="snowflake" || account.vendor==="db2"||account.vendor==="teradata" ? "Server": account.vendor==="oracle" ?"Host" 
 									 : "Server Url" }}
                             />
                             <small className="dbConnectionErrorText">{account.serverError}</small>

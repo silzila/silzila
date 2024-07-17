@@ -163,26 +163,30 @@ public class WhereClause {
                     }
 
                     // Calling Dialect specific methods
-                    if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
-                        where = WhereClauseDatePostgres.buildWhereClauseDate(filter);
-                    } else if (vendorName.equals("mysql")) {
-                        where = WhereClauseDateMysql.buildWhereClauseDate(filter,vendorName);
-                    } else if (vendorName.equals("sqlserver")) {
-                        where = WhereClauseDateSqlserver.buildWhereClauseDate(filter);
-                    } else if (vendorName.equals("databricks")) {
-                        where = WhereClauseDateDatabricks.buildWhereClauseDate(filter);
-                    } else if (vendorName.equals("bigquery")) {
-                        where = WhereClauseDateBigquery.buildWhereClauseDate(filter);
-                    } else if (vendorName.equals("oracle")) {
-                        where = WhereClauseDateOracle.buildWhereClauseDate(filter);
-                    } else if (vendorName.equals("snowflake")) {
-                        where = WhereClauseSnowflake.buildWhereClauseDate(filter);
-                    } else if (vendorName.equals("motherduck") || vendorName.equals("duckdb")) {
-                        where = WhereClauseDateMotherduck.buildWhereClauseDate(filter);
-                    }else if (vendorName.equals("db2")) {
-                        where = WhereClauseDateDB2.buildWhereClauseDate(filter);
-                    }else if (vendorName.equals("teradata")) {
-                        where = WhereClauseDateTeraData.buildWhereClauseDate(filter);
+                    if (filter.getFilterType().equals("tillDate")) {
+                        where = TillDate.tillDate(vendorName, filter);
+                    } else {
+                        if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
+                            where = WhereClauseDatePostgres.buildWhereClauseDate(filter);
+                        } else if (vendorName.equals("mysql")) {
+                            where = WhereClauseDateMysql.buildWhereClauseDate(filter, vendorName);
+                        } else if (vendorName.equals("sqlserver")) {
+                            where = WhereClauseDateSqlserver.buildWhereClauseDate(filter);
+                        } else if (vendorName.equals("databricks")) {
+                            where = WhereClauseDateDatabricks.buildWhereClauseDate(filter);
+                        } else if (vendorName.equals("bigquery")) {
+                            where = WhereClauseDateBigquery.buildWhereClauseDate(filter);
+                        } else if (vendorName.equals("oracle")) {
+                            where = WhereClauseDateOracle.buildWhereClauseDate(filter);
+                        } else if (vendorName.equals("snowflake")) {
+                            where = WhereClauseSnowflake.buildWhereClauseDate(filter);
+                        } else if (vendorName.equals("motherduck") || vendorName.equals("duckdb")) {
+                            where = WhereClauseDateMotherduck.buildWhereClauseDate(filter);
+                        } else if (vendorName.equals("db2")) {
+                            where = WhereClauseDateDB2.buildWhereClauseDate(filter);
+                        } else if (vendorName.equals("teradata")) {
+                            where = WhereClauseDateTeraData.buildWhereClauseDate(filter);
+                        }
                     }
                 }
 
