@@ -273,12 +273,10 @@ public class TillDate {
                         "END\n AS DATE)";
             }
             else {
-            else {
                 throw new BadRequestException("Error: DB vendor Name is wrong!");
             }
         }
 
         return where;
-        
     } 
 }
