@@ -191,13 +191,13 @@ public class DBConnectionController {
         return ResponseEntity.status(HttpStatus.OK).body(metadataColumns);
     }
 
-    @GetMapping("/metadata-columns-customquery/{id}")
+    @PostMapping("/metadata-columns-customquery/{id}")
     public ResponseEntity<?> getColumnForCustomQuery(@RequestHeader Map<String, String> reqHeader,
                                                      @PathVariable(value = "id") String id,
                                          @RequestBody CustomQueryRequest customQueryRequest) throws RecordNotFoundException, SQLException, ExpectationFailedException
     {
         String userId = reqHeader.get("username");
-        List<Map<String,String>> columnList=connectionPoolService.getColumForCustomQuery(id, userId, customQueryRequest.getQuery());
+        ArrayList<MetadataColumn> columnList=connectionPoolService.getColumForCustomQuery(id, userId, customQueryRequest.getQuery());
         return ResponseEntity.status(HttpStatus.OK).body(columnList);
     }
 
@@ -218,13 +218,13 @@ public class DBConnectionController {
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
-    @GetMapping("/sample-records-customquery/{id}/{recordCount}")
+    @PostMapping("/sample-records-customquery/{id}/{recordCount}")
     public ResponseEntity<?> getSampleRecordsCustomQuery(@RequestHeader Map<String, String> reqHeader,
                                               @PathVariable(value = "id") String id,
                                               @PathVariable(value = "recordCount") Integer recordCount,
                                                          @RequestBody CustomQueryRequest customQueryRequest
                                              )
-            throws RecordNotFoundException, SQLException, BadRequestException, ExpectationFailedException {
+            throws RecordNotFoundException, SQLException,ExpectationFailedException {
         String userId = reqHeader.get("username");
         JSONArray jsonArray =connectionPoolService.getSampleRecordsForCustomQuery(id, userId,customQueryRequest.getQuery(), recordCount);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
@@ -253,7 +253,7 @@ public class DBConnectionController {
 
     // update oracleDBconnection seperate
 
-    @PostMapping("/updateOracleConnection/{id}")
+    @PutMapping("/updateOracleConnection/{id}")
     public ResponseEntity<?> updateOracleConnection(
             @RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id,

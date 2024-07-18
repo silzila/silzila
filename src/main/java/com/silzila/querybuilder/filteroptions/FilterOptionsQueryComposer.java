@@ -73,6 +73,12 @@ public class FilterOptionsQueryComposer {
         } else if (vendorName.equals("motherduck")) {
             logger.info("------ inside motherduck/duckdb block");
             finalQuery = FilterQueryMotherduck.getFilterOptions(cf, table);
+        }else if (vendorName.equals("db2")) {
+            logger.info("------ inside DB2 block");
+            finalQuery = FilterQueryDB2.getFilterOptions(cf, table);
+        }else if (vendorName.equals("teradata")) {
+            logger.info("------ inside teradata block");
+            finalQuery = FilterQueryTeraData.getFilterOptions(cf, table);
         }
 
         else {

@@ -23,15 +23,17 @@ export interface DatasetProps {
 
 // individual connection item in dataconnectionList
 export interface ConnectionItem {
-  id: string;
-  userId: string;
-  vendor: string;
-  server: string;
-  port: string;
-  database: string;
-  username: string;
-  connectionName: string;
-  httpPath: string;
+	id: string;
+	userId: string;
+	vendor: string;
+	server: string;
+	port: string;
+	database: string;
+	username: string;
+	connectionName: string;
+	httpPath: string;
+	keystore: File|null;
+	truststore: File|null;
 }
 
 export interface DataSetStateProps {

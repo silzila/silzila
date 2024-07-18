@@ -1,15 +1,14 @@
 // This component provides individual dropzone
 // Each Dropzone can have allowed number of cards.
 // Cards can be moved between dropzones & also sorted within a dropzone
-
-import {
+import { useEffect, useState } from "react";
+import {	
 	editChartPropItem,
 	updateIsAutoFilterEnabledPropLeft,
 	updateFilterAnyContidionMatchPropLeft,
 	clearDropZoneFieldsChartPropLeft,
 	toggleFilterRunState,
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
-import { useState } from "react";
 import { useDrop } from "react-dnd";
 import { connect } from "react-redux";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
@@ -55,13 +54,18 @@ const DropZone = ({
 	toggleFilterRunState,
 	updateDynamicMeasureAxes,
 	moveItemChartPropForDm,
+	updateQueryParam
 }: DropZoneProps & any) => {
-	// var geoLocation = chartProp.properties[propKey].geoLocation;
 
 	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [openAlert, setOpenAlert] = useState<boolean>(false);
 	const [testMessage, setTestMessage] = useState<string>("Testing alert");
 	const [isFilterCollapsed, setIsFilterCollapsed] = useState<boolean>(false);
+
+	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
+
+	let charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
+	let chatAxesFieldsLength = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.length;
 
 	var selectedDynamicMeasureProps =
 		dynamicMeasureState?.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
@@ -69,6 +73,7 @@ const DropZone = ({
 		]?.[
 			`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
 		];
+			
 
 	const [, drop] = useDrop({
 		accept: "card",
@@ -85,8 +90,41 @@ const DropZone = ({
 			.substring(1);
 	};
 
-	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
+	//let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
 	let currentChartAxes = chartProp.properties[propKey][currentChartAxesName];
+
+	const updateRollUp = () =>{	
+		let rollupFieldIndex = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.findIndex((field:any)=>field.rollupDepth);
+
+		if(uID){
+			if(rollupFieldIndex > -1){
+				let isManual = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.find((field:any)=>field.isManual);		
+	
+				if(!isManual){
+					updateField(charAxesFields?.length - 1, true);
+					updateField(rollupFieldIndex, false);
+				}
+			}
+			else{
+				updateField(charAxesFields?.length - 1, true);
+				updateField(rollupFieldIndex, false);
+			}
+		}
+		
+
+		function updateField(index:number, enable:boolean) {
+			let _field = charAxesFields[index];
+
+			if (_field) {
+				let _tempField = JSON.parse(JSON.stringify(_field));
+
+				if (_tempField) {
+					_tempField.rollupDepth = enable;
+					updateQueryParam(propKey, bIndex, index, _tempField, currentChartAxesName);
+				}
+			}
+		}
+	}
 
 	var chartType = chartProp.properties[propKey].chartType;
 
@@ -155,6 +193,8 @@ const DropZone = ({
 					updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers, currentChartAxesName);
 				}
 			}
+
+			//setTimeout(updateRollUp, 2000);
 		} else if (item.bIndex !== bIndex) {
 			if (bIndex === 1) {
 				if (chartType === "calendar") {
@@ -242,6 +282,10 @@ const DropZone = ({
 			//setModalData(newFieldData);
 		}
 	};
+
+	useEffect(()=>{
+		updateRollUp();
+	},[chatAxesFieldsLength, chartProp.properties[propKey].enableOverrideForUID])
 
 	const [anchorEl, setAnchorEl] = useState(null);
 	const open = Boolean(anchorEl);
@@ -632,6 +676,9 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 
 		updateDynamicMeasureAxes: (bIndex: number, allowedNumbers: number, fieldData: any) =>
 			dispatch(updateDynamicMeasureAxes(bIndex, allowedNumbers, fieldData)),
+
+		updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any,  currentChartAxesName : string) =>
+			dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item, currentChartAxesName })),
 
 		moveItemChartProp: (
 			propKey: string,
