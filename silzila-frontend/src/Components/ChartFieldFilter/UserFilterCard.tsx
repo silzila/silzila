@@ -14,6 +14,12 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
+import { alpha, styled } from "@mui/material/styles";
+import Radio from "@mui/material/Radio";
+// import { green } from "@mui/material/colors";
 
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import TextField from "@mui/material/TextField";
@@ -44,6 +50,8 @@ import { UserFilterCardProps } from "./UserFilterCardInterface";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import style from "react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark";
+import { color } from "echarts";
 
 const UserFilterCard = ({
   propKey,
@@ -104,7 +112,7 @@ const UserFilterCard = ({
     { key: "year", value: "Year" },
     { key: "quarter", value: "Quarter" },
     { key: "month", value: "Month" },
-    { key: "yearquarter", value: "Year Quater" },
+    { key: "yearquarter", value: "Year Quarter" },
     { key: "yearmonth", value: "Year Month" },
     { key: "date", value: "Date" },
     { key: "dayofmonth", value: "Day Of Month" },
@@ -229,6 +237,8 @@ const UserFilterCard = ({
           setLoading(false);
         }
       }
+      filterFieldData["exprTypeTillDate"] = false;
+      filterFieldData["filterTypeTillDate"] = "enabled";
 
       _preFetchData();
     }
@@ -293,6 +303,7 @@ const UserFilterCard = ({
         dataType: dataType,
         timeGrain: "date",
       },
+      //Fetch Request type
       // from: ["next", "1", "day"],
       // to: ["next", "1", "day"],
       // anchorDate: "today",
@@ -441,10 +452,12 @@ const UserFilterCard = ({
         filterFieldData["userSelection"] = [
           ...filterFieldData.rawselectmembers,
         ];
+        filterFieldData["filterTypeTillDate"] = "enabled";
       } else {
         filterFieldData["userSelection"] = [];
       }
     } else {
+      filterFieldData["filterTypeTillDate"] = "disabled";
       if (event.target.checked) {
         if (!isNaN(event.target.name) && isFinite(event.target.name)) {
           let _name = event.target.name;
@@ -466,6 +479,9 @@ const UserFilterCard = ({
           (item: any) => item.toString() === event.target.name.toString()
         );
         filterFieldData.userSelection.splice(idx, 1);
+      }
+      if (!filterFieldData.userSelection.length) {
+        filterFieldData["filterTypeTillDate"] = "enabled";
       }
 
       let AllIdx = filterFieldData.userSelection.findIndex(
@@ -567,14 +583,27 @@ const UserFilterCard = ({
 
               <span
                 title={item}
-                style={{
-                  marginLeft: 0,
-                  marginTop: "3.5px",
-                  justifySelf: "center",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                }}
+                style={
+                  filterFieldData.includeexclude === "Exclude" &&
+                  filterFieldData.userSelection.includes(item)
+                    ? {
+                        marginLeft: 0,
+                        marginTop: "3.5px",
+                        justifySelf: "center",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textDecoration: "line-through",
+                      }
+                    : {
+                        marginLeft: 0,
+                        marginTop: "3.5px",
+                        justifySelf: "center",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                      }
+                }
               >
                 {item}
               </span>
@@ -639,7 +668,6 @@ const UserFilterCard = ({
     );
     return (
       <div
-        // className="CustomRequiredField"
         style={{
           backgroundColor: "white",
           display: "flex",
@@ -650,7 +678,6 @@ const UserFilterCard = ({
           marginBottom: "6px",
           width: "94%",
           fontSize: "13px",
-          // fontWeight: "400",
           color: "black",
           textAlign: "left",
           paddingLeft: "15px",
@@ -715,6 +742,154 @@ const UserFilterCard = ({
     }
   };
 
+  ///Till Date Switch On Click
+  const handleChangeTillDate = () => {
+    if (filterFieldData.exprTypeTillDate === false) {
+      filterFieldData["exprTypeTillDate"] = true;
+    } else {
+      filterFieldData["exprTypeTillDate"] = false;
+    }
+    updateUserFilterItem(
+      propKey,
+      0,
+      itemIndex,
+      constructChartAxesFieldObject(),
+      currentChartAxesName
+    );
+  };
+
+  ///Render Upto Till Date Switch
+  const SelecTillDate = () => {
+    var labelTillDate = datePatternCollections.find(
+      (item) => item.key === filterFieldData.prefix
+    );
+    var labelName = labelTillDate ? labelTillDate.value : null;
+    if (labelName === "Year Quarter") {
+      labelName = "Quarter";
+    }
+    if (labelName === "Year Month") {
+      labelName = "Month";
+    }
+    return (
+      <FormGroup
+        sx={{
+          marginLeft: "6px",
+          paddingLeft: "10px",
+          paddingBottom: "8px",
+        }}
+      >
+        {filterFieldData.prefix !== "date" &&
+        ((filterFieldData.fieldtypeoption === "Search Condition" &&
+          filterFieldData.switchEnableSearchCondition) ||
+          filterFieldData.fieldtypeoption === "Pick List") ? (
+          <FormControlLabel
+            value="end"
+            control={
+              <GreenSwitch
+                checked={filterFieldData.exprTypeTillDate}
+                size="small"
+                onChange={handleChangeTillDate}
+              />
+            }
+            label={
+              <Typography
+                sx={
+                  filterFieldData.exprTypeTillDate &&
+                  filterFieldData.includeexclude === "Exclude"
+                    ? {
+                        fontSize: "13px",
+                        paddingRight: "15px",
+                        textDecoration: "line-through",
+                      }
+                    : {
+                        fontSize: "13px",
+                        paddingRight: "15px",
+                      }
+                }
+              >
+                {labelName} Till Date
+              </Typography>
+            }
+            labelPlacement="end"
+          />
+        ) : (
+          <FormControlLabel
+            value="end"
+            disabled
+            control={
+              <GreenSwitch
+                checked={false}
+                size="small"
+                onChange={handleChangeTillDate}
+              />
+            }
+            label={
+              <Typography
+                sx={{
+                  fontSize: "13px",
+                  paddingRight: "15px",
+                }}
+              >
+                {labelName} Till Date
+              </Typography>
+            }
+            labelPlacement="end"
+          />
+        )}
+      </FormGroup>
+    );
+  };
+
+  ///Custom Green/Orange Switch
+  var switchColor = "#2bb9bb";
+  if (filterFieldData.includeexclude === "Exclude") {
+    switchColor = "#ffb74d";
+  }
+  const GreenSwitch = styled(Switch)(({ theme }) => ({
+    "& .MuiSwitch-switchBase.Mui-checked": {
+      color: switchColor,
+      "&:hover": {
+        backgroundColor: alpha(switchColor, theme.palette.action.hoverOpacity),
+      },
+    },
+    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+      backgroundColor: switchColor,
+    },
+  }));
+
+  ///Initial Search Condition Values
+  const initialSearchConditionValues = () => {
+    if (filterFieldData.fieldtypeoption === "Search Condition") {
+      if (dataType) {
+        switch (filterFieldData.dataType) {
+          case "decimal":
+          case "integer":
+            if (!filterFieldData.exprType) {
+              filterFieldData["exprType"] = "greaterThan";
+            }
+            break;
+          case "text":
+            if (!filterFieldData.exprType) {
+              filterFieldData["exprType"] = "beginsWith";
+            }
+            break;
+          case "timestamp":
+          case "date":
+            if (!filterFieldData.exprType) {
+              filterFieldData["prefix"] = "year";
+              filterFieldData["exprType"] = "greaterThan";
+            }
+            break;
+          default:
+            if (!filterFieldData.exprType) {
+              filterFieldData["exprType"] = "greaterThan";
+            }
+            break;
+        }
+      }
+    }
+  };
+
   ///Menu close event handler
   const handleClose = async (closeFrom: any, queryParam?: any) => {
     setAnchorEl(null);
@@ -748,14 +923,23 @@ const UserFilterCard = ({
           ...filterFieldData.rawselectmembers,
         ];
         filterFieldData.isInValidData = false;
+        filterFieldData.filterTypeTillDate = "enabled";
+        filterFieldData.exprTypeTillDate = false;
       } else if (filterFieldData.fieldtypeoption === "Search Condition") {
+        initialSearchConditionValues();
+        filterFieldData.exprTypeTillDate = false;
         checkForValidData();
+      } else {
+        filterFieldData.includeexclude = "Include";
       }
     } else if (closeFrom === "opt1") {
       if (filterFieldData.userSelection.includes("(All)")) {
         filterFieldData["userSelection"] = [];
       }
       filterFieldData.includeexclude = queryParam;
+      if (filterFieldData.fieldtypeoption === "Relative Filter") {
+        filterFieldData.includeexclude = "Include";
+      }
     } else {
       if (filterFieldData.fieldtypeoption === "Relative Filter") {
         setLoading(true);
@@ -794,43 +978,6 @@ const UserFilterCard = ({
           "aria-labelledby": "basic-button",
         }}
       >
-        {options.length > 0
-          ? options.map((opt, index) => {
-              return (
-                <div
-                  style={{ display: "flex" }}
-                  onClick={() => handleClose("opt1", opt)}
-                >
-                  <MenuItem
-                    sx={{
-                      fontSize: "12px",
-                      alignSelf: "center",
-                      padding: "2px 1rem",
-                      flex: 1,
-                    }}
-                    key={index}
-                  >
-                    {opt}
-                  </MenuItem>
-                  {opt === filterFieldData.includeexclude ? (
-                    <Tooltip title="Selected">
-                      <DoneIcon
-                        style={{
-                          // flex: 1,
-                          fontSize: "14px",
-                          alignSelf: "center",
-                          // float: "right",
-                          marginRight: "5px",
-                        }}
-                      />
-                    </Tooltip>
-                  ) : null}
-                </div>
-              );
-            })
-          : null}
-        <Divider />
-
         {options2.length > 0
           ? options2.map((opt2, index) => {
               return (
@@ -838,30 +985,113 @@ const UserFilterCard = ({
                   style={{ display: "flex" }}
                   onClick={() => handleClose("opt2", opt2)}
                 >
+                  <Tooltip
+                    title={
+                      opt2 === filterFieldData.fieldtypeoption
+                        ? "Selected"
+                        : null
+                    }
+                  >
+                    <Radio
+                      checked={opt2 === filterFieldData.fieldtypeoption}
+                      sx={{
+                        "& .MuiSvgIcon-root": {
+                          fontSize: "12px",
+                          height: "12px",
+                          color: "#af99db",
+                        },
+                        // fontSize: "0px",
+                        alignSelf: "center",
+                        marginLeft: "5px",
+                      }}
+                    />
+                  </Tooltip>
                   <MenuItem
                     key={index}
                     sx={{
                       flex: 1,
                       fontSize: "12px",
                       alignSelf: "center",
-                      padding: "2px 1rem",
+                      padding: "2px 0px",
+                      paddingRight: "1rem",
                     }}
                   >
                     {opt2}
                   </MenuItem>
-                  {opt2 === filterFieldData.fieldtypeoption ? (
-                    <Tooltip title="Selected">
-                      <DoneIcon
-                        style={{
-                          fontSize: "14px",
-                          alignSelf: "center",
-                          marginRight: "5px",
-                        }}
-                      />
-                    </Tooltip>
-                  ) : null}
                 </div>
               );
+            })
+          : null}
+
+        <Divider
+          sx={{
+            margin: "5px 0px",
+          }}
+        />
+
+        {options.length > 0
+          ? options.map((opt, index) => {
+              if (filterFieldData.fieldtypeoption === "Relative Filter")
+                filterFieldData.includeexclude = "Include";
+              return (
+                <div
+                  style={{ display: "flex" }}
+                  onClick={() => handleClose("opt1", opt)}
+                >
+                  <Tooltip
+                    title={
+                      opt === filterFieldData.includeexclude ? "Selected" : null
+                    }
+                  >
+                    <Radio
+                      checked={opt === filterFieldData.includeexclude}
+                      disabled={
+                        opt === "Exclude" &&
+                        filterFieldData.fieldtypeoption === "Relative Filter"
+                      }
+                      sx={
+                        filterFieldData.includeexclude === "Exclude" &&
+                        opt === filterFieldData.includeexclude
+                          ? {
+                              // flex: 1,
+                              "& .MuiSvgIcon-root": {
+                                fontSize: "12px",
+                                height: "12px",
+                                color: "#ffb74d",
+                              },
+                              alignSelf: "center",
+                              marginLeft: "5px",
+                            }
+                          : {
+                              "& .MuiSvgIcon-root": {
+                                fontSize: "12px",
+                                height: "12px",
+                                color: "#af99db",
+                              },
+                              alignSelf: "center",
+                              marginLeft: "5px",
+                            }
+                      }
+                    />
+                  </Tooltip>
+                  <MenuItem
+                    disabled={
+                      opt === "Exclude" &&
+                      filterFieldData.fieldtypeoption === "Relative Filter"
+                    }
+                    sx={{
+                      fontSize: "12px",
+                      alignSelf: "center",
+                      padding: "2px 0px",
+                      flex: 1,
+                    }}
+                    key={index}
+                  >
+                    {opt}
+                  </MenuItem>
+                </div>
+              );
+              // }
             })
           : null}
       </Menu>
@@ -895,12 +1125,18 @@ const UserFilterCard = ({
       ["date", "timestamp"].includes(dataType) &&
       filterFieldData.prefix !== "date"
     ) {
-      filterFieldData.greaterThanOrEqualTo =
-        filterFieldData.rawselectmembers[1];
-      filterFieldData.lessThanOrEqualTo =
-        filterFieldData.rawselectmembers[
-          filterFieldData.rawselectmembers.length - 1
-        ];
+      if (filterFieldData.prefix !== "year") {
+        filterFieldData.greaterThanOrEqualTo = 1;
+        filterFieldData.lessThanOrEqualTo =
+          filterFieldData.rawselectmembers.length - 1;
+      } else {
+        filterFieldData.greaterThanOrEqualTo =
+          filterFieldData.rawselectmembers[1];
+        filterFieldData.lessThanOrEqualTo =
+          filterFieldData.rawselectmembers[
+            filterFieldData.rawselectmembers.length - 1
+          ];
+      }
     }
   };
 
@@ -960,10 +1196,7 @@ const UserFilterCard = ({
     event: any,
     key = "exprType"
   ) => {
-    // let filterObj = userFilterGroup[propName].chartUserFilters.find((usrfilter) => usrfilter.uId === data.uid);
-    // key = key || "exprType";
     filterFieldData[key] = event.target.value;
-    // filterFieldData = _modifiedResultForServerRequest(filterFieldData);
 
     if (filterFieldData.fieldtypeoption === "Relative Filter") {
       setLoading(true);
@@ -976,8 +1209,20 @@ const UserFilterCard = ({
         setSliderRange();
         // setLoading(false);
       }
+    }
+    setSearchConditionDate();
 
-      setSearchConditionDate();
+    if (filterFieldData.fieldtypeoption === "Search Condition") {
+      if (filterFieldData.exprType === "between") {
+        filterFieldData.switchEnableSearchCondition = true;
+      } else {
+        if (!filterFieldData.exprInput || !filterFieldData.exprInput.length) {
+          filterFieldData.switchEnableSearchCondition = false;
+          filterFieldData.exprTypeTillDate = false;
+        } else {
+          filterFieldData.switchEnableSearchCondition = true;
+        }
+      }
     }
 
     updateUserFilterItem(
@@ -1004,12 +1249,29 @@ const UserFilterCard = ({
     filterFieldData["prefix"] = event.target.value;
     filterFieldData["greaterThanOrEqualTo"] = "";
     filterFieldData["lessThanOrEqualTo"] = "";
-
+    filterFieldData.filterTypeTillDate = "enabled";
+    if (filterFieldData.prefix === "date")
+      filterFieldData.exprTypeTillDate = false;
+    if (!filterFieldData.exprInput) {
+      filterFieldData["switchEnableSearchCondition"] = false;
+      filterFieldData.exprTypeTillDate = false;
+    }
     if (
       filterFieldData.fieldtypeoption === "Search Condition" &&
-      event.target.value === "Date"
+      event.target.value === "date"
     ) {
-      filterFieldData["exprInput"] = "";
+      filterFieldData["exprInput"] = moment(new Date()).format("YYYY-MM-DD");
+    }
+    if (
+      filterFieldData.fieldtypeoption === "Search Condition" &&
+      event.target.value !== "date"
+    ) {
+      if (filterFieldData["exprInput"].includes("-")) {
+        filterFieldData["exprInput"] = "";
+        filterFieldData["switchEnableSearchCondition"] = false;
+      }
+      if (filterFieldData.exprType === "between")
+        filterFieldData["switchEnableSearchCondition"] = true;
     }
 
     // if (filterFieldData.fieldtypeoption === "Pick List") {
@@ -1022,7 +1284,7 @@ const UserFilterCard = ({
 
     updateUserFilterItem(
       propKey,
-      1,
+      0,
       itemIndex,
       constructChartAxesFieldObject(),
       currentChartAxesName
@@ -1053,7 +1315,7 @@ const UserFilterCard = ({
     key = "exprInput",
     type?: string
   ) => {
-    // key = key || "exprInput";
+    filterFieldData["switchEnableSearchCondition"] = true;
 
     if (type && type === "date") {
       val = moment(val).format("YYYY-MM-DD");
@@ -1070,11 +1332,27 @@ const UserFilterCard = ({
         checkForValidData();
       }
 
+      if (
+        key === "exprTnput" ||
+        key === "greaterThanOrEqualTo" ||
+        key === "lessThanOrEqualTo"
+      ) {
+        if (val === null || val === "" || val === undefined) {
+          filterFieldData["switchEnableSearchCondition"] = false;
+          filterFieldData.exprTypeTillDate = false;
+        } else {
+          filterFieldData["switchEnableSearchCondition"] = true;
+        }
+      }
+
       if (filterFieldData.exprType === "between") {
         sliderRange = [
           filterFieldData.greaterThanOrEqualTo,
           filterFieldData.lessThanOrEqualTo,
         ];
+      } else if (!filterFieldData.exprInput.length) {
+        filterFieldData["switchEnableSearchCondition"] = false;
+        filterFieldData.exprTypeTillDate = false;
       }
 
       if (filterFieldData.fieldtypeoption === "Relative Filter") {
@@ -1149,25 +1427,32 @@ const UserFilterCard = ({
     return (
       <>
         <TextField
-          InputProps={{
-            style: {
-              height: "25px",
-              width: "100%",
-              fontSize: "13px",
-              marginRight: "30px",
-            },
-          }}
+          InputProps={
+            filterFieldData.includeexclude === "Exclude"
+              ? {
+                  style: {
+                    height: "25px",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                    textDecoration: "line-through",
+                    color: "#ffb74d",
+                  },
+                }
+              : {
+                  style: {
+                    height: "25px",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                  },
+                }
+          }
           placeholder="Value"
           defaultValue={filterFieldData.exprInput}
           type={type}
           onBlur={(e) => handleCustomRequiredValueOnBlur(e.target.value)}
         />
-        {/* <input
-					placeholder="Value"
-					defaultValue={filterFieldData.exprInput}
-					type={type}
-					onBlur={e => handleCustomRequiredValueOnBlur(e.target.value)}
-          /> */}
 
         {filterFieldData.isInValidData ? (
           <span className="ErrorText">Please enter valid data.</span>
@@ -1180,18 +1465,32 @@ const UserFilterCard = ({
   const SearchConditionBetweenControl = () => {
     return (
       <>
-        {/*<StyledSlider
-          value={sliderRange}
-          onChange={handleSliderRangeOnChange}
-          min={filterFieldData.greaterThanOrEqualTo}
-          max={filterFieldData.lessThanOrEqualTo}
-          marks={_marks}
-           />*/}
         <TextField
           type="number"
+          InputProps={
+            filterFieldData.includeexclude === "Exclude"
+              ? {
+                  style: {
+                    height: "26px",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                    textDecoration: "line-through",
+                    color: "#ffb74d",
+                  },
+                }
+              : {
+                  style: {
+                    height: "26px",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                  },
+                }
+          }
           className="CustomInputValue"
           sx={{
-            width: "100%",
+            paddingBottom: "5px",
           }}
           defaultValue={filterFieldData.greaterThanOrEqualTo}
           onBlur={(e) => {
@@ -1202,7 +1501,27 @@ const UserFilterCard = ({
           }}
         />
         <TextField
-          type="number"
+          InputProps={
+            filterFieldData.includeexclude === "Exclude"
+              ? {
+                  style: {
+                    height: "26px",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                    textDecoration: "line-through",
+                    color: "#ffb74d",
+                  },
+                }
+              : {
+                  style: {
+                    height: "26px",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                  },
+                }
+          }
           className="CustomInputValue"
           defaultValue={filterFieldData.lessThanOrEqualTo}
           onBlur={(e) => {
@@ -1212,24 +1531,7 @@ const UserFilterCard = ({
             );
           }}
         />
-        {/* <input
-					placeholder="Greater than or Equal to"
-					type="number"
-					className="CustomInputValue"
-					defaultValue={filterFieldData.greaterThanOrEqualTo}
-					onBlur={e => {
-						handleCustomRequiredValueOnBlur(e.target.value, "greaterThanOrEqualTo");
-					}}
-				/>
-				<input
-					placeholder="Less than or Equal to"
-					type="number"
-					className="CustomInputValue"
-					defaultValue={filterFieldData.lessThanOrEqualTo}
-					onBlur={e => {
-						handleCustomRequiredValueOnBlur(e.target.value, "lessThanOrEqualTo");
-					}}
-				/> */}
+
         {filterFieldData.isInValidData ? (
           <span className="ErrorText">Please enter valid data.</span>
         ) : null}
@@ -1247,7 +1549,31 @@ const UserFilterCard = ({
             onChange={(e) =>
               handleCustomRequiredValueOnBlur(e, "greaterThanOrEqualTo", "date")
             }
-            renderInput={(params) => <TextField {...params} />}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                sx={
+                  filterFieldData.includeexclude === "Exclude"
+                    ? {
+                        paddingBottom: "5px",
+                        color: "#ffb74d",
+                        textDecoration: "line-through",
+                      }
+                    : { paddingBottom: "5px" }
+                }
+                InputProps={{
+                  ...params.InputProps,
+                  style: {
+                    ...params.InputProps?.style,
+                    color:
+                      filterFieldData.includeexclude === "Exclude"
+                        ? "#ffb74d"
+                        : "inherit",
+                  },
+                }}
+                className="customDatePickerHeight"
+              />
+            )}
           />
         </LocalizationProvider>
 
@@ -1257,7 +1583,27 @@ const UserFilterCard = ({
             onChange={(e) =>
               handleCustomRequiredValueOnBlur(e, "lessThanOrEqualTo", "date")
             }
-            renderInput={(params) => <TextField {...params} />}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                sx={
+                  filterFieldData.includeexclude === "Exclude"
+                    ? { textDecoration: "line-through", color: "#ffb74d" }
+                    : {}
+                }
+                InputProps={{
+                  ...params.InputProps,
+                  style: {
+                    ...params.InputProps?.style,
+                    color:
+                      filterFieldData.includeexclude === "Exclude"
+                        ? "#ffb74d"
+                        : "inherit",
+                  },
+                }}
+                className="customDatePickerHeight"
+              />
+            )}
           />
         </LocalizationProvider>
         {filterFieldData.isInValidData ? (
@@ -1308,7 +1654,30 @@ const UserFilterCard = ({
                       onChange={(e) =>
                         handleCustomRequiredValueOnBlur(e, "exprInput", "date")
                       }
-                      renderInput={(params) => <TextField {...params} />}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          sx={
+                            filterFieldData.includeexclude === "Exclude"
+                              ? {
+                                  textDecoration: "line-through",
+                                  color: "#ffb74d",
+                                }
+                              : {}
+                          }
+                          InputProps={{
+                            ...params.InputProps,
+                            style: {
+                              ...params.InputProps?.style,
+                              color:
+                                filterFieldData.includeexclude === "Exclude"
+                                  ? "#ffb74d"
+                                  : "inherit",
+                            },
+                          }}
+                          className="customDatePickerHeight"
+                        />
+                      )}
                     />
                   </LocalizationProvider>
                   {filterFieldData.isInValidData ? (
@@ -1341,47 +1710,49 @@ const UserFilterCard = ({
   ///Dropdown list to select Time grain
   const DropDownForDatePattern = ({ items }: any) => {
     return (
-      <Select
-        // sx={{ height: "1.5rem", fontSize: "14px", textAlign: "left", width: "100%" }}
-        sx={{
-          height: "1.5rem",
-          fontSize: "14px",
-          textAlign: "left",
-        }}
-        IconComponent={KeyboardArrowDownIcon}
-        onChange={(e) => {
-          handleDropDownForDatePatternOnChange(e);
-        }}
-        value={filterFieldData["prefix"]}
-      >
-        {items.map((item: any) => {
-          return (
-            <MenuItem
-              key={item.key}
-              value={item.key}
-              selected={item.key === filterFieldData.exprType}
-            >
-              <Typography
-                sx={{
-                  width: "auto",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  fontSize: "12px",
-                  lineHeight: "20px",
-                }}
+      <FormControl fullWidth size="small">
+        <Select
+          sx={{
+            height: "1.5rem",
+            fontSize: "14px",
+            textAlign: "left",
+          }}
+          IconComponent={KeyboardArrowDownIcon}
+          onChange={(e) => {
+            handleDropDownForDatePatternOnChange(e);
+          }}
+          value={filterFieldData["prefix"]}
+        >
+          {items.map((item: any) => {
+            return (
+              <MenuItem
+                key={item.key}
+                value={item.key}
+                selected={item.key === filterFieldData.exprType}
               >
-                {item.value}
-              </Typography>
-            </MenuItem>
-          );
-        })}
-      </Select>
+                <Typography
+                  sx={{
+                    // width: "155px",
+                    // widht: "94%",
+                    width: "auto",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    fontSize: "12px",
+                    lineHeight: "20px",
+                  }}
+                >
+                  {item.value}
+                </Typography>
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormControl>
     );
   };
 
   ///Search Condition and Relative Filter Dropdown list to select condition
   const DropDownForPattern = ({ items, exprType = "exprType" }: any) => {
-    // exprType = exprType || "exprType";
     return (
       <FormControl fullWidth size="small">
         <Select
@@ -1398,16 +1769,10 @@ const UserFilterCard = ({
         >
           {items.map((item: any) => {
             return (
-              <MenuItem
-                key={item.key}
-                value={item.key}
-                // selected={item.key === filterFieldData.exprType}
-              >
+              <MenuItem key={item.key} value={item.key}>
                 <Typography
                   sx={{
-                    // {exprType===""? null:null}
                     width: "auto",
-                    // width: "80px",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     fontSize: "12px",
@@ -1460,13 +1825,13 @@ const UserFilterCard = ({
 
     return (
       <div
-        // className="CustomRequiredField"
         style={{
           backgroundColor: "white",
           display: "flex",
           flexDirection: "column",
           rowGap: "8px",
           marginLeft: "6px",
+          paddingTop: "2px",
           width: "94%",
         }}
       >
@@ -1526,7 +1891,19 @@ const UserFilterCard = ({
     >
       {loading ? <LoadingPopover /> : null}
 
-      <div className="axisFilterField">
+      <div
+        className="axisFilterField"
+        // style={styles}
+        style={
+          !filterFieldData.isCollapsed
+            ? {
+                border: "1px #af99db solid",
+                color: "#af99db",
+                fontWeight: "bold",
+              }
+            : {}
+        }
+      >
         {/* remove column  */}
         <button
           type="button"
@@ -1539,14 +1916,7 @@ const UserFilterCard = ({
 
         {/* filter column name */}
 
-        <span
-          className="columnName"
-          style={
-            filterFieldData.includeexclude === "Exclude"
-              ? { border: "#ffb74d 1px solid", lineHeight: "15px" }
-              : { lineHeight: "15px" }
-          }
-        >
+        <span className="columnName" style={{ lineHeight: "15px" }}>
           {field.fieldname}
         </span>
         {/* down arrow icon */}
@@ -1584,29 +1954,47 @@ const UserFilterCard = ({
           >
             {filterFieldData.dataType === "timestamp" ||
             filterFieldData.dataType === "date" ? (
-              <div className="CustomRequiredField">
-                {
-                  filterFieldData.fieldtypeoption === "Pick List" ? (
-                    <DropDownForDatePattern
-                      items={datePatternCollections}
-                    ></DropDownForDatePattern>
-                  ) : filterFieldData.fieldtypeoption === "Search Condition" ? (
-                    <DropDownForDatePattern
-                      items={datePatternSearchConditionCollections}
-                    ></DropDownForDatePattern>
-                  ) : null
-                  // <DropDownForDatePattern
-                  //   items={datePatternRelativeFilterCollections}
-                  // ></DropDownForDatePattern>
-                }
+              <div
+                className="CustomRequiredField"
+                style={{
+                  backgroundColor: "white",
+                  display: "flex",
+                  flexDirection: "column",
+                  rowGap: "8px",
+                  marginLeft: "6px",
+                  paddingTop: "2px",
+                  width: "94%",
+                }}
+              >
+                {filterFieldData.fieldtypeoption === "Pick List" ? (
+                  <DropDownForDatePattern
+                    items={datePatternCollections}
+                  ></DropDownForDatePattern>
+                ) : filterFieldData.fieldtypeoption === "Search Condition" ? (
+                  <DropDownForDatePattern
+                    items={datePatternSearchConditionCollections}
+                  ></DropDownForDatePattern>
+                ) : null}
               </div>
             ) : null}
             {filterFieldData.fieldtypeoption === "Pick List" ? (
-              <SelecPickListCard></SelecPickListCard>
+              <>
+                <SelecPickListCard></SelecPickListCard>
+                {filterFieldData.dataType === "timestamp" ||
+                filterFieldData.dataType === "date" ? (
+                  <SelecTillDate></SelecTillDate>
+                ) : null}
+              </>
             ) : filterFieldData.fieldtypeoption === "Relative Filter" ? (
               <SelecRelativeFilterCard></SelecRelativeFilterCard>
             ) : (
-              <CustomCard></CustomCard>
+              <>
+                <CustomCard></CustomCard>
+                {filterFieldData.dataType === "timestamp" ||
+                filterFieldData.dataType === "date" ? (
+                  <SelecTillDate></SelecTillDate>
+                ) : null}
+              </>
             )}
           </div>
         </>
@@ -1614,6 +2002,7 @@ const UserFilterCard = ({
     </div>
   );
 };
+// };
 
 const mapStateToProps = (
   state: TabTileStateProps2 & ChartPropertiesStateProps & isLoggedProps,
