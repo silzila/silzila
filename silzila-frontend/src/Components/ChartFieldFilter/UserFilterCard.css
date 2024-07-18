@@ -1,121 +1,157 @@
-.UserFilterCard{
-    display: block; 
-    /* width: auto; */
-    width:100%;
-    /* max-height: 15em; */
-    color:rgb(87,87,87);
-    /* min-height: 1000rem; */
-    /* border: 1px solid lightblue; */
-    /* padding: 5px; */
+.UserFilterCard {
+  display: block;
+  /* width: auto; */
+  width: 100%;
+  /* max-height: 15em; */
+  color: rgb(87, 87, 87);
+  /* min-height: 1000rem; */
+  /* border: 1px solid lightblue; */
+  /* padding: 5px; */
 }
 
-.UserSelectionDiv{
-    /* display: block; */
-    display: flex;
-    flex-direction: column;row-gap: 6px;
-    position: relative;
-    /* max-height: 12em; */
-    margin-top: 10px;
-    /* background-color:#eee; */
-    /* overflow-y: auto; */
-    font-size: 12px;
+.UserSelectionDiv {
+  /* display: block; */
+  display: flex;
+  flex-direction: column;
+  row-gap: 6px;
+  position: relative;
+  /* max-height: 12em; */
+  margin-top: 10px;
+  /* background-color:#eee; */
+  /* overflow-y: auto; */
+  font-size: 12px;
 }
 
 .axisFilterField {
-	width: 94%;
-    margin:6px;
-	/* margin: 4px 5px; */
-	align-content: center;
-	font-size: 12px;
-	text-align: start;
-	display: flex;
-	cursor: move;
-	border-radius: 4px;
-	background-color: white;
-	border: 1px solid rgb(211, 211, 211);
-	color: rgb(51, 51, 51);
+  width: 94%;
+  margin: 6px;
+  /* margin: 4px 5px; */
+  align-content: center;
+  font-size: 12px;
+  text-align: start;
+  display: flex;
+  cursor: move;
+  border-radius: 4px;
+  background-color: white;
+  border: 1px solid rgb(211, 211, 211);
+  color: rgb(51, 51, 51);
 }
 
-
 .radioButton {
-	height: 1.5rem;
-	flex: 1;
-	border: 1px solid lightgray;
-	font-size: 12px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-color: rgb(238, 238, 238);
-	transition: 0.2s;
-	text-transform: capitalize;
+  height: 1.5rem;
+  flex: 1;
+  border: 1px solid lightgray;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(238, 238, 238);
+  transition: 0.2s;
+  text-transform: capitalize;
 }
 
 .radioButtonSelected {
-	height: 1.5rem;
-	flex: 1;
-	border: 1px solid lightgray;
-	font-size: 12px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-color: #fff;
-	transition: 0.2s;
-	text-transform: capitalize;
+  height: 1.5rem;
+  flex: 1;
+  border: 1px solid lightgray;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  transition: 0.2s;
+  text-transform: capitalize;
 }
 
-.UserFilterCheckboxes{
-    display: flex;
-    width: 90%;
-    margin-left: 4px;
-    float: left;
-    text-align: left;
+.UserFilterCheckboxes {
+  display: flex;
+  width: 90%;
+  margin-left: 4px;
+  float: left;
+  text-align: left;
 }
 
-
-
-.UserFilterCheckboxes span{
-    /* padding: 0 5px; */
-padding:0 5px 0 0;
-    color:rgb(87,87,87)
+.UserFilterCheckboxes span {
+  /* padding: 0 5px; */
+  padding: 0 5px 0 0;
+  color: rgb(87, 87, 87);
 }
 
-
-.ErrorText{
-    float: left;
-    color: red;
-    font-weight: bold;
-    font-size: 14px;
+.ErrorText {
+  float: left;
+  color: red;
+  font-weight: bold;
+  font-size: 14px;
 }
 
 .CustomRequiredField {
-     float: left;
-    height: auto;
-    width: 94%;
-    margin-left: 6px;
-    /* margin: 1% 5%;  */
+  float: left;
+  height: auto;
+  width: 94%;
+  margin-left: 6px;
+  /* margin: 1% 5%;  */
 }
 
 .CustomRequiredField .CustomInputValue {
-    border: 1px solid gray;
-    height: 1.5rem;
-    width: 100%;
-    line-height: 1.5rem;
-    line-height: 1rem;
-    margin-right: 5px;
-    color: rgb(128, 128, 128);
-    padding: 0 5px;
-    margin-top: 5px;
-    float: left;
-    text-align: left;
+  border: 1px solid gray;
+  height: 1.5rem;
+  width: 100%;
+  line-height: 1.5rem;
+  line-height: 1rem;
+  margin-right: 5px;
+  color: rgb(128, 128, 128);
+  padding: 0 5px;
+  margin-top: 5px;
+  float: left;
+  text-align: left;
 }
 
 .CustomRequiredField select {
-    color: black;
-    width: 100%;
-    float: left;
+  color: black;
+  width: 100%;
+  float: left;
 }
 
+.customDatePickerHeight .MuiInputBase-input {
+  padding: 0px;
+  margin-left: 15px;
+  /* height: 1.5rem; */
+  height: 24px;
+  font-size: 13px;
+}
 
+.customDatePickerHeight .MuiSvgIcon-root {
+  height: 18px;
+  width: 18px;
+}
+
+/* Custom spinner buttons */
+input[type="number"] {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"]::-webkit-inner-spin-button {
+  position: relative;
+  right: -10px;
+}
+
+/*for Firefox */
+input[type="number"]::-moz-inner-spin-button {
+  position: relative;
+  right: -10px;
+}
+
+/*for Internet Explorer */
+input[type="number"]::-ms-inner-spin-button {
+  position: relative;
+  right: -10px;
+}
+
+/* .customNumberInput input[type="number"] {
+  padding-right: 0px;
+  padding-left: 0px;
+} */
 
 /*
 .UserFilterCard{

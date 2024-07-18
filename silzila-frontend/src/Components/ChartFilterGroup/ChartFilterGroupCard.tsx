@@ -13,11 +13,13 @@ import {
   Tooltip,
   Typography,
   FormControl,
+  RadioGroup,
 } from "@mui/material";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import { alpha, styled } from "@mui/material/styles";
+import Radio from "@mui/material/Radio";
 
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import TextField from "@mui/material/TextField";
@@ -99,6 +101,25 @@ const ChartFilterGroupCard = ({
     { key: "dayofweek", value: "Day Of Week" },
   ];
 
+  const datePatternRelativeFilterCollections: PatternCollectionType[] = [
+    { key: "day", value: "Days" },
+    { key: "weekSunSat", value: "Weeks (Sun-Sat)" },
+    { key: "weekMonSun", value: "Weeks (Mon-Sun)" },
+    { key: "month", value: "Months" },
+    { key: "year", value: "Years" },
+    { key: "rollingWeek", value: "Rolling Weeks" },
+    { key: "rollingMonth", value: "Rolling Months" },
+    { key: "rollingYear", value: "Rolling Years" },
+  ];
+
+  const AnchorDatePatternRelativeFilterCollections: PatternCollectionType[] = [
+    { key: "today", value: "Today" },
+    { key: "yesterday", value: "Yesterday" },
+    { key: "tomorrow", value: "Tommorow" },
+    { key: "columnMaxDate", value: "Column Max Date" },
+    { key: "specificDate", value: "Specific Date" },
+  ];
+
   const datePatternSearchConditionCollections: PatternCollectionType[] = [
     { key: "year", value: "Year" },
     { key: "quarter", value: "Quarter" },
@@ -115,6 +136,12 @@ const ChartFilterGroupCard = ({
     { key: "equalTo", value: "=  Equal to" },
     { key: "notEqualTo", value: "<> Not Equal to" },
     { key: "between", value: ">= Between <=" },
+  ];
+
+  const RelativeFilterPatternCollections: PatternCollectionType[] = [
+    { key: "last", value: "Last" },
+    { key: "current", value: "Current" },
+    { key: "next", value: "Next" },
   ];
 
   let filterFieldData = JSON.parse(JSON.stringify(field));
@@ -184,7 +211,7 @@ const ChartFilterGroupCard = ({
             break;
         }
       }
-    } else {
+    } else if (filterFieldData.fieldtypeoption === "Pick List") {
       if (
         filterFieldData &&
         filterFieldData.dataType &&
@@ -202,9 +229,11 @@ const ChartFilterGroupCard = ({
         }
       }
       filterFieldData["exprTypeTillDate"] = false;
-      filterFieldData["switchenable"] = "disabled";
+      filterFieldData["filterTypeTillDate"] = "enabled";
 
       _preFetchData();
+    } else {
+      initialRelativeFilterData();
     }
 
     //updateChartFilterRightGroupsFilters(name, constructChartAxesFieldObject());
@@ -236,6 +265,45 @@ const ChartFilterGroupCard = ({
     });
   };
 
+  ///Fetch Field data for Relative Filter
+  const fetchRelativeFilterFieldData = (type: string) => {
+    let bodyData: any = {
+      filterTable: {
+        tableId: tableId,
+        displayName: displayname,
+        fieldName: displayname,
+        dataType: dataType,
+        timeGrain: "date",
+      },
+
+      from: [
+        filterFieldData.expTypeFromRelativeDate,
+        filterFieldData.exprInputFromValueType,
+        filterFieldData.expTypeFromdate,
+      ],
+      to: [
+        filterFieldData.expTypeToRelativeDate,
+        filterFieldData.exprInputToValueType,
+        filterFieldData.expTypeTodate,
+      ],
+      anchorDate:
+        filterFieldData.expTypeAnchorDate !== "specificDate"
+          ? filterFieldData.expTypeAnchorDate
+          : filterFieldData.exprInputSpecificDate,
+    };
+
+    return FetchData({
+      requestType: "withData",
+      method: "POST",
+      url: `relative-filter?dbconnectionid=${chartProp.properties[propKey].selectedDs.connectionId}&datasetid=${chartProp.properties[propKey].selectedDs.id}`,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      data: bodyData,
+    });
+  };
+
   ///To get filter type for service call
   const _getFilterType = () => {
     switch (dataType) {
@@ -250,6 +318,8 @@ const ChartFilterGroupCard = ({
       case "date":
         return filterFieldData.fieldtypeoption === "Search Condition"
           ? "date_search"
+          : filterFieldData.fieldtypeoption === "Relative Filter"
+          ? "relativeFilter"
           : "date_user_selection";
 
       default:
@@ -272,6 +342,30 @@ const ChartFilterGroupCard = ({
 
       filterFieldData["rawselectmembers"] = [...tempResult];
       filterFieldData["userSelection"] = tempResult;
+      updateChartFilterRightGroupsFilters(
+        name,
+        constructChartAxesFieldObject()
+      );
+    }
+  };
+
+  ///To fetch Relative Filter items
+  const GetRelativeFilterItems = async () => {
+    let result: any = await fetchRelativeFilterFieldData(_getFilterType());
+
+    // console.log(result);
+    if (result) {
+      if (result.data && result.data.length > 0) {
+        filterFieldData["fromDate"] =
+          result.data[0][Object.keys(result.data[0])[1]];
+        filterFieldData["toDate"] =
+          result.data[0][Object.keys(result.data[0])[0]];
+      }
+      // let tempResult = [...result];
+      // console.log(tempResult);
+
+      // filterFieldData["rawselectmembers"] = [...tempResult];
+      // filterFieldData["userSelection"] = tempResult;
       updateChartFilterRightGroupsFilters(
         name,
         constructChartAxesFieldObject()
@@ -326,13 +420,12 @@ const ChartFilterGroupCard = ({
         filterFieldData["userSelection"] = [
           ...filterFieldData.rawselectmembers,
         ];
-        filterFieldData["exprTypeTillDate"] = false;
-        filterFieldData["switchenable"] = "disabled";
+        filterFieldData["filterTypeTillDate"] = "enabled";
       } else {
         filterFieldData["userSelection"] = [];
       }
     } else {
-      filterFieldData["switchenable"] = "enabled";
+      filterFieldData["filterTypeTillDate"] = "disabled";
       if (event.target.checked) {
         if (!isNaN(event.target.name) && isFinite(event.target.name)) {
           let _name = event.target.name;
@@ -357,8 +450,7 @@ const ChartFilterGroupCard = ({
       }
 
       if (!filterFieldData.userSelection.length) {
-        filterFieldData["switchenable"] = "disabled";
-        filterFieldData["exprTypeTillDate"] = false;
+        filterFieldData["filterTypeTillDate"] = "enabled";
       }
 
       let AllIdx = filterFieldData.userSelection.findIndex(
@@ -454,14 +546,27 @@ const ChartFilterGroupCard = ({
 
               <span
                 title={item}
-                style={{
-                  marginLeft: 0,
-                  marginTop: "3.5px",
-                  justifySelf: "center",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                }}
+                style={
+                  filterFieldData.includeexclude === "Exclude" &&
+                  filterFieldData.userSelection.includes(item)
+                    ? {
+                        marginLeft: 0,
+                        marginTop: "3.5px",
+                        justifySelf: "center",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textDecoration: "line-through",
+                      }
+                    : {
+                        marginLeft: 0,
+                        marginTop: "3.5px",
+                        justifySelf: "center",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                      }
+                }
               >
                 {item}
               </span>
@@ -478,6 +583,127 @@ const ChartFilterGroupCard = ({
     );
   };
 
+  ///Render Relative Filter Card
+  const SelecRelativeFilterCard = () => {
+    var membersFrom = null;
+    membersFrom = (
+      <DropDownForPattern
+        items={datePatternRelativeFilterCollections}
+        exprType="expTypeFromdate"
+      ></DropDownForPattern>
+    );
+    var membersTo = null;
+    membersTo = (
+      <DropDownForPattern
+        items={datePatternRelativeFilterCollections}
+        exprType="expTypeTodate"
+      ></DropDownForPattern>
+    );
+    var membersAnchordate = null;
+    membersAnchordate = (
+      <DropDownForPattern
+        items={AnchorDatePatternRelativeFilterCollections}
+        exprType="expTypeAnchorDate"
+      ></DropDownForPattern>
+    );
+    var datemember = null;
+    datemember = (
+      <div className="customDatePickerWidth">
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DatePicker
+            value={filterFieldData.exprInputSpecificDate}
+            onChange={(e) =>
+              handleCustomRequiredValueOnBlur(
+                e,
+                "exprInputSpecificDate",
+                "date"
+              )
+            }
+            renderInput={(params) => (
+              <TextField {...params} className="customDatePickerHeight" />
+            )}
+          />
+        </LocalizationProvider>
+        {filterFieldData.isInValidData ? (
+          <span className="ErrorText">Please enter valid data.</span>
+        ) : null}
+      </div>
+    );
+    return (
+      <div
+        style={{
+          backgroundColor: "white",
+          display: "flex",
+          flexDirection: "column",
+          rowGap: "8px",
+          marginTop: "-10px",
+          marginLeft: "6px",
+          marginBottom: "6px",
+          width: "94%",
+          fontSize: "13px",
+          color: "black",
+          textAlign: "left",
+          paddingLeft: "15px",
+          paddingRight: "15px",
+        }}
+      >
+        From ({filterFieldData.fromDate}){" "}
+        {/*To dispaly from-date after fetching*/}
+        <div style={{ display: "flex" }}>
+          <RequiredFieldForRelativeFilter exprType="expTypeFromRelativeDate"></RequiredFieldForRelativeFilter>
+          {filterFieldData.expTypeFromRelativeDate !== "current" ? (
+            <ValueFieldForRelativeFilter exprType="exprInputFromValueType"></ValueFieldForRelativeFilter>
+          ) : null}
+        </div>
+        {membersFrom}
+        To ({filterFieldData.toDate}) {/*To dispaly to-date after fetching*/}
+        <div style={{ display: "flex" }}>
+          <RequiredFieldForRelativeFilter exprType="expTypeToRelativeDate"></RequiredFieldForRelativeFilter>
+          {filterFieldData.expTypeToRelativeDate !== "current" ? (
+            <ValueFieldForRelativeFilter exprType="exprInputToValueType"></ValueFieldForRelativeFilter>
+          ) : null}
+        </div>
+        {membersTo}
+        Based on Date
+        {membersAnchordate}
+        {filterFieldData.expTypeAnchorDate === "specificDate"
+          ? datemember
+          : null}
+      </div>
+    );
+    return null;
+  };
+
+  ///Initialize Relative Filter items
+  const initialRelativeFilterData = () => {
+    if (!filterFieldData.exprType) {
+      filterFieldData["expTypeFromdate"] = "year";
+    }
+    if (!filterFieldData.expTypeTodate) {
+      filterFieldData["expTypeTodate"] = "day";
+    }
+    if (!filterFieldData.expTypeFromRelativeDate) {
+      filterFieldData["expTypeFromRelativeDate"] = "last";
+    }
+    if (!filterFieldData.expTypeToRelativeDate) {
+      filterFieldData["expTypeToRelativeDate"] = "last";
+    }
+    if (!filterFieldData.expTypeAnchorDate) {
+      filterFieldData["expTypeAnchorDate"] = "today";
+    }
+    if (!filterFieldData.exprInputFromValueType) {
+      filterFieldData["exprInputFromValueType"] = 2;
+    }
+    if (!filterFieldData.exprInputToValueType) {
+      filterFieldData["exprInputToValueType"] = 2;
+    }
+    if (!filterFieldData.exprInputSpecificDate) {
+      filterFieldData["exprInputSpecificDate"] = moment(new Date()).format(
+        "YYYY-MM-DD"
+      );
+    }
+  };
+
   ///Till Date Switch On Click
   const handleChangeTillDate = () => {
     if (filterFieldData.exprTypeTillDate === false) {
@@ -485,7 +711,6 @@ const ChartFilterGroupCard = ({
     } else {
       filterFieldData["exprTypeTillDate"] = false;
     }
-    // console.log(filterFieldData.userSelection);
     updateChartFilterRightGroupsFilters(name, constructChartAxesFieldObject());
   };
 
@@ -502,7 +727,6 @@ const ChartFilterGroupCard = ({
       labelName = "Month";
     }
     return (
-      // <Switch size="small" />
       <FormGroup
         sx={{
           marginLeft: "6px",
@@ -513,8 +737,7 @@ const ChartFilterGroupCard = ({
         {filterFieldData.prefix !== "date" &&
         ((filterFieldData.fieldtypeoption === "Search Condition" &&
           filterFieldData.switchEnableSearchCondition) ||
-          (filterFieldData.fieldtypeoption === "Pick List" &&
-            filterFieldData.switchenable !== "disabled")) ? (
+          filterFieldData.fieldtypeoption === "Pick List") ? (
           <FormControlLabel
             value="end"
             control={
@@ -526,10 +749,19 @@ const ChartFilterGroupCard = ({
             }
             label={
               <Typography
-                sx={{
-                  fontSize: "13px",
-                  paddingRight: "15px",
-                }}
+                sx={
+                  filterFieldData.exprTypeTillDate &&
+                  filterFieldData.includeexclude === "Exclude"
+                    ? {
+                        fontSize: "13px",
+                        paddingRight: "15px",
+                        textDecoration: "line-through",
+                      }
+                    : {
+                        fontSize: "13px",
+                        paddingRight: "15px",
+                      }
+                }
               >
                 {labelName} Till Date
               </Typography>
@@ -564,17 +796,20 @@ const ChartFilterGroupCard = ({
     );
   };
 
-  ///Custom Green Switch
+  ///Custom Green/Orange Switch
+  var switchColor = "#2bb9bb";
+  if (filterFieldData.includeexclude === "Exclude") {
+    switchColor = "#ffb74d";
+  }
   const GreenSwitch = styled(Switch)(({ theme }) => ({
     "& .MuiSwitch-switchBase.Mui-checked": {
-      // color: green[600],
-      color: "#2bb9bb",
+      color: switchColor,
       "&:hover": {
-        backgroundColor: alpha("#2bb9bb", theme.palette.action.hoverOpacity),
+        backgroundColor: alpha(switchColor, theme.palette.action.hoverOpacity),
       },
     },
     "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-      backgroundColor: "#2bb9bb",
+      backgroundColor: switchColor,
     },
   }));
 
@@ -617,15 +852,23 @@ const ChartFilterGroupCard = ({
     //setShowOptions(false);
 
     if (closeFrom === "opt2") {
+      initialRelativeFilterData();
       if (
         !filterFieldData.rawselectmembers ||
         filterFieldData.fieldtypeoption !== queryParam
       ) {
         filterFieldData["fieldtypeoption"] = queryParam;
 
-        setLoading(true);
-        await GetPickListItems();
-        setLoading(false);
+        if (queryParam === "Pick List") {
+          setLoading(true);
+          await GetPickListItems();
+          setLoading(false);
+        }
+        if (queryParam === "Relative Filter") {
+          setLoading(true);
+          await GetRelativeFilterItems();
+          setLoading(false);
+        }
       }
 
       filterFieldData["fieldtypeoption"] = queryParam;
@@ -635,18 +878,29 @@ const ChartFilterGroupCard = ({
           ...filterFieldData.rawselectmembers,
         ];
         filterFieldData.isInValidData = false;
-        filterFieldData.switchenable = "disabled";
+        filterFieldData.filterTypeTillDate = "enabled";
         filterFieldData.exprTypeTillDate = false;
       } else if (filterFieldData.fieldtypeoption === "Search Condition") {
         initialSearchConditionValues();
         filterFieldData.exprTypeTillDate = false;
         checkForValidData();
+      } else {
+        filterFieldData.includeexclude = "Include";
       }
     } else if (closeFrom === "opt1") {
       if (filterFieldData.userSelection.includes("(All)")) {
         filterFieldData["userSelection"] = [];
       }
       filterFieldData.includeexclude = queryParam;
+      if (filterFieldData.fieldtypeoption === "Relative Filter") {
+        filterFieldData.includeexclude = "Include";
+      }
+    } else {
+      if (filterFieldData.fieldtypeoption === "Relative Filter") {
+        setLoading(true);
+        await GetRelativeFilterItems();
+        setLoading(false);
+      }
     }
 
     updateChartFilterRightGroupsFilters(name, constructChartAxesFieldObject());
@@ -656,6 +910,12 @@ const ChartFilterGroupCard = ({
   const RenderMenu = () => {
     var options = ["Include", "Exclude"];
     var options2 = ["Pick List", "Search Condition"];
+    ///Relative Filter option ony for "date" and "timestamp"
+    if (
+      filterFieldData.dataType === "timestamp" ||
+      filterFieldData.dataType === "date"
+    )
+      options2 = ["Pick List", "Search Condition", "Relative Filter"];
 
     return (
       <Menu
@@ -667,43 +927,6 @@ const ChartFilterGroupCard = ({
           "aria-labelledby": "basic-button",
         }}
       >
-        {options.length > 0
-          ? options.map((opt, index) => {
-              return (
-                <div
-                  style={{ display: "flex" }}
-                  onClick={() => handleClose("opt1", opt)}
-                >
-                  <MenuItem
-                    sx={{
-                      fontSize: "12px",
-                      alignSelf: "center",
-                      padding: "2px 1rem",
-                      flex: 1,
-                    }}
-                    key={index}
-                  >
-                    {opt}
-                  </MenuItem>
-                  {opt === filterFieldData.includeexclude ? (
-                    <Tooltip title="Selected">
-                      <DoneIcon
-                        style={{
-                          // flex: 1,
-                          fontSize: "14px",
-                          alignSelf: "center",
-                          // float: "right",
-                          marginRight: "5px",
-                        }}
-                      />
-                    </Tooltip>
-                  ) : null}
-                </div>
-              );
-            })
-          : null}
-        <Divider />
-
         {options2.length > 0
           ? options2.map((opt2, index) => {
               return (
@@ -711,28 +934,110 @@ const ChartFilterGroupCard = ({
                   style={{ display: "flex" }}
                   onClick={() => handleClose("opt2", opt2)}
                 >
+                  <Tooltip
+                    title={
+                      opt2 === filterFieldData.fieldtypeoption
+                        ? "Selected"
+                        : null
+                    }
+                  >
+                    <Radio
+                      checked={opt2 === filterFieldData.fieldtypeoption}
+                      sx={{
+                        "& .MuiSvgIcon-root": {
+                          fontSize: "12px",
+                          height: "12px",
+                          color: "#af99db",
+                        },
+                        // fontSize: "0px",
+                        alignSelf: "center",
+                        marginLeft: "5px",
+                      }}
+                    />
+                  </Tooltip>
                   <MenuItem
                     key={index}
                     sx={{
                       flex: 1,
                       fontSize: "12px",
                       alignSelf: "center",
-                      padding: "2px 1rem",
+                      padding: "2px 0px",
+                      paddingRight: "1rem",
                     }}
                   >
                     {opt2}
                   </MenuItem>
-                  {opt2 === filterFieldData.fieldtypeoption ? (
-                    <Tooltip title="Selected">
-                      <DoneIcon
-                        style={{
-                          fontSize: "14px",
-                          alignSelf: "center",
-                          marginRight: "5px",
-                        }}
-                      />
-                    </Tooltip>
-                  ) : null}
+                </div>
+              );
+            })
+          : null}
+
+        <Divider
+          sx={{
+            margin: "5px 0px",
+          }}
+        />
+
+        {options.length > 0
+          ? options.map((opt, index) => {
+              if (filterFieldData.fieldtypeoption === "Relative Filter")
+                filterFieldData.includeexclude = "Include";
+              return (
+                <div
+                  style={{ display: "flex" }}
+                  onClick={() => handleClose("opt1", opt)}
+                >
+                  <Tooltip
+                    title={
+                      opt === filterFieldData.includeexclude ? "Selected" : null
+                    }
+                  >
+                    <Radio
+                      checked={opt === filterFieldData.includeexclude}
+                      disabled={
+                        opt === "Exclude" &&
+                        filterFieldData.fieldtypeoption === "Relative Filter"
+                      }
+                      sx={
+                        filterFieldData.includeexclude === "Exclude" &&
+                        opt === filterFieldData.includeexclude
+                          ? {
+                              // flex: 1,
+                              "& .MuiSvgIcon-root": {
+                                fontSize: "12px",
+                                height: "12px",
+                                color: "#ffb74d",
+                              },
+                              alignSelf: "center",
+                              marginLeft: "5px",
+                            }
+                          : {
+                              "& .MuiSvgIcon-root": {
+                                fontSize: "12px",
+                                height: "12px",
+                                color: "#af99db",
+                              },
+                              alignSelf: "center",
+                              marginLeft: "5px",
+                            }
+                      }
+                    />
+                  </Tooltip>
+                  <MenuItem
+                    disabled={
+                      opt === "Exclude" &&
+                      filterFieldData.fieldtypeoption === "Relative Filter"
+                    }
+                    sx={{
+                      fontSize: "12px",
+                      alignSelf: "center",
+                      padding: "2px 0px",
+                      flex: 1,
+                    }}
+                    key={index}
+                  >
+                    {opt}
+                  </MenuItem>
                 </div>
               );
             })
@@ -799,6 +1104,13 @@ const ChartFilterGroupCard = ({
     ) {
       return true;
     }
+    if (
+      ["date", "timestamp"].includes(dataType) &&
+      filterFieldData.fieldtypeoption === "Relative Filter" &&
+      val.includes("-")
+    ) {
+      return true;
+    }
 
     return false;
   };
@@ -827,20 +1139,25 @@ const ChartFilterGroupCard = ({
     }
   };
 
-  ///Search Condition Dropdown list on change handler
-  const handleDropDownForPatternOnChange = async (event: any) => {
-    // let filterObj = userFilterGroup[propName].chartUserFilters.find((usrfilter) => usrfilter.uId === data.uid);
+  ///Search Condition and Relative Filter Dropdown list on change handler
+  const handleDropDownForPatternOnChange = async (
+    event: any,
+    key = "exprType"
+  ) => {
+    filterFieldData[key] = event.target.value;
 
-    filterFieldData["exprType"] = event.target.value;
-    // filterFieldData = _modifiedResultForServerRequest(filterFieldData);
-
-    if (filterFieldData.exprType === "between") {
-      //setLoading(true);
-      await GetPickListItems();
-      setSliderRange();
-      // setLoading(false);
+    if (filterFieldData.fieldtypeoption === "Relative Filter") {
+      setLoading(true);
+      await GetRelativeFilterItems();
+      setLoading(false);
+    } else {
+      if (filterFieldData.exprType === "between") {
+        //setLoading(true);
+        await GetPickListItems();
+        setSliderRange();
+        // setLoading(false);
+      }
     }
-
     setSearchConditionDate();
 
     if (filterFieldData.fieldtypeoption === "Search Condition") {
@@ -877,7 +1194,7 @@ const ChartFilterGroupCard = ({
     filterFieldData["prefix"] = event.target.value;
     filterFieldData["greaterThanOrEqualTo"] = "";
     filterFieldData["lessThanOrEqualTo"] = "";
-    filterFieldData.switchenable = "disabled";
+    filterFieldData.filterTypeTillDate = "enabled";
     filterFieldData.exprTypeTillDate = false;
     if (!filterFieldData.exprInput) {
       filterFieldData["switchEnableSearchCondition"] = false;
@@ -886,9 +1203,20 @@ const ChartFilterGroupCard = ({
 
     if (
       filterFieldData.fieldtypeoption === "Search Condition" &&
-      event.target.value === "Date"
+      event.target.value === "date"
     ) {
-      filterFieldData["exprInput"] = "";
+      filterFieldData["exprInput"] = moment(new Date()).format("YYYY-MM-DD");
+    }
+    if (
+      filterFieldData.fieldtypeoption === "Search Condition" &&
+      event.target.value !== "date"
+    ) {
+      if (filterFieldData["exprInput"].includes("-")) {
+        filterFieldData["exprInput"] = "";
+        filterFieldData["switchEnableSearchCondition"] = false;
+      }
+      if (filterFieldData.exprType === "between")
+        filterFieldData["switchEnableSearchCondition"] = true;
     }
 
     // if (filterFieldData.fieldtypeoption === "Pick List") {
@@ -919,14 +1247,13 @@ const ChartFilterGroupCard = ({
     }
   };
 
-  ///Search Condition user input change handler
+  ///Search Condition and Relative Filter user input change handler
 
-  const handleCustomRequiredValueOnBlur = (
+  const handleCustomRequiredValueOnBlur = async (
     val: number | string,
     key = "exprInput",
     type?: string
   ) => {
-    // key = key || "exprInput";
     filterFieldData["switchEnableSearchCondition"] = true;
 
     if (type && type === "date") {
@@ -937,7 +1264,10 @@ const ChartFilterGroupCard = ({
       filterFieldData[key] = val;
       filterFieldData["isInValidData"] = false;
 
-      if (key !== "exprInput") {
+      if (
+        key !== "exprInput" &&
+        filterFieldData.fieldtypeoption === "Search Condition"
+      ) {
         checkForValidData();
       }
 
@@ -964,6 +1294,12 @@ const ChartFilterGroupCard = ({
         filterFieldData.exprTypeTillDate = false;
       }
 
+      if (filterFieldData.fieldtypeoption === "Relative Filter") {
+        setLoading(true);
+        await GetRelativeFilterItems();
+        setLoading(false);
+      }
+
       updateChartFilterRightGroupsFilters(
         name,
         constructChartAxesFieldObject()
@@ -971,8 +1307,8 @@ const ChartFilterGroupCard = ({
     }
   };
 
-  ///Render Search Condition Custom Input Control
-  const SearchConditionCustomInputControl = ({ type }: any) => {
+  ///Render Relative Filter Value Input Control
+  const RelativeFilterCustomInputControl = ({ type, exprType }: any) => {
     return (
       <>
         <TextField
@@ -985,16 +1321,74 @@ const ChartFilterGroupCard = ({
             },
           }}
           placeholder="Value"
+          defaultValue={filterFieldData[exprType]}
+          type={type}
+          onBlur={(e) =>
+            handleCustomRequiredValueOnBlur(e.target.value, exprType)
+          }
+        />
+
+        {filterFieldData.isInValidData ? (
+          <span className="ErrorText">Please enter valid data.</span>
+        ) : null}
+      </>
+    );
+  };
+
+  ///Render Relative Filter Fields
+  const RequiredFieldForRelativeFilter = ({ exprType }: any) => {
+    var members = null;
+    members = (
+      <DropDownForPattern
+        items={RelativeFilterPatternCollections}
+        exprType={exprType}
+      ></DropDownForPattern>
+    );
+    return <div style={{ marginRight: "33px", width: "90px" }}>{members}</div>;
+  };
+
+  const ValueFieldForRelativeFilter = ({ exprType }: any) => {
+    var members = null;
+    members = (
+      <RelativeFilterCustomInputControl
+        type="number"
+        exprType={exprType}
+      ></RelativeFilterCustomInputControl>
+    );
+    return <div style={{ width: "60px" }}>{members}</div>;
+  };
+
+  ///Render Search Condition Custom Input Control
+  const SearchConditionCustomInputControl = ({ type }: any) => {
+    return (
+      <>
+        <TextField
+          InputProps={
+            filterFieldData.includeexclude === "Exclude"
+              ? {
+                  style: {
+                    height: "25px",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                    textDecoration: "line-through",
+                    color: "#ffb74d",
+                  },
+                }
+              : {
+                  style: {
+                    height: "25px",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                  },
+                }
+          }
+          placeholder="Value"
           defaultValue={filterFieldData.exprInput}
           type={type}
           onBlur={(e) => handleCustomRequiredValueOnBlur(e.target.value)}
         />
-        {/* <input
-					placeholder="Value"
-					defaultValue={filterFieldData.exprInput}
-					type={type}
-					onBlur={e => handleCustomRequiredValueOnBlur(e.target.value)}
-				/> */}
 
         {filterFieldData.isInValidData ? (
           <span className="ErrorText">Please enter valid data.</span>
@@ -1007,18 +1401,32 @@ const ChartFilterGroupCard = ({
   const SearchConditionBetweenControl = () => {
     return (
       <>
-        {/*<StyledSlider
-          value={sliderRange}
-          onChange={handleSliderRangeOnChange}
-          min={filterFieldData.greaterThanOrEqualTo}
-          max={filterFieldData.lessThanOrEqualTo}
-          marks={_marks}
-           />*/}
         <TextField
           type="number"
+          InputProps={
+            filterFieldData.includeexclude === "Exclude"
+              ? {
+                  style: {
+                    height: "26px",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                    textDecoration: "line-through",
+                    color: "#ffb74d",
+                  },
+                }
+              : {
+                  style: {
+                    height: "26px",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                  },
+                }
+          }
           className="CustomInputValue"
           sx={{
-            width: "100%",
+            paddingBottom: "5px",
           }}
           defaultValue={filterFieldData.greaterThanOrEqualTo}
           onBlur={(e) => {
@@ -1030,6 +1438,27 @@ const ChartFilterGroupCard = ({
         />
         <TextField
           type="number"
+          InputProps={
+            filterFieldData.includeexclude === "Exclude"
+              ? {
+                  style: {
+                    height: "26px",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                    textDecoration: "line-through",
+                    color: "#ffb74d",
+                  },
+                }
+              : {
+                  style: {
+                    height: "26px",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                  },
+                }
+          }
           className="CustomInputValue"
           defaultValue={filterFieldData.lessThanOrEqualTo}
           onBlur={(e) => {
@@ -1039,24 +1468,7 @@ const ChartFilterGroupCard = ({
             );
           }}
         />
-        {/* <input
-					placeholder="Greater than or Equal to"
-					type="number"
-					className="CustomInputValue"
-					defaultValue={filterFieldData.greaterThanOrEqualTo}
-					onBlur={e => {
-						handleCustomRequiredValueOnBlur(e.target.value, "greaterThanOrEqualTo");
-					}}
-				/>
-				<input
-					placeholder="Less than or Equal to"
-					type="number"
-					className="CustomInputValue"
-					defaultValue={filterFieldData.lessThanOrEqualTo}
-					onBlur={e => {
-						handleCustomRequiredValueOnBlur(e.target.value, "lessThanOrEqualTo");
-					}}
-				/> */}
+
         {filterFieldData.isInValidData ? (
           <span className="ErrorText">Please enter valid data.</span>
         ) : null}
@@ -1074,7 +1486,31 @@ const ChartFilterGroupCard = ({
             onChange={(e) =>
               handleCustomRequiredValueOnBlur(e, "greaterThanOrEqualTo", "date")
             }
-            renderInput={(params) => <TextField {...params} />}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                sx={
+                  filterFieldData.includeexclude === "Exclude"
+                    ? {
+                        paddingBottom: "5px",
+                        color: "#ffb74d",
+                        textDecoration: "line-through",
+                      }
+                    : { paddingBottom: "5px" }
+                }
+                InputProps={{
+                  ...params.InputProps,
+                  style: {
+                    ...params.InputProps?.style,
+                    color:
+                      filterFieldData.includeexclude === "Exclude"
+                        ? "#ffb74d"
+                        : "inherit",
+                  },
+                }}
+                className="customDatePickerHeight"
+              />
+            )}
           />
         </LocalizationProvider>
 
@@ -1084,7 +1520,31 @@ const ChartFilterGroupCard = ({
             onChange={(e) =>
               handleCustomRequiredValueOnBlur(e, "lessThanOrEqualTo", "date")
             }
-            renderInput={(params) => <TextField {...params} />}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                sx={
+                  filterFieldData.includeexclude === "Exclude"
+                    ? {
+                        paddingBottom: "5px",
+                        color: "#ffb74d",
+                        textDecoration: "line-through",
+                      }
+                    : { paddingBottom: "5px" }
+                }
+                InputProps={{
+                  ...params.InputProps,
+                  style: {
+                    ...params.InputProps?.style,
+                    color:
+                      filterFieldData.includeexclude === "Exclude"
+                        ? "#ffb74d"
+                        : "inherit",
+                  },
+                }}
+                className="customDatePickerHeight"
+              />
+            )}
           />
         </LocalizationProvider>
         {filterFieldData.isInValidData ? (
@@ -1135,7 +1595,31 @@ const ChartFilterGroupCard = ({
                       onChange={(e) =>
                         handleCustomRequiredValueOnBlur(e, "exprInput", "date")
                       }
-                      renderInput={(params) => <TextField {...params} />}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          sx={
+                            filterFieldData.includeexclude === "Exclude"
+                              ? {
+                                  paddingBottom: "5px",
+                                  color: "#ffb74d",
+                                  textDecoration: "line-through",
+                                }
+                              : { paddingBottom: "5px" }
+                          }
+                          InputProps={{
+                            ...params.InputProps,
+                            style: {
+                              ...params.InputProps?.style,
+                              color:
+                                filterFieldData.includeexclude === "Exclude"
+                                  ? "#ffb74d"
+                                  : "inherit",
+                            },
+                          }}
+                          className="customDatePickerHeight"
+                        />
+                      )}
                     />
                   </LocalizationProvider>
                   {filterFieldData.isInValidData ? (
@@ -1170,7 +1654,6 @@ const ChartFilterGroupCard = ({
     return (
       <FormControl fullWidth size="small">
         <Select
-          // sx={{ height: "1.5rem", fontSize: "14px", textAlign: "left", width: "100%" }}
           sx={{
             height: "1.5rem",
             fontSize: "14px",
@@ -1208,8 +1691,8 @@ const ChartFilterGroupCard = ({
     );
   };
 
-  ///Search Condition Dropdown list to select condition
-  const DropDownForPattern = ({ items }: any) => {
+  ///Search Condition and Relative Filter Dropdown list to select condition
+  const DropDownForPattern = ({ items, exprType = "exprType" }: any) => {
     return (
       <FormControl fullWidth size="small">
         <Select
@@ -1219,18 +1702,14 @@ const ChartFilterGroupCard = ({
             textAlign: "left",
           }}
           onChange={(e) => {
-            handleDropDownForPatternOnChange(e);
+            handleDropDownForPatternOnChange(e, exprType);
           }}
-          value={filterFieldData.exprType}
+          value={filterFieldData[exprType]}
           variant="outlined"
         >
           {items.map((item: any) => {
             return (
-              <MenuItem
-                key={item.key}
-                value={item.key}
-                // selected={item.key === filterFieldData.exprType}
-              >
+              <MenuItem key={item.key} value={item.key}>
                 <Typography
                   sx={{
                     width: "auto",
@@ -1365,14 +1844,7 @@ const ChartFilterGroupCard = ({
 
         {/* filter column name */}
 
-        <span
-          className="columnName"
-          style={
-            filterFieldData.includeexclude === "Exclude"
-              ? { border: "#ffb74d 1px solid", lineHeight: "15px" }
-              : { lineHeight: "15px" }
-          }
-        >
+        <span className="columnName" style={{ lineHeight: "15px" }}>
           {field.fieldname}
         </span>
         {/* down arrow icon */}
@@ -1415,11 +1887,11 @@ const ChartFilterGroupCard = ({
                   <DropDownForDatePattern
                     items={datePatternCollections}
                   ></DropDownForDatePattern>
-                ) : (
+                ) : filterFieldData.fieldtypeoption === "Search Condition" ? (
                   <DropDownForDatePattern
                     items={datePatternSearchConditionCollections}
                   ></DropDownForDatePattern>
-                )}
+                ) : null}
               </div>
             ) : null}
             {filterFieldData.fieldtypeoption === "Pick List" ? (
@@ -1430,6 +1902,8 @@ const ChartFilterGroupCard = ({
                   <SelecTillDate></SelecTillDate>
                 ) : null}
               </>
+            ) : filterFieldData.fieldtypeoption === "Relative Filter" ? (
+              <SelecRelativeFilterCard></SelecRelativeFilterCard>
             ) : (
               <>
                 <CustomCard></CustomCard>

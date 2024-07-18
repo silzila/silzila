@@ -9,6 +9,7 @@ import ChartsInfo from "./ChartsInfo2";
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import { Dispatch } from "redux";
 import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
+
 import { storeServerData } from "../../redux/ChartPoperties/ChartControlsActions";
 import {
   canReUseData,
@@ -21,6 +22,7 @@ import {
   ChartAxesProps,
 } from "./ChartAxesInterfaces";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
+
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { chartFilterGroupEdited } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
@@ -83,8 +85,10 @@ export const getChartData = async (
     const _getFilterType = (item: any) => {
       let _type = "";
 
+      if (item.fieldtypeoption === "Relative Filter") return "relativeFilter";
+
       if (
-        item.switchenable === "disabled" &&
+        item.filterTypeTillDate === "enabled" &&
         item.fieldtypeoption === "Pick List" &&
         item.exprTypeTillDate
       ) {
@@ -116,7 +120,7 @@ export const getChartData = async (
     /*	Set User Selection property */
     const _getUserSelection = (item: any) => {
       if (
-        item.switchenable === "disabled" &&
+        item.filterTypeTillDate === "enabled" &&
         item.fieldtypeoption === "Pick List" &&
         item.exprTypeTillDate
       ) {
@@ -133,8 +137,10 @@ export const getChartData = async (
         } else {
           return [""];
         }
-      } else {
+      } else if (item.fieldtypeoption === "Pick List") {
         return item.userSelection;
+      } else {
+        return [""];
       }
     };
 
@@ -157,7 +163,7 @@ export const getChartData = async (
         // item.userSelection &&
         // item.userSelection.length > 0
       ) {
-        if (item.switchenable !== "disabled") {
+        if (item.filterTypeTillDate !== "enabled") {
           return true;
         } else {
           if (item.exprTypeTillDate) {
@@ -193,6 +199,9 @@ export const getChartData = async (
         ) {
           return false;
         }
+      } else if (item.fieldtypeoption === "Relative Filter") {
+        return true;
+        // return false;
       } else {
         return false;
       }
@@ -214,6 +223,8 @@ export const getChartData = async (
       _filter.displayName = item.displayname;
       _filter.dataType = item.dataType.toLowerCase();
       _filter.shouldExclude = item.includeexclude === "Exclude";
+      if (item.fieldtypeoption === "Relative Filter")
+        _filter.shouldExclude = false;
 
       if (item.fieldtypeoption === "Search Condition") {
         if (item.exprType) {
@@ -222,18 +233,38 @@ export const getChartData = async (
           _filter.operator =
             item.dataType === "text" ? "begins_with" : "greater_than";
         }
-      } else {
+      } else if (item.fieldtypeoption === "Pick List") {
         _filter.operator = "in";
+      } else {
+        _filter.operator = "between";
       }
-
       if (_filter.filterType === "tillDate") {
         _filter.operator = "in";
       }
 
       if (item.dataType === "timestamp" || item.dataType === "date") {
         _filter.timeGrain = item.prefix;
-        if (_filter.filterType !== "tillDate")
-          _filter.isTillDate = item.exprTypeTillDate;
+        // if (_filter.filterType !== "tillDate")
+        _filter.isTillDate = item.exprTypeTillDate;
+      }
+      if (item.fieldtypeoption === "Relative Filter") {
+        _filter.timeGrain = "date";
+        _filter.relativeCondition = {
+          from: [
+            item.expTypeFromRelativeDate,
+            item.exprInputFromValueType,
+            item.expTypeFromdate,
+          ],
+          to: [
+            item.expTypeToRelativeDate,
+            item.exprInputToValueType,
+            item.expTypeTodate,
+          ],
+          anchorDate:
+            item.expTypeAnchorDate !== "specificDate"
+              ? item.expTypeAnchorDate
+              : item.exprInputSpecificDate,
+        };
       }
 
       _filter.userSelection = _getUserSelection(item);
