@@ -319,7 +319,6 @@ const DataViewerBottom = ({
             }}
           >
             {table.alias}
-            {console.log(table.alias)}
           </div>
         );
       });
@@ -463,7 +462,6 @@ const DataViewerBottom = ({
                     return (
                       <MenuItem sx={selectInput} value={ds.id} key={ds.id}>
                         {ds.datasetName}
-                        {console.log(ds.datasetName)}
                       </MenuItem>
                     );
                   })}

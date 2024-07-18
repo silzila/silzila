@@ -5,6 +5,7 @@
 // 	- Select tables in a schema
 
 import {
+  Button,
   Dialog,
   FormControl,
   InputLabel,
@@ -120,6 +121,7 @@ const Sidebar = ({
   // to display in canvas, provide a warning to reset data
 
   const propertiesForCustomQueryData = {
+    editMode,
     showTableData,
     setShowTableData,
     tableData,
@@ -133,7 +135,6 @@ const Sidebar = ({
     setEditCustomQuery,
     connectionValue,
     token,
-    databaseName,
     deleteCustomQuery,
     RenameInputValueCustomQueryname,
     SelectQueryoption,
@@ -236,11 +237,10 @@ const Sidebar = ({
       headers: { Authorization: `Bearer ${token}` },
       token: token,
     });
-    //console.log(res);
+
     if (res.status) {
       setSchemaList(res.data);
     } else {
-      //console.log(res.status);
     }
   };
 
@@ -406,7 +406,7 @@ const Sidebar = ({
     setRenameInputValueCustomQueryname("");
     setSelectQueryoption(0);
   };
-
+  //after clicking the preview Button then fetch data from server
   const handleCustomPreviewButton = async (e: FormEvent) => {
     e.preventDefault();
     const num = 250;
@@ -459,7 +459,6 @@ const Sidebar = ({
           );
           setOpenAlert(true);
         } else {
-          console.log(RenameInputValueCustomQueryname);
           setRenameInputValueCustomQueryname(RenameNameQuery);
           setCustomQuerysArray((prevData) =>
             prevData.map((item) =>
@@ -468,11 +467,6 @@ const Sidebar = ({
           );
           // setRenameInputValueCustomQueryname(""); // Reset the input value
           setRenameToCanvasProps(RenameInputValueCustomQueryname);
-          if (editMode) {
-            //to maintain the relationship b/t rename
-          }
-
-          // setSelectQueryoption(0); // Reset the selected query option
           setRenameID(0); // Reset the rename ID
         }
       } else if (RenameInputValueCustomQueryname.length === 0) {
@@ -506,17 +500,15 @@ const Sidebar = ({
       headers: { Authorization: `Bearer ${token}` },
       token: token,
     });
-    console.log(res);
-    console.log(res.data.dataSchema.tables);
+
     const updatedCustomQueryArray = res.data.dataSchema.tables
       .filter((item: any) => item.isCustomQuery)
       .map((item: any) => ({
         id: item.id,
         name: item.alias,
-        dataquery: item.customQuery,
+        querydata: item.customQuery,
       }));
     setCustomQuerysArray(updatedCustomQueryArray);
-    console.log(updatedCustomQueryArray);
   };
   useEffect(() => {}, [CustomQuerysArray]);
   return (
@@ -928,12 +920,12 @@ const Sidebar = ({
             onClick={handleCustomQueryAddButton}
             style={{
               backgroundColor: "white",
-              color: "#00A4B4",
+              color: "#2bb9bb",
               padding: "2%",
               position: "relative",
               width: "80%",
-              outlineColor: "#00A4B4",
-              outline: "1px solid #00A4B4",
+              outlineColor: "#2bb9bb",
+              outline: "1px solid #2bb9bb",
               border: "none",
               borderRadius: "0.5rem",
             }}
@@ -962,7 +954,7 @@ const Sidebar = ({
                 name="customQuery"
                 id="customQuery"
                 placeholder="// SELECT * FROM table_name"
-                style={{ color: "grey" }}
+                style={{ color: "#5c5c5c" }}
                 ref={textareaRef}
                 value={CustomQueryData}
                 onChange={(e) => setCustomQueryData(e.target.value)}
@@ -972,10 +964,10 @@ const Sidebar = ({
                   display: "flex",
                   justifyContent: "end",
                   marginTop: "10px",
-                  gap: "2%",
+                  gap: "1%",
                 }}
               >
-                <button
+                {/* <button
                   className="button"
                   style={{ backgroundColor: "grey" }}
                   onClick={() => {
@@ -985,10 +977,30 @@ const Sidebar = ({
                   }}
                 >
                   Cancel
-                </button>
-                <button className="button" type="submit">
+                </button> */}
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setCustomQuery(!isCustomQuery);
+                    setEditCustomQuery(0);
+                    setCustomQueryData("");
+                  }}
+                  id="cancelButton"
+                  sx={{ textTransform: "none" }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  id="setButton"
+                  sx={{
+                    textTransform: "none",
+                  }}
+                  style={{ backgroundColor: "#2bb9bb" }}
+                  type="submit"
+                >
                   Preview
-                </button>
+                </Button>
               </div>
             </form>
           </div>

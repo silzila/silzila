@@ -97,6 +97,7 @@ const BottomBar = ({
     // if all the tables have relations defined,
     // prepare data to be saved in server and submit
     var relationshipServerObj: relationshipServerObjProps[] = [];
+
     if (
       tablesWithoutRelation.length === 0 ||
       (tablesSelectedInSidebar.length === 1 && relationships.length === 0)
@@ -135,29 +136,38 @@ const BottomBar = ({
       } else {
         apiurl = "dataset";
       }
-
-      // TODO: need to specify type
-      var options: any = await FetchData({
-        requestType: "withData",
-        method: editMode ? "PUT" : "POST",
-        url: apiurl,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        data: {
-          connectionId: isFlatFile ? null : connection,
-          datasetName: fname,
-          isFlatFileData: isFlatFile,
-          dataSchema: {
-            tables: [...tablesSelectedInSidebar],
-            relationships: [...relationshipServerObj],
+      if (relationshipServerObj.length > 0) {
+        // TODO: need to specify type
+        var options: any = await FetchData({
+          requestType: "withData",
+          method: editMode ? "PUT" : "POST",
+          url: apiurl,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-        },
-      });
-      console.log(options);
+          data: {
+            connectionId: isFlatFile ? null : connection,
+            datasetName: fname,
+            isFlatFileData: isFlatFile,
+            dataSchema: {
+              tables: [...tablesSelectedInSidebar],
+              relationships: [...relationshipServerObj],
+            },
+          },
+        });
+      } else {
+        setTestMessage(
+          "Error: Every table should have atleast one relationship.\n" +
+            "tables with no Relationship\n" +
+            tempTable.map((el: any) => "\n," + el.tableName)
+        );
+        console.log("edd");
+        setSeverity("error");
+        setOpenAlert(true);
+      }
+
       if (options.status) {
-        console.log(options);
         setSeverity("success");
         setOpenAlert(true);
         setTestMessage("Saved Successfully!");
@@ -169,7 +179,9 @@ const BottomBar = ({
       } else {
         setSeverity("error");
         setOpenAlert(true);
-        setTestMessage(options.data.detail);
+
+        setTestMessage(options.data.message);
+        // setTestMessage("not have any relationId")
         // setTimeout(() => {
         // 	setOpenAlert(false);
         // 	setTestMessage("");
@@ -192,7 +204,6 @@ const BottomBar = ({
     // 	}, 4000);
     // }
   };
-
   // After send/update button is clicked
   const onSendData = () => {
     // If dataset name is provided,
@@ -298,7 +309,7 @@ const BottomBar = ({
           sx={{
             textTransform: "none",
           }}
-          style={{ backgroundColor: "#00FF00" }}
+          style={{ backgroundColor: "#2BB9BB" }}
         >
           {sendOrUpdate}
         </Button>

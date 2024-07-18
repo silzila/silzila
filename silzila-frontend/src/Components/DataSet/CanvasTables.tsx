@@ -14,12 +14,14 @@ import {
   addArrows,
   addNewRelationship,
   setTempTables,
+  updateRelationship,
 } from "../../redux/DataSet/datasetActions";
 import ShortUniqueId from "short-unique-id";
 import ActionPopover from "./ActionPopover";
 import { Button, TextField } from "@mui/material";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import {
+  ArrowsProps,
   DataSetStateProps,
   RelationshipsProps,
   tableObjProps,
@@ -61,7 +63,6 @@ const CanvasTables = ({
   const [anchorEl, setAnchorEl] = useState<any>();
   const [inputField, setInputField] = useState<boolean>(false);
   const [newName, setNewName] = useState<string>("");
-
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [severity, setseverity] = useState<AlertColor>("success");
   const [testMessage, setTestMessage] = useState<string>("");
@@ -109,7 +110,7 @@ const CanvasTables = ({
           newArrowObj.integrity = rel.integrity;
           newArrowObj.showHead = rel.showHead;
           newArrowObj.showTail = rel.showTail;
-          sameRel = true;
+          sameRel = false;
           sameRelObj = newArrowObj;
         } else if (
           rel.startId === newArrowObj.endId &&
@@ -138,7 +139,7 @@ const CanvasTables = ({
           newReverseArrowObj.showHead = rel.showHead;
           newReverseArrowObj.showTail = rel.showTail;
 
-          sameRelInv = true;
+          sameRelInv = false;
           sameRelInvObj = newReverseArrowObj;
         }
       });
@@ -248,13 +249,18 @@ const CanvasTables = ({
   // };
   const changeTableName = (tableId: string) => {
     // Count the number of spaces in the newName
+    console.log(tableId);
     var spaceCount = newName.split(" ").length - 1;
 
     // Check if newName is not empty and not just spaces
     if (newName.length > 0 && newName.length !== spaceCount) {
       // Check if the newName already exists in tempTable
+      const previousTableName = tempTable.find((tab: any) =>
+        tab.table_uid === tableId ? tab.tableName : ""
+      );
       const isDuplicate = tempTable.some(
-        (tab: tableObjProps) => tab.alias === newName
+        (tab: tableObjProps) =>
+          tab.alias === newName && tab.table_uid !== tableId
       );
 
       if (isDuplicate) {
@@ -264,10 +270,43 @@ const CanvasTables = ({
       } else {
         const newTable = tempTable.map((tab: tableObjProps) => {
           if (tab.table_uid === tableId) {
-            return { ...tab, alias: newName };
+            return { ...tab, alias: newName, tableName: newName };
           }
           return tab;
         });
+        //change relationship name
+        //find relation ship array which is related to
+        const findRelation = arrows.filter((item: ArrowsProps) => {
+          if (
+            item.startTableName === previousTableName?.alias ||
+            item.endTableName === previousTableName?.alias
+          ) {
+            return item;
+          } else {
+            return null;
+          }
+        });
+        //update name in relationship arrow
+        if (findRelation.length > 0) {
+          findRelation.forEach((item: ArrowsProps) => {
+            let updated = false;
+            if (item.startTableName === previousTableName?.alias) {
+              item.startTableName = newName;
+              item.table1_uid = newName;
+              updated = true;
+            }
+
+            if (item.endTableName === previousTableName?.alias) {
+              item.endTableName = newName;
+              item.table2_uid = newName;
+              updated = true;
+            }
+
+            if (updated) {
+              updateRelationship(item.relationId, item);
+            }
+          });
+        }
         setTempTables(newTable);
         setNewName("");
         setInputField(false);
@@ -443,6 +482,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
       tableId: string
     ) => dispatch(actionsOnRemoveTable(tempTable, tables, tableId)),
     setTempTables: (table: tableObjProps[]) => dispatch(setTempTables(table)),
+    updateRelationship: (relationId: any, relation: any) =>
+      dispatch(updateRelationship(relationId, relation)),
   };
 };
 

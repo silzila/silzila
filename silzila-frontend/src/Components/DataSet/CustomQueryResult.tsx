@@ -1,4 +1,4 @@
-//this component is use for getting the result after the writing the custom query in textarea and after preview button
+//this component is use for getting the result after the writing the custom query after clicking the Add Buttom and after preview button
 // get the result of custom query and tables, data related to custom query
 import React, { useState, useEffect } from "react";
 import {
@@ -20,14 +20,18 @@ import FetchData from "../ServerCall/FetchData";
 import { useDispatch } from "react-redux";
 import {
   addTable,
+  removeArrowsFromcanvas,
+  removeRelationshipFromCanvas,
   removeRelationshipFromTableList,
+  setRelationship,
+  updateRelationship,
 } from "../../redux/DataSet/datasetActions";
 import { setTempTables } from "../../redux/DataSet/datasetActions";
 import { tableObjProps } from "../../redux/DataSet/DatasetStateInterfaces";
-import { UserTableProps } from "../../redux/DataSet/DatasetStateInterfaces";
 import { removeArrows } from "../../redux/DataSet/datasetActions";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux";
+import { RelationObjProps } from "./CanvasTablesIntefaces";
 
 interface savedData {
   id: any;
@@ -36,6 +40,7 @@ interface savedData {
 }
 
 export interface tableDataComponentProps {
+  editMode?: boolean;
   showTableData: boolean;
   setShowTableData: React.Dispatch<React.SetStateAction<boolean>>;
   tableData: any[];
@@ -49,7 +54,6 @@ export interface tableDataComponentProps {
   setEditCustomQuery: React.Dispatch<React.SetStateAction<any>>;
   connectionValue: string;
   token: string;
-  databaseName: string;
   deleteCustomQuery: any;
   RenameInputValueCustomQueryname: string;
   SelectQueryoption: Number;
@@ -59,6 +63,7 @@ export interface tableDataComponentProps {
 }
 
 function CustomQueryResult({
+  editMode,
   showTableData,
   setShowTableData,
   tableData,
@@ -72,7 +77,6 @@ function CustomQueryResult({
   setEditCustomQuery,
   connectionValue,
   token,
-  databaseName,
   deleteCustomQuery,
   RenameInputValueCustomQueryname,
   SelectQueryoption,
@@ -93,7 +97,6 @@ function CustomQueryResult({
   });
   const [error, seterror] = useState<string>("");
   const [OpenAlert, setOpenAlert] = useState<boolean>(false);
-  const [userTableArray, setUserTableArray] = useState<UserTableProps[]>([]);
   const [tempTableforCanvas, setTempTablesforCanvas] = useState<
     tableObjProps[]
   >([]);
@@ -101,6 +104,10 @@ function CustomQueryResult({
   const tempTable = useSelector(
     (state: RootState) => state.dataSetState.tempTable
   ); //state from redux store
+  const relationshipsArray = useSelector(
+    (state: RootState) => state.dataSetState.relationships
+  );
+  const arrows = useSelector((state: RootState) => state.dataSetState.arrows);
   //  const removeArrows=useSelector((state:RootState)=>state.dataSetState.)
 
   function AddUidInColumnData(data: any, name: string) {
@@ -111,7 +118,7 @@ function CustomQueryResult({
     return updatedData;
   }
 
-  //
+  //add columns into canvas by fetching the query from server
   const OpentableColumnsCustomquery = async (data: any) => {
     try {
       const url = `metadata-columns-customquery/${connectionValue}`;
@@ -125,7 +132,7 @@ function CustomQueryResult({
         },
         data: data.querydata,
       });
-      const createResDatawithUId = AddUidInColumnData(res.data, data.name);
+      const createResDatawithUId = AddUidInColumnData(res.data, data.id);
       const tableData = {
         id: data.id,
         alias: data.name,
@@ -142,7 +149,6 @@ function CustomQueryResult({
         isCustomQuery: true,
         customQuery: data.querydata,
       };
-      console.log(tableData);
       let updatedTempTables: any;
 
       if (EditCustomQuery !== 0) {
@@ -160,7 +166,6 @@ function CustomQueryResult({
               ? tableData
               : item
           );
-
           setTempTablesforCanvas(updatedTempTables);
           dispatch(setTempTables([...updatedTempTables]));
           setEditCustomQuery(0);
@@ -181,50 +186,42 @@ function CustomQueryResult({
   useEffect(() => {
     if (deleteCustomQuery !== 0) {
       //remove the data custom query from canvas table
-      const updatedtemptableforcanvas = tempTableforCanvas.filter(
-        (item) => item.id !== deleteCustomQuery
-      );
-      const data = tempTableforCanvas.find(
-        (item) => item.id === deleteCustomQuery
-      );
-      console.log(data);
-      const DataforSetUserTabel: UserTableProps = {
-        schema: data?.schema || "",
-        databaseName: data?.databaseName || "",
-        id: deleteCustomQuery,
-        isNewTable: true,
-        isSelected: false,
-        tableName: data?.tableName || "",
-        table_uid: data?.table_uid || "",
-        isCustomQuery: true,
-        customQuery: data?.customQuery || "",
-      };
 
-      setUserTableArray((prev: UserTableProps[]) => {
-        const index = prev.findIndex(
-          (item) => item.id === DataforSetUserTabel.id
-        );
-        if (index !== -1) {
-          const updatedTable = [...prev];
-          updatedTable[index] = DataforSetUserTabel;
-          return updatedTable;
-        } else {
-          return [...prev, DataforSetUserTabel];
-        }
-      });
-      // dispatch(setUserTable(userTableArray));
-      setTempTablesforCanvas(updatedtemptableforcanvas); //remove the delete the temptable data from it and updated
+      setCustomQuerysArray(
+        CustomQuerysArray.filter((item) => item.id !== deleteCustomQuery)
+      );
+      // remove arrow
+      dispatch(removeArrows(deleteCustomQuery));
+      //remove the delete the temptable data from it and updated
       const updatedtemptable = tempTable.filter(
         (item: any) => item.id !== deleteCustomQuery
       );
       dispatch(setTempTables(updatedtemptable));
-
-      // dispatch(setTempTables([...tempTable, ...tempTableforCanvas]));
-      dispatch(removeArrows(deleteCustomQuery));
-      dispatch(removeRelationshipFromTableList(deleteCustomQuery));
+      //if is there any relationship between delete query and other tables find and delete
+      const deleteRelationId = relationshipsArray.filter(
+        (item: RelationObjProps) => {
+          if (
+            item.startId === deleteCustomQuery ||
+            item.endId === deleteCustomQuery
+          ) {
+            return item;
+          } else {
+            return null;
+          }
+        }
+      );
+      //delete relation for deleteQuery
+      if (deleteRelationId) {
+        deleteRelationId.map((item: RelationObjProps) => {
+          dispatch(removeArrowsFromcanvas(item.relationId));
+          dispatch(removeRelationshipFromCanvas(item.relationId));
+          dispatch(removeRelationshipFromTableList(item.relationId));
+        });
+      }
     }
   }, [deleteCustomQuery]);
 
+  //save data
   const handleSavedData = () => {
     if (savedData.name.length > 0) {
       setCustomQuerysArray((prev) => {
@@ -247,6 +244,16 @@ function CustomQueryResult({
             // setEditCustomQuery(0);
             return prev;
           }
+          var CheckpreviousQueryName: string = "";
+          const previousQueryDataFordeleteRelation: any = prev.find(
+            (item: any) => {
+              if (item.id === EditCustomQuery) {
+                CheckpreviousQueryName = item.name;
+                return item.querydata;
+              }
+              return "";
+            }
+          );
           const updatedArray = prev.map((data) =>
             data.id === EditCustomQuery
               ? {
@@ -257,13 +264,54 @@ function CustomQueryResult({
               : data
           );
 
-          OpentableColumnsCustomquery(
-            updatedArray.find((data) => data.id === EditCustomQuery)
-          );
+          const findRelationId = relationshipsArray.find((item: any) => {
+            if (
+              item.startId === EditCustomQuery ||
+              item.endId === EditCustomQuery
+            ) {
+              return item;
+            } else {
+              return null;
+            }
+          });
+          if (!editMode && findRelationId) {
+            dispatch(
+              removeRelationshipFromTableList(findRelationId.relationId)
+            );
+            dispatch(removeRelationshipFromCanvas(findRelationId.relationId));
+            dispatch(removeArrowsFromcanvas(findRelationId.relationId));
+            dispatch(removeArrows(EditCustomQuery));
+            OpentableColumnsCustomquery(
+              updatedArray.find((data) => data.id === EditCustomQuery)
+            );
+          } else if (!editMode) {
+            OpentableColumnsCustomquery(
+              updatedArray.find((data) => data.id === EditCustomQuery)
+            );
+          }
+          if (
+            editMode &&
+            previousQueryDataFordeleteRelation.querydata !== CustomQueryData
+          ) {
+            if (findRelationId) {
+              dispatch(
+                removeRelationshipFromTableList(findRelationId.relationId)
+              );
+              dispatch(removeRelationshipFromCanvas(findRelationId.relationId));
+              dispatch(removeArrowsFromcanvas(findRelationId.relationId));
+              dispatch(removeArrows(EditCustomQuery));
+            }
+            OpentableColumnsCustomquery(
+              updatedArray.find((data) => data.id === EditCustomQuery)
+            );
+          } else {
+          }
+
           setEditCustomQuery(0);
           setsavedData({ id: 0, name: "", querydata: "" });
           handleClose();
           setCustomQuery(false);
+
           return updatedArray;
         } else {
           // Check for duplicate name when adding a new query
@@ -301,7 +349,7 @@ function CustomQueryResult({
       setOpenAlert(true);
     }
   };
-
+  //changes in temptable then reflect it into the custom Query Array in sidebar
   useEffect(() => {
     const updatedCustomQueryArray = CustomQuerysArray.filter((item) =>
       tempTable.some((tempItem: any) => tempItem.id === item.id)
@@ -320,18 +368,34 @@ function CustomQueryResult({
     setCustomQuerysArray(updatedCustomQueryArray);
   }, [tempTable]);
 
+  //update the values in relationship and temptable on Rename Custom Query
   useEffect(() => {
     // Create a new array with updated values based on the comparison
     const isNamePresent = tempTable.find(
       (item: any) => item.alias === RenameToCanvasProps
     );
 
+    // Find previous name
+    const previousName = CustomQuerysArray.find(
+      (item: any) => item.id === SelectQueryoption
+    );
+
+    const findRelationId = arrows.filter((item: any) => {
+      if (
+        item.startId === previousName?.id ||
+        item.endId === previousName?.id
+      ) {
+        return item;
+      } else {
+        return null;
+      }
+    });
+
     if (isNamePresent) {
-      seterror("Name is Already is present Please write different Name");
+      seterror("Name is already present. Please write a different name.");
       setOpenAlert(true);
       setSelectQueryoption(0);
       setRenameToCanvasProps("");
-      console.log("tgus");
       return;
     } else {
       const updatedTempTables = tempTable.map((item: any) => {
@@ -346,35 +410,48 @@ function CustomQueryResult({
             ...item,
             alias: RenameToCanvasProps,
             tableName: RenameToCanvasProps,
+            table_uid: RenameToCanvasProps,
           };
         }
-        console.log(RenameToCanvasProps);
+        if (findRelationId.length > 0 && !isNamePresent) {
+          // Update name in relationship arrow
+
+          findRelationId.forEach((item: any) => {
+            let updated = false;
+
+            if (item.startTableName === RenameInputValueCustomQueryname) {
+              item.startTableName = RenameToCanvasProps;
+              updated = true;
+            }
+
+            if (item.endTableName === RenameInputValueCustomQueryname) {
+              item.endTableName = RenameToCanvasProps;
+              updated = true;
+            }
+
+            if (updated) {
+              dispatch(updateRelationship(item.relationId, item));
+            }
+          });
+        }
         // Return the original item if no match is found
         return item;
       });
-
       // Dispatch the updated tempTables array to the store
       dispatch(setTempTables(updatedTempTables));
     }
   }, [RenameToCanvasProps]);
 
-  //update the value for Edit Custom Query
   useEffect(() => {
     const finddata = CustomQuerysArray.find(
       (item) => item.id === EditCustomQuery
     );
-    // const isNamePresent = tempTable.map(
-    //   (item: any) => item.alias === finddata?.name
-    // );
-    // if (isNamePresent && EditCustomQuery !== 0) {
-    //   seterror("please write different name it is ssssalready present");
-    //   setOpenAlert(true);
-    //   return;
-    // }
+
     if (finddata) {
       setsavedData((prevState) => ({
         ...prevState,
         name: finddata.name,
+        querydata: finddata.querydata,
       }));
     }
   }, [EditCustomQuery]);
@@ -456,7 +533,9 @@ function CustomQueryResult({
             <Tooltip
               title="Click to Edit"
               sx={{
-                "& .MuiTextField-root": { margin: 1, width: "20px" },
+                "& .MuiTooltip-tooltip": {
+                  backgroundColor: "rgba(0, 0, 0, 0.7)",
+                },
               }}
             >
               <TextField
@@ -464,9 +543,13 @@ function CustomQueryResult({
                   flex: 1,
                   margin: "auto 20px",
                   maxWidth: "200px",
-                  // outlineColor: "#af99db",
+                  "& label": { fontSize: "14px", color: "#af99db" },
+                  "& .MuiOutlinedInput-root": { borderRadius: 1 },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#af99db",
+                  },
                 }}
-                inputProps={{
+                InputProps={{
                   style: {
                     fontSize: "14px",
                   },
@@ -480,11 +563,12 @@ function CustomQueryResult({
                 }
                 id="outlined-size-small"
                 size="small"
-                value={savedData.name}
                 color="secondary"
+                value={savedData.name}
                 label="Name Custom Query"
               />
             </Tooltip>
+
             <Button
               variant="contained"
               onClick={handleSavedData}
@@ -492,9 +576,9 @@ function CustomQueryResult({
               sx={{ textTransform: "none" }}
               style={{
                 backgroundColor: "white",
-                color: "#00A4B4",
-                outlineColor: "#00A4B4",
-                outline: "1px solid #00A4B4",
+                color: "#2bb9bb",
+                outlineColor: "#2bb9bb",
+                outline: "1px solid #2bb9bb",
                 border: "none",
               }}
             >
