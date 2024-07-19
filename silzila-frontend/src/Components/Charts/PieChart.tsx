@@ -11,7 +11,7 @@ import {
 } from "./ChartsCommonInterfaces";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
-import {fieldName} from '../CommonFunctions/CommonFunctions';
+import {displayName, fieldName} from '../CommonFunctions/CommonFunctions';
 
 
 interface PieChartProps {
@@ -38,6 +38,7 @@ const PieChart = ({
 	const [chartDataKeys, setChartDataKeys] = useState<string[]>([]);
 	var chartThemes: any[];
 
+
 	useEffect(() => {
 		if (chartData.length >= 1) {
 			if (typeof chartData === "object" && chartData.length > 0) {
@@ -46,11 +47,13 @@ const PieChart = ({
 
 			var objKey: string;
 			if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
-				if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
-					objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
-				} else {
-					objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
-				}
+				// if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
+				// 	objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
+				// } else {
+				// 	objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
+				// }
+
+				objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].displayname;
 				/* converting dimentions value to string (specifically for when it is in a year aggregate)  */
 				chartControl.chartData.map((el: any) => {
 					if (objKey in el) {
@@ -61,6 +64,7 @@ const PieChart = ({
 				});
 			}
 		}
+		
 	}, [chartData, chartControl]);
 
 	chartThemes = ColorSchemes.filter(el => {
@@ -142,7 +146,7 @@ const PieChart = ({
 
 									formatter: (value: FormatterValueProps) => {
 										if (chartDataKeys) {
-											var formattedValue = value.value[fieldName(chartProperties.properties[propKey].chartAxes[2].fields[0])];
+											var formattedValue = value.value[displayName(chartProperties.properties[propKey].chartAxes[2].fields[0])];
 											formattedValue = formatChartLabelValue(
 												chartControl,
 												formattedValue

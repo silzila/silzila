@@ -37,18 +37,20 @@ const BoxPlotChart = ({
 
 			if (chartProperties.properties[propKey].chartAxes[1].fields.length > 0) {
 				//if switched to boxplot from other charts without dimension value
-				if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
-					dimValue = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
-				} else {
-					dimValue = `${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
-				}
+				// if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
+				// 	dimValue = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
+				// } else {
+				// 	dimValue = `${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
+				// }
+				dimValue= chartProperties.properties[propKey].chartAxes[1].fields[0].displayname;
 				var dimArray: string[] = chartData.map((el: any) => {
 					return el[dimValue];
 				});
 
 				setDimensionData([...new Set(dimArray)]);
 
-				var measureValue = `${chartProperties.properties[propKey].chartAxes[3].fields[0].agg} of ${chartProperties.properties[propKey].chartAxes[3].fields[0].fieldname}`;
+				// var measureValue = `${chartProperties.properties[propKey].chartAxes[3].fields[0].agg} of ${chartProperties.properties[propKey].chartAxes[3].fields[0].fieldname}`;
+				var measureValue= chartProperties.properties[propKey].chartAxes[3].fields[0].displayname;
 
 				var allMeasureValue: number[] = [];
 				allMeasureValue = chartData.map(el => {
