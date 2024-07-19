@@ -9,7 +9,7 @@ import {
 	ChartsReduxStateProps,
 	FormatterValueProps,
 } from "./ChartsCommonInterfaces";
-import {fieldName} from '../CommonFunctions/CommonFunctions';
+import {displayName, fieldName} from '../CommonFunctions/CommonFunctions';
 
 
 const DoughnutChart = ({
@@ -33,11 +33,13 @@ const DoughnutChart = ({
 			setchartDataKeys(Object.keys(chartData[0]));
 			var objKey: string;
 			if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
-				if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
-					objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
-				} else {
-					objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
-				}
+				// if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
+				// 	objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
+				// } else {
+				// 	objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
+				// }
+				objKey=displayName(chartProperties.properties[propKey].chartAxes[1].fields[0])
+				
 				/* converting dimentions value to string (specifically for when it is in a year aggregate)  */
 				chartControl.chartData.map((el: any) => {
 					if (objKey in el) {
@@ -123,7 +125,7 @@ const DoughnutChart = ({
 									/* getting label value*/
 									formatter: (value: FormatterValueProps) => {
 										if (chartDataKeys) {
-											var formattedValue = value.value[fieldName(chartProperties.properties[propKey].chartAxes[2].fields[0])];
+											var formattedValue = value.value[displayName(chartProperties.properties[propKey].chartAxes[2].fields[0])];
 											formattedValue = formatChartLabelValue(
 												chartControl,
 												formattedValue

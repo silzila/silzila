@@ -70,7 +70,8 @@ const TableChart = ({
 					/*  Need to format only numeric values  */
 					if (typeof item[chartDataKeys[i]] === "number") {
 						let _isMeasureField = dustbinValues.find(field =>
-							chartDataKeys[i].includes(field.fieldname)
+							//chartDataKeys[i].includes(field.fieldname)
+							chartDataKeys[i].includes(field.displayname)
 						);
 						/*  Need to format Measure dustbin fields */
 						if (_isMeasureField && chartDataKeys[i].includes("of")) {
@@ -797,7 +798,8 @@ const TableChart = ({
 
 				if (!tempColumnObj.isHeaderField && !tempColumnObj.isRowField) {
 					dustbinValues.forEach(field => {
-						delete compObj[field.fieldname + "__" + field.agg];
+						//delete compObj[field.fieldname + "__" + field.agg];
+						delete compObj[field.displayname + "__" + field.agg];
 					});
 
 					compObj[key] = data[key];
