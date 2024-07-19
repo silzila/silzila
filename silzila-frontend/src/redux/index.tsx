@@ -14,25 +14,26 @@ import FlatFileReducer from "./FlatFile/FlatFileState";
 import DownloadPageSettingReducer from "./PageSettings/DownloadPageSettingState";
 import chartFilterGroupReducer from "./ChartFilterGroup/ChartFilterGroupState";
 import DynamicMeasureReducer from "./DynamicMeasures/DynamicMeasureState";
-import dashBoardFilterGroupReducer from './DashBoardFilterGroup/DashBoardFilterGroupState';
+import dashBoardFilterGroupReducer from "./DashBoardFilterGroup/DashBoardFilterGroupState";
 
 const allReducers = combineReducers({
-	isLogged: loggedReducer,
-	dataSetState: DataSetReducer,
+  isLogged: loggedReducer,
+  dataSetState: DataSetReducer,
 
-	tabState: tabStateReducer,
-	tileState: tileStateReducer,
-	tabTileProps: tabTilePropsReducer,
+  tabState: tabStateReducer,
+  tileState: tileStateReducer,
+  tabTileProps: tabTilePropsReducer,
 
-	chartProperties: chartPropertiesState,
-	chartControls: chartControlsReducer,
-	sampleRecords: SampleRecordsReducer,
-	playBookState: PlayBookReducer,
-	flatFileState: FlatFileReducer,
-	pageSettings: DownloadPageSettingReducer,
-	chartFilterGroup: chartFilterGroupReducer,
-	dynamicMeasuresState: DynamicMeasureReducer,
-	dashBoardFilterGroup: dashBoardFilterGroupReducer
+  chartProperties: chartPropertiesState,
+  chartControls: chartControlsReducer,
+  sampleRecords: SampleRecordsReducer,
+  playBookState: PlayBookReducer,
+  flatFileState: FlatFileReducer,
+  pageSettings: DownloadPageSettingReducer,
+  chartFilterGroup: chartFilterGroupReducer,
+  dynamicMeasuresState: DynamicMeasureReducer,
+  dashBoardFilterGroup: dashBoardFilterGroupReducer,
 });
 
+export type RootState = ReturnType<typeof allReducers>;
 export default allReducers;

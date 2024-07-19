@@ -5,32 +5,32 @@ Data Setup Page
 */
 
 .dataHome {
-	display: flex;
-	height: 100vh;
-	flex-direction: column;
-	/* background-color: rgb(238, 238, 238); */
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  /* background-color: rgb(238, 238, 238); */
 }
 
 .dataSetup {
-	width: 100%;
-	flex: 1;
-	padding: 2rem;
-	overflow: hidden;
-	max-width: 1400px;
-	margin: auto;
-	display: flex;
-	border-top: 2px solid rgba(224, 224, 224, 1)
+  width: 100%;
+  flex: 1;
+  padding: 2rem;
+  overflow: hidden;
+  max-width: 1400px;
+  margin: auto;
+  display: flex;
+  border-top: 2px solid rgba(224, 224, 224, 1);
 }
 
 .dcds {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	/* margin-right: 1rem; */
-	overflow: hidden;
-	justify-content: space-between;
-	padding-right: 1rem;
-	border-right: 2px solid rgba(224, 224, 224, 1)
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  /* margin-right: 1rem; */
+  overflow: hidden;
+  justify-content: space-between;
+  padding-right: 1rem;
+  border-right: 2px solid rgba(224, 224, 224, 1);
 }
 
 .dataConnectionContainer {
@@ -42,92 +42,89 @@ Data Setup Page
 }
 
 .dataSetContainer {
-	flex: 3;
-	padding: 1rem 10rem;
-	border-radius: 0.5rem;
-	background-color: #fff;
-	overflow: auto;
-	display: flex;
-	flex-direction: column;
-	height: 400px
+  flex: 3;
+  padding: 1rem 10rem;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  height: 400px;
 }
 
 .listContainer {
-	height: 100%;
-	overflow: auto;
-	max-height: calc(35vh - 10px);
+  height: 100%;
+  overflow: auto;
+  max-height: calc(35vh - 10px);
 }
 
 .connectionListContainer {
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-	/* margin-left: 0.8rem; */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* margin-left: 0.8rem; */
 }
 
 .connectionListContainer:hover {
-	overflow: auto;
+  overflow: auto;
 }
 
 .dashboardsContainer {
-	flex: 1;
-	/* margin-left: 1rem; */
-	padding: 1rem 10rem;
-	border-radius: 0.5rem;
-	background-color: #fff;
+  flex: 1;
+  /* margin-left: 1rem; */
+  padding: 1rem 10rem;
+  border-radius: 0.5rem;
+  background-color: #fff;
 }
 
 .containersHead {
-	display: flex;
-	font-weight: 600;
-	column-gap: 54px;
-	padding-left: 10px;
-	padding-right: 10px;
-
+  display: flex;
+  font-weight: 600;
+  column-gap: 54px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .DBcontainerTitle {
-	display: flex;
-	align-items: center;
-	margin-right: 3.4rem;
-	flex: 1;
+  display: flex;
+  align-items: center;
+  margin-right: 3.4rem;
+  flex: 1;
 }
 
 .FFcontainerTitle {
-	display: flex;
-	align-items: center;
-	margin-right: 6.7rem;
-	flex: 1;
+  display: flex;
+  align-items: center;
+  margin-right: 6.7rem;
+  flex: 1;
 }
 
 .DScontainerTitle {
-	display: flex;
-	align-items: center;
-	margin-right: 6.7rem;
-	flex: 1;
+  display: flex;
+  align-items: center;
+  margin-right: 6.7rem;
+  flex: 1;
 }
 
 .PBcontainerTitle {
-	display: flex;
-	align-items: center;
-	margin-right: 5.8rem;
-	flex: 1;
+  display: flex;
+  align-items: center;
+  margin-right: 5.8rem;
+  flex: 1;
 }
 
 .containerButton {
-	border: 1px solid #2bb9bb;
-	background-color: transparent;
-	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-	font-weight: 600;
-	border-radius: 3px;
-	color: #2bb9bb;
-	height: 30px;
-	padding: 2.5px 20px;
-	font-size: 16px;
-	cursor: pointer;
-
+  border: 1px solid #2bb9bb;
+  background-color: transparent;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 600;
+  border-radius: 3px;
+  color: #2bb9bb;
+  height: 30px;
+  padding: 2.5px 20px;
+  font-size: 16px;
+  cursor: pointer;
 }
-
 
 .containerButton:hover {
 	background-color: #2bb9bb;
@@ -148,191 +145,178 @@ Data Connections
 	max-height: calc(100vh - 50px);
 }
 .dbFormContainer {
-	padding: 10px;
-	width: 400px
+  padding: 10px;
+  width: 400px;
 }
 
 .dbForm {
-	align-items: center;
-	display: flex;
-	flex-direction: column;
-	row-gap: 10px;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
 }
 
 .dbFormTitle {
-	display: grid;
-	grid-template-columns: 95% 5%;
-	text-align: center;
-	width: 100%;
-	color: #5d5c5c;
+  display: grid;
+  grid-template-columns: 95% 5%;
+  text-align: center;
+  width: 100%;
+  color: #5d5c5c;
 }
 
-.listItems{
-	display: flex;
-	align-items: center;
-	text-align: left;
-	column-gap: 25px;
+.listItems {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  column-gap: 34px;
+  padding: 6px 6px 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  width: 200px;
+  height: 45px;
+  white-space: nowrap;
+  background-color: black;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  column-gap: 34px;
+  padding: 6px 6px 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  width: 200px;
+  height: 45px;
+  white-space: nowrap;
+}
+
+.listItem:hover {
+  border: 1px solid rgba(224, 224, 224, 1);
+  border-radius: 4px;
+  width: 200px;
+  height: 45px;
+}
+
+.active {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  column-gap: 34px;
   padding: 6px 6px 6px 6px;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	margin-bottom: 10px;
-	/* cursor: pointer; */
-	width: 200px;
-	height: 45px;
-	white-space: nowrap;
-	background-color: rgba(224,224,224,1);
-	
-}
-
-.listItem{
-	display: flex;
-	align-items: center;
-	text-align: left;
-	column-gap: 25px;
-  padding: 6px 6px 6px 6px;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	margin-bottom: 10px;
-	cursor: pointer;
-	width: 200px;
-	height: 45px;
-	white-space: nowrap;
-	padding: 6px 6px 6px 8px;
-}
-
-.listItem:hover{
-	border: 1px solid rgba(224, 224, 224, 1);
-	border-radius: 4px;
-	display: flex;
-	column-gap: 25px;
-	
-	margin-bottom: 10px;
-	width: 200px; 
-	height: 45px;
-	padding: 6px 6px 6px 6px;
-	align-items: center;
-	text-align: left;
-	white-space: nowrap;
-	padding: 6px 6px 6px 8px;
-}
-
-.active{
-	display: flex;
-	align-items: center;
-	text-align: left;
-	column-gap: 25px;
-	padding: 6px 6px 6px 6px;
-	/* cursor: pointer; */
-	margin-bottom: 10px;
-	border: 1px solid #2bb9bb;
-	border-radius: 4px;
-	height: 45px;
-	width: 200px;
-	white-space: nowrap;
+  /* cursor: pointer; */
+  margin-bottom: 10px;
+  border: 1px solid #2bb9bb;
+  border-radius: 4px;
+  height: 45px;
+  width: 200px;
+  white-space: nowrap;
   padding: 6px 6px 6px 8px;
 }
 
 .dbConnectionErrorText {
-	color: red;
+  color: red;
 }
 
 .dbDeleteDialog {
-	display: flex;
-	flex-direction: column;
-	padding: 5px;
-	width: 350px;
-	height: auto;
-	justify-content: center;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  width: 350px;
+  height: auto;
+  justify-content: center;
 }
 
 .dbDeleteDialogMsg {
-	font-weight: bold;
-	text-align: center;
-	margin-top: 20px
+  font-weight: bold;
+  text-align: center;
+  margin-top: 20px;
 }
 
 .dbDeleteDialogBtnContainer {
-	display: flex;
-	padding: 15px;
-	justify-content: space-around;
+  display: flex;
+  padding: 15px;
+  justify-content: space-around;
 }
 
 .dbDeleteDialogBtn1 {
-	background-color: grey;
-	float: right;
-	text-transform: none;
+  background-color: grey;
+  float: right;
+  text-transform: none;
 }
 
 .dbDeleteDialogBtn2 {
-	display: flex;
-	background-color: red;
-	text-transform: none;
+  display: flex;
+  background-color: red;
+  text-transform: none;
 }
 
 .dataConnectionList {
-	margin: 8px 5px 0 0;
-	background-color: rgb(250, 250, 250);
-	border-radius: 5px;
-	width: 22rem;
-	display: flex;
-	padding: 5px 8px 5px 12px;
-	border: 1px solid rgba(224, 224, 224, 1);
-	color: rgb(101, 101, 101);
-	white-space: nowrap; /* Prevent text wrapping */
-    overflow: hidden; /* Hide overflowing text */
-    text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */
+  margin: 8px 5px 0 0;
+  background-color: rgb(250, 250, 250);
+  border-radius: 5px;
+  width: 22rem;
+  display: flex;
+  padding: 5px 8px 5px 12px;
+  border: 1px solid rgba(224, 224, 224, 1);
+  color: rgb(101, 101, 101);
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden; /* Hide overflowing text */
+  text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */
 }
 
 .dataConnectionListSelected {
-	margin: 8px 5px 0 0;
-	background-color: hsl(0, 0%, 100%);
-	border-radius: 5px;
-	width: 22rem;
-	display: flex;
-	padding: 5px 8px 5px 12px;
-	border: 1px solid #6933cf;
-	cursor: pointer;
-	color: #773be6;
-	white-space: nowrap; /* Prevent text wrapping */
-    overflow: hidden; /* Hide overflowing text */
-    text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */
+  margin: 8px 5px 0 0;
+  background-color: hsl(0, 0%, 100%);
+  border-radius: 5px;
+  width: 22rem;
+  display: flex;
+  padding: 5px 8px 5px 12px;
+  border: 1px solid #6933cf;
+  cursor: pointer;
+  color: #773be6;
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden; /* Hide overflowing text */
+  text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */
 }
 
 .dataHomeDeleteIcon {
-	width: 1.5rem;
-	margin-right: 2px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: #7b63a6;
+  width: 1.5rem;
+  margin-right: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7b63a6;
 }
 
 .dataHomeDeleteIcon:hover {
-	color: red;
-	/* background-color: rgb(238, 238, 238); */
+  color: red;
+  /* background-color: rgb(238, 238, 238); */
 }
 
 .dataConnectionName {
-	flex: 1 1;
+	  flex: 1 1;
     text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
     display: block;
-
 }
 
 .inputFieldStyle {
-	margin-top: 25px;
+  margin-top: 25px;
 }
 
 .formTF {
-	height: 35px;
-	padding: 5px;
-	font-size: 14px;
-	margin: 10px;
+  height: 35px;
+  padding: 5px;
+  font-size: 14px;
+  margin: 10px;
 }
-
 
 /* 
 ===================================================
@@ -341,74 +325,75 @@ Datasets
 */
 
 .createDatasetPage {
-	display: flex;
-	height: 100vh;
-	overflow: hidden;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .sidebar {
-	width: 16rem;
-	/* background-color: rgb(238, 238, 238); */
-	border-right: 2px solid rgba(224, 224, 224, 1);
-	padding: 1rem;
-	border-top: 2px solid rgba(224, 224, 224, 1)
-		/* overflow-y: auto; */
-		/* overflow-x: hidden; */
+  width: 16rem;
+  /* background-color: rgb(238, 238, 238); */
+  border-right: 2px solid rgba(224, 224, 224, 1);
+  padding: 1rem;
+  border-top: 2px solid rgba(224, 224, 224, 1);
+  overflow: scroll;
+  /* overflow-y: auto; */
+  /* overflow-x: hidden; */
 }
 
 .selectBar {
-	border-radius: 5px;
-	background-color: white;
-	margin-bottom: 1.5rem;
-	text-align: left;
+  border-radius: 5px;
+  background-color: white;
+  margin-bottom: 1.5rem;
+  text-align: left;
 }
 
 .sidebarHeading {
-	font-weight: bold;
-	font-size: 12px;
+  font-weight: bold;
+  font-size: 12px;
 
-	margin: 0 0 0 0.5rem;
-	text-align: left;
+  margin: 0 0 0 0.5rem;
+  text-align: left;
 }
 
 .sidebarHeading::first-child {
-	padding-top: 0.5rem;
+  padding-top: 0.5rem;
 }
 
 .tableListStyle {
-	display: flex;
-	flex-direction: row;
-	width: 100%;
-	margin-top: 5px;
-	padding: 2px;
-	font-size: 14px;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  margin-top: 5px;
+  padding: 2px;
+  font-size: 14px;
 }
 
 .tableListStyle:hover {
-	box-shadow: 0 0 2px 2px #c9c9c9;
-	border-radius: 5px;
-	background-color: white;
+  box-shadow: 0 0 2px 2px #c9c9c9;
+  border-radius: 5px;
+  background-color: white;
 }
 
 .selectTableInput {
-	margin: auto 5px;
-	height: 6px;
-	width: 6px;
+  margin: auto 5px;
+  height: 6px;
+  width: 6px;
 }
 
 .tableIcon {
-	margin: auto 5px;
-	height: 15px;
-	width: 15px;
+  margin: auto 5px;
+  height: 15px;
+  width: 15px;
 }
 
 .tableName {
-	margin: auto 5px;
-	flex: 1;
-	text-align: left;
-	align-items: center;
-	overflow-x: hidden;
-	text-overflow: ellipsis;
+  margin: auto 5px;
+  flex: 1;
+  text-align: left;
+  align-items: center;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
 }
 
 .vendorIconStyle {
@@ -433,16 +418,16 @@ TableData
 */
 
 #TRow:nth-child(even) {
-	background-color: rgb(245, 245, 245);
+  background-color: rgb(245, 245, 245);
 }
 
 #TColumn {
-	/* padding: 3px;
+  /* padding: 3px;
 	height: 28px; */
-	padding: 0px 16px 0 16px;
-	height: 28px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+  padding: 0px 16px 0 16px;
+  height: 28px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 
@@ -451,50 +436,329 @@ DataHome
 ------------------------------------------------- 
 */
 .visiblityIconStyle {
-	width: 0.7rem;
-	height: 0.7rem;
-	margin: auto 7px auto auto;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin: auto 7px auto auto;
 }
 
 .listEmptyNote {
-	font-size: 14px;
-	height: 100%;
-	padding: 2rem;
-	color: #ccc;
-	font-style: italic;
+  font-size: 14px;
+  height: 100%;
+  padding: 2rem;
+  color: #ccc;
+  font-style: italic;
 }
 
 .dataHomeContainer {
-    grid-template-rows: auto auto;
-    height: 100vh;
-    width: 100%;
+  grid-template-rows: auto auto;
+  height: 100vh;
+  width: 100%;
 }
 
 .dataHomeItemsContainer {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    border-top: 0.2px solid rgba(224, 224, 224, 1);
-	min-height: calc(100vh - 100px); /* Adjust 100px to accommodate other elements if needed */
-    /* Make the container scrollable */
-    overflow-y: auto; /* Vertical scrolling */
-    overflow-x: auto; /* Hide horizontal scrollbar if not needed */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  border-top: 0.2px solid rgba(224, 224, 224, 1);
+  min-height: calc(
+    100vh - 100px
+  ); /* Adjust 100px to accommodate other elements if needed */
+  /* Make the container scrollable */
+  overflow-y: auto; /* Vertical scrolling */
+  overflow-x: auto; /* Hide horizontal scrollbar if not needed */
 }
 
 .dataHomeItemsContainer > div {
-    display: flex;
-    justify-content: center;
-	padding: 1rem 2rem 2.5rem 2rem;
-    align-items: center;
-    border: 0.2px solid rgba(224, 224, 224, 1);
-   
+  display: flex;
+  justify-content: center;
+  padding: 1rem 2rem 2.5rem 2rem;
+  align-items: center;
+  border: 0.2px solid rgba(224, 224, 224, 1);
 }
 
 /* .dbForm */
 .dbForm {
+  flex: 1 1;
+  position: relative;
+  overflow-y: auto; /* Allow vertical scrolling */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 20px;
+  padding: 5px;
+  padding-bottom: 3.5rem; /* Ensure space for button at the bottom */
+  max-height: calc(
+    80vh - 20px
+  ); /* Limit the maximum height to viewport height minus top margin */
+}
+
+/* .dbFormButton */
+.dbFormButton {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 3.5rem;
+  z-index: 1;
+  background: rgb(255, 255, 255); /* Fully opaque background color */
+  border-top: 2px solid rgba(224, 224, 224, 1);
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding-left: 2%;
+  padding-right: 17.6%; /* Adjusted */
+}
+
+/* Custom Query box */
+
+.CustomQuerybox {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 90vh;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  z-index: 999;
+  background-color: white;
+}
+
+.customTextArea {
+  width: 100%;
+  height: 80vh;
+  border: none;
+  text-decoration: none;
+  border: 1px solid rgb(37, 36, 36);
+  background-color: white;
+  padding: 10px;
+  margin: 0;
+  resize: none;
+  outline: none;
+  font-size: larger;
+}
+
+.button {
+  padding: 8px;
+  border-radius: 2px 2px 2px 2px;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  background-color: #2bb9bb;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+.optionlist {
+  position: absolute;
+  display: flex;
+  text-transform: none;
+  cursor: pointer;
+  color: black;
+  border-radius: 5px;
+  justify-content: start;
+  background-color: white;
+  outline: none;
+  padding: 10px 0 10px 0;
+  box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.3);
+  z-index: 999;
+}
+
+.optionlist ul li {
+  cursor: pointer;
+  text-align: left;
+  padding: 8px 15px 8px 15px;
+  margin: 0%;
+  outline: none;
+  font-size: medium;
+  text-align: start;
+  align-items: center;
+}
+
+.optionlist ul li:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  width: full;
+}
+.optionlist ul {
+  margin: 0%;
+  padding: 1px 0px 0px 0;
+}
+@media only screen and (max-width: 860px) {
+  .dataHomeItemsContainer {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+  }
+  body,
+  html {
+    /* Ensure the whole window is scrollable */
+    overflow: auto;
+    overflow-y: scroll;
+  }
+
+  .dataConnectionContainer {
+    padding: 3rem 3rem 5rem 3rem;
+    gap: 10px;
+  }
+  .Button {
+    padding: revert;
+  }
+}
+@media (max-width: 860px) {
+  .dbForm {
     flex: 1 1;
     position: relative;
-    overflow-y: auto; /* Allow vertical scrolling */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 104%;
+    margin-top: 20px;
+    padding: 5px;
+    padding-bottom: 3.5rem;
+    max-height: calc(80vh - 20px);
+  }
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 1%;
+    padding-left: 6.5%;
+    padding-right: 34.1%;
+  }
+}
+
+@media screen and (min-width: 1920px) and (max-height: 1080px) {
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 34%;
+    padding-left: 18.2%;
+    padding-right: 34.1%;
+  }
+}
+
+@media screen and (min-width: 1680px) and (max-height: 1050px) {
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 32%;
+    padding-left: 17.9%;
+    padding-right: 34.1%;
+  }
+}
+
+@media screen and (min-width: 1600px) and (max-height: 1000px) {
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 29.9%;
+    padding-left: 17.4%;
+    padding-right: 33.9%;
+  }
+}
+
+@media screen and (min-width: 1440px) and (max-height: 900px) {
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 28%;
+    padding-left: 17.1%;
+    padding-right: 33.9%;
+  }
+}
+
+@media screen and (min-width: 1366px) and (max-height: 768px) {
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 28%;
+    padding-left: 17%;
+    padding-right: 34.1%;
+  }
+}
+
+@media screen and (min-width: 1280px) and (max-height: 760px) {
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 27.8%;
+    padding-left: 16.9%;
+    padding-right: 34.1%;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-height: 720px) {
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 27.8%;
+    padding-left: 16.9%;
+    padding-right: 34.1%;
+    column-gap: 12%;
+    padding-left: 12.4%;
+    padding-right: 34.1%;
+  }
+}
+
+@media (min-resolution: 175dpi) and (max-resolution: 200dpi) {
+  .dbForm {
+    flex: 1 1;
+    position: relative;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -502,460 +766,260 @@ DataHome
     width: 100%;
     margin-top: 20px;
     padding: 5px;
-    padding-bottom: 3.5rem; /* Ensure space for button at the bottom */
-    max-height: calc(80vh - 20px); /* Limit the maximum height to viewport height minus top margin */
-}
-
-/* .dbFormButton */
-.dbFormButton {
+    padding-bottom: 3.5rem;
+    max-height: calc(80vh - 20px);
+  }
+  .dbFormButton {
     position: fixed;
     bottom: 0;
     width: 100%;
     height: 3.5rem;
-	z-index: 1;
+    z-index: 1;
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    padding-left: 2%;
-    padding-right: 17.6%; /* Adjusted */
-}
-
-
-@media only screen and (max-width: 860px) {
-	.dataHomeItemsContainer {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto auto;
-       
-    }
-	body, html {
-        /* Ensure the whole window is scrollable */
-        overflow: auto;
-		overflow-y: scroll;
-    }
- 
-	.dataConnectionContainer {
-		padding: 3rem 3rem 5rem 3rem;
-		gap: 10px;
-	}
-	.Button{
-		padding: revert;
-	}
-}
-@media (max-width: 860px) {
-	.dbForm {
-		flex: 1 1;
-		position: relative;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 8px;
-		width: 104%;
-		margin-top: 20px;
-		padding: 5px;
-		padding-bottom: 3.5rem;
-		max-height: calc(80vh - 20px);
-	}
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 1%;
-		padding-left: 6.5%;
-		padding-right: 34.1%;
-	}
-	
-}
-
-@media screen and (min-width: 1920px) and (max-height: 1080px) {
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 34%;
-		padding-left: 18.2%;
-		padding-right: 34.1%;
-	}
-}
-
-@media screen and (min-width: 1680px) and (max-height: 1050px) {
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 32%;
-		padding-left: 17.9%;
-		padding-right: 34.1%;
-	}
-}
-
-@media screen and (min-width: 1600px) and (max-height: 1000px) {
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 29.9%;
-		padding-left: 17.4%;
-		padding-right: 33.9%;
-	}
-}
-
-@media screen and (min-width: 1440px) and (max-height: 900px) {
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 28%;
-		padding-left: 17.1%;
-		padding-right: 33.9%;
-	}
-}
-
-@media screen and (min-width: 1366px) and (max-height: 768px) {
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 28%;
-		padding-left: 17%;
-		padding-right: 34.1%;
-	}
-}
-
-@media screen and (min-width: 1280px) and (max-height: 760px) {
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 27.8%;
-		padding-left: 16.9%;
-		padding-right: 34.1%;
-	}
-}
-
-@media screen and (min-width: 1024px) and (max-height: 720px) {
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 27.8%;
-		padding-left: 16.9%;
-		padding-right: 34.1%;
-		column-gap: 12%;
-		padding-left: 12.4%;
-		padding-right: 34.1%;
-	}
-}
-
-@media (min-resolution: 175dpi) and (max-resolution: 200dpi) {
-	.dbForm {
-		flex: 1 1;
-		position: relative;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 8px;
-		width: 100%;
-		margin-top: 20px;
-		padding: 5px;
-		padding-bottom: 3.5rem;
-		max-height: calc(80vh - 20px);
-	}
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 20%;
-		padding-left: 15.4%;
-		padding-right: 38.9%;
-	}
+    column-gap: 20%;
+    padding-left: 15.4%;
+    padding-right: 38.9%;
   }
+}
 
 @media (min-resolution: 150dpi) and (max-resolution: 175dpi) {
-	.dbForm {
-		flex: 1 1;
-		position: relative;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 8px;
-		width: 100%;
-		margin-top: 20px;
-		padding: 5px;
-		padding-bottom: 3.5rem;
-		max-height: calc(80vh - 20px);
-	}
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 31.8%;
-		padding-left: 18.5%;
-		padding-right: 38.9%;
-	}
+  .dbForm {
+    flex: 1 1;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 5px;
+    padding-bottom: 3.5rem;
+    max-height: calc(80vh - 20px);
   }
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 31.8%;
+    padding-left: 18.5%;
+    padding-right: 38.9%;
+  }
+}
 
 @media (min-resolution: 125dpi) and (max-resolution: 150dpi) {
-	.dbForm {
-		flex: 1 1;
-		position: relative;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 8px;
-		width: 100%;
-		margin-top: 20px;
-		padding: 5px;
-		padding-bottom: 3.5rem;
-		max-height: calc(80vh - 20px);
-	}
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 44%;
-		padding-left: 21.6%;
-		padding-right: 38.9%;
-	}
+  .dbForm {
+    flex: 1 1;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 5px;
+    padding-bottom: 3.5rem;
+    max-height: calc(80vh - 20px);
   }
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 44%;
+    padding-left: 21.6%;
+    padding-right: 38.9%;
+  }
+}
 
-  @media (min-resolution: 110dpi) and (max-resolution: 125dpi) {
-	.dbForm {
-		flex: 1 1;
-		position: relative;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 8px;
-		width: 100%;
-		margin-top: 20px;
-		padding: 5px;
-		padding-bottom: 3.5rem;
-		max-height: calc(80vh - 20px);
-	}
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 50.8%;
-		padding-left: 22.4%;
-		padding-right: 39.1%;
-	}
+@media (min-resolution: 110dpi) and (max-resolution: 125dpi) {
+  .dbForm {
+    flex: 1 1;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 5px;
+    padding-bottom: 3.5rem;
+    max-height: calc(80vh - 20px);
   }
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 50.8%;
+    padding-left: 22.4%;
+    padding-right: 39.1%;
+  }
+}
 
-  @media (min-resolution: 100dpi) and (max-resolution: 110dpi) {
-	.dbForm {
-		flex: 1 1;
-		position: relative;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 8px;
-		width: 100%;
-		margin-top: 20px;
-		padding: 5px;
-		padding-bottom: 3.5rem;
-		max-height: calc(80vh - 20px);
-	}
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 55%;
-		padding-left: 23%;
-		padding-right: 39.1%;
-	}
+@media (min-resolution: 100dpi) and (max-resolution: 110dpi) {
+  .dbForm {
+    flex: 1 1;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 5px;
+    padding-bottom: 3.5rem;
+    max-height: calc(80vh - 20px);
   }
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 55%;
+    padding-left: 23%;
+    padding-right: 39.1%;
+  }
+}
 
 @media (min-resolution: 80dpi) and (max-resolution: 90dpi) {
-	.dbForm {
-		flex: 1 1;
-		position: relative;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 8px;
-		width: 100%;
-		margin-top: 20px;
-		padding: 5px;
-		padding-bottom: 3.5rem;
-		max-height: calc(80vh - 20px);
-	}
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 59%;
-		padding-left: 23.5%;
-		padding-right: 39.1%;
-	}
+  .dbForm {
+    flex: 1 1;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 5px;
+    padding-bottom: 3.5rem;
+    max-height: calc(80vh - 20px);
   }
-
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 59%;
+    padding-left: 23.5%;
+    padding-right: 39.1%;
+  }
+}
 
 @media (min-resolution: 75dpi) and (max-resolution: 80dpi) {
-	.dbForm {
-		flex: 1 1;
-		position: relative;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 8px;
-		width: 100%;
-		margin-top: 20px;
-		padding: 5px;
-		padding-bottom: 3.5rem;
-		max-height: calc(80vh - 20px);
-	}
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 60.6%;
-		padding-left: 23.6%;
-		padding-right: 39.1%;
-	}
+  .dbForm {
+    flex: 1 1;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 5px;
+    padding-bottom: 3.5rem;
+    max-height: calc(80vh - 20px);
   }
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 60.6%;
+    padding-left: 23.6%;
+    padding-right: 39.1%;
+  }
+}
 
-  @media (min-resolution: 67dpi) and (max-resolution: 75dpi) {
-	.dbForm {
-		flex: 1 1;
-		position: relative;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 8px;
-		width: 100%;
-		margin-top: 20px;
-		padding: 5px;
-		padding-bottom: 3.5rem;
-		max-height: calc(80vh - 20px);
-	}
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 66.8%;
-		padding-left: 24.6%;
-		padding-right: 39.8%;
-	}
+@media (min-resolution: 67dpi) and (max-resolution: 75dpi) {
+  .dbForm {
+    flex: 1 1;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 5px;
+    padding-bottom: 3.5rem;
+    max-height: calc(80vh - 20px);
   }
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 66.8%;
+    padding-left: 24.6%;
+    padding-right: 39.8%;
+  }
+}
 
-  @media (min-resolution: 50dpi) and (max-resolution: 67dpi) {
-	.dbForm {
-		flex: 1 1;
-		position: relative;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 8px;
-		width: 100%;
-		margin-top: 20px;
-		padding: 5px;
-		padding-bottom: 3.5rem;
-		max-height: calc(80vh - 20px);
-	}
-	.dbFormButton {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		height: 3.5rem;
-		z-index: 1;
-		background: rgb(255, 255, 255); /* Fully opaque background color */
-		border-top: 2px solid rgba(224, 224, 224, 1);
-		display: flex;
-		column-gap: 60%;
-		padding-left: 23.4%;
-		padding-right: 38.4%;
-	}
+@media (min-resolution: 50dpi) and (max-resolution: 67dpi) {
+  .dbForm {
+    flex: 1 1;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 5px;
+    padding-bottom: 3.5rem;
+    max-height: calc(80vh - 20px);
   }
+  .dbFormButton {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    z-index: 1;
+    background: rgb(255, 255, 255); /* Fully opaque background color */
+    border-top: 2px solid rgba(224, 224, 224, 1);
+    display: flex;
+    column-gap: 60%;
+    padding-left: 23.4%;
+    padding-right: 38.4%;
+  }
+}
