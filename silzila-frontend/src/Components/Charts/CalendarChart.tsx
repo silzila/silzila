@@ -37,17 +37,20 @@ const CalendarChart = ({
 	useEffect(() => {
 		if (chartData.length >= 1) {
 			if (chartProperties.properties[propKey].chartAxes[1].fields.length > 0) {
+				
 				let objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
-
+               
+				//let objKey=chartProperties.properties[propKey].chartAxes[1].fields[0].displayname;
 				var measureField: ChartDataFieldProps =
 					chartProperties.properties[propKey].chartAxes[2].fields[0];
 				if (measureField) {
 					var maxFieldName: string = "";
-					if ("timeGrain" in measureField) {
-						maxFieldName = `${measureField.timeGrain} of ${measureField.fieldname}`;
-					} else {
-						maxFieldName = `${measureField.agg} of ${measureField.fieldname}`;
-					}
+					// if ("timeGrain" in measureField) {
+					// 	maxFieldName = `${measureField.timeGrain} of ${measureField.fieldname}`;
+					// } else {
+					// 	maxFieldName = `${measureField.agg} of ${measureField.fieldname}`;
+					// }
+					maxFieldName=measureField.displayname;
 
 					var max: number = 0;
 					var min: number = 100000000;
@@ -59,6 +62,7 @@ const CalendarChart = ({
 							min = element[maxFieldName];
 						}
 					});
+
 					setMaxValue(max);
 					setMinValue(min);
 				}
@@ -145,6 +149,7 @@ const CalendarChart = ({
 
 	function getVirtulData(year: string | number) {
 		let objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
+		//let objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].displayname;
 		var virtualData: any[] = [];
 
 		// getting measure value as day value for individual year
@@ -161,6 +166,7 @@ const CalendarChart = ({
 	var chartThemes: any[] = ColorSchemes.filter(el => {
 		return el.name === chartControl.colorScheme;
 	});
+	
 	const RenderChart = () => {
 		return (
 			<ReactEcharts

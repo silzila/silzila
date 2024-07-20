@@ -29,21 +29,22 @@ const Sankey = ({
 
 	useEffect(() => {
 		if (chartData.length >= 1) {
-			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map((el:any) => {
-				if ("timeGrain" in el) {
-					return `${el.timeGrain} of ${el.fieldname}`;
-				} else if ("agg" in el) {
-					return `${el.agg} of ${el.fieldname} `;
-				} else {
-					return el.fieldname;
-				}
-			});
+			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map((el:any) => el.displayname);
+				// if ("timeGrain" in el) {
+				// 	return `${el.timeGrain} of ${el.fieldname}`;
+				// } else if ("agg" in el) {
+				// 	return `${el.agg} of ${el.fieldname} `;
+				// } else {
+				// 	return el.fieldname;
+				// }
+			
 
 			//getting measure value as string since allowed numof measure is 1 for this chart
 
 			chartProperties.properties[propKey].chartAxes[2].fields.forEach((el:any) => {
 				// measure = `${el.fieldname}__${el.agg}`;
-				measure = `${el.agg} of ${el.fieldname}`;
+				// measure = `${el.agg} of ${el.fieldname}`;
+				measure=el.displayname;
 			});
 
 			const getColorOfNode = (nodeName: string) => {

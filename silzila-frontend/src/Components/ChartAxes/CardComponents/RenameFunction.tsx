@@ -37,7 +37,8 @@ const RenameFunction = ({
 }: RenameFunctionProps) => {
      
    
-	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
+	//let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
+    let currentChartAxesName = "chartAxes";
 
     const field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex] || {};
 
@@ -269,7 +270,7 @@ const mapDispatchToProps = (dispatch: any) => {
             itemIndex: number,
             item: any,
             currentChartAxesName : string
-        ) => dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item,currentChartAxesName })),
+        ) => dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item, currentChartAxesName })),
       
     };
 };

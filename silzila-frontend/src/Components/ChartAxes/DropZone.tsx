@@ -64,7 +64,7 @@ const DropZone = ({
 
 	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
 
-	let charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
+	//let charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
 	let chatAxesFieldsLength = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.length;
 
 	var selectedDynamicMeasureProps =
@@ -90,10 +90,15 @@ const DropZone = ({
 			.substring(1);
 	};
 
-	//let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
 	let currentChartAxes = chartProp.properties[propKey][currentChartAxesName];
 
-	const updateRollUp = () =>{	
+	const updateRollUp = () =>{
+		let currentAxesFields = currentChartAxes[bIndex].fields;
+
+		// if(currentChartAxes.length == 4){
+
+		// }
+		// else{			
 		let rollupFieldIndex = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.findIndex((field:any)=>field.rollupDepth);
 
 		if(uID){
@@ -101,19 +106,20 @@ const DropZone = ({
 				let isManual = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.find((field:any)=>field.isManual);		
 	
 				if(!isManual){
-					updateField(charAxesFields?.length - 1, true);
 					updateField(rollupFieldIndex, false);
+					updateField(currentAxesFields?.length - 1, true);					
 				}
 			}
 			else{
-				updateField(charAxesFields?.length - 1, true);
 				updateField(rollupFieldIndex, false);
+				updateField(currentAxesFields?.length - 1, true);			
 			}
 		}
+		//}		
 		
 
 		function updateField(index:number, enable:boolean) {
-			let _field = charAxesFields[index];
+			let _field = currentAxesFields[index];
 
 			if (_field) {
 				let _tempField = JSON.parse(JSON.stringify(_field));

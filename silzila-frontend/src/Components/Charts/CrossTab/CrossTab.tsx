@@ -1,3 +1,5 @@
+import {displayName} from '../../CommonFunctions/CommonFunctions';
+
 export const delimiter = ",";
 
 /*  To deep clone an Object */
@@ -23,53 +25,27 @@ export const getKeyWithPrefix = (item : any = {}, dustbinName? :string, fieldTem
 
   if(dustbinName === "val"){
     if(item.dataType.toLowerCase() !== "date" && item.dataType.toLowerCase() !== "timestamp"){
-      _nameWithAgg =	item.agg ? `${item.agg} of ${item.fieldname}`: item.fieldname;
+      //_nameWithAgg =	item.agg ? `${item.agg} of ${item.fieldname}`: item.fieldname;
+	  _nameWithAgg =	displayName(item);
     }
     else{
-      let _timeGrain:string = item.timeGrain || "";
-      _nameWithAgg = 	item.agg ? `${item.agg} ${_timeGrain} of ${item.fieldname}`: item.fieldname;
+    //   let _timeGrain:string = item.timeGrain || "";
+    //   _nameWithAgg = 	item.agg ? `${item.agg} ${_timeGrain} of ${item.fieldname}`: item.fieldname;
+	_nameWithAgg =	displayName(item);
     }
-
  
     if(fieldTempObject[_nameWithAgg] !== undefined){
-      _nameWithAgg = findFieldName(_nameWithAgg,fieldTempObject);
+      _nameWithAgg = findFieldName(_nameWithAgg, fieldTempObject);
     }  
   }
   else{
-    let _timeGrain:string = item.timeGrain || "";
-    _nameWithAgg = 	_timeGrain ? `${_timeGrain} of ${item.fieldname}`: item.fieldname;
+     let _timeGrain:string = item.timeGrain || "";
+     _nameWithAgg = 	_timeGrain ? `${_timeGrain} of ${item.fieldname}`: item.fieldname;
+	//_nameWithAgg =	displayName(item);
   }
 
   return _nameWithAgg;
 
-  // if (dustbinName ==== "val") {
-  //   //val ==> "Measure"
-  //   switch (item.dataType) {
-  //     case "date":
-  //     case "timestamp":
-  //       return `${item.fieldname}__${item.timeGrain}_${item.agg}`;
-  //     case "decimal":
-  //     case "integer":
-  //       return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;
-  //     case "text":
-  //       return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;
-  //     default:
-  //       return item?.fieldname || "";
-  //   }
-  // } else {  // col/row ==> Columns / Rows
-  //   switch (item.dataType) {
-  //     case "date":
-  //     case "timestamp":
-  //       return `${item.fieldname}__${item.agg ? item.agg : item.timeGrain}`;
-  //     case "decimal":
-  //     case "integer":
-  //       return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;
-  //     case "text":
-  //       return `${item.fieldname}${item.agg ? "__" + item.agg : ""}`;
-  //     default:
-  //       return item?.fieldname || "";
-  //   }
-  // }
 };
 
 /*
