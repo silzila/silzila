@@ -138,35 +138,10 @@ const Card = ({
 	const deleteItem = () => {
 		if (chartType === "richText") {
 			deleteDropZoneItemsForDm(propKey, bIndex, itemIndex);
-		} else {		
-			// let _charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
-
-			// if(_charAxesFields[itemIndex].rollupDepth){
-			// 	if(itemIndex === _charAxesFields?.length - 1){
-			// 		let _field = _charAxesFields[_charAxesFields?.length - 2];
-
-			// 		if(_field){
-			// 			let _tempField = JSON.parse(JSON.stringify(_field));
-	
-			// 			if(_tempField){
-			// 				_tempField.rollupDepth = true;
-			// 				updateQueryParam(propKey, bIndex, _charAxesFields?.length - 2, _tempField, currentChartAxesName);
-			// 			}	
-			// 		}
-			// 	}
-			// 	else{
-			// 		let _field = _charAxesFields[_charAxesFields?.length - 1];
-
-			// 		if(_field){
-			// 			let _tempField = JSON.parse(JSON.stringify(_field));
-	
-			// 			if(_tempField){
-			// 				_tempField.rollupDepth = true;
-			// 				updateQueryParam(propKey, bIndex, _charAxesFields?.length - 1, _tempField, currentChartAxesName);
-			// 			}	
-			// 		}
-			// 	}				
-			// }	
+		} else {	
+			if(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex]?.override){
+				enableOverrideForUIDAction(propKey , "");
+			}
 
 			deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName);		
 		}
@@ -204,43 +179,7 @@ const Card = ({
 	// 	setShowTooltip(false);
     // };
 
-	const open: boolean = Boolean(anchorEl);
-	// const on:boolean=Boolean(anchorElTooltip)
-
-	// useEffect(()=>{
-	// 	let _charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
-
-	// 	let rollupFieldIndex = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.findIndex((field:any)=>field.rollupDepth);
-
-	// 	if(uID){
-	// 		if(rollupFieldIndex > -1){
-	// 			let isManual = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.find((field:any)=>field.isManual);		
-	
-	// 			if(!isManual){
-	// 				updateField();
-	// 				console.log("no manual")
-	// 			}
-	// 		}
-	// 		else{
-	// 			updateField();
-	// 			console.log("no roll")
-	// 		}
-	// 	}
-		
-
-	// 	function updateField() {
-	// 		let _field = _charAxesFields[_charAxesFields?.length - 1];
-
-	// 		if (_field) {
-	// 			let _tempField = JSON.parse(JSON.stringify(_field));
-
-	// 			if (_tempField) {
-	// 				_tempField.rollupDepth = true;
-	// 				updateQueryParam(propKey, bIndex, _charAxesFields?.length - 1, _tempField, currentChartAxesName);
-	// 			}
-	// 		}
-	// 	}
-	// },[chartProp.properties[propKey][currentChartAxesName][bIndex].fields])
+	const open: boolean = Boolean(anchorEl);	
 
 	const handleClick = (event: any) => {
 		setAnchorEl(event.currentTarget);
@@ -313,35 +252,102 @@ const Card = ({
 
 		let _charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
 
-		if(field2.rollupDepth){
-			for(let i = 0; i < _charAxesFields?.length; i++){
-				if(itemIndex !== i){
-					let _field = _charAxesFields[i];
-
-					if(_field){
-						let _tempField = JSON.parse(JSON.stringify(_field));
+		if(field2.rollupDepth){		
+			if(["crossTab", "heatmap", "boxPlot", ].includes(chartProp.properties[propKey].chartType)){
+				let chartAxesOneFields = chartProp.properties[propKey][currentChartAxesName][1].fields;
+				let chartAxesTwoFields = chartProp.properties[propKey][currentChartAxesName][2].fields;
+				
+				if(bIndex == 1){
+					if(chartAxesOneFields?.length > 0){
+						for(let i = 0; i < chartAxesOneFields?.length; i++){
+							if(itemIndex !== i){
+								updateFieldRollupProperty(1, i, false);
+							}
+						}
+					}				
+					
+					if(chartAxesTwoFields?.length > 0){
+						for(let i = 0; i < chartAxesTwoFields?.length; i++){
+							//if(itemIndex !== i){
+							updateFieldRollupProperty(2, i, false);
+							//}
+						}
+					}
+				}
+				else{
+					if(chartAxesOneFields?.length > 0){
+						for(let i = 0; i < chartAxesOneFields?.length; i++){
+							//if( itemIndex !== i){
+							updateFieldRollupProperty(1, i, false);
+							//}
+						}
+					}				
+					
+					if(chartAxesTwoFields?.length > 0){
+						for(let i = 0; i < chartAxesTwoFields?.length; i++){
+							if(itemIndex !== i){
+								updateFieldRollupProperty(2, i, false);
+							}
+						}
+					}
+				}
+			
+			}
+			else{
+				for(let i = 0; i < _charAxesFields?.length; i++){
+					if(itemIndex !== i){
+						let _field = _charAxesFields[i];
 	
-						if(_tempField){
-							_tempField.rollupDepth = false;
-							updateQueryParam(propKey, bIndex, i, _tempField, currentChartAxesName);
+						if(_field){
+							let _tempField = JSON.parse(JSON.stringify(_field));
+		
+							if(_tempField){
+								_tempField.rollupDepth = false;
+								updateQueryParam(propKey, bIndex, i, _tempField, currentChartAxesName);
+							}	
 						}	
-					}	
-				}									
-			}		
+					}									
+				}
+			}
 		}
-		else{
-			let _field = _charAxesFields[_charAxesFields?.length - 1];
+		else{	
+			if(["crossTab", "heatmap", "boxPlot", ].includes(chartProp.properties[propKey].chartType)){
+				if(chartProp.properties[propKey][currentChartAxesName][2].fields?.length > 0){
+					updateFieldRollupProperty(2, chartProp.properties[propKey][currentChartAxesName][2].fields?.length - 1, true);
+				}
+				else{
+					updateFieldRollupProperty(1, chartProp.properties[propKey][currentChartAxesName][1].fields?.length - 1, true);
+				}
+			}
+			else{
+				let _field = _charAxesFields[_charAxesFields?.length - 1];
 
-			if(_field){
-				let _tempField = JSON.parse(JSON.stringify(_field));
-
-				if(_tempField){
-					_tempField.rollupDepth = true;
-					updateQueryParam(propKey, bIndex, _charAxesFields?.length - 1, _tempField, currentChartAxesName);
-				}	
+				if(_field){
+					let _tempField = JSON.parse(JSON.stringify(_field));
+	
+					if(_tempField){
+						_tempField.rollupDepth = true;
+						updateQueryParam(propKey, bIndex, _charAxesFields?.length - 1, _tempField, currentChartAxesName);
+					}	
+				}
 			}
 		}	
+
+		function updateFieldRollupProperty (binIndex:number, index:number, enable:boolean){
+			let _field = chartProp.properties[propKey][currentChartAxesName][binIndex].fields[index];
+
+			if (_field) {
+				let _tempField = JSON.parse(JSON.stringify(_field));
+
+				if (_tempField) {
+					_tempField.rollupDepth = enable;
+					updateQueryParam(propKey, binIndex, index, _tempField, currentChartAxesName);
+				}
+			}
+		}
 	}
+
+	
 
 	var menuStyle = { fontSize: "12px", padding: "2px 1.5rem"};
 	var menuSelectedStyle = {

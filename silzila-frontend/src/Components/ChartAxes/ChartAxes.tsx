@@ -224,78 +224,7 @@ const ChartAxes = ({
 							sx={{ width: "12rem" }}
 							renderInput={(params) => <TextField {...params} label="Select Map" />}
 							/>
-					</div>
-					{/*<FormControl size="small" sx={{ margin: "0.5rem", "& .MuiInputBase-root": {
-										borderRadius: "0px",
-									} }}
-									style={{
-										background: "white",
-										fontSize: "12px",
-										borderRadius: "4px",
-									}}>
-						<InputLabel sx={{ fontSize: "12px", lineHeight: "1.5rem","&.Mui-focused": {
-											color: "#2bb9bb",
-										} }}>
-							Select Map
-						</InputLabel>
-						<Select
-							sx={{ fontSize: "13px", height: "1.5rem", backgroundColor: "white",color: "grey",
-
-							"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-								borderColor: "#2bb9bb",
-								color: "#2bb9bb",
-							},
-							"&:hover .MuiOutlinedInput-notchedOutline": {
-								borderColor: "#2bb9bb",
-								color: "#2bb9bb",
-							},
-							"&.Mui-focused .MuiSvgIcon-root ": {
-								fill: "#2bb9bb !important",
-							}, }}
-							label="Select Map"
-							value={chartProp.properties[propKey].Geo.geoLocation || "world"}
-							onChange={e => {
-								changeLocation(propKey, e.target.value);
-							}}
-						>
-							<MenuItem sx={menuItemStyle} value="world">
-								World
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="australia">
-								Australia
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="brazil">
-								Brazil
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="china">
-								China
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="france">
-								France
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="germany">
-								Germany
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="india">
-								India
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="japan">
-								Japan
-							</MenuItem>							
-							<MenuItem sx={menuItemStyle} value="nigeria">
-								Nigeria
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="southAfrica">
-								South Africa
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="uk">
-								United Kingdom
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="usa">
-								USA
-							</MenuItem>
-						</Select>
-						</FormControl>*/}
+					</div>					
 				</div>
 			)}
 			{chartProp.properties[propKey].chartType === "geoChart" && (
@@ -387,9 +316,9 @@ const ChartAxes = ({
 				</div>
 			)}
 			{dropZones.map((zone: any, zoneI: any) => (				
-					uID ? zone !== "Measure" ?
-					<DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} uID={uID}/>
-					: <OverrideMeasureDropZone/>
+					uID ? (zone !== "Measure" && zone !== 'Y') ?
+						zone !== 'X' ? <DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} uID={uID}/> : null
+					:<OverrideMeasureDropZone/>
 					: <DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} uID={uID}/>				
 				
 			))}
