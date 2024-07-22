@@ -236,7 +236,7 @@ const ChartFilterGroupCard = ({
       initialRelativeFilterData();
     }
 
-    //updateChartFilterRightGroupsFilters(name, constructChartAxesFieldObject());
+    updateChartFilterRightGroupsFilters(name, constructChartAxesFieldObject());
     // eslint-disable-next-line
   }, []);
 
@@ -353,7 +353,6 @@ const ChartFilterGroupCard = ({
   const GetRelativeFilterItems = async () => {
     let result: any = await fetchRelativeFilterFieldData(_getFilterType());
 
-    // console.log(result);
     if (result) {
       if (result.data && result.data.length > 0) {
         filterFieldData["fromDate"] =
@@ -361,11 +360,7 @@ const ChartFilterGroupCard = ({
         filterFieldData["toDate"] =
           result.data[0][Object.keys(result.data[0])[0]];
       }
-      // let tempResult = [...result];
-      // console.log(tempResult);
 
-      // filterFieldData["rawselectmembers"] = [...tempResult];
-      // filterFieldData["userSelection"] = tempResult;
       updateChartFilterRightGroupsFilters(
         name,
         constructChartAxesFieldObject()
@@ -888,7 +883,10 @@ const ChartFilterGroupCard = ({
         filterFieldData.includeexclude = "Include";
       }
     } else if (closeFrom === "opt1") {
-      if (filterFieldData.userSelection.includes("(All)")) {
+      if (
+        filterFieldData.fieldtypeoption === "Pick List" &&
+        filterFieldData.userSelection.includes("(All)")
+      ) {
         filterFieldData["userSelection"] = [];
       }
       filterFieldData.includeexclude = queryParam;
@@ -1385,6 +1383,9 @@ const ChartFilterGroupCard = ({
                 }
           }
           placeholder="Value"
+          sx={{
+            paddingBottom: "8px",
+          }}
           defaultValue={filterFieldData.exprInput}
           type={type}
           onBlur={(e) => handleCustomRequiredValueOnBlur(e.target.value)}
@@ -1426,7 +1427,7 @@ const ChartFilterGroupCard = ({
           }
           className="CustomInputValue"
           sx={{
-            paddingBottom: "5px",
+            paddingBottom: "8px",
           }}
           defaultValue={filterFieldData.greaterThanOrEqualTo}
           onBlur={(e) => {
@@ -1460,6 +1461,9 @@ const ChartFilterGroupCard = ({
                 }
           }
           className="CustomInputValue"
+          sx={{
+            paddingBottom: "8px",
+          }}
           defaultValue={filterFieldData.lessThanOrEqualTo}
           onBlur={(e) => {
             handleCustomRequiredValueOnBlur(
@@ -1496,7 +1500,7 @@ const ChartFilterGroupCard = ({
                         color: "#ffb74d",
                         textDecoration: "line-through",
                       }
-                    : { paddingBottom: "5px" }
+                    : { paddingBottom: "8px" }
                 }
                 InputProps={{
                   ...params.InputProps,
@@ -1526,11 +1530,10 @@ const ChartFilterGroupCard = ({
                 sx={
                   filterFieldData.includeexclude === "Exclude"
                     ? {
-                        paddingBottom: "5px",
                         color: "#ffb74d",
                         textDecoration: "line-through",
                       }
-                    : { paddingBottom: "5px" }
+                    : {}
                 }
                 InputProps={{
                   ...params.InputProps,

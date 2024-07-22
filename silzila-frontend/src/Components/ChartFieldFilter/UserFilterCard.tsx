@@ -241,12 +241,17 @@ const UserFilterCard = ({
       filterFieldData["filterTypeTillDate"] = "enabled";
 
       _preFetchData();
-    }
-    if (filterFieldData.fieldtypeoption === "Relative Filter") {
+    } else if (filterFieldData.fieldtypeoption === "Relative Filter") {
       initialRelativeFilterData();
     }
 
-    //updateUserFilterItem(propKey, 0, itemIndex, constructChartAxesFieldObject(), currentChartAxesName);
+    updateUserFilterItem(
+      propKey,
+      0,
+      itemIndex,
+      constructChartAxesFieldObject(),
+      currentChartAxesName
+    );
     // eslint-disable-next-line
   }, []);
 
@@ -860,7 +865,7 @@ const UserFilterCard = ({
   ///Initial Search Condition Values
   const initialSearchConditionValues = () => {
     if (filterFieldData.fieldtypeoption === "Search Condition") {
-      if (dataType) {
+      if (filterFieldData.dataType) {
         switch (filterFieldData.dataType) {
           case "decimal":
           case "integer":
@@ -933,7 +938,10 @@ const UserFilterCard = ({
         filterFieldData.includeexclude = "Include";
       }
     } else if (closeFrom === "opt1") {
-      if (filterFieldData.userSelection.includes("(All)")) {
+      if (
+        filterFieldData.fieldtypeoption === "Pick List" &&
+        filterFieldData.userSelection.includes("(All)")
+      ) {
         filterFieldData["userSelection"] = [];
       }
       filterFieldData.includeexclude = queryParam;
@@ -1449,6 +1457,9 @@ const UserFilterCard = ({
                 }
           }
           placeholder="Value"
+          sx={{
+            paddingBottom: "8px",
+          }}
           defaultValue={filterFieldData.exprInput}
           type={type}
           onBlur={(e) => handleCustomRequiredValueOnBlur(e.target.value)}
@@ -1490,7 +1501,7 @@ const UserFilterCard = ({
           }
           className="CustomInputValue"
           sx={{
-            paddingBottom: "5px",
+            paddingBottom: "8px",
           }}
           defaultValue={filterFieldData.greaterThanOrEqualTo}
           onBlur={(e) => {
@@ -1523,6 +1534,9 @@ const UserFilterCard = ({
                 }
           }
           className="CustomInputValue"
+          sx={{
+            paddingBottom: "8px",
+          }}
           defaultValue={filterFieldData.lessThanOrEqualTo}
           onBlur={(e) => {
             handleCustomRequiredValueOnBlur(
@@ -1559,7 +1573,7 @@ const UserFilterCard = ({
                         color: "#ffb74d",
                         textDecoration: "line-through",
                       }
-                    : { paddingBottom: "5px" }
+                    : { paddingBottom: "8px" }
                 }
                 InputProps={{
                   ...params.InputProps,
