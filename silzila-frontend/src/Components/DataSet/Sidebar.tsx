@@ -93,7 +93,9 @@ const Sidebar = ({
   const [isCustomQuery, setCustomQuery] = useState<boolean>(false);
   const [CustomQueryData, setCustomQueryData] = useState<string>("");
   const textareaRef = useRef<HTMLTextAreaElement>(null); //focus text
-
+  //Select Query option will be remove after clicking outside more button
+  const exceptionRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [QueryErrorMessage, setQueryErrorMessage] = useState<string>("");
   // Props to table data to for shows result for custom query data
 
@@ -511,8 +513,29 @@ const Sidebar = ({
     setCustomQuerysArray(updatedCustomQueryArray);
   };
   useEffect(() => {}, [CustomQuerysArray]);
+  // remove the selected query option after click anywhere the screen
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      exceptionRef.current &&
+      !exceptionRef.current.contains(event.target as Node)
+    ) {
+      setSelectQueryoption(0);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [SelectQueryoption]);
   return (
-    <div className="sidebar">
+    <div className="sidebar" ref={scrollRef}>
       {isFlatFile ? (
         <div>
           {tableList ? (
@@ -849,9 +872,12 @@ const Sidebar = ({
                     <div
                       style={{ cursor: "pointer" }}
                       onClick={() => {
-                        setSelectQueryoption(
-                          SelectQueryoption === item.id ? 0 : item.id
-                        );
+                        // setSelectQueryoption(
+                        //   SelectQueryoption === item.id
+                        //     ? () => handleClickOutside
+                        //     : item.id
+                        // );
+                        setSelectQueryoption(item.id);
                         setRenameNameQuery("");
                         // setRenameInputValueCustomQueryname(item.name);
                         // setRenameToCanvasProps(item.name);
@@ -861,36 +887,38 @@ const Sidebar = ({
                       <MoreVertSharpIcon />
                     </div>
                     {SelectQueryoption === item.id ? (
-                      <div className="optionlist">
-                        <ul style={{ listStyle: "none" }}>
-                          <li
-                            onClick={() => {
-                              setRenameID(item.id);
-                              setSelectQueryoption(item.id);
-                              setRenameInputValueCustomQueryname(item.name);
-                              // setRenameToCanvasProps(item.name);
-                              setRenameNameQuery(item.name);
-                            }}
-                          >
-                            Rename
-                          </li>
-                          <li
-                            onClick={() => {
-                              DeleteNameCustomQuery(item.id);
-                            }}
-                          >
-                            Delete
-                          </li>
-                          <li
-                            onClick={() => {
-                              setEditCustomQuery(item.id);
-                              handleEditCustomQuery(item.id);
-                              setRenameNameQuery(item.name);
-                            }}
-                          >
-                            Edit
-                          </li>
-                        </ul>
+                      <div className="optionlist" ref={exceptionRef}>
+                        <div ref={scrollRef}>
+                          <ul style={{ listStyle: "none" }}>
+                            <li
+                              onClick={() => {
+                                setRenameID(item.id);
+                                setSelectQueryoption(item.id);
+                                setRenameInputValueCustomQueryname(item.name);
+                                // setRenameToCanvasProps(item.name);
+                                setRenameNameQuery(item.name);
+                              }}
+                            >
+                              Rename
+                            </li>
+                            <li
+                              onClick={() => {
+                                DeleteNameCustomQuery(item.id);
+                              }}
+                            >
+                              Delete
+                            </li>
+                            <li
+                              onClick={() => {
+                                setEditCustomQuery(item.id);
+                                handleEditCustomQuery(item.id);
+                                setRenameNameQuery(item.name);
+                              }}
+                            >
+                              Edit
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     ) : null}
                   </div>
