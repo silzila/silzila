@@ -171,33 +171,89 @@ const ChartAxes = ({
 	}
 
 	const handleOverrideSave = (e:any) =>{
-		enableOverrideForUIDAction(propKey , "");		
-		let bIndex = ChartsInfo[chartProp.properties[propKey].chartType].dropZones.findIndex((item:any)=> item.name === "Measure");
-		let itemIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex((item:any)=> item.uId === uID);
-		let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
-		let tempField:any = {};
+		enableOverrideForUIDAction(propKey , "");	
+		
+		if(chartProp.properties[propKey].chartType !== "scatterPlot"){
+			let bIndex = ChartsInfo[chartProp.properties[propKey].chartType].dropZones.findIndex((item:any)=> item.name === "Measure");
+			let itemIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex((item:any)=> item.uId === uID);
+			let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
+			let tempField:any = {};
+	
+			if(field){
+				tempField = JSON.parse(JSON.stringify(field));
+				tempField.override = chartProp.properties[propKey]["chartAxes_" + uID];
+				updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
+			}
+		}
+		else{
+			let bIndexX = chartProp.properties[propKey].chartAxes[2].fields.findIndex((item:any)=> item.uId === uID);
+			let bIndexY = chartProp.properties[propKey].chartAxes[3].fields.findIndex((item:any)=> item.uId === uID);
+			let bIndex = 2, itemIndex = 0;
 
-		if(field){
-			tempField = JSON.parse(JSON.stringify(field));
-			tempField.override = chartProp.properties[propKey]["chartAxes_" + uID];
-			updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
-		}		
+			if(bIndexX > -1){
+				bIndex = 2;
+				itemIndex = 0;
+			}
+
+			if(bIndexY > -1){
+				bIndex = 3;
+				itemIndex = 0;
+			}
+			
+			let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
+			let tempField:any = {};
+	
+			if(field){
+				tempField = JSON.parse(JSON.stringify(field));
+				tempField.override = chartProp.properties[propKey]["chartAxes_" + uID];
+				updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
+			}
+		}
+				
 
 		removeChartAxesForUID(propKey, uID);
 	}
 
 	const handleOverrideRemove = ()=>{
-		enableOverrideForUIDAction(propKey , "");		
-		let bIndex = ChartsInfo[chartProp.properties[propKey].chartType].dropZones.findIndex((item:any)=> item.name === "Measure");
-		let itemIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex((item:any)=> item.uId === uID);
-		let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
-		let tempField:any = {};
+		enableOverrideForUIDAction(propKey , "");	
+		
+		if(chartProp.properties[propKey].chartType !== "scatterPlot"){
+			
+			let bIndex = ChartsInfo[chartProp.properties[propKey].chartType].dropZones.findIndex((item:any)=> item.name === "Measure");
+			let itemIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex((item:any)=> item.uId === uID);
+			let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
+			let tempField:any = {};
 
-		if(field){
-			tempField = JSON.parse(JSON.stringify(field));
-			tempField.override = null;
-			updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
-		}		
+			if(field){
+				tempField = JSON.parse(JSON.stringify(field));
+				tempField.override = null;
+				updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
+			}		
+		}
+		else{
+			let bIndexX = chartProp.properties[propKey].chartAxes[2].fields.findIndex((item:any)=> item.uId === uID);
+			let bIndexY = chartProp.properties[propKey].chartAxes[3].fields.findIndex((item:any)=> item.uId === uID);
+			let bIndex = 2, itemIndex = 0;
+
+			if(bIndexX > -1){
+				bIndex = 2;
+				itemIndex = 0;
+			}
+
+			if(bIndexY > -1){
+				bIndex = 3;
+				itemIndex = 0;
+			}
+
+			let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
+			let tempField:any = {};
+
+			if(field){
+				tempField = JSON.parse(JSON.stringify(field));
+				tempField.override = null;
+				updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
+			}		
+		}
 
 		removeChartAxesForUID(propKey, uID);
 	}
@@ -206,12 +262,10 @@ const ChartAxes = ({
 	,"France", "Germany", "India", "Japan", "Nigeria", "South Africa", "United Kingdom",
 	"USA"])
 
-	return (
-		<div className="charAxesArea">
-			{chartProp.properties[propKey].chartType === "geoChart" && (
-				<div
-					style={{display: "flex", flexDirection: "column" }}
-				>
+
+	const ShowLocationPicker = ()=>{
+		return (
+				<div style={{display: "flex", flexDirection: "column" }}>
 					<span className="axisTitle"></span>
 					<div>
 						<Autocomplete
@@ -226,8 +280,15 @@ const ChartAxes = ({
 							/>
 					</div>					
 				</div>
-			)}
-			{chartProp.properties[propKey].chartType === "geoChart" && (
+		)
+	}
+
+	return (
+		<div className="charAxesArea">
+			{!uID && chartProp.properties[propKey].chartType === "geoChart"  ? 
+				<ShowLocationPicker></ShowLocationPicker> : null 
+			}
+			{!uID && chartProp.properties[propKey].chartType === "geoChart"  && (
 				<div
 					style={{display: "flex", flexDirection: "row" }}
 				>

@@ -838,6 +838,7 @@ export const getChartData = async (
     let hasNoMeasureOverrideFields = JSON.parse(
       JSON.stringify(hasNoMeasureOverride)
     );
+
     let tempAxesValues = JSON.parse(JSON.stringify(axesValues));
 
     tempAxesValues.find((axis: any) => axis.name === "Measure").fields = [];
@@ -851,7 +852,14 @@ export const getChartData = async (
       let tempOverrideAxes = JSON.parse(
         JSON.stringify(tempMeasureField.override)
       );
+      
       delete tempMeasureField.override;
+
+      if(chartProp.chartType === "scatterPlot"){        
+        tempOverrideAxes[2].name = "Measure";
+        tempOverrideAxes[2].fields = [...tempOverrideAxes[2].fields, ...tempOverrideAxes[3].fields];
+        delete tempOverrideAxes[3]
+      }
 
       tempOverrideAxes.find((axis: any) => axis.name === "Measure").fields = [];
       tempOverrideAxes
