@@ -439,6 +439,7 @@ function CustomQueryResult({
       });
       // Dispatch the updated tempTables array to the store
       dispatch(setTempTables(updatedTempTables));
+      setSelectQueryoption(0);
     }
   }, [RenameToCanvasProps]);
 

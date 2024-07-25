@@ -93,10 +93,13 @@ const Sidebar = ({
   const [isCustomQuery, setCustomQuery] = useState<boolean>(false);
   const [CustomQueryData, setCustomQueryData] = useState<string>("");
   const textareaRef = useRef<HTMLTextAreaElement>(null); //focus text
-
+  //Select Query option will be remove after clicking outside more button
+  const exceptionRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [QueryErrorMessage, setQueryErrorMessage] = useState<string>("");
   // Props to table data to for shows result for custom query data
-
+  const [IsvisibleOption, setIsvisibleOption] = useState(false);
   const [showTableData, setShowTableData] = useState<boolean>(false);
   const [CustomQuerysArray, setCustomQuerysArray] = useState<savedData[]>([]);
   const [SelectQueryoption, setSelectQueryoption] = useState<number>(0);
@@ -511,8 +514,31 @@ const Sidebar = ({
     setCustomQuerysArray(updatedCustomQueryArray);
   };
   useEffect(() => {}, [CustomQuerysArray]);
+  // remove the selected query option after click anywhere the screen
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      (exceptionRef.current &&
+        !exceptionRef.current.contains(event.target as Node)) ||
+      inputRef.current
+    ) {
+      setSelectQueryoption(0);
+      setRenameID(0);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [SelectQueryoption, RenameID]);
   return (
-    <div className="sidebar">
+    <div className="sidebar" ref={scrollRef}>
       {isFlatFile ? (
         <div>
           {tableList ? (
@@ -849,10 +875,14 @@ const Sidebar = ({
                     <div
                       style={{ cursor: "pointer" }}
                       onClick={() => {
-                        setSelectQueryoption(
-                          SelectQueryoption === item.id ? 0 : item.id
-                        );
+                        // setSelectQueryoption(
+                        //   SelectQueryoption === item.id
+                        //     ? () => handleClickOutside
+                        //     : item.id
+                        // );
+                        setSelectQueryoption(item.id);
                         setRenameNameQuery("");
+                        setIsvisibleOption(true);
                         // setRenameInputValueCustomQueryname(item.name);
                         // setRenameToCanvasProps(item.name);
                         setRenameID(0);
@@ -860,37 +890,42 @@ const Sidebar = ({
                     >
                       <MoreVertSharpIcon />
                     </div>
-                    {SelectQueryoption === item.id ? (
-                      <div className="optionlist">
-                        <ul style={{ listStyle: "none" }}>
-                          <li
-                            onClick={() => {
-                              setRenameID(item.id);
-                              setSelectQueryoption(item.id);
-                              setRenameInputValueCustomQueryname(item.name);
-                              // setRenameToCanvasProps(item.name);
-                              setRenameNameQuery(item.name);
-                            }}
-                          >
-                            Rename
-                          </li>
-                          <li
-                            onClick={() => {
-                              DeleteNameCustomQuery(item.id);
-                            }}
-                          >
-                            Delete
-                          </li>
-                          <li
-                            onClick={() => {
-                              setEditCustomQuery(item.id);
-                              handleEditCustomQuery(item.id);
-                              setRenameNameQuery(item.name);
-                            }}
-                          >
-                            Edit
-                          </li>
-                        </ul>
+                    {IsvisibleOption && SelectQueryoption === item.id ? (
+                      <div className="optionlist" ref={exceptionRef}>
+                        <div ref={scrollRef}>
+                          <ul style={{ listStyle: "none" }}>
+                            <li
+                              onClick={() => {
+                                setRenameID(item.id);
+                                setSelectQueryoption(item.id);
+                                setRenameInputValueCustomQueryname(item.name);
+                                // setRenameToCanvasProps(item.name);
+                                setRenameNameQuery(item.name);
+                                setIsvisibleOption(false);
+                              }}
+                            >
+                              Rename
+                            </li>
+                            <li
+                              onClick={() => {
+                                DeleteNameCustomQuery(item.id);
+                                setIsvisibleOption(false);
+                              }}
+                            >
+                              Delete
+                            </li>
+                            <li
+                              onClick={() => {
+                                setEditCustomQuery(item.id);
+                                handleEditCustomQuery(item.id);
+                                setRenameNameQuery(item.name);
+                                setIsvisibleOption(false);
+                              }}
+                            >
+                              Edit
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     ) : null}
                   </div>
@@ -905,6 +940,7 @@ const Sidebar = ({
                         }}
                         onKeyDown={(event) => handleRename(event, item.name)}
                         autoFocus
+                        ref={inputRef}
                       />
                     ) : (
                       <span>
