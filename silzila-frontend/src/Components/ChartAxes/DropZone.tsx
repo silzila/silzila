@@ -95,38 +95,67 @@ const DropZone = ({
 	const updateRollUp = () =>{
 		let currentAxesFields = currentChartAxes[bIndex].fields;
 
-		// if(currentChartAxes.length == 4){
+		if(["crossTab", "heatmap", "boxPlot", ].includes(chartProp.properties[propKey].chartType)){
+			let rollupDimentionOneFieldIndex = chartProp.properties[propKey][currentChartAxesName][1].fields.findIndex((field:any)=>field.rollupDepth);
+			let rollupDimentionTwoFieldIndex = chartProp.properties[propKey][currentChartAxesName][2].fields.findIndex((field:any)=>field.rollupDepth);
+				
+			if(uID){
+				if(rollupDimentionOneFieldIndex > -1 || rollupDimentionTwoFieldIndex > -1){
+					let isManualDimentionOne = chartProp.properties[propKey][currentChartAxesName][1].fields.find((field:any)=>field.isManual);		
+					let isManualDimentionTwo = chartProp.properties[propKey][currentChartAxesName][2].fields.find((field:any)=>field.isManual);		
+		
+					if(!isManualDimentionOne && !isManualDimentionTwo){
+						console.log(bIndex);						
 
-		// }
-		// else{			
-		let rollupFieldIndex = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.findIndex((field:any)=>field.rollupDepth);
-
-		if(uID){
-			if(rollupFieldIndex > -1){
-				let isManual = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.find((field:any)=>field.isManual);		
-	
-				if(!isManual){
-					updateField(rollupFieldIndex, false);
-					updateField(currentAxesFields?.length - 1, true);					
+						if(rollupDimentionOneFieldIndex > -1){
+							 updateField(1, rollupDimentionOneFieldIndex, false);
+							 updateField(2, chartProp.properties[propKey][currentChartAxesName][2].fields?.length - 1, true);					
+						}
+						else{
+							 updateField(2, rollupDimentionTwoFieldIndex, false);
+							 updateField(2, chartProp.properties[propKey][currentChartAxesName][2].fields?.length - 1, true);		
+						}
+					}
+				}
+				else{					
+					if(chartProp.properties[propKey][currentChartAxesName][2].fields?.length > 0){
+						updateField(2, chartProp.properties[propKey][currentChartAxesName][2].fields?.length - 1, true);	
+					}
+					else{
+						updateField(1, chartProp.properties[propKey][currentChartAxesName][1].fields?.length - 1, true);	
+					}
 				}
 			}
-			else{
-				updateField(rollupFieldIndex, false);
-				updateField(currentAxesFields?.length - 1, true);			
-			}
 		}
-		//}		
+		else{			
+			let rollupFieldIndex = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.findIndex((field:any)=>field.rollupDepth);
+
+			if(uID){
+				if(rollupFieldIndex > -1){
+					let isManual = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.find((field:any)=>field.isManual);		
+		
+					if(!isManual){
+						updateField(bIndex, rollupFieldIndex, false);
+						updateField(bIndex, currentAxesFields?.length - 1, true);					
+					}
+				}
+				else{
+					updateField(bIndex, rollupFieldIndex, false);
+					updateField(bIndex, currentAxesFields?.length - 1, true);			
+				}
+			}
+		}		
 		
 
-		function updateField(index:number, enable:boolean) {
-			let _field = currentAxesFields[index];
+		function updateField(binIndex:number, index:number, enable:boolean) {
+			let _field = chartProp.properties[propKey][currentChartAxesName][binIndex].fields[index];
 
 			if (_field) {
 				let _tempField = JSON.parse(JSON.stringify(_field));
 
 				if (_tempField) {
 					_tempField.rollupDepth = enable;
-					updateQueryParam(propKey, bIndex, index, _tempField, currentChartAxesName);
+					updateQueryParam(propKey, binIndex, index, _tempField, currentChartAxesName);
 				}
 			}
 		}

@@ -171,33 +171,89 @@ const ChartAxes = ({
 	}
 
 	const handleOverrideSave = (e:any) =>{
-		enableOverrideForUIDAction(propKey , "");		
-		let bIndex = ChartsInfo[chartProp.properties[propKey].chartType].dropZones.findIndex((item:any)=> item.name === "Measure");
-		let itemIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex((item:any)=> item.uId === uID);
-		let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
-		let tempField:any = {};
+		enableOverrideForUIDAction(propKey , "");	
+		
+		if(chartProp.properties[propKey].chartType !== "scatterPlot"){
+			let bIndex = ChartsInfo[chartProp.properties[propKey].chartType].dropZones.findIndex((item:any)=> item.name === "Measure");
+			let itemIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex((item:any)=> item.uId === uID);
+			let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
+			let tempField:any = {};
+	
+			if(field){
+				tempField = JSON.parse(JSON.stringify(field));
+				tempField.override = chartProp.properties[propKey]["chartAxes_" + uID];
+				updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
+			}
+		}
+		else{
+			let bIndexX = chartProp.properties[propKey].chartAxes[2].fields.findIndex((item:any)=> item.uId === uID);
+			let bIndexY = chartProp.properties[propKey].chartAxes[3].fields.findIndex((item:any)=> item.uId === uID);
+			let bIndex = 2, itemIndex = 0;
 
-		if(field){
-			tempField = JSON.parse(JSON.stringify(field));
-			tempField.override = chartProp.properties[propKey]["chartAxes_" + uID];
-			updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
-		}		
+			if(bIndexX > -1){
+				bIndex = 2;
+				itemIndex = 0;
+			}
+
+			if(bIndexY > -1){
+				bIndex = 3;
+				itemIndex = 0;
+			}
+			
+			let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
+			let tempField:any = {};
+	
+			if(field){
+				tempField = JSON.parse(JSON.stringify(field));
+				tempField.override = chartProp.properties[propKey]["chartAxes_" + uID];
+				updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
+			}
+		}
+				
 
 		removeChartAxesForUID(propKey, uID);
 	}
 
 	const handleOverrideRemove = ()=>{
-		enableOverrideForUIDAction(propKey , "");		
-		let bIndex = ChartsInfo[chartProp.properties[propKey].chartType].dropZones.findIndex((item:any)=> item.name === "Measure");
-		let itemIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex((item:any)=> item.uId === uID);
-		let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
-		let tempField:any = {};
+		enableOverrideForUIDAction(propKey , "");	
+		
+		if(chartProp.properties[propKey].chartType !== "scatterPlot"){
+			
+			let bIndex = ChartsInfo[chartProp.properties[propKey].chartType].dropZones.findIndex((item:any)=> item.name === "Measure");
+			let itemIndex = chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex((item:any)=> item.uId === uID);
+			let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
+			let tempField:any = {};
 
-		if(field){
-			tempField = JSON.parse(JSON.stringify(field));
-			tempField.override = null;
-			updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
-		}		
+			if(field){
+				tempField = JSON.parse(JSON.stringify(field));
+				tempField.override = null;
+				updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
+			}		
+		}
+		else{
+			let bIndexX = chartProp.properties[propKey].chartAxes[2].fields.findIndex((item:any)=> item.uId === uID);
+			let bIndexY = chartProp.properties[propKey].chartAxes[3].fields.findIndex((item:any)=> item.uId === uID);
+			let bIndex = 2, itemIndex = 0;
+
+			if(bIndexX > -1){
+				bIndex = 2;
+				itemIndex = 0;
+			}
+
+			if(bIndexY > -1){
+				bIndex = 3;
+				itemIndex = 0;
+			}
+
+			let field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex];
+			let tempField:any = {};
+
+			if(field){
+				tempField = JSON.parse(JSON.stringify(field));
+				tempField.override = null;
+				updateQueryParam(propKey, bIndex, itemIndex, tempField, "chartAxes");
+			}		
+		}
 
 		removeChartAxesForUID(propKey, uID);
 	}
@@ -206,12 +262,10 @@ const ChartAxes = ({
 	,"France", "Germany", "India", "Japan", "Nigeria", "South Africa", "United Kingdom",
 	"USA"])
 
-	return (
-		<div className="charAxesArea">
-			{chartProp.properties[propKey].chartType === "geoChart" && (
-				<div
-					style={{display: "flex", flexDirection: "column" }}
-				>
+
+	const ShowLocationPicker = ()=>{
+		return (
+				<div style={{display: "flex", flexDirection: "column" }}>
 					<span className="axisTitle"></span>
 					<div>
 						<Autocomplete
@@ -224,81 +278,17 @@ const ChartAxes = ({
 							sx={{ width: "12rem" }}
 							renderInput={(params) => <TextField {...params} label="Select Map" />}
 							/>
-					</div>
-					{/*<FormControl size="small" sx={{ margin: "0.5rem", "& .MuiInputBase-root": {
-										borderRadius: "0px",
-									} }}
-									style={{
-										background: "white",
-										fontSize: "12px",
-										borderRadius: "4px",
-									}}>
-						<InputLabel sx={{ fontSize: "12px", lineHeight: "1.5rem","&.Mui-focused": {
-											color: "#2bb9bb",
-										} }}>
-							Select Map
-						</InputLabel>
-						<Select
-							sx={{ fontSize: "13px", height: "1.5rem", backgroundColor: "white",color: "grey",
-
-							"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-								borderColor: "#2bb9bb",
-								color: "#2bb9bb",
-							},
-							"&:hover .MuiOutlinedInput-notchedOutline": {
-								borderColor: "#2bb9bb",
-								color: "#2bb9bb",
-							},
-							"&.Mui-focused .MuiSvgIcon-root ": {
-								fill: "#2bb9bb !important",
-							}, }}
-							label="Select Map"
-							value={chartProp.properties[propKey].Geo.geoLocation || "world"}
-							onChange={e => {
-								changeLocation(propKey, e.target.value);
-							}}
-						>
-							<MenuItem sx={menuItemStyle} value="world">
-								World
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="australia">
-								Australia
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="brazil">
-								Brazil
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="china">
-								China
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="france">
-								France
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="germany">
-								Germany
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="india">
-								India
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="japan">
-								Japan
-							</MenuItem>							
-							<MenuItem sx={menuItemStyle} value="nigeria">
-								Nigeria
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="southAfrica">
-								South Africa
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="uk">
-								United Kingdom
-							</MenuItem>
-							<MenuItem sx={menuItemStyle} value="usa">
-								USA
-							</MenuItem>
-						</Select>
-						</FormControl>*/}
+					</div>					
 				</div>
-			)}
-			{chartProp.properties[propKey].chartType === "geoChart" && (
+		)
+	}
+
+	return (
+		<div className="charAxesArea">
+			{!uID && chartProp.properties[propKey].chartType === "geoChart"  ? 
+				<ShowLocationPicker></ShowLocationPicker> : null 
+			}
+			{!uID && chartProp.properties[propKey].chartType === "geoChart"  && (
 				<div
 					style={{display: "flex", flexDirection: "row" }}
 				>
@@ -387,9 +377,9 @@ const ChartAxes = ({
 				</div>
 			)}
 			{dropZones.map((zone: any, zoneI: any) => (				
-					uID ? zone !== "Measure" ?
-					<DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} uID={uID}/>
-					: <OverrideMeasureDropZone/>
+					uID ? (zone !== "Measure" && zone !== 'Y') ?
+						zone !== 'X' ? <DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} uID={uID}/> : null
+					:<OverrideMeasureDropZone/>
 					: <DropZone bIndex={zoneI} name={zone} propKey={propKey} key={zoneI} uID={uID}/>				
 				
 			))}

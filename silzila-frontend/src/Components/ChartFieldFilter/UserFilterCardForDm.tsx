@@ -890,7 +890,10 @@ const UserFilterCardForDm = ({
         filterFieldData.includeexclude = "Include";
       }
     } else if (closeFrom === "opt1") {
-      if (filterFieldData.userSelection.includes("(All)")) {
+      if (
+        filterFieldData.fieldtypeoption === "Pick List" &&
+        filterFieldData.userSelection.includes("(All)")
+      ) {
         filterFieldData["userSelection"] = [];
       }
       filterFieldData.includeexclude = queryParam;
@@ -1380,6 +1383,9 @@ const UserFilterCardForDm = ({
                 }
           }
           placeholder="Value"
+          sx={{
+            paddingBottom: "8px",
+          }}
           defaultValue={filterFieldData.exprInput}
           type={type}
           onBlur={(e) => handleCustomRequiredValueOnBlur(e.target.value)}
@@ -1421,7 +1427,7 @@ const UserFilterCardForDm = ({
           }
           className="CustomInputValue"
           sx={{
-            paddingBottom: "5px",
+            paddingBottom: "8px",
           }}
           defaultValue={filterFieldData.greaterThanOrEqualTo}
           onBlur={(e) => {
@@ -1455,6 +1461,9 @@ const UserFilterCardForDm = ({
                 }
           }
           className="CustomInputValue"
+          sx={{
+            paddingBottom: "8px",
+          }}
           defaultValue={filterFieldData.lessThanOrEqualTo}
           onBlur={(e) => {
             handleCustomRequiredValueOnBlur(
@@ -1491,7 +1500,7 @@ const UserFilterCardForDm = ({
                         color: "#ffb74d",
                         textDecoration: "line-through",
                       }
-                    : { paddingBottom: "5px" }
+                    : { paddingBottom: "8px" }
                 }
                 InputProps={{
                   ...params.InputProps,
@@ -1521,11 +1530,10 @@ const UserFilterCardForDm = ({
                 sx={
                   filterFieldData.includeexclude === "Exclude"
                     ? {
-                        paddingBottom: "5px",
                         color: "#ffb74d",
                         textDecoration: "line-through",
                       }
-                    : { paddingBottom: "5px" }
+                    : {}
                 }
                 InputProps={{
                   ...params.InputProps,
