@@ -37,15 +37,17 @@ const RenameFunction = ({
 }: RenameFunctionProps) => {
      
    
-	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
+	//let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
+    let currentChartAxesName = "chartAxes";
 
     const field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex] || {};
 
      // Initialize renameText with the current name_with_aggr value
-    const Aggname=`${field.agg} of ${field.fieldname}`;
+    const Aggname=`${field.agg}${field.timeGrain ? ' ' + field.timeGrain : ''} of ${field.fieldname}`;
 
-    const initialRenameText= field.agg && field.agg.trim() !== "" 
-    ? Aggname:field.displayname;
+
+    const initialRenameText = field.agg && field.agg.trim() !== "" && !field.isTextRenamed ? Aggname : field.displayname;
+
      
     const [renameText, setRenameText] = useState(initialRenameText || "");
     const [error, setError] = useState("");
@@ -61,7 +63,9 @@ const RenameFunction = ({
 
     useEffect(() => {
         if (renamefn && !isManualInput) {
-            setRenameText(field.agg && field.agg.trim() !== "" ? Aggname :field.displayname );
+
+            setRenameText(field.agg && field.agg.trim() !== "" && !field.isTextRenamed  ? Aggname :field.displayname );
+
             setError(""); // Clear any previous error when renaming starts
         }
     }, [renamefn, field.agg, field.displayname,isManualInput]);
@@ -269,7 +273,7 @@ const mapDispatchToProps = (dispatch: any) => {
             itemIndex: number,
             item: any,
             currentChartAxesName : string
-        ) => dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item,currentChartAxesName })),
+        ) => dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item, currentChartAxesName })),
       
     };
 };

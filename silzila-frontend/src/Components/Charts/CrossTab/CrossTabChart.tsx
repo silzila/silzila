@@ -7,6 +7,7 @@ import "./CrossTab.css";
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "../ChartsCommonInterfaces";
 
 import { formatChartLabelValue } from "../../ChartOptions/Format/NumberFormatter";
+import {displayName} from '../../CommonFunctions/CommonFunctions';
 
 const CrossTabChart = ({
 	propKey,
@@ -70,7 +71,8 @@ const CrossTabChart = ({
 					/*  Need to format only numeric values  */
 					if (typeof item[chartDataKeys[i]] === "number") {
 						let _isMeasureField = dustbinValues.find(field =>
-							chartDataKeys[i].includes(field.fieldname)
+							//chartDataKeys[i].includes(field.fieldname)
+							chartDataKeys[i].includes(field.displayname)
 						);
 						/*  Need to format Measure dustbin fields */
 						if (_isMeasureField && chartDataKeys[i].includes("of")) {
@@ -405,13 +407,13 @@ const CrossTabChart = ({
 									tempColumnObj.skip = true;
 								} else {
 									tempColumnObj.displayData = rowValues[colIndex];
-									compareObj[dustbinRows[colIndex].fieldname] =
-										tempColumnObj.displayData;
+									compareObj[dustbinRows[colIndex].fieldname] = tempColumnObj.displayData;
+									//compareObj[dustbinRows[colIndex].displayname] = tempColumnObj.displayData;									
 								}
 							} else {
 								tempColumnObj.displayData = rowValues[colIndex];
-								compareObj[dustbinRows[colIndex]?.fieldname] =
-									tempColumnObj.displayData;
+								compareObj[dustbinRows[colIndex]?.fieldname] = tempColumnObj.displayData;								
+								//compareObj[displayName(dustbinRows[colIndex])] = tempColumnObj.displayData;
 							}
 						}
 						tempColumnObj.isHeaderField = true;
@@ -801,7 +803,9 @@ const CrossTabChart = ({
 
 				if (!tempColumnObj.isHeaderField && !tempColumnObj.isRowField) {
 					dustbinValues.forEach(field => {
-						delete compObj[field.fieldname + "__" + field.agg];
+						//delete compObj[displayName(field) + "__" + field.agg];
+						//delete compObj[field.fieldname + "__" + field.agg];
+						delete compObj[field.displayname + "__" + field.agg];
 					});
 
 					compObj[key] = data[key];

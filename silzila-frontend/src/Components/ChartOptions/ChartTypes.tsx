@@ -34,7 +34,8 @@ import { Dispatch } from "redux";
 import {
 	canReUseData,
 	changeChartTypeAndAxes,
-	editChartPropItem
+	editChartPropItem,
+	enableOverrideForUIDAction
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
 import {
@@ -92,7 +93,8 @@ const ChartTypes = ({
 	updateChartData,
 	addTile,
 	selectTile,
-	updateQueryParam
+	updateQueryParam,
+	enableOverrideForUIDAction
 }: any) => {
 	var selectedChart = chartProp.properties[propKey].chartType;
 
@@ -159,6 +161,7 @@ const ChartTypes = ({
 					let _field = JSON.parse(JSON.stringify(field));
 					_field.override = null;
 					updateQueryParam(propKey, _bIndex + 1, idx, _field, "chartAxes");	
+					enableOverrideForUIDAction(propKey , "");
 				});	
 			});				
 		}
@@ -1558,6 +1561,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName)),
 		updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any,  currentChartAxesName : string) =>
 			dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item, currentChartAxesName })),
+		enableOverrideForUIDAction: (propKey: string, uId: string) =>
+			dispatch(enableOverrideForUIDAction(propKey, uId)),		
 	};
 };
 

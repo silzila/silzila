@@ -193,7 +193,6 @@ Data Connections
   width: 200px;
   height: 45px;
   white-space: nowrap;
-  
 }
 
 .listItem:hover {
@@ -201,7 +200,6 @@ Data Connections
   border-radius: 4px;
   width: 200px;
   height: 45px;
-
   display: flex;
 	column-gap: 25px;
   margin-bottom: 10px;
@@ -209,7 +207,6 @@ Data Connections
 	align-items: center;
 	text-align: left;
 	white-space: nowrap;
-
 }
 
 .active {
@@ -225,7 +222,7 @@ Data Connections
   height: 45px;
   width: 200px;
   white-space: nowrap;
-  /* padding: 6px 6px 6px 8px; */
+  padding: 6px 6px 6px 8px;
 }
 
 .dbConnectionErrorText {
@@ -568,6 +565,7 @@ DataHome
 .optionlist {
   position: absolute;
   display: flex;
+  flex-direction: column; /* Ensures items stack vertically */
   text-transform: none;
   cursor: pointer;
   color: black;
@@ -575,9 +573,11 @@ DataHome
   justify-content: start;
   background-color: white;
   outline: none;
-  padding: 10px 0 10px 0;
+  padding: 10px 0;
   box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.3);
   z-index: 999;
+  max-height: 80vh; /* Set a maximum height (e.g., 80% of the viewport height) */
+  overflow-y: auto; /* Allow vertical scrolling within the menu if needed */
 }
 
 .optionlist ul li {

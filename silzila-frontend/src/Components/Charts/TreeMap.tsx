@@ -85,25 +85,32 @@ const Treemap = ({
 			var formattedData: any = []; // Final data structure to feed to the map
 
 			// columns in dimension
-			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map((el:any) => {
-				if ("timeGrain" in el) {
-					return `${el.timeGrain} of ${el.fieldname}`;
-				} else if ("agg" in el) {
-					return `${el.agg} of ${el.fieldname} `;
-				} else {
-					return el.fieldname;
-				}
-			});
+			dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map((el: any) => el.displayname);
+			// dimensionsKeys = chartProperties.properties[propKey].chartAxes[1].fields.map((el:any) => {
+			// 	if ("timeGrain" in el) {
+			// 		return `${el.timeGrain} of ${el.fieldname}`;
+			// 	} else if ("agg" in el) {
+			// 		return `${el.agg} of ${el.fieldname} `;
+			// 	} else {
+			// 		return el.fieldname;
+			// 	}
+			// });
 
 			// column in measure
-			chartProperties.properties[propKey].chartAxes[2].fields.forEach((el:any) => {
-				if (el.agg) {
-					measure = `${el.agg} of ${el.fieldname}`;
-				}
-				if (el.timeGrain) {
-					measure = `${el.timeGrain} of ${el.fieldname}`;
-				}
+			chartProperties.properties[propKey].chartAxes[2].fields.forEach((el: any) => {
+				measure = el.displayname;
 			});
+			// chartProperties.properties[propKey].chartAxes[2].fields.forEach((el:any) => {
+			// 	if (el.timeGrain && el.agg) {
+			// 		measure = `${el.agg} ${el.timeGrain} of ${el.fieldname}`;
+			// 	}
+			// 	if (el.agg) {
+			// 		measure = `${el.agg} of ${el.fieldname}`;
+			// 	}
+			// 	if (el.timeGrain) {
+			// 		measure = `${el.timeGrain} of ${el.fieldname}`;
+			// 	}
+			// });
 
 			var dimValues = chartData.map((dt: any) => dt[dimensionsKeys[0]]); // All values of first dimension
 			var uniqueDimValues = [...new Set(dimValues)]; // Unique values of first dimension. These are the parent objects
@@ -148,16 +155,18 @@ const Treemap = ({
 	}, [chartControls.properties[propKey], chartData]);
 
 	function getTooltipData(treePath: any, value: any, info: any) {
-		const dimsLength = chartProperties.properties[propKey].chartAxes[1].fields.map((el:any) => {
-			return el.fieldname;
-		});
+		const dimsLength = chartProperties.properties[propKey].chartAxes[1].fields.map((el:any) => el.displayname);
+		// => {
+			// return el.fieldname;
+
+		// });
 
 		if (dimsLength.length === parseInt(treePath.length)) {
 			return [
 				'<div class="tooltip-title">' +
 					formatUtil.encodeHTML(treePath.join(">")) +
 					"</div>",
-				`${chartProperties.properties[propKey].chartAxes[2].fields[0].fieldname} ` +
+				`${chartProperties.properties[propKey].chartAxes[2].fields[0].displayname} ` +
 					formatUtil.addCommas(value),
 			].join("");
 		} else {
