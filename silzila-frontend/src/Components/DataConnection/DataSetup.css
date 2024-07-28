@@ -222,7 +222,7 @@ Data Connections
   height: 45px;
   width: 200px;
   white-space: nowrap;
-  padding: 6px 6px 6px 8px;
+  /* padding: 6px 6px 6px 8px; */
 }
 
 .dbConnectionErrorText {
