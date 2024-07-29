@@ -34,11 +34,11 @@ Data Setup Page
 }
 
 .dataConnectionContainer {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background-color: #fff;
-  padding: 1rem 10rem;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	background-color: #fff;
+	padding: 1rem 10rem;
 }
 
 .dataSetContainer {
@@ -127,9 +127,9 @@ Data Setup Page
 }
 
 .containerButton:hover {
-  background-color: #2bb9bb;
-  border: 1px solid #2bb9bb;
-  color: white;
+	background-color: #2bb9bb;
+	border: 1px solid #2bb9bb;
+	color: white; 
 }
 
 /* 
@@ -137,12 +137,12 @@ Data Setup Page
 Data Connections
 =================================================== 
 */
-.addScrollBar {
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  overflow-x: auto;
-  max-height: calc(100vh - 50px);
+.addScrollBar{
+	display: flex;
+	flex-direction: column;	
+	overflow-y: auto;
+	overflow-x: auto;
+	max-height: calc(100vh - 50px);
 }
 .dbFormContainer {
   padding: 10px;
@@ -168,24 +168,24 @@ Data Connections
   display: flex;
   align-items: center;
   text-align: left;
-  column-gap: 34px;
-  padding: 6px 6px 6px 8px;
+  column-gap: 25px;
+  padding: 6px 6px 6px 6px;
   border: 1px solid transparent;
   border-radius: 4px;
   margin-bottom: 10px;
-  cursor: pointer;
+  /* cursor: pointer; */
   width: 200px;
   height: 45px;
   white-space: nowrap;
-  background-color: black;
+  background-color: rgba(224,224,224,1);
 }
 
 .listItem {
   display: flex;
   align-items: center;
   text-align: left;
-  column-gap: 34px;
-  padding: 6px 6px 6px 8px;
+  column-gap: 25px;
+  padding: 6px 6px 6px 6px;
   border: 1px solid transparent;
   border-radius: 4px;
   margin-bottom: 10px;
@@ -200,13 +200,20 @@ Data Connections
   border-radius: 4px;
   width: 200px;
   height: 45px;
+  display: flex;
+	column-gap: 25px;
+  margin-bottom: 10px;
+  padding: 6px 6px 6px 6px;
+	align-items: center;
+	text-align: left;
+	white-space: nowrap;
 }
 
 .active {
   display: flex;
   align-items: center;
   text-align: left;
-  column-gap: 34px;
+  column-gap: 25px;
   padding: 6px 6px 6px 6px;
   /* cursor: pointer; */
   margin-bottom: 10px;
@@ -215,7 +222,7 @@ Data Connections
   height: 45px;
   width: 200px;
   white-space: nowrap;
-  padding: 6px 6px 6px 8px;
+  /* padding: 6px 6px 6px 8px; */
 }
 
 .dbConnectionErrorText {
@@ -299,12 +306,12 @@ Data Connections
 }
 
 .dataConnectionName {
-  flex: 1 1;
-  text-align: left;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  display: block;
+	  flex: 1 1;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
 }
 
 .inputFieldStyle {
@@ -337,7 +344,7 @@ Datasets
   padding: 1rem;
   border-top: 2px solid rgba(224, 224, 224, 1);
   overflow: scroll;
-  overflow-y: auto;
+  /* overflow-y: auto; */
   /* overflow-x: hidden; */
 }
 
@@ -397,12 +404,12 @@ Datasets
 }
 
 .vendorIconStyle {
-  height: 30px;
-  width: 30px;
+	height: 30px;
+	width: 30px;
 }
-.separateVendorIcon {
-  height: 35px;
-  width: 35px;
+.separateVendorIcon{
+	height: 35px;
+	width: 35px;
 }
 
 /* 
