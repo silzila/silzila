@@ -25,6 +25,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import TextField from "@mui/material/TextField";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { parseISO } from "date-fns";
 
 import {
   updateChartFilterRightGroupsFilters,
@@ -606,17 +607,20 @@ const ChartFilterGroupCard = ({
       <div className="customDatePickerWidth">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DatePicker
-            value={filterFieldData.exprInputSpecificDate}
+            value={parseISO(filterFieldData.exprInputSpecificDate)}
             onChange={(e) =>
+              e &&
               handleCustomRequiredValueOnBlur(
                 e,
                 "exprInputSpecificDate",
                 "date"
               )
             }
-            renderInput={(params) => (
-              <TextField {...params} className="customDatePickerHeight" />
-            )}
+            slots={{
+              textField: (params) => (
+                <TextField {...params} className="customDatePickerHeight" />
+              ),
+            }}
           />
         </LocalizationProvider>
         {filterFieldData.isInValidData ? (
@@ -671,7 +675,7 @@ const ChartFilterGroupCard = ({
 
   ///Initialize Relative Filter items
   const initialRelativeFilterData = () => {
-    if (!filterFieldData.exprType) {
+    if (!filterFieldData.expTypeFromdate) {
       filterFieldData["expTypeFromdate"] = "year";
     }
     if (!filterFieldData.expTypeTodate) {
@@ -1248,7 +1252,7 @@ const ChartFilterGroupCard = ({
   ///Search Condition and Relative Filter user input change handler
 
   const handleCustomRequiredValueOnBlur = async (
-    val: number | string,
+    val: number | string | Date,
     key = "exprInput",
     type?: string
   ) => {
@@ -1486,68 +1490,74 @@ const ChartFilterGroupCard = ({
       <div className="customDatePickerWidth">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DatePicker
-            value={filterFieldData.greaterThanOrEqualTo}
+            value={parseISO(filterFieldData.greaterThanOrEqualTo)}
             onChange={(e) =>
+              e &&
               handleCustomRequiredValueOnBlur(e, "greaterThanOrEqualTo", "date")
             }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                sx={
-                  filterFieldData.includeexclude === "Exclude"
-                    ? {
-                        paddingBottom: "5px",
-                        color: "#ffb74d",
-                        textDecoration: "line-through",
-                      }
-                    : { paddingBottom: "8px" }
-                }
-                InputProps={{
-                  ...params.InputProps,
-                  style: {
-                    ...params.InputProps?.style,
-                    color:
-                      filterFieldData.includeexclude === "Exclude"
-                        ? "#ffb74d"
-                        : "inherit",
-                  },
-                }}
-                className="customDatePickerHeight"
-              />
-            )}
+            slots={{
+              textField: (params) => (
+                <TextField
+                  {...params}
+                  sx={
+                    filterFieldData.includeexclude === "Exclude"
+                      ? {
+                          paddingBottom: "5px",
+                          color: "#ffb74d",
+                          textDecoration: "line-through",
+                        }
+                      : { paddingBottom: "8px" }
+                  }
+                  InputProps={{
+                    ...params.InputProps,
+                    style: {
+                      ...params.InputProps?.style,
+                      color:
+                        filterFieldData.includeexclude === "Exclude"
+                          ? "#ffb74d"
+                          : "inherit",
+                    },
+                  }}
+                  className="customDatePickerHeight"
+                />
+              ),
+            }}
           />
         </LocalizationProvider>
 
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DatePicker
-            value={filterFieldData.lessThanOrEqualTo}
+            value={parseISO(filterFieldData.lessThanOrEqualTo)}
             onChange={(e) =>
+              e &&
               handleCustomRequiredValueOnBlur(e, "lessThanOrEqualTo", "date")
             }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                sx={
-                  filterFieldData.includeexclude === "Exclude"
-                    ? {
-                        color: "#ffb74d",
-                        textDecoration: "line-through",
-                      }
-                    : {}
-                }
-                InputProps={{
-                  ...params.InputProps,
-                  style: {
-                    ...params.InputProps?.style,
-                    color:
-                      filterFieldData.includeexclude === "Exclude"
-                        ? "#ffb74d"
-                        : "inherit",
-                  },
-                }}
-                className="customDatePickerHeight"
-              />
-            )}
+            slots={{
+              textField: (params) => (
+                <TextField
+                  {...params}
+                  sx={
+                    filterFieldData.includeexclude === "Exclude"
+                      ? {
+                          color: "#ffb74d",
+                          textDecoration: "line-through",
+                        }
+                      : {}
+                  }
+                  InputProps={{
+                    ...params.InputProps,
+                    style: {
+                      ...params.InputProps?.style,
+                      color:
+                        filterFieldData.includeexclude === "Exclude"
+                          ? "#ffb74d"
+                          : "inherit",
+                    },
+                  }}
+                  className="customDatePickerHeight"
+                />
+              ),
+            }}
           />
         </LocalizationProvider>
         {filterFieldData.isInValidData ? (
@@ -1594,35 +1604,38 @@ const ChartFilterGroupCard = ({
                 <div className="customDatePickerWidth">
                   <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <DatePicker
-                      value={filterFieldData.exprInput}
+                      value={parseISO(filterFieldData.exprInput)}
                       onChange={(e) =>
+                        e &&
                         handleCustomRequiredValueOnBlur(e, "exprInput", "date")
                       }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          sx={
-                            filterFieldData.includeexclude === "Exclude"
-                              ? {
-                                  paddingBottom: "5px",
-                                  color: "#ffb74d",
-                                  textDecoration: "line-through",
-                                }
-                              : { paddingBottom: "5px" }
-                          }
-                          InputProps={{
-                            ...params.InputProps,
-                            style: {
-                              ...params.InputProps?.style,
-                              color:
-                                filterFieldData.includeexclude === "Exclude"
-                                  ? "#ffb74d"
-                                  : "inherit",
-                            },
-                          }}
-                          className="customDatePickerHeight"
-                        />
-                      )}
+                      slots={{
+                        textField: (params) => (
+                          <TextField
+                            {...params}
+                            sx={
+                              filterFieldData.includeexclude === "Exclude"
+                                ? {
+                                    paddingBottom: "5px",
+                                    color: "#ffb74d",
+                                    textDecoration: "line-through",
+                                  }
+                                : { paddingBottom: "5px" }
+                            }
+                            InputProps={{
+                              ...params.InputProps,
+                              style: {
+                                ...params.InputProps?.style,
+                                color:
+                                  filterFieldData.includeexclude === "Exclude"
+                                    ? "#ffb74d"
+                                    : "inherit",
+                              },
+                            }}
+                            className="customDatePickerHeight"
+                          />
+                        ),
+                      }}
                     />
                   </LocalizationProvider>
                   {filterFieldData.isInValidData ? (
