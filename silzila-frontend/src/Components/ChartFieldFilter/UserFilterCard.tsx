@@ -13,11 +13,13 @@ import {
   Select,
   Tooltip,
   Typography,
+  // InputBase,
 } from "@mui/material";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import { alpha, styled } from "@mui/material/styles";
+import { makeStyles } from "@mui/styles";
 import Radio from "@mui/material/Radio";
 // import { green } from "@mui/material/colors";
 
@@ -655,7 +657,6 @@ const UserFilterCard = ({
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DatePicker
             value={parseISO(filterFieldData.exprInputSpecificDate)}
-            // value={filterFieldData.exprInputSpecificDate}
             onChange={(e) =>
               e &&
               handleCustomRequiredValueOnBlur(
@@ -666,12 +667,14 @@ const UserFilterCard = ({
             }
             slots={{
               textField: (params) => (
-                <TextField {...params} className="customDatePickerHeight" />
+                <TextField
+                  {...params}
+                  className={`customDatePickerHeight ${
+                    dropDownStyles().customSelect
+                  }`}
+                />
               ),
             }}
-            // renderInput={(params) => (
-            //   <TextField {...params} className="customDatePickerHeight" />
-            // )}
           />
         </LocalizationProvider>
         {filterFieldData.isInValidData ? (
@@ -1400,6 +1403,7 @@ const UserFilterCard = ({
               marginRight: "30px",
             },
           }}
+          className={dropDownStyles().customSelect}
           placeholder="Value"
           defaultValue={filterFieldData[exprType]}
           type={type}
@@ -1464,6 +1468,7 @@ const UserFilterCard = ({
                   },
                 }
           }
+          className={dropDownStyles().customSelect}
           placeholder="Value"
           sx={{
             paddingBottom: "8px",
@@ -1507,7 +1512,7 @@ const UserFilterCard = ({
                   },
                 }
           }
-          className="CustomInputValue"
+          className={`CustomInputValue ${dropDownStyles().customSelect}`}
           sx={{
             paddingBottom: "8px",
           }}
@@ -1541,7 +1546,7 @@ const UserFilterCard = ({
                   },
                 }
           }
-          className="CustomInputValue"
+          className={`CustomInputValue ${dropDownStyles().customSelect}`}
           sx={{
             paddingBottom: "8px",
           }}
@@ -1595,7 +1600,9 @@ const UserFilterCard = ({
                           : "inherit",
                     },
                   }}
-                  className="customDatePickerHeight"
+                  className={`customDatePickerHeight ${
+                    dropDownStyles().customSelect
+                  }`}
                 />
               ),
             }}
@@ -1628,7 +1635,9 @@ const UserFilterCard = ({
                           : "inherit",
                     },
                   }}
-                  className="customDatePickerHeight"
+                  className={`customDatePickerHeight ${
+                    dropDownStyles().customSelect
+                  }`}
                 />
               ),
             }}
@@ -1705,7 +1714,9 @@ const UserFilterCard = ({
                                     : "inherit",
                               },
                             }}
-                            className="customDatePickerHeight"
+                            className={`customDatePickerHeight ${
+                              dropDownStyles().customSelect
+                            }`}
                           />
                         ),
                       }}
@@ -1738,10 +1749,25 @@ const UserFilterCard = ({
     return <div>{members}</div>;
   };
 
+  ///Style for chnaging border color of different menus on focus
+  const dropDownStyles = makeStyles({
+    customSelect: {
+      "& .MuiOutlinedInput-root": {
+        "&.Mui-focused fieldset": {
+          borderColor: "#2bb9bb",
+        },
+      },
+    },
+  });
+
   ///Dropdown list to select Time grain
   const DropDownForDatePattern = ({ items }: any) => {
     return (
-      <FormControl fullWidth size="small">
+      <FormControl
+        fullWidth
+        size="small"
+        className={dropDownStyles().customSelect}
+      >
         <Select
           sx={{
             height: "1.5rem",
@@ -1785,7 +1811,11 @@ const UserFilterCard = ({
   ///Search Condition and Relative Filter Dropdown list to select condition
   const DropDownForPattern = ({ items, exprType = "exprType" }: any) => {
     return (
-      <FormControl fullWidth size="small">
+      <FormControl
+        fullWidth
+        size="small"
+        className={dropDownStyles().customSelect}
+      >
         <Select
           sx={{
             height: "1.5rem",

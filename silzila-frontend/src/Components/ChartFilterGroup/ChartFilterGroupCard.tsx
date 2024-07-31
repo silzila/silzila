@@ -19,6 +19,7 @@ import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import { alpha, styled } from "@mui/material/styles";
+import { makeStyles } from "@mui/styles";
 import Radio from "@mui/material/Radio";
 
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -618,7 +619,12 @@ const ChartFilterGroupCard = ({
             }
             slots={{
               textField: (params) => (
-                <TextField {...params} className="customDatePickerHeight" />
+                <TextField
+                  {...params}
+                  className={`customDatePickerHeight ${
+                    dropDownStyles().customSelect
+                  }`}
+                />
               ),
             }}
           />
@@ -1266,6 +1272,12 @@ const ChartFilterGroupCard = ({
       filterFieldData[key] = val;
       filterFieldData["isInValidData"] = false;
 
+      if (filterFieldData.fieldtypeoption === "Relative Filter") {
+        setLoading(true);
+        await GetRelativeFilterItems();
+        setLoading(false);
+      }
+
       if (
         key !== "exprInput" &&
         filterFieldData.fieldtypeoption === "Search Condition"
@@ -1296,12 +1308,6 @@ const ChartFilterGroupCard = ({
         filterFieldData.exprTypeTillDate = false;
       }
 
-      if (filterFieldData.fieldtypeoption === "Relative Filter") {
-        setLoading(true);
-        await GetRelativeFilterItems();
-        setLoading(false);
-      }
-
       updateChartFilterRightGroupsFilters(
         name,
         constructChartAxesFieldObject()
@@ -1310,7 +1316,7 @@ const ChartFilterGroupCard = ({
   };
 
   ///Render Relative Filter Value Input Control
-  const RelativeFilterCustomInputControl = ({ type, exprType }: any) => {
+  const RelativeFilterValueInputControl = ({ type, exprType }: any) => {
     return (
       <>
         <TextField
@@ -1322,6 +1328,7 @@ const ChartFilterGroupCard = ({
               marginRight: "30px",
             },
           }}
+          className={dropDownStyles().customSelect}
           placeholder="Value"
           defaultValue={filterFieldData[exprType]}
           type={type}
@@ -1352,10 +1359,10 @@ const ChartFilterGroupCard = ({
   const ValueFieldForRelativeFilter = ({ exprType }: any) => {
     var members = null;
     members = (
-      <RelativeFilterCustomInputControl
+      <RelativeFilterValueInputControl
         type="number"
         exprType={exprType}
-      ></RelativeFilterCustomInputControl>
+      ></RelativeFilterValueInputControl>
     );
     return <div style={{ width: "60px" }}>{members}</div>;
   };
@@ -1386,6 +1393,7 @@ const ChartFilterGroupCard = ({
                   },
                 }
           }
+          className={dropDownStyles().customSelect}
           placeholder="Value"
           sx={{
             paddingBottom: "8px",
@@ -1429,7 +1437,7 @@ const ChartFilterGroupCard = ({
                   },
                 }
           }
-          className="CustomInputValue"
+          className={`CustomInputValue ${dropDownStyles().customSelect}`}
           sx={{
             paddingBottom: "8px",
           }}
@@ -1464,7 +1472,7 @@ const ChartFilterGroupCard = ({
                   },
                 }
           }
-          className="CustomInputValue"
+          className={`CustomInputValue ${dropDownStyles().customSelect}`}
           sx={{
             paddingBottom: "8px",
           }}
@@ -1518,7 +1526,9 @@ const ChartFilterGroupCard = ({
                           : "inherit",
                     },
                   }}
-                  className="customDatePickerHeight"
+                  className={`customDatePickerHeight ${
+                    dropDownStyles().customSelect
+                  }`}
                 />
               ),
             }}
@@ -1554,7 +1564,9 @@ const ChartFilterGroupCard = ({
                           : "inherit",
                     },
                   }}
-                  className="customDatePickerHeight"
+                  className={`customDatePickerHeight ${
+                    dropDownStyles().customSelect
+                  }`}
                 />
               ),
             }}
@@ -1632,7 +1644,9 @@ const ChartFilterGroupCard = ({
                                     : "inherit",
                               },
                             }}
-                            className="customDatePickerHeight"
+                            className={`customDatePickerHeight ${
+                              dropDownStyles().customSelect
+                            }`}
                           />
                         ),
                       }}
@@ -1665,10 +1679,25 @@ const ChartFilterGroupCard = ({
     return <div>{members}</div>;
   };
 
+  ///Style for chnaging border color of different menus on focus
+  const dropDownStyles = makeStyles({
+    customSelect: {
+      "& .MuiOutlinedInput-root": {
+        "&.Mui-focused fieldset": {
+          borderColor: "#2bb9bb",
+        },
+      },
+    },
+  });
+
   ///Dropdown list to select Time grain
   const DropDownForDatePattern = ({ items }: any) => {
     return (
-      <FormControl fullWidth size="small">
+      <FormControl
+        fullWidth
+        size="small"
+        className={dropDownStyles().customSelect}
+      >
         <Select
           sx={{
             height: "1.5rem",
@@ -1710,7 +1739,11 @@ const ChartFilterGroupCard = ({
   ///Search Condition and Relative Filter Dropdown list to select condition
   const DropDownForPattern = ({ items, exprType = "exprType" }: any) => {
     return (
-      <FormControl fullWidth size="small">
+      <FormControl
+        fullWidth
+        size="small"
+        className={dropDownStyles().customSelect}
+      >
         <Select
           sx={{
             height: "1.5rem",
