@@ -128,7 +128,9 @@ public class ConnectionPoolService {
                         ";";
                 dataSource = new HikariDataSource();
                 dataSource.setMinimumIdle(1);
-                dataSource.setMaximumPoolSize(3);
+                dataSource.setMaximumPoolSize(2);
+                dataSource.setMaxLifetime(600000);
+                dataSource.setIdleTimeout(300000);
                 dataSource.setDataSourceClassName("com.simba.googlebigquery.jdbc.DataSource");
                 dataSource.addDataSourceProperty("url", fullUrl);
             }
@@ -140,7 +142,9 @@ public class ConnectionPoolService {
 
                 dataSource = new HikariDataSource();
                 dataSource.setMinimumIdle(1);
-                dataSource.setMaximumPoolSize(3);
+                dataSource.setMaximumPoolSize(2);
+                dataSource.setIdleTimeout(300000);
+                dataSource.setMaxLifetime(600000);
                 dataSource.setDataSourceClassName("com.microsoft.sqlserver.jdbc.SQLServerDataSource");
                 dataSource.addDataSourceProperty("url", fullUrl);
             }
@@ -153,9 +157,12 @@ public class ConnectionPoolService {
                         + ";EnableArrow=0";
                 config.setJdbcUrl(fullUrl);
                 config.setDriverClassName("com.databricks.client.jdbc.Driver");
-                config.addDataSourceProperty("minimulIdle", "1");
-                config.addDataSourceProperty("maximumPoolSize", "2");
+                config.setMaximumPoolSize(2);
+                config.setMinimumIdle(1);
+                config.setMaxLifetime(600000);
+                config.setIdleTimeout(300000);
                 dataSource = new HikariDataSource(config);
+
             } else if (dbConnection.getVendor().equals("oracle")) {
                 String url = "jdbc:oracle:thin:@(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port="
                         + dbConnection.getPort() +
@@ -166,7 +173,7 @@ public class ConnectionPoolService {
                 config.setJdbcUrl(url);
                 config.setUsername(dbConnection.getUsername());
                 config.setPassword(dbConnection.getPasswordHash());
-                config.setMaximumPoolSize(5);
+                config.setMaximumPoolSize(2);
                 // SSL properties
                 config.addDataSourceProperty("javax.net.ssl.keyStore",
                         SILZILA_DIR + "/jks_Collections/store/" + dbConnection.getKeystoreFileName());
@@ -174,8 +181,11 @@ public class ConnectionPoolService {
                 config.addDataSourceProperty("javax.net.ssl.trustStore",
                         SILZILA_DIR + "/jks_Collections/store/" + dbConnection.getTruststoreFileName());
                 config.addDataSourceProperty("javax.net.ssl.trustStorePassword", dbConnection.getTruststorePassword());
-
+                config.setMaxLifetime(600000);
+                config.setIdleTimeout(300000);
+                config.setMinimumIdle(1);
                 dataSource = new HikariDataSource(config);
+
             }
             // snowflake
             else if (dbConnection.getVendor().equals("snowflake")){
@@ -194,9 +204,12 @@ public class ConnectionPoolService {
                 config.setDriverClassName("net.snowflake.client.jdbc.SnowflakeDriver");
                 config.addDataSourceProperty("user", dbConnection.getUsername());
                 config.addDataSourceProperty("password", dbConnection.getPasswordHash());
-                config.addDataSourceProperty("minimulIdle", "1");
-                config.addDataSourceProperty("maximumPoolSize", "2");
+                config.setMinimumIdle(1);
+                config.setMaximumPoolSize(2);
+                config.setMaxLifetime(600000);
+                config.setIdleTimeout(300000);
                 dataSource = new HikariDataSource(config);
+
             }
             //motherduck
             else if (dbConnection.getVendor().equals("motherduck")) {
@@ -214,7 +227,12 @@ public class ConnectionPoolService {
 //              config.addDataSourceProperty("user", dbConnection.getUsername());
 //              config.addDataSourceProperty("password", dbConnection.getPassword());
                 config.setDriverClassName("com.ibm.db2.jcc.DB2Driver");
+                config.setMaxLifetime(600000);
+                config.setIdleTimeout(300000);
+                config.setMinimumIdle(1);
+                config.setMaximumPoolSize(2);
                 dataSource = new HikariDataSource(config);
+
             }
             //teradata
             else if (dbConnection.getVendor().equals("teradata")) {
@@ -222,7 +240,12 @@ public class ConnectionPoolService {
                 config.setJdbcUrl(fullUrl);
                 config.setUsername(dbConnection.getUsername());
                 config.setPassword(dbConnection.getPasswordHash());
+                config.setMaxLifetime(600000);
+                config.setIdleTimeout(300000);
+                config.setMinimumIdle(1);
+                config.setMaximumPoolSize(2);
                 dataSource = new HikariDataSource(config);
+
             }
             // for Postgres & MySQL
             else {
@@ -232,11 +255,13 @@ public class ConnectionPoolService {
                 config.setJdbcUrl(fullUrl);
                 config.setUsername(dbConnection.getUsername());
                 config.setPassword(dbConnection.getPasswordHash());
-                config.addDataSourceProperty("minimulIdle", "1");
-                config.addDataSourceProperty("maximumPoolSize", "3");
+                config.setMinimumIdle(1);
+                config.setMaximumPoolSize(2);
                 config.setConnectionTimeout(300000);
-                config.setIdleTimeout(120000);
+                config.setIdleTimeout(300000);
+                config.setMaxLifetime(600000);
                 dataSource = new HikariDataSource(config);
+
             }
             // connection = dataSource.getConnection();
             connectionPool.put(id, dataSource);
