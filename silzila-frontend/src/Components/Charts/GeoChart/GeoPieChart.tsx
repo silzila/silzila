@@ -32,7 +32,7 @@ import {
 } from "../../CommonFunctions/CommonFunctions";
 import { getGeoJSON } from "./GeoJSON/MapCommonFunctions";
 
-const GeoPieChart = ({
+const BubbleMap = ({
   //props
   propKey,
   graphDimension,
@@ -327,4 +327,4 @@ const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
   };
 };
 
-export default connect(mapStateToProps, null)(GeoPieChart);
+export default connect(mapStateToProps, null)(BubbleMap);

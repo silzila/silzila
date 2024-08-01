@@ -73,8 +73,8 @@ export const chartTypes = [
   { name: "funnel", icon: funnelChartIcon, value: "Funnel Chart" },
   { name: "heatmap", icon: heatMapIcon, value: "Heat Map" },
   { name: "treeMap", icon: TreeMapIcon, value: "Tree Map" },
-  { name: "geoChart", icon: geoChartIcon, value: "Geo Chart" },
-  { name: "geoPieChart", icon: geoChartIcon, value: "Geo Pie Chart" },
+  { name: "filledMap", icon: geoChartIcon, value: "Filled Map" },
+  { name: "bubbleMap", icon: geoChartIcon, value: "Bubble Map" },
   { name: "calendar", icon: calendarChartIcon, value: "Calendar Chart" },
   { name: "boxPlot", icon: boxPlotIcon, value: "Box Plot Chart" },
   { name: "richText", icon: TextEditorIcon, value: "Rich Text" },
@@ -253,8 +253,8 @@ const ChartTypes = ({
       case "area":
       case "stackedArea":
       case "treeMap":
-      // case "geoChart":
-      case "geoPieChart":
+      // case "filledMap":
+      case "bubbleMap":
       case "table":
       case "sankey":
         if (
@@ -265,8 +265,8 @@ const ChartTypes = ({
             "horizontalStacked",
             "line",
             "area",
-            "geoChart",
-            // "geoPieChart",
+            "filledMap",
+            // "bubbleMap",
             "stackedArea",
             "treeMap",
             "sankey",
@@ -444,7 +444,7 @@ const ChartTypes = ({
         if (
           newChart === "crossTab" ||
           newChart === "boxPlot" ||
-          newChart === "geoPieChart"
+          newChart === "bubbleMap"
         ) {
           keepOldData(propKey, false);
           if (oldChartAxes[1].fields.length > 0) {
@@ -476,8 +476,8 @@ const ChartTypes = ({
             "horizontalStacked",
             "line",
             "area",
-            "geoChart",
-            // "geoPieChart",
+            "filledMap",
+            // "bubbleMap",
             "stackedArea",
             "treeMap",
             "sankey",
@@ -577,7 +577,7 @@ const ChartTypes = ({
         if (
           newChart === "crossTab" ||
           newChart === "boxPlot" ||
-          newChart === "geoPieChart"
+          newChart === "bubbleMap"
         ) {
           keepOldData(propKey, false);
           if (oldChartAxes[1].fields.length > 0) {
@@ -614,8 +614,8 @@ const ChartTypes = ({
             "rose",
             "stackedArea",
             "treeMap",
-            "geoChart",
-            // "geoPieChart",
+            "filledMap",
+            // "bubbleMap",
             "sankey",
           ].includes(newChart)
         ) {
@@ -769,7 +769,7 @@ const ChartTypes = ({
         if (
           newChart === "crossTab" ||
           newChart === "boxPlot" ||
-          newChart === "geoPieChart"
+          newChart === "bubbleMap"
         ) {
           keepOldData(propKey, false);
           if (oldChartAxes[1].fields.length > 0) {
@@ -807,8 +807,8 @@ const ChartTypes = ({
             "rose",
             "stackedArea",
             "treeMap",
-            "geoChart",
-            // "geoPieChart",
+            "filledMap",
+            // "bubbleMap",
             "sankey",
           ].includes(newChart)
         ) {
@@ -893,7 +893,7 @@ const ChartTypes = ({
           newChart === "heatmap" ||
           newChart === "crossTab" ||
           newChart === "boxPlot" ||
-          newChart === "geoPieChart"
+          newChart === "bubbleMap"
         ) {
           keepOldData(propKey, false);
           if (oldChartAxes[1].fields.length > 0)
@@ -933,8 +933,8 @@ const ChartTypes = ({
             "stackedArea",
             "calendar",
             "treeMap",
-            "geoChart",
-            // "geoPieChart",
+            "filledMap",
+            // "bubbleMap",
             "sankey",
           ].includes(newChart)
         ) {
@@ -985,7 +985,7 @@ const ChartTypes = ({
           newChart === "heatmap" ||
           newChart === "crossTab" ||
           newChart === "boxPlot" ||
-          newChart === "geoPieChart"
+          newChart === "bubbleMap"
         ) {
           keepOldData(propKey, false);
           if (oldChartAxes[1].fields.length > 0)
@@ -1022,8 +1022,8 @@ const ChartTypes = ({
             "stackedArea",
             "calendar",
             "treeMap",
-            "geoChart",
-            // "geoPieChart",
+            "filledMap",
+            // "bubbleMap",
             "sankey",
           ].includes(newChart)
         ) {
@@ -1076,7 +1076,7 @@ const ChartTypes = ({
         if (
           newChart === "crossTab" ||
           newChart === "boxPlot" ||
-          newChart === "geoPieChart"
+          newChart === "bubbleMap"
         ) {
           keepOldData(propKey, false);
           if (oldChartAxes[1].fields.length > 0)
@@ -1095,7 +1095,7 @@ const ChartTypes = ({
           newChart === "heatmap" ||
           newChart === "crossTab" ||
           newChart === "boxPlot" ||
-          newChart === "geoPieChart"
+          newChart === "bubbleMap"
         )
           return oldChartAxes;
 
@@ -1113,8 +1113,8 @@ const ChartTypes = ({
             "rose",
             "stackedArea",
             "treeMap",
-            "geoChart",
-            // "geoPieChart",
+            "filledMap",
+            // "bubbleMap",
             "sankey",
           ].includes(newChart)
         ) {
@@ -1226,11 +1226,11 @@ const ChartTypes = ({
 
       case "crossTab":
       case "boxPlot":
-      case "geoPieChart":
+      case "bubbleMap":
         if (
           newChart === "crossTab" ||
           newChart === "boxPlot" ||
-          newChart === "geoPieChart"
+          newChart === "bubbleMap"
         )
           return oldChartAxes;
 
@@ -1246,11 +1246,11 @@ const ChartTypes = ({
             "pie",
             "donut",
             "rose",
-            "geoChart",
-            // "geoPieChart",
+            "filledMap",
+            // "bubbleMap",
             "stackedArea",
             "treeMap",
-            "geoChart",
+            "filledMap",
             "sankey",
           ].includes(newChart)
         ) {
@@ -1392,13 +1392,13 @@ const ChartTypes = ({
             "horizontalStacked",
             "line",
             "area",
-            "geoChart",
-            // "geoPieChart",
+            "filledMap",
+            // "bubbleMap",
             "stackedArea",
             "treeMap",
             "sankey",
             "calendar",
-            "geoChart",
+            "filledMap",
             "pie",
             "table",
             "donut",
@@ -1418,7 +1418,7 @@ const ChartTypes = ({
             "heatmap",
             "crossTab",
             "boxPlot",
-            "geoPieChart",
+            "bubbleMap",
           ].includes(newChart)
         ) {
           keepOldData(propKey, false);
@@ -1510,10 +1510,10 @@ const ChartTypes = ({
               "crossTab",
               "table",
 
-              "geoChart",
+              "filledMap",
               "stackedArea",
               "calendar",
-              "geoPieChart",
+              "bubbleMap",
               "boxPlot",
               "treeMap",
               "sankey",

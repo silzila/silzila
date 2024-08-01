@@ -113,7 +113,7 @@ const ChartsInfo: ChartsInfoProps = {
     ],
     showSwap: false,
   },
-  geoChart: {
+  filledMap: {
     dropZones: [
       { name: "Filter", allowedNumbers: 64, min: 0 },
       {
@@ -131,7 +131,7 @@ const ChartsInfo: ChartsInfoProps = {
     ],
     showSwap: false,
   },
-  geoPieChart: {
+  bubbleMap: {
     dropZones: [
       { name: "Filter", allowedNumbers: 64, min: 0 },
       {

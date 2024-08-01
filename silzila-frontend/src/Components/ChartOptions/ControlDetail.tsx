@@ -105,7 +105,7 @@ const ControlDetail = ({
           return <CardStyle />;
         } else if (chartType === "richText") {
           return <DynamicMeasureStyle />;
-        } else if (chartType === "geoChart" || chartType === "geoPieChart") {
+        } else if (chartType === "filledMap" || chartType === "bubbleMap") {
           return <GeoChartStyles />;
         } else {
           return <ChartStyle />;

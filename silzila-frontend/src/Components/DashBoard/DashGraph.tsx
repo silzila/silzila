@@ -13,8 +13,8 @@ import CrossTabChart from "../Charts/CrossTab/CrossTabChart";
 import HorizontalBar from "../Charts/HorizontalBar";
 import Horizontalstacked from "../Charts/Horizontalstacked";
 import RoseChart from "../Charts/RoseChart";
-import GeoChart from "../Charts/GeoChart/GeoChart";
-import GeoPieChart from "../Charts/GeoChart/GeoPieChart";
+import FilledMap from "../Charts/GeoChart/GeoChart";
+import BubbleMap from "../Charts/GeoChart/GeoPieChart";
 import TextEditor from "../Charts/TextEditor/TextEditor";
 import CalendarChart from "../Charts/CalendarChart";
 import BoxPlotChart from "../Charts/BoxPlotChart";
@@ -193,18 +193,18 @@ const DashGraph = ({
           />
         );
 
-      case "geoChart":
+      case "filledMap":
         return (
-          <GeoChart
+          <FilledMap
             propKey={propKey}
             graphDimension={dimensions}
             chartArea="dashboard"
           />
         );
 
-      case "geoPieChart":
+      case "bubbleMap":
         return (
-          <GeoPieChart
+          <BubbleMap
             propKey={propKey}
             graphDimension={dimensions}
             chartArea="dashboard"

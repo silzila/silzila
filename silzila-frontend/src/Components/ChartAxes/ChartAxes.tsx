@@ -234,8 +234,8 @@ const ChartAxes = ({
     let misMatchArray = [];
 
     if (
-      (chartProp.properties[propKey].chartType === "geoChart" ||
-        chartProp.properties[propKey].chartType === "geoPieChart") &&
+      (chartProp.properties[propKey].chartType === "filledMap" ||
+        chartProp.properties[propKey].chartType === "bubbleMap") &&
       chartData.length > 0
     ) {
       let dimensionName = chartProp.properties[propKey].chartAxes[1].fields[0];
@@ -413,13 +413,13 @@ const ChartAxes = ({
   return (
     <div className="charAxesArea">
       {!uID &&
-      (chartProp.properties[propKey].chartType === "geoChart" ||
-        chartProp.properties[propKey].chartType === "geoPieChart") ? (
+      (chartProp.properties[propKey].chartType === "filledMap" ||
+        chartProp.properties[propKey].chartType === "bubbleMap") ? (
         <ShowLocationPicker></ShowLocationPicker>
       ) : null}
       {!uID &&
-        (chartProp.properties[propKey].chartType === "geoChart" ||
-          chartProp.properties[propKey].chartType === "geoPieChart") && (
+        (chartProp.properties[propKey].chartType === "filledMap" ||
+          chartProp.properties[propKey].chartType === "bubbleMap") && (
           <div style={{ display: "flex", flexDirection: "row" }}>
             <FormControl
               size="small"

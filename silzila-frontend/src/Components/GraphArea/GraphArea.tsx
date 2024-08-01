@@ -40,8 +40,8 @@ import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import TextEditor from "../Charts/TextEditor/TextEditor";
 import CrossTabChart from "../Charts/CrossTab/CrossTabChart";
-import GeoChart from "../Charts/GeoChart/GeoChart";
-import GeoPieChart from "../Charts/GeoChart/GeoPieChart";
+import FilledMap from "../Charts/GeoChart/GeoChart";
+import BubbleMap from "../Charts/GeoChart/GeoPieChart";
 import FetchData from "../ServerCall/FetchData";
 import { getChartData } from "../ChartAxes/ChartData";
 import {
@@ -378,18 +378,18 @@ const GraphArea = ({
           />
         );
 
-      case "geoChart":
+      case "filledMap":
         return (
-          <GeoChart
+          <FilledMap
             propKey={propKey}
             graphDimension={fullScreen ? graphDimension2 : graphDimension}
             graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
           />
         );
 
-      case "geoPieChart":
+      case "bubbleMap":
         return (
-          <GeoPieChart
+          <BubbleMap
             propKey={propKey}
             graphDimension={fullScreen ? graphDimension2 : graphDimension}
             graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
