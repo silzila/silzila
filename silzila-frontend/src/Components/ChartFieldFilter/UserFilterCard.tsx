@@ -13,7 +13,6 @@ import {
   Select,
   Tooltip,
   Typography,
-  // InputBase,
 } from "@mui/material";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -1749,7 +1748,7 @@ const UserFilterCard = ({
     return <div>{members}</div>;
   };
 
-  ///Style for chnaging border color of different menus on focus
+  ///Style for changing border color of different menus on focus
   const dropDownStyles = makeStyles({
     customSelect: {
       "& .MuiOutlinedInput-root": {

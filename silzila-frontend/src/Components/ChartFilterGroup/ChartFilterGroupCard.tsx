@@ -1679,7 +1679,7 @@ const ChartFilterGroupCard = ({
     return <div>{members}</div>;
   };
 
-  ///Style for chnaging border color of different menus on focus
+  ///Style for changing border color of different menus on focus
   const dropDownStyles = makeStyles({
     customSelect: {
       "& .MuiOutlinedInput-root": {
