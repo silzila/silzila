@@ -1524,6 +1524,7 @@ const UserFilterCard = ({
           }}
         />
         <TextField
+          type="number"
           InputProps={
             filterFieldData.includeexclude === "Exclude"
               ? {
