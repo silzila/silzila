@@ -291,7 +291,8 @@ public class Filter implements Serializable {
         GREATER_THAN("greaterThan"),
         GREATER_THAN_OR_EQUAL_TO("greaterThanOrEqualTo"),
         LESS_THAN("lessThan"),
-        LESS_THAN_OR_EQUAL_TO("lessThanOrEqualTo");
+        LESS_THAN_OR_EQUAL_TO("lessThanOrEqualTo"),
+        EXACT_MATCH("exactMatch");
 
         private final String value;
         private final static Map<String, Filter.Operator> CONSTANTS = new HashMap<String, Filter.Operator>();
