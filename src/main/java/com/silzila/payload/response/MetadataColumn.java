@@ -30,7 +30,7 @@ public class MetadataColumn {
         HashSet<String> dateType = new HashSet<String>(
                 Set.of("date","DATE"));
         HashSet<String> timestampType = new HashSet<String>(
-                Set.of("timestamp","TIMESTAMP","datetime2","TIMESTAMPNTZ","DATETIME","DATETIME2","timestamptz"));
+                Set.of("timestamp","TIMESTAMP","datetime2","TIMESTAMPNTZ","DATETIME","DATETIME2","timestamptz","TIMESTAMP(6)"));
         // checking the DB specific datatypes with the bucket data types
         if (integerType.contains(dataType)) {
             this.dataType = "integer";
