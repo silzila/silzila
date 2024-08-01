@@ -93,6 +93,7 @@ public class ConnectionPoolService {
         int maxPoolSize=2;
         int maxLifetime=600000;
         int idleTimeout=300000;
+        int connectionTimeout=300000;
 
         HikariDataSource dataSource = null;
         HikariConfig config = new HikariConfig();
@@ -263,7 +264,7 @@ public class ConnectionPoolService {
                 config.setPassword(dbConnection.getPasswordHash());
                 config.setMinimumIdle(minIdle);
                 config.setMaximumPoolSize(maxPoolSize);
-                config.setConnectionTimeout(300000);
+                config.setConnectionTimeout(connectionTimeout);
                 config.setIdleTimeout(idleTimeout);
                 config.setMaxLifetime(maxLifetime);
                 dataSource = new HikariDataSource(config);
