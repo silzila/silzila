@@ -229,6 +229,11 @@ export const getChartData = async (
       if (item.fieldtypeoption === "Search Condition") {
         if (item.exprType) {
           _filter.operator = item.exprType;
+          ///For Not Equal To operator
+          if (item.exprType === "notEqualTo") {
+            _filter.operator = "equalTo";
+            _filter.shouldExclude = !_filter.shouldExclude;
+          }
         } else {
           _filter.operator =
             item.dataType === "text" ? "begins_with" : "greater_than";
@@ -852,13 +857,16 @@ export const getChartData = async (
       let tempOverrideAxes = JSON.parse(
         JSON.stringify(tempMeasureField.override)
       );
-      
+
       delete tempMeasureField.override;
 
-      if(chartProp.chartType === "scatterPlot"){        
+      if (chartProp.chartType === "scatterPlot") {
         tempOverrideAxes[2].name = "Measure";
-        tempOverrideAxes[2].fields = [...tempOverrideAxes[2].fields, ...tempOverrideAxes[3].fields];
-        delete tempOverrideAxes[3]
+        tempOverrideAxes[2].fields = [
+          ...tempOverrideAxes[2].fields,
+          ...tempOverrideAxes[3].fields,
+        ];
+        delete tempOverrideAxes[3];
       }
 
       tempOverrideAxes.find((axis: any) => axis.name === "Measure").fields = [];
