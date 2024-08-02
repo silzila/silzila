@@ -229,6 +229,7 @@ export const getChartData = async (
       if (item.fieldtypeoption === "Search Condition") {
         if (item.exprType) {
           _filter.operator = item.exprType;
+          ///For Not Equal To operator
           if (item.exprType === "notEqualTo") {
             _filter.operator = "equalTo";
             _filter.shouldExclude = !_filter.shouldExclude;
