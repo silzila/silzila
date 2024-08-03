@@ -53,22 +53,22 @@ const RenameFunction = ({
     const [error, setError] = useState("");
     const [isManualInput, setIsManualInput] = useState(false); // Track if the value was manually entered
 
-    useEffect(() => {
-        if (initialRenameText && !isManualInput) {
-        const displayCopy = { ...field, displayname: initialRenameText, Aggname: Aggname };
-        updateQueryParam(propKey, bIndex, itemIndex, displayCopy, currentChartAxesName);
-    }
-    // }, [ field.agg, field.displayname,isManualInput]);
-}, [ initialRenameText]);
+//     useEffect(() => {
+//         if (initialRenameText && !isManualInput) {
+//         const displayCopy = { ...field, displayname: initialRenameText, Aggname: Aggname };
+//         updateQueryParam(propKey, bIndex, itemIndex, displayCopy, currentChartAxesName);
+//     }
+//     // }, [ field.agg, field.displayname,isManualInput]);
+// }, [ initialRenameText]);
 
-    useEffect(() => {
-        if (renamefn && !isManualInput) {
+//     useEffect(() => {
+//         if (renamefn && !isManualInput) {
 
-            setRenameText(field.agg && field.agg.trim() !== "" && !field.isTextRenamed  ? Aggname :field.displayname );
+//             setRenameText(field.agg && field.agg.trim() !== "" && !field.isTextRenamed  ? Aggname :field.displayname );
 
-            setError(""); // Clear any previous error when renaming starts
-        }
-    }, [renamefn, field.agg, field.displayname,isManualInput]);
+//             setError(""); // Clear any previous error when renaming starts
+//         }
+//     }, [renamefn, field.agg, field.displayname,isManualInput]);
 
 
      // Get all fieldnames except the current field's fieldname
