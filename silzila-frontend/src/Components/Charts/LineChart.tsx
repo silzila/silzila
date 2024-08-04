@@ -34,11 +34,12 @@ const LineChart = ({
 
 	useEffect(() => {
 		let seriesDataTemp = [];
-		if (chartData.length >= 1) {
-			//let chartDataKeys = Object.keys(chartData[0]);
+		if (chartData.length >= 1) {			
+			var chartDataKeys: string[] = Object.keys(chartData[0]);
 			//var formattedValue = value.value[fieldName(chartProperties.properties[propKey].chartAxes[2].fields[0])];
 
-			for (let field of chartProperties.properties[propKey].chartAxes[2].fields) {
+			//for (let field of chartProperties.properties[propKey].chartAxes[2].fields) {
+			for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
 				let seriesObj = {
 					type: "line",
 					label: {
@@ -52,7 +53,8 @@ const LineChart = ({
 							: null,
 
 						formatter: (value: FormatterValueProps) => {
-							let formattedValue = value.value[fieldName(field)];							
+							//let formattedValue = value.value[fieldName(field)];		
+							var formattedValue = value.value[chartDataKeys[i + 1]];					
 							formattedValue = formatChartLabelValue(chartControl, formattedValue);
 
 							return formattedValue;

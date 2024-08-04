@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { ChartPropertiesProps} from "../../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { editChartPropItem } from "../../../redux/ChartPoperties/ChartPropertiesActions";
 import { initial } from "lodash";
+import Logger from "../../../Logger";
 
 
 
@@ -41,17 +42,17 @@ const RenameFunction = ({
     let currentChartAxesName = "chartAxes";
 
     const field = chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex] || {};
+    Logger("info", "**field****", field);
 
      // Initialize renameText with the current name_with_aggr value
     const Aggname=`${field.agg}${field.timeGrain ? ' ' + field.timeGrain : ''} of ${field.fieldname}`;
-
-
     const initialRenameText = field.agg && field.agg.trim() !== "" && !field.isTextRenamed ? Aggname : field.displayname;
-
      
     const [renameText, setRenameText] = useState(initialRenameText || "");
     const [error, setError] = useState("");
     const [isManualInput, setIsManualInput] = useState(false); // Track if the value was manually entered
+
+    Logger("info", "**initialRenameText****", initialRenameText);
 
 //     useEffect(() => {
 //         if (initialRenameText && !isManualInput) {
@@ -61,19 +62,19 @@ const RenameFunction = ({
 //     // }, [ field.agg, field.displayname,isManualInput]);
 // }, [ initialRenameText]);
 
-//     useEffect(() => {
-//         if (renamefn && !isManualInput) {
+    useEffect(() => {
+        if (renamefn && !isManualInput) {
 
-//             setRenameText(field.agg && field.agg.trim() !== "" && !field.isTextRenamed  ? Aggname :field.displayname );
+            setRenameText(field.agg && field.agg.trim() !== "" && !field.isTextRenamed  ? Aggname : field.displayname );
 
-//             setError(""); // Clear any previous error when renaming starts
-//         }
-//     }, [renamefn, field.agg, field.displayname,isManualInput]);
+            setError(""); // Clear any previous error when renaming starts
+        }
+    }, [renamefn, field.agg, field.displayname,isManualInput]);
 
 
      // Get all fieldnames except the current field's fieldname
-     const allFieldNames = chartProp.properties[propKey].chartAxes.flatMap((axis:any) => axis.fields.map((field:any) => field.fieldname));
-     const otherFieldNames = allFieldNames.filter((name:string) => name !== field.fieldname);
+     const allFieldNames = chartProp.properties[propKey].chartAxes.flatMap((axis:any) => axis.fields.map((field:any) => field.displayname));
+     const otherFieldNames = allFieldNames.filter((name:string) => name !== field.displayname);
     
         const handleRenameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
             const newText = event.target.value;
@@ -105,14 +106,18 @@ const RenameFunction = ({
             setError("Input some value!");
         }
         else {
+            setIsManualInput(false);
             const displayCopy = { ...field, displayname:renameText, isTextRenamed: true, Aggname:Aggname }; // Update the displayname with the entered text
             updateQueryParam(propKey, bIndex, itemIndex, displayCopy, currentChartAxesName); // Update Redux store with the new displayname
             setRenamefn(false); // Close the rename menu
         }
     };
+
     const handleCancelClick=()=>{
+        setIsManualInput(false);
         setRenamefn(false);
     }
+    
     return (
         <div>
             <Menu  

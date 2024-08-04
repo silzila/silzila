@@ -15,6 +15,7 @@ import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 import Card from "./Card";
 import ChartsInfo from "./ChartsInfo2";
 import { setPrefix } from "./SetPrefix";
+import {setDisplayName} from './setDisplayName';
 import UserFilterCard from "../ChartFieldFilter/UserFilterCard";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
@@ -187,6 +188,9 @@ const DropZone = ({
 						let newFieldData = JSON.parse(
 							JSON.stringify(setPrefix(fieldData, name, chartType))
 						);
+
+						newFieldData = setDisplayName(newFieldData, name, chartType);
+
 						updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers, currentChartAxesName);
 					} else {
 						setSeverity("error");
@@ -210,6 +214,9 @@ const DropZone = ({
 					let newFieldData = JSON.parse(
 						JSON.stringify(setPrefix(fieldData, name, chartType))
 					);
+
+					newFieldData = setDisplayName(newFieldData, name, chartType);
+
 					if (chartType === "richText") {
 						updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
 					} else {
@@ -222,6 +229,9 @@ const DropZone = ({
 				let newFieldData = JSON.parse(
 					JSON.stringify(setPrefix(fieldData, name, chartType))
 				);
+
+				newFieldData = setDisplayName(newFieldData, name, chartType);
+
 				if (chartType === "richText") {
 					updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
 				} else {
@@ -237,6 +247,9 @@ const DropZone = ({
 						let newFieldData = JSON.parse(
 							JSON.stringify(setPrefix(item, name, chartType))
 						);
+
+						newFieldData = setDisplayName(newFieldData, name, chartType);
+
 						["type", "bIndex"].forEach(e => delete newFieldData[e]);
 						moveItemChartProp(
 							propKey,
@@ -261,6 +274,9 @@ const DropZone = ({
 				} else {
 					Logger("info", "******", name);
 					let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
+
+					newFieldData = setDisplayName(newFieldData, name, chartType);
+
 					["type", "bIndex"].forEach(e => delete newFieldData[e]);
 					if (chartType === "richText") {
 						moveItemChartPropForDm(
@@ -288,6 +304,8 @@ const DropZone = ({
 			//bindex is not 1 (dimension)
 			else {
 				let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
+				newFieldData = setDisplayName(newFieldData, name, chartType);
+				
 				["type", "bIndex"].forEach(e => delete newFieldData[e]);
 				if (chartType === "richText") {
 					moveItemChartPropForDm(
