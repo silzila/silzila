@@ -38,6 +38,7 @@ import { fieldName } from "../CommonFunctions/CommonFunctions";
 import { ClassNames } from "@emotion/react";
 import { id } from "date-fns/locale";
 import { TooltipProps } from '@mui/material/Tooltip';
+import {setDisplayName} from '../ChartAxes/setDisplayName';
 
 // interface PriceTagTooltipProps {
 //     text: string|undefined;
@@ -205,6 +206,8 @@ const Card = ({
 				Logger("info", "queryparam");
 				updateAxesQueryParamForDm(propKey, bIndex, itemIndex, field2);
 			} else {
+				field2 = setDisplayName(field2, chartProp.properties[propKey].chartAxes[bIndex].name, chartProp.properties[propKey].chartType)
+				field2.isTextRenamed = false;
 				updateQueryParam(propKey, bIndex, itemIndex, field2, currentChartAxesName);
 			}
 		}
