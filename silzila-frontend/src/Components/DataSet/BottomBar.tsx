@@ -162,7 +162,7 @@ const BottomBar = ({
             "tables with no Relationship\n" +
             tempTable.map((el: any) => "\n," + el.tableName)
         );
-        console.log("edd");
+
         setSeverity("error");
         setOpenAlert(true);
       }

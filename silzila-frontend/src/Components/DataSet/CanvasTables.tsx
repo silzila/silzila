@@ -249,7 +249,6 @@ const CanvasTables = ({
   // };
   const changeTableName = (tableId: string) => {
     // Count the number of spaces in the newName
-    console.log(tableId);
     var spaceCount = newName.split(" ").length - 1;
 
     // Check if newName is not empty and not just spaces
