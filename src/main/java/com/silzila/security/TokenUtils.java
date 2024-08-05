@@ -42,16 +42,20 @@ public class TokenUtils {
   }
 
   public Date getCreatedDateFromToken(String token) {
-    Date iat;
+    Date createdDate;
     try {
-      final Claims claims = this.getClaimsFromToken(token);
-      iat = new Date((Long) claims.get("iat"));
+        final Claims claims = getClaimsFromToken(token);
+        Long iat = claims.get("iat", Long.class);
+        if (iat != null) {
+            createdDate = new Date(iat * 1000);
+        } else {
+            createdDate = null;
+        }
     } catch (Exception e) {
-      iat = null;
+        createdDate = null;
     }
-    return iat;
-  }
-
+    return createdDate;
+}
   public Date getExpirationDateFromToken(String token) {
     Date expiration;
     try {

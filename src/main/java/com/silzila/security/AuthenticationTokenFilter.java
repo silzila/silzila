@@ -5,7 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,7 +16,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.Enumeration;
 
 @RequiredArgsConstructor
 @Configuration
@@ -28,45 +26,60 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
   private final TokenUtils tokenUtils;
   private final UserDetailsService userDetailsService;
 
-  @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-      throws ServletException, IOException {
+
+@Override
+protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
     HttpServletRequest httpRequest = request;
-    // String authToken = httpRequest.getHeader(tokenHeader);
+    HttpServletResponse httpResponse = response;
+    String requestURI = httpRequest.getRequestURI();
 
-    // Enumeration<String> en = request.getHeaderNames();
-    // System.out.println("Headers list ============== " + en.toString());
-    // while (en.hasMoreElements()) {
-    // System.out.println(en.nextElement());
-    // }
+    // Bypass authentication for specific endpoints
+    if (requestURI.startsWith("/api/auth/") || requestURI.startsWith("/api/h2-console/") || requestURI.startsWith("/api/h2-ui") 
+        || requestURI.startsWith("/api/api-docs/") || requestURI.startsWith("/api/swagger-ui.html") 
+        || requestURI.startsWith("/api/swagger-ui/") || requestURI.startsWith("/api/auth/")) {
+        filterChain.doFilter(request, response);
+        return;
+    }
+
     String authToken = parseJwt(request);
-    String username = this.tokenUtils.getUsernameFromToken(authToken);
 
-    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-      UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-      if (this.tokenUtils.validateToken(authToken, userDetails)) {
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-            userDetails.getAuthorities());
+    if (authToken == null) {
+        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing token");
+        return;
+    }
+
+        String username = tokenUtils.getUsernameFromToken(authToken);
+
+        if (username == null) {
+            httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+            return;
+        }
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+        if (!tokenUtils.validateToken(authToken, userDetails)) {
+            httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token was expired");
+            return;
+        }
+
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-      }
-    }
-    // pass requester User ID to request header with variable name 'requesterUserId'
-    MutableHttpServletRequest mutableRequest = new MutableHttpServletRequest(request);
-    mutableRequest.putHeader("username", username);
-    // System.out.println("Header username =========== " +
-    // mutableRequest.getHeaders(username));
 
-    // Allow CORS
-    HttpServletResponse httpResponse = response;
-    // httpResponse.setHeader(username, username);
-    httpResponse.setHeader("Access-Control-Allow-Origin", "*");
-    httpResponse.setHeader("Access-Control-Max-Age", "3600");
-    httpResponse.setHeader("Access-Control-Allow-Headers",
-        "Content-Type, Authorization, Content-Length, X-Requested-With");
+        // pass requester User ID to request header with variable name 'requesterUserId'
+        MutableHttpServletRequest mutableRequest = new MutableHttpServletRequest(request);
+        mutableRequest.putHeader("username", username);
 
-    filterChain.doFilter(mutableRequest, httpResponse);
-  }
+        // Allow CORS
+        // httpResponse.setHeader(username, username);
+        httpResponse.setHeader("Access-Control-Allow-Origin", "*");
+        httpResponse.setHeader("Access-Control-Max-Age", "3600");
+        httpResponse.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Content-Length, X-Requested-With");
+
+        filterChain.doFilter(mutableRequest, httpResponse);
+
+}
+
 
   private String parseJwt(HttpServletRequest request) {
     String headerAuth = request.getHeader("Authorization");
