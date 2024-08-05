@@ -126,8 +126,8 @@ background-color: rgba(224, 224, 224, 1);
 .json-container:hover,
 .excel-container:hover{
   border: 1px solid rgba(224, 224, 224, 1);
-    border-radius: 4px;
-    cursor: pointer;
+  border-radius: 4px;
+  cursor: pointer;
 }
 .csv-container:active,
 .json-container:active,
@@ -203,8 +203,6 @@ background-color: rgba(224, 224, 224, 1);
   border-color: gray; 
   transition: border-color 0.3s ease-in-out;
 }
-
-
 
 /* File Drop Zone */
 #form-file-upload {
@@ -385,10 +383,6 @@ input[id="columnName"] {
 }
 
 
-
-
-
-/*&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&*/
 .ffTableDiv{
     flex: 1;
             height: 500px;

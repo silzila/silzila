@@ -182,7 +182,7 @@ Data Connections
 	align-items: center;
 	text-align: left;
 	column-gap: 34px;
-  padding: 6px 6px 6px 8px;
+    padding: 6px 6px 6px 8px;
 	border: 1px solid transparent;
 	border-radius: 4px;
 	margin-bottom: 10px;
@@ -194,7 +194,7 @@ Data Connections
 
 .listItem:hover{
 	border: 1px solid rgba(224, 224, 224, 1);
-	border-radius: 4px;
+	border-radius: 4px; 
 	width: 200px; 
 	height: 45px;
 }
@@ -205,7 +205,7 @@ Data Connections
 	text-align: left;
 	column-gap: 34px;
 	padding: 6px 6px 6px 6px;
-	cursor: pointer; 
+	cursor: pointer;
 	margin-bottom: 10px;
 	border: 1px solid #2bb9bb;
 	border-radius: 4px;
