@@ -34,11 +34,11 @@ Data Setup Page
 }
 
 .dataConnectionContainer {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	background-color: #fff;
-	padding: 1rem 10rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #fff;
+  padding: 1rem 10rem;
 }
 
 .dataSetContainer {
@@ -127,9 +127,9 @@ Data Setup Page
 }
 
 .containerButton:hover {
-	background-color: #2bb9bb;
-	border: 1px solid #2bb9bb;
-	color: white; 
+  background-color: #2bb9bb;
+  border: 1px solid #2bb9bb;
+  color: white;
 }
 
 /* 
@@ -137,12 +137,12 @@ Data Setup Page
 Data Connections
 =================================================== 
 */
-.addScrollBar{
-	display: flex;
-	flex-direction: column;	
-	overflow-y: auto;
-	overflow-x: auto;
-	max-height: calc(100vh - 50px);
+.addScrollBar {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: auto;
+  max-height: calc(100vh - 50px);
 }
 .dbFormContainer {
   padding: 10px;
@@ -306,12 +306,12 @@ Data Connections
 }
 
 .dataConnectionName {
-	  flex: 1 1;
-    text-align: left;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    display: block;
+  flex: 1 1;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
 }
 
 .inputFieldStyle {
@@ -344,7 +344,7 @@ Datasets
   padding: 1rem;
   border-top: 2px solid rgba(224, 224, 224, 1);
   overflow: scroll;
-  /* overflow-y: auto; */
+  overflow-y: auto;
   /* overflow-x: hidden; */
 }
 
@@ -404,12 +404,12 @@ Datasets
 }
 
 .vendorIconStyle {
-	height: 30px;
-	width: 30px;
+  height: 30px;
+  width: 30px;
 }
-.separateVendorIcon{
-	height: 35px;
-	width: 35px;
+.separateVendorIcon {
+  height: 35px;
+  width: 35px;
 }
 
 /* 
