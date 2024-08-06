@@ -21,11 +21,16 @@ public class FilterQueryBigquery {
          */
         String query = "";
         String fromClause = "";
-        if(!table.isCustomQuery()) {
-            fromClause = " FROM `" + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + "` AS " +table.getId()+" ";
-        }else
-        {
-            fromClause = " FROM (" + table.getCustomQuery() + ") AS "+table.getId()+" ";
+        //if table is null getting information from column filter request directly
+        if(table==null){
+            fromClause = " FROM `" + req.getDBName() + "." + req.getSchemaName() + "." + req.getTableName() + "` AS " + req.getTableId() + " ";
+        }
+        else {
+            if (!table.isCustomQuery()) {
+                fromClause = " FROM `" + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + "` AS " + table.getId() + " ";
+            } else {
+                fromClause = " FROM (" + table.getCustomQuery() + ") AS " + table.getId() + " ";
+            }
         }
 
         if (List.of("TEXT", "BOOLEAN").contains(req.getDataType().name())) {

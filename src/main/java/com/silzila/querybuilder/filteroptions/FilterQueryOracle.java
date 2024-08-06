@@ -22,10 +22,15 @@ public class FilterQueryOracle {
          */
         String query = "";
         String fromClause = "";
-        if(!table.isCustomQuery()) {
-            fromClause = " FROM " + table.getSchema() + "." + table.getTable() + " "+table.getId()+" ";
+        //if table is null getting information from column filter request directly
+        if(table==null){
+            fromClause = " FROM " + req.getSchemaName() + "." + req.getTableName() + " " + req.getTableId() + " ";
         }else {
-            fromClause = " FROM (" + table.getCustomQuery() + ") "+table.getId()+" ";
+            if (!table.isCustomQuery()) {
+                fromClause = " FROM " + table.getSchema() + "." + table.getTable() + " " + table.getId() + " ";
+            } else {
+                fromClause = " FROM (" + table.getCustomQuery() + ") " + table.getId() + " ";
+            }
         }
 
 
