@@ -38,6 +38,7 @@ const Canvas = ({
   const [uid, setUid] = useState<any>();
   const [tableId, setTableId] = useState<string>("");
   const [dataType, setDataType] = useState<string>("");
+  const [tableName, setTableName] = useState<string>("");
   const [dataSetFilterArray, setDataSetFilterArray] = useState<
     dataSetFilterArrayProps[]
   >([]);
@@ -64,6 +65,7 @@ const Canvas = ({
       schema: e.dataTransfer.getData("schema"),
       startId: e.dataTransfer.getData("tableId"),
     };
+    console.log(refs);
     const uid: any = new ShortUniqueId({ length: 4 });
 
     const field = {
@@ -72,7 +74,9 @@ const Canvas = ({
       dataType: refs.dataType,
       displayName: refs.startColumnName,
       uid: uid(),
+      tableName: refs.startTableName,
     };
+    setTableName(field.tableName);
     setDisplayName(field.displayName);
     setUid(field.uid);
     setTableId(field.tableId);
@@ -120,12 +124,7 @@ const Canvas = ({
             ))}
         </Xwrapper>
 
-        {isDataSetVisible ? (
-          <CloseIcon
-            className="IconDataset"
-            onClick={() => setIsDataSetVisible(!isDataSetVisible)}
-          />
-        ) : (
+        {isDataSetVisible === false && (
           <ArrowBackRoundedIcon
             onClick={() => setIsDataSetVisible(!isDataSetVisible)}
             className="IconDataset"
@@ -151,15 +150,23 @@ const Canvas = ({
                 <h4 style={{ display: "inline", margin: "0 0 0 8px" }}>
                   Filter Dataset
                 </h4>
+                <div>
+                  <CloseIcon
+                    className="IconDataset"
+                    style={{ right: "92%", top: "0px", zIndex: "999" }}
+                    onClick={() => setIsDataSetVisible(!isDataSetVisible)}
+                  />
+                </div>
               </div>
               {dataSetFilterArray.length > 0 && (
                 <UserFilterDataset
+                  editMode={editMode}
                   dataType={dataType}
+                  tableName={tableName}
                   tableId={tableId}
                   uid={uid}
                   displayName={disPlayName}
                   dbConnectionId={tempTable[0].dcId}
-                  datasetId={dsId}
                   dataSetFilterArray={dataSetFilterArray}
                   setDataSetFilterArray={setDataSetFilterArray}
                 />

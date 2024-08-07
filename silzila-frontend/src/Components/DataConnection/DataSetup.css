@@ -598,13 +598,17 @@ DataHome
   text-align: center;
   position: fixed;
   display: flex;
-  height: 100%;
+  height: 87%;
   width: 16vw;
   top: 5.7%;
   right: 0%;
-  overflow: auto;
+  /* overflow: auto; */
+  overflow: scroll;
   z-index: 90;
   border-right: none;
+}
+.RightSidbar {
+  position: absolute;
 }
 @media only screen and (max-width: 860px) {
   .dataHomeItemsContainer {
