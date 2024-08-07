@@ -12,6 +12,7 @@ import {
 import { useDrop } from "react-dnd";
 import { connect } from "react-redux";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
+import {FindFieldName} from "../CommonFunctions/CommonFunctions";
 import Card from "./Card";
 import ChartsInfo from "./ChartsInfo2";
 import { setPrefix } from "./SetPrefix";
@@ -163,6 +164,100 @@ const DropZone = ({
 	}
 
 	var chartType = chartProp.properties[propKey].chartType;
+	
+	const setDisplayName = (chartData: any[]): any => {
+        let result: any[] = [];
+
+        if (chartData && chartData.length > 0) {
+          let _zones: any = chartProp.properties[propKey].chartAxes.filter(
+            (zones: any) => zones.name !== "Filter"
+          );
+
+          let _fieldTempObject: any = {};
+          let _chartFieldTempObject: any = {};        
+
+          /*	Find and return field's new name	*/
+          const findFieldName = (name: string, i: number = 2): string => {
+            if (_fieldTempObject[`${name}(${i})`] !== undefined) {
+              i++;
+              return findFieldName(name, i);
+            } else {
+              return `${name}(${i})`;
+            }
+          };
+
+          /*	Find and return field's new name	*/
+          const findFieldIndexName = (name: string, i: number = 2): string => {
+            if (_chartFieldTempObject[`${name}_${i}`] !== undefined) {
+              i++;
+              return findFieldIndexName(name, i);
+            } else {
+              return `${name}_${i}`;
+            }
+          };
+
+          _zones.forEach((zoneItem: any) => {
+            zoneItem.fields.forEach((field: any, index: number) => {
+              let _nameWithAgg: string = "";
+
+              if (zoneItem.name === "Measure") {
+                if (
+                  field.dataType !== "date" &&
+                  field.dataType !== "timestamp"
+                ) {
+                  _nameWithAgg = field.agg
+                    ? `${field.agg} of ${field.fieldname}`
+                    : field.fieldname;
+                } else {
+                  let _timeGrain: string = field.timeGrain || "";
+                  _nameWithAgg = field.agg
+                    ? `${field.agg} ${_timeGrain} of ${field.fieldname}`
+                    : field.fieldname;
+                }
+              } else {
+                if (
+                  field.dataType !== "date" &&
+                  field.dataType !== "timestamp"
+                ) {
+                  _nameWithAgg = field.agg
+                    ? `${field.agg} of ${field.fieldname}`
+                    : field.fieldname;
+                } else {
+                  let _timeGrain: string = field.timeGrain || "";
+
+                  _nameWithAgg = _timeGrain
+                    ? `${_timeGrain} of ${field.fieldname}`
+                    : field.fieldname;
+                }
+              }
+
+              if (field.isTextRenamed === true) {
+                _nameWithAgg = field.displayname;
+              }
+
+              if (_chartFieldTempObject[field.fieldname] !== undefined) {
+                let _name = findFieldIndexName(field.fieldname);
+
+                field["NameWithIndex"] = _name;
+                _chartFieldTempObject[_name] = "";
+              } else {
+                field["NameWithIndex"] = field.fieldname;
+                _chartFieldTempObject[field.fieldname] = "";
+              }
+
+              if (_fieldTempObject[_nameWithAgg] !== undefined) {
+                let _name = findFieldName(_nameWithAgg);
+                field["NameWithAgg"] = _name;
+                _fieldTempObject[_name] = "";
+              } else {
+                field["NameWithAgg"] = _nameWithAgg;
+                _fieldTempObject[_nameWithAgg] = "";
+              }
+            });
+          });
+        
+        }
+	}
 
 	// DropZoneDropItem
 	const handleDrop = (item: any, bIndex: number) => {
@@ -216,6 +311,7 @@ const DropZone = ({
 					);
 
 					newFieldData = setDisplayName(newFieldData, name, chartType);
+					//newFieldData.displayname = FindFieldName(newFieldData.displayname);
 
 					if (chartType === "richText") {
 						updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
@@ -231,6 +327,7 @@ const DropZone = ({
 				);
 
 				newFieldData = setDisplayName(newFieldData, name, chartType);
+				//newFieldData.displayname = FindFieldName(newFieldData.displayname);
 
 				if (chartType === "richText") {
 					updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
@@ -249,6 +346,7 @@ const DropZone = ({
 						);
 
 						newFieldData = setDisplayName(newFieldData, name, chartType);
+						//newFieldData.displayname = FindFieldName(newFieldData.displayname);
 
 						["type", "bIndex"].forEach(e => delete newFieldData[e]);
 						moveItemChartProp(
@@ -276,6 +374,7 @@ const DropZone = ({
 					let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
 
 					newFieldData = setDisplayName(newFieldData, name, chartType);
+					//newFieldData.displayname = FindFieldName(newFieldData.displayname);
 
 					["type", "bIndex"].forEach(e => delete newFieldData[e]);
 					if (chartType === "richText") {
@@ -305,6 +404,7 @@ const DropZone = ({
 			else {
 				let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
 				newFieldData = setDisplayName(newFieldData, name, chartType);
+				//newFieldData.displayname = FindFieldName(newFieldData.displayname);
 				
 				["type", "bIndex"].forEach(e => delete newFieldData[e]);
 				if (chartType === "richText") {
