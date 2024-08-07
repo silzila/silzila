@@ -136,7 +136,7 @@ const BottomBar = ({
       } else {
         apiurl = "dataset";
       }
-      if (relationshipServerObj.length > 0) {
+      if (relationshipServerObj.length >= 0) {
         // TODO: need to specify type
         var options: any = await FetchData({
           requestType: "withData",

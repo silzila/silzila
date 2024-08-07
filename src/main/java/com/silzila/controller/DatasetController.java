@@ -112,7 +112,7 @@ public class DatasetController {
     public ResponseEntity<?> filterOptions(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody ColumnFilter columnFilter,
             @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
-            @RequestParam(name = "datasetid") String datasetId)
+            @RequestParam(name = "datasetid", required = false) String datasetId)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
             BadRequestException, ClassNotFoundException {
         String userId = reqHeader.get("username");
