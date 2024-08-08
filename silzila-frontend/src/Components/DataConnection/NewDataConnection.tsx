@@ -4,10 +4,15 @@ import MenuBar from "../DataViewer/MenuBar";
 import { useLocation } from "react-router-dom";
 import redshiftIcon from "../../assets/redshiftIcon.png";
 import databricksIcon from "../../assets/databricksIcon.png";
-import mssqlIcon from "../../assets/mssqlicon.png";
+import mssqlicon from "../../assets/mssqlicon.png";
 import mysqlicon from "../../assets/mysqlicon.svg";
 import postgresicon from "../../assets/postgresicon.png";
 import bigqueryicon from "../../assets/bigqueryicon.svg";
+import oracleicon from "../../assets/oracleicon.svg";
+import snowflakeicon from "../../assets/snowflakeicon.svg";
+import motherduckicon from "../../assets/motherduckicon.png";
+import ibmdb2icon from "../../assets/ibmdb2icon.png";
+import teradataicon from "../../assets/teradataicon.png";
 import TextFieldComponent from "../../Components/CommonFunctions/TextFieldComponent";
 import FetchData from "../ServerCall/FetchData";
 import "./DataSetup.css";
@@ -40,6 +45,14 @@ const initialState = {
 	passwordError: "",
 	httpPath: "",
 	httpPathError: "",
+	keystore:null,
+	keystoreError:"",
+	keystorePassword:"",
+	keystorePasswordError:"",
+	truststore:null,
+	truststoreError:"",
+	truststorePassword:"",
+	truststorePasswordError:"",
 };
 
 const NewDataConnection = (props: DataConnectionProps) => {
@@ -77,27 +90,58 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		},
 		{
 			id: 3,
-			value: "sqlserver",
-			name: "Ms SQL Server",
-			img: mssqlIcon,
+			value: "bigquery",
+			name: "Google BigQuery",
+			img: bigqueryicon,
 		},
 		{
 			id: 4,
-			value: "mysql",
-			name: "My SQL",
-			img: mysqlicon,
+			value: "db2",
+			name: "IBM DB2",
+			img: ibmdb2icon,
 		},
 		{
 			id: 5,
+			value: "motherduck",
+			name: "Motherduck",
+			img: motherduckicon,
+		},
+		{
+			id: 6,
+			value: "sqlserver",
+			name: "Ms SQL Server",
+			img: mssqlicon,
+		},
+		{
+			id: 7,
+			value: "mysql",
+			name: "MySQL",
+			img: mysqlicon,
+		},
+		{
+			id: 8,
+			value: "oracle",
+			name: "Oracle",
+			img: oracleicon,
+		},
+		{
+			id: 9,
 			value: "postgresql",
 			name: "PostgreSQL",
 			img: postgresicon,
 		},
+		
 		{
-			id: 6,
-			value: "bigquery",
-			name: "Google BigQuery",
-			img: bigqueryicon,
+			id: 10,
+			value: "snowflake",
+			name: "Snowflake",
+			img: snowflakeicon,
+		},
+		{
+			id: 11,
+			value: "teradata",
+			name: "Teradata",
+			img: teradataicon,
 		},
 	];
 
@@ -118,7 +162,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		if (mode === "New") {
 			setRegOrUpdate("Register");
 		} else if (mode === "Edit") {
-			setAccount({ ...account, password: "" });
+			setAccount({ ...account, password: "" });	
 			setRegOrUpdate("Update");
 		}
 	};
@@ -149,32 +193,79 @@ const NewDataConnection = (props: DataConnectionProps) => {
 				}else{
 					setBtnEnable(true);
 				}
+		}
+		else if( account.vendor==="snowflake"){
+			if(
+				account.server !== "" &&
+				account.username !== ""&&
+				account.password!==""&&
+				account.connectionName!==""
+			) {
+				setBtnEnable(false);
+			  } else {
+				setBtnEnable(true);
+			  }
+
+		}else if( account.vendor==="motherduck"){
+			if(
+				account.database !== "" &&
+				account.username !== ""&&
+				account.password!==""&&
+				account.connectionName!==""
+			) {
+				setBtnEnable(false);
+			  } else {
+				setBtnEnable(true);
+			  }
+
 		}else {
 		if (
 			account.vendor !== "" &&
 			account.server !== "" &&
 			account.port !== "" &&
-			account.database !== "" &&
+			account.database!==""&&
 			account.connectionName !== "" &&
 			account.password !== ""
+
 		) {
-			if (account.vendor === "databricks") {
+			if (account.vendor === "oracle") {
+				if (
+				  account.server !== ""&&
+				  account.port !== "" &&
+				  account.database!==""&&
+				  account.connectionName !== "" &&
+				  account.username !== "" &&
+				  account.password !== "" &&
+				  account.keystore !== null &&
+				  account.truststore !== null &&
+				  account.keystorePassword !== "" &&
+				  account.truststorePassword !== ""
+				) {
+				  setBtnEnable(false);
+				} else {
+				  setBtnEnable(true);
+				}
+			  }
+			else if (account.vendor === "databricks") {
 				if (account.httpPath !== "") {
 					setBtnEnable(false);
 				} else {
 					setBtnEnable(true);
 				}
 			} else {
-				if (account.username !== "") {
+				if (account.username !== "" && account.vendor!=="snowflake") {
 					setBtnEnable(false);
 				} else {
 					setBtnEnable(true);
 				}
 			}
+		   
 		} else {
 			setBtnEnable(true);
 		}
 	}};
+
+	
 
 	// =================================================
 	// Test DataConnection
@@ -189,10 +280,57 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			database: account.database,
 			password: account.password,
 		};
-		if (account.vendor === "databricks") {
+
+		if(account.vendor==="oracle"){
+			const form :any = new FormData();
+
+			form.append("connectionName", account.connectionName);
+			form.append("vendor", account.vendor);
+			form.append("host",account.server)
+			form.append("port", account.port.toString());
+			form.append("serviceName", account.database);
+			form.append("keystorePassword", account.keystorePassword);
+			form.append("truststorePassword", account.truststorePassword);
+			form.append("username", account.username);
+			form.append("password", account.password);
+			
+			if (account.keystore) { // Check if a file is selected
+				form.append("keystore",  account.keystore);
+			  }
+			
+			  if (account.truststore) { // Check if a truststore is selected (assuming similar logic)
+				form.append("truststore",account.truststore );
+			  }
+			
+			return FetchData({
+				requestType: "withData",
+				method: "POST",
+				url: "testOracleConnection",
+				headers: {
+				  "Content-Type": "multipart/form-data",
+				  Authorization: `Bearer ${props.token}`,
+				},
+				data: form,
+			  });
+
+		}
+		else if(account.vendor==="snowflake"){
+			data.server=account.server;
+			data.username=account.username;
+			data.password=account.password;
+			data.connectionName=account.connectionName;
+		}
+		else if(account.vendor==="motherduck"){
+			    data.database=account.database;
+				data.username=account.username;
+				data.password=account.password;
+				data.connectionName=account.connectionName;
+		}
+		else if (account.vendor === "databricks") {
 			data.httpPath = account.httpPath;
 		} else {
 			data.username = account.username;
+			
 		}
 		return FetchData({
 			requestType: "withData",
@@ -242,7 +380,83 @@ const NewDataConnection = (props: DataConnectionProps) => {
 				// 	setTestMessage("");
 				// }, 4000);
 			}
-        } else {
+        } 
+		
+		else if(account.vendor==="snowflake"){
+			if(
+				account.server !== "" &&
+				account.username !== ""&&
+				account.password!==""&&
+				account.connectionName!==""
+			){
+				var response: any = await getDatabaseConnectionTest();
+
+				if (response.status) {
+					setSeverity("success");
+					setOpenAlert(true);
+					setTestMessage("Test Connection successful");
+					setTimeout(() => {
+						setOpenAlert(false);
+						setTestMessage("");
+					}, 3000);
+				} else {
+					setSeverity("error");
+					setOpenAlert(true);
+					setTestMessage(response.data.message);
+					// setTimeout(() => {
+					// 	setOpenAlert(false);
+					// 	setTestMessage("");
+					// }, 4000);
+				}
+			} else {
+				setSeverity("error");
+				setOpenAlert(true);
+				setTestMessage("Please Fillout All the fields");
+				// setTimeout(() => {
+				// 	setOpenAlert(false);
+				// 	setTestMessage("");
+				// }, 4000);
+			}
+		
+	}
+	else if(account.vendor==="motherduck"){
+		if(
+			account.database !== ""&&
+			account.username !== ""&&
+			account.password!==""&&
+			account.connectionName!==""
+		){
+			var response: any = await getDatabaseConnectionTest();
+
+			if (response.status) {
+				setSeverity("success");
+				setOpenAlert(true);
+				setTestMessage("Test Connection successful");
+				setTimeout(() => {
+					setOpenAlert(false);
+					setTestMessage("");
+				}, 3000);
+			} else {
+				setSeverity("error");
+				setOpenAlert(true);
+				setTestMessage(response.data.message);
+				// setTimeout(() => {
+				// 	setOpenAlert(false);
+				// 	setTestMessage("");
+				// }, 4000);
+			}
+		} else {
+			setSeverity("error");
+			setOpenAlert(true);
+			setTestMessage("Please Fillout All the fields");
+			// setTimeout(() => {
+			// 	setOpenAlert(false);
+			// 	setTestMessage("");
+			// }, 4000);
+		}
+	
+}
+		else {
 		if (
 			account.vendor !== "" &&
 			account.server !== "" &&
@@ -252,7 +466,47 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			account.password &&
 			(account.password !== "" || account.password !== undefined)
 		) {
-			if (account.vendor === "databricks") {
+			if(account.vendor==="oracle"){
+				if(
+					
+					account.username !== "" &&
+					account.keystore !== null &&
+					account.keystorePassword !== "" &&
+					account.truststore !== null &&
+					account.truststorePassword !== "" 
+				)
+				{
+					var response: any = await getDatabaseConnectionTest();
+
+					if (response.status) {
+						setSeverity("success");
+						setOpenAlert(true);
+						setTestMessage("Test Connection successful");
+						setTimeout(() => {
+							setOpenAlert(false);
+							setTestMessage("");
+						}, 3000);
+					} else {
+						setSeverity("error");
+						setOpenAlert(true);
+						setTestMessage(response.data.message);
+						// setTimeout(() => {
+						// 	setOpenAlert(false);
+						// 	setTestMessage("");
+						// }, 4000);
+					}
+				} else {
+					setSeverity("error");
+					setOpenAlert(true);
+					setTestMessage("Please Fillout All the fields");
+					// setTimeout(() => {
+					// 	setOpenAlert(false);
+					// 	setTestMessage("");
+					// }, 4000);
+				}
+			 }
+			
+			else if (account.vendor === "databricks") {
 				if (account.httpPath !== "") {
 					var response: any = await getDatabaseConnectionTest();
 
@@ -283,7 +537,8 @@ const NewDataConnection = (props: DataConnectionProps) => {
 					// }, 4000);
 				}
 			} else {
-				if (account.username !== "") {
+
+				if (account.username !== "" && account.vendor!=="snowflake") {
 					var response: any = await getDatabaseConnectionTest();
 
 					if (response.status) {
@@ -337,20 +592,69 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			password: account.password,
 			connectionName: account.connectionName,
 		};
-		if (account.vendor === "databricks") {
+
+		if(account.vendor==="oracle"){
+			const form :any = new FormData();
+            
+			form.append("connectionName", account.connectionName);
+			form.append("vendor", account.vendor);
+			form.append("host", account.server);
+			form.append("port", account.port.toString());
+			form.append("serviceName", account.database);
+			form.append("keystorePassword", account.keystorePassword);
+			form.append("truststorePassword", account.truststorePassword);
+			form.append("username", account.username);
+			form.append("password", account.password);
+
+			if (account.keystore) { // Check if a file is selected
+				form.append("keystore",  account.keystore);
+			  }
+			
+			  if (account.truststore) { // Check if a truststore is selected (assuming similar logic)
+				form.append("truststore",account.truststore );
+			  }
+
+			var response: any = await FetchData({
+				requestType: "withData",
+				method: "POST",
+				url: "createOracleConnection",
+				headers: {
+				  "Content-Type": "multipart/form-data",
+				  Authorization: `Bearer ${props.token}`,
+				},
+				data: form,
+			  });
+
+		}
+		else if(account.vendor==="snowflake"){
+			data.server=account.server;
+			data.username=account.username;
+			data.password=account.password;
+			data.connectionName=account.connectionName;
+		}
+		else if(account.vendor==="motherduck"){
+			data.database=account.database;
+			data.username=account.username;
+			data.password=account.password;
+			data.connectionName=account.connectionName;
+		}
+		else if (account.vendor === "databricks") {
 			data.httpPath = account.httpPath;
 		} else {
 			data.username = account.username;
 		}
+		
 		// TODO need to specify type
-		var response: any = await FetchData({
-			requestType: "withData",
-			method: "POST",
-			url: "database-connection",
-			headers: { "Content-Type": "application/json", Authorization: `Bearer ${props.token}` },
-			data: data,
-		});
-
+		if(account.vendor!=="oracle"){
+			var response: any = await FetchData({
+				requestType: "withData",
+				method: "POST",
+				url: "database-connection",
+				headers: { "Content-Type": "application/json", Authorization: `Bearer ${props.token}` },
+				data: data,
+			});
+		}
+		
 		if (response.status) {
 			if (response.data.message === "Friendlly Name is already used") {
 				setAccount({
@@ -374,6 +678,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		}
 	};
 
+
 	// ==============================================================
 	// Update Dc
 	// ==============================================================
@@ -386,20 +691,57 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			password: account.password,
 			connectionName: account.connectionName,
 		};
-		if (account.vendor === "databricks") {
+		
+        if(account.vendor==="oracle"){
+			const form : any = new FormData();
+    
+			form.append("connectionName", account.connectionName);
+			form.append("vendor", account.vendor);
+			form.append("host", account.server);
+			form.append("port", account.port.toString());
+			form.append("serviceName", account.database);
+			form.append("keystorePassword", account.keystorePassword);
+			form.append("truststorePassword", account.truststorePassword);
+			form.append("username", account.username);
+			form.append("password", account.password);
+
+			if (account.keystore) { // Check if a file is selected
+				form.append("keystore",  account.keystore);
+			  }
+			
+			  if (account.truststore) { // Check if a truststore is selected (assuming similar logic)
+				form.append("truststore",account.truststore );
+			  }
+
+			  var response: any = await FetchData({
+				requestType: "withData",
+				method: "POST",
+				url: "updateOracleConnection/" + dataConnId,
+				headers: { "Content-Type": "multipart/form-data",
+					        Authorization: `Bearer ${props.token}`
+						 },
+				data: form,
+			});
+
+		}
+
+		else if (account.vendor === "databricks") {
 			data.httpPath = account.httpPath;
 		} else {
 			data.username = account.username;
 		}
-		// TODO need to specify type
-		var response: any = await FetchData({
-			requestType: "withData",
-			method: "PUT",
-			url: "database-connection/" + dataConnId,
-			headers: { "Content-Type": "application/json", Authorization: `Bearer ${props.token}` },
-			data: data,
-		});
 
+		// TODO need to specify type
+		if(account.vendor!=="oracle"){
+              var response: any = await FetchData({
+				requestType: "withData",
+				method: "PUT",
+				url: "database-connection/" + dataConnId,
+				headers: { "Content-Type": "application/json", Authorization: `Bearer ${props.token}` },
+				data: data,
+			});
+		}
+		
 		if (response.status) {
 			setSeverity("success");
 			setOpenAlert(true);
@@ -419,13 +761,15 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			// 	setTestMessage("");
 			// }, 3000);
 		}
-	};
+	
+};
 
 	// ==================================================
 	// when Visibility icon Clicked
 	// ==================================================
 	const ViewOrEditDc = async (dcuid: string) => {
 		setDataConnId(dcuid);
+		
 		// TODO need to specify type
 		var result: any = await FetchData({
 			requestType: "noData",
@@ -457,6 +801,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
 
+		  
 		if (result.status) {
 			setSeverity("success");
 			setOpenAlert(true);
@@ -520,7 +865,81 @@ const NewDataConnection = (props: DataConnectionProps) => {
 				// 	setTestMessage("");
 				// }, 4000);
 			}
-		} else {
+		}else if(account.vendor==="snowflake"){
+			if(
+			    account.server !== "" &&
+				account.username !== "" &&
+				account.password &&
+				(account.password !== "" || account.password !== undefined)&&
+				account.connectionName !== ""
+			){
+				
+				var response: any = await getDatabaseConnectionTest();
+
+				if (response.status) {
+					if (regOrUpdate === "Update") {
+						handleonUpdate();
+					}
+					if (regOrUpdate === "Register") {
+						handleRegister();
+					}
+				} else {
+					setSeverity("error");
+					setOpenAlert(true);
+					setTestMessage(response.data.message);
+					// setTimeout(() => {
+					// 	setOpenAlert(false);
+					// 	setTestMessage("");
+					// }, 4000);
+				}
+			} else {
+				setSeverity("error");
+				setOpenAlert(true);
+				setTestMessage("Please Fillout All the fields");
+				// setTimeout(() => {
+				// 	setOpenAlert(false);
+				// 	setTestMessage("");
+				// }, 4000);
+			}
+		} 
+		else if(account.vendor==="motherduck"){
+			if(
+			    account.database!== "" &&
+				account.username !== "" &&
+				account.password &&
+				(account.password !== "" || account.password !== undefined)&&
+				account.connectionName !== ""
+			){
+				
+				var response: any = await getDatabaseConnectionTest();
+
+				if (response.status) {
+					if (regOrUpdate === "Update") {
+						handleonUpdate();
+					}
+					if (regOrUpdate === "Register") {
+						handleRegister();
+					}
+				} else {
+					setSeverity("error");
+					setOpenAlert(true);
+					setTestMessage(response.data.message);
+					// setTimeout(() => {
+					// 	setOpenAlert(false);
+					// 	setTestMessage("");
+					// }, 4000);
+				}
+			} else {
+				setSeverity("error");
+				setOpenAlert(true);
+				setTestMessage("Please Fillout All the fields");
+				// setTimeout(() => {
+				// 	setOpenAlert(false);
+				// 	setTestMessage("");
+				// }, 4000);
+			}
+		}
+		else {
 		if (
 			account.vendor !== "" &&
 			account.server !== "" &&
@@ -530,7 +949,45 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			account.password &&
 			(account.password !== "" || account.password !== undefined)
 		) {
-			if (account.vendor === "databricks") {
+			if(account.vendor==="oracle"){
+				if(
+					account.username !== "" &&
+					account.keystore !== null &&
+					account.keystorePassword !== "" &&
+					account.truststore !== null &&
+					account.truststorePassword !== "" 
+				)
+				{
+					var response: any = await getDatabaseConnectionTest();
+
+					if (response.status) {
+						if (regOrUpdate === "Update") {
+							handleonUpdate();
+						}
+						if (regOrUpdate === "Register") {
+							handleRegister();
+						}
+					} else {
+						setSeverity("error");
+						setOpenAlert(true);
+						setTestMessage(response.data.message);
+						// setTimeout(() => {
+						// 	setOpenAlert(false);
+						// 	setTestMessage("");
+						// }, 4000);
+					}
+				} else {
+					setSeverity("error");
+					setOpenAlert(true);
+					setTestMessage("Please Fillout All the fields");
+					// setTimeout(() => {
+					// 	setOpenAlert(false);
+					// 	setTestMessage("");
+					// }, 4000);
+				}
+			}
+
+			else if (account.vendor === "databricks") {
 				if (account.httpPath !== "") {
 					var response: any = await getDatabaseConnectionTest();
 
@@ -615,7 +1072,14 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		}
 		if (connection === "databricks") {
 			return "443";
-		} else {
+		} 
+		if (connection === "oracle") {
+			return "1522";
+		}if (connection === "db2") {
+			return "32459";
+		}if (connection === "teradata") {
+			return "1025";
+		}else {
 			return "";
 		}
 	};
@@ -639,6 +1103,10 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			username: "",
 			password: "",
 			connectionName: "",
+			keystore:null,
+			keystorePassword:"",
+			truststore:null,
+			truststorePassword:"",
 			serverError: "",
 			portError: "", 
 			databaseError: "", 
@@ -646,6 +1114,10 @@ const NewDataConnection = (props: DataConnectionProps) => {
 			userNameError: "", 
 			passwordError: "", 
 			connectionNameError: "",
+			keystoreError:"",
+			keystorePasswordError:"",
+			truststoreError:"",
+			truststorePasswordError:"",
 		});
 	 }
 
@@ -655,14 +1127,14 @@ const NewDataConnection = (props: DataConnectionProps) => {
 				if(account.vendor !== ''){
 					if(account.vendor !== value){
 						if(value === 'redshift'){
-							if(account.vendor === 'databricks'){
+						    if(account.vendor === 'databricks'){
 								if(account.server !== '' || account.httpPath !== ''  || account.password !== '' || account.connectionName !== ''){
 									setChangeDB(true);
 									setValues(value);
 								}else{
 									setDataConnection(value);
 								}	
-							}else{
+							}else {
 								if(account.vendor === 'sqlserver' || 'mysql' || 'postgresql' || 'bigquery'){
 									if(account.password !== '' || account.connectionName !== '' || account.database !== '' || account.username !== '' ){
 										setChangeDB(true);
@@ -776,16 +1248,20 @@ const NewDataConnection = (props: DataConnectionProps) => {
 		
     <Box 
     sx={{ 
-    minHeight: '100vh', 
+    // minHeight: '100vh', 
     display: 'flex', 
     flexDirection: 'column', 
     flex: 0.15, 
     borderRight: '2px solid rgba(224, 224, 224, 1)', 
     padding: '1rem 2rem',
-    alignItems: 'flex-start'
+    alignItems: 'flex-start',
+		height: '100vh'
+	// overflow:'auto'
     }}
+	className="addScrollBar"
     >    
-           <div>
+           <div >
+
 		   {viewMode ? (
                 <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Database</Typography>
 							) : !viewMode && enable ? (
@@ -794,10 +1270,11 @@ const NewDataConnection = (props: DataConnectionProps) => {
                 <Typography variant='h6' sx={{color:'#B4B4B3', paddingBottom:'10px'}}>Select a Database</Typography>
 							)
 			}
-			<div> 
+			<div > 
 				{
 				dataconnection.map((data)=>{
 					const {id, value, name, img} = data;
+					const vendorIconClass = (data.value === 'databricks'||  data.value === 'redshift' || data.value === 'teradata') ? 'separateVendorIcon' : 'vendorIconStyle';
 					return(
 						<div 
 						onClick={() =>dataConnectionOnclick(value)}
@@ -811,26 +1288,28 @@ const NewDataConnection = (props: DataConnectionProps) => {
 								btnEnabelDisable();
 							}
 						}} >
+							
 							<div key={id} onClick={() =>{ handleListItemBasedOnVendor(value)}} >
+					        
 								{ viewMode ? (
 									<div className={selected === value ? 'active': 'listItems'}>
-										<img src={img} alt="Icon" className="vendorIconStyle" />
+										<img src={img} alt="Icon" className={vendorIconClass} />
 						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
 									</div>
 								): !viewMode && enable ? (
 									<div className={selected === value ? 'active': 'listItems'}>
-										<img src={img} alt="Icon" className="vendorIconStyle" />
+										<img src={img} alt="Icon" className={vendorIconClass} />
 						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
 									</div>
 								 ): 
 								 !viewMode && !enable ? (
 									<div className={selected === value ? 'active': 'listItem'}>
-										<img src={img} alt="Icon" className="vendorIconStyle" />
+										<img src={img} alt="Icon" className= {vendorIconClass} />
 						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
 									</div>
 								 ):
 								 <div className={selected === value ? 'active': 'listItem'}>
-										<img src={img} alt="Icon" className="vendorIconStyle" />
+										<img src={img} alt="Icon" className={vendorIconClass} />
 						               <Typography sx={{color:'#9e9e9e'}}>{name}</Typography>
 								 </div>
 								 }
@@ -873,7 +1352,8 @@ const NewDataConnection = (props: DataConnectionProps) => {
                 </div>
 
                 <div className="dbForm">
-                    {account.vendor !== "bigquery" && (
+
+					{account.vendor !== "bigquery" && account.vendor!=="motherduck" &&(
                         <>
                             <TextFieldComponent
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -885,18 +1365,24 @@ const NewDataConnection = (props: DataConnectionProps) => {
                                     if (account.server.length === 0) {
                                         setAccount({
                                             ...account,
-                                            serverError: account.vendor === "databricks" ? "Server Hostname should not be empty" : "Server Url should not be empty",
+                                            serverError: account.vendor === "databricks" ? "Server Hostname should not be empty" 
+											: account.vendor==="snowflake" || account.vendor==="db2"||account.vendor==="teradata" ? "Server should not be empty"
+											: account.vendor==="oracle" ? "Host should not be Empty"
+											: "Server Url should not be empty"
+											,
                                         });
                                         btnEnabelDisable();
                                     }
                                 }}
-                                {...{ viewMode, value: account.server, lable: account.vendor === "databricks" ? "Server Hostname" : "Server Url" }}
+                                {...{ viewMode, value: account.server, lable: account.vendor === "databricks" ? "Server Hostname" 
+									 : account.vendor==="snowflake" || account.vendor==="db2"||account.vendor==="teradata" ? "Server": account.vendor==="oracle" ?"Host" 
+									 : "Server Url" }}
                             />
                             <small className="dbConnectionErrorText">{account.serverError}</small>
                         </>
                     )}
 
-                    {account.vendor !== "bigquery" && (
+                    {account.vendor !== "bigquery" && account.vendor !== "snowflake" && account.vendor!=="motherduck" &&(
                         <>
                             <TextFieldComponent
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -908,7 +1394,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
                                     if (account.port.length === 0) {
                                         setAccount({
                                             ...account,
-                                            portError: "port should not be Empty",
+                                            portError: "Port should not be Empty",
                                         });
                                         btnEnabelDisable();
                                     }
@@ -919,7 +1405,9 @@ const NewDataConnection = (props: DataConnectionProps) => {
                         </>
                     )}
 
-                    {account.vendor !== "bigquery" && (
+					
+
+                    {account.vendor !== "bigquery"  && account.vendor !== "snowflake" && (
                         <>
                             <TextFieldComponent
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -931,18 +1419,120 @@ const NewDataConnection = (props: DataConnectionProps) => {
                                     if (account.database.length === 0) {
                                         setAccount({
                                             ...account,
-                                            databaseError: "Database should not be Empty",
+                                            databaseError: account.vendor === "oracle" ?"Service Name should not be Empty": "Database should not be Empty",
                                         });
                                         btnEnabelDisable();
                                     }
                                 }}
-                                {...{ viewMode, value: account.database, lable: "Database" }}
+                                {...{ viewMode, value: account.database, lable: account.vendor === "oracle" ?"Service Name" : "Database" }}
                             />
                             <small className="dbConnectionErrorText">{account.databaseError}</small>
                         </>
                     )}
 
-                    {account.vendor !== "bigquery" && (
+                    {account.vendor==="oracle"&& (
+						<>
+						 <TextFieldComponent
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+								if (e.target.files && e.target.files.length > 0) {
+									const file = e.target.files[0];
+									// console.log(e.target.files);
+									setAccount({
+									  ...account,
+									  keystore: file,
+									  keystoreError: "",
+									});
+									btnEnabelDisable();
+								  }
+							}}
+							onFocus={() => setAccount({ ...account, keystoreError: "" })}
+							onBlur={(e:React.ChangeEvent<HTMLInputElement>) => {	
+							if (!account.keystore ) {
+								setAccount({
+								...account,
+								keystoreError: "Key Store should not be empty",
+								});
+								btnEnabelDisable();
+							}
+							}}
+							{...{
+							viewMode,
+							value: account.keystore ? account.keystore.name : "",
+							lable: "Key Store",
+							type: "file",
+							}}
+						/>
+						<small className="dbConnectionErrorText">{account.keystoreError}</small>
+
+
+
+						<TextFieldComponent
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                        setAccount({ ...account, keystorePassword: e.target.value });
+                                        btnEnabelDisable();
+                                    }}
+                                    onFocus={() => setAccount({ ...account, keystorePasswordError: "" })}
+                                    onBlur={() => {
+                                        if (account.keystorePassword.length === 0) {
+                                            setAccount({
+                                                ...account,
+                                                keystorePasswordError: "keystore Password should not be Empty",
+                                            });
+                                            btnEnabelDisable();
+                                        }
+                                    }}
+                                    {...{ viewMode, value: account.keystorePassword, lable: "keystore Password", type: "password", }}
+                                />
+                                <small className="dbConnectionErrorText">{account.keystorePasswordError}</small>
+
+							<TextFieldComponent
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+									setAccount({ ...account, truststore: e.target.files ? e.target.files[0] : null,
+										        truststoreError: e.target.files ? "" : account.truststoreError,
+									});
+									btnEnabelDisable();
+									}}
+									onFocus={() => setAccount({ ...account, truststoreError: "" })}
+									onBlur={(e:React.ChangeEvent<HTMLInputElement>) => {
+									if (!account.truststore && !e.target.files ) {
+										setAccount({
+										...account,
+										truststoreError: "Trust Store should not be empty",
+										});
+										btnEnabelDisable();
+									}
+									}}
+									{...{
+									viewMode,
+									value: account.truststore ? account.truststore.name : "",
+									lable: "Trust Store",
+									type: "file",
+									}}
+								/>
+								<small className="dbConnectionErrorText">{account.truststoreError}</small>
+
+						<TextFieldComponent
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                        setAccount({ ...account, truststorePassword: e.target.value });
+                                        btnEnabelDisable();
+                                    }}
+                                    onFocus={() => setAccount({ ...account, truststorePasswordError: "" })}
+                                    onBlur={() => {
+                                        if (account.truststorePassword.length === 0) {
+                                            setAccount({
+                                                ...account,
+                                                truststorePasswordError: "truststore Password should not be Empty",
+                                            });
+                                            btnEnabelDisable();
+                                        }
+                                    }}
+                                    {...{ viewMode, value: account.truststorePassword, lable: "truststore Password", type: "password", }}
+                                />
+                                <small className="dbConnectionErrorText">{account.truststorePasswordError}</small>		
+						</>
+					)}
+
+                    {account.vendor !== "bigquery" &&(
                         <>
                             {account.vendor === "databricks" ?
                                 <>
@@ -1091,6 +1681,14 @@ const NewDataConnection = (props: DataConnectionProps) => {
                 <div className="dbButtonBox">
                     {viewMode ? (
                         <div className="dbFormButton">
+							<Button 
+                                variant="contained"
+                                style={{ backgroundColor: "red", marginRight: '-108px' }}
+                                onClick={deleteDcWarning}
+                            >
+                                Delete
+                            </Button>
+
                             <Button
                                 variant="contained"
                                 value="Edit"
@@ -1101,19 +1699,13 @@ const NewDataConnection = (props: DataConnectionProps) => {
                                     setEnable(true)
                                 }}
 								style={{ backgroundColor: "rgb(175, 153, 219)", 
-										 marginRight: '-81px'
+										 marginRight: '5px'
 									  
 									}}
                             >
                                 Edit
                             </Button>
-                            <Button 
-                                variant="contained"
-                                style={{ backgroundColor: "red", marginRight: '7px' }}
-                                onClick={deleteDcWarning}
-                            >
-                                Delete
-                            </Button>
+                        
                         </div>
                     ) : (
                         <div className="dbFormButton">
@@ -1177,8 +1769,9 @@ const NewDataConnection = (props: DataConnectionProps) => {
 						<br />
 					</div>
 					<div className="dbDeleteDialogBtnContainer">
-					<Button
+						<Button
 							className="dbDeleteDialogBtn1"
+							variant="contained"
 							sx={{backgroundColor: "white",
 								color: "#5d5c5c",
 								border: "1px solid gray",
@@ -1190,11 +1783,10 @@ const NewDataConnection = (props: DataConnectionProps) => {
 								color: "white"
 							}
 							}}
-							variant="contained"
 							onClick={() => {
-								setChangeDB(false);
-								handleListItem(account.vendor);
-							}}
+										setChangeDB(false);
+										handleListItem(values);
+								}}
 						>
 							Cancel
 						</Button>
@@ -1213,16 +1805,16 @@ const NewDataConnection = (props: DataConnectionProps) => {
 							}}
 							variant="contained"
 							onClick={() => {
-										setChangeDB(false);
-										handleListItem(values);
-										setDataConnection(values);
-								}}
+								setChangeDB(false);
+								handleListItem(account.vendor);
+								setDataConnection(values);
+							}}
 						>
-									Continue
+							Continue
 						</Button>
 					 </div>
 				</div>
-			</Dialog>
+			</Dialog>		
             
             <Dialog open={openConfirmDialog} sx={{marginLeft:'16.7rem'}}>
 				<div className="dbDeleteDialog">
@@ -1232,15 +1824,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 						<br />
 					</div>
 					<div className="dbDeleteDialogBtnContainer">
-						<Button
-							className="dbDeleteDialogBtn1"
-							onClick={() => setOpenConfirmDialog(false)}
-							variant="contained"
-						>
-							Cancel
-						</Button>
-
-						<Button
+					<Button
 							className="dbDeleteDialogBtn2"
 							variant="contained"
 							onClick={() => {
@@ -1250,6 +1834,16 @@ const NewDataConnection = (props: DataConnectionProps) => {
 						>
 							Delete
 						</Button>
+
+						<Button
+							className="dbDeleteDialogBtn1"
+							onClick={() => setOpenConfirmDialog(false)}
+							variant="contained"
+						>
+							Cancel
+						</Button>
+
+						
 					 </div>
 				</div>
 				</Dialog>
