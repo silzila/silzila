@@ -253,8 +253,7 @@ const ChartTypes = ({
       case "area":
       case "stackedArea":
       case "treeMap":
-      // case "filledMap":
-      case "bubbleMap":
+      case "filledMap":
       case "table":
       case "sankey":
         if (
@@ -266,7 +265,6 @@ const ChartTypes = ({
             "line",
             "area",
             "filledMap",
-            // "bubbleMap",
             "stackedArea",
             "treeMap",
             "sankey",
@@ -448,7 +446,7 @@ const ChartTypes = ({
         ) {
           keepOldData(propKey, false);
           if (oldChartAxes[1].fields.length > 0) {
-            newChartAxes[1].fields = oldChartAxes[1].fields;
+            newChartAxes[2].fields = oldChartAxes[1].fields;
           }
 
           if (oldChartAxes[2].fields.length > 0) {
@@ -477,7 +475,6 @@ const ChartTypes = ({
             "line",
             "area",
             "filledMap",
-            // "bubbleMap",
             "stackedArea",
             "treeMap",
             "sankey",
@@ -581,7 +578,7 @@ const ChartTypes = ({
         ) {
           keepOldData(propKey, false);
           if (oldChartAxes[1].fields.length > 0) {
-            newChartAxes[1].fields = oldChartAxes[1].fields;
+            newChartAxes[2].fields = oldChartAxes[1].fields;
           }
 
           if (oldChartAxes[2].fields.length > 0) {
@@ -615,7 +612,6 @@ const ChartTypes = ({
             "stackedArea",
             "treeMap",
             "filledMap",
-            // "bubbleMap",
             "sankey",
           ].includes(newChart)
         ) {
@@ -773,7 +769,7 @@ const ChartTypes = ({
         ) {
           keepOldData(propKey, false);
           if (oldChartAxes[1].fields.length > 0) {
-            newChartAxes[1].fields = oldChartAxes[1].fields;
+            newChartAxes[2].fields = oldChartAxes[1].fields;
           }
 
           if (oldChartAxes[2].fields.length > 0) {
@@ -808,7 +804,6 @@ const ChartTypes = ({
             "stackedArea",
             "treeMap",
             "filledMap",
-            // "bubbleMap",
             "sankey",
           ].includes(newChart)
         ) {
@@ -897,7 +892,7 @@ const ChartTypes = ({
         ) {
           keepOldData(propKey, false);
           if (oldChartAxes[1].fields.length > 0)
-            newChartAxes[1].fields.push(oldChartAxes[1].fields[0]);
+            newChartAxes[2].fields.push(oldChartAxes[1].fields[0]);
 
           if (oldChartAxes[2].fields.length > 0)
             newChartAxes[3].fields.push(oldChartAxes[2].fields[0]);
@@ -934,7 +929,6 @@ const ChartTypes = ({
             "calendar",
             "treeMap",
             "filledMap",
-            // "bubbleMap",
             "sankey",
           ].includes(newChart)
         ) {
@@ -1023,7 +1017,6 @@ const ChartTypes = ({
             "calendar",
             "treeMap",
             "filledMap",
-            // "bubbleMap",
             "sankey",
           ].includes(newChart)
         ) {
@@ -1114,7 +1107,6 @@ const ChartTypes = ({
             "stackedArea",
             "treeMap",
             "filledMap",
-            // "bubbleMap",
             "sankey",
           ].includes(newChart)
         ) {
@@ -1247,7 +1239,6 @@ const ChartTypes = ({
             "donut",
             "rose",
             "filledMap",
-            // "bubbleMap",
             "stackedArea",
             "treeMap",
             "filledMap",
@@ -1262,8 +1253,8 @@ const ChartTypes = ({
           newChartAxes[1].fields = getFieldsToChartAllowedNumbers(
             newChart,
             1,
-            oldChartAxes[1].fields,
-            oldChartAxes[2].fields
+            oldChartAxes[2].fields,
+            oldChartAxes[1].fields
           );
 
           if (oldChartAxes[3].fields.length > 0)
@@ -1393,7 +1384,6 @@ const ChartTypes = ({
             "line",
             "area",
             "filledMap",
-            // "bubbleMap",
             "stackedArea",
             "treeMap",
             "sankey",

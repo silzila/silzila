@@ -355,7 +355,11 @@ export const getChartData = async (
             switch (field.windowfn.windowFnOptions) {
               case "standing": //If standing gets selected in windowFunction, then below data will be send to API
                 //sending windowFn for all charts except richtext
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -369,9 +373,13 @@ export const getChartData = async (
                   }
                 } else {
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -385,7 +393,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnMatrix for two dimensional charts
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -399,7 +411,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnPartition for two dimensional charts
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length > 0 &&
                     _chartAxes[2].fields.length === 0
@@ -436,9 +452,13 @@ export const getChartData = async (
                 } else {
                   //sending windowFnPartition for one dimensional charts
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -452,7 +472,11 @@ export const getChartData = async (
                 break;
               case "sliding": //If sliding gets selected in windowFunction then, below data will be send to API
                 //sending windowFn for all charts except richtext
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -465,9 +489,13 @@ export const getChartData = async (
                   }
                 } else {
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -480,7 +508,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnOption for all charts except richtext
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -494,9 +526,13 @@ export const getChartData = async (
                   }
                 } else {
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -510,7 +546,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnMatrix for two dimensional charts
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -524,7 +564,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnPartition for two dimensional charts
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length > 0 &&
                     _chartAxes[2].fields.length === 0
@@ -566,9 +610,13 @@ export const getChartData = async (
                 } else {
                   //sending windowFnPartition for one dimensional charts
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -582,7 +630,11 @@ export const getChartData = async (
                 break;
               case "standingsvssliding": //If standingsvssliding gets selected in windowFunction, then below data will be send to API
                 //sending windowFn for all charts except richtext
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -601,9 +653,13 @@ export const getChartData = async (
                   }
                 } else {
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -627,7 +683,11 @@ export const getChartData = async (
                 if (
                   ["PNC"].includes(field.windowfn.standingSlidingReferenceWn)
                 ) {
-                  if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                  if (
+                    ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                      chartType
+                    )
+                  ) {
                     if (
                       _chartAxes[1].fields.length === 0 &&
                       _chartAxes[2].fields.length === 0
@@ -641,9 +701,13 @@ export const getChartData = async (
                     }
                   } else {
                     if (
-                      !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                        chartType
-                      )
+                      ![
+                        "heatmap",
+                        "crossTab",
+                        "boxPlot",
+                        "bubbleMap",
+                        "richtext",
+                      ].includes(chartType)
                     ) {
                       if (_chartAxes[1].fields.length === 0) {
                       } else {
@@ -658,7 +722,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnMatrix for two dimensional charts
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -672,7 +740,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnPartition for two dimensional charts
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length > 0 &&
                     _chartAxes[2].fields.length === 0
@@ -714,9 +786,13 @@ export const getChartData = async (
                 } else {
                   //sending windowFnPartition for one dimensional charts
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -1291,7 +1367,8 @@ const ChartData = ({
       if (
         chartProp.chartType === "heatmap" ||
         chartProp.chartType === "crossTab" ||
-        chartProp.chartType === "boxPlot"
+        chartProp.chartType === "boxPlot" ||
+        chartProp.chartType === "bubbleMap"
       ) {
         var combinedValuesForDimension = { name: "Dimension", fields: [] };
         var values1 = axesValues1[1].fields;

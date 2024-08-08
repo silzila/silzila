@@ -388,7 +388,13 @@ const ChartAxes = ({
 
   const ShowLocationPicker = () => {
     return (
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          paddingBottom: "5px",
+        }}
+      >
         <span className="axisTitle"></span>
         <div>
           <Autocomplete
@@ -400,9 +406,46 @@ const ChartAxes = ({
               handleLocationOnChange(e);
             }}
             options={options}
-            sx={{ width: "12rem" }}
+            sx={{
+              width: "12rem",
+              "& .MuiAutocomplete-inputRoot": {
+                maxHeight: "32px",
+              },
+              "& .MuiInputLabel-root.Mui-focused": {
+                borderColor: "#2bb9bb",
+                color: "#2bb9bb",
+              },
+              "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#2bb9bb",
+                color: "#2bb9bb",
+              },
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#2bb9bb",
+                color: "#2bb9bb",
+              },
+            }}
             renderInput={(params) => (
-              <TextField {...params} label="Select Map" />
+              <TextField
+                {...params}
+                sx={{
+                  "& .MuiInputBase-root": {
+                    height: "25px",
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    textAlign: "center",
+                    height: "25px !important",
+                    paddingLeft: "19px !important",
+                    fontSize: "13px",
+                  },
+                  "& .MuiSvgIcon-root": {
+                    fontSize: "18px",
+                  },
+                  "& .MuiAutocomplete-clearIndicator": {
+                    padding: 0,
+                  },
+                }}
+                label="Select Map"
+              />
             )}
           />
         </div>
@@ -422,23 +465,26 @@ const ChartAxes = ({
           chartProp.properties[propKey].chartType === "bubbleMap") && (
           <div style={{ display: "flex", flexDirection: "row" }}>
             <FormControl
-              size="small"
               sx={{
-                width: "9rem",
-                margin: "0.5rem",
+                width: "12rem",
+                margin: "0.5rem 0",
                 "& .MuiInputBase-root": {
                   borderRadius: "0px",
+                },
+                "& .MuiInputBase-input": {
+                  padding: "0px 32px 0px 0px",
                 },
               }}
               style={{
                 background: "white",
                 fontSize: "12px",
                 borderRadius: "4px",
+                padding: "2px 0px",
               }}
             >
               <InputLabel
                 sx={{
-                  fontSize: "12px",
+                  fontSize: "1rem",
                   lineHeight: "1.5rem",
                   "&.Mui-focused": {
                     color: "#2bb9bb",
@@ -453,6 +499,7 @@ const ChartAxes = ({
                   height: "1.5rem",
                   backgroundColor: "white",
                   color: "grey",
+                  paddingRight: "0px",
 
                   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                     borderColor: "#2bb9bb",
@@ -462,11 +509,16 @@ const ChartAxes = ({
                     borderColor: "#2bb9bb",
                     color: "#2bb9bb",
                   },
+                  "& .MuiSvgIcon-root": {
+                    fontSize: "20px",
+                    paddingRight: "2px",
+                  },
                   "&.Mui-focused .MuiSvgIcon-root ": {
                     fill: "#2bb9bb !important",
                   },
                 }}
-                label="Select Map"
+                style={{ borderRadius: "4px" }}
+                label="Select Mapss"
                 value={chartProp.properties[propKey].Geo.geoMapKey || "name"}
                 onChange={(e) => {
                   changeGeoKey(propKey, e.target.value);
@@ -479,48 +531,49 @@ const ChartAxes = ({
                 ))}
               </Select>
             </FormControl>
-            {showMismatchIcon ? (
-              <Tooltip title="UnMatched Locations." arrow placement="top">
-                <WarningIcon
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <Tooltip title="Help." arrow placement="top">
+                <InfoOutlined
                   style={{
-                    marginLeft: "5px",
+                    marginLeft: "4px",
                     cursor: "pointer",
                     marginTop: "4px",
-                    color: isUnMatchedFixed ? "green" : "orange", // Change color based on hover state
-                    fontSize: "1.2em", // Change font size based on hover state
+                    color: isHelpHovered ? "grey" : "LightGrey", // Change color based on hover state
+                    fontSize: "1em", // Change font size based on hover state
                     transition: "color 0.3s, font-size 0.3s", // Transition for smooth hover effect
                   }}
-                  onClick={(event) => {
-                    setAnchorMismatchElm(event.currentTarget);
-                    setShowOptionsMismatch(!showOptions);
+                  onMouseEnter={() => {
+                    setIsHelpHovered(true);
                   }}
-                ></WarningIcon>
+                  onMouseLeave={() => {
+                    setIsHelpHovered(false);
+                  }}
+                  onClick={(event) => {
+                    setAnchorHelpElm(event.currentTarget);
+                    setShowOptions(!showOptions);
+                  }}
+                />
               </Tooltip>
-            ) : null}
 
-            <Tooltip title="Help." arrow placement="top">
-              <InfoOutlined
-                style={{
-                  marginLeft: "5px",
-                  cursor: "pointer",
-                  marginTop: "4px",
-                  color: isHelpHovered ? "grey" : "LightGrey", // Change color based on hover state
-                  fontSize: "1.2em", // Change font size based on hover state
-                  transition: "color 0.3s, font-size 0.3s", // Transition for smooth hover effect
-                }}
-                onMouseEnter={() => {
-                  setIsHelpHovered(true);
-                }}
-                onMouseLeave={() => {
-                  setIsHelpHovered(false);
-                }}
-                onClick={(event) => {
-                  setAnchorHelpElm(event.currentTarget);
-                  setShowOptions(!showOptions);
-                }}
-              />
-            </Tooltip>
-
+              {showMismatchIcon ? (
+                <Tooltip title="UnMatched Locations." arrow placement="top">
+                  <WarningIcon
+                    style={{
+                      marginLeft: "4px",
+                      cursor: "pointer",
+                      marginTop: "4px",
+                      color: isUnMatchedFixed ? "green" : "orange", // Change color based on hover state
+                      fontSize: "1em", // Change font size based on hover state
+                      transition: "color 0.3s, font-size 0.3s", // Transition for smooth hover effect
+                    }}
+                    onClick={(event) => {
+                      setAnchorMismatchElm(event.currentTarget);
+                      setShowOptionsMismatch(!showOptions);
+                    }}
+                  ></WarningIcon>
+                </Tooltip>
+              ) : null}
+            </div>
             <GoeHelp
               propKey={propKey}
               open={showOptions}

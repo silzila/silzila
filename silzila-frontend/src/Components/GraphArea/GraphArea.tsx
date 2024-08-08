@@ -40,8 +40,8 @@ import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import TextEditor from "../Charts/TextEditor/TextEditor";
 import CrossTabChart from "../Charts/CrossTab/CrossTabChart";
-import FilledMap from "../Charts/GeoChart/GeoChart";
-import BubbleMap from "../Charts/GeoChart/GeoPieChart";
+import FilledMap from "../Charts/GeoChart/FilledMap";
+import BubbleMap from "../Charts/GeoChart/BubbleMap";
 import FetchData from "../ServerCall/FetchData";
 import { getChartData } from "../ChartAxes/ChartData";
 import {

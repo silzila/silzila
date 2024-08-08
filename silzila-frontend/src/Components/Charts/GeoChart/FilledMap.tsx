@@ -32,7 +32,7 @@ import {
 } from "../../CommonFunctions/CommonFunctions";
 import { getGeoJSON } from "./GeoJSON/MapCommonFunctions";
 
-const BubbleMap = ({
+const FilledMap = ({
   //props
   propKey,
   graphDimension,
@@ -149,40 +149,11 @@ const BubbleMap = ({
     }
   };
 
-  function randomPieSeries(
-    center: (string | number)[],
-    radius: number
-  ): echarts.PieSeriesOption {
-    const data = ["A", "B", "C", "D"].map((t) => {
-      return {
-        value: Math.round(Math.random() * 100),
-        name: "Category " + t,
-      };
-    });
-    return {
-      type: "pie",
-      coordinateSystem: "geo",
-      tooltip: {
-        formatter: "{b}: {c} ({d}%)",
-      },
-      label: {
-        show: false,
-      },
-      labelLine: {
-        show: false,
-      },
-      animationDuration: 0,
-      radius,
-      center,
-      data,
-    };
-  }
-
   useEffect(() => {
     let mapMinMax: any = getMinAndMaxValue(valueName);
     convertIntoMapData();
-    // console.log(mapData[0].name);
-    console.log(+echarts.version.split(".").slice(0, 3).join(""));
+    console.log(mapData);
+    // console.log(matchingMapJSONArray);
 
     setOptions({
       geo: {
@@ -277,33 +248,17 @@ const BubbleMap = ({
               show: geoStyle.showVisualScale,
             }
           : null,
-      // series: [
-      //   {
-      //     name: valueName,
-      //     type: "map",
-      //     roam: true,
-      //     map: "USA",
-      //     geoIndex: 0,
-      //     data: mapData || [],
-      //     zlevel: 3,
-      //     dimensions: ["name", "value"],
-      //   },
-      // ],
       series: [
-        // randomPieSeries([-86.753504, 33.01077], 15),
-        // randomPieSeries([-116.853504, 39.8], 25),
-        // randomPieSeries([-99, 31.5], 30),
-        randomPieSeries(
-          // it's also supported to use geo region name as center since v5.4.1
-          // +echarts.version.split(".").slice(0, 3).join("") > 540
-          // ?
-          // mapData[0].name,
-          // ["Maine"],
-          // .["Uttar Pradesh"],
-          // : // or you can only use the LngLat array
-          [-69, 45.5],
-          45
-        ),
+        {
+          name: valueName,
+          type: "map",
+          roam: true,
+          map: "USA",
+          geoIndex: 0,
+          data: mapData || [],
+          zlevel: 3,
+          dimensions: ["name", "value"],
+        },
       ],
     });
   }, [chartControl, chartProperties.properties[propKey].Geo, type]);
@@ -327,4 +282,4 @@ const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
   };
 };
 
-export default connect(mapStateToProps, null)(BubbleMap);
+export default connect(mapStateToProps, null)(FilledMap);
