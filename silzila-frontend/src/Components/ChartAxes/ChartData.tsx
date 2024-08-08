@@ -1150,7 +1150,7 @@ const ChartData = ({
             (zones: any) => zones.name !== "Filter"
           );
           //let _zonesFields:any = [];
-          let _fieldTempObject: any = {};
+         // let _fieldTempObject: any = {};
           let _chartFieldTempObject: any = {};          
 
           /*	Find and return field's new name	*/
@@ -1181,11 +1181,11 @@ const ChartData = ({
                 Logger("info", "NameWithIndex", field);
               }
 
-              if (_fieldTempObject[_nameWithAgg] === undefined) {               
+             // if (_fieldTempObject[_nameWithAgg] === undefined) {               
                 field["NameWithAgg"] = _nameWithAgg;
-                _fieldTempObject[_nameWithAgg] = "";
+                //_fieldTempObject[_nameWithAgg] = "";
                 Logger("info", "NameWithAgg", field);
-              }
+              //}
             });
           });
 
