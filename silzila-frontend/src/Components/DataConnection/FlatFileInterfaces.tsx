@@ -4,7 +4,16 @@ export interface FlatFileUploadProps {
 	token: string;
 	setApiResponse: (file: FlatFileProp) => void;
 	setEditApiResponse: (file: FlatFileProp) => void;
+	fileType:string;
 }
+
+export interface FileDropZoneProps {
+	setSelectedFile: any;
+	selectedFile: any;
+	fileType: string;
+	setSelectedSheetName?: (sheetName: string) => void; 
+}
+
 
 export interface EditFlatFileProps {
 	token: string;

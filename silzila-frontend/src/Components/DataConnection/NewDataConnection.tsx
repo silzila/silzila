@@ -1255,6 +1255,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
     borderRight: '2px solid rgba(224, 224, 224, 1)', 
     padding: '1rem 2rem',
     alignItems: 'flex-start',
+		height: '100vh'
 	// overflow:'auto'
     }}
 	className="addScrollBar"
@@ -1771,24 +1772,45 @@ const NewDataConnection = (props: DataConnectionProps) => {
 						<Button
 							className="dbDeleteDialogBtn1"
 							variant="contained"
+							sx={{backgroundColor: "white",
+								color: "#5d5c5c",
+								border: "1px solid gray",
+								marginLeft: "8px",
+								width: "105px",
+								boxShadow: 'none',
+								'&:hover': {
+								backgroundColor: "gray",
+								color: "white"
+							}
+							}}
 							onClick={() => {
 										setChangeDB(false);
 										handleListItem(values);
-										setDataConnection(values);
 								}}
 						>
-							Continue
+							Cancel
 						</Button>
 
 						<Button
 							className="dbDeleteDialogBtn2"
+							sx={{backgroundColor: "white",
+								color: "#5d5c5c",
+								border: "1px solid gray",
+								marginRight: "6px",
+								boxShadow: 'none',
+								'&:hover': {
+								backgroundColor: " #8c6bb1",
+								color: "white"
+							}
+							}}
 							variant="contained"
 							onClick={() => {
 								setChangeDB(false);
 								handleListItem(account.vendor);
+								setDataConnection(values);
 							}}
 						>
-							Cancel
+							Continue
 						</Button>
 					 </div>
 				</div>
