@@ -9,7 +9,10 @@
 import { connect } from "react-redux";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { Dispatch } from "redux";
-import { setChartTitle, setGenerateTitle } from "../../redux/ChartPoperties/ChartPropertiesActions";
+import {
+  setChartTitle,
+  setGenerateTitle,
+} from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { toggleGraphSize } from "../../redux/TabTile/TileActions";
 import AreaChart from "../Charts/AreaChart";
 import DoughnutChart from "../Charts/DoughnutChart";
@@ -37,20 +40,21 @@ import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import TextEditor from "../Charts/TextEditor/TextEditor";
 import CrossTabChart from "../Charts/CrossTab/CrossTabChart";
-import GeoChart from "../Charts/GeoChart/GeoChart";
+import FilledMap from "../Charts/GeoChart/FilledMap";
+import BubbleMap from "../Charts/GeoChart/BubbleMap";
 import FetchData from "../ServerCall/FetchData";
 import { getChartData } from "../ChartAxes/ChartData";
 import {
-	updateChartMargins,
-	updateQueryResult,
+  updateChartMargins,
+  updateQueryResult,
 } from "../../redux/ChartPoperties/ChartControlsActions";
 import { Button, Popover } from "@mui/material";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import DownloadPagePopover from "../CommonFunctions/PopOverComponents/DownloadPagePopover";
 import {
-	resetPageSettings,
-	setPageSettings,
+  resetPageSettings,
+  setPageSettings,
 } from "../../redux/PageSettings/DownloadPageSettingsActions";
 import { toPng } from "html-to-image";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
@@ -64,35 +68,36 @@ import TableChart from "../Charts/TableChart/TableChart";
 import Logger from "../../Logger";
 
 const popoverButtonStyle = {
-	textTransform: "none",
-	color: "grey",
-	display: "block",
-	width: "100%",
+  textTransform: "none",
+  color: "grey",
+  display: "block",
+  width: "100%",
 };
 
 const GraphArea = ({
-	// state
-	tileState,
-	tabState,
-	tabTileProps,
-	chartProperties,
-	chartGroup,
-	chartControlState,
-	token,
-	pageSettings,
-	dashBoardGroup,
-	dynamicMeasureState,
+  // state
+  tileState,
+  tabState,
+  tabTileProps,
+  chartProperties,
+  chartGroup,
+  chartControlState,
+  token,
+  pageSettings,
+  dashBoardGroup,
+  dynamicMeasureState,
 
-	// dispatch
-	setChartTitle,
-	setGenerateTitleToStore,
-	toggleGraphSize,
-	updateQueryResult,
-	updateMargin,
-	setPageSettings,
-	resetPageSettings,
-	renameDynamicMeasure,
+  // dispatch
+  setChartTitle,
+  setGenerateTitleToStore,
+  toggleGraphSize,
+  updateQueryResult,
+  updateMargin,
+  setPageSettings,
+  resetPageSettings,
+  renameDynamicMeasure,
 }: any) => {
+
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
 	var selectedDynamicMeasureProp =
@@ -355,15 +360,23 @@ const GraphArea = ({
 						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
 					/>
 				);
+    case "filledMap":
+      return (
+        <FilledMap
+          propKey={propKey}
+          graphDimension={fullScreen ? graphDimension2 : graphDimension}
+          graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
+        />
+      );
 
-			case "geoChart":
-				return (
-					<GeoChart
-						propKey={propKey}
-						graphDimension={fullScreen ? graphDimension2 : graphDimension}
-						graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
-					/>
-				);
+    case "bubbleMap":
+      return (
+        <BubbleMap
+          propKey={propKey}
+          graphDimension={fullScreen ? graphDimension2 : graphDimension}
+          graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
+        />
+      );
 			case "stackedArea":
 				return (
 					<StackedAreaChart
@@ -686,381 +699,389 @@ const GraphArea = ({
 	*************************************************
 	*/
 
-	const getHeightAndWidth = (paperHeight: number, paperWidth: number) => {
-		var graphHeight = graphDimension2.height;
-		var graphWidth = graphDimension2.width;
+  const getHeightAndWidth = (paperHeight: number, paperWidth: number) => {
+    var graphHeight = graphDimension2.height;
+    var graphWidth = graphDimension2.width;
 
-		const pageHeight = paperHeight - (pageSettings.top_margin + pageSettings.bottom_margin);
-		const pageWidth = paperWidth - (pageSettings.right_margin + pageSettings.left_margin);
-		var heightRatio = pageHeight / graphHeight;
-		var widthRatio = pageWidth / graphWidth;
+    const pageHeight =
+      paperHeight - (pageSettings.top_margin + pageSettings.bottom_margin);
+    const pageWidth =
+      paperWidth - (pageSettings.right_margin + pageSettings.left_margin);
+    var heightRatio = pageHeight / graphHeight;
+    var widthRatio = pageWidth / graphWidth;
 
-		// getting least value
-		var ratio = Math.min(heightRatio, widthRatio);
+    // getting least value
+    var ratio = Math.min(heightRatio, widthRatio);
 
-		var finalHeight = graphHeight * ratio;
-		var finalWidth = graphWidth * ratio;
+    var finalHeight = graphHeight * ratio;
+    var finalWidth = graphWidth * ratio;
 
-		return { height: finalHeight, width: finalWidth };
-	};
+    return { height: finalHeight, width: finalWidth };
+  };
 
-	// function calls when click on the download button after changing pagesettings(orientation,format,ppi)
-	const onDownload = async () => {
-		// getting  HTML element (chart in fullscreen) as a value in variable
-		const input = document.getElementById("graphFullScreen") as HTMLElement;
+  // function calls when click on the download button after changing pagesettings(orientation,format,ppi)
+  const onDownload = async () => {
+    // getting  HTML element (chart in fullscreen) as a value in variable
+    const input = document.getElementById("graphFullScreen") as HTMLElement;
 
-		// genaration a date to give as a fileName
-		const d = new Date();
-		const id = `${tabTileProps.selectedTileName}_${d.getDate()}${
-			d.getMonth() + 1
-		}${d.getFullYear()}:${d.getHours()}${d.getMinutes()}${d.getSeconds()}`;
+    // genaration a date to give as a fileName
+    const d = new Date();
+    const id = `${tabTileProps.selectedTileName}_${d.getDate()}${
+      d.getMonth() + 1
+    }${d.getFullYear()}:${d.getHours()}${d.getMinutes()}${d.getSeconds()}`;
 
-		// this case will run if We clicked on Download PDF
-		if (pageSettings.downloadType === "pdf") {
-			html2canvas(input).then(canvas => {
-				const imageData = canvas.toDataURL("image/png");
-				const pdf = new jsPDF(
-					pageSettings.SelectedOrientation,
-					"px",
-					pageSettings.selectedFormat
-				);
-				var width = pdf.internal.pageSize.getWidth();
-				var height = pdf.internal.pageSize.getHeight();
-				const heightAndWidth = getHeightAndWidth(height, width);
+    // this case will run if We clicked on Download PDF
+    if (pageSettings.downloadType === "pdf") {
+      html2canvas(input).then((canvas) => {
+        const imageData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF(
+          pageSettings.SelectedOrientation,
+          "px",
+          pageSettings.selectedFormat
+        );
+        var width = pdf.internal.pageSize.getWidth();
+        var height = pdf.internal.pageSize.getHeight();
+        const heightAndWidth = getHeightAndWidth(height, width);
 
-				pdf.addImage(
-					imageData,
-					"JPEG",
-					pageSettings.left_margin,
-					pageSettings.top_margin,
-					heightAndWidth.width,
-					heightAndWidth.height
-				);
-				pdf.save(`${id}`);
-				setFullScreen(false);
-				setPageSettings("openPageSettingPopover", false);
-				setTimeout(() => {
-					resetPageSettings();
-				}, 300);
-			});
-		} else {
-			toPng(input, { cacheBust: true })
-				.then((dataUrl: any) => {
-					const link = document.createElement("a");
-					link.download = `${id}`;
-					link.href = dataUrl;
-					link.click();
-					setPageSettings("openPageSettingPopover", false);
-					setTimeout(() => {
-						resetPageSettings();
-					}, 300);
-				})
-				.catch((err: any) => {
-					Logger("error", err);
-				});
-		}
-	};
+        pdf.addImage(
+          imageData,
+          "JPEG",
+          pageSettings.left_margin,
+          pageSettings.top_margin,
+          heightAndWidth.width,
+          heightAndWidth.height
+        );
+        pdf.save(`${id}`);
+        setFullScreen(false);
+        setPageSettings("openPageSettingPopover", false);
+        setTimeout(() => {
+          resetPageSettings();
+        }, 300);
+      });
+    } else {
+      toPng(input, { cacheBust: true })
+        .then((dataUrl: any) => {
+          const link = document.createElement("a");
+          link.download = `${id}`;
+          link.href = dataUrl;
+          link.click();
+          setPageSettings("openPageSettingPopover", false);
+          setTimeout(() => {
+            resetPageSettings();
+          }, 300);
+        })
+        .catch((err: any) => {
+          Logger("error", err);
+        });
+    }
+  };
 
-	return (
-		<div className="centerColumn" id="centerColumn">
-			<div className="graphTitleAndEdit">
-				{editTitle ? (
-					<form
-						style={{ width: "100%" }}
-						onSubmit={(evt: any) => {
-							evt.currentTarget.querySelector("input").blur();
-							evt.preventDefault();
-						}}
-					>
-						<input
-							autoFocus
-							style={{
-								fontSize: chartProperties.properties[propKey]
-									.isDynamicMeasureWindowOpened
-									? "25px"
-									: chartProperties.properties[propKey].titleOptions.fontSize,
+  return (
+    <div className="centerColumn" id="centerColumn">
+      <div className="graphTitleAndEdit">
+        {editTitle ? (
+          <form
+            style={{ width: "100%" }}
+            onSubmit={(evt: any) => {
+              evt.currentTarget.querySelector("input").blur();
+              evt.preventDefault();
+            }}
+          >
+            <input
+              autoFocus
+              style={{
+                fontSize: chartProperties.properties[propKey]
+                  .isDynamicMeasureWindowOpened
+                  ? "25px"
+                  : chartProperties.properties[propKey].titleOptions.fontSize,
 
-								textAlign: chartProperties.properties[propKey]
-									.isDynamicMeasureWindowOpened
-									? "left"
-									: chartProperties.properties[propKey].titleOptions.titleAlign,
-							}}
-							type="text"
-							className="editTitle"
-							value={inputTitleText}
-							onChange={handleTitleChange}
-							onBlur={() => completeRename()}
-						/>
-					</form>
-				) : (
-					<>
-						<div
-							className="graphTitle"
-							style={{
-								fontSize: chartProperties.properties[propKey]
-									.isDynamicMeasureWindowOpened
-									? selectedDynamicMeasureProp?.fontSize
-									: chartProperties.properties[propKey].titleOptions.fontSize,
-								textAlign: chartProperties.properties[propKey]
-									.isDynamicMeasureWindowOpened
-									? selectedDynamicMeasureProp?.titleAlign
-									: chartProperties.properties[propKey].titleOptions.titleAlign,
-								paddingLeft: chartProperties.properties[propKey]
-									.isDynamicMeasureWindowOpened
-									? selectedDynamicMeasureProp?.titleLeftPadding
-									: chartProperties.properties[propKey].titleOptions
-											.titleLeftPadding,
-							}}
-							onDoubleClick={() => editTitleText()}
-							title="Double click to set title manually"
-						>
-							{chartProperties.properties[propKey].isDynamicMeasureWindowOpened
-								? selectedDynamicMeasureProp?.dynamicMeasureName
-								: chartProperties.properties[propKey]?.titleOptions?.chartTitle}
-						</div>
-					</>
-				)}
+                textAlign: chartProperties.properties[propKey]
+                  .isDynamicMeasureWindowOpened
+                  ? "left"
+                  : chartProperties.properties[propKey].titleOptions.titleAlign,
+              }}
+              type="text"
+              className="editTitle"
+              value={inputTitleText}
+              onChange={handleTitleChange}
+              onBlur={() => completeRename()}
+            />
+          </form>
+        ) : (
+          <>
+            <div
+              className="graphTitle"
+              style={{
+                fontSize: chartProperties.properties[propKey]
+                  .isDynamicMeasureWindowOpened
+                  ? selectedDynamicMeasureProp?.fontSize
+                  : chartProperties.properties[propKey].titleOptions.fontSize,
+                textAlign: chartProperties.properties[propKey]
+                  .isDynamicMeasureWindowOpened
+                  ? selectedDynamicMeasureProp?.titleAlign
+                  : chartProperties.properties[propKey].titleOptions.titleAlign,
+                paddingLeft: chartProperties.properties[propKey]
+                  .isDynamicMeasureWindowOpened
+                  ? selectedDynamicMeasureProp?.titleLeftPadding
+                  : chartProperties.properties[propKey].titleOptions
+                      .titleLeftPadding,
+              }}
+              onDoubleClick={() => editTitleText()}
+              title="Double click to set title manually"
+            >
+              {chartProperties.properties[propKey].isDynamicMeasureWindowOpened
+                ? selectedDynamicMeasureProp?.dynamicMeasureName
+                : chartProperties.properties[propKey]?.titleOptions?.chartTitle}
+            </div>
+          </>
+        )}
 
-				{showSqlCode ? (
-					<div
-						className="graphAreaIcons"
-						onClick={() => {
-							setShowSqlCode(false);
-						}}
-						title="View graph"
-					>
-						<BarChartIcon />
-					</div>
-				) : (
-					<>
-						{!pageSettings.callForDownload &&
-						!chartProperties.properties[propKey].isDynamicMeasureWindowOpened ? (
-							<div className="graphAreaIcons">
-								<MoreVertOutlined
-									onClick={(e: any) => {
-										setOpen(true);
-										setAnchorEl(e.currentTarget);
-									}}
-								/>
-							</div>
-						) : null}
-					</>
-				)}
-			</div>
+        {showSqlCode ? (
+          <div
+            className="graphAreaIcons"
+            onClick={() => {
+              setShowSqlCode(false);
+            }}
+            title="View graph"
+          >
+            <BarChartIcon />
+          </div>
+        ) : (
+          <>
+            {!pageSettings.callForDownload &&
+            !chartProperties.properties[propKey]
+              .isDynamicMeasureWindowOpened ? (
+              <div className="graphAreaIcons">
+                <MoreVertOutlined
+                  onClick={(e: any) => {
+                    setOpen(true);
+                    setAnchorEl(e.currentTarget);
+                  }}
+                />
+              </div>
+            ) : null}
+          </>
+        )}
+      </div>
 
-			<div
-				id="graphContainer"
-				className="graphContainer"
-				style={{
-					margin: tileState.tiles[propKey]?.graphSizeFull ? "0" : "1rem",
-				}}
-			>
-				{showSqlCode ? <ShowFormattedQuery /> : chartDisplayed()}
-			</div>
-			{/* <ChartThemes /> */}
-			{fullScreen ? (
-				<>			
-					<div
-						tabIndex={0}
-						id="graphFullScreen"
-						className="graphFullScreen"
-						style={{ zIndex: 3 }}
-						onKeyDown={e => {
-							removeFullScreen(e);
-						}}
-					>
-						<div style={{height:"3rem"}}></div>
-						<div style={{ display: "flex" }}>
-							<span
-								className="graphTitle"
-								style={{
-									fontSize:
-										chartProperties.properties[propKey].titleOptions.fontSize,
-								}}
-								onDoubleClick={() => editTitleText()}
-							>
-								{chartProperties.properties[propKey].titleOptions.chartTitle}
-							</span>
+      <div
+        id="graphContainer"
+        className="graphContainer"
+        style={{
+          margin: tileState.tiles[propKey]?.graphSizeFull ? "0" : "1rem",
+        }}
+      >
+        {showSqlCode ? <ShowFormattedQuery /> : chartDisplayed()}
+      </div>
+      {/* <ChartThemes /> */}
+      {fullScreen ? (
+        <>
+          <div
+            tabIndex={0}
+            id="graphFullScreen"
+            className="graphFullScreen"
+            style={{ zIndex: 3 }}
+            onKeyDown={(e) => {
+              removeFullScreen(e);
+            }}
+          >
+            <div style={{ height: "3rem" }}></div>
+            <div style={{ display: "flex" }}>
+              <span
+                className="graphTitle"
+                style={{
+                  fontSize:
+                    chartProperties.properties[propKey].titleOptions.fontSize,
+                }}
+                onDoubleClick={() => editTitleText()}
+              >
+                {chartProperties.properties[propKey].titleOptions.chartTitle}
+              </span>
 
-							<CloseRounded
-								style={{
-									margin: "0.25rem",
-									display: pageSettings.callForDownload ? "none" : "",
-								}}
-								onClick={() => setFullScreen(false)}
-							/>
-						</div>
+              <CloseRounded
+                style={{
+                  margin: "0.25rem",
+                  display: pageSettings.callForDownload ? "none" : "",
+                }}
+                onClick={() => setFullScreen(false)}
+              />
+            </div>
 
-						{chartDisplayed()}
-					</div>
-				</>
-			) : null}
-			<Popover
-				open={open}
-				anchorEl={anchorEl}
-				anchorOrigin={{
-					vertical: "bottom",
-					horizontal: "left",
-				}}
-				onClose={() => setOpen(false)}
-			>
-				<Button
-					sx={{ ...popoverButtonStyle }}
-					value="Full Screen"
-					onClick={() => {
-						setFullScreen(true);
-						setOpen(false);
-					}}
-				>
-					<div className="screenSettingsMenuItems">
-						<OpenInFullIcon sx={{ fontSize: "16px" }} />
-						Show full screen
-					</div>
-				</Button>
-				<Button
-					sx={{ ...popoverButtonStyle }}
-					style={
-						tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(propKey)
-							? {}
-							: { cursor: "not-allowed" }
-					}
-					value="Match Dashboard Size"
-					onClick={() => {
-						if (
-							tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(
-								propKey
-							)
-						)
-							toggleGraphSize(propKey, false);
-						setOpen(false);
-					}}
-				>
-					<div className="screenSettingsMenuItems">
-						<FullscreenExitIcon sx={{ fontSize: "20px" }} />
-						Match Dashboard Size
-						<div
-							style={{
-								visibility: !tileState.tiles[propKey]?.graphSizeFull
-									? "visible"
-									: "hidden",
-								marginLeft: "auto",
-								marginRight: "0px",
-							}}
-						>
-							<DoneIcon sx={{ fontSize: "16px" }} />
-						</div>
-					</div>
-				</Button>
-				<Button
-					sx={{ ...popoverButtonStyle }}
-					value="Fit Tile Size"
-					onClick={() => {
-						toggleGraphSize(propKey, true);
-						setOpen(false);
-					}}
-				>
-					<div className="screenSettingsMenuItems">
-						<FullscreenIcon sx={{ fontSize: "20px" }} />
-						Fit Tile Size
-						<div
-							style={{
-								visibility: tileState.tiles[propKey]?.graphSizeFull
-									? "visible"
-									: "hidden",
-								marginLeft: "auto",
-								marginRight: "0px",
-							}}
-						>
-							<DoneIcon sx={{ fontSize: "16px" }} />
-						</div>
-					</div>
-				</Button>
-				<hr
-					style={{
-						border: "1px solid rgba(224,224,224,1)",
-						margin: "auto 5px",
-						borderRadius: "5px",
-					}}
-				></hr>
-				<Button
-					sx={{ ...popoverButtonStyle }}
-					value="View SQL"
-					onClick={() => {
-						getSqlQuery();
-						setOpen(false);
-					}}
-				>
-					<div className="screenSettingsMenuItems">
-						<img src={sqlIcon} alt="" className="graphAreaViewSqlButtonStyle" />
-						View sql
-					</div>
-				</Button>
-				<Button
-					sx={{ ...popoverButtonStyle }}
-					value="pdf"
-					onClick={() => {
-						setPageSettings("downloadType", "pdf");
-						setPageSettings("fullScreen", true);
-						setOpen(false);
-						setPageSettings("openPageSettingPopover", true);
-					}}
-				>
-					<div className="screenSettingsMenuItems">
-						<PictureAsPdfIcon sx={{ fontSize: "16px" }} />
-						Download PDF
-					</div>
-				</Button>
-				<Button
-					sx={{ ...popoverButtonStyle }}
-					value="image"
-					onClick={() => {
-						setPageSettings("downloadType", "image");
-						setOpen(false);
-						setPageSettings("fullScreen", true);
-						setPageSettings("openPageSettingPopover", true);
-					}}
-				>
-					<div className="screenSettingsMenuItems">
-						<PhotoSizeSelectActualIcon sx={{ fontSize: "16px" }} />
-						Download Image
-					</div>
-				</Button>
-			</Popover>
-			<DownloadPagePopover />
-		</div>
-	);
+            {chartDisplayed()}
+          </div>
+        </>
+      ) : null}
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+        onClose={() => setOpen(false)}
+      >
+        <Button
+          sx={{ ...popoverButtonStyle }}
+          value="Full Screen"
+          onClick={() => {
+            setFullScreen(true);
+            setOpen(false);
+          }}
+        >
+          <div className="screenSettingsMenuItems">
+            <OpenInFullIcon sx={{ fontSize: "16px" }} />
+            Show full screen
+          </div>
+        </Button>
+        <Button
+          sx={{ ...popoverButtonStyle }}
+          style={
+            tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(
+              propKey
+            )
+              ? {}
+              : { cursor: "not-allowed" }
+          }
+          value="Match Dashboard Size"
+          onClick={() => {
+            if (
+              tabState.tabs[
+                tabTileProps.selectedTabId
+              ].tilesInDashboard.includes(propKey)
+            )
+              toggleGraphSize(propKey, false);
+            setOpen(false);
+          }}
+        >
+          <div className="screenSettingsMenuItems">
+            <FullscreenExitIcon sx={{ fontSize: "20px" }} />
+            Match Dashboard Size
+            <div
+              style={{
+                visibility: !tileState.tiles[propKey]?.graphSizeFull
+                  ? "visible"
+                  : "hidden",
+                marginLeft: "auto",
+                marginRight: "0px",
+              }}
+            >
+              <DoneIcon sx={{ fontSize: "16px" }} />
+            </div>
+          </div>
+        </Button>
+        <Button
+          sx={{ ...popoverButtonStyle }}
+          value="Fit Tile Size"
+          onClick={() => {
+            toggleGraphSize(propKey, true);
+            setOpen(false);
+          }}
+        >
+          <div className="screenSettingsMenuItems">
+            <FullscreenIcon sx={{ fontSize: "20px" }} />
+            Fit Tile Size
+            <div
+              style={{
+                visibility: tileState.tiles[propKey]?.graphSizeFull
+                  ? "visible"
+                  : "hidden",
+                marginLeft: "auto",
+                marginRight: "0px",
+              }}
+            >
+              <DoneIcon sx={{ fontSize: "16px" }} />
+            </div>
+          </div>
+        </Button>
+        <hr
+          style={{
+            border: "1px solid rgba(224,224,224,1)",
+            margin: "auto 5px",
+            borderRadius: "5px",
+          }}
+        ></hr>
+        <Button
+          sx={{ ...popoverButtonStyle }}
+          value="View SQL"
+          onClick={() => {
+            getSqlQuery();
+            setOpen(false);
+          }}
+        >
+          <div className="screenSettingsMenuItems">
+            <img src={sqlIcon} alt="" className="graphAreaViewSqlButtonStyle" />
+            View sql
+          </div>
+        </Button>
+        <Button
+          sx={{ ...popoverButtonStyle }}
+          value="pdf"
+          onClick={() => {
+            setPageSettings("downloadType", "pdf");
+            setPageSettings("fullScreen", true);
+            setOpen(false);
+            setPageSettings("openPageSettingPopover", true);
+          }}
+        >
+          <div className="screenSettingsMenuItems">
+            <PictureAsPdfIcon sx={{ fontSize: "16px" }} />
+            Download PDF
+          </div>
+        </Button>
+        <Button
+          sx={{ ...popoverButtonStyle }}
+          value="image"
+          onClick={() => {
+            setPageSettings("downloadType", "image");
+            setOpen(false);
+            setPageSettings("fullScreen", true);
+            setPageSettings("openPageSettingPopover", true);
+          }}
+        >
+          <div className="screenSettingsMenuItems">
+            <PhotoSizeSelectActualIcon sx={{ fontSize: "16px" }} />
+            Download Image
+          </div>
+        </Button>
+      </Popover>
+      <DownloadPagePopover />
+    </div>
+  );
 };
 
 const mapStateToProps = (state: any) => {
-	return {
-		tileState: state.tileState,
-		tabState: state.tabState,
-		tabTileProps: state.tabTileProps,
-		chartControlState: state.chartControls,
-		chartProperties: state.chartProperties,
-		chartGroup: state.chartFilterGroup,
-		token: state.isLogged.accessToken,
-		pageSettings: state.pageSettings,
-		dynamicMeasureState: state.dynamicMeasuresState,
-		dashBoardGroup: state.dashBoardFilterGroup,
-	};
+  return {
+    tileState: state.tileState,
+    tabState: state.tabState,
+    tabTileProps: state.tabTileProps,
+    chartControlState: state.chartControls,
+    chartProperties: state.chartProperties,
+    chartGroup: state.chartFilterGroup,
+    token: state.isLogged.accessToken,
+    pageSettings: state.pageSettings,
+    dynamicMeasureState: state.dynamicMeasuresState,
+    dashBoardGroup: state.dashBoardFilterGroup,
+  };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-	return {
-		setChartTitle: (propKey: string, title: string) => dispatch(setChartTitle(propKey, title)),
-		renameDynamicMeasure: (name: string) => dispatch(renameDynamicMeasure(name)),
-		setGenerateTitleToStore: (propKey: string, option: any) =>
-			dispatch(setGenerateTitle(propKey, option)),
-		toggleGraphSize: (tileKey: string, graphSize: boolean | any) =>
-			dispatch(toggleGraphSize(tileKey, graphSize)),
-		updateQueryResult: (propKey: string, query: string | any) =>
-			dispatch(updateQueryResult(propKey, query)),
-		updateMargin: (propKey: string, option: string, value: any) =>
-			dispatch(updateChartMargins(propKey, option, value)),
-		setPageSettings: (option: string, value: any) => dispatch(setPageSettings(option, value)),
-		resetPageSettings: () => dispatch(resetPageSettings()),
-	};
+  return {
+    setChartTitle: (propKey: string, title: string) =>
+      dispatch(setChartTitle(propKey, title)),
+    renameDynamicMeasure: (name: string) =>
+      dispatch(renameDynamicMeasure(name)),
+    setGenerateTitleToStore: (propKey: string, option: any) =>
+      dispatch(setGenerateTitle(propKey, option)),
+    toggleGraphSize: (tileKey: string, graphSize: boolean | any) =>
+      dispatch(toggleGraphSize(tileKey, graphSize)),
+    updateQueryResult: (propKey: string, query: string | any) =>
+      dispatch(updateQueryResult(propKey, query)),
+    updateMargin: (propKey: string, option: string, value: any) =>
+      dispatch(updateChartMargins(propKey, option, value)),
+    setPageSettings: (option: string, value: any) =>
+      dispatch(setPageSettings(option, value)),
+    resetPageSettings: () => dispatch(resetPageSettings()),
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(GraphArea);
