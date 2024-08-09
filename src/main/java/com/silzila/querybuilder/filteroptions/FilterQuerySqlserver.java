@@ -22,15 +22,22 @@ public class FilterQuerySqlserver {
          */
         String query = "";
         String fromClause = "";
-        System.out.println("##############33 "+table.isCustomQuery());
-        if(!table.isCustomQuery()){
-            fromClause = " FROM " + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + " AS "+table.getId()+ " ";
-        }else {
-            fromClause = " FROM (" + table.getCustomQuery() + ") AS "+table.getId() +" ";
-        }
-        if (List.of("TEXT", "BOOLEAN").contains(req.getDataType().name())) {
-            query = "SELECT DISTINCT " +  req.getTableId()+"."+ req.getFieldName() + fromClause + "ORDER BY 1";
-        }
+        //if table is null getting information from column filter request directly
+        if(table==null) {
+           fromClause = " FROM " + req.getDBName()+ "." + req.getSchemaName() + "." + req.getTableName()+ " AS " + req.getTableId() + " ";
+       }
+       else {
+           if (!table.isCustomQuery()) {
+               fromClause = " FROM " + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + " AS " + table.getId() + " ";
+           } else {
+               fromClause = " FROM (" + table.getCustomQuery() + ") AS " + table.getId() + " ";
+           }
+       }
+
+       if (List.of("TEXT", "BOOLEAN").contains(req.getDataType().name())) {
+               query = "SELECT DISTINCT " + req.getTableId() + "." + req.getFieldName() + fromClause + "ORDER BY 1";
+           }
+
 
         /*
          * ************************************************

@@ -34,11 +34,11 @@ Data Setup Page
 }
 
 .dataConnectionContainer {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	background-color: #fff;
-	padding: 1rem 10rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #fff;
+  padding: 1rem 10rem;
 }
 
 .dataSetContainer {
@@ -127,9 +127,9 @@ Data Setup Page
 }
 
 .containerButton:hover {
-	background-color: #2bb9bb;
-	border: 1px solid #2bb9bb;
-	color: white; 
+  background-color: #2bb9bb;
+  border: 1px solid #2bb9bb;
+  color: white;
 }
 
 /* 
@@ -137,122 +137,116 @@ Data Setup Page
 Data Connections
 =================================================== 
 */
-.addScrollBar{
-	display: flex;
-	flex-direction: column;	
-	overflow-y: auto;
-	overflow-x: auto;
-	max-height: calc(100vh - 50px);
-}
+
 .dbFormContainer {
-  padding: 10px;
-  width: 400px;
+	padding: 10px;
+	width: 400px
 }
 
 .dbForm {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  row-gap: 10px;
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	row-gap: 10px;
 }
 
 .dbFormTitle {
-  display: grid;
-  grid-template-columns: 95% 5%;
-  text-align: center;
-  width: 100%;
-  color: #5d5c5c;
+	display: grid;
+	grid-template-columns: 95% 5%;
+	text-align: center;
+	width: 100%;
+	color: #5d5c5c;
 }
 
-.listItems {
-  display: flex;
-  align-items: center;
-  text-align: left;
-  column-gap: 34px;
-  padding: 6px 6px 6px 8px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  width: 200px;
-  height: 45px;
-  white-space: nowrap;
-  background-color: black;
+.listItems{
+	display: flex;
+	align-items: center;
+	text-align: left;
+	column-gap: 34px;
+  padding-left: 8px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	margin-bottom: 10px;
+	cursor: pointer;
+	width: 200px;
+	height: 45px;
+	white-space: nowrap;
 }
 
-.listItem {
-  display: flex;
-  align-items: center;
-  text-align: left;
-  column-gap: 34px;
-  padding: 6px 6px 6px 8px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  width: 200px;
-  height: 45px;
-  white-space: nowrap;
+.listItem{
+	display: flex;
+	align-items: center;
+	text-align: left;
+	column-gap: 34px;
+  padding-left: 8px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	margin-bottom: 10px;
+	cursor: pointer;
+	width: 200px;
+	height: 45px;
+	white-space: nowrap;
 }
 
-.listItem:hover {
-  border: 1px solid rgba(224, 224, 224, 1);
-  border-radius: 4px;
-  width: 200px;
-  height: 45px;
+.listItem:hover{
+	border: 1px solid rgba(224, 224, 224, 1);
+	border-radius: 4px; 
+	width: 200px; 
+	height: 45px;
 }
 
-.active {
-  display: flex;
-  align-items: center;
-  text-align: left;
-  column-gap: 34px;
-  padding: 6px 6px 6px 6px;
-  /* cursor: pointer; */
-  margin-bottom: 10px;
-  border: 1px solid #2bb9bb;
-  border-radius: 4px;
-  height: 45px;
-  width: 200px;
-  white-space: nowrap;
-  padding: 6px 6px 6px 8px;
+.active{
+	display: flex;
+	align-items: center;
+	text-align: left;
+	column-gap: 34px;
+  padding-left: 8px;
+	cursor: pointer;
+	margin-bottom: 10px;
+	border: 1px solid #2bb9bb;
+	border-radius: 4px;
+	height: 45px;
+	width: 200px;
+	white-space: nowrap;
 }
 
 .dbConnectionErrorText {
-  color: red;
+	color: red;
 }
 
 .dbDeleteDialog {
-  display: flex;
-  flex-direction: column;
-  padding: 5px;
-  width: 350px;
-  height: auto;
-  justify-content: center;
+	display: flex;
+	flex-direction: column;
+	padding: 5px;
+	width: 350px;
+	height: auto;
+	justify-content: center;
 }
 
 .dbDeleteDialogMsg {
-  font-weight: bold;
-  text-align: center;
-  margin-top: 20px;
+	font-weight: bold;
+	text-align: center;
+	margin-top: 20px;
+	color: #5d5c5c;
 }
 
 .dbDeleteDialogBtnContainer {
-  display: flex;
-  padding: 15px;
-  justify-content: space-around;
+	display: flex;
+	padding: 15px;
+	justify-content: space-around;
 }
 
 .dbDeleteDialogBtn1 {
-  background-color: grey;
-  float: right;
-  text-transform: none;
+	background-color: white;
+	float: right;
+	text-transform: none;
+	color: #5d5c5c;
 }
 
 .dbDeleteDialogBtn2 {
-  display: flex;
-  background-color: red;
-  text-transform: none;
+	display: flex;
+	background-color: red;
+	text-transform: none;
 }
 
 .dataConnectionList {
@@ -299,12 +293,12 @@ Data Connections
 }
 
 .dataConnectionName {
-	  flex: 1 1;
-    text-align: left;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    display: block;
+  flex: 1 1;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
 }
 
 .inputFieldStyle {
@@ -337,7 +331,7 @@ Datasets
   padding: 1rem;
   border-top: 2px solid rgba(224, 224, 224, 1);
   overflow: scroll;
-  /* overflow-y: auto; */
+  overflow-y: auto;
   /* overflow-x: hidden; */
 }
 
@@ -397,12 +391,14 @@ Datasets
 }
 
 .vendorIconStyle {
-	height: 30px;
-	width: 30px;
+  height: 28px;
+  width: 28px;
 }
-.separateVendorIcon{
-	height: 35px;
-	width: 35px;
+.separateVendorIcon {
+  height: 33px;
+  width: 33px;
+	margin-right: -2px;
+	margin-left: -4px;
 }
 
 /* 
@@ -558,6 +554,7 @@ DataHome
 .optionlist {
   position: absolute;
   display: flex;
+  flex-direction: column; /* Ensures items stack vertically */
   text-transform: none;
   cursor: pointer;
   color: black;
@@ -565,9 +562,11 @@ DataHome
   justify-content: start;
   background-color: white;
   outline: none;
-  padding: 10px 0 10px 0;
+  padding: 10px 0;
   box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.3);
   z-index: 999;
+  max-height: 80vh; /* Set a maximum height (e.g., 80% of the viewport height) */
+  overflow-y: auto; /* Allow vertical scrolling within the menu if needed */
 }
 
 .optionlist ul li {

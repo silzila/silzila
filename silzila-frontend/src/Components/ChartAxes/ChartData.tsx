@@ -7,11 +7,13 @@ import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import ChartsInfo from "./ChartsInfo2";
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
+//import {FindFieldName} from "../CommonFunctions/CommonFunctions";
 import { Dispatch } from "redux";
 import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
 
 import { storeServerData } from "../../redux/ChartPoperties/ChartControlsActions";
 import {
+  editChartPropItem,
   canReUseData,
   toggleAxesEdited,
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
@@ -229,6 +231,11 @@ export const getChartData = async (
       if (item.fieldtypeoption === "Search Condition") {
         if (item.exprType) {
           _filter.operator = item.exprType;
+          ///For Not Equal To operator
+          if (item.exprType === "notEqualTo") {
+            _filter.operator = "equalTo";
+            _filter.shouldExclude = !_filter.shouldExclude;
+          }
         } else {
           _filter.operator =
             item.dataType === "text" ? "begins_with" : "greater_than";
@@ -350,7 +357,11 @@ export const getChartData = async (
             switch (field.windowfn.windowFnOptions) {
               case "standing": //If standing gets selected in windowFunction, then below data will be send to API
                 //sending windowFn for all charts except richtext
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -364,9 +375,13 @@ export const getChartData = async (
                   }
                 } else {
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -380,7 +395,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnMatrix for two dimensional charts
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -394,7 +413,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnPartition for two dimensional charts
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length > 0 &&
                     _chartAxes[2].fields.length === 0
@@ -431,9 +454,13 @@ export const getChartData = async (
                 } else {
                   //sending windowFnPartition for one dimensional charts
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -447,7 +474,11 @@ export const getChartData = async (
                 break;
               case "sliding": //If sliding gets selected in windowFunction then, below data will be send to API
                 //sending windowFn for all charts except richtext
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -460,9 +491,13 @@ export const getChartData = async (
                   }
                 } else {
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -475,7 +510,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnOption for all charts except richtext
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -489,9 +528,13 @@ export const getChartData = async (
                   }
                 } else {
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -505,7 +548,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnMatrix for two dimensional charts
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -519,7 +566,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnPartition for two dimensional charts
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length > 0 &&
                     _chartAxes[2].fields.length === 0
@@ -561,9 +612,13 @@ export const getChartData = async (
                 } else {
                   //sending windowFnPartition for one dimensional charts
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -577,7 +632,11 @@ export const getChartData = async (
                 break;
               case "standingsvssliding": //If standingsvssliding gets selected in windowFunction, then below data will be send to API
                 //sending windowFn for all charts except richtext
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -596,9 +655,13 @@ export const getChartData = async (
                   }
                 } else {
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -622,7 +685,11 @@ export const getChartData = async (
                 if (
                   ["PNC"].includes(field.windowfn.standingSlidingReferenceWn)
                 ) {
-                  if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                  if (
+                    ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                      chartType
+                    )
+                  ) {
                     if (
                       _chartAxes[1].fields.length === 0 &&
                       _chartAxes[2].fields.length === 0
@@ -636,9 +703,13 @@ export const getChartData = async (
                     }
                   } else {
                     if (
-                      !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                        chartType
-                      )
+                      ![
+                        "heatmap",
+                        "crossTab",
+                        "boxPlot",
+                        "bubbleMap",
+                        "richtext",
+                      ].includes(chartType)
                     ) {
                       if (_chartAxes[1].fields.length === 0) {
                       } else {
@@ -653,7 +724,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnMatrix for two dimensional charts
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length === 0 &&
                     _chartAxes[2].fields.length === 0
@@ -667,7 +742,11 @@ export const getChartData = async (
                 }
 
                 //sending windowFnPartition for two dimensional charts
-                if (["heatmap", "crossTab", "boxPlot"].includes(chartType)) {
+                if (
+                  ["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(
+                    chartType
+                  )
+                ) {
                   if (
                     _chartAxes[1].fields.length > 0 &&
                     _chartAxes[2].fields.length === 0
@@ -709,9 +788,13 @@ export const getChartData = async (
                 } else {
                   //sending windowFnPartition for one dimensional charts
                   if (
-                    !["heatmap", "crossTab", "boxPlot", "richtext"].includes(
-                      chartType
-                    )
+                    ![
+                      "heatmap",
+                      "crossTab",
+                      "boxPlot",
+                      "bubbleMap",
+                      "richtext",
+                    ].includes(chartType)
                   ) {
                     if (_chartAxes[1].fields.length === 0) {
                     } else {
@@ -838,6 +921,7 @@ export const getChartData = async (
     let hasNoMeasureOverrideFields = JSON.parse(
       JSON.stringify(hasNoMeasureOverride)
     );
+
     let tempAxesValues = JSON.parse(JSON.stringify(axesValues));
 
     tempAxesValues.find((axis: any) => axis.name === "Measure").fields = [];
@@ -851,7 +935,17 @@ export const getChartData = async (
       let tempOverrideAxes = JSON.parse(
         JSON.stringify(tempMeasureField.override)
       );
+
       delete tempMeasureField.override;
+
+      if (chartProp.chartType === "scatterPlot") {
+        tempOverrideAxes[2].name = "Measure";
+        tempOverrideAxes[2].fields = [
+          ...tempOverrideAxes[2].fields,
+          ...tempOverrideAxes[3].fields,
+        ];
+        delete tempOverrideAxes[3];
+      }
 
       tempOverrideAxes.find((axis: any) => axis.name === "Measure").fields = [];
       tempOverrideAxes
@@ -974,6 +1068,7 @@ const ChartData = ({
   updateChartDataForDm,
   updatecfObjectOptions,
   deleteTablecf,
+  updateQueryParam,
 }: ChartAxesProps & TileRibbonStateProps) => {
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -1131,22 +1226,8 @@ const ChartData = ({
             (zones: any) => zones.name !== "Filter"
           );
           //let _zonesFields:any = [];
-          let _fieldTempObject: any = {};
-          let _chartFieldTempObject: any = {};
-
-          // _zones.forEach((zone:any)=>{
-          // 	_zonesFields = [..._zonesFields, ...zone.fields]
-          // });
-
-          /*	Find and return field's new name	*/
-          const findFieldName = (name: string, i: number = 2): string => {
-            if (_fieldTempObject[`${name}(${i})`] !== undefined) {
-              i++;
-              return findFieldName(name, i);
-            } else {
-              return `${name}(${i})`;
-            }
-          };
+         // let _fieldTempObject: any = {};
+          let _chartFieldTempObject: any = {};          
 
           /*	Find and return field's new name	*/
           const findFieldIndexName = (name: string, i: number = 2): string => {
@@ -1159,62 +1240,28 @@ const ChartData = ({
           };
 
           _zones.forEach((zoneItem: any) => {
-            zoneItem.fields.forEach((field: any, index: number) => {
-              let _nameWithAgg: string = "";
+            zoneItem.fields.forEach((field: any) => {
+              let _nameWithAgg: string = "";             
 
-              if (zoneItem.name === "Measure") {
-                if (
-                  field.dataType !== "date" &&
-                  field.dataType !== "timestamp"
-                ) {
-                  _nameWithAgg = field.agg
-                    ? `${field.agg} of ${field.fieldname}`
-                    : field.fieldname;
-                } else {
-                  let _timeGrain: string = field.timeGrain || "";
-                  _nameWithAgg = field.agg
-                    ? `${field.agg} ${_timeGrain} of ${field.fieldname}`
-                    : field.fieldname;
-                }
-              } else {
-                if (
-                  field.dataType !== "date" &&
-                  field.dataType !== "timestamp"
-                ) {
-                  _nameWithAgg = field.agg
-                    ? `${field.agg} of ${field.fieldname}`
-                    : field.fieldname;
-                } else {
-                  let _timeGrain: string = field.timeGrain || "";
-
-                  _nameWithAgg = _timeGrain
-                    ? `${_timeGrain} of ${field.fieldname}`
-                    : field.fieldname;
-                }
-              }
-
-              if (field.isTextRenamed === true) {
-                _nameWithAgg = field.displayname;
-              }
-
+              _nameWithAgg = field.displayname;
+             
               if (_chartFieldTempObject[field.fieldname] !== undefined) {
                 let _name = findFieldIndexName(field.fieldname);
 
                 field["NameWithIndex"] = _name;
                 _chartFieldTempObject[_name] = "";
+                Logger("info", "NameWithIndex", field);
               } else {
                 field["NameWithIndex"] = field.fieldname;
                 _chartFieldTempObject[field.fieldname] = "";
+                Logger("info", "NameWithIndex", field);
               }
 
-              if (_fieldTempObject[_nameWithAgg] !== undefined) {
-                let _name = findFieldName(_nameWithAgg);
-                field["NameWithAgg"] = _name;
-                _fieldTempObject[_name] = "";
-              } else {
+             // if (_fieldTempObject[_nameWithAgg] === undefined) {               
                 field["NameWithAgg"] = _nameWithAgg;
-                _fieldTempObject[_nameWithAgg] = "";
-              }
+                //_fieldTempObject[_nameWithAgg] = "";
+                Logger("info", "NameWithAgg", field);
+              //}
             });
           });
 
@@ -1227,6 +1274,7 @@ const ChartData = ({
               });
             });
 
+            Logger("info", "_chartDataObj", _chartDataObj);            
             result.push(_chartDataObj);
           });
         }
@@ -1275,7 +1323,8 @@ const ChartData = ({
       if (
         chartProp.chartType === "heatmap" ||
         chartProp.chartType === "crossTab" ||
-        chartProp.chartType === "boxPlot"
+        chartProp.chartType === "boxPlot" ||
+        chartProp.chartType === "bubbleMap"
       ) {
         var combinedValuesForDimension = { name: "Dimension", fields: [] };
         var values1 = axesValues1[1].fields;
@@ -1461,6 +1510,10 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
       dispatch(updatecfObjectOptions(propKey, removeIndex, item)),
     deleteTablecf: (propKey: string, index: number) =>
       dispatch(deleteTablecf(propKey, index)),
+    updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any,  currentChartAxesName : string) =>
+			dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item, currentChartAxesName })),
+
+
   };
 };
 
