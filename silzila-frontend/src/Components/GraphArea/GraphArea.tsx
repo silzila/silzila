@@ -377,7 +377,6 @@ const GraphArea = ({
             graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
           />
         );
-
       case "filledMap":
         return (
           <FilledMap
@@ -395,7 +394,6 @@ const GraphArea = ({
             graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
           />
         );
-
       case "stackedArea":
         return (
           <StackedAreaChart
@@ -543,11 +541,11 @@ const GraphArea = ({
           var tempTitle = "";
           fields.forEach((element: any, index: number) => {
             if (index === 0) {
-              let titlePart = element.fieldname;
+              let titlePart = element?.fieldname;
               tempTitle = tempTitle + titlePart;
             }
             if (index > 0) {
-              let titlePart: any = `, ${element.fieldname}`;
+              let titlePart: any = `, ${element?.fieldname}`;
               tempTitle = tempTitle + titlePart;
             }
           });

@@ -279,7 +279,7 @@ const UserFilterCard = ({
   const fetchFieldData = (type: string) => {
     let bodyData: any = {
       tableId: tableId,
-      fieldName: displayname,
+      fieldName: fieldname,
       dataType: dataType,
       filterOption: "allValues",
     };
@@ -306,7 +306,7 @@ const UserFilterCard = ({
       filterTable: {
         tableId: tableId,
         displayName: displayname,
-        fieldName: displayname,
+        fieldName: fieldname,
         dataType: dataType,
         timeGrain: "date",
       },
@@ -417,7 +417,7 @@ const UserFilterCard = ({
     item: {
       uId: uId,
       fieldname: fieldname,
-      displayname: fieldname,
+      displayname: displayname,
       dataType: dataType,
       tableId: tableId,
       // type: "card",

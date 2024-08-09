@@ -12,9 +12,11 @@ import {
 import { useDrop } from "react-dnd";
 import { connect } from "react-redux";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
+import { FindFieldName } from "../CommonFunctions/CommonFunctions";
 import Card from "./Card";
 import ChartsInfo from "./ChartsInfo2";
 import { setPrefix } from "./SetPrefix";
+import { setDisplayName } from "./setDisplayName";
 import UserFilterCard from "../ChartFieldFilter/UserFilterCard";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
@@ -207,10 +209,65 @@ const DropZone = ({
 
   var chartType = chartProp.properties[propKey].chartType;
 
+  const findNewDisplayName = (
+    binIndex: number,
+    paramField: any,
+    allowedNumbers: number
+  ): any => {
+    let _measureZone: any = chartProp.properties[propKey].chartAxes.find(
+      (zones: any) => zones.name === "Measure"
+    );
+
+    let _fieldTempObject: any = {};
+
+    /*	Find and return field's new name	*/
+    const findFieldName = (name: string, i: number = 0): string => {
+      if (
+        (i === 0 && _fieldTempObject[name] !== undefined) ||
+        _fieldTempObject[`${name}(${i})`] !== undefined
+      ) {
+        i = i === 0 ? 1 : i;
+
+        i++;
+        return findFieldName(name, i);
+      } else {
+        if (i === 0) {
+          return name;
+        } else {
+          return `${name}(${i})`;
+        }
+      }
+    };
+
+    if (allowedNumbers === _measureZone?.fields.length) {
+      return paramField.displayname;
+    }
+
+    _measureZone?.fields.forEach((field: any, index: number) => {
+      let _nameWithAgg: string = "";
+      let _tempField = JSON.parse(JSON.stringify(field));
+
+      _nameWithAgg = _tempField.displayname;
+
+      if (_fieldTempObject[_nameWithAgg] !== undefined) {
+        let _name = findFieldName(_nameWithAgg);
+        _tempField["NameWithAgg"] = _name;
+        _fieldTempObject[_name] = "";
+      } else {
+        _tempField["NameWithAgg"] = _nameWithAgg;
+        _fieldTempObject[_nameWithAgg] = "";
+      }
+    });
+
+    let newName = findFieldName(paramField.displayname);
+
+    return newName || paramField.displayname;
+  };
+
   // DropZoneDropItem
   const handleDrop = (item: any, bIndex: number) => {
     var allowedNumbers = ChartsInfo[chartType].dropZones[bIndex].allowedNumbers;
-    let newFieldData = {};
+    //let newFieldData = {};
 
     // when column dragged from table
     if (item.bIndex === 99) {
@@ -231,6 +288,10 @@ const DropZone = ({
             let newFieldData = JSON.parse(
               JSON.stringify(setPrefix(fieldData, name, chartType))
             );
+
+            newFieldData = setDisplayName(newFieldData, name, chartType);
+            //newFieldData.displayname = findNewDisplayName(); //TODO:
+
             updateDropZoneItems(
               propKey,
               bIndex,
@@ -260,6 +321,14 @@ const DropZone = ({
           let newFieldData = JSON.parse(
             JSON.stringify(setPrefix(fieldData, name, chartType))
           );
+
+          newFieldData = setDisplayName(newFieldData, name, chartType);
+          newFieldData.displayname = findNewDisplayName(
+            bIndex,
+            newFieldData,
+            allowedNumbers
+          );
+
           if (chartType === "richText") {
             updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
           } else {
@@ -278,6 +347,14 @@ const DropZone = ({
         let newFieldData = JSON.parse(
           JSON.stringify(setPrefix(fieldData, name, chartType))
         );
+
+        newFieldData = setDisplayName(newFieldData, name, chartType);
+        newFieldData.displayname = findNewDisplayName(
+          bIndex,
+          newFieldData,
+          allowedNumbers
+        );
+
         if (chartType === "richText") {
           updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
         } else {
@@ -299,6 +376,10 @@ const DropZone = ({
             let newFieldData = JSON.parse(
               JSON.stringify(setPrefix(item, name, chartType))
             );
+
+            newFieldData = setDisplayName(newFieldData, name, chartType);
+            //newFieldData.displayname = findNewDisplayName(bIndex, newFieldData, allowedNumbers);
+
             ["type", "bIndex"].forEach((e) => delete newFieldData[e]);
             moveItemChartProp(
               propKey,
@@ -325,6 +406,10 @@ const DropZone = ({
           let newFieldData = JSON.parse(
             JSON.stringify(setPrefix(item, name, chartType))
           );
+
+          newFieldData = setDisplayName(newFieldData, name, chartType);
+          //newFieldData.displayname = findNewDisplayName(bIndex, newFieldData).displayname;
+
           ["type", "bIndex"].forEach((e) => delete newFieldData[e]);
           if (chartType === "richText") {
             moveItemChartPropForDm(
@@ -354,7 +439,11 @@ const DropZone = ({
         let newFieldData = JSON.parse(
           JSON.stringify(setPrefix(item, name, chartType))
         );
+        newFieldData = setDisplayName(newFieldData, name, chartType);
+        // newFieldData.displayname = findNewDisplayName(bIndex, newFieldData).displayname;
+
         ["type", "bIndex"].forEach((e) => delete newFieldData[e]);
+
         if (chartType === "richText") {
           moveItemChartPropForDm(
             `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`,

@@ -13,6 +13,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
         "tableId",
+        "tableName",
+        "schemaName",
+        "dbName",
         "fieldName",
         "dataType",
         "filterOption",
@@ -23,6 +26,14 @@ public class ColumnFilter implements Serializable {
 
     @JsonProperty("tableId")
     private String tableId;
+    @JsonProperty("tableName")
+    private String tableName=null;
+    @JsonProperty("schemaName")
+    private String schemaName=null;
+    @JsonProperty("dbName")
+    private String dbName=null;
+    @JsonProperty("flatFileId")
+    private String flatFileId=null;
     @JsonProperty("fieldName")
     private String fieldName;
     @JsonProperty("dataType")
@@ -47,11 +58,19 @@ public class ColumnFilter implements Serializable {
      * @param fieldName
      * @param dataType
      * @param tableId
+     * @param tableName
+     * @param schemaName
+     * @param dbName
      */
-    public ColumnFilter(String tableId, String fieldName, ColumnFilter.DataType dataType,
+    public ColumnFilter(String tableId,String tableName,String schemaName,String dbName,
+                        String fieldName,String flatFileId, ColumnFilter.DataType dataType,
             ColumnFilter.FilterOption filterOption, ColumnFilter.TimeGrain timeGrain) {
         super();
         this.tableId = tableId;
+        this.tableName = tableName;
+        this.schemaName = schemaName;
+        this.dbName = dbName;
+        this.flatFileId = flatFileId;
         this.fieldName = fieldName;
         this.dataType = dataType;
         this.filterOption = filterOption;
@@ -67,7 +86,38 @@ public class ColumnFilter implements Serializable {
     public void setTableId(String tableId) {
         this.tableId = tableId;
     }
-
+    @JsonProperty("tableName")
+    public String getTableName() {
+        return tableName;
+    }
+    @JsonProperty("tableName")
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+    @JsonProperty("schemaName")
+    public String getSchemaName() {
+        return schemaName;
+    }
+    @JsonProperty("schemaName")
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
+    }
+    @JsonProperty("dbName")
+    public String getDBName() {
+        return dbName;
+    }
+    @JsonProperty("dbName")
+    public void setDBName(String dbName) {
+        this.dbName = dbName;
+    }
+    @JsonProperty("flatFileId")
+    public String getFlatFileId() {
+        return flatFileId;
+    }
+    @JsonProperty("flatFileId")
+    public void setFlatFileId(String flatFileId) {
+        this.flatFileId = flatFileId;
+    }
     @JsonProperty("fieldName")
     public String getFieldName() {
         return fieldName;
@@ -116,6 +166,22 @@ public class ColumnFilter implements Serializable {
         sb.append("tableId");
         sb.append('=');
         sb.append(((this.tableId == null) ? "<null>" : this.tableId));
+        sb.append(',');
+        sb.append("tableName");
+        sb.append('=');
+        sb.append(((this.tableName == null) ? "<null>" : this.tableName));
+        sb.append(',');
+        sb.append("schemaName");
+        sb.append('=');
+        sb.append(((this.schemaName == null) ? "<null>" : this.schemaName));
+        sb.append(',');
+        sb.append("dbName");
+        sb.append('=');
+        sb.append(((this.dbName == null) ? "<null>" : this.dbName));
+        sb.append(',');
+        sb.append("flatFileId");
+        sb.append('=');
+        sb.append(((this.flatFileId == null) ? "<null>" : this.flatFileId));
         sb.append(',');
         sb.append("fieldName");
         sb.append('=');

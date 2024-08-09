@@ -59,7 +59,8 @@
     "styled-components": "^6.1.11",
     "typescript": "^5.5.3",
     "web-vitals": "^3.5.2",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",
