@@ -5,6 +5,7 @@ export interface UserFilterDatasetProps {
   tableName: any;
   displayName: any;
   dataType: string;
+  field: any;
   uid: any;
   dbConnectionId: any;
   dataSetFilterArray: dataSetFilterArrayProps[];
@@ -21,8 +22,14 @@ export interface UserFilterDatasetProps {
 }
 
 export interface dataSetFilterArrayProps {
+  exprType: string;
+  fieldName: string;
+  fieldtypeoption: string;
+  includeexclude: string;
+  isCollapsed: true;
   tableId: string;
   displayName: string;
   dataType: string;
   uid: any;
+  filterOptions: string;
 }

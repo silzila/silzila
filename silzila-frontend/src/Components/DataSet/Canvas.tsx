@@ -18,10 +18,11 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import CloseIcon from "@mui/icons-material/Close";
 import ShortUniqueId from "short-unique-id";
-import UserFilterDataset from "./UserFilterDataset";
+// import UserFilterDataset from "./UserFilterDataset";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { dataSetFilterArrayProps } from "./UserFilterDatasetInterfaces";
-
+import UserFilterCardNew from "./UserFilterDatasetNew";
+import UserFilterDataset from "./UserFilterDataset";
 const Canvas = ({
   // state
   tempTable,
@@ -39,6 +40,7 @@ const Canvas = ({
   const [tableId, setTableId] = useState<string>("");
   const [dataType, setDataType] = useState<string>("");
   const [tableName, setTableName] = useState<string>("");
+  const [field, setfield] = useState<any>({});
   const [dataSetFilterArray, setDataSetFilterArray] = useState<
     dataSetFilterArrayProps[]
   >([]);
@@ -71,17 +73,22 @@ const Canvas = ({
     const field = {
       tableId: refs.startId,
       fieldName: refs.startColumnName,
+      exprType: "greaterThan",
       dataType: refs.dataType,
+      fieldtypeoption: "Pick List",
+      includeexclude: "Include",
       displayName: refs.startColumnName,
       uid: uid(),
       tableName: refs.startTableName,
+      schema: refs.schema,
     };
+    setfield(field);
     setTableName(field.tableName);
     setDisplayName(field.displayName);
     setUid(field.uid);
     setTableId(field.tableId);
     setDataType(field.dataType);
-    setDataSetFilterArray((prev) => [...prev, field]);
+    setDataSetFilterArray((prev: any) => [...prev, field]);
   };
   //   // TODO need to specify type
   const RenderArrows: any = () => {
@@ -158,19 +165,21 @@ const Canvas = ({
                   />
                 </div>
               </div>
-              {dataSetFilterArray.length > 0 && (
-                <UserFilterDataset
-                  editMode={editMode}
-                  dataType={dataType}
-                  tableName={tableName}
-                  tableId={tableId}
-                  uid={uid}
-                  displayName={disPlayName}
-                  dbConnectionId={tempTable[0].dcId}
-                  dataSetFilterArray={dataSetFilterArray}
-                  setDataSetFilterArray={setDataSetFilterArray}
-                />
-              )}
+              {dataSetFilterArray.length > 0 &&
+                dataSetFilterArray.map((item) => (
+                  <UserFilterDataset
+                    editMode={editMode}
+                    tableId={item.tableId}
+                    dataType={dataType}
+                    tableName={tableName}
+                    dataSetFilterArray={dataSetFilterArray}
+                    setDataSetFilterArray={setDataSetFilterArray}
+                    displayName={item.displayName}
+                    field={item}
+                    uid={uid}
+                    dbConnectionId={tempTable[0].dcId}
+                  />
+                ))}
             </div>
           </div>
         ) : null}
@@ -199,6 +208,7 @@ const mapStateToProps = (
     tempTable: state.dataSetState.tempTable,
     arrows: state.dataSetState.arrows,
     dsId: state.dataSetState.dsId,
+    token: state.isLogged.accessToken,
   };
 };
 
