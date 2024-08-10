@@ -3,10 +3,12 @@
 	min-width: 300px;
 	height: auto;
 	z-index: 100;
-	background-color: rgb(235, 245, 240);
+	/* background-color: rgb(235, 245, 240); */
+	background-color: #fdfdfd;
 	position: absolute;
-	color: black;
-	box-shadow: 5px 5px #adacac;
+	/* color: black; */
+	/* box-shadow: 5px 5px #adacac; */
+	box-shadow: 5px 5px #e5e5e5;
 	overflow-y: auto;
 	border: #949393 0.2px solid;
 }
@@ -18,14 +20,16 @@
 
 .ShowDataPopup span {
 	padding: 3px 5px 2px 2px;
-	font-size: 11px;
+	font-size: 12px;
 }
 
 .ShowDataPopupKey {
-	font-weight: bold;
+	/* font-weight: bold; */
 	width: 45%;
 	text-align: right;
 	word-wrap: break-word;
+	color:#616164;
+	
 }
 
 .ShowDataPopupValue {
@@ -33,6 +37,7 @@
 	word-wrap: normal;
 	text-overflow: ellipsis;
 	text-align: left;
+	color: black;
 }
 
 .CrossTab {

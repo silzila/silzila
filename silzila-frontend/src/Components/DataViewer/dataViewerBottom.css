@@ -1,5 +1,5 @@
 .dataViewerBottom {
-	height: 9rem;
+	height: 10rem;
 	width: 100%;
 	display: flex;
 	overflow: hidden;
@@ -26,6 +26,7 @@
 .dataSetSelect {
 	width: 92%;
 	padding: 8px 0 6px 10px;
+	margin-top: 6px;
 	/* background-color: rgb(211, 211, 211); */
 }
 

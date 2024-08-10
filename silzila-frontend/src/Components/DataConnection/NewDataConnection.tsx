@@ -1276,6 +1276,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 					const {id, value, name, img} = data;
 					const vendorIconClass = (data.value === 'databricks'||  data.value === 'redshift' || data.value === 'teradata') ? 'separateVendorIcon' : 'vendorIconStyle';
 					return(
+						
 						<div 
 						onClick={() =>dataConnectionOnclick(value)}
 						onFocus={() => setAccount({ ...account, vendorError: "" })}
@@ -1673,7 +1674,9 @@ const NewDataConnection = (props: DataConnectionProps) => {
                     <small className="dbConnectionErrorText">
                         {account.connectionNameError}
                     </small>
+					
                 </div>
+				
             </div>
 
          <div className="dbButton">
@@ -1759,7 +1762,9 @@ const NewDataConnection = (props: DataConnectionProps) => {
                 severity={severity}
                 testMessage={testMessage}
                 openAlert={openAlert}
+
                 />
+
 
            <Dialog open={changedb} sx={{marginLeft:'16rem'}}>
 				<div className="dbDeleteDialog">
