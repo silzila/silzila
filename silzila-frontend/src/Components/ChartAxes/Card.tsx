@@ -722,8 +722,9 @@ if(["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(chartType)){
 
 				{field.timeGrain && field.agg ? <React.Fragment>, </React.Fragment> : null}
 				{field.timeGrain ? AggregatorKeys[field.timeGrain] : null}
+				{field.prefix ? `${field.prefix}` : null}
 			</span>
-			<span className="columnPrefix"> {field.prefix ? `${field.prefix}` : null}</span>
+			{/* <span className="columnPrefix"> {field.prefix ? `${field.prefix}` : null}</span> */}
 			<button
 				type="button"
 				className="buttonCommon columnDown"
@@ -761,33 +762,8 @@ if(["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(chartType)){
 		
         /> 
 			
-
-
-            
-			 {/* <Tooltip 
-			 title={field.displayname} 
-			 arrow
-			 style={{ display: 'flex', alignItems: 'center', marginLeft: '8px', fontSize: '14px',color:'whitesmoke' }}
-			 componentsProps={{
-				tooltip: {
-				  sx: {
-					bgcolor: 'common.red',
-					'& .MuiTooltip-arrow': {
-					  color: 'common.red',
-					  width: 16, // Adjust arrow width
-                      height: 16,
-
-					},
-				  },
-				},
-			  }}
-			 open={showTooltip}
-			 placement="right-end"
-			 >
-				{/* Content to which the tooltip should apply */}
-      <span></span>
-      {/* </Tooltip>   */}
-
+      {/* <span></span> */}
+       <></>
       <CustomTooltip
         title={field.displayname}
         arrow
@@ -797,27 +773,13 @@ if(["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(chartType)){
           display: "flex",
           alignItems: "center",
           marginLeft: "8px",
-          fontSize: "14px",
+          fontSize: "13px",
         }}
       >
-        <span></span>
+		<></>
+        {/* <span></span> */}
       </CustomTooltip>
 
-      {/* {showTooltip && (
-			<div style={{ position: "relative" }}>
-			<PriceTagTooltip
-			text={field.displayname} 
-			fillColor="white" 
-			textColor="black" 
-			fontSize={10} 
-			open={showTooltip}  
-			display="flex"
-			alignItems="center"
-			marginLeft="8px"
-
-        />
-		</div>
-      )} */}
     </div>
   ) : null;
 };
