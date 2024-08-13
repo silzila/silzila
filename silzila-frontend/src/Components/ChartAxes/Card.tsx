@@ -761,7 +761,7 @@ if(["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(chartType)){
         itemIndex= {itemIndex}
 		
         /> 
-    
+
       <CustomTooltip
         title={field.displayname}
         arrow

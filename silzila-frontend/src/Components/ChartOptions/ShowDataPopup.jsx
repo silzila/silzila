@@ -22,6 +22,7 @@ const ContructPopupBody = props => {
 						className="ShowDataPopupKey"
 						style={{ fontSize: props.chartProp.crossTabHeaderLabelOptions.fontSize }}
 						// style={{ fontSize: props.chartProp.crossTabCellLabelOptions.fontSize }}
+
 					>
 						{key}
 					</span>
