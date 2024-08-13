@@ -761,9 +761,7 @@ if(["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(chartType)){
         itemIndex= {itemIndex}
 		
         /> 
-			
-      {/* <span></span> */}
-       <></>
+    
       <CustomTooltip
         title={field.displayname}
         arrow
@@ -776,8 +774,7 @@ if(["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(chartType)){
           fontSize: "13px",
         }}
       >
-		<></>
-        {/* <span></span> */}
+        <span style={{ display: "inline-block", fontSize: 0, lineHeight: 0 }}></span>
       </CustomTooltip>
 
     </div>
