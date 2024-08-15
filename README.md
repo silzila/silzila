@@ -42,13 +42,13 @@
 * Arrange Charts into Dashboard
 
 ## How to Install
-Please refer to [Silzila Installation Guide](https://github.com/silzila/silzila/blob/main/Installation%20Guide.md)
+Please refer to [Silzila Installation Guide](https://github.com/silzila/silzila/blob/main/docs/Installation%20Guide.md)
 
 ### for Dashboard Developers
 Coming soon... for a single executable Java .jar file
 
 ### for Code Contributiors
-Please refer to [Silzila Contribution File](https://github.com/silzila/silzila/blob/main/Contribution.md)
+Please refer to [Silzila Contribution File](https://github.com/silzila/silzila/blob/main/docs/Contribution.md)
 
 ## Milestones
 Silzila is in active development. Right now, it may not have all the features you expect in a commercial tool. 
