@@ -224,7 +224,8 @@ const Card = ({
 	const handleOverrideOnClick = (event:any, optionName:any) =>{
 		if(optionName.id == "override"){
 			setAnchorEl(null);
-			setOverrideFn(true);			
+			setOverrideFn(true);	
+			setShowTooltip(false);		
 	
 			let oldChartAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes || []));
 			let overRideAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override || []));
@@ -246,6 +247,7 @@ const Card = ({
 
 	const handleWindowFunctionOnClick = () =>{
 	//setTimeout(() => {
+		setShowTooltip(false);
 		setWindowFunction(true);								
 		//}, 300);
 
@@ -255,6 +257,7 @@ const Card = ({
 	const handleRollup = () =>{
 		let field2 = JSON.parse(JSON.stringify(field));
 		setAnchorEl(null);
+		setShowTooltip(false);
 		field2.rollupDepth = !field2.rollupDepth;
 		field2.isManual = field2.rollupDepth;
 		updateQueryParam(propKey, bIndex, itemIndex, field2, currentChartAxesName);
