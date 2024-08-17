@@ -704,7 +704,7 @@ const WindowFunction = ({
                       onChange={(e) => {
                         e.preventDefault();
 
-                        if (Number(e.target.value) >= 0) {
+                        if (e.target.value !== "" && Number(e.target.value) >= 0) {
                           setWindowFnValues((prevState: any) => ({
                             ...prevState,
                             slidingPreInc: parseInt(e.target.value),
@@ -742,7 +742,7 @@ const WindowFunction = ({
                       onChange={(e) => {
                         e.preventDefault();
 
-                        if (Number(e.target.value) >= 0) {
+                        if (e.target.value != "" && Number(e.target.value) >= 0) {
                           setWindowFnValues((prevState: any) => ({
                             ...prevState,
                             slidingNextInc: parseInt(e.target.value),
@@ -985,7 +985,7 @@ const WindowFunction = ({
                         onChange={(e) => {
                           e.preventDefault();
 
-                          if (Number(e.target.value) >= 0) {
+                          if (e.target.value != "" && Number(e.target.value) >= 0) {
                             setWindowFnValues((prevState: any) => ({
                               ...prevState,
                               standingSlidingPreInc: parseInt(e.target.value),
@@ -1024,7 +1024,7 @@ const WindowFunction = ({
                         onChange={(e) => {
                           e.preventDefault();
 
-                          if (Number(e.target.value) >= 0) {
+                          if (e.target.value != "" && Number(e.target.value) >= 0) {
                             setWindowFnValues((prevState: any) => ({
                               ...prevState,
                               standingSlidingNextInc: parseInt(e.target.value),
