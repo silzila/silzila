@@ -42,9 +42,13 @@ const FlatFileUpload = ({ token, setApiResponse, setEditApiResponse }: FlatFileU
   // Function to handle file type selection
   const handleFileType = (fileType: string) => {
     setSelectedFileType(fileType);
-    setSelectedFile(undefined); // reset selectedFile when file type change
-    setSelectedSheetName(""); // reset sheet name when file type change
-  }
+    setSelectedFile(undefined); // reset selectedFile when file type changes
+    if (fileType === 'excel') {
+        setSelectedSheetName(""); // reset sheet name for Excel files
+    } else {
+        setSelectedSheetName("false"); // set to "false" for non-Excel files
+    }
+};
 
 const MAX_FILE_SIZE_MB = 500;  // File size limit
 
@@ -59,6 +63,7 @@ const handleFileSelect = (file: File | undefined) => {
       ) {
           setErrorDialogMessage(`Invalid file type. Expected a ${selectedFileType.toUpperCase()} file.`);
           setErrorDialogOpen(true);
+          setSelectedFile(undefined);
           return;
       } 
       if (selectedFileType === 'excel' && fileExtension !== 'xlsx') {
@@ -66,6 +71,7 @@ const handleFileSelect = (file: File | undefined) => {
         setErrorDialogOpen(true);
         setSelectedFile(undefined); // Reset selected file
         setSelectedSheetName(""); // Reset sheet name
+        setSelectedSheetName("false");
         return;
     } 
    
@@ -74,89 +80,91 @@ const handleFileSelect = (file: File | undefined) => {
         setErrorDialogOpen(true);
         setSelectedFile(undefined);
         setSelectedSheetName("");
+        setSelectedSheetName(selectedFileType === 'excel' ? "" : "false");
         return;
       }
   }
   setSelectedFile(file);
 };
 
-  // Function to handle form submission
-  const handleSubmit = async (event: any) => {
-      event.preventDefault();
+// Function to handle form submission
+const handleSubmit = async (event: any) => {
+    event.preventDefault();
 
-      if (!selectedFile) {
-          setErrorDialogMessage('Please select a file to upload');
-          setErrorDialogOpen(true);
-          return;
-      }
+    if (!selectedFile) {
+        setErrorDialogMessage('Please select a file to upload');
+        setErrorDialogOpen(true);
+        return;
+    }
 
-      const formData = new FormData();
-      formData.append('file', selectedFile);
+    const formData = new FormData();
+    formData.append('file', selectedFile);
 
-          const reader = new FileReader();
+    const reader = new FileReader();
 
-          reader.onload = async (e: any) => {
-              const fileContent = e.target.result;
+    reader.onload = async (e: any) => {
+        const fileContent = e.target.result;
 
-              if (selectedFileType === 'json') {
-                  try {
-                      JSON.parse(fileContent);
-                  } catch {
-                      setErrorDialogMessage('JSON Object is not in the expected Format');
-                      setErrorDialogOpen(true);
-                      setSelectedFile(undefined); // reset selectedFile when error occurs
-                      return;
-                  }
-                } else if (selectedFileType === 'excel') {
-                      const worksheet = XLSX.read(fileContent, { type: 'array' });
-                      const sheetNames = worksheet.SheetNames;
+        if (selectedFileType === 'json') {
+            try {
+                JSON.parse(fileContent);
+            } catch {
+                setErrorDialogMessage('JSON Object is not in the expected Format');
+                setErrorDialogOpen(true);
+                setSelectedFile(undefined); // reset selectedFile when error occurs
+                return;
+            }
+        } else if (selectedFileType === 'excel') {
+            if (!selectedSheetName) {
+                setErrorDialogMessage('Sheet name is required for Excel files');
+                setErrorDialogOpen(true);
+                return;
+            }
 
-                      if (!selectedSheetName) {
-                          setErrorDialogMessage('Could not upload. SHEETNAME is NULL');
-                          setErrorDialogOpen(true);
-                          setSelectedSheetName(""); // Reset sheetname
-                          return;
-                      }
+            const worksheet = XLSX.read(fileContent, { type: 'array' });
+            const sheetNames = worksheet.SheetNames;
 
-                      if (!sheetNames.includes(selectedSheetName)) {
-                          setErrorDialogMessage(`'${selectedSheetName}' not found in the Excel file`);
-                          setErrorDialogOpen(true);
-                          setSelectedSheetName("");
-                          return;
-                      }
-                      formData.append('sheetName', selectedSheetName);
-                  } 
-              
-                  var result: any = await FetchData({
-                      requestType: 'withData',
-                      method: 'POST',
-                      url: 'file-upload',
-                      data: formData,
-                      headers: {
-                          Authorization: `Bearer ${token}`,
-                          'Content-Type': 'multipart/form-data',
-                      },
-                  });
+            if (!sheetNames.includes(selectedSheetName)) {
+                setErrorDialogMessage(`'${selectedSheetName}' not found in the Excel file`);
+                setErrorDialogOpen(true);
+                setSelectedSheetName(""); // Reset sheet name
+                return;
+            }
 
-                  if (result.status) {
-                      setApiResponse(result.data);
-                      setDataToEditApiResponse(result.data);
-                      navigate('/editflatfile');
-                  } else {
-                      Logger('info', 'error');
-                      setErrorDialogMessage('Error uploading the file');
-                      setErrorDialogOpen(true);
-                      setSelectedFile(undefined); // reset selectedFile after error
-                      setSelectedSheetName("");
-                  }
-              } 
+            formData.append('sheetName', selectedSheetName);
+        }
 
-        if (selectedFileType === 'excel') {
-              reader.readAsArrayBuffer(selectedFile);
-          } else {
-              reader.readAsText(selectedFile);
-          }
-      };        
+        // Proceed with the file upload
+        var result: any = await FetchData({
+            requestType: 'withData',
+            method: 'POST',
+            url: 'file-upload',
+            data: formData,
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        if (result.status) {
+            setApiResponse(result.data);
+            setDataToEditApiResponse(result.data);
+            navigate('/editflatfile');
+        } else {
+            setErrorDialogMessage('Error uploading the file');
+            setErrorDialogOpen(true);
+            setSelectedFile(undefined); // reset selectedFile after error
+            setSelectedSheetName("");
+        }
+    };
+
+    if (selectedFileType === 'excel') {
+        reader.readAsArrayBuffer(selectedFile);
+    } else {
+        reader.readAsText(selectedFile);
+    }
+};
+       
 
   return (
       <div>
@@ -287,7 +295,7 @@ const handleFileSelect = (file: File | undefined) => {
     );
 };
 
-const mapStateToProps = (state: isLoggedProps, ownProps: any) => {
+const mapStateToProps = (state: isLoggedProps) => {
     return {
         token: state.isLogged.accessToken,
     };
@@ -299,5 +307,6 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
         setEditApiResponse: (file: any) => dispatch(setEditApiResponse(file)),
     };
 };
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(FlatFileUpload);

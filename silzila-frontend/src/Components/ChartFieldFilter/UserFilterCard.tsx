@@ -1906,7 +1906,9 @@ const UserFilterCard = ({
   const ExpandCollaseIconSwitch = () => {
     return filterFieldData.isCollapsed ? (
       <ChevronRightIcon
-        style={{ height: "18px", width: "18px", color: "#999999" }}
+        style={{ height: "20px", width: "20px", color: "#999999",
+          border: "1px solid black"
+         }}
         onClick={(e) => {
           filterFieldData.isCollapsed = false;
           updateUserFilterItem(

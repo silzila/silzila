@@ -43,8 +43,6 @@
   /* margin-right: 10px; */
   min-width: 100px;
   max-width: 200px;
-
-  
   white-space: nowrap;
   font-size: 12px;
 }
@@ -80,7 +78,7 @@
 .close-container {
   position: absolute; 
   right: 5px; 
-  top: 50%; 
+  top: 45%; 
   transform: translateY(-50%);
 }
 
