@@ -59,6 +59,7 @@ const handleFileSelect = (file: File | undefined) => {
       ) {
           setErrorDialogMessage(`Invalid file type. Expected a ${selectedFileType.toUpperCase()} file.`);
           setErrorDialogOpen(true);
+          setSelectedFile
           return;
       } 
       if (selectedFileType === 'excel' && fileExtension !== 'xlsx') {
