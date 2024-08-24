@@ -90,7 +90,7 @@ button:focus {
 	padding: 0 6% 5px 6%;
 	color: rgb(96, 96, 96);
 	font-weight: 600;
-	margin-top: 20px;
+	margin-top: 5px;
 	font-size: 15px;
 	cursor: pointer;
 	align-items: center;
@@ -102,7 +102,7 @@ button:focus {
 	padding: 0 6% 5px 6%;
 	color: #b6b6b6;
 	font-weight: 600;
-	margin-top: 20px;
+	margin-top: 5px;
 	font-size: 15px;
 	align-items: center;
 }

@@ -74,7 +74,7 @@ const ChartControlObjects = ({
 		"Format",
 		"Sort",
 	];
-	const crossTabOptionList: string[] = ["Title", "Tooltip", "Style", "Format", "Sort","Conditional Formatting"];
+	const crossTabOptionList: string[] = ["Title", "Tooltip", "Style", "Format", "Sort","Cond.Form", "Show/Hide"];
 	const boxPlotOptionsList: string[] = [
 		"Title",
 		"Legend",

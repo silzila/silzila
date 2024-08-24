@@ -32,6 +32,7 @@ import TableConditionalFormating from "./TableChartControlComponents/TableCondit
 import DynamicMeasureConditionalFormattingComponent from "./DynamicMeasureConditionalFormattingComponent";
 import SimplecardConditionalFormatting from "./SimplecardConditionalFormatting";
 import Sort from "./Sort/Sort";
+import ShowHide from "./ShowHide/ShowHide"
 
 interface ControlDetailProps {
 	chartProperties: ChartPropertiesProps;
@@ -48,9 +49,9 @@ const ControlDetail = ({
 	var chartOption =
 		chartType === "richText"
 			? dynamicMeasureState.dynamicMeasureProps?.[tabTileProps.selectedTabId]?.[
-					tabTileProps.selectedTileId
-			  ]?.[`${tabTileProps.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`]
-					?.chartOptionSelected
+				tabTileProps.selectedTileId
+			]?.[`${tabTileProps.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`]
+				?.chartOptionSelected
 			: chartProperties.properties[propKey].chartOptionSelected;
 
 	const RenderControlDetail = () => {
@@ -104,7 +105,7 @@ const ControlDetail = ({
 					return <CardStyle />;
 				} else if (chartType === "richText") {
 					return <DynamicMeasureStyle />;
-				}else if (chartType === "geoChart") {
+				} else if (chartType === "geoChart") {
 					return <GeoChartStyles />;
 				} else {
 					return <ChartStyle />;
@@ -123,13 +124,19 @@ const ControlDetail = ({
 				} else {
 					return <TableConditionalFormating />;
 				}
-			case "Sort":
-				if(chartType === "crossTab"){
-					return <Sort/>;
+			case "Show/Hide":
+				if (chartType === "crossTab") {
+					return <ShowHide />;
 				} else {
-					return <Sort/>;
+					return <ShowHide />;
 				}
-				
+			case "Sort":
+				if (chartType === "crossTab") {
+					return <Sort />;
+				} else {
+					return <Sort />;
+				}
+
 			default:
 				return (
 					<span>

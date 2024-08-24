@@ -382,3 +382,10 @@ export const SortedValue= (propKey: string, value: string | any) => {
 		payload: { propKey, value },
 	};
 };
+
+export const Showhide= (propKey: string, value: string | any) => {
+	return {
+		type: "SHOW_HIDE",
+		payload: { propKey, value },
+	};
+};

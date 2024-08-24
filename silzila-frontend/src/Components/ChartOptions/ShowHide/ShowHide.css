@@ -1,0 +1,30 @@
+.a{
+    display: flex;
+    flex-direction: column;
+    margin: 4px;
+}
+.b{
+    display: flex;
+    flex-direction: row;
+    margin: 0px;
+    padding: 0px;
+    height: 20px;
+}
+.c{
+    margin: 0px;
+    padding: 0px;
+    margin-left: -10px;
+}
+.d{
+    font-size: small;
+    margin: 0px;
+    padding: 0px;
+    margin-left: 0px;
+    color: rgb(113, 111, 111);
+}
+.e{
+    margin: 0px;
+}
+input[type='checkbox'] {
+    accent-color: rgb(113, 111, 111);
+  }
