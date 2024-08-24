@@ -2,19 +2,21 @@
 // Each Dropzone can have allowed number of cards.
 // Cards can be moved between dropzones & also sorted within a dropzone
 import { useEffect, useState } from "react";
-import {	
-	editChartPropItem,
-	updateIsAutoFilterEnabledPropLeft,
-	updateFilterAnyContidionMatchPropLeft,
-	clearDropZoneFieldsChartPropLeft,
-	toggleFilterRunState,
+import {
+  editChartPropItem,
+  updateIsAutoFilterEnabledPropLeft,
+  updateFilterAnyContidionMatchPropLeft,
+  clearDropZoneFieldsChartPropLeft,
+  toggleFilterRunState,
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { useDrop } from "react-dnd";
 import { connect } from "react-redux";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
+import {FindFieldName} from "../CommonFunctions/CommonFunctions";
 import Card from "./Card";
 import ChartsInfo from "./ChartsInfo2";
 import { setPrefix } from "./SetPrefix";
+import {setDisplayName} from './setDisplayName';
 import UserFilterCard from "../ChartFieldFilter/UserFilterCard";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
@@ -27,34 +29,34 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { AlertColor } from "@mui/material/Alert";
 import {
-	editChartPropItemForDm,
-	updateDynamicMeasureAxes,
+  editChartPropItemForDm,
+  updateDynamicMeasureAxes,
 } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import UserFilterCardForDm from "../ChartFieldFilter/UserFilterCardForDm";
 import Logger from "../../Logger";
 //import { StyledEngineProvider } from '@mui/material/styles';
 
 const DropZone = ({
-	// props
-	bIndex,
-	name,
-	propKey,
-	uID,
+  // props
+  bIndex,
+  name,
+  propKey,
+  uID,
 
-	// state
-	chartProp,
-	dynamicMeasureState,
+  // state
+  chartProp,
+  dynamicMeasureState,
 
-	// dispatch
-	clearDropZoneFieldsChartPropLeft,
-	updateIsAutoFilterEnabledPropLeft,
-	updateFilterAnyContidionMatchPropLeft,
-	updateDropZoneItems,
-	moveItemChartProp,
-	toggleFilterRunState,
-	updateDynamicMeasureAxes,
-	moveItemChartPropForDm,
-	updateQueryParam
+  // dispatch
+  clearDropZoneFieldsChartPropLeft,
+  updateIsAutoFilterEnabledPropLeft,
+  updateFilterAnyContidionMatchPropLeft,
+  updateDropZoneItems,
+  moveItemChartProp,
+  toggleFilterRunState,
+  updateDynamicMeasureAxes,
+  moveItemChartPropForDm,
+  updateQueryParam,
 }: DropZoneProps & any) => {
 
 	const [severity, setSeverity] = useState<AlertColor>("success");
@@ -95,7 +97,7 @@ const DropZone = ({
 	const updateRollUp = () =>{
 		let currentAxesFields = currentChartAxes[bIndex].fields;
 
-		if(["crossTab", "heatmap", "boxPlot", ].includes(chartProp.properties[propKey].chartType)){
+		if(["crossTab", "heatmap", "boxPlot", "bubbleMap"].includes(chartProp.properties[propKey].chartType)){
 			let rollupDimentionOneFieldIndex = chartProp.properties[propKey][currentChartAxesName][1].fields.findIndex((field:any)=>field.rollupDepth);
 			let rollupDimentionTwoFieldIndex = chartProp.properties[propKey][currentChartAxesName][2].fields.findIndex((field:any)=>field.rollupDepth);
 				
@@ -162,11 +164,61 @@ const DropZone = ({
 	}
 
 	var chartType = chartProp.properties[propKey].chartType;
+	
+	const findNewDisplayName = (binIndex: number, paramField:any, allowedNumbers: number): any => {       
+	
+		let _measureZone: any = chartProp.properties[propKey].chartAxes.find(
+		(zones: any) => zones.name === "Measure"
+		);		
+
+		let _fieldTempObject: any = {};
+
+		/*	Find and return field's new name	*/
+		const findFieldName = (name: string, i: number = 0): string => {
+			if ((i === 0 && _fieldTempObject[name] !== undefined) || _fieldTempObject[`${name}(${i})`] !== undefined) {
+				i = i === 0 ? 1 : i;	
+
+				i++;
+				return findFieldName(name, i);
+			} else {
+				if(i === 0){
+					return name;
+				}
+				else{
+					return `${name}(${i})`;
+				}
+			}
+		};
+
+		if(allowedNumbers === _measureZone?.fields.length){
+			return paramField.displayname;
+		}
+
+		_measureZone?.fields.forEach((field: any, index: number) => {
+			let _nameWithAgg: string = "";
+			let _tempField = JSON.parse(JSON.stringify(field));	
+
+			_nameWithAgg = _tempField.displayname;		
+
+			if (_fieldTempObject[_nameWithAgg] !== undefined) {
+				let _name = findFieldName(_nameWithAgg);
+				_tempField["NameWithAgg"] = _name;
+				_fieldTempObject[_name] = "";							
+			} else {
+				_tempField["NameWithAgg"] = _nameWithAgg;
+				_fieldTempObject[_nameWithAgg] = "";
+			}
+		});	
+
+		let newName = findFieldName(paramField.displayname)
+
+		return newName || paramField.displayname;
+	}
 
 	// DropZoneDropItem
 	const handleDrop = (item: any, bIndex: number) => {
 		var allowedNumbers = ChartsInfo[chartType].dropZones[bIndex].allowedNumbers;
-		let newFieldData = {};
+		//let newFieldData = {};
 
 		// when column dragged from table
 		if (item.bIndex === 99) {
@@ -187,6 +239,10 @@ const DropZone = ({
 						let newFieldData = JSON.parse(
 							JSON.stringify(setPrefix(fieldData, name, chartType))
 						);
+
+						newFieldData = setDisplayName(newFieldData, name, chartType);
+						//newFieldData.displayname = findNewDisplayName(); //TODO:
+
 						updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers, currentChartAxesName);
 					} else {
 						setSeverity("error");
@@ -210,6 +266,10 @@ const DropZone = ({
 					let newFieldData = JSON.parse(
 						JSON.stringify(setPrefix(fieldData, name, chartType))
 					);
+
+					newFieldData = setDisplayName(newFieldData, name, chartType);
+					newFieldData.displayname = findNewDisplayName(bIndex, newFieldData, allowedNumbers);
+
 					if (chartType === "richText") {
 						updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
 					} else {
@@ -222,6 +282,10 @@ const DropZone = ({
 				let newFieldData = JSON.parse(
 					JSON.stringify(setPrefix(fieldData, name, chartType))
 				);
+
+				newFieldData = setDisplayName(newFieldData, name, chartType);
+				newFieldData.displayname = findNewDisplayName(bIndex, newFieldData, allowedNumbers);
+
 				if (chartType === "richText") {
 					updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
 				} else {
@@ -237,6 +301,10 @@ const DropZone = ({
 						let newFieldData = JSON.parse(
 							JSON.stringify(setPrefix(item, name, chartType))
 						);
+
+						newFieldData = setDisplayName(newFieldData, name, chartType);
+						//newFieldData.displayname = findNewDisplayName(bIndex, newFieldData, allowedNumbers);
+
 						["type", "bIndex"].forEach(e => delete newFieldData[e]);
 						moveItemChartProp(
 							propKey,
@@ -261,6 +329,10 @@ const DropZone = ({
 				} else {
 					Logger("info", "******", name);
 					let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
+
+					newFieldData = setDisplayName(newFieldData, name, chartType);
+					//newFieldData.displayname = findNewDisplayName(bIndex, newFieldData).displayname;
+
 					["type", "bIndex"].forEach(e => delete newFieldData[e]);
 					if (chartType === "richText") {
 						moveItemChartPropForDm(
@@ -288,7 +360,11 @@ const DropZone = ({
 			//bindex is not 1 (dimension)
 			else {
 				let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
+				newFieldData = setDisplayName(newFieldData, name, chartType);
+				// newFieldData.displayname = findNewDisplayName(bIndex, newFieldData).displayname;
+				
 				["type", "bIndex"].forEach(e => delete newFieldData[e]);
+
 				if (chartType === "richText") {
 					moveItemChartPropForDm(
 						`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`,
@@ -681,81 +757,134 @@ const DropZone = ({
 };
 
 const mapStateToProps = (state: ChartPropertiesStateProps & any) => {
-	return {
-		chartProp: state.chartProperties,
-		dynamicMeasureState: state.dynamicMeasuresState,
-	};
+  return {
+    chartProp: state.chartProperties,
+    dynamicMeasureState: state.dynamicMeasuresState,
+  };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-	return {
-		clearDropZoneFieldsChartPropLeft: (propKey: string, bIndex: number, currentChartAxesName : string) =>
-			dispatch(clearDropZoneFieldsChartPropLeft(propKey, bIndex, currentChartAxesName)),
-		updateFilterAnyContidionMatchPropLeft: (
-			propKey: string,
-			bIndex: number,
-			any_condition_match: any,
-			currentChartAxesName : string
-		) => dispatch(updateFilterAnyContidionMatchPropLeft(propKey, 0, any_condition_match, currentChartAxesName)),
-		updateIsAutoFilterEnabledPropLeft: (
-			propKey: string,
-			bIndex: number,
-			is_auto_filter_enabled: any
-			, currentChartAxesName : string
-		) => dispatch(updateIsAutoFilterEnabledPropLeft(propKey, 0, is_auto_filter_enabled,currentChartAxesName)),
-		toggleFilterRunState: (propKey: string, runState: any) =>
-			dispatch(toggleFilterRunState(propKey, runState)),
+  return {
+    clearDropZoneFieldsChartPropLeft: (
+      propKey: string,
+      bIndex: number,
+      currentChartAxesName: string
+    ) =>
+      dispatch(
+        clearDropZoneFieldsChartPropLeft(propKey, bIndex, currentChartAxesName)
+      ),
+    updateFilterAnyContidionMatchPropLeft: (
+      propKey: string,
+      bIndex: number,
+      any_condition_match: any,
+      currentChartAxesName: string
+    ) =>
+      dispatch(
+        updateFilterAnyContidionMatchPropLeft(
+          propKey,
+          0,
+          any_condition_match,
+          currentChartAxesName
+        )
+      ),
+    updateIsAutoFilterEnabledPropLeft: (
+      propKey: string,
+      bIndex: number,
+      is_auto_filter_enabled: any,
+      currentChartAxesName: string
+    ) =>
+      dispatch(
+        updateIsAutoFilterEnabledPropLeft(
+          propKey,
+          0,
+          is_auto_filter_enabled,
+          currentChartAxesName
+        )
+      ),
+    toggleFilterRunState: (propKey: string, runState: any) =>
+      dispatch(toggleFilterRunState(propKey, runState)),
 
-		updateDropZoneItems: (propKey: string, bIndex: number, item: any, allowedNumbers: any, currentChartAxesName : string) =>
-			dispatch(editChartPropItem("update", { propKey, bIndex, item, allowedNumbers, currentChartAxesName })),
+    updateDropZoneItems: (
+      propKey: string,
+      bIndex: number,
+      item: any,
+      allowedNumbers: any,
+      currentChartAxesName: string
+    ) =>
+      dispatch(
+        editChartPropItem("update", {
+          propKey,
+          bIndex,
+          item,
+          allowedNumbers,
+          currentChartAxesName,
+        })
+      ),
 
-		updateDynamicMeasureAxes: (bIndex: number, allowedNumbers: number, fieldData: any) =>
-			dispatch(updateDynamicMeasureAxes(bIndex, allowedNumbers, fieldData)),
+    updateDynamicMeasureAxes: (
+      bIndex: number,
+      allowedNumbers: number,
+      fieldData: any
+    ) => dispatch(updateDynamicMeasureAxes(bIndex, allowedNumbers, fieldData)),
 
-		updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any,  currentChartAxesName : string) =>
-			dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item, currentChartAxesName })),
+    updateQueryParam: (
+      propKey: string,
+      binIndex: number,
+      itemIndex: number,
+      item: any,
+      currentChartAxesName: string
+    ) =>
+      dispatch(
+        editChartPropItem("updateQuery", {
+          propKey,
+          binIndex,
+          itemIndex,
+          item,
+          currentChartAxesName,
+        })
+      ),
 
-		moveItemChartProp: (
-			propKey: string,
-			fromBIndex: any,
-			fromUID: any,
-			item: any,
-			toBIndex: any,
-			allowedNumbers: any,
-			currentChartAxesName : string
-		) =>
-			dispatch(
-				editChartPropItem("move", {
-					propKey,
-					fromBIndex,
-					fromUID,
-					item,
-					toBIndex,
-					allowedNumbers,
-					currentChartAxesName
-				})
-			),
-		moveItemChartPropForDm: (
-			propKey: string,
-			fromBIndex: any,
-			fromUID: any,
-			item: any,
-			toBIndex: any,
-			allowedNumbers: any,
-			currentChartAxesName : string
-		) =>
-			dispatch(
-				editChartPropItemForDm("move", {
-					propKey,
-					fromBIndex,
-					fromUID,
-					item,
-					toBIndex,
-					allowedNumbers,
-					currentChartAxesName
-				})
-			),
-	};
+    moveItemChartProp: (
+      propKey: string,
+      fromBIndex: any,
+      fromUID: any,
+      item: any,
+      toBIndex: any,
+      allowedNumbers: any,
+      currentChartAxesName: string
+    ) =>
+      dispatch(
+        editChartPropItem("move", {
+          propKey,
+          fromBIndex,
+          fromUID,
+          item,
+          toBIndex,
+          allowedNumbers,
+          currentChartAxesName,
+        })
+      ),
+    moveItemChartPropForDm: (
+      propKey: string,
+      fromBIndex: any,
+      fromUID: any,
+      item: any,
+      toBIndex: any,
+      allowedNumbers: any,
+      currentChartAxesName: string
+    ) =>
+      dispatch(
+        editChartPropItemForDm("move", {
+          propKey,
+          fromBIndex,
+          fromUID,
+          item,
+          toBIndex,
+          allowedNumbers,
+          currentChartAxesName,
+        })
+      ),
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(DropZone);

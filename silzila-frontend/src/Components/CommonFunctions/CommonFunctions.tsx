@@ -235,6 +235,23 @@ export const generateRandomColorArray = (length:number) => {
 		}
 	};
 
+
+	const _findFieldName = (name: string, i: number = 2, _fieldTempObject:any): string => {
+		if (_fieldTempObject[`${name}(${i})`] !== undefined) {
+		  i++;
+		  return _findFieldName(name, i, _fieldTempObject);
+		} else {
+		  return `${name}(${i})`;
+		}
+	};
+
+
+	export const FindFieldName = (name: string, i: number = 2): string => {
+		let _fieldTempObject: any = {};
+
+		return _findFieldName(name, i, _fieldTempObject)
+	}
+
 	export const fieldName = (field:any)=>{
 		if(field){
 			if(field.agg || field.timeGrain){

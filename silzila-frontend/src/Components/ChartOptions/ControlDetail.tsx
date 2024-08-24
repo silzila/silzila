@@ -35,15 +35,16 @@ import Sort from "./Sort/Sort";
 import ShowHide from "./ShowHide/ShowHide"
 
 interface ControlDetailProps {
-	chartProperties: ChartPropertiesProps;
-	tabTileProps: TabTileStateProps;
+  chartProperties: ChartPropertiesProps;
+  tabTileProps: TabTileStateProps;
 }
 
 const ControlDetail = ({
-	chartProperties,
-	tabTileProps,
-	dynamicMeasureState,
+  chartProperties,
+  tabTileProps,
+  dynamicMeasureState,
 }: ControlDetailProps & any) => {
+<<<<<<< HEAD
 	var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 	var chartType: string = chartProperties.properties[propKey].chartType;
 	var chartOption =
@@ -147,12 +148,112 @@ const ControlDetail = ({
 		}
 	};
 	return <RenderControlDetail />;
+=======
+  var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
+  var chartType: string = chartProperties.properties[propKey].chartType;
+  var chartOption =
+    chartType === "richText"
+      ? dynamicMeasureState.dynamicMeasureProps?.[tabTileProps.selectedTabId]?.[
+          tabTileProps.selectedTileId
+        ]?.[
+          `${tabTileProps.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+        ]?.chartOptionSelected
+      : chartProperties.properties[propKey].chartOptionSelected;
+
+  const RenderControlDetail = () => {
+    switch (chartOption) {
+      case "Title":
+        if (chartType === "richText") {
+          return <TitleForDynamicMeasures />;
+        } else {
+          return <ChartTitle />;
+        }
+      case "Colors":
+        if (chartType === "heatmap" || chartType === "calendar") {
+          return <ColorScale />;
+        } else if (chartType === "gauge") {
+          return <ColorSteps />;
+        } else if (chartType === "sankey") {
+          return <SankeyColorControls />;
+        } else {
+          return <ChartColors />;
+        }
+      case "Legend":
+        if (chartType === "treeMap") {
+          return <TreeMapLegend />;
+        } else {
+          return <ChartLegend />;
+        }
+      case "Margin":
+        return <ChartMargin />;
+      case "Tooltip":
+        return <ChartMouseOver />;
+      case "Grid/Axes":
+        return <GridAndAxes />;
+      case "Labels":
+        if (chartType === "calendar") {
+          return <CalendarLabels />;
+        } else {
+          return <ChartLabels />;
+        }
+      case "Axis":
+        return <AxisControls />;
+      case "Style":
+        if (chartType === "calendar") {
+          return <CalendarChartStyles />;
+        } else if (chartType === "boxPlot") {
+          return <BoxPlotChartStyles />;
+        } else if (chartType === "treeMap") {
+          return <TreeMapStyles />;
+        } else if (chartType === "sankey") {
+          return <SankeyStyles />;
+        } else if (chartType === "simplecard") {
+          return <CardStyle />;
+        } else if (chartType === "richText") {
+          return <DynamicMeasureStyle />;
+        } else if (chartType === "filledMap" || chartType === "bubbleMap") {
+          return <GeoChartStyles />;
+        } else {
+          return <ChartStyle />;
+        }
+      case "Format":
+        if (chartType === "richText") {
+          return <ChartFormatForDm />;
+        } else {
+          return <ChartFormat chartType={chartType} />;
+        }
+      case "Conditional Formatting":
+        if (chartType === "richText") {
+          return <DynamicMeasureConditionalFormattingComponent />;
+        } else if (chartType === "simplecard") {
+          return <SimplecardConditionalFormatting />;
+        } else {
+          return <TableConditionalFormating />;
+        }
+      case "Sort":
+        if (chartType === "crossTab") {
+          return <Sort />;
+        } else {
+          return <Sort />;
+        }
+
+      default:
+        return (
+          <span>
+            {chartProperties.properties[propKey].chartOptionSelected} properties
+            Under Construction
+          </span>
+        );
+    }
+  };
+  return <RenderControlDetail />;
+>>>>>>> main
 };
 const mapStateToProps = (state: ChartOptionsStateProps & any) => {
-	return {
-		chartProperties: state.chartProperties,
-		tabTileProps: state.tabTileProps,
-		dynamicMeasureState: state.dynamicMeasuresState,
-	};
+  return {
+    chartProperties: state.chartProperties,
+    tabTileProps: state.tabTileProps,
+    dynamicMeasureState: state.dynamicMeasuresState,
+  };
 };
 export default connect(mapStateToProps)(ControlDetail);

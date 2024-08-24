@@ -7,13 +7,21 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import { connect } from "react-redux";
 import {
-	editChartPropItem,
-	revertAxes,
-	sortAxes,
-	enableOverrideForUIDAction,
-	createChartAxesForUID
+  editChartPropItem,
+  revertAxes,
+  sortAxes,
+  enableOverrideForUIDAction,
+  createChartAxesForUID,
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
-import { Button, Divider, Menu, MenuItem,Tooltip, styled, withStyles} from "@mui/material";
+import {
+  Button,
+  Divider,
+  Menu,
+  MenuItem,
+  Tooltip,
+  styled,
+  withStyles,
+} from "@mui/material";
 import { AggregatorKeys } from "./Aggregators";
 import { useDrag, useDrop } from "react-dnd";
 import { Dispatch } from "redux";
@@ -21,9 +29,9 @@ import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { CardProps } from "./ChartAxesInterfaces";
 import {
-	editChartPropItemForDm,
-	revertAxesForDm,
-	sortAxesForDm,	
+  editChartPropItemForDm,
+  revertAxesForDm,
+  sortAxesForDm,
 } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import { SiWindows11 } from "react-icons/si";
 import { FaRocket } from "react-icons/fa";
@@ -38,6 +46,7 @@ import { fieldName } from "../CommonFunctions/CommonFunctions";
 import { ClassNames } from "@emotion/react";
 import { id } from "date-fns/locale";
 import { TooltipProps } from '@mui/material/Tooltip';
+import {setDisplayName} from '../ChartAxes/setDisplayName';
 
 // interface PriceTagTooltipProps {
 //     text: string|undefined;
@@ -45,21 +54,20 @@ import { TooltipProps } from '@mui/material/Tooltip';
 //     textColor?: string;
 //     fontSize?: number;
 // 	open:boolean;
-// 	display:string; 
+// 	display:string;
 // 	alignItems: string;
 // 	marginLeft: string;
 //   }
-  
 
 // const PriceTagTooltip: React.FC<PriceTagTooltipProps> = ({ text, fillColor = 'white', textColor = 'black', fontSize =30, }) => (
 // 	<svg width="30" height="30" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
 // 	  <path d="M10,10 L90,10 L90,80 L50,100 L10,80 Z" fill={fillColor} stroke="black" />
-// 	  <text 
-// 		x="50%" 
-// 		y="50%" 
-// 		dominantBaseline="middle" 
-// 		textAnchor="middle" 
-// 		fontSize={fontSize} 
+// 	  <text
+// 		x="50%"
+// 		y="50%"
+// 		dominantBaseline="middle"
+// 		textAnchor="middle"
+// 		fontSize={fontSize}
 // 		fill={textColor}
 // 		transform="rotate(-90 50 50)"
 // 	  >
@@ -69,55 +77,54 @@ import { TooltipProps } from '@mui/material/Tooltip';
 //   );
 
 const CustomTooltip = styled(({ className, ...props }: TooltipProps) => (
-	<Tooltip {...props} classes={{ popper: className }} />
-  ))(() => ({
-	[`& .MuiTooltip-tooltip`]: {
-	  backgroundColor: 'white',
-	  color: '#2bb9bb',
-	  fontSize: '13px',
-	  border:'1px solid  #2bb9bb'
-	},
-	[`& .MuiTooltip-arrow`]: {
-	  color: 'white',
-	  '&::before': {
-		width: '10px', // Adjust arrow width
-		height: '14px', // Adjust arrow height
-		border:'1px solid  #2bb9bb'
-	  },
-	},
-  }));
-
+  <Tooltip {...props} classes={{ popper: className }} />
+))(() => ({
+  [`& .MuiTooltip-tooltip`]: {
+    backgroundColor: "white",
+    color: "#2bb9bb",
+    fontSize: "13px",
+    border: "1px solid  #2bb9bb",
+  },
+  [`& .MuiTooltip-arrow`]: {
+    color: "white",
+    "&::before": {
+      width: "10px", // Adjust arrow width
+      height: "14px", // Adjust arrow height
+      border: "1px solid  #2bb9bb",
+    },
+  },
+}));
 
 const Card = ({
-	// props
-	field,
-	bIndex,
-	itemIndex,
-	propKey,
-	axisTitle,
-	uID,
+  // props
+  field,
+  bIndex,
+  itemIndex,
+  propKey,
+  axisTitle,
+  uID,
 
-	// state
-	tabTileProps,
-	chartProp,
-	dynamicMeasureState,
+  // state
+  tabTileProps,
+  chartProp,
+  dynamicMeasureState,
 
-	// dispatch
-	// chartPropUpdated,
-	deleteDropZoneItems,
-	updateQueryParam,
-	sortAxes,
-	revertAxes,
-	enableOverrideForUIDAction,
-	createChartAxesForUID,
+  // dispatch
+  // chartPropUpdated,
+  deleteDropZoneItems,
+  updateQueryParam,
+  sortAxes,
+  revertAxes,
+  enableOverrideForUIDAction,
+  createChartAxesForUID,
 
-	//dynamicMeasure dispatch
-	deleteDropZoneItemsForDm,
-	updateAxesQueryParamForDm,
-	sortAxesForDm,
-	revertAxesForDm,
+  //dynamicMeasure dispatch
+  deleteDropZoneItemsForDm,
+  updateAxesQueryParamForDm,
+  sortAxesForDm,
+  revertAxesForDm,
 }: CardProps) => {
-	
+
 	field.dataType = field?.dataType?.toLowerCase();
 
 	var chartType =
@@ -205,6 +212,8 @@ const Card = ({
 				Logger("info", "queryparam");
 				updateAxesQueryParamForDm(propKey, bIndex, itemIndex, field2);
 			} else {
+				field2 = setDisplayName(field2, chartProp.properties[propKey].chartAxes[bIndex].name, chartProp.properties[propKey].chartType)
+				field2.isTextRenamed = false;
 				updateQueryParam(propKey, bIndex, itemIndex, field2, currentChartAxesName);
 			}
 		}
@@ -215,7 +224,8 @@ const Card = ({
 	const handleOverrideOnClick = (event:any, optionName:any) =>{
 		if(optionName.id == "override"){
 			setAnchorEl(null);
-			setOverrideFn(true);			
+			setOverrideFn(true);	
+			setShowTooltip(false);		
 	
 			let oldChartAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes || []));
 			let overRideAxes = JSON.parse(JSON.stringify(chartProp.properties[propKey].chartAxes[bIndex].fields[itemIndex].override || []));
@@ -237,6 +247,7 @@ const Card = ({
 
 	const handleWindowFunctionOnClick = () =>{
 	//setTimeout(() => {
+		setShowTooltip(false);
 		setWindowFunction(true);								
 		//}, 300);
 
@@ -246,6 +257,7 @@ const Card = ({
 	const handleRollup = () =>{
 		let field2 = JSON.parse(JSON.stringify(field));
 		setAnchorEl(null);
+		setShowTooltip(false);
 		field2.rollupDepth = !field2.rollupDepth;
 		field2.isManual = field2.rollupDepth;
 		updateQueryParam(propKey, bIndex, itemIndex, field2, currentChartAxesName);
@@ -253,7 +265,7 @@ const Card = ({
 		let _charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
 
 		if(field2.rollupDepth){		
-			if(["crossTab", "heatmap", "boxPlot", ].includes(chartProp.properties[propKey].chartType)){
+			if(["crossTab", "heatmap", "boxPlot", "bubbleMap"].includes(chartProp.properties[propKey].chartType)){
 				let chartAxesOneFields = chartProp.properties[propKey][currentChartAxesName][1].fields;
 				let chartAxesTwoFields = chartProp.properties[propKey][currentChartAxesName][2].fields;
 				
@@ -311,7 +323,7 @@ const Card = ({
 			}
 		}
 		else{	
-			if(["crossTab", "heatmap", "boxPlot", ].includes(chartProp.properties[propKey].chartType)){
+			if(["crossTab", "heatmap", "boxPlot", "bubbleMap"].includes(chartProp.properties[propKey].chartType)){
 				if(chartProp.properties[propKey][currentChartAxesName][2].fields?.length > 0){
 					updateFieldRollupProperty(2, chartProp.properties[propKey][currentChartAxesName][2].fields?.length - 1, true);
 				}
@@ -413,7 +425,7 @@ const Card = ({
 
 	useEffect(()=>{
 //If two dimensional charts dimension, row, column, distribution without any fields, then window function will get disable
-if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
+if(["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(chartType)){
 	if(chartProp.properties[propKey].chartAxes[1].fields.length === 0 && chartProp.properties[propKey].chartAxes[2].fields.length === 0){
 		setWindowFunctionDisable(true); 
 
@@ -428,7 +440,7 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 		}
 	}} else {
 		//If one dimensional charts dimension or row without any fields, then window function will get disable
-		if(!["heatmap", "crossTab", "boxPlot", "richText"].includes(chartType)){
+		if(!["heatmap", "crossTab", "boxPlot", "richText", "bubbleMap"].includes(chartType)){
 			if(chartProp.properties[propKey].chartAxes[1].fields.length === 0){
 				setWindowFunctionDisable(true); 
 
@@ -713,8 +725,9 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
 
 				{field.timeGrain && field.agg ? <React.Fragment>, </React.Fragment> : null}
 				{field.timeGrain ? AggregatorKeys[field.timeGrain] : null}
+				{field.prefix ? `${field.prefix}` : null}
 			</span>
-			<span className="columnPrefix"> {field.prefix ? `${field.prefix}` : null}</span>
+			{/* <span className="columnPrefix"> {field.prefix ? `${field.prefix}` : null}</span> */}
 			<button
 				type="button"
 				className="buttonCommon columnDown"
@@ -751,110 +764,127 @@ if(["heatmap", "crossTab", "boxPlot"].includes(chartType)){
         itemIndex= {itemIndex}
 		
         /> 
-			
 
+      <CustomTooltip
+        title={field.displayname}
+        arrow
+        open={showTooltip}
+        placement="right-end"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginLeft: "8px",
+          fontSize: "13px",
+        }}
+      >
+        <span style={{ display: "inline-block", fontSize: 0, lineHeight: 0 }}></span>
+      </CustomTooltip>
 
-            
-			 {/* <Tooltip 
-			 title={field.displayname} 
-			 arrow
-			 style={{ display: 'flex', alignItems: 'center', marginLeft: '8px', fontSize: '14px',color:'whitesmoke' }}
-			 componentsProps={{
-				tooltip: {
-				  sx: {
-					bgcolor: 'common.red',
-					'& .MuiTooltip-arrow': {
-					  color: 'common.red',
-					  width: 16, // Adjust arrow width
-                      height: 16,
-
-					},
-				  },
-				},
-			  }}
-			 open={showTooltip}
-			 placement="right-end"
-			 >
-				{/* Content to which the tooltip should apply */}
-				<span></span>
-		  {/* </Tooltip>   */} 
-
-                
-					<CustomTooltip
-				title={field.displayname}
-				arrow
-				open={showTooltip}
-				placement="right-end"
-				style={{ display: 'flex', alignItems: 'center', marginLeft: '8px', fontSize: '14px' }}
-				>
-				<span></span>
-				</CustomTooltip>
-		   
-		   {/* {showTooltip && (
-			<div style={{ position: "relative" }}>
-			<PriceTagTooltip
-			text={field.displayname} 
-			fillColor="white" 
-			textColor="black" 
-			fontSize={10} 
-			open={showTooltip}  
-			display="flex"
-			alignItems="center"
-			marginLeft="8px"
-
-        />
-		</div>
-      )} */}
- 
-            
-
-		</div>
-	) : null;
+    </div>
+  ) : null;
 };
 
-
-
-
-
-const mapStateToProps = (state: TabTileStateProps2 & ChartPropertiesStateProps & any) => {
-	return {
-		tabTileProps: state.tabTileProps,
-		chartProp: state.chartProperties,
-		dynamicMeasureState: state.dynamicMeasuresState,
-	};
+const mapStateToProps = (
+  state: TabTileStateProps2 & ChartPropertiesStateProps & any
+) => {
+  return {
+    tabTileProps: state.tabTileProps,
+    chartProp: state.chartProperties,
+    dynamicMeasureState: state.dynamicMeasuresState,
+  };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-	return {
-		deleteDropZoneItems: (propKey: string, binIndex: number, itemIndex: number,  currentChartAxesName : string) =>
-			dispatch(editChartPropItem("delete", { propKey, binIndex, itemIndex, currentChartAxesName })),
-		updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any,  currentChartAxesName : string) =>
-			dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item, currentChartAxesName })),
-		sortAxes: (propKey: string, bIndex: number, dragUId: string, uId: string, currentChartAxesName : string) =>
-			dispatch(sortAxes(propKey, bIndex, dragUId, uId, currentChartAxesName)),
-		revertAxes: (propKey: string, bIndex: number, uId: string, originalIndex: number,  currentChartAxesName : string) =>
-			dispatch(revertAxes(propKey, bIndex, uId, originalIndex, currentChartAxesName)),
+  return {
+    deleteDropZoneItems: (
+      propKey: string,
+      binIndex: number,
+      itemIndex: number,
+      currentChartAxesName: string
+    ) =>
+      dispatch(
+        editChartPropItem("delete", {
+          propKey,
+          binIndex,
+          itemIndex,
+          currentChartAxesName,
+        })
+      ),
+    updateQueryParam: (
+      propKey: string,
+      binIndex: number,
+      itemIndex: number,
+      item: any,
+      currentChartAxesName: string
+    ) =>
+      dispatch(
+        editChartPropItem("updateQuery", {
+          propKey,
+          binIndex,
+          itemIndex,
+          item,
+          currentChartAxesName,
+        })
+      ),
+    sortAxes: (
+      propKey: string,
+      bIndex: number,
+      dragUId: string,
+      uId: string,
+      currentChartAxesName: string
+    ) =>
+      dispatch(sortAxes(propKey, bIndex, dragUId, uId, currentChartAxesName)),
+    revertAxes: (
+      propKey: string,
+      bIndex: number,
+      uId: string,
+      originalIndex: number,
+      currentChartAxesName: string
+    ) =>
+      dispatch(
+        revertAxes(propKey, bIndex, uId, originalIndex, currentChartAxesName)
+      ),
 
-		//dynamic measure actions
-		deleteDropZoneItemsForDm: (propKey: string, binIndex: number, itemIndex: any) =>
-			dispatch(editChartPropItemForDm("delete", { propKey, binIndex, itemIndex })),
-		sortAxesForDm: (propKey: string, bIndex: number, dragUId: string, uId: string) =>
-			dispatch(sortAxesForDm(propKey, bIndex, dragUId, uId)),
-		updateAxesQueryParamForDm: (
-			propKey: string,
-			binIndex: number,
-			itemIndex: number,
-			item: any
-		) =>
-			dispatch(editChartPropItemForDm("updateQuery", { propKey, binIndex, itemIndex, item })),
-		revertAxesForDm: (propKey: string, bIndex: number, uId: string, originalIndex: number) =>
-			dispatch(revertAxesForDm(propKey, bIndex, uId, originalIndex)),
-		enableOverrideForUIDAction: (propKey: string, uId: string) =>
-			dispatch(enableOverrideForUIDAction(propKey, uId)),	
-		createChartAxesForUID: (propKey: string, uId: string, chartAxes:any) =>
-			dispatch(createChartAxesForUID(propKey, uId, chartAxes)),
-
-	};
+    //dynamic measure actions
+    deleteDropZoneItemsForDm: (
+      propKey: string,
+      binIndex: number,
+      itemIndex: any
+    ) =>
+      dispatch(
+        editChartPropItemForDm("delete", { propKey, binIndex, itemIndex })
+      ),
+    sortAxesForDm: (
+      propKey: string,
+      bIndex: number,
+      dragUId: string,
+      uId: string
+    ) => dispatch(sortAxesForDm(propKey, bIndex, dragUId, uId)),
+    updateAxesQueryParamForDm: (
+      propKey: string,
+      binIndex: number,
+      itemIndex: number,
+      item: any
+    ) =>
+      dispatch(
+        editChartPropItemForDm("updateQuery", {
+          propKey,
+          binIndex,
+          itemIndex,
+          item,
+        })
+      ),
+    revertAxesForDm: (
+      propKey: string,
+      bIndex: number,
+      uId: string,
+      originalIndex: number
+    ) => dispatch(revertAxesForDm(propKey, bIndex, uId, originalIndex)),
+    enableOverrideForUIDAction: (propKey: string, uId: string) =>
+      dispatch(enableOverrideForUIDAction(propKey, uId)),
+    createChartAxesForUID: (propKey: string, uId: string, chartAxes: any) =>
+      dispatch(createChartAxesForUID(propKey, uId, chartAxes)),
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Card);

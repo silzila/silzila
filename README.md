@@ -34,7 +34,7 @@
 
 ## Features
 * Connect to CSV & Databases
-* Wide variety of Chart Types
+* Wide variety of Chart T)ypes
 * Cross Table
 * Rich Text Slides (Static content for now)
 * Filters (Chart Level)
@@ -42,15 +42,13 @@
 * Arrange Charts into Dashboard
 
 ## How to Install
-Silzila requires Java 17
+Please refer to [Silzila Installation Guide](https://github.com/silzila/silzila/blob/main/docs/Installation%20Guide.md)
 
 ### for Dashboard Developers
 Coming soon... for a single executable Java .jar file
 
 ### for Code Contributiors
-Clone the repo and open in VS Code Editor. 
-Backend - Install Java/Springboot/Maven Dependencies and run like a typical java project. Backend starts at port 8080.
-Frontend - Go to Frontend folder and npm install and npm start. Frontend starts at port 3000 and Silzila app opens in Browser.
+Please refer to [Silzila Contribution File](https://github.com/silzila/silzila/blob/main/docs/Contribution.md)
 
 ## Milestones
 Silzila is in active development. Right now, it may not have all the features you expect in a commercial tool. 
@@ -58,13 +56,13 @@ The below features are our priority and the tentative timelines are given below:
 
 - [x] Chart Filter (Jan 2023)
 - [ ] Installer File (Feb 2023)
-- [ ] Dashboard Filter (Feb 2023)
+- [x] Dashboard Filter (Feb 2023)
 - [ ] Revamp silzila.org (Feb 2023)
 - [ ] Live Demo in silzila.org (Feb 2023)
 - [ ] Download PDF, Image (Mar 2023)
-- [ ] Snowflake Connectivity (Mar 2023)
-- [ ] Redshift, Big Query Connectivity (Apr 2023)
+- [x] Snowflake Connectivity (Mar 2023)
+- [x] Redshift, Big Query Connectivity (Apr 2023)
 - [ ] Stable Release (May 2023)
 - [ ] Online Version of tool in silzila.org (May 2023)
-- [ ] Window Functions (June 2023)
+- [x] Window Functions (June 2023)
 - [ ] Calculated Columns (July 2023)

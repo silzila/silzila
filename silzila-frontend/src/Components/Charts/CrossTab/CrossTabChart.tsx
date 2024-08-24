@@ -69,13 +69,13 @@ const CrossTabChart = ({
 
 				for (let i = 0; i < chartDataKeys.length; i++) {
 					/*  Need to format only numeric values  */
-					if (typeof item[chartDataKeys[i]] === "number") {
+					if (typeof item[chartDataKeys[i]] === "number" || !isNaN(item[chartDataKeys[i]])) {
 						let _isMeasureField = dustbinValues.find(field =>
 							//chartDataKeys[i].includes(field.fieldname)
 							chartDataKeys[i].includes(field.displayname)
 						);
 						/*  Need to format Measure dustbin fields */
-						if (_isMeasureField && chartDataKeys[i].includes("of")) {
+						if (_isMeasureField ) {
 							formattedValue[chartDataKeys[i]] = formatChartLabelValue(
 								property,
 								item[chartDataKeys[i]]
