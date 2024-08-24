@@ -15,7 +15,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 @JsonPropertyOrder({
         "filterType",
         "tableId",
+        "tableName",
         "fieldName",
+        "uid",
         "dataType",
         "shouldExclude",
         "timeGrain",
@@ -29,10 +31,14 @@ public class Filter implements Serializable {
     private String filterType;
     @JsonProperty("tableId")
     private String tableId;
+    @JsonProperty("tableName")
+    private String tableName=null;
     @JsonProperty("fieldName")
     private String fieldName;
     @JsonProperty("dataType")
     private Filter.DataType dataType;
+    @JsonProperty("uid")
+    private String uid = null;
     @JsonProperty("shouldExclude")
     private Boolean shouldExclude = false;
     @JsonProperty("timeGrain")
@@ -66,13 +72,15 @@ public class Filter implements Serializable {
      * @param operator
      * @param relativeCondition
      */
-    public Filter(String tableId, String fieldName, Filter.DataType dataType, Boolean shouldExclude,
+    public Filter(String tableId, String tableName, String fieldName, Filter.DataType dataType, String uid, Boolean shouldExclude,
             Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection, String filterType,
             RelativeCondition relativeCondition, Boolean  isTillDate) {
         super();
         this.tableId = tableId;
+        this.tableName = tableName;
         this.fieldName = fieldName;
         this.dataType = dataType;
+        this.uid = uid;
         this.shouldExclude = shouldExclude;
         this.timeGrain = timeGrain;
         this.operator = operator;
@@ -102,6 +110,16 @@ public class Filter implements Serializable {
         this.tableId = tableId;
     }
 
+    @JsonProperty("tableName")
+    public String getTableName() {
+        return tableName;
+    }
+
+    @JsonProperty("tableName")
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
     @JsonProperty("fieldName")
     public String getFieldName() {
         return fieldName;
@@ -120,6 +138,16 @@ public class Filter implements Serializable {
     @JsonProperty("dataType")
     public void setDataType(Filter.DataType dataType) {
         this.dataType = dataType;
+    }
+
+    @JsonProperty("uid")
+    public String getUid() {
+        return uid;
+    }
+
+    @JsonProperty("uid")
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     @JsonProperty("shouldExclude")
@@ -193,6 +221,10 @@ public class Filter implements Serializable {
         sb.append('=');
         sb.append(((this.tableId == null) ? "<null>" : this.tableId));
         sb.append(',');
+        sb.append("tableName");
+        sb.append('=');
+        sb.append(((this.tableName == null) ? "<null>" : this.tableName));
+        sb.append(',');
         sb.append("fieldName");
         sb.append('=');
         sb.append(((this.fieldName == null) ? "<null>" : this.fieldName));
@@ -200,6 +232,10 @@ public class Filter implements Serializable {
         sb.append("dataType");
         sb.append('=');
         sb.append(((this.dataType == null) ? "<null>" : this.dataType));
+        sb.append(',');
+        sb.append("uid");
+        sb.append('=');
+        sb.append(((this.uid == null) ? "<null>" : this.uid));
         sb.append(',');
         sb.append("shouldExclude");
         sb.append('=');
