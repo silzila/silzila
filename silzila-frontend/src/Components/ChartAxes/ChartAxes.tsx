@@ -239,6 +239,8 @@ const ChartAxes = ({
       chartData.length > 0
     ) {
       let dimensionName = chartProp.properties[propKey].chartAxes[1].fields[0];
+      if (chartProp.properties[propKey].chartType === "bubbleMap")
+        dimensionName = chartProp.properties[propKey].chartAxes[2].fields[0];
       misMatchArray = getMismachedLocationArray(
         chartData,
         fieldName(dimensionName),
@@ -407,21 +409,22 @@ const ChartAxes = ({
             }}
             options={options}
             sx={{
+              color: "#2bb9bb",
               width: "12rem",
               "& .MuiAutocomplete-inputRoot": {
-                maxHeight: "32px",
-              },
-              "& .MuiInputLabel-root.Mui-focused": {
-                borderColor: "#2bb9bb",
-                color: "#2bb9bb",
+                maxHeight: "32px !important",
               },
               "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#2bb9bb",
-                color: "#2bb9bb",
+                borderColor: "#2bb9bb !important",
+                color: "#2bb9bb !important",
+              },
+              "& .MuiInputLabel-root.Mui-focused": {
+                borderColor: "#2bb9bb !important",
+                color: "#2bb9bb !important",
               },
               "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#2bb9bb",
-                color: "#2bb9bb",
+                borderColor: "#2bb9bb !important",
+                color: "#2bb9bb !important",
               },
             }}
             renderInput={(params) => (

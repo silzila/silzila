@@ -573,6 +573,19 @@ const Card = ({
       overRideMenuList = options[3];
     }
 
+    const isItemDisabled = (optionValue: string) => {
+      if (chartType === "bubbleMap") {
+        if (
+          optionValue === "Min" ||
+          optionValue === "Max" ||
+          optionValue === "Count Unique"
+        ) {
+          return true;
+        }
+      }
+      return false;
+    };
+
     return (
       <Menu
         id="basic-menu"
@@ -602,8 +615,14 @@ const Card = ({
                   </span>
                   <MenuItem
                     onClick={() => handleClose("agg", opt.id)}
-                    sx={opt?.id === field?.agg ? menuSelectedStyle : menuStyle}
+                    // sx={opt?.id === field?.agg ? menuSelectedStyle : menuStyle}
+                    sx={{
+                      ...menuStyle,
+                      width: "100%",
+                      ...(opt?.id === field?.agg && menuSelectedStyle),
+                    }}
                     key={opt?.id}
+                    disabled={isItemDisabled(opt.name)}
                   >
                     {opt?.name}
                   </MenuItem>
@@ -647,11 +666,16 @@ const Card = ({
                   </span>
                   <MenuItem
                     onClick={() => handleClose("timeGrain", opt2.id)}
-                    sx={
-                      opt2.id === field.timeGrain
-                        ? menuSelectedStyle
-                        : menuStyle
-                    }
+                    // sx={
+                    //   opt2.id === field.timeGrain
+                    //     ? menuSelectedStyle
+                    //     : menuStyle
+                    // }
+                    sx={{
+                      ...menuStyle,
+                      width: "100%",
+                      ...(opt2.id === field.timeGrain && menuSelectedStyle),
+                    }}
                     key={opt2.id}
                   >
                     {opt2.name}
@@ -696,7 +720,11 @@ const Card = ({
                     <MenuItem
                       disabled={windowFunctionDisable}
                       onClick={handleWindowFunctionOnClick}
-                      sx={{ fontSize: "12px", padding: "2px 1.5rem" }}
+                      sx={{
+                        fontSize: "12px",
+                        padding: "2px 1.5rem",
+                        width: "100%",
+                      }}
                       key={opt.id}
                     >
                       {opt.name}
@@ -729,7 +757,11 @@ const Card = ({
                   <MenuItem
                     disabled={opt.id == "disableFilter" && !field.override}
                     onClick={(e: any) => handleOverrideOnClick(e, opt)}
-                    sx={{ fontSize: "12px", padding: "2px 1.5rem" }}
+                    sx={{
+                      fontSize: "12px",
+                      padding: "2px 1.5rem",
+                      width: "100%",
+                    }}
                     key={opt.id}
                   >
                     {opt.name}
