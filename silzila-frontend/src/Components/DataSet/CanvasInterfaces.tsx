@@ -10,6 +10,7 @@ export interface CanvasProps {
   dsId?: string;
   //props
   editMode?: boolean;
+  EditFilterdatasetArray: any[];
 }
 
 export interface ArrowObj {

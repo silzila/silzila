@@ -18,6 +18,7 @@ export interface BottomBarProps {
   datasetName: string;
   database: string;
   isFlatFile: boolean;
+  datasetFilterArray: any[];
 
   // dispatch
   resetState: () => void;

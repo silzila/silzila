@@ -4,9 +4,6 @@ import { Divider, Menu, MenuItem, Radio, Tooltip } from "@mui/material";
 const MenuOption = ({ uid, open, anchorEl, onClose, filterFieldData }: any) => {
   const options = ["Include", "Exclude"];
   let options2 = ["Pick List", "Search Condition"];
-
-  console.log(filterFieldData);
-
   if (
     filterFieldData.dataType === "timestamp" ||
     filterFieldData.dataType === "date"

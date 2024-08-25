@@ -1,12 +1,35 @@
 export interface UserFilterDatasetProps {
   //props
-  tableId: any;
+  // tableId: any;
   editMode?: boolean;
-  tableName: any;
-  displayName: any;
-  dataType: string;
-  field: any;
-  uid: any;
+  // tableName: any;
+  // displayName: any;
+  // dataType: string;
+  // field: any;
+  // uid: any;
+  dbConnectionId: any;
+  dataSetFilterArray: dataSetFilterArrayProps[];
+  setDataSetFilterArray: React.Dispatch<
+    React.SetStateAction<dataSetFilterArrayProps[]>
+  >;
+
+  //state
+  dbName: string;
+
+  token: string;
+  schema: string;
+  datasetName: string;
+}
+
+export interface FilterElement {
+  //props
+  // tableId: any;
+  // editMode?: boolean;
+  // tableName: any;
+  // displayName: any;
+  // dataType: string;
+  // field: any;
+  // uid: any;
   dbConnectionId: any;
   dataSetFilterArray: dataSetFilterArrayProps[];
   setDataSetFilterArray: React.Dispatch<
@@ -29,7 +52,9 @@ export interface dataSetFilterArrayProps {
   isCollapsed: true;
   tableId: string;
   displayName: string;
+  tableName: string;
   dataType: string;
   uid: any;
   filterOptions: string;
+  userSelection: any[];
 }

@@ -599,11 +599,13 @@ DataHome
   position: fixed;
   display: flex;
   height: 87%;
-  width: 16vw;
+  width: 211px;
   top: 5.7%;
+  background-color: white;
   right: 0%;
   /* overflow: auto; */
-  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
   z-index: 90;
   border-right: none;
 }

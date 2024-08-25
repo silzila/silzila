@@ -1,11 +1,12 @@
 // // Canvas component is part of Dataset Create / Edit page
 // // List of tables selected in sidebar is displayed here
 // // connections can be made between columns of different tables to define relationship in a dataset
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import "./Dataset.css";
 import Xarrow, { Xwrapper } from "react-xarrows";
 import CanvasTables from "./CanvasTables";
+import filterIcon from "../../assets/filter_icon.svg";
 import RelationshipDefiningComponent from "./RelationshipDefiningComponent";
 import BottomBar from "./BottomBar";
 import {
@@ -14,14 +15,10 @@ import {
   tableObjProps,
 } from "../../redux/DataSet/DatasetStateInterfaces";
 import { CanvasProps } from "./CanvasInterfaces";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
-import CloseIcon from "@mui/icons-material/Close";
 import ShortUniqueId from "short-unique-id";
 // import UserFilterDataset from "./UserFilterDataset";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
-import { dataSetFilterArrayProps } from "./UserFilterDatasetInterfaces";
-import UserFilterCardNew from "./UserFilterDatasetNew";
 import UserFilterDataset from "./UserFilterDataset";
 const Canvas = ({
   // state
@@ -30,6 +27,7 @@ const Canvas = ({
   dsId,
   //props
   editMode,
+  EditFilterdatasetArray,
 }: CanvasProps) => {
   const [showRelationCard, setShowRelationCard] = useState<boolean>(false);
   const [existingArrowProp, setExistingArrowProp] = useState<{}>({});
@@ -41,10 +39,10 @@ const Canvas = ({
   const [dataType, setDataType] = useState<string>("");
   const [tableName, setTableName] = useState<string>("");
   const [field, setfield] = useState<any>({});
-  const [dataSetFilterArray, setDataSetFilterArray] = useState<
-    dataSetFilterArrayProps[]
-  >([]);
-  //   // When arrow is clicked, open relationship Popover
+  const [dataSetFilterArray, setDataSetFilterArray] = useState<any[]>(
+    EditFilterdatasetArray || []
+  );
+
   const clickOnArrowfunc = (index: number) => {
     setExistingArrow(true);
     const temp = arrows.filter((el: ArrowsProps, i: number) => i === index)[0];
@@ -54,10 +52,10 @@ const Canvas = ({
 
   const handleDrop = (e: any) => {
     e.stopPropagation();
-    console.log(e.dataTransfer);
 
     const refs = {
       isSelected: true,
+      tableId: e.dataTransfer.getData("tableId"),
       index: e.dataTransfer.getData("connectIndex"),
       dataType: e.dataTransfer.getData("connectitemtype"),
       startTableName: e.dataTransfer.getData("connectTableName"),
@@ -67,21 +65,22 @@ const Canvas = ({
       schema: e.dataTransfer.getData("schema"),
       startId: e.dataTransfer.getData("tableId"),
     };
-    console.log(refs);
+
     const uid: any = new ShortUniqueId({ length: 4 });
 
     const field = {
-      tableId: refs.startId,
+      tableId: refs.tableId,
       fieldName: refs.startColumnName,
       exprType: "greaterThan",
       dataType: refs.dataType,
-      fieldtypeoption: "Pick List",
-      includeexclude: "Include",
+      fieldtypeoption: "Pick List", //default value for
+      includeexclude: "Include", //default value for
       displayName: refs.startColumnName,
       uid: uid(),
       tableName: refs.startTableName,
       schema: refs.schema,
     };
+    console.log(field);
     setfield(field);
     setTableName(field.tableName);
     setDisplayName(field.displayName);
@@ -120,7 +119,7 @@ const Canvas = ({
       <div
         className="canvasStyle"
         id="canvasTableArea"
-        style={{ width: !isDataSetVisible ? "100%" : "calc(99% - 15vw)" }}
+        style={{ width: !isDataSetVisible ? "100%" : "calc(99% - 198px)" }}
       >
         <Xwrapper>
           {tempTable &&
@@ -132,10 +131,29 @@ const Canvas = ({
         </Xwrapper>
 
         {isDataSetVisible === false && (
-          <ArrowBackRoundedIcon
-            onClick={() => setIsDataSetVisible(!isDataSetVisible)}
-            className="IconDataset"
-          />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh",
+            }}
+          >
+            <button
+              title="Open dataset filter"
+              style={{
+                backgroundColor: "white",
+                outline: "none",
+                border: "none",
+                margin: "auto auto",
+              }}
+            >
+              <ArrowBackRoundedIcon
+                onClick={() => setIsDataSetVisible(!isDataSetVisible)}
+                className="IconDataset"
+              />
+            </button>
+          </div>
         )}
 
         {isDataSetVisible ? (
@@ -153,39 +171,55 @@ const Canvas = ({
                   margin: "auto auto",
                 }}
               >
-                <FilterListIcon />
-                <h4 style={{ display: "inline", margin: "0 0 0 8px" }}>
-                  Filter Dataset
-                </h4>
+                <img
+                  src={filterIcon}
+                  style={{
+                    height: "2rem",
+                    width: "3rem",
+                    margin: "0 19px",
+                  }}
+                  alt="filter"
+                />
+                <span className="axisTitle">Dataset Filter</span>
                 <div>
-                  <CloseIcon
-                    className="IconDataset"
-                    style={{ right: "92%", top: "0px", zIndex: "999" }}
-                    onClick={() => setIsDataSetVisible(!isDataSetVisible)}
-                  />
+                  <button
+                    title="minimize"
+                    style={{
+                      backgroundColor: "white",
+                      outline: "none",
+                      border: "none",
+                    }}
+                  >
+                    <ArrowBackRoundedIcon
+                      // className="columnClose"
+                      style={{
+                        right: "92%",
+                        top: "0px",
+                        zIndex: "999",
+                        transform: "rotate(180deg)", // Use transform instead of rotate
+                      }}
+                      onClick={() => setIsDataSetVisible(!isDataSetVisible)}
+                    />
+                  </button>
                 </div>
               </div>
-              {dataSetFilterArray.length > 0 &&
-                dataSetFilterArray.map((item) => (
-                  <UserFilterDataset
-                    editMode={editMode}
-                    tableId={item.tableId}
-                    dataType={dataType}
-                    tableName={tableName}
-                    dataSetFilterArray={dataSetFilterArray}
-                    setDataSetFilterArray={setDataSetFilterArray}
-                    displayName={item.displayName}
-                    field={item}
-                    uid={uid}
-                    dbConnectionId={tempTable[0].dcId}
-                  />
-                ))}
+              {dataSetFilterArray.length > 0 && (
+                <UserFilterDataset
+                  editMode={editMode}
+                  dataSetFilterArray={dataSetFilterArray}
+                  setDataSetFilterArray={setDataSetFilterArray}
+                  dbConnectionId={tempTable[0].dcId}
+                />
+              )}
             </div>
           </div>
         ) : null}
         <RenderArrows />
       </div>
-      <BottomBar editMode={editMode ? editMode : false} />
+      <BottomBar
+        datasetFilterArray={dataSetFilterArray}
+        editMode={editMode ? editMode : false}
+      />
 
       <RelationshipDefiningComponent
         id="idarrow"
