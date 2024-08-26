@@ -27,7 +27,7 @@ import {
 import WarningIcon from "@mui/icons-material/WarningAmber";
 import GoeMismatch from "../Charts/GeoChart/Components/GeoMismatch";
 import GoeHelp from "../Charts/GeoChart/Components/GeoHelp";
-import { fieldName } from "../CommonFunctions/CommonFunctions";
+import { displayName, fieldName } from "../CommonFunctions/CommonFunctions";
 import { VisibilitySharp, InfoOutlined } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
 import {
@@ -243,7 +243,8 @@ const ChartAxes = ({
         dimensionName = chartProp.properties[propKey].chartAxes[2].fields[0];
       misMatchArray = getMismachedLocationArray(
         chartData,
-        fieldName(dimensionName),
+        // fieldName(dimensionName),
+        displayName(dimensionName),
         chartProp.properties[propKey].Geo.geoLocation,
         chartProp.properties[propKey].Geo.geoMapKey
       );

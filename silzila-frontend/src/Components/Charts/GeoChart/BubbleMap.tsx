@@ -9,10 +9,6 @@ import {
   ChartConGeoChartControls,
 } from "../../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../../ChartOptions/Color/ColorScheme";
-import {
-  formatChartLabelValue,
-  formatChartYAxisValue,
-} from "../../ChartOptions/Format/NumberFormatter";
 
 import {
   ChartsMapStateToProps,
@@ -22,9 +18,7 @@ import {
 
 import {
   interpolateColor,
-  generateRandomColorArray,
   fieldName,
-  getLabelValues,
   displayName,
 } from "../../CommonFunctions/CommonFunctions";
 import { getGeoJSON } from "./GeoJSON/MapCommonFunctions";
@@ -36,24 +30,11 @@ import { AxesValuProps } from "../../ChartAxes/ChartAxesInterfaces";
 import { Dispatch } from "redux";
 
 export var bgColors: { [key: string]: string } = {};
-export var dimensionName: any[];
-export var changeBgColor: boolean = false;
-export var oncolorclick: boolean = false;
-export const changeBgColors = () => {
-  changeBgColor = true;
-};
-export const onclickchange = () => {
-  oncolorclick = true;
-};
 
 const BubbleMap = ({
   //props
   propKey,
   graphDimension,
-  chartArea,
-  graphTileSize,
-
-  field,
 
   chartGroup,
   dashBoardGroup,
@@ -78,16 +59,15 @@ const BubbleMap = ({
   // let keyName = fieldName(_locationField.fields[0]);
   let keyName = displayName(_locationField.fields[0]);
   let dimName = fieldName(_dimensionField.fields[0]);
-  let dimName1 = displayName(_dimensionField.fields[0]);
+  let dimDispName = displayName(_dimensionField.fields[0]);
   let valueName = fieldName(_measureField.fields[0]);
-  let valueName1 = displayName(_measureField.fields[0]);
+  let valueDispName = displayName(_measureField.fields[0]);
   const [options, setOptions] = useState({});
   let index = 0;
   geoStyle.bgCol = bgColors;
   updateGeoChartStyleOptions(propKey, "bgCol", bgColors);
-  const [updateBg, setupdateBg] = useState<boolean>(false);
 
-  let bgColor: any[] = [];
+  let bubbleSize: any[] = [];
 
   function extractLastWord(inputString: string) {
     // Split the string by " of " and return the last element
@@ -96,8 +76,9 @@ const BubbleMap = ({
       return parts[parts.length - 1];
     }
   }
-  valueName1 = extractLastWord(valueName1);
+  valueDispName = extractLastWord(valueDispName);
 
+  // For making an API call for getting bubble size
   let axes: AxesValuProps[] = [];
   axes.push(chartProperties.properties[propKey].chartAxes[0]);
   axes.push(chartProperties.properties[propKey].chartAxes[2]);
@@ -106,9 +87,8 @@ const BubbleMap = ({
   axes = JSON.parse(JSON.stringify(axes));
 
   let res: any;
-  const [ress, setress] = useState<any>([]);
-  const getSqlQuery = () => {
-    console.log(axes);
+  const [queryRes, setqueryRes] = useState<any>([]);
+  const getBubbleSizeQuery = () => {
     getChartData(
       axes,
       chartProperties,
@@ -136,18 +116,16 @@ const BubbleMap = ({
         },
         data: data,
       });
-      setress(res);
-      console.log(ress);
+      setqueryRes(res);
     });
   };
 
-  // getSqlQuery();
   useEffect(() => {
     axes = JSON.parse(JSON.stringify(axes));
-    getSqlQuery();
+    getBubbleSizeQuery();
   }, [
-    // chartProperties.properties[propKey].chartAxes,
-    displayName(chartProperties.properties[propKey].chartAxes[3].fields[0]),
+    chartProperties.properties[propKey].chartAxes[3].fields[0],
+    chartProperties.properties[propKey].chartAxes[2].fields[0],
     chartProperties.properties[propKey].chartAxes[3]?.fields[0]?.agg,
   ]);
 
@@ -158,9 +136,6 @@ const BubbleMap = ({
       // ...geoStyle.bgCol,
     };
     updateGeoChartStyleOptions(propKey, "bgCol", newBgColors);
-    console.log(_dimensionField);
-    console.log(chartData);
-    console.log(geoStyle.bgCol);
 
     index = 0;
     mapData.forEach((item) => {
@@ -207,20 +182,10 @@ const BubbleMap = ({
   registerGeoMap(chartProperties.properties[propKey].Geo.geoLocation);
 
   const convertIntoMapData = async () => {
-    // function extractLastWord(inputString: string) {
-    //   // Split the string by " of " and return the last element
-    //   if (!inputString) return null;
-    //   const parts = inputString.split(" of ");
-    //   return parts[parts.length - 1];
-    // }
-    // keyName = extractLastWord(keyName);
-    // dimName = extractLastWord(dimName);
-
-    //////////////////////////////////////////////////////////////////////////Check Here!////////////////////////////////////////////////////////////////
-    bgColor = ress?.data?.map((item: any) => {
+    bubbleSize = queryRes?.data?.map((item: any) => {
       return {
         name: item[keyName],
-        value: item[valueName1],
+        value: item[valueDispName],
       };
     });
 
@@ -246,10 +211,6 @@ const BubbleMap = ({
       );
 
       mapData = chartData?.map((item) => {
-        console.log(item[dimName]);
-        if (index < chartThemes[0].colors.length) {
-          // bgColor.push(index);
-        }
         return {
           name: matchingMapJSONArray.find(
             (match: any) => match.key === item[keyName]?.trim()
@@ -267,19 +228,13 @@ const BubbleMap = ({
             ? "null"
             : item[dimName],
           // dim: !chartData[0].hasOwnProperty(dimName) ? "" : item[dimName],
-          size: bgColor?.find(
+          size: bubbleSize?.find(
             (match: any) => match.name === item[keyName]?.trim()
           )?.value,
         };
       });
 
-      dimensionName = chartData?.map((item) => {
-        return item[dimName];
-      });
-
       setBgColors();
-
-      console.log(mapData);
 
       if (
         chartProperties.properties[propKey].Geo.unMatchedChartData?.length > 0
@@ -321,10 +276,6 @@ const BubbleMap = ({
   };
 
   const setBgColors = () => {
-    if (changeBgColor) {
-      setupdateBg(!updateBg);
-      changeBgColor = false;
-    }
     index = 0;
     mapData.forEach((item) => {
       if (!geoStyle.bgCol[item.dim]) {
@@ -351,7 +302,6 @@ const BubbleMap = ({
         }
       }
     });
-    console.log(geoStyle.bgCol);
   };
 
   function renderBubble(
@@ -360,27 +310,29 @@ const BubbleMap = ({
   ): echarts.PieSeriesOption {
     setBgColors();
     let data = [];
-    data = mapData.map((t) => {
-      if (t.name && t.name === center) {
-        console.log(geoStyle.bgCol[t.dim]);
+    data = mapData.map((dataItem) => {
+      if (dataItem.name && dataItem.name === center) {
         return {
-          value: t.value,
+          value: dataItem.value,
           name:
             keyName +
             " : " +
-            t.name +
+            dataItem.key +
             ", " +
-            (dimName1
-              ? dimName1 + " : " + (t.dim !== undefined ? t.dim : "") + ", "
+            (dimDispName
+              ? dimDispName +
+                " : " +
+                (dataItem.dim !== undefined ? dataItem.dim : "") +
+                ", "
               : "") +
             valueName +
             " ",
           // itemStyle: {
-          //   color: bgColors[t.dim],
+          //   color: bgColors[dataItem.dim],
           // },
           itemStyle:
-            t.dim && t.dim !== undefined
-              ? { color: geoStyle.bgCol[t.dim] }
+            dataItem.dim && dataItem.dim !== undefined
+              ? { color: geoStyle.bgCol[dataItem.dim] }
               : {},
         };
       }
@@ -418,43 +370,46 @@ const BubbleMap = ({
   useEffect(() => {
     let mapMinMax: any = getMinAndMaxValue(valueName);
     setBgColors();
-    if (oncolorclick) {
-      setupdateBg(!updateBg);
-      oncolorclick = false;
-    }
     convertIntoMapData();
 
-    const aggregatedValues: [] = mapData.reduce((acc, item) => {
-      if (acc[item.key]) {
-        acc[item.key] += item.value;
-      } else {
-        acc[item.key] = item.value;
-      }
-      return acc;
-    }, {});
+    let maxMeasureValue: number = 100;
+    let minMeasureValue: number = 0;
+    if (bubbleSize && bubbleSize.length > 0) {
+      maxMeasureValue = bubbleSize.reduce((max, obj) => {
+        if (obj && obj.value !== undefined) {
+          return obj.value > max ? obj.value : max;
+        }
+        return max;
+      }, bubbleSize[0].value);
+      minMeasureValue = bubbleSize.reduce((min, obj) => {
+        if (obj && obj.value !== undefined) {
+          return obj.value < min ? obj.value : min;
+        }
+        return min;
+      }, bubbleSize[0].value);
+    }
 
-    const maxSales = Math.max(...Object.values(aggregatedValues));
-
-    const series = mapData.map((t) => {
-      let rad = t.value;
-      bgColor?.forEach((item) => {
-        if (t.name === item.name) {
+    const series = mapData.map((dataItem) => {
+      let rad = dataItem.value;
+      bubbleSize?.forEach((item) => {
+        if (dataItem.key === item.name) {
           rad = item.value;
         }
       });
-      console.log(rad);
-      // let geoWidth =tabTileProps.dashGridSize.y;
-      // let geoWidth =window.innerWidth;
       let geoWidth = Math.min(graphDimension.width, graphDimension.height);
       const maxBubbleSizes =
-        (((geoWidth * geoStyle.mapZoom) / 20) * geoStyle.maxBubbleSize) / 100 +
-        10;
+        (((geoWidth * geoStyle.mapZoom) / 10) * geoStyle.maxBubbleSize) / 100; //+
+      // 10;
       const minBubbleSizes =
-        (((geoWidth * geoStyle.mapZoom) / 20) * geoStyle.minBubbleSize) / 100 +
-        10;
-      const radius =
-        (rad / maxSales) * (maxBubbleSizes - minBubbleSizes) + minBubbleSizes;
-      return renderBubble(t.name || [0, 0], radius);
+        (((geoWidth * geoStyle.mapZoom) / 10) * geoStyle.minBubbleSize) / 100; //+
+      // 10;
+      let radius =
+        ((rad - minMeasureValue) / (maxMeasureValue - minMeasureValue)) *
+          (maxBubbleSizes - minBubbleSizes) +
+        minBubbleSizes;
+      if (radius > (geoWidth * geoStyle.mapZoom) / 15)
+        radius = (geoWidth * geoStyle.mapZoom) / 15;
+      if (dataItem.name) return renderBubble(dataItem.name, radius);
     });
 
     let inRange = !chartProperties.properties[propKey].chartAxes[1].fields[0]
@@ -555,10 +510,7 @@ const BubbleMap = ({
             }
           : null,
 
-      series: [
-        ...series,
-        // renderBubble([-86.753504, 33.01077], 15),
-      ],
+      series: [...series],
     });
   }, [
     chartControl,
@@ -568,14 +520,7 @@ const BubbleMap = ({
     geoStyle,
     graphDimension,
     geoStyle.bgCol,
-    // options,
-    updateBg,
-    oncolorclick,
-    // changeBgColor,
-    // mapData,
-    ress,
-    // bgColor,
-    chartData,
+    queryRes,
   ]);
 
   const RenderChart = () => {

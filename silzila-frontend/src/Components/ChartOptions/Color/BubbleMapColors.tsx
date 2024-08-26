@@ -12,11 +12,7 @@ import { ColorResult, SketchPicker } from "react-color";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import {
-  addTableConditionalFormats,
-  setAreaColorOptions,
   setColorScheme,
-  switchAutotoManualinSteps,
-  updateBoxPlotStyleOptions,
   updatecfObjectOptions1,
   updateGeoChartStyleOptions,
 } from "../../../redux/ChartPoperties/ChartControlsActions";
@@ -25,34 +21,18 @@ import {
   ChartOptionsStateProps,
 } from "../CommonInterfaceForChartOptions";
 
-import SliderWithInput from "../SliderWithInput";
-import SwitchWithInput from "../SwitchWithInput";
-
 import { ColorSchemes, ColorSchemesProps } from "./ColorScheme";
 import {
   ChartConGeoChartControls,
   ChartControlsProps,
 } from "../../../redux/ChartPoperties/ChartControlsInterface";
-import GradientComponent from "../TableChartControlComponents/GradientComponent";
 import {
   displayName,
   fieldName,
   getLabelValues,
 } from "../../CommonFunctions/CommonFunctions";
-import LabelComponent from "../TableChartControlComponents/LabelComponent";
-import {
-  CustomBgColor,
-  CustomFontAndBgColor,
-  StyleButtons,
-} from "../CommonComponents";
-import {
-  // bgColor,
-  bgColors,
-  // changeBgColors,
-  // clearBgColors,
-  dimensionName,
-  onclickchange,
-} from "../../Charts/GeoChart/BubbleMap";
+import { CustomBgColor } from "../CommonComponents";
+import { bgColors } from "../../Charts/GeoChart/BubbleMap";
 
 const inputBaseStyle = {
   border: "2px solid rgba(224,224,224,1)",
@@ -66,13 +46,6 @@ const inputBaseStyle = {
 interface ChartColorsActions {
   token: any;
   setColorScheme: (propKey: string, color: string) => void;
-  switchAutotoManualinSteps: (propKey: string, value: any) => void;
-  setAreaColorOptions: (propKey: string, option: string, value: any) => void;
-  updateBoxPlotStyleOptions: (
-    propKey: string,
-    option: string,
-    value: any
-  ) => void;
 
   updateGeoChartStyleOptions: (
     propKey: string,
@@ -90,9 +63,6 @@ const BubbleMapColors = ({
 
   // dispatch
   setColorScheme,
-  setAreaColorOptions,
-  switchAutotoManualinSteps,
-  updateBoxPlotStyleOptions,
   updateGeoChartStyleOptions,
 }: ChartOptionsProps & ChartColorsActions) => {
   var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
@@ -103,35 +73,8 @@ const BubbleMapColors = ({
 
   var geoStyle: ChartConGeoChartControls =
     chartControls.properties[propKey].geoChartControls || {};
-  // const [isColorPopoverOpen, setColorPopOverOpen] = useState(false);
   const [color, setColor] = useState<string>("");
   const [colorFieldName, setColorFieldName] = useState<string>("");
-
-  const [bgColor, setBgColor] = useState<{ [key: string]: string }>(bgColors);
-
-  const handleColorChangeComplete = (color: any) => {
-    setBgColor((prevColors) => ({
-      ...prevColors,
-      [colorFieldName]: color.hex,
-    }));
-  };
-  const handleColorSchemeChange = (newScheme: string) => {
-    setSelectedMenu(newScheme);
-    // changeBgColors(); // Adjust your bgColors based on the selected scheme
-  };
-  const [reRender, setreRender] = useState<boolean>(false);
-
-  // let bgColor;
-  // bgColor = chartControls.properties[
-  //   propKey
-  // ].tableConditionalFormats[0]?.value?.map((item: any) => {
-  //   return item.backgroundColor;
-  // });
-  // console.log(bgColor);
-  let _dimensionField = chartProperties.properties[propKey].chartAxes[1];
-  let keyName = fieldName(_dimensionField.fields[0]);
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
 
   let index = 0;
   let chartData: any[] = chartControls.properties[propKey].chartData || [];
@@ -139,55 +82,22 @@ const BubbleMapColors = ({
     return el.name === chartControls.properties[propKey].colorScheme;
   });
 
+  let _dimensionField = chartProperties.properties[propKey].chartAxes[1];
+  let dimName = fieldName(_dimensionField.fields[0]);
   let _locationField = chartProperties.properties[propKey].chartAxes[2];
-  // let _dimensionField = chartProperties.properties[propKey].chartAxes[1];
   let _measureField = chartProperties.properties[propKey].chartAxes[3];
-  // let keyName = fieldName(_locationField.fields[0]);
-  let dimName = displayName(_locationField.fields[0]);
-  // let dimName = fieldName(_dimensionField.fields[0]);
+  let keyDispName = displayName(_locationField.fields[0]);
   let valueName = fieldName(_measureField.fields[0]);
 
   const setBgColors = () => {
-    /////////////////////////////////////////////////////////////////////////////////Ch Col//////////////////////////////////////////////////////////
-    // geoStyle.bgCol = {};
-    const hasNullValues = chartData.some((item) =>
-      item.hasOwnProperty(keyName)
-    );
     let mapData = chartData?.map((item) => {
-      console.log(chartData);
-      console.log(item[keyName]);
-      console.log(keyName);
-      if (index < chartThemes[0].colors.length) {
-        // bgColor.push(index);
-      }
       return {
-        // name: matchingMapJSONArray.find(
-        //   (match: any) => match.key === item[keyName]?.trim()
-        // )?.name,
-        name: item[dimName],
+        name: item[keyDispName],
         value: item[valueName] || 0,
-        key: item[dimName],
-        dim: !chartData[0].hasOwnProperty(keyName) ? "" : item[keyName],
-        // ? item[keyName]
-        // : item[keyName] === null
-        // ? "null"
-        // : "",
-        // size: bgColor?.find(
-        //   (match: any) => match.name === item[keyName]?.trim()
-        // )?.value,
+        key: item[keyDispName],
+        dim: !chartData[0].hasOwnProperty(dimName) ? "" : item[dimName],
       };
     });
-    // if (changeBgColor) {
-    //   setupdateBg(!updateBg);
-    //   // bgColors = {};
-    //   // geoStyle.bgCol = {};
-    //   // geoStyle.bgCol = bgColors;
-    //   // const newBgColors = { ...bgColors };
-    //   // updateGeoChartStyleOptions(propKey, "bgCol", newBgColors);
-    //   // updateGeoChartStyleOptions(propKey, "bgCol", bgColors);
-    //   changeBgColor = false;
-    // }
-    // updateGeoChartStyleOptions(propKey, "bgCol", {});
     index = 0;
     mapData?.forEach((item) => {
       if (item.dim !== undefined && !geoStyle.bgCol[item.dim]) {
@@ -200,17 +110,9 @@ const BubbleMapColors = ({
             [item.dim]: chartThemes[0].colors[index - 1],
           };
           updateGeoChartStyleOptions(propKey, "bgCol", newBgColors);
-          // updateGeoChartStyleOptions(propKey, "bgCol", bgColors);
-          // geoStyle.bgCol[item.dim] = chartThemes[0].colors[index - 1];
-          // return {
-          // [item.dim]: chartThemes[0].colors[index - 1],
-          // name: item.dim,
-          // col: chartThemes[0].colors[index - 1],
-          // };
         } else {
           index = 0;
           index++;
-          // return {
           bgColors[item.dim] = chartThemes[0].colors[index - 1];
           // bgColors = JSON.parse(JSON.stringify(bgColors));
           const newBgColors = {
@@ -219,28 +121,13 @@ const BubbleMapColors = ({
             [item.dim]: chartThemes[0].colors[index - 1],
           };
           updateGeoChartStyleOptions(propKey, "bgCol", newBgColors);
-          // const newBgColors = { ...bgColors };
-          // updateGeoChartStyleOptions(propKey, "bgCol", newBgColors);
-          // updateGeoChartStyleOptions(propKey, "bgCol", bgColors);
-          // geoStyle.bgCol[item.dim] = chartThemes[0].colors[index - 1];
-          // name: item.dim,
-          // col: chartThemes[0].colors[index - 1],
-          // };
         }
       }
     });
-    // bgColor = bgColors;
-    // geoStyle.bgCol = bgColors;
-    // const newBgColors = { ...bgColors };
-    // updateGeoChartStyleOptions(propKey, "bgCol", newBgColors);
-    // updateGeoChartStyleOptions(propKey, "bgCol", bgColors);
-    console.log(geoStyle.bgCol);
   };
   useEffect(() => {
     setBgColors();
   }, [chartData]);
-
-  //////////////////////////////////////////////////////////////////////////////////////////////
 
   const resetSelection = (data_value: string) => {
     setSelectedMenu(data_value);
@@ -253,7 +140,6 @@ const BubbleMapColors = ({
     });
     let index = 0;
     Object.keys(bgColors).forEach((key) => {
-      console.log(chartThemes[0].colors);
       bgColors[key] =
         chartThemes[0].colors[index % chartThemes[0].colors.length];
       const newBgColors = {
@@ -262,17 +148,9 @@ const BubbleMapColors = ({
         [key]: chartThemes[0].colors[index % chartThemes[0].colors.length],
       };
       updateGeoChartStyleOptions(propKey, "bgCol", newBgColors);
-      console.log(geoStyle.bgCol);
       index++;
     });
   };
-
-  // useEffect(() => {
-  //   // const onSelectValue = (index: any, value: any) => {
-  //   //   bgColors[index] = value;
-  //   // };
-  //   updateGeoChartStyleOptions(propKey, "bgCol", bgColors);
-  // }, [bgColors, color, ColorSchemes, isColorPopoverOpen, geoStyle, reRender]);
 
   if (!chartProperties.properties[propKey].chartAxes[1].fields[0]) {
     return (
@@ -331,7 +209,6 @@ const BubbleMapColors = ({
               margin: "auto",
             }}
             onClick={() => {
-              // console.log(geoStyle.maxColor);
               setColor(geoStyle.maxColor);
               setColorFieldName("maxColor");
               setColorPopOverOpen(!isColorPopoverOpen);
@@ -355,10 +232,6 @@ const BubbleMapColors = ({
               onChangeComplete={(color) => {
                 updateGeoChartStyleOptions(propKey, colorFieldName, color.hex);
               }}
-              // onChange={(color) =>
-              //   updateGeoChartStyleOptions(propKey, colorFieldName, color.hex)
-              // }
-              // disableAlpha
             />
           </div>
         </Popover>
@@ -378,16 +251,9 @@ const BubbleMapColors = ({
             value={selectedMenu}
             variant="outlined"
             onChange={(e) => {
-              // changeBgColors();
-              setreRender(!reRender);
-              // const newScheme = e.target.value as string;
-              // handleColorSchemeChange(newScheme);
               resetSelection(e.target.value);
               changeBgColor(e.target.value);
-              // console.log(e);
               updateGeoChartStyleOptions(propKey, "bgCol", bgColors);
-              console.log(geoStyle.bgCol);
-              // clearBgColors();
             }}
             sx={{ fontSize: "14px", margin: "0 1rem" }}
           >
@@ -428,29 +294,6 @@ const BubbleMapColors = ({
             })}
           </Select>
         </FormControl>
-        {/* <Popover
-          open={isColorPopoverOpen}
-          onClose={() => setColorPopOverOpen(false)}
-          onClick={() => setColorPopOverOpen(false)}
-          anchorReference="anchorPosition"
-          anchorPosition={{ top: 350, left: 1300 }}
-        >
-          <div>
-            <SketchPicker
-              color={chartControls.properties[propKey].areaBackgroundColor}
-              className="sketchPicker"
-              width="16rem"
-              // styles={{ padding: "0" }}
-              onChangeComplete={(color: ColorResult) => {
-                setAreaColorOptions(propKey, "areaBackgroundColor", color.hex);
-              }}
-              onChange={(color: ColorResult) =>
-                setAreaColorOptions(propKey, "areaBackgroundColor", color.hex)
-              }
-              disableAlpha
-            />
-          </div>
-        </Popover> */}
 
         <div
           className="optionDescription"
@@ -476,9 +319,6 @@ const BubbleMapColors = ({
                         columnValue: string
                       ) => {
                         bgColors[item] = value;
-                        console.log(bgColors);
-                        // geoStyle.bgCol[item] = value;
-                        // setColor(bgColors[item]);
                         const newBgColors = {
                           ...geoStyle.bgCol,
                           [item]: value,
@@ -488,13 +328,11 @@ const BubbleMapColors = ({
                           "bgCol",
                           newBgColors
                         );
-                        // updateGeoChartStyleOptions(propKey, "bgCol", bgColors);
-                        onclickchange();
                       }}
                       fontColor="white"
                     />
                     <div style={{ paddingLeft: "2px" }}>
-                      {keyName}
+                      {dimName}
                       {" : "}
                       {item}
                     </div>
@@ -521,12 +359,6 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   return {
     setColorScheme: (propKey: string, color: string) =>
       dispatch(setColorScheme(propKey, color)),
-    switchAutotoManualinSteps: (propKey: string, value: any) =>
-      dispatch(switchAutotoManualinSteps(propKey, value)),
-    setAreaColorOptions: (propKey: string, option: string, value: any) =>
-      dispatch(setAreaColorOptions(propKey, option, value)),
-    updateBoxPlotStyleOptions: (propKey: string, option: string, value: any) =>
-      dispatch(updateBoxPlotStyleOptions(propKey, option, value)),
     updateGeoChartStyleOptions: (propKey: string, option: string, value: any) =>
       dispatch(updateGeoChartStyleOptions(propKey, option, value)),
     updatecfObjectOptions1: (propKey: string, item: any) =>
