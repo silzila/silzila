@@ -54,6 +54,8 @@ const EditDataSet = ({
 
   var count: number = 0;
 
+  const [datasetFilterArray, setDataSetFilterArray] = useState<any[]>([]);
+  var data: any;
   useEffect(() => {
     setAllInfo();
   }, []);
@@ -65,6 +67,19 @@ const EditDataSet = ({
       url: "dataset/" + dsId,
       headers: { Authorization: `Bearer ${token}` },
     });
+
+    if (res.data.dataSchema.filterPanels) {
+      data = res.data.dataSchema.filterPanels
+        .map((item: any) => {
+          if (item.panelName === "dataSetFilters") {
+            return item.filters;
+          }
+          return null;
+        })
+        .filter(Boolean);
+      console.log(data);
+      setDataSetFilterArray(data.flat());
+    }
 
     if (res.status) {
       if (res.data.isFlatFileData) {
@@ -491,7 +506,7 @@ const EditDataSet = ({
       return arrayWithUid;
     }
   };
-
+  console.log(datasetFilterArray);
   return (
     <div className="dataHome">
       <MenuBar from="dataSet" />
@@ -500,7 +515,14 @@ const EditDataSet = ({
         {loadPage ? (
           <>
             <Sidebar editMode={true} />
-            <Canvas editMode={true} />
+            {datasetFilterArray?.length > 0 ? (
+              <Canvas
+                editMode={true}
+                EditFilterdatasetArray={datasetFilterArray}
+              />
+            ) : (
+              <Canvas editMode={true} />
+            )}
           </>
         ) : null}
       </div>
