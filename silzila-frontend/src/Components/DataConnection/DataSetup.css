@@ -137,122 +137,124 @@ Data Setup Page
 Data Connections
 =================================================== 
 */
-.addScrollBar {
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  overflow-x: auto;
-  max-height: calc(100vh - 50px);
-}
+
 .dbFormContainer {
-  padding: 10px;
-  width: 400px;
+	padding: 10px;
+	width: 400px
+}
+
+.dbForm .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #2bb9bb !important;
+}
+
+.dbForm .MuiFormLabel-root.Mui-focused {
+  color: #2bb9bb !important;
 }
 
 .dbForm {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  row-gap: 10px;
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	row-gap: 10px;
 }
 
 .dbFormTitle {
-  display: grid;
-  grid-template-columns: 95% 5%;
-  text-align: center;
-  width: 100%;
-  color: #5d5c5c;
+	display: grid;
+	grid-template-columns: 95% 5%;
+	text-align: center;
+	width: 100%;
+	color: #5d5c5c;
 }
 
-.listItems {
-  display: flex;
-  align-items: center;
-  text-align: left;
-  column-gap: 34px;
-  padding: 6px 6px 6px 8px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  width: 200px;
-  height: 45px;
-  white-space: nowrap;
-  background-color: black;
+.listItems{
+	display: flex;
+	align-items: center;
+	text-align: left;
+	column-gap: 34px;
+  padding-left: 8px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	margin-bottom: 10px;
+	cursor: pointer;
+	width: 200px;
+	height: 45px;
+	white-space: nowrap;
 }
 
-.listItem {
-  display: flex;
-  align-items: center;
-  text-align: left;
-  column-gap: 34px;
-  padding: 6px 6px 6px 8px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  width: 200px;
-  height: 45px;
-  white-space: nowrap;
+.listItem{
+	display: flex;
+	align-items: center;
+	text-align: left;
+	column-gap: 34px;
+  padding-left: 8px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	margin-bottom: 10px;
+	cursor: pointer;
+	width: 200px;
+	height: 45px;
+	white-space: nowrap;
 }
 
-.listItem:hover {
-  border: 1px solid rgba(224, 224, 224, 1);
-  border-radius: 4px;
-  width: 200px;
-  height: 45px;
+.listItem:hover{
+	border: 1px solid rgba(224, 224, 224, 1);
+	border-radius: 4px; 
+	width: 200px; 
+	height: 45px;
 }
 
-.active {
-  display: flex;
-  align-items: center;
-  text-align: left;
-  column-gap: 34px;
-  padding: 6px 6px 6px 6px;
-  /* cursor: pointer; */
-  margin-bottom: 10px;
-  border: 1px solid #2bb9bb;
-  border-radius: 4px;
-  height: 45px;
-  width: 200px;
-  white-space: nowrap;
-  padding: 6px 6px 6px 8px;
+.active{
+	display: flex;
+	align-items: center;
+	text-align: left;
+	column-gap: 34px;
+  padding-left: 8px;
+	cursor: pointer;
+	margin-bottom: 10px;
+	border: 1px solid #2bb9bb;
+	border-radius: 4px;
+	height: 45px;
+	width: 200px;
+	white-space: nowrap;
 }
 
 .dbConnectionErrorText {
-  color: red;
+	color: red;
 }
 
 .dbDeleteDialog {
-  display: flex;
-  flex-direction: column;
-  padding: 5px;
-  width: 350px;
-  height: auto;
-  justify-content: center;
+	display: flex;
+	flex-direction: column;
+	padding: 5px;
+	width: 350px;
+	height: auto;
+	justify-content: center;
 }
 
 .dbDeleteDialogMsg {
-  font-weight: bold;
-  text-align: center;
-  margin-top: 20px;
+	font-weight: bold;
+	text-align: center;
+	margin-top: 20px;
+	color: #5d5c5c;
 }
 
 .dbDeleteDialogBtnContainer {
-  display: flex;
-  padding: 15px;
-  justify-content: space-around;
+	display: flex;
+	padding: 15px;
+	justify-content: space-around;
 }
 
 .dbDeleteDialogBtn1 {
-  background-color: grey;
-  float: right;
-  text-transform: none;
+	background-color: white;
+	float: right;
+	text-transform: none;
+	color: #5d5c5c;
 }
 
 .dbDeleteDialogBtn2 {
-  display: flex;
-  background-color: red;
-  text-transform: none;
+	display: flex;
+	background-color: red;
+	text-transform: none;
 }
 
 .dataConnectionList {
@@ -397,12 +399,14 @@ Datasets
 }
 
 .vendorIconStyle {
-  height: 30px;
-  width: 30px;
+  height: 28px;
+  width: 28px;
 }
 .separateVendorIcon {
-  height: 35px;
-  width: 35px;
+  height: 33px;
+  width: 33px;
+	margin-right: -2px;
+	margin-left: -4px;
 }
 
 /* 

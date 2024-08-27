@@ -198,7 +198,7 @@ const Login = (props: DispatchProps) => {
 						) : (
 							<React.Fragment>
 								{loginError ? (
-									<p className="loginFail">{serverErrorMessage}</p>
+									<p className="loginFail" style={{color:'red'}}>{serverErrorMessage}</p>
 								) : null}
 								<div className="buttonText">
 									<Button

@@ -58,7 +58,7 @@ public class WhereClause {
                  */
                 if (filter.getDataType().name().equals("TEXT")) {
                     // single value exact match
-                    if (filter.getOperator().name().equals("EQUAL_TO")) {
+                    if (filter.getOperator().name().equals("EQUAL_TO") || filter.getOperator().name().equals("EXACT_MATCH") ) {
                         // System.out.println("----------- Text EQUAL_TO");
                         where = filter.getTableId() + "." + filter.getFieldName() + excludeSymbol + "= '"
                                 + filter.getUserSelection().get(0) + "'";

@@ -5,11 +5,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import { makeStyles } from "@mui/styles";
 import createStyles from "@mui/styles/createStyles";
 import Logger from "../../Logger";
+import { FileDropZoneProps } from "./FlatFileInterfaces";
 
-interface FileDropZoneProps {
-	setSelectedFile: any;
-	selectedFile: any;
-}
 
 const useStyles: any = makeStyles(() =>
 	createStyles({
@@ -33,19 +30,12 @@ const useStyles: any = makeStyles(() =>
 			"&:hover": {
 				color: "red",
 			},
-		},
-		uploadButton: {
-			backgroundColor: "rgba(224, 224, 224, 1)",
-			padding: "10px",
-			borderRadius: "5px",
-			borderColor: "transparent",
-			margin: "0 auto",
-			width: "fit-content",
-		},
+		}
 	})
 );
 
-const FileDropZone = ({ setSelectedFile, selectedFile }: FileDropZoneProps) => {
+
+const FileDropZone = ({ setSelectedFile, selectedFile, fileType}: FileDropZoneProps) => {
 	// drag state
 	const [dragActive, setDragActive] = useState<boolean>(false);
 
@@ -70,7 +60,7 @@ const FileDropZone = ({ setSelectedFile, selectedFile }: FileDropZoneProps) => {
 		if (e.dataTransfer.files && e.dataTransfer.files[0]) {
 			Logger("info", e.dataTransfer.files[0], "handleDrop");
 			setSelectedFile(e.dataTransfer.files[0]);
-		}
+		} 
 	};
 
 	// triggers when file is selected with click
@@ -79,38 +69,60 @@ const FileDropZone = ({ setSelectedFile, selectedFile }: FileDropZoneProps) => {
 		if (e.target.files && e.target.files[0]) {
 			Logger("info", e.target.files[0], "handleChange");
 			setSelectedFile(e.target.files[0]);
-		}
+		} 
 	};
 
 	return (
-		<form id="form-file-upload" onDragEnter={handleDrag} onSubmit={e => e.preventDefault()}>
-			<input type="file" id="input-file-upload" multiple={true} onChange={handleChange} />
+		<div>
+			<form id="form-file-upload" onDragEnter={handleDrag} onSubmit={e => e.preventDefault()}>
+				<input
+					type="file"
+					id="input-file-upload"
+					multiple={false}
+					onChange={handleChange}
+					accept={
+						fileType === "excel" ? ".xlsx" :
+						fileType === "json" ? ".json" : ".csv"
+					} />
 
-			<UploadFileIcon className={classes.uploadIcon} />
+				<UploadFileIcon className={classes.uploadIcon} />
 
-			<p style={{ fontSize: "10px", margin: "10px auto" }}>Drag and Drop your file here</p>
+				<p style={{ fontSize: "10px", margin: "10px auto" }}>Drag and Drop your file here</p>
 
-			<label htmlFor="input-file-upload" className="upload-button">
-				Choose a file
-			</label>
+				<label htmlFor="input-file-upload" className="upload-button">
+					Choose a file
+				</label>
 
-			{selectedFile ? (
-				<div className="fileNameCard">
-					{selectedFile.name}
-					<CloseIcon className={classes.closeIcon} onClick={() => setSelectedFile()} />
-				</div>
-			) : null}
+			
+				<div style={{
+				border: "1px solid transparent",
+				height: "50px",
+				textAlign: "center",
+				display: "flex",
+				justifyContent: "center",
+				alignItems: "center",
 
-			{dragActive && (
-				<div
-					id="drag-file-element"
-					onDragEnter={handleDrag}
-					onDragLeave={handleDrag}
-					onDragOver={handleDrag}
-					onDrop={handleDrop}
-				></div>
-			)}
-		</form>
+			}}>
+				{selectedFile ? (
+					<div className="fileNameCard">
+						{selectedFile.name}
+						<CloseIcon className={classes.closeIcon} onClick={() => setSelectedFile()} />
+					</div>
+				) : null}
+
+				{dragActive && (
+					<div
+						id="drag-file-element"
+						onDragEnter={handleDrag}
+						onDragLeave={handleDrag}
+						onDragOver={handleDrag}
+						onDrop={handleDrop}
+					></div>
+				)}
+			</div>
+			</form>
+			
+		</div>
 	);
 };
 
