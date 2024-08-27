@@ -16,7 +16,9 @@ const UserFilterDataset = ({
   setDataSetFilterArray,
 }: UserFilterDatasetProps) => {
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
+    <div
+      style={{ display: "flex", flexDirection: "column", marginTop: "25px" }}
+    >
       {dataSetFilterArray.length > 0 &&
         dataSetFilterArray.map((item) => (
           <FilterElement

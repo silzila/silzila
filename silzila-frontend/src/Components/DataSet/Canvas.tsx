@@ -137,6 +137,8 @@ const Canvas = ({
               justifyContent: "center",
               alignItems: "center",
               height: "100vh",
+              // marginLeft: "95%",
+              // marginTop: "-20%",
             }}
           >
             <button
@@ -148,19 +150,38 @@ const Canvas = ({
                 margin: "auto auto",
               }}
             >
-              <ArrowBackRoundedIcon
-                onClick={() => setIsDataSetVisible(!isDataSetVisible)}
+              <img
+                src={filterIcon}
+                style={{
+                  height: "1.5rem",
+                  width: "2rem",
+
+                  marginRight: "3px",
+                }}
                 className="IconDataset"
+                onClick={() => setIsDataSetVisible(!isDataSetVisible)}
+                alt="filter"
               />
             </button>
+            <div
+              style={{
+                width: "1px",
+                height: "200vh",
+                border: "1px solid rgba(224, 224, 224, 1)",
+                position: "absolute",
+                right: "1%",
+                top: "0%",
+              }}
+            />
           </div>
         )}
 
-        {isDataSetVisible ? (
+        {/* {isDataSetVisible ? (
           <div
             className="filter_dataset"
             onDrop={(e) => handleDrop(e)}
             onDragOver={(e) => e.preventDefault()}
+            style={{ display: isDataSetVisible ? "block" : "none" }}
           >
             <div style={{ width: "100%", marginRight: "5%" }}>
               <div
@@ -213,7 +234,71 @@ const Canvas = ({
               )}
             </div>
           </div>
-        ) : null}
+        ) : null} */}
+
+        <div
+          className="filter_dataset"
+          onDrop={(e) => handleDrop(e)}
+          onDragOver={(e) => e.preventDefault()}
+          style={{ display: isDataSetVisible ? "block" : "none" }} // Controls visibility
+        >
+          <div style={{ width: "100%", marginRight: "5%" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                // margin: "auto auto",
+                position: "fixed",
+                backgroundColor: "white",
+                zIndex: "98",
+                // marginTop: "-25px",
+              }}
+            >
+              <img
+                src={filterIcon}
+                style={{
+                  height: "1.5rem",
+                  width: "2rem",
+                  margin: "0 10px",
+                }}
+                alt="filter"
+              />
+              <span className="axisTitle">Dataset Filter</span>
+              <div>
+                <button
+                  title="minimize"
+                  style={{
+                    backgroundColor: "white",
+                    outline: "none",
+                    border: "none",
+                  }}
+                >
+                  <ArrowBackRoundedIcon
+                    style={{
+                      right: "92%",
+                      top: "0px",
+                      zIndex: "999",
+                      transform: "rotate(180deg)",
+                    }}
+                    onClick={() => setIsDataSetVisible(!isDataSetVisible)}
+                  />
+                </button>
+              </div>
+            </div>
+            <div style={{ position: "absolute", marginTop: "22px" }}>
+              {dataSetFilterArray.length > 0 && (
+                <UserFilterDataset
+                  editMode={editMode}
+                  dataSetFilterArray={dataSetFilterArray}
+                  setDataSetFilterArray={setDataSetFilterArray}
+                  dbConnectionId={tempTable[0].dcId}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
         <RenderArrows />
       </div>
       <BottomBar

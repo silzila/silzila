@@ -598,6 +598,7 @@ DataHome
   text-align: center;
   position: fixed;
   display: flex;
+  padding-top: 0px;
   height: 87%;
   width: 211px;
   top: 5.7%;

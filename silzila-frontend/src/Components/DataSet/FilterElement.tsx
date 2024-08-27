@@ -75,9 +75,16 @@ const FilterElement = ({
   const [filterFieldData, setFilterFieldData] = useState(
     JSON.parse(JSON.stringify(filterDatasetItem))
   );
-
+  console.log(filterDatasetItem);
   useEffect(() => {
-    setFilterFieldData(filterDatasetItem);
+    setFilterFieldData((prev: any) => ({
+      ...prev,
+      // includeexclude: prev.shouldExclude ? "Include" : "Exclude",
+      // fieldtypeoption: prev.filterType,
+    }));
+    filterFieldData["fieldtypeoption"] = "Pick List";
+    filterFieldData["exprType"] = "Greater than";
+
     // setDataSetFilterArray((prevArray: any) =>
     //   prevArray.map((item: any) =>
     //     item.uid === uid
@@ -165,84 +172,89 @@ const FilterElement = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
-    if (!filterFieldData.includeexclude)
-      filterFieldData["includeexclude"] = "Include";
+    setFilterFieldData((prevState: any) => {
+      let updatedState = { ...prevState };
+      updatedState.includeexclude = "Include";
 
-    if (filterFieldData && filterFieldData.dataType) {
-      switch (filterFieldData.dataType) {
-        case "decimal":
-        case "integer":
-          if (!filterFieldData.fieldtypeoption) {
-            filterFieldData["fieldtypeoption"] = "Search Condition";
-          }
-          break;
-        case "date":
-        case "timestamp":
-          if (!filterFieldData.fieldtypeoption) {
-            filterFieldData["prefix"] = "year";
-            filterFieldData["fieldtypeoption"] = "Pick List";
-          }
-          break;
-        default:
-          if (!filterFieldData.fieldtypeoption) {
-            filterFieldData["fieldtypeoption"] = "Pick List";
-          }
-          break;
-      }
-    }
-
-    if (filterFieldData.fieldtypeoption === "Search Condition") {
-      if (filterFieldData.dataType) {
-        switch (filterFieldData.dataType) {
+      if (updatedState && updatedState.dataType) {
+        switch (updatedState.dataType) {
           case "decimal":
           case "integer":
-            if (!filterFieldData.exprType) {
-              filterFieldData["exprType"] = "greaterThan";
+            if (!updatedState.fieldtypeoption) {
+              updatedState.fieldtypeoption = "Search List";
+              updatedState.exprType = "greaterThan";
             }
             break;
-          case "text":
-            if (!filterFieldData.exprType) {
-              filterFieldData["exprType"] = "beginsWith";
-            }
-            break;
-          case "timestamp":
           case "date":
-            if (!filterFieldData.exprType) {
-              filterFieldData["prefix"] = "year";
-              filterFieldData["exprType"] = "greaterThan";
+          case "timestamp":
+            if (!updatedState.fieldtypeoption) {
+              updatedState.prefix = "year";
+              updatedState.fieldtypeoption = "Pick List";
             }
             break;
           default:
-            if (!filterFieldData.exprType) {
-              filterFieldData["exprType"] = "greaterThan";
+            if (!updatedState.fieldtypeoption) {
+              updatedState.fieldtypeoption = "Pick List";
             }
             break;
         }
       }
-    } else if (filterFieldData.fieldtypeoption === "Pick List") {
-      if (
-        filterFieldData &&
-        filterFieldData.dataType &&
-        filterFieldData.dataType === "timestamp" &&
-        !filterFieldData.prefix
-      ) {
-        filterFieldData["prefix"] = "year";
-      }
 
-      async function _preFetchData() {
-        if (!filterFieldData.rawselectmembers) {
-          setLoading(true);
-          await GetPickListItems();
-          setLoading(false);
+      if (updatedState.fieldtypeoption === "Search Condition") {
+        if (updatedState.dataType) {
+          switch (updatedState.dataType) {
+            case "decimal":
+            case "integer":
+              if (!updatedState.exprType) {
+                updatedState.exprType = "greaterThan";
+              }
+              break;
+            case "text":
+              if (!updatedState.exprType) {
+                updatedState.exprType = "beginsWith";
+              }
+              break;
+            case "timestamp":
+            case "date":
+              if (!updatedState.exprType) {
+                updatedState.prefix = "year";
+                updatedState.exprType = "greaterThan";
+              }
+              break;
+            default:
+              if (!updatedState.exprType) {
+                updatedState.exprType = "greaterThan";
+              }
+              break;
+          }
         }
-      }
-      filterFieldData["exprTypeTillDate"] = false;
-      filterFieldData["filterTypeTillDate"] = "enabled";
+      } else if (updatedState.fieldtypeoption === "Pick List") {
+        if (
+          updatedState &&
+          updatedState.dataType &&
+          updatedState.dataType === "timestamp" &&
+          !updatedState.prefix
+        ) {
+          updatedState.prefix = "year";
+        }
 
-      _preFetchData();
-    } else if (filterFieldData.fieldtypeoption === "Relative Filter") {
-      initialRelativeFilterData();
-    }
+        async function _preFetchData() {
+          if (!updatedState.rawselectmembers) {
+            setLoading(true);
+            await GetPickListItems();
+            setLoading(false);
+          }
+        }
+        updatedState.exprTypeTillDate = false;
+        updatedState.filterTypeTillDate = "enabled";
+
+        _preFetchData();
+      } else if (updatedState.fieldtypeoption === "Relative Filter") {
+        initialRelativeFilterData();
+      }
+
+      return updatedState;
+    });
 
     // eslint-disable-next-line
   }, []);
@@ -539,6 +551,7 @@ const FilterElement = ({
         ...prevState, // Spread the previous state to keep all existing fields
         rawselectmembers: [...tempResult],
         userSelection: [...tempResult],
+
         // Update only the rawselectmembers field
       }));
 
@@ -550,6 +563,7 @@ const FilterElement = ({
                 ...item,
                 rawselectmembers: tempResult,
                 userSelection: tempResult,
+                includeexclude: "Include",
               }
             : item
         )
@@ -558,7 +572,14 @@ const FilterElement = ({
   };
 
   const handleClose = (type: string, option: string, uid: string) => {
-    let updatedObject: dataSetFilterArrayProps | null = null;
+    let updatedObject = filterFieldData;
+    if (!filterFieldData.includeexclude) {
+      updatedObject.includeexclude = "Include";
+    }
+
+    console.log(type);
+    console.log(option);
+    console.log(updatedObject);
 
     if (type === "clickOutside") {
       setIsMenuOpen(false);
@@ -578,6 +599,7 @@ const FilterElement = ({
       })
     );
     setFilterFieldData(updatedObject);
+    console.log(updatedObject);
 
     if (updatedObject) setObjectToMakeCall(updatedObject);
     setIsMenuOpen(false);
@@ -1833,7 +1855,7 @@ const FilterElement = ({
         )}
       </div>
       {/* Conditional rendering based on isCollapsed */}
-      {loading ? <LoadingPopover /> : null}
+      {/* {loading ? <LoadingPopover /> : null} */}
       {!isCollapsed ? (
         <div
           className="UserSelectionDiv"
