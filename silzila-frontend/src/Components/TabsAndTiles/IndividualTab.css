@@ -79,7 +79,7 @@
 .close-container {
   position: absolute; 
   right: 5px; 
-  top: 50%; 
+  top: 45%; 
   transform: translateY(-50%);
 }
 

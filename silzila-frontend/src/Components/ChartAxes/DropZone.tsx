@@ -12,11 +12,11 @@ import {
 import { useDrop } from "react-dnd";
 import { connect } from "react-redux";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
-import { FindFieldName } from "../CommonFunctions/CommonFunctions";
+import {findNewDisplayName} from "../CommonFunctions/CommonFunctions";
 import Card from "./Card";
 import ChartsInfo from "./ChartsInfo2";
 import { setPrefix } from "./SetPrefix";
-import { setDisplayName } from "./setDisplayName";
+import {setDisplayName} from './setDisplayName';
 import UserFilterCard from "../ChartFieldFilter/UserFilterCard";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
@@ -58,790 +58,655 @@ const DropZone = ({
   moveItemChartPropForDm,
   updateQueryParam,
 }: DropZoneProps & any) => {
-  const [severity, setSeverity] = useState<AlertColor>("success");
-  const [openAlert, setOpenAlert] = useState<boolean>(false);
-  const [testMessage, setTestMessage] = useState<string>("Testing alert");
-  const [isFilterCollapsed, setIsFilterCollapsed] = useState<boolean>(false);
 
-  let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
+	const [severity, setSeverity] = useState<AlertColor>("success");
+	const [openAlert, setOpenAlert] = useState<boolean>(false);
+	const [testMessage, setTestMessage] = useState<string>("Testing alert");
+	const [isFilterCollapsed, setIsFilterCollapsed] = useState<boolean>(false);
 
-  //let charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
-  let chatAxesFieldsLength =
-    chartProp.properties[propKey][currentChartAxesName][bIndex].fields.length;
+	let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
 
-  var selectedDynamicMeasureProps =
-    dynamicMeasureState?.dynamicMeasureProps?.[
-      dynamicMeasureState.selectedTabId
-    ]?.[dynamicMeasureState.selectedTileId]?.[
-      `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
-    ];
+	//let charAxesFields = chartProp.properties[propKey][currentChartAxesName][bIndex].fields;
+	let chatAxesFieldsLength = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.length;
 
-  const [, drop] = useDrop({
-    accept: "card",
-    drop: (item) => handleDrop(item, bIndex),
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-      canDrop: monitor.canDrop(),
-    }),
-  });
+	var selectedDynamicMeasureProps =
+		dynamicMeasureState?.dynamicMeasureProps?.[dynamicMeasureState.selectedTabId]?.[
+			dynamicMeasureState.selectedTileId
+		]?.[
+			`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+		];
+			
 
-  const uIdGenerator = () => {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  };
+	const [, drop] = useDrop({
+		accept: "card",
+		drop: item => handleDrop(item, bIndex),
+		collect: monitor => ({
+			isOver: monitor.isOver(),
+			canDrop: monitor.canDrop(),
+		}),
+	});
 
-  let currentChartAxes = chartProp.properties[propKey][currentChartAxesName];
+	const uIdGenerator = () => {
+		return Math.floor((1 + Math.random()) * 0x10000)
+			.toString(16)
+			.substring(1);
+	};
 
-  const updateRollUp = () => {
-    let currentAxesFields = currentChartAxes[bIndex].fields;
+	let currentChartAxes = chartProp.properties[propKey][currentChartAxesName];
 
-    if (
-      ["crossTab", "heatmap", "boxPlot", "bubbleMap"].includes(
-        chartProp.properties[propKey].chartType
-      )
-    ) {
-      let rollupDimentionOneFieldIndex = chartProp.properties[propKey][
-        currentChartAxesName
-      ][1].fields.findIndex((field: any) => field.rollupDepth);
-      let rollupDimentionTwoFieldIndex = chartProp.properties[propKey][
-        currentChartAxesName
-      ][2].fields.findIndex((field: any) => field.rollupDepth);
+	const updateRollUp = () =>{
+		let currentAxesFields = currentChartAxes[bIndex].fields;
 
-      if (uID) {
-        if (
-          rollupDimentionOneFieldIndex > -1 ||
-          rollupDimentionTwoFieldIndex > -1
-        ) {
-          let isManualDimentionOne = chartProp.properties[propKey][
-            currentChartAxesName
-          ][1].fields.find((field: any) => field.isManual);
-          let isManualDimentionTwo = chartProp.properties[propKey][
-            currentChartAxesName
-          ][2].fields.find((field: any) => field.isManual);
+		if(["crossTab", "heatmap", "boxPlot", "bubbleMap"].includes(chartProp.properties[propKey].chartType)){
+			let rollupDimentionOneFieldIndex = chartProp.properties[propKey][currentChartAxesName][1].fields.findIndex((field:any)=>field.rollupDepth);
+			let rollupDimentionTwoFieldIndex = chartProp.properties[propKey][currentChartAxesName][2].fields.findIndex((field:any)=>field.rollupDepth);
+				
+			if(uID){
+				if(rollupDimentionOneFieldIndex > -1 || rollupDimentionTwoFieldIndex > -1){
+					let isManualDimentionOne = chartProp.properties[propKey][currentChartAxesName][1].fields.find((field:any)=>field.isManual);		
+					let isManualDimentionTwo = chartProp.properties[propKey][currentChartAxesName][2].fields.find((field:any)=>field.isManual);		
+		
+					if(!isManualDimentionOne && !isManualDimentionTwo){
+						console.log(bIndex);						
 
-          if (!isManualDimentionOne && !isManualDimentionTwo) {
-            console.log(bIndex);
+						if(rollupDimentionOneFieldIndex > -1){
+							 updateField(1, rollupDimentionOneFieldIndex, false);
+							 updateField(2, chartProp.properties[propKey][currentChartAxesName][2].fields?.length - 1, true);					
+						}
+						else{
+							 updateField(2, rollupDimentionTwoFieldIndex, false);
+							 updateField(2, chartProp.properties[propKey][currentChartAxesName][2].fields?.length - 1, true);		
+						}
+					}
+				}
+				else{					
+					if(chartProp.properties[propKey][currentChartAxesName][2].fields?.length > 0){
+						updateField(2, chartProp.properties[propKey][currentChartAxesName][2].fields?.length - 1, true);	
+					}
+					else{
+						updateField(1, chartProp.properties[propKey][currentChartAxesName][1].fields?.length - 1, true);	
+					}
+				}
+			}
+		}
+		else{			
+			let rollupFieldIndex = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.findIndex((field:any)=>field.rollupDepth);
 
-            if (rollupDimentionOneFieldIndex > -1) {
-              updateField(1, rollupDimentionOneFieldIndex, false);
-              updateField(
-                2,
-                chartProp.properties[propKey][currentChartAxesName][2].fields
-                  ?.length - 1,
-                true
-              );
-            } else {
-              updateField(2, rollupDimentionTwoFieldIndex, false);
-              updateField(
-                2,
-                chartProp.properties[propKey][currentChartAxesName][2].fields
-                  ?.length - 1,
-                true
-              );
-            }
-          }
-        } else {
-          if (
-            chartProp.properties[propKey][currentChartAxesName][2].fields
-              ?.length > 0
-          ) {
-            updateField(
-              2,
-              chartProp.properties[propKey][currentChartAxesName][2].fields
-                ?.length - 1,
-              true
-            );
-          } else {
-            updateField(
-              1,
-              chartProp.properties[propKey][currentChartAxesName][1].fields
-                ?.length - 1,
-              true
-            );
-          }
-        }
-      }
-    } else {
-      let rollupFieldIndex = chartProp.properties[propKey][
-        currentChartAxesName
-      ][bIndex].fields.findIndex((field: any) => field.rollupDepth);
+			if(uID){
+				if(rollupFieldIndex > -1){
+					let isManual = chartProp.properties[propKey][currentChartAxesName][bIndex].fields.find((field:any)=>field.isManual);		
+		
+					if(!isManual){
+						updateField(bIndex, rollupFieldIndex, false);
+						updateField(bIndex, currentAxesFields?.length - 1, true);					
+					}
+				}
+				else{
+					updateField(bIndex, rollupFieldIndex, false);
+					updateField(bIndex, currentAxesFields?.length - 1, true);			
+				}
+			}
+		}		
+		
 
-      if (uID) {
-        if (rollupFieldIndex > -1) {
-          let isManual = chartProp.properties[propKey][currentChartAxesName][
-            bIndex
-          ].fields.find((field: any) => field.isManual);
+		function updateField(binIndex:number, index:number, enable:boolean) {
+			let _field = chartProp.properties[propKey][currentChartAxesName][binIndex].fields[index];
 
-          if (!isManual) {
-            updateField(bIndex, rollupFieldIndex, false);
-            updateField(bIndex, currentAxesFields?.length - 1, true);
-          }
-        } else {
-          updateField(bIndex, rollupFieldIndex, false);
-          updateField(bIndex, currentAxesFields?.length - 1, true);
-        }
-      }
-    }
+			if (_field) {
+				let _tempField = JSON.parse(JSON.stringify(_field));
 
-    function updateField(binIndex: number, index: number, enable: boolean) {
-      let _field =
-        chartProp.properties[propKey][currentChartAxesName][binIndex].fields[
-          index
-        ];
+				if (_tempField) {
+					_tempField.rollupDepth = enable;
+					updateQueryParam(propKey, binIndex, index, _tempField, currentChartAxesName);
+				}
+			}
+		}
+	}
 
-      if (_field) {
-        let _tempField = JSON.parse(JSON.stringify(_field));
+	var chartType = chartProp.properties[propKey].chartType;
+	
+	
 
-        if (_tempField) {
-          _tempField.rollupDepth = enable;
-          updateQueryParam(
-            propKey,
-            binIndex,
-            index,
-            _tempField,
-            currentChartAxesName
-          );
-        }
-      }
-    }
-  };
+	// DropZoneDropItem
+	const handleDrop = (item: any, bIndex: number) => {
+		var allowedNumbers = ChartsInfo[chartType].dropZones[bIndex].allowedNumbers;
+		//let newFieldData = {};
 
-  var chartType = chartProp.properties[propKey].chartType;
+		// when column dragged from table
+		if (item.bIndex === 99) {
+			const uID = uIdGenerator();
+			var fieldData = item.fieldData;
+			fieldData.uId = uID;
 
-  const findNewDisplayName = (
-    binIndex: number,
-    paramField: any,
-    allowedNumbers: number
-  ): any => {
-    let _measureZone: any = chartProp.properties[propKey].chartAxes.find(
-      (zones: any) => zones.name === "Measure"
-    );
+			//drop zone is measure if the binIndex is 1
+			if (bIndex === 1) {
+				if (chartType === "calendar") {
+					if (
+						fieldData.dataType === "date" ||
+						fieldData.dataType === "timestamp" ||
+						// TODO:/* adding these two cases because the datatype of field is in capitalletter(frist), need to fix this or convert to lowercase*/
+						fieldData.dataType === "Date" ||
+						fieldData.dataType === "Timestamp"
+					) {
+						let newFieldData = JSON.parse(
+							JSON.stringify(setPrefix(fieldData, name, chartType))
+						);
 
-    let _fieldTempObject: any = {};
+						newFieldData = setDisplayName(newFieldData, name, chartType);
+						//newFieldData.displayname = findNewDisplayName(); //TODO:
 
-    /*	Find and return field's new name	*/
-    const findFieldName = (name: string, i: number = 0): string => {
-      if (
-        (i === 0 && _fieldTempObject[name] !== undefined) ||
-        _fieldTempObject[`${name}(${i})`] !== undefined
-      ) {
-        i = i === 0 ? 1 : i;
+						updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers, currentChartAxesName);
+					} else {
+						setSeverity("error");
+						setOpenAlert(true);
+						setTestMessage(
+							"Can't drop columns of datatype other than date or timestamp"
+						);
+						// setTimeout(() => {
+						// 	setOpenAlert(false);
+						// 	setTestMessage("");
+						// }, 3000);
+					}
+				}
+				// else if (chartType === "geoChart") {
+				// 	let newFieldData = JSON.parse(
+				// 		JSON.stringify(setPrefix(fieldData, name, chartType, geoLocation))
+				// 	);
+				// 	updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
+				// }
+				else {
+					let newFieldData = JSON.parse(
+						JSON.stringify(setPrefix(fieldData, name, chartType))
+					);
 
-        i++;
-        return findFieldName(name, i);
-      } else {
-        if (i === 0) {
-          return name;
-        } else {
-          return `${name}(${i})`;
-        }
-      }
-    };
+					newFieldData = setDisplayName(newFieldData, name, chartType);
+					newFieldData.displayname = findNewDisplayName(chartProp.properties[propKey].chartAxes, newFieldData, allowedNumbers);
 
-    if (allowedNumbers === _measureZone?.fields.length) {
-      return paramField.displayname;
-    }
+					if (chartType === "richText") {
+						updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
+					} else {
+						updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers, currentChartAxesName);
+					}
+				}
+			}
+			//bindex is not 1 (dimension)
+			else {
+				let newFieldData = JSON.parse(
+					JSON.stringify(setPrefix(fieldData, name, chartType))
+				);
 
-    _measureZone?.fields.forEach((field: any, index: number) => {
-      let _nameWithAgg: string = "";
-      let _tempField = JSON.parse(JSON.stringify(field));
+				newFieldData = setDisplayName(newFieldData, name, chartType);
+				newFieldData.displayname = findNewDisplayName(chartProp.properties[propKey].chartAxes, newFieldData, allowedNumbers);
 
-      _nameWithAgg = _tempField.displayname;
+				if (chartType === "richText") {
+					updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
+				} else {
+					updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers, currentChartAxesName);
+				}
+			}
 
-      if (_fieldTempObject[_nameWithAgg] !== undefined) {
-        let _name = findFieldName(_nameWithAgg);
-        _tempField["NameWithAgg"] = _name;
-        _fieldTempObject[_name] = "";
-      } else {
-        _tempField["NameWithAgg"] = _nameWithAgg;
-        _fieldTempObject[_nameWithAgg] = "";
-      }
-    });
+			//setTimeout(updateRollUp, 2000);
+		} else if (item.bIndex !== bIndex) {
+			if (bIndex === 1) {
+				if (chartType === "calendar") {
+					if (item.dataType === "date") {
+						let newFieldData = JSON.parse(
+							JSON.stringify(setPrefix(item, name, chartType))
+						);
 
-    let newName = findFieldName(paramField.displayname);
+						newFieldData = setDisplayName(newFieldData, name, chartType);
+						//newFieldData.displayname = findNewDisplayName(bIndex, newFieldData, allowedNumbers);
 
-    return newName || paramField.displayname;
-  };
+						["type", "bIndex"].forEach(e => delete newFieldData[e]);
+						moveItemChartProp(
+							propKey,
+							item.bIndex,
+							item.uId,
+							newFieldData,
+							bIndex,
+							allowedNumbers,
+							currentChartAxesName
+						);
+					} else {
+						setSeverity("error");
+						setOpenAlert(true);
+						setTestMessage(
+							"Can't drop columns of datatype other than date or timestamp"
+						);
+						// setTimeout(() => {
+						// 	setOpenAlert(false);
+						// 	setTestMessage("");
+						// }, 3000);
+					}
+				} else {
+					Logger("info", "******", name);
+					let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
 
-  // DropZoneDropItem
-  const handleDrop = (item: any, bIndex: number) => {
-    var allowedNumbers = ChartsInfo[chartType].dropZones[bIndex].allowedNumbers;
-    //let newFieldData = {};
+					newFieldData = setDisplayName(newFieldData, name, chartType);
+					//newFieldData.displayname = findNewDisplayName(bIndex, newFieldData).displayname;
 
-    // when column dragged from table
-    if (item.bIndex === 99) {
-      const uID = uIdGenerator();
-      var fieldData = item.fieldData;
-      fieldData.uId = uID;
+					["type", "bIndex"].forEach(e => delete newFieldData[e]);
+					if (chartType === "richText") {
+						moveItemChartPropForDm(
+							`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`,
+							item.bIndex,
+							item.uId,
+							newFieldData,
+							bIndex,
+							allowedNumbers,
+							currentChartAxesName
+						);
+					} else {
+						moveItemChartProp(
+							propKey,
+							item.bIndex,
+							item.uId,
+							newFieldData,
+							bIndex,
+							allowedNumbers,
+							currentChartAxesName
+						);
+					}
+				}
+			}
+			//bindex is not 1 (dimension)
+			else {
+				let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
+				newFieldData = setDisplayName(newFieldData, name, chartType);				
+				newFieldData.displayname = findNewDisplayName(chartProp.properties[propKey].chartAxes, newFieldData, allowedNumbers);
+				
+				
+				["type", "bIndex"].forEach(e => delete newFieldData[e]);
 
-      //drop zone is measure if the binIndex is 1
-      if (bIndex === 1) {
-        if (chartType === "calendar") {
-          if (
-            fieldData.dataType === "date" ||
-            fieldData.dataType === "timestamp" ||
-            // TODO:/* adding these two cases because the datatype of field is in capitalletter(frist), need to fix this or convert to lowercase*/
-            fieldData.dataType === "Date" ||
-            fieldData.dataType === "Timestamp"
-          ) {
-            let newFieldData = JSON.parse(
-              JSON.stringify(setPrefix(fieldData, name, chartType))
-            );
+				if (chartType === "richText") {
+					moveItemChartPropForDm(
+						`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`,
+						item.bIndex,
+						item.uId,
+						newFieldData,
+						bIndex,
+						allowedNumbers,
+						currentChartAxesName
+					);
+				} else {
+					moveItemChartProp(
+						propKey,
+						item.bIndex,
+						item.uId,
+						newFieldData,
+						bIndex,
+						allowedNumbers,
+						currentChartAxesName
+					);
+				}
+			}
+		}
 
-            newFieldData = setDisplayName(newFieldData, name, chartType);
-            //newFieldData.displayname = findNewDisplayName(); //TODO:
+		if (name === "Filter") {
+			//setModalData(newFieldData);
+		}
+	};
 
-            updateDropZoneItems(
-              propKey,
-              bIndex,
-              newFieldData,
-              allowedNumbers,
-              currentChartAxesName
-            );
-          } else {
-            setSeverity("error");
-            setOpenAlert(true);
-            setTestMessage(
-              "Can't drop columns of datatype other than date or timestamp"
-            );
-            // setTimeout(() => {
-            // 	setOpenAlert(false);
-            // 	setTestMessage("");
-            // }, 3000);
-          }
-        }
-        // else if (chartType === "geoChart") {
-        // 	let newFieldData = JSON.parse(
-        // 		JSON.stringify(setPrefix(fieldData, name, chartType, geoLocation))
-        // 	);
-        // 	updateDropZoneItems(propKey, bIndex, newFieldData, allowedNumbers);
-        // }
-        else {
-          let newFieldData = JSON.parse(
-            JSON.stringify(setPrefix(fieldData, name, chartType))
-          );
+	useEffect(()=>{
+		updateRollUp();
+	},[chatAxesFieldsLength, chartProp.properties[propKey].enableOverrideForUID])
 
-          newFieldData = setDisplayName(newFieldData, name, chartType);
-          newFieldData.displayname = findNewDisplayName(
-            bIndex,
-            newFieldData,
-            allowedNumbers
-          );
+	const [anchorEl, setAnchorEl] = useState(null);
+	const open = Boolean(anchorEl);
 
-          if (chartType === "richText") {
-            updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
-          } else {
-            updateDropZoneItems(
-              propKey,
-              bIndex,
-              newFieldData,
-              allowedNumbers,
-              currentChartAxesName
-            );
-          }
-        }
-      }
-      //bindex is not 1 (dimension)
-      else {
-        let newFieldData = JSON.parse(
-          JSON.stringify(setPrefix(fieldData, name, chartType))
-        );
+	const handleClose = async (closeFrom: any, queryParam?: any) => {
+		setAnchorEl(null);
+		//setShowOptions(false);
 
-        newFieldData = setDisplayName(newFieldData, name, chartType);
-        newFieldData.displayname = findNewDisplayName(
-          bIndex,
-          newFieldData,
-          allowedNumbers
-        );
+		if (closeFrom === "opt1" && queryParam === "Clear") {
+			clearDropZoneFieldsChartPropLeft(propKey, bIndex, currentChartAxesName, currentChartAxesName);
+		}
 
-        if (chartType === "richText") {
-          updateDynamicMeasureAxes(bIndex, allowedNumbers, newFieldData);
-        } else {
-          updateDropZoneItems(
-            propKey,
-            bIndex,
-            newFieldData,
-            allowedNumbers,
-            currentChartAxesName
-          );
-        }
-      }
+		// updateLeftFilterItem(propKey,0,constructChartAxesFieldObject());
+	};
 
-      //setTimeout(updateRollUp, 2000);
-    } else if (item.bIndex !== bIndex) {
-      if (bIndex === 1) {
-        if (chartType === "calendar") {
-          if (item.dataType === "date") {
-            let newFieldData = JSON.parse(
-              JSON.stringify(setPrefix(item, name, chartType))
-            );
+	const RenderMenu = ({ name }: { name: string }) => {
+		var options = ["Clear"];
+		var options1: string[] = [];
+		var options2: string[] = [];
 
-            newFieldData = setDisplayName(newFieldData, name, chartType);
-            //newFieldData.displayname = findNewDisplayName(bIndex, newFieldData, allowedNumbers);
+		if (bIndex === 0) {
+			options1 = ["All Conditions Met", "Any Condition Met"];
+			options2 = ["Auto Refresh", "Manual Run"];
+		} else {
+			options1 = [];
+		}
 
-            ["type", "bIndex"].forEach((e) => delete newFieldData[e]);
-            moveItemChartProp(
-              propKey,
-              item.bIndex,
-              item.uId,
-              newFieldData,
-              bIndex,
-              allowedNumbers,
-              currentChartAxesName
-            );
-          } else {
-            setSeverity("error");
-            setOpenAlert(true);
-            setTestMessage(
-              "Can't drop columns of datatype other than date or timestamp"
-            );
-            // setTimeout(() => {
-            // 	setOpenAlert(false);
-            // 	setTestMessage("");
-            // }, 3000);
-          }
-        } else {
-          Logger("info", "******", name);
-          let newFieldData = JSON.parse(
-            JSON.stringify(setPrefix(item, name, chartType))
-          );
+		return (
+			<Menu
+				key={name}
+				id="basic-menu"
+				anchorEl={anchorEl}
+				open={open}
+				onClose={() => handleClose("clickOutside")}
+				MenuListProps={{
+					"aria-labelledby": "basic-button",
+				}}
+			>
+				{options.length > 0
+					? options.map((opt, index) => {
+							return (
+								<div
+									key={index}
+									style={{
+										display: "flex",
+										width: "auto",
+										padding: "0.2rem 0.5rem 0.2rem 0",
+									}}
+									onClick={() => handleClose("opt1", opt)}
+								>
+									<span style={{ width: "2rem" }}></span>
+									<MenuItem
+										style={{ flex: 1, padding: 0, fontSize: "14px" }}
+										key={index}
+									>
+										{opt + " " + name}
+									</MenuItem>
+								</div>
+							);
+					  })
+					: null}
+				<Divider />
+				{bIndex === 0 && options1.length > 0
+					? options1.map((opt, index) => {
+							return (
+								<div
+									key={index}
+									style={{
+										display: "flex",
+										width: "auto",
+										padding: "0.2rem 0.5rem 0.2rem 0",
+									}}
+									onClick={() => {
+										setAnchorEl(null);
+										updateFilterAnyContidionMatchPropLeft(
+											propKey,
+											0,
+											!currentChartAxes[0]
+												.any_condition_match,
+												currentChartAxesName
+										);
+									}}
+								>
+									<span style={{ width: "2rem", paddingLeft: "5px" }}>
+										{opt ===
+										(currentChartAxes[0]
+											.any_condition_match
+											? "Any Condition Met"
+											: "All Conditions Met") ? (
+											<Tooltip title="Selected">
+												<DoneIcon
+													style={{
+														height: "16px",
+														width: "16px",
+														fontWeight: "10px",
+													}}
+												/>
+											</Tooltip>
+										) : null}
+									</span>
+									<MenuItem
+										style={{ flex: 1, padding: 0, fontSize: "14px" }}
+										key={index}
+									>
+										{opt}
+									</MenuItem>
+								</div>
+							);
+					  })
+					: null}
+				<Divider />
+				{bIndex === 0 && options2.length > 0
+					? options2.map((opt, index) => {
+							return (
+								<div
+									key={index}
+									style={{
+										display: "flex",
+										width: "auto",
+										padding: "0.2rem 0.5rem 0.2rem 0",
+									}}
+									onClick={() => {
+										setAnchorEl(null);
+										updateIsAutoFilterEnabledPropLeft(
+											propKey,
+											0,
+											!currentChartAxes[0]
+												.is_auto_filter_enabled,
+												currentChartAxesName
+										);
+									}}
+								>
+									<span style={{ width: "2rem", paddingLeft: "5px" }}>
+										{opt ===
+										(currentChartAxes[0]
+											.is_auto_filter_enabled
+											? "Auto Refresh"
+											: "Manual Run") ? (
+											<Tooltip title="Selected">
+												<DoneIcon
+													style={{
+														height: "16px",
+														width: "16px",
+														fontWeight: "10px",
+													}}
+												/>
+											</Tooltip>
+										) : null}
+									</span>
+									<MenuItem
+										style={{ flex: 1, padding: 0, fontSize: "14px" }}
+										key={index}
+									>
+										{opt}
+									</MenuItem>
+								</div>
+							);
+					  })
+					: null}
+			</Menu>
+		);
+	};
 
-          newFieldData = setDisplayName(newFieldData, name, chartType);
-          //newFieldData.displayname = findNewDisplayName(bIndex, newFieldData).displayname;
+	//const [modalData, setModalData] = useState<any>(null);
 
-          ["type", "bIndex"].forEach((e) => delete newFieldData[e]);
-          if (chartType === "richText") {
-            moveItemChartPropForDm(
-              `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`,
-              item.bIndex,
-              item.uId,
-              newFieldData,
-              bIndex,
-              allowedNumbers,
-              currentChartAxesName
-            );
-          } else {
-            moveItemChartProp(
-              propKey,
-              item.bIndex,
-              item.uId,
-              newFieldData,
-              bIndex,
-              allowedNumbers,
-              currentChartAxesName
-            );
-          }
-        }
-      }
-      //bindex is not 1 (dimension)
-      else {
-        let newFieldData = JSON.parse(
-          JSON.stringify(setPrefix(item, name, chartType))
-        );
-        newFieldData = setDisplayName(newFieldData, name, chartType);
-        // newFieldData.displayname = findNewDisplayName(bIndex, newFieldData).displayname;
+	const handleClick = (event: any) => {
+		setAnchorEl(event.currentTarget);
+	};
 
-        ["type", "bIndex"].forEach((e) => delete newFieldData[e]);
+	return (
+		<div
+			ref={drop}
+			className="chartAxis mt-2"
+			style={{ flex: bIndex === 0 ? (isFilterCollapsed ? "none" : 1) : 1 }}
+		>
+			<div
+				style={{
+					display: "flex",
+					// backgroundColor: "#d3d3d3"
+				}}
+				className="chartAxisHeader"
+			>
+				<span
+					className="axisTitle"
+					style={
+						name === "Filter" && chartType !== "geoChart" 
+							? {
+									flex: 1,
+									paddingBottom: "2px",
+							  }
+							: {
+									borderTop: "2px solid rgba(224, 224, 224, 1)",
+									flex: 1,
+									paddingBottom: "2px",
+							  }
+					}
+				>
+					{name === "Filter" ? uID ? "Filter Override": "Chart Filter" : uID ? name +  " Override" : name}
+					{chartType === "richText" ? (
+						<span style={{ marginLeft: "5px" }} className="axisInfo">
+							({selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.length}/
+							{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
+						</span>
+					) : (
+						<span style={{ marginLeft: "5px" }} className="axisInfo">
+							({currentChartAxes[bIndex].fields.length}/
+							{ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
+						</span>
+					)}
 
-        if (chartType === "richText") {
-          moveItemChartPropForDm(
-            `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`,
-            item.bIndex,
-            item.uId,
-            newFieldData,
-            bIndex,
-            allowedNumbers,
-            currentChartAxesName
-          );
-        } else {
-          moveItemChartProp(
-            propKey,
-            item.bIndex,
-            item.uId,
-            newFieldData,
-            bIndex,
-            allowedNumbers,
-            currentChartAxesName
-          );
-        }
-      }
-    }
+					{name === "Filter" ? (
+						<div
+							style={{
+								float: "right",
+								display: "flex",
+								columnGap: "8px",
+								// borderTop: "2px solid #d3d3d3"
+							}}
+						>
+							<MoreVertIcon
+								onClick={handleClick}
+								style={{ height: "16px", width: "16px", color: "#878786" }}
+							/>
+							{!isFilterCollapsed ? (
+								// {!currentChartAxes[bIndex].isCollapsed ? (
+								<Tooltip title="Expand">
+									<ExpandMoreIcon
+										style={{
+											height: "17px",
+											width: "17px",
+											color: "#878786",
+										}}
+										onClick={() => {
+											setIsFilterCollapsed(!isFilterCollapsed);
+										}}
+									/>
+								</Tooltip>
+							) : (
+								<Tooltip title="Collapse">
+									<KeyboardArrowRightIcon
+										style={{
+											height: "17px",
+											width: "17px",
+											color: "#878786",
+										}}
+										onClick={() => {
+											setIsFilterCollapsed(!isFilterCollapsed);
 
-    if (name === "Filter") {
-      //setModalData(newFieldData);
-    }
-  };
+										}}
+									/>
+								</Tooltip>
+							)}
 
-  useEffect(() => {
-    updateRollUp();
-  }, [
-    chatAxesFieldsLength,
-    chartProp.properties[propKey].enableOverrideForUID,
-  ]);
+							{bIndex === 0 &&
+							currentChartAxes[0].is_auto_filter_enabled ===
+								false ? (
+								<button
+									onClick={e =>
+										toggleFilterRunState(
+											propKey,
+											!chartProp.properties[propKey].filterRunState
+										)
+									}
+								>
+									Run
+								</button>
+							) : null}
+						</div>
+					) : null}
+				</span>
+			</div>
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+			{/* {!currentChartAxes[bIndex].isCollapsed ? ( */}
+			<div
+				className="chartAxisBody"
+				style={{
+					minHeight: bIndex === 0 ? (isFilterCollapsed ? "auto" : "4em") : "4em",
+					display: bIndex === 0 ? (isFilterCollapsed ? "none" : "unset") : "unset",
+				}}
+			>				
 
-  const handleClose = async (closeFrom: any, queryParam?: any) => {
-    setAnchorEl(null);
-    //setShowOptions(false);
+				{bIndex === 0 ? (
+					<>
+						{chartType === "richText"
+							? selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.map(
+									(field: any, index: number) => (
+										<UserFilterCardForDm
+											field={field}
+											uID={uID}
+											bIndex={bIndex}
+											axisTitle={name}
+											key={index}
+											itemIndex={index}
+											propKey={`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`}
+										/>
+									)
+							  )
+							: currentChartAxes[bIndex]?.fields?.map(
+									(field: any, index: number) => (
+										<UserFilterCard
+											field={field}
+											uID={uID}
+											bIndex={bIndex}
+											axisTitle={name}
+											key={index}
+											itemIndex={index}
+											propKey={propKey}
+										/>
+									)
+							  )}
+					</>
+				) : (
+					<>
+						{chartType === "richText"
+							? selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.map(
+									(field: any, index: number) => (
+										<Card
+											field={field}
+											uID={uID}
+											bIndex={bIndex}
+											axisTitle={name}
+											key={index}
+											itemIndex={index}
+											propKey={`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`}
+										/>
+									)
+							  )
+							: currentChartAxes[bIndex]?.fields?.map(
+									(field: any, index: number) => (
+										<Card
+											field={field}
+											uID={uID}
+											bIndex={bIndex}
+											axisTitle={name}
+											key={index}
+											itemIndex={index}
+											propKey={propKey}
+										/>
+									)
+							  )}
+					</>
+				)}
+			</div>
 
-    if (closeFrom === "opt1" && queryParam === "Clear") {
-      clearDropZoneFieldsChartPropLeft(
-        propKey,
-        bIndex,
-        currentChartAxesName,
-        currentChartAxesName
-      );
-    }
+			<NotificationDialog
+				onCloseAlert={() => {
+					setOpenAlert(false);
+					setTestMessage("");
+				}}
+				severity={severity}
+				testMessage={testMessage}
+				openAlert={openAlert}
+			/>
 
-    // updateLeftFilterItem(propKey,0,constructChartAxesFieldObject());
-  };
-
-  const RenderMenu = ({ name }: { name: string }) => {
-    var options = ["Clear"];
-    var options1: string[] = [];
-    var options2: string[] = [];
-
-    if (bIndex === 0) {
-      options1 = ["All Conditions Met", "Any Condition Met"];
-      options2 = ["Auto Refresh", "Manual Run"];
-    } else {
-      options1 = [];
-    }
-
-    return (
-      <Menu
-        key={name}
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={() => handleClose("clickOutside")}
-        MenuListProps={{
-          "aria-labelledby": "basic-button",
-        }}
-      >
-        {options.length > 0
-          ? options.map((opt, index) => {
-              return (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    width: "auto",
-                    padding: "0.2rem 0.5rem 0.2rem 0",
-                  }}
-                  onClick={() => handleClose("opt1", opt)}
-                >
-                  <span style={{ width: "2rem" }}></span>
-                  <MenuItem
-                    style={{ flex: 1, padding: 0, fontSize: "14px" }}
-                    key={index}
-                  >
-                    {opt + " " + name}
-                  </MenuItem>
-                </div>
-              );
-            })
-          : null}
-        <Divider />
-        {bIndex === 0 && options1.length > 0
-          ? options1.map((opt, index) => {
-              return (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    width: "auto",
-                    padding: "0.2rem 0.5rem 0.2rem 0",
-                  }}
-                  onClick={() => {
-                    setAnchorEl(null);
-                    updateFilterAnyContidionMatchPropLeft(
-                      propKey,
-                      0,
-                      !currentChartAxes[0].any_condition_match,
-                      currentChartAxesName
-                    );
-                  }}
-                >
-                  <span style={{ width: "2rem", paddingLeft: "5px" }}>
-                    {opt ===
-                    (currentChartAxes[0].any_condition_match
-                      ? "Any Condition Met"
-                      : "All Conditions Met") ? (
-                      <Tooltip title="Selected">
-                        <DoneIcon
-                          style={{
-                            height: "16px",
-                            width: "16px",
-                            fontWeight: "10px",
-                          }}
-                        />
-                      </Tooltip>
-                    ) : null}
-                  </span>
-                  <MenuItem
-                    style={{ flex: 1, padding: 0, fontSize: "14px" }}
-                    key={index}
-                  >
-                    {opt}
-                  </MenuItem>
-                </div>
-              );
-            })
-          : null}
-        <Divider />
-        {bIndex === 0 && options2.length > 0
-          ? options2.map((opt, index) => {
-              return (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    width: "auto",
-                    padding: "0.2rem 0.5rem 0.2rem 0",
-                  }}
-                  onClick={() => {
-                    setAnchorEl(null);
-                    updateIsAutoFilterEnabledPropLeft(
-                      propKey,
-                      0,
-                      !currentChartAxes[0].is_auto_filter_enabled,
-                      currentChartAxesName
-                    );
-                  }}
-                >
-                  <span style={{ width: "2rem", paddingLeft: "5px" }}>
-                    {opt ===
-                    (currentChartAxes[0].is_auto_filter_enabled
-                      ? "Auto Refresh"
-                      : "Manual Run") ? (
-                      <Tooltip title="Selected">
-                        <DoneIcon
-                          style={{
-                            height: "16px",
-                            width: "16px",
-                            fontWeight: "10px",
-                          }}
-                        />
-                      </Tooltip>
-                    ) : null}
-                  </span>
-                  <MenuItem
-                    style={{ flex: 1, padding: 0, fontSize: "14px" }}
-                    key={index}
-                  >
-                    {opt}
-                  </MenuItem>
-                </div>
-              );
-            })
-          : null}
-      </Menu>
-    );
-  };
-
-  //const [modalData, setModalData] = useState<any>(null);
-
-  const handleClick = (event: any) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  return (
-    <div
-      ref={drop}
-      className="chartAxis mt-2"
-      style={{ flex: bIndex === 0 ? (isFilterCollapsed ? "none" : 1) : 1 }}
-    >
-      <div
-        style={{
-          display: "flex",
-          // backgroundColor: "#d3d3d3"
-        }}
-        className="chartAxisHeader"
-      >
-        <span
-          className="axisTitle"
-          style={
-            name === "Filter" && chartType !== "geoChart"
-              ? {
-                  flex: 1,
-                  paddingBottom: "2px",
-                }
-              : {
-                  borderTop: "2px solid rgba(224, 224, 224, 1)",
-                  flex: 1,
-                  paddingBottom: "2px",
-                }
-          }
-        >
-          {name === "Filter"
-            ? uID
-              ? "Filter Override"
-              : "Chart Filter"
-            : uID
-            ? name + " Override"
-            : name}
-          {chartType === "richText" ? (
-            <span style={{ marginLeft: "5px" }} className="axisInfo">
-              ({selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.length}/
-              {ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
-            </span>
-          ) : (
-            <span style={{ marginLeft: "5px" }} className="axisInfo">
-              ({currentChartAxes[bIndex].fields.length}/
-              {ChartsInfo[chartType].dropZones[bIndex]?.allowedNumbers})
-            </span>
-          )}
-
-          {name === "Filter" ? (
-            <div
-              style={{
-                float: "right",
-                display: "flex",
-                columnGap: "8px",
-                // borderTop: "2px solid #d3d3d3"
-              }}
-            >
-              <MoreVertIcon
-                onClick={handleClick}
-                style={{ height: "16px", width: "16px", color: "#878786" }}
-              />
-              {!isFilterCollapsed ? (
-                // {!currentChartAxes[bIndex].isCollapsed ? (
-                <Tooltip title="Expand">
-                  <ExpandMoreIcon
-                    style={{
-                      height: "17px",
-                      width: "17px",
-                      color: "#878786",
-                    }}
-                    onClick={() => {
-                      setIsFilterCollapsed(!isFilterCollapsed);
-                    }}
-                  />
-                </Tooltip>
-              ) : (
-                <Tooltip title="Collapse">
-                  <KeyboardArrowRightIcon
-                    style={{
-                      height: "17px",
-                      width: "17px",
-                      color: "#878786",
-                    }}
-                    onClick={() => {
-                      setIsFilterCollapsed(!isFilterCollapsed);
-                    }}
-                  />
-                </Tooltip>
-              )}
-
-              {bIndex === 0 &&
-              currentChartAxes[0].is_auto_filter_enabled === false ? (
-                <button
-                  onClick={(e) =>
-                    toggleFilterRunState(
-                      propKey,
-                      !chartProp.properties[propKey].filterRunState
-                    )
-                  }
-                >
-                  Run
-                </button>
-              ) : null}
-            </div>
-          ) : null}
-        </span>
-      </div>
-
-      {/* {!currentChartAxes[bIndex].isCollapsed ? ( */}
-      <div
-        className="chartAxisBody"
-        style={{
-          minHeight:
-            bIndex === 0 ? (isFilterCollapsed ? "auto" : "4em") : "4em",
-          display:
-            bIndex === 0 ? (isFilterCollapsed ? "none" : "unset") : "unset",
-        }}
-      >
-        {bIndex === 0 ? (
-          <>
-            {chartType === "richText"
-              ? selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.map(
-                  (field: any, index: number) => (
-                    <UserFilterCardForDm
-                      field={field}
-                      uID={uID}
-                      bIndex={bIndex}
-                      axisTitle={name}
-                      key={index}
-                      itemIndex={index}
-                      propKey={`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`}
-                    />
-                  )
-                )
-              : currentChartAxes[bIndex]?.fields?.map(
-                  (field: any, index: number) => (
-                    <UserFilterCard
-                      field={field}
-                      uID={uID}
-                      bIndex={bIndex}
-                      axisTitle={name}
-                      key={index}
-                      itemIndex={index}
-                      propKey={propKey}
-                    />
-                  )
-                )}
-          </>
-        ) : (
-          <>
-            {chartType === "richText"
-              ? selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.map(
-                  (field: any, index: number) => (
-                    <Card
-                      field={field}
-                      uID={uID}
-                      bIndex={bIndex}
-                      axisTitle={name}
-                      key={index}
-                      itemIndex={index}
-                      propKey={`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`}
-                    />
-                  )
-                )
-              : currentChartAxes[bIndex]?.fields?.map(
-                  (field: any, index: number) => (
-                    <Card
-                      field={field}
-                      uID={uID}
-                      bIndex={bIndex}
-                      axisTitle={name}
-                      key={index}
-                      itemIndex={index}
-                      propKey={propKey}
-                    />
-                  )
-                )}
-          </>
-        )}
-      </div>
-
-      <NotificationDialog
-        onCloseAlert={() => {
-          setOpenAlert(false);
-          setTestMessage("");
-        }}
-        severity={severity}
-        testMessage={testMessage}
-        openAlert={openAlert}
-      />
-
-      <RenderMenu name={ChartsInfo[chartType].dropZones[bIndex]?.name} />
-    </div>
-  );
+			<RenderMenu name={ChartsInfo[chartType].dropZones[bIndex]?.name} />
+		</div>
+	);
 };
 
 const mapStateToProps = (state: ChartPropertiesStateProps & any) => {

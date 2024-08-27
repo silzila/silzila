@@ -44,7 +44,12 @@ public class SelectClauseWindowFunction {
             qMap = SelectClauseSnowflake.buildSelectClause(dim, vendorName);
         } else if ("motherduck".equals(vendorName)) {
             qMap = SelectClauseMotherduck.buildSelectClause(dim, vendorName);
-        } else {
+        }  else if ("db2".equalsIgnoreCase(vendorName)) {
+            qMap = SelectClauseDB2.buildSelectClause(dim, vendorName);
+        } else if ("teradata".equalsIgnoreCase(vendorName)) {
+            qMap = SelectClauseTeraData.buildSelectClause(dim, vendorName);
+        }
+        else {
             throw new BadRequestException("Unsupported vendor: " + vendorName);
         }
         return qMap;

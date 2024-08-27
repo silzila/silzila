@@ -1,5 +1,5 @@
 .dataViewerBottom {
-	height: 9rem;
+	height: 10.1rem;
 	width: 100%;
 	display: flex;
 	overflow: hidden;
@@ -26,6 +26,7 @@
 .dataSetSelect {
 	width: 92%;
 	padding: 8px 0 6px 10px;
+	margin-top: 6px;
 	/* background-color: rgb(211, 211, 211); */
 }
 
@@ -127,10 +128,12 @@
 .showColumnsOnly {
 	font-size: 11px;
 	padding: 8px;
+	padding-bottom: 0.4%;
 /* background-color: white; */
 	display: grid;
-	grid-gap: 0.25rem;
-	grid-template-columns: repeat(10, 1fr);
+	/* grid-gap: 0.25rem; */
+	grid-gap: 0.6rem;
+	grid-template-columns: repeat(10, 170px);
 	grid-template-rows: 1fr 1fr 1fr 1fr;
 	grid-auto-flow: column;
 }
@@ -146,21 +149,49 @@
 	color: #606060;
 	cursor: move;
 	padding: 3px 4px;
+	width: 170px; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box; 
+    /* position: relative;  */
 }
 .boxContainer:hover {
 	background-color: rgba(224, 224, 224, 1);
 }
 .boxText {
-	display: flex;
+	display: block;
+	/* display:flex;
 	align-items: center;
 	justify-content: center;
+    width: 100%; 
+    height: 100%;  */
+	overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+	font-weight: bold;
+	/* position: relative; */
+    /* box-sizing: border-box;  */
 }
+
+/* Hover effect to show full text */
+/* .boxContainer:hover .boxText {
+    overflow: visible; 
+    white-space: normal; 
+    position: absolute; 
+    background-color: #606060; 
+    color: #fff;
+    z-index: 1; 
+    left: 0; 
+    top: 0; 
+    width: 100px; 
+    padding: 3px 4px; 
+} */
 
 .styleForTableHeader{
 /* padding:9px 9px 9px 0px; */
-display: flex;
-cursor: move;
-
+	display: flex;
+	cursor: move; 
 }
 .styleForTableHeader:hover{
 	background-color: rgb(211, 211, 211);
@@ -169,4 +200,9 @@ cursor: move;
 .styleForColumnsOnly{
 	display: flex;
 	cursor: move;
+	display:flex;
+	align-items: center;
+	justify-content: left;
+	width: 100%; 
+	height: 100%;
 }

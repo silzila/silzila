@@ -1250,17 +1250,17 @@ const ChartData = ({
 
                 field["NameWithIndex"] = _name;
                 _chartFieldTempObject[_name] = "";
-                Logger("info", "NameWithIndex", field);
+               // Logger("info", "NameWithIndex", field);
               } else {
                 field["NameWithIndex"] = field.fieldname;
                 _chartFieldTempObject[field.fieldname] = "";
-                Logger("info", "NameWithIndex", field);
+               // Logger("info", "NameWithIndex", field);
               }
 
-              // if (_fieldTempObject[_nameWithAgg] === undefined) {
-              field["NameWithAgg"] = _nameWithAgg;
-              //_fieldTempObject[_nameWithAgg] = "";
-              Logger("info", "NameWithAgg", field);
+             // if (_fieldTempObject[_nameWithAgg] === undefined) {               
+                field["NameWithAgg"] = _nameWithAgg;
+                //_fieldTempObject[_nameWithAgg] = "";
+               // Logger("info", "NameWithAgg", field);
               //}
             });
           });

@@ -42,11 +42,15 @@ import { CardOption } from "./CardOption";
 import WindowFunction from "./CardComponents/WindowFuction";
 
 import RenameFunction from "./CardComponents/RenameFunction";
-import { fieldName } from "../CommonFunctions/CommonFunctions";
+import {
+  fieldName,
+  findNewDisplayName,
+} from "../CommonFunctions/CommonFunctions";
 import { ClassNames } from "@emotion/react";
 import { id } from "date-fns/locale";
 import { TooltipProps } from "@mui/material/Tooltip";
 import { setDisplayName } from "../ChartAxes/setDisplayName";
+import ChartsInfo from "./ChartsInfo2";
 
 // interface PriceTagTooltipProps {
 //     text: string|undefined;
@@ -220,6 +224,14 @@ const Card = ({
           chartProp.properties[propKey].chartAxes[bIndex].name,
           chartProp.properties[propKey].chartType
         );
+        let chartType = chartProp.properties[propKey].chartType;
+        let allowedNumbers =
+          ChartsInfo[chartType].dropZones[bIndex].allowedNumbers;
+        field2.displayname = findNewDisplayName(
+          chartProp.properties[propKey].chartAxes,
+          field2,
+          allowedNumbers
+        );
         field2.isTextRenamed = false;
         updateQueryParam(
           propKey,
@@ -236,6 +248,7 @@ const Card = ({
     if (optionName.id == "override") {
       setAnchorEl(null);
       setOverrideFn(true);
+      setShowTooltip(false);
 
       let oldChartAxes = JSON.parse(
         JSON.stringify(chartProp.properties[propKey].chartAxes || [])
@@ -278,6 +291,7 @@ const Card = ({
 
   const handleWindowFunctionOnClick = () => {
     //setTimeout(() => {
+    setShowTooltip(false);
     setWindowFunction(true);
     //}, 300);
 
@@ -287,6 +301,7 @@ const Card = ({
   const handleRollup = () => {
     let field2 = JSON.parse(JSON.stringify(field));
     setAnchorEl(null);
+    setShowTooltip(false);
     field2.rollupDepth = !field2.rollupDepth;
     field2.isManual = field2.rollupDepth;
     updateQueryParam(propKey, bIndex, itemIndex, field2, currentChartAxesName);
@@ -615,14 +630,13 @@ const Card = ({
                   </span>
                   <MenuItem
                     onClick={() => handleClose("agg", opt.id)}
-                    // sx={opt?.id === field?.agg ? menuSelectedStyle : menuStyle}
                     sx={{
                       ...menuStyle,
                       width: "100%",
                       ...(opt?.id === field?.agg && menuSelectedStyle),
                     }}
                     key={opt?.id}
-                    disabled={isItemDisabled(opt.name)}
+                    diabled={isItemDisabled(opt.name)}
                   >
                     {opt?.name}
                   </MenuItem>
@@ -666,11 +680,6 @@ const Card = ({
                   </span>
                   <MenuItem
                     onClick={() => handleClose("timeGrain", opt2.id)}
-                    // sx={
-                    //   opt2.id === field.timeGrain
-                    //     ? menuSelectedStyle
-                    //     : menuStyle
-                    // }
                     sx={{
                       ...menuStyle,
                       width: "100%",
@@ -910,11 +919,9 @@ const Card = ({
           <React.Fragment>, </React.Fragment>
         ) : null}
         {field.timeGrain ? AggregatorKeys[field.timeGrain] : null}
-      </span>
-      <span className="columnPrefix">
-        {" "}
         {field.prefix ? `${field.prefix}` : null}
       </span>
+      {/* <span className="columnPrefix"> {field.prefix ? `${field.prefix}` : null}</span> */}
       <button
         type="button"
         className="buttonCommon columnDown"
@@ -950,30 +957,6 @@ const Card = ({
         itemIndex={itemIndex}
       />
 
-      {/* <Tooltip 
-			 title={field.displayname} 
-			 arrow
-			 style={{ display: 'flex', alignItems: 'center', marginLeft: '8px', fontSize: '14px',color:'whitesmoke' }}
-			 componentsProps={{
-				tooltip: {
-				  sx: {
-					bgcolor: 'common.red',
-					'& .MuiTooltip-arrow': {
-					  color: 'common.red',
-					  width: 16, // Adjust arrow width
-                      height: 16,
-
-					},
-				  },
-				},
-			  }}
-			 open={showTooltip}
-			 placement="right-end"
-			 >
-				{/* Content to which the tooltip should apply */}
-      <span></span>
-      {/* </Tooltip>   */}
-
       <CustomTooltip
         title={field.displayname}
         arrow
@@ -983,27 +966,13 @@ const Card = ({
           display: "flex",
           alignItems: "center",
           marginLeft: "8px",
-          fontSize: "14px",
+          fontSize: "13px",
         }}
       >
-        <span></span>
+        <span
+          style={{ display: "inline-block", fontSize: 0, lineHeight: 0 }}
+        ></span>
       </CustomTooltip>
-
-      {/* {showTooltip && (
-			<div style={{ position: "relative" }}>
-			<PriceTagTooltip
-			text={field.displayname} 
-			fillColor="white" 
-			textColor="black" 
-			fontSize={10} 
-			open={showTooltip}  
-			display="flex"
-			alignItems="center"
-			marginLeft="8px"
-
-        />
-		</div>
-      )} */}
     </div>
   ) : null;
 };

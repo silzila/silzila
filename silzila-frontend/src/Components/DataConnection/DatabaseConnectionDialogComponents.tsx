@@ -25,7 +25,12 @@ const DatabaseConnectionDialogComponents = ({
 				onClose={onCloseAlert}
                 sx={{marginLeft:'16.5rem'}}
 			>
-				<Alert style={{ padding: "30px" }} severity={severity}>
+				<Alert style={{ padding: "30px" }} severity={severity} sx={{
+            color: severity === 'success' ? '#2bb9bb' : undefined, // Custom text color for success
+            '& .MuiAlert-icon': {
+              color: severity === 'success' ? '#2bb9bb' : undefined, // Custom icon color for success
+            },
+          }}>
 					{testMessage}
 				</Alert>
 			</Dialog>
@@ -34,4 +39,3 @@ const DatabaseConnectionDialogComponents = ({
 }
 
 export default DatabaseConnectionDialogComponents;
-
