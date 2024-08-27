@@ -279,6 +279,56 @@ export const generateRandomColorArray = (length:number) => {
 		return field;
 	};
 
+	export const findNewDisplayName = (chartAxes: any, paramField:any, allowedNumbers: number): any => {       
+	
+		let _measureZone: any = chartAxes.find(
+		(zones: any) => zones.name === "Measure"
+		);		
+
+		let _fieldTempObject: any = {};
+
+		/*	Find and return field's new name	*/
+		const findFieldName = (name: string, i: number = 0): string => {
+			if ((i === 0 && _fieldTempObject[name] !== undefined) || _fieldTempObject[`${name}(${i})`] !== undefined) {
+				i = i === 0 ? 1 : i;	
+
+				i++;
+				return findFieldName(name, i);
+			} else {
+				if(i === 0){
+					return name;
+				}
+				else{
+					return `${name}(${i})`;
+				}
+			}
+		};
+
+		if(allowedNumbers === _measureZone?.fields.length){
+			return paramField.displayname;
+		}
+
+		_measureZone?.fields.forEach((field: any, index: number) => {
+			let _nameWithAgg: string = "";
+			let _tempField = JSON.parse(JSON.stringify(field));	
+
+			_nameWithAgg = _tempField.displayname;		
+
+			if (_fieldTempObject[_nameWithAgg] !== undefined) {
+				let _name = findFieldName(_nameWithAgg);
+				_tempField["NameWithAgg"] = _name;
+				_fieldTempObject[_name] = "";							
+			} else {
+				_tempField["NameWithAgg"] = _nameWithAgg;
+				_fieldTempObject[_nameWithAgg] = "";
+			}
+		});	
+
+		let newName = findFieldName(paramField.displayname)
+
+		return newName || paramField.displayname;
+	};
+
 	const fetchFieldData = (bodyData: any, chartProperties:any, propKey:string, token:string) => {
 
 		//  bodyData: any = {
