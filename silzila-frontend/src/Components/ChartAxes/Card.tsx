@@ -42,11 +42,12 @@ import { CardOption } from "./CardOption";
 import WindowFunction from "./CardComponents/WindowFuction";
 
 import RenameFunction from "./CardComponents/RenameFunction";
-import { fieldName } from "../CommonFunctions/CommonFunctions";
+import { fieldName, findNewDisplayName } from "../CommonFunctions/CommonFunctions";
 import { ClassNames } from "@emotion/react";
 import { id } from "date-fns/locale";
 import { TooltipProps } from '@mui/material/Tooltip';
 import {setDisplayName} from '../ChartAxes/setDisplayName';
+import ChartsInfo from "./ChartsInfo2";
 
 // interface PriceTagTooltipProps {
 //     text: string|undefined;
@@ -213,6 +214,9 @@ const Card = ({
 				updateAxesQueryParamForDm(propKey, bIndex, itemIndex, field2);
 			} else {
 				field2 = setDisplayName(field2, chartProp.properties[propKey].chartAxes[bIndex].name, chartProp.properties[propKey].chartType)
+				let chartType = chartProp.properties[propKey].chartType;
+				let allowedNumbers = ChartsInfo[chartType].dropZones[bIndex].allowedNumbers;
+				field2.displayname = findNewDisplayName(chartProp.properties[propKey].chartAxes, field2, allowedNumbers);
 				field2.isTextRenamed = false;
 				updateQueryParam(propKey, bIndex, itemIndex, field2, currentChartAxesName);
 			}
@@ -790,7 +794,7 @@ const mapStateToProps = (
   return {
     tabTileProps: state.tabTileProps,
     chartProp: state.chartProperties,
-    dynamicMeasureState: state.dynamicMeasuresState,
+    dynamicMeasureState: state.dynamicMeasuresState
   };
 };
 
