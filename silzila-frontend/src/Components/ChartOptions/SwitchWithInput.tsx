@@ -1,24 +1,39 @@
 import { FormControlLabel, styled, Switch } from "@mui/material";
 import "./SliderWithInput.css";
 
-const SwitchWithInput = ({ isChecked, onSwitch }: { isChecked: boolean; onSwitch: any }) => {
-	const SwitchComponent = styled(Switch)(() => ({
-		padding: 9,
-		height: 35,
-		width: 54,
-		"& .MuiSwitch-track": {
-			borderRadius: 16,
-		},
-		"& .MuiSwitch-thumb": {
-			boxShadow: "none",
-			width: 13,
-			height: 13,
-			margin: "1.8px",
-		},
-	}));
-	return (
-		<FormControlLabel label="" control={<SwitchComponent checked={isChecked} onClick={onSwitch} />} />
-	);
+const SwitchWithInput = ({
+  isChecked,
+  onSwitch,
+}: {
+  isChecked: boolean;
+  onSwitch: any;
+}) => {
+  const SwitchComponent = styled(Switch)(() => ({
+    padding: 9,
+    height: 35,
+    width: 54,
+    "& .MuiSwitch-track": {
+      borderRadius: 16,
+    },
+    "& .MuiSwitch-thumb": {
+      boxShadow: "none",
+      width: 13,
+      height: 13,
+      margin: "1.8px",
+    },
+    "& .Mui-checked .MuiSwitch-thumb": {
+      backgroundColor: "#2bb9bb !important",
+    },
+    "& .Mui-checked + .MuiSwitch-track": {
+      backgroundColor: "#2bb9bb !important",
+    },
+  }));
+  return (
+    <FormControlLabel
+      label=""
+      control={<SwitchComponent checked={isChecked} onClick={onSwitch} />}
+    />
+  );
 };
 
 export default SwitchWithInput;

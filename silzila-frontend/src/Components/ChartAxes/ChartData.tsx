@@ -1226,8 +1226,8 @@ const ChartData = ({
             (zones: any) => zones.name !== "Filter"
           );
           //let _zonesFields:any = [];
-         // let _fieldTempObject: any = {};
-          let _chartFieldTempObject: any = {};          
+          // let _fieldTempObject: any = {};
+          let _chartFieldTempObject: any = {};
 
           /*	Find and return field's new name	*/
           const findFieldIndexName = (name: string, i: number = 2): string => {
@@ -1241,10 +1241,10 @@ const ChartData = ({
 
           _zones.forEach((zoneItem: any) => {
             zoneItem.fields.forEach((field: any) => {
-              let _nameWithAgg: string = "";             
+              let _nameWithAgg: string = "";
 
               _nameWithAgg = field.displayname;
-             
+
               if (_chartFieldTempObject[field.fieldname] !== undefined) {
                 let _name = findFieldIndexName(field.fieldname);
 
@@ -1274,7 +1274,7 @@ const ChartData = ({
               });
             });
 
-            Logger("info", "_chartDataObj", _chartDataObj);            
+            Logger("info", "_chartDataObj", _chartDataObj);
             result.push(_chartDataObj);
           });
         }
@@ -1510,10 +1510,22 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
       dispatch(updatecfObjectOptions(propKey, removeIndex, item)),
     deleteTablecf: (propKey: string, index: number) =>
       dispatch(deleteTablecf(propKey, index)),
-    updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any,  currentChartAxesName : string) =>
-			dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item, currentChartAxesName })),
-
-
+    updateQueryParam: (
+      propKey: string,
+      binIndex: number,
+      itemIndex: number,
+      item: any,
+      currentChartAxesName: string
+    ) =>
+      dispatch(
+        editChartPropItem("updateQuery", {
+          propKey,
+          binIndex,
+          itemIndex,
+          item,
+          currentChartAxesName,
+        })
+      ),
   };
 };
 
