@@ -137,8 +137,8 @@ const Canvas = ({
               justifyContent: "center",
               alignItems: "center",
               height: "100vh",
-              // marginLeft: "95%",
-              // marginTop: "-20%",
+              position: "fixed",
+              right: "3%",
             }}
           >
             <button
@@ -155,8 +155,6 @@ const Canvas = ({
                 style={{
                   height: "1.5rem",
                   width: "2rem",
-
-                  marginRight: "3px",
                 }}
                 className="IconDataset"
                 onClick={() => setIsDataSetVisible(!isDataSetVisible)}
@@ -169,80 +167,21 @@ const Canvas = ({
                 height: "200vh",
                 border: "1px solid rgba(224, 224, 224, 1)",
                 position: "absolute",
-                right: "1%",
                 top: "0%",
               }}
             />
           </div>
         )}
-
-        {/* {isDataSetVisible ? (
-          <div
-            className="filter_dataset"
-            onDrop={(e) => handleDrop(e)}
-            onDragOver={(e) => e.preventDefault()}
-            style={{ display: isDataSetVisible ? "block" : "none" }}
-          >
-            <div style={{ width: "100%", marginRight: "5%" }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  margin: "auto auto",
-                }}
-              >
-                <img
-                  src={filterIcon}
-                  style={{
-                    height: "2rem",
-                    width: "3rem",
-                    margin: "0 19px",
-                  }}
-                  alt="filter"
-                />
-                <span className="axisTitle">Dataset Filter</span>
-                <div>
-                  <button
-                    title="minimize"
-                    style={{
-                      backgroundColor: "white",
-                      outline: "none",
-                      border: "none",
-                    }}
-                  >
-                    <ArrowBackRoundedIcon
-                      // className="columnClose"
-                      style={{
-                        right: "92%",
-                        top: "0px",
-                        zIndex: "999",
-                        transform: "rotate(180deg)", // Use transform instead of rotate
-                      }}
-                      onClick={() => setIsDataSetVisible(!isDataSetVisible)}
-                    />
-                  </button>
-                </div>
-              </div>
-              {dataSetFilterArray.length > 0 && (
-                <UserFilterDataset
-                  editMode={editMode}
-                  dataSetFilterArray={dataSetFilterArray}
-                  setDataSetFilterArray={setDataSetFilterArray}
-                  dbConnectionId={tempTable[0].dcId}
-                />
-              )}
-            </div>
-          </div>
-        ) : null} */}
-
         <div
           className="filter_dataset"
           onDrop={(e) => handleDrop(e)}
           onDragOver={(e) => e.preventDefault()}
-          style={{ display: isDataSetVisible ? "block" : "none" }} // Controls visibility
+          style={{
+            display: isDataSetVisible ? "block" : "none",
+            position: "fixed",
+          }} // Controls visibility
         >
-          <div style={{ width: "100%", marginRight: "5%" }}>
+          <div style={{ width: "100%" }}>
             <div
               style={{
                 display: "flex",

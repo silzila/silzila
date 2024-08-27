@@ -47,7 +47,7 @@
 
 .IconDataset {
   position: absolute;
-  right: 1%;
+  left: 10px;
   top: 2%;
 }
 .draggableBoxTitle {

@@ -139,10 +139,11 @@ const BottomBar = ({
       }
       //for datasetFilter array sent the data in the form of array
 
-      const datasetFilter = datasetFilterArray.map((item) => {
+      //send only that column which is present in temptable
+      const datasetFilter = datasetFilterArray.filter((item) => {
         var excludeInclude: boolean =
           item.includeexclude === false ? false : true;
-        console.log(item);
+
         return {
           panelName: "dataSetFilters",
           shouldAllConditionsMatch: true,
