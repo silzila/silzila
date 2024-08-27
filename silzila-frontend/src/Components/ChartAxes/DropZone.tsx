@@ -312,8 +312,9 @@ const DropZone = ({
 			//bindex is not 1 (dimension)
 			else {
 				let newFieldData = JSON.parse(JSON.stringify(setPrefix(item, name, chartType)));
-				newFieldData = setDisplayName(newFieldData, name, chartType);
-				// newFieldData.displayname = findNewDisplayName(bIndex, newFieldData).displayname;
+				newFieldData = setDisplayName(newFieldData, name, chartType);				
+				newFieldData.displayname = findNewDisplayName(chartProp.properties[propKey].chartAxes, newFieldData, allowedNumbers);
+				
 				
 				["type", "bIndex"].forEach(e => delete newFieldData[e]);
 
