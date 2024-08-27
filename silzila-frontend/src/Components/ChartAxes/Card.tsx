@@ -636,7 +636,7 @@ const Card = ({
                       ...(opt?.id === field?.agg && menuSelectedStyle),
                     }}
                     key={opt?.id}
-                    diabled={isItemDisabled(opt.name)}
+                    disabled={isItemDisabled(opt.name)}
                   >
                     {opt?.name}
                   </MenuItem>
