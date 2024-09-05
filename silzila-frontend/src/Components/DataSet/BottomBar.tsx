@@ -41,6 +41,7 @@ const BottomBar = ({
   datasetName,
   database,
   isFlatFile,
+  datasetFilterArray,
 
   // dispatch
   resetState,
@@ -136,6 +137,34 @@ const BottomBar = ({
       } else {
         apiurl = "dataset";
       }
+      //for datasetFilter array sent the data in the form of array
+      const datasetFilter = datasetFilterArray.filter((item) => {
+        var excludeInclude: boolean =
+          item.includeexclude === false ? false : true;
+
+        return {
+          panelName: "dataSetFilters",
+          shouldAllConditionsMatch: true,
+          filters: [
+            {
+              filterType: item.fieldtypeoption,
+              fieldName: item.fieldName,
+              tableName: item.tableName,
+              dataType: item.dataType,
+              uid: item.uid,
+              displayName: item.displayName,
+              shouldExclude: excludeInclude,
+              timeGrain: item.timeGrain,
+              operator: item.exprType,
+              userSelection: item.userSelection,
+              isTillDate: item.isStillData,
+              tableId: item.tableId,
+              exprType: item.exprType,
+            },
+          ],
+        };
+      });
+
       if (relationshipServerObj.length >= 0) {
         // TODO: need to specify type
         var options: any = await FetchData({
@@ -153,6 +182,7 @@ const BottomBar = ({
             dataSchema: {
               tables: [...tablesSelectedInSidebar],
               relationships: [...relationshipServerObj],
+              filterPanels: [...datasetFilter],
             },
           },
         });
@@ -162,7 +192,7 @@ const BottomBar = ({
             "tables with no Relationship\n" +
             tempTable.map((el: any) => "\n," + el.tableName)
         );
-        console.log("edd");
+
         setSeverity("error");
         setOpenAlert(true);
       }
