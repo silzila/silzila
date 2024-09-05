@@ -46,15 +46,19 @@ const DashGraph = ({
             ) *
               gridSize.y -
             2
-          : parseInt(
+          : (parseInt(
               tabState.tabs[tabId].dashTilesDetails[propKey].height,
               10
             ) *
-              gridSize.y -
+              gridSize.y *
+              28) /
+              30 -
             32,
       width:
-        parseInt(tabState.tabs[tabId].dashTilesDetails[propKey].width, 10) *
-          gridSize.x -
+        (parseInt(tabState.tabs[tabId].dashTilesDetails[propKey].width, 10) *
+          gridSize.x *
+          24) /
+          25 -
         4,
     };
 
