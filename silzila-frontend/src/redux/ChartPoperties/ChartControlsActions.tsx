@@ -105,7 +105,7 @@ export const switchAutotoManualinSteps = (propKey: string, value: string | numbe
 export const updateCrossTabStyleOptions = (
 	propKey: string,
 	option: string | number,
-	value: string | number
+	value: string | number | {}
 ) => {
 	return {
 		type: "UPDATE_CROSSTAB_STYLE_OPTIONS",
