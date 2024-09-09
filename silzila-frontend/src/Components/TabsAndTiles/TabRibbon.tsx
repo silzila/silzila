@@ -249,10 +249,11 @@ const TabRibbon = ({
           <span
             title="Create a new tab"
             className="plusTab"
+            style={{width: "30px", height: "24.79px"}}
             onClick={() => handleAddTab()}
           >
             <AddIcon
-              sx={{ fontSize: "16px", marginTop: "3px" }}
+              sx={{ fontSize: "16px", marginTop: "2px" }}
               onClick={() => handleTabScroll(200)}
             />
           </span>
