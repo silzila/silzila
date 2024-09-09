@@ -54,7 +54,7 @@ public class TillDate {
             } else if (vendorName.equals("bigquery")) {
                 where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN DATE_TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", YEAR) AND \n\t\tDATE(CONCAT(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + "), '-', EXTRACT(MONTH FROM CURRENT_DATE()), \n\t\t'-', EXTRACT(DAY FROM CURRENT_DATE())))";
             } else if (vendorName.equals("databricks")) {
-                where += "TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", 'YEAR') "+ operator + " BETWEEN TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\tTO_DATE(CONCAT(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + "), '-', EXTRACT(MONTH FROM CURRENT_DATE()), \n\t\t'-', EXTRACT(DAY FROM CURRENT_DATE())), 'YYYY-MM-DD')";
+                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", 'YEAR') AND \n\t\tTO_DATE(CONCAT(YEAR( " + filter.getTableId() + "." + filter.getFieldName() + "), '-', MONTH( CURRENT_DATE()), \n\t\t'-', DAY( CURRENT_DATE())))";
             } else if (vendorName.equals("oracle")) {
                 where += "TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ",'YEAR') AND \n\t\tTO_DATE(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'YYYY') || '-' || TO_CHAR(SYSDATE, 'MM-DD'), 'YYYY-MM-DD')";
             } else if (vendorName.equals("snowflake")) {
@@ -169,20 +169,20 @@ public class TillDate {
                 "ELSE CAST(EXTRACT(DAY FROM CURRENT_DATE()) AS STRING) \n\t\t" +
                 "END) AS DATE)";
             } else if (vendorName.equals("databricks")) {
-                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ") AND \n\t\t" +
-                "TO_DATE(CAST(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + ") AS STRING) || '-' || \n\t\t" +
-                "LPAD(CAST(EXTRACT(MONTH FROM DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ")) + \n\t\t" +
-                "MONTHS_BETWEEN(CURRENT_DATE(), DATE_TRUNC(CURRENT_DATE(), 'QUARTER')) AS STRING), 2, '0') || '-' || \n\t\t" +
+                where += "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN TRUNC( " + filter.getTableId() + "." + filter.getFieldName() + ",'QUARTER') AND \n\t\t" +
+                "TO_DATE(YEAR( " + filter.getTableId() + "." + filter.getFieldName() + ")  || '-' || \n\t\t" +
+                "(MONTH(TRUNC( " + filter.getTableId() + "." + filter.getFieldName() + ", 'QUARTER')) + \n\t\t" +
+                "FLOOR(MONTHS_BETWEEN(CURRENT_DATE(), TRUNC(CURRENT_DATE(), 'QUARTER')))) || '-' || \n\t\t" +
                 "CASE " +
-                "WHEN DAY(CURRENT_DATE()) IN (29,30, 31) AND EXTRACT(MONTH FROM " + filter.getTableId() + "." + filter.getFieldName() + ") + \n\t\t" +
-                "MONTHS_BETWEEN(CURRENT_DATE(), DATE_TRUNC(CURRENT_DATE(), 'QUARTER')) = 2 THEN " +
+                "WHEN DAY(CURRENT_DATE()) IN (29,30, 31) AND (MONTH(" + filter.getTableId() + "." + filter.getFieldName() + ") + \n\t\t" +
+                "FLOOR(MONTHS_BETWEEN(CURRENT_DATE(), TRUNC(CURRENT_DATE(), 'QUARTER')))) = 2 THEN " +
                 "CASE \n\t\t" +
                 "WHEN YEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 4 = 0 AND (YEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 100 != 0 OR \n\t\tYEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 400 = 0) THEN '29' " +
                 "ELSE '28' " +
                 "END \n\t\t" +
-                "WHEN DAY(CURRENT_DATE()) = 31 AND EXTRACT(MONTH FROM " + filter.getTableId() + "." + filter.getFieldName() + ") + \n\t\t" +
-                "MONTHS_BETWEEN(CURRENT_DATE(), DATE_TRUNC(CURRENT_DATE(), 'QUARTER')) IN (4, 6, 9, 11) THEN '30' " +
-                "ELSE LPAD(CAST(DAY(CURRENT_DATE()) AS STRING), 2, '0') \n\t\t" +
+                "WHEN DAY(CURRENT_DATE()) = 31 AND (MONTH( " + filter.getTableId() + "." + filter.getFieldName() + ") + \n\t\t" +
+                "FLOOR(MONTHS_BETWEEN(CURRENT_DATE(), TRUNC(CURRENT_DATE(), 'QUARTER')))) IN (4, 6, 9, 11) THEN '30' " +
+                "ELSE DAY(CURRENT_DATE()) \n\t\t" +
                 "END)"; 
             } else if (vendorName.equals("oracle")) {
                 where += "TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q') AND \n\t\t" +
