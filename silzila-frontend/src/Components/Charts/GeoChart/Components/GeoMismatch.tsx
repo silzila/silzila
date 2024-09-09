@@ -38,6 +38,14 @@ const GoeMismatch = ({
   if (chartProperties.properties[propKey].chartType === "bubbleMap")
     dimensionName = chartProperties.properties[propKey].chartAxes[2].fields[0];
   dimensionName = fieldName(dimensionName);
+  function extractLastWord(inputString: string) {
+    // Split the string by " of " and return the last element
+    if (!inputString) return null;
+    const parts = inputString.split(" of ");
+    return parts[parts.length - 1];
+  }
+  dimensionName = extractLastWord(dimensionName);
+
   //changeGeoMapUnMatched(propKey, misMatchList);
 
   let tempArray = [];

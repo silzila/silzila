@@ -1811,8 +1811,8 @@ const NewDataConnection = (props: DataConnectionProps) => {
 							variant="contained"
 							onClick={() => {
 								setChangeDB(false);
-								setDataConnection(values);
 								handleListItem(values);
+								setDataConnection(values);
 							}}
 						>
 							Continue

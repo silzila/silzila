@@ -17,7 +17,8 @@ import TreeMapLegend from "./Legend/TreeMapLegend";
 import ChartMargin from "./Margin/ChartMargin";
 import ChartMouseOver from "./MouseOver/ChartMouseOver";
 import BoxPlotChartStyles from "./ChartStyle/BoxPlotChartStyles";
-import GeoChartStyles from "./ChartStyle/GeoChartStyles";
+import FilledMapStyles from "./ChartStyle/GeoChartStyles/FilledMapStyles";
+import BubbleMapStyles from "./ChartStyle/GeoChartStyles/BubbleMapStyles";
 import CalendarChartStyles from "./ChartStyle/CalendarChartStyles";
 import ChartStyle from "./ChartStyle/ChartStyle";
 import SankeyStyles from "./ChartStyle/SankeyStyles";
@@ -32,6 +33,7 @@ import TableConditionalFormating from "./TableChartControlComponents/TableCondit
 import DynamicMeasureConditionalFormattingComponent from "./DynamicMeasureConditionalFormattingComponent";
 import SimplecardConditionalFormatting from "./SimplecardConditionalFormatting";
 import Sort from "./Sort/Sort";
+import BubbleMapColors from "./Color/BubbleMapColors";
 
 interface ControlDetailProps {
   chartProperties: ChartPropertiesProps;
@@ -69,6 +71,8 @@ const ControlDetail = ({
           return <ColorSteps />;
         } else if (chartType === "sankey") {
           return <SankeyColorControls />;
+        } else if (chartType === "bubbleMap") {
+          return <BubbleMapColors />;
         } else {
           return <ChartColors />;
         }
@@ -105,8 +109,10 @@ const ControlDetail = ({
           return <CardStyle />;
         } else if (chartType === "richText") {
           return <DynamicMeasureStyle />;
-        } else if (chartType === "filledMap" || chartType === "bubbleMap") {
-          return <GeoChartStyles />;
+        } else if (chartType === "filledMap") {
+          return <FilledMapStyles />;
+        } else if (chartType === "bubbleMap") {
+          return <BubbleMapStyles />;
         } else {
           return <ChartStyle />;
         }
