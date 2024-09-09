@@ -105,9 +105,9 @@ public class TillDate {
                 where+="DATE(" + filter.getTableId() + "." + filter.getFieldName() + ") "+ operator + " BETWEEN CONCAT(YEAR(" + filter.getTableId() + "." + filter.getFieldName() +
                  "), '-', LPAD(1 + (QUARTER(" + filter.getTableId() + "." + filter.getFieldName() + ") - 1) * 3, 2, '0'), '-01')AND \n\t\tCONCAT(YEAR("
                 + filter.getTableId() + "." + filter.getFieldName() + "), '-'\n\t\t,LPAD(1 + (((QUARTER(" + filter.getTableId() + "." + filter.getFieldName() + 
-                ")) - 1) * 3 + \n\t\t(TIMESTAMPDIFF(MONTH, CONCAT(YEAR(current_date()), '-',LPAD(1 + (QUARTER(current_date()) - 1) * 3, 2, '0'), '-01'), \n\t\tcurrent_date()))), 2, '0'), '-'\n\t\t,LPAD(case WHEN (DAY(current_date()) in (30,31) AND LPAD(1 + (((QUARTER("
+                ")) - 1) * 3 + \n\t\t(TIMESTAMPDIFF(MONTH, CONCAT(YEAR(current_date()), '-',LPAD(1 + (QUARTER(current_date()) - 1) * 3, 2, '0'), '-01'), \n\t\tcurrent_date()))), 2, '0'), '-'\n\t\t,LPAD(case WHEN (DAY(current_date()) in (29,30,31) AND LPAD(1 + (((QUARTER("
                 + filter.getTableId() + "." + filter.getFieldName() + 
-                ")) - 1) * 3 + \n\t\t(TIMESTAMPDIFF(MONTH, CONCAT(YEAR(current_date()), '-'\n\t\t, LPAD(1 + (QUARTER(current_date()) - 1) * 3, 2, '0'), '-01'), current_date()))), 2, '0') = \"02\") \n\t\tTHEN IF(YEAR(current_date()) % 4 = 0 AND \n\t\t(YEAR(current_date()) % 100 != 0 OR \n\t\tYEAR(current_date()) % 400 = 0), 29, 28) WHEN (DAY(current_date()) = 31 AND \n\t\tLPAD(1 + (((QUARTER("
+                ")) - 1) * 3 + \n\t\t(TIMESTAMPDIFF(MONTH, CONCAT(YEAR(current_date()), '-'\n\t\t, LPAD(1 + (QUARTER(current_date()) - 1) * 3, 2, '0'), '-01'), current_date()))), 2, '0') = \"02\") \n\t\tTHEN IF(YEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 4 = 0 AND \n\t\t(YEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 100 != 0 OR \n\t\tYEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 400 = 0), 29, 28) WHEN (DAY(current_date()) = 31 AND \n\t\tLPAD(1 + (((QUARTER("
                 + filter.getTableId() + "." + filter.getFieldName() + 
                 ")) - 1) * 3 + (TIMESTAMPDIFF(MONTH, CONCAT(YEAR(current_date()), '-',\n\t\t LPAD(1 + (QUARTER(current_date()) - 1) * 3, 2, '0'), '-01'), current_date()))), 2, '0') IN (\"04\", \"06\", \"09\", \"11\"))\n\t\t THEN 30 ELSE DAY(current_date()) END, 2, '0'))";
             } else if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
@@ -116,11 +116,11 @@ public class TillDate {
                 "extract(year from " + filter.getTableId() + "." + filter.getFieldName() + ") || '-'|| \n\t\t((date_part('month', DATE_TRUNC('quarter', " + filter.getTableId() + "." + filter.getFieldName() + "))::int) + \n\t\t" +
                 "(extract(month from age(CURRENT_DATE::date, DATE_TRUNC('quarter', CURRENT_DATE)::date)))::int) || '-' || \n\t\t" +
                 "CASE " +
-                "WHEN (EXTRACT(DAY FROM CURRENT_DATE) IN (30, 31) AND ((date_part('month', DATE_TRUNC('quarter', " + filter.getTableId() + "." + filter.getFieldName() + "))::int) + \n\t\t" +
+                "WHEN (EXTRACT(DAY FROM CURRENT_DATE) IN (29,30, 31) AND ((date_part('month', DATE_TRUNC('quarter', " + filter.getTableId() + "." + filter.getFieldName() + "))::int) + \n\t\t" +
                 "(extract(month from age(CURRENT_DATE::date, DATE_TRUNC('quarter', CURRENT_DATE)::date)))::int) = 2) " +
                 "THEN " +
                 "CASE \n\t\t" +
-                "WHEN EXTRACT(YEAR FROM CURRENT_DATE) % 4 = 0 AND (EXTRACT(YEAR FROM CURRENT_DATE) % 100 != 0 OR \n\t\tEXTRACT(YEAR FROM CURRENT_DATE) % 400 = 0) THEN '29' " +
+                "WHEN EXTRACT(YEAR FROM "+ filter.getTableId() + "." + filter.getFieldName() +") % 4 = 0 AND (EXTRACT(YEAR FROM "+ filter.getTableId() + "." + filter.getFieldName() +") % 100 != 0 OR \n\t\tEXTRACT(YEAR FROM "+ filter.getTableId() + "." + filter.getFieldName() +") % 400 = 0) THEN '29' " +
                 "ELSE '28' " +
                 "END \n\t\t" +
                 "WHEN (EXTRACT(DAY FROM CURRENT_DATE) = 31 AND ((date_part('month', DATE_TRUNC('quarter', " + filter.getTableId() + "." + filter.getFieldName() + "))::int) + \n\t\t" +
@@ -136,11 +136,11 @@ public class TillDate {
                 "((MONTH(DATETRUNC(quarter, " + filter.getTableId() + "." + filter.getFieldName() + "))) + \n\t\t" +
                 "(DATEDIFF(month, DATETRUNC(quarter, GETDATE()), GETDATE()))),'-', \n\t\t" +
                 "CASE " +
-                "WHEN DAY(GETDATE()) IN (30, 31) AND ((MONTH(DATETRUNC(quarter, " + filter.getTableId() + "." + filter.getFieldName() + "))) + \n\t\t" +
+                "WHEN DAY(GETDATE()) IN (29,30, 31) AND ((MONTH(DATETRUNC(quarter, " + filter.getTableId() + "." + filter.getFieldName() + "))) + \n\t\t" +
                 "(DATEDIFF(month, DATETRUNC(quarter, GETDATE()), GETDATE())) = 2) " +
                 "THEN " +
                 "CASE \n\t\t" +
-                "WHEN YEAR(GETDATE()) % 4 = 0 AND (YEAR(GETDATE()) % 100 != 0 OR YEAR(GETDATE()) % 400 = 0) THEN '29' " +
+                "WHEN YEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 4 = 0 AND (YEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 100 != 0 OR YEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 400 = 0) THEN '29' " +
                 "ELSE '28' " +
                 "END \n\t\t" +
                 "WHEN DAY(GETDATE()) = 31 AND ((MONTH(DATETRUNC(quarter, " + filter.getTableId() + "." + filter.getFieldName() + "))) + \n\t\t" +
@@ -160,9 +160,9 @@ public class TillDate {
                 "AS STRING)" +
                 ",'-', \n\t\t" +
                 "CASE " +
-                "WHEN EXTRACT(DAY FROM CURRENT_DATE()) IN (30, 31) AND (EXTRACT(MONTH FROM DATE_TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", QUARTER)) + \n\t\tDATE_DIFF(CURRENT_DATE(), DATE_TRUNC(CURRENT_DATE(), QUARTER), MONTH)) = 2 THEN " +
+                "WHEN EXTRACT(DAY FROM CURRENT_DATE()) IN (29,30, 31) AND (EXTRACT(MONTH FROM DATE_TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", QUARTER)) + \n\t\tDATE_DIFF(CURRENT_DATE(), DATE_TRUNC(CURRENT_DATE(), QUARTER), MONTH)) = 2 THEN " +
                 "CASE \n\t\t" +
-                "WHEN MOD(EXTRACT(YEAR FROM CURRENT_DATE()), 4) = 0 AND (MOD(EXTRACT(YEAR FROM CURRENT_DATE()), 100) != 0 OR \n\t\tMOD(EXTRACT(YEAR FROM CURRENT_DATE()), 400) = 0) THEN '29' " +
+                "WHEN MOD(EXTRACT(YEAR FROM "+ filter.getTableId() + "." + filter.getFieldName() +"), 4) = 0 AND (MOD(EXTRACT(YEAR FROM "+ filter.getTableId() + "." + filter.getFieldName() +"), 100) != 0 OR \n\t\tMOD(EXTRACT(YEAR FROM "+ filter.getTableId() + "." + filter.getFieldName() +"), 400) = 0) THEN '29' " +
                 "ELSE '28' " +
                 "END \n\t\t" +
                 "WHEN EXTRACT(DAY FROM CURRENT_DATE()) = 31 AND (EXTRACT(MONTH FROM DATE_TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", QUARTER)) + \n\t\tDATE_DIFF(CURRENT_DATE(), DATE_TRUNC(CURRENT_DATE(), QUARTER), MONTH)) IN (4, 6, 9, 11) THEN '30'\n\t\t " +
@@ -174,10 +174,10 @@ public class TillDate {
                 "LPAD(CAST(EXTRACT(MONTH FROM DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ")) + \n\t\t" +
                 "MONTHS_BETWEEN(CURRENT_DATE(), DATE_TRUNC(CURRENT_DATE(), 'QUARTER')) AS STRING), 2, '0') || '-' || \n\t\t" +
                 "CASE " +
-                "WHEN DAY(CURRENT_DATE()) IN (30, 31) AND EXTRACT(MONTH FROM " + filter.getTableId() + "." + filter.getFieldName() + ") + \n\t\t" +
+                "WHEN DAY(CURRENT_DATE()) IN (29,30, 31) AND EXTRACT(MONTH FROM " + filter.getTableId() + "." + filter.getFieldName() + ") + \n\t\t" +
                 "MONTHS_BETWEEN(CURRENT_DATE(), DATE_TRUNC(CURRENT_DATE(), 'QUARTER')) = 2 THEN " +
                 "CASE \n\t\t" +
-                "WHEN YEAR(CURRENT_DATE()) % 4 = 0 AND (YEAR(CURRENT_DATE()) % 100 != 0 OR \n\t\tYEAR(CURRENT_DATE()) % 400 = 0) THEN '29' " +
+                "WHEN YEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 4 = 0 AND (YEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 100 != 0 OR \n\t\tYEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 400 = 0) THEN '29' " +
                 "ELSE '28' " +
                 "END \n\t\t" +
                 "WHEN DAY(CURRENT_DATE()) = 31 AND EXTRACT(MONTH FROM " + filter.getTableId() + "." + filter.getFieldName() + ") + \n\t\t" +
@@ -193,13 +193,13 @@ public class TillDate {
                 "'FM00'" +
                 ")), 2, '0') || '-' || \n\t\t" +
                 "CASE " +
-                "WHEN TO_NUMBER(TO_CHAR(SYSDATE , 'DD')) IN (30, 31) AND LPAD(TO_NUMBER(EXTRACT(MONTH FROM TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q'))) + \n\t\tTO_NUMBER(TO_CHAR(" +
-                "(MONTHS_BETWEEN(SYSDATE, TRUNC(SYSDATE, 'Q'))), " +
+                "WHEN TO_NUMBER(TO_CHAR(SYSDATE , 'DD')) IN (29,30, 31) AND LPAD(TO_NUMBER(EXTRACT(MONTH FROM TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q'))) + \n\t\tTO_NUMBER(TO_CHAR(" +
+                "(MONTHS_BETWEEN(SYSDATE, TRUNC(SYSDATE, 'Q'))-1), " +
                 "'FM00'" +
                 ")), 2, '0') = '02' " +
                 "THEN " +
                 "CASE \n\t\t" +
-                "WHEN MOD(TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')), 4) = 0 AND (MOD(TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')), 100) != 0 OR \n\t\tMOD(TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')), 400) = 0) THEN '29' " +
+                "WHEN MOD(TO_NUMBER(TO_CHAR("+ filter.getTableId() + "." + filter.getFieldName() +", 'YYYY')), 4) = 0 AND (MOD(TO_NUMBER(TO_CHAR("+ filter.getTableId() + "." + filter.getFieldName() +", 'YYYY')), 100) != 0 OR \n\t\tMOD(TO_NUMBER(TO_CHAR("+ filter.getTableId() + "." + filter.getFieldName() +", 'YYYY')), 400) = 0) THEN '29' " +
                 "ELSE '28' " +
                 "END \n\t\t" +
                 "WHEN TO_NUMBER(TO_CHAR(SYSDATE, 'DD')) = 31 AND LPAD(TO_NUMBER(EXTRACT(MONTH FROM TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q'))) + \n\t\tTO_NUMBER(TO_CHAR(" +
@@ -214,10 +214,10 @@ public class TillDate {
                 "LPAD(CAST(EXTRACT(MONTH FROM DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ")) + \n\t\t" +
                 "DATEDIFF(MONTH, DATE_TRUNC('QUARTER', CURRENT_DATE()), CURRENT_DATE()) AS STRING), 2, '0') || '-' || \n\t\t" +
                 "CASE " +
-                "WHEN DAY(CURRENT_DATE()) IN (30, 31) AND EXTRACT(MONTH FROM " + filter.getTableId() + "." + filter.getFieldName() + ") + \n\t\t" +
+                "WHEN DAY(CURRENT_DATE()) IN ( 29,30, 31) AND EXTRACT(MONTH FROM DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ")) + \n\t\t" +
                 "DATEDIFF(MONTH, DATE_TRUNC('QUARTER', CURRENT_DATE()), CURRENT_DATE()) = 2 THEN \n\t\t" +
                 "CASE " +
-                "WHEN YEAR(CURRENT_DATE()) % 4 = 0 AND (YEAR(CURRENT_DATE()) % 100 != 0 OR \n\t\tYEAR(CURRENT_DATE()) % 400 = 0) THEN '29' " +
+                "WHEN YEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 4 = 0 AND (YEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 100 != 0 OR \n\t\tYEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 400 = 0) THEN '29' " +
                 "ELSE '28' " +
                 "END \n\t\t" +
                 "WHEN DAY(CURRENT_DATE()) = 31 AND EXTRACT(MONTH FROM " + filter.getTableId() + "." + filter.getFieldName() + ") + \n\t\t" +
@@ -231,10 +231,10 @@ public class TillDate {
                 "CAST(EXTRACT('MONTH' FROM DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ")) + \n\t\t" +
                 "DATEDIFF('MONTH', DATE_TRUNC('QUARTER', CURRENT_DATE()), CURRENT_DATE()) AS VARCHAR) || '-' || \n\t\t" +
                 "CASE " +
-                "WHEN DAY(CURRENT_DATE()) IN (30, 31) AND EXTRACT('MONTH' FROM " + filter.getTableId() + "." + filter.getFieldName() + ") + \n\t\t" +
+                "WHEN DAY(CURRENT_DATE()) IN (29,30, 31) AND EXTRACT('MONTH' FROM DATE_TRUNC('QUARTER', " + filter.getTableId() + "." + filter.getFieldName() + ")) + \n\t\t" +
                 "DATEDIFF('MONTH', DATE_TRUNC('QUARTER', CURRENT_DATE()), CURRENT_DATE()) = 2 THEN \n\t\t" +
                 "CASE " +
-                "WHEN YEAR(CURRENT_DATE()) % 4 = 0 AND (YEAR(CURRENT_DATE()) % 100 != 0 OR \n\t\tYEAR(CURRENT_DATE()) % 400 = 0) THEN '29' " +
+                "WHEN YEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 4 = 0 AND (YEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 100 != 0 OR \n\t\tYEAR("+ filter.getTableId() + "." + filter.getFieldName() +") % 400 = 0) THEN '29' " +
                 "ELSE '28' " +
                 "END \n\t\t" +
                 "WHEN DAY(CURRENT_DATE()) = 31 AND EXTRACT('MONTH' FROM " + filter.getTableId() + "." + filter.getFieldName() + ") + \n\t\t" +
@@ -248,11 +248,11 @@ public class TillDate {
                         "           CAST((date_part('month', DATE_TRUNC('quarter', " + filter.getTableId() + "." + filter.getFieldName() + "::date))::integer) + \n" +
                         "                (MONTHS_BETWEEN(CURRENT date , DATE_TRUNC('quarter', CURRENT date)::date)::integer) AS VARCHAR(2)),\n" +
                         "           2, '0') || '-' || \n" +
-                        "\t\tCASE WHEN EXTRACT(DAY FROM CURRENT DATE) IN (30, 31) AND (((date_part('month', DATE_TRUNC('quarter', " + filter.getTableId() + "." + filter.getFieldName() + "::date))::integer) + \n" +
+                        "\t\tCASE WHEN EXTRACT(DAY FROM CURRENT DATE) IN (29,30, 31) AND (((date_part('month', DATE_TRUNC('quarter', " + filter.getTableId() + "." + filter.getFieldName() + "::date))::integer) + \n" +
                         "\t\t(MONTHS_BETWEEN(CURRENT date , DATE_TRUNC('quarter', CURRENT date)::date)::integer)) = 2) \n" +
                         "\t\tTHEN CASE \n" +
-                        "\t\t\t\tWHEN EXTRACT(YEAR FROM CURRENT DATE) % 4 = 0 AND (EXTRACT(YEAR FROM CURRENT DATE) % 100 != 0 OR \n" +
-                        "\t\t\t\t\t\tEXTRACT(YEAR FROM CURRENT DATE) % 400 = 0) \n" +
+                        "\t\t\t\tWHEN EXTRACT(YEAR FROM "+ filter.getTableId() + "." + filter.getFieldName() +") % 4 = 0 AND (EXTRACT(YEAR FROM "+ filter.getTableId() + "." + filter.getFieldName() +") % 100 != 0 OR \n" +
+                        "\t\t\t\t\t\tEXTRACT(YEAR FROM "+ filter.getTableId() + "." + filter.getFieldName() +") % 400 = 0) \n" +
                         "\t\t\t\tTHEN '29' \n" +
                         "\t\t\t\tELSE '28' \n" +
                         "\t\t\t\tEND \n" +
@@ -262,10 +262,10 @@ public class TillDate {
             }else if(vendorName.equals("teradata")){
                 where+="CAST(" + filter.getTableId() + "." + filter.getFieldName() + " AS DATE) "+ operator + " BETWEEN \nCAST(Trunc(" + filter.getTableId() + "." + filter.getFieldName() + " , 'Q') AS DATE) AND CAST(YEAR(" + filter.getTableId() + "." + filter.getFieldName() + ") || '-'|| TRIM(MONTH( Trunc(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q')) +\n"+
                        "\tmonth(current_date)- MONTH( Trunc(current_date, 'Q'))(format '99'))\n\t || '-' || \n CASE\n"+
-                       "WHEN EXTRACT(DAY FROM CURRENT_DATE) IN (30, 31)\n"+
+                       "WHEN EXTRACT(DAY FROM CURRENT_DATE) IN (29, 30, 31)\n"+
                         "AND (MONTH(Trunc(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q')) + MONTH(CURRENT_DATE) - MONTH(Trunc(CURRENT_DATE, 'Q')) = 2)\n"+
                         "THEN\n\t\tCASE\n\t\t\t"+
-                        "WHEN MOD(YEAR(CURRENT_DATE), 4) = 0 AND (MOD(YEAR(CURRENT_DATE), 100) <> 0 OR MOD(YEAR(CURRENT_DATE), 400) = 0)\n\t\t\t\t"+
+                        "WHEN MOD(YEAR("+ filter.getTableId() + "." + filter.getFieldName() +"), 4) = 0 AND (MOD(YEAR("+ filter.getTableId() + "." + filter.getFieldName() +"), 100) <> 0 OR MOD(YEAR("+ filter.getTableId() + "." + filter.getFieldName() +"), 400) = 0)\n\t\t\t\t"+
                         "THEN '29'\n\t\t\t\tELSE '28'\n\t\t\t\tEND\n"+ "WHEN EXTRACT(DAY FROM CURRENT_DATE) = 31 "+
                         "AND (MONTH(Trunc(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q')) + MONTH(CURRENT_DATE) - MONTH(Trunc(CURRENT_DATE, 'Q'))) IN (4, 6, 9, 11)\n\t"+
                         "THEN '30'\n\t"+
