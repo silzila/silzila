@@ -52,7 +52,7 @@ public class WhereClauseDateDatabricks {
                 } else if (filter.getTimeGrain().name().equals("DATE")) {
                     field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    field = "DAYNAME(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "DATE_FORMAT(" + filter.getTableId() + "." + filter.getFieldName() + ", 'EEEE')";
                 } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
                     field = "DAYOFMONTH(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 }
