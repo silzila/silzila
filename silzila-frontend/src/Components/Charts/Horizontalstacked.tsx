@@ -5,236 +5,260 @@ import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInte
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 
 import {
-	formatChartLabelValue,
-	formatChartYAxisValue,
+  formatChartLabelValue,
+  formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
 import {
-	ChartsMapStateToProps,
-	ChartsReduxStateProps,
-	FormatterValueProps,
+  ChartsMapStateToProps,
+  ChartsReduxStateProps,
+  FormatterValueProps,
 } from "./ChartsCommonInterfaces";
 
 const Horizontalstacked = ({
-	//props
-	propKey,
-	graphDimension,
-	chartArea,
-	graphTileSize,
+  //props
+  propKey,
+  graphDimension,
+  chartArea,
+  graphTileSize,
 
-	//state
-	chartControls,
-	chartProperties,
+  //state
+  chartControls,
+  chartProperties,
 }: ChartsReduxStateProps) => {
-	// TODO: propblem in applying filters
-	var chartControl: ChartControlsProps = chartControls.properties[propKey];
+  // TODO: propblem in applying filters
+  var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
-	let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
+  let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
-	const [seriesData, setSeriesData] = useState<any>([]);
+  const [seriesData, setSeriesData] = useState<any>([]);
 
-	useEffect(() => {
-		var seriesDataTemp = [];
-		if (chartData.length >= 1) {
-			var chartDataKeys = Object.keys(chartData[0]);
+  useEffect(() => {
+    var seriesDataTemp = [];
+    if (chartData.length >= 1) {
+      var chartDataKeys = Object.keys(chartData[0]);
 
-			for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
-				var seriesObj = {
-					type: "bar",
-					stack: chartProperties.properties[propKey]?.chartAxes[1]?.fields[0]?.fieldname,
-					emphasis: {
-						focus: "series",
-					},
-					label: {
-						show:
-							graphDimension.height > 140 && graphDimension.height > 150
-								? chartControl.labelOptions.showLabel
-								: false,
-						fontSize: chartControl.labelOptions.fontSize,
-						color: chartControl.labelOptions.labelColorManual
-							? chartControl.labelOptions.labelColor
-							: null,
+      for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
+        var seriesObj = {
+          type: "bar",
+          stack:
+            chartProperties.properties[propKey]?.chartAxes[1]?.fields[0]
+              ?.fieldname,
+          emphasis: {
+            focus: "series",
+          },
+          label: {
+            show:
+              graphDimension.height > 140 && graphDimension.height > 150
+                ? chartControl.labelOptions.showLabel
+                : false,
+            fontSize: chartControl.labelOptions.fontSize,
+            color: chartControl.labelOptions.labelColorManual
+              ? chartControl.labelOptions.labelColor
+              : null,
 
-						formatter: (value: FormatterValueProps) => {
-							var formattedValue = value.value[chartDataKeys[i + 1]];
-							formattedValue = formatChartLabelValue(chartControl, formattedValue);
-							return formattedValue;
-						},
-					},
-				};
+            formatter: (value: FormatterValueProps) => {
+              var formattedValue = value.value[chartDataKeys[i + 1]];
+              formattedValue = formatChartLabelValue(
+                chartControl,
+                formattedValue
+              );
+              return formattedValue;
+            },
+          },
+        };
 
-				seriesDataTemp.push(seriesObj);
-			}
-			setSeriesData(seriesDataTemp);
-		}
-	}, [chartData, chartControl]);
-	var chartThemes: any[] = ColorSchemes.filter(el => {
-		return el.name === chartControl.colorScheme;
-	});
+        seriesDataTemp.push(seriesObj);
+      }
+      setSeriesData(seriesDataTemp);
+    }
+  }, [chartData, chartControl]);
+  var chartThemes: any[] = ColorSchemes.filter((el) => {
+    return el.name === chartControl.colorScheme;
+  });
 
-	const RenderChart = () => {
-		return (
-			<ReactEcharts
-				// theme={chartControl.colorScheme}
-				style={{
-					padding: "1rem",
-					width: graphDimension.width,
-					height: graphDimension.height,
-					overflow: "hidden",
-					margin: "auto",
-					border: chartArea
-						? "none"
-						: graphTileSize
-						? "none"
-						: "1px solid rgb(238,238,238)",
-				}}
-				option={{
-					color: chartThemes[0].colors,
-					backgroundColor: chartThemes[0].background,
-					animation: false,
-					legend: {
-						type: "scroll",
-						show:
-							graphDimension.height > 210
-								? chartControl.legendOptions?.showLegend
-								: false,
-						itemHeight: chartControl.legendOptions?.symbolHeight,
-						itemWidth: chartControl.legendOptions?.symbolWidth,
-						itemGap: chartControl.legendOptions?.itemGap,
+  const getTopMarginForLegend = () => {
+    var top = "";
+    if (chartControl.legendOptions?.position?.top === "top") {
+      top = "top";
+    } else if (chartControl.legendOptions?.position?.top === "bottom") {
+      top = "90%";
+    } else {
+      top = "50%";
+    }
+    return top;
+  };
 
-						left: chartControl.legendOptions?.position?.left,
-						top: chartControl.legendOptions?.position?.top,
-						orient: chartControl.legendOptions?.orientation,
-					},
-					grid: {
-						left: chartControl.chartMargin.left + "%",
-						right: chartControl.chartMargin.right + "%",
-						top: chartControl.chartMargin.top + "%",
-						bottom: chartControl.chartMargin.bottom + "%",
-					},
+  const RenderChart = () => {
+    return (
+      <ReactEcharts
+        // theme={chartControl.colorScheme}
+        style={{
+          // padding: "1rem",
+          width: graphDimension.width,
+          height: graphDimension.height,
+          overflow: "hidden",
+          margin: "auto",
+          border: chartArea
+            ? "none"
+            : graphTileSize
+            ? "none"
+            : "1px solid rgb(238,238,238)",
+        }}
+        option={{
+          color: chartThemes[0].colors,
+          backgroundColor: chartThemes[0].background,
+          animation: false,
+          legend: {
+            type: "scroll",
+            show:
+              graphDimension.height > 210
+                ? chartControl.legendOptions?.showLegend
+                : false,
+            itemHeight: chartControl.legendOptions?.symbolHeight,
+            itemWidth: chartControl.legendOptions?.symbolWidth,
+            itemGap: chartControl.legendOptions?.itemGap,
 
-					tooltip: { show: chartControl.mouseOver.enable },
+            left: chartControl.legendOptions?.position?.left,
+            top: getTopMarginForLegend(),
+            // top: chartControl.legendOptions?.position?.top,
+            orient: chartControl.legendOptions?.orientation,
+          },
+          grid: {
+            left: chartControl.chartMargin.left + 5 + "%",
+            right: chartControl.chartMargin.right + "%",
+            top:
+              chartControl.legendOptions?.position?.top === "top"
+                ? chartControl.chartMargin.top + 5 + "%"
+                : chartControl.chartMargin.top + "%",
+            bottom:
+              chartControl.legendOptions?.position?.top === "bottom"
+                ? chartControl.chartMargin.bottom + 15 + "%"
+                : chartControl.chartMargin.bottom + "%",
+          },
 
-					dataset: {
-						dimensions: Object.keys(chartData[0]),
-						source: chartData,
-					},
+          tooltip: { show: chartControl.mouseOver.enable },
 
-					xAxis: {
-						splitLine: {
-							show: chartControl.axisOptions?.ySplitLine,
-						},
+          dataset: {
+            dimensions: Object.keys(chartData[0]),
+            source: chartData,
+          },
 
-						min: chartControl.axisOptions.axisMinMax.enableMin
-							? chartControl.axisOptions.axisMinMax.minValue
-							: null,
-						max: chartControl.axisOptions.axisMinMax.enableMax
-							? chartControl.axisOptions.axisMinMax.maxValue
-							: null,
+          xAxis: {
+            splitLine: {
+              show: chartControl.axisOptions?.ySplitLine,
+            },
 
-						position: chartControl.axisOptions.xAxis.position,
-						show:
-							graphDimension.height > 140 && graphDimension.height > 150
-								? chartControl.axisOptions.xAxis.showLabel
-								: false,
+            min: chartControl.axisOptions.axisMinMax.enableMin
+              ? chartControl.axisOptions.axisMinMax.minValue
+              : null,
+            max: chartControl.axisOptions.axisMinMax.enableMax
+              ? chartControl.axisOptions.axisMinMax.maxValue
+              : null,
 
-						name: chartControl.axisOptions.xAxis.name,
-						nameLocation: chartControl.axisOptions.xAxis.nameLocation,
-						nameGap: chartControl.axisOptions.xAxis.nameGap,
-						nameTextStyle: {
-							fontSize: chartControl.axisOptions.xAxis.nameSize,
-							color: chartControl.axisOptions.xAxis.nameColor,
-						},
+            position: chartControl.axisOptions.xAxis.position,
+            show:
+              graphDimension.height > 140 && graphDimension.height > 150
+                ? chartControl.axisOptions.xAxis.showLabel
+                : false,
 
-						axisLine: {
-							onZero: chartControl.axisOptions.xAxis.onZero,
-						},
+            name: chartControl.axisOptions.xAxis.name,
+            nameLocation: chartControl.axisOptions.xAxis.nameLocation,
+            nameGap: chartControl.axisOptions.xAxis.nameGap,
+            nameTextStyle: {
+              fontSize: chartControl.axisOptions.xAxis.nameSize,
+              color: chartControl.axisOptions.xAxis.nameColor,
+            },
 
-						axisTick: {
-							alignWithLabel: true,
-							length:
-								chartControl.axisOptions.xAxis.position === "top"
-									? chartControl.axisOptions.xAxis.tickSizeTop
-									: chartControl.axisOptions.xAxis.tickSizeBottom,
-						},
-						axisLabel: {
-							rotate:
-								chartControl.axisOptions.xAxis.position === "top"
-									? chartControl.axisOptions.xAxis.tickRotationTop
-									: chartControl.axisOptions.xAxis.tickRotationBottom,
-							margin:
-								chartControl.axisOptions.xAxis.position === "top"
-									? chartControl.axisOptions.xAxis.tickPaddingTop
-									: chartControl.axisOptions.xAxis.tickPaddingBottom,
+            axisLine: {
+              onZero: chartControl.axisOptions.xAxis.onZero,
+            },
 
-							formatter: (value: number) => {
-								var formattedValue: string = formatChartYAxisValue(
-									chartControl,
-									value
-								);
-								return formattedValue;
-							},
-						},
-					},
+            axisTick: {
+              alignWithLabel: true,
+              length:
+                chartControl.axisOptions.xAxis.position === "top"
+                  ? chartControl.axisOptions.xAxis.tickSizeTop
+                  : chartControl.axisOptions.xAxis.tickSizeBottom,
+            },
+            axisLabel: {
+              rotate:
+                chartControl.axisOptions.xAxis.position === "top"
+                  ? chartControl.axisOptions.xAxis.tickRotationTop
+                  : chartControl.axisOptions.xAxis.tickRotationBottom,
+              margin:
+                chartControl.axisOptions.xAxis.position === "top"
+                  ? chartControl.axisOptions.xAxis.tickPaddingTop
+                  : chartControl.axisOptions.xAxis.tickPaddingBottom,
 
-					yAxis: {
-						type: "category",
-						splitLine: {
-							show: chartControl.axisOptions?.xSplitLine,
-						},
-						inverse: chartControl.axisOptions.inverse,
+              formatter: (value: number) => {
+                var formattedValue: string = formatChartYAxisValue(
+                  chartControl,
+                  value
+                );
+                return formattedValue;
+              },
+            },
+          },
 
-						position: chartControl.axisOptions.yAxis.position,
+          yAxis: {
+            type: "category",
+            splitLine: {
+              show: chartControl.axisOptions?.xSplitLine,
+            },
+            inverse: chartControl.axisOptions.inverse,
 
-						show:
-							graphDimension.height > 140 && graphDimension.height > 150
-								? chartControl.axisOptions.yAxis.showLabel
-								: false,
+            position: chartControl.axisOptions.yAxis.position,
 
-						name: chartControl.axisOptions.yAxis.name,
-						nameLocation: chartControl.axisOptions.yAxis.nameLocation,
-						nameGap: chartControl.axisOptions.yAxis.nameGap,
-						nameTextStyle: {
-							fontSize: chartControl.axisOptions.yAxis.nameSize,
-							color: chartControl.axisOptions.yAxis.nameColor,
-						},
+            show:
+              graphDimension.height > 140 && graphDimension.height > 150
+                ? chartControl.axisOptions.yAxis.showLabel
+                : false,
 
-						axisLine: {
-							onZero: chartControl.axisOptions.yAxis.onZero,
-						},
+            name: chartControl.axisOptions.yAxis.name,
+            nameLocation: chartControl.axisOptions.yAxis.nameLocation,
+            nameGap: chartControl.axisOptions.yAxis.nameGap,
+            nameTextStyle: {
+              fontSize: chartControl.axisOptions.yAxis.nameSize,
+              color: chartControl.axisOptions.yAxis.nameColor,
+            },
 
-						axisTick: {
-							alignWithLabel: true,
-							length:
-								chartControl.axisOptions.yAxis.position === "left"
-									? chartControl.axisOptions.yAxis.tickSizeLeft
-									: chartControl.axisOptions.yAxis.tickSizeRight,
-						},
+            axisLine: {
+              onZero: chartControl.axisOptions.yAxis.onZero,
+            },
 
-						axisLabel: {
-							rotate:
-								chartControl.axisOptions.yAxis.position === "left"
-									? chartControl.axisOptions.yAxis.tickRotationLeft
-									: chartControl.axisOptions.yAxis.tickRotationRight,
-							margin:
-								chartControl.axisOptions.yAxis.position === "left"
-									? chartControl.axisOptions.yAxis.tickPaddingLeft
-									: chartControl.axisOptions.yAxis.tickPaddingRight,
-						},
-					},
+            axisTick: {
+              alignWithLabel: true,
+              length:
+                chartControl.axisOptions.yAxis.position === "left"
+                  ? chartControl.axisOptions.yAxis.tickSizeLeft
+                  : chartControl.axisOptions.yAxis.tickSizeRight,
+            },
 
-					series: seriesData,
-				}}
-			/>
-		);
-	};
+            axisLabel: {
+              rotate:
+                chartControl.axisOptions.yAxis.position === "left"
+                  ? chartControl.axisOptions.yAxis.tickRotationLeft
+                  : chartControl.axisOptions.yAxis.tickRotationRight,
+              margin:
+                chartControl.axisOptions.yAxis.position === "left"
+                  ? chartControl.axisOptions.yAxis.tickPaddingLeft
+                  : chartControl.axisOptions.yAxis.tickPaddingRight,
+            },
+          },
 
-	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
+          series: seriesData,
+        }}
+      />
+    );
+  };
+
+  return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
 
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
-	return {
-		chartProperties: state.chartProperties,
-		chartControls: state.chartControls,
-	};
+  return {
+    chartProperties: state.chartProperties,
+    chartControls: state.chartControls,
+  };
 };
 export default connect(mapStateToProps, null)(Horizontalstacked);

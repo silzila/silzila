@@ -251,7 +251,11 @@ const FilledMap = ({
               },
               text: ["Max", "Min"],
               calculable: true,
-              show: geoStyle.showVisualScale,
+              // show: geoStyle.showVisualScale,
+              show:
+                graphDimension.height > 200 && graphDimension.width > 265
+                  ? geoStyle.showVisualScale
+                  : false,
             }
           : null,
       series: [
@@ -267,7 +271,12 @@ const FilledMap = ({
         },
       ],
     });
-  }, [chartControl, chartProperties.properties[propKey].Geo, type]);
+  }, [
+    chartControl,
+    chartProperties.properties[propKey].Geo,
+    type,
+    graphDimension,
+  ]);
 
   const RenderChart = () => {
     return (

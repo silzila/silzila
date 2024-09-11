@@ -61,7 +61,7 @@ const RoseChart = ({
         <ReactEcharts
           // theme={chartControl.colorScheme}
           style={{
-            padding: "1rem",
+            // padding: "1rem",
             width: graphDimension.width,
             height: graphDimension.height,
             overflow: "hidden",

@@ -63,12 +63,24 @@ const HeatMap = ({
     return el.name === chartControl.colorScheme;
   });
 
+  const getTopMarginForLegend = () => {
+    var top = "";
+    if (chartControl.legendOptions?.position?.top === "top") {
+      top = "top";
+    } else if (chartControl.legendOptions?.position?.top === "bottom") {
+      top = "99%";
+    } else {
+      top = "50%";
+    }
+    return top;
+  };
+
   const RenderChart = () => {
     return (
       <ReactEcharts
         // theme={chartControl.colorScheme}
         style={{
-          padding: "1rem",
+          // padding: "1rem",
           width: graphDimension.width,
           height: graphDimension.height,
           overflow: "hidden",
@@ -83,12 +95,32 @@ const HeatMap = ({
           color: chartThemes[0].colors,
           backgroundColor: chartThemes[0].background,
           animation: chartArea ? false : true,
-          legend: {},
+          legend: {
+            type: "scroll",
+            show:
+              graphDimension.height > 210
+                ? chartControl.legendOptions?.showLegend
+                : false,
+            itemHeight: chartControl.legendOptions?.symbolHeight,
+            itemWidth: chartControl.legendOptions?.symbolWidth,
+            itemGap: chartControl.legendOptions?.itemGap,
+
+            left: chartControl.legendOptions?.position?.left,
+            top: getTopMarginForLegend(),
+            // top: chartControl.legendOptions?.position?.top,
+            orient: chartControl.legendOptions?.orientation,
+          },
           grid: {
-            left: chartControl.chartMargin.left + "%",
+            left: chartControl.chartMargin.left + 5 + "%",
             right: chartControl.chartMargin.right + "%",
-            top: chartControl.chartMargin.top + "%",
-            bottom: chartControl.chartMargin.bottom + "%",
+            top:
+              chartControl.legendOptions?.position?.top === "top"
+                ? chartControl.chartMargin.top + 15 + "%"
+                : chartControl.chartMargin.top + "%",
+            bottom:
+              chartControl.legendOptions?.position?.top === "bottom"
+                ? chartControl.chartMargin.bottom + 15 + "%"
+                : chartControl.chartMargin.bottom + "%",
           },
 
           tooltip: { show: chartControl.mouseOver.enable },

@@ -66,7 +66,7 @@ const FunnelChart = ({
           legend: {
             type: "scroll",
             show:
-              graphDimension.height > 290
+              graphDimension.height > 200
                 ? chartControl.legendOptions?.showLegend
                 : false,
             itemHeight:
@@ -110,8 +110,14 @@ const FunnelChart = ({
                   return formattedValue;
                 },
               },
-              top: chartControl.chartMargin.top + "%",
-              bottom: chartControl.chartMargin.bottom + "%",
+              top:
+                chartControl.legendOptions?.position?.top === "top"
+                  ? chartControl.chartMargin.top + 5 + "%"
+                  : chartControl.chartMargin.top + "%",
+              bottom:
+                chartControl.legendOptions?.position?.top === "bottom"
+                  ? chartControl.chartMargin.bottom + 5 + "%"
+                  : chartControl.chartMargin.bottom + "%",
               left: chartControl.chartMargin.funnelLeft + "%",
               right: chartControl.chartMargin.funnelRight + "%",
             },

@@ -86,7 +86,7 @@ const PieChart = ({
         <ReactEcharts
           // theme={chartControl.colorScheme}
           style={{
-            padding: "1rem",
+            // padding: "1rem",
             width: graphDimension.width,
             height: graphDimension.height,
             overflow: "hidden",
@@ -105,7 +105,7 @@ const PieChart = ({
             legend: {
               type: "scroll",
               show:
-                graphDimension.height > 250 && graphDimension.width > 265
+                graphDimension.height > 270 && graphDimension.width > 265
                   ? chartControl.legendOptions?.showLegend
                   : false,
               itemHeight: chartControl.legendOptions?.symbolHeight,

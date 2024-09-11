@@ -172,14 +172,17 @@ const GraphRNDDash = ({
                 : {
                     cursor: "move",
                     fontSize:
-                      (parseInt(
-                        tabState.tabs[tabId].dashTilesDetails[
-                          boxDetails.propKey
-                        ].width,
-                        10
-                      ) *
-                        gridSize.x) /
-                      25,
+                      chartProp.properties[boxDetails.propKey].titleOptions
+                        .fontSize,
+                    // fontSize:
+                    //   (parseInt(
+                    //     tabState.tabs[tabId].dashTilesDetails[
+                    //       boxDetails.propKey
+                    //     ].width,
+                    //     10
+                    //   ) *
+                    //     gridSize.x) /
+                    //   25,
                   }
             }
             // propKey={boxDetails.propKey}

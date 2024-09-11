@@ -99,7 +99,7 @@ const MultiBarChart = ({
   };
   const getLegentShowValue = () => {
     var show = false;
-    if (graphDimension.height > 230) {
+    if (graphDimension.height > 255) {
       show = chartControl.legendOptions?.showLegend;
     } else {
       show = false;
@@ -108,28 +108,41 @@ const MultiBarChart = ({
     return show;
   };
 
+  // const getTopMarginForLegend = () => {
+  //   var top = "";
+  //   if (tabTileProps.showDash) {
+  //     if (graphDimension.height > 400) {
+  //       top = "95%";
+  //     }
+  //     if (graphDimension.height < 400 && graphDimension.height > 300) {
+  //       top = "93%";
+  //     }
+  //     if (graphDimension.height < 300) {
+  //       top = "90%";
+  //     }
+  //   } else {
+  //     top = "93%";
+  //   }
+  //   return top;
+  // };
+
   const getTopMarginForLegend = () => {
     var top = "";
-    if (tabTileProps.showDash) {
-      if (graphDimension.height > 400) {
-        top = "95%";
-      }
-      if (graphDimension.height < 400 && graphDimension.height > 300) {
-        top = "93%";
-      }
-      if (graphDimension.height < 300) {
-        top = "90%";
-      }
-    } else {
+    if (chartControl.legendOptions?.position?.top === "top") {
+      top = "top";
+    } else if (chartControl.legendOptions?.position?.top === "bottom") {
       top = "93%";
+    } else {
+      top = "50%";
     }
     return top;
   };
+
   const getHeightOfChart = () => {
     var height = "";
     if (tabTileProps.showDash) {
       if (graphDimension.height > 400) {
-        height = "85%";
+        height = "80%";
       }
       if (graphDimension.height < 400 && graphDimension.height > 300) {
         height = "75%";
@@ -172,16 +185,24 @@ const MultiBarChart = ({
             show: getLegentShowValue(),
             itemHeight: getHeightAndWidth().height,
             itemWidth: getHeightAndWidth().width,
-            top: getTopMarginForLegend(),
+            // top: getTopMarginForLegend(),
             temGap: chartControl.legendOptions?.itemGap,
-            left: "50%",
+            // left: "50%",
+            left: chartControl.legendOptions?.position?.left,
+            top: chartControl.legendOptions?.position?.top,
             orient: chartControl.legendOptions?.orientation,
           },
           grid: {
-            left: chartControl.chartMargin.left + "%",
+            left: chartControl.chartMargin.left + 5 + "%",
             right: chartControl.chartMargin.right + "%",
-            top: chartControl.chartMargin.top + "%",
-            bottom: chartControl.chartMargin.bottom + "%",
+            top:
+              chartControl.legendOptions?.position?.top === "top"
+                ? chartControl.chartMargin.top + 5 + "%"
+                : chartControl.chartMargin.top + "%",
+            bottom:
+              chartControl.legendOptions?.position?.top === "bottom"
+                ? chartControl.chartMargin.bottom + 5 + "%"
+                : chartControl.chartMargin.bottom + "%",
             height: getHeightOfChart(),
           },
 

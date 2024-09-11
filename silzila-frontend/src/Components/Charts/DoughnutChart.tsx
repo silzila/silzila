@@ -62,7 +62,7 @@ const DoughnutChart = ({
         <ReactEcharts
           // theme={chartControl.colorScheme}
           style={{
-            padding: "1rem",
+            // padding: "1rem",
             width: graphDimension.width,
             height: graphDimension.height,
             overflow: "hidden",
@@ -80,18 +80,18 @@ const DoughnutChart = ({
             legend: {
               type: "scroll",
               show:
-                graphDimension.height > 175 && graphDimension.width > 265
+                graphDimension.height > 300 && graphDimension.width > 265
                   ? chartControl.legendOptions?.showLegend
                   : false,
               itemHeight: chartControl.legendOptions?.symbolHeight,
               itemWidth: chartControl.legendOptions?.symbolWidth,
               itemGap: chartControl.legendOptions?.itemGap,
 
-              // left: chartControl.legendOptions?.position?.left,
-              // top: chartControl.legendOptions?.position?.top,
+              left: chartControl.legendOptions?.position?.left,
+              top: chartControl.legendOptions?.position?.top,
 
-              left: "50%",
-              top: "95%",
+              // left: "50%",
+              // top: "95%",
               orient: chartControl.legendOptions?.orientation,
             },
 
