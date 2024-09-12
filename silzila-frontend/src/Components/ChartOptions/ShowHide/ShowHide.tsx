@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Dispatch } from 'react';
+import React, { useState, useEffect, Dispatch, useRef } from 'react';
 import { connect } from 'react-redux';
 import "../ChartOptions.css";
 import { SortChartData, SortOrder, SortedValue, updateCrossTabStyleOptions } from "../../../redux/ChartPoperties/ChartControlsActions";
@@ -9,6 +9,7 @@ import { Switch, FormControlLabel } from '@mui/material';
 // import FetchData from '../../ServerCall/FetchData';
 import { editChartPropItem, updateLeftFilterItem } from '../../../redux/ChartPoperties/ChartPropertiesActions';
 import chartProperties from '../../../redux/ChartPoperties/ChartProperties';
+import { number } from 'echarts';
 
 interface Props {
 	// field:any;
@@ -222,16 +223,7 @@ const ShowHide = ({
 	const data: string | any = chartControls.properties[propKey].chartData.length > 0 ? chartControls.properties[propKey].chartData : [];
 	const [chat, setchat] = useState();
 	useEffect(() => {
-
 		setchat(data);
-		// var descendingChartData: string | any = JSON.parse(JSON.stringify(data))
-
-		// descendingChartData = JSON.parse(JSON.stringify(chat || data));
-		// const initialSelection = descendingChartData?.map((item: any) => item[chartControls.properties[propKey].sortedValue]);
-		// // Initially, all members are selected
-		// console.log("selectedmembers", initialSelection)
-		// setSelectedMembers(initialSelection);
-		// console.log("selectedmembers", selectedMembers)
 	}, [])
 	var chartData: string | any = JSON.parse(JSON.stringify(data))
 
@@ -242,32 +234,22 @@ const ShowHide = ({
 	const firstObjKey = chartData.length > 0 ? Object.keys(chartData[0]) : [];
 
 	const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
-	// useEffect(() => {
-	// 	const initialSelection = descendingChartData?.map((item: any) => item[chartControls.properties[propKey].sortedValue]);
-	// 	// Initially, all members are selected
-	// 	console.log("selectedmembers", initialSelection)
-	// 	setSelectedMembers(initialSelection);
-	// 	console.log("selectedmembers", selectedMembers)
-	// }, [])
+	const [funcnum, setFuncnum] = useState<string>("Func");
+	const [numbnum, setNumbnum] = useState<number>(0);
+
 	useEffect(() => {
 		const initialSelection = descendingChartData.map((item: any) => item[chartControls.properties[propKey].sortedValue]);
-		// Initially, all members are selected
-		console.log("selectedmembers", initialSelection)
 		setSelectedMembers(initialSelection);
-		console.log("selectedmembers", selectedMembers)
 	}, [chartControls.properties[propKey].sortedValue]);
 
 	const [isToggled1, setIsToggled1] = useState(true);  // last tick/non-tick for first
-	const [isToggled2, setIsToggled2] = useState(false);  // last tick/non-tick for second
 
 	const shownull = () => {
 		const filteredData = descendingChartData.filter((item: any) => selectedMembers.includes(item[chartControls.properties[propKey].sortedValue]));
-		// console.log('shownull',  filteredData);
 		SortChartData(propKey, filteredData)
 	}
 	const hidenull = () => {
 		let filteredData = descendingChartData.filter((item: any) => selectedMembers.includes(item[chartControls.properties[propKey].sortedValue]) && item[chartControls.properties[propKey].sortedValue] !== null);
-		// console.log("hidenull",filteredData)
 		SortChartData(propKey, filteredData)
 	}
 	const handleToggleChange1 = (event: any) => {
@@ -280,20 +262,20 @@ const ShowHide = ({
 		}
 	};
 
-	const handleToggleChange2 = (event: any) => {
-		setIsToggled2(event.target.checked);
-	};
+	// console.log(descendingChartData)
 
 	useEffect(() => {
 		chartControls.properties[propKey].sortedValue = firstObjKey[0];
 	}, [])
 
 	const [inclnull, setInclnull] = useState<String[]>([]);
+	// const []
 
 	const Func = ({ props }: { props: any }) => {
+		setFuncnum("Func");
+
 
 		const handleMemberSelect = (member: string) => {
-			// showbutton();
 			// member = selected column value like chennai, pune etc.
 			setSelectedMembers(prevState => {
 				// prevState is an array 
@@ -302,20 +284,44 @@ const ShowHide = ({
 					return prevState.filter(item => item !== member);
 				} else {
 					inclnull.pop();
-					return [...prevState, member];	
+					return [...prevState, member];
 				}
 			});
-			showbutton();
-			console.log('handlemember', selectedMembers)
-			console.log("descending", descendingChartData)
-			
+			if(showcss){
+				showbutton();
+			}
+			else if(hidecss){
+				Hidebutton();
+			}
+
 		};
-		// useEffect(() => {
-		// 	showbutton();
-		// }, [handleMemberSelect])
+		console.log(inclnull)
+		const handleSelectAll = () => {
+			if (selectedMembers.length === descendingChartData.length) {
+				// Deselect all if everything is selected
+				setSelectedMembers([]);
+			} else {
+				// Select all members
+				const allMembers = descendingChartData.map((member: any) => member[props]);
+				setSelectedMembers(allMembers);
+			}
+		};
+
 
 		return (
-			<div style={{ display: "flex", flexDirection: "column", marginLeft: "4px" }}>
+			<div style={{ display: "flex", flexDirection: "column", marginLeft: "4px", paddingTop: "12px" }}>
+				<div className='a'>
+					<div className='b'>
+						<input
+							type="checkbox"
+							checked={selectedMembers.length === descendingChartData.length && descendingChartData.length > 0}
+							onChange={() => handleSelectAll()} // Handle select/deselect all
+						/>
+						<div className='d'>
+							All
+						</div>
+					</div>
+				</div>
 				{descendingChartData.map((member: any, index: number) => (
 					// isToggled1 === true &&
 					member[props] !== null && (
@@ -324,7 +330,7 @@ const ShowHide = ({
 								<input
 									type="checkbox"
 									checked={selectedMembers.includes(member[props])}
-									onChange={() => {handleMemberSelect(member[props]); showbutton()}}
+									onChange={() => { handleMemberSelect(member[props]) }}
 								/>
 								<div className='d'>
 									{member[props]} {/* Display the member name */}
@@ -345,16 +351,6 @@ const ShowHide = ({
 					label={<span style={{ fontSize: '15px' }}>Incl null</span>}
 				/>
 
-				<FormControlLabel style={{ marginLeft: "0px" }}
-					control={
-						<Switch
-							checked={isToggled2}
-							onChange={handleToggleChange2}
-							style={{ color: "rgb(113, 111, 111)", borderRadius: 17 }}
-						/>
-					}
-					label={<span style={{ fontSize: '15px' }}>Incl everything else</span>}
-				/>
 			</div>
 		);
 	};
@@ -385,17 +381,32 @@ const ShowHide = ({
 
 	const [selectedValue, setSelectedValue] = useState(equalPatternCollections[0].value);
 
+	const [shownum, setShownum] = useState(true);
+	const [hidenum, setHidenum] = useState(false);
+	const [value, setValue] = useState(0);
 
-	const Numb = () => {
-		const [value, setValue] = useState(0);
-		const handlefunc = (prop: String) => {
-			let dummy: string | any = descendingChartData;
-			let filteredData;
+	const inputRef = useRef<HTMLInputElement>(null);
+	useEffect(() => {
+		if (inputRef.current) {
+			inputRef.current.focus(); // Set focus to the input field after render
+		}
+	}, [value]);
+
+	const [h, setH] = useState<string>("> Greater than");
+	const hand = (prop: string) => {
+		setH(prop);
+	}
+
+
+
+	const handlefun = (prop: String) => {
+		// setSelectedMembers([`${value}`]);
+		setNumbnum(value);
+		let dummy: string | any = descendingChartData;
+		let filteredData;
+		if (shownum) {
 			if (prop === "> Greater than") {
-				filteredData = dummy.filter((item: any) => {
-					const itemValue = item[chartControls.properties[propKey].sortedValue];
-					return itemValue > value;
-				});
+				filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] > value);
 			}
 
 			else if (prop === "< Less than") {
@@ -413,10 +424,99 @@ const ShowHide = ({
 			else {
 				filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] === value);
 			}
+		}
+		else if (hidenum) {
 
-			SortChartData(propKey, filteredData);
+			if (prop === "> Greater than") {
+				filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] <= value);
+
+			}
+
+			else if (prop === "< Less than") {
+				filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] >= value);
+			}
+
+			else if (prop === ">= Greater than or Equal to") {
+				filteredData = dummy.filter((item: any) => (item[chartControls.properties[propKey].sortedValue] < value))
+
+			}
+
+			else if (prop === "<= Less than or Equal to") {
+				filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] > value);
+			}
+
+			else {
+				filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] === value);
+			}
+		}
+
+		filteredData.length > 0 ? SortChartData(propKey, filteredData) : SortChartData(propKey, descendingChartData);
+
+	}
+
+	const Numb = () => {
+		setFuncnum("Numb");
+		// useEffect(()=>{
+		// handlefunc(h);
+		// },[showcss, hidecss])
+		const handlefunc = (prop: String) => {
+			// setSelectedMembers([`${value}`]);
+			setNumbnum(value);
+			let dummy: string | any = descendingChartData;
+			let filteredData;
+			if (shownum) {
+				if (prop === "> Greater than") {
+					filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] > value);
+				}
+
+				else if (prop === "< Less than") {
+					filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] < value);
+				}
+
+				else if (prop === ">= Greater than or Equal to") {
+					filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] >= value);
+				}
+
+				else if (prop === "<= Less than or Equal to") {
+					filteredData = dummy.filter((item: any) => (item[chartControls.properties[propKey].sortedValue] <= value))
+				}
+
+				else {
+					filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] === value);
+				}
+			}
+			else if (hidenum) {
+
+				if (prop === "> Greater than") {
+					filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] <= value);
+
+				}
+
+				else if (prop === "< Less than") {
+					filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] >= value);
+				}
+
+				else if (prop === ">= Greater than or Equal to") {
+					filteredData = dummy.filter((item: any) => (item[chartControls.properties[propKey].sortedValue] < value))
+
+				}
+
+				else if (prop === "<= Less than or Equal to") {
+					filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] > value);
+				}
+
+				else {
+					filteredData = dummy.filter((item: any) => item[chartControls.properties[propKey].sortedValue] === value);
+				}
+			}
+
+			filteredData.length > 0 ? SortChartData(propKey, filteredData) : SortChartData(propKey, descendingChartData);
+
+			// SortChartData(propKey, filteredData);
 
 		}
+
+		// handlefunc(h);
 
 		const SelectedColumnValue = (event: any) => {
 			setSelectedValue(event.target.value);
@@ -430,7 +530,9 @@ const ShowHide = ({
 		};
 		const handleInputChange = (event: any) => {
 			setValue(event.target.value);
+			// handlefunc](h)
 		};
+
 		return (
 			<div>
 				<FormControl fullWidth sx={{ margin: "5px 5px 5px 5px" }}>
@@ -459,7 +561,10 @@ const ShowHide = ({
 						value={selectedValue || ""}>
 
 						{equalPatternCollections.map((data, index) => (
-							<MenuItem key={index} value={data.value || ""} onClick={() => handlefunc(data.value)}
+							<MenuItem key={index} value={data.value || ""} onClick={() => {
+								hand(data.value)
+								handlefunc(h)
+							}}
 								sx={{ color: "black", fontSize: "13px", "&:hover": { backgroundColor: "rgb(238, 238, 238)" }, }}>
 
 								{data.value}
@@ -470,8 +575,10 @@ const ShowHide = ({
 				</FormControl>
 				<input
 					type="number"
-					value={value || ""}
-					onChange={handleInputChange}
+					value={value}
+					ref={inputRef} // Attach the ref to the input element
+					onChange={handleInputChange} // Use onChange to capture the input in real-time
+					onBlur={() => handlefun(h)}
 					style={{ borderRadius: "5px", width: "220px", marginLeft: "2px", margin: "8px", padding: "6px" }}
 				/>
 
@@ -482,28 +589,88 @@ const ShowHide = ({
 	const [showcss, setShowcss] = useState(true);
 	const [hidecss, setHidecss] = useState(false);
 
-	const showbutton = () => {
-		// if (isToggled1) {
-		// 	descendingChartData.map((member: any, index: number) => (
-		// 		selectedMembers.includes(member[chartControls.properties[propKey].sortedValue])
-		// 		// onChange={() => handleMemberSelect(member[props])}
-		// 	))
-		// }
-		const filteredData = descendingChartData.filter((item: any) => selectedMembers.includes(item[chartControls.properties[propKey].sortedValue]));
-		SortChartData(propKey, filteredData)
-		console.log("showbutton", filteredData)
-		if (hidecss === true) {
-			setShowcss(true)
+	useEffect(() => {
+		if(showcss){
+			showbutton();
 		}
-		setHidecss(false)
+		else if(hidecss){
+			Hidebutton();
+		}
+		
+	}, [h, selectedMembers, showcss])
+
+
+
+	const showbutton = () => {
+		console.log(funcnum)
+		if (funcnum === "Numb") {
+			handlefun(h);
+		}
+		if (funcnum === "Func") {
+			const filteredData = descendingChartData.filter((item: any) => selectedMembers.includes(item[chartControls.properties[propKey].sortedValue]));
+			if (filteredData.length) {
+				SortChartData(propKey, filteredData)
+				console.log("showbutton", filteredData)
+				if (hidecss === true) {
+					setShowcss(true)
+				}
+				setHidecss(false)
+				if (hidenum === true) {
+					setShownum(true);
+				}
+				setHidenum(false);
+			}
+		}
+		else {
+			// const filteredData = descendingChartData.filter((item: any) => selectedMembers.includes(item[chartControls.properties[propKey].sortedValue]));
+			// if (filteredData.length) {
+			SortChartData(propKey, descendingChartData)
+			// console.log("showbutton", filteredData)
+			if (hidecss === true) {
+				setShowcss(true)
+			}
+			setHidecss(false)
+			if (hidenum === true) {
+				setShownum(true);
+			}
+			setHidenum(false);
+			handlefun(h)
+			// }
+		}
+
 	}
 	const [absentMembers, setAbsentMembers] = useState<string[]>([]);
 	const Hidebutton = () => {
-		const result = descendingChartData.filter((item: any) => !selectedMembers.includes(item[chartControls.properties[propKey].sortedValue]));
-		setAbsentMembers(result);
-		setHidecss(true)
-		setShowcss(false)
-		SortChartData(propKey, result)
+		if (funcnum === "Numb") {
+			handlefun(h);
+		}
+		if (funcnum === "Func") {
+			const result = descendingChartData.filter((item: any) => !selectedMembers.includes(item[chartControls.properties[propKey].sortedValue]));
+			console.log(result)
+			if (result.length) {
+				setAbsentMembers(result);
+				setHidecss(true)
+				setShowcss(false)
+				SortChartData(propKey, result)
+				setShownum(false);
+				setHidenum(true);
+			}
+		}
+		else {
+			// const result = descendingChartData.filter((item: any) => !selectedMembers.includes(item[chartControls.properties[propKey].sortedValue]));
+			// console.log(result)
+			// if (result.length) {
+			// setAbsentMembers(result);
+			setHidecss(true)
+			setShowcss(false)
+			SortChartData(propKey, descendingChartData)
+			setShownum(false);
+			setHidenum(true);
+			handlefun(h)
+			// }
+		}
+
+
 	}
 	const handleclick = (index: any) => {
 
@@ -535,8 +702,8 @@ const ShowHide = ({
 									<div style={{ borderRadius: "0 5px 5px 0", cursor: "pointer", marginBottom: "10px", transition: "0.2s", backgroundColor: hidecss === false ? "white" : "#E0E0E0" }}
 										className={chartControls.properties[propKey].sortOrder === "Descending" ? "radioButtonSelected" : "radioButton"}
 										onClick={() => {
-											inclnull.length > 0 ? Hidebutton() : showbutton()
-
+											// inclnull.length > 0 ? Hidebutton() : showbutton()
+											Hidebutton()
 										}}>
 										Hide
 									</div>
