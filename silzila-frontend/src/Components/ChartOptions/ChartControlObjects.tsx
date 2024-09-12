@@ -54,91 +54,69 @@ const ChartControlObjects = ({
     "Sort",
   ];
 
-  const pieOptionsList: string[] = [
-    "Title",
-    "Labels",
-    "Legend",
-    "Margin",
-    "Axis",
-    "Tooltip",
-    "Colors",
-    "Format",
-    "Sort",
-  ];
-  const funnelOptionList: string[] = [
-    "Title",
-    "Legend",
-    "Margin",
-    "Tooltip",
-    "Colors",
-    "Format",
-    "Sort",
-  ];
-  const gaugeOptionList: string[] = [
-    "Title",
-    "Margin",
-    "Axis",
-    "Tooltip",
-    "Colors",
-    "Format",
-    "Sort",
-  ];
-  const heatmapOptionList: string[] = [
-    "Title",
-    "Legend",
-    "Labels",
-    "Margin",
-    "Colors",
-    "Grid/Axes",
-    "Tooltip",
-    "Format",
-    "Sort",
-  ];
-  const crossTabOptionList: string[] = [
-    "Title",
-    "Tooltip",
-    "Style",
-    "Format",
-    "Sort",
-    "Conditional Formatting",
-  ];
-  const boxPlotOptionsList: string[] = [
-    "Title",
-    "Legend",
-    "Tooltip",
-    "Margin",
-    "Colors",
-    "Grid/Axes",
-    "Style",
-    "Sort",
-  ];
-  const calendarOptionList: string[] = [
-    "Title",
-    "Legend",
-    "Labels",
-    "Margin",
-    "Tooltip",
-    "Colors",
-    // "Format",
-    "Style",
-    "Sort",
-  ];
-  const simpleCardOptionList: string[] = [
-    "Title",
-    "Colors",
-    "Format",
-    "Style",
-    "Sort",
-    "Conditional Formatting",
-  ];
-  const tableOptionList: string[] = [
-    "Title",
-    "Tooltip",
-    "Style",
-    "Format",
-    "Sort",
-    "Conditional Formatting",
-  ];
+
+	const pieOptionsList: string[] = [
+		"Title",
+		"Labels",
+		"Legend",
+		"Margin",
+		"Axis",
+		"Tooltip",
+		"Colors",
+		"Format",
+		"Sort",
+	];
+	const funnelOptionList: string[] = ["Title", "Legend", "Margin", "Tooltip", "Colors", "Format", "Sort",];
+	const gaugeOptionList: string[] = ["Title", "Margin", "Axis", "Tooltip", "Colors", "Format", "Sort",];
+	const heatmapOptionList: string[] = [
+		"Title",
+		"Legend",
+		"Labels",
+		"Margin",
+		"Colors",
+		"Grid/Axes",
+		"Tooltip",
+		"Format",
+		"Sort",
+	];
+	const crossTabOptionList: string[] = ["Title", "Tooltip", "Style", "Format", "Sort","Cond.Form", "Show/Hide"];
+	const boxPlotOptionsList: string[] = [
+		"Title",
+		"Legend",
+		"Tooltip",
+		"Margin",
+		"Colors",
+		"Grid/Axes",
+		"Style",
+		"Sort",
+	];
+	const calendarOptionList: string[] = [
+		"Title",
+		"Legend",
+		"Labels",
+		"Margin",
+		"Tooltip",
+		"Colors",
+		// "Format",
+		"Style",
+		"Sort",
+	];
+	const simpleCardOptionList: string[] = [
+		"Title",
+		"Colors",
+		"Format",
+		"Style",
+		"Sort",
+		"Conditional Formatting",
+	];
+	const tableOptionList: string[] = [
+		"Title",
+		"Tooltip",
+		"Style",
+		"Format",
+		"Sort",
+		"Conditional Formatting",
+	];
 
   const filledMapOptionList: string[] = ["Title", "Labels", "Tooltip", "Style"];
 

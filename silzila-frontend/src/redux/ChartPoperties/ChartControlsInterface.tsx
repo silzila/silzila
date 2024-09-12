@@ -162,8 +162,10 @@ interface ChartConSankeyControls {
 }
 
 interface ChartConCrossTabStyleOptions {
-  borderWidth: number;
-  lineHeight: number;
+
+	borderWidth: number;
+	lineHeight: number;
+	crossTabdata: any[];
 }
 
 interface ChartConCrosstabHeaderLabelOptions {
