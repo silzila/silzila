@@ -22,12 +22,15 @@ import heatMapIcon from "../../assets/new_heatMap.svg";
 import CrossTabIcon from "../../assets/new_crossTab.svg";
 import roseChartIcon from "../../assets/new_rose.svg";
 import simpleCard from "../../assets/simpleCard.svg";
-import geoChartIcon from "../../assets/geoMap.svg";
+// import geoChartIcon from "../../assets/geoMap.svg";
+import filledMapIcon from "../../assets/map_filled.svg";
+import bubbleMapIcon from "../../assets/map_dot.svg";
 import stackedAreaChartIcon from "../../assets/new_areaStacked.svg";
 import calendarChartIcon from "../../assets/new_calendar.svg";
 import "./ChartOptions.css";
 import boxPlotIcon from "../../assets/new_boxPlot.svg";
 import TreeMapIcon from "../../assets/new_treeMap.svg";
+import TableIcon from "../../assets/table.svg";
 import TextEditorIcon from "../../assets/new_richText.svg";
 import Sankey from "../../assets/new_sankey.svg";
 import { Dispatch } from "redux";
@@ -73,14 +76,14 @@ export const chartTypes = [
   { name: "funnel", icon: funnelChartIcon, value: "Funnel Chart" },
   { name: "heatmap", icon: heatMapIcon, value: "Heat Map" },
   { name: "treeMap", icon: TreeMapIcon, value: "Tree Map" },
-  { name: "filledMap", icon: geoChartIcon, value: "Filled Map" },
-  { name: "bubbleMap", icon: geoChartIcon, value: "Bubble Map" },
+  { name: "filledMap", icon: filledMapIcon, value: "Filled Map" },
+  { name: "bubbleMap", icon: bubbleMapIcon, value: "Bubble Map" },
   { name: "calendar", icon: calendarChartIcon, value: "Calendar Chart" },
   { name: "boxPlot", icon: boxPlotIcon, value: "Box Plot Chart" },
   { name: "richText", icon: TextEditorIcon, value: "Rich Text" },
   { name: "sankey", icon: Sankey, value: "Sankey Chart" },
   { name: "simplecard", icon: simpleCard, value: "Simple Card" },
-  { name: "table", icon: CrossTabIcon, value: "Table" },
+  { name: "table", icon: TableIcon, value: "Table" },
 ];
 //testing switch
 const ChartTypes = ({

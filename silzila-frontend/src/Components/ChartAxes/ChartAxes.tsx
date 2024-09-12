@@ -27,7 +27,7 @@ import {
 import WarningIcon from "@mui/icons-material/WarningAmber";
 import GoeMismatch from "../Charts/GeoChart/Components/GeoMismatch";
 import GoeHelp from "../Charts/GeoChart/Components/GeoHelp";
-import { fieldName } from "../CommonFunctions/CommonFunctions";
+import { displayName, fieldName } from "../CommonFunctions/CommonFunctions";
 import { VisibilitySharp, InfoOutlined } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
 import {
@@ -239,9 +239,12 @@ const ChartAxes = ({
       chartData.length > 0
     ) {
       let dimensionName = chartProp.properties[propKey].chartAxes[1].fields[0];
+      if (chartProp.properties[propKey].chartType === "bubbleMap")
+        dimensionName = chartProp.properties[propKey].chartAxes[2].fields[0];
       misMatchArray = getMismachedLocationArray(
         chartData,
-        fieldName(dimensionName),
+        // fieldName(dimensionName),
+        displayName(dimensionName),
         chartProp.properties[propKey].Geo.geoLocation,
         chartProp.properties[propKey].Geo.geoMapKey
       );
@@ -407,21 +410,22 @@ const ChartAxes = ({
             }}
             options={options}
             sx={{
+              color: "#2bb9bb",
               width: "12rem",
               "& .MuiAutocomplete-inputRoot": {
-                maxHeight: "32px",
-              },
-              "& .MuiInputLabel-root.Mui-focused": {
-                borderColor: "#2bb9bb",
-                color: "#2bb9bb",
+                maxHeight: "32px !important",
               },
               "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#2bb9bb",
-                color: "#2bb9bb",
+                borderColor: "#2bb9bb !important",
+                color: "#2bb9bb !important",
+              },
+              "& .MuiInputLabel-root.Mui-focused": {
+                borderColor: "#2bb9bb !important",
+                color: "#2bb9bb !important",
               },
               "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#2bb9bb",
-                color: "#2bb9bb",
+                borderColor: "#2bb9bb !important",
+                color: "#2bb9bb !important",
               },
             }}
             renderInput={(params) => (

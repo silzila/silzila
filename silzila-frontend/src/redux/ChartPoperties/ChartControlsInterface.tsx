@@ -1,37 +1,36 @@
-
 export interface ChartControlsProps {
-	// SetNameWithAgg:string,
-	chartData: any;
-	queryResult: any;
-	richText: string;
-	colorScheme: string;
-	areaBackgroundColor: string;
-	areaOpacity: number;
+  // SetNameWithAgg:string,
+  chartData: any;
+  queryResult: any;
+  richText: string;
+  colorScheme: string;
+  areaBackgroundColor: string;
+  areaOpacity: number;
 
-	colorScale: ChartConColorScale;
-	cardControls: CardControls;
-	legendOptions: ChartConLegendOptions;
-	chartMargin: ChartConChartMargin;
-	calendarStyleOptions: ChartConCalenderStyleOptions;
-	boxPlotChartControls: ChartConBoxPlotChartControls;
-	geoChartControls: ChartConGeoChartControls;
-	treeMapChartControls: ChartConTreeMapChartControls;
-	sankeyControls: ChartConSankeyControls;
-	crossTabStyleOptions: ChartConCrossTabStyleOptions;
-	crossTabHeaderLabelOptions: ChartConCrosstabHeaderLabelOptions;
-	crossTabCellLabelOptions: ChartConCrossTabCellLabelOptions;
-	labelOptions: ChartConLabelOptions;
-	formatOptions: ChartConFormateOptions;
-	axisOptions: ChartConAxisOptions;
-	tableConditionalFormats: any;
-	simplecardConditionalFormats: any;
+  colorScale: ChartConColorScale;
+  cardControls: CardControls;
+  legendOptions: ChartConLegendOptions;
+  chartMargin: ChartConChartMargin;
+  calendarStyleOptions: ChartConCalenderStyleOptions;
+  boxPlotChartControls: ChartConBoxPlotChartControls;
+  geoChartControls: ChartConGeoChartControls;
+  treeMapChartControls: ChartConTreeMapChartControls;
+  sankeyControls: ChartConSankeyControls;
+  crossTabStyleOptions: ChartConCrossTabStyleOptions;
+  crossTabHeaderLabelOptions: ChartConCrosstabHeaderLabelOptions;
+  crossTabCellLabelOptions: ChartConCrossTabCellLabelOptions;
+  labelOptions: ChartConLabelOptions;
+  formatOptions: ChartConFormateOptions;
+  axisOptions: ChartConAxisOptions;
+  tableConditionalFormats: any;
+  simplecardConditionalFormats: any;
 
-	mouseOver: {
-		enable: boolean;
-	};
+  mouseOver: {
+    enable: boolean;
+  };
 }
 export interface ChartControlProperties {
-	[key: string]: ChartControlsProps;
+  [key: string]: ChartControlsProps;
 }
 
 // export interface  SetNameWithAgg{
@@ -40,318 +39,321 @@ export interface ChartControlProperties {
 // }
 
 interface ChartConColorScale {
-	colorScaleType: string;
-	min: number;
-	max: number;
-	minColor: string;
-	maxColor: string;
+  colorScaleType: string;
+  min: number;
+  max: number;
+  minColor: string;
+  maxColor: string;
 }
 
 interface ChartConLegendOptions {
-	showLegend: boolean;
-	moveSlider: string;
-	symbolWidth: number;
-	symbolHeight: number;
-	itemGap: number;
-	position: { pos: string; top: string; left: string };
-	orientation: string;
-	left: string;
-	top: string;
+  showLegend: boolean;
+  moveSlider: string;
+  symbolWidth: number;
+  symbolHeight: number;
+  itemGap: number;
+  position: { pos: string; top: string; left: string };
+  orientation: string;
+  left: string;
+  top: string;
 }
 
 interface ChartConChartMargin {
-	radius: number;
-	innerRadius: number;
-	outerRadius: number;
-	funnelRight: number;
-	funnelLeft: number;
-	selectedMargin: string;
-	top: number;
-	right: number;
-	bottom: number;
-	left: number;
+  radius: number;
+  innerRadius: number;
+  outerRadius: number;
+  funnelRight: number;
+  funnelLeft: number;
+  selectedMargin: string;
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
 }
 
 interface ChartConCalenderStyleOptions {
-	showSplitLine: boolean;
-	splitLineColor: string;
-	splitLineWidth: number;
-	splitLineType: string;
-	showDayLabel: boolean;
-	firstDay: number;
-	dayLabelMargin: number;
-	dayLabelPosition: string;
-	dayLabelColor: string;
-	dayLabelFontSize: number;
-	showMonthLabel: boolean;
-	monthLabelMargin: number;
-	monthLabelPosition: string;
-	monthLabelColor: string;
-	monthLabelFontSize: number;
-	showYearLabel: boolean;
-	yearLabelMargin: number;
-	yearLabelPosition: string;
-	yearLabelColor: string;
-	yearLabelFontSize: number;
-	calendarGap: number;
-	pieceWise: boolean;
-	height: number;
-	width: number;
-	orientation: string;
+  showSplitLine: boolean;
+  splitLineColor: string;
+  splitLineWidth: number;
+  splitLineType: string;
+  showDayLabel: boolean;
+  firstDay: number;
+  dayLabelMargin: number;
+  dayLabelPosition: string;
+  dayLabelColor: string;
+  dayLabelFontSize: number;
+  showMonthLabel: boolean;
+  monthLabelMargin: number;
+  monthLabelPosition: string;
+  monthLabelColor: string;
+  monthLabelFontSize: number;
+  showYearLabel: boolean;
+  yearLabelMargin: number;
+  yearLabelPosition: string;
+  yearLabelColor: string;
+  yearLabelFontSize: number;
+  calendarGap: number;
+  pieceWise: boolean;
+  height: number;
+  width: number;
+  orientation: string;
 }
 
 export interface ChartConBoxPlotChartControls {
-	colorBy: string;
-	minBoxWidth: number; // px or %,
-	maxBoxWidth: number;
-	boxborderWidth: number; //px
-	flipAxis: boolean;
+  colorBy: string;
+  minBoxWidth: number; // px or %,
+  maxBoxWidth: number;
+  boxborderWidth: number; //px
+  flipAxis: boolean;
 }
 
-export interface ChartConGeoChartControls {	
-	boderWidth: number; //px	
-	borderColor: string;
-	mapZoom: number;
-	areaColor: string;
-	emphasisAreaColor: string;
-	aspectScale: number;
-	enableSelfEmphasis : boolean;
-	minValue: string;
-	minColor: string;
-	maxValue: string;
-	maxColor: string;
-	showVisualScale: boolean;
+export interface ChartConGeoChartControls {
+  boderWidth: number; //px
+  borderColor: string;
+  mapZoom: number;
+  maxBubbleSize: number;
+  minBubbleSize: number;
+  areaColor: string;
+  emphasisAreaColor: string;
+  aspectScale: number;
+  enableSelfEmphasis: boolean;
+  minValue: string;
+  minColor: string;
+  maxValue: string;
+  maxColor: string;
+  showVisualScale: boolean;
+
+  bgCol: { [key: string]: string };
 }
 
 interface ChartConTreeMapChartControls {
-	treeMapWidth: number;
-	treeMapHeight: number;
-	leafDepth: number;
-	labelPosition: string;
-	labelRotate: number;
-	horizondalAlign: string;
-	verticalAlign: string;
-	overFlow: string;
-	borderWidth: number;
-	gapWidth: number;
-	showBreadCrumb: boolean;
-	bcHeight: number;
-	bcWidth: number;
-	bcColor: string;
+  treeMapWidth: number;
+  treeMapHeight: number;
+  leafDepth: number;
+  labelPosition: string;
+  labelRotate: number;
+  horizondalAlign: string;
+  verticalAlign: string;
+  overFlow: string;
+  borderWidth: number;
+  gapWidth: number;
+  showBreadCrumb: boolean;
+  bcHeight: number;
+  bcWidth: number;
+  bcColor: string;
 }
 
 interface ChartConSankeyControls {
-	nodeWidth: number;
-	nodeGap: number;
-	nodeAlign: string;
-	orient: string;
-	draggable: boolean;
-	labelDistance: number;
-	labelRotate: number;
-	overFlow: string;
+  nodeWidth: number;
+  nodeGap: number;
+  nodeAlign: string;
+  orient: string;
+  draggable: boolean;
+  labelDistance: number;
+  labelRotate: number;
+  overFlow: string;
 
-	labelPosition: string;
-	opacity: number;
-	curveness: number;
-	nodeColor: string;
-	linkColor: string;
-	nodesAndColors: any[];
+  labelPosition: string;
+  opacity: number;
+  curveness: number;
+  nodeColor: string;
+  linkColor: string;
+  nodesAndColors: any[];
 }
 
 interface ChartConCrossTabStyleOptions {
+
 	borderWidth: number;
 	lineHeight: number;
-
-
 	crossTabdata: any[];
 }
 
 interface ChartConCrosstabHeaderLabelOptions {
-	labelColorManual: boolean;
-	labelColor: string;
-	fontSize: number;
-	fontStyle: string;
-	fontWeigth: string;
-	fontFamily: string;
-	fontWeight: number | string;
+  labelColorManual: boolean;
+  labelColor: string;
+  fontSize: number;
+  fontStyle: string;
+  fontWeigth: string;
+  fontFamily: string;
+  fontWeight: number | string;
 }
 
 interface ChartConCrossTabCellLabelOptions {
-	labelColorManual: boolean;
-	labelColor: string;
-	fontSize: number;
-	fontStyle: string;
-	fontWeigth: string;
-	fontFamily: string;
-	fontWeight: number | string;
+  labelColorManual: boolean;
+  labelColor: string;
+  fontSize: number;
+  fontStyle: string;
+  fontWeigth: string;
+  fontFamily: string;
+  fontWeight: number | string;
 }
 
 export interface ChartConLabelOptions {
-	showLabel: boolean;
-	labelColorManual: boolean;
-	labelColor: string;
-	pieLabel: {
-		labelPosition: string;
-		labelPadding: number;
-	};
-	fontSize: number;
-	fontStyle: string;
-	fontWeigth: string;
-	fontFamily: string;
+  showLabel: boolean;
+  labelColorManual: boolean;
+  labelColor: string;
+  pieLabel: {
+    labelPosition: string;
+    labelPadding: number;
+  };
+  fontSize: number;
+  fontStyle: string;
+  fontWeigth: string;
+  fontFamily: string;
 }
 
 export interface ChartConLabelFormates {
-	formatValue: string;
-	currencySymbol: any;
-	enableRounding: boolean;
-	roundingDigits: number;
-	numberSeparator: string | any;
+  formatValue: string;
+  currencySymbol: any;
+  enableRounding: boolean;
+  roundingDigits: number;
+  numberSeparator: string | any;
 }
 
 export interface ChartConYAxisFormats {
-	enableRounding: boolean;
-	roundingDigits: number;
-	numberSeparator: string | any;
+  enableRounding: boolean;
+  roundingDigits: number;
+  numberSeparator: string | any;
 }
 export interface ChartConXAxisFormats {
-	enableRounding: boolean;
-	roundingDigits: number;
-	numberSeparator: string | any;
+  enableRounding: boolean;
+  roundingDigits: number;
+  numberSeparator: string | any;
 }
 
 interface ChartConFormateOptions {
-	labelFormats: ChartConLabelFormates;
+  labelFormats: ChartConLabelFormates;
 
-	yAxisFormats: ChartConYAxisFormats;
+  yAxisFormats: ChartConYAxisFormats;
 
-	xAxisFormats: ChartConXAxisFormats;
+  xAxisFormats: ChartConXAxisFormats;
 }
 
 interface ChartConGaugeAxisOptions {
-	startAngle: number;
-	endAngle: number;
-	showTick: boolean;
-	tickSize: number;
-	tickPadding: number;
-	showAxisLabel: boolean;
-	labelPadding: number;
-	min: number;
-	max: number;
-	isMaxAuto: boolean;
+  startAngle: number;
+  endAngle: number;
+  showTick: boolean;
+  tickSize: number;
+  tickPadding: number;
+  showAxisLabel: boolean;
+  labelPadding: number;
+  min: number;
+  max: number;
+  isMaxAuto: boolean;
 }
 interface ChartConGaugeChartControls {
-	isStepsAuto: boolean;
-	stepcolor: ChartConStepColor[];
+  isStepsAuto: boolean;
+  stepcolor: ChartConStepColor[];
 }
 
 interface ChartConStepColor {
-	color: string;
-	per: number;
-	isColorAuto: boolean;
-	stepValue: number;
-	value: number;
+  color: string;
+  per: number;
+  isColorAuto: boolean;
+  stepValue: number;
+  value: number;
 }
 
 interface ChartConPieAxisOptions {
-	pieStartAngle: number;
-	clockWise: boolean;
+  pieStartAngle: number;
+  clockWise: boolean;
 }
 
 export interface ChartConYAxis {
-	position: string;
-	onZero: boolean;
+  position: string;
+  onZero: boolean;
 
-	showLabel: boolean;
+  showLabel: boolean;
 
-	name: string;
-	nameLocation: string;
-	nameGap: number;
-	nameColor: string;
-	nameSize: number;
+  name: string;
+  nameLocation: string;
+  nameGap: number;
+  nameColor: string;
+  nameSize: number;
 
-	tickSizeLeft: number;
-	tickPaddingLeft: number;
-	tickRotationLeft: number;
+  tickSizeLeft: number;
+  tickPaddingLeft: number;
+  tickRotationLeft: number;
 
-	tickSizeRight: number;
-	tickPaddingRight: number;
-	tickRotationRight: number;
+  tickSizeRight: number;
+  tickPaddingRight: number;
+  tickRotationRight: number;
 }
 
 export interface ChartConXAxis {
-	position: string;
-	onZero: boolean;
+  position: string;
+  onZero: boolean;
 
-	showLabel: boolean;
+  showLabel: boolean;
 
-	name: string;
-	nameLocation: string;
-	nameGap: number;
-	nameColor: string;
-	nameSize: number;
+  name: string;
+  nameLocation: string;
+  nameGap: number;
+  nameColor: string;
+  nameSize: number;
 
-	tickSizeBottom: number;
-	tickPaddingBottom: number;
-	tickRotationBottom: number;
+  tickSizeBottom: number;
+  tickPaddingBottom: number;
+  tickRotationBottom: number;
 
-	tickSizeTop: number;
-	tickPaddingTop: number;
-	tickRotationTop: number;
+  tickSizeTop: number;
+  tickPaddingTop: number;
+  tickRotationTop: number;
 }
 
 interface ChartConScatterChartMinMax {
-	x_enableMin: boolean;
-	x_minValue: number;
-	x_enableMax: boolean;
-	x_maxValue: number;
-	y_enableMin: boolean;
-	y_minValue: number;
-	y_enableMax: boolean;
-	y_maxValue: number;
+  x_enableMin: boolean;
+  x_minValue: number;
+  x_enableMax: boolean;
+  x_maxValue: number;
+  y_enableMin: boolean;
+  y_minValue: number;
+  y_enableMax: boolean;
+  y_maxValue: number;
 }
 
 interface ChartConAxisMinMax {
-	enableMin: boolean;
-	minValue: number;
-	enableMax: boolean;
-	maxValue: number;
+  enableMin: boolean;
+  minValue: number;
+  enableMax: boolean;
+  maxValue: number;
 }
 
 interface CardControls {
-	height: number;
-	width: number;
-	fontSize: number;
-	subtextFontSize: number;
-	isDragging: boolean;
-	mainTextPos: any;
-	subTextPos: any;
-	subText: string;
-	borderTickness: number;
-	borderRadius: number;
-	borderColor: string;
-	dashStyle: string;
-	fontStyle: string;
+  height: number;
+  width: number;
+  fontSize: number;
+  subtextFontSize: number;
+  isDragging: boolean;
+  mainTextPos: any;
+  subTextPos: any;
+  subText: string;
+  borderTickness: number;
+  borderRadius: number;
+  borderColor: string;
+  dashStyle: string;
+  fontStyle: string;
 }
 
 export interface ChartConAxisOptions {
-	xSplitLine: boolean;
-	ySplitLine: boolean;
-	inverse: boolean;
-	gaugeAxisOptions: ChartConGaugeAxisOptions;
+  xSplitLine: boolean;
+  ySplitLine: boolean;
+  inverse: boolean;
+  gaugeAxisOptions: ChartConGaugeAxisOptions;
 
-	gaugeChartControls: ChartConGaugeChartControls;
-	pieAxisOptions: ChartConPieAxisOptions;
-	yAxis: ChartConYAxis;
-	xAxis: ChartConXAxis;
-	scatterChartMinMax: ChartConScatterChartMinMax;
-	axisMinMax: ChartConAxisMinMax;
+  gaugeChartControls: ChartConGaugeChartControls;
+  pieAxisOptions: ChartConPieAxisOptions;
+  yAxis: ChartConYAxis;
+  xAxis: ChartConXAxis;
+  scatterChartMinMax: ChartConScatterChartMinMax;
+  axisMinMax: ChartConAxisMinMax;
 }
 
 export interface ChartControl {
-	properties: ChartControlProperties;
-	propList: { [key: number | string]: string[] };
+  properties: ChartControlProperties;
+  propList: { [key: number | string]: string[] };
 }
 
 export interface ChartControlStateProps {
-	chartControls: ChartControl;
+  chartControls: ChartControl;
 }

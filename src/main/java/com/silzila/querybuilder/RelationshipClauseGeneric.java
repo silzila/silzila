@@ -980,7 +980,7 @@ public class RelationshipClauseGeneric {
                     } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
                             _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
                         //checking for custom query
-                        if (fromTable.isCustomQuery()) {
+                        if (!fromTable.isCustomQuery()) {
                             fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
                                     + fromTable.getSchema() + "."
                                     + fromTable.getTable() + " " + fromTable.getId() + " ON \n\t\t " + joinString;
@@ -1066,7 +1066,7 @@ public class RelationshipClauseGeneric {
                     } else if (_rship.getTable2().equals(_relationships.get(i - 1).getTable1()) ||
                             _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
                         //checking for custom query
-                        if (fromTable.isCustomQuery()) {
+                        if (!fromTable.isCustomQuery()) {
                             fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
                                     + fromTable.getTable() + " " + fromTable.getId() + " ON \n\t\t " + joinString;
                         } else {

@@ -365,8 +365,8 @@ Datasets
 .tableListStyle {
   display: flex;
   flex-direction: row;
-  width: 100%;
-  margin-top: 5px;
+  width: 98%;
+  margin: 2px;
   padding: 2px;
   font-size: 14px;
 }
@@ -595,6 +595,27 @@ DataHome
 .optionlist ul {
   margin: 0%;
   padding: 1px 0px 0px 0;
+}
+
+.filter_dataset {
+  border: 2px solid rgba(224, 224, 224, 1);
+  text-align: center;
+  position: fixed;
+  display: flex;
+  padding-top: 0px;
+  height: 87%;
+  width: 211px;
+  top: 5.7%;
+  background-color: white;
+  right: 0%;
+  /* overflow: auto; */
+  overflow-x: hidden;
+  overflow-y: auto;
+  z-index: 90;
+  border-right: none;
+}
+.RightSidbar {
+  position: absolute;
 }
 @media only screen and (max-width: 860px) {
   .dataHomeItemsContainer {

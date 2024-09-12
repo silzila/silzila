@@ -73,6 +73,14 @@ const FilledMap = ({
   registerGeoMap(chartProperties.properties[propKey].Geo.geoLocation);
 
   const convertIntoMapData = () => {
+    function extractLastWord(inputString: string) {
+      // Split the string by " of " and return the last element
+      if (!inputString) return null;
+      const parts = inputString.split(" of ");
+      return parts[parts.length - 1];
+    }
+    keyName = extractLastWord(keyName);
+
     if (chartData && chartData.length > 0) {
       let keyNameArray: string[] = [];
       let matchingMapJSONArray: any = [];
@@ -152,8 +160,6 @@ const FilledMap = ({
   useEffect(() => {
     let mapMinMax: any = getMinAndMaxValue(valueName);
     convertIntoMapData();
-    console.log(mapData);
-    // console.log(matchingMapJSONArray);
 
     setOptions({
       geo: {

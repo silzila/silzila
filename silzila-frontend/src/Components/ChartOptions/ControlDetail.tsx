@@ -17,7 +17,8 @@ import TreeMapLegend from "./Legend/TreeMapLegend";
 import ChartMargin from "./Margin/ChartMargin";
 import ChartMouseOver from "./MouseOver/ChartMouseOver";
 import BoxPlotChartStyles from "./ChartStyle/BoxPlotChartStyles";
-import GeoChartStyles from "./ChartStyle/GeoChartStyles";
+import FilledMapStyles from "./ChartStyle/GeoChartStyles/FilledMapStyles";
+import BubbleMapStyles from "./ChartStyle/GeoChartStyles/BubbleMapStyles";
 import CalendarChartStyles from "./ChartStyle/CalendarChartStyles";
 import ChartStyle from "./ChartStyle/ChartStyle";
 import SankeyStyles from "./ChartStyle/SankeyStyles";
@@ -32,7 +33,9 @@ import TableConditionalFormating from "./TableChartControlComponents/TableCondit
 import DynamicMeasureConditionalFormattingComponent from "./DynamicMeasureConditionalFormattingComponent";
 import SimplecardConditionalFormatting from "./SimplecardConditionalFormatting";
 import Sort from "./Sort/Sort";
-import ShowHide from "./ShowHide/ShowHide"
+import ShowHide from "./ShowHide/ShowHide";
+import BubbleMapColors from "./Color/BubbleMapColors";
+
 
 interface ControlDetailProps {
   chartProperties: ChartPropertiesProps;
@@ -53,8 +56,8 @@ const ControlDetail = ({
 			]?.[`${tabTileProps.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`]
 				?.chartOptionSelected
 			: chartProperties.properties[propKey].chartOptionSelected;
-
-	const RenderControlDetail = () => {
+  
+const RenderControlDetail = () => {
 		switch (chartOption) {
 			case "Title":
 				if (chartType === "richText") {
@@ -69,7 +72,9 @@ const ControlDetail = ({
 					return <ColorSteps />;
 				} else if (chartType === "sankey") {
 					return <SankeyColorControls />;
-				} else {
+			        } else if (chartType === "bubbleMap") {
+			          return <BubbleMapColors />;
+			        } else {
 					return <ChartColors />;
 				}
 			case "Legend":
@@ -107,7 +112,11 @@ const ControlDetail = ({
 					return <DynamicMeasureStyle />;
 				} else if (chartType === "geoChart") {
 					return <GeoChartStyles />;
-				} else {
+				} else if (chartType === "filledMap") {
+			          return <FilledMapStyles />;
+			        } else if (chartType === "bubbleMap") {
+			          return <BubbleMapStyles />;
+			        } else {
 					return <ChartStyle />;
 				}
 			case "Format":
@@ -136,7 +145,7 @@ const ControlDetail = ({
 				} else {
 					return <Sort />;
 				}
-
+        
 			default:
 				return (
 					<span>

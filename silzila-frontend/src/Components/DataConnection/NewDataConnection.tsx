@@ -1790,7 +1790,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 							}}
 							onClick={() => {
 										setChangeDB(false);
-										handleListItem(values);
+										handleListItem(account.vendor);
 								}}
 						>
 							Cancel
@@ -1811,7 +1811,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 							variant="contained"
 							onClick={() => {
 								setChangeDB(false);
-								handleListItem(account.vendor);
+								handleListItem(values);
 								setDataConnection(values);
 							}}
 						>
