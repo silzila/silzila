@@ -320,7 +320,8 @@ const Sidebar = ({
             tableName: el,
             isSelected: false,
             table_uid: schema[0].concat(el),
-            id: uid(),
+            // id: uid(),
+            id:id,
             isNewTable: true,
             isCustomQuery: false,
             customQuery: "",
@@ -543,6 +544,7 @@ const Sidebar = ({
         <div>
           {tableList ? (
             tableList.map((tab: UserTableProps) => {
+              console.log(tab)
               return (
                 <SelectListItem
                   key={tab.tableName}
@@ -556,7 +558,7 @@ const Sidebar = ({
                         key={tab.tableName}
                         className="tableListElement"
                         table={tab}
-                        tableId={tab.table_uid}
+                        tableId={tab.id}
                         xprops={xprops}
                         isFlatFile={isFlatFile}
                       />
@@ -737,7 +739,7 @@ const Sidebar = ({
                             key={tab.tableName}
                             className="tableListElement"
                             table={tab}
-                            tableId={tab.tableName}
+                            tableId={tab.id}
                             xprops={xprops}
                             isFlatFile={isFlatFile}
                           />

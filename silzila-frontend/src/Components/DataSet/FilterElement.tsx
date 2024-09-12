@@ -1006,31 +1006,59 @@ const FilterElement = ({
             onChange={(e: any) =>
               handleCustomRequiredValueOnBlur(e, "greaterThanOrEqualTo", "date")
             }
-            renderInput={(params: any) => (
-              <TextField
-                {...params}
-                sx={
-                  filterFieldData.includeexclude === "Exclude"
-                    ? {
-                        paddingBottom: "5px",
-                        color: "#ffb74d",
-                        textDecoration: "line-through",
-                      }
-                    : { paddingBottom: "8px" }
-                }
-                InputProps={{
-                  ...params.InputProps,
-                  style: {
-                    ...params.InputProps?.style,
-                    color:
-                      filterFieldData.includeexclude === "Exclude"
-                        ? "#ffb74d"
-                        : "inherit",
-                  },
-                }}
-                className="customDatePickerHeight"
-              />
-            )}
+            // renderInput={(params: any) => (
+            //   <TextField
+            //     {...params}
+            //     sx={
+            //       filterFieldData.includeexclude === "Exclude"
+            //         ? {
+            //             paddingBottom: "5px",
+            //             color: "#ffb74d",
+            //             textDecoration: "line-through",
+            //           }
+            //         : { paddingBottom: "8px" }
+            //     }
+            //     InputProps={{
+            //       ...params.InputProps,
+            //       style: {
+            //         ...params.InputProps?.style,
+            //         color:
+            //           filterFieldData.includeexclude === "Exclude"
+            //             ? "#ffb74d"
+            //             : "inherit",
+            //       },
+            //     }}
+            //     className="customDatePickerHeight"
+            //   />
+            // )}
+            slots={{
+              textField: (params: any) => (
+                <TextField
+                  {...params}
+                  sx={
+                    filterFieldData.includeexclude === "Exclude"
+                      ? {
+                          paddingBottom: "5px",
+                          color: "#ffb74d",
+                          textDecoration: "line-through",
+                        }
+                      : { paddingBottom: "8px" }
+                  }
+                  InputProps={{
+                    ...params.InputProps,
+                    style: {
+                      ...params.InputProps?.style,
+                      color:
+                        filterFieldData.includeexclude === "Exclude"
+                          ? "#ffb74d"
+                          : "inherit",
+                    },
+                  }}
+                  className="customDatePickerHeight"
+                />
+              ),
+            }}
+            
           />
         </LocalizationProvider>
 
@@ -1040,27 +1068,51 @@ const FilterElement = ({
             onChange={(e) =>
               handleCustomRequiredValueOnBlur(e, "lessThanOrEqualTo", "date")
             }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                sx={
-                  filterFieldData.includeexclude === "Exclude"
-                    ? { textDecoration: "line-through", color: "#ffb74d" }
-                    : {}
-                }
-                InputProps={{
-                  ...params.InputProps,
-                  style: {
-                    ...params.InputProps?.style,
-                    color:
-                      filterFieldData.includeexclude === "Exclude"
-                        ? "#ffb74d"
-                        : "inherit",
-                  },
-                }}
-                className="customDatePickerHeight"
-              />
-            )}
+            // renderInput={(params) => (
+            //   <TextField
+            //     {...params}
+            //     sx={
+            //       filterFieldData.includeexclude === "Exclude"
+            //         ? { textDecoration: "line-through", color: "#ffb74d" }
+            //         : {}
+            //     }
+            //     InputProps={{
+            //       ...params.InputProps,
+            //       style: {
+            //         ...params.InputProps?.style,
+            //         color:
+            //           filterFieldData.includeexclude === "Exclude"
+            //             ? "#ffb74d"
+            //             : "inherit",
+            //       },
+            //     }}
+            //     className="customDatePickerHeight"
+            //   />
+            // )}
+            slots={{
+              textField: (params) => (
+                <TextField
+                  {...params}
+                  sx={
+                    filterFieldData.includeexclude === "Exclude"
+                      ? { textDecoration: "line-through", color: "#ffb74d" }
+                      : {}
+                  }
+                  InputProps={{
+                    ...params.InputProps,
+                    style: {
+                      ...params.InputProps?.style,
+                      color:
+                        filterFieldData.includeexclude === "Exclude"
+                          ? "#ffb74d"
+                          : "inherit",
+                    },
+                  }}
+                  className="customDatePickerHeight"
+                />
+              ),
+            }}
+            
           />
         </LocalizationProvider>
         {filterFieldData.isInValidData ? (
@@ -1142,9 +1194,18 @@ const FilterElement = ({
                 "date"
               )
             }
-            renderInput={(params) => (
-              <TextField {...params} className="customDatePickerHeight" />
-            )}
+            // renderInput={(params) => (
+            //   <TextField {...params} className="customDatePickerHeight" />
+            // )}
+            slots={{
+              textField: (params) => (
+                <TextField
+                  {...params}
+                  className="customDatePickerHeight"
+                />
+              ),
+            }}
+            
           />
         </LocalizationProvider>
         {filterFieldData.isInValidData ? (
@@ -1238,37 +1299,64 @@ const FilterElement = ({
                       onChange={(e) =>
                         handleCustomRequiredValueOnBlur(e, "exprInput", "date")
                       }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          sx={
-                            filterFieldData.includeexclude === "Exclude"
-                              ? {
-                                  textDecoration: "line-through",
-                                  color: "#ffb74d",
-                                }
-                              : {}
-                          }
-                          InputProps={{
-                            ...params.InputProps,
-                            style: {
-                              ...params.InputProps?.style,
-                              color:
-                                filterFieldData.includeexclude === "Exclude"
-                                  ? "#ffb74d"
-                                  : "inherit",
-                            },
-                          }}
-                          className="customDatePickerHeight"
-                        />
-                      )}
+                      // renderInput={(params) => (
+                      //   <TextField
+                      //     {...params}
+                      //     sx={
+                      //       filterFieldData.includeexclude === "Exclude"
+                      //         ? {
+                      //             textDecoration: "line-through",
+                      //             color: "#ffb74d",
+                      //           }
+                      //         : {}
+                      //     }
+                      //     InputProps={{
+                      //       ...params.InputProps,
+                      //       style: {
+                      //         ...params.InputProps?.style,
+                      //         color:
+                      //           filterFieldData.includeexclude === "Exclude"
+                      //             ? "#ffb74d"
+                      //             : "inherit",
+                      //       },
+                      //     }}
+                      //     className="customDatePickerHeight"
+                      //   />
+                      // )}
+                      slots={{
+                        textField: (params) => (
+                          <TextField
+                            {...params}
+                            sx={
+                              filterFieldData.includeexclude === "Exclude"
+                                ? {
+                                    textDecoration: "line-through",
+                                    color: "#ffb74d",
+                                  }
+                                : {}
+                            }
+                            InputProps={{
+                              ...params.InputProps,
+                              style: {
+                                ...params.InputProps?.style,
+                                color:
+                                  filterFieldData.includeexclude === "Exclude"
+                                    ? "#ffb74d"
+                                    : "inherit",
+                              },
+                            }}
+                            className="customDatePickerHeight"
+                          />
+                        ),
+                      }}
+                      
                     />
                   </LocalizationProvider>
                   {filterFieldData.isInValidData ? (
                     <span className="ErrorText">Please enter valid data.</span>
                   ) : null}
                 </div>
-              );
+              ); 
             }
           } else {
             if (filterFieldData.exprType === "between") {
@@ -1427,20 +1515,20 @@ const FilterElement = ({
           ...filterFieldData.rawselectmembers,
         ];
         filterFieldData["filterTypeTillDate"] = "enabled";
-        // setFilterFieldData((prev: any) => ({
-        //   ...prev,
-        // }));
+        setFilterFieldData((prev: any) => ({
+          ...prev,
+        }));
       } else {
         filterFieldData["userSelection"] = [];
-        // setFilterFieldData((prev: any) => ({
-        //   ...prev,
-        // }));
+        setFilterFieldData((prev: any) => ({
+          ...prev,
+        }));
       }
     } else {
       filterFieldData["filterTypeTillDate"] = "disabled";
-      // setFilterFieldData((prev: any) => ({
-      //   ...prev,
-      // }));
+      setFilterFieldData((prev: any) => ({
+        ...prev,
+      }));
       if (event.target.checked) {
         if (!isNaN(event.target.name) && isFinite(event.target.name)) {
           let _name = event.target.name;
@@ -1486,6 +1574,10 @@ const FilterElement = ({
     setFilterFieldData((prev: any) => ({
       ...prev,
     }));
+    console.log(filterFieldData);
+    setDataSetFilterArray((prevFilters)=>prevFilters.map((filter) =>
+      filter.tableId === filterFieldData.tableId ? filterFieldData : filter
+    ))
   };
 
   // const handleCBChange = (event: any) => {

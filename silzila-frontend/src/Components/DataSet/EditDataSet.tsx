@@ -69,16 +69,19 @@ const EditDataSet = ({
     });
 
     if (res.data.dataSchema.filterPanels) {
+      // data = res.data.dataSchema.filterPanels
+      //   .map((item: any) => {
+      //     if (item.panelName === "dataSetFilters") {
+      //       return item.filters;
+      //     }
+      //     return null;
+      //   })
+      //   .filter(Boolean);
       data = res.data.dataSchema.filterPanels
-        .map((item: any) => {
-          if (item.panelName === "dataSetFilters") {
-            return item.filters;
-          }
-          return null;
-        })
-        .filter(Boolean);
+        .filter((item: any) => item.panelName === "dataSetFilters")
+        .map((item: any) => item.filters);
       console.log(data);
-      setDataSetFilterArray(data.flat());
+      setDataSetFilterArray(data[0]);
     }
 
     if (res.status) {

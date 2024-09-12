@@ -20,16 +20,21 @@ import {
 } from "../../redux/DataSet/DatasetStateInterfaces";
 import {
   BottomBarProps,
-  relationshipServerObjProps,
-  tablesSelectedInSidebarProps,
+  IDataSetCreatePayLoad,
+  IFilter,
+  IFilterPanel,
+  IRelationship,
+  ITable,
 } from "./BottomBarInterfaces";
 import { AlertColor } from "@mui/material/Alert";
 
 import { TextFieldBorderStyle } from "../DataConnection/muiStyles";
 
+
 const BottomBar = ({
   //props
   editMode,
+  datasetFilterArray,
 
   // state
   tempTable,
@@ -38,10 +43,9 @@ const BottomBar = ({
   token,
   connection,
   dsId,
+  isFlatFile,
   datasetName,
   database,
-  isFlatFile,
-  datasetFilterArray,
 
   // dispatch
   resetState,
@@ -64,16 +68,14 @@ const BottomBar = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   // Check if every table has atleast one relationship before submitting the dataset
   const checkTableRelationShip = async (
-    tablesSelectedInSidebar: tablesSelectedInSidebarProps[],
+    selectedTables: ITable[],
     tablesWithRelation: string[]
   ) => {
-    if (tablesSelectedInSidebar.length > 1) {
-      tablesSelectedInSidebar.forEach((el: tablesSelectedInSidebarProps) => {
-        if (tablesWithRelation.includes(el.table)) {
-        } else {
+    if (selectedTables.length > 1) {
+      selectedTables.forEach((el: ITable) => {
+        if (!tablesWithRelation.includes(el.table)) {
           tablesWithoutRelation.push(el.table);
         }
       });
@@ -97,14 +99,14 @@ const BottomBar = ({
     // case where there is only one table and no relations or
     // if all the tables have relations defined,
     // prepare data to be saved in server and submit
-    var relationshipServerObj: relationshipServerObjProps[] = [];
+    let tableRelationships: IRelationship[] = [];
 
     if (
       tablesWithoutRelation.length === 0 ||
-      (tablesSelectedInSidebar.length === 1 && relationships.length === 0)
+      (selectedTables.length === 1 && relationships.length === 0)
     ) {
       relationships.forEach((relation: RelationshipsProps) => {
-        var relationObj: relationshipServerObjProps = {
+        let tableRelation: IRelationship = {
           table1: relation.startId,
           table2: relation.endId,
           cardinality: relation.cardinality,
@@ -113,21 +115,21 @@ const BottomBar = ({
           table2Columns: [],
         };
 
-        var arrowsForRelation: ArrowsProps[] = [];
+        let arrowsForRelation: ArrowsProps[] = [];
         arrowsForRelation = arrows.filter(
           (arr: ArrowsProps) => arr.relationId === relation.relationId
         );
-        var tbl1: string[] = [];
-        var tbl2: string[] = [];
+        let tbl1: string[] = [];
+        let tbl2: string[] = [];
         arrowsForRelation.forEach((arr: ArrowsProps) => {
           tbl1.push(arr.startColumnName);
           tbl2.push(arr.endColumnName);
         });
 
-        relationObj.table1Columns = tbl1;
-        relationObj.table2Columns = tbl2;
+        tableRelation.table1Columns = tbl1;
+        tableRelation.table2Columns = tbl2;
 
-        relationshipServerObj.push(relationObj);
+        tableRelationships.push(tableRelation);
       });
 
       var apiurl: string;
@@ -138,54 +140,72 @@ const BottomBar = ({
         apiurl = "dataset";
       }
       //for datasetFilter array sent the data in the form of array
-      const datasetFilter = datasetFilterArray.filter((item) => {
-        var excludeInclude: boolean =
-          item.includeexclude === false ? false : true;
+      const datasetFilter: IFilterPanel[] = datasetFilterArray.map(
+        (item): IFilterPanel => {
+          const shouldExclude: boolean =
+            item.includeexclude === "Include" ? false : true;
 
-        return {
-          panelName: "dataSetFilters",
-          shouldAllConditionsMatch: true,
-          filters: [
-            {
-              filterType: item.fieldtypeoption,
-              fieldName: item.fieldName,
-              tableName: item.tableName,
-              dataType: item.dataType,
-              uid: item.uid,
-              displayName: item.displayName,
-              shouldExclude: excludeInclude,
-              timeGrain: item.timeGrain,
-              operator: item.exprType,
-              userSelection: item.userSelection,
-              isTillDate: item.isStillData,
-              tableId: item.tableId,
-              exprType: item.exprType,
-            },
-          ],
+          return {
+            panelName: "dataSetFilters",
+            shouldAllConditionsMatch: true,
+            filters: [
+              {
+                filterType: item.fieldtypeoption,
+                fieldName: item.fieldName,
+                // tableName: item.tableName,
+                dataType: item.dataType,
+                // uid: item.uid,
+                // displayName: item.displayName,
+                shouldExclude: shouldExclude,
+                // timeGrain: item.timeGrain,
+                operator: item.exprType,
+                userSelection: item.userSelection,
+                // isTillDate: item.isTillDate || false,
+                tableId: item.tableId,
+                // exprType: item.exprType,
+
+                // RelativeCondition
+                // relativeCondition: null,
+              },
+            ],
+          };
+        }
+      );
+
+      if (tableRelationships.length >= 0) {
+        // console.log({
+        //   connectionId: isFlatFile ? "" : connection,
+        //   datasetName: fname,
+        //   isFlatFileData: isFlatFile,
+        //   dataSchema: {
+        //     tables: [...tablesInDataSet],
+        //     relationships: [...relationshipServerObj],
+        //     filterPanels: [...datasetFilter],
+        //   },
+        // })
+        const payLoad: IDataSetCreatePayLoad = {
+          connectionId: isFlatFile ? "" : connection,
+          datasetName: fname,
+          isFlatFileData: isFlatFile,
+          dataSchema: {
+            tables: selectedTables,
+            relationships: tableRelationships,
+            filterPanels: datasetFilter,
+          },
         };
-      });
-
-      if (relationshipServerObj.length >= 0) {
-        // TODO: need to specify type
         var options: any = await FetchData({
           requestType: "withData",
           method: editMode ? "PUT" : "POST",
+          // method: "PUT",
           url: apiurl,
+          // url:"filter-options?datasetid=" + dsId+"&dbconnectionid="+connection,
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          data: {
-            connectionId: isFlatFile ? null : connection,
-            datasetName: fname,
-            isFlatFileData: isFlatFile,
-            dataSchema: {
-              tables: [...tablesSelectedInSidebar],
-              relationships: [...relationshipServerObj],
-              filterPanels: [...datasetFilter],
-            },
-          },
+          data: payLoad,
         });
+        console.log(payLoad)
       } else {
         setTestMessage(
           "Error: Every table should have atleast one relationship.\n" +
@@ -196,7 +216,12 @@ const BottomBar = ({
         setSeverity("error");
         setOpenAlert(true);
       }
-
+      // let options={
+      //   status:"",
+      //   data:{
+      //     message:""
+      //   }
+      // }
       if (options.status) {
         setSeverity("success");
         setOpenAlert(true);
@@ -220,7 +245,7 @@ const BottomBar = ({
     }
 
     // Potential repeat of code in above section
-    // if (tablesSelectedInSidebar.length > 1 && relationships.length === 0) {
+    // if (tablesInDataSet.length > 1 && relationships.length === 0) {
     // 	setSeverity("error");
     // 	setOpenAlert(true);
     // 	setTestMessage(
@@ -251,9 +276,9 @@ const BottomBar = ({
             tablePositionX: el.tablePositionX,
             tablePositionY: el.tablePositionY,
             database: el.databaseName,
-            flatFileId: isFlatFile ? el.table_uid : null,
-            isCustomQuery: el.isCustomQuery,
-            customQuery: el.customQuery,
+            flatFileId: isFlatFile ? el.table_uid : "",
+            isCustomQuery: el.isCustomQuery || false,
+            customQuery: el.customQuery || "",
           };
         });
       const listOfStartTableNames: string[] = [];
@@ -267,7 +292,10 @@ const BottomBar = ({
         ...listOfEndTableNames,
       ];
 
-      checkTableRelationShip(tablesSelectedInSidebar, tablesWithRelation);
+      checkTableRelationShip(
+        tablesSelectedInSidebar as ITable[],
+        tablesWithRelation
+      );
     } else {
       // If dataSet name is not provided, show error
       setSeverity("error");
