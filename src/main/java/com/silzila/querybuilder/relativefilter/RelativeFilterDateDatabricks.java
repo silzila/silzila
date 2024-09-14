@@ -65,19 +65,18 @@ public class RelativeFilterDateDatabricks {
                         break;
                     case "rollingMonth":
                         fromNum = fromNum + 1;
-                        fromDate = "date_add(date_sub('" + anchorDate + "', " + fromNum + ", 'MONTH'), 1)";
-
+                        fromDate = "date_add(add_months('" + anchorDate + "', -" + fromNum + "), 1)";
                         break;
                     case "rollingYear":
-                        fromNum = fromNum + 1;
-                        fromDate = "date_add(date_sub('" + anchorDate + "', " + fromNum + ", 'YEAR'), 1)";
+                        fromNum = (fromNum + 1)*12;
+                        fromDate = "date_add(add_months('" + anchorDate + "', -" + fromNum + "), 1)";
 
                         break;
                     case "weekSunSat":
                         fromNum = (fromNum * 7) - 1;
                         fromDate = "date_sub('" + anchorDate + "', (dayofweek('" + anchorDate + "') + "
                                 + fromNum
-                                + ")";
+                                + ") )";
                         break;
                     case "weekMonSun":
                         fromNum = (fromNum * 7) - 2;
@@ -87,12 +86,12 @@ public class RelativeFilterDateDatabricks {
                                 "date_sub('" + anchorDate + "', (dayofweek('" + anchorDate + "') + " + fromNum + ")))";
                         break;
                     case "month":
-                        fromNum = fromNum * -1; // Invert fromNum to subtract months
-                        fromDate = "date_format(date_sub('" + anchorDate + "', " + fromNum
-                                + ", 'month'), 'yyyy-MM-01')";
+                        fromDate = "date_format(add_months('" + anchorDate + "', -" + fromNum
+                                + "), 'yyyy-MM-01')";
                         break;
                     case "year":
-                        fromDate = "date_format(date_sub('" + anchorDate + "', " + fromNum + ", 'year'), 'yyyy-01-01')";
+                        fromNum = fromNum*12;
+                        fromDate = "date_format(add_months('" + anchorDate + "', -" + fromNum+ "), 'yyyy-01-01')";
                         break;
                     default:
                         break;
@@ -106,15 +105,15 @@ public class RelativeFilterDateDatabricks {
                         break;
                     case "rollingWeek":
                         fromNum = 1;
-                        fromDate = "date_add(date_sub('" + anchorDate + "', " + fromNum + ", 'week'), 1)";
+                        fromDate = "date_add(date_sub('" + anchorDate + "', " + fromNum + " * 7), 1)";
                         break;
                     case "rollingMonth":
                         fromNum = 1;
-                        fromDate = "date_add(date_sub('" + anchorDate + "', " + fromNum + ", 'month'), 1)";
+                        fromDate = "date_add(add_months('" + anchorDate + "', -" + fromNum + "), 1)";
                         break;
                     case "rollingYear":
-                        fromNum = 1;
-                        fromDate = "date_add(date_sub('" + anchorDate + "', " + fromNum + ", 'year'), 1)";
+                        fromNum = 12;
+                        fromDate = "date_add(add_months('" + anchorDate + "', -" + fromNum + "), 1)";
                         break;
                     case "weekSunSat":
 
@@ -128,13 +127,14 @@ public class RelativeFilterDateDatabricks {
                         break;
                     case "month":
                         fromNum = 0;
-                        fromDate = "date_format(date_sub('" + anchorDate + "', " + fromNum
-                                + ", 'month'), 'yyyy-MM-01')";
+                        fromDate = "date_format(add_months('" + anchorDate + "', " + fromNum
+                                + "), 'yyyy-MM-01')";
                         break;
 
                     case "year":
                         fromNum = 0;
-                        fromDate = "date_format(date_sub('" + anchorDate + "', " + fromNum + ", 'year'), 'yyyy-01-01')";
+                        fromDate = "date_format(add_months('" + anchorDate + "', " + fromNum
+                                + "), 'yyyy-01-01')";
                         break;
                     default:
                         break;
@@ -147,15 +147,15 @@ public class RelativeFilterDateDatabricks {
                         break;
                     case "rollingWeek":
                         fromNum = fromNum - 1;
-                        fromDate = "date_add(date_add('" + anchorDate + "', " + fromNum + ", 'week'), 1)";
+                        fromDate = "date_add(date_add('" + anchorDate + "', " + fromNum + " * 7), 1)";
                         break;
                     case "rollingMonth":
                         fromNum = fromNum - 1;
-                        fromDate = "date_add(date_add('" + anchorDate + "', " + fromNum + ", 'month'), 1)";
+                        fromDate = "date_add(add_months('" + anchorDate + "', " + fromNum + "), 1)";
                         break;
                     case "rollingYear":
-                        fromNum = fromNum - 1;
-                        fromDate = "date_add(date_add('" + anchorDate + "', " + fromNum + ", 'year'), 1)";
+                        fromNum = (fromNum - 1)*12;
+                        fromDate = "date_add(add_months('" + anchorDate + "', " + fromNum + "), 1)";
                         break;
                     case "weekSunSat":
                         fromNum = (fromNum * 7) - 6;
@@ -171,11 +171,13 @@ public class RelativeFilterDateDatabricks {
                                 + "))";
                         break;
                     case "month":
-                        fromDate = "date_format(date_add('" + anchorDate + "', " + fromNum
-                                + ", 'month'), 'yyyy-MM-01')";
+                        fromDate = "date_format(add_months('" + anchorDate + "', " + fromNum
+                                + "), 'yyyy-MM-01')";
                         break;
                     case "year":
-                        fromDate = "date_format(date_add('" + anchorDate + "', " + fromNum + ", 'year'), 'yyyy-01-01')";
+                        fromNum = fromNum*12;
+                        fromDate = "date_format(add_months('" + anchorDate + "', " + fromNum
+                                + "), 'yyyy-01-01')";
                         break;
 
                     default:
@@ -190,13 +192,14 @@ public class RelativeFilterDateDatabricks {
                         toDate = "date_sub('" + anchorDate + "', " + toNum + ")";
                         break;
                     case "rollingWeek":
-                        toDate = "date_sub('" + anchorDate + "', " + toNum + ", 'week')";
+                        toDate = "date_sub('" + anchorDate + "', " + toNum + " * 7)";
                         break;
                     case "rollingMonth":
-                        toDate = "date_sub('" + anchorDate + "', " + toNum + ", 'month')";
+                        toDate = "add_months('" + anchorDate + "', -" + toNum + ")";
                         break;
                     case "rollingYear":
-                        toDate = "date_sub('" + anchorDate + "', " + toNum + ", 'year')";
+                        toNum = toNum*12;
+                        toDate = "add_months('" + anchorDate + "', -" + toNum + ")";
                         break;
                     case "weekSunSat":
                         toNum = (toNum * 7) - 1 - 6;
@@ -211,13 +214,13 @@ public class RelativeFilterDateDatabricks {
                         break;
                     case "month":
                         toNum = toNum - 1;
-                        toDate = "date_sub(date_format(date_sub('" + anchorDate + "', " + toNum
-                                + ", 'month'), 'yyyy-MM-01'), 1)";
+                        toDate = "date_sub(date_format(add_months('" + anchorDate + "', -" + toNum
+                                + "), 'yyyy-MM-01'), 1)";
                         break;
                     case "year":
-                        toNum = toNum - 1;
-                        toDate = "date_sub(date_format(date_sub('" + anchorDate + "', " + toNum
-                                + ", 'year'), 'yyyy-01-01'), 1)";
+                        toNum = (toNum - 1) * 12;
+                        toDate = "date_sub(date_format(add_months('" + anchorDate + "', -" + toNum
+                                + "), 'yyyy-01-01'), 1)";
                         break;
 
                     default:
@@ -233,7 +236,7 @@ public class RelativeFilterDateDatabricks {
                         break;
                     case "rollingWeek":
                         toNum = 0;
-                        toDate = "date_add('" + anchorDate + "', " + toNum + ")";
+                        toDate = "add_months('" + anchorDate + "', " + toNum + ")";
                         break;
                     case "rollingMonth":
                         toNum = 0;
@@ -253,14 +256,14 @@ public class RelativeFilterDateDatabricks {
                         break;
                     case "month":
                         toNum = 1;
-                        toDate = "date_sub(date_format(date_add('" + anchorDate + "', " + toNum
-                                + ", 'month'), 'yyyy-MM-01'), 1)";
+                        toDate = "date_sub(date_format(add_months('" + anchorDate + "', " + toNum
+                                + "), 'yyyy-MM-01'), 1)";
 
                         break;
                     case "year":
-                        toNum = 1;
-                        toDate = "date_sub(date_format(date_add('" + anchorDate + "', " + toNum
-                                + ", 'year'), 'yyyy-01-01'), 1)";
+                        toNum = 12;
+                        toDate = "date_sub(date_format(add_months('" + anchorDate + "', " + toNum
+                                + "), 'yyyy-01-01'), 1)";
                         break;
 
                     default:
@@ -273,34 +276,14 @@ public class RelativeFilterDateDatabricks {
                         toDate = "date_add('" + anchorDate + "', " + toNum + ")";
                         break;
                     case "rollingWeek":
-                        toDate = "date_sub(date_add('" + anchorDate + "' , " + toNum + ", 'week'), 1)";
-                        if (fromType.equals("rollingWeek") && fromConditions.get(0).equals("next")) {
-                            toDate = "date_add('" + anchorDate + "' , " + toNum + ", 'week')";
-                        }
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "date_add('" + anchorDate + "' , " + toNum + ")";
-                        }
+                        toDate = "date_add('" + anchorDate + "' , " + toNum + "* 7)";
                         break;
                     case "rollingMonth":
-                        toDate = "date_sub(date_add('" + anchorDate + "' , " + toNum + ", 'month'), 1)";
-                        if (fromType.equals("rollingMonth") && fromConditions.get(0).equals("next")) {
-                            toDate = "date_add('" + anchorDate + "' , " + toNum + ", 'month')";
-                        }
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "date_add('" + anchorDate + "' , " + toNum + ")";
-                        }
+                        toDate = "add_months('" + anchorDate + "' , " + toNum + ")";
                         break;
                     case "rollingYear":
-                        toDate = "date_sub(date_add('" + anchorDate + "' , " + toNum + ", 'year'), 1)";
-                        if (fromType.equals("rollingYear") && fromConditions.get(0).equals("next")) {
-                            toDate = "date_add('" + anchorDate + "' , " + toNum + ", 'year')";
-                        }
-                        if (toNum == 0 && !fromConditions.get(0).equals("next")) {
-                            toNum = 0;
-                            toDate = "date_add('" + anchorDate + "' , " + toNum + ")";
-                        }
+                        toNum = toNum*12;
+                        toDate = "add_months('" + anchorDate + "' , " + toNum + ")";
                         break;
                     case "weekSunSat":
                         toNum = toNum * 7;
@@ -322,10 +305,9 @@ public class RelativeFilterDateDatabricks {
                                 + "), 'yyyy-MM-01'), 1)";
                         break;
                     case "year":
-                        toNum = toNum + 1;
-                        toDate = "date_sub(date_format(date_add('" + anchorDate + "', " + toNum
-                                + ", 'year'), 'yyyy-01-01'), 1)";
-
+                        toNum = (toNum + 1)*12;
+                        toDate = "date_sub(date_format(add_months('" + anchorDate + "', " + toNum
+                                + "), 'yyyy-01-01'), 1)";
                         break;
                     default:
                         break;
@@ -336,7 +318,7 @@ public class RelativeFilterDateDatabricks {
             String finalQuery = "SELECT " + fromDate + " as fromdate, " + toDate + " as todate";
 
             // String finalQuery = "SELECT 1";
-            
+
             return finalQuery;
         }
 
@@ -345,7 +327,7 @@ public class RelativeFilterDateDatabricks {
     // based on date
 
     public static String getRelativeAnchorDate(Table table,
-            @Valid RelativeFilterRequest relativeFilter) throws BadRequestException {
+                                               @Valid RelativeFilterRequest relativeFilter) throws BadRequestException {
 
         if (relativeFilter.getAnchorDate() == null) {
             throw new BadRequestException("there is no anchor date");
@@ -357,6 +339,8 @@ public class RelativeFilterDateDatabricks {
 
         String databaseName = table.getDatabase();
 
+        String schemaName = table.getSchema();
+
         String anchorDate = relativeFilter.getAnchorDate();
 
         String customQuery = table.getCustomQuery();
@@ -366,7 +350,7 @@ public class RelativeFilterDateDatabricks {
         Matcher matcher = pattern.matcher(anchorDate);
 
         // Query
-         if (List.of("today", "tomorrow", "yesterday", "columnMaxDate").contains(anchorDate)) {
+        if (List.of("today", "tomorrow", "yesterday", "columnMaxDate").contains(anchorDate)) {
             if (anchorDate.equals("today")) {
                 query = "select current_date() as anchordate";
             } else if (anchorDate.equals("tomorrow")) {
@@ -377,7 +361,7 @@ public class RelativeFilterDateDatabricks {
                 //checking for custom query
                 if(!table.isCustomQuery()){
                     query = "select date(max(" + relativeFilter.getFilterTable().getFieldName() + "))as anchordate from "
-                            + databaseName + "." + tableName;
+                            + databaseName +"."+ schemaName +"." + tableName;
                 }else {
                     query = "select date(max(" + relativeFilter.getFilterTable().getFieldName() + "))as anchordate from "
                             + "(" + customQuery + ") as cq ";

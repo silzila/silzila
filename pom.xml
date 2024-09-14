@@ -290,8 +290,17 @@
 					<includeSystemScope>true</includeSystemScope>
 				</configuration>
 			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>22</source>
+                    <target>22</target>
+                    <compilerArgs>--enable-preview</compilerArgs>
+                </configuration>
+            </plugin>
 
-			<!-- UNCOMMENT for single build with React -->
+            <!-- UNCOMMENT for single build with React -->
 			<!-- copy react build into springboot in jar build time -->
 			<!-- <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
