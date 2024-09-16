@@ -7,7 +7,7 @@ import "./CrossTab.css";
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "../ChartsCommonInterfaces";
 
 import { formatChartLabelValue } from "../../ChartOptions/Format/NumberFormatter";
-import {displayName} from '../../CommonFunctions/CommonFunctions';
+import { displayName } from '../../CommonFunctions/CommonFunctions';
 
 const CrossTabChart = ({
 	propKey,
@@ -63,6 +63,7 @@ const CrossTabChart = ({
 		if (tempFormatedChartPropData && tempFormatedChartPropData[0]) {
 			var chartDataKeys = Object.keys(tempFormatedChartPropData[0]);
 			let _formChartData: any = [];
+			const selectedMeasureIndex = chartDataKeys.findIndex(key => key === property.formatOptions.labelFormats.selectedMeasure);
 
 			tempFormatedChartPropData.forEach((item: any) => {
 				let formattedValue: any = {};
@@ -75,7 +76,7 @@ const CrossTabChart = ({
 							chartDataKeys[i].includes(field.displayname)
 						);
 						/*  Need to format Measure dustbin fields */
-						if (_isMeasureField ) {
+						if (_isMeasureField && i === selectedMeasureIndex) {
 							formattedValue[chartDataKeys[i]] = formatChartLabelValue(
 								property,
 								item[chartDataKeys[i]]
@@ -96,7 +97,7 @@ const CrossTabChart = ({
 	}, [chartPropData, property.formatOptions]);
 
 	/*
-    Assign deeply cloned values from Dustbins
+	Assign deeply cloned values from Dustbins
   */
 	if (chartPropAxes[1] && chartPropAxes[1].fields && chartPropAxes[1].fields.length > 0) {
 		dustbinRows = CrossTab.cloneData(chartPropAxes[1].fields);
@@ -111,7 +112,7 @@ const CrossTabChart = ({
 	}
 
 	/*
-    To update the ColumnSpan of header segment
+	To update the ColumnSpan of header segment
 */
 	const updateColSpan = (noValue?: boolean) => {
 		/*  Need to add those measure fields values to ColumnCSV collection.  */
@@ -209,7 +210,7 @@ const CrossTabChart = ({
 	};
 
 	/*
-    Push Dusbin Rows into crossTabData Header Area collection
+	Push Dusbin Rows into crossTabData Header Area collection
 */
 	const appendRowsFieldsAsColumns = () => {
 		for (let i = crossTabData.length - 1; i >= 0; i--) {
@@ -412,7 +413,7 @@ const CrossTabChart = ({
 								}
 							} else {
 								tempColumnObj.displayData = rowValues[colIndex];
-								compareObj[dustbinRows[colIndex]?.fieldname] = tempColumnObj.displayData;								
+								compareObj[dustbinRows[colIndex]?.fieldname] = tempColumnObj.displayData;
 								//compareObj[displayName(dustbinRows[colIndex])] = tempColumnObj.displayData;
 							}
 						}
@@ -506,7 +507,7 @@ const CrossTabChart = ({
 	};
 
 	/*
-    Push Dusbin Values Measures into crossTabData Header Area collection
+	Push Dusbin Values Measures into crossTabData Header Area collection
 */
 
 	const addMeasureValuesInColumnHeaderArea = () => {
@@ -572,10 +573,10 @@ const CrossTabChart = ({
 
 					/* IMPROMENT
 
-         let _list = chartDataCSV.columns.filter(item => item.includes(crossTabData[i].columnItems[colItem].displayData))
+		 let _list = chartDataCSV.columns.filter(item => item.includes(crossTabData[i].columnItems[colItem].displayData))
 
-         CrossTab.getColumnList(i, _list).forEach() --> form comp obj then filter using "getFilteredChartPropDataByCompareObject"
-         */
+		 CrossTab.getColumnList(i, _list).forEach() --> form comp obj then filter using "getFilteredChartPropDataByCompareObject"
+		 */
 
 					distinctList = distinctList || [];
 					tempRowObj.columnList.push(distinctList);
@@ -766,7 +767,7 @@ const CrossTabChart = ({
 
 		crossTabData.push(tempRowObj1);
 		let columnsHeader: string[] = [];
-		tempRowObj1.columnItems.forEach((item:any)=>{
+		tempRowObj1.columnItems.forEach((item: any) => {
 			columnsHeader.push(item?.displayData)
 		})
 

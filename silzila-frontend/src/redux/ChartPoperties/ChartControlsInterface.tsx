@@ -207,6 +207,7 @@ export interface ChartConLabelFormates {
   currencySymbol: any;
   enableRounding: boolean;
   roundingDigits: number;
+  selectedMeasure: string;
   numberSeparator: string | any;
 }
 

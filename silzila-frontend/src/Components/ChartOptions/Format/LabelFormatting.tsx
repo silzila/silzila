@@ -8,6 +8,7 @@ import { updateFormatOption } from "../../../redux/ChartPoperties/ChartControlsA
 import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceForChartOptions";
 import { updateFormatForDm } from "../../../redux/DynamicMeasures/DynamicMeasuresActions";
 import Logger from "../../../Logger";
+import { FormControl, MenuItem, Select, Typography } from "@mui/material";
 
 const LabelFormatting = ({
 	// state
@@ -29,8 +30,8 @@ const LabelFormatting = ({
 	let formatObject: ChartConLabelFormates | any =
 		chartType === "richText"
 			? dynamicMeasureState.dynamicMeasureProps?.[`${dynamicMeasureState.selectedTabId}`]?.[
-					`${dynamicMeasureState.selectedTileId}`
-			  ]?.[dmKey]?.formatOptions.labelFormats
+				`${dynamicMeasureState.selectedTileId}`
+			]?.[dmKey]?.formatOptions.labelFormats
 			: chartControls.properties[propKey].formatOptions.labelFormats;
 	const formatOptions: any[] = [
 		{ type: "Number", value: "Number" },
@@ -39,6 +40,12 @@ const LabelFormatting = ({
 	];
 
 	const [measuresList, setMeasuresList] = useState<any[]>([]);
+	const [selectedMeasure, setSelectedMeasure] = useState<any>("");
+
+	const handleChartMeasuresSelectChange = (event: any) => {
+		setSelectedMeasure(event.target.value);
+		handleUpdateFormat("selectedMeasure", event.target.value.displayname, "labelFormats");
+	};
 
 	useEffect(() => {
 		var chartAxes = chartProperties.properties[propKey].chartAxes;
@@ -93,7 +100,7 @@ const LabelFormatting = ({
 							: "radioButton"
 					}
 					onClick={() => {
-						
+
 						handleUpdateFormat("formatValue", item.value, "labelFormats");
 					}}
 				>
@@ -131,6 +138,46 @@ const LabelFormatting = ({
 
 	return (
 		<React.Fragment>
+			<FormControl fullWidth sx={{ margin: "0 10px 0 10px" }}>
+
+				{chartControls.properties[propKey].sortedValue ? null :
+					<Typography sx={{ color: "#ccc", fontSize: "10px", textAlign: "left", padding: "0 0 3px 5px", fontStyle: "italic" }}>
+						*Select a Measure*
+					</Typography>}
+
+				<Select sx={{
+					width: "95.5%", height: "26px", fontSize: "13px", '&.MuiOutlinedInput-root': {
+						'& fieldset': {
+							border: '1px solid rgb(211, 211, 211)', // Change the border color here
+						},
+						'&:hover fieldset': {
+							border: '1px solid #2bb9bb', // Change the hover border color here
+						},
+						'&.Mui-focused fieldset': {
+							border: '1px solid #2bb9bb', // Change the focused border color here
+						},
+						'&.Mui-focused svg': {
+							color: '#2bb9bb', // Change the arrow color when focused
+						},
+					},
+				}}
+					onChange={handleChartMeasuresSelectChange}
+					value={selectedMeasure}>
+					{
+						chartProperties.properties[propKey].chartAxes[3].fields.map((item: any, index: number) => {
+							return (
+								<MenuItem
+									key={index}
+									value={item}
+									sx={{ color: "black", fontSize: "13px", "&:hover": { backgroundColor: "rgb(238, 238, 238)" }, }}>
+									{item.displayname}
+								</MenuItem>
+							);
+						})
+					}
+				</Select>
+
+			</FormControl>
 			<div className="optionDescription">FORMAT VALUE</div>
 			<div className="radioButtons" style={{ padding: "0", margin: "auto" }}>
 				{renderFormatOptions()}
@@ -151,7 +198,7 @@ const LabelFormatting = ({
 
 			<div style={{ borderTop: "1px solid rgb(211,211,211)", margin: "1rem 6% 1rem" }}></div>
 			{chartProperties.properties[propKey].chartType === "crossTab" ||
-			chartProperties.properties[propKey].chartType === "richText" ? (
+				chartProperties.properties[propKey].chartType === "richText" ? (
 				<div className="optionDescription">FORMAT</div>
 			) : (
 				<div className="optionDescription">LABEL FORMAT</div>
