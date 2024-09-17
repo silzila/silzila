@@ -45,7 +45,7 @@ const chartControl = {
       },
 
       colorScheme: "peacock",
-      areaBackgroundColor: "#22194D",
+      areaBackgroundColor: "#2BB9BB",
       areaOpacity: 0.1,
 
       colorScale: {
@@ -122,6 +122,7 @@ const chartControl = {
         yearLabelColor: "black",
         yearLabelFontSize: 12,
         calendarGap: 30,
+        calendarHeight: 10,
         pieceWise: false,
         height: 30,
         width: 60,
@@ -248,6 +249,10 @@ const chartControl = {
       },
 
       mouseOver: {
+        enable: true,
+      },
+
+      smoothCurve: {
         enable: true,
       },
 
@@ -396,7 +401,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               style: null,
             },
             colorScheme: "peacock",
-            areaBackgroundColor: "#22194D",
+            areaBackgroundColor: "#2BB9BB",
             areaOpacity: 0.1,
 
             colorScale: {
@@ -471,6 +476,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               yearLabelColor: "black",
               yearLabelFontSize: 12,
               calendarGap: 30,
+              calendarHeight: 10,
               pieceWise: false,
               height: 30,
               width: 60,
@@ -597,6 +603,10 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
             },
 
             mouseOver: {
+              enable: true,
+            },
+
+            smoothCurve: {
               enable: true,
             },
 
@@ -747,7 +757,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               style: null,
             },
             colorScheme: "peacock",
-            areaBackgroundColor: "#22194D",
+            areaBackgroundColor: "#2BB9BB",
             areaOpacity: 0.1,
 
             colorScale: {
@@ -822,6 +832,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               yearLabelColor: "black",
               yearLabelFontSize: 12,
               calendarGap: 30,
+              calendarHeight: 10,
               pieceWise: false,
               height: 30,
               width: 60,
@@ -948,6 +959,10 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
             },
 
             mouseOver: {
+              enable: true,
+            },
+
+            smoothCurve: {
               enable: true,
             },
 
@@ -1232,6 +1247,25 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
         properties: {
           [action.payload.propKey]: {
             mouseOver: { enable: { $set: action.payload.enable } },
+          },
+        },
+      });
+
+    // ########################################
+    // SmoothCurve
+
+    case "ENABLE_SMOOTH_CURVE":
+      return update(state, {
+        properties: {
+          [action.payload.propKey]: {
+            // smoothCurve: { enable: { $set: action.payload.enable } },
+            smoothCurve: {
+              // Ensure smoothCurve exists, otherwise create it with enable
+              $apply: (smoothCurve = {}) => ({
+                ...smoothCurve,
+                enable: action.payload.enable,
+              }),
+            },
           },
         },
       });
