@@ -116,7 +116,9 @@ const FunnelChart = ({
                   : chartControl.chartMargin.top + "%",
               bottom:
                 chartControl.legendOptions?.position?.top === "bottom"
-                  ? chartControl.chartMargin.bottom + 5 + "%"
+                  ? (graphDimension.height * chartControl.chartMargin.bottom) /
+                      100 +
+                    20
                   : chartControl.chartMargin.bottom + "%",
               left: chartControl.chartMargin.funnelLeft + "%",
               right: chartControl.chartMargin.funnelRight + "%",

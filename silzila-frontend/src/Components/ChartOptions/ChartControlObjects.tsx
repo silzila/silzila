@@ -43,6 +43,18 @@ const ChartControlObjects = ({
     "Format",
     "Sort",
   ];
+  const lineOptionsList: string[] = [
+    "Title",
+    "Labels",
+    "Legend",
+    "Margin",
+    "Grid/Axes",
+    "Tooltip",
+    "Colors",
+    "Format",
+    "Sort",
+    "Style",
+  ];
   const treemapOptionsList: string[] = [
     "Title",
     "Labels",
@@ -160,11 +172,26 @@ const ChartControlObjects = ({
       case "stackedBar":
       case "horizontalBar":
       case "horizontalStacked":
+      case "scatterPlot":
+        return barOptionsList.map((option) => {
+          return (
+            <div
+              key={option}
+              className={
+                chartProp.properties[propKey].chartOptionSelected === option
+                  ? "optionImageSelected"
+                  : "optionImage"
+              }
+              onClick={() => changeChartOption(propKey, option)}
+            >
+              {option}
+            </div>
+          );
+        });
       case "line":
       case "area":
-      case "scatterPlot":
       case "stackedArea":
-        return barOptionsList.map((option) => {
+        return lineOptionsList.map((option) => {
           return (
             <div
               key={option}

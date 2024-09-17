@@ -153,7 +153,7 @@ const StackedBar = ({
       <ReactEcharts
         // theme={chartControl.colorScheme}
         style={{
-          padding: "1rem",
+          // padding: "1rem",
           width: graphDimension.width,
           height: graphDimension.height,
           overflow: "hidden",
@@ -186,7 +186,13 @@ const StackedBar = ({
             // 	: chartControl.legendOptions?.symbolWidth,
             itemGap: chartControl.legendOptions?.itemGap,
 
-            top: chartControl.legendOptions?.position?.top,
+            // top: chartControl.legendOptions?.position?.top,
+            top:
+              chartControl.legendOptions?.position?.top !== "bottom"
+                ? chartControl.legendOptions?.position?.top
+                : null,
+            bottom:
+              chartControl.legendOptions?.position?.top === "bottom" ? 0 : null,
             left: chartControl.legendOptions?.position?.left,
             // top: tabTileProps.showDash ? "95%" : "90%",
             orient: chartControl.legendOptions?.orientation,
@@ -200,9 +206,11 @@ const StackedBar = ({
                 : chartControl.chartMargin.top + "%",
             bottom:
               chartControl.legendOptions?.position?.top === "bottom"
-                ? chartControl.chartMargin.bottom + 5 + "%"
+                ? (graphDimension.height * chartControl.chartMargin.bottom) /
+                    100 +
+                  35
                 : chartControl.chartMargin.bottom + "%",
-            height: getHeightOfChart(),
+            // height: getHeightOfChart(),
             // height: tabTileProps.showDash
             // 	? graphDimension.height < 220
             // 		? "70%"

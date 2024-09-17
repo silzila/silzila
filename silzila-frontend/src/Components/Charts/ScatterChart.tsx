@@ -77,8 +77,8 @@ const ScatterChart = ({
     var top = "";
     if (chartControl.legendOptions?.position?.top === "top") {
       top = "top";
-    } else if (chartControl.legendOptions?.position?.top === "bottom") {
-      top = "90%";
+      // } else if (chartControl.legendOptions?.position?.top === "bottom") {
+      //   top = "90%";
     } else {
       top = "50%";
     }
@@ -116,8 +116,15 @@ const ScatterChart = ({
               itemGap: chartControl.legendOptions?.itemGap,
 
               left: chartControl.legendOptions?.position?.left,
-              top: getTopMarginForLegend(),
+              top:
+                chartControl.legendOptions?.position?.top !== "bottom"
+                  ? getTopMarginForLegend()
+                  : null,
               // top: chartControl.legendOptions?.position?.top,
+              bottom:
+                chartControl.legendOptions?.position?.top === "bottom"
+                  ? 0
+                  : null,
               orient: chartControl.legendOptions?.orientation,
             },
             grid: {
@@ -129,7 +136,9 @@ const ScatterChart = ({
                   : chartControl.chartMargin.top + "%",
               bottom:
                 chartControl.legendOptions?.position?.top === "bottom"
-                  ? chartControl.chartMargin.bottom + 15 + "%"
+                  ? (graphDimension.height * chartControl.chartMargin.bottom) /
+                      100 +
+                    35
                   : chartControl.chartMargin.bottom + "%",
             },
             tooltip: { show: chartControl.mouseOver.enable },

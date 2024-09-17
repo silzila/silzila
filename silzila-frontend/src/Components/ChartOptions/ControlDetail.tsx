@@ -34,6 +34,7 @@ import DynamicMeasureConditionalFormattingComponent from "./DynamicMeasureCondit
 import SimplecardConditionalFormatting from "./SimplecardConditionalFormatting";
 import Sort from "./Sort/Sort";
 import BubbleMapColors from "./Color/BubbleMapColors";
+import LineChartStyles from "./ChartStyle/LineChartStyles";
 
 interface ControlDetailProps {
   chartProperties: ChartPropertiesProps;
@@ -113,6 +114,12 @@ const ControlDetail = ({
           return <FilledMapStyles />;
         } else if (chartType === "bubbleMap") {
           return <BubbleMapStyles />;
+        } else if (
+          chartType === "line" ||
+          chartType === "area" ||
+          chartType === "stackedArea"
+        ) {
+          return <LineChartStyles />;
         } else {
           return <ChartStyle />;
         }

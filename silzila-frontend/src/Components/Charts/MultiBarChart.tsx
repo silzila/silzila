@@ -130,8 +130,8 @@ const MultiBarChart = ({
     var top = "";
     if (chartControl.legendOptions?.position?.top === "top") {
       top = "top";
-    } else if (chartControl.legendOptions?.position?.top === "bottom") {
-      top = "93%";
+      // } else if (chartControl.legendOptions?.position?.top === "bottom") {
+      //   top = "93%";
     } else {
       top = "50%";
     }
@@ -165,7 +165,7 @@ const MultiBarChart = ({
         opts={{ renderer: "svg" }}
         // theme={chartControl.colorScheme}
         style={{
-          padding: "5px",
+          // padding: "5px",
           width: graphDimension.width,
           height: graphDimension.height,
           overflow: "scroll",
@@ -189,7 +189,13 @@ const MultiBarChart = ({
             temGap: chartControl.legendOptions?.itemGap,
             // left: "50%",
             left: chartControl.legendOptions?.position?.left,
-            top: chartControl.legendOptions?.position?.top,
+            // top: chartControl.legendOptions?.position?.top,
+            top:
+              chartControl.legendOptions?.position?.top !== "bottom"
+                ? chartControl.legendOptions?.position?.top
+                : null,
+            bottom:
+              chartControl.legendOptions?.position?.top === "bottom" ? 0 : null,
             orient: chartControl.legendOptions?.orientation,
           },
           grid: {
@@ -201,9 +207,11 @@ const MultiBarChart = ({
                 : chartControl.chartMargin.top + "%",
             bottom:
               chartControl.legendOptions?.position?.top === "bottom"
-                ? chartControl.chartMargin.bottom + 5 + "%"
+                ? (graphDimension.height * chartControl.chartMargin.bottom) /
+                    100 +
+                  35
                 : chartControl.chartMargin.bottom + "%",
-            height: getHeightOfChart(),
+            // height: getHeightOfChart(),
           },
 
           tooltip: { show: chartControl.mouseOver.enable },

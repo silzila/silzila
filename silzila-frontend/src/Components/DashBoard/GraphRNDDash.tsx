@@ -168,7 +168,12 @@ const GraphRNDDash = ({
             className="dragHeader"
             style={
               tabTileProps.dashMode === "Present"
-                ? { cursor: "default" }
+                ? {
+                    cursor: "default",
+                    fontSize:
+                      chartProp.properties[boxDetails.propKey].titleOptions
+                        .fontSize,
+                  }
                 : {
                     cursor: "move",
                     fontSize:

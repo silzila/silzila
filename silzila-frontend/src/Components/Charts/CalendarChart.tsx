@@ -83,16 +83,19 @@ const CalendarChart = ({
               top:
                 // (graphDimension.height * 20) / 100 / (uniqueYears.length - 1) +
                 // ((graphDimension.height * 80) / 100 / uniqueYears.length) * i,
-                i * (chartControl.chartMargin.top * 7) +
+                i * (chartControl.calendarStyleOptions.calendarHeight * 7) +
                 30 +
                 i * chartControl.calendarStyleOptions.calendarGap,
 
-              left: chartControl.chartMargin.left,
+              left: chartControl.chartMargin.left + 25,
               right: chartControl.chartMargin.right,
               // height: (graphDimension.height * 80) / 100 / uniqueYears.length,
 
               range: yr,
-              cellSize: ["auto", chartControl.chartMargin.top],
+              cellSize: [
+                "auto",
+                chartControl.calendarStyleOptions.calendarHeight,
+              ],
               splitLine: {
                 show: chartControl.calendarStyleOptions.showSplitLine,
                 lineStyle: {
@@ -170,16 +173,21 @@ const CalendarChart = ({
     return el.name === chartControl.colorScheme;
   });
 
+  const totalCalendarHeight =
+    calendarArray.length *
+      (chartControl.calendarStyleOptions.calendarGap +
+        chartControl.calendarStyleOptions.calendarHeight * 7) +
+    60;
+
   const RenderChart = () => {
     return (
-      <ReactEcharts
-        // theme={chartControl.colorScheme}
+      <div
         style={{
           padding: "1rem",
           width: graphDimension.width,
           height: graphDimension.height,
-          // overflow:'auto',
-          overflow: "hidden",
+          overflow: "auto",
+          // overflow: "hidden",
           margin: "auto",
           border: chartArea
             ? "none"
@@ -187,60 +195,68 @@ const CalendarChart = ({
             ? "none"
             : "1px solid rgb(238,238,238)",
         }}
-        option={{
-          color: chartThemes[0].colors,
-          backgroundColor: chartThemes[0].background,
-          animation: chartArea ? false : true,
-          legend: {},
+      >
+        <ReactEcharts
+          // theme={chartControl.colorScheme}
+          option={{
+            color: chartThemes[0].colors,
+            backgroundColor: chartThemes[0].background,
+            animation: chartArea ? false : true,
+            legend: {},
 
-          tooltip: { show: chartControl.mouseOver.enable },
+            tooltip: { show: chartControl.mouseOver.enable },
 
-          dataset: {
-            source: chartData,
-          },
-
-          visualMap: {
-            type: chartControl.calendarStyleOptions.pieceWise
-              ? "piecewise"
-              : null,
-            show:
-              graphDimension.height > 180
-                ? chartData.length >= 1
-                  ? chartControl.legendOptions?.showLegend
-                  : false
-                : false,
-            itemHeight: chartControl.calendarStyleOptions?.height,
-            itemWidth: chartControl.calendarStyleOptions?.width,
-            itemGap: chartControl.legendOptions?.itemGap,
-
-            left: chartControl.legendOptions?.position?.left,
-            top: chartControl.legendOptions?.position?.top,
-            orient: chartControl.calendarStyleOptions?.orientation,
-            min:
-              chartControl.colorScale.colorScaleType === "Manual"
-                ? chartControl.colorScale.min !== parseInt("")
-                  ? chartControl.colorScale.min
-                  : 0
-                : minValue,
-            max:
-              chartControl.colorScale.colorScaleType === "Manual"
-                ? chartControl.colorScale.max !== parseInt("")
-                  ? chartControl.colorScale.max
-                  : 0
-                : maxValue,
-
-            inRange: {
-              color: [
-                chartControl.colorScale.minColor,
-                chartControl.colorScale.maxColor,
-              ],
+            dataset: {
+              source: chartData,
             },
-          },
 
-          calendar: calendarArray,
-          series: seriesArray,
-        }}
-      />
+            visualMap: {
+              type: chartControl.calendarStyleOptions.pieceWise
+                ? "piecewise"
+                : null,
+              show:
+                graphDimension.height > 180
+                  ? chartData.length >= 1
+                    ? chartControl.legendOptions?.showLegend
+                    : false
+                  : false,
+              itemHeight: chartControl.calendarStyleOptions?.height,
+              itemWidth: chartControl.calendarStyleOptions?.width,
+              itemGap: chartControl.legendOptions?.itemGap,
+
+              left: chartControl.legendOptions?.position?.left,
+              top: chartControl.legendOptions?.position?.top,
+              orient: chartControl.calendarStyleOptions?.orientation,
+              min:
+                chartControl.colorScale.colorScaleType === "Manual"
+                  ? chartControl.colorScale.min !== parseInt("")
+                    ? chartControl.colorScale.min
+                    : 0
+                  : minValue,
+              max:
+                chartControl.colorScale.colorScaleType === "Manual"
+                  ? chartControl.colorScale.max !== parseInt("")
+                    ? chartControl.colorScale.max
+                    : 0
+                  : maxValue,
+
+              inRange: {
+                color: [
+                  chartControl.colorScale.minColor,
+                  chartControl.colorScale.maxColor,
+                ],
+              },
+            },
+
+            calendar: calendarArray,
+            series: seriesArray,
+          }}
+          style={{
+            width: "100%",
+            height: `${totalCalendarHeight}px`,
+          }}
+        />
+      </div>
     );
   };
 

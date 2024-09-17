@@ -44,6 +44,7 @@ const LineChart = ({
       for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
         let seriesObj = {
           type: "line",
+          smooth: chartControls.properties[propKey].smoothCurve?.enable,
           label: {
             show:
               graphDimension.height > 140 && graphDimension.height > 150
@@ -80,8 +81,8 @@ const LineChart = ({
     var top = "";
     if (chartControl.legendOptions?.position?.top === "top") {
       top = "top";
-    } else if (chartControl.legendOptions?.position?.top === "bottom") {
-      top = "90%";
+      // } else if (chartControl.legendOptions?.position?.top === "bottom") {
+      //   top = "90%";
     } else {
       top = "50%";
     }
@@ -119,8 +120,13 @@ const LineChart = ({
             itemGap: chartControl.legendOptions?.itemGap,
 
             left: chartControl.legendOptions?.position?.left,
-            top: getTopMarginForLegend(),
+            top:
+              chartControl.legendOptions?.position?.top !== "bottom"
+                ? getTopMarginForLegend()
+                : null,
             // top: chartControl.legendOptions?.position?.top,
+            bottom:
+              chartControl.legendOptions?.position?.top === "bottom" ? 0 : null,
             orient: chartControl.legendOptions?.orientation,
           },
           grid: {
@@ -132,7 +138,9 @@ const LineChart = ({
                 : chartControl.chartMargin.top + "%",
             bottom:
               chartControl.legendOptions?.position?.top === "bottom"
-                ? chartControl.chartMargin.bottom + 15 + "%"
+                ? (graphDimension.height * chartControl.chartMargin.bottom) /
+                    100 +
+                  35
                 : chartControl.chartMargin.bottom + "%",
           },
 

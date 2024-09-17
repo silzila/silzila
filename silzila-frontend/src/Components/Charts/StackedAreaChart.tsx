@@ -38,12 +38,13 @@ const StackedAreaChart = ({
       for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
         var seriesObj = {
           type: "line",
+          smooth: chartControls.properties[propKey].smoothCurve?.enable,
           stack: "All",
           emphasis: {
             focus: "series",
           },
           areaStyle: {
-            opacity: 0.5,
+            opacity: chartControl.areaOpacity,
           },
           label: {
             show: chartControl.labelOptions.showLabel,
@@ -76,8 +77,8 @@ const StackedAreaChart = ({
     var top = "";
     if (chartControl.legendOptions?.position?.top === "top") {
       top = "top";
-    } else if (chartControl.legendOptions?.position?.top === "bottom") {
-      top = "90%";
+      // } else if (chartControl.legendOptions?.position?.top === "bottom") {
+      //   top = "90%";
     } else {
       top = "50%";
     }
@@ -110,8 +111,13 @@ const StackedAreaChart = ({
                 ? chartControl.legendOptions?.showLegend
                 : false,
             left: chartControl.legendOptions?.position?.left,
-            top: getTopMarginForLegend(),
+            top:
+              chartControl.legendOptions?.position?.top !== "bottom"
+                ? getTopMarginForLegend()
+                : null,
             // top: chartControl.legendOptions?.position?.top,
+            bottom:
+              chartControl.legendOptions?.position?.top === "bottom" ? 0 : null,
             orient: chartControl.legendOptions?.orientation,
             itemHeight: chartControl.legendOptions?.symbolHeight,
             itemWidth: chartControl.legendOptions?.symbolWidth,
@@ -127,7 +133,9 @@ const StackedAreaChart = ({
                 : chartControl.chartMargin.top + "%",
             bottom:
               chartControl.legendOptions?.position?.top === "bottom"
-                ? chartControl.chartMargin.bottom + 15 + "%"
+                ? (graphDimension.height * chartControl.chartMargin.bottom) /
+                    100 +
+                  35
                 : chartControl.chartMargin.bottom + "%",
           },
           dataset: {
