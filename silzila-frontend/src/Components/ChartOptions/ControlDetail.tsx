@@ -33,8 +33,10 @@ import TableConditionalFormating from "./TableChartControlComponents/TableCondit
 import DynamicMeasureConditionalFormattingComponent from "./DynamicMeasureConditionalFormattingComponent";
 import SimplecardConditionalFormatting from "./SimplecardConditionalFormatting";
 import Sort from "./Sort/Sort";
+import ShowHide from "./ShowHide/ShowHide";
 import BubbleMapColors from "./Color/BubbleMapColors";
 import LineChartStyles from "./ChartStyle/LineChartStyles";
+
 
 interface ControlDetailProps {
   chartProperties: ChartPropertiesProps;

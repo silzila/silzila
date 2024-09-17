@@ -133,9 +133,11 @@ export const switchAutotoManualinSteps = (
 // Labels
 
 export const updateCrossTabStyleOptions = (
-  propKey: string,
-  option: string | number,
-  value: string | number
+
+	propKey: string,
+	option: string | number,
+	value: string | number | {}
+
 ) => {
   return {
     type: "UPDATE_CROSSTAB_STYLE_OPTIONS",
@@ -481,4 +483,11 @@ export const SortedValue = (propKey: string, value: string | any) => {
     type: "SORTED_VALUE",
     payload: { propKey, value },
   };
+};
+
+export const Showhide= (propKey: string, value: string | any) => {
+	return {
+		type: "SHOW_HIDE",
+		payload: { propKey, value },
+	};
 };
