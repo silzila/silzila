@@ -139,6 +139,12 @@ const ControlDetail = ({
         } else {
           return <TableConditionalFormating />;
         }
+      case "Show/Hide":
+				if (chartType === "crossTab") {
+					return <ShowHide />;
+				} else {
+					return <ShowHide />;
+				}
       case "Sort":
         if (chartType === "crossTab") {
           return <Sort />;
