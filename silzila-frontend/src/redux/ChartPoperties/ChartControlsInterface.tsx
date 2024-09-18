@@ -163,9 +163,9 @@ interface ChartConSankeyControls {
 
 interface ChartConCrossTabStyleOptions {
 
-	borderWidth: number;
-	lineHeight: number;
-	crossTabdata: any[];
+  borderWidth: number;
+  lineHeight: number;
+  crossTabdata: any[];
 }
 
 interface ChartConCrosstabHeaderLabelOptions {
@@ -209,6 +209,7 @@ export interface ChartConLabelFormates {
   roundingDigits: number;
   selectedMeasure: string;
   numberSeparator: string | any;
+  measureFormats: {}
 }
 
 export interface ChartConYAxisFormats {
