@@ -64,6 +64,47 @@ export const formatChartLabelValue = (chartControl: any, value: any) => {
 	return value;
 };
 
+export const formatChartLabelValueForSelectedMeasure = (chartControl: any, value: any, columnName: string) => {
+
+	// everything same as formatChartLabelValue but for a selected measure
+
+	if (chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.enableRounding) {
+		value = Number(value).toFixed(chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.roundingDigits);
+	}
+
+	if (
+		chartControl.formatOptions?.labelFormats.measureFormats[columnName]?.numberSeparator === "Abbrev"
+	) {
+	
+		var text = value.toString();
+		var index = text.indexOf(".");
+		if ((index = -1)) {
+		}
+		var roundOriginalDigits = text.length - index - 1;
+
+		value = formatNumberWithAbbrev(
+			value,
+			chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.enableRounding
+				? chartControl.formatOptions.labelFormats.measureFormats[columnName]?.roundingDigits
+				: roundOriginalDigits
+		);
+	}
+
+	if (chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.numberSeparator === "Comma") {
+		value = formatNumberWithComma(value);
+	}
+
+	// Returns value with currency symbol of user's choice
+	if (chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.formatValue === "Currency")
+		value = `${chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.currencySymbol} ${value}`;
+
+	// Retuns value with a % suffix
+	if (chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.formatValue === "Percent") value = `${value} %`;
+
+	return value;
+
+}
+
 // Similar to above function. But formatting done for Y axis values in a chart
 export const formatChartYAxisValue = (chartControl: any, value: any) => {
 	// If Rounding enabled, returns a rounded value

@@ -232,7 +232,9 @@ const chartControl = {
           enableRounding: "false",
           roundingDigits: 1,
           numberSeparator: "Abbrev",
-          selectedMeasure: ""
+          selectedMeasure: "",
+          // measureFormats will keep the format options for the measure selected in the chart for individual measure
+          measureFormats: {}
         },
 
         yAxisFormats: {

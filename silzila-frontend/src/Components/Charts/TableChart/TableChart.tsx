@@ -4,7 +4,7 @@ import * as CrossTab from "../CrossTab/CrossTab";
 import { BuildTable } from "../CrossTab/BuildTable";
 import "../CrossTab/CrossTab.css";
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "../ChartsCommonInterfaces";
-import { formatChartLabelValue } from "../../ChartOptions/Format/NumberFormatter";
+import { formatChartLabelValue, formatChartLabelValueForSelectedMeasure } from "../../ChartOptions/Format/NumberFormatter";
 import Logger from "../../../Logger";
 
 const TableChart = ({
@@ -75,9 +75,12 @@ const TableChart = ({
 						);
 						/*  Need to format Measure dustbin fields */
 						if (_isMeasureField) {
-							formattedValue[chartDataKeys[i]] = formatChartLabelValue(
+
+							// formatChartLabelValueForSelectedMeasure is used to format values as per selected measure
+							formattedValue[chartDataKeys[i]] = formatChartLabelValueForSelectedMeasure(
 								property,
-								item[chartDataKeys[i]]
+								item[chartDataKeys[i]],
+								chartDataKeys[i]	
 							);
 						} else {
 							formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]];

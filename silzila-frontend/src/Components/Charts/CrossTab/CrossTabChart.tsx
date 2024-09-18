@@ -6,8 +6,8 @@ import "./CrossTab.css";
 
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "../ChartsCommonInterfaces";
 
-import { formatChartLabelValue } from "../../ChartOptions/Format/NumberFormatter";
-import { displayName } from '../../CommonFunctions/CommonFunctions';
+import { formatChartLabelValue, formatChartLabelValueForSelectedMeasure } from "../../ChartOptions/Format/NumberFormatter";
+import {displayName} from '../../CommonFunctions/CommonFunctions';
 
 const CrossTabChart = ({
 	propKey,
@@ -60,26 +60,32 @@ const CrossTabChart = ({
   To apply chart data format from 'property.formatOptions'. Deep cloned chart  data is used.
   */
 	useEffect(() => {
+		
 		if (tempFormatedChartPropData && tempFormatedChartPropData[0]) {
 			var chartDataKeys = Object.keys(tempFormatedChartPropData[0]);
+			
 			let _formChartData: any = [];
-			const selectedMeasureIndex = chartDataKeys.findIndex(key => key === property.formatOptions.labelFormats.selectedMeasure);
 
 			tempFormatedChartPropData.forEach((item: any) => {
 				let formattedValue: any = {};
 
 				for (let i = 0; i < chartDataKeys.length; i++) {
+
 					/*  Need to format only numeric values  */
 					if (typeof item[chartDataKeys[i]] === "number" || !isNaN(item[chartDataKeys[i]])) {
+
 						let _isMeasureField = dustbinValues.find(field =>
 							//chartDataKeys[i].includes(field.fieldname)
 							chartDataKeys[i].includes(field.displayname)
 						);
 						/*  Need to format Measure dustbin fields */
-						if (_isMeasureField && i === selectedMeasureIndex) {
-							formattedValue[chartDataKeys[i]] = formatChartLabelValue(
+
+						if (_isMeasureField) {
+							
+							formattedValue[chartDataKeys[i]] = formatChartLabelValueForSelectedMeasure(
 								property,
-								item[chartDataKeys[i]]
+								item[chartDataKeys[i]],
+								chartDataKeys[i]
 							);
 						} else {
 							formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]];
