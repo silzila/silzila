@@ -355,42 +355,48 @@ public class DuckDbService {
     // get sample records from Parquet file
     public JSONArray getSampleRecords(String parquetFilePath,String userId,String datasetId, String tableName,String encryptVal) throws SQLException, RecordNotFoundException, JsonProcessingException, BadRequestException {
 
-        //getting dataset information to fetch filter panel information
-        DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
-        List<FilterPanel> filterPanels = new ArrayList<>();
-        String tableId="";
-        String whereClause="";
-
-        //iterating to filter panel list to get the particular filter panel for the table
-        for (int i = 0; i < ds.getDataSchema().getFilterPanels().size(); i++) {
-
-            if(ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableName().equalsIgnoreCase(tableName)){
-                filterPanels.add(ds.getDataSchema().getFilterPanels().get(i));
-                tableId = ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableId();
-
-            }
-
-        }
-
-        //generating where clause from the given filter panel
-        whereClause = WhereClause.buildWhereClause(filterPanels, "duckdb");
-
-        String query ="";
-
-        System.out.println(tableId);
-
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtRecords = conn2.createStatement();
 
-        //creating Encryption key to save parquet file securely
-        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
-        stmtRecords.execute(encryptKey);
-        //checking whether the dataset has filter panel or not
-        if(ds.getDataSchema().getFilterPanels().isEmpty()) {
-            query = "SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'}) LIMIT 200;";
+        String query = "";
+
+        if(datasetId!=null) {
+            //getting dataset information to fetch filter panel information
+            DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
+            List<FilterPanel> filterPanels = new ArrayList<>();
+            String tableId = "";
+            String whereClause = "";
+
+            //iterating to filter panel list to get the particular filter panel for the table
+            for (int i = 0; i < ds.getDataSchema().getFilterPanels().size(); i++) {
+
+                if (ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableName().equalsIgnoreCase(tableName)) {
+                    filterPanels.add(ds.getDataSchema().getFilterPanels().get(i));
+                    tableId = ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableId();
+
+                }
+
+            }
+
+            //generating where clause from the given filter panel
+            whereClause = WhereClause.buildWhereClause(filterPanels, "duckdb");
+
+            //creating Encryption key to save parquet file securely
+            String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
+            stmtRecords.execute(encryptKey);
+            //checking whether the dataset has filter panel or not
+            if (ds.getDataSchema().getFilterPanels().isEmpty()) {
+                query = "SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'}) LIMIT 200;";
+            } else {
+                query = "SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'})" + " AS " + tableId + "\n" + whereClause + " LIMIT 200;";
+            }
         }
-        else{
-            query = "SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'})"+" AS "+tableId+"\n"+whereClause+" LIMIT 200;";
+        else {
+            //creating Encryption key to save parquet file securely
+            String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
+            stmtRecords.execute(encryptKey);
+            query = "SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'}) LIMIT 200;";
+
         }
         logger.info("************************\n" + query);
 
