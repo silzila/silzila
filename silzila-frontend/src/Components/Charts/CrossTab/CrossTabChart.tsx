@@ -62,6 +62,7 @@ const CrossTabChart = ({
 	useEffect(() => {
 		
 		if (tempFormatedChartPropData && tempFormatedChartPropData[0]) {
+			
 			var chartDataKeys = Object.keys(tempFormatedChartPropData[0]);
 			
 			let _formChartData: any = [];
@@ -80,10 +81,11 @@ const CrossTabChart = ({
 						);
 						/*  Need to format Measure dustbin fields */
 
-						if (_isMeasureField) {
+						if (_isMeasureField) {	
 							
 							formattedValue[chartDataKeys[i]] = formatChartLabelValueForSelectedMeasure(
 								property,
+								chartProperties.properties[propKey],
 								item[chartDataKeys[i]],
 								chartDataKeys[i]
 							);

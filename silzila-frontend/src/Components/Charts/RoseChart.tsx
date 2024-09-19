@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
-import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
+import { formatChartLabelValue, formatChartLabelValueForSelectedMeasure } from "../ChartOptions/Format/NumberFormatter";
 import {
 	ChartsMapStateToProps,
 	ChartsReduxStateProps,
@@ -119,9 +119,10 @@ const RoseChart = ({
 									formatter: (value: FormatterValueProps) => {
 										if (chartDataKeys) {
 											var formattedValue = value.value[displayName(chartProperties.properties[propKey].chartAxes[2].fields[0])];
-											formattedValue = formatChartLabelValue(
+											formattedValue = formatChartLabelValueForSelectedMeasure(
 												chartControl,
-												formattedValue
+												formattedValue,
+												chartControl.formatOptions.labelFormats.selectedMeasure
 											);
 											return formattedValue;
 										}

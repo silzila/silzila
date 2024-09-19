@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const InputSymbol = ({
 	value,
@@ -10,6 +10,10 @@ const InputSymbol = ({
 	disabled?: boolean;
 }) => {
 	const [inputValue, setInputValue] = useState<any>(value);
+
+	useEffect(() => {
+		setInputValue(value);
+	}, [value]);
 
 	const checkInput = (inputValue: any) => {
 		if (value !== inputValue) {
@@ -41,3 +45,4 @@ const InputSymbol = ({
 };
 
 export default InputSymbol;
+

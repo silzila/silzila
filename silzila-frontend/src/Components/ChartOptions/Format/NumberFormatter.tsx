@@ -64,16 +64,20 @@ export const formatChartLabelValue = (chartControl: any, value: any) => {
 	return value;
 };
 
-export const formatChartLabelValueForSelectedMeasure = (chartControl: any, value: any, columnName: string) => {
+export const formatChartLabelValueForSelectedMeasure = (chartControl: any, chartProperties: any, value: any, columnName: string) => {	
 
 	// everything same as formatChartLabelValue but for a selected measure
 
-	if (chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.enableRounding) {
-		value = Number(value).toFixed(chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.roundingDigits);
+	// get uid from column name
+	const uId = chartProperties.chartAxes[3].fields.find((val: any) => val.displayname === columnName).uId
+	
+
+	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.enableRounding) {
+		value = Number(value).toFixed(chartControl.formatOptions.labelFormats?.measureFormats[uId]?.roundingDigits);
 	}
 
 	if (
-		chartControl.formatOptions?.labelFormats.measureFormats[columnName]?.numberSeparator === "Abbrev"
+		chartControl.formatOptions?.labelFormats.measureFormats[uId]?.numberSeparator === "Abbrev"
 	) {
 	
 		var text = value.toString();
@@ -84,22 +88,22 @@ export const formatChartLabelValueForSelectedMeasure = (chartControl: any, value
 
 		value = formatNumberWithAbbrev(
 			value,
-			chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.enableRounding
-				? chartControl.formatOptions.labelFormats.measureFormats[columnName]?.roundingDigits
+			chartControl.formatOptions.labelFormats?.measureFormats[uId]?.enableRounding
+				? chartControl.formatOptions.labelFormats.measureFormats[uId]?.roundingDigits
 				: roundOriginalDigits
 		);
 	}
 
-	if (chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.numberSeparator === "Comma") {
+	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.numberSeparator === "Comma") {
 		value = formatNumberWithComma(value);
 	}
 
 	// Returns value with currency symbol of user's choice
-	if (chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.formatValue === "Currency")
-		value = `${chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.currencySymbol} ${value}`;
+	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.formatValue === "Currency")
+		value = `${chartControl.formatOptions.labelFormats?.measureFormats[uId]?.currencySymbol} ${value}`;
 
 	// Retuns value with a % suffix
-	if (chartControl.formatOptions.labelFormats?.measureFormats[columnName]?.formatValue === "Percent") value = `${value} %`;
+	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.formatValue === "Percent") value = `${value} %`;
 
 	return value;
 

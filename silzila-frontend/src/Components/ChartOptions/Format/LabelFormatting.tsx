@@ -41,7 +41,28 @@ const LabelFormatting = ({
 	];
 
 	const [measuresList, setMeasuresList] = useState<any[]>([]);
-	const [selectedMeasure, setSelectedMeasure] = useState<any>("");
+	const [selectedMeasure, setSelectedMeasure] = useState<any>(chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartType === "crossTab" ? 3 : 2].fields[0]);
+
+	useEffect(() => {
+		// sets the initial value of the measure dropdown to the first measure in the chart
+
+		handleUpdateFormat('selectedMeasure', {
+			name: selectedMeasure.displayname,
+			uId: selectedMeasure.uId
+		}, "labelFormats");
+
+		handleUpdateFormat("measureFormats", {
+			...(chartControls.properties[propKey].formatOptions.labelFormats.measureFormats),
+			[selectedMeasure.uId]: {
+				formatValue: 'Number',
+				currencySymbol: '₹',
+				enableRounding: true,
+				roundingDigits: 1,
+				numberSeparator: 'Abbrev',
+			}
+		}, "labelFormats")
+
+	}, [])
 
 	useEffect(() => {
 		var chartAxes = chartProperties.properties[propKey].chartAxes;
@@ -95,7 +116,7 @@ const LabelFormatting = ({
 				<div
 					key={item.value}
 					className={
-						item.value === formatObject?.measureFormats[formatObject.selectedMeasure]?.formatValue
+						item.value === formatObject?.measureFormats[formatObject.selectedMeasure.uId]?.formatValue
 							? "radioButtonSelected"
 							: "radioButton"
 					}
@@ -103,9 +124,9 @@ const LabelFormatting = ({
 
 						handleUpdateFormat("measureFormats", {
 							...(formatObject.measureFormats),
-							[formatObject.selectedMeasure]: {
-								...(formatObject.measureFormats[formatObject.selectedMeasure]),
-								formatValue: item.value,
+							[formatObject.selectedMeasure.uId]: {
+								...(formatObject.measureFormats[formatObject.selectedMeasure.uId]),
+								formatValue: item.value
 							}
 						}, "labelFormats")
 					}}
@@ -128,15 +149,15 @@ const LabelFormatting = ({
 				<div
 					key={item.value}
 					className={
-						item.value === formatObject?.measureFormats[formatObject.selectedMeasure]?.numberSeparator
+						item.value === formatObject?.measureFormats[formatObject.selectedMeasure.uId]?.numberSeparator
 							? "radioButtonSelected"
 							: "radioButton"
 					}
 					onClick={() => {
 						handleUpdateFormat("measureFormats", {
 							...(formatObject.measureFormats),
-							[formatObject.selectedMeasure]: {
-								...(formatObject.measureFormats[formatObject.selectedMeasure]),
+							[formatObject.selectedMeasure.uId]: {
+								...(formatObject.measureFormats[formatObject.selectedMeasure.uId]),
 								numberSeparator: item.value,
 							}
 						}, "labelFormats")
@@ -152,12 +173,17 @@ const LabelFormatting = ({
 		console.log(chartControls.properties[propKey].formatOptions.labelFormats.measureFormats);
 
 		setSelectedMeasure(event.target.value);
-		handleUpdateFormat("selectedMeasure", event.target.value.displayname, "labelFormats");
+		console.log('Printing value: ', event.target.value);
 
-		if (!formatObject.measureFormats[event.target.value.displayname]) {
+		handleUpdateFormat("selectedMeasure", {
+			name: event.target.value.displayname,
+			uId: event.target.value.uId
+		}, "labelFormats");
+
+		if (!formatObject.measureFormats[event.target.value.uId]) {
 			handleUpdateFormat("measureFormats", {
 				...(chartControls.properties[propKey].formatOptions.labelFormats.measureFormats),
-				[event.target.value.displayname]: {
+				[event.target.value.uId]: {
 					formatValue: 'Number',
 					currencySymbol: '₹',
 					enableRounding: true,
@@ -216,17 +242,17 @@ const LabelFormatting = ({
 			<div className="radioButtons" style={{ padding: "0", margin: "auto auto 10px auto" }}>
 				{renderFormatOptions()}
 			</div>
-			{formatObject.measureFormats[formatObject.selectedMeasure]?.formatValue === "Currency" ? (
+			{formatObject.measureFormats[formatObject.selectedMeasure.uId]?.formatValue === "Currency" ? (
 				<>
 					<div className="optionDescription" style={{ marginTop: "0.5rem" }}>
 						<span style={{ margin: "auto" }}>Curency Symbol</span>
 						<InputSymbol
-							value={formatObject.currencySymbol}
+							value={formatObject.measureFormats[formatObject.selectedMeasure.uId]?.currencySymbol}
 							updateValue={(value: any) =>
 								handleUpdateFormat("measureFormats", {
 									...(formatObject.measureFormats),
-									[formatObject.selectedMeasure]: {
-										...(formatObject.measureFormats[formatObject.selectedMeasure]),
+									[formatObject.selectedMeasure.uId]: {
+										...(formatObject.measureFormats[formatObject.selectedMeasure.uId]),
 										currencySymbol: value,
 									}
 								}, "labelFormats")
@@ -262,15 +288,15 @@ const LabelFormatting = ({
 				<input
 					type="checkbox"
 					id="enableDisable"
-					checked={formatObject?.measureFormats[formatObject.selectedMeasure]?.enableRounding ? true : false}
+					checked={formatObject?.measureFormats[formatObject.selectedMeasure.uId]?.enableRounding ? true : false}
 					onChange={() => {
 						handleUpdateFormat(
 							"measureFormats",
 							{
 								...(formatObject.measureFormats),
-								[formatObject.selectedMeasure]: {
-									...(formatObject.measureFormats[formatObject.selectedMeasure]),
-									enableRounding: !formatObject.measureFormats[formatObject.selectedMeasure].enableRounding,
+								[formatObject.selectedMeasure.uId]: {
+									...(formatObject.measureFormats[formatObject.selectedMeasure.uId]),
+									enableRounding: !formatObject.measureFormats[formatObject.selectedMeasure.uId].enableRounding,
 								}
 							},
 							"labelFormats"
@@ -278,27 +304,27 @@ const LabelFormatting = ({
 					}}
 				/>
 				<InputPositiveNumber
-					value={formatObject.measureFormats[formatObject.selectedMeasure]?.roundingDigits ? formatObject.measureFormats[formatObject.selectedMeasure].roundingDigits : 1}
+					value={formatObject.measureFormats[formatObject.selectedMeasure.uId]?.roundingDigits ? formatObject.measureFormats[formatObject.selectedMeasure.uId].roundingDigits : 1}
 					updateValue={(value: number) => {
 						if (value >= 0) {
 							handleUpdateFormat("measureFormats", {
 								...(formatObject.measureFormats),
-								[formatObject.selectedMeasure]: {
-									...(formatObject.measureFormats[formatObject.selectedMeasure]),
+								[formatObject.selectedMeasure.uId]: {
+									...(formatObject.measureFormats[formatObject.selectedMeasure.uId]),
 									roundingDigits: value,
 								}
 							}, "labelFormats")
 						} else {
 							handleUpdateFormat('measureFormats', {
 								...(formatObject.measureFormats),
-								[formatObject.selectedMeasure]: {
-									...(formatObject.measureFormats[formatObject.selectedMeasure]),
+								[formatObject.selectedMeasure.uId]: {
+									...(formatObject.measureFormats[formatObject.selectedMeasure.uId]),
 									roundingDigits: 0,
 								}
 							}, "labelFormats")
 						}
 					}}
-					disabled={formatObject?.measureFormats[formatObject.selectedMeasure]?.enableRounding ? false : true}
+					disabled={formatObject?.measureFormats[formatObject.selectedMeasure.uId]?.enableRounding ? false : true}
 				/>
 				<span style={{ margin: "auto 0px" }}>decimal</span>
 			</div>

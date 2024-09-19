@@ -1,7 +1,7 @@
 import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
+import { formatChartLabelValue, formatChartLabelValueForSelectedMeasure } from "../ChartOptions/Format/NumberFormatter";
 import { Dispatch } from "redux";
 import { updateChartMargins } from "../../redux/ChartPoperties/ChartControlsActions";
 import {
@@ -147,9 +147,10 @@ const PieChart = ({
 									formatter: (value: FormatterValueProps) => {
 										if (chartDataKeys) {
 											var formattedValue = value.value[displayName(chartProperties.properties[propKey].chartAxes[2].fields[0])];
-											formattedValue = formatChartLabelValue(
+											formattedValue = formatChartLabelValueForSelectedMeasure(
 												chartControl,
-												formattedValue
+												formattedValue,
+												chartControl.formatOptions.labelFormats.selectedMeasure
 											);
 
 											return formattedValue;
