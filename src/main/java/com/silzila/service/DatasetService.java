@@ -11,7 +11,6 @@ import com.silzila.payload.request.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,6 @@ public class DatasetService {
 
     private static final Logger logger = LogManager.getLogger(DatasetService.class);
 
-    private static Map<String, DatasetDTO> datasetDetails = new HashMap<>();
 
     @Autowired
     DatasetRepository datasetRepository;
@@ -65,6 +63,9 @@ public class DatasetService {
 
     @Autowired
     RelativeFilterProcessor relativeFilterProcessor;
+
+    @Autowired
+    DatasetBuffer datasetBuffer;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -321,32 +322,7 @@ public class DatasetService {
     // READ ONE DATASET
     public DatasetDTO getDatasetById(String id, String userId)
             throws RecordNotFoundException, JsonMappingException, JsonProcessingException {
-        Optional<Dataset> dOptional = datasetRepository.findByIdAndUserId(id, userId);
-        // if no connection details inside optional warpper, then send NOT FOUND Error
-        if (!dOptional.isPresent()) {
-            throw new RecordNotFoundException("Error: No such Dataset Id exists!");
-        }
-        // get object from optional wrapper object
-        Dataset dataset = dOptional.get();
-        // initialize dataschema object and add put key values
-        DataSchema dataSchema;
-        // dto object holds final response with de-serialized data schema
-        DatasetDTO dto = new DatasetDTO();
-        try {
-            // de-serialization
-            dataSchema = objectMapper.readValue(dataset.getDataSchema(), DataSchema.class);
-            // populating dto object
-            dto.setId(dataset.getId());
-            dto.setConnectionId(dataset.getConnectionId());
-            dto.setDatasetName(dataset.getDatasetName());
-            dto.setIsFlatFileData(dataset.getIsFlatFileData());
-            dto.setDataSchema(dataSchema);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Error: Dataset schema could not be serialized!");
-        }
-        return dto;
+        return datasetBuffer.getDatasetById(id, userId);
     }
 
     // DELETE DATASET
@@ -363,20 +339,22 @@ public class DatasetService {
 
     // load dataset details in buffer. This helps faster query execution.
     public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId, String userId)
-            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
+    throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
         DatasetDTO dto;
+        Map<String, DatasetDTO> datasetDetails = datasetBuffer.getDatasetDetails();
         if (datasetDetails.containsKey(datasetId)) {
             dto = datasetDetails.get(datasetId);
         } else {
-            dto = getDatasetById(datasetId, userId);
-            datasetDetails.put(datasetId, dto);
-        }
-        if(!dto.getDataSchema().getFilterPanels().isEmpty()){
-            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
-            dto.getDataSchema().setFilterPanels(filterPanels);
+            dto = datasetBuffer.getDatasetById(datasetId, userId);
+            datasetBuffer.addDatasetInBuffer(datasetId, dto);
+            if(!dto.getDataSchema().getFilterPanels().isEmpty()){
+                List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
+                dto.getDataSchema().setFilterPanels(filterPanels);
+                datasetBuffer.addDatasetInBuffer(datasetId, dto);
+            }
         }
         return dto;
-    }
+        }
 
     // RUN QUERY
     public String runQuery(String userId, String dBConnectionId, String datasetId, Boolean isSqlOnly,
@@ -575,10 +553,13 @@ public class DatasetService {
             @Valid RelativeFilterRequest relativeFilter)
             throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
             JsonMappingException, JsonProcessingException {
-
+        
         // Load dataset into memory buffer
-        DatasetDTO ds = (datasetId != null)? loadDatasetInBuffer(dBConnectionId,datasetId, userId) : null;
-
+        DatasetDTO ds = null;
+        if (datasetId != null) {
+            DatasetDTO bufferedDataset = datasetBuffer.getDatasetDetailsById(datasetId);
+            ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(dBConnectionId, datasetId, userId);
+        }
         // Initialize variables
         JSONArray anchorDateArray;
         String query;

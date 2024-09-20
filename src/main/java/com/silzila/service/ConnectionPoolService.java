@@ -101,57 +101,29 @@ public class ConnectionPoolService {
     @Autowired
     DatasetRepository datasetRepository;
 
-    private static Map<String, DatasetDTO> datasetDetails = new HashMap<>();
+    @Autowired
+    DatasetBuffer datasetBuffer;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
     public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId, String userId)
-            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
+    throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
         DatasetDTO dto;
+        Map<String, DatasetDTO> datasetDetails = datasetBuffer.getDatasetDetails();
         if (datasetDetails.containsKey(datasetId)) {
             dto = datasetDetails.get(datasetId);
         } else {
-            dto = getDatasetById(datasetId, userId);
-            datasetDetails.put(datasetId, dto);
-        }
-        if(!dto.getDataSchema().getFilterPanels().isEmpty()){
-            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
-            dto.getDataSchema().setFilterPanels(filterPanels);
-        }
-        return dto;
-    }
-
-    public DatasetDTO getDatasetById(String id, String userId)
-            throws RecordNotFoundException, JsonMappingException, JsonProcessingException {
-        Optional<Dataset> dOptional = datasetRepository.findByIdAndUserId(id, userId);
-        // if no connection details inside optional warpper, then send NOT FOUND Error
-        if (!dOptional.isPresent()) {
-            throw new RecordNotFoundException("Error: No such Dataset Id exists!");
-        }
-        // get object from optional wrapper object
-        Dataset dataset = dOptional.get();
-        // initialize dataschema object and add put key values
-        DataSchema dataSchema;
-        // dto object holds final response with de-serialized data schema
-        DatasetDTO dto = new DatasetDTO();
-        try {
-            // de-serialization
-            dataSchema = objectMapper.readValue(dataset.getDataSchema(), DataSchema.class);
-            // populating dto object
-            dto.setId(dataset.getId());
-            dto.setConnectionId(dataset.getConnectionId());
-            dto.setDatasetName(dataset.getDatasetName());
-            dto.setIsFlatFileData(dataset.getIsFlatFileData());
-            dto.setDataSchema(dataSchema);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Error: Dataset schema could not be serialized!");
+            dto = datasetBuffer.getDatasetById(datasetId, userId);
+            datasetBuffer.addDatasetInBuffer(datasetId, dto);
+            if(!dto.getDataSchema().getFilterPanels().isEmpty()){
+                List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId,datasetId, this::relativeFilter);
+                dto.getDataSchema().setFilterPanels(filterPanels);
+                datasetBuffer.addDatasetInBuffer(datasetId, dto);
+            }
+            
         }
         return dto;
-    }
-
-
+        }
 
     // creates connection pool & gets vendor name
     public String getVendorNameFromConnectionPool(String id, String userId)
@@ -1516,10 +1488,13 @@ public class ConnectionPoolService {
             @Valid RelativeFilterRequest relativeFilter)
             throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
             JsonMappingException, JsonProcessingException {
-
+        
         // Load dataset into memory buffer
-        DatasetDTO ds = (datasetId != null)? loadDatasetInBuffer(dBConnectionId,datasetId, userId) : null;
-
+        DatasetDTO ds = null;
+        if (datasetId != null) {
+            DatasetDTO bufferedDataset = datasetBuffer.getDatasetDetailsById(datasetId);
+            ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(dBConnectionId, datasetId, userId);
+        }
         // Initialize variables
         JSONArray anchorDateArray;
         String query;
