@@ -11,6 +11,7 @@ import com.silzila.payload.request.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ import com.silzila.querybuilder.filteroptions.FilterOptionsQueryComposer;
 import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.repository.DatasetRepository;
 import com.silzila.helper.CustomQueryValidator;
-
+import com.silzila.helper.RelativeFilterProcessor;
 
 @Service
 public class DatasetService {
@@ -61,6 +62,9 @@ public class DatasetService {
 
     @Autowired
     CustomQueryValidator customQueryValidator;
+
+    @Autowired
+    RelativeFilterProcessor relativeFilterProcessor;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -358,14 +362,18 @@ public class DatasetService {
     }
 
     // load dataset details in buffer. This helps faster query execution.
-    public DatasetDTO loadDatasetInBuffer(String datasetId, String userId)
-            throws RecordNotFoundException, JsonMappingException, JsonProcessingException {
+    public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId, String userId)
+            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
         DatasetDTO dto;
         if (datasetDetails.containsKey(datasetId)) {
             dto = datasetDetails.get(datasetId);
         } else {
             dto = getDatasetById(datasetId, userId);
             datasetDetails.put(datasetId, dto);
+        }
+        if(!dto.getDataSchema().getFilterPanels().isEmpty()){
+            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
+            dto.getDataSchema().setFilterPanels(filterPanels);
         }
         return dto;
     }
@@ -379,7 +387,7 @@ public class DatasetService {
         
 
         // get dataset details in buffer
-        DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
+        DatasetDTO ds = loadDatasetInBuffer(dBConnectionId,datasetId, userId);
 
         String vendorName = "";
 
@@ -408,67 +416,8 @@ public class DatasetService {
             // relative Date filter
             // Get the first filter panel from the request
             // Assuming req.getFilterPanels() returns a list of FilterPanel objects
-            List<FilterPanel> filterPanels = req.getFilterPanels();
-            if (filterPanels != null) {
-                // Loop through each FilterPanel
-                for (FilterPanel filterPanel : filterPanels) {
-                    // Get the list of filters from the filter panel
-                    List<Filter> filters = filterPanel.getFilters();
-                    if (filters != null) {
-                        // Iterate over each filter in the list
-                        for (Filter filter : filters) {
-                            // Check if the filter is of type 'relative_filter'
-                            if ("relativeFilter".equals(filter.getFilterType())) {
-                                // Get the relative condition associated with the filter
-                                RelativeCondition relativeCondition = filter.getRelativeCondition();
-                                if (relativeCondition != null) {
-
-                                    // Create a new RelativeFilterRequest object with the relative condition and
-                                    // filter
-                                    RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
-
-                                    relativeFilter.setAnchorDate(relativeCondition.getAnchorDate());
-                                    relativeFilter.setFrom(relativeCondition.getFrom());
-                                    relativeFilter.setTo(relativeCondition.getTo());
-                                    relativeFilter.setFilterTable(filter);
-
-                                    // Call a method to get the relative date range
-                                    JSONArray relativeDateJson = relativeFilter(userId, dBConnectionId, datasetId,
-                                            relativeFilter);
-
-                                    // Extract the 'fromdate' and 'todate' values from the JSON response
-                                    String fromDate = "";
-                                    String toDate = "";
-
-                                    if(relativeDateJson.getJSONObject(0).has("FROMDATE")) {
-                                         fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("FROMDATE"));
-                                    }else{
-                                         fromDate = String.valueOf(relativeDateJson.getJSONObject(0).get("fromdate"));
-                                    }
-                                    if(relativeDateJson.getJSONObject(0).has("TODATE")) {
-                                         toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("TODATE"));
-                                    }else{
-                                         toDate = String.valueOf(relativeDateJson.getJSONObject(0).get("todate"));
-                                    }
-
-                                    // Ensure fromDate is before toDate
-                                    if (fromDate.compareTo(toDate) > 0) {
-                                        String tempDate = fromDate;
-                                        fromDate = toDate;
-                                        toDate = tempDate;
-                                    }
-
-                                    // Set the user selection - date range
-                                    filter.setUserSelection(Arrays.asList(fromDate, toDate));
-                                } else {
-                                    throw new BadRequestException("Error: There is no relative filter condition");
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
+            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(req.getFilterPanels(), userId, dBConnectionId, datasetId,this::relativeFilter);
+            req.setFilterPanels(filterPanels);
         }
         /* DB based Dataset */
         if (ds.getIsFlatFileData() == false) {
@@ -573,7 +522,7 @@ public class DatasetService {
 
         else {
             String vendorName = "";
-            DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
+            DatasetDTO ds = loadDatasetInBuffer(dBConnectionId,datasetId, userId);
             // for DB based datasets, connection id is must
             if (ds.getIsFlatFileData() == false) {
                 if (dBConnectionId == null || dBConnectionId.isEmpty()) {
@@ -628,23 +577,24 @@ public class DatasetService {
             JsonMappingException, JsonProcessingException {
 
         // Load dataset into memory buffer
-        DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
+        DatasetDTO ds = (datasetId != null)? loadDatasetInBuffer(dBConnectionId,datasetId, userId) : null;
 
         // Initialize variables
         JSONArray anchorDateArray;
         String query;
-
         // Check if dataset is flat file data or not
-        if (ds.getIsFlatFileData()) {
+        if ( ds != null && ds.getIsFlatFileData() || ds == null && dBConnectionId == null) {
             // Get the table ID from the filter request
             String tableId = relativeFilter.getFilterTable().getTableId();
 
-            // Find the table object in the dataset schema
-            Table tableObj = ds.getDataSchema().getTables().stream()
+            ColumnFilter columnFilter = relativeFilter.getFilterTable();
+
+            // Find the table object in the dataset schema 
+            // Datasetfilter -> create a table object
+            Table tableObj = ds!= null ? ds.getDataSchema().getTables().stream()
                     .filter(table -> table.getId().equals(tableId))
                     .findFirst()
-                    .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!"));
-
+                    .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!")):new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null, columnFilter.getTableId()  , null, null, false, null);
             // Load file names from file IDs and load the files as views
             fileDataService.getFileNameFromFileId(userId, Collections.singletonList(tableObj));
 
@@ -655,7 +605,8 @@ public class DatasetService {
             // Compose main query for DuckDB
             query = relativeFilterQueryComposer.composeQuery("duckdb", ds, relativeFilter, anchorDateArray);
 
-        } else {
+        } 
+        else {
             // Check if DB connection ID is provided
             if (dBConnectionId == null || dBConnectionId.isEmpty()) {
                 throw new BadRequestException("Error: DB Connection Id can't be empty!");
@@ -666,7 +617,6 @@ public class DatasetService {
             // Compose anchor date query for the specific vendor and run it
             String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery(vendorName, ds, relativeFilter);
 
-
             anchorDateArray = connectionPoolService.runQuery(dBConnectionId, userId, anchorDateQuery);
 
             // Compose main query for the specific vendor
@@ -674,12 +624,10 @@ public class DatasetService {
         }
 
         // Execute the main query and return the result
-        JSONArray jsonArray = ds.getIsFlatFileData() ? duckDbService.runQuery(query)
+        JSONArray jsonArray = ((ds != null && ds.getIsFlatFileData()) || (ds == null && dBConnectionId == null)) ? duckDbService.runQuery(query)
                 : connectionPoolService.runQuery(dBConnectionId, userId, query);
 
         return jsonArray;
     }
-
-
 
     }

@@ -7,8 +7,10 @@ import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.payload.request.DataSchema;
 import com.silzila.payload.request.FilterPanel;
+import com.silzila.payload.request.RelativeFilterRequest;
 import com.silzila.payload.request.Table;
 import com.silzila.querybuilder.WhereClause;
+import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.repository.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,8 @@ import java.util.Date;
 import java.util.stream.Collectors;
 // import java.util.concurrent.ConcurrentHashMap;
 
+import javax.validation.Valid;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -43,7 +47,9 @@ import com.silzila.VizApplication;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.helper.OracleDbJksRequestProcess;
+import com.silzila.helper.RelativeFilterProcessor;
 import com.silzila.helper.ResultSetToJson;
+import com.silzila.payload.request.ColumnFilter;
 import com.silzila.payload.request.DBConnectionRequest;
 import com.silzila.payload.response.MetadataColumn;
 import com.silzila.payload.response.MetadataDatabase;
@@ -57,6 +63,18 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ConnectionPoolService {
+    
+    @Autowired
+    RelativeFilterQueryComposer relativeFilterQueryComposer;
+
+    @Autowired
+    FileDataService fileDataService;
+
+    @Autowired
+    DuckDbService duckDbService;
+    
+    @Autowired
+    RelativeFilterProcessor relativeFilterProcessor;
 
     private static final Logger logger = LogManager.getLogger(ConnectionPoolService.class);
 
@@ -87,14 +105,18 @@ public class ConnectionPoolService {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    public DatasetDTO loadDatasetInBuffer(String datasetId, String userId)
-            throws RecordNotFoundException, JsonMappingException, JsonProcessingException {
+    public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId, String userId)
+            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
         DatasetDTO dto;
         if (datasetDetails.containsKey(datasetId)) {
             dto = datasetDetails.get(datasetId);
         } else {
             dto = getDatasetById(datasetId, userId);
             datasetDetails.put(datasetId, dto);
+        }
+        if(!dto.getDataSchema().getFilterPanels().isEmpty()){
+            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
+            dto.getDataSchema().setFilterPanels(filterPanels);
         }
         return dto;
     }
@@ -905,14 +927,14 @@ public class ConnectionPoolService {
     // Metadata discovery - Get Sample Records of table
     public JSONArray getSampleRecords(String databaseId,String datasetId, String userId, String databaseName, String schemaName,
             String tableName, Integer recordCount)
-            throws RecordNotFoundException, SQLException, BadRequestException, JsonProcessingException {
+            throws RecordNotFoundException, SQLException, BadRequestException, JsonProcessingException, ClassNotFoundException {
         String query = "";
         // first create connection pool to query DB
         String vendorName = getVendorNameFromConnectionPool(databaseId, userId);
 
         if (datasetId!=null) {
             //getting dataset information to fetch filter panel information
-            DatasetDTO ds = loadDatasetInBuffer(datasetId, userId);
+            DatasetDTO ds = loadDatasetInBuffer(databaseId,datasetId, userId);
             List<FilterPanel> filterPanels = new ArrayList<>();
             String tableId = "";
             String whereClause = "";
@@ -1489,4 +1511,64 @@ public class ConnectionPoolService {
             }
         }
     }
+
+    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,
+            @Valid RelativeFilterRequest relativeFilter)
+            throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
+            JsonMappingException, JsonProcessingException {
+
+        // Load dataset into memory buffer
+        DatasetDTO ds = (datasetId != null)? loadDatasetInBuffer(dBConnectionId,datasetId, userId) : null;
+
+        // Initialize variables
+        JSONArray anchorDateArray;
+        String query;
+        // Check if dataset is flat file data or not
+        if ( ds != null && ds.getIsFlatFileData() || ds == null && dBConnectionId == null) {
+            // Get the table ID from the filter request
+            String tableId = relativeFilter.getFilterTable().getTableId();
+
+            ColumnFilter columnFilter = relativeFilter.getFilterTable();
+
+            // Find the table object in the dataset schema 
+            // Datasetfilter -> create a table object
+            Table tableObj = ds!= null ? ds.getDataSchema().getTables().stream()
+                    .filter(table -> table.getId().equals(tableId))
+                    .findFirst()
+                    .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!")):new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null, columnFilter.getTableId()  , null, null, false, null);
+            // Load file names from file IDs and load the files as views
+            fileDataService.getFileNameFromFileId(userId, Collections.singletonList(tableObj));
+
+            // Compose anchor date query for DuckDB and run it
+            String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery("duckdb", ds, relativeFilter);
+            anchorDateArray = duckDbService.runQuery(anchorDateQuery);
+
+            // Compose main query for DuckDB
+            query = relativeFilterQueryComposer.composeQuery("duckdb", ds, relativeFilter, anchorDateArray);
+
+        } 
+        else {
+            // Check if DB connection ID is provided
+            if (dBConnectionId == null || dBConnectionId.isEmpty()) {
+                throw new BadRequestException("Error: DB Connection Id can't be empty!");
+            }
+
+            // Get the vendor name from the connection pool using the DB connection ID
+            String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId);
+            // Compose anchor date query for the specific vendor and run it
+            String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery(vendorName, ds, relativeFilter);
+
+            anchorDateArray = runQuery(dBConnectionId, userId, anchorDateQuery);
+
+            // Compose main query for the specific vendor
+            query = relativeFilterQueryComposer.composeQuery(vendorName, ds, relativeFilter, anchorDateArray);
+        }
+
+        // Execute the main query and return the result
+        JSONArray jsonArray = ((ds != null && ds.getIsFlatFileData()) || (ds == null && dBConnectionId == null)) ? duckDbService.runQuery(query)
+                : runQuery(dBConnectionId, userId, query);
+
+        return jsonArray;
+    }
+
 }

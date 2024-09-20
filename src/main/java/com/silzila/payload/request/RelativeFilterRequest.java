@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class RelativeFilterRequest implements Serializable {
 
     @JsonProperty("filterTable")
-    private Filter filterTable;
+    private ColumnFilter filterTable;
     @JsonProperty("from")
     private List<String> from;
     @JsonProperty("to")
@@ -29,7 +29,7 @@ public class RelativeFilterRequest implements Serializable {
      * @param anchorDate
      */
 
-    public RelativeFilterRequest(Filter filterTable, List<String> from, List<String> to, String anchorDate) {
+    public RelativeFilterRequest(ColumnFilter filterTable, List<String> from, List<String> to, String anchorDate) {
         super();
         this.filterTable = filterTable;
         this.from = from;
@@ -38,12 +38,12 @@ public class RelativeFilterRequest implements Serializable {
     }
 
     @JsonProperty("filterTable")
-    public Filter getFilterTable() {
+    public ColumnFilter getFilterTable() {
         return filterTable;
     }
 
     @JsonProperty("filterTable")
-    public void setFilterTable(Filter filterTable) {
+    public void setFilterTable(ColumnFilter filterTable) {
         this.filterTable = filterTable;
     }
 
