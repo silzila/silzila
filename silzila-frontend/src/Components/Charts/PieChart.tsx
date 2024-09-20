@@ -11,7 +11,7 @@ import {
 } from "./ChartsCommonInterfaces";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
-import {displayName, fieldName} from '../CommonFunctions/CommonFunctions';
+import { displayName, fieldName } from '../CommonFunctions/CommonFunctions';
 
 
 interface PieChartProps {
@@ -64,7 +64,7 @@ const PieChart = ({
 				});
 			}
 		}
-		
+
 	}, [chartData, chartControl]);
 
 	chartThemes = ColorSchemes.filter(el => {
@@ -93,8 +93,8 @@ const PieChart = ({
 						border: chartArea
 							? "none"
 							: graphTileSize
-							? "none"
-							: "1px solid rgb(238,238,238)",
+								? "none"
+								: "1px solid rgb(238,238,238)",
 					}}
 					option={{
 						color: chartThemes[0].colors,
@@ -149,8 +149,12 @@ const PieChart = ({
 											var formattedValue = value.value[displayName(chartProperties.properties[propKey].chartAxes[2].fields[0])];
 											formattedValue = formatChartLabelValueForSelectedMeasure(
 												chartControl,
+												chartProperties.properties[propKey],
 												formattedValue,
-												chartControl.formatOptions.labelFormats.selectedMeasure
+
+												// @ts-ignore
+												chartProperties.properties[propKey].chartAxes[2].fields[0].displayname,
+												chartProperties.properties[propKey].chartType
 											);
 
 											return formattedValue;

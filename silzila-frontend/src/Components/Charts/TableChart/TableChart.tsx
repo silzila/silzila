@@ -75,13 +75,17 @@ const TableChart = ({
 						);
 						/*  Need to format Measure dustbin fields */
 						if (_isMeasureField) {
+							console.log('The chart property is: ', chartProperties);
 
 							// formatChartLabelValueForSelectedMeasure is used to format values as per selected measure
 							formattedValue[chartDataKeys[i]] = formatChartLabelValueForSelectedMeasure(
 								property,
+								chartProperties.properties[propKey],
 								item[chartDataKeys[i]],
-								chartDataKeys[i]	
+								chartDataKeys[i],
+								chartProperties.properties[propKey].chartType
 							);
+
 						} else {
 							formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]];
 						}

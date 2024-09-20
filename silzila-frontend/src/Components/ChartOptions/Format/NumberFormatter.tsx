@@ -1,3 +1,5 @@
+import Decimal from 'decimal.js';
+
 // Helper function to format number
 
 // Given a number this function returns an abbreviated number
@@ -13,7 +15,7 @@ export const formatNumberWithAbbrev = (value: any, digits: any) => {
 		: // Three Zeroes for Thousands
 		Math.abs(Number(value)) >= 1.0e3
 		? ((Math.abs(Number(value)) / 1.0e3) * multipyWithOne).toFixed(digits) + "K"
-		: (Math.abs(Number(value)) * multipyWithOne);	
+		: (Math.abs(Number(value)) * multipyWithOne);
 
 		return curValue;
 };
@@ -64,13 +66,17 @@ export const formatChartLabelValue = (chartControl: any, value: any) => {
 	return value;
 };
 
-export const formatChartLabelValueForSelectedMeasure = (chartControl: any, chartProperties: any, value: any, columnName: string) => {	
+export const formatChartLabelValueForSelectedMeasure = (
+	chartControl: any,
+	chartProperties: any,
+	value: any,
+	columnName: string,
+	chartType: string
+) => {
 
 	// everything same as formatChartLabelValue but for a selected measure
 
-	// get uid from column name
-	const uId = chartProperties.chartAxes[3].fields.find((val: any) => val.displayname === columnName).uId
-	
+	const uId = chartProperties.chartAxes[chartType === "crossTab" ? 3 : 2].fields.find((val: any) => val.displayname === columnName).uId
 
 	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.enableRounding) {
 		value = Number(value).toFixed(chartControl.formatOptions.labelFormats?.measureFormats[uId]?.roundingDigits);
@@ -79,7 +85,7 @@ export const formatChartLabelValueForSelectedMeasure = (chartControl: any, chart
 	if (
 		chartControl.formatOptions?.labelFormats.measureFormats[uId]?.numberSeparator === "Abbrev"
 	) {
-	
+
 		var text = value.toString();
 		var index = text.indexOf(".");
 		if ((index = -1)) {
@@ -103,7 +109,15 @@ export const formatChartLabelValueForSelectedMeasure = (chartControl: any, chart
 		value = `${chartControl.formatOptions.labelFormats?.measureFormats[uId]?.currencySymbol} ${value}`;
 
 	// Retuns value with a % suffix
-	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.formatValue === "Percent") value = `${value} %`;
+	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.formatValue === "Percent") {
+
+		if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.percentageCalculate !== true) {
+			value = `${value} %`;
+		} else {
+			value = `${new Decimal(value).times(100)} %`;
+		}
+
+	} ;
 
 	return value;
 

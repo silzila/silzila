@@ -44,6 +44,7 @@ const LabelFormatting = ({
 	const [selectedMeasure, setSelectedMeasure] = useState<any>(chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartType === "crossTab" ? 3 : 2].fields[0]);
 
 	useEffect(() => {
+
 		// sets the initial value of the measure dropdown to the first measure in the chart
 
 		handleUpdateFormat('selectedMeasure', {
@@ -51,16 +52,30 @@ const LabelFormatting = ({
 			uId: selectedMeasure.uId
 		}, "labelFormats");
 
-		handleUpdateFormat("measureFormats", {
-			...(chartControls.properties[propKey].formatOptions.labelFormats.measureFormats),
-			[selectedMeasure.uId]: {
-				formatValue: 'Number',
-				currencySymbol: '₹',
-				enableRounding: true,
-				roundingDigits: 1,
-				numberSeparator: 'Abbrev',
-			}
-		}, "labelFormats")
+		// check if already measure format is added by checking if measureFormat object is empty or not
+
+		if (Object.keys(chartControls.properties[propKey].formatOptions.labelFormats.measureFormats).length === 0) {
+			handleUpdateFormat("measureFormats", {
+				...(chartControls.properties[propKey].formatOptions.labelFormats.measureFormats),
+				[selectedMeasure.uId]: {
+					formatValue: 'Number',
+					currencySymbol: '₹',
+					enableRounding: true,
+					roundingDigits: 1,
+					numberSeparator: 'Abbrev',
+					percentageCalculate: false
+				}
+			}, "labelFormats")
+
+		} else {
+
+			handleUpdateFormat("measureFormats", {
+				...(chartControls.properties[propKey].formatOptions.labelFormats.measureFormats)
+			},
+				"labelFormats"
+			)
+
+		}
 
 	}, [])
 
@@ -110,8 +125,6 @@ const LabelFormatting = ({
 
 		return formatOptions.map((item: any) => {
 
-
-
 			return (
 				<div
 					key={item.value}
@@ -122,13 +135,24 @@ const LabelFormatting = ({
 					}
 					onClick={() => {
 
-						handleUpdateFormat("measureFormats", {
-							...(formatObject.measureFormats),
-							[formatObject.selectedMeasure.uId]: {
-								...(formatObject.measureFormats[formatObject.selectedMeasure.uId]),
-								formatValue: item.value
-							}
-						}, "labelFormats")
+						if (item.value === "Percent") {
+							handleUpdateFormat("measureFormats", {
+								...(formatObject.measureFormats),
+								[formatObject.selectedMeasure.uId]: {
+									...(formatObject.measureFormats[formatObject.selectedMeasure.uId]),
+									formatValue: item.value,
+									numberSeparator: 'None',
+								}
+							}, "labelFormats")
+						} else {
+							handleUpdateFormat("measureFormats", {
+								...(formatObject.measureFormats),
+								[formatObject.selectedMeasure.uId]: {
+									...(formatObject.measureFormats[formatObject.selectedMeasure.uId]),
+									formatValue: item.value
+								}
+							}, "labelFormats")
+						}
 					}}
 				>
 					{item.type}
@@ -154,6 +178,8 @@ const LabelFormatting = ({
 							: "radioButton"
 					}
 					onClick={() => {
+
+						if (formatObject.measureFormats[formatObject.selectedMeasure.uId].formatValue === 'Percent') return
 						handleUpdateFormat("measureFormats", {
 							...(formatObject.measureFormats),
 							[formatObject.selectedMeasure.uId]: {
@@ -173,7 +199,6 @@ const LabelFormatting = ({
 		console.log(chartControls.properties[propKey].formatOptions.labelFormats.measureFormats);
 
 		setSelectedMeasure(event.target.value);
-		console.log('Printing value: ', event.target.value);
 
 		handleUpdateFormat("selectedMeasure", {
 			name: event.target.value.displayname,
@@ -242,6 +267,58 @@ const LabelFormatting = ({
 			<div className="radioButtons" style={{ padding: "0", margin: "auto auto 10px auto" }}>
 				{renderFormatOptions()}
 			</div>
+
+			{/* renders radio buttons for percentage calculation or just show the value */}
+			{
+				formatObject.measureFormats[formatObject.selectedMeasure.uId]?.formatValue === "Percent" ? <>
+					<div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+						<span style={{ margin: "10px auto" }}> Type </span>
+						<div className="radioButtons" style={{ padding: "0", margin: "auto auto 10px auto" }}>
+							<div
+								className={
+									formatObject.measureFormats[formatObject.selectedMeasure.uId]?.percentageCalculate === true
+										? "radioButtonSelected"
+										: "radioButton"
+								}
+								onClick={() => {
+
+									handleUpdateFormat("measureFormats", {
+										...(formatObject.measureFormats),
+										[formatObject.selectedMeasure.uId]: {
+											...(formatObject.measureFormats[formatObject.selectedMeasure.uId]),
+											percentageCalculate: true
+										}
+									}, "labelFormats")
+
+								}}
+							>
+								Calculated
+							</div>
+							<div
+								className={
+									formatObject.measureFormats[formatObject.selectedMeasure.uId]?.percentageCalculate === false
+										? "radioButtonSelected"
+										: "radioButton"
+								}
+								onClick={() => {
+
+									handleUpdateFormat("measureFormats", {
+										...(formatObject.measureFormats),
+										[formatObject.selectedMeasure.uId]: {
+											...(formatObject.measureFormats[formatObject.selectedMeasure.uId]),
+											percentageCalculate: false
+										}
+									}, "labelFormats")
+
+								}}
+							>
+								Non Calculated
+							</div>
+						</div>
+					</div>
+				</> : <></>
+			}
+
 			{formatObject.measureFormats[formatObject.selectedMeasure.uId]?.formatValue === "Currency" ? (
 				<>
 					<div className="optionDescription" style={{ marginTop: "0.5rem" }}>

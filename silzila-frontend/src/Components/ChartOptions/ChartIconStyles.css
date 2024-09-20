@@ -34,7 +34,7 @@
 	/* background-color: #eee; */
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
-	padding-bottom: 10px;
+	padding-bottom: 1rem;
 	grid-gap: 4px;
 	border-bottom: 1px solid #d3d3d3;
 }

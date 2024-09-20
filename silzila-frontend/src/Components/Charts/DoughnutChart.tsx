@@ -39,7 +39,7 @@ const DoughnutChart = ({
 				// 	objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				// }
 				objKey=displayName(chartProperties.properties[propKey].chartAxes[1].fields[0])
-				
+
 				/* converting dimentions value to string (specifically for when it is in a year aggregate)  */
 				chartControl.chartData.map((el: any) => {
 					if (objKey in el) {
@@ -128,8 +128,12 @@ const DoughnutChart = ({
 											var formattedValue = value.value[displayName(chartProperties.properties[propKey].chartAxes[2].fields[0])];
 											formattedValue = formatChartLabelValueForSelectedMeasure(
 												chartControl,
+												chartProperties.properties[propKey],
 												formattedValue,
-												chartControl.formatOptions.labelFormats.selectedMeasure
+
+												// @ts-ignore
+												chartProperties.properties[propKey].chartAxes[2].fields[0].displayname,
+												chartProperties.properties[propKey].chartType
 											);
 											return formattedValue;
 										}

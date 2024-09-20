@@ -60,11 +60,11 @@ const CrossTabChart = ({
   To apply chart data format from 'property.formatOptions'. Deep cloned chart  data is used.
   */
 	useEffect(() => {
-		
+
 		if (tempFormatedChartPropData && tempFormatedChartPropData[0]) {
-			
+
 			var chartDataKeys = Object.keys(tempFormatedChartPropData[0]);
-			
+
 			let _formChartData: any = [];
 
 			tempFormatedChartPropData.forEach((item: any) => {
@@ -81,13 +81,14 @@ const CrossTabChart = ({
 						);
 						/*  Need to format Measure dustbin fields */
 
-						if (_isMeasureField) {	
-							
+						if (_isMeasureField) {
+
 							formattedValue[chartDataKeys[i]] = formatChartLabelValueForSelectedMeasure(
 								property,
 								chartProperties.properties[propKey],
 								item[chartDataKeys[i]],
-								chartDataKeys[i]
+								chartDataKeys[i],
+								chartProperties.properties[propKey].chartType
 							);
 						} else {
 							formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]];
@@ -417,7 +418,7 @@ const CrossTabChart = ({
 								} else {
 									tempColumnObj.displayData = rowValues[colIndex];
 									compareObj[dustbinRows[colIndex].fieldname] = tempColumnObj.displayData;
-									//compareObj[dustbinRows[colIndex].displayname] = tempColumnObj.displayData;									
+									//compareObj[dustbinRows[colIndex].displayname] = tempColumnObj.displayData;
 								}
 							} else {
 								tempColumnObj.displayData = rowValues[colIndex];

@@ -9,7 +9,7 @@ import {
 	ChartsReduxStateProps,
 	FormatterValueProps,
 } from "./ChartsCommonInterfaces";
-import {fieldName,displayName} from '../CommonFunctions/CommonFunctions';
+import { fieldName, displayName } from '../CommonFunctions/CommonFunctions';
 
 
 const RoseChart = ({
@@ -28,6 +28,8 @@ const RoseChart = ({
 	const [chartDataKeys, setChartDataKeys] = useState<any>([]);
 
 	useEffect(() => {
+		console.log(chartControl);
+
 		if (chartData.length >= 1) {
 			setChartDataKeys(Object.keys(chartData[0]));
 			var objKey: string;
@@ -37,7 +39,7 @@ const RoseChart = ({
 				// } else {
 				// 	objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
 				// }
-                    objKey=chartProperties.properties[propKey].chartAxes[1].fields[0].displayname;
+				objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].displayname;
 				/* converting dimentions value to string (specifically for when it is in a year aggregate)  */
 				chartControl.chartData.map((el: any) => {
 					if (objKey in el) {
@@ -67,8 +69,8 @@ const RoseChart = ({
 						border: chartArea
 							? "none"
 							: graphTileSize
-							? "none"
-							: "1px solid rgb(238,238,238)",
+								? "none"
+								: "1px solid rgb(238,238,238)",
 					}}
 					option={{
 						color: chartThemes[0].colors,
@@ -119,10 +121,16 @@ const RoseChart = ({
 									formatter: (value: FormatterValueProps) => {
 										if (chartDataKeys) {
 											var formattedValue = value.value[displayName(chartProperties.properties[propKey].chartAxes[2].fields[0])];
+											console.log('chart properties is: ', chartProperties);
+
 											formattedValue = formatChartLabelValueForSelectedMeasure(
 												chartControl,
+												chartProperties.properties[propKey],
 												formattedValue,
-												chartControl.formatOptions.labelFormats.selectedMeasure
+
+												// @ts-ignore
+												chartProperties.properties[propKey].chartAxes[2].fields[0].displayname,
+												chartProperties.properties[propKey].chartType
 											);
 											return formattedValue;
 										}
