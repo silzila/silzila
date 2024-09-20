@@ -33,7 +33,7 @@
 	width: 100%;
 	/* background-color: #eee; */
 	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+	grid-template-columns: repeat(2, 1fr);
 	padding-bottom: 10px;
 	grid-gap: 4px;
 	border-bottom: 1px solid #d3d3d3;

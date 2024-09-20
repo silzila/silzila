@@ -24,6 +24,9 @@ export interface ChartControlsProps {
   axisOptions: ChartConAxisOptions;
   tableConditionalFormats: any;
   simplecardConditionalFormats: any;
+  smoothCurve: {
+    enable: boolean;
+  };
 
   mouseOver: {
     enable: boolean;
@@ -93,6 +96,7 @@ interface ChartConCalenderStyleOptions {
   yearLabelColor: string;
   yearLabelFontSize: number;
   calendarGap: number;
+  calendarHeight: number;
   pieceWise: boolean;
   height: number;
   width: number;
@@ -162,8 +166,10 @@ interface ChartConSankeyControls {
 }
 
 interface ChartConCrossTabStyleOptions {
-  borderWidth: number;
-  lineHeight: number;
+
+	borderWidth: number;
+	lineHeight: number;
+	crossTabdata: any[];
 }
 
 interface ChartConCrosstabHeaderLabelOptions {

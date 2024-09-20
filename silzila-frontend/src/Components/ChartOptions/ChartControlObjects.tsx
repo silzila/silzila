@@ -43,6 +43,18 @@ const ChartControlObjects = ({
     "Format",
     "Sort",
   ];
+  const lineOptionsList: string[] = [
+    "Title",
+    "Labels",
+    "Legend",
+    "Margin",
+    "Grid/Axes",
+    "Tooltip",
+    "Colors",
+    "Format",
+    "Sort",
+    "Style",
+  ];
   const treemapOptionsList: string[] = [
     "Title",
     "Labels",
@@ -54,91 +66,69 @@ const ChartControlObjects = ({
     "Sort",
   ];
 
-  const pieOptionsList: string[] = [
-    "Title",
-    "Labels",
-    "Legend",
-    "Margin",
-    "Axis",
-    "Tooltip",
-    "Colors",
-    "Format",
-    "Sort",
-  ];
-  const funnelOptionList: string[] = [
-    "Title",
-    "Legend",
-    "Margin",
-    "Tooltip",
-    "Colors",
-    "Format",
-    "Sort",
-  ];
-  const gaugeOptionList: string[] = [
-    "Title",
-    "Margin",
-    "Axis",
-    "Tooltip",
-    "Colors",
-    "Format",
-    "Sort",
-  ];
-  const heatmapOptionList: string[] = [
-    "Title",
-    "Legend",
-    "Labels",
-    "Margin",
-    "Colors",
-    "Grid/Axes",
-    "Tooltip",
-    "Format",
-    "Sort",
-  ];
-  const crossTabOptionList: string[] = [
-    "Title",
-    "Tooltip",
-    "Style",
-    "Format",
-    "Sort",
-    "Conditional Formatting",
-  ];
-  const boxPlotOptionsList: string[] = [
-    "Title",
-    "Legend",
-    "Tooltip",
-    "Margin",
-    "Colors",
-    "Grid/Axes",
-    "Style",
-    "Sort",
-  ];
-  const calendarOptionList: string[] = [
-    "Title",
-    "Legend",
-    "Labels",
-    "Margin",
-    "Tooltip",
-    "Colors",
-    // "Format",
-    "Style",
-    "Sort",
-  ];
-  const simpleCardOptionList: string[] = [
-    "Title",
-    "Colors",
-    "Format",
-    "Style",
-    "Sort",
-    "Conditional Formatting",
-  ];
-  const tableOptionList: string[] = [
-    "Title",
-    "Tooltip",
-    "Style",
-    "Format",
-    "Sort",
-    "Conditional Formatting",
-  ];
+
+	const pieOptionsList: string[] = [
+		"Title",
+		"Labels",
+		"Legend",
+		"Margin",
+		"Axis",
+		"Tooltip",
+		"Colors",
+		"Format",
+		"Sort",
+	];
+	const funnelOptionList: string[] = ["Title", "Legend", "Margin", "Tooltip", "Colors", "Format", "Sort",];
+	const gaugeOptionList: string[] = ["Title", "Margin", "Axis", "Tooltip", "Colors", "Format", "Sort",];
+	const heatmapOptionList: string[] = [
+		"Title",
+		"Legend",
+		"Labels",
+		"Margin",
+		"Colors",
+		"Grid/Axes",
+		"Tooltip",
+		"Format",
+		"Sort",
+	];
+	const crossTabOptionList: string[] = ["Title", "Tooltip", "Style", "Format", "Sort","Cond.Form", "Show/Hide"];
+	const boxPlotOptionsList: string[] = [
+		"Title",
+		"Legend",
+		"Tooltip",
+		"Margin",
+		"Colors",
+		"Grid/Axes",
+		"Style",
+		"Sort",
+	];
+	const calendarOptionList: string[] = [
+		"Title",
+		"Legend",
+		"Labels",
+		"Margin",
+		"Tooltip",
+		"Colors",
+		// "Format",
+		"Style",
+		"Sort",
+	];
+	const simpleCardOptionList: string[] = [
+		"Title",
+		"Colors",
+		"Format",
+		"Style",
+		"Sort",
+		"Conditional Formatting",
+	];
+	const tableOptionList: string[] = [
+		"Title",
+		"Tooltip",
+		"Style",
+		"Format",
+		"Sort",
+		"Conditional Formatting",
+	];
 
   const filledMapOptionList: string[] = ["Title", "Labels", "Tooltip", "Style"];
 
@@ -160,11 +150,26 @@ const ChartControlObjects = ({
       case "stackedBar":
       case "horizontalBar":
       case "horizontalStacked":
+      case "scatterPlot":
+        return barOptionsList.map((option) => {
+          return (
+            <div
+              key={option}
+              className={
+                chartProp.properties[propKey].chartOptionSelected === option
+                  ? "optionImageSelected"
+                  : "optionImage"
+              }
+              onClick={() => changeChartOption(propKey, option)}
+            >
+              {option}
+            </div>
+          );
+        });
       case "line":
       case "area":
-      case "scatterPlot":
       case "stackedArea":
-        return barOptionsList.map((option) => {
+        return lineOptionsList.map((option) => {
           return (
             <div
               key={option}

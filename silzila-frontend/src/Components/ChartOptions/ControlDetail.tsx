@@ -33,7 +33,10 @@ import TableConditionalFormating from "./TableChartControlComponents/TableCondit
 import DynamicMeasureConditionalFormattingComponent from "./DynamicMeasureConditionalFormattingComponent";
 import SimplecardConditionalFormatting from "./SimplecardConditionalFormatting";
 import Sort from "./Sort/Sort";
+import ShowHide from "./ShowHide/ShowHide";
 import BubbleMapColors from "./Color/BubbleMapColors";
+import LineChartStyles from "./ChartStyle/LineChartStyles";
+
 
 interface ControlDetailProps {
   chartProperties: ChartPropertiesProps;
@@ -113,6 +116,12 @@ const ControlDetail = ({
           return <FilledMapStyles />;
         } else if (chartType === "bubbleMap") {
           return <BubbleMapStyles />;
+        } else if (
+          chartType === "line" ||
+          chartType === "area" ||
+          chartType === "stackedArea"
+        ) {
+          return <LineChartStyles />;
         } else {
           return <ChartStyle />;
         }
@@ -130,6 +139,12 @@ const ControlDetail = ({
         } else {
           return <TableConditionalFormating />;
         }
+      case "Show/Hide":
+				if (chartType === "crossTab") {
+					return <ShowHide />;
+				} else {
+					return <ShowHide />;
+				}
       case "Sort":
         if (chartType === "crossTab") {
           return <Sort />;

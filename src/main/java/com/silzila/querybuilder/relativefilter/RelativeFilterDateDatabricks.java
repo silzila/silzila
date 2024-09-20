@@ -133,8 +133,7 @@ public class RelativeFilterDateDatabricks {
 
                     case "year":
                         fromNum = 0;
-                        fromDate = "trunc(add_months('" + anchorDate + "', " + fromNum
-                                + "), 'YEAR')";
+                        fromDate = "trunc(add_months('" + anchorDate + "', " + fromNum + "), 'YEAR')";
                         break;
                     default:
                         break;
@@ -176,10 +175,8 @@ public class RelativeFilterDateDatabricks {
                         break;
                     case "year":
                         fromNum = fromNum*12;
-                        fromDate = "trunc(add_months('" + anchorDate + "', " + fromNum
-                                + "), 'YEAR')";
+                        fromDate = "trunc(add_months('" + anchorDate + "', " + fromNum + "), 'YEAR')";
                         break;
-
                     default:
                         break;
                 }
