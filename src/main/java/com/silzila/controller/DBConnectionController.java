@@ -1,5 +1,6 @@
 package com.silzila.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.silzila.payload.request.CustomQueryRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -204,29 +205,30 @@ public class DBConnectionController {
 
 
     // Metadata discovery - get sample records
-    @GetMapping("/sample-records/{id}/{recordCount}")
+    @GetMapping("/sample-records")
     public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id,
-            @PathVariable(value = "recordCount") Integer recordCount,
+            @RequestParam(value = "databaseId") String databaseId,
+            @RequestParam(value = "datasetId" , required = false)  String datasetId,
+            @RequestParam(value = "recordCount") Integer recordCount,
             @RequestParam(name = "database", required = false) String databaseName,
             @RequestParam(name = "schema", required = false) String schemaName,
             @RequestParam(name = "table") String tableName)
-            throws RecordNotFoundException, SQLException, BadRequestException {
+            throws RecordNotFoundException, SQLException, BadRequestException, JsonProcessingException {
         String userId = reqHeader.get("username");
-        JSONArray jsonArray = connectionPoolService.getSampleRecords(id, userId, databaseName,
+        JSONArray jsonArray = connectionPoolService.getSampleRecords(databaseId,datasetId, userId, databaseName,
                 schemaName, tableName, recordCount);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
-    @PostMapping("/sample-records-customquery/{id}/{recordCount}")
+    @PostMapping("/sample-records-customquery/{databaseId}/{recordCount}")
     public ResponseEntity<?> getSampleRecordsCustomQuery(@RequestHeader Map<String, String> reqHeader,
-                                              @PathVariable(value = "id") String id,
-                                              @PathVariable(value = "recordCount") Integer recordCount,
+                                                         @PathVariable(value = "databaseId") String databaseId,
+                                                         @PathVariable(value = "recordCount") Integer recordCount,
                                                          @RequestBody CustomQueryRequest customQueryRequest
                                              )
-            throws RecordNotFoundException, SQLException,ExpectationFailedException {
+            throws RecordNotFoundException, SQLException, ExpectationFailedException, JsonProcessingException {
         String userId = reqHeader.get("username");
-        JSONArray jsonArray =connectionPoolService.getSampleRecordsForCustomQuery(id, userId,customQueryRequest.getQuery(), recordCount);
+        JSONArray jsonArray =connectionPoolService.getSampleRecordsForCustomQuery(databaseId,userId,customQueryRequest.getQuery(), recordCount);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 

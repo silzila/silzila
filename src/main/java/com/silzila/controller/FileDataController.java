@@ -105,13 +105,16 @@ public class FileDataController {
     }
 
     // file data - sample records
-    @GetMapping("/file-data-sample-records/{id}")
+    @GetMapping("/file-data-sample-records")
     public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id) throws JsonMappingException, JsonProcessingException,
+                                              @RequestParam(value = "fileId",required = false) String fileId,
+                                              @RequestParam(value = "datasetId",required = false) String datasetId,
+                                              @RequestParam(name = "table",required = false) String tableName)
+            throws JsonMappingException, JsonProcessingException,
             RecordNotFoundException, BadRequestException, ClassNotFoundException, SQLException {
         // get the requester user Id
         String userId = reqHeader.get("username");
-        JSONArray jsonArray = fileDataService.getSampleRecords(id, userId);
+        JSONArray jsonArray = fileDataService.getSampleRecords(fileId, userId,datasetId,tableName);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 

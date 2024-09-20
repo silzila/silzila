@@ -90,8 +90,8 @@ public class RelativeFilterDateDatabricks {
                                 + "), 'MONTH')";
                         break;
                     case "year":
-                    fromNum = fromNum*12;
-                    fromDate = "trunc(add_months('" + anchorDate + "', -" + fromNum+ "), 'YEAR')";
+                        fromNum = fromNum*12;
+                        fromDate = "trunc(add_months('" + anchorDate + "', -" + fromNum+ "), 'YEAR')";
                         break;
                     default:
                         break;
@@ -133,8 +133,7 @@ public class RelativeFilterDateDatabricks {
 
                     case "year":
                         fromNum = 0;
-                        fromDate = "trunc(add_months('" + anchorDate + "', " + fromNum
-                        + "), 'YEAR')";
+                        fromDate = "trunc(add_months('" + anchorDate + "', " + fromNum + "), 'YEAR')";
                         break;
                     default:
                         break;
@@ -176,10 +175,8 @@ public class RelativeFilterDateDatabricks {
                         break;
                     case "year":
                         fromNum = fromNum*12;
-                        fromDate = "trunc(add_months('" + anchorDate + "', " + fromNum
-                        + "), 'YEAR')";
+                        fromDate = "trunc(add_months('" + anchorDate + "', " + fromNum + "), 'YEAR')";
                         break;
-
                     default:
                         break;
                 }
@@ -318,7 +315,7 @@ public class RelativeFilterDateDatabricks {
             String finalQuery = "SELECT " + fromDate + " as fromdate, " + toDate + " as todate";
 
             // String finalQuery = "SELECT 1";
-            
+
             return finalQuery;
         }
 
@@ -327,7 +324,7 @@ public class RelativeFilterDateDatabricks {
     // based on date
 
     public static String getRelativeAnchorDate(Table table,
-            @Valid RelativeFilterRequest relativeFilter) throws BadRequestException {
+                                               @Valid RelativeFilterRequest relativeFilter) throws BadRequestException {
 
         if (relativeFilter.getAnchorDate() == null) {
             throw new BadRequestException("there is no anchor date");
@@ -350,7 +347,7 @@ public class RelativeFilterDateDatabricks {
         Matcher matcher = pattern.matcher(anchorDate);
 
         // Query
-         if (List.of("today", "tomorrow", "yesterday", "columnMaxDate").contains(anchorDate)) {
+        if (List.of("today", "tomorrow", "yesterday", "columnMaxDate").contains(anchorDate)) {
             if (anchorDate.equals("today")) {
                 query = "select current_date() as anchordate";
             } else if (anchorDate.equals("tomorrow")) {
