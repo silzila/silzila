@@ -43,16 +43,17 @@ import Logger from "../../Logger";
 export const getTableData = async (
   dc_uid: string,
   tableObj: any,
-  token: string
+  token: string,
+  ds_id:string
 ) => {
   var database: string = tableObj.database;
   var schema: string = tableObj.schema;
   var table: string = tableObj.table;
   var url: string = "";
   if (tableObj.flatFileId) {
-    url = `file-data-sample-records/${tableObj.flatFileId}`;
+    url = `file-data-sample-records?flatfileId=${tableObj.flatFileId}&datasetId=${ds_id}&table=${table}`;
   } else {
-    url = `sample-records/${dc_uid}/20?database=${database}&schema=${schema}&table=${table}`;
+    url = `sample-records?databaseId=${dc_uid}&datasetId=${ds_id}&recordCount=100&database=${database}&schema=${schema}&table=${table}`;
   }
 
   var res: any = await FetchData({
@@ -288,7 +289,7 @@ const DataViewerBottom = ({
             token
           );
         } else {
-          tableRecords = await getTableData(dc_uid, table, token);
+          tableRecords = await getTableData(dc_uid, table, token, id);
 
           recordsType = await getColumnTypes(dc_uid, table, token);
         }
