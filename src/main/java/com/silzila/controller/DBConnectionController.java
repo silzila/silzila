@@ -213,7 +213,7 @@ public class DBConnectionController {
             @RequestParam(name = "database", required = false) String databaseName,
             @RequestParam(name = "schema", required = false) String schemaName,
             @RequestParam(name = "table") String tableName)
-            throws RecordNotFoundException, SQLException, BadRequestException, JsonProcessingException {
+            throws RecordNotFoundException, SQLException, BadRequestException, JsonProcessingException, ClassNotFoundException {
         String userId = reqHeader.get("username");
         JSONArray jsonArray = connectionPoolService.getSampleRecords(databaseId,datasetId, userId, databaseName,
                 schemaName, tableName, recordCount);
