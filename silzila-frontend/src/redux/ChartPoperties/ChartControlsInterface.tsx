@@ -166,10 +166,9 @@ interface ChartConSankeyControls {
 }
 
 interface ChartConCrossTabStyleOptions {
-
-	borderWidth: number;
-	lineHeight: number;
-	crossTabdata: any[];
+  borderWidth: number;
+  lineHeight: number;
+  crossTabdata: any[];
 }
 
 interface ChartConCrosstabHeaderLabelOptions {
@@ -337,6 +336,10 @@ interface CardControls {
   borderColor: string;
   dashStyle: string;
   fontStyle: string;
+
+  valueColor: string;
+  labelColor: string;
+  bgColor: string;
 }
 
 export interface ChartConAxisOptions {

@@ -83,6 +83,17 @@ const SimpleCard = ({
     return el.name === chartControl.colorScheme;
   });
 
+  useEffect(() => {
+    updateCardControls(propKey, "mainTextPos", {
+      x: graphDimension.width / 2.5,
+      y: graphDimension.height / 2 - graphDimension.height / 4,
+    });
+    updateCardControls(propKey, "subTextPos", {
+      x: graphDimension.width / 2.5,
+      y: graphDimension.height / 2 + graphDimension.height / 16,
+    });
+  }, []);
+
   const RenderChart = () => {
     return (
       <div
@@ -108,22 +119,25 @@ const SimpleCard = ({
         >
           <div
             style={{
-              margin: "auto",
+              // margin: "auto",
               border: `${chartControl.cardControls.borderTickness}px ${chartControl.cardControls.dashStyle} ${chartControl.cardControls.borderColor}`,
               borderRadius: `${chartControl.cardControls.borderRadius}px`,
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
               alignContent: "center",
-              backgroundColor: chartThemes[0].background,
-              height:
-                chartControl.cardControls.height < graphDimension.height
-                  ? `${chartControl.cardControls.height}px`
-                  : graphDimension.height,
-              width:
-                chartControl.cardControls.width < graphDimension.width
-                  ? `${chartControl.cardControls.width}px`
-                  : graphDimension.width,
+              backgroundColor:
+                chartControls.properties[propKey].cardControls.bgColor,
+              // height:
+              //   chartControl.cardControls.height < graphDimension.height
+              //     ? `${chartControl.cardControls.height}px`
+              //     : graphDimension.height,
+              // width:
+              //   chartControl.cardControls.width < graphDimension.width
+              //     ? `${chartControl.cardControls.width}px`
+              //     : graphDimension.width,
+              width: graphDimension.width,
+              height: graphDimension.height,
               overflow: "hidden",
               fontStyle: ` ${chartControl.cardControls.fontStyle}`,
             }}
@@ -139,11 +153,13 @@ const SimpleCard = ({
                           fontSize: `${chartControl.cardControls.fontSize}px`,
                           color: fontColor
                             ? fontColor
-                            : chartThemes[0].colors[0],
+                            : chartControls.properties[propKey].cardControls
+                                .valueColor,
                           margin: "5px",
                           backgroundColor: backgroundColorValue
                             ? backgroundColorValue
-                            : "none",
+                            : chartControls.properties[propKey].cardControls
+                                .bgColor,
                           fontStyle: italicText ? italicText : "none",
                           textDecoration: textUnderline
                             ? textUnderline
@@ -161,7 +177,9 @@ const SimpleCard = ({
                         title="Drag to change position"
                         style={{
                           fontSize: `${chartControl.cardControls.subtextFontSize}px`,
-                          color: chartThemes[0].colors[1],
+                          color:
+                            chartControls.properties[propKey].cardControls
+                              .labelColor,
                           margin: "5px",
                         }}
                       >
@@ -193,11 +211,13 @@ const SimpleCard = ({
                           fontSize: `${chartControl.cardControls.fontSize}px`,
                           color: fontColor
                             ? fontColor
-                            : chartThemes[0].colors[0],
+                            : chartControls.properties[propKey].cardControls
+                                .valueColor,
                           margin: "5px",
                           backgroundColor: backgroundColorValue
                             ? backgroundColorValue
-                            : "none",
+                            : chartControls.properties[propKey].cardControls
+                                .bgColor,
                           fontStyle: italicText ? italicText : "none",
                           textDecoration: textUnderline
                             ? textUnderline
@@ -227,7 +247,9 @@ const SimpleCard = ({
                         style={{
                           cursor: "move",
                           fontSize: `${chartControl.cardControls.subtextFontSize}px`,
-                          color: chartThemes[0].colors[1],
+                          color:
+                            chartControls.properties[propKey].cardControls
+                              .labelColor,
                           margin: "5px",
                         }}
                       >

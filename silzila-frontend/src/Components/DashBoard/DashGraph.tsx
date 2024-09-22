@@ -45,7 +45,7 @@ const DashGraph = ({
               10
             ) *
               gridSize.y -
-            2
+            4
           : (parseInt(
               tabState.tabs[tabId].dashTilesDetails[propKey].height,
               10
@@ -55,11 +55,18 @@ const DashGraph = ({
               30 -
             32,
       width:
-        (parseInt(tabState.tabs[tabId].dashTilesDetails[propKey].width, 10) *
-          gridSize.x *
-          24) /
-          25 -
-        4,
+        chartProp.properties[propKey].chartType === "simplecard"
+          ? parseInt(tabState.tabs[tabId].dashTilesDetails[propKey].width, 10) *
+              gridSize.x -
+            4
+          : (parseInt(
+              tabState.tabs[tabId].dashTilesDetails[propKey].width,
+              10
+            ) *
+              gridSize.x *
+              24) /
+              25 -
+            4,
     };
 
     switch (chartProp?.properties[propKey]?.chartType) {

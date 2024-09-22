@@ -99,6 +99,9 @@ const chartControl = {
         borderColor: "rgba(224,224,224,1)",
         dashStyle: "solid",
         fontStyle: "normal",
+        valueColor: "#2BB9BB",
+        labelColor: "gray",
+        bgColor: "white",
       },
       calendarStyleOptions: {
         showSplitLine: true,
@@ -452,6 +455,9 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               borderColor: "rgba(224,224,224,1)",
               dashStyle: "solid",
               fontStyle: "normal",
+              valueColor: "#2BB9BB",
+              labelColor: "gray",
+              bgColor: "white",
             },
 
             calendarStyleOptions: {
@@ -781,6 +787,9 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               borderColor: "rgba(224,224,224,1)",
               dashStyle: "solid",
               fontStyle: "normal",
+              valueColor: "#2BB9BB",
+              labelColor: "gray",
+              bgColor: "white",
             },
 
             legendOptions: {
