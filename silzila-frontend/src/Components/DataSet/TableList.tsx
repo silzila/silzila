@@ -159,12 +159,12 @@ const TableList = (props: TableListProps) => {
 	const getTableData = async (table: string) => {
 		var url: string = "";
 		if (props.isFlatFile) {
-			url = `file-data-sample-records/${props.table.table_uid}`;
+			url = `file-data-sample-records?flatfileId=${props.table.table_uid}&table=${table}`;
 		} else {
 			if (props.serverName === "mysql") {
-				url = `sample-records/${props.connectionId}/250?database=${props.databaseName}&table=${table}`;
+				url = `sample-records?databaseId=${props.connectionId}&recordCount=100&database=${props.databaseName}&table=${table}`;
 			} else {
-				url = `sample-records/${props.connectionId}/250?database=${props.databaseName}&schema=${props.schema}&table=${table}`;
+				url = `sample-records?databaseId=${props.connectionId}&recordCount=100&database=${props.databaseName}&schema=${props.schema}&table=${table}`;
 			}
 		}
 		// TODO:need to specify type

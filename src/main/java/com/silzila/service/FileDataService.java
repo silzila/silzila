@@ -446,7 +446,7 @@ public class FileDataService {
     }
 
     // get sample records
-    public JSONArray getSampleRecords(String id, String userId) throws RecordNotFoundException, JsonMappingException,
+    public JSONArray getSampleRecords(String id, String userId, String datasetId, String tableName) throws RecordNotFoundException, JsonMappingException,
             JsonProcessingException, BadRequestException, ClassNotFoundException, SQLException {
         // if no file data inside optional wrapper, then send NOT FOUND Error
         Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
@@ -465,7 +465,7 @@ public class FileDataService {
 
         // start duckdb in memory
         duckDbService.startDuckDb();
-        JSONArray jsonArray = duckDbService.getSampleRecords(parquetFilePath, salt+encryptPwd+pepper);
+        JSONArray jsonArray = duckDbService.getSampleRecords(parquetFilePath,userId,datasetId,tableName, salt+encryptPwd+pepper);
         return jsonArray;
     }
 

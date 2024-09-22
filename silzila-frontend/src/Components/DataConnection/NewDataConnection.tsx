@@ -1774,7 +1774,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
 						<br />
 					</div>
 					<div className="dbDeleteDialogBtnContainer">
-						<Button
+					<Button
 							className="dbDeleteDialogBtn1"
 							variant="contained"
 							sx={{backgroundColor: "white",
