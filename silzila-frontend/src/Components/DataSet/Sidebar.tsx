@@ -541,6 +541,7 @@ const Sidebar = ({
     <div className="sidebar" ref={scrollRef}>
       {isFlatFile ? (        
         <div>
+          {tableList && tableList.length > 0 && (
           <Typography            
             style={{
               display: "flex",
@@ -552,6 +553,7 @@ const Sidebar = ({
           >
             Tables
           </Typography>
+          )}
 
           {tableList ? (
             tableList.map((tab: UserTableProps) => {
