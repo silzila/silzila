@@ -5,185 +5,188 @@ import { formatChartLabelValue, formatChartLabelValueForSelectedMeasure } from "
 import { Dispatch } from "redux";
 import { updateChartMargins } from "../../redux/ChartPoperties/ChartControlsActions";
 import {
-	ChartsMapStateToProps,
-	ChartsReduxStateProps,
-	FormatterValueProps,
+  ChartsMapStateToProps,
+  ChartsReduxStateProps,
+  FormatterValueProps,
 } from "./ChartsCommonInterfaces";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
-import { displayName, fieldName } from '../CommonFunctions/CommonFunctions';
-
+import { displayName, fieldName } from "../CommonFunctions/CommonFunctions";
 
 interface PieChartProps {
-	updateChartMargins: (propKey: string, option: string, value: any) => void;
+  updateChartMargins: (propKey: string, option: string, value: any) => void;
 }
 const PieChart = ({
-	//props
-	propKey,
-	graphDimension,
-	chartArea,
-	graphTileSize,
+  //props
+  propKey,
+  graphDimension,
+  chartArea,
+  graphTileSize,
 
-	//state
-	chartProperties,
-	chartControls,
+  //state
+  chartProperties,
+  chartControls,
 
-	// dispatch
-	updateChartMargins,
+  // dispatch
+  updateChartMargins,
 }: ChartsReduxStateProps & PieChartProps) => {
-	var chartControl: ChartControlsProps = chartControls.properties[propKey];
-	let chartData: any[] =
-		chartControl.chartData && chartControl.chartData.length > 0 ? chartControl.chartData : [];
+  var chartControl: ChartControlsProps = chartControls.properties[propKey];
+  let chartData: any[] =
+    chartControl.chartData && chartControl.chartData.length > 0
+      ? chartControl.chartData
+      : [];
 
-	const [chartDataKeys, setChartDataKeys] = useState<string[]>([]);
-	var chartThemes: any[];
+  const [chartDataKeys, setChartDataKeys] = useState<string[]>([]);
+  var chartThemes: any[];
 
+  useEffect(() => {
+    if (chartData.length >= 1) {
+      if (typeof chartData === "object" && chartData.length > 0) {
+        setChartDataKeys(Object.keys(chartData[0]));
+      }
 
-	useEffect(() => {
-		if (chartData.length >= 1) {
-			if (typeof chartData === "object" && chartData.length > 0) {
-				setChartDataKeys(Object.keys(chartData[0]));
-			}
+      var objKey: string;
+      if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
+        // if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
+        // 	objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
+        // } else {
+        // 	objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
+        // }
 
-			var objKey: string;
-			if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
-				// if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
-				// 	objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
-				// } else {
-				// 	objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
-				// }
+        objKey =
+          chartProperties.properties[propKey].chartAxes[1].fields[0]
+            .displayname;
+        /* converting dimentions value to string (specifically for when it is in a year aggregate)  */
+        chartControl.chartData.map((el: any) => {
+          if (objKey in el) {
+            let agg = el[objKey];
+            if (agg) el[objKey] = agg.toString();
+          }
+          return el;
+        });
+      }
+    }
+  }, [chartData, chartControl]);
 
-				objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].displayname;
-				/* converting dimentions value to string (specifically for when it is in a year aggregate)  */
-				chartControl.chartData.map((el: any) => {
-					if (objKey in el) {
-						let agg = el[objKey];
-						if (agg) el[objKey] = agg.toString();
-					}
-					return el;
-				});
-			}
-		}
+  chartThemes = ColorSchemes.filter((el) => {
+    return el.name === chartControl.colorScheme;
+  });
 
-	}, [chartData, chartControl]);
+  var radius: number = chartControl.chartMargin.radius;
+  useEffect(() => {
+    if (radius > 100) {
+      updateChartMargins(propKey, "radius", 100);
+      radius = 100;
+    }
+  });
 
-	chartThemes = ColorSchemes.filter(el => {
-		return el.name === chartControl.colorScheme;
-	});
+  const RenderChart = () => {
+    return (
+      <>
+        <ReactEcharts
+          // theme={chartControl.colorScheme}
+          style={{
+            // padding: "1rem",
+            width: graphDimension.width,
+            height: graphDimension.height,
+            overflow: "hidden",
+            margin: "auto",
+            border: chartArea
+              ? "none"
+              : graphTileSize
+              ? "none"
+              : "1px solid rgb(238,238,238)",
+          }}
+          option={{
+            color: chartThemes[0].colors,
+            backgroundColor: chartThemes[0].background,
+            animation: false,
+            //  chartArea ? false : true,
+            legend: {
+              type: "scroll",
+              show:
+                graphDimension.height > 270 && graphDimension.width > 265
+                  ? chartControl.legendOptions?.showLegend
+                  : false,
+              itemHeight: chartControl.legendOptions?.symbolHeight,
+              itemWidth: chartControl.legendOptions?.symbolWidth,
+              itemGap: chartControl.legendOptions?.itemGap,
 
-	var radius: number = chartControl.chartMargin.radius;
-	useEffect(() => {
-		if (radius > 100) {
-			updateChartMargins(propKey, "radius", 100);
-			radius = 100;
-		}
-	});
+              left: chartControl.legendOptions?.position?.left,
+              top: chartControl.legendOptions?.position?.top,
+              orient: chartControl.legendOptions?.orientation,
+            },
 
-	const RenderChart = () => {
-		return (
-			<>
-				<ReactEcharts
-					// theme={chartControl.colorScheme}
-					style={{
-						padding: "1rem",
-						width: graphDimension.width,
-						height: graphDimension.height,
-						overflow: "hidden",
-						margin: "auto",
-						border: chartArea
-							? "none"
-							: graphTileSize
-								? "none"
-								: "1px solid rgb(238,238,238)",
-					}}
-					option={{
-						color: chartThemes[0].colors,
-						backgroundColor: chartThemes[0].background,
-						animation: false,
-						//  chartArea ? false : true,
-						legend: {
-							type: "scroll",
-							show:
-								graphDimension.height > 175 && graphDimension.width > 265
-									? chartControl.legendOptions?.showLegend
-									: false,
-							itemHeight: chartControl.legendOptions?.symbolHeight,
-							itemWidth: chartControl.legendOptions?.symbolWidth,
-							itemGap: chartControl.legendOptions?.itemGap,
+            tooltip: { show: chartControl.mouseOver.enable },
+            dataset: {
+              dimensions: chartDataKeys,
+              source: chartData,
+            },
 
-							left: chartControl.legendOptions?.position?.left,
-							top: chartControl.legendOptions?.position?.top,
-							orient: chartControl.legendOptions?.orientation,
-						},
+            series: [
+              {
+                type: "pie",
+                startAngle:
+                  chartControl.axisOptions.pieAxisOptions.pieStartAngle,
+                clockwise: chartControl.axisOptions.pieAxisOptions.clockWise,
+                label: {
+                  position: chartControl.labelOptions.pieLabel.labelPosition,
+                  show:
+                    graphDimension.height > 100 && graphDimension.width > 220
+                      ? chartControl.labelOptions.showLabel
+                      : false,
+                  fontSize: chartControl.labelOptions.fontSize,
+                  color: chartControl.labelOptions.labelColorManual
+                    ? chartControl.labelOptions.labelColor
+                    : null,
+                  padding: [
+                    chartControl.labelOptions.pieLabel.labelPadding,
+                    chartControl.labelOptions.pieLabel.labelPadding,
+                    chartControl.labelOptions.pieLabel.labelPadding,
+                    chartControl.labelOptions.pieLabel.labelPadding,
+                  ],
 
-						tooltip: { show: chartControl.mouseOver.enable },
-						dataset: {
-							dimensions: chartDataKeys,
-							source: chartData,
-						},
+                  formatter: (value: FormatterValueProps) => {
+                    if (chartDataKeys) {
+                      var formattedValue =
+                        value.value[
+                          displayName(
+                            chartProperties.properties[propKey].chartAxes[2]
+                              .fields[0]
+                          )
+                        ];
+                      formattedValue = formatChartLabelValue(
+                        chartControl,
+                        formattedValue
+                      );
 
-						series: [
-							{
-								type: "pie",
-								startAngle: chartControl.axisOptions.pieAxisOptions.pieStartAngle,
-								clockwise: chartControl.axisOptions.pieAxisOptions.clockWise,
-								label: {
-									position: chartControl.labelOptions.pieLabel.labelPosition,
-									show:
-										graphDimension.height > 100 && graphDimension.width > 220
-											? chartControl.labelOptions.showLabel
-											: false,
-									fontSize: chartControl.labelOptions.fontSize,
-									color: chartControl.labelOptions.labelColorManual
-										? chartControl.labelOptions.labelColor
-										: null,
-									padding: [
-										chartControl.labelOptions.pieLabel.labelPadding,
-										chartControl.labelOptions.pieLabel.labelPadding,
-										chartControl.labelOptions.pieLabel.labelPadding,
-										chartControl.labelOptions.pieLabel.labelPadding,
-									],
-
-									formatter: (value: FormatterValueProps) => {
-										if (chartDataKeys) {
-											var formattedValue = value.value[displayName(chartProperties.properties[propKey].chartAxes[2].fields[0])];
-											formattedValue = formatChartLabelValueForSelectedMeasure(
-												chartControl,
-												chartProperties.properties[propKey],
-												formattedValue,
-
-												// @ts-ignore
-												chartProperties.properties[propKey].chartAxes[2].fields[0].displayname,
-												chartProperties.properties[propKey].chartType
-											);
-
-											return formattedValue;
-										}
-									},
-								},
-								radius: radius + "%",
-							},
-						],
-					}}
-				/>
-			</>
-		);
-	};
-	return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
+                      return formattedValue;
+                    }
+                  },
+                },
+                radius: radius + "%",
+              },
+            ],
+          }}
+        />
+      </>
+    );
+  };
+  return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
 
 const mapStateToProps = (state: ChartsMapStateToProps) => {
-	return {
-		chartProperties: state.chartProperties,
-		chartControls: state.chartControls,
-	};
+  return {
+    chartProperties: state.chartProperties,
+    chartControls: state.chartControls,
+  };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-	return {
-		updateChartMargins: (propKey: string, option: string, value: any) =>
-			dispatch(updateChartMargins(propKey, option, value)),
-	};
+  return {
+    updateChartMargins: (propKey: string, option: string, value: any) =>
+      dispatch(updateChartMargins(propKey, option, value)),
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PieChart);

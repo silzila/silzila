@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
+import com.silzila.payload.request.ColumnFilter;
 import com.silzila.payload.request.RelativeFilterRequest;
 import com.silzila.payload.request.Table;
 
@@ -71,15 +72,26 @@ public class RelativeFilterQueryComposer {
         String finalQuery = "";
         Table table = null;
         String query = null;
-        for (int i = 0; i < ds.getDataSchema().getTables().size(); i++) {
-            if (ds.getDataSchema().getTables().get(i).getId()
-                    .equals(relativeFilter.getFilterTable().getTableId())) {
-                table = ds.getDataSchema().getTables().get(i);
-                if (table.isCustomQuery()) {
-                    query = table.getCustomQuery();
+        if(ds != null){
+            for (int i = 0; i < ds.getDataSchema().getTables().size(); i++) {
+                if (ds.getDataSchema().getTables().get(i).getId()
+                        .equals(relativeFilter.getFilterTable().getTableId())) {
+                    table = ds.getDataSchema().getTables().get(i);
+                    if (table.isCustomQuery()) {
+                        query = table.getCustomQuery();
+                    }
+                    break;
                 }
-                break;
             }
+        }
+        else{
+            Table rfTable = new Table();
+            ColumnFilter filter = relativeFilter.getFilterTable();
+            rfTable.setTable(filter.getTableName());
+            rfTable.setSchema(filter.getSchemaName());
+            rfTable.setFlatFileId(filter.getFlatFileId());
+            rfTable.setAlias(filter.getTableId());
+            table = rfTable;
         }
       
         if(table.isCustomQuery()) {

@@ -92,7 +92,7 @@ const FlatFileList = (props: any) => {
 			var result2: any = await FetchData({
 				requestType: "noData",
 				method: "GET",
-				url: `file-data-sample-records/${file.id}`,
+				url: `file-data-sample-records?flatfileId=${file.id}`,
 				headers: {
 					Authorization: `Bearer ${props.token}`,
 				},

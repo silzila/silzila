@@ -506,7 +506,11 @@ const BubbleMap = ({
 
               text: ["Max", "Min"],
               calculable: true,
-              show: geoStyle.showVisualScale,
+              // show: geoStyle.showVisualScale,
+              show:
+                graphDimension.height > 200 && graphDimension.width > 265
+                  ? geoStyle.showVisualScale
+                  : false,
             }
           : null,
 

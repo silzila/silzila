@@ -253,6 +253,10 @@ export const enableMouseOver = (propKey: string, enable: any) => {
   return { type: "ENABLE_MOUSE_OVER", payload: { propKey, enable } };
 };
 
+export const enableSmoothCurve = (propKey: string, enable: any) => {
+  return { type: "ENABLE_SMOOTH_CURVE", payload: { propKey, enable } };
+};
+
 // ==============================
 // Grid & Axis
 

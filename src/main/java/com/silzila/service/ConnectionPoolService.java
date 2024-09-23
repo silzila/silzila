@@ -1,7 +1,19 @@
 package com.silzila.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.silzila.domain.entity.Dataset;
+import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.ExpectationFailedException;
+import com.silzila.payload.request.DataSchema;
+import com.silzila.payload.request.FilterPanel;
+import com.silzila.payload.request.RelativeFilterRequest;
+import com.silzila.payload.request.Table;
+import com.silzila.querybuilder.WhereClause;
+import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
+import com.silzila.repository.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedWriter;
@@ -13,15 +25,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 // import java.util.concurrent.ConcurrentHashMap;
+
+import javax.validation.Valid;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,7 +47,9 @@ import com.silzila.VizApplication;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.helper.OracleDbJksRequestProcess;
+import com.silzila.helper.RelativeFilterProcessor;
 import com.silzila.helper.ResultSetToJson;
+import com.silzila.payload.request.ColumnFilter;
 import com.silzila.payload.request.DBConnectionRequest;
 import com.silzila.payload.response.MetadataColumn;
 import com.silzila.payload.response.MetadataDatabase;
@@ -46,9 +57,24 @@ import com.silzila.payload.response.MetadataTable;
 import com.silzila.domain.entity.DBConnection;
 import com.silzila.dto.OracleDTO;
 import com.silzila.helper.CustomQueryValidator;
+import com.silzila.service.DatasetService;
+import org.springframework.web.server.ResponseStatusException;
+
 
 @Service
 public class ConnectionPoolService {
+    
+    @Autowired
+    RelativeFilterQueryComposer relativeFilterQueryComposer;
+
+    @Autowired
+    FileDataService fileDataService;
+
+    @Autowired
+    DuckDbService duckDbService;
+    
+    @Autowired
+    RelativeFilterProcessor relativeFilterProcessor;
 
     private static final Logger logger = LogManager.getLogger(ConnectionPoolService.class);
 
@@ -72,6 +98,32 @@ public class ConnectionPoolService {
     @Autowired
     CustomQueryValidator customQueryValidator;
 
+    @Autowired
+    DatasetRepository datasetRepository;
+
+    @Autowired
+    DatasetBuffer datasetBuffer;
+
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId, String userId)
+    throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
+        DatasetDTO dto;
+        Map<String, DatasetDTO> datasetDetails = datasetBuffer.getDatasetDetails();
+        if (datasetDetails.containsKey(datasetId)) {
+            dto = datasetDetails.get(datasetId);
+        } else {
+            dto = datasetBuffer.getDatasetById(datasetId, userId);
+            datasetBuffer.addDatasetInBuffer(datasetId, dto);
+            if(!dto.getDataSchema().getFilterPanels().isEmpty()){
+                List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId,datasetId, this::relativeFilter);
+                dto.getDataSchema().setFilterPanels(filterPanels);
+                datasetBuffer.addDatasetInBuffer(datasetId, dto);
+            }
+            
+        }
+        return dto;
+        }
 
     // creates connection pool & gets vendor name
     public String getVendorNameFromConnectionPool(String id, String userId)
@@ -85,6 +137,8 @@ public class ConnectionPoolService {
         }
         return vendorName;
     }
+
+
 
     // creates connection pool if not created already for a connection
     public void createConnectionPool(String id, String userId) throws RecordNotFoundException, SQLException {
@@ -765,6 +819,7 @@ public class ConnectionPoolService {
         // first create connection pool to query DB
         String vendorName = getVendorNameFromConnectionPool(id, userId);
 
+
         // metadataColumns list will contain the final result
         ArrayList<MetadataColumn> metadataColumns = new ArrayList<MetadataColumn>();
 
@@ -842,95 +897,274 @@ public class ConnectionPoolService {
 
 
     // Metadata discovery - Get Sample Records of table
-    public JSONArray getSampleRecords(String id, String userId, String databaseName, String schemaName,
+    public JSONArray getSampleRecords(String databaseId,String datasetId, String userId, String databaseName, String schemaName,
             String tableName, Integer recordCount)
-            throws RecordNotFoundException, SQLException, BadRequestException {
-        // set fall back record count
-        if (recordCount == null || recordCount > 250) {
-            recordCount = 250;
-        }
-        // first create connection pool to query DB
-        String vendorName = getVendorNameFromConnectionPool(id, userId);
+            throws RecordNotFoundException, SQLException, BadRequestException, JsonProcessingException, ClassNotFoundException {
         String query = "";
+        // first create connection pool to query DB
+        String vendorName = getVendorNameFromConnectionPool(databaseId, userId);
 
-        // based on database dialect, we pass different SELECT * Statement
-        // for POSTGRESQL DB
-        if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
-            // schema name is must for postgres & redshift
-            if (schemaName == null || schemaName.trim().isEmpty()) {
-                throw new BadRequestException("Error: Schema name is not provided!");
-            }
-            // construct query
-            query = "SELECT * FROM " + schemaName + "." + tableName + " LIMIT " + recordCount;
-        }
-        // for BIGQUERY DB
-        else if (vendorName.equals("bigquery")) {
-            // schema name is must for Bigquery
-            if (schemaName == null || schemaName.trim().isEmpty()) {
-                throw new BadRequestException("Error: Schema name is not provided!");
-            }
-            // construct query
-            query = "SELECT * FROM `" + databaseName + "." + schemaName + "." + tableName + "` LIMIT " + recordCount;
-        }
-        // for MYSQL DB
-        else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
-            // DB name is must for MySQL & Motherduck
-            if (databaseName == null || databaseName.trim().isEmpty()) {
-                throw new BadRequestException("Error: Database name is not provided!");
-            }
-            // construct query
-            query = "SELECT * FROM " + databaseName + "." + tableName + " LIMIT " + recordCount;
+        if (datasetId!=null) {
+            //getting dataset information to fetch filter panel information
+            DatasetDTO ds = loadDatasetInBuffer(databaseId,datasetId, userId);
+            List<FilterPanel> filterPanels = new ArrayList<>();
+            String tableId = "";
+            String whereClause = "";
 
-        }
-        // for SQL Server DB
-        else if (vendorName.equals("sqlserver")) {
-            // DB name & schema name are must for SQL Server
-            if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
-                    || schemaName.trim().isEmpty()) {
-                throw new BadRequestException("Error: Database & Schema names are not provided!");
-            }
-            // construct query
-            query = "SELECT TOP " + recordCount + " * FROM " + databaseName + "." + schemaName + "." + tableName;
+            //iterating to filter panel list to get the particular filter panel for the table
+            for (int i = 0; i < ds.getDataSchema().getFilterPanels().size(); i++) {
+                if (ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableName().equalsIgnoreCase(tableName)) {
+                    filterPanels.add(ds.getDataSchema().getFilterPanels().get(i));
+                    tableId = ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableId();
+                }
 
-        }
-        // for Databricks
-        else if (vendorName.equals("databricks")) {
-            // DB name & schema name are must for Databricks
-            if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
-                    || schemaName.trim().isEmpty()) {
-                throw new BadRequestException("Error: Database & Schema names are not provided!");
-            }
-            // construct query
-            query = "SELECT * FROM " + databaseName + ".`" + schemaName + "`." + tableName + " LIMIT " + recordCount;
-        }
-        // oracle
-        else if (vendorName.equalsIgnoreCase("oracle")) {
-            if (schemaName == null || schemaName.trim().isEmpty()) {
-                throw new BadRequestException("Error: Schema name is not provided!");
             }
 
-            query = "SELECT * FROM " + schemaName + "." + tableName + " FETCH FIRST " + recordCount + " ROWS ONLY";
-        }
-        // snowflake
-        else if (vendorName.equalsIgnoreCase("snowflake")) {
-            // DB name & schema name are must for snowflake
-            if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
-                    || schemaName.trim().isEmpty()) {
-                throw new BadRequestException("Error: Database & Schema names are not provided!");
+            // set fall back record count
+            if (recordCount == null || recordCount > 250) {
+                recordCount = 250;
             }
-            // construct query
-            query = "SELECT * FROM " + databaseName + "." + schemaName + "." + tableName + " LIMIT " + recordCount; 
-        }
-        else if (vendorName.equals("teradata")){
-            // schema name is must for teradata
-            if (schemaName == null || schemaName.trim().isEmpty()) {
-                throw new BadRequestException("Error: Schema name is not provided!");
+
+
+            //generating where clause from the filter panel info
+            whereClause = WhereClause.buildWhereClause(filterPanels, vendorName);
+
+
+            //checking whether the data set has filter or not
+            if (ds.getDataSchema().getFilterPanels().isEmpty()) {
+
+                // based on database dialect, we pass different SELECT * Statement
+                // for POSTGRESQL DB
+                if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
+                    // schema name is must for postgres & redshift
+                    if (schemaName == null || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Schema name is not provided!");
+                    }
+                    // construct query
+                    query = "SELECT * FROM " + schemaName + "." + tableName + " LIMIT " + recordCount;
+                }
+                // for BIGQUERY DB
+                else if (vendorName.equals("bigquery")) {
+                    // schema name is must for Bigquery
+                    if (schemaName == null || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Schema name is not provided!");
+                    }
+                    // construct query
+                    query = "SELECT * FROM `" + databaseName + "." + schemaName + "." + tableName + "` LIMIT " + recordCount;
+                }
+                // for MYSQL DB
+                else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
+                    // DB name is must for MySQL & Motherduck
+                    if (databaseName == null || databaseName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Database name is not provided!");
+                    }
+                    // construct query
+                    query = "SELECT * FROM " + databaseName + "." + tableName + " LIMIT " + recordCount;
+
+                }
+                // for SQL Server DB
+                else if (vendorName.equals("sqlserver")) {
+                    // DB name & schema name are must for SQL Server
+                    if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                            || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Database & Schema names are not provided!");
+                    }
+                    // construct query
+                    query = "SELECT TOP " + recordCount + " * FROM " + databaseName + "." + schemaName + "." + tableName;
+
+                }
+                // for Databricks
+                else if (vendorName.equals("databricks")) {
+                    // DB name & schema name are must for Databricks
+                    if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                            || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Database & Schema names are not provided!");
+                    }
+                    // construct query
+                    query = "SELECT * FROM " + databaseName + ".`" + schemaName + "`." + tableName + " LIMIT " + recordCount;
+                }
+                // oracle
+                else if (vendorName.equalsIgnoreCase("oracle")) {
+                    if (schemaName == null || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Schema name is not provided!");
+                    }
+
+                    query = "SELECT * FROM " + schemaName + "." + tableName + " FETCH FIRST " + recordCount + " ROWS ONLY";
+                }
+                // snowflake
+                else if (vendorName.equalsIgnoreCase("snowflake")) {
+                    // DB name & schema name are must for snowflake
+                    if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                            || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Database & Schema names are not provided!");
+                    }
+                    // construct query
+                    query = "SELECT * FROM " + databaseName + "." + schemaName + "." + tableName + " LIMIT " + recordCount;
+                } else if (vendorName.equals("teradata")) {
+                    // schema name is must for teradata
+                    if (schemaName == null || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Schema name is not provided!");
+                    }
+                    // construct query
+                    query = "SELECT TOP " + recordCount + " * FROM " + tableName;
+                }
+            } else {
+                if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
+                    // schema name is must for postgres & redshift
+                    if (schemaName == null || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Schema name is not provided!");
+                    }
+                    // construct query
+                    query = "SELECT * FROM " + schemaName + "." + tableName + " " + tableId + whereClause + "\nLIMIT " + recordCount;
+                }
+
+                // for BIGQUERY DB
+                else if (vendorName.equals("bigquery")) {
+                    // schema name is must for Bigquery
+                    if (schemaName == null || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Schema name is not provided!");
+                    }
+                    // construct query
+                    query = "SELECT * FROM `" + databaseName + "." + schemaName + "." + tableName + "` AS " + tableId + " " + whereClause + " LIMIT " + recordCount;
+                }
+                // for MYSQL DB
+                else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
+                    // DB name is must for MySQL & Motherduck
+                    if (databaseName == null || databaseName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Database name is not provided!");
+                    }
+                    // construct query
+                    query = "SELECT * FROM " + databaseName + "." + tableName + " AS " + tableId + " " + whereClause + " LIMIT " + recordCount;
+
+                }
+                // for SQL Server DB
+                else if (vendorName.equals("sqlserver")) {
+                    // DB name & schema name are must for SQL Server
+                    if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                            || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Database & Schema names are not provided!");
+                    }
+                    // construct query
+                    query = "SELECT TOP " + recordCount + " * FROM " + databaseName + "." + schemaName + "." + tableName + " AS " + tableId + " " + whereClause;
+
+                }
+                // for Databricks
+                else if (vendorName.equals("databricks")) {
+                    // DB name & schema name are must for Databricks
+                    if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                            || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Database & Schema names are not provided!");
+                    }
+                    // construct query
+                    query = "SELECT * FROM " + databaseName + ".`" + schemaName + "`." + tableName + " AS " + tableId + " " + whereClause + " LIMIT " + recordCount;
+                }
+                // oracle
+                else if (vendorName.equalsIgnoreCase("oracle")) {
+                    if (schemaName == null || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Schema name is not provided!");
+                    }
+
+                    query = "SELECT * FROM " + schemaName + "." + tableName + " AS " + tableId + " " + whereClause + " FETCH FIRST " + recordCount + " ROWS ONLY";
+                }
+                // snowflake
+                else if (vendorName.equalsIgnoreCase("snowflake")) {
+                    // DB name & schema name are must for snowflake
+                    if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                            || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Database & Schema names are not provided!");
+                    }
+                    // construct query
+                    query = "SELECT * FROM " + databaseName + "." + schemaName + "." + tableName + " AS " + tableId + " " + whereClause + " LIMIT " + recordCount;
+                } else if (vendorName.equals("teradata")) {
+                    // schema name is must for teradata
+                    if (schemaName == null || schemaName.trim().isEmpty()) {
+                        throw new BadRequestException("Error: Schema name is not provided!");
+                    }
+                    // construct query
+                    query = "SELECT TOP " + recordCount + " * FROM " + tableName + " AS " + tableId + " " + whereClause;
+                }
             }
-            // construct query
-            query = "SELECT TOP "+recordCount+" * FROM " + tableName ;
+        }
+        else{
+            // based on database dialect, we pass different SELECT * Statement
+            // for POSTGRESQL DB
+            if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
+                // schema name is must for postgres & redshift
+                if (schemaName == null || schemaName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Schema name is not provided!");
+                }
+                // construct query
+                query = "SELECT * FROM " + schemaName + "." + tableName + " LIMIT " + recordCount;
+            }
+            // for BIGQUERY DB
+            else if (vendorName.equals("bigquery")) {
+                // schema name is must for Bigquery
+                if (schemaName == null || schemaName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Schema name is not provided!");
+                }
+                // construct query
+                query = "SELECT * FROM `" + databaseName + "." + schemaName + "." + tableName + "` LIMIT " + recordCount;
+            }
+            // for MYSQL DB
+            else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
+                // DB name is must for MySQL & Motherduck
+                if (databaseName == null || databaseName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Database name is not provided!");
+                }
+                // construct query
+                query = "SELECT * FROM " + databaseName + "." + tableName + " LIMIT " + recordCount;
+
+            }
+            // for SQL Server DB
+            else if (vendorName.equals("sqlserver")) {
+                // DB name & schema name are must for SQL Server
+                if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                        || schemaName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Database & Schema names are not provided!");
+                }
+                // construct query
+                query = "SELECT TOP " + recordCount + " * FROM " + databaseName + "." + schemaName + "." + tableName;
+
+            }
+            // for Databricks
+            else if (vendorName.equals("databricks")) {
+                // DB name & schema name are must for Databricks
+                if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                        || schemaName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Database & Schema names are not provided!");
+                }
+                // construct query
+                query = "SELECT * FROM " + databaseName + ".`" + schemaName + "`." + tableName + " LIMIT " + recordCount;
+            }
+            // oracle
+            else if (vendorName.equalsIgnoreCase("oracle")) {
+                if (schemaName == null || schemaName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Schema name is not provided!");
+                }
+
+                query = "SELECT * FROM " + schemaName + "." + tableName + " FETCH FIRST " + recordCount + " ROWS ONLY";
+            }
+            // snowflake
+            else if (vendorName.equalsIgnoreCase("snowflake")) {
+                // DB name & schema name are must for snowflake
+                if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
+                        || schemaName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Database & Schema names are not provided!");
+                }
+                // construct query
+                query = "SELECT * FROM " + databaseName + "." + schemaName + "." + tableName + " LIMIT " + recordCount;
+            } else if (vendorName.equals("teradata")) {
+                // schema name is must for teradata
+                if (schemaName == null || schemaName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Schema name is not provided!");
+                }
+                // construct query
+                query = "SELECT TOP " + recordCount + " * FROM " + tableName;
+            }
+
         }
         // RUN THE 'SELECT *' QUERY
-        try (Connection _connection = connectionPool.get(id).getConnection();
+        try (Connection _connection = connectionPool.get(databaseId).getConnection();
                 PreparedStatement pst = _connection.prepareStatement(query);
                 ResultSet rs = pst.executeQuery();) {
             // Connection _connection = connectionPool.get(id).getConnection();
@@ -1249,4 +1483,67 @@ public class ConnectionPoolService {
             }
         }
     }
+
+    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,
+            @Valid RelativeFilterRequest relativeFilter)
+            throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
+            JsonMappingException, JsonProcessingException {
+        
+        // Load dataset into memory buffer
+        DatasetDTO ds = null;
+        if (datasetId != null) {
+            DatasetDTO bufferedDataset = datasetBuffer.getDatasetDetailsById(datasetId);
+            ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(dBConnectionId, datasetId, userId);
+        }
+        // Initialize variables
+        JSONArray anchorDateArray;
+        String query;
+        // Check if dataset is flat file data or not
+        if ( ds != null && ds.getIsFlatFileData() || ds == null && dBConnectionId == null) {
+            // Get the table ID from the filter request
+            String tableId = relativeFilter.getFilterTable().getTableId();
+
+            ColumnFilter columnFilter = relativeFilter.getFilterTable();
+
+            // Find the table object in the dataset schema 
+            // Datasetfilter -> create a table object
+            Table tableObj = ds!= null ? ds.getDataSchema().getTables().stream()
+                    .filter(table -> table.getId().equals(tableId))
+                    .findFirst()
+                    .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!")):new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null, columnFilter.getTableId()  , null, null, false, null);
+            // Load file names from file IDs and load the files as views
+            fileDataService.getFileNameFromFileId(userId, Collections.singletonList(tableObj));
+
+            // Compose anchor date query for DuckDB and run it
+            String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery("duckdb", ds, relativeFilter);
+            anchorDateArray = duckDbService.runQuery(anchorDateQuery);
+
+            // Compose main query for DuckDB
+            query = relativeFilterQueryComposer.composeQuery("duckdb", ds, relativeFilter, anchorDateArray);
+
+        } 
+        else {
+            // Check if DB connection ID is provided
+            if (dBConnectionId == null || dBConnectionId.isEmpty()) {
+                throw new BadRequestException("Error: DB Connection Id can't be empty!");
+            }
+
+            // Get the vendor name from the connection pool using the DB connection ID
+            String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId);
+            // Compose anchor date query for the specific vendor and run it
+            String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery(vendorName, ds, relativeFilter);
+
+            anchorDateArray = runQuery(dBConnectionId, userId, anchorDateQuery);
+
+            // Compose main query for the specific vendor
+            query = relativeFilterQueryComposer.composeQuery(vendorName, ds, relativeFilter, anchorDateArray);
+        }
+
+        // Execute the main query and return the result
+        JSONArray jsonArray = ((ds != null && ds.getIsFlatFileData()) || (ds == null && dBConnectionId == null)) ? duckDbService.runQuery(query)
+                : runQuery(dBConnectionId, userId, query);
+
+        return jsonArray;
+    }
+
 }
