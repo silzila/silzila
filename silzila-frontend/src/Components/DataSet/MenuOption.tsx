@@ -4,9 +4,10 @@ import { Divider, Menu, MenuItem, Radio, Tooltip } from "@mui/material";
 const MenuOption = ({ uid, open, anchorEl, onClose, filterFieldData }: any) => {
   const options = ["Include", "Exclude"];
   let options2 = ["Pick List", "Search Condition"];
+
   if (
-    filterFieldData.dataType === "timestamp" ||
-    filterFieldData.dataType === "date"
+    filterFieldData.current.dataType === "timestamp" ||
+    filterFieldData.current.dataType === "date"
   ) {
     options2 = ["Pick List", "Search Condition", "Relative Filter"];
   }
@@ -26,10 +27,10 @@ const MenuOption = ({ uid, open, anchorEl, onClose, filterFieldData }: any) => {
           key={index}
         >
           <Tooltip
-            title={opt2 === filterFieldData.fieldtypeoption ? "Selected" : null}
+            title={opt2 === filterFieldData.current.filterType ? "Selected" : null}
           >
             <Radio
-              checked={opt2 === filterFieldData.fieldtypeoption}
+              checked={opt2 === filterFieldData.current.filterType}
               sx={{
                 "& .MuiSvgIcon-root": {
                   fontSize: "12px",
@@ -64,17 +65,17 @@ const MenuOption = ({ uid, open, anchorEl, onClose, filterFieldData }: any) => {
           key={index}
         >
           <Tooltip
-            title={opt === filterFieldData.includeexclude ? "Selected" : null}
+            title={(opt==="Exclude" &&filterFieldData.current.shouldExclude) ||(opt==="Include" &&!filterFieldData.current.shouldExclude) ? "Selected" : null}
           >
             <Radio
-              checked={opt === filterFieldData.includeexclude}
+              checked={(opt==="Exclude" &&filterFieldData.current.shouldExclude) ||(opt==="Include" &&!filterFieldData.current.shouldExclude) }
               disabled={
                 opt === "Exclude" &&
-                filterFieldData.fieldtypeoption === "Relative Filter"
+                filterFieldData.current.filterType === "Relative Filter"
               }
               sx={
-                filterFieldData.includeexclude === "Exclude" &&
-                opt === filterFieldData.includeexclude
+                filterFieldData.current.shouldExclude &&
+                opt === "Exclude"
                   ? {
                       "& .MuiSvgIcon-root": {
                         fontSize: "12px",
@@ -99,7 +100,7 @@ const MenuOption = ({ uid, open, anchorEl, onClose, filterFieldData }: any) => {
           <MenuItem
             disabled={
               opt === "Exclude" &&
-              filterFieldData.fieldtypeoption === "Relative Filter"
+              filterFieldData.current.filterType === "Relative Filter"
             }
             sx={{
               fontSize: "12px",

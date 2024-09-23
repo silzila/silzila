@@ -1,7 +1,7 @@
 // // Canvas component is part of Dataset Create / Edit page
 // // List of tables selected in sidebar is displayed here
 // // connections can be made between columns of different tables to define relationship in a dataset
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { connect } from "react-redux";
 import "./Dataset.css";
 import Xarrow, { Xwrapper } from "react-xarrows";
@@ -20,29 +20,37 @@ import ShortUniqueId from "short-unique-id";
 // import UserFilterDataset from "./UserFilterDataset";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import UserFilterDataset from "./UserFilterDataset";
+import { IFilter } from "./BottomBarInterfaces";
+
 const Canvas = ({
   // state
   tempTable,
   arrows,
   dsId,
+  fileId,
   //props
-  editMode,
+  editMode=false,
   EditFilterdatasetArray,
+
+  //dispatch
+  addFilter
 }: CanvasProps) => {
   const [showRelationCard, setShowRelationCard] = useState<boolean>(false);
   const [existingArrowProp, setExistingArrowProp] = useState<{}>({});
   const [existingArrow, setExistingArrow] = useState<boolean>(false);
   const [isDataSetVisible, setIsDataSetVisible] = useState<boolean>(false);
-  const [disPlayName, setDisplayName] = useState<string>("");
-  const [uid, setUid] = useState<any>();
-  const [tableId, setTableId] = useState<string>("");
-  const [dataType, setDataType] = useState<string>("");
-  const [tableName, setTableName] = useState<string>("");
-  const [field, setfield] = useState<any>({});
-  const [dataSetFilterArray, setDataSetFilterArray] = useState<any[]>(
-    EditFilterdatasetArray || []
+  // const [disPlayName, setDisplayName] = useState<string>("");
+  // const [uid, setUid] = useState<any>();
+  // const [tableId, setTableId] = useState<string>("");
+  // const [dataType, setDataType] = useState<string>("");
+  // const [tableName, setTableName] = useState<string>("");
+  // const [field, setfield] = useState<any>({});
+  const [flatFileId,setFlatFileId] = useState<string>(fileId);
+  const [filtersOfDataset, setFiltersOfDataset] = useState<IFilter[]>(
+    JSON.parse(JSON.stringify(EditFilterdatasetArray))
   );
 
+// console.log("at canvas",dataSetFilterArray)
   const clickOnArrowfunc = (index: number) => {
     setExistingArrow(true);
     const temp = arrows.filter((el: ArrowsProps, i: number) => i === index)[0];
@@ -52,7 +60,6 @@ const Canvas = ({
 
   const handleDrop = (e: any) => {
     e.stopPropagation();
-
     const refs = {
       isSelected: true,
       tableId: e.dataTransfer.getData("tableId"),
@@ -66,28 +73,30 @@ const Canvas = ({
       startId: e.dataTransfer.getData("tableId"),
     };
 
-    const uid: any = new ShortUniqueId({ length: 4 });
+    const uid: any = new ShortUniqueId({ length: 6 });
 
-    const field = {
+    const field:IFilter = {
       tableId: refs.tableId,
       fieldName: refs.startColumnName,
-      exprType: "greaterThan",
-      dataType: refs.dataType,
-      fieldtypeoption: "Pick List", //default value for
-      includeexclude: "Include", //default value for
-      displayName: refs.startColumnName,
+      filterType:"Pick List",
+      dataType: refs.dataType,//default value for
+      shouldExclude:false,
       uid: uid(),
+      userSelection:[],
       tableName: refs.startTableName,
-      schema: refs.schema,
+      operator:"greaterThan",
+      timeGrain:"year",
+      isTillDate:false,
     };
     console.log(field);
-    setfield(field);
-    setTableName(field.tableName);
-    setDisplayName(field.displayName);
-    setUid(field.uid);
-    setTableId(field.tableId);
-    setDataType(field.dataType);
-    setDataSetFilterArray((prev: any) => [...prev, field]);
+    setFlatFileId(refs.table1_uid);
+    // setfield(field);
+    // setTableName(field.tableName);
+    // setDisplayName(field.displayName);
+    // setUid(field.uid);
+    // setTableId(field.tableId);
+    // setDataType(field.dataType);
+    setFiltersOfDataset((prev) => [...prev, field]);
   };
   //   // TODO need to specify type
   const RenderArrows: any = () => {
@@ -113,7 +122,6 @@ const Canvas = ({
       ))
     );
   };
-
   return (
     <div className="canvas">
       <div
@@ -181,15 +189,16 @@ const Canvas = ({
             position: "fixed",
           }} // Controls visibility
         >
-          <div style={{ width: "100%" }}>
+          <div >
             <div
               style={{
                 display: "flex",
-                justifyContent: "center",
+                justifyContent: "space-around",
                 alignItems: "center",
                 // margin: "auto auto",
                 position: "fixed",
-                backgroundColor: "white",
+                backgroundColor:"white",
+                width:"211px",
                 zIndex: "98",
                 // marginTop: "-25px",
               }}
@@ -199,38 +208,50 @@ const Canvas = ({
                 style={{
                   height: "1.5rem",
                   width: "2rem",
-                  margin: "0 10px",
+                  margin: "0 0 0 10px",
                 }}
                 alt="filter"
               />
-              <span className="axisTitle">Dataset Filter</span>
-              <div>
+              <span className="axisTitle"
+              >Dataset Filter</span>
+              {/* <div> */}
                 <button
-                  title="minimize"
+                  title="Hide Filter Tab"
                   style={{
                     backgroundColor: "white",
                     outline: "none",
                     border: "none",
+                    padding:"0",
+                    margin:"0",
+                    position:"relative",
+                    height: "2rem",
+                    width: "2rem",
                   }}
                 >
                   <ArrowBackRoundedIcon
                     style={{
-                      right: "92%",
+                      // right: "92%",
                       top: "0px",
+                      left:"0",
+                      position:"absolute",
+                      width:"100%",
+                      height:"100%",
                       zIndex: "999",
                       transform: "rotate(180deg)",
+                      color:"gray"
                     }}
                     onClick={() => setIsDataSetVisible(!isDataSetVisible)}
                   />
                 </button>
-              </div>
+              {/* </div> */}
             </div>
             <div style={{ position: "absolute", marginTop: "22px" }}>
-              {dataSetFilterArray.length > 0 && (
+              {(filtersOfDataset.length  > 0 )&& (
                 <UserFilterDataset
+                  flatFileId={flatFileId}
                   editMode={editMode}
-                  dataSetFilterArray={dataSetFilterArray}
-                  setDataSetFilterArray={setDataSetFilterArray}
+                  filters={filtersOfDataset}
+                  setDataSetFilterArray={setFiltersOfDataset}
                   dbConnectionId={tempTable[0].dcId}
                 />
               )}
@@ -241,7 +262,7 @@ const Canvas = ({
         <RenderArrows />
       </div>
       <BottomBar
-        datasetFilterArray={dataSetFilterArray}
+        datasetFilterArray={filtersOfDataset}
         editMode={editMode ? editMode : false}
       />
 
@@ -267,7 +288,9 @@ const mapStateToProps = (
     arrows: state.dataSetState.arrows,
     dsId: state.dataSetState.dsId,
     token: state.isLogged.accessToken,
+
   };
 };
+
 
 export default connect(mapStateToProps, null)(Canvas);
