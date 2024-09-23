@@ -833,6 +833,7 @@ const Sidebar = ({
           />
         </div>
       )}
+      {!isFlatFile ? (
       <div
         style={{
           display: "flex",
@@ -859,7 +860,8 @@ const Sidebar = ({
           </Tooltip>
         )}
       </div>
-      {customQueryExpand ? (
+      ) : null}
+      {customQueryExpand && !isFlatFile ? (
         <div>
           {CustomQuerysArray.length > 0 ? (
             <div style={{ margin: "0 0 10% 0" }}>
