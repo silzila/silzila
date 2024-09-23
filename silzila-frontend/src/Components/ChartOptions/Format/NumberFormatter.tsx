@@ -77,6 +77,14 @@ export const formatChartLabelValueForSelectedMeasure = (
 	// everything same as formatChartLabelValue but for a selected measure
 
 	const uId = chartProperties.chartAxes[chartType === "crossTab" ? 3 : 2].fields.find((val: any) => val.displayname === columnName).uId
+	
+	// use decimal js here to first calculate the value and then format it check if format value is percent
+
+	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.formatValue === "Percent") {
+
+		value = new Decimal(value).times(100);
+
+	}
 
 	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.enableRounding) {
 		value = Number(value).toFixed(chartControl.formatOptions.labelFormats?.measureFormats[uId]?.roundingDigits);
@@ -111,13 +119,9 @@ export const formatChartLabelValueForSelectedMeasure = (
 	// Retuns value with a % suffix
 	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.formatValue === "Percent") {
 
-		if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.percentageCalculate !== true) {
-			value = `${value} %`;
-		} else {
-			value = `${new Decimal(value).times(100)} %`;
-		}
+		value = `${value} %`;	
 
-	} ;
+	};
 
 	return value;
 
