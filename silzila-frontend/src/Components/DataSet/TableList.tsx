@@ -167,6 +167,7 @@ const TableList = (props: TableListProps) => {
 				url = `sample-records/${props.connectionId}/250?database=${props.databaseName}&schema=${props.schema}&table=${table}`;
 			}
 		}
+		console.log(url)
 		// TODO:need to specify type
 		var res: any = await FetchData({
 			requestType: "noData",
@@ -174,7 +175,7 @@ const TableList = (props: TableListProps) => {
 			url: url,
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
-
+		console.log(res)
 		if (res.status) {
 			setTableData(res.data);
 			setShowTableData(true);

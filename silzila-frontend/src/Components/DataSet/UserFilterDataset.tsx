@@ -9,25 +9,33 @@ import FilterElement from "./FilterElement";
 const UserFilterDataset = ({
   //props
   editMode,
-  dataSetFilterArray,
-
+  flatFileId,
+  // list of tables selected by user for dataset
+  tables,
   dbConnectionId,
-
+  // list of fliters addedby user for dataset
+  filters,
   setDataSetFilterArray,
 }: UserFilterDatasetProps) => {
+  // console.log("dataSetFilterArray", dataSetFilterArray);
   return (
     <div
       style={{ display: "flex", flexDirection: "column", marginTop: "25px" }}
     >
-      {dataSetFilterArray.length > 0 &&
-        dataSetFilterArray.map((item) => (
-          <FilterElement
-            filterDatasetItem={item}
-            dbConnectionId={dbConnectionId}
-            editMode={editMode}
-            setDataSetFilterArray={setDataSetFilterArray}
-          />
-        ))}
+      {filters && filters.length > 0 &&
+        filters.map((filter) => {
+          console.log("filter item user filter",flatFileId)
+          return ((
+            <FilterElement
+              key={filter.uid}
+              filter={filter}
+              flatFileId={flatFileId}
+              dbConnectionId={dbConnectionId}
+              editMode={editMode}
+              setDataSetFilterArray={setDataSetFilterArray}
+            />
+          ))
+        })}
     </div>
   );
 };
@@ -38,7 +46,9 @@ const mapStateToProps = (state: isLoggedProps & DataSetStateProps) => {
     schema: state.dataSetState.schema,
     dbName: state.dataSetState.databaseName,
     datasetName: state.dataSetState.datasetName,
+    tables: state.dataSetState.tempTable,
   };
 };
+
 
 export default connect(mapStateToProps, null)(UserFilterDataset);

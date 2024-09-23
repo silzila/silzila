@@ -10,7 +10,7 @@ const NewDataSet = () => {
 			<MenuBar from="dataSet" />
 			<div className="createDatasetPage">
 				<Sidebar />
-				<Canvas />
+				<Canvas EditFilterdatasetArray={[]}/>
 			</div>
 		</div>
 	);

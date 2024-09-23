@@ -7,7 +7,6 @@ import {
 export interface BottomBarProps {
   //props
   editMode: boolean;
-
   // state
   tempTable: tableObjProps[];
   arrows: ArrowsProps[];
@@ -85,12 +84,16 @@ export interface IFilterPanel {
 export interface IFilter {
   filterType: string;
   tableId: string;
+  uid: string;
   fieldName: string;
   dataType: string;
   shouldExclude: boolean;
   operator: string;
-  userSelection?: string[] | null;
-  relativeCondition?: RelativeCondition | null;
+  tableName: string;
+  timeGrain?: string;
+  userSelection: string[] | number[]|Date[] ;
+  relativeCondition?: IRelativeCondition | null;
+  isTillDate?: boolean;
 }
 export enum FilterDataType {
   TEXT = "text",
@@ -124,8 +127,8 @@ export enum FilterTimeGrain {
   DAYOFMONTH = "dayofmonth",
   DAYOFWEEK = "dayofweek"
 }
-export interface RelativeCondition {
-  from?: string[] | null;
-  to?: string[] | null;
-  anchorDate?: string | null;
+export interface IRelativeCondition {
+  from: string[] ;
+  to: string[];
+  anchorDate: string ;
 }

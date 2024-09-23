@@ -33,6 +33,7 @@ import {
   EditDatasetProps,
 } from "./EditDataSetInterfaces";
 import Logger from "../../Logger";
+import { IFilter, IFilterPanel } from "./BottomBarInterfaces";
 
 const EditDataSet = ({
   //state
@@ -44,22 +45,19 @@ const EditDataSet = ({
   setUserTable,
   setDatabaseNametoState,
   setServerName,
-  setViews,
+  setViews, 
   setCreateDsFromFlatFile,
 }: EditDatasetProps) => {
-  var dbName: string = "";
-  var server: string = "";
+  let dbName: string = "";
+  let server: string = "";
 
   const [loadPage, setloadPage] = useState<boolean>(false);
-
-  var count: number = 0;
-
-  const [datasetFilterArray, setDataSetFilterArray] = useState<any[]>([]);
-  var data: any;
+  const [datasetFilterArray, setDataSetFilterArray] = useState<IFilter[]>([]);
+  const [flatFileId, setFlatFileId] = useState<string>("");
   useEffect(() => {
     setAllInfo();
   }, []);
-
+  console.log(flatFileId)
   const setAllInfo = async () => {
     var res: any = await FetchData({
       requestType: "noData",
@@ -68,27 +66,22 @@ const EditDataSet = ({
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (res.data.dataSchema.filterPanels) {
-      // data = res.data.dataSchema.filterPanels
-      //   .map((item: any) => {
-      //     if (item.panelName === "dataSetFilters") {
-      //       return item.filters;
-      //     }
-      //     return null;
-      //   })
-      //   .filter(Boolean);
-      data = res.data.dataSchema.filterPanels
-        .filter((item: any) => item.panelName === "dataSetFilters")
-        .map((item: any) => item.filters);
-      console.log(data);
-      setDataSetFilterArray(data[0]);
-    }
+    
 
     if (res.status) {
       if (res.data.isFlatFileData) {
+        setFlatFileId(res.data.dataSchema.tables[0].flatFileId);
         setCreateDsFromFlatFile(true);
       }
-
+      if (res.data.dataSchema.filterPanels) {
+        const data:IFilter[] = res.data.dataSchema.filterPanels
+          .filter((item:IFilterPanel) => item.panelName === "dataSetFilters")
+          .map((item:IFilterPanel) => item.filters[0]);
+        console.log(data);
+       
+        // console.log("Edit",data
+        setDataSetFilterArray(data);
+      }
       if (!res.data.isFlatFileData) {
         var getDc: any = await FetchData({
           requestType: "noData",
@@ -110,7 +103,6 @@ const EditDataSet = ({
       // canvasTables - tables that are droped & used in canvas for creating dataset
       const canvasTables: tableObjProps[] = await Promise.all(
         res.data.dataSchema.tables?.map(async (tbl: any) => {
-          count++;
           if (tbl) {
             return {
               table_uid: res.data.isFlatFileData
@@ -509,7 +501,6 @@ const EditDataSet = ({
       return arrayWithUid;
     }
   };
-  console.log(datasetFilterArray);
   return (
     <div className="dataHome">
       <MenuBar from="dataSet" />
@@ -520,11 +511,14 @@ const EditDataSet = ({
             <Sidebar editMode={true} />
             {datasetFilterArray?.length > 0 ? (
               <Canvas
+                fileId={flatFileId}
                 editMode={true}
                 EditFilterdatasetArray={datasetFilterArray}
               />
             ) : (
-              <Canvas editMode={true} />
+              <Canvas editMode={true}
+              fileId={flatFileId}
+              EditFilterdatasetArray={[]} />
             )}
           </>
         ) : null}

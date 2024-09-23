@@ -29,6 +29,7 @@ import {
 import { AlertColor } from "@mui/material/Alert";
 
 import { TextFieldBorderStyle } from "../DataConnection/muiStyles";
+import { pt } from "date-fns/locale";
 
 
 const BottomBar = ({
@@ -57,10 +58,12 @@ const BottomBar = ({
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [testMessage, setTestMessage] = useState<string>("");
   const [severity, setSeverity] = useState<AlertColor>("success");
+  const [disableBtn,setDisableBtn]=useState<Boolean>(false)
 
   const navigate = useNavigate();
 
   const tablesWithoutRelation: string[] = [];
+
 
   useEffect(() => {
     if (editMode) {
@@ -68,7 +71,42 @@ const BottomBar = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+
+  // useEffect(()=>{
+  //   const wrongValue=false;
+  //       datasetFilterArray.forEach((elem:IFilter)=>{
+  //         if(elem.operator==='between'){
+  //           if()
+  //         }
+  //       })
+  // },[datasetFilterArray])
   // Check if every table has atleast one relationship before submitting the dataset
+  const isInMMDDYYYYFormat=(ptrn:string):boolean=>{
+    console.log(ptrn)
+    const regex=/^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+    return regex.test(ptrn)
+  }
+  const validValues=():Boolean=>{
+    for(let i=0;i<datasetFilterArray.length;++i){
+      const elem=datasetFilterArray[i];
+      console.log(elem)
+      if(elem.filterType==="Search Condition" && elem.operator==="between" ){
+        if((elem.dataType==="integer"||elem.dataType==="float"||elem.dataType==="decimal") &&Number(elem.userSelection[0])>Number(elem.userSelection[1]))return false
+        if((elem.dataType==="date"||elem.dataType==="timestamp") && elem.timeGrain==="date" && new Date(elem.userSelection[0])>new Date(elem.userSelection[1])) return false;
+        console.log("here",elem.userSelection[0],elem.userSelection[1])
+        if((elem.dataType==="date"||elem.dataType==="timestamp") &&Number(elem.userSelection[0])>Number(elem.userSelection[1]))return false
+        console.log("here",elem.userSelection[0],elem.userSelection[1])
+        if(elem.dataType==="text" && elem.userSelection[0]>elem.userSelection[1])return false;
+      }
+      if(elem.filterType==="Relative Filter"){
+        if(elem.relativeCondition?.anchorDate==="specificDate" && !isInMMDDYYYYFormat(elem.userSelection[0]))return false;
+        // else if(elem.relativeCondition?.from[0]==="next"||elem.relativeCondition?.to[0]==="last")return false
+
+      }
+    }
+    return true;
+  }
   const checkTableRelationShip = async (
     selectedTables: ITable[],
     tablesWithRelation: string[]
@@ -131,7 +169,6 @@ const BottomBar = ({
 
         tableRelationships.push(tableRelation);
       });
-
       var apiurl: string;
 
       if (editMode) {
@@ -140,49 +177,63 @@ const BottomBar = ({
         apiurl = "dataset";
       }
       //for datasetFilter array sent the data in the form of array
+      if(!validValues()){
+        setTestMessage(
+          "Invalid Values for filters"
+        );
+        setSeverity("error");
+        setOpenAlert(true);
+        return
+      }
       const datasetFilter: IFilterPanel[] = datasetFilterArray.map(
         (item): IFilterPanel => {
-          const shouldExclude: boolean =
-            item.includeexclude === "Include" ? false : true;
-
+          // const shouldExclude: boolean =
+          //   item.includeexclude === "Include" ? false : true;
+          if(item.filterType === "Relative Filter"){
+            console.log(item.relativeCondition)
+            return{
+              panelName: "dataSetFilters",
+              shouldAllConditionsMatch: true,
+              filters: [
+                {
+                  filterType: item.filterType,
+                  fieldName: item.fieldName,
+                  dataType: item.dataType,
+                  uid: item.uid,
+                  shouldExclude: item.shouldExclude,
+                  timeGrain: item.timeGrain,
+                  operator: item.operator,
+                  userSelection: item.userSelection,
+                  tableId: item.tableId,
+                  tableName: item.tableName,
+                  relativeCondition: item.relativeCondition,
+                } as IFilter,
+              ],
+            }
+          }
           return {
             panelName: "dataSetFilters",
             shouldAllConditionsMatch: true,
             filters: [
               {
-                filterType: item.fieldtypeoption,
+                filterType: item.filterType,
                 fieldName: item.fieldName,
-                // tableName: item.tableName,
                 dataType: item.dataType,
-                // uid: item.uid,
-                // displayName: item.displayName,
-                shouldExclude: shouldExclude,
-                // timeGrain: item.timeGrain,
-                operator: item.exprType,
+                uid: item.uid,
+                shouldExclude: item.shouldExclude,
+                timeGrain: item.timeGrain,
+                operator: item.operator,
                 userSelection: item.userSelection,
-                // isTillDate: item.isTillDate || false,
                 tableId: item.tableId,
-                // exprType: item.exprType,
-
-                // RelativeCondition
-                // relativeCondition: null,
-              },
+                tableName: item.tableName,
+                isTillDate: item.isTillDate,
+              } as IFilter,
             ],
           };
         }
       );
 
-      if (tableRelationships.length >= 0) {
-        // console.log({
-        //   connectionId: isFlatFile ? "" : connection,
-        //   datasetName: fname,
-        //   isFlatFileData: isFlatFile,
-        //   dataSchema: {
-        //     tables: [...tablesInDataSet],
-        //     relationships: [...relationshipServerObj],
-        //     filterPanels: [...datasetFilter],
-        //   },
-        // })
+      if (tableRelationships.length >= 0 ) {
         const payLoad: IDataSetCreatePayLoad = {
           connectionId: isFlatFile ? "" : connection,
           datasetName: fname,
@@ -193,6 +244,7 @@ const BottomBar = ({
             filterPanels: datasetFilter,
           },
         };
+        console.log(payLoad)
         var options: any = await FetchData({
           requestType: "withData",
           method: editMode ? "PUT" : "POST",

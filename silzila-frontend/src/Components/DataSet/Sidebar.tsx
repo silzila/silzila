@@ -18,7 +18,6 @@ import {
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import ShortUniqueId from "short-unique-id";
 import {
   setConnectionValue,
   setServerName,
@@ -277,7 +276,7 @@ const Sidebar = ({
 
     if (res.status) {
       var views: any = [];
-      const uid: any = new ShortUniqueId({ length: 8 });
+      // const uid: any = new ShortUniqueId({ length: 8 });
       if (res.data.views.length > 0) {
         views = res.data.views.map((el: any) => {
           var id = "";
@@ -328,12 +327,32 @@ const Sidebar = ({
           };
         });
       }
+      const aliasMap: { [key: string]: string } = {};
+      const aliasCount: { [key: string]: number } = {};
       const userTable: UserTableProps[] = res.data.tables.map((el: string) => {
         var id = "";
         var bool = false;
 
         // Checking if the table is already selected to canvas by user
         // TODO: (p-1) check and mention type
+        console.log(el)
+        function generateTableId(table:string) {
+          let alias = '';
+          const words = table.replace(/[-_]/g, ' ').split(' ');
+          if (words.length === 1) {
+              alias = words[0][0].toLowerCase();
+          } else {
+              alias = words.map(word => word[0].toLowerCase()).join('');
+          }
+          if (aliasMap[alias]) {
+              if (!aliasCount[alias]) aliasCount[alias] = 1; // Initialize the counter
+              aliasCount[alias]++;
+              alias = alias + aliasCount[alias]; // Append number suffix for uniqueness
+          }
+          aliasMap[alias] = table;
+      
+          return alias;
+      }
         var tableAlreadyChecked: any = tempTable.find(
           (tbl: tableObjProps) =>
             // tbl.dcId === connectionId && tbl.schema === schema && tbl.tableName === el
@@ -378,7 +397,7 @@ const Sidebar = ({
           tableName: el,
           isSelected: false,
           table_uid: schema.concat(el),
-          id: uid(),
+          id: generateTableId(el),
           isNewTable: true,
           isCustomQuery: false,
           customQuery: "",
@@ -561,6 +580,7 @@ const Sidebar = ({
                         tableId={tab.id}
                         xprops={xprops}
                         isFlatFile={isFlatFile}
+                        flatFileId={tab.table_uid}
                       />
                     </div>
                   )}
@@ -726,6 +746,7 @@ const Sidebar = ({
             >
               {tableList && tableList.length > 0 ? (
                 tableList.map((tab: UserTableProps) => {
+              
                   return (
                     <SelectListItem
                       key={tab.tableName}

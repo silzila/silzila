@@ -13,6 +13,7 @@ interface ConnectPointsWrapperProps {
   table_uid: string;
   schema: string;
   table_Id: string;
+  tableHasCustomQuery: boolean;
 }
 
 const ConnectsPointByColumn = ({
@@ -26,6 +27,7 @@ const ConnectsPointByColumn = ({
   table_uid,
   schema,
   table_Id,
+  tableHasCustomQuery
 }: ConnectPointsWrapperProps) => {
   // TODO: need to specify type
   const ref1 = useRef<any>(null);
@@ -35,9 +37,13 @@ const ConnectsPointByColumn = ({
   return (
     <div
       ref={ref1}
-      draggable
-      style={{ padding: "0 5px", cursor: "pointer" }}
+      draggable={!tableHasCustomQuery}
+      style={{ padding: "0 5px", cursor: tableHasCustomQuery?"no-drop":"move" }}
       onDragStart={(e) => {
+        if (tableHasCustomQuery) {
+          e.preventDefault();
+          return;
+        }
         setBeingDragged(true);
 
         e.dataTransfer.setData("connectItemId", itemId);

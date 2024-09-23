@@ -22,6 +22,7 @@ import "./Dataset.css";
 import { ArrowObj } from "./CanvasInterfaces";
 import { AlertColor } from "@mui/material/Alert";
 import ConnectsPointByColumn from "./ConnectsPointByColumn";
+import { table } from "console";
 
 const CanvasTableColumns = ({
   // props
@@ -35,7 +36,7 @@ const CanvasTableColumns = ({
   schema,
   checkRelationExists,
   table_Id,
-
+  tableHasCustomQuery,
   //state
   arrows,
 }: CanvasTableColumnsProps) => {
@@ -146,7 +147,17 @@ const CanvasTableColumns = ({
   };
 
   return (
-    <div id={itemId} ref={boxRef}>
+    <div id={itemId} ref={boxRef} style={{
+      cursor:tableHasCustomQuery ?"not-allowed" : "move"
+    }}
+    draggable={!tableHasCustomQuery} 
+    onDragStart={(e) => {
+      if(tableHasCustomQuery){
+        e.preventDefault();
+      }
+    }}
+
+    >
       <div
         className="columnBox"
         id={itemId}
@@ -154,7 +165,7 @@ const CanvasTableColumns = ({
         onDrop={(e) => arrowDropped(e)}
       >
         <div className="columnItem">{itemTypeIcon(itemType)}</div>
-        {schema !== "" ? (
+        {/* {schema !== "" ? (
           <ConnectsPointByColumn
             {...{
               itemId,
@@ -167,12 +178,27 @@ const CanvasTableColumns = ({
               table_uid,
               schema,
               table_Id,
+              tableHasCustomQuery,
             }}
           />
         ) : (
           <div style={{ padding: "0 5px" }}>{columnName}</div>
-        )}
-
+        )} */}
+  <ConnectsPointByColumn
+            {...{
+              itemId,
+              dragRef,
+              boxRef,
+              index,
+              itemType,
+              columnName,
+              tableName,
+              table_uid,
+              schema,
+              table_Id,
+              tableHasCustomQuery,
+            }}
+          />
         <ConnectPointsWrapper
           {...{
             itemId,
