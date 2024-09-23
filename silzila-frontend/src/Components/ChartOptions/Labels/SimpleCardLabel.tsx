@@ -1,17 +1,10 @@
-// Control functions related to chart title are handled here
 // Function include
-// 	- Setting title for graph automatically / manually
-// 	- Alignment of graph title
+// 	- Setting label for Simple Card
 
 import React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-// import {
-//   setGenerateTitle,
-//   setTitleAlignment,
-//   setTitleSize,
-// } from "../../../redux/ChartPoperties/ChartPropertiesActions";
-// import InputPositiveNumber from "../CommonFunctions/InputPositiveNumber";
+
 import {
   ChartOptionsProps,
   ChartOptionsStateProps,
@@ -34,7 +27,17 @@ const ChartLabel = ({
   var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
   return (
     <React.Fragment>
-      <div className="optionsInfo">
+      <div
+        style={{
+          width: "100%",
+          padding: "10px 0 0 0",
+          fontSize: "12px",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          transition: "ease-in 0.3s linear",
+        }}
+      >
         <div className="optionDescription">LABEL NAME</div>
         <TextField
           value={chartControls.properties[propKey].cardControls.subText}

@@ -4,6 +4,7 @@ import { Dispatch } from "redux";
 import { changeChartOptionSelected } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { chartTypes } from "./ChartTypes";
 import { changeDynamicMeasureOption } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+import ControlDetail from "./ControlDetail";
 
 const ChartControlObjects = ({
   // state
@@ -475,8 +476,11 @@ const ChartControlObjects = ({
         for{" "}
         {chartTypes.filter((chart) => chart.name === selectedChart)[0].value}
       </div>
-      <div className="chartOptionImagesContainer">
-        <RenderOptions />
+      <div>
+        <div className="chartOptionImagesContainer">
+          <RenderOptions />
+        </div>
+        <ControlDetail />
       </div>
     </>
   );
