@@ -539,8 +539,20 @@ const Sidebar = ({
   }, [SelectQueryoption, RenameID]);
   return (
     <div className="sidebar" ref={scrollRef}>
-      {isFlatFile ? (
+      {isFlatFile ? (        
         <div>
+          <Typography            
+            style={{
+              display: "flex",
+              borderRadius: "5px",
+              marginBottom: "0.5rem",
+              textAlign: "left",
+              color: "#3F3F3F",
+            }}
+          >
+            Tables
+          </Typography>
+
           {tableList ? (
             tableList.map((tab: UserTableProps) => {
               return (
@@ -683,6 +695,7 @@ const Sidebar = ({
           ) : // </div>
           null}
 
+          
           <div
             style={{
               display: "flex",
