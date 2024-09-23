@@ -336,7 +336,7 @@ interface CardControls {
   borderColor: string;
   dashStyle: string;
   fontStyle: string;
-
+  customStyle: boolean;
   valueColor: string;
   labelColor: string;
   bgColor: string;

@@ -56,7 +56,6 @@ const Sankey = ({
       const getColorOfNode = (nodeName: string) => {
         var color = "";
         chartControl.sankeyControls.nodesAndColors.forEach((el) => {
-          console.log(el.nodeName, nodeName);
           if (el.nodeName === nodeName) {
             color = el.nodeColor;
           }

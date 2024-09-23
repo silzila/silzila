@@ -205,10 +205,6 @@ const GraphArea = ({
         (document.getElementById("graphContainer") as HTMLElement).clientWidth -
         30;
 
-      if (chartProperties.properties[propKey].chartType === "simplecard") {
-        height /= 3;
-        width /= 3;
-      }
       setGraphDimension({
         height,
         width,
@@ -217,15 +213,11 @@ const GraphArea = ({
       if (chartProperties.properties[propKey].chartType === "simplecard") {
         setGraphDimension({
           height:
-            (tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]
-              .height *
-              tabTileProps.dashGridSize.y) /
-            3,
+            tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]
+              .height * tabTileProps.dashGridSize.y,
           width:
-            (tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]
-              .width *
-              tabTileProps.dashGridSize.x) /
-            3,
+            tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]
+              .width * tabTileProps.dashGridSize.x,
         });
       } else {
         setGraphDimension({
@@ -249,14 +241,6 @@ const GraphArea = ({
       height,
       width,
     });
-    if (chartProperties.properties[propKey].chartType === "simplecard") {
-      height /= 3;
-      width /= 3;
-      setGraphDimension2({
-        height,
-        width,
-      });
-    }
   };
 
   useLayoutEffect(() => {
@@ -500,13 +484,10 @@ const GraphArea = ({
           );
         }
       case "simplecard":
-        console.log(graphDimension);
         return (
           <SimpleCard
             propKey={propKey}
             graphDimension={fullScreen ? graphDimension2 : graphDimension}
-            // graphDimension={graphDimension}
-            // graphDimension={{ height: 70, widht: 800 }}
             graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
           />
         );
@@ -937,6 +918,7 @@ const GraphArea = ({
             style={{ zIndex: 3 }}
             onKeyDown={(e) => {
               removeFullScreen(e);
+              setPageSettings("fullScreen", false);
             }}
           >
             <div style={{ height: "3rem" }}></div>
@@ -957,7 +939,10 @@ const GraphArea = ({
                   margin: "0.25rem",
                   display: pageSettings.callForDownload ? "none" : "",
                 }}
-                onClick={() => setFullScreen(false)}
+                onClick={() => {
+                  setFullScreen(false);
+                  setPageSettings("fullScreen", false);
+                }}
               />
             </div>
 
@@ -979,6 +964,7 @@ const GraphArea = ({
           value="Full Screen"
           onClick={() => {
             setFullScreen(true);
+            setPageSettings("fullScreen", true);
             setOpen(false);
           }}
         >
