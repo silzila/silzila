@@ -551,7 +551,7 @@ const Sidebar = ({
               color: "#3F3F3F",
             }}
           >
-            Tables
+            Flat File Tables
           </Typography>
           )}
 
