@@ -80,8 +80,11 @@ const CrossTabChart = ({
 							chartDataKeys[i].includes(field.displayname)
 						);
 						/*  Need to format Measure dustbin fields */
-
-						if (_isMeasureField) {
+						
+						if (
+							_isMeasureField &&
+							chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')].fields.find((val: any) => val.displayname === chartDataKeys[i])
+						) {
 
 							formattedValue[chartDataKeys[i]] = formatChartLabelValueForSelectedMeasure(
 								property, // this property is chart controls

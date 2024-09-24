@@ -5,6 +5,7 @@ import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInte
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import {
   formatChartLabelValue,
+  formatChartLabelValueForSelectedMeasure,
   formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
 import {
@@ -38,6 +39,8 @@ const StackedBar = ({
       var chartDataKeys = Object.keys(chartData[0]);
 
       for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
+        console.log('Column is', chartDataKeys[i + 1])
+        console.log('I will get the uid from here', chartProperties.properties[propKey]?.chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')].fields)
         var seriesObj = {
           type: "bar",
           stack:
@@ -58,9 +61,12 @@ const StackedBar = ({
 
             formatter: (value: FormatterValueProps) => {
               var formattedValue = value.value[chartDataKeys[i + 1]];
-              formattedValue = formatChartLabelValue(
-                chartControl,
-                formattedValue
+              
+              formattedValue = formatChartLabelValueForSelectedMeasure(
+                chartControls.properties[propKey],
+                chartProperties.properties[propKey],
+                formattedValue,
+                chartDataKeys[i + 1]
               );
               return formattedValue;
             },
@@ -161,8 +167,8 @@ const StackedBar = ({
           border: chartArea
             ? "none"
             : graphTileSize
-            ? "none"
-            : "1px solid rgb(238,238,238)",
+              ? "none"
+              : "1px solid rgb(238,238,238)",
         }}
         option={{
           color: chartThemes[0].colors,
@@ -207,8 +213,8 @@ const StackedBar = ({
             bottom:
               chartControl.legendOptions?.position?.top === "bottom"
                 ? (graphDimension.height * chartControl.chartMargin.bottom) /
-                    100 +
-                  35
+                100 +
+                35
                 : chartControl.chartMargin.bottom + "%",
             // height: getHeightOfChart(),
             // height: tabTileProps.showDash

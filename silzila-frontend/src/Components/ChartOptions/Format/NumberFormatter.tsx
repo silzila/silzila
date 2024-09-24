@@ -8,16 +8,16 @@ export const formatNumberWithAbbrev = (value: any, digits: any) => {
 	let multipyWithOne = value > 0 ? 1 : -1;
 
 	let curValue = Math.abs(Number(value)) >= 1.0e9
-		? ((Math.abs(Number(value)) / 1.0e9) * multipyWithOne).toFixed(digits)  + "B"
+		? ((Math.abs(Number(value)) / 1.0e9) * multipyWithOne).toFixed(digits) + "B"
 		: // Six Zeroes for Millions
 		Math.abs(Number(value)) >= 1.0e6
-		? ((Math.abs(Number(value)) / 1.0e6) * multipyWithOne).toFixed(digits) + "M"
-		: // Three Zeroes for Thousands
-		Math.abs(Number(value)) >= 1.0e3
-		? ((Math.abs(Number(value)) / 1.0e3) * multipyWithOne).toFixed(digits) + "K"
-		: (Math.abs(Number(value)) * multipyWithOne);
+			? ((Math.abs(Number(value)) / 1.0e6) * multipyWithOne).toFixed(digits) + "M"
+			: // Three Zeroes for Thousands
+			Math.abs(Number(value)) >= 1.0e3
+				? ((Math.abs(Number(value)) / 1.0e3) * multipyWithOne).toFixed(digits) + "K"
+				: (Math.abs(Number(value)) * multipyWithOne);
 
-		return curValue;
+	return curValue;
 };
 
 // Given a number this function returns comma separated number
@@ -72,59 +72,74 @@ export const formatChartLabelValueForSelectedMeasure = (
 	value: any,
 	columnName: string, // this is the displayname of the measure
 ) => {
-
-	// everything same as formatChartLabelValue but for a selected measure
-
-	const uId = chartProperties.chartAxes[chartProperties.chartAxes.findIndex((item: any) => item.name === 'Measure')].fields.find((val: any) => val.displayname === columnName).uId
 	
-	// use decimal js here to first calculate the value and then format it check if format value is percent	
+	console.log('column name is: ', columnName);
+		
+	const measureAxis = chartProperties.chartAxes.find((item: any) => item.name === 'Measure');
+	if (!measureAxis) {
+		console.warn('Measure axis not found');
+		return value;
+	}
 
-	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.percentageCalculate) {
+	const field = measureAxis.fields.find((val: any) => val.displayname === columnName);
+	if (!field) {
+		console.warn(`Field with displayname "${columnName}" not found`);
+		return value;
+	}
 
+	const uId = field.uId;
+	const measureFormat = chartControl.formatOptions.labelFormats?.measureFormats[uId];
+
+	if (!measureFormat) {
+		console.warn(`Measure format for uId "${uId}" not found`);
+		return value;
+	}
+
+	if (measureFormat.percentageCalculate) {
 		value = new Decimal(value).times(100);
-
 	}
 
-	// any type of calculations on the value should be done above this line because it will affect the formating
-
-	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.enableRounding) {
-		value = Number(value).toFixed(chartControl.formatOptions.labelFormats?.measureFormats[uId]?.roundingDigits);
+	if (measureFormat.enableRounding) {
+		value = Number(value).toFixed(measureFormat.roundingDigits);
 	}
 
-	if (
-		chartControl.formatOptions?.labelFormats.measureFormats[uId]?.numberSeparator === "Abbrev"
-	) {
-
+	if (measureFormat.numberSeparator === "Abbrev") {
 		var text = value.toString();
 		var index = text.indexOf(".");
-		if ((index = -1)) {
+		if (index === -1) {
+			index = text.length;
 		}
 		var roundOriginalDigits = text.length - index - 1;
 
 		value = formatNumberWithAbbrev(
 			value,
-			chartControl.formatOptions.labelFormats?.measureFormats[uId]?.enableRounding
-				? chartControl.formatOptions.labelFormats.measureFormats[uId]?.roundingDigits
+			measureFormat.enableRounding
+				? measureFormat.roundingDigits
 				: roundOriginalDigits
 		);
 	}
 
-	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.numberSeparator === "Comma") {
+	if (measureFormat.numberSeparator === "Comma") {
 		value = formatNumberWithComma(value);
 	}
 
-	// Returns value with currency symbol of user's choice
-	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.formatValue === "Currency")
-		value = `${chartControl.formatOptions.labelFormats?.measureFormats[uId]?.currencySymbol} ${value}`;
+	if (measureFormat.formatValue === "Currency") {
+		value = `${measureFormat.currencySymbol} ${value}`;
+	}
 
-	// Retuns value with a % suffix
-	if (chartControl.formatOptions.labelFormats?.measureFormats[uId]?.formatValue === "Percent") {
-
-		value = `${value} %`;	
-
-	};
+	if (measureFormat.formatValue === "Percent") {
+		value = `${value} %`;
+	}
 
 	return value;
+}
+
+export const formatChartYAxisValueForSelectedMeasure = (
+	chartControl: any,
+	chartProperties: any,
+	value: any,
+	columnName: string, // this is the displayname of the measure
+) => {
 
 }
 

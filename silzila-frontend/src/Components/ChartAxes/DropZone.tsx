@@ -361,43 +361,37 @@ const DropZone = ({
 	};
 
 	useEffect(() => {
+		const measureIndex = chartProp.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure');
+		if (measureIndex === -1) return; // Exit if Measure axis is not found
 
-		// this useeffect will run on axes value change
+		const measureFields = chartProp.properties[propKey].chartAxes[measureIndex].fields;
+		const currentFormats = chartControls.properties[propKey].formatOptions.labelFormats.measureFormats;
 
-		if (
+		const measureTracker: any = {};
 
-			chartProp.properties[propKey].chartAxes[chartProp.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')].fields.length !==
-			Object.keys(chartControls.properties[propKey].formatOptions.labelFormats.measureFormats).length
+		measureFields.forEach((field: any) => {
+			measureTracker[field.uId] = currentFormats[field.uId] || {
+				formatValue: 'Number',
+				currencySymbol: '₹',
+				enableRounding: true,
+				roundingDigits: 1,
+				numberSeparator: 'Abbrev',
+				percentageCalculate: false
+			};
+		});
 
-		) {
+		// Only update if there are changes
+		if (JSON.stringify(measureTracker) !== JSON.stringify(currentFormats)) {
+			handleUpdateFormat("measureFormats", measureTracker, "labelFormats");
 
-			const measureTracker: any = {}
-
-			chartProp.properties[propKey].chartAxes[chartProp.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')].fields.forEach((field: any) => {
-				if (!Object.keys(measureTracker).includes(field.uId)) measureTracker[field.uId] = {
-					formatValue: 'Number',
-					currencySymbol: '₹',
-					enableRounding: true,
-					roundingDigits: 1,
-					numberSeparator: 'Abbrev',
-					percentageCalculate: false
-				};
-			})
-
-			handleUpdateFormat("measureFormats", {
-				...(chartControls.properties[propKey].formatOptions.labelFormats.measureFormats),
-				...measureTracker
-			}, "labelFormats")	
-
-			handleUpdateFormat("selectedMeasure", {
-				uId: chartProp.properties[propKey].chartAxes[chartProp.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')].fields[0].uId,
-				name: chartProp.properties[propKey].chartAxes[chartProp.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')].fields[0].displayname
-			}, "labelFormats")
-
+			if (measureFields.length > 0) {
+				handleUpdateFormat("selectedMeasure", {
+					uId: measureFields[0].uId,
+					name: measureFields[0].displayname
+				}, "labelFormats");
+			}
 		}
-
-
-	}, [chartProp.properties[propKey].chartAxes[chartProp.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')].fields])
+	}, [chartProp.properties[propKey].chartAxes]);
 
 	const [anchorEl, setAnchorEl] = useState(null);
 	const open = Boolean(anchorEl);
