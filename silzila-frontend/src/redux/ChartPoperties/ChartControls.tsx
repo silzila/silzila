@@ -86,8 +86,6 @@ const chartControl = {
       },
 
       cardControls: {
-        height: 200,
-        width: 350,
         fontSize: 35,
         subtextFontSize: 15,
         isDragging: false,
@@ -99,6 +97,10 @@ const chartControl = {
         borderColor: "rgba(224,224,224,1)",
         dashStyle: "solid",
         fontStyle: "normal",
+        customStyle: false,
+        valueColor: "#2BB9BB",
+        labelColor: "gray",
+        bgColor: "white",
       },
       calendarStyleOptions: {
         showSplitLine: true,
@@ -439,8 +441,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               left: 5,
             },
             cardControls: {
-              height: 200,
-              width: 350,
               fontSize: 35,
               subtextFontSize: 15,
               isDragging: false,
@@ -452,6 +452,10 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               borderColor: "rgba(224,224,224,1)",
               dashStyle: "solid",
               fontStyle: "normal",
+              customStyle: false,
+              valueColor: "#2BB9BB",
+              labelColor: "gray",
+              bgColor: "white",
             },
 
             calendarStyleOptions: {
@@ -768,8 +772,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               maxColor: "#af99db",
             },
             cardControls: {
-              height: 200,
-              width: 350,
               fontSize: 35,
               subtextFontSize: 15,
               isDragging: false,
@@ -781,6 +783,10 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               borderColor: "rgba(224,224,224,1)",
               dashStyle: "solid",
               fontStyle: "normal",
+              customStyle: false,
+              valueColor: "#2BB9BB",
+              labelColor: "gray",
+              bgColor: "white",
             },
 
             legendOptions: {
