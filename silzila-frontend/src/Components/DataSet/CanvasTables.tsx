@@ -321,7 +321,7 @@ const CanvasTables = ({
       // }, 4000);
     }
   };
-
+  console.log("tableData", tableData);
   return (
     <div>
       <Draggable
@@ -428,6 +428,7 @@ const CanvasTables = ({
                 schema={tableData.schema}
                 checkRelationExists={checkRelationExists}
                 table_Id={tableData.id}
+                tableHasCustomQuery={tableData.isCustomQuery}
               />
             );
           })}

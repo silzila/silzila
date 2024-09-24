@@ -13,6 +13,10 @@ type FetchDataPropType = {
 	headers: any;
 	token?: string;
 };
+export interface IAPIResponse {
+	status: boolean;
+	data: any;
+}
 
 // const CheckTokenValidity = async (token) => {
 //     const decoded = jwtDecode(token);
@@ -34,7 +38,7 @@ type FetchDataPropType = {
 //     return token;
 // };
 
-const FetchData = async (props: FetchDataPropType) => {
+const FetchData = async (props: FetchDataPropType):Promise<IAPIResponse> => {
 	const { requestType, method, url, headers, data } = props;
 
 	// if (token) {
