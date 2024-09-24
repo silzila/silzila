@@ -263,7 +263,7 @@ const LabelFormatting = ({
 				</Select>
 
 			</FormControl>
-			<div className="optionDescription">FORMAT VALUE</div>
+			<div className="optionDescription" style={{marginTop: "10px"}}>FORMAT VALUE</div>
 			<div className="radioButtons" style={{ padding: "0", margin: "auto auto 10px auto" }}>
 				{renderFormatOptions()}
 			</div>
@@ -272,7 +272,7 @@ const LabelFormatting = ({
 			{
 				formatObject.measureFormats[formatObject.selectedMeasure.uId]?.formatValue === "Percent" ? <>
 					<div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-						<span style={{ margin: "10px auto" }}> Type </span>
+						<span className="optionDescription"> PERCENT TYPE </span>
 						<div className="radioButtons" style={{ padding: "0", margin: "auto auto 10px auto" }}>
 							<div
 								className={

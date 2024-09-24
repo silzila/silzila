@@ -6,6 +6,7 @@ import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInte
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import {
   formatChartLabelValue,
+  formatChartLabelValueForSelectedMeasure,
   formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
 import {
@@ -24,6 +25,7 @@ const MultiBarChart = ({
 
   //state
   chartControls,
+  chartProperties,
   tabTileProps,
 }: ChartsReduxStateProps & TabTileStateProps2) => {
   var chartControl: ChartControlsProps = chartControls.properties[propKey];
@@ -53,11 +55,14 @@ const MultiBarChart = ({
               ? chartControl.labelOptions.labelColor
               : null,
 
-            formatter: (value: FormatterValueProps) => {
+            formatter: (value: FormatterValueProps) => { 
+
               var formattedValue = value.value[chartDataKeys[i + 1]];
-              formattedValue = formatChartLabelValue(
-                chartControl,
-                formattedValue
+              formattedValue = formatChartLabelValueForSelectedMeasure(
+                chartControls.properties[propKey],
+                chartProperties.properties[propKey],
+                formattedValue,
+                chartDataKeys[i + 1]
               );
 
               return formattedValue;
@@ -332,6 +337,7 @@ const mapStateToProps = (
 ) => {
   return {
     chartControls: state.chartControls,
+    chartProperties: state.chartProperties,
     tabTileProps: state.tabTileProps,
   };
 };

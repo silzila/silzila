@@ -354,6 +354,51 @@ const DropZone = ({
 		updateRollUp();
 	}, [chatAxesFieldsLength, chartProp.properties[propKey].enableOverrideForUID])
 
+	const handleUpdateFormat = (option: string, value: any, optionKey?: string) => {
+
+		updateFormat(propKey, optionKey, option, value);
+
+	};
+
+	useEffect(() => {
+
+		// this useeffect will run on axes value change
+
+		if (
+
+			chartProp.properties[propKey].chartAxes[chartProp.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')].fields.length !==
+			Object.keys(chartControls.properties[propKey].formatOptions.labelFormats.measureFormats).length
+
+		) {
+
+			const measureTracker: any = {}
+
+			chartProp.properties[propKey].chartAxes[chartProp.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')].fields.forEach((field: any) => {
+				if (!Object.keys(measureTracker).includes(field.uId)) measureTracker[field.uId] = {
+					formatValue: 'Number',
+					currencySymbol: '₹',
+					enableRounding: true,
+					roundingDigits: 1,
+					numberSeparator: 'Abbrev',
+					percentageCalculate: false
+				};
+			})
+
+			handleUpdateFormat("measureFormats", {
+				...(chartControls.properties[propKey].formatOptions.labelFormats.measureFormats),
+				...measureTracker
+			}, "labelFormats")	
+
+			handleUpdateFormat("selectedMeasure", {
+				uId: chartProp.properties[propKey].chartAxes[chartProp.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')].fields[0].uId,
+				name: chartProp.properties[propKey].chartAxes[chartProp.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')].fields[0].displayname
+			}, "labelFormats")
+
+		}
+
+
+	}, [chartProp.properties[propKey].chartAxes[chartProp.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')].fields])
+
 	const [anchorEl, setAnchorEl] = useState(null);
 	const open = Boolean(anchorEl);
 

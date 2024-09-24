@@ -82,8 +82,7 @@ const TableChart = ({
 								property,
 								chartProperties.properties[propKey],
 								item[chartDataKeys[i]],
-								chartDataKeys[i],
-								chartProperties.properties[propKey].chartType
+								chartDataKeys[i]
 							);
 
 						} else {

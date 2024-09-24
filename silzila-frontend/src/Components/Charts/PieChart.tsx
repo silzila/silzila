@@ -94,8 +94,8 @@ const PieChart = ({
             border: chartArea
               ? "none"
               : graphTileSize
-              ? "none"
-              : "1px solid rgb(238,238,238)",
+                ? "none"
+                : "1px solid rgb(238,238,238)",
           }}
           option={{
             color: chartThemes[0].colors,
@@ -147,17 +147,21 @@ const PieChart = ({
                   ],
 
                   formatter: (value: FormatterValueProps) => {
+
+                    const columnName = displayName(
+                      chartProperties.properties[propKey].chartAxes[2]
+                        .fields[0]
+                    )
+
                     if (chartDataKeys) {
                       var formattedValue =
-                        value.value[
-                          displayName(
-                            chartProperties.properties[propKey].chartAxes[2]
-                              .fields[0]
-                          )
-                        ];
-                      formattedValue = formatChartLabelValue(
-                        chartControl,
-                        formattedValue
+                        value.value[columnName];
+
+                      formattedValue = formatChartLabelValueForSelectedMeasure(
+                        chartControls.properties[propKey],
+                        chartProperties.properties[propKey],
+                        formattedValue,
+                        columnName
                       );
 
                       return formattedValue;

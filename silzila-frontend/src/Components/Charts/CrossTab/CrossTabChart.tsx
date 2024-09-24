@@ -84,11 +84,10 @@ const CrossTabChart = ({
 						if (_isMeasureField) {
 
 							formattedValue[chartDataKeys[i]] = formatChartLabelValueForSelectedMeasure(
-								property,
+								property, // this property is chart controls
 								chartProperties.properties[propKey],
 								item[chartDataKeys[i]],
-								chartDataKeys[i],
-								chartProperties.properties[propKey].chartType
+								chartDataKeys[i]
 							);
 						} else {
 							formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]];
