@@ -83,5 +83,11 @@ public class DatasetBuffer {
     public DatasetDTO getDatasetDetailsById(String datasetId){
         return (datasetDetails.keySet().contains(datasetId))?datasetDetails.get(datasetId):null;
     }
+
+    public void removeDatasetDetailsFromBuffer(String datasetId){
+        datasetDetails.remove(datasetId);
+    }
+
+
 }
 

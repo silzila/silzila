@@ -115,12 +115,10 @@ public class ConnectionPoolService {
         } else {
             dto = datasetBuffer.getDatasetById(datasetId, userId);
             datasetBuffer.addDatasetInBuffer(datasetId, dto);
-            if(!dto.getDataSchema().getFilterPanels().isEmpty()){
-                List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId,datasetId, this::relativeFilter);
-                dto.getDataSchema().setFilterPanels(filterPanels);
-                datasetBuffer.addDatasetInBuffer(datasetId, dto);
-            }
-            
+        }
+        if(!dto.getDataSchema().getFilterPanels().isEmpty()){
+            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
+            dto.getDataSchema().setFilterPanels(filterPanels);
         }
         return dto;
         }
