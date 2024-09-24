@@ -86,8 +86,6 @@ const chartControl = {
       },
 
       cardControls: {
-        height: 200,
-        width: 350,
         fontSize: 35,
         subtextFontSize: 15,
         isDragging: false,
@@ -443,8 +441,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               left: 5,
             },
             cardControls: {
-              height: 200,
-              width: 350,
               fontSize: 35,
               subtextFontSize: 15,
               isDragging: false,
@@ -776,8 +772,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               maxColor: "#af99db",
             },
             cardControls: {
-              height: 200,
-              width: 350,
               fontSize: 35,
               subtextFontSize: 15,
               isDragging: false,

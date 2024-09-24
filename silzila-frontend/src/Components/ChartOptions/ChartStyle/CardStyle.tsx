@@ -50,7 +50,7 @@ const CardStyle = ({
           className="enableDisableLabel"
           style={{ marginRight: "10px" }}
         >
-          Custom Style
+          Custom Font Style
         </label>
 
         <SwitchWithInput
@@ -85,24 +85,6 @@ const CardStyle = ({
               updateCardControls(propKey, "subtextFontSize", value)
             }
           />
-          {/* <div className="optionDescription">Width</div>
-          <SliderWithInput
-            percent={false}
-            sliderValue={cardStyleOptions.width}
-            sliderMinMax={{ min: 250, max: 1000, step: 1 }}
-            changeValue={(value: any) => {
-              updateCardControls(propKey, "width", value);
-              }}
-              />
-              <div className="optionDescription">Height</div>
-              <SliderWithInput
-              percent={false}
-              sliderValue={cardStyleOptions.height}
-              sliderMinMax={{ min: 250, max: 400, step: 1 }}
-              changeValue={(value: any) =>
-              updateCardControls(propKey, "height", value)
-              }
-              /> */}
         </>
       ) : null}
       <div className="optionDescription">Border Tickness</div>

@@ -323,8 +323,6 @@ interface ChartConAxisMinMax {
 }
 
 interface CardControls {
-  height: number;
-  width: number;
   fontSize: number;
   subtextFontSize: number;
   isDragging: boolean;

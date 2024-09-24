@@ -165,7 +165,7 @@ const SimpleCard = ({
                   <>
                     <span>
                       <p
-                        title="Drag to change position"
+                        // title="Drag to change position"
                         style={{
                           fontSize: chartControls.properties[propKey]
                             .cardControls.customStyle
@@ -208,7 +208,7 @@ const SimpleCard = ({
                     </span>
                     <span>
                       <p
-                        title="Drag to change position"
+                        // title="Drag to change position"
                         style={{
                           fontSize: chartControls.properties[propKey]
                             .cardControls.customStyle
