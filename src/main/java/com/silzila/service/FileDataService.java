@@ -365,9 +365,8 @@ public class FileDataService {
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
             FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved,salt);
-            FileData savedFileData = fileDataRepository.save(fileData);
-            buffer.addFileDataUser(userId, savedFileData);
-
+            fileDataRepository.save(fileData);
+            buffer.removeFileDataFromBuffer(userId);
             FileDataDTO fileDataDTO = new FileDataDTO(fileData.getId(), fileData.getUserId(), fileData.getName());
 
             // delete the read file which was uploaded by user
