@@ -65,7 +65,7 @@ public class DatasetService {
     RelativeFilterProcessor relativeFilterProcessor;
 
     @Autowired
-    DatasetBuffer datasetBuffer;
+    DatasetAndFileDataBuffer buffer;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -269,7 +269,7 @@ public class DatasetService {
                     dataSchema
             );
             //add updated dataset in buffer
-            datasetBuffer.addDatasetInBuffer(id, dto);
+            buffer.addDatasetInBuffer(id, dto);
             return dto;
         } else {
             Boolean isProperQuery = null;
@@ -301,7 +301,7 @@ public class DatasetService {
                         dataSchema
                 );
                 //add updated dataset in buffer
-                datasetBuffer.addDatasetInBuffer(id, dto);
+                buffer.addDatasetInBuffer(id, dto);
                 return dto;
             } else {
                 throw new ExpectationFailedException("Cannot proceed with dataset updation,CustomQuery is only allowed with SELECT");
@@ -326,7 +326,7 @@ public class DatasetService {
     // READ ONE DATASET
     public DatasetDTO getDatasetById(String id, String userId)
             throws RecordNotFoundException, JsonMappingException, JsonProcessingException {
-        return datasetBuffer.getDatasetById(id, userId);
+        return buffer.getDatasetById(id, userId);
     }
 
     // DELETE DATASET
@@ -340,20 +340,13 @@ public class DatasetService {
         // delete the record from DB
         datasetRepository.deleteById(id);
         // delete from buffer
-        datasetBuffer.removeDatasetDetailsFromBuffer(id);
+        buffer.removeDatasetDetailsFromBuffer(id);
     }
 
     // load dataset details in buffer. This helps faster query execution.
     public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId, String userId)
     throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
-        DatasetDTO dto;
-        Map<String, DatasetDTO> datasetDetails = datasetBuffer.getDatasetDetails();
-        if (datasetDetails.containsKey(datasetId)) {
-            dto = datasetDetails.get(datasetId);
-        } else {
-            dto = datasetBuffer.getDatasetById(datasetId, userId);
-            datasetBuffer.addDatasetInBuffer(datasetId, dto);
-        }
+        DatasetDTO dto = buffer.loadDatasetInBuffer(datasetId, userId);
         if(!dto.getDataSchema().getFilterPanels().isEmpty()){
             List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
             dto.getDataSchema().setFilterPanels(filterPanels);

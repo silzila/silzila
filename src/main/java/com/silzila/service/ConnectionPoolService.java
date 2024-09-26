@@ -102,20 +102,13 @@ public class ConnectionPoolService {
     DatasetRepository datasetRepository;
 
     @Autowired
-    DatasetBuffer datasetBuffer;
+    DatasetAndFileDataBuffer buffer;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
     public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId, String userId)
     throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
-        DatasetDTO dto;
-        Map<String, DatasetDTO> datasetDetails = datasetBuffer.getDatasetDetails();
-        if (datasetDetails.containsKey(datasetId)) {
-            dto = datasetDetails.get(datasetId);
-        } else {
-            dto = datasetBuffer.getDatasetById(datasetId, userId);
-            datasetBuffer.addDatasetInBuffer(datasetId, dto);
-        }
+        DatasetDTO dto = buffer.loadDatasetInBuffer(datasetId, userId);
         if(!dto.getDataSchema().getFilterPanels().isEmpty()){
             List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
             dto.getDataSchema().setFilterPanels(filterPanels);
@@ -1490,7 +1483,7 @@ public class ConnectionPoolService {
         // Load dataset into memory buffer
         DatasetDTO ds = null;
         if (datasetId != null) {
-            DatasetDTO bufferedDataset = datasetBuffer.getDatasetDetailsById(datasetId);
+            DatasetDTO bufferedDataset = buffer.getDatasetDetailsById(datasetId);
             ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(dBConnectionId, datasetId, userId);
         }
         // Initialize variables
