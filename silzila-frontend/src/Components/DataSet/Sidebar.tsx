@@ -335,7 +335,7 @@ const Sidebar = ({
 
         // Checking if the table is already selected to canvas by user
         // TODO: (p-1) check and mention type
-        console.log(el)
+        // console.log(el)
         function generateTableId(table:string) {
           let alias = '';
           const words = table.replace(/[-_]/g, ' ').split(' ');
@@ -563,7 +563,7 @@ const Sidebar = ({
         <div>
           {tableList ? (
             tableList.map((tab: UserTableProps) => {
-              console.log(tab)
+              // console.log(tab)
               return (
                 <SelectListItem
                   key={tab.tableName}

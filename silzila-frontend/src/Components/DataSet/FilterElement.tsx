@@ -1,5 +1,22 @@
+/**
+ *
+ * This file for individual filter applied to dataset
+ *
+ * if anchorDate  based on specificDate the date is to be stored in userSelection[0] of "filterfieldData"
+ *
+ * "filterFieldDate"  store all the values regarding the filter
+ * 
+ * on each change in "filterFieldDate" "setDataSetFilterArray" is to be called as it update  "datasetFilterArray"
+ * in canvax.tsx that keep tracks of all the applied filters in dataset
+ * 
+ * 
+ * date format yyyy-MM-dd
+ */
+
 import React, { useEffect, useState, useRef } from "react";
 import FetchData from "../ServerCall/FetchData";
+import Stack from '@mui/material/Stack';
+import Skeleton from '@mui/material/Skeleton';
 import "../ChartAxes/Card.css";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import "../ChartFieldFilter/UserFilterCard.css";
@@ -25,12 +42,9 @@ import {
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { DataSetStateProps } from "../../redux/DataSet/DatasetStateInterfaces";
 import { IFilter, IRelativeCondition } from "./BottomBarInterfaces";
 import { format } from "date-fns";
 import de from "date-fns/locale/de";
-import { fieldName } from "../CommonFunctions/CommonFunctions";
-
 export interface FilterElementProps {
   // filter: dataSetFilterArrayProps;
   filter: IFilter;
@@ -56,7 +70,6 @@ const FilterElement = ({
   setDataSetFilterArray,
 }: FilterElementProps) => {
   var switchColor = "#2bb9bb";
-  console.log(flatFileId);
   const withPatternCollections: PatternCollectionType[] = [
     { key: "beginsWith", value: "Start With" },
     { key: "endsWith", value: "Ends With" },
@@ -114,7 +127,12 @@ const FilterElement = ({
   ];
   // filterFieldData useRef is used for managing filters ,the useStates are for rendering
   const filterFieldData = useRef<IFilter>({
-    filterType: filter.filterType || "Pick List",
+    filterType:
+      filter.filterType ||
+      filter.filterType ||
+      (["decimal", "float", "double", "integer"].includes(filter.dataType)
+        ? "searchCondition"
+        : "pickList"),
     tableId: filter.tableId,
     fieldName: filter.fieldName,
     dataType: filter.dataType,
@@ -131,17 +149,27 @@ const FilterElement = ({
       anchorDate: "today",
     },
   });
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [picklist, setPickList] = useState<any>(null);
-  const [include, setInclude] = useState(true);
   const [searchCondition, setSearchCondition] = useState(filter.operator);
+  const getValidDateOrString = (value: any, dataType: string) => {
+    if (
+      (dataType === "date" || dataType === "timestamp") &&
+      !isNaN(new Date(value).getTime())
+    ) {
+      return new Date(value); // Valid date
+    }
+    return value || ""; // Return original value if not date/timestamp or invalid date
+  };
+
   const [conditionValue, setConditionValue] = useState<number | string | Date>(
-    filter.userSelection[0] || ""
+    getValidDateOrString(filter.userSelection[0], filter.dataType)
   );
+
   const [conditionValue2, setConditionValue2] = useState<
     number | string | Date
-  >(filter.userSelection[1] || "");
-  console.log(conditionValue);
+  >(getValidDateOrString(filter.userSelection[1], filter.dataType));
+
   const [timeGrain, setTimeGrain] = useState(filter.timeGrain || "year");
   const [anchorDate, setAnchorDate] = useState<string | Date>(
     filter.relativeCondition?.anchorDate || "today"
@@ -150,19 +178,19 @@ const FilterElement = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuId, setMenuId] = useState<string>("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [filterType, setFilterType] = useState(
-    filter.filterType || "Pick List"
-  );
+  const [filterType, setFilterType] = useState(filter.filterType);
   const [inValidValueError, setInvalidValueError] = useState(false);
   const [operator, setOperator] = useState(filter.operator);
-  // const [selectTillDate, setSelectTillDate] = useState(
-  //   filter.isTillDate || false
-  // );
+  const [isTillDate,setIsTillDate]=useState(filter.isTillDate??false)
   const [formatedDate, setFormatedDate] = useState({
     from: "",
     to: "",
   });
+  const formatDateToYYYYMMDD = (date: any): string => {
+    let formated = format(new Date(date), "yyyy-MM-dd");
 
+    return formated;
+  };
   const fetchFieldData = (type: string) => {
     let url: string;
     let bodyData: any;
@@ -186,7 +214,6 @@ const FilterElement = ({
         ? { timeGrain: filterFieldData.current.timeGrain || "year" }
         : {}),
     };
-    console.log("bodyData", bodyData);
     return FetchData({
       requestType: "withData",
       method: "POST",
@@ -201,12 +228,6 @@ const FilterElement = ({
   const getFormatedDate = async () => {
     let body = {};
     let url = "relative-filter";
-    const formatDateToYYYYMMDD = (date: any): string => {
-      console.log(date);
-      let formated = format(new Date(date), "yyyy-MM-dd");
-
-      return formated;
-    };
     if (schema !== "") {
       body = {
         filterTable: {
@@ -248,7 +269,6 @@ const FilterElement = ({
             : filterFieldData.current.relativeCondition?.anchorDate,
       };
     }
-    console.log(body);
     const res = await FetchData({
       requestType: "withData",
       method: "POST",
@@ -267,9 +287,17 @@ const FilterElement = ({
     }
   };
   useEffect(() => {
-    console.log("runn")
-    if (filterType === "Pick List") {
+    /** 
+    on initial render modify the state values get required datat for picklist i.e. all Options
+
+    for relativeFilter set fromDate and toDate
+
+    -> pickList state stores values of all available options and userSelected options
+    
+    */
+    if (filterType === "pickList") {
       (async () => {
+        setLoading(true)
         const res = await FetchData({
           requestType: "withData",
           method: "POST",
@@ -282,7 +310,7 @@ const FilterElement = ({
             Authorization: `Bearer ${token}`,
           },
           data: {
-            exprType: filterFieldData.current.operator,
+            // exprType: filterFieldData.current.operator,
             tableId: filterFieldData.current.tableId,
             fieldName: filterFieldData.current.fieldName,
             dataType: filterFieldData.current.dataType,
@@ -297,27 +325,14 @@ const FilterElement = ({
               : {}),
           },
         });
-        console.log(res, {
-          exprType: filterFieldData.current.operator,
-          tableId: filterFieldData.current.tableId,
-          fieldName: filterFieldData.current.fieldName,
-          dataType: filterFieldData.current.dataType,
-          filterOption: "allValues",
-          tableName: filterFieldData.current.tableName,
-          schemaName: schema,
-          dbName,
-          flatFileId: flatFileId,
-          ...(filterFieldData.current.dataType === "timestamp" ||
-          filterFieldData.current.dataType === "date"
-            ? { timeGrain: filterFieldData.current.timeGrain || "year" }
-            : {}),
-        });
         if (res && res.status) {
           const data = [
             "(All)",
             ...res.data
               .map((item: any) => item[Object.keys(res.data[0])[0]])
-              .map((item: any) => item !== null && item.toString()),
+              .map((item: any) => {
+                return item!==null?item.toString():"Null"
+              }),
           ];
 
           filterFieldData.current = {
@@ -326,7 +341,6 @@ const FilterElement = ({
               ? [...filterFieldData.current.userSelection]
               : data.filter((item: any) => item !== "(All)"),
           };
-
           setPickList({
             allOptions: data,
             userSelection:
@@ -337,10 +351,18 @@ const FilterElement = ({
                   : [...filterFieldData.current.userSelection]
                 : data,
           });
-          setInclude(true);
+          // setInclude(true);
         }
+        setDataSetFilterArray((prevFilters) => {
+          return prevFilters.map((filter) =>
+            filter.uid === filterFieldData.current.uid
+              ? filterFieldData.current
+              : filter
+          );
+        });
+        setLoading(false)
       })();
-    } else if (filterType === "Search Condition") {
+    } else if (filterType === "searchCondition") {
       filterFieldData.current.operator = operator;
       setSearchCondition(filterFieldData.current.operator);
 
@@ -382,7 +404,15 @@ const FilterElement = ({
           filter.userSelection.length > 0 ? filter.userSelection[0] : ""
         );
       }
-    } else if (filterType === "Relative Filter") {
+
+      setDataSetFilterArray((prevFilters) => {
+        return prevFilters.map((filter) =>
+          filter.uid === filterFieldData.current.uid
+            ? filterFieldData.current
+            : filter
+        );
+      });
+    } else if (filterType === "relativeFilter") {
       if (
         (filterFieldData.current.dataType === "date" ||
           filterFieldData.current.dataType === "timestamp") &&
@@ -392,20 +422,31 @@ const FilterElement = ({
           ...filterFieldData.current,
           relativeCondition: filter.relativeCondition,
         };
-        filterFieldData.current.userSelection[0] =filter.userSelection[0];
+        if (
+          !["today", "yesterday", "tomorrow", "columnMaxDate"].includes(
+            filter.relativeCondition?.anchorDate
+          ) &&
+          filterFieldData.current.relativeCondition
+        ) {
+          filterFieldData.current.userSelection[0] =filter.relativeCondition?.anchorDate;
+          filterFieldData.current.relativeCondition.anchorDate = "specificDate";
+        }
         getFormatedDate();
+        setConditionValue(new Date(filterFieldData.current.userSelection[0]))
       }
+      setDataSetFilterArray((prevFilters) => {
+        return prevFilters.map((filter) =>
+          filter.uid === filterFieldData.current.uid
+            ? filterFieldData.current
+            : filter
+        );
+      });
     }
-
-    setDataSetFilterArray((prevFilters) => {
-      return prevFilters.map((filter) =>
-        filter.uid === filterFieldData.current.uid
-          ? filterFieldData.current
-          : filter
-      );
-    });
   }, [dbConnectionId, dbName, schema, token, filterType]);
-
+  /**
+   * @param uid -> filter id
+   * handle filter menu opening
+   */
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
     uid: string
@@ -414,22 +455,30 @@ const FilterElement = ({
     setIsMenuOpen(true);
     setMenuId(uid);
   };
-
+  /**
+   *
+   * @param filterId
+   * delete selected filter from dataSetFilterArray
+   *
+   */
   const handleDelete = (filterId: string) => {
-    console.log(filterId);
     setDataSetFilterArray((prevArray) =>
       prevArray.filter((item) => item.uid !== filterId)
     );
   };
-
+  /**
+   *
+   * @param event
+   *
+   * change timeGrain  if dataType is date or timestamp only for pickList and searchCondition
+   */
   const handleDropDownForDatePatternOnChange = async (event: any) => {
-    if (filterFieldData.current.filterType === "Pick List") {
+    if (filterFieldData.current.filterType === "pickList") {
       // setLoading(true);
       // await GetPickListItems();
       filterFieldData.current.timeGrain = event.target.value;
 
       const res = await fetchFieldData("");
-      // console.log(res);
       if (res && res.status) {
         const data = [
           "(All)",
@@ -438,7 +487,6 @@ const FilterElement = ({
             .map((item: any) => item !== null && item.toString()),
         ];
 
-        console.log(data);
         filterFieldData.current = {
           ...filterFieldData.current,
           userSelection: data.slice(1),
@@ -456,7 +504,7 @@ const FilterElement = ({
         });
         setLoading(false);
       }
-    } else if (filterFieldData.current.filterType === "Search Condition") {
+    } else if (filterFieldData.current.filterType === "searchCondition") {
       filterFieldData.current.timeGrain = event.target.value;
       setDataSetFilterArray((prevFilters) =>
         prevFilters.map((filter) =>
@@ -546,27 +594,23 @@ const FilterElement = ({
     //   updatedObject.includeexclude = "Include";
     // }
 
-    console.log(type);
-    console.log(option);
-    console.log(updatedObject);
 
     if (type === "clickOutside") {
       setIsMenuOpen(false);
       return;
     }
     if (type === "opt2") {
-      console.log(option);
       filterFieldData.current.filterType = option;
       filterFieldData.current.userSelection = [];
       setFilterType(option);
     }
     if (type === "opt1" && option === "Include") {
       filterFieldData.current.shouldExclude = false;
-      setInclude(false);
+      // setInclude(false);
     }
     if (type === "opt1" && option === "Exclude") {
       filterFieldData.current.shouldExclude = true;
-      setInclude(true);
+      // setInclude(true);
     }
     setDataSetFilterArray((prevArray: IFilter[]) =>
       prevArray.map((item) => {
@@ -584,12 +628,28 @@ const FilterElement = ({
       })
     );
     // setFilterFieldData(updatedObject);
-    console.log(updatedObject);
 
     // if (updatedObject) setObjectToMakeCall(updatedObject);
     setIsMenuOpen(false);
   };
+
+  /**
+   * 
+   * pickList section  
+   */
   const SelecPickListCard = () => {
+    if(loading) return(
+      <Stack spacing={1} sx={{
+        display:"flex",
+        justifyContent:"center",
+        alignItems:"center"
+      }}>
+        <Skeleton variant='text' sx={{fontSize:"1rem"}}  width="90%"/>
+        <Skeleton variant='text' sx={{fontSize:"1rem"}}  width="90%"/>
+        <Skeleton variant='text' sx={{fontSize:"1rem"}}  width="90%"/>
+        
+      </Stack>
+    );
     if (!picklist || picklist === null) return null;
     return (
       <div className="SelectionMembersCheckBoxArea">
@@ -633,18 +693,19 @@ const FilterElement = ({
       </div>
     );
   };
+
+
   const handleCustomRequiredValueOnBlur = async (
     val: number | string | Date | null,
     type: string,
     valType?: string
   ) => {
     if (val === null) return;
-    if (filterFieldData.current.filterType === "Relative Filter") {
-      const strDate = format(val, "MM/dd/yyyy");
-    console.log(strDate)
+    if (filterFieldData.current.filterType === "relativeFilter") {
+      const strDate = format(val, "yyyy-MM-dd");
       filterFieldData.current.userSelection[0] = strDate;
       getFormatedDate();
-      setConditionValue(val)
+      setConditionValue(val);
       setDataSetFilterArray((prevArray: IFilter[]) => {
         return prevArray.map((item) =>
           item.uid === filterFieldData.current.uid
@@ -655,19 +716,15 @@ const FilterElement = ({
     } else {
       let temp_val = val;
       if (valType && valType === "date") {
-        console.log(val, "date");
-        temp_val = format(temp_val, "MM/dd/yyyy");
-        console.log(temp_val);
+        temp_val = format(temp_val, "yyyy-MM-dd");
       } else {
         temp_val = Number(val);
       }
       if (filterFieldData.current.operator === "between") {
         if (type === "lower_limit") {
-          console.log(val, "lower limit");
           filterFieldData.current.userSelection[0] = temp_val;
           setConditionValue(val);
         } else {
-          console.log(val, "upper limit");
           filterFieldData.current.userSelection[1] = temp_val;
           setConditionValue2(val);
         }
@@ -694,7 +751,6 @@ const FilterElement = ({
         return;
       }
       setInvalidValueError(false);
-      console.log(filterFieldData.current);
       setDataSetFilterArray((prevArray: IFilter[]) => {
         return prevArray.map((item) =>
           item.uid === filterFieldData.current.uid
@@ -795,7 +851,6 @@ const FilterElement = ({
         style={{ height: "18px", width: "18px", color: "#999999" }}
         onClick={(e) => {
           setIsCollapsed(false);
-          console.log("collapse");
         }}
       />
     ) : (
@@ -856,7 +911,8 @@ const FilterElement = ({
       <div className="customDatePickerWidth">
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
           <DatePicker
-            value={conditionValue}
+            // value={conditionValue}
+            defaultValue={conditionValue}
             onChange={(e) =>
               handleCustomRequiredValueOnBlur(e, "lower_limit", "date")
             }
@@ -1019,9 +1075,6 @@ const FilterElement = ({
             onChange={(e: Date | null) =>
               handleCustomRequiredValueOnBlur(e, "lower_limit", "date")
             }
-            // renderInput={(params) => (
-            //   <TextField {...params} className="customDatePickerHeight" />
-            // )}
             slots={{
               textField: (params) => (
                 <TextField {...params} className="customDatePickerHeight" />
@@ -1106,7 +1159,6 @@ const FilterElement = ({
         case "date":
         case "timestamp":
           if (filterFieldData.current.timeGrain === "date") {
-            console.log("time grain date");
             if (filterFieldData.current.operator === "between") {
               members = (
                 <SearchConditionDateBetween></SearchConditionDateBetween>
@@ -1193,7 +1245,7 @@ const FilterElement = ({
   //   }
   //   if (
   //     ["date", "timestamp"].includes(dataType) &&
-  //     filterFieldData.current.fieldtypeoption === "Relative Filter" &&
+  //     filterFieldData.current.fieldtypeoption === "relativeFilter" &&
   //     val.includes("-")
   //   ) {
   //     return true;
@@ -1239,11 +1291,18 @@ const FilterElement = ({
       )
     );
   };
-
+/**
+ * 
+ * @param event 
+ * @param type 
+ * 
+ * for relative fi;ter this method modifies the filter values of filter.field.current and datasetFilterArray
+ */
   const handleDropDownForRelativePatternOnChange = (
     event: any,
     type: string
   ) => {
+    // type from/to iindicates te year month week etc
     if (type === "from" && filterFieldData.current?.relativeCondition) {
       filterFieldData.current.relativeCondition.from[2] = event.target.value;
     } else if (type === "to" && filterFieldData.current?.relativeCondition) {
@@ -1254,6 +1313,7 @@ const FilterElement = ({
     ) {
       filterFieldData.current.relativeCondition.anchorDate = event.target.value;
     } else if (
+      // type value_from /value_to denotes the  number field in relaive filter
       type === "value_from" &&
       filterFieldData.current?.relativeCondition
     ) {
@@ -1274,17 +1334,6 @@ const FilterElement = ({
     ) {
       filterFieldData.current.relativeCondition.from[0] = event.target.value;
     }
-    console.log(filterFieldData.current);
-    // setFromDate({
-    //   last_curr_next: filterFieldData.current.relativeCondition?.from[0],
-    //   value: filterFieldData.current.relativeCondition?.from[1],
-    //   timeGrain: filterFieldData.current.relativeCondition?.from[2],
-    // });
-    // setToDate({
-    //   last_curr_next: filterFieldData.current.relativeCondition?.to[0],
-    //   value: filterFieldData.current.relativeCondition?.to[1],
-    //   timeGrain: filterFieldData.current.relativeCondition?.to[2],
-    // });
     setAnchorDate(filterFieldData.current.relativeCondition?.anchorDate || "");
     getFormatedDate();
     setDataSetFilterArray((prevFilters) =>
@@ -1456,8 +1505,6 @@ const FilterElement = ({
   const handleCBChange = (event: any) => {
     if (event.target.name.toString() === "(All)") {
       if (event.target.checked) {
-        console.log("Allchecked");
-        console.log(picklist);
         filterFieldData.current = {
           ...JSON.parse(JSON.stringify(filterFieldData.current)),
           userSelection: [
@@ -1469,7 +1516,6 @@ const FilterElement = ({
           userSelection: [...prev.allOptions],
         }));
       } else {
-        console.log("All not checked");
         setPickList((prev: any) => ({
           ...prev,
           userSelection: [],
@@ -1558,11 +1604,9 @@ const FilterElement = ({
           });
         }
       } else {
-        console.log("unchecked");
         let newSelection = filterFieldData.current.userSelection?.filter(
           (item: any) => item.toString() !== event.target.name.toString()
         );
-        console.log(newSelection);
 
         filterFieldData.current = {
           ...JSON.parse(JSON.stringify(filterFieldData.current)),
@@ -1586,16 +1630,16 @@ const FilterElement = ({
   };
   const SelecTillDate = () => {
     let labelTillDate;
-    if (filterFieldData.current.filterType === "Search Condition") {
+    if (filterFieldData.current.filterType === "searchCondition") {
       labelTillDate = datePatternSearchConditionCollections.find(
         (item) => item.key === filterFieldData.current.timeGrain
       );
     }
-    if (filterFieldData.current.filterType === "Relative Filter") {
-      labelTillDate = datePatternRelativeFilterCollections.find(
-        (item) => item.key === filterFieldData.current.timeGrain
-      );
-    }
+    // if (filterFieldData.current.filterType === "relativeFilter") {
+    //   labelTillDate = datePatternRelativeFilterCollections.find(
+    //     (item) => item.key === filterFieldData.current.timeGrain
+    //   );
+    // }
 
     let labelName = labelTillDate ? labelTillDate.value : null;
     if (labelName === "Year Quarter") {
@@ -1616,7 +1660,7 @@ const FilterElement = ({
           value="end"
           control={
             <GreenSwitch
-              // checked={selectTillDate}
+              checked={isTillDate}
               size="small"
               disabled={filterFieldData.current.userSelection.length < 2}
               onChange={(e) => handleChangeTillDate(e)}
@@ -1650,10 +1694,11 @@ const FilterElement = ({
   const handleChangeTillDate = (e: any) => {
     if (e.target.checked) {
       filterFieldData.current.isTillDate = true;
+      setIsTillDate(true)
     } else {
       filterFieldData.current.isTillDate = false;
+      setIsTillDate(false)
     }
-    console.log(e.target.checked, filterFieldData.current.isTillDate);
     setDataSetFilterArray((prevFilters) =>
       prevFilters.map((filter) =>
         filter.uid === filterFieldData.current.uid
@@ -1824,9 +1869,9 @@ const FilterElement = ({
                 paddingTop: "2px",
               }}
             >
-              {filterFieldData.current.filterType === "Pick List" ? (
+              {filterFieldData.current.filterType === "pickList" ? (
                 <DropDownForDatePattern items={datePatternCollections} />
-              ) : filterFieldData.current.filterType === "Search Condition" ? (
+              ) : filterFieldData.current.filterType === "searchCondition" ? (
                 <DropDownForDatePattern
                   items={datePatternSearchConditionCollections}
                 />
@@ -1834,15 +1879,13 @@ const FilterElement = ({
             </div>
           ) : null}
 
-          {/*
-              
-            </>
-          )} */}
-          {filterFieldData.current.filterType === "Pick List" ? (
+          {filterFieldData.current.filterType === "pickList" ? (
             <>
               <SelecPickListCard />
+              {filterFieldData.current.dataType === "timestamp" ||
+          filterFieldData.current.dataType === "date" ?(<SelecTillDate/>):null}
             </>
-          ) : filterFieldData.current.filterType === "Search Condition" ? (
+          ) : filterFieldData.current.filterType === "searchCondition" ? (
             <>
               <CustomCard />
               {(filterFieldData.current.dataType === "timestamp" ||

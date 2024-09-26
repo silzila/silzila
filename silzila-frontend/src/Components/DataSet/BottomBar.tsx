@@ -29,9 +29,7 @@ import {
 import { AlertColor } from "@mui/material/Alert";
 
 import { TextFieldBorderStyle } from "../DataConnection/muiStyles";
-import { pt } from "date-fns/locale";
-
-
+import { CircularProgress } from "@mui/material";
 const BottomBar = ({
   //props
   editMode,
@@ -58,12 +56,11 @@ const BottomBar = ({
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [testMessage, setTestMessage] = useState<string>("");
   const [severity, setSeverity] = useState<AlertColor>("success");
-  const [disableBtn,setDisableBtn]=useState<Boolean>(false)
+  const [disableBtn, setDisableBtn] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
   const tablesWithoutRelation: string[] = [];
-
 
   useEffect(() => {
     if (editMode) {
@@ -72,41 +69,122 @@ const BottomBar = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
-  // useEffect(()=>{
-  //   const wrongValue=false;
-  //       datasetFilterArray.forEach((elem:IFilter)=>{
-  //         if(elem.operator==='between'){
-  //           if()
-  //         }
-  //       })
-  // },[datasetFilterArray])
-  // Check if every table has atleast one relationship before submitting the dataset
-  const isInMMDDYYYYFormat=(ptrn:string):boolean=>{
-    console.log(ptrn)
-    const regex=/^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
-    return regex.test(ptrn)
-  }
-  const validValues=():Boolean=>{
-    for(let i=0;i<datasetFilterArray.length;++i){
-      const elem=datasetFilterArray[i];
-      console.log(elem)
-      if(elem.filterType==="Search Condition" && elem.operator==="between" ){
-        if((elem.dataType==="integer"||elem.dataType==="float"||elem.dataType==="decimal") &&Number(elem.userSelection[0])>Number(elem.userSelection[1]))return false
-        if((elem.dataType==="date"||elem.dataType==="timestamp") && elem.timeGrain==="date" && new Date(elem.userSelection[0])>new Date(elem.userSelection[1])) return false;
-        console.log("here",elem.userSelection[0],elem.userSelection[1])
-        if((elem.dataType==="date"||elem.dataType==="timestamp") &&Number(elem.userSelection[0])>Number(elem.userSelection[1]))return false
-        console.log("here",elem.userSelection[0],elem.userSelection[1])
-        if(elem.dataType==="text" && elem.userSelection[0]>elem.userSelection[1])return false;
-      }
-      if(elem.filterType==="Relative Filter"){
-        if(elem.relativeCondition?.anchorDate==="specificDate" && !isInMMDDYYYYFormat(elem.userSelection[0]))return false;
-        // else if(elem.relativeCondition?.from[0]==="next"||elem.relativeCondition?.to[0]==="last")return false
-
+  // check  if pass values for filters are corrct or not
+  const validValues = (): Boolean => {
+    for (let i = 0; i < datasetFilterArray.length; ++i) {
+      const elem = datasetFilterArray[i];
+      
+      if (
+        elem.filterType === "searchCondition" &&
+        elem.operator === "between"
+      ) {
+        if (
+          (elem.dataType === "integer" ||
+            elem.dataType === "float" ||
+            elem.dataType === "decimal") &&
+          Number(elem.userSelection[0]) > Number(elem.userSelection[1])
+        )
+          return false;
+        if (
+          (elem.dataType === "date" || elem.dataType === "timestamp") &&
+          elem.timeGrain === "date" &&
+          new Date(elem.userSelection[0]) > new Date(elem.userSelection[1])
+        )
+          return false;
+        if (
+          (elem.dataType === "date" || elem.dataType === "timestamp") &&
+          Number(elem.userSelection[0]) > Number(elem.userSelection[1])
+        )
+          return false;
+        if (
+          elem.dataType === "text" &&
+          elem.userSelection[0] > elem.userSelection[1]
+        )
+          return false;
       }
     }
     return true;
-  }
+  };
+/**
+ * 
+ * @param filter selected by the user 
+ * @returns modified filters as per the API requirements
+  
+ */
+  const modifyFilters = (filter: IFilter): IFilterPanel => {
+    // filter type of API is in camelCase
+    if (filter.filterType === "pickList") {
+      return {
+        panelName: "dataSetFilters",
+        shouldAllConditionsMatch: true,
+        filters: [
+          {
+            filterType:"pickList",
+            tableId: filter.tableId,
+            fieldName: filter.fieldName,
+            dataType: filter.dataType,
+            operator: "in",
+            shouldExclude: filter.shouldExclude,
+            userSelection: filter.userSelection,
+            uid: filter.uid,
+            tableName: filter.tableName,
+            ...(filter.dataType === "date" || filter.dataType === "timestamp"
+              ? { timeGrain: filter.timeGrain }
+              : {}),
+          },
+        ],
+      };
+    } else if (filter.filterType === "searchCondition") {
+      return {
+        panelName: "dataSetFilters",
+        shouldAllConditionsMatch: true,
+        filters: [
+          {
+            dataType: filter.dataType,
+            fieldName: filter.fieldName,
+            filterType: "searchCondition",
+            operator: filter.operator,
+            shouldExclude: filter.shouldExclude,
+            tableId: filter.tableId,
+            tableName: filter.tableName,
+            isTillDate: filter.isTillDate,
+            userSelection: filter.userSelection,
+            uid: filter.uid,
+            ...(filter.dataType === "date" || filter.dataType === "timestamp"
+              ? { timeGrain: filter.timeGrain }
+              : {}),
+          },
+        ],
+      };
+    } else {
+      return {
+        panelName: "dataSetFilters",
+        shouldAllConditionsMatch: true,
+        filters: [
+          {
+            dataType: filter.dataType,
+            relativeCondition: {
+              from: filter.relativeCondition?.from ?? [],
+              to: filter.relativeCondition?.to ?? [],
+              anchorDate:
+                filter.relativeCondition?.anchorDate === "specificDate"
+                  ?filter.userSelection[0].toString():filter.relativeCondition?.anchorDate || ""
+            },
+            fieldName: filter.fieldName,
+            isTillDate: filter.isTillDate,
+            uid: filter.uid,
+            operator: "between",
+            userSelection: [],
+            shouldExclude: filter.shouldExclude,
+            filterType: "relativeFilter",
+            tableId: filter.tableId,
+            tableName: filter.tableName,
+            timeGrain: "date",
+          },
+        ],
+      };
+    }
+  };
   const checkTableRelationShip = async (
     selectedTables: ITable[],
     tablesWithRelation: string[]
@@ -177,63 +255,20 @@ const BottomBar = ({
         apiurl = "dataset";
       }
       //for datasetFilter array sent the data in the form of array
-      if(!validValues()){
-        setTestMessage(
-          "Invalid Values for filters"
-        );
+      if (!validValues()) {
+        setTestMessage("Invalid Values for filters");
         setSeverity("error");
         setOpenAlert(true);
-        return
+        return;
       }
       const datasetFilter: IFilterPanel[] = datasetFilterArray.map(
         (item): IFilterPanel => {
-          // const shouldExclude: boolean =
-          //   item.includeexclude === "Include" ? false : true;
-          if(item.filterType === "Relative Filter"){
-            console.log(item.relativeCondition)
-            return{
-              panelName: "dataSetFilters",
-              shouldAllConditionsMatch: true,
-              filters: [
-                {
-                  filterType: item.filterType,
-                  fieldName: item.fieldName,
-                  dataType: item.dataType,
-                  uid: item.uid,
-                  shouldExclude: item.shouldExclude,
-                  timeGrain: item.timeGrain,
-                  operator: item.operator,
-                  userSelection: item.userSelection,
-                  tableId: item.tableId,
-                  tableName: item.tableName,
-                  relativeCondition: item.relativeCondition,
-                } as IFilter,
-              ],
-            }
-          }
-          return {
-            panelName: "dataSetFilters",
-            shouldAllConditionsMatch: true,
-            filters: [
-              {
-                filterType: item.filterType,
-                fieldName: item.fieldName,
-                dataType: item.dataType,
-                uid: item.uid,
-                shouldExclude: item.shouldExclude,
-                timeGrain: item.timeGrain,
-                operator: item.operator,
-                userSelection: item.userSelection,
-                tableId: item.tableId,
-                tableName: item.tableName,
-                isTillDate: item.isTillDate,
-              } as IFilter,
-            ],
-          };
+
+          return modifyFilters(item);
         }
       );
 
-      if (tableRelationships.length >= 0 ) {
+      if (tableRelationships.length >= 0) {
         const payLoad: IDataSetCreatePayLoad = {
           connectionId: isFlatFile ? "" : connection,
           datasetName: fname,
@@ -244,7 +279,6 @@ const BottomBar = ({
             filterPanels: datasetFilter,
           },
         };
-        console.log(payLoad)
         var options: any = await FetchData({
           requestType: "withData",
           method: editMode ? "PUT" : "POST",
@@ -257,7 +291,6 @@ const BottomBar = ({
           },
           data: payLoad,
         });
-        console.log(payLoad)
       } else {
         setTestMessage(
           "Error: Every table should have atleast one relationship.\n" +
@@ -317,6 +350,7 @@ const BottomBar = ({
     // prepare the tables with relations list and
     // check if table relationships and arrows meet requirements
     if (fname !== "") {
+      setDisableBtn(true);
       const tablesSelectedInSidebar: any[] =
         // tablesSelectedInSidebarProps[]
         tempTable.map((el: tableObjProps) => {
@@ -348,6 +382,7 @@ const BottomBar = ({
         tablesSelectedInSidebar as ITable[],
         tablesWithRelation
       );
+      setDisableBtn(false);
     } else {
       // If dataSet name is not provided, show error
       setSeverity("error");
@@ -371,6 +406,7 @@ const BottomBar = ({
         onClick={onCancelOnDataset}
         id="cancelButton"
         sx={{ textTransform: "none" }}
+        disabled={disableBtn}
       >
         {editMode ? "Back" : "Cancel"}
       </Button>
@@ -414,6 +450,7 @@ const BottomBar = ({
 
         <Button
           variant="contained"
+          disabled={disableBtn}
           onClick={onSendData}
           id="setButton"
           sx={{
@@ -421,7 +458,7 @@ const BottomBar = ({
           }}
           style={{ backgroundColor: "#2BB9BB" }}
         >
-          {sendOrUpdate}
+          {disableBtn ? <CircularProgress size={20} color="info"/> : sendOrUpdate}
         </Button>
       </div>
 

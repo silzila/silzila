@@ -9,7 +9,7 @@ import FilterElement from "./FilterElement";
 const UserFilterDataset = ({
   //props
   editMode,
-  flatFileId,
+  tableFlatFileMap,
   // list of tables selected by user for dataset
   tables,
   dbConnectionId,
@@ -17,19 +17,21 @@ const UserFilterDataset = ({
   filters,
   setDataSetFilterArray,
 }: UserFilterDatasetProps) => {
-  // console.log("dataSetFilterArray", dataSetFilterArray);
+  const getFlatFileIdByTableId=(tableId:string):string=>{
+    const found = tableFlatFileMap.find(item=> item.tableId === tableId);
+  return found ? found.flatFileId : "";
+  }
   return (
     <div
       style={{ display: "flex", flexDirection: "column", marginTop: "25px" }}
     >
       {filters && filters.length > 0 &&
         filters.map((filter) => {
-          console.log("filter item user filter",flatFileId)
           return ((
             <FilterElement
               key={filter.uid}
               filter={filter}
-              flatFileId={flatFileId}
+              flatFileId={getFlatFileIdByTableId(filter.tableId)}
               dbConnectionId={dbConnectionId}
               editMode={editMode}
               setDataSetFilterArray={setDataSetFilterArray}
