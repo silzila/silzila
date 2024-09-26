@@ -163,7 +163,6 @@ const DataSetList = ({
       
           return alias;
       }
-      console.log(el)
         return {
           schema: "",
           database: "",

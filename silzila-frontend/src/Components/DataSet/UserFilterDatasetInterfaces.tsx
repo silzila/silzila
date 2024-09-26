@@ -1,5 +1,6 @@
 import { tableObjProps } from "../../redux/DataSet/DatasetStateInterfaces";
 import { IFilter } from "./BottomBarInterfaces";
+import { IFlatIdTableIdMap } from "./EditDataSetInterfaces";
 
 export interface UserFilterDatasetProps {
   //props
@@ -10,8 +11,8 @@ export interface UserFilterDatasetProps {
   // dataType: string;
   // field: any;
   // uid: any;
-  flatFileId: string;
-  tables:tableObjProps[]
+  tableFlatFileMap:IFlatIdTableIdMap[];
+  tables:tableObjProps[];
   filters:IFilter[];
   dbConnectionId: any;
   
