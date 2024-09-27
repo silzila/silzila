@@ -166,7 +166,6 @@ interface ChartConSankeyControls {
 }
 
 interface ChartConCrossTabStyleOptions {
-
   borderWidth: number;
   lineHeight: number;
   crossTabdata: any[];
@@ -342,8 +341,6 @@ interface ChartConAxisMinMax {
 }
 
 interface CardControls {
-  height: number;
-  width: number;
   fontSize: number;
   subtextFontSize: number;
   isDragging: boolean;
@@ -355,6 +352,10 @@ interface CardControls {
   borderColor: string;
   dashStyle: string;
   fontStyle: string;
+  customStyle: boolean;
+  valueColor: string;
+  labelColor: string;
+  bgColor: string;
 }
 
 export interface ChartConAxisOptions {

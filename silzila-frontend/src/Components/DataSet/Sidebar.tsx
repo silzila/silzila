@@ -335,7 +335,7 @@ const Sidebar = ({
 
         // Checking if the table is already selected to canvas by user
         // TODO: (p-1) check and mention type
-        console.log(el)
+        // console.log(el)
         function generateTableId(table:string) {
           let alias = '';
           const words = table.replace(/[-_]/g, ' ').split(' ');
@@ -559,11 +559,25 @@ const Sidebar = ({
   }, [SelectQueryoption, RenameID]);
   return (
     <div className="sidebar" ref={scrollRef}>
-      {isFlatFile ? (
+      {isFlatFile ? (        
         <div>
+          {tableList && tableList.length > 0 && (
+          <Typography            
+            style={{
+              display: "flex",
+              borderRadius: "5px",
+              marginBottom: "0.5rem",
+              textAlign: "left",
+              color: "#3F3F3F",
+            }}
+          >
+            Flat File Tables
+          </Typography>
+          )}
+
           {tableList ? (
             tableList.map((tab: UserTableProps) => {
-              console.log(tab)
+              // console.log(tab)
               return (
                 <SelectListItem
                   key={tab.tableName}
@@ -705,6 +719,7 @@ const Sidebar = ({
           ) : // </div>
           null}
 
+          
           <div
             style={{
               display: "flex",
@@ -856,6 +871,7 @@ const Sidebar = ({
           />
         </div>
       )}
+      {!isFlatFile ? (
       <div
         style={{
           display: "flex",
@@ -882,7 +898,8 @@ const Sidebar = ({
           </Tooltip>
         )}
       </div>
-      {customQueryExpand ? (
+      ) : null}
+      {customQueryExpand && !isFlatFile ? (
         <div>
           {CustomQuerysArray.length > 0 ? (
             <div style={{ margin: "0 0 10% 0" }}>

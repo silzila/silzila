@@ -4,6 +4,7 @@ import { Dispatch } from "redux";
 import { changeChartOptionSelected } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { chartTypes } from "./ChartTypes";
 import { changeDynamicMeasureOption } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+import ControlDetail from "./ControlDetail";
 
 const ChartControlObjects = ({
   // state
@@ -66,69 +67,101 @@ const ChartControlObjects = ({
     "Sort",
   ];
 
-
-	const pieOptionsList: string[] = [
-		"Title",
-		"Labels",
-		"Legend",
-		"Margin",
-		"Axis",
-		"Tooltip",
-		"Colors",
-		"Format",
-		"Sort",
-	];
-	const funnelOptionList: string[] = ["Title", "Legend", "Margin", "Tooltip", "Colors", "Format", "Sort",];
-	const gaugeOptionList: string[] = ["Title", "Margin", "Axis", "Tooltip", "Colors", "Format", "Sort",];
-	const heatmapOptionList: string[] = [
-		"Title",
-		"Legend",
-		"Labels",
-		"Margin",
-		"Colors",
-		"Grid/Axes",
-		"Tooltip",
-		"Format",
-		"Sort",
-	];
-	const crossTabOptionList: string[] = ["Title", "Tooltip", "Style", "Format", "Sort","Cond.Form", "Show/Hide"];
-	const boxPlotOptionsList: string[] = [
-		"Title",
-		"Legend",
-		"Tooltip",
-		"Margin",
-		"Colors",
-		"Grid/Axes",
-		"Style",
-		"Sort",
-	];
-	const calendarOptionList: string[] = [
-		"Title",
-		"Legend",
-		"Labels",
-		"Margin",
-		"Tooltip",
-		"Colors",
-		// "Format",
-		"Style",
-		"Sort",
-	];
-	const simpleCardOptionList: string[] = [
-		"Title",
-		"Colors",
-		"Format",
-		"Style",
-		"Sort",
-		"Conditional Formatting",
-	];
-	const tableOptionList: string[] = [
-		"Title",
-		"Tooltip",
-		"Style",
-		"Format",
-		"Sort",
-		"Conditional Formatting",
-	];
+  const pieOptionsList: string[] = [
+    "Title",
+    "Labels",
+    "Legend",
+    "Margin",
+    "Axis",
+    "Tooltip",
+    "Colors",
+    "Format",
+    "Sort",
+  ];
+  const funnelOptionList: string[] = [
+    "Title",
+    "Legend",
+    "Margin",
+    "Tooltip",
+    "Colors",
+    "Format",
+    "Sort",
+  ];
+  const gaugeOptionList: string[] = [
+    "Title",
+    "Margin",
+    "Axis",
+    "Tooltip",
+    "Colors",
+    "Format",
+    "Sort",
+  ];
+  const heatmapOptionList: string[] = [
+    "Title",
+    "Legend",
+    "Labels",
+    "Margin",
+    "Colors",
+    "Grid/Axes",
+    "Tooltip",
+    "Format",
+    "Sort",
+  ];
+  const crossTabOptionList: string[] = [
+    "Title",
+    "Tooltip",
+    "Style",
+    "Format",
+    "Sort",
+    "Cond.Form",
+    "Show/Hide",
+  ];
+  const boxPlotOptionsList: string[] = [
+    "Title",
+    "Legend",
+    "Tooltip",
+    "Margin",
+    "Colors",
+    "Grid/Axes",
+    "Style",
+    "Sort",
+  ];
+  const calendarOptionList: string[] = [
+    "Title",
+    "Legend",
+    "Labels",
+    "Margin",
+    "Tooltip",
+    "Colors",
+    // "Format",
+    "Style",
+    "Sort",
+  ];
+  const SankeyOptionList: string[] = [
+    "Title",
+    "Labels",
+    "Margin",
+    "Tooltip",
+    "Colors",
+    "Style",
+    "Sort",
+  ];
+  const simpleCardOptionList: string[] = [
+    "Label",
+    "Colors",
+    "Format",
+    "Style",
+    "Sort",
+    "Conditional Formatting",
+  ];
+  const tableOptionList: string[] = [
+    "Title",
+    "Tooltip",
+    "Style",
+    "Format",
+    "Sort",
+    "Conditional Formatting",
+  ];
 
   const filledMapOptionList: string[] = ["Title", "Labels", "Tooltip", "Style"];
 
@@ -141,7 +174,11 @@ const ChartControlObjects = ({
   ];
 
   useEffect(() => {
-    changeChartOption(propKey, "Title");
+    if (selectedChart === "simplecard") {
+      changeChartOption(propKey, "Label");
+    } else {
+      changeChartOption(propKey, "Title");
+    }
   }, [chartProp.properties[propKey].chartType]);
 
   const RenderOptions: any = () => {
@@ -185,8 +222,23 @@ const ChartControlObjects = ({
           );
         });
       case "calendar":
-      case "sankey":
         return calendarOptionList.map((option) => {
+          return (
+            <div
+              key={option}
+              className={
+                chartProp.properties[propKey].chartOptionSelected === option
+                  ? "optionImageSelected"
+                  : "optionImage"
+              }
+              onClick={() => changeChartOption(propKey, option)}
+            >
+              {option}
+            </div>
+          );
+        });
+      case "sankey":
+        return SankeyOptionList.map((option) => {
           return (
             <div
               key={option}
@@ -316,7 +368,7 @@ const ChartControlObjects = ({
               }
               style={{
                 textAlign: "center",
-                gridColumn: i === 5 ? "1/span 3" : "auto",
+                gridColumn: i === 5 ? "1/span 2" : "auto",
               }}
               onClick={() => changeChartOption(propKey, option)}
             >
@@ -404,7 +456,7 @@ const ChartControlObjects = ({
               }
               style={{
                 textAlign: "center",
-                gridColumn: i === 5 ? "1/span 3" : "auto",
+                gridColumn: i === 5 ? "1/span 2" : "auto",
               }}
               onClick={() => changeChartOption(propKey, option)}
             >
@@ -424,8 +476,11 @@ const ChartControlObjects = ({
         for{" "}
         {chartTypes.filter((chart) => chart.name === selectedChart)[0].value}
       </div>
-      <div className="chartOptionImagesContainer">
-        <RenderOptions />
+      <div>
+        <div className="chartOptionImagesContainer">
+          <RenderOptions />
+        </div>
+        <ControlDetail />
       </div>
     </>
   );

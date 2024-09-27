@@ -159,7 +159,7 @@ const TableList = (props: TableListProps) => {
 	const getTableData = async (table: string) => {
 		var url: string = "";
 		if (props.isFlatFile) {
-			url = `file-data-sample-records?flatfileId=${props.table.table_uid}&table=${table}`;
+			url = `file-data-sample-records?fileId=${props.table.table_uid}&table=${table}`;
 		} else {
 			if (props.serverName === "mysql") {
 				url = `sample-records?databaseId=${props.connectionId}&recordCount=100&database=${props.databaseName}&table=${table}`;
@@ -167,7 +167,6 @@ const TableList = (props: TableListProps) => {
 				url = `sample-records?databaseId=${props.connectionId}&recordCount=100&database=${props.databaseName}&schema=${props.schema}&table=${table}`;
 			}
 		}
-		console.log(url)
 		// TODO:need to specify type
 		var res: any = await FetchData({
 			requestType: "noData",
@@ -175,7 +174,6 @@ const TableList = (props: TableListProps) => {
 			url: url,
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
-		console.log(res)
 		if (res.status) {
 			setTableData(res.data);
 			setShowTableData(true);

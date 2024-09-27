@@ -1,74 +1,74 @@
 .chartIconsContainer {
-	width: 100%;
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr 1fr;
-	padding-bottom: 10px;
-	column-gap: 10px;
-	/* padding: 0 4px 8px 4px; */
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  padding-bottom: 10px;
+  column-gap: 10px;
+  /* padding: 0 4px 8px 4px; */
 }
 
 .chartIcon {
-	padding: 8px;
-	width: 50px;
-	height: 50px;
-	margin: 10px auto;
-	border: 1px solid transparent;
-	border-radius: 2px;
-	transition: 0.1s;
-	text-transform: capitalize;
+  padding: 8px;
+  width: 50px;
+  height: 50px;
+  margin: 10px auto;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  transition: 0.1s;
+  text-transform: capitalize;
 }
 .chartIcon:hover {
-	border: 2px solid rgba(224,224,224,1);
-	transition: 0.1s;
+  border: 2px solid rgba(224, 224, 224, 1);
+  transition: 0.1s;
 }
 
 .selected {
-	border: 2px solid  rgba(224,224,224,1);
-	border-radius: 2px;
-	background-color: rgba(224,224,224,1);
+  border: 2px solid rgba(224, 224, 224, 1);
+  border-radius: 2px;
+  background-color: rgba(224, 224, 224, 1);
 }
 
 .chartOptionImagesContainer {
-	padding: 10px 8px;
-	width: 100%;
-	/* background-color: #eee; */
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	padding-bottom: 1rem;
-	grid-gap: 4px;
-	border-bottom: 1px solid #d3d3d3;
+  padding: 10px 8px;
+  width: 100%;
+  /* background-color: #eee; */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  padding-bottom: 10px;
+  grid-gap: 4px;
+  border-bottom: 1px solid #d3d3d3;
 }
 
 .optionImage {
-	font-size: 12px;
-	width: 100%;
-	margin-top: 10px;
-	margin-bottom: 10px;
-	margin: auto;
-	padding: 4px 0;
-	background-color: transparent;
-	border: 2px solid rgba(224,224,224,1);
-	/* background-color: rgb(211, 211, 211); */
-	/* border: 1px solid rgb(199, 199, 199); */
-	border-radius: 2px;
-	cursor: pointer;
+  font-size: 12px;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin: auto;
+  padding: 4px 0;
+  background-color: transparent;
+  border: 2px solid rgba(224, 224, 224, 1);
+  /* background-color: rgb(211, 211, 211); */
+  /* border: 1px solid rgb(199, 199, 199); */
+  border-radius: 2px;
+  cursor: pointer;
 }
 
 .optionImageSelected {
-	font-size: 12px;
-	width: 100%;
-	margin-top: 10px;
-	margin-bottom: 10px;
-	margin: auto;
-	padding: 4px 0;
-	border-radius: 2px;
-	cursor: pointer;
-	background-color: rgba(224,224,224,1);
-	border: 2px solid rgba(224,224,224,1);
+  font-size: 12px;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin: auto;
+  padding: 4px 0;
+  border-radius: 2px;
+  cursor: pointer;
+  background-color: rgba(224, 224, 224, 1);
+  border: 2px solid rgba(224, 224, 224, 1);
 
-	/* border: 1px solid rgb(199, 199, 199);
+  /* border: 1px solid rgb(199, 199, 199);
 	background-color: #fff; */
 }
 .optionImage:hover {
-	box-shadow: 0px 0px 2px 1px rgb(199, 199, 199);
+  box-shadow: 0px 0px 2px 1px rgb(199, 199, 199);
 }

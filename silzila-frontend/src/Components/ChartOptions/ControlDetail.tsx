@@ -36,7 +36,8 @@ import Sort from "./Sort/Sort";
 import ShowHide from "./ShowHide/ShowHide";
 import BubbleMapColors from "./Color/BubbleMapColors";
 import LineChartStyles from "./ChartStyle/LineChartStyles";
-
+import SimpleCardLabel from "./Labels/SimpleCardLabel";
+import SimpleCardColors from "./Color/SimpleCardColors";
 
 interface ControlDetailProps {
   chartProperties: ChartPropertiesProps;
@@ -76,6 +77,8 @@ const ControlDetail = ({
           return <SankeyColorControls />;
         } else if (chartType === "bubbleMap") {
           return <BubbleMapColors />;
+        } else if (chartType === "simplecard") {
+          return <SimpleCardColors />;
         } else {
           return <ChartColors />;
         }
@@ -91,6 +94,12 @@ const ControlDetail = ({
         return <ChartMouseOver />;
       case "Grid/Axes":
         return <GridAndAxes />;
+      case "Label":
+        if (chartType === "simplecard") {
+          return <SimpleCardLabel />;
+        } else {
+          return <ChartLabels />;
+        }
       case "Labels":
         if (chartType === "calendar") {
           return <CalendarLabels />;
@@ -140,11 +149,11 @@ const ControlDetail = ({
           return <TableConditionalFormating />;
         }
       case "Show/Hide":
-				if (chartType === "crossTab") {
-					return <ShowHide />;
-				} else {
-					return <ShowHide />;
-				}
+        if (chartType === "crossTab") {
+          return <ShowHide />;
+        } else {
+          return <ShowHide />;
+        }
       case "Sort":
         if (chartType === "crossTab") {
           return <Sort />;
