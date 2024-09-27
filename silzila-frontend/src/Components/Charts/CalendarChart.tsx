@@ -203,25 +203,7 @@ const CalendarChart = ({
             color: chartThemes[0].colors,
             backgroundColor: chartThemes[0].background,
             animation: chartArea ? false : true,
-            legend: {},
-
-            // label: {
-            //   show: chartControl.labelOptions.showLabel,
-            //   formatter: (value: any) => {
-            //     var formattedValue = value.value[1];
-
-            //     formattedValue = formatChartLabelValueForSelectedMeasure(
-            //       chartControls.properties[propKey],
-            //       chartProperties.properties[propKey],
-            //       formattedValue,
-            //       chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname ? chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname : ""
-            //     );
-
-            //     return formattedValue;
-
-            //   },
-            // },
-
+            legend: {}, 
             tooltip: {
               show: chartControl.mouseOver.enable,
               formatter: (value: any) => {
