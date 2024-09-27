@@ -65,7 +65,7 @@ public class DatasetService {
     RelativeFilterProcessor relativeFilterProcessor;
 
     @Autowired
-    DatasetBuffer datasetBuffer;
+    DatasetAndFileDataBuffer buffer;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -250,7 +250,7 @@ public class DatasetService {
         }
         // rename id to table alias (short name)
         long count = datasetRequest.getDataSchema().getTables().stream().filter(table -> table.isCustomQuery()).count();
-        System.out.println(count);
+
         if (count == 0) {
             DataSchema dataSchema = createTableAliasName(datasetRequest.getDataSchema());
             // stringify dataschema (table + relationship section of API) to save in DB
@@ -268,6 +268,8 @@ public class DatasetService {
                     _dataset.getIsFlatFileData(),
                     dataSchema
             );
+            //add updated dataset in buffer
+            buffer.addDatasetInBuffer(id, dto);
             return dto;
         } else {
             Boolean isProperQuery = null;
@@ -298,6 +300,8 @@ public class DatasetService {
                         _dataset.getIsFlatFileData(),
                         dataSchema
                 );
+                //add updated dataset in buffer
+                buffer.addDatasetInBuffer(id, dto);
                 return dto;
             } else {
                 throw new ExpectationFailedException("Cannot proceed with dataset updation,CustomQuery is only allowed with SELECT");
@@ -322,7 +326,7 @@ public class DatasetService {
     // READ ONE DATASET
     public DatasetDTO getDatasetById(String id, String userId)
             throws RecordNotFoundException, JsonMappingException, JsonProcessingException {
-        return datasetBuffer.getDatasetById(id, userId);
+        return buffer.getDatasetById(id, userId);
     }
 
     // DELETE DATASET
@@ -335,23 +339,17 @@ public class DatasetService {
         }
         // delete the record from DB
         datasetRepository.deleteById(id);
+        // delete from buffer
+        buffer.removeDatasetDetailsFromBuffer(id);
     }
 
     // load dataset details in buffer. This helps faster query execution.
     public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId, String userId)
     throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
-        DatasetDTO dto;
-        Map<String, DatasetDTO> datasetDetails = datasetBuffer.getDatasetDetails();
-        if (datasetDetails.containsKey(datasetId)) {
-            dto = datasetDetails.get(datasetId);
-        } else {
-            dto = datasetBuffer.getDatasetById(datasetId, userId);
-            datasetBuffer.addDatasetInBuffer(datasetId, dto);
-            if(!dto.getDataSchema().getFilterPanels().isEmpty()){
-                List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
-                dto.getDataSchema().setFilterPanels(filterPanels);
-                datasetBuffer.addDatasetInBuffer(datasetId, dto);
-            }
+        DatasetDTO dto = buffer.loadDatasetInBuffer(datasetId, userId);
+        if(!dto.getDataSchema().getFilterPanels().isEmpty()){
+            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
+            dto.getDataSchema().setFilterPanels(filterPanels);
         }
         return dto;
         }
@@ -554,61 +552,8 @@ public class DatasetService {
             throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
             JsonMappingException, JsonProcessingException {
         
-        // Load dataset into memory buffer
-        DatasetDTO ds = null;
-        if (datasetId != null) {
-            DatasetDTO bufferedDataset = datasetBuffer.getDatasetDetailsById(datasetId);
-            ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(dBConnectionId, datasetId, userId);
-        }
-        // Initialize variables
-        JSONArray anchorDateArray;
-        String query;
-        // Check if dataset is flat file data or not
-        if ( ds != null && ds.getIsFlatFileData() || ds == null && dBConnectionId == null) {
-            // Get the table ID from the filter request
-            String tableId = relativeFilter.getFilterTable().getTableId();
-
-            ColumnFilter columnFilter = relativeFilter.getFilterTable();
-
-            // Find the table object in the dataset schema 
-            // Datasetfilter -> create a table object
-            Table tableObj = ds!= null ? ds.getDataSchema().getTables().stream()
-                    .filter(table -> table.getId().equals(tableId))
-                    .findFirst()
-                    .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!")):new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null, columnFilter.getTableId()  , null, null, false, null);
-            // Load file names from file IDs and load the files as views
-            fileDataService.getFileNameFromFileId(userId, Collections.singletonList(tableObj));
-
-            // Compose anchor date query for DuckDB and run it
-            String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery("duckdb", ds, relativeFilter);
-            anchorDateArray = duckDbService.runQuery(anchorDateQuery);
-
-            // Compose main query for DuckDB
-            query = relativeFilterQueryComposer.composeQuery("duckdb", ds, relativeFilter, anchorDateArray);
-
-        } 
-        else {
-            // Check if DB connection ID is provided
-            if (dBConnectionId == null || dBConnectionId.isEmpty()) {
-                throw new BadRequestException("Error: DB Connection Id can't be empty!");
-            }
-
-            // Get the vendor name from the connection pool using the DB connection ID
-            String vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
-            // Compose anchor date query for the specific vendor and run it
-            String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery(vendorName, ds, relativeFilter);
-
-            anchorDateArray = connectionPoolService.runQuery(dBConnectionId, userId, anchorDateQuery);
-
-            // Compose main query for the specific vendor
-            query = relativeFilterQueryComposer.composeQuery(vendorName, ds, relativeFilter, anchorDateArray);
-        }
-
-        // Execute the main query and return the result
-        JSONArray jsonArray = ((ds != null && ds.getIsFlatFileData()) || (ds == null && dBConnectionId == null)) ? duckDbService.runQuery(query)
-                : connectionPoolService.runQuery(dBConnectionId, userId, query);
-
-        return jsonArray;
-    }
+       return connectionPoolService.relativeFilter(userId, dBConnectionId, datasetId, relativeFilter);
 
     }
+
+}
