@@ -5,7 +5,6 @@ import Decimal from 'decimal.js';
 // Given a number this function returns an abbreviated number
 // Eg 1000000 will be returned as 1M
 export const formatNumberWithAbbrev = (value: any, digits: any) => {
-	console.log(value);
 
 	let multipyWithOne = value > 0 ? 1 : -1;
 

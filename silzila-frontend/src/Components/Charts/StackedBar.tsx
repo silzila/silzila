@@ -39,8 +39,6 @@ const StackedBar = ({
       var chartDataKeys = Object.keys(chartData[0]);
 
       for (let i = 0; i < Object.keys(chartData[0]).length - 1; i++) {
-        console.log('Column is', chartDataKeys[i + 1])
-        console.log('I will get the uid from here', chartProperties.properties[propKey]?.chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')].fields)
         var seriesObj = {
           type: "bar",
           stack:

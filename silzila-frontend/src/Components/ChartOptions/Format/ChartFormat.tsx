@@ -3,7 +3,6 @@ import XAxisFormat from "./XAxisFormat";
 import YAxisFormat from "./YAxisFormat";
 
 const ChartFormat = ({ chartType }: { chartType: string }) => {
-	console.log('The chart type is ', chartType)
 
 	return (
 		<div className="optionsInfo" style={{ paddingTop: "6px" }}>

@@ -198,7 +198,6 @@ const LabelFormatting = ({
 	};
 
 	const handleChartMeasuresSelectChange = (event: any) => {
-		console.log(chartControls.properties[propKey].formatOptions.labelFormats.measureFormats);
 
 		setSelectedMeasure(event.target.value);
 

@@ -36,8 +36,6 @@ const XAxisFormat = ({
 
 		return formatOptions.map((item: any) => {
 
-			console.log('The format object is :', formatObject)
-
 			return (
 				<div
 					key={item.value}

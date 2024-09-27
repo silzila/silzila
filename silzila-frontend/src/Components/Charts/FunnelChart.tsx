@@ -47,7 +47,6 @@ const FunnelChart = ({
   });
 
   const RenderChart = () => {
-    console.log('The funnel chart data is: ', funnelChartData)
 
     return (
       <ReactEcharts
@@ -107,7 +106,6 @@ const FunnelChart = ({
                   ? chartControl.labelOptions.labelColor
                   : null,
                 formatter: (value: FormatterValueProps) => {
-                  console.log('The value is ', value)
 
                   var formattedValue = value.value.value;
                   formattedValue = formatChartLabelValueForSelectedMeasure(
