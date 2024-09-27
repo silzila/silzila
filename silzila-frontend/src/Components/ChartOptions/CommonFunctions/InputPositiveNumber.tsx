@@ -89,6 +89,7 @@ const InputPositiveNumber = ({
       <input
         disabled={disabled}
         className="inputValue"
+        style={{ paddingRight: '15px' }}
         type="number"
         value={inputValue}
         onChange={handleChange}

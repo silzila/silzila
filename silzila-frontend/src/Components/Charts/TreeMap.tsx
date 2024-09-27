@@ -8,9 +8,11 @@ import { updateTreeMapStyleOptions } from "../../redux/ChartPoperties/ChartContr
 import {
   ChartsMapStateToProps,
   ChartsReduxStateProps,
+  FormatterValueProps,
 } from "./ChartsCommonInterfaces";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import Logger from "../../Logger";
+import { formatChartLabelValueForSelectedMeasure } from "../ChartOptions/Format/NumberFormatter";
 interface TreemapChartProps {
   updateTreeMapStyleOptions: (
     propKey: string,
@@ -270,7 +272,21 @@ const Treemap = ({
                 align: chartControl.treeMapChartControls.horizondalAlign,
                 verticalAlign: chartControl.treeMapChartControls.verticalAlign,
                 overflow: chartControl.treeMapChartControls.overFlow,
-              }, 
+                formatter: (value: FormatterValueProps) => { 
+                  
+                  var formattedValue = value.value;
+
+                  formattedValue = formatChartLabelValueForSelectedMeasure(
+                    chartControls.properties[propKey],
+                    chartProperties.properties[propKey],
+                    formattedValue,
+                    chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname ? chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname : ""
+                  );
+
+                  return formattedValue;
+                
+                },
+              },
               itemStyle: {
                 borderWidth: chartControl.treeMapChartControls.borderWidth,
                 gapWidth: chartControl.treeMapChartControls.gapWidth,
@@ -288,7 +304,7 @@ const Treemap = ({
                 },
               },
               leafDepth: chartControl.treeMapChartControls.leafDepth,
-              data: getSourceData(),
+              data: getSourceData()
             },
           ],
         }}
