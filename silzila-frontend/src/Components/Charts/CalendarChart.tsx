@@ -7,7 +7,9 @@ import {
   ChartDataFieldProps,
   ChartsMapStateToProps,
   ChartsReduxStateProps,
+  FormatterValueProps,
 } from "./ChartsCommonInterfaces";
+import { formatChartLabelValueForSelectedMeasure } from "../ChartOptions/Format/NumberFormatter";
 
 const CalendarChart = ({
   //props
@@ -137,7 +139,6 @@ const CalendarChart = ({
           (yr: string | number, index: number) => {
             return {
               type: "heatmap",
-
               coordinateSystem: "calendar",
               calendarIndex: index,
               data: getVirtulData(yr),
@@ -175,8 +176,8 @@ const CalendarChart = ({
 
   const totalCalendarHeight =
     calendarArray.length *
-      (chartControl.calendarStyleOptions.calendarGap +
-        chartControl.calendarStyleOptions.calendarHeight * 7) +
+    (chartControl.calendarStyleOptions.calendarGap +
+      chartControl.calendarStyleOptions.calendarHeight * 7) +
     60;
 
   const RenderChart = () => {
@@ -192,8 +193,8 @@ const CalendarChart = ({
           border: chartArea
             ? "none"
             : graphTileSize
-            ? "none"
-            : "1px solid rgb(238,238,238)",
+              ? "none"
+              : "1px solid rgb(238,238,238)",
         }}
       >
         <ReactEcharts
@@ -202,9 +203,23 @@ const CalendarChart = ({
             color: chartThemes[0].colors,
             backgroundColor: chartThemes[0].background,
             animation: chartArea ? false : true,
-            legend: {},
+            legend: {}, 
+            tooltip: {
+              show: chartControl.mouseOver.enable,
+              formatter: (value: any) => {
+                var formattedValue = value.value[1];
 
-            tooltip: { show: chartControl.mouseOver.enable },
+                formattedValue = formatChartLabelValueForSelectedMeasure(
+                  chartControls.properties[propKey],
+                  chartProperties.properties[propKey],
+                  formattedValue,
+                  chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname ? chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname : ""
+                );
+
+                return formattedValue;
+
+              },
+            },
 
             dataset: {
               source: chartData,

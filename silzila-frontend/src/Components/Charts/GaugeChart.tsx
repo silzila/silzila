@@ -6,8 +6,8 @@ import {
   ChartControlStateProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
-import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
-import { ChartsReduxStateProps } from "./ChartsCommonInterfaces";
+import { formatChartLabelValue, formatChartLabelValueForSelectedMeasure } from "../ChartOptions/Format/NumberFormatter";
+import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 const GaugeChart = ({
   //props
@@ -18,6 +18,7 @@ const GaugeChart = ({
 
   //state
   chartControls,
+  chartProperties
 }: ChartsReduxStateProps) => {
   var chartControl: ChartControlsProps = chartControls.properties[propKey];
   let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
@@ -68,8 +69,8 @@ const GaugeChart = ({
           border: chartArea
             ? "none"
             : graphTileSize
-            ? "none"
-            : "1px solid rgb(238,238,238)",
+              ? "none"
+              : "1px solid rgb(238,238,238)",
         }}
         option={{
           color: chartThemes[0].colors,
@@ -133,9 +134,11 @@ const GaugeChart = ({
                 /* holds the value that display in the center of the gauge*/
                 formatter: (value: number) => {
                   var formattedValue = value;
-                  formattedValue = formatChartLabelValue(
-                    chartControl,
-                    formattedValue
+                  formattedValue = formatChartLabelValueForSelectedMeasure(
+                    chartControls.properties[propKey],
+                    chartProperties.properties[propKey],
+                    formattedValue,
+                    chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0].displayname
                   );
                   return formattedValue;
                 },
@@ -147,9 +150,11 @@ const GaugeChart = ({
                 /* holds the value that display when user mouseover on the needle of chart*/
                 formatter: (value: number) => {
                   var formattedValue = value;
-                  formattedValue = formatChartLabelValue(
-                    chartControl,
-                    formattedValue
+                  formattedValue = formatChartLabelValueForSelectedMeasure(
+                    chartControls.properties[propKey],
+                    chartProperties.properties[propKey],
+                    formattedValue,
+                    chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0].displayname
                   );
                   return formattedValue;
                 },
@@ -164,9 +169,10 @@ const GaugeChart = ({
   return chartData.length >= 1 ? <RenderChart /> : null;
 };
 
-const mapStateToProps = (state: ChartControlStateProps, ownProps: any) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
   return {
     chartControls: state.chartControls,
+    chartProperties: state.chartProperties
   };
 };
 

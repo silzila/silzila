@@ -3,11 +3,13 @@ import XAxisFormat from "./XAxisFormat";
 import YAxisFormat from "./YAxisFormat";
 
 const ChartFormat = ({ chartType }: { chartType: string }) => {
+
 	return (
-		<div className="optionsInfo">
+		<div className="optionsInfo" style={{ paddingTop: "6px" }}>
+
 			<LabelFormatting />
 
-			{chartType === "scatterPlot" ? (
+			{/* {chartType === "scatterPlot" ? (
 				<>
 					<div
 						style={{ borderTop: "1px solid rgb(211,211,211)", margin: "1rem 6% 1rem" }}
@@ -17,20 +19,21 @@ const ChartFormat = ({ chartType }: { chartType: string }) => {
 			) : null}
 
 			{chartType !== "pie" &&
-			chartType !== "donut" &&
-			chartType !== "gauge" &&
-			chartType !== "rose" &&
-			chartType !== "crossTab" &&
-			chartType !== "funnel" &&
-			chartType !== "simplecard" &&
-			chartType !== "heatmap" ? (
+				chartType !== "donut" &&
+				chartType !== "gauge" &&
+				chartType !== "rose" &&
+				chartType !== "crossTab" &&
+				chartType !== "table" &&
+				chartType !== "funnel" &&
+				chartType !== "simplecard" &&
+				chartType !== "heatmap" ? (
 				<>
 					<div
 						style={{ borderTop: "1px solid rgb(211,211,211)", margin: "1rem 6% 1rem" }}
 					></div>
 					<YAxisFormat chartType={chartType} />
 				</>
-			) : null}
+			) : null} */}
 		</div>
 	);
 };

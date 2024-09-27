@@ -1,7 +1,7 @@
 import ReactEcharts from "echarts-for-react";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
+import { formatChartLabelValue, formatChartLabelValueForSelectedMeasure } from "../ChartOptions/Format/NumberFormatter";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import {
   ChartDataFieldProps,
@@ -88,8 +88,8 @@ const HeatMap = ({
           border: chartArea
             ? "none"
             : graphTileSize
-            ? "none"
-            : "1px solid rgb(238,238,238)",
+              ? "none"
+              : "1px solid rgb(238,238,238)",
         }}
         option={{
           color: chartThemes[0].colors,
@@ -125,8 +125,8 @@ const HeatMap = ({
             bottom:
               chartControl.legendOptions?.position?.top === "bottom"
                 ? (graphDimension.height * chartControl.chartMargin.bottom) /
-                    100 +
-                  40
+                100 +
+                40
                 : chartControl.chartMargin.bottom + "%",
           },
 
@@ -259,11 +259,14 @@ const HeatMap = ({
                 show: chartControl.labelOptions.showLabel,
                 /* formatter helps to show measure values as labels(inside each block) */
                 formatter: (value: FormatterValueProps) => {
-                  if (chartDataKeys) {
-                    var formattedValue = value.value[chartDataKeys[2]];
-                    formattedValue = formatChartLabelValue(
-                      chartControl,
-                      formattedValue
+                  if (chartDataKeys.length > 0) {
+
+                    var formattedValue = value.value[chartDataKeys[2]]; 
+                    formattedValue = formatChartLabelValueForSelectedMeasure(
+                      chartControls.properties[propKey],
+                      chartProperties.properties[propKey],
+                      formattedValue,
+                      chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname ? chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname : ""
                     );
                     return formattedValue;
                   }

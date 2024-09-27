@@ -1257,7 +1257,7 @@ const ChartData = ({
                // Logger("info", "NameWithIndex", field);
               }
 
-             // if (_fieldTempObject[_nameWithAgg] === undefined) {               
+             // if (_fieldTempObject[_nameWithAgg] === undefined) {
                 field["NameWithAgg"] = _nameWithAgg;
                 //_fieldTempObject[_nameWithAgg] = "";
                // Logger("info", "NameWithAgg", field);

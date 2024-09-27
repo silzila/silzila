@@ -6,8 +6,9 @@ import {
   ChartControlStateProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
-import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
+import { formatChartLabelValue, formatChartLabelValueForSelectedMeasure } from "../ChartOptions/Format/NumberFormatter";
 import {
+  ChartsMapStateToProps,
   ChartsReduxStateProps,
   FormatterValueProps,
 } from "./ChartsCommonInterfaces";
@@ -21,6 +22,7 @@ const FunnelChart = ({
 
   //state
   chartControls,
+  chartProperties
 }: ChartsReduxStateProps) => {
   var chartControl: ChartControlsProps = chartControls.properties[propKey];
   let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
@@ -31,6 +33,7 @@ const FunnelChart = ({
     if (chartData.length >= 1) {
       var funnelChartData: any[] = [];
       Object.keys(chartData[0]).forEach((key: string) => {
+
         funnelChartData.push({
           name: key,
           value: chartData[0][key],
@@ -44,6 +47,7 @@ const FunnelChart = ({
   });
 
   const RenderChart = () => {
+
     return (
       <ReactEcharts
         // theme={chartControl.colorScheme}
@@ -56,8 +60,8 @@ const FunnelChart = ({
           border: chartArea
             ? "none"
             : graphTileSize
-            ? "none"
-            : "1px solid rgb(238,238,238)",
+              ? "none"
+              : "1px solid rgb(238,238,238)",
         }}
         option={{
           color: chartThemes[0].colors,
@@ -102,10 +106,13 @@ const FunnelChart = ({
                   ? chartControl.labelOptions.labelColor
                   : null,
                 formatter: (value: FormatterValueProps) => {
+
                   var formattedValue = value.value.value;
-                  formattedValue = formatChartLabelValue(
-                    chartControl,
-                    formattedValue
+                  formattedValue = formatChartLabelValueForSelectedMeasure(
+                    chartControls.properties[propKey],
+                    chartProperties.properties[propKey],
+                    formattedValue,
+                    value.value.name
                   );
                   return formattedValue;
                 },
@@ -117,8 +124,8 @@ const FunnelChart = ({
               bottom:
                 chartControl.legendOptions?.position?.top === "bottom"
                   ? (graphDimension.height * chartControl.chartMargin.bottom) /
-                      100 +
-                    20
+                  100 +
+                  20
                   : chartControl.chartMargin.bottom + "%",
               left: chartControl.chartMargin.funnelLeft + "%",
               right: chartControl.chartMargin.funnelRight + "%",
@@ -131,9 +138,10 @@ const FunnelChart = ({
 
   return chartData.length >= 1 ? <RenderChart /> : null;
 };
-const mapStateToProps = (state: ChartControlStateProps, ownProps: any) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
   return {
     chartControls: state.chartControls,
+    chartProperties: state.chartProperties
   };
 };
 

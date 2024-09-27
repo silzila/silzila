@@ -210,7 +210,22 @@ export interface ChartConLabelFormates {
   currencySymbol: any;
   enableRounding: boolean;
   roundingDigits: number;
+  selectedMeasure: {
+    name: string,
+    uId: string
+  };
   numberSeparator: string | any;
+  measureFormats: {
+    [key: string]: {
+      formatValue: string;
+      currencySymbol: any;
+      enableRounding: boolean;
+      roundingDigits: number;
+      selectedMeasure: string;
+      numberSeparator: string | any;
+      percentageCalculate: boolean;
+    };
+  }
 }
 
 export interface ChartConYAxisFormats {
@@ -222,6 +237,9 @@ export interface ChartConXAxisFormats {
   enableRounding: boolean;
   roundingDigits: number;
   numberSeparator: string | any;
+  formatValue: string | any;
+  currencySymbol: string | any;
+  percentageCalculate: boolean;
 }
 
 interface ChartConFormateOptions {

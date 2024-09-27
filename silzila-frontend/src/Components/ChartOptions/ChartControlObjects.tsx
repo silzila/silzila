@@ -65,6 +65,7 @@ const ChartControlObjects = ({
     "Colors",
     "Style",
     "Sort",
+    "Format"
   ];
 
   const pieOptionsList: string[] = [
@@ -125,6 +126,7 @@ const ChartControlObjects = ({
     "Grid/Axes",
     "Style",
     "Sort",
+    "Format",
   ];
   const calendarOptionList: string[] = [
     "Title",
@@ -133,7 +135,7 @@ const ChartControlObjects = ({
     "Margin",
     "Tooltip",
     "Colors",
-    // "Format",
+    "Format",
     "Style",
     "Sort",
   ];
@@ -145,6 +147,7 @@ const ChartControlObjects = ({
     "Colors",
     "Style",
     "Sort",
+    "Format",
   ];
   const simpleCardOptionList: string[] = [
     "Label",
