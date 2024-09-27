@@ -34,7 +34,7 @@ import {
 } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import UserFilterCardForDm from "../ChartFieldFilter/UserFilterCardForDm";
 import Logger from "../../Logger";
-import { updateFormatOption } from "../../redux/ChartPoperties/ChartControlsActions";
+import { updateChartData, updateFormatOption } from "../../redux/ChartPoperties/ChartControlsActions";
 //import { StyledEngineProvider } from '@mui/material/styles';
 
 const DropZone = ({
@@ -60,6 +60,7 @@ const DropZone = ({
 	moveItemChartPropForDm,
 	updateQueryParam,
 	updateFormat,
+	updateChartData
 }: DropZoneProps & any) => {
 
 	const [severity, setSeverity] = useState<AlertColor>("success");
@@ -368,6 +369,7 @@ const DropZone = ({
 		const currentFormats = chartControls.properties[propKey].formatOptions.labelFormats.measureFormats;
 
 		const measureTracker: any = {};
+		const updatedChartData: any[] = [];
 
 		measureFields.forEach((field: any) => {
 			measureTracker[field.uId] = currentFormats[field.uId] || {
@@ -378,8 +380,8 @@ const DropZone = ({
 				numberSeparator: 'Abbrev',
 				percentageCalculate: false
 			};
-		});
-
+		});		
+	
 		// Only update if there are changes
 		if (JSON.stringify(measureTracker) !== JSON.stringify(currentFormats)) {
 			handleUpdateFormat("measureFormats", measureTracker, "labelFormats");
@@ -883,6 +885,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 
 		updateFormat: (propKey: string, formatType: any, option: string, value: any) =>
 			dispatch(updateFormatOption(propKey, formatType, option, value)),
+		updateChartData: (propKey: string, chartData: string | any) =>
+			dispatch(updateChartData(propKey, chartData)),
 	};
 };
 

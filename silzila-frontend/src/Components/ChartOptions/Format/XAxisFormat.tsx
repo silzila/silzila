@@ -26,6 +26,41 @@ const XAxisFormat = ({
 		{ type: "Abbrev", value: "Abbrev" },
 	];
 
+	const formatOptions: any[] = [
+		{ type: "Number", value: "Number" },
+		{ type: "Currency", value: "Currency" },
+		{ type: "Percent", value: "Percent" },
+	];
+
+	const renderFormatOptions = () => {
+
+		return formatOptions.map((item: any) => {
+
+			console.log('The format object is :', formatObject)
+
+			return (
+				<div
+					key={item.value}
+					className={
+						item.value === formatObject?.formatValue
+							? "radioButtonSelected"
+							: "radioButton"
+					}
+					onClick={() => {
+
+						if (item.value === "Percent") {
+							updateFormat(propKey, "xAxisFormats", "formatValue", item.value);
+						} else {
+							updateFormat(propKey, "xAxisFormats", "formatValue", item.value);
+						}
+					}}
+				>
+					{item.type}
+				</div>
+			);
+		});
+	};
+
 	const renderSeparatorOptions = () => {
 		return separatorOptions.map(item => {
 			return (
@@ -50,6 +85,11 @@ const XAxisFormat = ({
 	return (
 		<React.Fragment>
 			<div className="optionDescription">X-AXIS MEASURE FORMAT</div>
+
+			{/* <div className="optionDescription" style={{ marginTop: "10px" }}>FORMAT VALUE</div> */}
+			{/* <div className="radioButtons" style={{ padding: "0" }}>
+				{renderFormatOptions()}
+			</div> */}
 
 			<div className="optionDescription">
 				<label htmlFor="enableDisable" className="enableDisableLabel">

@@ -238,6 +238,9 @@ export interface ChartConXAxisFormats {
   enableRounding: boolean;
   roundingDigits: number;
   numberSeparator: string | any;
+  formatValue: string | any;
+  currencySymbol: string | any;
+  percentageCalculate: boolean;
 }
 
 interface ChartConFormateOptions {

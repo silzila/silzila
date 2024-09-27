@@ -5,6 +5,8 @@ import Decimal from 'decimal.js';
 // Given a number this function returns an abbreviated number
 // Eg 1000000 will be returned as 1M
 export const formatNumberWithAbbrev = (value: any, digits: any) => {
+	console.log(value);
+
 	let multipyWithOne = value > 0 ? 1 : -1;
 
 	let curValue = Math.abs(Number(value)) >= 1.0e9
@@ -15,7 +17,7 @@ export const formatNumberWithAbbrev = (value: any, digits: any) => {
 			: // Three Zeroes for Thousands
 			Math.abs(Number(value)) >= 1.0e3
 				? ((Math.abs(Number(value)) / 1.0e3) * multipyWithOne).toFixed(digits) + "K"
-				: (Math.abs(Number(value)) * multipyWithOne);
+				: Math.abs(Number(value)) < 1 ? Number(value).toFixed(digits) : Number(value);
 
 	return curValue;
 };
@@ -72,9 +74,7 @@ export const formatChartLabelValueForSelectedMeasure = (
 	value: any,
 	columnName: string, // this is the displayname of the measure
 ) => {
-	
-	console.log('column name is: ', columnName);
-		
+
 	const measureAxis = chartProperties.chartAxes.find((item: any) => item.name === 'Measure');
 	if (!measureAxis) {
 		console.warn('Measure axis not found');
@@ -91,11 +91,17 @@ export const formatChartLabelValueForSelectedMeasure = (
 	const measureFormat = chartControl.formatOptions.labelFormats?.measureFormats[uId];
 
 	if (!measureFormat) {
-		console.warn(`Measure format for uId "${uId}" not found`);
 		return value;
 	}
 
-	if (measureFormat.percentageCalculate) {
+	if (!(columnName.length > 0)) {
+		return value;
+	}
+
+	// value = removeTrailingZeros(value);
+
+	if (measureFormat.percentageCalculate) {	
+		
 		value = new Decimal(value).times(100);
 	}
 
@@ -104,10 +110,11 @@ export const formatChartLabelValueForSelectedMeasure = (
 	}
 
 	if (measureFormat.numberSeparator === "Abbrev") {
-		var text = value.toString();
+		const valueTemp = value
+
+		var text = valueTemp.toString();
 		var index = text.indexOf(".");
-		if (index === -1) {
-			index = text.length;
+		if ((index = -1)) {
 		}
 		var roundOriginalDigits = text.length - index - 1;
 
@@ -224,3 +231,7 @@ export const formatChartXAxisValue = (chartControl: any, value: any) => {
 
 	return value;
 };
+
+function removeTrailingZeros(number: number) {
+	return number.toString().replace(/\.0+$/, '');
+}

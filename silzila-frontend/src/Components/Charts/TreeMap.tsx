@@ -190,10 +190,10 @@ const Treemap = ({
     if (dimsLength.length === parseInt(treePath.length)) {
       return [
         '<div class="tooltip-title">' +
-          formatUtil.encodeHTML(treePath.join(">")) +
-          "</div>",
+        formatUtil.encodeHTML(treePath.join(">")) +
+        "</div>",
         `${chartProperties.properties[propKey].chartAxes[2].fields[0].displayname} ` +
-          formatUtil.addCommas(value),
+        formatUtil.addCommas(value),
       ].join("");
     } else {
       return `${info.data.name}`;
@@ -221,8 +221,8 @@ const Treemap = ({
           border: chartArea
             ? "none"
             : graphTileSize
-            ? "none"
-            : "1px solid rgb(238,238,238)",
+              ? "none"
+              : "1px solid rgb(238,238,238)",
         }}
         option={{
           color: chartThemes[0].colors,
@@ -270,7 +270,7 @@ const Treemap = ({
                 align: chartControl.treeMapChartControls.horizondalAlign,
                 verticalAlign: chartControl.treeMapChartControls.verticalAlign,
                 overflow: chartControl.treeMapChartControls.overFlow,
-              },
+              }, 
               itemStyle: {
                 borderWidth: chartControl.treeMapChartControls.borderWidth,
                 gapWidth: chartControl.treeMapChartControls.gapWidth,

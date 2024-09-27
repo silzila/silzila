@@ -21,6 +21,8 @@ const LabelFormatting = ({
 	// dispatch
 	updateFormat,
 	updateFormatForDm,
+	updateFormatX,
+	updateFormatY
 }: ChartOptionsProps &
 	any & {
 		updateFormat: (propKey: string, formatType: any, option: string, value: any) => void;
@@ -41,7 +43,7 @@ const LabelFormatting = ({
 	];
 
 	const [measuresList, setMeasuresList] = useState<any[]>([]);
-	const [selectedMeasure, setSelectedMeasure] = useState<any>(chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartType === "crossTab" ? 3 : 2].fields[0]);
+	const [selectedMeasure, setSelectedMeasure] = useState<any>(chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]);
 
 	useEffect(() => {
 
@@ -249,7 +251,7 @@ const LabelFormatting = ({
 					{
 
 						// crosstab has 3 axes, Table has 2
-						chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartType === "crossTab" ? 3 : 2].fields.map((item: any, index: number) => {
+						chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields.map((item: any, index: number) => {
 							return (
 								<MenuItem
 									key={index}
@@ -263,8 +265,8 @@ const LabelFormatting = ({
 				</Select>
 
 			</FormControl>
-			<div className="optionDescription" style={{marginTop: "10px"}}>FORMAT VALUE</div>
-			<div className="radioButtons" style={{ padding: "0", margin: "auto auto 10px auto" }}>
+			<div className="optionDescription" style={{ marginTop: "10px" }}>FORMAT VALUE</div>
+			<div className="radioButtons" style={{ padding: "0" }}>
 				{renderFormatOptions()}
 			</div>
 
@@ -273,7 +275,7 @@ const LabelFormatting = ({
 				formatObject.measureFormats[formatObject.selectedMeasure.uId]?.formatValue === "Percent" ? <>
 					<div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
 						<span className="optionDescription"> PERCENT TYPE </span>
-						<div className="radioButtons" style={{ padding: "0", margin: "auto auto 10px auto" }}>
+						<div className="radioButtons" style={{ padding: "0" }}>
 							<div
 								className={
 									formatObject.measureFormats[formatObject.selectedMeasure.uId]?.percentageCalculate === true
@@ -321,7 +323,7 @@ const LabelFormatting = ({
 
 			{formatObject.measureFormats[formatObject.selectedMeasure.uId]?.formatValue === "Currency" ? (
 				<>
-					<div className="optionDescription" style={{ marginTop: "0.5rem" }}>
+					<div className="optionDescription" style={{ marginTop: "0.5rem", paddingBottom: '0' }}>
 						<span style={{ margin: "auto" }}>Curency Symbol</span>
 						<InputSymbol
 							value={formatObject.measureFormats[formatObject.selectedMeasure.uId]?.currencySymbol}
@@ -339,7 +341,7 @@ const LabelFormatting = ({
 				</>
 			) : null}
 
-			<div style={{ borderTop: "1px solid rgb(211,211,211)", margin: "1rem 6% 1rem" }}></div>
+			<div style={{ borderTop: "1px solid rgb(211,211,211)", margin: "1rem 6% 1rem", marginBottom: "6px" }}></div>
 			{chartProperties.properties[propKey].chartType === "crossTab" ||
 				chartProperties.properties[propKey].chartType === "richText" ? (
 				<div className="optionDescription">FORMAT</div>
@@ -424,6 +426,10 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 			dispatch(updateFormatOption(propKey, formatType, option, value)),
 		updateFormatForDm: (dmKey: string, option: string, value: any) =>
 			dispatch(updateFormatForDm(dmKey, option, value)),
+		updateFormatX: (propKey: string, formatType: string | any, option: string, value: any) =>
+			dispatch(updateFormatOption(propKey, formatType, option, value)),
+		updateFormatY: (propKey: string, formatType: string | number, option: string, value: any) =>
+			dispatch(updateFormatOption(propKey, formatType, option, value)),
 	};
 };
 

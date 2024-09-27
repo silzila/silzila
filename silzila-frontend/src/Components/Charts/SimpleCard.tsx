@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { connect } from "react-redux";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
-import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
+import { formatChartLabelValue, formatChartLabelValueForSelectedMeasure } from "../ChartOptions/Format/NumberFormatter";
 import { ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 import { Dispatch } from "redux";
@@ -76,7 +76,12 @@ const SimpleCard = ({
 
   const getFormatedChartData = () => {
     var formattedValue = cardData;
-    formattedValue = formatChartLabelValue(chartControl, formattedValue);
+    formattedValue = formatChartLabelValueForSelectedMeasure(
+      chartControls.properties[propKey],
+      chartProperties.properties[propKey],
+      formattedValue,
+      chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname ? chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname : ""
+    );
     return formattedValue;
   };
   var chartThemes: any[] = ColorSchemes.filter((el) => {
@@ -94,8 +99,8 @@ const SimpleCard = ({
           border: chartArea
             ? "none"
             : graphTileSize
-            ? "none"
-            : "1px solid rgb(238,238,238)",
+              ? "none"
+              : "1px solid rgb(238,238,238)",
         }}
       >
         <div
@@ -264,19 +269,19 @@ export default connect(mapStateToProps, mapDispatchToProps)(SimpleCard);
 // eslint-disable-next-line no-lone-blocks
 {
   /* <span
-									style={{
-										fontSize: `${chartControl.cardControls.fontSize}px`,
-										color: chartThemes[0].colors[0],
-									}}
-								>
-									{getFormatedChartData()}
-								</span>
-								<span
-									style={{
-										fontSize: `${chartControl.cardControls.subtextFontSize}px`,
-										color: chartThemes[0].colors[1],
-									}}
-								>
-									{Object.keys(chartData[0])[0]}
-								</span> */
+                  style={{
+                    fontSize: `${chartControl.cardControls.fontSize}px`,
+                    color: chartThemes[0].colors[0],
+                  }}
+                >
+                  {getFormatedChartData()}
+                </span>
+                <span
+                  style={{
+                    fontSize: `${chartControl.cardControls.subtextFontSize}px`,
+                    color: chartThemes[0].colors[1],
+                  }}
+                >
+                  {Object.keys(chartData[0])[0]}
+                </span> */
 }
