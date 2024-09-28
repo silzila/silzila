@@ -1055,7 +1055,7 @@ public class ConnectionPoolService {
                         throw new BadRequestException("Error: Schema name is not provided!");
                     }
 
-                    query = "SELECT * FROM " + schemaName + "." + tableName + " AS " + tableId + " " + whereClause + " FETCH FIRST " + recordCount + " ROWS ONLY";
+                    query = "SELECT * FROM " + schemaName + "." + tableName + " " + tableId + " " + whereClause + " FETCH FIRST " + recordCount + " ROWS ONLY";
                 }
                 // snowflake
                 else if (vendorName.equalsIgnoreCase("snowflake")) {
