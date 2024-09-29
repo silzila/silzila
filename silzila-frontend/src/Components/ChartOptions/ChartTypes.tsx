@@ -315,36 +315,29 @@ const ChartTypes = ({
               oldChartAxes[1].fields[0].dataType === "date" ||
               oldChartAxes[1].fields[0].dataType === "timestamp"
             ) {
+              keepOldData(propKey, false);
+              updateChartData(propKey, "");
+
+              newChartAxes[0].fields = oldChartAxes[0].fields;
               if (oldChartAxes[1].fields[0].timeGrain === "date") {
-                keepOldData(propKey, false);
-                updateChartData(propKey, "");
-
-                newChartAxes[0].fields = oldChartAxes[0].fields;
-                newChartAxes[1].fields = oldChartAxes[1].fields;
-                if (oldChartAxes[2].fields.length > 0)
-                  newChartAxes[2].fields.push(oldChartAxes[2].fields[0]);
-                return newChartAxes;
+                newChartAxes[1].fields.push(oldChartAxes[1].fields[0]);
               } else {
-                keepOldData(propKey, false);
-                updateChartData(propKey, "");
-
-                newChartAxes[0].fields = oldChartAxes[0].fields;
+                //In case of Calendar chart timegrain should be date
                 newChartAxes[1].fields = [
                   {
                     dataType: oldChartAxes[1].fields[0].dataType,
-                    // displayname: oldChartAxes[1].fields[0].displayname,
                     displayname:
-                      "date of " + oldChartAxes[1].fields[0].fieldname,
+                      "date of " + oldChartAxes[1].fields[0].fieldname, // timegrain changed to date so change display name
                     fieldname: oldChartAxes[1].fields[0].fieldname,
                     tableId: oldChartAxes[1].fields[0].tableId,
                     uId: oldChartAxes[1].fields[0].uId,
                     timeGrain: "date",
                   },
                 ];
-                if (oldChartAxes[2].fields.length > 0)
-                  newChartAxes[2].fields.push(oldChartAxes[2].fields[0]);
-                return newChartAxes;
               }
+              if (oldChartAxes[2].fields.length > 0)
+                newChartAxes[2].fields.push(oldChartAxes[2].fields[0]);
+              return newChartAxes;
             } else {
               keepOldData(propKey, false);
 
@@ -359,7 +352,7 @@ const ChartTypes = ({
             updateChartData(propKey, "");
 
             newChartAxes[0].fields = oldChartAxes[0].fields;
-            newChartAxes[1].fields = oldChartAxes[1].fields;
+            newChartAxes[1].fields.push(oldChartAxes[1].fields[0]);
             if (oldChartAxes[2].fields.length > 0)
               newChartAxes[2].fields.push(oldChartAxes[2].fields[0]);
             return newChartAxes;
@@ -712,6 +705,7 @@ const ChartTypes = ({
                 keepOldData(propKey, true);
                 return oldChartAxes;
               } else {
+                //In case of Calendar chart timegrain should be date
                 keepOldData(propKey, false);
                 updateChartData(propKey, "");
 
@@ -720,7 +714,7 @@ const ChartTypes = ({
                   {
                     dataType: oldChartAxes[1].fields[0].dataType,
                     displayname:
-                      "date of " + oldChartAxes[1].fields[0].fieldname,
+                      "date of " + oldChartAxes[1].fields[0].fieldname, // timegrain changed to date so change display name
                     fieldname: oldChartAxes[1].fields[0].fieldname,
                     tableId: oldChartAxes[1].fields[0].tableId,
                     uId: oldChartAxes[1].fields[0].uId,
@@ -873,76 +867,37 @@ const ChartTypes = ({
           return newChartAxes;
         }
 
-        // if (newChart === "calendar") {
-        //   keepOldData(propKey, false);
-
-        //   if (oldChartAxes[0].fields.length > 0) {
-        //     newChartAxes[0].fields = oldChartAxes[0].fields;
-        //   }
-
-        //   if (oldChartAxes[1].fields.length > 0) {
-        //     if (
-        //       oldChartAxes[1].fields[0].dataType === "date" ||
-        //       oldChartAxes[1].fields[0].dataType === "timestamp"
-        //     ) {
-        //       newChartAxes[1].fields = oldChartAxes[1].fields;
-        //       newChartAxes[1].fields[0].displayName =
-        //         "date Of " + oldChartAxes[1].fields[0].fieldName;
-        //       newChartAxes[1].fields[0].timeGrain = "date";
-        //     } else {
-        //       newChartAxes[1].fields = [];
-        //     }
-        //   }
-
-        //   newChartAxes[2].fields = getFieldsToChartAllowedNumbers(newChart, 2, [
-        //     ...oldChartAxes[2].fields,
-        //     ...oldChartAxes[3].fields,
-        //   ]);
-
-        //   updateChartData(propKey, "");
-        //   return newChartAxes;
-        // }
-
         if (newChart === "calendar") {
           if (oldChartAxes[1].fields.length > 0) {
             if (
               oldChartAxes[1].fields[0].dataType === "date" ||
               oldChartAxes[1].fields[0].dataType === "timestamp"
             ) {
+              keepOldData(propKey, false);
+              updateChartData(propKey, "");
+
+              newChartAxes[0].fields = oldChartAxes[0].fields;
               if (oldChartAxes[1].fields[0].timeGrain === "date") {
-                keepOldData(propKey, false);
-                updateChartData(propKey, "");
-
-                newChartAxes[0].fields = oldChartAxes[0].fields;
                 newChartAxes[1].fields = oldChartAxes[1].fields;
-                if (oldChartAxes[3].fields.length > 0)
-                  newChartAxes[2].fields.push(oldChartAxes[3].fields[0]);
-                else if (oldChartAxes[2].fields.length > 0)
-                  newChartAxes[2].fields.push(oldChartAxes[2].fields[0]);
-                return newChartAxes;
               } else {
-                keepOldData(propKey, false);
-                updateChartData(propKey, "");
-
-                newChartAxes[0].fields = oldChartAxes[0].fields;
+                //In case of Calendar chart timegrain should be date
                 newChartAxes[1].fields = [
                   {
                     dataType: oldChartAxes[1].fields[0].dataType,
-                    // displayname: oldChartAxes[1].fields[0].displayname,
                     displayname:
-                      "date of " + oldChartAxes[1].fields[0].fieldname,
+                      "date of " + oldChartAxes[1].fields[0].fieldname, // timegrain changed to date so change display name
                     fieldname: oldChartAxes[1].fields[0].fieldname,
                     tableId: oldChartAxes[1].fields[0].tableId,
                     uId: oldChartAxes[1].fields[0].uId,
                     timeGrain: "date",
                   },
                 ];
-                if (oldChartAxes[3].fields.length > 0)
-                  newChartAxes[2].fields = oldChartAxes[3].fields;
-                else if (oldChartAxes[2].fields.length > 0)
-                  newChartAxes[2].fields.push(oldChartAxes[2].fields[0]);
-                return newChartAxes;
               }
+              if (oldChartAxes[3].fields.length > 0)
+                newChartAxes[2].fields = oldChartAxes[3].fields;
+              else if (oldChartAxes[2].fields.length > 0)
+                newChartAxes[2].fields.push(oldChartAxes[2].fields[0]);
+              return newChartAxes;
             } else {
               keepOldData(propKey, false);
 
@@ -988,21 +943,6 @@ const ChartTypes = ({
           return newChartAxes;
         }
 
-        // if (newChart === "gauge" || newChart === "richText") {
-        //   keepOldData(propKey, false);
-        //   newChartAxes[1].fields = getFieldsToChartAllowedNumbers(
-        //     newChart,
-        //     1,
-        //     oldChartAxes[2].fields,
-        //     oldChartAxes[3].fields
-        //   );
-        //   // Map filter to Filter
-        //   if (oldChartAxes[0].fields.length > 0)
-        //     newChartAxes[0].fields = oldChartAxes[0].fields;
-
-        //   return newChartAxes;
-        // }
-
         if (
           newChart === "heatmap" ||
           newChart === "crossTab" ||
@@ -1018,10 +958,6 @@ const ChartTypes = ({
             oldChartAxes[2].fields,
             oldChartAxes[3].fields
           );
-          // if (oldChartAxes[2].fields.length > 0)
-          //   newChartAxes[3].fields.push(oldChartAxes[2].fields[0]);
-          // else if (oldChartAxes[3].fields.length > 0)
-          //   newChartAxes[3].fields.push(oldChartAxes[3].fields[0]);
 
           // Map filter to Filter
           if (oldChartAxes[0].fields.length > 0)
@@ -1198,24 +1134,6 @@ const ChartTypes = ({
           return newChartAxes;
         }
 
-        // if (newChart === "funnel") {
-        //   keepOldData(propKey, false);
-
-        //   return oldChartAxes;
-        // }
-
-        // if (newChart === "heatmap") {
-        //   keepOldData(propKey, false);
-        //   if (oldChartAxes[1].fields.length > 0)
-        //     newChartAxes[3].fields.push(oldChartAxes[1].fields[0]);
-
-        //   // Map filter to Filter
-        //   if (oldChartAxes[0].fields.length > 0)
-        //     newChartAxes[0].fields = oldChartAxes[0].fields;
-
-        //   return newChartAxes;
-        // }
-
         if (
           newChart === "crossTab" ||
           newChart === "boxPlot" ||
@@ -1283,75 +1201,30 @@ const ChartTypes = ({
           return newChartAxes;
         }
 
-        // if (newChart === "calendar") {
-        //   keepOldData(propKey, false);
-        //   if (oldChartAxes[0].fields.length > 0) {
-        //     newChartAxes[0].fields = oldChartAxes[0].fields;
-        //   }
-        //   if (oldChartAxes[1].fields.length > 0) {
-        //     const row = oldChartAxes[1].fields.filter((el: any) => {
-        //       return el.dataType === "date" || el.dataType === "timestamp";
-        //     });
-        //     const column = oldChartAxes[2].fields.filter((el: any) => {
-        //       return el.dataType === "date" || el.dataType === "timestamp";
-        //     });
-
-        //     newChartAxes[1].fields = getFieldsToChartAllowedNumbers(
-        //       newChart,
-        //       1,
-        //       [...row, ...column]
-        //     );
-        //     if (newChartAxes[1].fields.length > 0) {
-        //       newChartAxes[1].fields[0].timeGrain = "date";
-        //     }
-        //   }
-
-        //   if (oldChartAxes[3].fields.length > 0) {
-        //     newChartAxes[2].fields = getFieldsToChartAllowedNumbers(
-        //       newChart,
-        //       2,
-        //       oldChartAxes[3].fields
-        //     );
-        //   }
-        //   updateChartData(propKey, "");
-
-        //   return newChartAxes;
-        // }
-
         if (newChart === "calendar") {
           if (oldChartAxes[1].fields.length > 0) {
             if (
               oldChartAxes[1].fields[0].dataType === "date" ||
               oldChartAxes[1].fields[0].dataType === "timestamp"
             ) {
-              if (oldChartAxes[1].fields[0].timeGrain === "date") {
-                keepOldData(propKey, false);
-                newChartAxes[0].fields = oldChartAxes[0].fields;
-                newChartAxes[1].fields = oldChartAxes[1].fields;
-                if (oldChartAxes[3].fields.length > 0)
-                  newChartAxes[2].fields = oldChartAxes[3].fields;
-                return newChartAxes;
-              } else {
-                keepOldData(propKey, false);
-                updateChartData(propKey, "");
+              keepOldData(propKey, false);
+              updateChartData(propKey, "");
 
-                newChartAxes[0].fields = oldChartAxes[0].fields;
-                newChartAxes[1].fields = [
-                  {
-                    dataType: oldChartAxes[1].fields[0].dataType,
-                    // displayname: oldChartAxes[1].fields[0].displayname,
-                    displayname:
-                      "date of " + oldChartAxes[1].fields[0].fieldname,
-                    fieldname: oldChartAxes[1].fields[0].fieldname,
-                    tableId: oldChartAxes[1].fields[0].tableId,
-                    uId: oldChartAxes[1].fields[0].uId,
-                    timeGrain: "date",
-                  },
-                ];
-                if (oldChartAxes[3].fields.length > 0)
-                  newChartAxes[2].fields = oldChartAxes[3].fields;
-                return newChartAxes;
-              }
+              newChartAxes[0].fields = oldChartAxes[0].fields;
+              //In case of Calendar chart timegrain should be date
+              newChartAxes[1].fields = [
+                {
+                  dataType: oldChartAxes[1].fields[0].dataType,
+                  displayname: "date of " + oldChartAxes[1].fields[0].fieldname, // timegrain changed to date so change display name
+                  fieldname: oldChartAxes[1].fields[0].fieldname,
+                  tableId: oldChartAxes[1].fields[0].tableId,
+                  uId: oldChartAxes[1].fields[0].uId,
+                  timeGrain: "date",
+                },
+              ];
+              if (oldChartAxes[3].fields.length > 0)
+                newChartAxes[2].fields = oldChartAxes[3].fields;
+              return newChartAxes;
             } else {
               keepOldData(propKey, false);
 
@@ -1366,34 +1239,24 @@ const ChartTypes = ({
               oldChartAxes[2].fields[0].dataType === "date" ||
               oldChartAxes[2].fields[0].dataType === "timestamp"
             ) {
-              if (oldChartAxes[2].fields[0].timeGrain === "date") {
-                keepOldData(propKey, false);
-                newChartAxes[0].fields = oldChartAxes[0].fields;
-                newChartAxes[1].fields = oldChartAxes[2].fields;
-                if (oldChartAxes[3].fields.length > 0)
-                  newChartAxes[2].fields = oldChartAxes[3].fields;
-                return newChartAxes;
-              } else {
-                keepOldData(propKey, false);
-                updateChartData(propKey, "");
+              keepOldData(propKey, false);
+              updateChartData(propKey, "");
 
-                newChartAxes[0].fields = oldChartAxes[0].fields;
-                newChartAxes[1].fields = [
-                  {
-                    dataType: oldChartAxes[2].fields[0].dataType,
-                    // displayname: oldChartAxes[1].fields[0].displayname,
-                    displayname:
-                      "date of " + oldChartAxes[2].fields[0].fieldname,
-                    fieldname: oldChartAxes[2].fields[0].fieldname,
-                    tableId: oldChartAxes[2].fields[0].tableId,
-                    uId: oldChartAxes[2].fields[0].uId,
-                    timeGrain: "date",
-                  },
-                ];
-                if (oldChartAxes[3].fields.length > 0)
-                  newChartAxes[2].fields = oldChartAxes[3].fields;
-                return newChartAxes;
-              }
+              newChartAxes[0].fields = oldChartAxes[0].fields;
+              //In case of Calendar chart timegrain should be date
+              newChartAxes[1].fields = [
+                {
+                  dataType: oldChartAxes[2].fields[0].dataType,
+                  displayname: "date of " + oldChartAxes[2].fields[0].fieldname, // timegrain changed to date so change display name
+                  fieldname: oldChartAxes[2].fields[0].fieldname,
+                  tableId: oldChartAxes[2].fields[0].tableId,
+                  uId: oldChartAxes[2].fields[0].uId,
+                  timeGrain: "date",
+                },
+              ];
+              if (oldChartAxes[3].fields.length > 0)
+                newChartAxes[2].fields = oldChartAxes[3].fields;
+              return newChartAxes;
             } else {
               keepOldData(propKey, false);
 
@@ -1512,66 +1375,21 @@ const ChartTypes = ({
           return newChartAxes;
         }
 
-        // if (newChart === "calendar") {
-        //   keepOldData(propKey, false);
-        //   if (oldChartAxes[0].fields.length > 0) {
-        //     newChartAxes[0].fields = oldChartAxes[0].fields;
-        //   }
-
-        //   if (oldChartAxes[1].fields.length > 0) {
-        //     const row = oldChartAxes[1].fields.filter((el: any) => {
-        //       return el.dataType === "date" || el.dataType === "timestamp";
-        //     });
-        //     const column = oldChartAxes[2].fields.filter((el: any) => {
-        //       return el.dataType === "date" || el.dataType === "timestamp";
-        //     });
-
-        //     newChartAxes[1].fields = getFieldsToChartAllowedNumbers(
-        //       newChart,
-        //       1,
-        //       [...row, ...column]
-        //     );
-        //     if (newChartAxes[1].fields.length > 0) {
-        //       newChartAxes[1].fields[0].timeGrain = "date";
-        //     }
-        //   }
-
-        //   if (oldChartAxes[3].fields.length > 0) {
-        //     newChartAxes[2].fields = getFieldsToChartAllowedNumbers(
-        //       newChart,
-        //       2,
-        //       oldChartAxes[3].fields
-        //     );
-        //   }
-        //   updateChartData(propKey, "");
-
-        //   return newChartAxes;
-        // }
-
         if (newChart === "calendar") {
           if (oldChartAxes[1].fields.length > 0) {
             if (
               oldChartAxes[1].fields[0].dataType === "date" ||
               oldChartAxes[1].fields[0].dataType === "timestamp"
             ) {
-              // if (oldChartAxes[1].fields[0].timeGrain === "date") {
-              //   keepOldData(propKey, false);
-              //   updateChartData(propKey, "");
-              //   newChartAxes[0].fields.push(oldChartAxes[0].fields[0]);
-              //   newChartAxes[1].fields.push(oldChartAxes[1].fields[0]);
-              //   if (oldChartAxes[3].fields.length > 0)
-              //     newChartAxes[2].fields.push(oldChartAxes[3].fields[0]);
-              //   return newChartAxes;
-              // } else {
               keepOldData(propKey, false);
               updateChartData(propKey, "");
 
               newChartAxes[0].fields = oldChartAxes[0].fields;
+              //In case of Calendar chart timegrain should be date
               newChartAxes[1].fields = [
                 {
                   dataType: oldChartAxes[1].fields[0].dataType,
-                  // displayname: oldChartAxes[1].fields[0].displayname,
-                  displayname: "date of " + oldChartAxes[1].fields[0].fieldname,
+                  displayname: "date of " + oldChartAxes[1].fields[0].fieldname, // timegrain changed to date so change display name
                   fieldname: oldChartAxes[1].fields[0].fieldname,
                   tableId: oldChartAxes[1].fields[0].tableId,
                   uId: oldChartAxes[1].fields[0].uId,
@@ -1581,7 +1399,6 @@ const ChartTypes = ({
               if (oldChartAxes[3].fields.length > 0)
                 newChartAxes[2].fields.push(oldChartAxes[3].fields[0]);
               return newChartAxes;
-              // }
             } else {
               keepOldData(propKey, false);
 
@@ -1596,34 +1413,24 @@ const ChartTypes = ({
               oldChartAxes[2].fields[0].dataType === "date" ||
               oldChartAxes[2].fields[0].dataType === "timestamp"
             ) {
-              if (oldChartAxes[2].fields[0].timeGrain === "date") {
-                keepOldData(propKey, false);
-                newChartAxes[0].fields.push(oldChartAxes[0].fields[0]);
-                newChartAxes[1].fields.push(oldChartAxes[2].fields[0]);
-                if (oldChartAxes[3].fields.length > 0)
-                  newChartAxes[2].fields.push(oldChartAxes[3].fields[0]);
-                return newChartAxes;
-              } else {
-                keepOldData(propKey, false);
-                updateChartData(propKey, "");
+              keepOldData(propKey, false);
+              updateChartData(propKey, "");
 
-                newChartAxes[0].fields = oldChartAxes[0].fields;
-                newChartAxes[1].fields = [
-                  {
-                    dataType: oldChartAxes[2].fields[0].dataType,
-                    // displayname: oldChartAxes[1].fields[0].displayname,
-                    displayname:
-                      "date of " + oldChartAxes[2].fields[0].fieldname,
-                    fieldname: oldChartAxes[2].fields[0].fieldname,
-                    tableId: oldChartAxes[2].fields[0].tableId,
-                    uId: oldChartAxes[2].fields[0].uId,
-                    timeGrain: "date",
-                  },
-                ];
-                if (oldChartAxes[3].fields.length > 0)
-                  newChartAxes[2].fields.push(oldChartAxes[3].fields[0]);
-                return newChartAxes;
-              }
+              newChartAxes[0].fields = oldChartAxes[0].fields;
+              //In case of Calendar chart timegrain should be date
+              newChartAxes[1].fields = [
+                {
+                  dataType: oldChartAxes[2].fields[0].dataType,
+                  displayname: "date of " + oldChartAxes[2].fields[0].fieldname, // timegrain changed to date so change display name
+                  fieldname: oldChartAxes[2].fields[0].fieldname,
+                  tableId: oldChartAxes[2].fields[0].tableId,
+                  uId: oldChartAxes[2].fields[0].uId,
+                  timeGrain: "date",
+                },
+              ];
+              if (oldChartAxes[3].fields.length > 0)
+                newChartAxes[2].fields.push(oldChartAxes[3].fields[0]);
+              return newChartAxes;
             } else {
               keepOldData(propKey, false);
 
@@ -1656,13 +1463,6 @@ const ChartTypes = ({
             oldChartAxes[1].fields,
             oldChartAxes[2].fields
           );
-
-          // if (oldChartAxes[3].fields.length > 0)
-          //   newChartAxes[3].fields = getFieldsToChartAllowedNumbers(
-          //     newChart,
-          //     3,
-          //     oldChartAxes[3].fields
-          //   );
 
           // Map Value to X and Y columns if there are more than one values
           if (oldChartAxes[3].fields.length > 0) {
@@ -1783,76 +1583,29 @@ const ChartTypes = ({
           return newChartAxes;
         }
 
-        // if (newChart === "calendar") {
-        //   keepOldData(propKey, false);
-        //   if (oldChartAxes[0].fields.length > 0) {
-        //     newChartAxes[0].fields = oldChartAxes[0].fields;
-        //   }
-
-        //   if (oldChartAxes[1].fields.length > 0) {
-        //     const row = oldChartAxes[1].fields.filter((el: any) => {
-        //       return el.dataType === "date" || el.dataType === "timestamp";
-        //     });
-        //     const column = oldChartAxes[2].fields.filter((el: any) => {
-        //       return el.dataType === "date" || el.dataType === "timestamp";
-        //     });
-
-        //     newChartAxes[1].fields = getFieldsToChartAllowedNumbers(
-        //       newChart,
-        //       1,
-        //       [...row, ...column]
-        //     );
-        //     if (newChartAxes[1].fields.length > 0) {
-        //       newChartAxes[1].fields[0].timeGrain = "date";
-        //     }
-        //   }
-
-        //   if (oldChartAxes[3].fields.length > 0) {
-        //     newChartAxes[2].fields = getFieldsToChartAllowedNumbers(
-        //       newChart,
-        //       2,
-        //       oldChartAxes[3].fields
-        //     );
-        //   }
-        //   updateChartData(propKey, "");
-
-        //   return newChartAxes;
-        // }
-
         if (newChart === "calendar") {
           if (oldChartAxes[2].fields.length > 0) {
             if (
               oldChartAxes[2].fields[0].dataType === "date" ||
               oldChartAxes[2].fields[0].dataType === "timestamp"
             ) {
-              if (oldChartAxes[2].fields[0].timeGrain === "date") {
-                keepOldData(propKey, false);
-                newChartAxes[0].fields = oldChartAxes[0].fields;
-                newChartAxes[1].fields = oldChartAxes[2].fields;
-                if (oldChartAxes[3].fields.length > 0)
-                  newChartAxes[2].fields = oldChartAxes[3].fields;
-                return newChartAxes;
-              } else {
-                keepOldData(propKey, false);
-                updateChartData(propKey, "");
+              keepOldData(propKey, false);
+              updateChartData(propKey, "");
 
-                newChartAxes[0].fields = oldChartAxes[0].fields;
-                newChartAxes[1].fields = [
-                  {
-                    dataType: oldChartAxes[2].fields[0].dataType,
-                    // displayname: oldChartAxes[1].fields[0].displayname,
-                    displayname:
-                      "date of " + oldChartAxes[2].fields[0].fieldname,
-                    fieldname: oldChartAxes[2].fields[0].fieldname,
-                    tableId: oldChartAxes[2].fields[0].tableId,
-                    uId: oldChartAxes[2].fields[0].uId,
-                    timeGrain: "date",
-                  },
-                ];
-                if (oldChartAxes[3].fields.length > 0)
-                  newChartAxes[2].fields = oldChartAxes[3].fields;
-                return newChartAxes;
-              }
+              newChartAxes[0].fields = oldChartAxes[0].fields;
+              newChartAxes[1].fields = [
+                {
+                  dataType: oldChartAxes[2].fields[0].dataType,
+                  displayname: "date of " + oldChartAxes[2].fields[0].fieldname, // timegrain changed to date so change display name
+                  fieldname: oldChartAxes[2].fields[0].fieldname,
+                  tableId: oldChartAxes[2].fields[0].tableId,
+                  uId: oldChartAxes[2].fields[0].uId,
+                  timeGrain: "date",
+                },
+              ];
+              if (oldChartAxes[3].fields.length > 0)
+                newChartAxes[2].fields = oldChartAxes[3].fields;
+              return newChartAxes;
             } else {
               keepOldData(propKey, false);
 
@@ -1867,34 +1620,23 @@ const ChartTypes = ({
               oldChartAxes[1].fields[0].dataType === "date" ||
               oldChartAxes[1].fields[0].dataType === "timestamp"
             ) {
-              if (oldChartAxes[1].fields[0].timeGrain === "date") {
-                keepOldData(propKey, false);
-                newChartAxes[0].fields = oldChartAxes[0].fields;
-                newChartAxes[1].fields = oldChartAxes[1].fields;
-                if (oldChartAxes[3].fields.length > 0)
-                  newChartAxes[2].fields = oldChartAxes[3].fields;
-                return newChartAxes;
-              } else {
-                keepOldData(propKey, false);
-                updateChartData(propKey, "");
+              keepOldData(propKey, false);
+              updateChartData(propKey, "");
 
-                newChartAxes[0].fields = oldChartAxes[0].fields;
-                newChartAxes[1].fields = [
-                  {
-                    dataType: oldChartAxes[1].fields[0].dataType,
-                    // displayname: oldChartAxes[1].fields[0].displayname,
-                    displayname:
-                      "date of " + oldChartAxes[1].fields[0].fieldname,
-                    fieldname: oldChartAxes[1].fields[0].fieldname,
-                    tableId: oldChartAxes[1].fields[0].tableId,
-                    uId: oldChartAxes[1].fields[0].uId,
-                    timeGrain: "date",
-                  },
-                ];
-                if (oldChartAxes[3].fields.length > 0)
-                  newChartAxes[2].fields = oldChartAxes[3].fields;
-                return newChartAxes;
-              }
+              newChartAxes[0].fields = oldChartAxes[0].fields;
+              newChartAxes[1].fields = [
+                {
+                  dataType: oldChartAxes[1].fields[0].dataType,
+                  displayname: "date of " + oldChartAxes[1].fields[0].fieldname, // timegrain changed to date so change display name
+                  fieldname: oldChartAxes[1].fields[0].fieldname,
+                  tableId: oldChartAxes[1].fields[0].tableId,
+                  uId: oldChartAxes[1].fields[0].uId,
+                  timeGrain: "date",
+                },
+              ];
+              if (oldChartAxes[3].fields.length > 0)
+                newChartAxes[2].fields = oldChartAxes[3].fields;
+              return newChartAxes;
             } else {
               keepOldData(propKey, false);
 
@@ -1968,26 +1710,6 @@ const ChartTypes = ({
           return newChartAxes;
         }
 
-        // if (newChart === "heatmap") {
-        //   keepOldData(propKey, false);
-        //   if (oldChartAxes[1].fields.length > 0) {
-        //     newChartAxes[1].fields.push(oldChartAxes[1].fields[0]);
-        //   }
-
-        //   if (oldChartAxes[2].fields.length > 0) {
-        //     newChartAxes[2].fields.push(oldChartAxes[2].fields[0]);
-        //   }
-
-        //   if (oldChartAxes[3].fields.length > 0) {
-        //     newChartAxes[3].fields.push(oldChartAxes[3].fields[0]);
-        //   }
-
-        //   // Map filter to Filter
-        //   if (oldChartAxes[0].fields.length > 0)
-        //     newChartAxes[0].fields = oldChartAxes[0].fields;
-
-        //   return newChartAxes;
-        // }
         break;
 
       case "richText":
