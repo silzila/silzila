@@ -233,7 +233,7 @@ const Canvas = ({
                   outline: "none",
                   border: "none",
                   padding: "0",
-                  margin: "0",
+                  margin: "5px 0 0 0",
                   position: "relative",
                   height: "2rem",
                   width: "2rem",

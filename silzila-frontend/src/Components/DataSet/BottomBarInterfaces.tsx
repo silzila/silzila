@@ -91,7 +91,7 @@ export interface IFilter {
   operator: string;
   tableName: string;
   timeGrain?: string;
-  userSelection: string[] | number[]|Date[] ;
+  userSelection: string[] | (number|null)[]|Date[] ;
   relativeCondition?: IRelativeCondition | null;
   isTillDate?: boolean;
 }
