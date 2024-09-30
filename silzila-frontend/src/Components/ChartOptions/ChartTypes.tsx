@@ -352,7 +352,7 @@ const ChartTypes = ({
             updateChartData(propKey, "");
 
             newChartAxes[0].fields = oldChartAxes[0].fields;
-            newChartAxes[1].fields.push(oldChartAxes[1].fields[0]);
+            newChartAxes[1].fields = [];
             if (oldChartAxes[2].fields.length > 0)
               newChartAxes[2].fields.push(oldChartAxes[2].fields[0]);
             return newChartAxes;
