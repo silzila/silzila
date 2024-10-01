@@ -7,7 +7,7 @@ public class NullClauseGenerator {
     public static String generateNullCheckQuery(Filter filter,  String nullExclusionOperator) {
 
         String nullCondition = "";
-        if (filter.getUserSelection().contains("null")) {
+        if (filter.getUserSelection().contains("null") || filter.getUserSelection().contains(null) ) {
             String logicalOperator = filter.getShouldExclude() ? " AND " : " OR ";
             nullCondition = logicalOperator + filter.getTableId() + "." + filter.getFieldName() + " IS " + nullExclusionOperator + "NULL";
         }

@@ -41,29 +41,29 @@ public class WhereClauseDateBigquery {
 
                 if (filter.getTimeGrain().name().equals("YEAR")) {
                     field = "EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + ")";
-                    options =  filter.getUserSelection().stream().filter(value -> !"null".equalsIgnoreCase(value)).collect(Collectors.joining(", "));                    
+                    options =  filter.getUserSelection().stream().filter(value -> value != null && !"null".equalsIgnoreCase(value)).collect(Collectors.joining(", "));                    
                 } else if (filter.getTimeGrain().name().equals("QUARTER")) {
                     field = "CONCAT('Q', EXTRACT(QUARTER FROM " + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    options = "'" + filter.getUserSelection().stream().filter(value -> !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'";                   
+                    options = "'" + filter.getUserSelection().stream().filter(value -> value != null && !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'";                   
                 } else if (filter.getTimeGrain().name().equals("MONTH")) {
                     field = "FORMAT_DATE('%B', DATE(" + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    options = "'" + filter.getUserSelection().stream().filter(value -> !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'";  
+                    options = "'" + filter.getUserSelection().stream().filter(value -> value != null && !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'";  
                 } else if (filter.getTimeGrain().name().equals("YEARQUARTER")) {
                     field = "CONCAT(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + "), '-Q', EXTRACT(QUARTER FROM "
                             + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    options = "'" + filter.getUserSelection().stream().filter(value -> !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'";
+                    options = "'" + filter.getUserSelection().stream().filter(value -> value != null && !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'";
                 } else if (filter.getTimeGrain().name().equals("YEARMONTH")) {
                     field = "FORMAT_DATE('%Y-%m', DATE(" + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    options = "'" + filter.getUserSelection().stream().filter(value -> !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'"; 
+                    options = "'" + filter.getUserSelection().stream().filter(value -> value != null && !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'"; 
                 } else if (filter.getTimeGrain().name().equals("DATE")) {
                     field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
-                    options = "'" + filter.getUserSelection().stream().filter(value -> !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'";                  
+                    options = "'" + filter.getUserSelection().stream().filter(value -> value != null && !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'";                  
                 } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
                     field = "FORMAT_DATE('%A', DATE(" + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    options = "'" + filter.getUserSelection().stream().filter(value -> !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'";                   
+                    options = "'" + filter.getUserSelection().stream().filter(value -> value != null && !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'";                   
                 } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
                     field = "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ")";
-                    options =  filter.getUserSelection().stream().filter(value -> !"null".equalsIgnoreCase(value)).collect(Collectors.joining(", "));
+                    options =  filter.getUserSelection().stream().filter(value -> value != null && !"null".equalsIgnoreCase(value)).collect(Collectors.joining(", "));
                    
                 }
                 

@@ -72,7 +72,9 @@ public class WhereClause {
                     else if (filter.getOperator().name().equals("IN")) {
                         // System.out.println("----------- Text IN");
                         String options = "";
-                        options = "'" + filter.getUserSelection().stream().filter(value -> !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'";
+                        options ="'" + filter.getUserSelection().stream()
+                            .filter(value -> value != null && !"null".equalsIgnoreCase(value))
+                            .collect(Collectors.joining(", ")) + "'" ;
                         String nullCondition = NullClauseGenerator.generateNullCheckQuery(filter, excludeOperator);
                         where = filter.getTableId() + "." + filter.getFieldName() + excludeSymbol + "IN (" + options
                                 + ")" + nullCondition;
@@ -115,7 +117,9 @@ public class WhereClause {
                     else if (filter.getOperator().name().equals("IN")) {
                         String options = "";
                         String nullCondition = NullClauseGenerator.generateNullCheckQuery(filter,excludeOperator);
-                        options = filter.getUserSelection().stream() .filter(value -> !"null".equalsIgnoreCase(value)).collect(Collectors.joining(", "));
+                        options = filter.getUserSelection().stream()
+                                    .filter(value -> value != null && !"null".equalsIgnoreCase(value))
+                                    .collect(Collectors.joining(", "));
                         where = filter.getTableId() + "." + filter.getFieldName() + excludeSymbol + "IN (" + options
                                 + ")" + nullCondition;
                     }
