@@ -39,6 +39,14 @@
       "projectName": "app",
       "args": "",
       "envFile": "${workspaceFolder}/.env"
-    }
+    },
+    {
+      "name": "silzila-frontend",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/silzila-frontend",
+      "sourceMaps": true,
+    },
   ]
 }
