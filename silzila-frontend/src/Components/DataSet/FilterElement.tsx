@@ -11,6 +11,9 @@
  * 
  * 
  * date format yyyy-MM-dd
+ * 
+ * 
+ * no need to  modify userSelection to anydata ty[e as it is already in string format] backend alseo accepts as a string
  */
 import { CircularProgress } from "@mui/material";
 import React, { useEffect, useState, useRef } from "react";
@@ -347,10 +350,7 @@ const FilterElement = ({
             "(All)",
             ...res.data
               .map((item: any) => item[Object.keys(res.data[0])[0]])
-              .map((item: any) => {
-                // return item!==null?item.toString():"Null"
-                return item
-              }),
+              .map((item: any) => `${item}`),
           ];
             filterFieldData.current = {
               ...filterFieldData.current,
@@ -370,7 +370,8 @@ const FilterElement = ({
                 : data,
           });
           // setInclude(true);
-        }
+        } 
+
         setDataSetFilterArray((prevFilters) => {
           return prevFilters.map((filter) =>
             filter.uid === filterFieldData.current.uid
@@ -679,7 +680,7 @@ const FilterElement = ({
               <Checkbox
                 checked={picklist.userSelection.includes(item)}
                 value={item}
-                name={item===null?"Null":item}
+                name={item===null?"null":item}
                 style={{ transform: "scale(0.6)", paddingRight: "0px" }}
                 sx={{
                   color: "red",
@@ -1606,7 +1607,7 @@ const FilterElement = ({
         // }
         const newSelection = [
           ...filterFieldData.current.userSelection,
-          event.target.name==="Null"?null:['decimal','integer','float'].includes(filter.dataType)?Number(event.target.name):event.target.name,
+          event.target.name==="null"?null:event.target.name,
         ];
         console.log("newSelection",newSelection)
         filterFieldData.current = {
@@ -1634,7 +1635,7 @@ const FilterElement = ({
         let newSelection = filterFieldData.current.userSelection.filter(
           (item: any) => item !== valueToBeRemoved
         );
-console.log("newSelection",newSelection)
+
         filterFieldData.current = {
           ...JSON.parse(JSON.stringify(filterFieldData.current)),
           userSelection: newSelection,

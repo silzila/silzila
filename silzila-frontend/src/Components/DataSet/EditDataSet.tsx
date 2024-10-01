@@ -92,17 +92,7 @@ const EditDataSet = ({
       if (res.data.dataSchema.filterPanels) {
         const data:IFilter[] = res.data.dataSchema.filterPanels
           .filter((item:IFilterPanel) => item.panelName === "dataSetFilters")
-          .map((item:IFilterPanel) => {
-            const filter=item.filters[0];
-            if(["decimal", "integer", "float"].includes(filter.dataType)){
-              filter.userSelection=filter.userSelection.map((item:any)=>{
-                // console.log(item)
-                return item===null|| item==="Null"?null:Number(item)
-              });
-              
-            }
-            return filter
-          });
+          .map((item:IFilterPanel) => item.filters[0]);
         console.log(data);
        
         // console.log("Edit",data
