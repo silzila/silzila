@@ -189,12 +189,12 @@ public class TillDate {
                 "TO_DATE(" +
                 "TO_CHAR(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + ")) || '-' || \n\t\t" +
                 "LPAD(TO_NUMBER(EXTRACT(MONTH FROM TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q'))) + \n\t\tTO_NUMBER(TO_CHAR(" +
-                "(MONTHS_BETWEEN(SYSDATE, TRUNC(SYSDATE, 'Q'))-1), " +
+                "(MONTHS_BETWEEN(SYSDATE, TRUNC(SYSDATE, 'Q'))), " +
                 "'FM00'" +
                 ")), 2, '0') || '-' || \n\t\t" +
                 "CASE " +
                 "WHEN TO_NUMBER(TO_CHAR(SYSDATE , 'DD')) IN (29,30, 31) AND LPAD(TO_NUMBER(EXTRACT(MONTH FROM TRUNC(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Q'))) + \n\t\tTO_NUMBER(TO_CHAR(" +
-                "(MONTHS_BETWEEN(SYSDATE, TRUNC(SYSDATE, 'Q'))-1), " +
+                "(MONTHS_BETWEEN(SYSDATE, TRUNC(SYSDATE, 'Q'))), " +
                 "'FM00'" +
                 ")), 2, '0') = '02' " +
                 "THEN " +

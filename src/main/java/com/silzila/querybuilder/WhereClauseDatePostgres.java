@@ -47,8 +47,8 @@ public class WhereClauseDatePostgres {
                 } else if (filter.getTimeGrain().name().equals("MONTH")) {
                     field = "TRIM(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Month'))";
                 } else if (filter.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "CONCAT(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName()
-                            + ", 'YYYY'), '-Q', TO_CHAR(" + filter.getTableId() + "."
+                    field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName()
+                            + ", 'YYYY') || '-Q' || TO_CHAR(" + filter.getTableId() + "."
                             + filter.getFieldName() + ", 'Q'))";
                 } else if (filter.getTimeGrain().name().equals("YEARMONTH")) {
                     field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'YYYY-MM')";

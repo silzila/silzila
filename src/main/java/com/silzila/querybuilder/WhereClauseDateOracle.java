@@ -84,12 +84,11 @@ public class WhereClauseDateOracle {
             // format not '1','2'
             if (filter.getTimeGrain().name().equals("MONTH")) {
                 filter.setUserSelection(formatNumber(filter.getUserSelection()));
-            }
-
-            if (filter.getTimeGrain().name().equals("MONTH")) {
                 field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'mm')";
             } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
                 field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + " , 'D')";
+            }else if (filter.getTimeGrain().name().equals("QUARTER")) {
+                field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ",'Q')";
             }
 
             // Between requires 2 values and other operators require just 1 value

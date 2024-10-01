@@ -89,8 +89,8 @@ public class FilterQueryPostgres {
                     query = "SELECT " + field + " AS Month" + fromClause + "GROUP BY " + sortField + ", " + field
                             + " ORDER BY " + sortField;
                 } else if (req.getTimeGrain().name().equals("YEARQUARTER")) {
-                    String field = "CONCAT(TO_CHAR(" + req.getTableId()+ "." + req.getFieldName()
-                            + ", 'YYYY'), '-Q', TO_CHAR(" + req.getTableId()+ "."  + req.getFieldName() + ", 'Q'))";
+                    String field = "TO_CHAR(" + req.getTableId()+ "." + req.getFieldName()
+                            + ", 'YYYY') || '-Q' || TO_CHAR(" + req.getTableId()+ "."  + req.getFieldName() + ", 'Q')";
                     query = "SELECT DISTINCT " + field + " AS YearQuarter" + fromClause + "ORDER BY 1";
                 } else if (req.getTimeGrain().name().equals("YEARMONTH")) {
                     String field = "TO_CHAR(" + req.getTableId()+ "." + req.getFieldName() + ", 'YYYY-MM')";
