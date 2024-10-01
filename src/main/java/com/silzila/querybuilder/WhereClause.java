@@ -53,10 +53,15 @@ public class WhereClause {
                         filter.getOperator().name());
                 String excludeOperator = QueryNegator.makeNegateCondition(filter.getShouldExclude());
 
-                // NUll, not to particular datatype
-                if(filter.getOperator().name().equals("BLANK")){
+                // NUll, not to particular datatype and in user selection only null is selected
+                if (filter.getOperator().name().equals("BLANK") || 
+                    (filter.getOperator().name().equals("IN") && 
+                    filter.getUserSelection().size() == 1 && 
+                    (filter.getUserSelection().get(0) == null || "null".equals(filter.getUserSelection().get(0))))) {
+                    
                     where = filter.getTableId() + "." + filter.getFieldName() + " IS " + excludeOperator + "NULL";
                 }
+
                 /*
                  * TEXT Data Type
                  */
