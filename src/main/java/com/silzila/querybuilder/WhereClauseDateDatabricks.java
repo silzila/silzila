@@ -56,9 +56,12 @@ public class WhereClauseDateDatabricks {
                 } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
                     field = "DAYOFMONTH(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 }
-
-                String options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
-                where = field + excludeOperator + "IN (" + options + ")";
+              
+                String nullCondition = NullClauseGenerator.generateNullCheckQuery(filter, excludeOperator);
+                String options = "'" + filter.getUserSelection().stream()
+                                    .filter(value -> value != null && !"null".equalsIgnoreCase(value))
+                                    .collect(Collectors.joining(", ")) + "'" ;
+                where = field + excludeOperator + "IN (" + options + ")" + nullCondition;
             }
 
             // SLIDER - numerical time grain match - eg., year = 2018
