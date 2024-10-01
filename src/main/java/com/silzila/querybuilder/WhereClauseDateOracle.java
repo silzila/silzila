@@ -59,9 +59,9 @@ public class WhereClauseDateOracle {
             String excludeOperator = QueryNegator.makeNagateExpression(filter.getShouldExclude(),
                     filter.getOperator().name());
 
-            String options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
-
-            where = field + excludeOperator + "IN (" + options + ")";
+            String nullCondition = NullClauseGenerator.generateNullCheckQuery(filter, excludeOperator);
+            String options = "'" + filter.getUserSelection().stream().filter(value -> !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'";
+            where = field + excludeOperator + "IN (" + options + ")" + nullCondition;
         }
 
         /*

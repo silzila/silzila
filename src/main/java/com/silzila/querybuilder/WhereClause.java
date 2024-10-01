@@ -53,10 +53,14 @@ public class WhereClause {
                         filter.getOperator().name());
                 String excludeOperator = QueryNegator.makeNegateCondition(filter.getShouldExclude());
 
+                // NUll, not to particular datatype
+                if(filter.getOperator().name().equals("BLANK")){
+                    where = filter.getTableId() + "." + filter.getFieldName() + " IS " + excludeOperator + "NULL";
+                }
                 /*
                  * TEXT Data Type
                  */
-                if (filter.getDataType().name().equals("TEXT")) {
+                else if (filter.getDataType().name().equals("TEXT")) {
                     // single value exact match
                     if (filter.getOperator().name().equals("EQUAL_TO") || filter.getOperator().name().equals("EXACT_MATCH") ) {
                         // System.out.println("----------- Text EQUAL_TO");
@@ -68,9 +72,10 @@ public class WhereClause {
                     else if (filter.getOperator().name().equals("IN")) {
                         // System.out.println("----------- Text IN");
                         String options = "";
-                        options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
+                        options = "'" + filter.getUserSelection().stream().filter(value -> !"null".equalsIgnoreCase(value)).collect(Collectors.joining("', '")) + "'";
+                        String nullCondition = NullClauseGenerator.generateNullCheckQuery(filter, excludeOperator);
                         where = filter.getTableId() + "." + filter.getFieldName() + excludeSymbol + "IN (" + options
-                                + ")";
+                                + ")" + nullCondition;
                     }
                     // Wildcard - begins with a particular string
                     else if (filter.getOperator().name().equals("BEGINS_WITH")) {
@@ -109,9 +114,10 @@ public class WhereClause {
                     // multiple values (any one value) exact match
                     else if (filter.getOperator().name().equals("IN")) {
                         String options = "";
-                        options = filter.getUserSelection().stream().collect(Collectors.joining(", "));
+                        String nullCondition = NullClauseGenerator.generateNullCheckQuery(filter,excludeOperator);
+                        options = filter.getUserSelection().stream() .filter(value -> !"null".equalsIgnoreCase(value)).collect(Collectors.joining(", "));
                         where = filter.getTableId() + "." + filter.getFieldName() + excludeSymbol + "IN (" + options
-                                + ")";
+                                + ")" + nullCondition;
                     }
                     // the following comparison matches are for NUMBERS only
                     else if (List.of("INTEGER", "DECIMAL").contains(filter.getDataType().name())) {
@@ -219,5 +225,7 @@ public class WhereClause {
         return whereClause;
 
     }
+
+    
 
 }
