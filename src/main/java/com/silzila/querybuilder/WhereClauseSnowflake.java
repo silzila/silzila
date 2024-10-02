@@ -2,9 +2,8 @@ package com.silzila.querybuilder;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.silzila.exception.BadRequestException;
+import com.silzila.helper.OptionsBuilder;
 import com.silzila.helper.QueryNegator;
 import com.silzila.payload.request.Filter;
 
@@ -58,9 +57,7 @@ public class WhereClauseSnowflake {
                 }
 
                 String nullCondition = NullClauseGenerator.generateNullCheckQuery(filter, excludeOperator);
-                String options = "'" + filter.getUserSelection().stream()
-                                    .filter(value -> value != null && !"null".equalsIgnoreCase(value))
-                                    .collect(Collectors.joining(", ")) + "'";
+                String options = OptionsBuilder.buildStringOptions(filter.getUserSelection());
                 where = field + excludeOperator + "IN (" + options + ")" + nullCondition;
             }
 
