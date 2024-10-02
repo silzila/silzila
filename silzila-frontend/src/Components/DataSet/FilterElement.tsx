@@ -707,7 +707,7 @@ const FilterElement = ({
                     : {}),
                 }}
               >
-                {item===null?"Null":item}
+                {item}
               </span>
             </label>
           );
@@ -1552,62 +1552,9 @@ const FilterElement = ({
       }
     } else {
       if (event.target.checked) {
-        // if (!isNaN(event.target.name) && isFinite(event.target.name)) {
-        //   let _name = event.target.name;
-
-        //   if (_name.includes(".")) {
-        //     _name = parseFloat(event.target.name);
-        //   } else {
-        //     _name = parseInt(event.target.name);
-        //   }
-
-        //   if (_name) {
-        //     // filterFieldData.userSelection.push(_name);
-        //     setPickList((prev) => {
-        //       const newSelection = [...prev.userSelection, _name];
-        //       return {
-        //         ...prev,
-        //         userSelection: newSelection,
-        //       };
-        //     });
-        //     const newSelection = [
-        //       ...filterFieldData.current.userSelection,
-        //       _name,
-        //     ];
-        //     filterFieldData.current = {
-        //       ...JSON.parse(JSON.stringify(filterFieldData.current)),
-        //       userSelection: newSelection,
-        //     };
-        //     // setFilterFieldData((prev: any) => ({
-        //     //   ...prev, // Spread the previous state to keep all existing fields
-        //     //   userSelection: [...prev.userSelection, _name], // Push the new name into the userSelection array
-        //     // }));
-        //   }
-        // } else {
-        //   // filterFieldData.userSelection.push(event.target.name);
-        //   setPickList((prev) => {
-        //     const newSelection = [...prev.userSelection, event.target.name];
-        //     return {
-        //       ...prev,
-        //       userSelection: newSelection,
-        //     };
-        //   });
-        //   const newSelection = [
-        //     ...filterFieldData.current.userSelection,
-        //     event.target.name,
-        //   ];
-        //   filterFieldData.current = {
-        //     ...JSON.parse(JSON.stringify(filterFieldData.current)),
-        //     userSelection: newSelection,
-        //   };
-        //   // setFilterFieldData((prev: any) => ({
-        //   //   ...prev, // Spread the previous state to keep all existing fields
-        //   //   userSelection: [...prev.userSelection, event.target.name], // Push the new name into the userSelection array
-        //   // }));
-        // }
         const newSelection = [
           ...filterFieldData.current.userSelection,
-          event.target.name==="null"?null:event.target.name,
+          event.target.name,
         ];
         console.log("newSelection",newSelection)
         filterFieldData.current = {
@@ -1630,7 +1577,7 @@ const FilterElement = ({
           });
         }
       } else {
-        const valueToBeRemoved=event.target.name==="Null"?null:['decimal','integer','float'].includes(filter.dataType)?Number(event.target.name):event.target.name
+        const valueToBeRemoved=event.target.name
         
         let newSelection = filterFieldData.current.userSelection.filter(
           (item: any) => item !== valueToBeRemoved
