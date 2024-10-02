@@ -14,6 +14,8 @@
  * 
  * 
  * no need to  modify userSelection to anydata ty[e as it is already in string format] backend alseo accepts as a string
+ * 
+ * conditionValue is used to store the value for searchCondition filter if filter operator is between the second value is stored in conditionValue2
  */
 import { CircularProgress } from "@mui/material";
 import React, { useEffect, useState, useRef } from "react";
