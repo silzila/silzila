@@ -13,7 +13,8 @@
  * date format yyyy-MM-dd
  * 
  * 
- * no need to  modify userSelection to anydata ty[e as it is already in string format] backend alseo accepts as a string
+ * no need to  modify userSelection to anydata ty[e as it is already in string format] backend also accepts as a string 
+ * note: for some cases  backend accepts string or number type doesnot mater backend handles  it
  * 
  * conditionValue is used to store the value for searchCondition filter if filter operator is between the second value is stored in conditionValue2
  */
@@ -300,7 +301,6 @@ const FilterElement = ({
        * will convert the keys into lowercase so its easy to access the API response with keys whatever the order is
        */
       const modifiedRes=convertKeysToLowercase(res.data[0])
-      console.log(res.data,modifiedRes)
       setFormatedDate({
         from: modifiedRes["fromdate"],
         to: modifiedRes["todate"],
@@ -1558,7 +1558,6 @@ const FilterElement = ({
           ...filterFieldData.current.userSelection,
           event.target.name,
         ];
-        console.log("newSelection",newSelection)
         filterFieldData.current = {
           ...JSON.parse(JSON.stringify(filterFieldData.current)),
           userSelection: newSelection,

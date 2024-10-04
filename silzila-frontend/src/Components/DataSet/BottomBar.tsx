@@ -279,7 +279,6 @@ const BottomBar = ({
             filterPanels: datasetFilter,
           },
         };
-        console.log(payLoad);
         var options: any = await FetchData({
           requestType: "withData",
           method: editMode ? "PUT" : "POST",

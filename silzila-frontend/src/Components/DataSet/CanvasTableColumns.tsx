@@ -22,7 +22,7 @@ import "./Dataset.css";
 import { ArrowObj } from "./CanvasInterfaces";
 import { AlertColor } from "@mui/material/Alert";
 import ConnectsPointByColumn from "./ConnectsPointByColumn";
-import { table } from "console";
+
 
 const CanvasTableColumns = ({
   // props
