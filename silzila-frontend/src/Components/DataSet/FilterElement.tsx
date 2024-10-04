@@ -11,8 +11,14 @@
  * 
  * 
  * date format yyyy-MM-dd
+ * 
+ * 
+ * no need to  modify userSelection to anydata ty[e as it is already in string format] backend also accepts as a string 
+ * note: for some cases  backend accepts string or number type doesnot mater backend handles  it
+ * 
+ * conditionValue is used to store the value for searchCondition filter if filter operator is between the second value is stored in conditionValue2
  */
-
+import { CircularProgress } from "@mui/material";
 import React, { useEffect, useState, useRef } from "react";
 import FetchData from "../ServerCall/FetchData";
 import Stack from '@mui/material/Stack';
@@ -225,6 +231,12 @@ const FilterElement = ({
       data: bodyData,
     });
   };
+  function convertKeysToLowercase<T extends Record<string, any>>(obj: T): Record<string, any> {
+    return Object.keys(obj).reduce((acc, key) => {
+      acc[key.toLowerCase()] = obj[key];
+      return acc;
+    }, {} as Record<string, any>);
+  }
   const getFormatedDate = async () => {
     let body = {};
     let url = "relative-filter";
@@ -269,6 +281,7 @@ const FilterElement = ({
             : filterFieldData.current.relativeCondition?.anchorDate,
       };
     }
+    setLoading(true)
     const res = await FetchData({
       requestType: "withData",
       method: "POST",
@@ -280,11 +293,20 @@ const FilterElement = ({
       data: body,
     });
     if (res.status) {
+      /**
+       * 
+       * res.data is array of length 1
+       * res.data[0] contain an object with two keys "fromdate" and "todate" but
+       * their case and order is not fixed  so "convertKeysToLowercase" method
+       * will convert the keys into lowercase so its easy to access the API response with keys whatever the order is
+       */
+      const modifiedRes=convertKeysToLowercase(res.data[0])
       setFormatedDate({
-        from: res.data[0]["fromdate"],
-        to: res.data[0]["todate"],
+        from: modifiedRes["fromdate"],
+        to: modifiedRes["todate"],
       });
     }
+    setLoading(false)
   };
   useEffect(() => {
     /** 
@@ -330,17 +352,15 @@ const FilterElement = ({
             "(All)",
             ...res.data
               .map((item: any) => item[Object.keys(res.data[0])[0]])
-              .map((item: any) => {
-                return item!==null?item.toString():"Null"
-              }),
+              .map((item: any) => `${item}`),
           ];
-
-          filterFieldData.current = {
-            ...filterFieldData.current,
-            userSelection: filterFieldData.current.userSelection[0]
-              ? [...filterFieldData.current.userSelection]
-              : data.filter((item: any) => item !== "(All)"),
-          };
+            filterFieldData.current = {
+              ...filterFieldData.current,
+              userSelection: filterFieldData.current.userSelection.length>0
+                ? [...filterFieldData.current.userSelection]
+                : data.filter((item: any) => item !== "(All)"),
+            };
+          
           setPickList({
             allOptions: data,
             userSelection:
@@ -352,7 +372,8 @@ const FilterElement = ({
                 : data,
           });
           // setInclude(true);
-        }
+        } 
+
         setDataSetFilterArray((prevFilters) => {
           return prevFilters.map((filter) =>
             filter.uid === filterFieldData.current.uid
@@ -371,7 +392,7 @@ const FilterElement = ({
         filterFieldData.current.dataType === "timestamp"
       ) {
         setConditionValue(
-          filter.userSelection.length > 0
+          (filter.userSelection.length > 0 &&filter.userSelection[0] !==null)
             ? filterFieldData.current.timeGrain === "date"
               ? new Date(filter.userSelection[0])
               : filter.userSelection[0]
@@ -379,7 +400,7 @@ const FilterElement = ({
         );
         if (filterFieldData.current.operator === "between") {
           setConditionValue2(
-            filter.userSelection.length > 1
+            filter.userSelection.length > 1  &&filter.userSelection[1] !==null
               ? filterFieldData.current.timeGrain === "date"
                 ? new Date(filter.userSelection[1])
                 : filter.userSelection[1]
@@ -392,16 +413,16 @@ const FilterElement = ({
         )
       ) {
         setConditionValue(
-          filter.userSelection.length > 0 ? filter.userSelection[0] : ""
+          filter.userSelection.length > 0  &&filter.userSelection[0] !==null? filter.userSelection[0] : ""
         );
         if (filterFieldData.current.operator === "between") {
           setConditionValue2(
-            filter.userSelection.length > 1 ? filter.userSelection[1] : ""
+            filter.userSelection.length > 1  &&filter.userSelection[1] !==null? filter.userSelection[1] : ""
           );
         }
       } else {
         setConditionValue(
-          filter.userSelection.length > 0 ? filter.userSelection[0] : ""
+          filter.userSelection.length > 0  &&filter.userSelection[0] !==null? filter.userSelection[0] : ""
         );
       }
 
@@ -432,7 +453,9 @@ const FilterElement = ({
           filterFieldData.current.relativeCondition.anchorDate = "specificDate";
         }
         getFormatedDate();
-        setConditionValue(new Date(filterFieldData.current.userSelection[0]))
+        if(filterFieldData.current.userSelection[0]){
+          setConditionValue(new Date(filterFieldData.current.userSelection[0]))
+        }
       }
       setDataSetFilterArray((prevFilters) => {
         return prevFilters.map((filter) =>
@@ -650,15 +673,16 @@ const FilterElement = ({
         
       </Stack>
     );
-    if (!picklist || picklist === null) return null;
+    if (!picklist || picklist === null) return <span>No Data</span>;
     return (
       <div className="SelectionMembersCheckBoxArea">
         {picklist.allOptions?.map((item: any, index: number) => {
           return (
             <label className="UserFilterCheckboxes" key={index}>
               <Checkbox
-                checked={picklist.userSelection?.includes(item.toString())}
-                name={item}
+                checked={picklist.userSelection.includes(item)}
+                value={item}
+                name={item===null?"null":item}
                 style={{ transform: "scale(0.6)", paddingRight: "0px" }}
                 sx={{
                   color: "red",
@@ -680,7 +704,7 @@ const FilterElement = ({
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   ...(filterFieldData.current.shouldExclude &&
-                  picklist.userSelection?.includes(item)
+                  picklist.userSelection.includes(item)
                     ? { textDecoration: "line-through" }
                     : {}),
                 }}
@@ -702,6 +726,7 @@ const FilterElement = ({
   ) => {
     if (val === null) return;
     if (filterFieldData.current.filterType === "relativeFilter") {
+      // @ts-ignore
       const strDate = format(val, "yyyy-MM-dd");
       filterFieldData.current.userSelection[0] = strDate;
       getFormatedDate();
@@ -716,6 +741,7 @@ const FilterElement = ({
     } else {
       let temp_val = val;
       if (valType && valType === "date") {
+        // @ts-ignore
         temp_val = format(temp_val, "yyyy-MM-dd");
       } else {
         temp_val = Number(val);
@@ -735,8 +761,8 @@ const FilterElement = ({
           : [temp_val];
         setConditionValue(val);
       }
-      if (valType && valType === "date") {
-        if (
+      if (valType && valType === "date" ) {
+        if ((filterFieldData.current.userSelection[0]!==null && filterFieldData.current.userSelection[1]!==null) &&
           new Date(filterFieldData.current.userSelection[0]) >
           new Date(filterFieldData.current.userSelection[1])
         ) {
@@ -744,6 +770,7 @@ const FilterElement = ({
           return;
         }
       } else if (
+        (filterFieldData.current.userSelection[0]!==null && filterFieldData.current.userSelection[1]!==null) &&
         filterFieldData.current.userSelection[0] >
         filterFieldData.current.userSelection[1]
       ) {
@@ -1106,7 +1133,7 @@ const FilterElement = ({
           paddingBottom: "3px",
         }}
       >
-        From ({formatedDate.from}) {/*To dispaly from-date after fetching*/}
+        <span style={{display:"flex",gap:"0.5rem",alignItems:"center"}}>From {loading?(<CircularProgress size={15}/>):(`(${formatedDate.from})`)}</span> {/*To dispaly from-date after fetching*/}
         <div style={{ display: "flex" }}>
           <RequiredFieldForRelativeFilter exprType="last_current_next_from"></RequiredFieldForRelativeFilter>
           {filterFieldData.current.relativeCondition?.from[0] !== "current" ? (
@@ -1114,7 +1141,7 @@ const FilterElement = ({
           ) : null}
         </div>
         {membersFrom}
-        To ({formatedDate.to}) {/*To dispaly to-date after fetching*/}
+        <span style={{display:"flex",gap:"0.5rem",alignItems:"center"}}>To {loading?(<CircularProgress size={15}/>):(`(${formatedDate.to})`)}</span> {/*To dispaly to-date after fetching*/}
         <div style={{ display: "flex" }}>
           <RequiredFieldForRelativeFilter exprType="last_current_next_to"></RequiredFieldForRelativeFilter>
           {filterFieldData.current.relativeCondition?.to[0] !== "current" ? (
@@ -1527,59 +1554,6 @@ const FilterElement = ({
       }
     } else {
       if (event.target.checked) {
-        // if (!isNaN(event.target.name) && isFinite(event.target.name)) {
-        //   let _name = event.target.name;
-
-        //   if (_name.includes(".")) {
-        //     _name = parseFloat(event.target.name);
-        //   } else {
-        //     _name = parseInt(event.target.name);
-        //   }
-
-        //   if (_name) {
-        //     // filterFieldData.userSelection.push(_name);
-        //     setPickList((prev) => {
-        //       const newSelection = [...prev.userSelection, _name];
-        //       return {
-        //         ...prev,
-        //         userSelection: newSelection,
-        //       };
-        //     });
-        //     const newSelection = [
-        //       ...filterFieldData.current.userSelection,
-        //       _name,
-        //     ];
-        //     filterFieldData.current = {
-        //       ...JSON.parse(JSON.stringify(filterFieldData.current)),
-        //       userSelection: newSelection,
-        //     };
-        //     // setFilterFieldData((prev: any) => ({
-        //     //   ...prev, // Spread the previous state to keep all existing fields
-        //     //   userSelection: [...prev.userSelection, _name], // Push the new name into the userSelection array
-        //     // }));
-        //   }
-        // } else {
-        //   // filterFieldData.userSelection.push(event.target.name);
-        //   setPickList((prev) => {
-        //     const newSelection = [...prev.userSelection, event.target.name];
-        //     return {
-        //       ...prev,
-        //       userSelection: newSelection,
-        //     };
-        //   });
-        //   const newSelection = [
-        //     ...filterFieldData.current.userSelection,
-        //     event.target.name,
-        //   ];
-        //   filterFieldData.current = {
-        //     ...JSON.parse(JSON.stringify(filterFieldData.current)),
-        //     userSelection: newSelection,
-        //   };
-        //   // setFilterFieldData((prev: any) => ({
-        //   //   ...prev, // Spread the previous state to keep all existing fields
-        //   //   userSelection: [...prev.userSelection, event.target.name], // Push the new name into the userSelection array
-        //   // }));
-        // }
         const newSelection = [
           ...filterFieldData.current.userSelection,
           event.target.name,
@@ -1599,13 +1573,15 @@ const FilterElement = ({
           setPickList((prev: any) => {
             return {
               ...prev,
-              userSelection: newSelection,
+              userSelection: [...newSelection],
             };
           });
         }
       } else {
-        let newSelection = filterFieldData.current.userSelection?.filter(
-          (item: any) => item.toString() !== event.target.name.toString()
+        const valueToBeRemoved=event.target.name
+        
+        let newSelection = filterFieldData.current.userSelection.filter(
+          (item: any) => item !== valueToBeRemoved
         );
 
         filterFieldData.current = {
@@ -1615,7 +1591,7 @@ const FilterElement = ({
         setPickList((prev: any) => {
           return {
             ...prev,
-            userSelection: newSelection,
+            userSelection:  [...newSelection],
           };
         });
       }

@@ -79,13 +79,11 @@ const EditDataSet = ({
          * for flatFiles map tableId with their flatFile Id
          */
         const flatFileTableMap:IFlatIdTableIdMap[]=res.data.dataSchema.tables.map((table:any)=>{
-          // console.log(table)
           return({
             tableId:table.id,
             flatFileId:table.flatFileId
           })
         })
-        console.log(flatFileTableMap)
         setFlatFileMaps(flatFileTableMap)
         setCreateDsFromFlatFile(true);
       }
@@ -93,9 +91,6 @@ const EditDataSet = ({
         const data:IFilter[] = res.data.dataSchema.filterPanels
           .filter((item:IFilterPanel) => item.panelName === "dataSetFilters")
           .map((item:IFilterPanel) => item.filters[0]);
-        console.log(data);
-       
-        // console.log("Edit",data
         setDataSetFilterArray(data);
       }
       if (!res.data.isFlatFileData) {
@@ -420,7 +415,6 @@ const EditDataSet = ({
       });
 
       // ====================================================================================
-      console.log(arrowsArray)
       setDatabaseNametoState(dbName);
       setValuesToState(
         res.data.connectionId,

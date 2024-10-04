@@ -22,7 +22,7 @@ import "./Dataset.css";
 import { ArrowObj } from "./CanvasInterfaces";
 import { AlertColor } from "@mui/material/Alert";
 import ConnectsPointByColumn from "./ConnectsPointByColumn";
-import { table } from "console";
+
 
 const CanvasTableColumns = ({
   // props
@@ -154,7 +154,16 @@ const CanvasTableColumns = ({
     onDragStart={(e) => {
       if(tableHasCustomQuery){
         e.preventDefault();
+        return;
       }
+      e.dataTransfer.setData("connectItemId", itemId);
+      e.dataTransfer.setData("connectIndex", index.toString());
+      e.dataTransfer.setData("connectTableName", tableName);
+      e.dataTransfer.setData("connectColumnName", columnName);
+      e.dataTransfer.setData("connectItemType", itemType);
+      e.dataTransfer.setData("connecttableUid", table_uid);
+      e.dataTransfer.setData("schema", schema);
+      e.dataTransfer.setData("tableId", table_Id);
     }}
 
     >

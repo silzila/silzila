@@ -73,7 +73,7 @@ const BottomBar = ({
   const validValues = (): Boolean => {
     for (let i = 0; i < datasetFilterArray.length; ++i) {
       const elem = datasetFilterArray[i];
-      
+
       if (
         elem.filterType === "searchCondition" &&
         elem.operator === "between"
@@ -105,7 +105,7 @@ const BottomBar = ({
     }
     return true;
   };
-/**
+  /**
  * 
  * @param filter selected by the user 
  * @returns modified filters as per the API requirements
@@ -119,7 +119,7 @@ const BottomBar = ({
         shouldAllConditionsMatch: true,
         filters: [
           {
-            filterType:"pickList",
+            filterType: "pickList",
             tableId: filter.tableId,
             fieldName: filter.fieldName,
             dataType: filter.dataType,
@@ -168,7 +168,8 @@ const BottomBar = ({
               to: filter.relativeCondition?.to ?? [],
               anchorDate:
                 filter.relativeCondition?.anchorDate === "specificDate"
-                  ?filter.userSelection[0].toString():filter.relativeCondition?.anchorDate || ""
+                  ? filter.userSelection[0]?.toString() || "" // Fallback to empty string if undefined
+                  : filter.relativeCondition?.anchorDate || "",
             },
             fieldName: filter.fieldName,
             isTillDate: filter.isTillDate,
@@ -263,7 +264,6 @@ const BottomBar = ({
       }
       const datasetFilter: IFilterPanel[] = datasetFilterArray.map(
         (item): IFilterPanel => {
-
           return modifyFilters(item);
         }
       );
@@ -458,7 +458,11 @@ const BottomBar = ({
           }}
           style={{ backgroundColor: "#2BB9BB" }}
         >
-          {disableBtn ? <CircularProgress size={20} color="info"/> : sendOrUpdate}
+          {disableBtn ? (
+            <CircularProgress size={20} color="info" />
+          ) : (
+            sendOrUpdate
+          )}
         </Button>
       </div>
 

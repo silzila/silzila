@@ -413,7 +413,7 @@ const CanvasTables = ({
           </div>
 
           {tableData.columns.map((item: ColumnsWithUid, index: number) => {
-            console.log(item)
+
             return (
               <CanvasTableColumns
                 key={item.uid}

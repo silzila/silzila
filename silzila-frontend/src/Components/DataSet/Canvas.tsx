@@ -48,7 +48,6 @@ const Canvas = ({
     JSON.parse(JSON.stringify(EditFilterdatasetArray))
   );
 
-  // console.log("at canvas",dataSetFilterArray)
   const clickOnArrowfunc = (index: number) => {
     setExistingArrow(true);
     const temp = arrows.filter((el: ArrowsProps, i: number) => i === index)[0];
@@ -233,7 +232,7 @@ const Canvas = ({
                   outline: "none",
                   border: "none",
                   padding: "0",
-                  margin: "0",
+                  margin: "5px 0 0 0",
                   position: "relative",
                   height: "2rem",
                   width: "2rem",
