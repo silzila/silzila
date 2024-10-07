@@ -28,18 +28,15 @@ export const BuildTable = ({
 
   useLayoutEffect(() => {
     // Get the widths of the columns after the table has rendered
-    console.log(tableRef);
     if (tableRef.current) {
-      const thElements = tableRef.current.querySelectorAll("th"); // Query all <th> elements
+      const thElements = tableRef.current.querySelectorAll("th"); // For all <th> elements
 
       const widths = Array.from(thElements).map(
         (th) => th.getBoundingClientRect().width
       );
 
-      console.log(widths);
       setColumnWidths(widths);
     }
-    console.log(columnWidths);
   }, [crossTabData]);
 
   const [showPopup, setShowPopup] = useState(false);
@@ -194,15 +191,15 @@ export const BuildTable = ({
         chartControls
       );
 
-      const topOffset =
+      const topPosition =
         rowIndex *
-          14 *
-          chartControls.properties[propKey].crossTabStyleOptions.lineHeight +
-        rowIndex *
-          chartControls.properties[propKey].crossTabStyleOptions.borderWidth;
-      console.log(
-        chartControls.properties[propKey].crossTabStyleOptions.lineHeight
-      );
+          chartControls.properties[propKey].crossTabHeaderLabelOptions
+            .fontSize *
+          1.01 *
+          chartControls.properties[propKey].crossTabStyleOptions.lineHeight -
+        // rowIndex *
+        //   chartControls.properties[propKey].crossTabStyleOptions.borderWidth -
+        chartControls.properties[propKey].crossTabStyleOptions.borderWidth;
 
       let leftPosition = columnWidths[colIndex - 1];
       for (let ind = 2; ind <= colIndex; ind++) {
@@ -220,39 +217,19 @@ export const BuildTable = ({
           rowSpan={col.rowSpan}
           style={{
             ...tdStyle,
-            // position: rowIndex < 1 + dustbinColumns.length ? "sticky" : "auto",
             position: "sticky",
-            // top: `${topOffset}px`, // Dynamically set top based on row index
-            // top: 0,
 
-            // overflow: "hidden",
             top:
               rowIndex < 1 + dustbinColumns.length
-                ? //(rowIndex + 1) *
-                  // chartControls.properties[propKey].crossTabStyleOptions
-                  // .lineHeight +
-                  // "px"
-                  // :
-                  `${topOffset}px`
-                : "auto", // Fix the header to the top
-            // top:
-            //   rowIndex < 1 + dustbinColumns.length
-            //     ? (rowIndex + 1) *
-            //         chartControls.properties[propKey].crossTabStyleOptions
-            //           .lineHeight +
-            //       "px"
-            //     : // `${topOffset}px`
-            //       "auto", // Fix the header to the top
-
-            // left: colIndex === 0 ? 0 : "auto",
-            left: colIndex < dustbinRows.length ? leftPosition || 0 : "auto", // Fix the first column header
-            // left: 0,
-            // zIndex:
-            //   rowIndex < 1 + dustbinColumns.length && colIndex === 0
-            //     ? 3
-            //     : rowIndex < 1 + dustbinColumns.length || colIndex === 0
-            //     ? 2
-            //     : 0, // Ensure headers are above other content
+                ? `${topPosition}px`
+                : "auto", // Fix for OverflowX
+            left:
+              colIndex < dustbinRows.length
+                ? (leftPosition || 0) -
+                  (colIndex + 1) *
+                    chartControls.properties[propKey].crossTabStyleOptions
+                      .borderWidth
+                : "auto", // Fix for OverflowY
             zIndex:
               rowIndex < 1 + dustbinColumns.length &&
               colIndex < dustbinRows.length
@@ -262,13 +239,10 @@ export const BuildTable = ({
                 : colIndex === 0
                 ? 1
                 : 0, // Ensure headers are above other content
-            // rowIndex + 1,
             backgroundColor:
               chartProperties?.properties[propKey]?.chartType === "table"
                 ? "#fff"
                 : "auto", // Ensure the background stays solid
-            // border:
-            //   rowIndex < 1 + dustbinColumns.length ? "1px solid grey" : null,
           }}
         >
           {col.displayData}
@@ -297,10 +271,7 @@ export const BuildTable = ({
             key={colIndex}
             style={{
               ...tdStyle,
-              // whiteSpace: "nowrap", // To prevent text from wrapping and enable scrolling
-              // overflowX: "auto",
-              // position: "sticky",
-              position: colIndex === 0 ? "sticky" : "auto", // Fix first column
+              position: colIndex === 0 ? "sticky" : "auto",
               left: colIndex === 0 ? 0 : "auto",
               zIndex: colIndex < dustbinRows.length ? 1 : 0,
             }}
