@@ -28,6 +28,7 @@ export const BuildTable = ({
 
   useLayoutEffect(() => {
     // Get the widths of the columns after the table has rendered
+    // This is for fixing headers to the left in case of left to right Scroll
     if (tableRef.current) {
       const thElements = tableRef.current.querySelectorAll("th"); // For all <th> elements
 
@@ -191,6 +192,8 @@ export const BuildTable = ({
         chartControls
       );
 
+      /// topPosition and leftPosition calculated for fixing headers to top and left in case of Scrolling
+
       const topPosition =
         rowIndex *
           chartControls.properties[propKey].crossTabHeaderLabelOptions
@@ -217,19 +220,24 @@ export const BuildTable = ({
           rowSpan={col.rowSpan}
           style={{
             ...tdStyle,
-            position: "sticky",
+            position: "sticky", // For fixing headers on scrolling
 
+            //Position Fix for headers to top in case of OverflowY
             top:
               rowIndex < 1 + dustbinColumns.length
                 ? `${topPosition}px`
-                : "auto", // Fix for OverflowX
+                : "auto",
+
+            //Position Fix for headers to left in case of OverflowX
             left:
               colIndex < dustbinRows.length
                 ? (leftPosition || 0) -
                   (colIndex + 1) *
                     chartControls.properties[propKey].crossTabStyleOptions
                       .borderWidth
-                : "auto", // Fix for OverflowY
+                : "auto",
+
+            // Ensures headers are above other content when scrolling
             zIndex:
               rowIndex < 1 + dustbinColumns.length &&
               colIndex < dustbinRows.length
@@ -238,11 +246,13 @@ export const BuildTable = ({
                 ? 2
                 : colIndex === 0
                 ? 1
-                : 0, // Ensure headers are above other content
+                : 0,
+
+            // Ensures the background stays solid on scroll
             backgroundColor:
               chartProperties?.properties[propKey]?.chartType === "table"
                 ? "#fff"
-                : "auto", // Ensure the background stays solid
+                : "auto",
           }}
         >
           {col.displayData}
@@ -269,12 +279,7 @@ export const BuildTable = ({
               "CrossTabCell " + _getUserClickedColor(col, rowIndex, colIndex)
             }
             key={colIndex}
-            style={{
-              ...tdStyle,
-              position: colIndex === 0 ? "sticky" : "auto",
-              left: colIndex === 0 ? 0 : "auto",
-              zIndex: colIndex < dustbinRows.length ? 1 : 0,
-            }}
+            style={tdStyle}
             colSpan={col.columnSpan}
             rowSpan={col.rowSpan}
             data-compareobj={JSON.stringify(col.compareObj)}
