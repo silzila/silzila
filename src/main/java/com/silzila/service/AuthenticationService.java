@@ -67,6 +67,11 @@ public class AuthenticationService {
     }
 
     public RefreshTokenResponse refreshToken(String token) {
+//        Check if token starts with "Bearer "
+//        if (token == null || !token.startsWith("Bearer ")) {
+//            throw new IllegalArgumentException("Invalid token format");
+//        }
+
         // get token from "Bearer <token>"
         String _token = token.substring(7, token.length());
         String username = this.tokenUtils.getUsernameFromToken(_token);
@@ -92,7 +97,6 @@ public class AuthenticationService {
                 .lastPasswordReset(new Date())
                 .authorities("ADMIN")
                 .build();
-        ;
         userRepository.save(newUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("User registered!"));
 
