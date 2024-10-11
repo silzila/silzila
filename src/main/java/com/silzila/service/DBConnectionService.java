@@ -229,10 +229,29 @@ public class DBConnectionService {
             throws RecordNotFoundException, BadRequestException {
         DBConnection _dbConnection = checkDBConnectionNameAlreadyExist(id, dbConnectionRequest.getConnectionName(),
                 userId);
+//        If _dbConnection not found then it will return NullPointerException so we have to handle it
+//        try {
+//              DBConnection _dbConnection = checkDBConnectionNameAlreadyExist(id, dbConnectionRequest.getConnectionName(), userId);
+//                      ...
+//              } catch (RecordNotFoundException e) {
+//    throw new BadRequestException("Connection not found: " + e.getMessage());
+//}
+
+
+
         // create a random string for using as Salt
         String saltString = RandomStringUtils.randomAlphanumeric(16);
         String passwordHash = AESEncryption.encrypt(dbConnectionRequest.getPassword(), passwordEncryptionSecretKey,
                 saltString);
+
+
+//                Encrypt the password only if it has been changed
+//                 Hash the incoming password
+//        String incomingPasswordHash = AESEncryption.encrypt(dbConnectionRequest.getPassword(), passwordEncryptionSecretKey, _dbConnection.getSalt());
+//        if (!dbConnectionRequest.getPassword().equals(incomingPasswordHash)) {
+//            ...
+//        }
+
         logger.info(" ========== password = " + dbConnectionRequest.getPassword() + " encrypted password = "
                 + passwordHash);
         _dbConnection.setConnectionName(dbConnectionRequest.getConnectionName());
