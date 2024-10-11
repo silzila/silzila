@@ -56,6 +56,10 @@ public class AuthenticationService {
         if (optionalUser.isPresent()) {
             user = optionalUser.get();
         }
+//        If user is not found then handle it
+//        Or
+//        User user1 = userRepository.findByUsername(authenticationRequest.getUsername()).orElseThrow(new UsernameNotFoundException());
+//
 
         return new AuthenticationResponse(
                 user.getName(), user.getUsername(), "Bearer",
