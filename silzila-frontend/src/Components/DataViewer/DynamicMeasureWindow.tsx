@@ -79,7 +79,7 @@ const DynamicMeasureWindow = ({
 				var dc_uid = selectedDynamicMeasureProps.selectedDs?.connectionId;
 				var id = selectedDynamicMeasureProps.selectedDs?.id;
 
-				var tableRecords = await getTableData(dc_uid, table, token);
+				var tableRecords = await getTableData(dc_uid, table, token,id);
 
 				var recordsType = await getColumnTypes(dc_uid, table, token);
 

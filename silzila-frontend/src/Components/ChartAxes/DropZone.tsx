@@ -717,7 +717,7 @@ const DropZone = ({
 										axisTitle={name}
 										key={index}
 										itemIndex={index}
-										propKey={`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`}
+										propKey={`${dynamicMeasureState.selectedDynamicMeasureId}.${dynamicMeasureState.selectedTileId}`}
 									/>
 								)
 							)

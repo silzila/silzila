@@ -522,6 +522,11 @@ const DashBoard = ({
       </div>
       {tabTileProps.dashMode === "Edit" ? (
         <div>
+           <ChartData
+              tabId={tabTileProps.selectedTabId}
+              tileId={tabTileProps.selectedTileId}
+              screenFrom="Dashboard"
+            ></ChartData>
           {showListofTileMenu ? (
             <div className="dashBoardSideBar">
               <div className="tileListContainer">
@@ -551,17 +556,10 @@ const DashBoard = ({
                 </div>
               ) : null}
             </>
-          ) : null}
-        </div>
-      ) : null}
-      {showDashBoardFilterMenu ? (
+          ) :showDashBoardFilterMenu?(
         <>
           <div className="dashBoardSideBar">
-            <ChartData
-              tabId={tabTileProps.selectedTabId}
-              tileId={tabTileProps.selectedTileId}
-              screenFrom="Dashboard"
-            ></ChartData>
+           
             <ChartFilterGroupsContainer
               propKey={"0.0"}
               fromDashboard={true}
@@ -579,7 +577,31 @@ const DashBoard = ({
 							</Tooltip> */}
           </div>
         </>
+      ): null}
+        </div>
       ) : null}
+      {/* {showDashBoardFilterMenu ? (
+        <>
+          <div className="dashBoardSideBar">
+           
+            <ChartFilterGroupsContainer
+              propKey={"0.0"}
+              fromDashboard={true}
+            ></ChartFilterGroupsContainer>
+            {/* <Tooltip title="Hide">
+								<KeyboardArrowUpIcon
+									sx={{
+										fontSize: "16px",
+										float: "right",
+										margin: "16px 0px 5px 8px",
+										color: "grey",
+									}}
+									onClick={() => setShowDashBoardFilter(false)}
+								/>
+							</Tooltip> */}
+          {/* </div>
+        </>
+      ) : null} */} 
     </div>
   );
 };

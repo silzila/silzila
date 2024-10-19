@@ -258,7 +258,8 @@ const PlayBookList = ({
 						var tableRecords = await getTableData(
 							dc_uid,
 							selectedTableForThisDataset,
-							token
+							token,
+							ds_uid
 						);
 
 						var recordsType = await getColumnTypes(

@@ -7,6 +7,7 @@ import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
+import LinearProgress from "@mui/material/LinearProgress";
 // import {
 // 	setSelectedDsInTile,
 // 	setSelectedTableInTile,
@@ -32,6 +33,7 @@ import {
   DataViewerBottomProps,
   DataViewerBottomStateProps,
 } from "./DataViewerBottomInterfaces";
+import Box from "@mui/material/Box";
 import {
   actionsToAddTile,
   setSelectedDataSetList,
@@ -44,7 +46,7 @@ export const getTableData = async (
   dc_uid: string,
   tableObj: any,
   token: string,
-  ds_id:string
+  ds_id: string
 ) => {
   var database: string = tableObj.database;
   var schema: string = tableObj.schema;
@@ -484,7 +486,14 @@ const DataViewerBottom = ({
           </div>
           {selectedChartProp.selectedTable?.[
             selectedChartProp.selectedDs.id
-          ] ? (
+          ] ? loading? (
+            <Box sx={{ width: "100%",display: "flex",
+              alignItems: "center",
+              justifyContent: "center", background:"blue",flex:"1",
+              height:"5rem"}}>
+              <LinearProgress />
+            </Box>
+          ) :(
             <div className="tileTableView">
               <DisplayTable
                 dsId={selectedChartProp.selectedDs?.id}
@@ -503,9 +512,19 @@ const DataViewerBottom = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                background:"pink"
               }}
             >
-              Select any table from the list on left to show records here
+              {loading ? (
+                
+                  // <Box sx={{width:"100%",background:"green"}}>
+                  // <LinearProgress />
+                  "Fetching Data Please Wait"
+                  // </Box>
+                
+              ) : (
+                "Select any table from the list on left to show records here"
+              )}
             </div>
           )}
           {loading ? <LoadingPopover /> : null}
