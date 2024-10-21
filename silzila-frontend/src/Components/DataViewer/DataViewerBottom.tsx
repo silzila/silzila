@@ -489,9 +489,13 @@ const DataViewerBottom = ({
           ] ? loading? (
             <Box sx={{ width: "100%",display: "flex",
               alignItems: "center",
-              justifyContent: "center", background:"blue",flex:"1",
-              height:"5rem"}}>
-              <LinearProgress />
+              justifyContent: "center",flex:"1",
+              flexDirection:"column"
+              }}>
+              <LinearProgress sx={{minWidth:"3rem",maxWidth
+                :"20%"
+              }}/>
+              <p>Please wait while we fetch the data</p>
             </Box>
           ) :(
             <div className="tileTableView">
@@ -512,15 +516,20 @@ const DataViewerBottom = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                background:"pink"
               }}
             >
               {loading ? (
                 
-                  // <Box sx={{width:"100%",background:"green"}}>
-                  // <LinearProgress />
-                  "Fetching Data Please Wait"
-                  // </Box>
+                <Box sx={{ width: "100%",display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",flex:"1",
+                  flexDirection:"column"
+                  }}>
+                  <LinearProgress sx={{minWidth:"3rem",maxWidth
+                :"20%"
+              }}/>
+                  <p>Please wait while we fetch the data</p>
+                </Box>
                 
               ) : (
                 "Select any table from the list on left to show records here"

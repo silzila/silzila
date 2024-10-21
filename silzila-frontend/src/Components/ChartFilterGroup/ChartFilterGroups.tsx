@@ -268,7 +268,7 @@ const ChartFilterGroups = ({
 					{group &&
 						group.filters?.map((field: fieldProps, index: number) => (
 							<ChartFilterGroupCard
-								propKey={propKey}
+								propKey={fromDashboard?`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`:propKey}
 								name={group.id}
 								itemIndex={index}
 								key={index}
