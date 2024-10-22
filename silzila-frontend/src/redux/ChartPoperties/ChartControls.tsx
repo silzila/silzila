@@ -1593,6 +1593,32 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
           },
         },
       });
+    case "UPDATE_RICH_TEXT_DYNAMIC_VALUE":
+      const richText = state.properties[action.payload.propKey]?.richText;
+      const text = richText?.text;
+      const children = text?.[0]?.children;
+
+      if (children && children[1]?.character !== undefined) {
+        // If richText.text[0].children[1].character exists, update it
+        return update(state, {
+          properties: {
+            [action.payload.propKey]: {
+              richText: {
+                text: {
+                  0: {
+                    children: {
+                      1: {
+                        character: { $set: action.payload.value },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+      } else return state; // Or some other fallback logic
+
     case "UPDATE_CARD_CONTROLS":
       return update(state, {
         properties: {

@@ -1,5 +1,6 @@
 import { ChartPropertiesProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { TabTileStateProps } from "../../redux/TabTile/TabTilePropsInterfaces";
+import { IFilter } from "../DataSet/BottomBarInterfaces";
 
 export interface ChartAxesProps {
 	// props
@@ -206,4 +207,7 @@ export interface CardProps extends Card {
 export interface AxesValuProps {
 	name: string;
 	fields: any[];
+}
+export interface ITabTilesAndTheirFilters{
+	[key: string]:IFilter[];
 }

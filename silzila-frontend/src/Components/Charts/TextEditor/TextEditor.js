@@ -1,5 +1,5 @@
-
 import "react-quill/dist/quill.snow.css";
+
 import { connect } from "react-redux";
 import './TextEditor.css';
 import { updateRichText, updateRichTextOnAddingDYnamicMeasure,clearRichText } from "../../../redux/ChartPoperties/ChartControlsActions";
@@ -12,7 +12,7 @@ import {
   ReactEditor,
   withReact,
   useSelected,
-  useFocused, 
+  useFocused,
   useSlate
 } from 'slate-react';
 import {
@@ -27,7 +27,7 @@ import {
 	addNewDynamicMeasurePropsForSameTile,
 	addNewDynamicMeasurePropsFromNewTab,
 	addNewDynamicMeasurePropsFromNewTile,
-	
+
 	setSelectedDynamicMeasureId,
 	setSelectedTabIdInDynamicMeasureState,
 	setSelectedTileIdInDynamicMeasureState,
@@ -58,7 +58,7 @@ const TextEditor = ({
 	setSelectedTileIdForDM,
 	setSelectedToEdit,
   clearRichText
-}:any) => {
+}) => {
   // const [target, setTarget] = useState()
   // const [index, setIndex] = useState(0)
   // const [search, setSearch] = useState('')
@@ -67,22 +67,21 @@ const TextEditor = ({
   const [position, setPosition] = useState(JSON.parse(localStorage.getItem('cursor')));
 	//const [isbgColorPopoverOpen, setbgColorPopOverOpen] = useState(false);
 
- 
   const withMentions = (editor) => {
     const { isInline, isVoid, markableVoid } = editor
-  
+
     editor.isInline = (element) => {
       return element.type === 'mention' ? true : isInline(element)
     }
-  
+
     editor.isVoid = (element) => {
       return element.type === 'mention' ? true : isVoid(element)
     }
-  
+
     editor.markableVoid = (element) => {
       return element.type === 'mention' || markableVoid(element)
     }
-  
+
     return editor
   }
 
@@ -94,24 +93,53 @@ const TextEditor = ({
   // const focused = useFocused()
   // console.log(focused);
 
-
 const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
-
-  const initialValue = useMemo(()=>chartProp.properties[propKey]?.richText?.text || [
+/**
+ * Stores the initial value  that will be displayed  in  editor 
+ */
+const [initialValue, setInitialValue] = useState(
+  chartProp.properties[propKey]?.richText?.text || [
     {
-      type: 'paragraph',
-      children: [{ text: 'Enter some text...' }],
+      type: "paragraph",
+      children: [{ text: "Enter some text..." }],
     },
-  ],[]);
-  
+  ]
+);
+/**
+ * set initial value 
+ */
+useEffect(() => {
+  const newValue = chartProp.properties[propKey]?.richText?.text || [
+    {
+      type: "paragraph",
+      children: [{ text: "Enter some text..." }],
+    },
+  ];
+  setInitialValue(newValue);
+}, [chartProp, propKey]);
+
+/**
+ * if the  value for editor  chnages by event outside of the editor this effect will  trigger a re-render 
+ * with the new value 
+ * for referrence  visit:https://docs.slatejs.org/walkthroughs/06-saving-to-a-database
+ */
+useEffect(() => {
+  editor.children = chartProp.properties[propKey]?.richText?.text || [
+    {
+      type: "paragraph",
+      children: [{ text: "Enter some text..." }],
+    },
+  ];
+  editor.onChange();
+}, [editor, initialValue]);
 	useEffect(() => {
     try{
       if(chartProp.properties[propKey].measureValue?.id !== "")
       {
         clearRichText(propKey);
       // Transforms.select(editor, { offset: 0, path: [0, 0] });
-      
-        let _measureValueCopy =  Object.assign({}, chartProp.properties[propKey]); 
+
+        let _measureValueCopy =  Object.assign({}, chartProp.properties[propKey]);
         if(_measureValueCopy && _measureValueCopy.measureValue && _measureValueCopy.measureValue.value)
         {
 
@@ -125,12 +153,10 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
             showDash: tabTileProps.showDash
           }
 
-        
           if(ReactEditor.isFocused){
             Transforms.insertNodes(editor,[_object], position);
           }
 
-        
           ReactEditor.focus(editor);
         }
       }
@@ -140,11 +166,9 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
   }
 	}, [chartProp.properties[propKey].measureValue?.id]);
 
-
   useEffect(() => {
     ReactEditor.focus(editor);
   },[])
-
 
   const onAddingNewDynamicMeaasure = () => {
 		if (dynamicMeasureState.dynamicMeasureList) {
@@ -184,7 +208,6 @@ const 	tabId = tabTileProps.selectedTabId, tileId = tabTileProps.selectedTileId;
 			);
 		}
 	};
-
 
 // Borrow Leaf renderer from the Rich Text example.
 // In a real project you would get this via `withRichText(editor)` or similar.
@@ -230,7 +253,6 @@ const Leaf = ({ attributes, children, leaf }) => {
         const family = fontFamilyMap[leaf.fontFamily]
         children = <span style={{fontFamily:family}}>{children}</span>
     }
-    
 
   return <span {...attributes}>{children}</span>
 }
@@ -267,7 +289,7 @@ const Element = (props) => {
         return <ul {...attributes}>{children}</ul>
     case 'link':
         return <Link {...props}/>
-   
+
     case 'table':
         return <table>
             <tbody {...attributes}>{children}</tbody>
@@ -285,7 +307,6 @@ const Element = (props) => {
 }
 }
 
-
 const Mention = ({ attributes, children, element }) => {
 
   const selected = useSelected()
@@ -299,7 +320,7 @@ const Mention = ({ attributes, children, element }) => {
     backgroundColor: '',
     fontSize: '0.9em',
     boxShadow: selected && focused ? '0px 1px 1px 2px #B4D5FF' : 'none',
-    
+
   }
   // See if our empty text child has any styling marks applied and apply those
   if (element.measureStyle.isBold) {
@@ -326,9 +347,8 @@ if (element.measureStyle.backgroundColor != 'white') {
 
      style.cursor =  "pointer";
 
-
   return (
-    <span 
+    <span
       {...attributes}
       contentEditable={false}
       style={style}
@@ -340,7 +360,7 @@ if (element.measureStyle.backgroundColor != 'white') {
             const [start] = Range.edges(selection)
             const wordBefore = Editor.before(editor, start, { unit: 'word' })
             const after = Editor.after(editor, start)
-  
+
             localStorage.setItem('cursor', JSON.stringify({
               at: {
                 anchor: wordBefore,
@@ -348,7 +368,7 @@ if (element.measureStyle.backgroundColor != 'white') {
               },
             }))
           }
-         
+
           let tabId = element.propKey.split('.')[0];
           let tileId = element.propKey.split('.')[1];
           let dmId = element.id.replace("RichTextID","");
@@ -373,13 +393,12 @@ if (element.measureStyle.backgroundColor != 'white') {
 
   return (
     <div className="slate">
-      <Slate 
-        
+      <Slate
+
         editor={editor}
         initialValue={initialValue}
         onChange={(val) => {
           const { selection } = editor
-
           if (selection && Range.isCollapsed(selection)) {
             const [start] = Range.edges(selection)
 
@@ -401,20 +420,19 @@ if (element.measureStyle.backgroundColor != 'white') {
         {
           !tabTileProps.showDash ?
           <div style={{"display":"block",  "width":"100%"}}>
-        
+
           <Toolbar propKey={propKey} setDynamicMeasureWindowOpen={setDynamicMeasureWindowOpen} onAddingNewDynamicMeaasure={onAddingNewDynamicMeaasure} />
-         
-           
+
          </div>
           :null
         }
-       
+
         <Editable
           readOnly={tabTileProps.showDash}
           renderElement={renderElement}
           renderLeaf={renderLeaf}
           placeholder="Enter some text..."
-        
+
           style={{
             minHeight: 'auto',
             border: "1px solid rgb(222, 222, 222)",
@@ -425,8 +443,6 @@ if (element.measureStyle.backgroundColor != 'white') {
     </div>
   )
 }
-
-
 
 const mapStateToProps = (state) => {
 	return {
@@ -477,7 +493,7 @@ const mapDispatchToProps = (dispatch) => {
 		setSelectedTabIdForDM: (tabId) =>
 			dispatch(setSelectedTabIdInDynamicMeasureState(tabId)),
       setSelectedDynamicMeasureId: (dmId) => dispatch(setSelectedDynamicMeasureId(dmId)),
-     
+
 		setSelectedToEdit: (tabId, tileId, dmId, value) =>
 			dispatch(setSelectedToEdit(tabId, tileId, dmId, value)),
 	};
