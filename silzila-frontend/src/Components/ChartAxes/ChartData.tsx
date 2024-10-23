@@ -1433,18 +1433,18 @@ const ChartData = ({
 
     if (screenFrom === "Dashboard") {
       /**
-       * the chart Data is tored in  chartData of respective tabTile if chart type is not richText else stored in richText 
-       * 
+       * the chart Data is tored in  chartData of respective tabTile if chart type is not richText else stored in richText
+       *
        * if screen is dashboard  get all the tabTileId are being displayed in dashboard
        * "tabTilesAndTheirFilters" object is created to store list of filters to be applied on a tabTileID
        * key->tabTileId ,value->list of filters
-       * 
-       * for each tiles in dashboard 
+       *
+       * for each tiles in dashboard
        *        iterate over filterGroupTabTiles(object stores the list of tiles(value) on wihich filtergroupID(key) will, be applied ) object to get the filterGroupIDs to br applied on  the current tile
        *            if a filter group is to be applied on a tile get list of filters  from chartFilterGroup  and store it
-       * 
+       *
        * get list of  tabTileID which does not have any filter group to be applied on it as filterPanels should be empty for those tiles
-       * 
+       *
        * now fetch data  for tiles and store them in respective global state
        */
       let payLoad: any[] = [];
@@ -1484,14 +1484,15 @@ const ChartData = ({
         (tabTileID: string) => !(tabTileID in tabTilesAndTheirFilters)
       );
 
-
       Object.keys(tabTilesAndTheirFilters).forEach((tabTileID: string) => {
         const chartProp: any =
           chartProperties.properties[`${tabTileID}`].chartType === "richText"
             ? dynamicMeasureState.dynamicMeasureProps?.[
-              tabTileID.split(".")[0]
+                tabTileID.split(".")[0]
               ]?.[tabTileID.split(".")[1]]?.[
-                `${tabTileID.split(".")[1]}.${dynamicMeasureState.selectedDynamicMeasureId}`
+                `${tabTileID.split(".")[1]}.${
+                  dynamicMeasureState.selectedDynamicMeasureId
+                }`
               ]
             : chartProperties.properties[`${tabTileID}`];
         const sortChartData = (chartData: any[]): any[] => {
@@ -1690,9 +1691,11 @@ const ChartData = ({
         const chartProp: any =
           chartProperties.properties[`${tabTileID}`].chartType === "richText"
             ? dynamicMeasureState.dynamicMeasureProps?.[
-              tabTileID.split(".")[0]
+                tabTileID.split(".")[0]
               ]?.[tabTileID.split(".")[1]]?.[
-                `${tabTileID.split(".")[1]}.${dynamicMeasureState.selectedDynamicMeasureId}`
+                `${tabTileID.split(".")[1]}.${
+                  dynamicMeasureState.selectedDynamicMeasureId
+                }`
               ]
             : chartProperties.properties[`${tabTileID}`];
 
@@ -1881,6 +1884,209 @@ const ChartData = ({
           }
         })();
       });
+    } else if (screenFrom === "richTextReportFilter") {
+
+    /**
+     *
+     * screenFrom === "richTextReportFilter" if chartData is rendered from DataViewerMidle
+     */
+      const chartProp =
+        chartProperties.properties[`${_propKey}`].chartType === "richText"
+          ? dynamicMeasureState.dynamicMeasureProps?.[tabId]?.[tileId]?.[
+              `${tileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+            ]
+          : chartProperties.properties[`${_propKey}`];
+
+
+      /**
+         * if Dynamic measures  it not selected we ownt be able to make api call as measures is required
+        */
+      if (!chartProp || !chartProp.chartAxes) return;
+
+
+
+      const sortChartData = (chartData: any[]): any[] => {
+        let result: any[] = [];
+        let axesValues1 = JSON.parse(JSON.stringify(chartProp.chartAxes));
+        if (chartData && chartData.length > 0) {
+          let _zones: any = axesValues1.filter(
+            (zones: any) => zones.name !== "Filter"
+          );
+          //let _zonesFields:any = [];
+          // let _fieldTempObject: any = {};
+          let _chartFieldTempObject: any = {};
+
+          /*	Find and return field's new name	*/
+          const findFieldIndexName = (name: string, i: number = 2): string => {
+            if (_chartFieldTempObject[`${name}_${i}`] !== undefined) {
+              i++;
+              return findFieldIndexName(name, i);
+            } else {
+              return `${name}_${i}`;
+            }
+          };
+
+          _zones.forEach((zoneItem: any) => {
+            zoneItem.fields.forEach((field: any) => {
+              let _nameWithAgg: string = "";
+
+              _nameWithAgg = field.displayname;
+
+              if (_chartFieldTempObject[field.fieldname] !== undefined) {
+                let _name = findFieldIndexName(field.fieldname);
+
+                field["NameWithIndex"] = _name;
+                _chartFieldTempObject[_name] = "";
+                // Logger("info", "NameWithIndex", field);
+              } else {
+                field["NameWithIndex"] = field.fieldname;
+                _chartFieldTempObject[field.fieldname] = "";
+                // Logger("info", "NameWithIndex", field);
+              }
+
+              // if (_fieldTempObject[_nameWithAgg] === undefined) {
+              field["NameWithAgg"] = _nameWithAgg;
+              //_fieldTempObject[_nameWithAgg] = "";
+              // Logger("info", "NameWithAgg", field);
+              //}
+            });
+          });
+
+          chartData.forEach((data: any) => {
+            let _chartDataObj: any = {};
+
+            _zones.forEach((zoneItem: any) => {
+              zoneItem.fields.forEach((field: any) => {
+                _chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
+              });
+            });
+
+            Logger("info", "_chartDataObj", _chartDataObj);
+            result.push(_chartDataObj);
+          });
+        }
+
+        return result;
+      };
+
+
+      let payload: any[] = [];
+      const filterGroupsToBeAppliedOnTile: string[] =
+        chartGroup.tabTile[_propKey];
+      if (!filterGroupsToBeAppliedOnTile) return;
+      let filters: IFilter[] = [];
+
+
+      /**
+       * If no filter group is selectedfilterPanel is empty else apply filters of filterGroups
+       */
+      if(filterGroupsToBeAppliedOnTile.length===0){
+        const measures = chartProp.chartAxes.filter(
+          (axes: AxesValuProps) => axes.name === "Measure"
+        );
+        const filtersForAPI = chartProp.chartAxes.filter(
+          (axes: AxesValuProps) => axes.name === "Filter"
+        );
+        payload = [
+          {
+            dimensions: [],
+            fields: [],
+            filterPanels:[],
+            filters: filtersForAPI.map((filter: any) => filter.fields),
+            measures: measures.flatMap((measure: any) =>
+              measure.fields.map((el: any) => ({
+                dataType: el.dataType,
+                uid: el.uId,
+                fieldName: el.fieldname,
+                displayName: el.displayname,
+                rollupDepth: false,
+                measureOrder: 1,
+                aggr: el.agg,
+                tableId: el.tableId,
+              }))
+            ),
+          },
+        ];
+      }
+      else{
+        filterGroupsToBeAppliedOnTile.forEach((filterGroupID: string) => {
+          chartGroup.groups[filterGroupID].filters.forEach((filter: any) =>
+            filters.push(modifyFilter(filter))
+          );
+  
+          
+          const measures = chartProp.chartAxes.filter(
+            (axes: AxesValuProps) => axes.name === "Measure"
+          );
+          const filtersForAPI = chartProp.chartAxes.filter(
+            (axes: AxesValuProps) => axes.name === "Filter"
+          );
+          payload = [
+            {
+              dimensions: [],
+              fields: [],
+              filterPanels:
+                filters.length > 0
+                  ? [
+                      {
+                        panelName: "reportFilter",
+                        shouldAllConditionsMatch: true,
+                        filters: [...filters],
+                      },
+                    ]
+                  : [],
+              filters: filtersForAPI.map((filter: any) => filter.fields),
+              measures: measures.flatMap((measure: any) =>
+                measure.fields.map((el: any) => ({
+                  dataType: el.dataType,
+                  uid: el.uId,
+                  fieldName: el.fieldname,
+                  displayName: el.displayname,
+                  rollupDepth: false,
+                  measureOrder: 1,
+                  aggr: el.agg,
+                  tableId: el.tableId,
+                }))
+              ),
+            },
+          ]; 
+        });
+      }
+      (async () => {
+        const _selectedDS =
+          chartProperties.properties[`${_propKey}`].selectedDs;
+        let url = "";
+        if (_selectedDS.isFlatFileData) {
+          url = `query?datasetid=${_selectedDS.id}`;
+        } else {
+          url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}`;
+        }
+        setLoading(true);
+        const res = await FetchData({
+          requestType: "withData",
+          method: "POST",
+          url: url,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          data: payload,
+        });
+        if (res.status) {
+          storeServerData(_propKey, res.data);
+          updateChartDataForDm(sortChartData(res.data));
+          const values = Object.values(res.data[0]);
+          updateRichTextDynamicValue(
+            _propKey,
+            getFormatedValue(chartProp.dynamicMeasureId, values[0])
+          );
+
+          setLoading(false);
+        } else {
+          Logger("error", "Get Table Data Error", res.data.message);
+          setLoading(false);
+        }
+      })();
     } else {
       if (
         tabTileProps.previousTabId === 0 ||
