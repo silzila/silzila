@@ -34,6 +34,7 @@ import { changeChartOptionSelected } from "../../redux/ChartPoperties/ChartPrope
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import ChartData from "../ChartAxes/ChartData";
 
 const DataViewerMiddle = ({
   // props
@@ -148,6 +149,11 @@ const DataViewerMiddle = ({
         <>
           <GraphArea />
           <DynamicMeasureWindow />
+          <ChartData
+          tabId={tabId}
+          tileId={tileId}
+          screenFrom="richTextReportFilter"/>
+          <div className="rightColumn">{controlDisplayed()}</div>
         </>
       ) : (
         <>

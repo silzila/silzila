@@ -147,11 +147,7 @@ function DataViewer({
         <div className="tabItems">
           <TabRibbon />
         </div>
-        {!tabTileProps.showDash &&
-        chartProperties.properties[
-          `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
-        ].chartType !== "richText" ? (
-          <div
+        {!tabTileProps.showDash?( <div
             style={{
               display: "flex",
               alignItems: "right",
@@ -160,14 +156,15 @@ function DataViewer({
             }}
           >
             {renderMenu}
-          </div>
-        ) : null}
+          </div>):null}
+         
+        
         {tabTileProps.showDash || tabTileProps.dashMode === "Present" ? (
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              paddingRight: "8px"
+              paddingRight: "8px",
             }}
           >
             {tabTileProps.dashMode === "Edit" ? (

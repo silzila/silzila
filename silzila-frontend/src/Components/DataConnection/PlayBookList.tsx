@@ -33,6 +33,7 @@ import { setSelectedDatasetForDynamicMeasure } from "../../redux/DynamicMeasures
 import { CloseRounded } from "@mui/icons-material";
 import "./DataSetup.css";
 import {changeChartDataToAxesOrder} from "../CommonFunctions/CommonFunctions";
+import { addChartFilterTabTileName } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 
 const PlayBookList = ({
 	// state
@@ -43,6 +44,7 @@ const PlayBookList = ({
 	setSelectedDs,
 	loadPlayBook,
 	updatePlayBookId,
+	addChartFilterTabTileName,
 	setSelectedDatasetForDynamicMeasure,
 }: PlayBookProps & any) => {
 	const [playBookList, setPlayBookList] = useState<any[]>([]);
@@ -104,7 +106,11 @@ const PlayBookList = ({
 				var datasetFromServer: any = await getTables(selectedDataset.id);
 				setTablesForDs({ [selectedDataset.id]: datasetFromServer.dataSchema.tables });
 				setSelectedDs("1.1", selectedDataset);
-
+				/**
+				 * Add  and empty array to tabTile 1.1  in chartFilterGroup.tabTile  so if there is any filterGroup added to this tile
+				 * then filterGroupId will be stored in this array
+				 */
+				addChartFilterTabTileName(selectedDataset.id,"1.1")
 				navigate("/dataviewer");
 			}
 		};
@@ -506,6 +512,10 @@ const mapStateToProps = (state: isLoggedProps) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
+		addChartFilterTabTileName: (
+			selectedDatasetID: string,
+			tabTileName: string
+		  ) => dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName)),
 		setSelectedDataSetList: (dataset: PbSelectedDataset) =>
 			dispatch(setSelectedDataSetList(dataset)),
 		setTablesForDs: (tablesObj: any) => dispatch(setTablesForSelectedDataSets(tablesObj)),
