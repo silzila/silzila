@@ -80,7 +80,31 @@ const ChartFilterGroupCard = ({
 
   //const [showOptions, setShowOptions] = useState(false);
   const [loading, setLoading] = useState(false);
+
   let sliderRange = [0, 0];
+
+  const [sortedData, setSortedData] = useState([]); //for sorting the filter list
+  const [showMore, setShowMore] = useState(false); //for showing more items
+  const [visibleItems, setVisibleItems] = useState(20); //for showing 20 items at a time
+
+  // const pickListItems = filterFieldData.pickListItems || []; // Assuming filterFieldData has this
+  // const totalItems = pickListItems.length;
+
+  // // Sorting functions
+  // const sortAsc = () => {
+  //   const sorted = [...pickListItems].sort();
+  //   setSortedData(sorted);
+  // };
+
+  // const sortDesc = () => {
+  //   const sorted = [...pickListItems].sort().reverse();
+  //   setSortedData(sorted);
+  // };
+
+  // Show more functionality
+  const loadMoreItems = () => {
+    setVisibleItems((prev) => prev + 20);
+  };
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -226,7 +250,7 @@ const ChartFilterGroupCard = ({
       async function _preFetchData() {
         if (!filterFieldData.rawselectmembers) {
           setLoading(true);
-          await GetPickListItems();
+          await GetPickListItems([]);
           setLoading(false);
         }
       }
@@ -330,26 +354,55 @@ const ChartFilterGroupCard = ({
   };
 
   ///To fetch Pick list items
-  const GetPickListItems = async () => {
-    let result: any = await fetchFieldData(_getFilterType());
+const GetPickListItems = async (sortOptions: string[]) => {
+  // Avoid fetching data again if the sort options have not changed
+  if (filterFieldData["previousSortOptions"] === JSON.stringify(sortOptions)) {
+    return; // Return early if no changes in sort options
+  }
 
-    if (result && result.status && result.data && result.data.length > 0) {
-      if (result.data && result.data.length > 0) {
-        result = result.data.map(
-          (item: any) => item[Object.keys(result.data[0])[0]]
-        );
-      }
+  let result: any = await fetchFieldData(_getFilterType());
 
-      let tempResult = ["(All)", ...result];
-
-      filterFieldData["rawselectmembers"] = [...tempResult];
-      filterFieldData["userSelection"] = tempResult;
-      updateChartFilterRightGroupsFilters(
-        name,
-        constructChartAxesFieldObject()
+  if (result && result.status && result.data && result.data.length > 0) {
+    if (result.data && result.data.length > 0) {
+      result = result.data.map(
+        (item: any) => {
+          const key = Object.keys(result.data[0])[0];
+          return item[key] !== null ? item[key] : "(blank)";
+        }
       );
     }
-  };
+
+    // Start with (All) and raw result list
+    let tempResult = ["(All)", ...result];
+
+    // Apply multiple sortOptions
+    if (sortOptions.includes("Sort Desc")) {
+      tempResult = ["(All)", ...result.sort().reverse()];
+    } else {
+      tempResult = ["(All)", ...result.sort()]; // Default to ascending if no "Sort Desc"
+    }
+
+    if (sortOptions.includes("Remove Blank")) {
+      tempResult = tempResult.filter((val: string) => val !== "(blank)");
+    }
+
+    if (sortOptions.includes("Blank at Bottom")) {
+      const blanks = tempResult.filter((val: string) => val === "(blank)");
+      tempResult = tempResult.filter((val: string) => val !== "(blank)").concat(blanks);
+    }
+
+    // Store sorted data in filterFieldData
+    filterFieldData["rawselectmembers"] = [...tempResult];
+    filterFieldData["userSelection"] = tempResult;
+    
+    // Save the sort options for comparison in future updates
+    filterFieldData["previousSortOptions"] = JSON.stringify(sortOptions);
+
+    // Update the chart with the filtered data
+    updateChartFilterRightGroupsFilters(name, constructChartAxesFieldObject());
+  }
+};
+
 
   ///To fetch Relative Filter items
   const GetRelativeFilterItems = async () => {
@@ -866,7 +919,7 @@ const ChartFilterGroupCard = ({
 
         if (queryParam === "Pick List") {
           setLoading(true);
-          await GetPickListItems();
+          await GetPickListItems([]);
           setLoading(false);
         }
         if (queryParam === "Relative Filter") {
@@ -915,56 +968,106 @@ const ChartFilterGroupCard = ({
   };
 
   /// List of options to show at the end of each filter card
-  const RenderMenu = () => {
-    var options = ["Include", "Exclude"];
-    var options2 = ["Pick List", "Search Condition"];
-    ///Relative Filter option ony for "date" and "timestamp"
-    if (
-      filterFieldData.dataType === "timestamp" ||
-      filterFieldData.dataType === "date"
-    )
-      options2 = ["Pick List", "Search Condition", "Relative Filter"];
+const RenderMenu = () => {
+  const [selectedOption, setSelectedOption] = useState(
+    filterFieldData.fieldtypeoption === "Pick List" ? "Pick List" : filterFieldData.fieldtypeoption
+  );
 
-    return (
-      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={() => handleClose("clickOutside")}
-        MenuListProps={{
-          "aria-labelledby": "basic-button",
-        }}
-      >
-        {options2.length > 0
-          ? options2.map((opt2, index) => {
-              return (
-                <div
-                  style={{ display: "flex" }}
-                  onClick={() => handleClose("opt2", opt2)}
-                >
-                  <Tooltip
-                    title={
-                      opt2 === filterFieldData.fieldtypeoption
-                        ? "Selected"
-                        : null
-                    }
-                  >
-                    <Radio
-                      checked={opt2 === filterFieldData.fieldtypeoption}
+  // Maintain an array of selected sort options
+  const [selectedSortOptions, setSelectedSortOptions] = useState<string[]>([]);
+
+  const options = ["Include", "Exclude"];
+  const options2 = ["Pick List", "Search Condition"];
+
+  if (filterFieldData.dataType === "timestamp" || filterFieldData.dataType === "date") {
+    options2.push("Relative Filter");
+  }
+
+  const handleOptionSelect = (option: string) => {
+    setSelectedOption(option);
+    if (option !== "Pick List") {
+      setSelectedSortOptions([]); // Reset sort options if not Pick List
+    } else {
+      GetPickListItems(selectedSortOptions); // Fetch Pick List items with the selected sort options
+    }
+    handleClose("opt2", option);
+  };
+
+  // Handle multiple checkbox selections for sorting options
+  const handleSortOptionToggle = (sortOpt: string) => {
+    setSelectedSortOptions((prevSelectedOptions) => {
+      const updatedOptions = prevSelectedOptions.includes(sortOpt)
+        ? prevSelectedOptions.filter((opt) => opt !== sortOpt) // Deselect if already selected
+        : [...prevSelectedOptions, sortOpt]; // Select if not already selected
+
+      // Call GetPickListItems after updating state
+      GetPickListItems(updatedOptions);
+      
+      return updatedOptions; // Return the new state
+    });
+  };
+
+  return (
+    <Menu
+      id="basic-menu"
+      anchorEl={anchorEl}
+      open={open}
+      onClose={() => handleClose("clickOutside")}
+      MenuListProps={{
+        "aria-labelledby": "basic-button",
+      }}
+    >
+      {options2.length > 0 &&
+        options2.map((opt2, index) => (
+          <div key={index}>
+            <div style={{ display: "flex" }} onClick={() => handleOptionSelect(opt2)}>
+              <Tooltip title={opt2 === filterFieldData.fieldtypeoption ? "Selected" : null}>
+                <Radio
+                  checked={opt2 === selectedOption}
+                  sx={{
+                    "& .MuiSvgIcon-root": {
+                      fontSize: "12px",
+                      height: "12px",
+                      color: "#af99db",
+                    },
+                    alignSelf: "center",
+                    marginLeft: "5px",
+                  }}
+                />
+              </Tooltip>
+              <MenuItem
+                sx={{
+                  flex: 1,
+                  fontSize: "12px",
+                  alignSelf: "center",
+                  padding: "2px 0px",
+                  paddingRight: "1rem",
+                }}
+              >
+                {opt2}
+              </MenuItem>
+            </div>
+
+            {/* Sub-options for Pick List */}
+            {selectedOption === "Pick List" && opt2 === "Pick List" && (
+              <div style={{ marginLeft: "20px" }}>
+                {/* Sort Desc */}
+                <div style={{ display: "flex" }} onClick={() => handleSortOptionToggle("Sort Desc")}>
+                  <Tooltip title={selectedSortOptions.includes("Sort Desc") ? "Selected" : null}>
+                    <Checkbox
+                      checked={selectedSortOptions.includes("Sort Desc")}
                       sx={{
                         "& .MuiSvgIcon-root": {
                           fontSize: "12px",
                           height: "12px",
                           color: "#af99db",
                         },
-                        // fontSize: "0px",
                         alignSelf: "center",
                         marginLeft: "5px",
                       }}
                     />
                   </Tooltip>
                   <MenuItem
-                    key={index}
                     sx={{
                       flex: 1,
                       fontSize: "12px",
@@ -973,87 +1076,117 @@ const ChartFilterGroupCard = ({
                       paddingRight: "1rem",
                     }}
                   >
-                    {opt2}
+                    Sort Desc
                   </MenuItem>
                 </div>
-              );
-            })
-          : null}
 
-        <Divider
-          sx={{
-            margin: "5px 0px",
-          }}
-        />
-
-        {options.length > 0
-          ? options.map((opt, index) => {
-              if (filterFieldData.fieldtypeoption === "Relative Filter")
-                filterFieldData.includeexclude = "Include";
-              return (
-                <div
-                  style={{ display: "flex" }}
-                  onClick={() => handleClose("opt1", opt)}
-                >
-                  <Tooltip
-                    title={
-                      opt === filterFieldData.includeexclude ? "Selected" : null
-                    }
-                  >
-                    <Radio
-                      checked={opt === filterFieldData.includeexclude}
-                      disabled={
-                        opt === "Exclude" &&
-                        filterFieldData.fieldtypeoption === "Relative Filter"
-                      }
-                      sx={
-                        filterFieldData.includeexclude === "Exclude" &&
-                        opt === filterFieldData.includeexclude
-                          ? {
-                              // flex: 1,
-                              "& .MuiSvgIcon-root": {
-                                fontSize: "12px",
-                                height: "12px",
-                                color: "#ffb74d",
-                              },
-                              alignSelf: "center",
-                              marginLeft: "5px",
-                            }
-                          : {
-                              "& .MuiSvgIcon-root": {
-                                fontSize: "12px",
-                                height: "12px",
-                                color: "#af99db",
-                              },
-                              alignSelf: "center",
-                              marginLeft: "5px",
-                            }
-                      }
+                {/* Remove Blank */}
+                <div style={{ display: "flex" }} onClick={() => handleSortOptionToggle("Remove Blank")}>
+                  <Tooltip title={selectedSortOptions.includes("Remove Blank") ? "Selected" : null}>
+                    <Checkbox
+                      checked={selectedSortOptions.includes("Remove Blank")}
+                      sx={{
+                        "& .MuiSvgIcon-root": {
+                          fontSize: "12px",
+                          height: "12px",
+                          color: "#af99db",
+                        },
+                        alignSelf: "center",
+                        marginLeft: "5px",
+                      }}
                     />
                   </Tooltip>
                   <MenuItem
-                    disabled={
-                      opt === "Exclude" &&
-                      filterFieldData.fieldtypeoption === "Relative Filter"
-                    }
                     sx={{
+                      flex: 1,
                       fontSize: "12px",
                       alignSelf: "center",
                       padding: "2px 0px",
-                      flex: 1,
+                      paddingRight: "1rem",
                     }}
-                    key={index}
                   >
-                    {opt}
+                    Remove (blank) values
                   </MenuItem>
                 </div>
-              );
-            })
-          : null}
-      </Menu>
-    );
-  };
 
+                {/* Blank at Bottom */}
+                <div style={{ display: "flex" }} onClick={() => handleSortOptionToggle("Blank at Bottom")}>
+                  <Tooltip title={selectedSortOptions.includes("Blank at Bottom") ? "Selected" : null}>
+                    <Checkbox
+                      checked={selectedSortOptions.includes("Blank at Bottom")}
+                      sx={{
+                        "& .MuiSvgIcon-root": {
+                          fontSize: "12px",
+                          height: "12px",
+                          color: "#af99db",
+                        },
+                        alignSelf: "center",
+                        marginLeft: "5px",
+                      }}
+                    />
+                  </Tooltip>
+                  <MenuItem
+                    sx={{
+                      flex: 1,
+                      fontSize: "12px",
+                      alignSelf: "center",
+                      padding: "2px 0px",
+                      paddingRight: "1rem",
+                    }}
+                  >
+                    (blank) at bottom
+                  </MenuItem>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+
+      <Divider sx={{ margin: "5px 0px" }} />
+
+      {options.length > 0 &&
+        options.map((opt, index) => {
+          if (filterFieldData.fieldtypeoption === "Relative Filter")
+            filterFieldData.includeexclude = "Include";
+          return (
+            <div key={index} style={{ display: "flex" }} onClick={() => handleClose("opt1", opt)}>
+              <Tooltip title={opt === filterFieldData.includeexclude ? "Selected" : null}>
+                <Radio
+                  checked={opt === filterFieldData.includeexclude}
+                  disabled={
+                    opt === "Exclude" && filterFieldData.fieldtypeoption === "Relative Filter"
+                  }
+                  sx={{
+                    "& .MuiSvgIcon-root": {
+                      fontSize: "12px",
+                      height: "12px",
+                      color: opt === "Exclude" ? "#ffb74d" : "#af99db",
+                    },
+                    alignSelf: "center",
+                    marginLeft: "5px",
+                  }}
+                />
+              </Tooltip>
+              <MenuItem
+                disabled={opt === "Exclude" && filterFieldData.fieldtypeoption === "Relative Filter"}
+                sx={{
+                  fontSize: "12px",
+                  alignSelf: "center",
+                  padding: "2px 0px",
+                  flex: 1,
+                }}
+              >
+                {opt}
+              </MenuItem>
+            </div>
+          );
+        })}
+    </Menu>
+  );
+};
+
+
+  
   ///set Search condition condition initiallize slider control
   const setSliderRange = () => {
     if (
@@ -1161,7 +1294,7 @@ const ChartFilterGroupCard = ({
     } else {
       if (filterFieldData.exprType === "between") {
         //setLoading(true);
-        await GetPickListItems();
+        await GetPickListItems([]);
         setSliderRange();
         // setLoading(false);
       }
@@ -1229,7 +1362,7 @@ const ChartFilterGroupCard = ({
 
     // if (filterFieldData.fieldtypeoption === "Pick List") {
     setLoading(true);
-    await GetPickListItems();
+    await GetPickListItems([]);
     setLoading(false);
     setSliderRange();
     // }
@@ -1929,6 +2062,7 @@ const ChartFilterGroupCard = ({
                 : {}
             }
           >
+            
             {filterFieldData.dataType === "timestamp" ||
             filterFieldData.dataType === "date" ? (
               <div className="CustomRequiredField">
