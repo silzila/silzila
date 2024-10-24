@@ -58,7 +58,14 @@ const GridControls = ({
 						onChange={e => {
 							updateGaugeAxisOptions(propKey, "startAngle", e.target.value);
 						}}
-						InputProps={{ ...textFieldStyleProps }}
+						InputProps={{ 
+							...textFieldStyleProps,
+							sx: {								
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							},
+						 }}
 					/>
 				</React.Fragment>
 			) : (
@@ -123,7 +130,13 @@ const GridControls = ({
 							// changing value of end angle
 							updateGaugeAxisOptions(propKey, "endAngle", e.target.value);
 						}}
-						InputProps={{ ...textFieldStyleProps }}
+						InputProps={{ ...textFieldStyleProps,
+							sx: {								
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							},
+						 }}
 					/>
 
 					<div className="optionDescription">
@@ -156,7 +169,7 @@ const GridControls = ({
 							/>
 							<div className="optionDescription">Tick Padding</div>
 							<SliderWithInput
-								percent={false}
+								percent={true}
 								sliderValue={property.gaugeAxisOptions.tickPadding}
 								sliderMinMax={{ min: 0, max: 90, step: 1 }}
 								changeValue={(value: number) => {
@@ -187,7 +200,7 @@ const GridControls = ({
 						<>
 							<div className="optionDescription">Label Padding</div>
 							<SliderWithInput
-								percent={false}
+								percent={true}
 								sliderValue={property.gaugeAxisOptions.labelPadding}
 								sliderMinMax={{ min: 0, max: 90, step: 1 }}
 								changeValue={(value: number) => {

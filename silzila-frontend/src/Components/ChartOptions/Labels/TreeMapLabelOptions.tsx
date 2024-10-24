@@ -17,6 +17,9 @@ const SelectComponentStyle = {
 	backgroundColor: "white",
 	height: "1.5rem",
 	color: "#404040",
+	"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+		borderColor: "#2bb9bb", // Set focused border color
+	},
 };
 
 const TreeMapLabelOptions = ({
@@ -63,6 +66,18 @@ const TreeMapLabelOptions = ({
 						updateTreeMapStyleOptions(propKey, "labelPosition", e.target.value);
 					}}
 					sx={SelectComponentStyle}
+					MenuProps={{
+						PaperProps: {
+							sx: {
+								"& .MuiMenuItem-root.Mui-selected": {
+									backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+								},
+								"& .MuiMenuItem-root.Mui-selected:hover": {
+									backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+								}
+							}
+						}
+					}}
 				>
 					{treeMapLabelOptionList.map(position => {
 						return (
@@ -82,6 +97,18 @@ const TreeMapLabelOptions = ({
 						updateTreeMapStyleOptions(propKey, "labelRotate", e.target.value);
 					}}
 					sx={SelectComponentStyle}
+					MenuProps={{
+						PaperProps: {
+							sx: {
+								"& .MuiMenuItem-root.Mui-selected": {
+									backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+								},
+								"& .MuiMenuItem-root.Mui-selected:hover": {
+									backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+								}
+							}
+						}
+					}}
 				>
 					{treeMapLabelRotationOption.map(position => {
 						return (
@@ -101,6 +128,18 @@ const TreeMapLabelOptions = ({
 						updateTreeMapStyleOptions(propKey, "overFlow", e.target.value);
 					}}
 					sx={SelectComponentStyle}
+					MenuProps={{
+						PaperProps: {
+							sx: {
+								"& .MuiMenuItem-root.Mui-selected": {
+									backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+								},
+								"& .MuiMenuItem-root.Mui-selected:hover": {
+									backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+								}
+							}
+						}
+					}}
 				>
 					<MenuItem sx={menuItemStyle} value="truncate">
 						Truncate
@@ -122,6 +161,18 @@ const TreeMapLabelOptions = ({
 						updateTreeMapStyleOptions(propKey, "horizondalAlign", e.target.value);
 					}}
 					sx={SelectComponentStyle}
+					MenuProps={{
+						PaperProps: {
+							sx: {
+								"& .MuiMenuItem-root.Mui-selected": {
+									backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+								},
+								"& .MuiMenuItem-root.Mui-selected:hover": {
+									backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+								}
+							}
+						}
+					}}
 				>
 					<MenuItem sx={menuItemStyle} value="left">
 						Left
@@ -143,6 +194,18 @@ const TreeMapLabelOptions = ({
 						updateTreeMapStyleOptions(propKey, "verticleAlign", e.target.value);
 					}}
 					sx={SelectComponentStyle}
+					MenuProps={{
+									PaperProps: {
+										sx: {
+											"& .MuiMenuItem-root.Mui-selected": {
+												backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+											},
+											"& .MuiMenuItem-root.Mui-selected:hover": {
+												backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+											}
+										}
+									}
+								}}
 				>
 					<MenuItem sx={menuItemStyle} value="top">
 						Top

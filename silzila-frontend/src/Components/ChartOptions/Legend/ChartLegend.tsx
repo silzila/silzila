@@ -128,7 +128,22 @@ const ChartLegend = ({
 									margin: "0 auto 0.5rem auto",
 									backgroundColor: "white",
 									height: "1.5rem",
-									color: "#404040",
+									color: "#404040",									
+									"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+										borderColor: "#2bb9bb", // Set focused border color
+									},									
+								}}
+								MenuProps={{
+									PaperProps: {
+										sx: {
+											"& .MuiMenuItem-root.Mui-selected": {
+												backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+											},
+											"& .MuiMenuItem-root.Mui-selected:hover": {
+												backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+											}
+										}
+									}
 								}}
 							>
 								{positions.map(position => {
@@ -187,6 +202,7 @@ const ChartLegend = ({
 											chartControls.properties[propKey].legendOptions.itemGap
 										}
 										sliderMinMax={itemSpacingMinMax}
+										percent={true}
 										changeValue={(value: number) =>
 											updateLegendOption(propKey, "itemGap", value)
 										}
@@ -202,6 +218,7 @@ const ChartLegend = ({
 									chartControls.properties[propKey].legendOptions.itemGap
 								}
 								sliderMinMax={itemSpacingMinMax}
+								percent={true}
 								changeValue={(value: number) =>
 									updateLegendOption(propKey, "itemGap", value)
 								}
@@ -217,6 +234,7 @@ const ChartLegend = ({
 									chartControls.properties[propKey].calendarStyleOptions.width
 								}
 								sliderMinMax={itemWidthMinMax}
+								percent={true}
 								changeValue={(value: number) =>
 									updateCalendarStyleOptions(propKey, "width", value)
 								}
@@ -227,6 +245,7 @@ const ChartLegend = ({
 									chartControls.properties[propKey].calendarStyleOptions.height
 								}
 								sliderMinMax={itemHeightMinMax}
+								percent={true}
 								changeValue={(value: number) =>
 									updateCalendarStyleOptions(propKey, "height", value)
 								}
@@ -240,6 +259,7 @@ const ChartLegend = ({
 									chartControls.properties[propKey].legendOptions.symbolWidth
 								}
 								sliderMinMax={itemWidthMinMax}
+								percent={true}
 								changeValue={(value: number) =>
 									updateLegendOption(propKey, "symbolWidth", value)
 								}
@@ -250,6 +270,7 @@ const ChartLegend = ({
 									chartControls.properties[propKey].legendOptions.symbolHeight
 								}
 								sliderMinMax={itemHeightMinMax}
+								percent={true}
 								changeValue={(value: number) =>
 									updateLegendOption(propKey, "symbolHeight", value)
 								}

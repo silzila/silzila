@@ -19,6 +19,21 @@ const textFieldInputProps = {
 	},
 };
 
+const customTextFieldStyle = {
+	borderColor: "#2bb9bb",
+	"& .MuiInputBase-root": {		
+		"&.Mui-focused fieldset": {
+			borderColor: "#2bb9bb",
+		},		
+	},
+};
+
+const customInputLabelStyle = {	
+	"&.Mui-focused": {
+		color: "#2bb9bb", // Change label color when focused
+	},
+};
+
 interface BoxPlotChartAction {
 	updateBoxPlotStyleOptions: (propKey: string, option: string, value: any) => void;
 }
@@ -58,12 +73,13 @@ const BoxPlotChartStyles = ({
 					<TextField
 						type="number"
 						value={boxStyle.minBoxWidth}
-						onChange={e => {
+						onChange={e => { 
 							updateBoxPlotStyleOptions(propKey, "minBoxWidth", e.target.value);
 						}}
 						label="Min"
-						InputLabelProps={{ shrink: true }}
+						InputLabelProps={{ shrink: true, sx: customInputLabelStyle }}
 						inputProps={{ ...textFieldInputProps }}
+						sx={customTextFieldStyle}
 					/>
 					<TextField
 						type="number"
@@ -72,15 +88,16 @@ const BoxPlotChartStyles = ({
 							updateBoxPlotStyleOptions(propKey, "maxBoxWidth", e.target.value);
 						}}
 						label="Max"
-						InputLabelProps={{ shrink: true }}
+						InputLabelProps={{ shrink: true, sx: customInputLabelStyle }}
 						inputProps={{ ...textFieldInputProps }}
+						sx={customTextFieldStyle}
 					/>
 				</div>
 			</div>
 
 			<div className="optionDescription">Border Width</div>
 			<SliderWithInput
-				percent={false}
+				percent={true}
 				sliderValue={boxStyle.boxborderWidth}
 				sliderMinMax={{ min: 1, max: 10, step: 1 }}
 				changeValue={value => updateBoxPlotStyleOptions(propKey, "boxborderWidth", value)}

@@ -248,6 +248,12 @@ const ChartFilterGroupsContainer = ({
 									sx={{
 										height: "30px",
 										padding: "2px 1rem 2px 0.5rem",
+										"&.Mui-selected": {
+											backgroundColor: "rgba(43, 185, 187, 0.1)", // Selected option bg color
+										},											
+										"&.Mui-selected:hover": {
+											backgroundColor: "rgba(43, 185, 187, 0.2)", // Hover bg color for selected option
+										},
 										"& .MuiTypography-root": {
 											fontSize: "14px",
 										},

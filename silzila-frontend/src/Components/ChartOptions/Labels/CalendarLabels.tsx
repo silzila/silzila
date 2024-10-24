@@ -50,7 +50,7 @@ const CalendarLabels = ({
 				<>
 					<div className="optionDescription">Label Margin</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={calStyle.yearLabelMargin}
 						sliderMinMax={{ min: 0, max: 60, step: 1 }}
 						changeValue={(value: number) =>
@@ -80,6 +80,21 @@ const CalendarLabels = ({
 								backgroundColor: "white",
 								height: "1.5rem",
 								color: "#404040",
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							}}
+							MenuProps={{
+								PaperProps: {
+									sx: {
+										"& .MuiMenuItem-root.Mui-selected": {
+											backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+										},
+										"& .MuiMenuItem-root.Mui-selected:hover": {
+											backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+										}
+									}
+								}
 							}}
 						>
 							<MenuItem value="top" sx={{ padding: "2px 10px", fontSize: "12px" }}>
@@ -119,7 +134,7 @@ const CalendarLabels = ({
 
 					<div className="optionDescription">Label Font Size</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={calStyle.yearLabelFontSize}
 						sliderMinMax={{ min: 0, max: 60, step: 1 }}
 						changeValue={(value: any) =>
@@ -157,7 +172,7 @@ const CalendarLabels = ({
 				<>
 					<div className="optionDescription">Label Margin</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={calStyle.monthLabelMargin}
 						sliderMinMax={{ min: 0, max: 60, step: 1 }}
 						changeValue={(value: any) =>
@@ -187,6 +202,21 @@ const CalendarLabels = ({
 								backgroundColor: "white",
 								height: "1.5rem",
 								color: "#404040",
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							}}
+							MenuProps={{
+								PaperProps: {
+									sx: {
+										"& .MuiMenuItem-root.Mui-selected": {
+											backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+										},
+										"& .MuiMenuItem-root.Mui-selected:hover": {
+											backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+										}
+									}
+								}
 							}}
 						>
 							<MenuItem value="start" sx={{ padding: "2px 10px", fontSize: "12px" }}>
@@ -220,7 +250,7 @@ const CalendarLabels = ({
 
 					<div className="optionDescription">Label Font Size</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={calStyle.monthLabelFontSize}
 						sliderMinMax={{ min: 0, max: 60, step: 1 }}
 						changeValue={(value: number) =>
@@ -253,7 +283,7 @@ const CalendarLabels = ({
 				<>
 					<div className="optionDescription">Label Margin</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={calStyle.dayLabelMargin}
 						sliderMinMax={{ min: 0, max: 60, step: 1 }}
 						changeValue={(value: number) =>
@@ -283,6 +313,21 @@ const CalendarLabels = ({
 								backgroundColor: "white",
 								height: "1.5rem",
 								color: "#404040",
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							}}
+							MenuProps={{
+								PaperProps: {
+									sx: {
+										"& .MuiMenuItem-root.Mui-selected": {
+											backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+										},
+										"& .MuiMenuItem-root.Mui-selected:hover": {
+											backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+										}
+									}
+								}
 							}}
 						>
 							<MenuItem value="start" sx={{ padding: "2px 10px", fontSize: "12px" }}>
@@ -317,7 +362,7 @@ const CalendarLabels = ({
 
 					<div className="optionDescription">Label Font Size</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={calStyle.dayLabelFontSize}
 						sliderMinMax={{ min: 0, max: 60, step: 1 }}
 						changeValue={value =>

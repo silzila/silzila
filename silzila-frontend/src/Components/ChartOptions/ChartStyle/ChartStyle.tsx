@@ -68,7 +68,7 @@ const ChartStyle = ({
 		<div className="optionsInfo">
 			<div className="optionDescription">BORDER WIDTH</div>
 			<SliderWithInput
-				percent={false}
+				percent={true}
 				sliderValue={chartControls.properties[propKey].crossTabStyleOptions.borderWidth}
 				sliderMinMax={{ min: 1, max: 15, step: 1 }}
 				changeValue={value => {
@@ -78,7 +78,7 @@ const ChartStyle = ({
 
 			<div className="optionDescription">LINE HEIGHT</div>
 			<SliderWithInput
-				percent={false}
+				percent={true}
 				sliderValue={chartControls.properties[propKey].crossTabStyleOptions.lineHeight}
 				sliderMinMax={{ min: 1, max: 20, step: 0.5 }}
 				changeValue={value => {
@@ -138,7 +138,7 @@ const ChartStyle = ({
 					</div>
 					<div className="optionDescription">FONT SIZE</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={options.fontSize}
 						sliderMinMax={{ min: 8, max: 50, step: 1 }}
 						changeValue={value => {
@@ -152,7 +152,7 @@ const ChartStyle = ({
 
 					<div className="optionDescription">FONT WEIGHT</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={options.fontWeight}
 						sliderMinMax={{ min: 400, max: 900, step: 100 }}
 						changeValue={value => {

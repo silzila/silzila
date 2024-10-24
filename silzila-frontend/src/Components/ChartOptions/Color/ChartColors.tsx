@@ -70,7 +70,11 @@ const ChartColors = ({
           onChange={(e) => {
             resetSelection(e.target.value);
           }}
-          sx={{ fontSize: "14px", margin: "0 1rem" }}
+          sx={{ fontSize: "14px", margin: "0 1rem",
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#2bb9bb", // Set focused border color
+            },
+          }}
         >
           {ColorSchemes.map((item: ColorSchemesProps) => {
             return (

@@ -53,6 +53,7 @@ const TreeMapLegend = ({
 					<SliderWithInput
 						sliderValue={treeLegend.bcWidth}
 						sliderMinMax={itemWidthMinMax}
+						percent={true}
 						changeValue={(value: any) =>
 							updateTreeMapStyleOptions(propKey, "bcWidth", value)
 						}
@@ -61,6 +62,7 @@ const TreeMapLegend = ({
 					<SliderWithInput
 						sliderValue={treeLegend.bcHeight}
 						sliderMinMax={itemHeightMinMax}
+						percent={true}
 						changeValue={(value: any) =>
 							updateTreeMapStyleOptions(propKey, "bcHeight", value)
 						}

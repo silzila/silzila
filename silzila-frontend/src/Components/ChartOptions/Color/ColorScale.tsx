@@ -153,13 +153,21 @@ const ColorScale = ({
 					<FormControlLabel
 						value="Automatic"
 						checked={selectedOption === "Automatic" ? true : false}
-						control={RadioBtn()}
+						control={
+							<Radio 
+								style={{ color: selectedOption === "Automatic" ? '#2bb9bb' : undefined }}
+							/>
+						}
 						label={typographyComponent("Automatic")}
 					/>
 					<FormControlLabel
 						value="Manual"
 						checked={selectedOption === "Manual" ? true : false}
-						control={RadioBtn()}
+						control={
+							<Radio 
+								style={{ color: selectedOption === "Manual" ? '#2bb9bb' : undefined }}
+							/>
+						}
 						label={typographyComponent("Manual")}
 					/>
 				</RadioGroup>
@@ -177,6 +185,18 @@ const ColorScale = ({
 								InputLabelProps={{ shrink: true }}
 								inputProps={{ ...textFieldInputProps }}
 								onBlur={checkMinMaxValue}
+								sx={{
+									'& .MuiOutlinedInput-root': {
+										'&.Mui-focused fieldset': {
+											borderColor: '#2bb9bb', // Change border color on focus
+										},
+									},
+									'& .MuiInputLabel-root': {
+										'&.Mui-focused': {
+											color: '#2bb9bb', // Change label color on focus
+										},
+									},
+								}}
 							/>
 							<TextField
 								type="number"
@@ -188,6 +208,18 @@ const ColorScale = ({
 								InputLabelProps={{ shrink: true }}
 								inputProps={{ ...textFieldInputProps }}
 								onBlur={checkMinMaxValue}
+								sx={{
+									'& .MuiOutlinedInput-root': {
+										'&.Mui-focused fieldset': {
+											borderColor: '#2bb9bb', 
+										},
+									},
+									'& .MuiInputLabel-root': {
+										'&.Mui-focused': {
+											color: '#2bb9bb', 
+										},
+									},
+								}}
 							/>
 						</div>
 					</div>

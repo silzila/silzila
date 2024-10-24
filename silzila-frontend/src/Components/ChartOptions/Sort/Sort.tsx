@@ -130,6 +130,18 @@ const Sort = ({
 				                    color: '#2bb9bb', // Change the arrow color when focused
 			                    },
 		                        },}}
+								MenuProps={{
+									PaperProps: {
+										sx: {
+											"& .MuiMenuItem-root.Mui-selected": {
+												backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+											},
+											"& .MuiMenuItem-root.Mui-selected:hover": {
+												backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+											}
+										}
+									}
+								}}
 							onChange={handleSelectedColumnValue}
 							value={chartControls.properties[propKey].sortedValue}>
 

@@ -311,7 +311,14 @@ const GridAndAxes = ({
 						onChange={e => {
 							updateAxisOptions(propKey, "xAxis", "name", e.target.value);
 						}}
-						InputProps={{ ...textFieldStyleProps }}
+						InputProps={{ 
+							...textFieldStyleProps,
+							sx: {								
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							},
+						 }}
 					/>
 
 					<div className="optionDescription">Name Position</div>
@@ -334,6 +341,21 @@ const GridAndAxes = ({
 								backgroundColor: "white",
 								height: "1.5rem",
 								color: "#404040",
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							}}
+							MenuProps={{
+								PaperProps: {
+									sx: {
+										"& .MuiMenuItem-root.Mui-selected": {
+											backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+										},
+										"& .MuiMenuItem-root.Mui-selected:hover": {
+											backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+										}
+									}
+								}
 							}}
 						>
 							{positions.map(position => {
@@ -360,11 +382,19 @@ const GridAndAxes = ({
 						onChange={e => {
 							updateAxisOptions(propKey, "xAxis", "nameGap", e.target.value);
 						}}
-						InputProps={{ ...textFieldStyleProps }}
+						InputProps={{ 
+							...textFieldStyleProps,
+						
+							sx: {								
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							},
+						}}
 					/>
 					<div className="optionDescription">Name FontSize</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={xAxisProps.nameSize}
 						sliderMinMax={{ min: 0, max: 80, step: 1 }}
 						changeValue={(value: number) => {
@@ -392,7 +422,7 @@ const GridAndAxes = ({
 
 					<div className="optionDescription">Tick Size</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={
 							xAxisProps.position === "top"
 								? xAxisProps.tickSizeTop
@@ -411,7 +441,7 @@ const GridAndAxes = ({
 					/>
 					<div className="optionDescription">Tick Padding</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={
 							xAxisProps.position === "top"
 								? xAxisProps.tickPaddingTop
@@ -560,7 +590,14 @@ const GridAndAxes = ({
 						onChange={e => {
 							updateAxisOptions(propKey, "yAxis", "name", e.target.value);
 						}}
-						InputProps={{ ...textFieldStyleProps }}
+						InputProps={{ 
+							...textFieldStyleProps,
+							sx: {								
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							},
+						 }}
 					/>
 
 					<div className="optionDescription">Name Position</div>
@@ -583,6 +620,21 @@ const GridAndAxes = ({
 								backgroundColor: "white",
 								height: "1.5rem",
 								color: "#404040",
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							}}
+							MenuProps={{
+								PaperProps: {
+									sx: {
+										"& .MuiMenuItem-root.Mui-selected": {
+											backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+										},
+										"& .MuiMenuItem-root.Mui-selected:hover": {
+											backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+										}
+									}
+								}
 							}}
 						>
 							{positions.map(position => {
@@ -609,11 +661,18 @@ const GridAndAxes = ({
 						onChange={e => {
 							updateAxisOptions(propKey, "yAxis", "nameGap", e.target.value);
 						}}
-						InputProps={{ ...textFieldStyleProps }}
+						InputProps={{ 
+							...textFieldStyleProps,
+							sx: {								
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							},
+						 }}
 					/>
 					<div className="optionDescription">Name FontSize</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={yAxisProps.nameSize}
 						sliderMinMax={{ min: 0, max: 80, step: 1 }}
 						changeValue={(value: number) => {
@@ -641,7 +700,7 @@ const GridAndAxes = ({
 
 					<div className="optionDescription">Tick Size</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={
 							yAxisProps.position === "left"
 								? yAxisProps.tickSizeLeft
@@ -661,7 +720,7 @@ const GridAndAxes = ({
 
 					<div className="optionDescription">Tick Padding</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={
 							yAxisProps.position === "left"
 								? yAxisProps.tickPaddingLeft

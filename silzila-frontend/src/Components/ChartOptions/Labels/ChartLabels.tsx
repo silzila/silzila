@@ -96,6 +96,21 @@ const ChartLabels = ({
 											backgroundColor: "white",
 											height: "1.5rem",
 											color: "#404040",
+											"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+												borderColor: "#2bb9bb", // Set focused border color
+											},
+										}}
+										MenuProps={{
+											PaperProps: {
+												sx: {
+													"& .MuiMenuItem-root.Mui-selected": {
+														backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+													},
+													"& .MuiMenuItem-root.Mui-selected:hover": {
+														backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+													}
+												}
+											}
 										}}
 									>
 										{labelPositionOptions.map((position: any) => {
@@ -118,7 +133,7 @@ const ChartLabels = ({
 									<>
 										<div className="optionDescription">Label Padding</div>
 										<SliderWithInput
-											percent={false}
+											percent={true}
 											sliderValue={labelOptions.pieLabel.labelPadding}
 											sliderMinMax={{ min: 0, max: 40, step: 1 }}
 											changeValue={(value: number) => {
@@ -133,7 +148,7 @@ const ChartLabels = ({
 						<div>
 							<div className="optionDescription">Label Size</div>
 							<SliderWithInput
-								percent={false}
+								percent={true}
 								sliderValue={
 									chartControls.properties[propKey].labelOptions.fontSize
 								}
