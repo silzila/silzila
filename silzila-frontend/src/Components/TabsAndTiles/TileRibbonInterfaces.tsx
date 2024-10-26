@@ -42,6 +42,7 @@ export interface TileRibbonProps {
 	) => void;
 	removeTile: (tabId: number, tileId: number, tileIndex: number) => void;
 	addChartFilterTabTileName: (selectedDatasetID: string, tabTileName: string) => void;
+	updateChartFilterSelectedGroups:(groupId: string, filters: any)=>void;
 }
 
 export type TileRibbonStateProps = TabTileStateProps2 &

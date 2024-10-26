@@ -15,8 +15,8 @@ import { setSelectedDsInTile } from "../../redux/ChartPoperties/ChartPropertiesA
 import { updatePlaybookUid } from "../../redux/PlayBook/PlayBookActions";
 import { loadPlaybook } from "../../redux/TabTile/actionsTabTile";
 import {
-	setSelectedDataSetList,
-	setTablesForSelectedDataSets,
+  setSelectedDataSetList,
+  setTablesForSelectedDataSets,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
@@ -32,505 +32,602 @@ import { AlertColor } from "@mui/material/Alert";
 import { setSelectedDatasetForDynamicMeasure } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import { CloseRounded } from "@mui/icons-material";
 import "./DataSetup.css";
-import {changeChartDataToAxesOrder} from "../CommonFunctions/CommonFunctions";
-import { addChartFilterTabTileName } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
-
+import { changeChartDataToAxesOrder } from "../CommonFunctions/CommonFunctions";
+import {
+  addChartFilterGroupName,
+  addChartFilterTabTileName,
+  updateChartFilterSelectedGroups,
+} from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
+export interface IChartFilterGroup {
+  chartFilterGroup: {
+    tabTile: {};
+    groups: {};
+    datasetList: {};
+  };
+}
 const PlayBookList = ({
-	// state
-	token,
-	// dispatch
-	setSelectedDataSetList,
-	setTablesForDs,
-	setSelectedDs,
-	loadPlayBook,
-	updatePlayBookId,
-	addChartFilterTabTileName,
-	setSelectedDatasetForDynamicMeasure,
+  // state
+  token,
+  chartFilterGroup,
+  // dispatch
+  setSelectedDataSetList,
+  setTablesForDs,
+  setSelectedDs,
+  loadPlayBook,
+  updatePlayBookId,
+  addChartFilterTabTileName,
+  setSelectedDatasetForDynamicMeasure,
+  addChartFilterGroupName,
+  updateChartFilterSelectedGroups,
 }: PlayBookProps & any) => {
-	const [playBookList, setPlayBookList] = useState<any[]>([]);
+  const [playBookList, setPlayBookList] = useState<any[]>([]);
 
-	const [openPopOver, setOpenPopOver] = useState<boolean>(false);
-	const [selectedDataset, setSelectedDataset] = useState<PbSelectedDataset>();
-	const [loading, setLoading] = useState<boolean>(false);
+  const [openPopOver, setOpenPopOver] = useState<boolean>(false);
+  const [selectedDataset, setSelectedDataset] = useState<PbSelectedDataset>();
+  const [loading, setLoading] = useState<boolean>(false);
 
-	const [openAlert, setOpenAlert] = useState<boolean>(false);
-	const [confirmDialog, setConfirmDialog] = useState<boolean>(false);
-	const [deleteItemId, setDeleteItemId] = useState<string>("");
-	const [testMessage, setTestMessage] = useState<string>("");
-	const [severity, setSeverity] = useState<AlertColor>("success");
-	const [isHovered, setIsHovered] = useState(false);
+  const [openAlert, setOpenAlert] = useState<boolean>(false);
+  const [confirmDialog, setConfirmDialog] = useState<boolean>(false);
+  const [deleteItemId, setDeleteItemId] = useState<string>("");
+  const [testMessage, setTestMessage] = useState<string>("");
+  const [severity, setSeverity] = useState<AlertColor>("success");
+  const [isHovered, setIsHovered] = useState(false);
 
-    const handleMouseEnter = () => {
-        setIsHovered(true);
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
+  var navigate = useNavigate();
+
+  useEffect(() => {
+    getInformation();
+    // eslint - disable - next - line;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Get list of saved playbooks
+  const getInformation = async () => {
+    var result: any = await FetchData({
+      requestType: "noData",
+      method: "GET",
+      url: "playbook",
+      headers: {
+        "content-type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (result.status) {
+      setPlayBookList(result.data);
+    } else {
+    }
+  };
+  const getNewGroupName = (numOfGroups: number): string => {
+    let isUnique = true;
+
+    let newName = "Filter Group " + numOfGroups;
+
+    Object.keys(chartFilterGroup.groups).forEach((grp) => {
+      if (chartFilterGroup.groups[grp].name === newName) {
+        isUnique = false;
+        return;
+      }
+    });
+
+    if (!isUnique) {
+      return getNewGroupName(numOfGroups + 1);
+    } else {
+      return newName;
+    }
+  };
+  const addFilterGroupAndNavigate = () => {
+    if (selectedDataset) {
+      let numOfGroups = 0;
+
+      if (
+        Object.keys(chartFilterGroup.groups) &&
+        Object.keys(chartFilterGroup.groups).length > 0
+      ) {
+        numOfGroups = Object.keys(chartFilterGroup.groups).length;
+      }
+
+      let newGroupName = getNewGroupName(numOfGroups + 1);
+      let groupId =
+        selectedDataset.id + "_" + newGroupName + new Date().getMilliseconds();
+      addChartFilterGroupName(selectedDataset.id, groupId, newGroupName);
+      updateChartFilterSelectedGroups("1.1", groupId);
+	  navigate("/dataviewer");
+    }
+  };
+  // Creating new play book requires to select a dataset. On selecting that dataset,
+  // 		tables for that dataset is retrieved & stored
+  // 		Selected dataset is stored
+  useEffect(() => {
+    const fetchData = async () => {
+      if (selectedDataset) {
+        setSelectedDataSetList(selectedDataset);
+        setSelectedDatasetForDynamicMeasure(selectedDataset);
+
+        var datasetFromServer: any = await getTables(selectedDataset.id);
+        setTablesForDs({
+          [selectedDataset.id]: datasetFromServer.dataSchema.tables,
+        });
+        setSelectedDs("1.1", selectedDataset);
+        /**
+         * Add  and empty array to tabTile 1.1  in chartFilterGroup.tabTile  so if there is any filterGroup added to this tile
+         * then filterGroupId will be stored in this array
+         */
+        addChartFilterTabTileName(selectedDataset.id, "1.1");
+        /**
+         *
+         * Add Filter Group
+         */
+		addFilterGroupAndNavigate()
+        
+      }
     };
 
-    const handleMouseLeave = () => {
-        setIsHovered(false);
-    };
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDataset]);
 
-	var navigate = useNavigate();
+  // Get tables for a dataset from server
+  const getTables = async (uid: string) => {
+    var result: any = await FetchData({
+      requestType: "noData",
+      method: "GET",
+      url: `dataset/${uid}`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-	useEffect(() => {
-		getInformation();
-		// eslint - disable - next - line;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+    if (result.status) {
+      return result.data;
+    } else {
+    }
+  };
 
-	// Get list of saved playbooks
-	const getInformation = async () => {
-		var result: any = await FetchData({
-			requestType: "noData",
-			method: "GET",
-			url: "playbook",
-			headers: {
-				"content-type": "application/json",
-				Authorization: `Bearer ${token}`,
-			},
-		});
+  // Retrive all required data for each playbook from server like
+  // 		- Table records and recordTypes, and
+  // 		- create fresh charts with latest data
+  //  	- Update the local store with the new data
 
-		if (result.status) {
-			setPlayBookList(result.data);
-		} else {
-		}
-	};
+  const getPlayBookDataFromServer = async (pbUid: string) => {
+    var result: any = await FetchData({
+      requestType: "noData",
+      method: "GET",
+      url: `playbook/${pbUid}`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-	// Creating new play book requires to select a dataset. On selecting that dataset,
-	// 		tables for that dataset is retrieved & stored
-	// 		Selected dataset is stored
-	useEffect(() => {
-		const fetchData = async () => {
-			if (selectedDataset) {
-				setSelectedDataSetList(selectedDataset);
-				setSelectedDatasetForDynamicMeasure(selectedDataset);
+    if (result.status) {
+      setLoading(true);
 
-				var datasetFromServer: any = await getTables(selectedDataset.id);
-				setTablesForDs({ [selectedDataset.id]: datasetFromServer.dataSchema.tables });
-				setSelectedDs("1.1", selectedDataset);
-				/**
-				 * Add  and empty array to tabTile 1.1  in chartFilterGroup.tabTile  so if there is any filterGroup added to this tile
-				 * then filterGroupId will be stored in this array
-				 */
-				addChartFilterTabTileName(selectedDataset.id,"1.1")
-				navigate("/dataviewer");
-			}
-		};
+      var pb = result.data;
 
-		fetchData();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedDataset]);
+      pb.content = JSON.parse(JSON.stringify(pb.content));
 
-	// Get tables for a dataset from server
-	const getTables = async (uid: string) => {
-		var result: any = await FetchData({
-			requestType: "noData",
-			method: "GET",
-			url: `dataset/${uid}`,
-			headers: { Authorization: `Bearer ${token}` },
-		});
+      pb.content.content = JSON.parse(pb.content.content);
 
-		if (result.status) {
-			return result.data;
-		} else {
-		}
-	};
+      let listOfPropKeys = Object.keys(
+        pb.content.content.chartControl.properties
+      );
 
-	// Retrive all required data for each playbook from server like
-	// 		- Table records and recordTypes, and
-	// 		- create fresh charts with latest data
-	//  	- Update the local store with the new data
+      listOfPropKeys.forEach((propKey: string) => {
+        if (
+          pb.content.content.chartControl.properties[propKey].chartData &&
+          pb.content.content.chartControl.properties[propKey].chartData.length >
+            0
+        ) {
+          pb.content.content.chartControl.properties[propKey].chartData =
+            changeChartDataToAxesOrder(
+              pb.content.content.chartControl.properties[propKey].chartData,
+              pb.content.content.chartProperty,
+              propKey
+            );
+        }
+      });
 
-	const getPlayBookDataFromServer = async (pbUid: string) => {
-		var result: any = await FetchData({
-			requestType: "noData",
-			method: "GET",
-			url: `playbook/${pbUid}`,
-			headers: { Authorization: `Bearer ${token}` },
-		});
+      var selectedDatasetsInPlaybook =
+        pb.content.content?.tabTileProps?.selectedDataSetList || [];
 
-		if (result.status) {
-			setLoading(true);
+      // Get list of tables for a given dataset and save here
+      var tablesForSelectedDatasetsCopy: any = {};
+      await Promise.all(
+        selectedDatasetsInPlaybook.map(async (sampleDs: any) => {
+          var result2: any = await FetchData({
+            requestType: "noData",
+            method: "GET",
+            url: `dataset/${sampleDs.id}`,
+            headers: { Authorization: `Bearer ${token}` },
+          });
 
-			var pb = result.data;
+          if (result2.status) {
+            // tablesForSelectedDatasetsCopy[sampleDs.id] = result2.data;
+            tablesForSelectedDatasetsCopy[sampleDs.id] =
+              result2.data.dataSchema.tables;
+          }
+        })
+      );
 
+      //pb.content.content = JSON.parse(pb.content.content);
 
-			pb.content = JSON.parse(JSON.stringify(pb.content))
+      pb.content.content.tabTileProps.tablesForSelectedDataSets =
+        tablesForSelectedDatasetsCopy;
 
-			pb.content.content = JSON.parse(pb.content.content);
+      // for each tile in playbook, if it has minimum required cards in dropzones, get chart data from server
+      var newChartControl = JSON.parse(
+        JSON.stringify(pb.content.content?.chartControl)
+      );
+      await Promise.all(
+        Object.keys(pb.content.content.chartControl.properties).map(
+          async (property) => {
+            var axesValue = JSON.parse(
+              JSON.stringify(
+                pb.content.content.chartProperty.properties[property].chartAxes
+              )
+            );
 
-			let listOfPropKeys = Object.keys(pb.content.content.chartControl.properties)
+            var minReq: any = true;
+            // var minReq:any = checkMinRequiredCards(pb.content.chartProperty, property);
+            var serverCall = false;
+            if (minReq) {
+              serverCall = true;
+            } else {
+              newChartControl.properties[property].chartData = "";
+            }
 
-			listOfPropKeys.forEach((propKey:string)=>{
-				if(pb.content.content.chartControl.properties[propKey].chartData && pb.content.content.chartControl.properties[propKey].chartData.length > 0){
-					pb.content.content.chartControl.properties[propKey].chartData = changeChartDataToAxesOrder(pb.content.content.chartControl.properties[propKey].chartData
-						, pb.content.content.chartProperty, propKey);	
-				}
-				
-			})
+            if (serverCall) {
+              if (
+                pb.content.content.chartProperty.properties[property]
+                  .chartType === "scatterPlot"
+              ) {
+                var combinedValues = { name: "Measure", fields: [] };
+                var values1 = axesValue[2].fields;
+                var values2 = axesValue[3].fields;
+                var allValues = values1.concat(values2);
+                combinedValues.fields = allValues;
+                axesValue.splice(2, 2, combinedValues);
+              }
 
-			var selectedDatasetsInPlaybook = pb.content.content?.tabTileProps?.selectedDataSetList || [];
+              if (
+                pb.content.content.chartProperty.properties[property]
+                  .chartType === "heatmap" ||
+                pb.content.content.chartProperty.properties[property]
+                  .chartType === "crossTab"
+              ) {
+                var combinedValues2 = { name: "Dimension", fields: [] };
+                var values3 = axesValue[1].fields;
+                var values4 = axesValue[2].fields;
+                var allValues2 = values3.concat(values4);
+                combinedValues2.fields = allValues2;
+                axesValue.splice(1, 2, combinedValues2);
+              }
+              // getChartData(axesValue, pb.content.chartProperty, property, token).then(
+              // 	(data:any) => {
+              // 		newChartControl.properties[property].chartData = data;
+              // 	}
+              // );
+            }
+          }
+        )
+      );
 
-			// Get list of tables for a given dataset and save here
-			var tablesForSelectedDatasetsCopy: any = {};
-			await Promise.all(
-				selectedDatasetsInPlaybook.map(async (sampleDs: any) => {
-					var result2: any = await FetchData({
-						requestType: "noData",
-						method: "GET",
-						url: `dataset/${sampleDs.id}`,
-						headers: { Authorization: `Bearer ${token}` },
-					});
+      // Get all tables for selected Dataset and display them here
+      var sampleRecords: any = { recordsColumnType: {} };
+      await Promise.all(
+        Object.keys(pb.content.content.chartProperty.properties).map(
+          async (prop) => {
+            var tableInfo = pb.content.content.chartProperty.properties[prop];
 
-					if (result2.status) {
-						// tablesForSelectedDatasetsCopy[sampleDs.id] = result2.data;
-						tablesForSelectedDatasetsCopy[sampleDs.id] = result2.data.dataSchema.tables;
-					}
-				})
-			);
-			
-			//pb.content.content = JSON.parse(pb.content.content);
+            var dc_uid = tableInfo.selectedDs?.connectionId;
+            var ds_uid = tableInfo.selectedDs?.id;
 
-			pb.content.content.tabTileProps.tablesForSelectedDataSets =
-				tablesForSelectedDatasetsCopy;
+            var selectedTableForThisDataset =
+              pb.content.content.tabTileProps.tablesForSelectedDataSets[
+                ds_uid
+              ].filter(
+                (tbl: any) => tbl.id === tableInfo.selectedTable[ds_uid]
+              )[0];
 
-			// for each tile in playbook, if it has minimum required cards in dropzones, get chart data from server
-			var newChartControl = JSON.parse(JSON.stringify(pb.content.content?.chartControl));
-			await Promise.all(
-				Object.keys(pb.content.content.chartControl.properties).map(async property => {
-					var axesValue = JSON.parse(
-						JSON.stringify(
-							pb.content.content.chartProperty.properties[property].chartAxes
-						)
-					);
+            if (selectedTableForThisDataset) {
+              var tableRecords = await getTableData(
+                dc_uid,
+                selectedTableForThisDataset,
+                token,
+                ds_uid
+              );
 
-					var minReq: any = true;
-					// var minReq:any = checkMinRequiredCards(pb.content.chartProperty, property);
-					var serverCall = false;
-					if (minReq) {
-						serverCall = true;
-					} else {
-						newChartControl.properties[property].chartData = "";
-					}
+              var recordsType = await getColumnTypes(
+                dc_uid,
+                selectedTableForThisDataset,
+                token
+              );
 
-					if (serverCall) {
-						if (
-							pb.content.content.chartProperty.properties[property].chartType ===
-							"scatterPlot"
-						) {
-							var combinedValues = { name: "Measure", fields: [] };
-							var values1 = axesValue[2].fields;
-							var values2 = axesValue[3].fields;
-							var allValues = values1.concat(values2);
-							combinedValues.fields = allValues;
-							axesValue.splice(2, 2, combinedValues);
-						}
+              // Format the data retrieved to required JSON for saving in store
+              if (sampleRecords[ds_uid] !== undefined) {
+                sampleRecords = update(sampleRecords, {
+                  recordsColumnType: {
+                    [ds_uid]: {
+                      [selectedTableForThisDataset.id]: { $set: recordsType },
+                    },
+                  },
+                  [ds_uid]: {
+                    [selectedTableForThisDataset.id]: { $set: tableRecords },
+                  },
+                });
+              } else {
+                var recordsCopy = JSON.parse(JSON.stringify(sampleRecords));
+                var dsObj = { [ds_uid]: {} };
 
-						if (
-							pb.content.content.chartProperty.properties[property].chartType ===
-								"heatmap" ||
-							pb.content.content.chartProperty.properties[property].chartType ===
-								"crossTab"
-						) {
-							var combinedValues2 = { name: "Dimension", fields: [] };
-							var values3 = axesValue[1].fields;
-							var values4 = axesValue[2].fields;
-							var allValues2 = values3.concat(values4);
-							combinedValues2.fields = allValues2;
-							axesValue.splice(1, 2, combinedValues2);
-						}
-						// getChartData(axesValue, pb.content.chartProperty, property, token).then(
-						// 	(data:any) => {
-						// 		newChartControl.properties[property].chartData = data;
-						// 	}
-						// );
-					}
-				})
-			);
+                recordsCopy = update(recordsCopy, {
+                  $merge: dsObj,
+                  recordsColumnType: { $merge: dsObj },
+                });
 
-			// Get all tables for selected Dataset and display them here
-			var sampleRecords: any = { recordsColumnType: {} };
-			await Promise.all(
-				Object.keys(pb.content.content.chartProperty.properties).map(async prop => {
-					var tableInfo = pb.content.content.chartProperty.properties[prop];
+                sampleRecords = update(recordsCopy, {
+                  recordsColumnType: {
+                    [ds_uid]: {
+                      [selectedTableForThisDataset.id]: { $set: recordsType },
+                    },
+                  },
+                  [ds_uid]: {
+                    [selectedTableForThisDataset.id]: { $set: tableRecords },
+                  },
+                });
+              }
+            }
+          }
+        )
+      );
 
-					var dc_uid = tableInfo.selectedDs?.connectionId;
-					var ds_uid = tableInfo.selectedDs?.id;
+      setLoading(false);
 
-					var selectedTableForThisDataset =
-						pb.content.content.tabTileProps.tablesForSelectedDataSets[ds_uid].filter(
-							(tbl: any) => tbl.id === tableInfo.selectedTable[ds_uid]
-						)[0];
+      pb.content.content.chartControl = newChartControl;
+      pb.content.content.sampleRecords = sampleRecords;
+      loadPlayBook(pb.content.content);
+      updatePlayBookId(pb.name, pb.id, pb.description, pb.content.content);
 
-					if (selectedTableForThisDataset) {
-						var tableRecords = await getTableData(
-							dc_uid,
-							selectedTableForThisDataset,
-							token,
-							ds_uid
-						);
+      var pbCopy = pb.content.content;
+      delete pbCopy.sampleRecords;
 
-						var recordsType = await getColumnTypes(
-							dc_uid,
-							selectedTableForThisDataset,
-							token
-						);
+      navigate("/dataviewer");
+    }
+  };
 
-						// Format the data retrieved to required JSON for saving in store
-						if (sampleRecords[ds_uid] !== undefined) {
-							sampleRecords = update(sampleRecords, {
-								recordsColumnType: {
-									[ds_uid]: {
-										[selectedTableForThisDataset.id]: { $set: recordsType },
-									},
-								},
-								[ds_uid]: {
-									[selectedTableForThisDataset.id]: { $set: tableRecords },
-								},
-							});
-						} else {
-							var recordsCopy = JSON.parse(JSON.stringify(sampleRecords));
-							var dsObj = { [ds_uid]: {} };
+  // Delete a playbook
+  const deletePlayBook = async () => {
+    setConfirmDialog(false);
+    const pbUid = deleteItemId;
+    var result: any = await FetchData({
+      requestType: "noData",
+      method: "DELETE",
+      url: `playbook/${pbUid}`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (result.status) {
+      setSeverity("success");
+      setOpenAlert(true);
+      setTestMessage("Deleted Successfully!");
+      getInformation();
+      setTimeout(() => {
+        setOpenAlert(false);
+        setTestMessage("");
+      }, 2000);
+    } else {
+    }
+  };
 
-							recordsCopy = update(recordsCopy, {
-								$merge: dsObj,
-								recordsColumnType: { $merge: dsObj },
-							});
+  return (
+    <div className="dataConnectionContainer">
+      <div className="containersHead">
+        <div className="PBcontainerTitle">
+          <DashboardOutlinedIcon
+            style={{ marginRight: "10px", color: "#2bb9bb" }}
+          />
+          Playbooks
+          <Tooltip
+            title="Explore data from dataset and create dashboard."
+            arrow
+            placement="top"
+          >
+            <InfoOutlined
+              style={{
+                marginLeft: "5px",
+                cursor: "pointer",
+                marginTop: "4px",
+                color: isHovered ? "grey" : "LightGrey", // Change color based on hover state
+                fontSize: "1.2em", // Change font size based on hover state
+                transition: "color 0.3s, font-size 0.3s", // Transition for smooth hover effect
+              }}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            />
+          </Tooltip>
+        </div>
+        <DatasetListPopover
+          showCard={openPopOver}
+          setShowCard={setOpenPopOver}
+          setSelectedDataset={setSelectedDataset}
+          popOverTitle="Select a Dataset to use with PlayBook"
+        />
+        <div
+          title="Create New Playbook"
+          className="containerButton"
+          onClick={(e) => {
+            setOpenPopOver(true);
+          }}
+        >
+          <AddIcon />
+        </div>
+      </div>
+      <div className="listContainer">
+        {playBookList.length > 0 ? (
+          <>
+            {playBookList.map((pb) => {
+              return (
+                <SelectListItem
+                  key={pb.name}
+                  render={(xprops: any) => (
+                    <div
+                      className={
+                        xprops.open
+                          ? "dataConnectionListSelected"
+                          : "dataConnectionList"
+                      }
+                      onMouseOver={() => xprops.setOpen(true)}
+                      onMouseLeave={() => xprops.setOpen(false)}
+                      onClick={() => {
+                        getPlayBookDataFromServer(pb.id);
+                      }}
+                    >
+                      <div className="dataConnectionName">{pb.name}</div>
+                      <div>
+                        {xprops.open ? (
+                          <Tooltip
+                            title="Delete playbook"
+                            arrow
+                            placement="right-start"
+                          >
+                            <div
+                              className="dataHomeDeleteIcon"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeleteItemId(pb.id);
+                                setConfirmDialog(true);
+                              }}
+                            >
+                              <DeleteIcon
+                                style={{
+                                  width: "1rem",
+                                  height: "1rem",
+                                  margin: "auto",
+                                }}
+                              />
+                            </div>
+                          </Tooltip>
+                        ) : null}
+                      </div>
+                    </div>
+                  )}
+                />
+              );
+            })}
+          </>
+        ) : (
+          <div className="listEmptyNote">*No Playbook created yet*</div>
+        )}
 
-							sampleRecords = update(recordsCopy, {
-								recordsColumnType: {
-									[ds_uid]: {
-										[selectedTableForThisDataset.id]: { $set: recordsType },
-									},
-								},
-								[ds_uid]: {
-									[selectedTableForThisDataset.id]: { $set: tableRecords },
-								},
-							});
-						}
-					}
-				})
-			);
+        <NotificationDialog
+          openAlert={openAlert}
+          severity={severity}
+          testMessage={testMessage}
+          onCloseAlert={() => {
+            setOpenAlert(false);
+            setTestMessage("");
+          }}
+        />
+      </div>
 
-			setLoading(false);
+      {loading ? <LoadingPopover /> : null}
+      <Dialog open={confirmDialog}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            padding: "8px",
+            width: "400px",
+            height: "auto",
+            justifyContent: "center",
+          }}
+        >
+          <div style={{ fontWeight: "bold", textAlign: "center" }}>
+            <div style={{ display: "flex" }}>
+              <span style={{ flex: 1 }}>
+                Are You Sure You Want To Delete This PlayBook?
+              </span>
 
-			pb.content.content.chartControl = newChartControl;
-			pb.content.content.sampleRecords = sampleRecords;
-			loadPlayBook(pb.content.content);
-			updatePlayBookId(pb.name, pb.id, pb.description, pb.content.content);
-
-			var pbCopy = pb.content.content;
-			delete pbCopy.sampleRecords;
-
-			navigate("/dataviewer");
-		}
-	};
-
-	// Delete a playbook
-	const deletePlayBook = async () => {
-		setConfirmDialog(false);
-		const pbUid = deleteItemId;
-		var result: any = await FetchData({
-			requestType: "noData",
-			method: "DELETE",
-			url: `playbook/${pbUid}`,
-			headers: { Authorization: `Bearer ${token}` },
-		});
-		if (result.status) {
-			setSeverity("success");
-			setOpenAlert(true);
-			setTestMessage("Deleted Successfully!");
-			getInformation();
-			setTimeout(() => {
-				setOpenAlert(false);
-				setTestMessage("");
-			}, 2000);
-		} else {
-		}
-	};
-
-	return (
-		<div className="dataConnectionContainer">
-			<div className="containersHead">
-				<div className="PBcontainerTitle">
-					<DashboardOutlinedIcon style={{ marginRight: "10px", color: "#2bb9bb" }} />
-					Playbooks
-					<Tooltip title="Explore data from dataset and create dashboard." arrow placement="top">
-							<InfoOutlined 
-								style={{ 
-									marginLeft: "5px", 
-									cursor: "pointer", 
-									marginTop: "4px",
-									color: isHovered ? "grey" : "LightGrey", // Change color based on hover state
-									fontSize: "1.2em", // Change font size based on hover state
-									transition: "color 0.3s, font-size 0.3s" // Transition for smooth hover effect
-								}}
-								onMouseEnter={handleMouseEnter}
-								onMouseLeave={handleMouseLeave}
-							/>
-					</Tooltip>
-				</div>
-				<DatasetListPopover
-					showCard={openPopOver}
-					setShowCard={setOpenPopOver}
-					setSelectedDataset={setSelectedDataset}
-					popOverTitle="Select a Dataset to use with PlayBook"
-				/>
-				<div
-					title="Create New Playbook"
-					className="containerButton"
-					onClick={e => {
-						setOpenPopOver(true);
-					}}
-				>
-					<AddIcon />
-				</div>
-			</div>
-			<div className="listContainer">
-				{playBookList.length > 0 ? (
-					<>
-						{playBookList.map(pb => {
-							return (
-								<SelectListItem
-									key={pb.name}
-									render={(xprops: any) => (
-										<div
-											className={
-												xprops.open
-													? "dataConnectionListSelected"
-													: "dataConnectionList"
-											}
-											onMouseOver={() => xprops.setOpen(true)}
-											onMouseLeave={() => xprops.setOpen(false)}
-											onClick={() => {
-												getPlayBookDataFromServer(pb.id);
-											}}
-										>
-											<div className="dataConnectionName">{pb.name}</div>
-											<div>
-												{xprops.open ? (
-													<Tooltip
-														title="Delete playbook"
-														arrow
-														placement="right-start"
-													>
-														<div
-															className="dataHomeDeleteIcon"
-															onClick={e => {
-																e.stopPropagation();
-																setDeleteItemId(pb.id);
-																setConfirmDialog(true);
-															}}
-														>
-															<DeleteIcon
-																style={{
-																	width: "1rem",
-																	height: "1rem",
-																	margin: "auto",
-																}}
-															/>
-														</div>
-													</Tooltip>
-												) : null}
-											</div>
-										</div>
-									)}
-								/>
-							);
-						})}
-					</>
-				) : (
-					<div className="listEmptyNote">*No Playbook created yet*</div>
-				)}
-
-				<NotificationDialog
-					openAlert={openAlert}
-					severity={severity}
-					testMessage={testMessage}
-					onCloseAlert={() => {
-						setOpenAlert(false);
-						setTestMessage("");
-					}}
-				/>
-			</div>
-
-			{loading ? <LoadingPopover /> : null}
-			<Dialog open={confirmDialog}>
-				<div
-					style={{
-						display: "flex",
-						flexDirection: "column",
-						padding: "8px",
-						width: "400px",
-						height: "auto",
-						justifyContent: "center",
-					}}
-				>
-					<div style={{ fontWeight: "bold", textAlign: "center" }}>
-						<div style={{ display: "flex" }}>
-							<span style={{ flex: 1 }}>
-								Are You Sure You Want To Delete This PlayBook?
-							</span>
-
-							<CloseRounded
-								style={{ margin: "0.25rem", fontSize: "16px" }}
-								onClick={() => {
-									setConfirmDialog(false);
-								}}
-							/>
-						</div>
-					</div>
-					<div
-						style={{ padding: "15px", justifyContent: "space-around", display: "flex" }}
-					>
-						<Button
-							style={{ backgroundColor: "#2bb9bb" }}
-							variant="contained"
-							onClick={() => {
-								setConfirmDialog(false);
-							}}
-						>
-							Cancel
-						</Button>
-						<Button
-							style={{ backgroundColor: "red", float: "right" }}
-							variant="contained"
-							onClick={() => deletePlayBook()}
-						>
-							Delete
-						</Button>
-					</div>
-				</div>
-			</Dialog>
-		</div>
-	);
+              <CloseRounded
+                style={{ margin: "0.25rem", fontSize: "16px" }}
+                onClick={() => {
+                  setConfirmDialog(false);
+                }}
+              />
+            </div>
+          </div>
+          <div
+            style={{
+              padding: "15px",
+              justifyContent: "space-around",
+              display: "flex",
+            }}
+          >
+            <Button
+              style={{ backgroundColor: "#2bb9bb" }}
+              variant="contained"
+              onClick={() => {
+                setConfirmDialog(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              style={{ backgroundColor: "red", float: "right" }}
+              variant="contained"
+              onClick={() => deletePlayBook()}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+    </div>
+  );
 };
 
-const mapStateToProps = (state: isLoggedProps) => {
-	return {
-		token: state.isLogged.accessToken,
-	};
+const mapStateToProps = (state: isLoggedProps & IChartFilterGroup) => {
+  return {
+    token: state.isLogged.accessToken,
+    chartFilterGroup: state.chartFilterGroup,
+  };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-	return {
-		addChartFilterTabTileName: (
-			selectedDatasetID: string,
-			tabTileName: string
-		  ) => dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName)),
-		setSelectedDataSetList: (dataset: PbSelectedDataset) =>
-			dispatch(setSelectedDataSetList(dataset)),
-		setTablesForDs: (tablesObj: any) => dispatch(setTablesForSelectedDataSets(tablesObj)),
-		setSelectedDs: (propKey: string, selectedDs: any) =>
-			dispatch(setSelectedDsInTile(propKey, selectedDs)),
-		loadPlayBook: (playBook: any) => dispatch(loadPlaybook(playBook)),
-		updatePlayBookId: (
-			playBookName: string,
-			playBookUid: string,
-			description: string,
-			oldContent?: string | any
-		) => dispatch(updatePlaybookUid(playBookName, playBookUid, description, oldContent)),
-		setSelectedDatasetForDynamicMeasure: (dataset: any) =>
-			dispatch(setSelectedDatasetForDynamicMeasure(dataset)),
-	};
+  return {
+    updateChartFilterSelectedGroups: (groupId: string, filters: any) =>
+      dispatch(updateChartFilterSelectedGroups(groupId, filters)),
+    addChartFilterGroupName: (
+      selectedDatasetID: string,
+      groupId: string,
+      groupName: string
+    ) =>
+      dispatch(addChartFilterGroupName(selectedDatasetID, groupId, groupName)),
+    addChartFilterTabTileName: (
+      selectedDatasetID: string,
+      tabTileName: string
+    ) => dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName)),
+    setSelectedDataSetList: (dataset: PbSelectedDataset) =>
+      dispatch(setSelectedDataSetList(dataset)),
+    setTablesForDs: (tablesObj: any) =>
+      dispatch(setTablesForSelectedDataSets(tablesObj)),
+    setSelectedDs: (propKey: string, selectedDs: any) =>
+      dispatch(setSelectedDsInTile(propKey, selectedDs)),
+    loadPlayBook: (playBook: any) => dispatch(loadPlaybook(playBook)),
+    updatePlayBookId: (
+      playBookName: string,
+      playBookUid: string,
+      description: string,
+      oldContent?: string | any
+    ) =>
+      dispatch(
+        updatePlaybookUid(playBookName, playBookUid, description, oldContent)
+      ),
+    setSelectedDatasetForDynamicMeasure: (dataset: any) =>
+      dispatch(setSelectedDatasetForDynamicMeasure(dataset)),
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PlayBookList);

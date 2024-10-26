@@ -83,7 +83,18 @@ const dashBoardFilterGroupReducer = (state: any = initialDashBoardFilterGroup, a
                     },
                     dashBoardGroupEdited: { $set: true }
                 });
+            
 
+                case "DELETE_FILTER_GROUP_FROM_DASHBOARD_FILTER_GROUP":
+                    const filteGroupId=action.payload.groupId
+                    const newGroups = state.groups.filter((groupId: any) => groupId !== filteGroupId);
+                    const newFilterGroupTabTiles = Object.fromEntries(
+                        Object.entries(state.filterGroupTabTiles).filter(([key]) => key !==filteGroupId));
+                    return update(state, {
+                        groups: { $set: newGroups },
+                        filterGroupTabTiles: { $set: newFilterGroupTabTiles },
+                        dashBoardGroupEdited: { $set:false }
+                    });
         default:
             return state;
     }

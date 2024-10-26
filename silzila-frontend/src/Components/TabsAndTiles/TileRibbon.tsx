@@ -14,7 +14,7 @@ import {
 import IndividualTile from "./IndividualTile";
 import { TileRibbonProps, TileRibbonStateProps } from "./TileRibbonInterfaces";
 import AddIcon from "@mui/icons-material/Add";
-import { addChartFilterTabTileName } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
+import { addChartFilterTabTileName, updateChartFilterSelectedGroups } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 import Logger from "../../Logger";
 import "./individualTile.css";
 import { Tooltip, Menu, MenuItem } from "@mui/material";
@@ -38,6 +38,7 @@ const TileRibbon = ({
   completeRenameTile,
   removeTile,
   addChartFilterTabTileName,
+  updateChartFilterSelectedGroups,
 }: TileRibbonProps) => {
   const addReportFilterGroup = (nextPropKey: string) => {
     var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
@@ -45,6 +46,9 @@ const TileRibbon = ({
 
     ///	if (!(selectedFilterGroups && selectedFilterGroups.length > 0)) {
     addChartFilterTabTileName(selectedDatasetID, nextPropKey);
+    if(chartGroup.groups && Object.keys(chartGroup.groups).length > 0){
+      updateChartFilterSelectedGroups(nextPropKey,Object.keys(chartGroup.groups)[0]);
+    };
     ///	}
   };
 
@@ -308,6 +312,8 @@ const mapStateToProps = (state: TileRibbonStateProps) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   return {
+    updateChartFilterSelectedGroups: (groupId: string, filters: any) =>
+      dispatch(updateChartFilterSelectedGroups(groupId, filters)),
     addTile: (
       tabId: number,
       nextTileId: number,
