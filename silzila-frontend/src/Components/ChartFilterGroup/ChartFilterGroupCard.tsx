@@ -969,12 +969,12 @@ const GetPickListItems = async (sortOptions: string[]) => {
 
   /// List of options to show at the end of each filter card
 const RenderMenu = () => {
+  const [selectedSortOptions, setSelectedSortOptions] = useState<string[]>(filterFieldData["previousSortOptions"]?JSON.parse(filterFieldData["previousSortOptions"]):[]);
   const [selectedOption, setSelectedOption] = useState(
     filterFieldData.fieldtypeoption === "Pick List" ? "Pick List" : filterFieldData.fieldtypeoption
   );
 
   // Maintain an array of selected sort options
-  const [selectedSortOptions, setSelectedSortOptions] = useState<string[]>([]);
 
   const options = ["Include", "Exclude"];
   const options2 = ["Pick List", "Search Condition"];
@@ -995,16 +995,34 @@ const RenderMenu = () => {
 
   // Handle multiple checkbox selections for sorting options
   const handleSortOptionToggle = (sortOpt: string) => {
-    setSelectedSortOptions((prevSelectedOptions) => {
-      const updatedOptions = prevSelectedOptions.includes(sortOpt)
-        ? prevSelectedOptions.filter((opt) => opt !== sortOpt) // Deselect if already selected
-        : [...prevSelectedOptions, sortOpt]; // Select if not already selected
+    const sortOptions = selectedSortOptions.includes(sortOpt)
+        ? selectedSortOptions.filter((opt:any) => opt !== sortOpt) // Deselect if already selected
+        : [...selectedSortOptions, sortOpt];
+        let tempResult = ["(All)", filterFieldData["rawselectmembers"]];
+    // Apply multiple sortOptions
+    if (sortOptions.includes("Sort Desc")) {
+      tempResult = ["(All)", ...filterFieldData["rawselectmembers"].filter((item:any)=>item!=="(All)").sort().reverse()];
+    } else {
+      tempResult = ["(All)", ...filterFieldData["rawselectmembers"].filter((item:any)=>item!=="(All)").sort()]; // Default to ascending if no "Sort Desc"
+    }
 
-      // Call GetPickListItems after updating state
-      GetPickListItems(updatedOptions);
-      
-      return updatedOptions; // Return the new state
+    if (sortOptions.includes("Remove Blank")) {
+      tempResult = tempResult.filter((val: string) => val !== "(blank)");
+    }
+
+    if (sortOptions.includes("Blank at Bottom")) {
+      const blanks = tempResult.filter((val: string) => val === "(blank)");
+      tempResult = tempResult.filter((val: string) => val !== "(blank)").concat(blanks);
+    }
+
+    // Store sorted data in filterFieldData
+    filterFieldData["rawselectmembers"] = [...tempResult];
+    // Save the sort options for comparison in future updates
+    filterFieldData["previousSortOptions"] = JSON.stringify(sortOptions);
+    setSelectedSortOptions((prev) => {
+      return [...sortOptions]
     });
+    updateChartFilterRightGroupsFilters(name, constructChartAxesFieldObject());
   };
 
   return (
