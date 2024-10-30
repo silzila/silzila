@@ -148,7 +148,7 @@ export const updateCrossTabStyleOptions = (
 export const updateCrossTabHeaderLabelOptions = (
   propKey: string,
   option: string | number,
-  value: string | number
+  value: string | number |  string[]
 ) => {
   return {
     type: "UPDATE_CROSSTAB_HEADER_LABEL_OPTIONS",
