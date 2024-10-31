@@ -2,6 +2,8 @@ package com.silzila.payload.request;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
+
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "measures",
         "fields",
         "filterPanels",
+        "subTotals",
 })
 @Generated("jsonschema2pojo")
 public class Query implements Serializable {
@@ -25,6 +28,8 @@ public class Query implements Serializable {
     private List<Field> fields = null;
     @JsonProperty("filterPanels")
     private List<FilterPanel> filterPanels = null;
+    @JsonProperty("subTotals")
+    private Boolean subTotal = false;
     private final static long serialVersionUID = -1318578558235982102L;
 
     /**
@@ -40,14 +45,16 @@ public class Query implements Serializable {
      * @param filterPanels
      * @param fields
      * @param dimensions
+     * @param subTotals
      */
     public Query(List<Dimension> dimensions, List<Measure> measures, List<Field> fields,
-            List<FilterPanel> filterPanels) {
+            List<FilterPanel> filterPanels, Boolean subTotal) {
         super();
         this.dimensions = dimensions;
         this.measures = measures;
         this.fields = fields;
         this.filterPanels = filterPanels;
+        this.subTotal = subTotal;
     }
 
     @JsonProperty("dimensions")
@@ -88,6 +95,16 @@ public class Query implements Serializable {
     @JsonProperty("filterPanels")
     public void setFilterPanels(List<FilterPanel> filterPanels) {
         this.filterPanels = filterPanels;
+    }
+
+    @JsonProperty("subTotals")
+    public Boolean getSubTotal() {
+        return subTotal;
+    }
+
+    @JsonProperty("subTotals")
+    public void setSubTotal(Boolean subTotal) {
+        this.subTotal = subTotal;
     }
 
     @Override
