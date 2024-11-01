@@ -203,6 +203,12 @@ const chartControl = {
         fontWeigth: "normal",
         fontFamily: "sans-serif",
         fontWeight: "500",
+        selectedMembers: [],
+        inputValue: "0", 
+        showCss: "",
+        columnName:"",
+        columnType: "",
+        comparison: "> Greater than",
       },
       crossTabCellLabelOptions: {
         labelColorManual: false,
@@ -562,6 +568,12 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               fontWeigth: "normal",
               fontFamily: "sans-serif",
               fontWeight: "500",
+              selectedMembers: [],
+              inputValue: "0", 
+              showCss: "",
+              columnName:"",
+              columnType: "",
+              comparison: "> Greater than",
             },
             crossTabCellLabelOptions: {
               labelColorManual: false,
@@ -920,6 +932,12 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               fontWeigth: "normal",
               fontFamily: "sans-serif",
               fontWeight: "500",
+              selectedMembers: [],
+              inputValue: "0", 
+              showCss: "",
+              columnName:"",
+              columnType: "",
+              comparison: "> Greater than",
             },
             crossTabCellLabelOptions: {
               labelColorManual: false,
@@ -1143,6 +1161,15 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
         properties: {
           [action.payload.propKey]: {
             chartData: { $set: action.payload.chartData },
+          },
+        },
+      });
+
+    case "SORT_SERVER_DATAS":
+      return update(state, {
+        properties: {
+          [action.payload.propKey]: {
+            serverData: { $set: action.payload.serverData },
           },
         },
       });

@@ -271,8 +271,6 @@ export const generateRandomColorArray = (length:number) => {
 			return field;
 		}				
 	}
-
-	
 	export const displayName = (field: any) => {
 		if (field) {
 			return field.displayname;
@@ -280,7 +278,20 @@ export const generateRandomColorArray = (length:number) => {
 		return field;
 	};
 
-	export const findNewDisplayName = (chartAxes: any, paramField:any, allowedNumbers: number): any => {       
+	export const fieldNameConvert = (fieldname: string, chartControls: any, propKey: string) => {
+		const chartAxes = chartControls.properties[propKey]?.chartAxes;
+		for (const axis of chartAxes) {
+		  const field = axis.fields.find((field: any) => field.fieldname === fieldname);
+		  if (field) {
+			return field.displayname;
+		  }
+		}
+		return fieldname;
+	  };
+
+
+
+ 	export const findNewDisplayName = (chartAxes: any, paramField:any, allowedNumbers: number): any => {       
 	
 		let _measureZone: any = chartAxes.find(
 		(zones: any) => zones.name === "Measure"

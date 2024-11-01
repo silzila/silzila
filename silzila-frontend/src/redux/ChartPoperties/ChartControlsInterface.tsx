@@ -179,6 +179,12 @@ interface ChartConCrosstabHeaderLabelOptions {
   fontWeigth: string;
   fontFamily: string;
   fontWeight: number | string;
+  selectedMembers: string[];
+  inputValue: number;
+  showCss: boolean,
+  columnName: string,
+  columnType: string,
+  comparison: string,
 }
 
 interface ChartConCrossTabCellLabelOptions {
