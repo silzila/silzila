@@ -1598,7 +1598,12 @@ const RenderMenu = () => {
           }}
           defaultValue={filterFieldData.exprInput}
           type={type}
-          onBlur={(e) => handleCustomRequiredValueOnBlur(e.target.value)}
+          onBlur={(e) => handleCustomRequiredValueOnBlur((e.target as HTMLInputElement).value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleCustomRequiredValueOnBlur((e.target as HTMLInputElement).value);
+            }
+          }}
         />
 
         {filterFieldData.isInValidData ? (
