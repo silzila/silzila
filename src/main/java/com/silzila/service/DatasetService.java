@@ -7,10 +7,13 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import com.silzila.exception.ExpectationFailedException;
+import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -18,13 +21,15 @@ import org.springframework.web.server.ResponseStatusException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.google.gson.JsonArray;
+import com.ibm.db2.cmx.runtime.internal.parser.EscapeLexer.sqlMode;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.dto.DatasetNoSchemaDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.domain.entity.Dataset;
 import com.silzila.querybuilder.QueryComposer;
+import com.silzila.querybuilder.subTotalsCombination;
 import com.silzila.querybuilder.filteroptions.FilterOptionsQueryComposer;
 import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.repository.DatasetRepository;
@@ -399,6 +404,14 @@ public class DatasetService {
         if (ds.getIsFlatFileData() == false) {
             String query = queryComposer.composeQuery(queries, ds, vendorName);
 
+            // for totals & subtotals only
+            for (Query req : queries) {
+                if (req.getSubTotal() != null && req.getSubTotal()) {
+                   String result = subTotals(query, req, vendorName, ds, isSqlOnly, dBConnectionId, userId);
+                   return result;
+                }
+            }
+
             logger.info("\n******* QUERY **********\n" + query);
             // when the request is just Raw SQL query Text
             if (isSqlOnly != null && isSqlOnly) {
@@ -451,6 +464,15 @@ public class DatasetService {
             fileDataService.getFileNameFromFileId(userId, tableObjList);
             // come here
             String query = queryComposer.composeQuery(queries, ds, "duckdb");
+
+            // for totals & subtotals only
+            for (Query req : queries) {
+                if (req.getSubTotal() != null && req.getSubTotal()) {
+                   String result = subTotals(query, req, vendorName, ds, isSqlOnly, dBConnectionId, userId);
+                   return result;
+                }
+            }
+
             logger.info("\n******* QUERY **********\n" + query);
 
             // when the request is just Raw SQL query Text
@@ -466,6 +488,62 @@ public class DatasetService {
         }
 
     }
+    
+    // fo totals and subtotals
+    public String subTotals(String query, Query req, String vendorName, DatasetDTO ds, Boolean isSqlOnly, 
+                        String dBConnectionId, String userId) 
+                        throws JsonMappingException, JsonProcessingException, ClassNotFoundException, 
+                        BadRequestException, RecordNotFoundException, SQLException, ParseException {
+        
+        List<String> queryList = new ArrayList<>();
+        queryList.add(query);
+        queryList.addAll(subTotalsCombination.subTotalCombinationResults(req, vendorName, ds));
+        
+        if (Boolean.TRUE.equals(isSqlOnly)) { 
+            StringBuilder queries = new StringBuilder();
+            queries.append("Query for Main:\n").append(queryList.get(0)).append("\n\n\n");
+            
+            for (int i = 1; i < queryList.size(); i++) {
+                queries.append("Query for SubTotal:\n").append(queryList.get(i)).append("\n\n\n");
+            }
+            
+            return queries.toString().trim();
+        } else {
+            List<List<String>> subTotalCombinations = new ArrayList<>();
+            List<List<Dimension>> dimensionGroups = new ArrayList<>();
+            
+            dimensionGroups.add(req.getDimensions());
+            dimensionGroups.addAll(subTotalsCombination.subTotalsCombinations(req));
+            
+            for (List<Dimension> dimensions : dimensionGroups) {
+                Query dimensionQuery = new Query(dimensions, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null);
+                QueryClauseFieldListMap qMap = subTotalsCombination.selectClauseSql(dimensionQuery, vendorName);
+                List<String> combination = new ArrayList<>(qMap.getGroupByList());
+                subTotalCombinations.add(combination);
+            }
+
+            JSONArray finalResult = new JSONArray();
+            for (int j = 0; j < queryList.size(); j++) {
+                String strQuery = queryList.get(j);
+                List<String> dimensions = subTotalCombinations.get(j);
+
+                JSONArray queryResult;
+                try {
+                    queryResult = connectionPoolService.runQuery(dBConnectionId, userId, strQuery);
+                } catch (Exception e) {
+                    throw new SQLException("Error executing query: " + strQuery, e);
+                }
+                
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("combination", dimensions);
+                jsonObject.put("result", queryResult);
+                finalResult.put(jsonObject);
+            }
+            
+            return finalResult.toString();
+        }
+    }
+
 
     // Populate filter Options
     public Object filterOptions(String userId, String dBConnectionId, String datasetId, ColumnFilter columnFilter)
