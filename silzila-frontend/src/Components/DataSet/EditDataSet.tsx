@@ -1,9 +1,13 @@
-// This component is used to retrive a specific dataset to be edited
-// The information about this dataset is loaded to store
-// users can update existing dataset / re-define relationships in dataset
+/**
+ * This component is used to retrive a specific dataset to be edited
+  The information about this dataset is loaded to store
+  users can update existing dataset / re-define relationships in dataset
 
+  for flatFiles "flatFileMaps" mapes table with their flat files 
+*/
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
+import CircularProgress from '@mui/material/CircularProgress';
 import ShortUniqueId from "short-unique-id";
 import {
   setCreateDsFromFlatFile,
@@ -31,35 +35,34 @@ import { Columns, ColumnsWithUid } from "./DatasetInterfaces";
 import {
   CanvasIndividualTableProps,
   EditDatasetProps,
+  IFlatIdTableIdMap,
 } from "./EditDataSetInterfaces";
 import Logger from "../../Logger";
+import { IFilter, IFilterPanel } from "./BottomBarInterfaces";
+import { Box } from "@mui/material";
 
 const EditDataSet = ({
   //state
   token,
   dsId,
-
   //dispatch
   setValuesToState,
   setUserTable,
   setDatabaseNametoState,
   setServerName,
-  setViews,
+  setViews, 
   setCreateDsFromFlatFile,
 }: EditDatasetProps) => {
-  var dbName: string = "";
-  var server: string = "";
+  let dbName: string = "";
+  let server: string = "";
 
   const [loadPage, setloadPage] = useState<boolean>(false);
+  const [datasetFilterArray, setDataSetFilterArray] = useState<IFilter[]>([]);
+  const [flatFileMaps, setFlatFileMaps] = useState<IFlatIdTableIdMap[]>([]);
 
-  var count: number = 0;
-
-  const [datasetFilterArray, setDataSetFilterArray] = useState<any[]>([]);
-  var data: any;
   useEffect(() => {
     setAllInfo();
   }, []);
-
   const setAllInfo = async () => {
     var res: any = await FetchData({
       requestType: "noData",
@@ -68,24 +71,28 @@ const EditDataSet = ({
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (res.data.dataSchema.filterPanels) {
-      data = res.data.dataSchema.filterPanels
-        .map((item: any) => {
-          if (item.panelName === "dataSetFilters") {
-            return item.filters;
-          }
-          return null;
-        })
-        .filter(Boolean);
-      console.log(data);
-      setDataSetFilterArray(data.flat());
-    }
+    
 
     if (res.status) {
       if (res.data.isFlatFileData) {
+        /**
+         * for flatFiles map tableId with their flatFile Id
+         */
+        const flatFileTableMap:IFlatIdTableIdMap[]=res.data.dataSchema.tables.map((table:any)=>{
+          return({
+            tableId:table.id,
+            flatFileId:table.flatFileId
+          })
+        })
+        setFlatFileMaps(flatFileTableMap)
         setCreateDsFromFlatFile(true);
       }
-
+      if (res.data.dataSchema.filterPanels) {
+        const data:IFilter[] = res.data.dataSchema.filterPanels
+          .filter((item:IFilterPanel) => item.panelName === "dataSetFilters")
+          .map((item:IFilterPanel) => item.filters[0]);
+        setDataSetFilterArray(data);
+      }
       if (!res.data.isFlatFileData) {
         var getDc: any = await FetchData({
           requestType: "noData",
@@ -107,7 +114,6 @@ const EditDataSet = ({
       // canvasTables - tables that are droped & used in canvas for creating dataset
       const canvasTables: tableObjProps[] = await Promise.all(
         res.data.dataSchema.tables?.map(async (tbl: any) => {
-          count++;
           if (tbl) {
             return {
               table_uid: res.data.isFlatFileData
@@ -363,7 +369,7 @@ const EditDataSet = ({
             isSelected: false,
 
             start: res.data.isFlatFileData
-              ? x[0].table.concat(el.tab1)
+              ? x[0].flatFileId.concat(x[0].table).concat(el.tab1)
               : x[0].schema.concat(x[0].table).concat(el.tab1),
             table1_uid: res.data.isFlatFileData
               ? x[0].flatFileId
@@ -506,7 +512,6 @@ const EditDataSet = ({
       return arrayWithUid;
     }
   };
-  console.log(datasetFilterArray);
   return (
     <div className="dataHome">
       <MenuBar from="dataSet" />
@@ -517,14 +522,27 @@ const EditDataSet = ({
             <Sidebar editMode={true} />
             {datasetFilterArray?.length > 0 ? (
               <Canvas
+                flatFileIdMap={flatFileMaps}
                 editMode={true}
                 EditFilterdatasetArray={datasetFilterArray}
               />
             ) : (
-              <Canvas editMode={true} />
+              <Canvas editMode={true}
+              flatFileIdMap={flatFileMaps}
+              EditFilterdatasetArray={[]} />
             )}
           </>
-        ) : null}
+        ) :  <Box sx={
+          {
+            height:"calc(100svh - 2.5rem)",
+            width:"100svw",
+            justifyContent:"center",
+            display:"flex",
+            alignItems:"center"
+          }
+        }>
+          <CircularProgress disableShrink />
+          </Box>}
       </div>
     </div>
   );

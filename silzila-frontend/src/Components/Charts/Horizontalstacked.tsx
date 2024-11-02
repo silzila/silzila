@@ -6,6 +6,7 @@ import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 
 import {
   formatChartLabelValue,
+  formatChartLabelValueForSelectedMeasure,
   formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
 import {
@@ -58,9 +59,11 @@ const Horizontalstacked = ({
 
             formatter: (value: FormatterValueProps) => {
               var formattedValue = value.value[chartDataKeys[i + 1]];
-              formattedValue = formatChartLabelValue(
-                chartControl,
-                formattedValue
+              formattedValue = formatChartLabelValueForSelectedMeasure(
+                chartControls.properties[propKey],
+                chartProperties.properties[propKey],
+                formattedValue,
+                chartDataKeys[i + 1]
               );
               return formattedValue;
             },
@@ -101,8 +104,8 @@ const Horizontalstacked = ({
           border: chartArea
             ? "none"
             : graphTileSize
-            ? "none"
-            : "1px solid rgb(238,238,238)",
+              ? "none"
+              : "1px solid rgb(238,238,238)",
         }}
         option={{
           color: chartThemes[0].colors,
@@ -138,8 +141,8 @@ const Horizontalstacked = ({
             bottom:
               chartControl.legendOptions?.position?.top === "bottom"
                 ? (graphDimension.height * chartControl.chartMargin.bottom) /
-                    100 +
-                  35
+                100 +
+                35
                 : chartControl.chartMargin.bottom + "%",
           },
 

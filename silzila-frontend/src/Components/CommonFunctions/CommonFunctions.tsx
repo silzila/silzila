@@ -1,5 +1,6 @@
 import FetchData from "../ServerCall/FetchData";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
+import { IFilter } from "../DataSet/BottomBarInterfaces";
 
 
 export const validateEmail = (email: string) => {
@@ -366,3 +367,61 @@ export const generateRandomColorArray = (length:number) => {
 			data: bodyData,
 		});
 	};
+	export const modifyFilter=(filter:any):IFilter=>{
+		if(filter.fieldtypeoption==="Pick List"){
+		  return {
+			filterType:"pickList",
+			tableId:filter.tableId,
+			uid:filter.uId,
+			dataType:filter.dataType,
+			fieldName:filter.fieldname,
+			shouldExclude:filter.includeexclude.toLowerCase()==="exclude"?true:false,
+			operator:"in",
+			tableName:"",
+			isTillDate:filter.exprTypeTillDate??false,
+			userSelection:filter.userSelection.filter((el:any)=>el!=="(All)"),
+			...(filter.dataType === "date" || filter.dataType === "timestamp"
+			  ? { timeGrain: filter.prefix }
+			  : {}),
+	
+		  }
+		}
+		else if(filter.fieldtypeoption==="Search Condition"){
+		  return {
+			filterType:"searchCondition",
+			tableId:filter.tableId,
+			tableName:"",
+			uid:filter.uId,
+			isTillDate:filter.exprTypeTillDate??false,
+			dataType:filter.dataType,
+			fieldName:filter.fieldname,
+			operator:filter.exprType,
+			shouldExclude:filter.includeexclude.toLowerCase()==="exclude"?true:false,
+			userSelection:filter.exprType==="between"?[filter.greaterThanOrEqualTo,filter.lessThanOrEqualTo]:[filter.exprInput],
+			...(filter.dataType === "date" || filter.dataType === "timestamp"
+			  ? { timeGrain: filter.prefix }
+			  : {}),
+		  }
+		}
+		else {
+		  // return {}
+		  return {
+		  filterType:"relativeFilter",
+		  tableId:filter.tableId,
+		  uid:filter.uId,
+		  dataType:filter.dataType,
+		  fieldName:filter.fieldname,
+		  shouldExclude:filter.includeexclude.toLowerCase()==="exclude"?true:false,
+		  operator:"between",
+		  tableName:"",
+		  isTillDate:filter.exprTypeTillDate??false,
+		  timeGrain: "date",
+		  userSelection:[],
+		  relativeCondition:{
+			from:[filter.expTypeFromRelativeDate,filter.exprInputFromValueType,filter.expTypeFromdate],
+			to:[filter.expTypeToRelativeDate,filter.exprInputToValueType,filter.expTypeFromdate],
+			anchorDate:filter.expTypeAnchorDate!=="today"?filter.expTypeAnchorDate:filter.expTypeAnchorDate
+		  }
+		}
+		}
+	}

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
-import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
+import { formatChartLabelValue, formatChartLabelValueForSelectedMeasure } from "../ChartOptions/Format/NumberFormatter";
 import {
   ChartsMapStateToProps,
   ChartsReduxStateProps,
@@ -70,8 +70,8 @@ const DoughnutChart = ({
             border: chartArea
               ? "none"
               : graphTileSize
-              ? "none"
-              : "1px solid rgb(238,238,238)",
+                ? "none"
+                : "1px solid rgb(238,238,238)",
           }}
           option={{
             color: chartThemes[0].colors,
@@ -126,17 +126,18 @@ const DoughnutChart = ({
 
                   /* getting label value*/
                   formatter: (value: FormatterValueProps) => {
+                    const columnName = displayName(
+                      chartProperties.properties[propKey].chartAxes[2]
+                        .fields[0]
+                    )
                     if (chartDataKeys) {
                       var formattedValue =
-                        value.value[
-                          displayName(
-                            chartProperties.properties[propKey].chartAxes[2]
-                              .fields[0]
-                          )
-                        ];
-                      formattedValue = formatChartLabelValue(
-                        chartControl,
-                        formattedValue
+                        value.value[columnName];
+                      formattedValue = formatChartLabelValueForSelectedMeasure(
+                        chartControls.properties[propKey],
+                        chartProperties.properties[propKey],
+                        formattedValue,
+                        columnName
                       );
                       return formattedValue;
                     }

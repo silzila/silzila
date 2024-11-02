@@ -5,6 +5,7 @@ import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInte
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import {
   formatChartLabelValue,
+  formatChartLabelValueForSelectedMeasure,
   formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
 import {
@@ -22,6 +23,7 @@ const AreaChart = ({
 
   //state
   chartControls,
+  chartProperties
 }: ChartsReduxStateProps) => {
   var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
@@ -58,9 +60,11 @@ const AreaChart = ({
             /* getting label value*/
             formatter: (value: FormatterValueProps) => {
               var formattedValue = value.value[chartDataKeys[i + 1]];
-              formattedValue = formatChartLabelValue(
-                chartControl,
-                formattedValue
+              formattedValue = formatChartLabelValueForSelectedMeasure(
+                chartControls.properties[propKey],
+                chartProperties.properties[propKey],
+                formattedValue,
+                chartDataKeys[i + 1]
               );
               return formattedValue;
             },
@@ -248,6 +252,7 @@ const AreaChart = ({
 const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
   return {
     chartControls: state.chartControls,
+    chartProperties: state.chartProperties
   };
 };
 

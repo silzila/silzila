@@ -1,9 +1,9 @@
-import LabelFormatting from "./LabelFormatting";
+import LabelFormatingForRichText from "./LabelFormatingForRichText";
 
 const ChartFormatForDm = () => {
 	return (
 		<div className="optionsInfo">
-			<LabelFormatting />
+			<LabelFormatingForRichText/>
 		</div>
 	);
 };

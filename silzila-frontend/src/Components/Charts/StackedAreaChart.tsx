@@ -8,9 +8,11 @@ import {
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import {
   formatChartLabelValue,
+  formatChartLabelValueForSelectedMeasure,
   formatChartYAxisValue,
 } from "../ChartOptions/Format/NumberFormatter";
 import {
+  ChartsMapStateToProps,
   ChartsReduxStateProps,
   FormatterValueProps,
 } from "./ChartsCommonInterfaces";
@@ -24,6 +26,7 @@ const StackedAreaChart = ({
 
   //state
   chartControls,
+  chartProperties
 }: ChartsReduxStateProps) => {
   var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
@@ -55,9 +58,11 @@ const StackedAreaChart = ({
 
             formatter: (value: FormatterValueProps) => {
               var formattedValue = value.value[chartDataKeys[i + 1]];
-              formattedValue = formatChartLabelValue(
-                chartControl,
-                formattedValue
+              formattedValue = formatChartLabelValueForSelectedMeasure(
+                chartControls.properties[propKey],
+                chartProperties.properties[propKey],
+                formattedValue,
+                chartDataKeys[i + 1]
               );
 
               return formattedValue;
@@ -98,8 +103,8 @@ const StackedAreaChart = ({
           border: chartArea
             ? "none"
             : graphTileSize
-            ? "none"
-            : "1px solid rgb(238,238,238)",
+              ? "none"
+              : "1px solid rgb(238,238,238)",
         }}
         option={{
           color: chartThemes[0].colors,
@@ -134,8 +139,8 @@ const StackedAreaChart = ({
             bottom:
               chartControl.legendOptions?.position?.top === "bottom"
                 ? (graphDimension.height * chartControl.chartMargin.bottom) /
-                    100 +
-                  35
+                100 +
+                35
                 : chartControl.chartMargin.bottom + "%",
           },
           dataset: {
@@ -234,9 +239,10 @@ const StackedAreaChart = ({
 
   return <>{chartData.length >= 1 ? <RenderChart /> : ""}</>;
 };
-const mapStateToProps = (state: ChartControlStateProps, ownProps: any) => {
+const mapStateToProps = (state: ChartsMapStateToProps, ownProps: any) => {
   return {
     chartControls: state.chartControls,
+    chartProperties: state.chartProperties
   };
 };
 

@@ -54,3 +54,9 @@ export const dashBoardFilterGroupsEdited = ( isEdited : boolean) => {
 		payload: { isEdited },
 	};
 };
+export const deleteFilterGroupFromDashBoardFilterGroup = ( groupId: string) => {
+	return {
+		type: "DELETE_FILTER_GROUP_FROM_DASHBOARD_FILTER_GROUP",
+		payload: { groupId },
+	};
+}

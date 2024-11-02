@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ChartControlsProps } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { connect } from "react-redux";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
-import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
+import { formatChartLabelValue, formatChartLabelValueForSelectedMeasure } from "../ChartOptions/Format/NumberFormatter";
 import { ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
 import { Dispatch } from "redux";
@@ -17,9 +17,11 @@ const SimpleCard = ({
   graphTileSize,
 
   //state
+  pageSettings,
   chartControls,
   chartProperties,
   tabtileProps,
+  tileState,
 
   //dispatch
   updateCardControls,
@@ -76,12 +78,35 @@ const SimpleCard = ({
 
   const getFormatedChartData = () => {
     var formattedValue = cardData;
-    formattedValue = formatChartLabelValue(chartControl, formattedValue);
+    formattedValue = formatChartLabelValueForSelectedMeasure(
+      chartControls.properties[propKey],
+      chartProperties.properties[propKey],
+      formattedValue,
+      chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname ? chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname : ""
+    );
     return formattedValue;
   };
   var chartThemes: any[] = ColorSchemes.filter((el) => {
     return el.name === chartControl.colorScheme;
   });
+
+  ////////// Use when enabling the dragging option
+  // useEffect(() => {
+  //   updateCardControls(propKey, "mainTextPos", {
+  //     x: graphDimension.width / 3,
+  //     y: graphDimension.height / 2 - graphDimension.height / 3,
+  //   });
+  //   updateCardControls(propKey, "subTextPos", {
+  //     x: graphDimension.width / 3.2,
+  //     y: graphDimension.height / 2 + graphDimension.height / 16,
+  //   });
+  // }, [
+  //   chartControls.properties[propKey].serverData,
+  //   pageSettings.fullScreen,
+  //   graphDimension.width,
+  //   graphDimension.height,
+  //   chartControls.properties[propKey].cardControls.customStyle,
+  // ]);
 
   const RenderChart = () => {
     return (
@@ -94,8 +119,8 @@ const SimpleCard = ({
           border: chartArea
             ? "none"
             : graphTileSize
-            ? "none"
-            : "1px solid rgb(238,238,238)",
+              ? "none"
+              : "1px solid rgb(238,238,238)",
         }}
       >
         <div
@@ -115,35 +140,65 @@ const SimpleCard = ({
               flexDirection: "column",
               justifyContent: "center",
               alignContent: "center",
-              backgroundColor: chartThemes[0].background,
-              height:
-                chartControl.cardControls.height < graphDimension.height
-                  ? `${chartControl.cardControls.height}px`
-                  : graphDimension.height,
+              backgroundColor:
+                chartControls.properties[propKey].cardControls.bgColor,
+              // height:
+              //   chartControl.cardControls.height < graphDimension.height
+              //     ? `${chartControl.cardControls.height}px`
+              //     : graphDimension.height,
+              // width:
+              //   chartControl.cardControls.width < graphDimension.width
+              //     ? `${chartControl.cardControls.width}px`
+              //     : graphDimension.width,
               width:
-                chartControl.cardControls.width < graphDimension.width
-                  ? `${chartControl.cardControls.width}px`
-                  : graphDimension.width,
+                tabtileProps.showDash ||
+                !tileState.tiles[propKey]?.graphSizeFull
+                  ? graphDimension.width
+                  : graphDimension.width / 3,
+              height:
+                tabtileProps.showDash ||
+                !tileState.tiles[propKey]?.graphSizeFull
+                  ? graphDimension.height
+                  : graphDimension.height / 2.5,
               overflow: "hidden",
               fontStyle: ` ${chartControl.cardControls.fontStyle}`,
             }}
           >
             {chartData.length >= 1 ? (
               <>
-                {tabtileProps.showDash ? (
+                {tabtileProps.showDash || true ? ( ///////// Remove true for dragging purpose
                   <>
                     <span>
                       <p
-                        title="Drag to change position"
+                        // title="Drag to change position"
                         style={{
-                          fontSize: `${chartControl.cardControls.fontSize}px`,
+                          fontSize: chartControls.properties[propKey]
+                            .cardControls.customStyle
+                            ? `${chartControl.cardControls.fontSize}px`
+                            : // : `${graphDimension.width / 10}px`,
+                            tabtileProps.showDash ||
+                              !tileState.tiles[propKey]?.graphSizeFull
+                            ? Math.min(
+                                graphDimension.width,
+                                graphDimension.height
+                              ) /
+                                10 +
+                              15
+                            : Math.min(
+                                graphDimension.width,
+                                graphDimension.height
+                              ) /
+                                30 +
+                              15,
                           color: fontColor
                             ? fontColor
-                            : chartThemes[0].colors[0],
+                            : chartControls.properties[propKey].cardControls
+                                .valueColor,
                           margin: "5px",
                           backgroundColor: backgroundColorValue
                             ? backgroundColorValue
-                            : "none",
+                            : chartControls.properties[propKey].cardControls
+                                .bgColor,
                           fontStyle: italicText ? italicText : "none",
                           textDecoration: textUnderline
                             ? textUnderline
@@ -158,10 +213,28 @@ const SimpleCard = ({
                     </span>
                     <span>
                       <p
-                        title="Drag to change position"
+                        // title="Drag to change position"
                         style={{
-                          fontSize: `${chartControl.cardControls.subtextFontSize}px`,
-                          color: chartThemes[0].colors[1],
+                          fontSize: chartControls.properties[propKey]
+                            .cardControls.customStyle
+                            ? `${chartControl.cardControls.subtextFontSize}px`
+                            : tabtileProps.showDash ||
+                              !tileState.tiles[propKey]?.graphSizeFull
+                            ? Math.min(
+                                graphDimension.width,
+                                graphDimension.height
+                              ) /
+                                20 +
+                              7
+                            : Math.min(
+                                graphDimension.width,
+                                graphDimension.height
+                              ) /
+                                60 +
+                              7,
+                          color:
+                            chartControls.properties[propKey].cardControls
+                              .labelColor,
                           margin: "5px",
                         }}
                       >
@@ -170,71 +243,94 @@ const SimpleCard = ({
                     </span>
                   </>
                 ) : (
-                  <>
-                    <Rnd
-                      disableResizing={true}
-                      disableDragging={chartArea === "dashboard" ? true : false}
-                      bounds="parent"
-                      position={chartControl.cardControls.mainTextPos}
-                      onDragStop={(e, d) => {
-                        updateCardControls(propKey, "mainTextPos", {
-                          x: d.x,
-                          y: d.y,
-                        });
-                      }}
-                      style={{
-                        overflow: "hidden",
-                      }}
-                    >
-                      <p
-                        title="Drag to change position"
-                        style={{
-                          cursor: "move",
-                          fontSize: `${chartControl.cardControls.fontSize}px`,
-                          color: fontColor
-                            ? fontColor
-                            : chartThemes[0].colors[0],
-                          margin: "5px",
-                          backgroundColor: backgroundColorValue
-                            ? backgroundColorValue
-                            : "none",
-                          fontStyle: italicText ? italicText : "none",
-                          textDecoration: textUnderline
-                            ? textUnderline
-                            : "none",
-                          fontWeight: boldText ? boldText : "none",
-                          padding: "0px 5px",
-                          borderRadius: "4px",
-                        }}
-                      >
-                        {getFormatedChartData()}
-                      </p>
-                    </Rnd>
-                    <Rnd
-                      disableResizing={true}
-                      disableDragging={chartArea === "dashboard" ? true : false}
-                      bounds="parent"
-                      position={chartControl.cardControls.subTextPos}
-                      onDragStop={(e, d) => {
-                        updateCardControls(propKey, "subTextPos", {
-                          x: d.x,
-                          y: d.y,
-                        });
-                      }}
-                    >
-                      <p
-                        title="Drag to change position"
-                        style={{
-                          cursor: "move",
-                          fontSize: `${chartControl.cardControls.subtextFontSize}px`,
-                          color: chartThemes[0].colors[1],
-                          margin: "5px",
-                        }}
-                      >
-                        {chartControls.properties[propKey].cardControls.subText}
-                      </p>
-                    </Rnd>
-                  </>
+                  <></>
+                  /// Uncomment for custom positioning using dragging
+                  // <>
+                  //   <Rnd
+                  //     disableResizing={true}
+                  //     disableDragging={chartArea === "dashboard" ? true : false}
+                  //     bounds="parent"
+                  //     position={chartControl.cardControls.mainTextPos}
+                  //     onDragStop={(e, d) => {
+                  //       updateCardControls(propKey, "mainTextPos", {
+                  //         x: d.x,
+                  //         y: d.y,
+                  //       });
+                  //     }}
+                  //     style={{
+                  //       overflow: "hidden",
+                  //     }}
+                  //   >
+                  //     <p
+                  //       title="Drag to change position"
+                  //       style={{
+                  //         cursor: "move",
+                  //         fontSize: chartControls.properties[propKey]
+                  //           .cardControls.customStyle
+                  //           ? `${chartControl.cardControls.fontSize}px`
+                  //           : // : `${graphDimension.width / 10}px`,
+                  //             Math.min(
+                  //               graphDimension.width,
+                  //               graphDimension.height
+                  //             ) /
+                  //               10 +
+                  //             15,
+                  //         color: fontColor
+                  //           ? fontColor
+                  //           : chartControls.properties[propKey].cardControls
+                  //               .valueColor,
+                  //         margin: "5px",
+                  //         backgroundColor: backgroundColorValue
+                  //           ? backgroundColorValue
+                  //           : chartControls.properties[propKey].cardControls
+                  //               .bgColor,
+                  //         fontStyle: italicText ? italicText : "none",
+                  //         textDecoration: textUnderline
+                  //           ? textUnderline
+                  //           : "none",
+                  //         fontWeight: boldText ? boldText : "none",
+                  //         padding: "0px 5px",
+                  //         borderRadius: "4px",
+                  //       }}
+                  //     >
+                  //       {getFormatedChartData()}
+                  //     </p>
+                  //   </Rnd>
+                  //   <Rnd
+                  //     disableResizing={true}
+                  //     disableDragging={chartArea === "dashboard" ? true : false}
+                  //     bounds="parent"
+                  //     position={chartControl.cardControls.subTextPos}
+                  //     onDragStop={(e, d) => {
+                  //       updateCardControls(propKey, "subTextPos", {
+                  //         x: d.x,
+                  //         y: d.y,
+                  //       });
+                  //     }}
+                  //   >
+                  //     <p
+                  //       title="Drag to change position"
+                  //       style={{
+                  //         cursor: "move",
+                  //         fontSize: chartControls.properties[propKey]
+                  //           .cardControls.customStyle
+                  //           ? `${chartControl.cardControls.subtextFontSize}px`
+                  //           : Math.min(
+                  //               graphDimension.width,
+                  //               graphDimension.height
+                  //             ) /
+                  //               20 +
+                  //             7,
+                  //         color:
+                  //           chartControls.properties[propKey].cardControls
+                  //             .labelColor,
+                  //         margin: "5px",
+                  //       }}
+                  //     >
+                  //       {chartControls.properties[propKey].cardControls.subText}
+                  //     </p>
+                  //   </Rnd>
+                  // </>
                 )}
               </>
             ) : null}
@@ -251,6 +347,8 @@ const mapStateToProps = (state: any, ownProps: any) => {
     chartControls: state.chartControls,
     chartProperties: state.chartProperties,
     tabtileProps: state.tabTileProps,
+    pageSettings: state.pageSettings,
+    tileState: state.tileState,
   };
 };
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
@@ -264,19 +362,19 @@ export default connect(mapStateToProps, mapDispatchToProps)(SimpleCard);
 // eslint-disable-next-line no-lone-blocks
 {
   /* <span
-									style={{
-										fontSize: `${chartControl.cardControls.fontSize}px`,
-										color: chartThemes[0].colors[0],
-									}}
-								>
-									{getFormatedChartData()}
-								</span>
-								<span
-									style={{
-										fontSize: `${chartControl.cardControls.subtextFontSize}px`,
-										color: chartThemes[0].colors[1],
-									}}
-								>
-									{Object.keys(chartData[0])[0]}
-								</span> */
+                  style={{
+                    fontSize: `${chartControl.cardControls.fontSize}px`,
+                    color: chartThemes[0].colors[0],
+                  }}
+                >
+                  {getFormatedChartData()}
+                </span>
+                <span
+                  style={{
+                    fontSize: `${chartControl.cardControls.subtextFontSize}px`,
+                    color: chartThemes[0].colors[1],
+                  }}
+                >
+                  {Object.keys(chartData[0])[0]}
+                </span> */
 }

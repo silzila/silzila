@@ -1,7 +1,7 @@
 // // Canvas component is part of Dataset Create / Edit page
 // // List of tables selected in sidebar is displayed here
 // // connections can be made between columns of different tables to define relationship in a dataset
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { connect } from "react-redux";
 import "./Dataset.css";
 import Xarrow, { Xwrapper } from "react-xarrows";
@@ -9,6 +9,7 @@ import CanvasTables from "./CanvasTables";
 import filterIcon from "../../assets/filter_icon.svg";
 import RelationshipDefiningComponent from "./RelationshipDefiningComponent";
 import BottomBar from "./BottomBar";
+import collapsedSidebar from "../../assets/sidebar-collapse.svg";
 import {
   ArrowsProps,
   DataSetStateProps,
@@ -20,27 +21,31 @@ import ShortUniqueId from "short-unique-id";
 // import UserFilterDataset from "./UserFilterDataset";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import UserFilterDataset from "./UserFilterDataset";
+import { IFilter } from "./BottomBarInterfaces";
+import { IFlatIdTableIdMap } from "./EditDataSetInterfaces";
+
 const Canvas = ({
   // state
   tempTable,
   arrows,
   dsId,
+  flatFileIdMap,
   //props
-  editMode,
+  editMode = false,
   EditFilterdatasetArray,
+  //dispatch
+  addFilter,
 }: CanvasProps) => {
   const [showRelationCard, setShowRelationCard] = useState<boolean>(false);
   const [existingArrowProp, setExistingArrowProp] = useState<{}>({});
   const [existingArrow, setExistingArrow] = useState<boolean>(false);
-  const [isDataSetVisible, setIsDataSetVisible] = useState<boolean>(false);
-  const [disPlayName, setDisplayName] = useState<string>("");
-  const [uid, setUid] = useState<any>();
-  const [tableId, setTableId] = useState<string>("");
-  const [dataType, setDataType] = useState<string>("");
-  const [tableName, setTableName] = useState<string>("");
-  const [field, setfield] = useState<any>({});
-  const [dataSetFilterArray, setDataSetFilterArray] = useState<any[]>(
-    EditFilterdatasetArray || []
+  const [isDataSetVisible, setIsDataSetVisible] = useState<boolean>(
+    EditFilterdatasetArray.length > 0 ? true : false
+  );
+  const [tableFlatFileMap, setTableFlatFileMap] =
+    useState<IFlatIdTableIdMap[]>(flatFileIdMap);
+  const [filtersOfDataset, setFiltersOfDataset] = useState<IFilter[]>(
+    JSON.parse(JSON.stringify(EditFilterdatasetArray))
   );
 
   const clickOnArrowfunc = (index: number) => {
@@ -52,7 +57,6 @@ const Canvas = ({
 
   const handleDrop = (e: any) => {
     e.stopPropagation();
-
     const refs = {
       isSelected: true,
       tableId: e.dataTransfer.getData("tableId"),
@@ -66,28 +70,42 @@ const Canvas = ({
       startId: e.dataTransfer.getData("tableId"),
     };
 
-    const uid: any = new ShortUniqueId({ length: 4 });
+    const uid: any = new ShortUniqueId({ length: 6 });
 
-    const field = {
+    const field: IFilter = {
       tableId: refs.tableId,
       fieldName: refs.startColumnName,
-      exprType: "greaterThan",
-      dataType: refs.dataType,
-      fieldtypeoption: "Pick List", //default value for
-      includeexclude: "Include", //default value for
-      displayName: refs.startColumnName,
+      filterType: ["decimal", "float", "double", "integer"].includes(
+        refs.dataType
+      )
+        ? "searchCondition"
+        : "pickList",
+      dataType: refs.dataType, //default value for
+      shouldExclude: false,
       uid: uid(),
+      userSelection: [],
       tableName: refs.startTableName,
-      schema: refs.schema,
+      operator: "greaterThan",
+      timeGrain: "year",
+      isTillDate: false,
     };
-    console.log(field);
-    setfield(field);
-    setTableName(field.tableName);
-    setDisplayName(field.displayName);
-    setUid(field.uid);
-    setTableId(field.tableId);
-    setDataType(field.dataType);
-    setDataSetFilterArray((prev: any) => [...prev, field]);
+    // setFlatFileId(refs.table1_uid);
+    setTableFlatFileMap((prev) => {
+      return [
+        ...prev,
+        {
+          tableId: refs.tableId,
+          flatFileId: refs.table1_uid,
+        },
+      ];
+    });
+    // setfield(field);
+    // setTableName(field.tableName);
+    // setDisplayName(field.displayName);
+    // setUid(field.uid);
+    // setTableId(field.tableId);
+    // setDataType(field.dataType);
+    setFiltersOfDataset((prev) => [...prev, field]);
   };
   //   // TODO need to specify type
   const RenderArrows: any = () => {
@@ -113,7 +131,6 @@ const Canvas = ({
       ))
     );
   };
-
   return (
     <div className="canvas">
       <div
@@ -133,35 +150,37 @@ const Canvas = ({
         {isDataSetVisible === false && (
           <div
             style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
               height: "100vh",
               position: "fixed",
-              right: "3%",
+              right: "0",
+              width:"3rem",
+              borderLeft:"1px solid #d5d6d5",
+              backgroundColor:"white"
             }}
           >
             <button
               title="Open dataset filter"
               style={{
-                backgroundColor: "white",
                 outline: "none",
                 border: "none",
-                margin: "auto auto",
+                margin: "10px auto",
+                position:"relative",
+                backgroundColor:"white"
+
               }}
+              onClick={() => setIsDataSetVisible(!isDataSetVisible)}
             >
               <img
                 src={filterIcon}
                 style={{
                   height: "1.5rem",
-                  width: "2rem",
+                  width: "1.5rem",
                 }}
-                className="IconDataset"
-                onClick={() => setIsDataSetVisible(!isDataSetVisible)}
+                // className="IconDataset"
                 alt="filter"
               />
             </button>
-            <div
+            {/* <div
               style={{
                 width: "1px",
                 height: "200vh",
@@ -169,7 +188,7 @@ const Canvas = ({
                 position: "absolute",
                 top: "0%",
               }}
-            />
+            /> */}
           </div>
         )}
         <div
@@ -181,15 +200,16 @@ const Canvas = ({
             position: "fixed",
           }} // Controls visibility
         >
-          <div style={{ width: "100%" }}>
+          <div>
             <div
               style={{
                 display: "flex",
-                justifyContent: "center",
+                justifyContent: "space-around",
                 alignItems: "center",
                 // margin: "auto auto",
                 position: "fixed",
                 backgroundColor: "white",
+                width: "211px",
                 zIndex: "98",
                 // marginTop: "-25px",
               }}
@@ -198,39 +218,65 @@ const Canvas = ({
                 src={filterIcon}
                 style={{
                   height: "1.5rem",
-                  width: "2rem",
-                  margin: "0 10px",
+                  width: "1.5rem",
+                  margin: "5px 0 0 10px",
                 }}
                 alt="filter"
               />
               <span className="axisTitle">Dataset Filter</span>
-              <div>
-                <button
-                  title="minimize"
-                  style={{
-                    backgroundColor: "white",
-                    outline: "none",
-                    border: "none",
-                  }}
-                >
-                  <ArrowBackRoundedIcon
+              {/* <div> */}
+              <button
+                title="Hide Filter Tab"
+                style={{
+                  backgroundColor: "white",
+                  outline: "none",
+                  border: "none",
+                  padding: "0",
+                  margin: "5px 0 0 0",
+                  position: "relative",
+                  height: "2rem",
+                  width: "2rem",
+                }}
+                onClick={() => setIsDataSetVisible(!isDataSetVisible)}
+              >
+                {/* <ArrowBackRoundedIcon
                     style={{
-                      right: "92%",
+                      // right: "92%",
                       top: "0px",
+                      left:"0",
+                      position:"absolute",
+                      width:"100%",
+                      height:"100%",
                       zIndex: "999",
                       transform: "rotate(180deg)",
+                      color:"gray"
                     }}
-                    onClick={() => setIsDataSetVisible(!isDataSetVisible)}
-                  />
-                </button>
-              </div>
+                  /> */}
+                <img
+                  src={collapsedSidebar}
+                  alt=""
+                  style={{
+                    // right: "92%",
+                    top: "50%",
+                    left: "50%",
+                    position: "absolute",
+                    width: "1.75rem",
+                    height: "1.75rem",
+                    zIndex: "999",
+                    transform: "translate(-50%, -50%)",
+                    color: "gray",
+                  }}
+                />
+              </button>
+              {/* </div> */}
             </div>
             <div style={{ position: "absolute", marginTop: "22px" }}>
-              {dataSetFilterArray.length > 0 && (
+              {filtersOfDataset.length > 0 && (
                 <UserFilterDataset
+                  tableFlatFileMap={tableFlatFileMap}
                   editMode={editMode}
-                  dataSetFilterArray={dataSetFilterArray}
-                  setDataSetFilterArray={setDataSetFilterArray}
+                  filters={filtersOfDataset}
+                  setDataSetFilterArray={setFiltersOfDataset}
                   dbConnectionId={tempTable[0].dcId}
                 />
               )}
@@ -241,7 +287,7 @@ const Canvas = ({
         <RenderArrows />
       </div>
       <BottomBar
-        datasetFilterArray={dataSetFilterArray}
+        datasetFilterArray={filtersOfDataset}
         editMode={editMode ? editMode : false}
       />
 

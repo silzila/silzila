@@ -107,8 +107,8 @@ public class SelectClausePostgres {
                 }
                 // yearquarter name -> 2015-Q3
                 else if (dim.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "CONCAT(TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName()
-                            + ", 'YYYY'), '-Q', TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'Q'))";
+                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName()
+                            + ", 'YYYY') || '-Q' || TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'Q')";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }

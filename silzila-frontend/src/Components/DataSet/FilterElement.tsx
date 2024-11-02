@@ -1,7 +1,28 @@
-import React, { useEffect, useState } from "react";
-import { dataSetFilterArrayProps } from "./UserFilterDatasetInterfaces";
+/**
+ *
+ * This file for individual filter applied to dataset
+ *
+ * if anchorDate  based on specificDate the date is to be stored in userSelection[0] of "filterfieldData"
+ *
+ * "filterFieldDate"  store all the values regarding the filter
+ * 
+ * on each change in "filterFieldDate" "setDataSetFilterArray" is to be called as it update  "datasetFilterArray"
+ * in canvax.tsx that keep tracks of all the applied filters in dataset
+ * 
+ * 
+ * date format yyyy-MM-dd
+ * 
+ * 
+ * no need to  modify userSelection to anydata ty[e as it is already in string format] backend also accepts as a string 
+ * note: for some cases  backend accepts string or number type doesnot mater backend handles  it
+ * 
+ * conditionValue is used to store the value for searchCondition filter if filter operator is between the second value is stored in conditionValue2
+ */
+import { CircularProgress } from "@mui/material";
+import React, { useEffect, useState, useRef } from "react";
 import FetchData from "../ServerCall/FetchData";
-import moment from "moment";
+import Stack from '@mui/material/Stack';
+import Skeleton from '@mui/material/Skeleton';
 import "../ChartAxes/Card.css";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import "../ChartFieldFilter/UserFilterCard.css";
@@ -9,12 +30,11 @@ import { connect } from "react-redux";
 import Switch from "@mui/material/Switch";
 import { alpha, styled } from "@mui/material/styles";
 import MenuOption from "./MenuOption";
-import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
-import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { PatternCollectionType } from "../ChartFieldFilter/UserFilterCardInterface";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+
 import {
   Checkbox,
   FormControl,
@@ -28,88 +48,40 @@ import {
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { DataSetStateProps } from "../../redux/DataSet/DatasetStateInterfaces";
-
+import { IFilter, IRelativeCondition } from "./BottomBarInterfaces";
+import { format } from "date-fns";
+import de from "date-fns/locale/de";
 export interface FilterElementProps {
-  filterDatasetItem: dataSetFilterArrayProps;
+  // filter: dataSetFilterArrayProps;
+  filter: IFilter;
   dbConnectionId: any;
   editMode?: boolean;
   dbName: string;
   dsId: string;
   schema: string;
   token: string;
-  setDataSetFilterArray: React.Dispatch<
-    React.SetStateAction<dataSetFilterArrayProps[]>
-  >;
+  flatFileId: string;
+  setDataSetFilterArray: React.Dispatch<React.SetStateAction<IFilter[]>>;
 }
 
 const FilterElement = ({
-  filterDatasetItem,
+  filter,
   dbConnectionId,
   dbName,
   schema,
   token,
   editMode,
-  dsId,
+  flatFileId = "",
 
   setDataSetFilterArray,
 }: FilterElementProps) => {
-  console.log(filterDatasetItem);
-  var {
-    exprType,
-    fieldName,
-    fieldtypeoption,
-    includeexclude,
-
-    tableId,
-    displayName,
-    tableName,
-    dataType,
-    uid,
-  } = filterDatasetItem;
-
-  let sliderRange = [0, 0];
   var switchColor = "#2bb9bb";
-
-  // let filterFieldData = JSON.parse(JSON.stringify(filterDatasetItem));
-  const [filterFieldData, setFilterFieldData] = useState(
-    JSON.parse(JSON.stringify(filterDatasetItem))
-  );
-  console.log(filterDatasetItem);
-  useEffect(() => {
-    setFilterFieldData((prev: any) => ({
-      ...prev,
-      // includeexclude: prev.shouldExclude ? "Include" : "Exclude",
-      // fieldtypeoption: prev.filterType,
-    }));
-    filterFieldData["fieldtypeoption"] = "Pick List";
-    filterFieldData["exprType"] = "Greater than";
-
-    // setDataSetFilterArray((prevArray: any) =>
-    //   prevArray.map((item: any) =>
-    //     item.uid === uid
-    //       ? {
-    //           filterDatasetItem,
-    //         }
-    //       : item
-    //   )
-    // );
-  }, []);
-
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(
-    filterFieldData.isCollapsed
-  );
-  const [picklist, setPickList] = useState<any>();
-
-  const [preExiting, setPreExiting] = useState<boolean>(false);
-
   const withPatternCollections: PatternCollectionType[] = [
     { key: "beginsWith", value: "Start With" },
     { key: "endsWith", value: "Ends With" },
     { key: "contains", value: "Contains" },
     { key: "exactMatch", value: "Exact Match" },
   ];
-
   const datePatternCollections: PatternCollectionType[] = [
     { key: "year", value: "Year" },
     { key: "quarter", value: "Quarter" },
@@ -120,7 +92,6 @@ const FilterElement = ({
     { key: "dayofmonth", value: "Day Of Month" },
     { key: "dayofweek", value: "Day Of Week" },
   ];
-
   const datePatternRelativeFilterCollections: PatternCollectionType[] = [
     { key: "day", value: "Days" },
     { key: "weekSunSat", value: "Weeks (Sun-Sat)" },
@@ -131,7 +102,6 @@ const FilterElement = ({
     { key: "rollingMonth", value: "Rolling Months" },
     { key: "rollingYear", value: "Rolling Years" },
   ];
-
   const AnchorDatePatternRelativeFilterCollections: PatternCollectionType[] = [
     { key: "today", value: "Today" },
     { key: "yesterday", value: "Yesterday" },
@@ -139,7 +109,6 @@ const FilterElement = ({
     { key: "columnMaxDate", value: "Column Max Date" },
     { key: "specificDate", value: "Specific Date" },
   ];
-
   const datePatternSearchConditionCollections: PatternCollectionType[] = [
     { key: "year", value: "Year" },
     { key: "quarter", value: "Quarter" },
@@ -162,148 +131,95 @@ const FilterElement = ({
     { key: "current", value: "Current" },
     { key: "next", value: "Next" },
   ];
-
-  const [loading, setLoading] = useState(false);
-  const [expandedIds, setExpandedIds] = useState<Set<any>>(new Set());
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [menuId, setMenuId] = useState<string>("");
-  const [objectToMakeCall, setObjectToMakeCall] =
-    useState<dataSetFilterArrayProps>();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-  useEffect(() => {
-    setFilterFieldData((prevState: any) => {
-      let updatedState = { ...prevState };
-      updatedState.includeexclude = "Include";
-
-      if (updatedState && updatedState.dataType) {
-        switch (updatedState.dataType) {
-          case "decimal":
-          case "integer":
-            if (!updatedState.fieldtypeoption) {
-              updatedState.fieldtypeoption = "Search List";
-              updatedState.exprType = "greaterThan";
-            }
-            break;
-          case "date":
-          case "timestamp":
-            if (!updatedState.fieldtypeoption) {
-              updatedState.prefix = "year";
-              updatedState.fieldtypeoption = "Pick List";
-            }
-            break;
-          default:
-            if (!updatedState.fieldtypeoption) {
-              updatedState.fieldtypeoption = "Pick List";
-            }
-            break;
-        }
-      }
-
-      if (updatedState.fieldtypeoption === "Search Condition") {
-        if (updatedState.dataType) {
-          switch (updatedState.dataType) {
-            case "decimal":
-            case "integer":
-              if (!updatedState.exprType) {
-                updatedState.exprType = "greaterThan";
-              }
-              break;
-            case "text":
-              if (!updatedState.exprType) {
-                updatedState.exprType = "beginsWith";
-              }
-              break;
-            case "timestamp":
-            case "date":
-              if (!updatedState.exprType) {
-                updatedState.prefix = "year";
-                updatedState.exprType = "greaterThan";
-              }
-              break;
-            default:
-              if (!updatedState.exprType) {
-                updatedState.exprType = "greaterThan";
-              }
-              break;
-          }
-        }
-      } else if (updatedState.fieldtypeoption === "Pick List") {
-        if (
-          updatedState &&
-          updatedState.dataType &&
-          updatedState.dataType === "timestamp" &&
-          !updatedState.prefix
-        ) {
-          updatedState.prefix = "year";
-        }
-
-        async function _preFetchData() {
-          if (!updatedState.rawselectmembers) {
-            setLoading(true);
-            await GetPickListItems();
-            setLoading(false);
-          }
-        }
-        updatedState.exprTypeTillDate = false;
-        updatedState.filterTypeTillDate = "enabled";
-
-        _preFetchData();
-      } else if (updatedState.fieldtypeoption === "Relative Filter") {
-        initialRelativeFilterData();
-      }
-
-      return updatedState;
-    });
-
-    // eslint-disable-next-line
-  }, []);
-
-  const _getFilterType = () => {
-    switch (dataType) {
-      case "decimal":
-      case "integer":
-        return fieldtypeoption === "Search Condition"
-          ? "number_search"
-          : "number_user_selection";
-      case "text":
-        return "text_user_selection";
-      case "timestamp":
-      case "date":
-        return fieldtypeoption === "Search Condition"
-          ? "date_search"
-          : fieldtypeoption === "Relative Filter"
-          ? "relativeFilter"
-          : "date_user_selection";
-      default:
-        return "text_user_selection";
+  // filterFieldData useRef is used for managing filters ,the useStates are for rendering
+  const filterFieldData = useRef<IFilter>({
+    filterType:
+      filter.filterType ||
+      filter.filterType ||
+      (["decimal", "float", "double", "integer"].includes(filter.dataType)
+        ? "searchCondition"
+        : "pickList"),
+    tableId: filter.tableId,
+    fieldName: filter.fieldName,
+    dataType: filter.dataType,
+    shouldExclude: filter.shouldExclude || false,
+    timeGrain: filter.timeGrain || "year",
+    operator: filter.operator,
+    userSelection: filter.userSelection || [],
+    isTillDate: filter.isTillDate || false,
+    uid: filter.uid,
+    tableName: filter.tableName,
+    relativeCondition: (filter.relativeCondition as IRelativeCondition) ?? {
+      from: ["last", "1", "year"],
+      to: ["next", "1", "year"],
+      anchorDate: "today",
+    },
+  });
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  const [picklist, setPickList] = useState<any>(null);
+  const [searchCondition, setSearchCondition] = useState(filter.operator);
+  const getValidDateOrString = (value: any, dataType: string) => {
+    if (
+      (dataType === "date" || dataType === "timestamp") &&
+      !isNaN(new Date(value).getTime())
+    ) {
+      return new Date(value); // Valid date
     }
+    return value || ""; // Return original value if not date/timestamp or invalid date
   };
 
+  const [conditionValue, setConditionValue] = useState<number | string | Date>(
+    getValidDateOrString(filter.userSelection[0], filter.dataType)
+  );
+
+  const [conditionValue2, setConditionValue2] = useState<
+    number | string | Date
+  >(getValidDateOrString(filter.userSelection[1], filter.dataType));
+
+  const [timeGrain, setTimeGrain] = useState(filter.timeGrain || "year");
+  const [anchorDate, setAnchorDate] = useState<string | Date>(
+    filter.relativeCondition?.anchorDate || "today"
+  );
+  const [loading, setLoading] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuId, setMenuId] = useState<string>("");
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [filterType, setFilterType] = useState(filter.filterType);
+  const [inValidValueError, setInvalidValueError] = useState(false);
+  const [operator, setOperator] = useState(filter.operator);
+  const [isTillDate,setIsTillDate]=useState(filter.isTillDate??false)
+  const [formatedDate, setFormatedDate] = useState({
+    from: "",
+    to: "",
+  });
+  const formatDateToYYYYMMDD = (date: any): string => {
+    let formated = format(new Date(date), "yyyy-MM-dd");
+
+    return formated;
+  };
   const fetchFieldData = (type: string) => {
     let url: string;
     let bodyData: any;
-    let filterOption: string = "allValues";
 
-    url = `filter-options?dbconnectionid=${dbConnectionId}`;
+    url =
+      schema !== ""
+        ? `filter-options?dbconnectionid=${dbConnectionId}`
+        : "filter-options";
     bodyData = {
-      exprType: filterFieldData.exprType,
-      tableId: filterFieldData.tableId,
-      fieldName: filterFieldData.fieldName,
-      dataType: filterFieldData.dataType,
+      exprType: filterFieldData.current.operator,
+      tableId: filterFieldData.current.tableId,
+      fieldName: filterFieldData.current.fieldName,
+      dataType: filterFieldData.current.dataType,
       filterOption: "allValues",
-      tableName: filterFieldData.tableName,
+      tableName: filterFieldData.current.tableName,
       schemaName: schema,
       dbName,
+      flatFileId: flatFileId,
+      ...(filterFieldData.current.dataType === "timestamp" ||
+      filterFieldData.current.dataType === "date"
+        ? { timeGrain: filterFieldData.current.timeGrain || "year" }
+        : {}),
     };
-
-    if (
-      filterFieldData.dataType === "timestamp" ||
-      filterFieldData.dataType === "date"
-    ) {
-      bodyData["timeGrain"] = filterFieldData.prefix || "year";
-    }
-
     return FetchData({
       requestType: "withData",
       method: "POST",
@@ -315,47 +231,245 @@ const FilterElement = ({
       data: bodyData,
     });
   };
+  function convertKeysToLowercase<T extends Record<string, any>>(obj: T): Record<string, any> {
+    return Object.keys(obj).reduce((acc, key) => {
+      acc[key.toLowerCase()] = obj[key];
+      return acc;
+    }, {} as Record<string, any>);
+  }
+  const getFormatedDate = async () => {
+    let body = {};
+    let url = "relative-filter";
+    if (schema !== "") {
+      body = {
+        filterTable: {
+          tableId: filterFieldData.current.tableId,
+          displayName: `${filterFieldData.current.timeGrain} of ${filterFieldData.current.fieldName}`,
+          fieldName: filterFieldData.current.fieldName,
+          dataType: filterFieldData.current.dataType,
+          timeGrain: filterFieldData.current.timeGrain,
+        },
+        from: filterFieldData.current.relativeCondition?.from,
 
-  const fetchRelativeFilterFieldData = (type: string) => {
-    let bodyData: any = {
-      filterTable: {
-        tableId: tableId,
-        displayName: fieldName,
-        fieldName: fieldName,
-        dataType: dataType,
-        timeGrain: "date",
-      },
-      //Fetch Request type
-      // from: ["next", "1", "day"],
-      // to: ["next", "1", "day"],
-      // anchorDate: "today",
-      from: [
-        filterFieldData.expTypeFromRelativeDate,
-        filterFieldData.exprInputFromValueType,
-        filterFieldData.expTypeFromdate,
-      ],
-      to: [
-        filterFieldData.expTypeToRelativeDate,
-        filterFieldData.exprInputToValueType,
-        filterFieldData.expTypeTodate,
-      ],
-      anchorDate:
-        filterFieldData.expTypeAnchorDate !== "specificDate"
-          ? filterFieldData.expTypeAnchorDate
-          : filterFieldData.exprInputSpecificDate,
-    };
+        to: filterFieldData.current.relativeCondition?.to,
 
-    return FetchData({
+        anchorDate:
+          filterFieldData.current.relativeCondition?.anchorDate ===
+          "specificDate"
+            ? formatDateToYYYYMMDD(filterFieldData.current.userSelection[0])
+            : filterFieldData.current.relativeCondition?.anchorDate,
+      };
+      url = `${url}?dbconnectionid=${dbConnectionId}`;
+    } else {
+      body = {
+        filterTable: {
+          tableId: filterFieldData.current.tableId,
+          fieldName: filterFieldData.current.fieldName,
+          flatFileId: flatFileId,
+          dataType: filterFieldData.current.dataType,
+          tableName: filterFieldData.current.tableName,
+          timeGrain: filterFieldData.current.timeGrain || "year",
+        },
+        from: filterFieldData.current.relativeCondition?.from,
+
+        to: filterFieldData.current.relativeCondition?.to,
+
+        anchorDate:
+          filterFieldData.current.relativeCondition?.anchorDate ===
+          "specificDate"
+            ? formatDateToYYYYMMDD(filterFieldData.current.userSelection[0])
+            : filterFieldData.current.relativeCondition?.anchorDate,
+      };
+    }
+    setLoading(true)
+    const res = await FetchData({
       requestType: "withData",
       method: "POST",
-      url: `relative-filter?dbconnectionid=${dbConnectionId}`,
+      url: url,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      data: bodyData,
+      data: body,
     });
+    if (res.status) {
+      /**
+       * 
+       * res.data is array of length 1
+       * res.data[0] contain an object with two keys "fromdate" and "todate" but
+       * their case and order is not fixed  so "convertKeysToLowercase" method
+       * will convert the keys into lowercase so its easy to access the API response with keys whatever the order is
+       */
+      const modifiedRes=convertKeysToLowercase(res.data[0])
+      setFormatedDate({
+        from: modifiedRes["fromdate"],
+        to: modifiedRes["todate"],
+      });
+    }
+    setLoading(false)
   };
+  useEffect(() => {
+    /** 
+    on initial render modify the state values get required datat for picklist i.e. all Options
+
+    for relativeFilter set fromDate and toDate
+
+    -> pickList state stores values of all available options and userSelected options
+    
+    */
+    if (filterType === "pickList") {
+      (async () => {
+        setLoading(true)
+        const res = await FetchData({
+          requestType: "withData",
+          method: "POST",
+          url:
+            schema !== ""
+              ? `filter-options?dbconnectionid=${dbConnectionId}`
+              : "filter-options",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            // exprType: filterFieldData.current.operator,
+            tableId: filterFieldData.current.tableId,
+            fieldName: filterFieldData.current.fieldName,
+            dataType: filterFieldData.current.dataType,
+            filterOption: "allValues",
+            tableName: filterFieldData.current.tableName,
+            schemaName: schema,
+            dbName,
+            flatFileId: flatFileId,
+            ...(filterFieldData.current.dataType === "timestamp" ||
+            filterFieldData.current.dataType === "date"
+              ? { timeGrain: filterFieldData.current.timeGrain || "year" }
+              : {}),
+          },
+        });
+        if (res && res.status) {
+          const data = [
+            "(All)",
+            ...res.data
+              .map((item: any) => item[Object.keys(res.data[0])[0]])
+              .map((item: any) => `${item}`),
+          ];
+            filterFieldData.current = {
+              ...filterFieldData.current,
+              userSelection: filterFieldData.current.userSelection.length>0
+                ? [...filterFieldData.current.userSelection]
+                : data.filter((item: any) => item !== "(All)"),
+            };
+          
+          setPickList({
+            allOptions: data,
+            userSelection:
+              filterFieldData.current.userSelection.length > 0
+                ? data.length ===
+                  filterFieldData.current.userSelection.length + 1
+                  ? data
+                  : [...filterFieldData.current.userSelection]
+                : data,
+          });
+          // setInclude(true);
+        } 
+
+        setDataSetFilterArray((prevFilters) => {
+          return prevFilters.map((filter) =>
+            filter.uid === filterFieldData.current.uid
+              ? filterFieldData.current
+              : filter
+          );
+        });
+        setLoading(false)
+      })();
+    } else if (filterType === "searchCondition") {
+      filterFieldData.current.operator = operator;
+      setSearchCondition(filterFieldData.current.operator);
+
+      if (
+        filterFieldData.current.dataType === "date" ||
+        filterFieldData.current.dataType === "timestamp"
+      ) {
+        setConditionValue(
+          (filter.userSelection.length > 0 &&filter.userSelection[0] !==null)
+            ? filterFieldData.current.timeGrain === "date"
+              ? new Date(filter.userSelection[0])
+              : filter.userSelection[0]
+            : ""
+        );
+        if (filterFieldData.current.operator === "between") {
+          setConditionValue2(
+            filter.userSelection.length > 1  &&filter.userSelection[1] !==null
+              ? filterFieldData.current.timeGrain === "date"
+                ? new Date(filter.userSelection[1])
+                : filter.userSelection[1]
+              : ""
+          );
+        }
+      } else if (
+        ["decimal", "integer", "float"].includes(
+          filterFieldData.current.dataType
+        )
+      ) {
+        setConditionValue(
+          filter.userSelection.length > 0  &&filter.userSelection[0] !==null? filter.userSelection[0] : ""
+        );
+        if (filterFieldData.current.operator === "between") {
+          setConditionValue2(
+            filter.userSelection.length > 1  &&filter.userSelection[1] !==null? filter.userSelection[1] : ""
+          );
+        }
+      } else {
+        setConditionValue(
+          filter.userSelection.length > 0  &&filter.userSelection[0] !==null? filter.userSelection[0] : ""
+        );
+      }
+
+      setDataSetFilterArray((prevFilters) => {
+        return prevFilters.map((filter) =>
+          filter.uid === filterFieldData.current.uid
+            ? filterFieldData.current
+            : filter
+        );
+      });
+    } else if (filterType === "relativeFilter") {
+      if (
+        (filterFieldData.current.dataType === "date" ||
+          filterFieldData.current.dataType === "timestamp") &&
+        filter.relativeCondition
+      ) {
+        filterFieldData.current = {
+          ...filterFieldData.current,
+          relativeCondition: filter.relativeCondition,
+        };
+        if (
+          !["today", "yesterday", "tomorrow", "columnMaxDate"].includes(
+            filter.relativeCondition?.anchorDate
+          ) &&
+          filterFieldData.current.relativeCondition
+        ) {
+          filterFieldData.current.userSelection[0] =filter.relativeCondition?.anchorDate;
+          filterFieldData.current.relativeCondition.anchorDate = "specificDate";
+        }
+        getFormatedDate();
+        if(filterFieldData.current.userSelection[0]){
+          setConditionValue(new Date(filterFieldData.current.userSelection[0]))
+        }
+      }
+      setDataSetFilterArray((prevFilters) => {
+        return prevFilters.map((filter) =>
+          filter.uid === filterFieldData.current.uid
+            ? filterFieldData.current
+            : filter
+        );
+      });
+    }
+  }, [dbConnectionId, dbName, schema, token, filterType]);
+  /**
+   * @param uid -> filter id
+   * handle filter menu opening
+   */
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
     uid: string
@@ -364,54 +478,67 @@ const FilterElement = ({
     setIsMenuOpen(true);
     setMenuId(uid);
   };
-
-  const handleDelete = (uid: string) => {
+  /**
+   *
+   * @param filterId
+   * delete selected filter from dataSetFilterArray
+   *
+   */
+  const handleDelete = (filterId: string) => {
     setDataSetFilterArray((prevArray) =>
-      prevArray.filter((item) => item.uid !== uid)
+      prevArray.filter((item) => item.uid !== filterId)
     );
   };
-
+  /**
+   *
+   * @param event
+   *
+   * change timeGrain  if dataType is date or timestamp only for pickList and searchCondition
+   */
   const handleDropDownForDatePatternOnChange = async (event: any) => {
-    filterFieldData["prefix"] = event.target.value;
-    filterFieldData["greaterThanOrEqualTo"] = "";
-    filterFieldData["lessThanOrEqualTo"] = "";
-    filterFieldData.filterTypeTillDate = "enabled";
-    if (filterFieldData.prefix === "date")
-      filterFieldData.exprTypeTillDate = false;
-    if (!filterFieldData.exprInput) {
-      filterFieldData["switchEnableSearchCondition"] = false;
-      filterFieldData.exprTypeTillDate = false;
-    }
-    if (
-      filterFieldData.fieldtypeoption === "Search Condition" &&
-      event.target.value === "date"
-    ) {
-      filterFieldData["exprInput"] = moment(new Date()).format("YYYY-MM-DD");
-    }
-    if (
-      filterFieldData.fieldtypeoption === "Search Condition" &&
-      event.target.value !== "date"
-    ) {
-      if (filterFieldData["exprInput"].includes("-")) {
-        filterFieldData["exprInput"] = "";
-        filterFieldData["switchEnableSearchCondition"] = false;
+    if (filterFieldData.current.filterType === "pickList") {
+      // setLoading(true);
+      // await GetPickListItems();
+      filterFieldData.current.timeGrain = event.target.value;
+
+      const res = await fetchFieldData("");
+      if (res && res.status) {
+        const data = [
+          "(All)",
+          ...res.data
+            .map((item: any) => item[Object.keys(res.data[0])[0]])
+            .map((item: any) => item !== null && item.toString()),
+        ];
+
+        filterFieldData.current = {
+          ...filterFieldData.current,
+          userSelection: data.slice(1),
+        };
+        setDataSetFilterArray((prevFilters) =>
+          prevFilters.map((filter) =>
+            filter.uid === filterFieldData.current.uid
+              ? filterFieldData.current
+              : filter
+          )
+        );
+        setPickList({
+          allOptions: data,
+          userSelection: data,
+        });
+        setLoading(false);
       }
-      if (filterFieldData.exprType === "between")
-        filterFieldData["switchEnableSearchCondition"] = true;
+    } else if (filterFieldData.current.filterType === "searchCondition") {
+      filterFieldData.current.timeGrain = event.target.value;
+      setDataSetFilterArray((prevFilters) =>
+        prevFilters.map((filter) =>
+          filter.uid === filterFieldData.current.uid
+            ? filterFieldData.current
+            : filter
+        )
+      );
+      setTimeGrain(filterFieldData.current.timeGrain || "year");
     }
-
-    // if (filterFieldData.fieldtypeoption === "Pick List") {
-    setLoading(true);
-    await GetPickListItems();
-    setLoading(false);
-    setSliderRange();
-    // }
-    setSearchConditionDate();
-    setFilterFieldData((prev: any) => ({
-      ...prev,
-    }));
   };
-
   const DropDownForDatePattern = ({ items }: any) => {
     return (
       <FormControl fullWidth size="small">
@@ -425,14 +552,14 @@ const FilterElement = ({
           onChange={(e) => {
             handleDropDownForDatePatternOnChange(e);
           }}
-          value={filterFieldData["prefix"]}
+          value={filterFieldData.current.timeGrain}
         >
           {items.map((item: any) => {
             return (
               <MenuItem
                 key={item.key}
                 value={item.key}
-                selected={item.key === filterFieldData.exprType}
+                selected={item.key === filterFieldData.current.timeGrain}
               >
                 <Typography
                   sx={{
@@ -467,382 +594,197 @@ const FilterElement = ({
     },
   }));
 
-  const checkForValidData = () => {
-    if (
-      filterFieldData.prefix === "date" &&
-      new Date(filterFieldData.greaterThanOrEqualTo) >
-        new Date(filterFieldData.lessThanOrEqualTo)
-    ) {
-      filterFieldData["isInValidData"] = true;
-    } else {
-      if (
-        parseInt(filterFieldData.greaterThanOrEqualTo) >
-        parseInt(filterFieldData.lessThanOrEqualTo)
-      ) {
-        filterFieldData["isInValidData"] = true;
-      }
-    }
-  };
-
-  const handleExpand = (uid: string) => {
-    setExpandedIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(uid)) {
-        newSet.delete(uid);
-      } else {
-        newSet.add(uid);
-      }
-      return newSet;
-    });
-  };
-
-  const setSliderRange = () => {
-    if (
-      ["float", "decimal", "double", "integer"].includes(dataType) &&
-      filterFieldData.exprType === "between"
-    ) {
-      if (
-        filterFieldData.rawselectmembers &&
-        !filterFieldData.greaterThanOrEqualTo &&
-        !filterFieldData.lessThanOrEqualTo
-      ) {
-        filterFieldData.greaterThanOrEqualTo =
-          filterFieldData.rawselectmembers[1];
-        filterFieldData.lessThanOrEqualTo =
-          filterFieldData.rawselectmembers[
-            filterFieldData.rawselectmembers.length - 1
-          ];
-      }
-
-      sliderRange = [
-        filterFieldData.greaterThanOrEqualTo,
-        filterFieldData.lessThanOrEqualTo,
-      ];
-    } else if (
-      ["date", "timestamp"].includes(dataType) &&
-      filterFieldData.prefix !== "date"
-    ) {
-      if (filterFieldData.prefix !== "year") {
-        filterFieldData.greaterThanOrEqualTo = 1;
-        filterFieldData.lessThanOrEqualTo =
-          filterFieldData.rawselectmembers.length - 1;
-      } else {
-        filterFieldData.greaterThanOrEqualTo =
-          filterFieldData.rawselectmembers[1];
-        filterFieldData.lessThanOrEqualTo =
-          filterFieldData.rawselectmembers[
-            filterFieldData.rawselectmembers.length - 1
-          ];
-      }
-    }
-  };
-
-  const GetPickListItems = async () => {
-    const result: any = await fetchFieldData(_getFilterType());
-    console.log(filterFieldData);
-    console.log(result);
-    if (result && result.data) {
-      const tempResult = [
-        "(All)",
-        ...result.data.map((item: any) => item[Object.keys(result.data[0])[0]]),
-      ];
-
-      setFilterFieldData((prevState: any) => ({
-        ...prevState, // Spread the previous state to keep all existing fields
-        rawselectmembers: [...tempResult],
-        userSelection: [...tempResult],
-
-        // Update only the rawselectmembers field
-      }));
-
-      setPickList(tempResult);
-      setDataSetFilterArray((prevArray: any) =>
-        prevArray.map((item: any) =>
-          item.uid === uid
-            ? {
-                ...item,
-                rawselectmembers: tempResult,
-                userSelection: tempResult,
-                includeexclude: "Include",
-              }
-            : item
-        )
-      );
-    }
-  };
+  // const checkForValidData = () => {
+  //   if (
+  //     filterFieldData.current.prefix === "date" &&
+  //     new Date(filterFieldData.current.greaterThanOrEqualTo) >
+  //       new Date(filterFieldData.current.lessThanOrEqualTo)
+  //   ) {
+  //     filterFieldData.current["isInValidData"] = true;
+  //   } else {
+  //     if (
+  //       parseInt(filterFieldData.current.greaterThanOrEqualTo) >
+  //       parseInt(filterFieldData.current.lessThanOrEqualTo)
+  //     ) {
+  //       filterFieldData.current["isInValidData"] = true;
+  //     }
+  //   }
+  // };
 
   const handleClose = (type: string, option: string, uid: string) => {
-    let updatedObject = filterFieldData;
-    if (!filterFieldData.includeexclude) {
-      updatedObject.includeexclude = "Include";
-    }
+    let updatedObject = filterFieldData.current;
+    // if (!filterFieldData.current.filterType) {
+    //   updatedObject.includeexclude = "Include";
+    // }
 
-    console.log(type);
-    console.log(option);
-    console.log(updatedObject);
 
     if (type === "clickOutside") {
       setIsMenuOpen(false);
       return;
     }
-
-    setDataSetFilterArray((prevArray) =>
+    if (type === "opt2") {
+      filterFieldData.current.filterType = option;
+      filterFieldData.current.userSelection = [];
+      setFilterType(option);
+    }
+    if (type === "opt1" && option === "Include") {
+      filterFieldData.current.shouldExclude = false;
+      // setInclude(false);
+    }
+    if (type === "opt1" && option === "Exclude") {
+      filterFieldData.current.shouldExclude = true;
+      // setInclude(true);
+    }
+    setDataSetFilterArray((prevArray: IFilter[]) =>
       prevArray.map((item) => {
         if (item.uid === uid) {
+          let val = option === "Include" ? false : true;
           updatedObject = {
             ...item,
-            [type === "opt2" ? "fieldtypeoption" : "includeexclude"]: option,
+            [type === "opt2" ? "filterType" : "shouldExclude"]:
+              type === "opt2" ? option : val,
           };
+
           return updatedObject;
         }
         return item;
       })
     );
-    setFilterFieldData(updatedObject);
-    console.log(updatedObject);
+    // setFilterFieldData(updatedObject);
 
-    if (updatedObject) setObjectToMakeCall(updatedObject);
+    // if (updatedObject) setObjectToMakeCall(updatedObject);
     setIsMenuOpen(false);
   };
 
-  //initial Relative Filter
-  const initialRelativeFilterData = () => {
-    if (!filterFieldData.exprType) {
-      filterFieldData["expTypeFromdate"] = "year";
-    }
-    if (!filterFieldData.expTypeTodate) {
-      filterFieldData["expTypeTodate"] = "day";
-    }
-    if (!filterFieldData.expTypeFromRelativeDate) {
-      filterFieldData["expTypeFromRelativeDate"] = "last";
-    }
-    if (!filterFieldData.expTypeToRelativeDate) {
-      filterFieldData["expTypeToRelativeDate"] = "last";
-    }
-    if (!filterFieldData.expTypeAnchorDate) {
-      filterFieldData["expTypeAnchorDate"] = "today";
-    }
-    if (!filterFieldData.exprInputFromValueType) {
-      filterFieldData["exprInputFromValueType"] = 2;
-    }
-    if (!filterFieldData.exprInputToValueType) {
-      filterFieldData["exprInputToValueType"] = 2;
-    }
-    if (!filterFieldData.exprInputSpecificDate) {
-      filterFieldData["exprInputSpecificDate"] = moment(new Date()).format(
-        "YYYY-MM-DD"
-      );
-    }
-  };
-
-  // const SelecPickListCard = () => {
-  //   let _selectionMembers = null;
-  //   console.log(filterFieldData);
-  //   // filterFieldData["rawselectmembers"] = picklist;
-
-  //   if (picklist && picklist.length > 0) {
-  //     _selectionMembers = picklist.map((item: any, index: number) => {
-  //       console.log("chal picklistcard");
-  //       return (
-  //         <label className="UserFilterCheckboxes" key={index}>
-  //           {filterFieldData.includeexclude === "Include" ? (
-  //             <Checkbox
-  //               checked={
-  //                 filterFieldData.userSelection
-  //                   ? filterFieldData.includeexclude === "Include"
-  //                     ? filterFieldData.userSelection.includes(item)
-  //                       ? true
-  //                       : false
-  //                     : false
-  //                   : false
-  //               }
-  //               name={item}
-  //               style={{
-  //                 transform: "scale(0.6)",
-
-  //                 paddingRight: "0px",
-  //               }}
-  //               sx={{
-  //                 color: "red",
-  //                 "&.Mui-checked": {
-  //                   color: "#a6a6a6",
-  //                 },
-  //               }}
-  //               onChange={(e) => handleCBChange(e)}
-  //             />
-  //           ) : (
-  //             <Checkbox
-  //               checked={
-  //                 filterFieldData.userSelection
-  //                   ? filterFieldData.includeexclude === "Exclude"
-  //                     ? filterFieldData.userSelection.includes(item)
-  //                       ? true
-  //                       : false
-  //                     : false
-  //                   : false
-  //               }
-  //               name={item}
-  //               style={{
-  //                 transform: "scale(0.6)",
-  //                 paddingRight: "0px",
-  //               }}
-  //               sx={{
-  //                 "&.Mui-checked": {
-  //                   color: "orange",
-  //                 },
-  //               }}
-  //               onChange={(e) => handleCBChange(e)}
-  //             />
-  //           )}
-
-  //           <span
-  //             title={item}
-  //             style={
-  //               filterFieldData.includeexclude === "Exclude" &&
-  //               filterFieldData.userSelection.includes(item)
-  //                 ? {
-  //                     marginLeft: 0,
-  //                     marginTop: "3.5px",
-  //                     justifySelf: "center",
-  //                     textOverflow: "ellipsis",
-  //                     whiteSpace: "nowrap",
-  //                     overflow: "hidden",
-  //                     textDecoration: "line-through",
-  //                   }
-  //                 : {
-  //                     marginLeft: 0,
-  //                     marginTop: "3.5px",
-  //                     justifySelf: "center",
-  //                     textOverflow: "ellipsis",
-  //                     whiteSpace: "nowrap",
-  //                     overflow: "hidden",
-  //                   }
-  //             }
-  //           >
-  //             {item}
-  //           </span>
-  //         </label>
-  //       );
-  //     });
-  //   } else {
-  //     _selectionMembers = null;
-  //   }
-
-  //   return (
-  //     <div className="SelectionMembersCheckBoxArea">{_selectionMembers}</div>
-  //   );
-  // };
-  useEffect(() => {
-    const fetchPickList = async () => {
-      if (!picklist || picklist.length === 0) {
-        setLoading(true);
-        await GetPickListItems(); // Assume this function updates the picklist state
-        setLoading(false);
-      } else {
-        setLoading(false);
-      }
-    };
-
-    fetchPickList();
-    setFilterFieldData((prev: any) => ({
-      ...prev,
-    }));
-  }, [isCollapsed]);
-
+  /**
+   * 
+   * pickList section  
+   */
   const SelecPickListCard = () => {
-    if (!picklist || picklist.length === 0) return null;
-
+    if(loading) return(
+      <Stack spacing={1} sx={{
+        display:"flex",
+        justifyContent:"center",
+        alignItems:"center"
+      }}>
+        <Skeleton variant='text' sx={{fontSize:"1rem"}}  width="90%"/>
+        <Skeleton variant='text' sx={{fontSize:"1rem"}}  width="90%"/>
+        <Skeleton variant='text' sx={{fontSize:"1rem"}}  width="90%"/>
+        
+      </Stack>
+    );
+    if (!picklist || picklist === null) return <span>No Data</span>;
     return (
       <div className="SelectionMembersCheckBoxArea">
-        {picklist.map((item: any, index: number) => (
-          <label className="UserFilterCheckboxes" key={index}>
-            <Checkbox
-              checked={filterFieldData.userSelection.includes(item)}
-              name={item}
-              style={{ transform: "scale(0.6)", paddingRight: "0px" }}
-              sx={{
-                color: "red",
-                "&.Mui-checked": {
-                  color:
-                    filterFieldData.includeexclude === "Include"
+        {picklist.allOptions?.map((item: any, index: number) => {
+          return (
+            <label className="UserFilterCheckboxes" key={index}>
+              <Checkbox
+                checked={picklist.userSelection.includes(item)}
+                value={item}
+                name={item===null?"null":item}
+                style={{ transform: "scale(0.6)", paddingRight: "0px" }}
+                sx={{
+                  color: "red",
+                  "&.Mui-checked": {
+                    color: !filterFieldData.current.shouldExclude
                       ? "#a6a6a6"
                       : "orange",
-                },
-              }}
-              onChange={handleCBChange}
-            />
-            <span
-              title={item}
-              style={{
-                marginLeft: 0,
-                marginTop: "3.5px",
-                justifySelf: "center",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                ...(filterFieldData.includeexclude === "Exclude" &&
-                filterFieldData.userSelection.includes(item)
-                  ? { textDecoration: "line-through" }
-                  : {}),
-              }}
-            >
-              {item}
-            </span>
-          </label>
-        ))}
+                  },
+                }}
+                onChange={handleCBChange}
+              />
+              <span
+                title={item}
+                style={{
+                  marginLeft: 0,
+                  marginTop: "3.5px",
+                  justifySelf: "center",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  ...(filterFieldData.current.shouldExclude &&
+                  picklist.userSelection.includes(item)
+                    ? { textDecoration: "line-through" }
+                    : {}),
+                }}
+              >
+                {item}
+              </span>
+            </label>
+          );
+        })}
       </div>
     );
   };
+
+
   const handleCustomRequiredValueOnBlur = async (
-    val: number | string | Date,
-    key = "exprInput",
-    type?: string
+    val: number | string | Date | null,
+    type: string,
+    valType?: string
   ) => {
-    filterFieldData["switchEnableSearchCondition"] = true;
-
-    if (type && type === "date") {
-      val = moment(val).format("YYYY-MM-DD");
-    }
-
-    if (!filterFieldData[key] || filterFieldData[key] !== val) {
-      filterFieldData[key] = val;
-      filterFieldData["isInValidData"] = false;
-
-      if (
-        key !== "exprInput" &&
-        filterFieldData.fieldtypeoption === "Search Condition"
-      ) {
-        checkForValidData();
+    if (val === null) return;
+    if (filterFieldData.current.filterType === "relativeFilter") {
+      // @ts-ignore
+      const strDate = format(val, "yyyy-MM-dd");
+      filterFieldData.current.userSelection[0] = strDate;
+      getFormatedDate();
+      setConditionValue(val);
+      setDataSetFilterArray((prevArray: IFilter[]) => {
+        return prevArray.map((item) =>
+          item.uid === filterFieldData.current.uid
+            ? filterFieldData.current
+            : item
+        );
+      });
+    } else {
+      let temp_val = val;
+      if (valType && valType === "date") {
+        // @ts-ignore
+        temp_val = format(temp_val, "yyyy-MM-dd");
+      } else {
+        temp_val = Number(val);
       }
-
-      if (
-        key === "exprTnput" ||
-        key === "greaterThanOrEqualTo" ||
-        key === "lessThanOrEqualTo"
-      ) {
-        if (val === null || val === "" || val === undefined) {
-          filterFieldData["switchEnableSearchCondition"] = false;
-          filterFieldData.exprTypeTillDate = false;
+      if (filterFieldData.current.operator === "between") {
+        if (type === "lower_limit") {
+          filterFieldData.current.userSelection[0] = temp_val;
+          setConditionValue(val);
         } else {
-          filterFieldData["switchEnableSearchCondition"] = true;
+          filterFieldData.current.userSelection[1] = temp_val;
+          setConditionValue2(val);
         }
+      } else {
+        //@ts-ignore
+        filterFieldData.current.userSelection = isNaN(temp_val)
+          ? [val]
+          : [temp_val];
+        setConditionValue(val);
       }
-
-      if (filterFieldData.exprType === "between") {
-        sliderRange = [
-          filterFieldData.greaterThanOrEqualTo,
-          filterFieldData.lessThanOrEqualTo,
-        ];
-      } else if (!filterFieldData.exprInput.length) {
-        filterFieldData["switchEnableSearchCondition"] = false;
-        filterFieldData.exprTypeTillDate = false;
+      if (valType && valType === "date" ) {
+        if ((filterFieldData.current.userSelection[0]!==null && filterFieldData.current.userSelection[1]!==null) &&
+          new Date(filterFieldData.current.userSelection[0]) >
+          new Date(filterFieldData.current.userSelection[1])
+        ) {
+          setInvalidValueError(true);
+          return;
+        }
+      } else if (
+        (filterFieldData.current.userSelection[0]!==null && filterFieldData.current.userSelection[1]!==null) &&
+        filterFieldData.current.userSelection[0] >
+        filterFieldData.current.userSelection[1]
+      ) {
+        setInvalidValueError(true);
+        return;
       }
-
-      if (filterFieldData.fieldtypeoption === "Relative Filter") {
-        setLoading(true);
-        await GetRelativeFilterItems();
-        setLoading(false);
-      }
+      setInvalidValueError(false);
+      setDataSetFilterArray((prevArray: IFilter[]) => {
+        return prevArray.map((item) =>
+          item.uid === filterFieldData.current.uid
+            ? filterFieldData.current
+            : item
+        );
+      });
     }
   };
 
@@ -852,7 +794,7 @@ const FilterElement = ({
         <TextField
           type="number"
           InputProps={
-            filterFieldData.includeexclude === "Exclude"
+            filterFieldData.current.shouldExclude
               ? {
                   style: {
                     height: "26px",
@@ -876,17 +818,16 @@ const FilterElement = ({
           sx={{
             paddingBottom: "8px",
           }}
-          defaultValue={filterFieldData.greaterThanOrEqualTo}
+          defaultValue={conditionValue}
+          // defaultValue={filterFieldData.current.userSelection[0]}
           onBlur={(e) => {
-            handleCustomRequiredValueOnBlur(
-              e.target.value,
-              "greaterThanOrEqualTo"
-            );
+            handleCustomRequiredValueOnBlur(e.target.value, "lower_limit");
           }}
         />
         <TextField
+          type="number"
           InputProps={
-            filterFieldData.includeexclude === "Exclude"
+            filterFieldData.current.shouldExclude
               ? {
                   style: {
                     height: "26px",
@@ -910,18 +851,12 @@ const FilterElement = ({
           sx={{
             paddingBottom: "8px",
           }}
-          defaultValue={filterFieldData.lessThanOrEqualTo}
+          // defaultValue={conditionValue2}
+          defaultValue={filterFieldData.current.userSelection[1]}
           onBlur={(e) => {
-            handleCustomRequiredValueOnBlur(
-              e.target.value,
-              "lessThanOrEqualTo"
-            );
+            handleCustomRequiredValueOnBlur(e.target.value, "upper_limit");
           }}
         />
-
-        {filterFieldData.isInValidData ? (
-          <span className="ErrorText">Please enter valid data.</span>
-        ) : null}
       </>
     );
   };
@@ -929,10 +864,10 @@ const FilterElement = ({
   const RequiredFieldForRelativeFilter = ({ exprType }: any) => {
     var members = null;
     members = (
-      <DropDownForPattern
+      <DropDownForRelativePattern
         items={RelativeFilterPatternCollections}
         exprType={exprType}
-      ></DropDownForPattern>
+      ></DropDownForRelativePattern>
     );
     return <div style={{ marginRight: "22px", width: "90px" }}>{members}</div>;
   };
@@ -943,7 +878,6 @@ const FilterElement = ({
         style={{ height: "18px", width: "18px", color: "#999999" }}
         onClick={(e) => {
           setIsCollapsed(false);
-          console.log("collapse");
         }}
       />
     ) : (
@@ -960,8 +894,9 @@ const FilterElement = ({
     return (
       <>
         <TextField
+          type={type}
           InputProps={
-            filterFieldData.includeexclude === "Exclude"
+            filterFieldData.current.shouldExclude
               ? {
                   style: {
                     height: "25px",
@@ -985,14 +920,15 @@ const FilterElement = ({
           sx={{
             paddingBottom: "8px",
           }}
-          defaultValue={filterFieldData.exprInput}
-          type={type}
-          onBlur={(e) => handleCustomRequiredValueOnBlur(e.target.value)}
+          defaultValue={conditionValue}
+          onChange={(e) =>
+            handleCustomRequiredValueOnBlur(e.target.value, "lower_limit")
+          }
         />
 
-        {filterFieldData.isInValidData ? (
+        {/* {filterFieldData.isInValidData ? (
           <span className="ErrorText">Please enter valid data.</span>
-        ) : null}
+        ) : null} */}
       </>
     );
   };
@@ -1000,73 +936,99 @@ const FilterElement = ({
   const SearchConditionDateBetween = () => {
     return (
       <div className="customDatePickerWidth">
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
           <DatePicker
-            value={filterFieldData.greaterThanOrEqualTo}
-            onChange={(e: any) =>
-              handleCustomRequiredValueOnBlur(e, "greaterThanOrEqualTo", "date")
+            // value={conditionValue}
+            defaultValue={conditionValue}
+            onChange={(e) =>
+              handleCustomRequiredValueOnBlur(e, "lower_limit", "date")
             }
-            renderInput={(params: any) => (
-              <TextField
-                {...params}
-                sx={
-                  filterFieldData.includeexclude === "Exclude"
-                    ? {
-                        paddingBottom: "5px",
-                        color: "#ffb74d",
-                        textDecoration: "line-through",
-                      }
-                    : { paddingBottom: "8px" }
-                }
-                InputProps={{
-                  ...params.InputProps,
-                  style: {
-                    ...params.InputProps?.style,
-                    color:
-                      filterFieldData.includeexclude === "Exclude"
+            slots={{
+              textField: (params: any) => (
+                <TextField
+                  {...params}
+                  sx={
+                    filterFieldData.current.shouldExclude
+                      ? {
+                          paddingBottom: "5px",
+                          color: "#ffb74d",
+                          textDecoration: "line-through",
+                        }
+                      : { paddingBottom: "8px" }
+                  }
+                  InputProps={{
+                    ...params.InputProps,
+                    style: {
+                      ...params.InputProps?.style,
+                      color: filterFieldData.current.shouldExclude
                         ? "#ffb74d"
                         : "inherit",
-                  },
-                }}
-                className="customDatePickerHeight"
-              />
-            )}
+                    },
+                  }}
+                  className="customDatePickerHeight"
+                />
+              ),
+            }}
+            format="MM/dd/yyyy"
           />
         </LocalizationProvider>
 
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
           <DatePicker
-            value={filterFieldData.lessThanOrEqualTo}
+            format="MM/dd/yyyy"
+            value={conditionValue2}
             onChange={(e) =>
-              handleCustomRequiredValueOnBlur(e, "lessThanOrEqualTo", "date")
+              handleCustomRequiredValueOnBlur(e, "upper_limit", "date")
             }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                sx={
-                  filterFieldData.includeexclude === "Exclude"
-                    ? { textDecoration: "line-through", color: "#ffb74d" }
-                    : {}
-                }
-                InputProps={{
-                  ...params.InputProps,
-                  style: {
-                    ...params.InputProps?.style,
-                    color:
-                      filterFieldData.includeexclude === "Exclude"
+            slots={{
+              textField: (params) => (
+                <TextField
+                  {...params}
+                  sx={
+                    filterFieldData.current.shouldExclude
+                      ? { textDecoration: "line-through", color: "#ffb74d" }
+                      : {}
+                  }
+                  InputProps={{
+                    ...params.InputProps,
+                    style: {
+                      ...params.InputProps?.style,
+                      color: filterFieldData.current.shouldExclude
                         ? "#ffb74d"
                         : "inherit",
-                  },
-                }}
-                className="customDatePickerHeight"
-              />
-            )}
+                    },
+                  }}
+                  className="customDatePickerHeight"
+                />
+              ),
+            }}
           />
         </LocalizationProvider>
-        {filterFieldData.isInValidData ? (
-          <span className="ErrorText">Please enter valid data.</span>
-        ) : null}
       </div>
+    );
+  };
+  const handleRelativeValueOnBlur = (
+    val: number | string | Date,
+    exprType: string
+  ) => {
+    if (val === null) return;
+    if (
+      exprType === "value_from" &&
+      filterFieldData.current.relativeCondition
+    ) {
+      filterFieldData.current.relativeCondition.from[1] = val as string;
+      // setFromDate((prev) => ({ ...prev, value: val }));
+    } else if (filterFieldData.current.relativeCondition) {
+      filterFieldData.current.relativeCondition.to[1] = val as string;
+      // setToDate((prev) => ({ ...prev, value: val }));
+    }
+    getFormatedDate();
+    setDataSetFilterArray((prevArray: IFilter[]) =>
+      prevArray.map((item) =>
+        item.uid === filterFieldData.current.uid
+          ? filterFieldData.current
+          : item
+      )
     );
   };
   const RelativeFilterValueInputControl = ({ type, exprType }: any) => {
@@ -1082,16 +1044,18 @@ const FilterElement = ({
             },
           }}
           placeholder="Value"
-          defaultValue={filterFieldData[exprType]}
-          type={type}
-          onBlur={(e) =>
-            handleCustomRequiredValueOnBlur(e.target.value, exprType)
+          defaultValue={
+            exprType === "value_from"
+              ? filterFieldData.current.relativeCondition?.from[1]
+              : filterFieldData.current.relativeCondition?.to[1]
           }
+          type={type}
+          onBlur={(e) => handleRelativeValueOnBlur(e.target.value, exprType)}
         />
 
-        {filterFieldData.isInValidData ? (
+        {/* {filterFieldData.isInValidData ? (
           <span className="ErrorText">Please enter valid data.</span>
-        ) : null}
+        ) : null} */}
       </>
     );
   };
@@ -1108,48 +1072,46 @@ const FilterElement = ({
   };
 
   const SelecRelativeFilterCard = () => {
-    var membersFrom = null;
+    let membersFrom = null;
     membersFrom = (
-      <DropDownForPattern
+      <DropDownForRelativePattern
         items={datePatternRelativeFilterCollections}
-        exprType="expTypeFromdate"
-      ></DropDownForPattern>
+        exprType="from"
+      ></DropDownForRelativePattern>
     );
-    var membersTo = null;
+    let membersTo = null;
     membersTo = (
-      <DropDownForPattern
+      <DropDownForRelativePattern
         items={datePatternRelativeFilterCollections}
-        exprType="expTypeTodate"
-      ></DropDownForPattern>
+        exprType="to"
+      ></DropDownForRelativePattern>
     );
-    var membersAnchordate = null;
+    let membersAnchordate = null;
     membersAnchordate = (
-      <DropDownForPattern
+      <DropDownForRelativePattern
         items={AnchorDatePatternRelativeFilterCollections}
-        exprType="expTypeAnchorDate"
-      ></DropDownForPattern>
+        exprType="anchorDate"
+      ></DropDownForRelativePattern>
     );
     var datemember = null;
     datemember = (
       <div className="customDatePickerWidth">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DatePicker
-            value={filterFieldData.exprInputSpecificDate}
-            onChange={(e) =>
-              handleCustomRequiredValueOnBlur(
-                e,
-                "exprInputSpecificDate",
-                "date"
-              )
+            value={new Date(conditionValue)}
+            onChange={(e: Date | null) =>
+              handleCustomRequiredValueOnBlur(e, "lower_limit", "date")
             }
-            renderInput={(params) => (
-              <TextField {...params} className="customDatePickerHeight" />
-            )}
+            slots={{
+              textField: (params) => (
+                <TextField {...params} className="customDatePickerHeight" />
+              ),
+            }}
           />
         </LocalizationProvider>
-        {filterFieldData.isInValidData ? (
+        {/* {filterFieldData.isInValidData ? (
           <span className="ErrorText">Please enter valid data.</span>
-        ) : null}
+        ) : null} */}
       </div>
     );
     return (
@@ -1171,43 +1133,42 @@ const FilterElement = ({
           paddingBottom: "3px",
         }}
       >
-        From ({filterFieldData.fromDate}){" "}
-        {/*To dispaly from-date after fetching*/}
+        <span style={{display:"flex",gap:"0.5rem",alignItems:"center"}}>From {loading?(<CircularProgress size={15}/>):(`(${formatedDate.from})`)}</span> {/*To dispaly from-date after fetching*/}
         <div style={{ display: "flex" }}>
-          <RequiredFieldForRelativeFilter exprType="expTypeFromRelativeDate"></RequiredFieldForRelativeFilter>
-          {filterFieldData.expTypeFromRelativeDate !== "current" ? (
-            <ValueFieldForRelativeFilter exprType="exprInputFromValueType"></ValueFieldForRelativeFilter>
+          <RequiredFieldForRelativeFilter exprType="last_current_next_from"></RequiredFieldForRelativeFilter>
+          {filterFieldData.current.relativeCondition?.from[0] !== "current" ? (
+            <ValueFieldForRelativeFilter exprType="value_from"></ValueFieldForRelativeFilter>
           ) : null}
         </div>
         {membersFrom}
-        To ({filterFieldData.toDate}) {/*To dispaly to-date after fetching*/}
+        <span style={{display:"flex",gap:"0.5rem",alignItems:"center"}}>To {loading?(<CircularProgress size={15}/>):(`(${formatedDate.to})`)}</span> {/*To dispaly to-date after fetching*/}
         <div style={{ display: "flex" }}>
-          <RequiredFieldForRelativeFilter exprType="expTypeToRelativeDate"></RequiredFieldForRelativeFilter>
-          {filterFieldData.expTypeToRelativeDate !== "current" ? (
-            <ValueFieldForRelativeFilter exprType="exprInputToValueType"></ValueFieldForRelativeFilter>
+          <RequiredFieldForRelativeFilter exprType="last_current_next_to"></RequiredFieldForRelativeFilter>
+          {filterFieldData.current.relativeCondition?.to[0] !== "current" ? (
+            <ValueFieldForRelativeFilter exprType="value_to"></ValueFieldForRelativeFilter>
           ) : null}
         </div>
         {membersTo}
         Based on Date
         {membersAnchordate}
-        {filterFieldData.expTypeAnchorDate === "specificDate"
+        {filterFieldData.current.relativeCondition?.anchorDate ===
+        "specificDate"
           ? datemember
           : null}
       </div>
     );
-    return null;
   };
 
   const CustomRequiredField = () => {
-    var members = null;
+    let members = null;
 
-    if (dataType) {
-      switch (dataType) {
+    if (filter.dataType) {
+      switch (filter.dataType) {
         case "decimal":
         case "float":
         case "double":
         case "integer":
-          if (filterFieldData.exprType === "between") {
+          if (filterFieldData.current.operator === "between") {
             members = (
               <SearchConditionBetweenControl></SearchConditionBetweenControl>
             );
@@ -1224,54 +1185,63 @@ const FilterElement = ({
           break;
         case "date":
         case "timestamp":
-          if (filterFieldData.prefix === "date") {
-            if (filterFieldData.exprType === "between") {
+          if (filterFieldData.current.timeGrain === "date") {
+            if (filterFieldData.current.operator === "between") {
               members = (
                 <SearchConditionDateBetween></SearchConditionDateBetween>
               );
             } else {
               members = (
                 <div className="customDatePickerWidth">
-                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <LocalizationProvider
+                    dateAdapter={AdapterDateFns}
+                    adapterLocale={de}
+                  >
                     <DatePicker
-                      value={filterFieldData.exprInput}
+                      value={conditionValue}
                       onChange={(e) =>
-                        handleCustomRequiredValueOnBlur(e, "exprInput", "date")
+                        handleCustomRequiredValueOnBlur(
+                          e,
+                          "lower_limit",
+                          "date"
+                        )
                       }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          sx={
-                            filterFieldData.includeexclude === "Exclude"
-                              ? {
-                                  textDecoration: "line-through",
-                                  color: "#ffb74d",
-                                }
-                              : {}
-                          }
-                          InputProps={{
-                            ...params.InputProps,
-                            style: {
-                              ...params.InputProps?.style,
-                              color:
-                                filterFieldData.includeexclude === "Exclude"
+                      slots={{
+                        textField: (params) => (
+                          <TextField
+                            {...params}
+                            sx={
+                              filterFieldData.current.shouldExclude
+                                ? {
+                                    textDecoration: "line-through",
+                                    color: "#ffb74d",
+                                  }
+                                : {}
+                            }
+                            InputProps={{
+                              ...params.InputProps,
+                              style: {
+                                ...params.InputProps?.style,
+                                color: filterFieldData.current.shouldExclude
                                   ? "#ffb74d"
                                   : "inherit",
-                            },
-                          }}
-                          className="customDatePickerHeight"
-                        />
-                      )}
+                              },
+                            }}
+                            className="customDatePickerHeight"
+                          />
+                        ),
+                      }}
+                      format="MM/dd/yyyy"
                     />
                   </LocalizationProvider>
-                  {filterFieldData.isInValidData ? (
-                    <span className="ErrorText">Please enter valid data.</span>
-                  ) : null}
+                  {/* {filterFieldData.isInValidData ? (
+                      <span className="ErrorText">Please enter valid data.</span>
+                    ) : null} */}
                 </div>
               );
             }
           } else {
-            if (filterFieldData.exprType === "between") {
+            if (filterFieldData.current.operator === "between") {
               members = (
                 <SearchConditionBetweenControl></SearchConditionBetweenControl>
               );
@@ -1281,6 +1251,7 @@ const FilterElement = ({
               );
             }
           }
+
           break;
         default:
           members = null;
@@ -1291,99 +1262,115 @@ const FilterElement = ({
     return <div>{members}</div>;
   };
 
-  const GetRelativeFilterItems = async () => {
-    let result: any = await fetchRelativeFilterFieldData(_getFilterType());
+  // const checkValidDate = (val: any) => {
+  //   if (
+  //     ["date", "timestamp"].includes(dataType) &&
+  //     filterFieldData.current.prefix === "date" &&
+  //     val.includes("-")
+  //   ) {
+  //     return true;
+  //   }
+  //   if (
+  //     ["date", "timestamp"].includes(dataType) &&
+  //     filterFieldData.current.fieldtypeoption === "relativeFilter" &&
+  //     val.includes("-")
+  //   ) {
+  //     return true;
+  //   }
 
-    if (result) {
-      if (result.data && result.data.length > 0) {
-        filterFieldData["fromDate"] =
-          result.data[0][Object.keys(result.data[0])[1]];
-        filterFieldData["toDate"] =
-          result.data[0][Object.keys(result.data[0])[0]];
-      }
-    }
+  //   return false;
+  // };
+
+  // const setDefaultDate = (key: string, value: any) => {
+  //   if (filterFieldData[key]) {
+  //     filterFieldData[key] = value ? value : new Date();
+  //   }
+  // };
+
+  // const setSearchConditionDate = () => {
+  //   if (
+  //     ["date", "timestamp"].includes(dataType) &&
+  //     filterFieldData.prefix === "date"
+  //   ) {
+  //     if (filterFieldData.exprType === "between") {
+  //       if (checkValidDate(filterFieldData.exprInput)) {
+  //         setDefaultDate("greaterThanOrEqualTo", filterFieldData.exprInput);
+  //         setDefaultDate("lessThanOrEqualTo", filterFieldData.exprInput);
+  //       }
+  //     } else {
+  //       if (checkValidDate(filterFieldData.lessThanOrEqualTo)) {
+  //         setDefaultDate("exprInput", filterFieldData.lessThanOrEqualTo);
+  //       }
+  //     }
+  //   }
+  // };
+
+  const handleDropDownForPatternOnChange = async (event: any) => {
+    filterFieldData.current.operator = event.target.value;
+    setSearchCondition(event.target.value);
+    setConditionValue("");
+    setConditionValue2("");
+    setDataSetFilterArray((prevFilters) =>
+      prevFilters.map((filter) =>
+        filter.uid === filterFieldData.current.uid
+          ? filterFieldData.current
+          : filter
+      )
+    );
   };
-
-  const checkValidDate = (val: any) => {
-    if (
-      ["date", "timestamp"].includes(dataType) &&
-      filterFieldData.prefix === "date" &&
-      val.includes("-")
-    ) {
-      return true;
-    }
-    if (
-      ["date", "timestamp"].includes(dataType) &&
-      filterFieldData.fieldtypeoption === "Relative Filter" &&
-      val.includes("-")
-    ) {
-      return true;
-    }
-
-    return false;
-  };
-
-  const setDefaultDate = (key: string, value: any) => {
-    if (filterFieldData[key]) {
-      filterFieldData[key] = value ? value : new Date();
-    }
-  };
-
-  const setSearchConditionDate = () => {
-    if (
-      ["date", "timestamp"].includes(dataType) &&
-      filterFieldData.prefix === "date"
-    ) {
-      if (filterFieldData.exprType === "between") {
-        if (checkValidDate(filterFieldData.exprInput)) {
-          setDefaultDate("greaterThanOrEqualTo", filterFieldData.exprInput);
-          setDefaultDate("lessThanOrEqualTo", filterFieldData.exprInput);
-        }
-      } else {
-        if (checkValidDate(filterFieldData.lessThanOrEqualTo)) {
-          setDefaultDate("exprInput", filterFieldData.lessThanOrEqualTo);
-        }
-      }
-    }
-  };
-
-  const handleDropDownForPatternOnChange = async (
+/**
+ * 
+ * @param event 
+ * @param type 
+ * 
+ * for relative fi;ter this method modifies the filter values of filter.field.current and datasetFilterArray
+ */
+  const handleDropDownForRelativePatternOnChange = (
     event: any,
-    key = "exprType"
+    type: string
   ) => {
-    filterFieldData[key] = event.target.value;
-
-    if (filterFieldData.fieldtypeoption === "Relative Filter") {
-      setLoading(true);
-      await GetRelativeFilterItems();
-      setLoading(false);
-    } else {
-      if (filterFieldData.exprType === "between") {
-        //setLoading(true);
-        await GetPickListItems();
-        setSliderRange();
-        // setLoading(false);
-      }
+    // type from/to iindicates te year month week etc
+    if (type === "from" && filterFieldData.current?.relativeCondition) {
+      filterFieldData.current.relativeCondition.from[2] = event.target.value;
+    } else if (type === "to" && filterFieldData.current?.relativeCondition) {
+      filterFieldData.current.relativeCondition.to[2] = event.target.value;
+    } else if (
+      type === "anchorDate" &&
+      filterFieldData.current?.relativeCondition
+    ) {
+      filterFieldData.current.relativeCondition.anchorDate = event.target.value;
+    } else if (
+      // type value_from /value_to denotes the  number field in relaive filter
+      type === "value_from" &&
+      filterFieldData.current?.relativeCondition
+    ) {
+      filterFieldData.current.relativeCondition.from[1] = event.target.value;
+    } else if (
+      type === "value_to" &&
+      filterFieldData.current?.relativeCondition
+    ) {
+      filterFieldData.current.relativeCondition.to[1] = event.target.value;
+    } else if (
+      type === "last_current_next_to" &&
+      filterFieldData.current?.relativeCondition
+    ) {
+      filterFieldData.current.relativeCondition.to[0] = event.target.value;
+    } else if (
+      type === "last_current_next_from" &&
+      filterFieldData.current?.relativeCondition
+    ) {
+      filterFieldData.current.relativeCondition.from[0] = event.target.value;
     }
-    setSearchConditionDate();
-
-    if (filterFieldData.fieldtypeoption === "Search Condition") {
-      if (filterFieldData.exprType === "between") {
-        filterFieldData.switchEnableSearchCondition = true;
-      } else {
-        if (!filterFieldData.exprInput || !filterFieldData.exprInput.length) {
-          filterFieldData.switchEnableSearchCondition = false;
-          filterFieldData.exprTypeTillDate = false;
-        } else {
-          filterFieldData.switchEnableSearchCondition = true;
-        }
-      }
-    }
-    setFilterFieldData((prev: any) => ({
-      ...prev,
-    }));
+    setAnchorDate(filterFieldData.current.relativeCondition?.anchorDate || "");
+    getFormatedDate();
+    setDataSetFilterArray((prevFilters) =>
+      prevFilters.map((filter) =>
+        filter.uid === filterFieldData.current.uid
+          ? filterFieldData.current
+          : filter
+      )
+    );
   };
-
   const DropDownForPattern = ({ items, exprType = "exprType" }: any) => {
     return (
       <FormControl fullWidth size="small">
@@ -1395,13 +1382,135 @@ const FilterElement = ({
           }}
           IconComponent={KeyboardArrowDownIcon}
           onChange={(e) => {
-            handleDropDownForPatternOnChange(e, exprType);
+            handleDropDownForPatternOnChange(e);
           }}
-          value={filterFieldData[exprType]}
+          // value={filterFieldData.current.operator}
+          value={searchCondition}
         >
           {items.map((item: any) => {
             return (
-              <MenuItem key={item.key} value={item.key}>
+              <MenuItem
+                key={item.key}
+                value={item.key}
+                selected={item.key === filterFieldData.current.operator}
+              >
+                <Typography
+                  sx={{
+                    width: "auto",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    fontSize: "12px",
+                  }}
+                >
+                  {item.value}
+                </Typography>
+                {/* CustomCard */}
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormControl>
+    );
+  };
+  const DropDownForRelativePattern = ({
+    items,
+    exprType = "exprType",
+  }: any) => {
+    const slectDropDownRelativeFilter = (value: string): boolean => {
+      if (filterFieldData.current.relativeCondition) {
+        if (
+          exprType === "from" &&
+          filterFieldData.current.relativeCondition.from[2] === value
+        ) {
+          return true;
+        }
+        if (
+          exprType === "to" &&
+          filterFieldData.current.relativeCondition.to[2] === value
+        ) {
+          return true;
+        }
+        if (
+          exprType === "anchorDate" &&
+          filterFieldData.current.relativeCondition.anchorDate === value
+        ) {
+          return true;
+        }
+        if (
+          exprType === "value_from" &&
+          filterFieldData.current.relativeCondition.from[1] === value
+        ) {
+          return true;
+        }
+        if (
+          exprType === "value_to" &&
+          filterFieldData.current.relativeCondition.to[1] === value
+        ) {
+          return true;
+        }
+        if (
+          exprType === "last_current_next_to" &&
+          filterFieldData.current.relativeCondition.to[0] === value
+        ) {
+          return true;
+        }
+        if (
+          exprType === "last_current_next_from" &&
+          filterFieldData.current.relativeCondition.from[0] === value
+        ) {
+          return true;
+        }
+      }
+      return false;
+    };
+    const getValue = (type: string): string => {
+      if (filterFieldData.current.relativeCondition) {
+        if (type === "from") {
+          return filterFieldData.current.relativeCondition.from[2];
+        }
+        if (type === "to") {
+          return filterFieldData.current.relativeCondition.to[2];
+        }
+        if (type === "anchorDate") {
+          return filterFieldData.current.relativeCondition.anchorDate;
+        }
+        if (type === "value_from") {
+          return filterFieldData.current.relativeCondition.from[1];
+        }
+        if (type === "value_to") {
+          return filterFieldData.current.relativeCondition.to[1];
+        }
+        if (type === "last_current_next_to") {
+          return filterFieldData.current.relativeCondition.to[0];
+        }
+        if (type === "last_current_next_from") {
+          return filterFieldData.current.relativeCondition.from[0];
+        }
+      }
+      return "";
+    };
+    return (
+      <FormControl fullWidth size="small">
+        <Select
+          sx={{
+            height: "1.5rem",
+            fontSize: "14px",
+            textAlign: "left",
+          }}
+          IconComponent={KeyboardArrowDownIcon}
+          onChange={(e) => {
+            handleDropDownForRelativePatternOnChange(e, exprType);
+          }}
+          // value={filterFieldData.current.operator}
+          value={getValue(exprType)}
+        >
+          {items.map((item: any) => {
+            return (
+              <MenuItem
+                key={item.key}
+                value={item.key}
+                selected={slectDropDownRelativeFilter(item.key)}
+              >
                 <Typography
                   sx={{
                     width: "auto",
@@ -1423,125 +1532,92 @@ const FilterElement = ({
   const handleCBChange = (event: any) => {
     if (event.target.name.toString() === "(All)") {
       if (event.target.checked) {
-        filterFieldData["userSelection"] = [
-          ...filterFieldData.rawselectmembers,
-        ];
-        filterFieldData["filterTypeTillDate"] = "enabled";
-        // setFilterFieldData((prev: any) => ({
-        //   ...prev,
-        // }));
+        filterFieldData.current = {
+          ...JSON.parse(JSON.stringify(filterFieldData.current)),
+          userSelection: [
+            ...picklist.allOptions.filter((item: any) => item !== "(All)"),
+          ],
+        };
+        setPickList((prev: any) => ({
+          ...prev,
+          userSelection: [...prev.allOptions],
+        }));
       } else {
-        filterFieldData["userSelection"] = [];
-        // setFilterFieldData((prev: any) => ({
-        //   ...prev,
-        // }));
+        setPickList((prev: any) => ({
+          ...prev,
+          userSelection: [],
+        }));
+        filterFieldData.current = {
+          ...JSON.parse(JSON.stringify(filterFieldData.current)),
+          userSelection: [],
+        };
       }
     } else {
-      filterFieldData["filterTypeTillDate"] = "disabled";
-      // setFilterFieldData((prev: any) => ({
-      //   ...prev,
-      // }));
       if (event.target.checked) {
-        if (!isNaN(event.target.name) && isFinite(event.target.name)) {
-          let _name = event.target.name;
-
-          if (_name.includes(".")) {
-            _name = parseFloat(event.target.name);
-          } else {
-            _name = parseInt(event.target.name);
-          }
-
-          if (_name) {
-            filterFieldData.userSelection.push(_name);
-            // setFilterFieldData((prev: any) => ({
-            //   ...prev, // Spread the previous state to keep all existing fields
-            //   userSelection: [...prev.userSelection, _name], // Push the new name into the userSelection array
-            // }));
-          }
+        const newSelection = [
+          ...filterFieldData.current.userSelection,
+          event.target.name,
+        ];
+        filterFieldData.current = {
+          ...JSON.parse(JSON.stringify(filterFieldData.current)),
+          userSelection: newSelection,
+        };
+        if (newSelection.length === picklist.allOptions.length - 1) {
+          setPickList((prev: any) => {
+            return {
+              ...prev,
+              userSelection: ["(All)", ...newSelection],
+            };
+          });
         } else {
-          filterFieldData.userSelection.push(event.target.name);
-          // setFilterFieldData((prev: any) => ({
-          //   ...prev, // Spread the previous state to keep all existing fields
-          //   userSelection: [...prev.userSelection, event.target.name], // Push the new name into the userSelection array
-          // }));
+          setPickList((prev: any) => {
+            return {
+              ...prev,
+              userSelection: [...newSelection],
+            };
+          });
         }
       } else {
-        let idx = filterFieldData.userSelection.findIndex(
-          (item: any) => item.toString() === event.target.name.toString()
+        const valueToBeRemoved=event.target.name
+        
+        let newSelection = filterFieldData.current.userSelection.filter(
+          (item: any) => item !== valueToBeRemoved
         );
-        filterFieldData.userSelection.splice(idx, 1);
-      }
-      if (!filterFieldData.userSelection.length) {
-        filterFieldData["filterTypeTillDate"] = "enabled";
-      }
 
-      let AllIdx = filterFieldData.userSelection.findIndex(
-        (item: any) => item.toString() === "(All)"
-      );
-
-      if (AllIdx >= 0) {
-        filterFieldData.userSelection.splice(AllIdx, 1);
+        filterFieldData.current = {
+          ...JSON.parse(JSON.stringify(filterFieldData.current)),
+          userSelection: newSelection,
+        };
+        setPickList((prev: any) => {
+          return {
+            ...prev,
+            userSelection:  [...newSelection],
+          };
+        });
       }
     }
-    setFilterFieldData((prev: any) => ({
-      ...prev,
-    }));
-  };
-
-  // const handleCBChange = (event: any) => {
-  //   const { name, checked } = event.target;
-
-  //   if (name === "(All)") {
-  //     console.log(filterFieldData);
-  //     if (checked) {
-  //       filterFieldData["userSelection"] = [
-  //         ...filterFieldData.rawselectmembers,
-  //       ];
-  //       console.log(filterFieldData);
-  //       filterFieldData["filterTypeTillDate"] = "enabled";
-  //     } else {
-  //       filterFieldData["userSelection"] = [];
-  //     }
-  //   } else {
-  //     filterFieldData["filterTypeTillDate"] = "disabled";
-
-  //     if (checked) {
-  //       const parsedName =
-  //         !isNaN(name) && isFinite(name)
-  //           ? name.includes(".")
-  //             ? parseFloat(name)
-  //             : parseInt(name)
-  //           : name;
-
-  //       filterFieldData.userSelection.push(parsedName);
-  //     } else {
-  //       const idx = filterFieldData.userSelection.findIndex(
-  //         (item: any) => item.toString() === name.toString()
-  //       );
-  //       if (idx >= 0) {
-  //         filterFieldData.userSelection.splice(idx, 1);
-  //       }
-  //     }
-
-  //     if (filterFieldData.userSelection.length === 0) {
-  //       filterFieldData["filterTypeTillDate"] = "enabled";
-  //     }
-
-  //     const allIdx = filterFieldData.userSelection.findIndex(
-  //       (item: any) => item.toString() === "(All)"
-  //     );
-
-  //     if (allIdx >= 0) {
-  //       filterFieldData.userSelection.splice(allIdx, 1);
-  //     }
-  //   }
-  // };
-
-  const SelecTillDate = () => {
-    var labelTillDate = datePatternCollections.find(
-      (item) => item.key === filterFieldData.prefix
+    setDataSetFilterArray((prevFilters) =>
+      prevFilters.map((filter) =>
+        filter.uid === filterFieldData.current.uid
+          ? filterFieldData.current
+          : filter
+      )
     );
-    var labelName = labelTillDate ? labelTillDate.value : null;
+  };
+  const SelecTillDate = () => {
+    let labelTillDate;
+    if (filterFieldData.current.filterType === "searchCondition") {
+      labelTillDate = datePatternSearchConditionCollections.find(
+        (item) => item.key === filterFieldData.current.timeGrain
+      );
+    }
+    // if (filterFieldData.current.filterType === "relativeFilter") {
+    //   labelTillDate = datePatternRelativeFilterCollections.find(
+    //     (item) => item.key === filterFieldData.current.timeGrain
+    //   );
+    // }
+
+    let labelName = labelTillDate ? labelTillDate.value : null;
     if (labelName === "Year Quarter") {
       labelName = "Quarter";
     }
@@ -1556,82 +1632,61 @@ const FilterElement = ({
           paddingBottom: "8px",
         }}
       >
-        {filterFieldData.prefix !== "date" &&
-        ((filterFieldData.fieldtypeoption === "Search Condition" &&
-          filterFieldData.switchEnableSearchCondition) ||
-          filterFieldData.fieldtypeoption === "Pick List") ? (
-          <FormControlLabel
-            value="end"
-            control={
-              <GreenSwitch
-                checked={filterFieldData.exprTypeTillDate}
-                size="small"
-                onChange={handleChangeTillDate}
-              />
-            }
-            label={
-              <Typography
-                sx={
-                  filterFieldData.exprTypeTillDate &&
-                  filterFieldData.includeexclude === "Exclude"
-                    ? {
-                        fontSize: "13px",
-                        paddingRight: "15px",
-                        textDecoration: "line-through",
-                      }
-                    : {
-                        fontSize: "13px",
-                        paddingRight: "15px",
-                      }
-                }
-              >
-                {labelName} Till Date
-              </Typography>
-            }
-            labelPlacement="end"
-          />
-        ) : (
-          <FormControlLabel
-            value="end"
-            disabled
-            control={
-              <GreenSwitch
-                checked={false}
-                size="small"
-                onChange={handleChangeTillDate}
-              />
-            }
-            label={
-              <Typography
-                sx={{
-                  fontSize: "13px",
-                  paddingRight: "15px",
-                }}
-              >
-                {labelName} Till Date
-              </Typography>
-            }
-            labelPlacement="end"
-          />
-        )}
+        <FormControlLabel
+          value="end"
+          control={
+            <GreenSwitch
+              checked={isTillDate}
+              size="small"
+              disabled={filterFieldData.current.userSelection.length < 2}
+              onChange={(e) => handleChangeTillDate(e)}
+            />
+          }
+          label={
+            <Typography
+              sx={
+                filterFieldData.current.isTillDate &&
+                filterFieldData.current.shouldExclude
+                  ? {
+                      fontSize: "13px",
+                      paddingRight: "15px",
+                      textDecoration: "line-through",
+                    }
+                  : {
+                      fontSize: "13px",
+                      paddingRight: "15px",
+                    }
+              }
+            >
+              {labelName} Till Date
+            </Typography>
+          }
+          labelPlacement="end"
+        />
       </FormGroup>
     );
   };
 
-  const handleChangeTillDate = () => {
-    if (filterFieldData.exprTypeTillDate === false) {
-      filterFieldData["exprTypeTillDate"] = true;
+  const handleChangeTillDate = (e: any) => {
+    if (e.target.checked) {
+      filterFieldData.current.isTillDate = true;
+      setIsTillDate(true)
     } else {
-      filterFieldData["exprTypeTillDate"] = false;
+      filterFieldData.current.isTillDate = false;
+      setIsTillDate(false)
     }
-    setFilterFieldData((prev: any) => ({
-      ...prev,
-    }));
+    setDataSetFilterArray((prevFilters) =>
+      prevFilters.map((filter) =>
+        filter.uid === filterFieldData.current.uid
+          ? filterFieldData.current
+          : filter
+      )
+    );
   };
   const CustomCard = () => {
-    var members = null;
-    if (dataType) {
-      switch (dataType) {
+    let members = null;
+    if (filterFieldData.current.dataType) {
+      switch (filter.dataType) {
         case "decimal":
         case "integer":
           members = (
@@ -1661,87 +1716,6 @@ const FilterElement = ({
       }
     }
 
-    const SelecTillDate = () => {
-      var labelTillDate = datePatternCollections.find(
-        (item) => item.key === filterFieldData.prefix
-      );
-      var labelName = labelTillDate ? labelTillDate.value : null;
-      if (labelName === "Year Quarter") {
-        labelName = "Quarter";
-      }
-      if (labelName === "Year Month") {
-        labelName = "Month";
-      }
-      return (
-        <FormGroup
-          sx={{
-            marginLeft: "6px",
-            paddingLeft: "10px",
-            paddingBottom: "8px",
-          }}
-        >
-          {filterFieldData.prefix !== "date" &&
-          ((filterFieldData.fieldtypeoption === "Search Condition" &&
-            filterFieldData.switchEnableSearchCondition) ||
-            filterFieldData.fieldtypeoption === "Pick List") ? (
-            <FormControlLabel
-              value="end"
-              control={
-                <GreenSwitch
-                  checked={filterFieldData.exprTypeTillDate}
-                  size="small"
-                  onChange={handleChangeTillDate}
-                />
-              }
-              label={
-                <Typography
-                  sx={
-                    filterFieldData.exprTypeTillDate &&
-                    filterFieldData.includeexclude === "Exclude"
-                      ? {
-                          fontSize: "13px",
-                          paddingRight: "15px",
-                          textDecoration: "line-through",
-                        }
-                      : {
-                          fontSize: "13px",
-                          paddingRight: "15px",
-                        }
-                  }
-                >
-                  {labelName} Till Date
-                </Typography>
-              }
-              labelPlacement="end"
-            />
-          ) : (
-            <FormControlLabel
-              value="end"
-              disabled
-              control={
-                <GreenSwitch
-                  checked={false}
-                  size="small"
-                  onChange={handleChangeTillDate}
-                />
-              }
-              label={
-                <Typography
-                  sx={{
-                    fontSize: "13px",
-                    paddingRight: "15px",
-                  }}
-                >
-                  {labelName} Till Date
-                </Typography>
-              }
-              labelPlacement="end"
-            />
-          )}
-        </FormGroup>
-      );
-    };
-
     return (
       <div
         style={{
@@ -1759,13 +1733,6 @@ const FilterElement = ({
       </div>
     );
   };
-
-  // setDataSetFilterArray((prev: any) => {
-  //   if (prev.uid === uid) {
-  //     return filterFieldData;
-  //   }
-  //   return { ...prev };
-  // });
 
   return (
     <div style={{ display: "flex", width: "100%", flexDirection: "column" }}>
@@ -1798,7 +1765,7 @@ const FilterElement = ({
               outline: "none",
               border: "none",
             }}
-            onClick={() => handleDelete(uid)}
+            onClick={() => handleDelete(filter.uid)}
           >
             <CloseRoundedIcon
               className="columnClose"
@@ -1811,10 +1778,10 @@ const FilterElement = ({
             className="columnName"
             style={{ lineHeight: "15px", display: "block" }}
           >
-            {fieldName}
+            {filter.fieldName}
           </span>
-          {/* More options icon */}
         </div>
+        {/* More options icon */}
         <div style={{ display: "flex" }}>
           <button
             style={{
@@ -1822,7 +1789,7 @@ const FilterElement = ({
               outline: "none",
               border: "none",
             }}
-            onClick={(event) => handleMenuClick(event, uid)}
+            onClick={(event) => handleMenuClick(event, filter.uid)}
           >
             <MoreVertIcon
               style={{
@@ -1844,13 +1811,13 @@ const FilterElement = ({
         </div>
 
         {/* Conditional Menu */}
-        {isMenuOpen && menuId === uid && (
+        {isMenuOpen && menuId === filter.uid && (
           <MenuOption
             open={isMenuOpen}
             anchorEl={anchorEl}
             onClose={handleClose}
             filterFieldData={filterFieldData}
-            uid={uid}
+            uid={filter.uid}
           />
         )}
       </div>
@@ -1860,13 +1827,13 @@ const FilterElement = ({
         <div
           className="UserSelectionDiv"
           style={
-            filterFieldData.isInValidData
+            inValidValueError
               ? { border: "2px red solid", backgroundColor: "lightpink" }
               : {}
           }
         >
-          {filterFieldData.dataType === "timestamp" ||
-          filterFieldData.dataType === "date" ? (
+          {filterFieldData.current.dataType === "timestamp" ||
+          filterFieldData.current.dataType === "date" ? (
             <div
               className="CustomRequiredField"
               style={{
@@ -1878,9 +1845,9 @@ const FilterElement = ({
                 paddingTop: "2px",
               }}
             >
-              {filterFieldData.fieldtypeoption === "Pick List" ? (
+              {filterFieldData.current.filterType === "pickList" ? (
                 <DropDownForDatePattern items={datePatternCollections} />
-              ) : filterFieldData.fieldtypeoption === "Search Condition" ? (
+              ) : filterFieldData.current.filterType === "searchCondition" ? (
                 <DropDownForDatePattern
                   items={datePatternSearchConditionCollections}
                 />
@@ -1888,23 +1855,25 @@ const FilterElement = ({
             </div>
           ) : null}
 
-          {filterFieldData.fieldtypeoption === "Pick List" ? (
+          {filterFieldData.current.filterType === "pickList" ? (
             <>
               <SelecPickListCard />
-              {filterFieldData.dataType === "timestamp" ||
-              filterFieldData.dataType === "date" ? (
+              {filterFieldData.current.dataType === "timestamp" ||
+          filterFieldData.current.dataType === "date" ?(<SelecTillDate/>):null}
+            </>
+          ) : filterFieldData.current.filterType === "searchCondition" ? (
+            <>
+              <CustomCard />
+              {(filterFieldData.current.dataType === "timestamp" ||
+                filterFieldData.current.dataType === "date") &&
+              filterFieldData.current.operator === "between" ? (
                 <SelecTillDate />
               ) : null}
             </>
-          ) : filterFieldData.fieldtypeoption === "Relative Filter" ? (
-            <SelecRelativeFilterCard />
           ) : (
             <>
-              <CustomCard />
-              {filterFieldData.dataType === "timestamp" ||
-              filterFieldData.dataType === "date" ? (
-                <SelecTillDate />
-              ) : null}
+              <SelecRelativeFilterCard />
+              {/* <SelecTillDate /> */}
             </>
           )}
         </div>

@@ -43,6 +43,9 @@ public class FileDataService {
     @Autowired
     FileDataRepository fileDataRepository;
 
+    @Autowired
+    DatasetAndFileDataBuffer buffer;
+
     // all uploads are initially saved in tmp
     final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
     @Value("${pepperForFlatFiles}")
@@ -363,7 +366,7 @@ public class FileDataService {
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
             FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved,salt);
             fileDataRepository.save(fileData);
-
+            buffer.removeFileDataFromBuffer(userId);
             FileDataDTO fileDataDTO = new FileDataDTO(fileData.getId(), fileData.getUserId(), fileData.getName());
 
             // delete the read file which was uploaded by user
@@ -386,8 +389,8 @@ public class FileDataService {
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
             FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved,salt);
-            fileDataRepository.save(fileData);
-
+            FileData savedFileData = fileDataRepository.save(fileData);
+            buffer.addFileDataUser(userId, savedFileData);
             FileDataDTO fileDataDTO = new FileDataDTO(fileData.getId(), fileData.getUserId(), fileData.getName());
 
             // delete the read file which was uploaded by user
@@ -411,7 +414,8 @@ public class FileDataService {
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
             FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved,salt);
-            fileDataRepository.save(fileData);
+            FileData savedFileData = fileDataRepository.save(fileData);
+            buffer.addFileDataUser(userId, savedFileData);
 
             FileDataDTO fileDataDTO = new FileDataDTO(fileData.getId(), fileData.getUserId(), fileData.getName());
 
@@ -517,21 +521,13 @@ public class FileDataService {
         }
         // remove the record from DB
         fileDataRepository.deleteById(id);
+        buffer.deleteFileDataUser(userId,id);
     }
 
     // HELPER FUNCTION - read all file data with file name
     public void getFileNameFromFileId(String userId, List<Table> tableObjList)
             throws BadRequestException, SQLException, ClassNotFoundException {
-        List<FileData> fileDataList;
-        // first try to get all file data for a user from cache
-        if (usersFileDatas.containsKey(userId)) {
-            fileDataList = usersFileDatas.get(userId);
-        }
-        // if no cache, read all file data for the user from DB
-        else {
-            fileDataList = fileDataRepository.findByUserId(userId);
-        }
-
+        List<FileData> fileDataList = buffer.getFileDataByUserId(userId);
         // sparkService.createDfForFlatFiles(userId, tableObjList, fileDataList);
         duckDbService.createViewForFlatFiles(userId, tableObjList, fileDataList, encryptPwd+pepper);
 

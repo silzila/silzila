@@ -1,3 +1,7 @@
+import { tableObjProps } from "../../redux/DataSet/DatasetStateInterfaces";
+import { IFilter } from "./BottomBarInterfaces";
+import { IFlatIdTableIdMap } from "./EditDataSetInterfaces";
+
 export interface UserFilterDatasetProps {
   //props
   // tableId: any;
@@ -7,10 +11,14 @@ export interface UserFilterDatasetProps {
   // dataType: string;
   // field: any;
   // uid: any;
+  tableFlatFileMap:IFlatIdTableIdMap[];
+  tables:tableObjProps[];
+  filters:IFilter[];
   dbConnectionId: any;
-  dataSetFilterArray: dataSetFilterArrayProps[];
+  
+  // dataSetFilterArray: dataSetFilterArrayProps[];
   setDataSetFilterArray: React.Dispatch<
-    React.SetStateAction<dataSetFilterArrayProps[]>
+    React.SetStateAction<IFilter[]>
   >;
 
   //state
@@ -33,7 +41,7 @@ export interface FilterElement {
   dbConnectionId: any;
   dataSetFilterArray: dataSetFilterArrayProps[];
   setDataSetFilterArray: React.Dispatch<
-    React.SetStateAction<dataSetFilterArrayProps[]>
+    React.SetStateAction<IFilter[]>
   >;
 
   //state
@@ -56,5 +64,6 @@ export interface dataSetFilterArrayProps {
   dataType: string;
   uid: any;
   filterOptions: string;
+  filterType:string
   userSelection: any[];
 }

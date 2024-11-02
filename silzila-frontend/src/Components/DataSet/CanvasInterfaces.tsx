@@ -2,15 +2,19 @@ import {
   ArrowsProps,
   tableObjProps,
 } from "../../redux/DataSet/DatasetStateInterfaces";
-
+import { IFilter } from "./BottomBarInterfaces";
+import { IFlatIdTableIdMap } from "./EditDataSetInterfaces";
 export interface CanvasProps {
   //state
   tempTable: tableObjProps[];
   arrows: ArrowsProps[];
   dsId?: string;
   //props
+  flatFileIdMap:IFlatIdTableIdMap[];
   editMode?: boolean;
-  EditFilterdatasetArray: any[];
+  EditFilterdatasetArray: IFilter[];
+
+  addFilter: (filter: IFilter) => void;
 }
 
 export interface ArrowObj {

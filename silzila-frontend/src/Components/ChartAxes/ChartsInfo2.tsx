@@ -135,7 +135,7 @@ const ChartsInfo: ChartsInfoProps = {
     dropZones: [
       { name: "Filter", allowedNumbers: 64, min: 0 },
       {
-        name: "Dimension",
+        name: "Slice",
         allowedNumbers: 1,
         min: 0,
         dataType: ["text", "string", "timestamp"],
@@ -219,13 +219,13 @@ const ChartsInfo: ChartsInfoProps = {
         dataType: ["text", "string", "timestamp"],
       },
       {
-        name: "X",
+        name: "X Axis",
         allowedNumbers: 1,
         min: 1,
         dataType: ["int", "float", "double"],
       },
       {
-        name: "Y",
+        name: "Y Axis",
         allowedNumbers: 1,
         min: 1,
         dataType: ["int", "float", "double"],

@@ -2,10 +2,11 @@ package com.silzila.querybuilder;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
 
 import com.silzila.payload.request.Filter;
 import com.silzila.exception.BadRequestException;
+import com.silzila.helper.OptionsBuilder;
 import com.silzila.helper.QueryNegator;
 
 public class WhereClauseDateBigquery {
@@ -37,40 +38,39 @@ public class WhereClauseDateBigquery {
             // DROP DOWN - string time grain match - eg., month in (January, February)
             if (filter.getOperator().name().equals("IN")) {
 
+                String options = "";
+
                 if (filter.getTimeGrain().name().equals("YEAR")) {
                     field = "EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + ")";
-                    String options =  filter.getUserSelection().stream().collect(Collectors.joining(", "));
-                    where = field + excludeOperator + "IN (" + options + ")";
+                    options = OptionsBuilder.buildIntegerOptions(filter.getUserSelection());                    
                 } else if (filter.getTimeGrain().name().equals("QUARTER")) {
                     field = "CONCAT('Q', EXTRACT(QUARTER FROM " + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    String options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
-                    where = field + excludeOperator + "IN (" + options + ")";
+                    options = OptionsBuilder.buildStringOptions(filter.getUserSelection());                   
                 } else if (filter.getTimeGrain().name().equals("MONTH")) {
                     field = "FORMAT_DATE('%B', DATE(" + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    String options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
-                    where = field + excludeOperator + "IN (" + options + ")";
+                    options = OptionsBuilder.buildStringOptions(filter.getUserSelection());  
                 } else if (filter.getTimeGrain().name().equals("YEARQUARTER")) {
                     field = "CONCAT(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + "), '-Q', EXTRACT(QUARTER FROM "
                             + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    String options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
-                    where = field + excludeOperator + "IN (" + options + ")";
+                    options = OptionsBuilder.buildStringOptions(filter.getUserSelection()); 
                 } else if (filter.getTimeGrain().name().equals("YEARMONTH")) {
                     field = "FORMAT_DATE('%Y-%m', DATE(" + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    String options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
-                    where = field + excludeOperator + "IN (" + options + ")";
+                    options = OptionsBuilder.buildStringOptions(filter.getUserSelection()); 
                 } else if (filter.getTimeGrain().name().equals("DATE")) {
                     field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
-                    String options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
-                    where = field + excludeOperator + "IN (" + options + ")";
+                    options = OptionsBuilder.buildStringOptions(filter.getUserSelection());                  
                 } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
                     field = "FORMAT_DATE('%A', DATE(" + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    String options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
-                    where = field + excludeOperator + "IN (" + options + ")";
+                    options = OptionsBuilder.buildStringOptions(filter.getUserSelection());                   
                 } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
                     field = "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ")";
-                    String options =  filter.getUserSelection().stream().collect(Collectors.joining(", "));
-                    where = field + excludeOperator + "IN (" + options + ")";
+                    options = OptionsBuilder.buildIntegerOptions(filter.getUserSelection()); 
+                   
                 }
+                
+                String nullCondition = NullClauseGenerator.generateNullCheckQuery(filter, excludeOperator);
+                where = field + excludeOperator + "IN (" + options + ")" + nullCondition;
+                
             }
 
             // SLIDER - numerical time grain match - eg., year = 2018

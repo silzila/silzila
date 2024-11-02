@@ -100,7 +100,6 @@ const CanvasTables = ({
       relationships.forEach((rel: RelationshipsProps, i: number) => {
         // check if the relationship already exist by checking
         // if the start table and end table matches between the new arrow and existing realtionships
-
         if (
           rel.startId === newArrowObj.startId &&
           rel.endId === newArrowObj.endId
@@ -321,7 +320,6 @@ const CanvasTables = ({
       // }, 4000);
     }
   };
-
   return (
     <div>
       <Draggable
@@ -415,6 +413,7 @@ const CanvasTables = ({
           </div>
 
           {tableData.columns.map((item: ColumnsWithUid, index: number) => {
+
             return (
               <CanvasTableColumns
                 key={item.uid}
@@ -428,6 +427,7 @@ const CanvasTables = ({
                 schema={tableData.schema}
                 checkRelationExists={checkRelationExists}
                 table_Id={tableData.id}
+                tableHasCustomQuery={tableData.isCustomQuery}
               />
             );
           })}

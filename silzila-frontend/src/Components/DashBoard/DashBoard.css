@@ -72,6 +72,10 @@
   text-overflow: ellipsis;
 }
 
+.dragHeader:hover {
+  border-bottom: 1px solid rgb(211, 211, 211);
+}
+
 .dashChart {
   width: 100%;
   flex: 1;

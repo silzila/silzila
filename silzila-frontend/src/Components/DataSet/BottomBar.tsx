@@ -20,16 +20,20 @@ import {
 } from "../../redux/DataSet/DatasetStateInterfaces";
 import {
   BottomBarProps,
-  relationshipServerObjProps,
-  tablesSelectedInSidebarProps,
+  IDataSetCreatePayLoad,
+  IFilter,
+  IFilterPanel,
+  IRelationship,
+  ITable,
 } from "./BottomBarInterfaces";
 import { AlertColor } from "@mui/material/Alert";
 
 import { TextFieldBorderStyle } from "../DataConnection/muiStyles";
-
+import { CircularProgress } from "@mui/material";
 const BottomBar = ({
   //props
   editMode,
+  datasetFilterArray,
 
   // state
   tempTable,
@@ -38,10 +42,9 @@ const BottomBar = ({
   token,
   connection,
   dsId,
+  isFlatFile,
   datasetName,
   database,
-  isFlatFile,
-  datasetFilterArray,
 
   // dispatch
   resetState,
@@ -53,6 +56,7 @@ const BottomBar = ({
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [testMessage, setTestMessage] = useState<string>("");
   const [severity, setSeverity] = useState<AlertColor>("success");
+  const [disableBtn, setDisableBtn] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
@@ -65,15 +69,130 @@ const BottomBar = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Check if every table has atleast one relationship before submitting the dataset
+  // check  if pass values for filters are corrct or not
+  const validValues = (): Boolean => {
+    for (let i = 0; i < datasetFilterArray.length; ++i) {
+      const elem = datasetFilterArray[i];
+
+      if (
+        elem.filterType === "searchCondition" &&
+        elem.operator === "between"
+      ) {
+        if (
+          (elem.dataType === "integer" ||
+            elem.dataType === "float" ||
+            elem.dataType === "decimal") &&
+          Number(elem.userSelection[0]) > Number(elem.userSelection[1])
+        )
+          return false;
+        if (
+          (elem.dataType === "date" || elem.dataType === "timestamp") &&
+          elem.timeGrain === "date" &&
+          new Date(elem.userSelection[0]) > new Date(elem.userSelection[1])
+        )
+          return false;
+        if (
+          (elem.dataType === "date" || elem.dataType === "timestamp") &&
+          Number(elem.userSelection[0]) > Number(elem.userSelection[1])
+        )
+          return false;
+        if (
+          elem.dataType === "text" &&
+          elem.userSelection[0] > elem.userSelection[1]
+        )
+          return false;
+      }
+    }
+    return true;
+  };
+  /**
+ * 
+ * @param filter selected by the user 
+ * @returns modified filters as per the API requirements
+  
+ */
+  const modifyFilters = (filter: IFilter): IFilterPanel => {
+    // filter type of API is in camelCase
+    if (filter.filterType === "pickList") {
+      return {
+        panelName: "dataSetFilters",
+        shouldAllConditionsMatch: true,
+        filters: [
+          {
+            filterType: "pickList",
+            tableId: filter.tableId,
+            fieldName: filter.fieldName,
+            dataType: filter.dataType,
+            operator: "in",
+            shouldExclude: filter.shouldExclude,
+            userSelection: filter.userSelection,
+            uid: filter.uid,
+            tableName: filter.tableName,
+            ...(filter.dataType === "date" || filter.dataType === "timestamp"
+              ? { timeGrain: filter.timeGrain }
+              : {}),
+          },
+        ],
+      };
+    } else if (filter.filterType === "searchCondition") {
+      return {
+        panelName: "dataSetFilters",
+        shouldAllConditionsMatch: true,
+        filters: [
+          {
+            dataType: filter.dataType,
+            fieldName: filter.fieldName,
+            filterType: "searchCondition",
+            operator: filter.operator,
+            shouldExclude: filter.shouldExclude,
+            tableId: filter.tableId,
+            tableName: filter.tableName,
+            isTillDate: filter.isTillDate,
+            userSelection: filter.userSelection,
+            uid: filter.uid,
+            ...(filter.dataType === "date" || filter.dataType === "timestamp"
+              ? { timeGrain: filter.timeGrain }
+              : {}),
+          },
+        ],
+      };
+    } else {
+      return {
+        panelName: "dataSetFilters",
+        shouldAllConditionsMatch: true,
+        filters: [
+          {
+            dataType: filter.dataType,
+            relativeCondition: {
+              from: filter.relativeCondition?.from ?? [],
+              to: filter.relativeCondition?.to ?? [],
+              anchorDate:
+                filter.relativeCondition?.anchorDate === "specificDate"
+                  ? filter.userSelection[0]?.toString() || "" // Fallback to empty string if undefined
+                  : filter.relativeCondition?.anchorDate || "",
+            },
+            fieldName: filter.fieldName,
+            isTillDate: filter.isTillDate,
+            uid: filter.uid,
+            operator: "between",
+            userSelection: [],
+            shouldExclude: filter.shouldExclude,
+            filterType: "relativeFilter",
+            tableId: filter.tableId,
+            tableName: filter.tableName,
+            timeGrain: "date",
+          },
+        ],
+      };
+    }
+  };
   const checkTableRelationShip = async (
-    tablesSelectedInSidebar: tablesSelectedInSidebarProps[],
+    selectedTables: ITable[],
     tablesWithRelation: string[]
   ) => {
-    if (tablesSelectedInSidebar.length > 1) {
-      tablesSelectedInSidebar.forEach((el: tablesSelectedInSidebarProps) => {
-        if (tablesWithRelation.includes(el.table)) {
-        } else {
+    if (selectedTables.length > 1) {
+      selectedTables.forEach((el: ITable) => {
+        if (!tablesWithRelation.includes(el.table)) {
           tablesWithoutRelation.push(el.table);
         }
       });
@@ -97,14 +216,14 @@ const BottomBar = ({
     // case where there is only one table and no relations or
     // if all the tables have relations defined,
     // prepare data to be saved in server and submit
-    var relationshipServerObj: relationshipServerObjProps[] = [];
+    let tableRelationships: IRelationship[] = [];
 
     if (
       tablesWithoutRelation.length === 0 ||
-      (tablesSelectedInSidebar.length === 1 && relationships.length === 0)
+      (selectedTables.length === 1 && relationships.length === 0)
     ) {
       relationships.forEach((relation: RelationshipsProps) => {
-        var relationObj: relationshipServerObjProps = {
+        let tableRelation: IRelationship = {
           table1: relation.startId,
           table2: relation.endId,
           cardinality: relation.cardinality,
@@ -113,23 +232,22 @@ const BottomBar = ({
           table2Columns: [],
         };
 
-        var arrowsForRelation: ArrowsProps[] = [];
+        let arrowsForRelation: ArrowsProps[] = [];
         arrowsForRelation = arrows.filter(
           (arr: ArrowsProps) => arr.relationId === relation.relationId
         );
-        var tbl1: string[] = [];
-        var tbl2: string[] = [];
+        let tbl1: string[] = [];
+        let tbl2: string[] = [];
         arrowsForRelation.forEach((arr: ArrowsProps) => {
           tbl1.push(arr.startColumnName);
           tbl2.push(arr.endColumnName);
         });
 
-        relationObj.table1Columns = tbl1;
-        relationObj.table2Columns = tbl2;
+        tableRelation.table1Columns = tbl1;
+        tableRelation.table2Columns = tbl2;
 
-        relationshipServerObj.push(relationObj);
+        tableRelationships.push(tableRelation);
       });
-
       var apiurl: string;
 
       if (editMode) {
@@ -138,53 +256,40 @@ const BottomBar = ({
         apiurl = "dataset";
       }
       //for datasetFilter array sent the data in the form of array
-      const datasetFilter = datasetFilterArray.filter((item) => {
-        var excludeInclude: boolean =
-          item.includeexclude === false ? false : true;
+      if (!validValues()) {
+        setTestMessage("Invalid Values for filters");
+        setSeverity("error");
+        setOpenAlert(true);
+        return;
+      }
+      const datasetFilter: IFilterPanel[] = datasetFilterArray.map(
+        (item): IFilterPanel => {
+          return modifyFilters(item);
+        }
+      );
 
-        return {
-          panelName: "dataSetFilters",
-          shouldAllConditionsMatch: true,
-          filters: [
-            {
-              filterType: item.fieldtypeoption,
-              fieldName: item.fieldName,
-              tableName: item.tableName,
-              dataType: item.dataType,
-              uid: item.uid,
-              displayName: item.displayName,
-              shouldExclude: excludeInclude,
-              timeGrain: item.timeGrain,
-              operator: item.exprType,
-              userSelection: item.userSelection,
-              isTillDate: item.isStillData,
-              tableId: item.tableId,
-              exprType: item.exprType,
-            },
-          ],
+      if (tableRelationships.length >= 0) {
+        const payLoad: IDataSetCreatePayLoad = {
+          connectionId: isFlatFile ? "" : connection,
+          datasetName: fname,
+          isFlatFileData: isFlatFile,
+          dataSchema: {
+            tables: selectedTables,
+            relationships: tableRelationships,
+            filterPanels: datasetFilter,
+          },
         };
-      });
-
-      if (relationshipServerObj.length >= 0) {
-        // TODO: need to specify type
         var options: any = await FetchData({
           requestType: "withData",
           method: editMode ? "PUT" : "POST",
+          // method: "PUT",
           url: apiurl,
+          // url:"filter-options?datasetid=" + dsId+"&dbconnectionid="+connection,
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          data: {
-            connectionId: isFlatFile ? null : connection,
-            datasetName: fname,
-            isFlatFileData: isFlatFile,
-            dataSchema: {
-              tables: [...tablesSelectedInSidebar],
-              relationships: [...relationshipServerObj],
-              filterPanels: [...datasetFilter],
-            },
-          },
+          data: payLoad,
         });
       } else {
         setTestMessage(
@@ -196,7 +301,12 @@ const BottomBar = ({
         setSeverity("error");
         setOpenAlert(true);
       }
-
+      // let options={
+      //   status:"",
+      //   data:{
+      //     message:""
+      //   }
+      // }
       if (options.status) {
         setSeverity("success");
         setOpenAlert(true);
@@ -220,7 +330,7 @@ const BottomBar = ({
     }
 
     // Potential repeat of code in above section
-    // if (tablesSelectedInSidebar.length > 1 && relationships.length === 0) {
+    // if (tablesInDataSet.length > 1 && relationships.length === 0) {
     // 	setSeverity("error");
     // 	setOpenAlert(true);
     // 	setTestMessage(
@@ -240,6 +350,7 @@ const BottomBar = ({
     // prepare the tables with relations list and
     // check if table relationships and arrows meet requirements
     if (fname !== "") {
+      setDisableBtn(true);
       const tablesSelectedInSidebar: any[] =
         // tablesSelectedInSidebarProps[]
         tempTable.map((el: tableObjProps) => {
@@ -251,9 +362,9 @@ const BottomBar = ({
             tablePositionX: el.tablePositionX,
             tablePositionY: el.tablePositionY,
             database: el.databaseName,
-            flatFileId: isFlatFile ? el.table_uid : null,
-            isCustomQuery: el.isCustomQuery,
-            customQuery: el.customQuery,
+            flatFileId: isFlatFile ? el.table_uid : "",
+            isCustomQuery: el.isCustomQuery || false,
+            customQuery: el.customQuery || "",
           };
         });
       const listOfStartTableNames: string[] = [];
@@ -267,7 +378,11 @@ const BottomBar = ({
         ...listOfEndTableNames,
       ];
 
-      checkTableRelationShip(tablesSelectedInSidebar, tablesWithRelation);
+      checkTableRelationShip(
+        tablesSelectedInSidebar as ITable[],
+        tablesWithRelation
+      );
+      setDisableBtn(false);
     } else {
       // If dataSet name is not provided, show error
       setSeverity("error");
@@ -291,6 +406,7 @@ const BottomBar = ({
         onClick={onCancelOnDataset}
         id="cancelButton"
         sx={{ textTransform: "none" }}
+        disabled={disableBtn}
       >
         {editMode ? "Back" : "Cancel"}
       </Button>
@@ -334,6 +450,7 @@ const BottomBar = ({
 
         <Button
           variant="contained"
+          disabled={disableBtn}
           onClick={onSendData}
           id="setButton"
           sx={{
@@ -341,7 +458,11 @@ const BottomBar = ({
           }}
           style={{ backgroundColor: "#2BB9BB" }}
         >
-          {sendOrUpdate}
+          {disableBtn ? (
+            <CircularProgress size={20} color="info" />
+          ) : (
+            sendOrUpdate
+          )}
         </Button>
       </div>
 

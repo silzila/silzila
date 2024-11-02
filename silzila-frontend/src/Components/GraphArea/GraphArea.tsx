@@ -196,12 +196,12 @@ const GraphArea = ({
 
   const graphDimensionCompute = () => {
     if (tileState.tiles[propKey]?.graphSizeFull) {
-      const height =
+      let height =
         (document.getElementById("graphContainer") as HTMLElement)
           .clientHeight - 30;
       // const height = (document.getElementById("graphContainer") as HTMLElement).clientHeight;
       // const width = (document.getElementById("graphContainer") as HTMLElement).clientWidth;
-      const width =
+      let width =
         (document.getElementById("graphContainer") as HTMLElement).clientWidth -
         30;
 
@@ -210,21 +210,32 @@ const GraphArea = ({
         width,
       });
     } else {
-      setGraphDimension({
-        height:
-          tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]
-            .height * tabTileProps.dashGridSize.y,
-        width:
-          tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]
-            .width * tabTileProps.dashGridSize.x,
-      });
+      if (chartProperties.properties[propKey].chartType === "simplecard") {
+        setGraphDimension({
+          height:
+            tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]
+              .height * tabTileProps.dashGridSize.y,
+          width:
+            tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]
+              .width * tabTileProps.dashGridSize.x,
+        });
+      } else {
+        setGraphDimension({
+          height:
+            tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]
+              .height * tabTileProps.dashGridSize.y,
+          width:
+            tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[propKey]
+              .width * tabTileProps.dashGridSize.x,
+        });
+      }
     }
   };
 
   const graphDimensionCompute2 = () => {
-    const height = (document.getElementById("graphFullScreen") as HTMLElement)
+    let height = (document.getElementById("graphFullScreen") as HTMLElement)
       .clientHeight;
-    const width = (document.getElementById("graphFullScreen") as HTMLElement)
+    let width = (document.getElementById("graphFullScreen") as HTMLElement)
       .clientWidth;
     setGraphDimension2({
       height,
@@ -248,6 +259,8 @@ const GraphArea = ({
     tabTileProps.selectedControlMenu,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     tileState.tiles[propKey]?.graphSizeFull,
+    open,
+    chartProperties.properties[propKey].chartType,
   ]);
 
   const removeFullScreen = (e: any) => {
@@ -905,6 +918,7 @@ const GraphArea = ({
             style={{ zIndex: 3 }}
             onKeyDown={(e) => {
               removeFullScreen(e);
+              setPageSettings("fullScreen", false);
             }}
           >
             <div style={{ height: "3rem" }}></div>
@@ -925,7 +939,10 @@ const GraphArea = ({
                   margin: "0.25rem",
                   display: pageSettings.callForDownload ? "none" : "",
                 }}
-                onClick={() => setFullScreen(false)}
+                onClick={() => {
+                  setFullScreen(false);
+                  setPageSettings("fullScreen", false);
+                }}
               />
             </div>
 
@@ -947,6 +964,7 @@ const GraphArea = ({
           value="Full Screen"
           onClick={() => {
             setFullScreen(true);
+            setPageSettings("fullScreen", true);
             setOpen(false);
           }}
         >

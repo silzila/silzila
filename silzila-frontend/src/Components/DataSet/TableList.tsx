@@ -174,7 +174,6 @@ const TableList = (props: TableListProps) => {
 			url: url,
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
-
 		if (res.status) {
 			setTableData(res.data);
 			setShowTableData(true);

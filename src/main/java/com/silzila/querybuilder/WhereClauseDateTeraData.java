@@ -1,12 +1,12 @@
 package com.silzila.querybuilder;
 
 import com.silzila.exception.BadRequestException;
+import com.silzila.helper.OptionsBuilder;
 import com.silzila.helper.QueryNegator;
 import com.silzila.payload.request.Filter;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class WhereClauseDateTeraData {
     public static String buildWhereClauseDate(Filter filter) throws BadRequestException {
@@ -82,8 +82,9 @@ public class WhereClauseDateTeraData {
                     field = "MONTH(" + filter.getTableId() + "." + filter.getFieldName() + ")";
                 }
 
-                String options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
-                where = field + excludeOperator + "IN (" + options + ")";
+                String nullCondition = NullClauseGenerator.generateNullCheckQuery(filter, excludeOperator);
+                String options = OptionsBuilder.buildStringOptions(filter.getUserSelection());
+                where = field + excludeOperator + "IN (" + options + ")" + nullCondition;
             }
 
             // SLIDER - numerical time grain match - eg., year = 2018

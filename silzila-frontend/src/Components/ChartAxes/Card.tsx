@@ -780,7 +780,7 @@ const Card = ({
             })
           : null}
 
-        {windowfn?.length !== 0 ? (
+        {(windowfn?.length !== 0 || axisTitle === "Row") && (
           <MenuItem
             onClick={() => {
               handleClose("rename");
@@ -791,7 +791,7 @@ const Card = ({
           >
             Rename for Visual
           </MenuItem>
-        ) : null}
+        )}
 
         {uID ? (
           <div style={{ display: "flex" }}>

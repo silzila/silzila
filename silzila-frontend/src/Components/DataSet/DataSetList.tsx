@@ -143,15 +143,37 @@ const DataSetList = ({
     });
 
     if (res.status) {
+      const aliasMap: { [key: string]: string } = {};
+      const aliasCount: { [key: string]: number } = {};
       const userTable: UserTableProps[] = res.data.map((el: any) => {
+        function generateTableId(table:string) {
+          let alias = '';
+          const words = table.replace(/[-_]/g, ' ').split(' ');
+          if (words.length === 1) {
+              alias = words[0][0].toLowerCase();
+          } else {
+              alias = words.map(word => word[0].toLowerCase()).join('');
+          }
+          if (aliasMap[alias]) {
+              if (!aliasCount[alias]) aliasCount[alias] = 1; // Initialize the counter
+              aliasCount[alias]++;
+              alias = alias + aliasCount[alias]; // Append number suffix for uniqueness
+          }
+          aliasMap[alias] = table;
+      
+          return alias;
+      }
         return {
           schema: "",
           database: "",
           tableName: el.name,
           isSelected: false,
           table_uid: el.id,
-          id: uid(),
+          // id: uid(),
+          id: generateTableId(el.name),
           isNewTable: true,
+          isCustomQuery: false,
+          customQuery:""
         };
       });
       setUserTable(userTable);

@@ -86,8 +86,6 @@ const chartControl = {
       },
 
       cardControls: {
-        height: 200,
-        width: 350,
         fontSize: 35,
         subtextFontSize: 15,
         isDragging: false,
@@ -99,6 +97,10 @@ const chartControl = {
         borderColor: "rgba(224,224,224,1)",
         dashStyle: "solid",
         fontStyle: "normal",
+        customStyle: false,
+        valueColor: "#2BB9BB",
+        labelColor: "gray",
+        bgColor: "white",
       },
       calendarStyleOptions: {
         showSplitLine: true,
@@ -239,6 +241,9 @@ const chartControl = {
           enableRounding: "false",
           roundingDigits: 1,
           numberSeparator: "Abbrev",
+          selectedMeasure: {},
+          // measureFormats will keep the format options for the measure selected in the chart for individual measure
+          measureFormats: {}
         },
 
         yAxisFormats: {
@@ -445,8 +450,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               left: 5,
             },
             cardControls: {
-              height: 200,
-              width: 350,
               fontSize: 35,
               subtextFontSize: 15,
               isDragging: false,
@@ -458,6 +461,10 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               borderColor: "rgba(224,224,224,1)",
               dashStyle: "solid",
               fontStyle: "normal",
+              customStyle: false,
+              valueColor: "#2BB9BB",
+              labelColor: "gray",
+              bgColor: "white",
             },
 
             calendarStyleOptions: {
@@ -780,8 +787,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               maxColor: "#af99db",
             },
             cardControls: {
-              height: 200,
-              width: 350,
               fontSize: 35,
               subtextFontSize: 15,
               isDragging: false,
@@ -793,6 +798,10 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               borderColor: "rgba(224,224,224,1)",
               dashStyle: "solid",
               fontStyle: "normal",
+              customStyle: false,
+              valueColor: "#2BB9BB",
+              labelColor: "gray",
+              bgColor: "white",
             },
 
             legendOptions: {
@@ -1611,6 +1620,32 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
           },
         },
       });
+    case "UPDATE_RICH_TEXT_DYNAMIC_VALUE":
+      const richText = state.properties[action.payload.propKey]?.richText;
+      const text = richText?.text;
+      const children = text?.[0]?.children;
+
+      if (children && children[1]?.character !== undefined) {
+        // If richText.text[0].children[1].character exists, update it
+        return update(state, {
+          properties: {
+            [action.payload.propKey]: {
+              richText: {
+                text: {
+                  0: {
+                    children: {
+                      1: {
+                        character: { $set: action.payload.value },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+      } else return state; // Or some other fallback logic
+
     case "UPDATE_CARD_CONTROLS":
       return update(state, {
         properties: {

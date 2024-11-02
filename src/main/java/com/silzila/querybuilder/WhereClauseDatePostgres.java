@@ -2,10 +2,11 @@ package com.silzila.querybuilder;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
 
 import com.silzila.payload.request.Filter;
 import com.silzila.exception.BadRequestException;
+import com.silzila.helper.OptionsBuilder;
 import com.silzila.helper.QueryNegator;
 
 public class WhereClauseDatePostgres {
@@ -47,8 +48,8 @@ public class WhereClauseDatePostgres {
                 } else if (filter.getTimeGrain().name().equals("MONTH")) {
                     field = "TRIM(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Month'))";
                 } else if (filter.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "CONCAT(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName()
-                            + ", 'YYYY'), '-Q', TO_CHAR(" + filter.getTableId() + "."
+                    field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName()
+                            + ", 'YYYY') || '-Q' || TO_CHAR(" + filter.getTableId() + "."
                             + filter.getFieldName() + ", 'Q'))";
                 } else if (filter.getTimeGrain().name().equals("YEARMONTH")) {
                     field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'YYYY-MM')";
@@ -60,9 +61,9 @@ public class WhereClauseDatePostgres {
                     field = "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
                 }
 
-                String options = "'" + filter.getUserSelection().stream().collect(Collectors.joining("', '")) + "'";
-                where = field + excludeOperator + "IN (" + options + ")";
-
+                String nullCondition = NullClauseGenerator.generateNullCheckQuery(filter, excludeOperator);
+                String options = OptionsBuilder.buildStringOptions(filter.getUserSelection());                                     
+                where = field + excludeOperator + "IN (" + options + ")" + nullCondition;
             }
 
             // SLIDER - numerical time grain match - eg., year = 2018
