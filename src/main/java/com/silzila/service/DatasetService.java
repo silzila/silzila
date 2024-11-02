@@ -529,7 +529,12 @@ public class DatasetService {
 
                 JSONArray queryResult;
                 try {
+                    if (dBConnectionId != null && !dBConnectionId.isEmpty()) {
                     queryResult = connectionPoolService.runQuery(dBConnectionId, userId, strQuery);
+                    }
+                    else {
+                    queryResult = duckDbService.runQuery(strQuery);
+                    }
                 } catch (Exception e) {
                     throw new SQLException("Error executing query: " + strQuery, e);
                 }
