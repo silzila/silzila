@@ -103,3 +103,6 @@ export const revertRightFilterGroupItems = (
 export const loadReportFilterGroup = (chartFilterGroup: any) => {
 	return { type: "LOAD_REPORT_FILTER_GROUP", payload: chartFilterGroup };
 };
+export const deleteFilterGroupFromChartFilterGroup= (groupId: string) => {
+	return { type: "DELETE_FILTER_GROUP_FROM_CHART_FILTER_GROUP", payload: groupId };
+}

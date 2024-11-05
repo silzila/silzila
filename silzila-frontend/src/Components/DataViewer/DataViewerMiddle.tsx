@@ -34,6 +34,7 @@ import { changeChartOptionSelected } from "../../redux/ChartPoperties/ChartPrope
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import ChartData from "../ChartAxes/ChartData";
 
 const DataViewerMiddle = ({
   // props
@@ -70,7 +71,6 @@ const DataViewerMiddle = ({
           sx={{
             fontSize: "18px",
             float: "right",
-            marginTop: "5px",
             marginRight: "1rem",
           }}
           onClick={() => setMenu("")}
@@ -78,7 +78,6 @@ const DataViewerMiddle = ({
       </Tooltip>
     );
   };
-
   const controlDisplayed = () => {
     switch (tabTileProps.selectedControlMenu) {
       case "Charts":
@@ -120,17 +119,35 @@ const DataViewerMiddle = ({
       case "Report Filters":
         return (
           <div className="rightColumnControlsAndFilters">
-            <div
+            {/* <div
               style={{
                 color: " #404040",
                 fontWeight: "600",
                 padding: "10px 0 0 0.5rem",
-                marginBottom: "3px",
+                display:"flex",
+                alignItems:"center",
+                justifyContent:"space-between"
               }}
             >
               Report Filter
-              <MinimizeComponent />
-            </div>
+              <div
+                style={{
+                  float: "right",
+                  display: "flex",
+                  columnGap: "8px",
+                  alignItems: "center",
+                  // borderTop: "2px solid #d3d3d3"
+                }}
+              >
+                <MoreVertIcon
+                // @ts-ignore
+                  onClick={(event) => setAnchorEl(event.currentTarget)}
+                  style={{ height: "16px", width: "16px", color: "#878786" }}
+                />
+                <MinimizeComponent />
+
+              </div>
+            </div> */}
             <ChartFilterGroupsContainer
               propKey={propKey}
               fromDashboard={false}
@@ -148,6 +165,11 @@ const DataViewerMiddle = ({
         <>
           <GraphArea />
           <DynamicMeasureWindow />
+          <ChartData
+            tabId={tabId}
+            tileId={tileId}
+            screenFrom="richTextReportFilter"/>
+          <div className="rightColumn">{controlDisplayed()}</div>
         </>
       ) : (
         <>

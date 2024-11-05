@@ -23,7 +23,7 @@ import lombok.Builder;
         "aggr",
         "windowFn",
         "windowFnOption",
-        "windowFnMatrix",
+        "rowColumnMatrix",
         "windowFnPartition",
         "disableReportFilters"
 })
@@ -45,8 +45,8 @@ public class Measure implements Serializable {
     private String[] windowFn = new String[]{null};
     @JsonProperty("windowFnOption")
     private int[] windowFnOption = new int[]{};
-    @JsonProperty("windowFnMatrix")
-    private int[] windowFnMatrix = new int[]{};
+    @JsonProperty("rowColumnMatrix")
+    private int[] rowColumnMatrix = new int[]{};
     @JsonProperty("windowFnPartition")
     private int[] windowFnPartition = new int[]{};
     @JsonProperty("disableReportFilters")
@@ -71,13 +71,13 @@ public class Measure implements Serializable {
      * @param aggr
      * @param windowFn
      * @param windowFnOption
-     * @param windowFnMatrix
+     * @param rowColumnMatrix
      * @param windowFnPartition
      * @param disableReportFilters
      * @param isOverrideMeasure
      */
     public Measure(String tableId, String fieldName, Measure.DataType dataType, Measure.TimeGrain timeGrain, Measure.Aggr aggr,
-            String[] windowFn, int[] windowFnOption, int[] windowFnMatrix, int[] windowFnPartition, Boolean disableReportFilters,
+            String[] windowFn, int[] windowFnOption, int[] rowColumnMatrix, int[] windowFnPartition, Boolean disableReportFilters,
             Integer measureOrder) {
         super();
         this.tableId = tableId;
@@ -87,7 +87,7 @@ public class Measure implements Serializable {
         this.aggr = aggr;
         this.windowFn = windowFn;
         this.windowFnOption = windowFnOption;
-        this.windowFnMatrix = windowFnMatrix;
+        this.rowColumnMatrix = rowColumnMatrix;
         this.windowFnPartition = windowFnPartition;
         this.disableReportFilters = disableReportFilters;
         this.measureOrder = measureOrder;
@@ -163,14 +163,14 @@ public class Measure implements Serializable {
         this.windowFnOption = windowFnOption;
     }
 
-    @JsonProperty("windowFnMatrix")
-    public int[] getWindowFnMatrix() {
-        return windowFnMatrix;
+    @JsonProperty("rowColumnMatrix")
+    public int[] getrowColumnMatrix() {
+        return rowColumnMatrix;
     }
     
-    @JsonProperty("windowFnMatrix")
-    public void setWindowFnMatrix(int[] windowFnMatrix) {
-        this.windowFnMatrix = windowFnMatrix;
+    @JsonProperty("rowColumnMatrix")
+    public void setrowColumnMatrix(int[] rowColumnMatrix) {
+        this.rowColumnMatrix = rowColumnMatrix;
     }
 
     @JsonProperty("windowFnPartition")
@@ -236,9 +236,9 @@ public class Measure implements Serializable {
         sb.append('=');
         sb.append(((this.windowFnOption == null) ? "<null>" : this.windowFnOption));
         sb.append(',');
-        sb.append("windowFnMatrix");
+        sb.append("rowColumnMatrix");
         sb.append('=');
-        sb.append(((this.windowFnMatrix == null) ? "<null>" : this.windowFnMatrix));
+        sb.append(((this.rowColumnMatrix == null) ? "<null>" : this.rowColumnMatrix));
         sb.append(',');
         sb.append("windowFnPartition");
         sb.append('=');

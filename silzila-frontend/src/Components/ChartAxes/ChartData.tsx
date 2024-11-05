@@ -9,7 +9,10 @@ import ChartsInfo from "./ChartsInfo2";
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 //import {FindFieldName} from "../CommonFunctions/CommonFunctions";
 import { Dispatch } from "redux";
-import { updateChartData } from "../../redux/ChartPoperties/ChartControlsActions";
+import {
+  updateChartData,
+  updateRichTextDynamicValue,
+} from "../../redux/ChartPoperties/ChartControlsActions";
 
 import { storeServerData } from "../../redux/ChartPoperties/ChartControlsActions";
 import {
@@ -22,6 +25,7 @@ import {
   AxesValuProps,
   ChartAxesFormattedAxes,
   ChartAxesProps,
+  ITabTilesAndTheirFilters,
 } from "./ChartAxesInterfaces";
 import { ChartPropertiesStateProps } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 
@@ -50,8 +54,10 @@ import {
   fieldName,
   displayName,
   getLabelValues,
+  modifyFilter,
 } from "../CommonFunctions/CommonFunctions";
-
+import { IFilter, IFilterPanel } from "../DataSet/BottomBarInterfaces";
+import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 // format the chartAxes into the way it is needed for api call
 export const getChartData = async (
   axesValues: AxesValuProps[],
@@ -1062,6 +1068,7 @@ const ChartData = ({
   updateChartData,
   toggleAxesEdit,
   reUseOldData,
+  updateRichTextDynamicValue,
   chartFilterGroupEdited,
   dashBoardFilterGroupsEdited,
   setDashTileSwitched,
@@ -1073,12 +1080,28 @@ const ChartData = ({
   const [loading, setLoading] = useState<boolean>(false);
 
   var _propKey: string = `${tabId}.${tileId}`;
-
   // every time chartAxes or chartType is changed, check if
   // new data must be obtained from server
   // check for minimum requirements in each dropzone for the given chart type
   // if not reset the data
-
+  /**
+   *
+   * @param dmId
+   * @param value (value fetched from server )
+   * @returns  given value in selected style
+   */
+  const getFormatedValue = (dmId: number, value: any) => {
+    let formattedValue = value;
+    formattedValue = formatChartLabelValue(
+      dynamicMeasureState.dynamicMeasureProps?.[
+        dynamicMeasureState.selectedTabId
+      ]?.[dynamicMeasureState.selectedTileId]?.[
+        `${dynamicMeasureState.selectedTileId}.${dmId}`
+      ],
+      formattedValue
+    );
+    return formattedValue;
+  };
   var chartProp: any =
     chartProperties.properties[_propKey].chartType === "richText" &&
     chartProperties.properties[_propKey].isDynamicMeasureWindowOpened
@@ -1250,17 +1273,17 @@ const ChartData = ({
 
                 field["NameWithIndex"] = _name;
                 _chartFieldTempObject[_name] = "";
-               // Logger("info", "NameWithIndex", field);
+                // Logger("info", "NameWithIndex", field);
               } else {
                 field["NameWithIndex"] = field.fieldname;
                 _chartFieldTempObject[field.fieldname] = "";
-               // Logger("info", "NameWithIndex", field);
+                // Logger("info", "NameWithIndex", field);
               }
 
-             // if (_fieldTempObject[_nameWithAgg] === undefined) {
-                field["NameWithAgg"] = _nameWithAgg;
-                //_fieldTempObject[_nameWithAgg] = "";
-               // Logger("info", "NameWithAgg", field);
+              // if (_fieldTempObject[_nameWithAgg] === undefined) {
+              field["NameWithAgg"] = _nameWithAgg;
+              //_fieldTempObject[_nameWithAgg] = "";
+              // Logger("info", "NameWithAgg", field);
               //}
             });
           });
@@ -1409,16 +1432,661 @@ const ChartData = ({
     };
 
     if (screenFrom === "Dashboard") {
-      [...tileState.tileList[tabTileProps.selectedTabId]].forEach((tile) => {
-        if (
-          !_checkGroupsNotSame(tile) ||
-          (chartProp.properties && chartProp.properties[tile].axesEdited) ||
-          chartGroup.chartFilterGroupEdited ||
-          dashBoardGroup.dashBoardGroupEdited
-        ) {
-          makeServiceCall();
-        }
+      /**
+       * the chart Data is tored in  chartData of respective tabTile if chart type is not richText else stored in richText
+       *
+       * if screen is dashboard  get all the tabTileId are being displayed in dashboard
+       * "tabTilesAndTheirFilters" object is created to store list of filters to be applied on a tabTileID
+       * key->tabTileId ,value->list of filters
+       *
+       * for each tiles in dashboard
+       *        iterate over filterGroupTabTiles(object stores the list of tiles(value) on wihich filtergroupID(key) will, be applied ) object to get the filterGroupIDs to br applied on  the current tile
+       *            if a filter group is to be applied on a tile get list of filters  from chartFilterGroup  and store it
+       *
+       * get list of  tabTileID which does not have any filter group to be applied on it as filterPanels should be empty for those tiles
+       *
+       * now fetch data  for tiles and store them in respective global state
+       */
+      let payLoad: any[] = [];
+      const tilesInDashboard = tabState.tabs[`${tabId}`].tilesInDashboard;
+      const tabTilesAndTheirFilters: ITabTilesAndTheirFilters = {};
+
+      tilesInDashboard.forEach((tabTileID: string) => {
+        Object.keys(dashBoardGroup.filterGroupTabTiles).forEach(
+          (filterGroupID: string) => {
+            if (
+              dashBoardGroup.filterGroupTabTiles[filterGroupID].includes(
+                tabTileID
+              )
+            ) {
+              let filters: IFilter[] = [];
+              chartGroup.groups[filterGroupID].filters.forEach((filter: any) =>
+                filters.push(modifyFilter(filter))
+              );
+              if (filters.length > 0) {
+                if (tabTilesAndTheirFilters[tabTileID]) {
+                  tabTilesAndTheirFilters[tabTileID].push(...filters);
+                } else {
+                  tabTilesAndTheirFilters[tabTileID] = filters;
+                }
+              }
+              // else {
+              //   /** as there is no filters for filterGroup  current tile should be removed from array  */
+              //   // const index=tilesHaveFiltersToBeAppliedOn.indexOf(tabTileID)
+              //   // tilesHaveFiltersToBeAppliedOn.splice(index,1)
+              // }
+            }
+          }
+        );
       });
+
+      const tabTileIDsWithoutFilterGroups = tilesInDashboard.filter(
+        (tabTileID: string) => !(tabTileID in tabTilesAndTheirFilters)
+      );
+
+      Object.keys(tabTilesAndTheirFilters).forEach((tabTileID: string) => {
+        const chartProp: any =
+          chartProperties.properties[`${tabTileID}`].chartType === "richText"
+            ? dynamicMeasureState.dynamicMeasureProps?.[
+                tabTileID.split(".")[0]
+              ]?.[tabTileID.split(".")[1]]?.[
+                `${tabTileID.split(".")[1]}.${
+                  dynamicMeasureState.selectedDynamicMeasureId
+                }`
+              ]
+            : chartProperties.properties[`${tabTileID}`];
+        const sortChartData = (chartData: any[]): any[] => {
+          let result: any[] = [];
+          let axesValues1 = JSON.parse(JSON.stringify(chartProp.chartAxes));
+          if (chartData && chartData.length > 0) {
+            let _zones: any = axesValues1.filter(
+              (zones: any) => zones.name !== "Filter"
+            );
+            //let _zonesFields:any = [];
+            // let _fieldTempObject: any = {};
+            let _chartFieldTempObject: any = {};
+
+            /*	Find and return field's new name	*/
+            const findFieldIndexName = (
+              name: string,
+              i: number = 2
+            ): string => {
+              if (_chartFieldTempObject[`${name}_${i}`] !== undefined) {
+                i++;
+                return findFieldIndexName(name, i);
+              } else {
+                return `${name}_${i}`;
+              }
+            };
+
+            _zones.forEach((zoneItem: any) => {
+              zoneItem.fields.forEach((field: any) => {
+                let _nameWithAgg: string = "";
+
+                _nameWithAgg = field.displayname;
+
+                if (_chartFieldTempObject[field.fieldname] !== undefined) {
+                  let _name = findFieldIndexName(field.fieldname);
+
+                  field["NameWithIndex"] = _name;
+                  _chartFieldTempObject[_name] = "";
+                  // Logger("info", "NameWithIndex", field);
+                } else {
+                  field["NameWithIndex"] = field.fieldname;
+                  _chartFieldTempObject[field.fieldname] = "";
+                  // Logger("info", "NameWithIndex", field);
+                }
+
+                // if (_fieldTempObject[_nameWithAgg] === undefined) {
+                field["NameWithAgg"] = _nameWithAgg;
+                //_fieldTempObject[_nameWithAgg] = "";
+                // Logger("info", "NameWithAgg", field);
+                //}
+              });
+            });
+
+            chartData.forEach((data: any) => {
+              let _chartDataObj: any = {};
+
+              _zones.forEach((zoneItem: any) => {
+                zoneItem.fields.forEach((field: any) => {
+                  _chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
+                });
+              });
+
+              Logger("info", "_chartDataObj", _chartDataObj);
+              result.push(_chartDataObj);
+            });
+          }
+
+          return result;
+        };
+        const filters = tabTilesAndTheirFilters[tabTileID];
+
+        const filterPanels: IFilterPanel[] = [
+          {
+            panelName: "dashboardFilters",
+            shouldAllConditionsMatch: true,
+            filters: [...filters],
+          },
+        ];
+        let payLoad: any[] = [];
+        if (
+          ["funnel", "gauge", "simplecard", "richText"].includes(
+            chartProperties.properties[`${tabTileID}`].chartType
+          )
+        ) {
+          const measures = chartProp.chartAxes.filter(
+            (axes: AxesValuProps) => axes.name === "Measure"
+          );
+          const filters = chartProp.chartAxes.filter(
+            (axes: AxesValuProps) => axes.name === "Filter"
+          );
+          payLoad = [
+            {
+              dimensions: [],
+              fields: [],
+              filterPanels: filterPanels,
+              filters: filters.map((filter: any) => filter.fields),
+              measures: measures.flatMap((measure: any) =>
+                measure.fields.map((el: any) => ({
+                  dataType: el.dataType,
+                  uid: el.uId,
+                  fieldName: el.fieldname,
+                  displayName: el.displayname,
+                  rollupDepth: false,
+                  measureOrder: 1,
+                  aggr: el.agg,
+                  tableId: el.tableId,
+                }))
+              ),
+            },
+          ];
+        } else {
+          const dimensions = chartProperties.properties[
+            `${tabTileID}`
+          ].chartAxes.filter(
+            (axes: AxesValuProps) =>
+              axes.name !== "Measure" && axes.name !== "Filter"
+          );
+
+          const measures = chartProperties.properties[
+            `${tabTileID}`
+          ].chartAxes.filter((axes: AxesValuProps) => axes.name === "Measure");
+          const filters = chartProperties.properties[
+            `${tabTileID}`
+          ].chartAxes.filter((axes: AxesValuProps) => axes.name === "Filter");
+          payLoad = [
+            {
+              filters: filters.flatMap((filter: any) => filter.fields),
+              measures: measures.flatMap((measure: any) =>
+                measure.fields.map((el: any) => ({
+                  dataType: el.dataType,
+                  uid: el.uId,
+                  fieldName: el.fieldname,
+                  displayName: el.displayname,
+                  rollupDepth: false,
+                  measureOrder: 1,
+                  aggr: el.agg,
+                  tableId: el.tableId,
+                }))
+              ),
+              dimensions: dimensions.flatMap((axes: AxesValuProps) =>
+                axes.fields.map((filter: any) => ({
+                  dataType: filter.dataType,
+                  uid: filter.uId,
+                  fieldName: filter.fieldname,
+                  displayName: filter.displayname,
+                  tableId: filter.tableId,
+                  rollupDepth: false,
+                }))
+              ),
+              fields: [],
+              filterPanels: filterPanels,
+            },
+          ];
+        }
+        (async () => {
+          const _selectedDS =
+            chartProperties.properties[`${tabTileID}`].selectedDs;
+          let url = "";
+          if (_selectedDS.isFlatFileData) {
+            url = `query?datasetid=${_selectedDS.id}`;
+          } else {
+            url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}`;
+          }
+          setLoading(true);
+          const res = await FetchData({
+            requestType: "withData",
+            method: "POST",
+            url: url,
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            data: payLoad,
+          });
+          if (res.status) {
+            storeServerData(tabTileID, res.data);
+            if (
+              chartProperties.properties[tabTileID].chartType === "richText"
+            ) {
+              updateChartDataForDm(sortChartData(res.data));
+              const values = Object.values(res.data[0]);
+              updateRichTextDynamicValue(
+                tabTileID,
+                getFormatedValue(chartProp.dynamicMeasureId, values[0])
+              );
+            } else {
+              updateChartData(tabTileID, sortChartData(res.data));
+            }
+            setLoading(false);
+          } else {
+            Logger("error", "Get Table Data Error", res.data.message);
+            setLoading(false);
+          }
+        })();
+      });
+      tabTileIDsWithoutFilterGroups.forEach((tabTileID: string) => {
+        const chartProp: any =
+          chartProperties.properties[`${tabTileID}`].chartType === "richText"
+            ? dynamicMeasureState.dynamicMeasureProps?.[
+                tabTileID.split(".")[0]
+              ]?.[tabTileID.split(".")[1]]?.[
+                `${tabTileID.split(".")[1]}.${
+                  dynamicMeasureState.selectedDynamicMeasureId
+                }`
+              ]
+            : chartProperties.properties[`${tabTileID}`];
+
+        const sortChartData = (chartData: any[]): any[] => {
+          let result: any[] = [];
+          let axesValues1 = JSON.parse(JSON.stringify(chartProp.chartAxes));
+          if (chartData && chartData.length > 0) {
+            let _zones: any = axesValues1.filter(
+              (zones: any) => zones.name !== "Filter"
+            );
+            //let _zonesFields:any = [];
+            // let _fieldTempObject: any = {};
+            let _chartFieldTempObject: any = {};
+
+            /*	Find and return field's new name	*/
+            const findFieldIndexName = (
+              name: string,
+              i: number = 2
+            ): string => {
+              if (_chartFieldTempObject[`${name}_${i}`] !== undefined) {
+                i++;
+                return findFieldIndexName(name, i);
+              } else {
+                return `${name}_${i}`;
+              }
+            };
+
+            _zones.forEach((zoneItem: any) => {
+              zoneItem.fields.forEach((field: any) => {
+                let _nameWithAgg: string = "";
+
+                _nameWithAgg = field.displayname;
+
+                if (_chartFieldTempObject[field.fieldname] !== undefined) {
+                  let _name = findFieldIndexName(field.fieldname);
+
+                  field["NameWithIndex"] = _name;
+                  _chartFieldTempObject[_name] = "";
+                  // Logger("info", "NameWithIndex", field);
+                } else {
+                  field["NameWithIndex"] = field.fieldname;
+                  _chartFieldTempObject[field.fieldname] = "";
+                  // Logger("info", "NameWithIndex", field);
+                }
+
+                // if (_fieldTempObject[_nameWithAgg] === undefined) {
+                field["NameWithAgg"] = _nameWithAgg;
+                //_fieldTempObject[_nameWithAgg] = "";
+                // Logger("info", "NameWithAgg", field);
+                //}
+              });
+            });
+
+            chartData.forEach((data: any) => {
+              let _chartDataObj: any = {};
+
+              _zones.forEach((zoneItem: any) => {
+                zoneItem.fields.forEach((field: any) => {
+                  _chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
+                });
+              });
+
+              Logger("info", "_chartDataObj", _chartDataObj);
+              result.push(_chartDataObj);
+            });
+          }
+
+          return result;
+        };
+        if (
+          ["funnel", "gauge", "simplecard", "richText"].includes(
+            chartProperties.properties[`${tabTileID}`].chartType
+          )
+        ) {
+          const measures = chartProp.chartAxes.filter(
+            (axes: AxesValuProps) => axes.name === "Measure"
+          );
+
+          const filters = chartProp.chartAxes.filter(
+            (axes: AxesValuProps) => axes.name === "Filter"
+          );
+
+          payLoad = [
+            {
+              dimensions: [],
+              fields: [],
+              filterPanels: [],
+              filters: filters.flatMap((filter: any) => filter.fields),
+              measures: measures.flatMap((measure: any) =>
+                measure.fields.map((el: any) => ({
+                  dataType: el.dataType,
+                  uid: el.uId,
+                  fieldName: el.fieldname,
+                  displayName: el.displayname,
+                  rollupDepth: false,
+                  measureOrder: 1,
+                  aggr: el.agg,
+                  tableId: el.tableId,
+                }))
+              ),
+            },
+          ];
+        } else {
+          const dimensions = chartProperties.properties[
+            `${tabTileID}`
+          ].chartAxes.filter(
+            (axes: AxesValuProps) =>
+              axes.name !== "Measure" && axes.name !== "Filter"
+          );
+
+          const measures = chartProperties.properties[
+            `${tabTileID}`
+          ].chartAxes.filter((axes: AxesValuProps) => axes.name === "Measure");
+          const filters = chartProperties.properties[
+            `${tabTileID}`
+          ].chartAxes.filter((axes: AxesValuProps) => axes.name === "Filter");
+
+          payLoad = [
+            {
+              filters: filters.map((filter: any) => filter.fields),
+              measures: measures.flatMap((measure: any) =>
+                measure.fields.map((el: any) => ({
+                  dataType: el.dataType,
+                  uid: el.uId,
+                  fieldName: el.fieldname,
+                  displayName: el.displayname,
+                  rollupDepth: false,
+                  measureOrder: 1,
+                  aggr: el.agg,
+                  tableId: el.tableId,
+                }))
+              ),
+              dimensions: dimensions.flatMap((axes: AxesValuProps) =>
+                axes.fields.map((filter: any) => ({
+                  dataType: filter.dataType,
+                  uid: filter.uId,
+                  fieldName: filter.fieldname,
+                  displayName: filter.displayname,
+                  tableId: filter.tableId,
+                  rollupDepth: false,
+                }))
+              ),
+              fields: [],
+              filterPanels: [],
+            },
+          ];
+        }
+        (async () => {
+          const _selectedDS =
+            chartProperties.properties[`${tabTileID}`].selectedDs;
+          let url = "";
+          if (_selectedDS.isFlatFileData) {
+            url = `query?datasetid=${_selectedDS.id}`;
+          } else {
+            url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}`;
+          }
+          setLoading(true);
+          const res = await FetchData({
+            requestType: "withData",
+            method: "POST",
+            url: url,
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            data: payLoad,
+          });
+          if (res.status) {
+            storeServerData(tabTileID, res.data);
+            if (
+              chartProperties.properties[tabTileID].chartType === "richText"
+            ) {
+              updateChartDataForDm(sortChartData(res.data));
+              const values = Object.values(res.data[0]);
+              updateRichTextDynamicValue(
+                tabTileID,
+                getFormatedValue(chartProp.dynamicMeasureId, values[0])
+              );
+            } else {
+              updateChartData(tabTileID, sortChartData(res.data));
+            }
+            setLoading(false);
+          } else {
+            Logger("error", "Get Table Data Error", res.data.message);
+            setLoading(false);
+          }
+        })();
+      });
+    } else if (screenFrom === "richTextReportFilter") {
+
+    /**
+     *
+     * screenFrom === "richTextReportFilter" if chartData is rendered from DataViewerMidle
+     */
+      const chartProp =
+        chartProperties.properties[`${_propKey}`].chartType === "richText"
+          ? dynamicMeasureState.dynamicMeasureProps?.[tabId]?.[tileId]?.[
+              `${tileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+            ]
+          : chartProperties.properties[`${_propKey}`];
+
+
+      /**
+         * if Dynamic measures  it not selected we ownt be able to make api call as measures is required
+        */
+      if (!chartProp || !chartProp.chartAxes) return;
+
+
+
+      const sortChartData = (chartData: any[]): any[] => {
+        let result: any[] = [];
+        let axesValues1 = JSON.parse(JSON.stringify(chartProp.chartAxes));
+        if (chartData && chartData.length > 0) {
+          let _zones: any = axesValues1.filter(
+            (zones: any) => zones.name !== "Filter"
+          );
+          //let _zonesFields:any = [];
+          // let _fieldTempObject: any = {};
+          let _chartFieldTempObject: any = {};
+
+          /*	Find and return field's new name	*/
+          const findFieldIndexName = (name: string, i: number = 2): string => {
+            if (_chartFieldTempObject[`${name}_${i}`] !== undefined) {
+              i++;
+              return findFieldIndexName(name, i);
+            } else {
+              return `${name}_${i}`;
+            }
+          };
+
+          _zones.forEach((zoneItem: any) => {
+            zoneItem.fields.forEach((field: any) => {
+              let _nameWithAgg: string = "";
+
+              _nameWithAgg = field.displayname;
+
+              if (_chartFieldTempObject[field.fieldname] !== undefined) {
+                let _name = findFieldIndexName(field.fieldname);
+
+                field["NameWithIndex"] = _name;
+                _chartFieldTempObject[_name] = "";
+                // Logger("info", "NameWithIndex", field);
+              } else {
+                field["NameWithIndex"] = field.fieldname;
+                _chartFieldTempObject[field.fieldname] = "";
+                // Logger("info", "NameWithIndex", field);
+              }
+
+              // if (_fieldTempObject[_nameWithAgg] === undefined) {
+              field["NameWithAgg"] = _nameWithAgg;
+              //_fieldTempObject[_nameWithAgg] = "";
+              // Logger("info", "NameWithAgg", field);
+              //}
+            });
+          });
+
+          chartData.forEach((data: any) => {
+            let _chartDataObj: any = {};
+
+            _zones.forEach((zoneItem: any) => {
+              zoneItem.fields.forEach((field: any) => {
+                _chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
+              });
+            });
+
+            Logger("info", "_chartDataObj", _chartDataObj);
+            result.push(_chartDataObj);
+          });
+        }
+
+        return result;
+      };
+
+
+      let payload: any[] = [];
+      const filterGroupsToBeAppliedOnTile: string[] =
+        chartGroup.tabTile[_propKey];
+      if (!filterGroupsToBeAppliedOnTile) return;
+      let filters: IFilter[] = [];
+
+
+      /**
+       * If no filter group is selectedfilterPanel is empty else apply filters of filterGroups
+       */
+      if(filterGroupsToBeAppliedOnTile.length===0){
+        const measures = chartProp.chartAxes.filter(
+          (axes: AxesValuProps) => axes.name === "Measure"
+        );
+        const filtersForAPI = chartProp.chartAxes.filter(
+          (axes: AxesValuProps) => axes.name === "Filter"
+        );
+        payload = [
+          {
+            dimensions: [],
+            fields: [],
+            filterPanels:[],
+            filters: filtersForAPI.map((filter: any) => filter.fields),
+            measures: measures.flatMap((measure: any) =>
+              measure.fields.map((el: any) => ({
+                dataType: el.dataType,
+                uid: el.uId,
+                fieldName: el.fieldname,
+                displayName: el.displayname,
+                rollupDepth: false,
+                measureOrder: 1,
+                aggr: el.agg,
+                tableId: el.tableId,
+              }))
+            ),
+          },
+        ];
+      }
+      else{
+        filterGroupsToBeAppliedOnTile.forEach((filterGroupID: string) => {
+          chartGroup.groups[filterGroupID].filters.forEach((filter: any) =>
+            filters.push(modifyFilter(filter))
+          );
+  
+          
+          const measures = chartProp.chartAxes.filter(
+            (axes: AxesValuProps) => axes.name === "Measure"
+          );
+          const filtersForAPI = chartProp.chartAxes.filter(
+            (axes: AxesValuProps) => axes.name === "Filter"
+          );
+          payload = [
+            {
+              dimensions: [],
+              fields: [],
+              filterPanels:
+                filters.length > 0
+                  ? [
+                      {
+                        panelName: "reportFilter",
+                        shouldAllConditionsMatch: true,
+                        filters: [...filters],
+                      },
+                    ]
+                  : [],
+              filters: filtersForAPI.map((filter: any) => filter.fields),
+              measures: measures.flatMap((measure: any) =>
+                measure.fields.map((el: any) => ({
+                  dataType: el.dataType,
+                  uid: el.uId,
+                  fieldName: el.fieldname,
+                  displayName: el.displayname,
+                  rollupDepth: false,
+                  measureOrder: 1,
+                  aggr: el.agg,
+                  tableId: el.tableId,
+                }))
+              ),
+            },
+          ]; 
+        });
+      }
+      (async () => {
+        const _selectedDS =
+          chartProperties.properties[`${_propKey}`].selectedDs;
+        let url = "";
+        if (_selectedDS.isFlatFileData) {
+          url = `query?datasetid=${_selectedDS.id}`;
+        } else {
+          url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}`;
+        }
+        setLoading(true);
+        const res = await FetchData({
+          requestType: "withData",
+          method: "POST",
+          url: url,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          data: payload,
+        });
+        if (res.status) {
+          storeServerData(_propKey, res.data);
+          updateChartDataForDm(sortChartData(res.data));
+          const values = Object.values(res.data[0]);
+          updateRichTextDynamicValue(
+            _propKey,
+            getFormatedValue(chartProp.dynamicMeasureId, values[0])
+          );
+
+          setLoading(false);
+        } else {
+          Logger("error", "Get Table Data Error", res.data.message);
+          setLoading(false);
+        }
+      })();
     } else {
       if (
         tabTileProps.previousTabId === 0 ||
@@ -1439,7 +2107,7 @@ const ChartData = ({
     chartProp.chartType,
     chartProp.filterRunState,
 
-    chartGroup.chartFilterGroupEdited,
+    chartGroup,
     dashBoardGroup.dashBoardGroupEdited,
     tabTileProps.isDashboardTileSwitched,
   ]);
@@ -1491,6 +2159,8 @@ const mapStateToProps = (
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   return {
+    updateRichTextDynamicValue: (propKey: string, value: string | number) =>
+      dispatch(updateRichTextDynamicValue(propKey, value)),
     storeServerData: (propKey: string, serverData: any) =>
       dispatch(storeServerData(propKey, serverData)),
     updateChartData: (propKey: string, chartData: any) =>

@@ -15,7 +15,9 @@ const initialChartFilterGroup = {
     // }
 }
 
-
+type TabTile = {
+    [tabTileId: string]: string[]; // tabTileId is a string, and its value is an array of filterGroupIds (strings)
+  };
 
 const chartFilterGroupReducer = (state: any = initialChartFilterGroup, action: any) => {
 
@@ -215,7 +217,45 @@ const chartFilterGroupReducer = (state: any = initialChartFilterGroup, action: a
                 },
             });
 
-
+        case "DELETE_FILTER_GROUP_FROM_CHART_FILTER_GROUP":
+            const filterGroupId=action.payload;
+            const newTabTile:TabTile={}
+            Object.entries(state.tabTile).forEach(([tabTileId, filterGroupIds]) => {
+                // @ts-ignore
+                const filteredGroups = filterGroupIds.filter((id:string) => id !== filterGroupId);
+            
+                // Add the filtered array to the new tabTile object
+                newTabTile[tabTileId] = filteredGroups;
+              });
+            const newDatasetGroupsList = Object.entries(state.datasetGroupsList).reduce((acc, [datasetId, filterGroupIds]) => {
+                // @ts-ignore
+                const filteredGroups = filterGroupIds.filter((id:string) => id !== filterGroupId);
+            
+                // Add the filtered array to the new tabTile object
+                // @ts-ignore
+                acc[datasetId] = filteredGroups;
+                return acc;
+              }
+            ,{});
+            const newGroups = Object.entries(state.groups).reduce((acc, [groupId, group]) => {
+                if(groupId !== filterGroupId){
+                    // @ts-ignore
+                    acc[groupId] = group;
+                }
+                return acc;
+            }
+            ,{});
+            return update(state, {
+                tabTile: {
+                    $set: newTabTile
+                },
+                datasetGroupsList: {
+                    $set: newDatasetGroupsList
+                },
+                groups: {
+                    $set: newGroups
+                }
+            });
 
         default:
             return state;

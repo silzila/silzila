@@ -203,6 +203,12 @@ const chartControl = {
         fontWeigth: "normal",
         fontFamily: "sans-serif",
         fontWeight: "500",
+        selectedMembers: [],
+        inputValue: "0", 
+        showCss: "",
+        columnName:"",
+        columnType: "",
+        comparison: "> Greater than",
       },
       crossTabCellLabelOptions: {
         labelColorManual: false,
@@ -562,6 +568,12 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               fontWeigth: "normal",
               fontFamily: "sans-serif",
               fontWeight: "500",
+              selectedMembers: [],
+              inputValue: "0", 
+              showCss: "",
+              columnName:"",
+              columnType: "",
+              comparison: "> Greater than",
             },
             crossTabCellLabelOptions: {
               labelColorManual: false,
@@ -920,6 +932,12 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               fontWeigth: "normal",
               fontFamily: "sans-serif",
               fontWeight: "500",
+              selectedMembers: [],
+              inputValue: "0", 
+              showCss: "",
+              columnName:"",
+              columnType: "",
+              comparison: "> Greater than",
             },
             crossTabCellLabelOptions: {
               labelColorManual: false,
@@ -1143,6 +1161,15 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
         properties: {
           [action.payload.propKey]: {
             chartData: { $set: action.payload.chartData },
+          },
+        },
+      });
+
+    case "SORT_SERVER_DATAS":
+      return update(state, {
+        properties: {
+          [action.payload.propKey]: {
+            serverData: { $set: action.payload.serverData },
           },
         },
       });
@@ -1593,6 +1620,32 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
           },
         },
       });
+    case "UPDATE_RICH_TEXT_DYNAMIC_VALUE":
+      const richText = state.properties[action.payload.propKey]?.richText;
+      const text = richText?.text;
+      const children = text?.[0]?.children;
+
+      if (children && children[1]?.character !== undefined) {
+        // If richText.text[0].children[1].character exists, update it
+        return update(state, {
+          properties: {
+            [action.payload.propKey]: {
+              richText: {
+                text: {
+                  0: {
+                    children: {
+                      1: {
+                        character: { $set: action.payload.value },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+      } else return state; // Or some other fallback logic
+
     case "UPDATE_CARD_CONTROLS":
       return update(state, {
         properties: {

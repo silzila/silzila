@@ -59,19 +59,20 @@ const ChartFilterGroups = ({
 		selectedDatasetID = chartProp.properties[propKey].selectedDs.id;
 	} else {
 		selectedGroupTabTilesList = dashBoardGroup.filterGroupTabTiles[group.id];
-
 		[...tilesForSelectedTab].forEach((tile: any) => {
 			//chartGroup.groups[group.id].dataSetId
 			//chartProp.properties[tile].selectedDs.id
 
 			if (tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.includes(tile)) {
-				dashboardTabTileList.push({
-					name: tileState.tiles[tile].tileName,
-					id: tile,
-					disabled:
-						chartGroup.groups[group.id].dataSetId !==
-						chartProp.properties[tile].selectedDs.id,
-				});
+				if(chartGroup.groups[group.id]){
+					dashboardTabTileList.push({
+						name: tileState.tiles[tile].tileName,
+						id: tile,
+						disabled:
+							chartGroup.groups[group.id].dataSetId !==
+							chartProp.properties[tile].selectedDs.id,
+					});
+				}
 			}
 		});
 	}
@@ -268,7 +269,7 @@ const ChartFilterGroups = ({
 					{group &&
 						group.filters?.map((field: fieldProps, index: number) => (
 							<ChartFilterGroupCard
-								propKey={propKey}
+								propKey={fromDashboard?`${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`:propKey}
 								name={group.id}
 								itemIndex={index}
 								key={index}
