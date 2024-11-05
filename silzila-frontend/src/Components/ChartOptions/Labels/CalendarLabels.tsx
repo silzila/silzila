@@ -27,7 +27,7 @@ const CalendarLabels = ({
 	return (
 		<div className="optionsInfo">
 			<div className="optionDescription">YEAR LABEL</div>
-			<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
+			<div className="optionDescription" style={{ padding: "0 6% 5px 4%", marginTop: "2px" }}>
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
@@ -48,7 +48,7 @@ const CalendarLabels = ({
 			</div>
 			{calStyle.showYearLabel ? (
 				<>
-					<div className="optionDescription">Label Margin</div>
+					<div className="optionDescription" style={{ marginTop: "2px" }}>Label Margin</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={calStyle.yearLabelMargin}
@@ -148,7 +148,7 @@ const CalendarLabels = ({
 			></div>
 			<div className="optionDescription">MONTH LABEL</div>
 
-			<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
+			<div className="optionDescription" style={{ padding: "0 6% 5px 4%", marginTop: "2px" }}>
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
@@ -170,7 +170,7 @@ const CalendarLabels = ({
 
 			{calStyle.showMonthLabel ? (
 				<>
-					<div className="optionDescription">Label Margin</div>
+					<div className="optionDescription" style={{ marginTop: "2px" }}>Label Margin</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={calStyle.monthLabelMargin}
@@ -264,7 +264,7 @@ const CalendarLabels = ({
 			></div>
 			<div className="optionDescription">DAY LABEL</div>
 
-			<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
+			<div className="optionDescription" style={{ padding: "0 6% 5px 4%", marginTop: "2px" }}>
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
@@ -281,7 +281,7 @@ const CalendarLabels = ({
 			</div>
 			{calStyle.showDayLabel ? (
 				<>
-					<div className="optionDescription">Label Margin</div>
+					<div className="optionDescription" style={{ marginTop: "2px" }}>Label Margin</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={calStyle.dayLabelMargin}

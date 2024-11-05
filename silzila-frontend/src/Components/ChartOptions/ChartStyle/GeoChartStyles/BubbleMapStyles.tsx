@@ -157,7 +157,7 @@ const BubbleMapStyles = ({
         </div>
       </div>
 
-      <div className="optionDescription">EMPHASIS on MOUSEOVER:</div>
+      <div className="optionDescription">EMPHASIS ON MOUSEOVER:</div>
       <div className="optionDescription">
         <div style={{ width: "50%" }}>Area Color</div>
 
@@ -182,7 +182,7 @@ const BubbleMapStyles = ({
       </div>
       <div className="optionDescription">
         <div style={{ width: "50%", height: "1.25rem" }}>Blur Others</div>
-        <div style={{ width: "50%", height: "1.25rem" }}>
+        <div style={{ width: "50%", height: "1.25rem", marginTop: "-8px" }}>
           <SwitchWithInput
             isChecked={geoStyle.enableSelfEmphasis}
             onSwitch={() => {
@@ -196,10 +196,10 @@ const BubbleMapStyles = ({
         </div>
       </div>
 
-      <div className="optionDescription">VISUAL SCALE:</div>
+      <div className="optionDescription">Visual Scale:</div>
       <div className="optionDescription">
         <div style={{ width: "50%", height: "1.25rem" }}>Show Scale</div>
-        <div style={{ width: "50%", height: "1.25rem" }}>
+        <div style={{ width: "50%", height: "1.25rem", marginTop: "-8px" }}>
           <SwitchWithInput
             isChecked={geoStyle.showVisualScale}
             onSwitch={() => {

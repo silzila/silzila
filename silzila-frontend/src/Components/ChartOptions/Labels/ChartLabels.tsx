@@ -56,11 +56,16 @@ const ChartLabels = ({
 	];
 	const renderLabels = () => {
 		return labelOptionsList.map((item: any, i: number) => {
+			const isSelected = item.value === showLabel;
 			return (
 				<button
 					onClick={() => updateLabelOption(propKey, "showLabel", item.value)}
-					className={item.value === showLabel ? "radioButtonSelected" : "radioButton"}
+					className={isSelected ? "radioButtonSelected" : "radioButton"}
 					key={i}
+					style = {{
+						backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
+						cursor: isSelected? "auto" : "pointer",
+					}}
 				>
 					{item.name}
 				</button>
@@ -70,7 +75,7 @@ const ChartLabels = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="radioButtons">{renderLabels()}</div>
+			<div className="radioButtons" style={{ marginTop: "15px" }}>{renderLabels()}</div>
 			{showLabel === true ? (
 				<React.Fragment>
 					<div style={{ display: "flex", paddingBottom: "8px", flexDirection: "column" }}>
@@ -157,13 +162,13 @@ const ChartLabels = ({
 									updateLabelOption(propKey, "fontSize", value);
 								}}
 							/>
-							<div className="optionDescription">Label Color</div>
+							<div className="optionDescription" style={{ marginTop: "20px", marginBottom: "-10px" }}>Label Color</div>
 
 							<div className="optionDescription">
 								<label
 									htmlFor="enableDisable"
 									className="enableDisableLabel"
-									style={{ marginRight: "10px" }}
+									style={{ marginRight: "10px", marginLeft: "-5px" }}
 								>
 									Manual
 								</label>

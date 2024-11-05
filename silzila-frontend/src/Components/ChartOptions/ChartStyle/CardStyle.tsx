@@ -48,7 +48,7 @@ const CardStyle = ({
         <label
           htmlFor="enableDisable"
           className="enableDisableLabel"
-          style={{ marginRight: "10px" }}
+          style={{ marginRight: "10px", marginLeft: "-5px" }}
         >
           Custom Font Style
         </label>

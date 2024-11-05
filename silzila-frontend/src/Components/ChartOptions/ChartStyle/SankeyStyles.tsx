@@ -22,7 +22,7 @@ const SankeyStyles = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="optionDescription">
+			<div className="optionDescription" style={{ marginLeft: "-5px" }}>
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"

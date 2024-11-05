@@ -85,7 +85,7 @@ const ColorScale = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="optionDescription">SET COLOR SCALE:</div>
+			<div className="optionDescription">Set Color Scale:</div>
 
 			<div className="optionDescription" style={{ marginTop: "5px", marginBottom: "5px" }}>
 				<label
@@ -99,10 +99,11 @@ const ColorScale = ({
 					style={{
 						height: "1.25rem",
 						width: "20%",
-						marginLeft: "20px",
+						marginLeft: "1px",
+						marginRight: "2px",
 						backgroundColor: chartControls.properties[propKey].colorScale.minColor,
 						color: chartControls.properties[propKey].colorScale.minColor,
-						border: "2px solid darkgray",
+						border: "2px solid",
 						margin: "auto",
 					}}
 					onClick={e => {
@@ -124,7 +125,7 @@ const ColorScale = ({
 					style={{
 						height: "1.25rem",
 						width: "20%",
-						marginLeft: "20px",
+						marginLeft: "1px",
 						backgroundColor: chartControls.properties[propKey].colorScale.maxColor,
 						color: chartControls.properties[propKey].colorScale.maxColor,
 						border: "2px solid darkgray",
@@ -140,9 +141,9 @@ const ColorScale = ({
 					{"  "}
 				</div>
 			</div>
-			<div className="optionDescription">SET MIN MAX VALUES</div>
+			<div className="optionDescription">Set Min Max Values</div>
 
-			<div className="colorScaleContainer">
+			<div className="colorScaleContainer" style={{ marginTop: "0px" }}>
 				<RadioGroup
 					aria-labelledby="demo-controlled-radio-buttons-group"
 					name="controlled-radio-buttons-group"
@@ -155,7 +156,7 @@ const ColorScale = ({
 						checked={selectedOption === "Automatic" ? true : false}
 						control={
 							<Radio 
-								style={{ color: selectedOption === "Automatic" ? '#2bb9bb' : undefined }}
+								style={{ color: selectedOption === "Automatic" ? '#2bb9bb' : undefined, marginBottom: "-4px" }}
 							/>
 						}
 						label={typographyComponent("Automatic")}

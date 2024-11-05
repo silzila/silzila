@@ -49,7 +49,7 @@ const TreeMapLegend = ({
 			</div>
 			{treeLegend.showBreadCrumb ? (
 				<React.Fragment>
-					<div className="optionDescription">Width</div>
+					<div className="optionDescription" style={{ marginTop: "5px"}}>Width</div>
 					<SliderWithInput
 						sliderValue={treeLegend.bcWidth}
 						sliderMinMax={itemWidthMinMax}
@@ -72,7 +72,7 @@ const TreeMapLegend = ({
 						<label
 							htmlFor="enableDisable"
 							className="enableDisableLabel"
-							style={{ marginRight: "10px" }}
+							style={{ marginRight: "10px", marginLeft: "-8px" }}
 						>
 							Breadcrumb Color
 						</label>

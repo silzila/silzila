@@ -134,7 +134,7 @@ const FilledMapStyles = ({
         </div>
       </div>
 
-      <div className="optionDescription">EMPHASIS on MOUSEOVER:</div>
+      <div className="optionDescription">EMPHASIS ON MOUSEOVER:</div>
       <div className="optionDescription">
         <div style={{ width: "50%" }}>Area Color</div>
 
@@ -159,7 +159,7 @@ const FilledMapStyles = ({
       </div>
       <div className="optionDescription">
         <div style={{ width: "50%", height: "1.25rem" }}>Blur Others</div>
-        <div style={{ width: "50%", height: "1.25rem" }}>
+        <div style={{ width: "50%", height: "1.25rem", marginTop: "-8px" }}>
           <SwitchWithInput
             isChecked={geoStyle.enableSelfEmphasis}
             onSwitch={() => {
@@ -176,7 +176,7 @@ const FilledMapStyles = ({
       <div className="optionDescription">VISUAL SCALE:</div>
       <div className="optionDescription">
         <div style={{ width: "50%", height: "1.25rem" }}>Show Scale</div>
-        <div style={{ width: "50%", height: "1.25rem" }}>
+        <div style={{ width: "50%", height: "1.25rem", marginTop: "-8px" }}>
           <SwitchWithInput
             isChecked={geoStyle.showVisualScale}
             onSwitch={() => {

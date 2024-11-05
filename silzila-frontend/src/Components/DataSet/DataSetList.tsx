@@ -299,6 +299,9 @@ const DataSetList = ({
             textTransform: "none",
             color: "grey",
             display: "block",
+            "&:hover": {
+              backgroundColor: "rgba(43, 185, 187, 0.1)"
+            }
           }}
           value="dbConnections"
           onClick={() => {
@@ -313,6 +316,9 @@ const DataSetList = ({
             textTransform: "none",
             color: "grey",
             display: "block",
+            "&:hover": {
+              backgroundColor: "rgba(43, 185, 187, 0.1)"
+            }
           }}
           value="flatFile"
           onClick={() => {

@@ -62,7 +62,7 @@ const GridControls = ({
 							...textFieldStyleProps,
 							sx: {								
 								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-									borderColor: "#2bb9bb", // Set focused border color
+									borderColor: "#2bb9bb", 
 								},
 							},
 						 }}
@@ -92,12 +92,13 @@ const GridControls = ({
 									color: "rgb(96, 96, 96)",
 									fontWeight: "600",
 									display: "flex",
+									marginTop: "4px"
 								}}
 							>
 								<label
 									htmlFor="enableDisable"
 									className="enableDisableLabel"
-									style={{ marginRight: "10px" }}
+									style={{ marginRight: "10px", marginLeft: "-1px" }}
 								>
 									ClockWise
 								</label>
@@ -139,7 +140,7 @@ const GridControls = ({
 						 }}
 					/>
 
-					<div className="optionDescription">
+					<div className="optionDescription" style={{ marginLeft: "-3px" }}>
 						<input
 							type="checkbox"
 							id="enableDisable"
@@ -179,7 +180,7 @@ const GridControls = ({
 						</>
 					) : null}
 
-					<div className="optionDescription">
+					<div className="optionDescription" style={{ marginLeft: "-3px" }}>
 						<input
 							type="checkbox"
 							id="enableDisable"

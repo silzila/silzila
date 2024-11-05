@@ -5,7 +5,7 @@
 // 	- Orientation
 // 	- legend item size
 
-import { FormControl, MenuItem, Select } from "@mui/material";
+import { FormControl, MenuItem, Select, Divider } from "@mui/material";
 import React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -54,11 +54,16 @@ const ChartLegend = ({
 	];
 	const renderOrientation = () => {
 		return orientOption.map(item => {
+			const isSelected = item.key === orientation;
 			return (
 				<div
-					className={item.key === orientation ? "radioButtonSelected" : "radioButton"}
+					className={isSelected ? "radioButtonSelected" : "radioButton"}
 					onClick={() => setOrient(item.key)}
 					key={item.key}
+					style={{
+						backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
+						cursor: isSelected? "auto" : "pointer",
+					}}
 				>
 					{item.name}
 				</div>
@@ -97,7 +102,7 @@ const ChartLegend = ({
 					className="enableDisableLabel"
 					style={{ marginRight: "10px" }}
 				>
-					SHOW LEGEND
+					Show Legend
 				</label>
 				<SwitchWithInput
 					isChecked={showLegend}
@@ -108,7 +113,7 @@ const ChartLegend = ({
 			</div>
 			{showLegend ? (
 				<React.Fragment>
-					<div className="optionDescription">POSITION:</div>
+					<div className="optionDescription" style={{ marginTop: "3px" }}>Position:</div>
 					{selectedPosition?.pos ? (
 						<FormControl
 							fullWidth
@@ -165,13 +170,14 @@ const ChartLegend = ({
 					) : null}
 					{chartProperties.properties[propKey].chartType === "calendar" ||
 					chartProperties.properties[propKey].chartType === "heatmap" ? (
-						<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
+						<div className="optionDescription" style={{ padding: "0 6% 5px 4%", marginTop: "3px" }}>
 							<label
 								htmlFor="enableDisable"
 								className="enableDisableLabel"
 								style={{ marginRight: "10px" }}
+								
 							>
-								PIECEWISE
+								Piecewise
 							</label>
 							<SwitchWithInput
 								isChecked={
@@ -188,8 +194,11 @@ const ChartLegend = ({
 							/>
 						</div>
 					) : null}
-					<div className="optionDescription">ORIENTATION:</div>
+					<div className="optionDescription" style={{ marginTop: "3px" }}>Orientation:</div>
 					<div className="radioButtons">{renderOrientation()}</div>
+
+					<Divider style={{ margin: "10px 0" }} />
+
 					<div className="optionDescription">RESIZE:</div>
 					{chartProperties.properties[propKey].chartType === "calendar" ||
 					chartProperties.properties[propKey].chartType === "heatmap" ? (

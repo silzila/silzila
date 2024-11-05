@@ -52,11 +52,16 @@ const ChartStyle = ({
 
 	const renderLabels = () => {
 		return labelOptionsList.map((item, i) => {
+			const isSelected = item.name === optionName;
 			return (
 				<button
 					onClick={() => setOptionName(item.name)}
-					className={item.name === optionName ? "radioButtonSelected" : "radioButton"}
+					className={isSelected ? "radioButtonSelected" : "radioButton"}
 					key={i}
+					style={{
+						backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
+						cursor: isSelected? "auto" : "pointer",
+					}}
 				>
 					{item.name}
 				</button>
@@ -66,7 +71,7 @@ const ChartStyle = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="optionDescription">BORDER WIDTH</div>
+			<div className="optionDescription">Border Width</div>
 			<SliderWithInput
 				percent={true}
 				sliderValue={chartControls.properties[propKey].crossTabStyleOptions.borderWidth}
@@ -76,7 +81,7 @@ const ChartStyle = ({
 				}}
 			/>
 
-			<div className="optionDescription">LINE HEIGHT</div>
+			<div className="optionDescription">Line Height</div>
 			<SliderWithInput
 				percent={true}
 				sliderValue={chartControls.properties[propKey].crossTabStyleOptions.lineHeight}
@@ -86,11 +91,11 @@ const ChartStyle = ({
 				}}
 			/>
 
-			<div className="radioButtons">{renderLabels()}</div>
+			<div className="radioButtons" style={{ marginTop: "10px" }}>{renderLabels()}</div>
 			<React.Fragment>
 				<div style={{ display: "flex", paddingBottom: "8px", flexDirection: "column" }}>
 					<div>
-						<div className="optionDescription">LABEL COLOR</div>
+						<div className="optionDescription">Label Color</div>
 
 						<div className="optionDescription">
 							<input
@@ -136,7 +141,7 @@ const ChartStyle = ({
 							) : null}
 						</div>
 					</div>
-					<div className="optionDescription">FONT SIZE</div>
+					<div className="optionDescription">Font Size</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={options.fontSize}
@@ -150,7 +155,7 @@ const ChartStyle = ({
 						}}
 					/>
 
-					<div className="optionDescription">FONT WEIGHT</div>
+					<div className="optionDescription">Font Weight</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={options.fontWeight}

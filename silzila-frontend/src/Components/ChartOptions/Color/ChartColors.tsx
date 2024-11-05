@@ -57,7 +57,7 @@ const ChartColors = ({
 
   return (
     <div className="optionsInfo">
-      <div className="optionDescription">COLOR SCHEME:</div>
+      <div className="optionDescription">Color Scheme:</div>
       <FormControl
         fullWidth
         size="small"
@@ -116,7 +116,7 @@ const ChartColors = ({
       {chartProperties.properties[propKey].chartType === "area" ||
       chartProperties.properties[propKey].chartType === "stackedArea" ? (
         <React.Fragment>
-          <div className="optionDescription">Background Color</div>
+          <div className="optionDescription" style={{ marginTop: "20px" }}>Background Color</div>
           <div
             style={{
               height: "1.25rem",
@@ -132,7 +132,7 @@ const ChartColors = ({
               setColorPopOverOpen(!isColorPopoverOpen);
             }}
           ></div>
-          <div className="optionDescription">Opacity</div>
+          <div className="optionDescription" style={{ marginTop: "20px" }}>Opacity</div>
           <SliderWithInput
             pointNumbers={true}
             sliderValue={chartControls.properties[propKey].areaOpacity}
