@@ -59,6 +59,21 @@ const TreeMapStyles = ({
 						backgroundColor: "white",
 						height: "1.5rem",
 						color: "#404040",
+						"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+							borderColor: "#2bb9bb", // Set focused border color
+						},
+					}}
+					MenuProps={{
+						PaperProps: {
+							sx: {
+								"& .MuiMenuItem-root.Mui-selected": {
+									backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+								},
+								"& .MuiMenuItem-root.Mui-selected:hover": {
+									backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+								}
+							}
+						}
 					}}
 				>
 					{treeMapLeafDepthOptions.map((depth: any) => {
@@ -83,6 +98,7 @@ const TreeMapStyles = ({
 				pointNumbers={true}
 				sliderValue={treemapStyle.borderWidth}
 				sliderMinMax={{ min: 0, max: 40, step: 1 }}
+				percent={true}
 				changeValue={value => updateTreeMapStyleOptions(propKey, "borderWidth", value)}
 			/>
 			<div className="optionDescription">Gap Width</div>
@@ -90,6 +106,7 @@ const TreeMapStyles = ({
 				pointNumbers={true}
 				sliderValue={treemapStyle.gapWidth}
 				sliderMinMax={{ min: 0, max: 100, step: 1 }}
+				percent={true}
 				changeValue={value => updateTreeMapStyleOptions(propKey, "gapWidth", value)}
 			/>
 		</div>

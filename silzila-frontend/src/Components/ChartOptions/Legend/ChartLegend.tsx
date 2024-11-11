@@ -5,7 +5,7 @@
 // 	- Orientation
 // 	- legend item size
 
-import { FormControl, MenuItem, Select } from "@mui/material";
+import { FormControl, MenuItem, Select, Divider } from "@mui/material";
 import React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -54,11 +54,17 @@ const ChartLegend = ({
 	];
 	const renderOrientation = () => {
 		return orientOption.map(item => {
+			const isSelected = item.key === orientation;
 			return (
 				<div
-					className={item.key === orientation ? "radioButtonSelected" : "radioButton"}
+					className={isSelected ? "radioButtonSelected" : "radioButton"}
 					onClick={() => setOrient(item.key)}
 					key={item.key}
+					style={{
+						backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
+						cursor: isSelected? "auto" : "pointer",
+						fontWeight: isSelected? "600" : "normal",
+					}}
 				>
 					{item.name}
 				</div>
@@ -97,7 +103,7 @@ const ChartLegend = ({
 					className="enableDisableLabel"
 					style={{ marginRight: "10px" }}
 				>
-					SHOW LEGEND
+					Show Legend
 				</label>
 				<SwitchWithInput
 					isChecked={showLegend}
@@ -108,7 +114,7 @@ const ChartLegend = ({
 			</div>
 			{showLegend ? (
 				<React.Fragment>
-					<div className="optionDescription">POSITION:</div>
+					<div className="optionDescription" style={{ marginTop: "3px" }}>Position:</div>
 					{selectedPosition?.pos ? (
 						<FormControl
 							fullWidth
@@ -128,7 +134,22 @@ const ChartLegend = ({
 									margin: "0 auto 0.5rem auto",
 									backgroundColor: "white",
 									height: "1.5rem",
-									color: "#404040",
+									color: "#404040",									
+									"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+										borderColor: "#2bb9bb", // Set focused border color
+									},									
+								}}
+								MenuProps={{
+									PaperProps: {
+										sx: {
+											"& .MuiMenuItem-root.Mui-selected": {
+												backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+											},
+											"& .MuiMenuItem-root.Mui-selected:hover": {
+												backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+											}
+										}
+									}
 								}}
 							>
 								{positions.map(position => {
@@ -150,13 +171,14 @@ const ChartLegend = ({
 					) : null}
 					{chartProperties.properties[propKey].chartType === "calendar" ||
 					chartProperties.properties[propKey].chartType === "heatmap" ? (
-						<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
+						<div className="optionDescription" style={{ padding: "0 6% 5px 4%", marginTop: "3px" }}>
 							<label
 								htmlFor="enableDisable"
 								className="enableDisableLabel"
 								style={{ marginRight: "10px" }}
+								
 							>
-								PIECEWISE
+								Piecewise
 							</label>
 							<SwitchWithInput
 								isChecked={
@@ -173,8 +195,11 @@ const ChartLegend = ({
 							/>
 						</div>
 					) : null}
-					<div className="optionDescription">ORIENTATION:</div>
+					<div className="optionDescription" style={{ marginTop: "3px" }}>Orientation:</div>
 					<div className="radioButtons">{renderOrientation()}</div>
+
+					<Divider style={{ margin: "10px 0" }} />
+
 					<div className="optionDescription">RESIZE:</div>
 					{chartProperties.properties[propKey].chartType === "calendar" ||
 					chartProperties.properties[propKey].chartType === "heatmap" ? (
@@ -187,6 +212,7 @@ const ChartLegend = ({
 											chartControls.properties[propKey].legendOptions.itemGap
 										}
 										sliderMinMax={itemSpacingMinMax}
+										percent={true}
 										changeValue={(value: number) =>
 											updateLegendOption(propKey, "itemGap", value)
 										}
@@ -202,6 +228,7 @@ const ChartLegend = ({
 									chartControls.properties[propKey].legendOptions.itemGap
 								}
 								sliderMinMax={itemSpacingMinMax}
+								percent={true}
 								changeValue={(value: number) =>
 									updateLegendOption(propKey, "itemGap", value)
 								}
@@ -217,6 +244,7 @@ const ChartLegend = ({
 									chartControls.properties[propKey].calendarStyleOptions.width
 								}
 								sliderMinMax={itemWidthMinMax}
+								percent={true}
 								changeValue={(value: number) =>
 									updateCalendarStyleOptions(propKey, "width", value)
 								}
@@ -227,6 +255,7 @@ const ChartLegend = ({
 									chartControls.properties[propKey].calendarStyleOptions.height
 								}
 								sliderMinMax={itemHeightMinMax}
+								percent={true}
 								changeValue={(value: number) =>
 									updateCalendarStyleOptions(propKey, "height", value)
 								}
@@ -240,6 +269,7 @@ const ChartLegend = ({
 									chartControls.properties[propKey].legendOptions.symbolWidth
 								}
 								sliderMinMax={itemWidthMinMax}
+								percent={true}
 								changeValue={(value: number) =>
 									updateLegendOption(propKey, "symbolWidth", value)
 								}
@@ -250,6 +280,7 @@ const ChartLegend = ({
 									chartControls.properties[propKey].legendOptions.symbolHeight
 								}
 								sliderMinMax={itemHeightMinMax}
+								percent={true}
 								changeValue={(value: number) =>
 									updateLegendOption(propKey, "symbolHeight", value)
 								}

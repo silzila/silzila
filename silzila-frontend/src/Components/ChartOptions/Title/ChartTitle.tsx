@@ -19,7 +19,7 @@ import { updateCardControls } from "../../../redux/ChartPoperties/ChartControlsA
 
 var titleOptions: any[] = [
 	{ type: "Auto" },
-	{ type: "Manual", hintTitle: "Double click on title to edit" },
+	{ type: "Manual", hintTitle: "Click to Select Manual" },
 ];
 
 var titleAlignOptions: any[] = [
@@ -29,12 +29,18 @@ var titleAlignOptions: any[] = [
 
 export const RenderTitleOptions: any = ({ generateTitle, setTitleOption }: any) =>
 	titleOptions.map((option: any) => {
+		const isSelected = option.type === generateTitle;
 		return (
 			<div
 				key={option.type}
-				className={option.type === generateTitle ? "radioButtonSelected" : "radioButton"}
+				className={isSelected ? "radioButtonSelected" : "radioButton"}
 				onClick={() => setTitleOption(option.type)}
 				title={option.hintTitle}
+				style={{					
+					backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
+					cursor: isSelected? "auto" : "pointer",
+					fontWeight: isSelected? "600" : "normal",
+				}}
 			>
 				{option.type}
 			</div>
@@ -43,11 +49,17 @@ export const RenderTitleOptions: any = ({ generateTitle, setTitleOption }: any) 
 
 export const RenderTitleAlignOptions: any = ({ titleAlignment, changeTitleAlignment }: any) =>
 	titleAlignOptions.map((option: any) => {
+		const isSelected = option.value === titleAlignment;
 		return (
 			<div
 				key={option.value}
-				className={option.value === titleAlignment ? "radioButtonSelected" : "radioButton"}
+				className={isSelected ? "radioButtonSelected" : "radioButton"}
 				onClick={() => changeTitleAlignment(option.value)}
+				style={{
+					backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
+					cursor: isSelected? "auto" : "pointer",
+					fontWeight: isSelected? "600" : "normal",
+				}}
 			>
 				{option.name}
 			</div>
@@ -88,7 +100,7 @@ const ChartTitle = ({
 		<React.Fragment>
 			{chartProperties.properties[propKey].chartType === "simplecard" ? (
 				<div className="optionsInfo">
-					<div className="optionDescription">TITLE ALIGN</div>
+					<div className="optionDescription">Title Align</div>
 					<TextField
 						value={chartControls.properties[propKey].cardControls.subText}
 						variant="outlined"
@@ -101,7 +113,7 @@ const ChartTitle = ({
 			) : (
 				<>
 					<div className="optionsInfo">
-						<div className="radioButtons">
+						<div className="radioButtons" style={{ marginTop: "15px" }}>
 							<RenderTitleOptions
 								generateTitle={generateTitle}
 								handleOnClick={setGenerateTitle}
@@ -109,18 +121,19 @@ const ChartTitle = ({
 						</div>
 					</div>
 					<div className="optionsInfo">
-						<div className="optionDescription">TITLE ALIGN</div>
+						<div className="optionDescription">Title Align</div>
 						<div className="radioButtons">
 							<RenderTitleAlignOptions
 								titleAlignment={titleAlignment}
 								changeTitleAlignment={changeTitleAlignment}
 							/>
 						</div>
-						<div className="optionDescription">TITLE FONT SIZE</div>
-						<div className="optionDescription">
+						<div className="optionDescription">Title Font Size</div>
+						<div className="optionDescription" style={{ marginLeft: "-10px", marginTop: "3px" }}>
 							<InputPositiveNumber
 								value={chartProperties.properties[propKey].titleOptions.fontSize}
 								updateValue={(value: number) => setTitleSize(propKey, value)}
+								
 							/>
 						</div>
 					</div>

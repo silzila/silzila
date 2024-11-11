@@ -1893,12 +1893,14 @@ const RenderMenu = () => {
         fullWidth
         size="small"
         className={dropDownStyles().customSelect}
+        
       >
         <Select
           sx={{
             height: "1.5rem",
             fontSize: "14px",
             textAlign: "left",
+            
           }}
           IconComponent={KeyboardArrowDownIcon}
           onChange={(e) => {
@@ -1911,7 +1913,15 @@ const RenderMenu = () => {
               <MenuItem
                 key={item.key}
                 value={item.key}
-                selected={item.key === filterFieldData.exprType}
+                selected={item.key === filterFieldData.exprType} 
+                sx={{
+                  "&.Mui-selected": {
+                    backgroundColor: "rgba(43, 185, 187, 0.1)", // Change background color for selected option
+                  },
+                  "&.Mui-selected:hover": {
+                    backgroundColor: "rgba(43, 185, 187, 0.2)", // Change hover background color
+                  },
+                }}               
               >
                 <Typography
                   sx={{
@@ -1940,13 +1950,13 @@ const RenderMenu = () => {
       <FormControl
         fullWidth
         size="small"
-        className={dropDownStyles().customSelect}
+        className={dropDownStyles().customSelect}        
       >
         <Select
           sx={{
             height: "1.5rem",
             fontSize: "14px",
-            textAlign: "left",
+            textAlign: "left",            
           }}
           IconComponent={KeyboardArrowDownIcon}
           onChange={(e) => {
@@ -1956,7 +1966,16 @@ const RenderMenu = () => {
         >
           {items.map((item: any) => {
             return (
-              <MenuItem key={item.key} value={item.key}>
+              <MenuItem key={item.key} value={item.key}
+              sx={{
+                "&.Mui-selected": {
+                  backgroundColor: "rgba(43, 185, 187, 0.1)", // Change background color for selected option
+                },
+                "&.Mui-selected:hover": {
+                  backgroundColor: "rgba(43, 185, 187, 0.2)", // Change hover background color
+                },
+              }}
+              >
                 <Typography
                   sx={{
                     width: "auto",

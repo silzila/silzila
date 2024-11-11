@@ -42,7 +42,7 @@ const ChartMargin = ({
       case "gauge":
         return (
           <React.Fragment>
-            <div className="optionDescription">RADIUS:</div>
+            <div className="optionDescription">Radius:</div>
             <SliderWithInput
               percent={true}
               sliderValue={chartControls.properties[propKey].chartMargin.radius}
@@ -62,7 +62,7 @@ const ChartMargin = ({
       case "rose":
         return (
           <React.Fragment>
-            <div className="optionDescription">INNER RADIUS:</div>
+            <div className="optionDescription">Inner Radius:</div>
             <SliderWithInput
               percent={true}
               sliderValue={
@@ -77,7 +77,7 @@ const ChartMargin = ({
                 updateMargin(propKey, "innerRadius", value);
               }}
             />
-            <div className="optionDescription">OUTER RADIUS:</div>
+            <div className="optionDescription">Outer Radius:</div>
             <SliderWithInput
               percent={true}
               sliderValue={

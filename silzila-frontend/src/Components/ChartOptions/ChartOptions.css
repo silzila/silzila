@@ -48,6 +48,7 @@ button:focus {
 	background-color: #fff;
 	transition: 0.2s;
 	text-transform: capitalize;
+	
 }
 
 .optionsInfo {

@@ -22,7 +22,7 @@ const SankeyStyles = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="optionDescription">
+			<div className="optionDescription" style={{ marginLeft: "-5px" }}>
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
@@ -53,6 +53,21 @@ const SankeyStyles = ({
 						backgroundColor: "white",
 						height: "1.5rem",
 						color: "#404040",
+						"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+							borderColor: "#2bb9bb", // Set focused border color
+						},
+					}}
+					MenuProps={{
+						PaperProps: {
+							sx: {
+								"& .MuiMenuItem-root.Mui-selected": {
+									backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+								},
+								"& .MuiMenuItem-root.Mui-selected:hover": {
+									backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+								}
+							}
+						}
 					}}
 				>
 					<MenuItem value="left" sx={{ padding: "2px 10px", fontSize: "12px" }}>
@@ -83,6 +98,21 @@ const SankeyStyles = ({
 						backgroundColor: "white",
 						height: "1.5rem",
 						color: "#404040",
+						"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+							borderColor: "#2bb9bb", // Set focused border color
+						},
+					}}
+					MenuProps={{
+						PaperProps: {
+							sx: {
+								"& .MuiMenuItem-root.Mui-selected": {
+									backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+								},
+								"& .MuiMenuItem-root.Mui-selected:hover": {
+									backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+								}
+							}
+						}
 					}}
 				>
 					<MenuItem value="horizontal" sx={{ padding: "2px 10px", fontSize: "12px" }}>
@@ -99,6 +129,7 @@ const SankeyStyles = ({
 				pointNumbers={true}
 				sliderValue={sankeyStyle.nodeWidth}
 				sliderMinMax={{ min: 8, max: 100, step: 1 }}
+				percent={true}
 				changeValue={value => updateSankeyStyleOptions(propKey, "nodeWidth", value)}
 			/>
 			<div className="optionDescription">Node Gap</div>
@@ -106,6 +137,7 @@ const SankeyStyles = ({
 				pointNumbers={true}
 				sliderValue={sankeyStyle.nodeGap}
 				sliderMinMax={{ min: 0, max: 80, step: 1 }}
+				percent={true}
 				changeValue={value => updateSankeyStyleOptions(propKey, "nodeGap", value)}
 			/>
 			<div className="optionDescription">Link Opacity</div>
@@ -113,6 +145,7 @@ const SankeyStyles = ({
 				pointNumbers={true}
 				sliderValue={sankeyStyle.opacity}
 				sliderMinMax={{ min: 0, max: 100, step: 10 }}
+				percent={true}
 				changeValue={value => updateSankeyStyleOptions(propKey, "opacity", value)}
 			/>
 			<div className="optionDescription">Link Curveness</div>
@@ -120,6 +153,7 @@ const SankeyStyles = ({
 				pointNumbers={true}
 				sliderValue={sankeyStyle.curveness}
 				sliderMinMax={{ min: 0, max: 100, step: 10 }}
+				percent={true}
 				changeValue={value => updateSankeyStyleOptions(propKey, "curveness", value)}
 			/>
 		</div>

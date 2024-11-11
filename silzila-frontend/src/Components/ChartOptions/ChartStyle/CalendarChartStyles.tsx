@@ -67,7 +67,7 @@ const CalendarChartStyles = ({
 					</div>
 					<div className="optionDescription">Width</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={calStyle.splitLineWidth}
 						sliderMinMax={{ min: 0, max: 60, step: 1 }}
 						changeValue={(value: any) =>
@@ -98,6 +98,21 @@ const CalendarChartStyles = ({
 								backgroundColor: "white",
 								height: "1.5rem",
 								color: "#404040",
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							}}
+							MenuProps={{
+								PaperProps: {
+									sx: {
+										"& .MuiMenuItem-root.Mui-selected": {
+											backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+										},
+										"& .MuiMenuItem-root.Mui-selected:hover": {
+											backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+										}
+									}
+								}
 							}}
 						>
 							<MenuItem value="solid" sx={{ padding: "2px 10px", fontSize: "12px" }}>

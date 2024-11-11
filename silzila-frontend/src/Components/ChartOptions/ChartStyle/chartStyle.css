@@ -7,3 +7,14 @@
 	line-height: 1.5rem;
 	font-weight: bold;
 }
+.MuiSlider-thumb:hover {
+	box-shadow: 0 0 0 8px rgba(43, 185, 187, 0.2) !important; /* Shadow color when hovered */
+  }
+  
+  /* Change the shadow color when the thumb is active (being dragged) */
+  .MuiSlider-thumb.Mui-active {
+	box-shadow: 0 0 0 12px rgba(43, 185, 187, 0.2) !important; /* Adjust the size to match the original blue shadow */
+  }
+
+
+

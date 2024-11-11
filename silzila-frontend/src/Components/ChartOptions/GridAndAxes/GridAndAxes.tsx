@@ -91,17 +91,23 @@ const GridAndAxes = ({
 
 	const renderAxisOptionsForX = () => {
 		return axisOptionsForX.map((item: PositionsProps) => {
+			const isSelected = item.value === property.xAxis.position;
 			return (
 				<div
 					key={item.value}
 					className={
-						item.value === property.xAxis.position
+						isSelected
 							? "radioButtonSelected"
 							: "radioButton"
 					}
 					onClick={() => {
 						updateAxisOptions(propKey, "xAxis", "position", item.value);
 						updateAxisOptions(propKey, "xAxis", "onZero", !property.xAxis.onZero);
+					}}
+					style={{
+						backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
+						cursor: isSelected? "auto" : "pointer",
+						fontWeight: isSelected? "600" : "normal",
 					}}
 				>
 					{item.type}
@@ -118,15 +124,21 @@ const GridAndAxes = ({
 
 	const renderAxisOptionsForY = () => {
 		return axisOptionsForY.map((item: PositionsProps) => {
+			const isSelected = item.value === yAxisProps.position;
 			return (
 				<div
 					key={item.value}
 					className={
-						item.value === yAxisProps.position ? "radioButtonSelected" : "radioButton"
+						isSelected ? "radioButtonSelected" : "radioButton"
 					}
 					onClick={() => {
 						updateAxisOptions(propKey, "yAxis", "position", item.value);
 						updateAxisOptions(propKey, "yAxis", "onZero", !yAxisProps.onZero);
+					}}
+					style={{
+						backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
+						cursor: isSelected? "auto" : "pointer",
+						fontWeight: isSelected? "600" : "normal",
 					}}
 				>
 					{item.type}
@@ -150,7 +162,7 @@ const GridAndAxes = ({
 							className="enableDisableLabel"
 							style={{ marginRight: "10px" }}
 						>
-							REVERSE
+							Reverse
 						</label>
 						<SwitchWithInput
 							isChecked={property.inverse}
@@ -159,8 +171,8 @@ const GridAndAxes = ({
 							}}
 						/>
 					</div>
-					<div className="optionDescription">MIN VALUE</div>
-					<div className="optionDescription">
+					<div className="optionDescription">Min Value</div>
+					<div className="optionDescription" style={{ marginTop: "2px" }}>
 						<input
 							type="checkbox"
 							id="enableDisable"
@@ -177,8 +189,8 @@ const GridAndAxes = ({
 							disabled={property.axisMinMax.enableMin ? false : true}
 						/>
 					</div>
-					<div className="optionDescription">MAX VALUE</div>
-					<div className="optionDescription">
+					<div className="optionDescription">Max Value</div>
+					<div className="optionDescription" style={{ marginTop: "2px" }}>
 						<input
 							type="checkbox"
 							id="enableDisable"
@@ -209,7 +221,7 @@ const GridAndAxes = ({
 			<div
 				style={{ borderTop: "1px solid rgb(211,211,211)", margin: "0.5rem 6% 1rem" }}
 			></div>
-			<div className="optionDescription">Dimension-Axis</div>
+			<div className="optionDescription">DIMENSION-AXIS</div>
 			{chartProperties.properties[propKey].chartType === "multibar" ||
 			chartProperties.properties[propKey].chartType === "stackedBar" ||
 			chartProperties.properties[propKey].chartType === "horizontalBar" ||
@@ -233,7 +245,7 @@ const GridAndAxes = ({
 				</>
 			) : null}
 
-			<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
+			<div className="optionDescription" style={{ padding: "0 6% 5px 4%", marginTop: "2px" }}>
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
@@ -252,8 +264,8 @@ const GridAndAxes = ({
 				<React.Fragment>
 					{chartProperties.properties[propKey].chartType === "scatterPlot" ? (
 						<React.Fragment>
-							<div className="optionDescription">MIN VALUE</div>
-							<div className="optionDescription">
+							<div className="optionDescription">Min Value</div>
+							<div className="optionDescription" style={{ marginTop: "2px" }}>
 								<input
 									type="checkbox"
 									id="enableDisable"
@@ -276,8 +288,8 @@ const GridAndAxes = ({
 									}
 								/>
 							</div>
-							<div className="optionDescription">MAX VALUE</div>
-							<div className="optionDescription">
+							<div className="optionDescription">Max Value</div>
+							<div className="optionDescription" style={{ marginTop: "2px" }}>
 								<input
 									type="checkbox"
 									id="enableDisable"
@@ -302,7 +314,7 @@ const GridAndAxes = ({
 							</div>
 						</React.Fragment>
 					) : null}
-					<div className="radioButtons">{renderAxisOptionsForX()}</div>
+					<div className="radioButtons" style={{ marginTop: "15px" }}>{renderAxisOptionsForX()}</div>
 
 					<div className="optionDescription">Axis Name</div>
 					<TextField
@@ -311,7 +323,14 @@ const GridAndAxes = ({
 						onChange={e => {
 							updateAxisOptions(propKey, "xAxis", "name", e.target.value);
 						}}
-						InputProps={{ ...textFieldStyleProps }}
+						InputProps={{ 
+							...textFieldStyleProps,
+							sx: {								
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							},
+						 }}
 					/>
 
 					<div className="optionDescription">Name Position</div>
@@ -334,6 +353,21 @@ const GridAndAxes = ({
 								backgroundColor: "white",
 								height: "1.5rem",
 								color: "#404040",
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							}}
+							MenuProps={{
+								PaperProps: {
+									sx: {
+										"& .MuiMenuItem-root.Mui-selected": {
+											backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+										},
+										"& .MuiMenuItem-root.Mui-selected:hover": {
+											backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+										}
+									}
+								}
 							}}
 						>
 							{positions.map(position => {
@@ -360,11 +394,19 @@ const GridAndAxes = ({
 						onChange={e => {
 							updateAxisOptions(propKey, "xAxis", "nameGap", e.target.value);
 						}}
-						InputProps={{ ...textFieldStyleProps }}
+						InputProps={{ 
+							...textFieldStyleProps,
+						
+							sx: {								
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							},
+						}}
 					/>
 					<div className="optionDescription">Name FontSize</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={xAxisProps.nameSize}
 						sliderMinMax={{ min: 0, max: 80, step: 1 }}
 						changeValue={(value: number) => {
@@ -382,6 +424,8 @@ const GridAndAxes = ({
 								border: "1px solid lightgray",
 								borderRadius: "3px",
 								padding: "0 5px",
+								marginTop: "10px",
+								marginBottom: "2px",
 								backgroundColor: xAxisProps.nameColor,
 							}}
 							onClick={() => {
@@ -392,7 +436,7 @@ const GridAndAxes = ({
 
 					<div className="optionDescription">Tick Size</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={
 							xAxisProps.position === "top"
 								? xAxisProps.tickSizeTop
@@ -411,7 +455,7 @@ const GridAndAxes = ({
 					/>
 					<div className="optionDescription">Tick Padding</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={
 							xAxisProps.position === "top"
 								? xAxisProps.tickPaddingTop
@@ -457,7 +501,7 @@ const GridAndAxes = ({
 			<div
 				style={{ borderTop: "1px solid rgb(211,211,211)", margin: "0.5rem 6% 1rem" }}
 			></div>
-			<div className="optionDescription">Measure-Axis</div>
+			<div className="optionDescription">MEASURE-AXIS</div>
 
 			{chartProperties.properties[propKey].chartType === "multibar" ||
 			chartProperties.properties[propKey].chartType === "stackedBar" ||
@@ -481,13 +525,13 @@ const GridAndAxes = ({
 					</div>
 				</>
 			) : null}
-			<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
+			<div className="optionDescription" style={{ padding: "0 6% 5px 4%", marginTop: "2px" }}>
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
 					style={{ marginRight: "10px" }}
 				>
-					show Label
+					Show Label
 				</label>
 				<SwitchWithInput
 					isChecked={yAxisProps.showLabel}
@@ -500,8 +544,8 @@ const GridAndAxes = ({
 				<React.Fragment>
 					{chartProperties.properties[propKey].chartType === "scatterPlot" ? (
 						<>
-							<div className="optionDescription">MIN VALUE</div>
-							<div className="optionDescription">
+							<div className="optionDescription">Min Value</div>
+							<div className="optionDescription" style={{ marginTop: "2px" }}>
 								<input
 									type="checkbox"
 									id="enableDisable"
@@ -524,8 +568,8 @@ const GridAndAxes = ({
 									}
 								/>
 							</div>
-							<div className="optionDescription">MAX VALUE</div>
-							<div className="optionDescription">
+							<div className="optionDescription">Max Value</div>
+							<div className="optionDescription" style={{ marginTop: "2px" }}>
 								<input
 									type="checkbox"
 									id="enableDisable"
@@ -550,7 +594,7 @@ const GridAndAxes = ({
 							</div>
 						</>
 					) : null}
-					<div className="radioButtons">{renderAxisOptionsForY()}</div>
+					<div className="radioButtons" style={{ marginTop: "15px" }}>{renderAxisOptionsForY()}</div>
 
 					<div className="optionDescription">Axis Name</div>
 
@@ -560,7 +604,14 @@ const GridAndAxes = ({
 						onChange={e => {
 							updateAxisOptions(propKey, "yAxis", "name", e.target.value);
 						}}
-						InputProps={{ ...textFieldStyleProps }}
+						InputProps={{ 
+							...textFieldStyleProps,
+							sx: {								
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							},
+						 }}
 					/>
 
 					<div className="optionDescription">Name Position</div>
@@ -583,6 +634,21 @@ const GridAndAxes = ({
 								backgroundColor: "white",
 								height: "1.5rem",
 								color: "#404040",
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							}}
+							MenuProps={{
+								PaperProps: {
+									sx: {
+										"& .MuiMenuItem-root.Mui-selected": {
+											backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+										},
+										"& .MuiMenuItem-root.Mui-selected:hover": {
+											backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+										}
+									}
+								}
 							}}
 						>
 							{positions.map(position => {
@@ -609,11 +675,18 @@ const GridAndAxes = ({
 						onChange={e => {
 							updateAxisOptions(propKey, "yAxis", "nameGap", e.target.value);
 						}}
-						InputProps={{ ...textFieldStyleProps }}
+						InputProps={{ 
+							...textFieldStyleProps,
+							sx: {								
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							},
+						 }}
 					/>
 					<div className="optionDescription">Name FontSize</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={yAxisProps.nameSize}
 						sliderMinMax={{ min: 0, max: 80, step: 1 }}
 						changeValue={(value: number) => {
@@ -631,6 +704,8 @@ const GridAndAxes = ({
 								border: "1px solid lightgray",
 								borderRadius: "3px",
 								padding: "0 5px",
+								marginTop: "10px",
+								marginBottom: "2px",
 								backgroundColor: yAxisProps.nameColor,
 							}}
 							onClick={e => {
@@ -641,7 +716,7 @@ const GridAndAxes = ({
 
 					<div className="optionDescription">Tick Size</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={
 							yAxisProps.position === "left"
 								? yAxisProps.tickSizeLeft
@@ -661,7 +736,7 @@ const GridAndAxes = ({
 
 					<div className="optionDescription">Tick Padding</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={
 							yAxisProps.position === "left"
 								? yAxisProps.tickPaddingLeft

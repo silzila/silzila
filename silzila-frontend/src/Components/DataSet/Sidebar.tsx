@@ -628,7 +628,16 @@ const Sidebar = ({
 
           <div>
             <FormControl fullWidth size="small">
-              <InputLabel id="dcSelect">Database</InputLabel>
+              <InputLabel 
+                id="dcSelect"
+                sx={{
+                  "&.Mui-focused": {
+                    color: "#2bb9bb !important",
+                  },
+                }}              
+              >
+                Database
+              </InputLabel>
               <Select
                 sx={{
                   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
@@ -651,6 +660,18 @@ const Sidebar = ({
                 disabled={disableDb}
                 value={selectedDb}
                 label="Connection"
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      "& .MuiMenuItem-root.Mui-selected": {
+                        backgroundColor: "rgba(43, 185, 187, 0.1)",                         
+                        "&:hover": {
+                          backgroundColor: "rgba(43, 185, 187, 0.2)", 
+                        },
+                      },
+                    },
+                  },
+                }}
               >
                 {databaseList &&
                   databaseList.map((db: string) => {
@@ -676,7 +697,15 @@ const Sidebar = ({
           {isSchemaAvailable ? (
             // <div style={{ padding: "0 1rem 0 1rem" }}>
             <FormControl fullWidth size="small">
-              <InputLabel id="schemaSelect">Schema</InputLabel>
+              <InputLabel id="schemaSelect"
+                sx={{
+                  "&.Mui-focused": {
+                    color: "#2bb9bb !important",
+                  },
+                }}
+              >
+                Schema
+              </InputLabel>
               <Select
                 sx={{
                   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
@@ -694,6 +723,18 @@ const Sidebar = ({
                 labelId="schemaSelect"
                 className="selectBar"
                 label="Schema"
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      "& .MuiMenuItem-root.Mui-selected": {
+                        backgroundColor: "rgba(43, 185, 187, 0.1)",                         
+                        "&:hover": {
+                          backgroundColor: "rgba(43, 185, 187, 0.2)", 
+                        },
+                      },
+                    },
+                  },
+                }}
                 onChange={(e: any) => getTables(e, null, null)}
                 value={selectedSchema}
               >

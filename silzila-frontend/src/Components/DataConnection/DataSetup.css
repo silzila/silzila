@@ -144,11 +144,11 @@ Data Connections
 }
 
 .dbForm .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
-  border-color: #2bb9bb !important;
+  border-color: #af99db !important;
 }
 
 .dbForm .MuiFormLabel-root.Mui-focused {
-  color: #2bb9bb !important;
+  color: #af99db !important;
 }
 
 .dbForm {
@@ -211,7 +211,7 @@ Data Connections
   padding-left: 8px;
 	cursor: pointer;
 	margin-bottom: 10px;
-	border: 1px solid #2bb9bb;
+	border: 1px solid #af99db;
 	border-radius: 4px;
 	height: 45px;
 	width: 200px;
@@ -319,6 +319,15 @@ Data Connections
   font-size: 14px;
   margin: 10px;
 }
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px white inset !important; 
+  box-shadow: 0 0 0 30px white inset !important; 
+  transition: background-color 5000s ease-in-out 0s; 
+}
+
+
+
 
 /* 
 ===================================================
