@@ -147,7 +147,7 @@ const Sort = ({
 
 								{firstObjKey.map((data,index) => (
 									<MenuItem key={index} value={data} 
-									sx={{color: "black", fontSize: "13px", "&:hover" : {backgroundColor: "rgb(238, 238, 238)"},}}>
+									sx={{color: "black", fontSize: "12px",padding: "2px 10px" , "&:hover" : {backgroundColor: "rgb(238, 238, 238)"},}}>
 										{data}
 									</MenuItem>
 									))}	
@@ -162,7 +162,11 @@ const Sort = ({
 						{chartControls.properties[propKey].sortedValue ?
 						/* Column name or value gets selected then ascending, descending enable */
 						<>
-						<div style={{borderRadius: "5px 0 0 5px", cursor: "pointer", marginLeft: "10px", marginBottom: "10px", transition: "0.2s"}}
+						<div style={{borderRadius: "5px 0 0 5px", marginLeft: "10px", marginBottom: "10px", transition: "0.2s",
+							backgroundColor: chartControls.properties[propKey].sortOrder === "Ascending" ? "rgba(224, 224, 224, 1)" : "white",
+							cursor: chartControls.properties[propKey].sortOrder === "Ascending" ? "auto" : "pointer",
+							fontWeight: chartControls.properties[propKey].sortOrder === "Ascending" ? "600" : "normal",
+						}}
 						className={ chartControls.properties[propKey].sortOrder === "Ascending" ? "radioButtonSelected" : "radioButton" }
 						onClick={() => {
 							SortOrder(propKey, "Ascending");
@@ -171,7 +175,11 @@ const Sort = ({
 							Ascending
 						</div>
 
-						<div style={{borderRadius: "0 5px 5px 0", cursor: "pointer", marginBottom: "10px", transition: "0.2s"}}
+						<div style={{borderRadius: "0 5px 5px 0", marginBottom: "10px", transition: "0.2s",
+							backgroundColor: chartControls.properties[propKey].sortOrder === "Descending" ? "rgba(224, 224, 224, 1)" : "white", 
+							cursor: chartControls.properties[propKey].sortOrder === "Descending" ? "auto" : "pointer",
+							fontWeight: chartControls.properties[propKey].sortOrder === "Descending" ? "600" : "normal",
+						}}
 						className={ chartControls.properties[propKey].sortOrder === "Descending" ? "radioButtonSelected" : "radioButton" }
 						onClick={() => {  
 							SortOrder(propKey, "Descending");

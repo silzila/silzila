@@ -63,6 +63,7 @@ const ChartLegend = ({
 					style={{
 						backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
 						cursor: isSelected? "auto" : "pointer",
+						fontWeight: isSelected? "600" : "normal",
 					}}
 				>
 					{item.name}

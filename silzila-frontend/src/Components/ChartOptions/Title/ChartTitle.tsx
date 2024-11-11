@@ -39,6 +39,7 @@ export const RenderTitleOptions: any = ({ generateTitle, setTitleOption }: any) 
 				style={{					
 					backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
 					cursor: isSelected? "auto" : "pointer",
+					fontWeight: isSelected? "600" : "normal",
 				}}
 			>
 				{option.type}
@@ -56,7 +57,8 @@ export const RenderTitleAlignOptions: any = ({ titleAlignment, changeTitleAlignm
 				onClick={() => changeTitleAlignment(option.value)}
 				style={{
 					backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
-						cursor: isSelected? "auto" : "pointer",
+					cursor: isSelected? "auto" : "pointer",
+					fontWeight: isSelected? "600" : "normal",
 				}}
 			>
 				{option.name}
