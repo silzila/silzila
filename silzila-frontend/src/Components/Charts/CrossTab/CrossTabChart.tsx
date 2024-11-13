@@ -170,8 +170,8 @@ const CrossTabChart = ({
           } else if (hdrRow + 2 === crossTabData.length) {
             /*  Last but above row of the Column header span always of size measure fields count */
             spanSize = dustbinValues.length;
-          } else if (hdrRow - 1 === 0) {
-            /* Top row column span calulated from ColumnCSV list with matching data list lenght  */
+          } else if (hdrRow === 0) {
+            /* Top row column span calulated from ColumnCSV list with matching data list length  */
             let _list = chartDataCSV.columns.filter((item: any) =>
               item.includes(colData.displayData)
             );
