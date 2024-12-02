@@ -33,6 +33,12 @@ const StackedBar = ({
 
   const [seriesData, setSeriesData] = useState<any>([]);
 
+  const processedChartData = chartData.map(item => {
+    return Object.fromEntries(
+      Object.entries(item).map(([key, value]) => [key, value === null ? "(Blank)" : value])
+    );
+  });
+
   useEffect(() => {
     var seriesDataTemp = [];
     if (chartData.length >= 1) {
@@ -225,8 +231,8 @@ const StackedBar = ({
           tooltip: { show: chartControl.mouseOver.enable },
 
           dataset: {
-            dimensions: Object.keys(chartData[0]),
-            source: chartData,
+            dimensions: Object.keys(processedChartData[0]),
+            source: processedChartData,
           },
 
           xAxis: {

@@ -352,7 +352,7 @@ const FilterElement = ({
             "(All)",
             ...res.data
               .map((item: any) => item[Object.keys(res.data[0])[0]])
-              .map((item: any) => `${item}`),
+              .map((item: any) => item !== null ? item.toString() : "(Blank)"), 
           ];
             filterFieldData.current = {
               ...filterFieldData.current,

@@ -29,25 +29,28 @@ const RoseChart = ({
   useEffect(() => {
     if (chartData.length >= 1) {
       setChartDataKeys(Object.keys(chartData[0]));
-      var objKey: string;
-      if (chartProperties.properties[propKey].chartAxes[1].fields[0]) {
-        // if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
-        // 	objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
-        // } else {
-        // 	objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
-        // }
-        objKey =
-          chartProperties.properties[propKey].chartAxes[1].fields[0]
-            .displayname;
-        /* converting dimentions value to string (specifically for when it is in a year aggregate)  */
-        chartControl.chartData.map((el: any) => {
-          if (objKey in el) {
-            let agg = el[objKey];
-            if (agg) el[objKey] = agg.toString();
-            else el[objKey] = "null";
+
+      let objKey = chartProperties.properties[propKey]?.chartAxes[1]?.fields[0]?.displayname;
+      // if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
+      // 	   objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
+      // } else {
+      // 	   objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
+      // }
+      if (objKey) {
+          // Map over chart data and replace nulls with "(Blank)" without modifying the original array
+          const mappedChartData = chartControl.chartData.map((el : any) => {
+              const newEl = { ...el }; // Create a shallow copy of the element to avoid direct mutation
+              if (newEl[objKey] === null || newEl[objKey] === "null") {
+                  newEl[objKey] = "(Blank)";
+              } else if (typeof newEl[objKey] !== "string") {
+                  newEl[objKey] = newEl[objKey].toString();
+              }
+              return newEl;
+          });
+
+          if (JSON.stringify(chartControl.chartData) !== JSON.stringify(mappedChartData)) {
+              chartControl.chartData = mappedChartData;
           }
-          return el;
-        });
       }
     }
   }, [chartData, chartControl]);

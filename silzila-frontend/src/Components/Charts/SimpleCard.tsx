@@ -78,6 +78,9 @@ const SimpleCard = ({
 
   const getFormatedChartData = () => {
     var formattedValue = cardData;
+    if (formattedValue === null) {
+      return "(Blank)";
+    }
     formattedValue = formatChartLabelValueForSelectedMeasure(
       chartControls.properties[propKey],
       chartProperties.properties[propKey],

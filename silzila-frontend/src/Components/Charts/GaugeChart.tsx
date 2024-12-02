@@ -133,6 +133,9 @@ const GaugeChart = ({
               detail: {
                 /* holds the value that display in the center of the gauge*/
                 formatter: (value: number) => {
+                  if (value === null || value === undefined || isNaN(value)) {
+                    return "(Blank)";
+                  }
                   var formattedValue = value;
                   formattedValue = formatChartLabelValueForSelectedMeasure(
                     chartControls.properties[propKey],
@@ -140,6 +143,7 @@ const GaugeChart = ({
                     formattedValue,
                     chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0].displayname
                   );
+                  console.log(formattedValue);
                   return formattedValue;
                 },
               },
