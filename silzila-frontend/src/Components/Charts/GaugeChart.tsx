@@ -134,7 +134,7 @@ const GaugeChart = ({
                 /* holds the value that display in the center of the gauge*/
                 formatter: (value: number) => {
                   if (value === null || value === undefined || isNaN(value)) {
-                    return "Blank";
+                    return "(Blank)";
                   }
                   var formattedValue = value;
                   formattedValue = formatChartLabelValueForSelectedMeasure(
