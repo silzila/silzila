@@ -31,6 +31,12 @@ const AreaChart = ({
 
   const [seriesData, setSeriesData] = useState<any[]>([]);
 
+  const processedChartData = chartData.map(item => {
+    return Object.fromEntries(
+      Object.entries(item).map(([key, value]) => [key, value === null ? "(Blank)" : value])
+    );
+  });
+
   useEffect(() => {
     var seriesDataTemp: any[] = [];
     if (chartData.length >= 1) {
@@ -148,8 +154,8 @@ const AreaChart = ({
                 : chartControl.chartMargin.bottom + "%",
           },
           dataset: {
-            dimensions: Object.keys(chartData[0]),
-            source: chartData,
+            dimensions: Object.keys(processedChartData[0]),
+            source: processedChartData,
           },
           xAxis: {
             type: "category",

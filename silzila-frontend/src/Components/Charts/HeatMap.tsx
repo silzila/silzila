@@ -25,6 +25,12 @@ const HeatMap = ({
   // TODO: cant apply filters
   var chartControl: ChartControlsProps = chartControls.properties[propKey];
   let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
+
+  const processedChartData = chartData.map(item => {
+    return Object.fromEntries(
+      Object.entries(item).map(([key, value]) => [key, value === null ? "(Blank)" : value])
+    );
+  });
   const [chartDataKeys, setChartDataKeys] = useState<any[]>([]);
 
   const [maxValue, setMaxValue] = useState<number>(0);
@@ -133,7 +139,7 @@ const HeatMap = ({
           tooltip: { show: chartControl.mouseOver.enable },
 
           dataset: {
-            source: chartData,
+            source: processedChartData,
           },
           xAxis: {
             type: "category",
