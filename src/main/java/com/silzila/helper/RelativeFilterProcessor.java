@@ -40,7 +40,7 @@ public class RelativeFilterProcessor {
                             relativeFilter.setTo(relativeCondition.getTo());
 
                             // Check if both DataType and TimeGrain match for date
-                            if (Filter.DataType.DATE.equals(filter.getDataType()) && Filter.TimeGrain.DATE.equals(filter.getTimeGrain())) {
+                            if ((Filter.DataType.DATE.equals(filter.getDataType())||Filter.DataType.TIMESTAMP.equals(filter.getDataType())) && Filter.TimeGrain.DATE.equals(filter.getTimeGrain())) {
                                 ColumnFilter relativeColumnFilter = new ColumnFilter();
                                 relativeColumnFilter.setTableId(filter.getTableId());
                                 relativeColumnFilter.setFieldName(filter.getFieldName());

@@ -468,7 +468,7 @@ public class DatasetService {
             // for totals & subtotals only
             for (Query req : queries) {
                 if (req.getSubTotal() != null && req.getSubTotal()) {
-                   String result = subTotals(query, req, vendorName, ds, isSqlOnly, dBConnectionId, userId);
+                   String result = subTotals(query, req, "duckdb", ds, isSqlOnly, dBConnectionId, userId);
                    return result;
                 }
             }
