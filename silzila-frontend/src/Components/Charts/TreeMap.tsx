@@ -37,6 +37,20 @@ const Treemap = ({
   var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
   let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
+  
+  const processedChartData = chartData.map(item => {
+    return Object.fromEntries(
+        Object.entries(item).map(([key, value]) => [
+            key,
+            value === null 
+                ? "(Blank)" 
+                : typeof value === "boolean" 
+                    ? value ? "True" : "False" 
+                    : value
+        ])
+    );
+  });
+
   const [sourceData, setsourceData] = useState<any>([]);
 
   var dimensionsKeys: string[] | any = [];
@@ -138,13 +152,13 @@ const Treemap = ({
       // 	}
       // });
 
-      var dimValues = chartData.map((dt: any) => dt[dimensionsKeys[0]]); // All values of first dimension
+      var dimValues = processedChartData.map((dt: any) => dt[dimensionsKeys[0]]); // All values of first dimension
       var uniqueDimValues = [...new Set(dimValues)]; // Unique values of first dimension. These are the parent objects
 
       if (dimensionsKeys.length === 1) {
         Logger("info", "only one Dimenstion");
         var childrenArray: any = [];
-        chartData.forEach((item: any) => {
+        processedChartData.forEach((item: any) => {
           var finalObj = {
             name:
               typeof item[dimensionsKeys[0]] === "number"
@@ -240,7 +254,6 @@ const Treemap = ({
               }
 
               const tooltipData = getTooltipData(treePath, value, info);
-
               return tooltipData;
             },
           },
