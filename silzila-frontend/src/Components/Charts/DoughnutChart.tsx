@@ -42,8 +42,6 @@ const DoughnutChart = ({
               const newEl = { ...el }; // Create a shallow copy of the element to avoid direct mutation
               if (newEl[objKey] === null || newEl[objKey] === "null") {
                   newEl[objKey] = "(Blank)";
-              } else if (typeof newEl[objKey] !== "string") {
-                  newEl[objKey] = newEl[objKey].toString();
               }
               return newEl;
           });
