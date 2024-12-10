@@ -36,13 +36,15 @@ const DisplayTable = ({
 		if (SampleRecords) {
 			var tableKeys = Object.keys(SampleRecords[0]);
 			var dataType = tableRecords.recordsColumnType[dsId][table];
-
+			
 			for (let i = 0; i < tableKeys.length; i++) {
+				// Find the data type for the current column
+				const columnData = dataType.filter((sc: any) => sc.columnName === tableKeys[i])[0];
+				const columnType = columnData?.dataType || "text";
 				_fieldsData.push({
 					fieldname: tableKeys[i],
 					displayname: tableKeys[i],
-					dataType: dataType.filter((sc: any) => sc.columnName === tableKeys[i])[0]
-						.dataType,
+					dataType: columnType === "unsuppoted" ? "text" : columnType,
 					tableId: table,
 				});
 			}
@@ -88,7 +90,11 @@ const DisplayTable = ({
 	// Render a single row of the table
 	const RenderRow = (props: any) => {
 		return props.keys.map((key: any, index: number) => {
-			return <TableCell key={`${index}_${key}`}>{props.data[key]}</TableCell>;
+			// Convert boolean values to "True" or "False"
+			const value = typeof props.data[key] === "boolean" 
+				? props.data[key] ? "True" : "False" 
+				: props.data[key];
+			return <TableCell key={`${index}_${key}`}>{value}</TableCell>;
 		});
 	};
 

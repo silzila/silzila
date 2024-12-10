@@ -124,9 +124,23 @@ const ShowHide = ({
   var propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
 
   const data: string | any =
-    chartControls.properties[propKey].serverData.length > 0
-      ? sortChart(chartControls.properties[propKey].serverData)
-      : [];
+  chartControls.properties[propKey].serverData.length > 0
+    ? sortChart(
+        chartControls.properties[propKey].serverData.map((item: any) => {
+          // Convert boolean values in the data to "True" or "False"
+          const updatedItem: any = {};
+          for (const key in item) {
+            updatedItem[key] =
+              typeof item[key] === "boolean"
+                ? item[key]
+                  ? "True"
+                  : "False"
+                : item[key];
+          }
+          return updatedItem;
+        })
+      )
+    : [];
 
   const [chat, setchat] = useState();
   var descendingChartData = JSON.parse(JSON.stringify(data));
@@ -234,9 +248,16 @@ const ShowHide = ({
     }, [savedMembers]);
 
     const uniqueOptions: any[] = Array.from(
-      new Set(serverData.map((item: any) => item[selectedColumn]))
+      new Set(serverData.map((item: any) => {
+        const value = item[selectedColumn];
+        // Convert boolean values to "True" or "False"
+        if (typeof value === "boolean") {
+          return value ? "True" : "False";
+        }
+        return value;
+      }))
     ).sort((a: any, b: any) => {
-      if (a === null) return 1;
+      if (a === null) return 1; // Place null at the end
       if (b === null) return -1;
       return a.toString().localeCompare(b.toString());
     });

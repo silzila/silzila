@@ -76,8 +76,10 @@ const CrossTabChart = ({
         let formattedValue: any = {};
 
         for (let i = 0; i < chartDataKeys.length; i++) {
-          /*  Need to format only numeric values  */
-          if (
+          /*  Need to format numeric values and boolean values  */
+          if (typeof item[chartDataKeys[i]] === "boolean") {
+            formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]] ? "True" : "False";
+          } else if (
             typeof item[chartDataKeys[i]] === "number" ||
             !isNaN(item[chartDataKeys[i]])
           ) {
@@ -112,7 +114,6 @@ const CrossTabChart = ({
 
         _formChartData.push(formattedValue);
       });
-
       setFormatedChartPropData(_formChartData);
     }
   }, [chartPropData, property.formatOptions]);

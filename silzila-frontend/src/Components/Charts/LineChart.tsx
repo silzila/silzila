@@ -34,10 +34,16 @@ const LineChart = ({
   let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
   const [seriesData, setSeriesData] = useState<any>([]);
-
   const processedChartData = chartData.map(item => {
     return Object.fromEntries(
-      Object.entries(item).map(([key, value]) => [key, value === null ? "(Blank)" : value])
+        Object.entries(item).map(([key, value]) => [
+            key,
+            value === null 
+                ? "(Blank)" 
+                : typeof value === "boolean" 
+                    ? value ? "True" : "False" 
+                    : value
+        ])
     );
   });
   useEffect(() => {

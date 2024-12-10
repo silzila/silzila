@@ -366,11 +366,17 @@ const GetPickListItems = async (sortOptions: string[]) => {
     if (result.data && result.data.length > 0) {
       result = result.data.map(
         (item: any) => {
-          const key = Object.keys(result.data[0])[0];
-          return item[key] !== null ? item[key] : "(blank)";
+          const key = Object.keys(result.data[0])[0];  
+          const value = item[key];
+          return value !== null
+            ? typeof value === "boolean" 
+            ? value ? "True" : "False" // Convert boolean to string
+              : value
+            : "(blank)";
         }
       );
     }
+
 
     // Start with (All) and raw result list
     let tempResult = ["(All)", ...result];

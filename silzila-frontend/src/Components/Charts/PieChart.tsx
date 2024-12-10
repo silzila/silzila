@@ -53,14 +53,14 @@ const PieChart = ({
         if (objKey) {
             // Map over chart data and replace nulls with "(Blank)" without modifying the original array
             const mappedChartData = chartControl.chartData.map((el : any) => {
-                const newEl = { ...el }; // Create a shallow copy of the element to avoid direct mutation
-                if (newEl[objKey] === null || newEl[objKey] === "null") {
-                    newEl[objKey] = "(Blank)";
-                } else if (typeof newEl[objKey] !== "string") {
-                    newEl[objKey] = newEl[objKey].toString();
-                }
-                return newEl;
-            });
+              const newEl = { ...el }; // Create a shallow copy of the element to avoid direct mutation
+              if (newEl[objKey] === null || newEl[objKey] === "null") {
+                  newEl[objKey] = "(Blank)";
+              } else if (typeof newEl[objKey] === "boolean") {
+                newEl[objKey] = newEl[objKey] ? "True" : "False";
+              } 
+              return newEl;
+          });
 
             if (JSON.stringify(chartControl.chartData) !== JSON.stringify(mappedChartData)) {
                 chartControl.chartData = mappedChartData;

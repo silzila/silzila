@@ -26,12 +26,21 @@ const HeatMap = ({
   var chartControl: ChartControlsProps = chartControls.properties[propKey];
   let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
+  const [chartDataKeys, setChartDataKeys] = useState<any[]>([]);
+
   const processedChartData = chartData.map(item => {
     return Object.fromEntries(
-      Object.entries(item).map(([key, value]) => [key, value === null ? "(Blank)" : value])
+        Object.entries(item).map(([key, value]) => [
+            key,
+            value === null 
+                ? "(Blank)" 
+                : typeof value === "boolean" 
+                    ? value ? "True" : "False" 
+                    : value
+        ])
     );
   });
-  const [chartDataKeys, setChartDataKeys] = useState<any[]>([]);
+
 
   const [maxValue, setMaxValue] = useState<number>(0);
   const [minValue, setMinValue] = useState<number>(0);

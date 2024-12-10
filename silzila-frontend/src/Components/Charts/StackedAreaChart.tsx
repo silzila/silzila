@@ -36,7 +36,14 @@ const StackedAreaChart = ({
 
   const processedChartData = chartData.map(item => {
     return Object.fromEntries(
-      Object.entries(item).map(([key, value]) => [key, value === null ? "(Blank)" : value])
+        Object.entries(item).map(([key, value]) => [
+            key,
+            value === null 
+                ? "(Blank)" 
+                : typeof value === "boolean" 
+                    ? value ? "True" : "False" 
+                    : value
+        ])
     );
   });
 
@@ -150,6 +157,8 @@ const StackedAreaChart = ({
                 : chartControl.chartMargin.bottom + "%",
           },
           dataset: {
+            dimensions: Object.keys(processedChartData[0]),
+            source: processedChartData,
             dimensions: Object.keys(processedChartData[0]),
             source: processedChartData,
           },
