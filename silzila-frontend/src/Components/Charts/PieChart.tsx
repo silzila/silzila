@@ -45,34 +45,26 @@ const PieChart = ({
             setChartDataKeys(Object.keys(chartData[0]));
         }
         let objKey = chartProperties.properties[propKey]?.chartAxes[1]?.fields[0]?.displayname;
-        if (typeof chartData === "object" && chartData.length > 0) {
-            setChartDataKeys(Object.keys(chartData[0]));
-        }
-        let objKey = chartProperties.properties[propKey]?.chartAxes[1]?.fields[0]?.displayname;
         // if ("timeGrain" in chartProperties.properties[propKey].chartAxes[1].fields[0]) {
         // 	   objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
-        // 	   objKey = `${chartProperties.properties[propKey].chartAxes[1].fields[0].timeGrain} of ${chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname}`;
         // } else {
-        // 	   objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
         // 	   objKey = chartProperties.properties[propKey].chartAxes[1].fields[0].fieldname;
         // }
         if (objKey) {
             // Map over chart data and replace nulls with "(Blank)" without modifying the original array
             const mappedChartData = chartControl.chartData.map((el : any) => {
-                const newEl = { ...el }; // Create a shallow copy of the element to avoid direct mutation
-                if (newEl[objKey] === null || newEl[objKey] === "null") {
-                    newEl[objKey] = "(Blank)";
-                } 
-                return newEl;
-            });
+              const newEl = { ...el }; // Create a shallow copy of the element to avoid direct mutation
+              if (newEl[objKey] === null || newEl[objKey] === "null") {
+                  newEl[objKey] = "(Blank)";
+              }
+              return newEl;
+          });
 
             if (JSON.stringify(chartControl.chartData) !== JSON.stringify(mappedChartData)) {
                 chartControl.chartData = mappedChartData;
             }
         }
     }
-}, [chartData, chartControl]);
-
 }, [chartData, chartControl]);
 
 
