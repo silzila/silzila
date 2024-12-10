@@ -48,7 +48,7 @@ const CardStyle = ({
         <label
           htmlFor="enableDisable"
           className="enableDisableLabel"
-          style={{ marginRight: "10px" }}
+          style={{ marginRight: "10px", marginLeft: "-5px" }}
         >
           Custom Font Style
         </label>
@@ -89,7 +89,7 @@ const CardStyle = ({
       ) : null}
       <div className="optionDescription">Border Tickness</div>
       <SliderWithInput
-        percent={false}
+        percent={true}
         sliderValue={cardStyleOptions.borderTickness}
         sliderMinMax={{ min: 1, max: 50, step: 1 }}
         changeValue={(value) => {
@@ -98,7 +98,7 @@ const CardStyle = ({
       />
       <div className="optionDescription">Border Radius</div>
       <SliderWithInput
-        percent={false}
+        percent={true}
         sliderValue={cardStyleOptions.borderRadius}
         sliderMinMax={{ min: 0, max: 100, step: 1 }}
         changeValue={(value) => {
@@ -119,6 +119,18 @@ const CardStyle = ({
             updateCardControls(propKey, "dashStyle", e.target.value);
           }}
           sx={SelectComponentStyle}
+          MenuProps={{
+            PaperProps: {
+              sx: {
+                "& .MuiMenuItem-root.Mui-selected": {
+                  backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+                },
+                "& .MuiMenuItem-root.Mui-selected:hover": {
+                  backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+                }
+              }
+            }
+          }}
         >
           {borderStyle.map((item: string) => {
             return (
@@ -143,6 +155,18 @@ const CardStyle = ({
             updateCardControls(propKey, "fontStyle", e.target.value);
           }}
           sx={SelectComponentStyle}
+          MenuProps={{
+            PaperProps: {
+              sx: {
+                "& .MuiMenuItem-root.Mui-selected": {
+                  backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+                },
+                "& .MuiMenuItem-root.Mui-selected:hover": {
+                  backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+                }
+              }
+            }
+          }}
         >
           {fontStyle.map((item: string) => {
             return (

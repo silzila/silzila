@@ -1717,7 +1717,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
                                 onClick={handleonTest}
                                 disabled={btnEnable}
                                 style={{
-                                    backgroundColor: btnEnable ? "rgba(224,224,224,1)" : "#af99db",
+                                    backgroundColor: btnEnable ? "rgba(224,224,224,1)" : "#2bb9bb",
 									marginRight: '-108px'
                                 }}
                             >
@@ -1727,7 +1727,7 @@ const NewDataConnection = (props: DataConnectionProps) => {
                                 type="submit"
                                 variant="contained"
                                 style={{
-                                    backgroundColor: btnEnable ? "rgba(224,224,224,1)" : "#2bb9bb",
+                                    backgroundColor: btnEnable ? "rgba(224,224,224,1)" : "#af99db",
                                     marginRight: '5px'
                                 }}
                                 onClick={e => {
@@ -1767,9 +1767,11 @@ const NewDataConnection = (props: DataConnectionProps) => {
 
 
            <Dialog open={changedb} sx={{marginLeft:'16rem'}}>
-				<div className="dbDeleteDialog">
+				<div className="dbDeleteDialog" style={{ width: "400px" }}>
 					<div className="dbDeleteDialogMsg">
-					You are selecting a different database vendor. Are you sure to reset connection details?
+					You are selecting a different database vendor. 
+					<br />
+					Are you sure to reset connection details?
 						<br />
 						<br />
 					</div>
@@ -1800,11 +1802,11 @@ const NewDataConnection = (props: DataConnectionProps) => {
 							className="dbDeleteDialogBtn2"
 							sx={{backgroundColor: "white",
 								color: "#5d5c5c",
-								border: "1px solid gray",
+								border: "1px solid #af99db",
 								marginRight: "6px",
 								boxShadow: 'none',
 								'&:hover': {
-								backgroundColor: " #8c6bb1",
+								backgroundColor: "#af99db",
 								color: "white"
 							}
 							}}

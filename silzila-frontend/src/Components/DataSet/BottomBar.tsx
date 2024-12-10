@@ -429,6 +429,20 @@ const BottomBar = ({
               flex: 1,
               margin: "auto 20px",
               maxWidth: "200px",
+              '& label.Mui-focused': {
+                color: '#2bb9bb',
+              },
+              '& label:hover': {
+                color: '#2bb9bb',
+              },
+              '& .MuiOutlinedInput-root': {
+                '&:hover fieldset': {
+                  borderColor: '#2bb9bb',
+                },
+              },
+              '& .MuiOutlinedInput-root.Mui-focused fieldset': {
+                borderColor: '#2bb9bb',
+              },
             }}
             inputProps={{
               style: {

@@ -164,6 +164,8 @@ const AreaChart = ({
           dataset: {
             dimensions: Object.keys(processedChartData[0]),
             source: processedChartData,
+            dimensions: Object.keys(processedChartData[0]),
+            source: processedChartData,
           },
           xAxis: {
             type: "category",

@@ -340,7 +340,16 @@ const RelationshipDefiningComponent = ({
                   value={rowUniqueId1}
                   fullWidth
                   size="small"
-                  sx={{ minWidth: "190px", fontSize: "12px" }}
+                  sx={{ 
+                    minWidth: "190px", 
+                    fontSize: "12px",
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#2bb9bb",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#2bb9bb",
+                    },
+                  }}
                   // TODO need to specify type
                   onChange={(e: any) => {
                     setRowUniqueId1(e.target.value);
@@ -348,7 +357,16 @@ const RelationshipDefiningComponent = ({
                 >
                   {data.rowUniqueness.map((el: rowUniq) => {
                     return (
-                      <MenuItem style={menuStyle} key={el.id} value={el.id}>
+                      <MenuItem style={menuStyle} key={el.id} value={el.id}
+                        sx={{
+                          "&.Mui-selected": {
+                            backgroundColor: "rgba(43, 185, 187, 0.1)",
+                          },
+                          "&.Mui-selected:hover": {
+                            backgroundColor: "rgba(43, 185, 187, 0.2)",
+                          },
+                        }}
+                      >
                         {el.name}
                       </MenuItem>
                     );
@@ -359,14 +377,30 @@ const RelationshipDefiningComponent = ({
                   value={rowUniqueId2}
                   fullWidth
                   size="small"
-                  sx={{ minWidth: "190px", fontSize: "12px" }}
+                  sx={{ minWidth: "190px", fontSize: "12px",
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#2bb9bb",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#2bb9bb",
+                    },
+                   }}
                   onChange={(e: any) => {
                     setRowUniqueId2(e.target.value);
                   }}
                 >
                   {data.rowUniqueness.map((el: rowUniq) => {
                     return (
-                      <MenuItem style={menuStyle} key={el.id} value={el.id}>
+                      <MenuItem style={menuStyle} key={el.id} value={el.id}
+                      sx={{
+                        "&.Mui-selected": {
+                          backgroundColor: "rgba(43, 185, 187, 0.1)",
+                        },
+                        "&.Mui-selected:hover": {
+                          backgroundColor: "rgba(43, 185, 187, 0.2)",
+                        },
+                      }}
+                      >
                         {el.name}
                       </MenuItem>
                     );
@@ -383,14 +417,32 @@ const RelationshipDefiningComponent = ({
                   value={rowMatchId1}
                   fullWidth
                   size="small"
-                  sx={{ minWidth: "190px", fontSize: "12px" }}
+                  sx={{ 
+                    minWidth: "190px",
+                    fontSize: "12px",
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#2bb9bb",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#2bb9bb",
+                    },
+                   }}
                   onChange={(e: any) => {
                     setRowMatchId1(e.target.value);
                   }}
                 >
                   {data.rowMatch.map((el: rowMat) => {
                     return (
-                      <MenuItem style={menuStyle} key={el.id} value={el.id}>
+                      <MenuItem style={menuStyle} key={el.id} value={el.id}
+                        sx={{
+                          "&.Mui-selected": {
+                            backgroundColor: "rgba(43, 185, 187, 0.1)",
+                          },
+                         "&.Mui-selected:hover": {
+                            backgroundColor: "rgba(43, 185, 187, 0.2)",
+                          },
+                      }}
+                      >
                         {el.name}
                       </MenuItem>
                     );
@@ -401,14 +453,30 @@ const RelationshipDefiningComponent = ({
                   value={rowMatchId2}
                   fullWidth
                   size="small"
-                  sx={{ minWidth: "190px", fontSize: "12px" }}
+                  sx={{ minWidth: "190px", fontSize: "12px",
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#2bb9bb",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#2bb9bb",
+                  },
+                   }}
                   onChange={(e: any) => {
                     setRowMatchId2(e.target.value);
                   }}
                 >
                   {data.rowMatch.map((el: rowMat) => {
                     return (
-                      <MenuItem style={menuStyle} key={el.id} value={el.id}>
+                      <MenuItem style={menuStyle} key={el.id} value={el.id}
+                      sx={{
+                        "&.Mui-selected": {
+                          backgroundColor: "rgba(43, 185, 187, 0.1)",
+                        },
+                        "&.Mui-selected:hover": {
+                          backgroundColor: "rgba(43, 185, 187, 0.2)",
+                        },
+                      }}
+                      >
                         {el.name}
                       </MenuItem>
                     );
@@ -432,7 +500,7 @@ const RelationshipDefiningComponent = ({
                 </Button>
               ) : (
                 <Button onClick={onClose} id="cancelButton">
-                  cancel
+                  Cancel
                 </Button>
               )}
 
@@ -440,7 +508,7 @@ const RelationshipDefiningComponent = ({
                 onClick={existingArrowProp ? onUpdate : onSet}
                 id="setButton"
               >
-                {existingArrowProp ? "Ok" : "Set"}
+                {existingArrowProp ? "OK" : "OK"}
               </Button>
             </div>
           </div>

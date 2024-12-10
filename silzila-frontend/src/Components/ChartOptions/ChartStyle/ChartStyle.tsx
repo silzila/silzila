@@ -52,11 +52,16 @@ const ChartStyle = ({
 
 	const renderLabels = () => {
 		return labelOptionsList.map((item, i) => {
+			const isSelected = item.name === optionName;
 			return (
 				<button
 					onClick={() => setOptionName(item.name)}
-					className={item.name === optionName ? "radioButtonSelected" : "radioButton"}
+					className={isSelected ? "radioButtonSelected" : "radioButton"}
 					key={i}
+					style={{
+						backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
+						cursor: isSelected? "auto" : "pointer",
+					}}
 				>
 					{item.name}
 				</button>
@@ -66,9 +71,9 @@ const ChartStyle = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="optionDescription">BORDER WIDTH</div>
+			<div className="optionDescription">Border Width</div>
 			<SliderWithInput
-				percent={false}
+				percent={true}
 				sliderValue={chartControls.properties[propKey].crossTabStyleOptions.borderWidth}
 				sliderMinMax={{ min: 1, max: 15, step: 1 }}
 				changeValue={value => {
@@ -76,9 +81,9 @@ const ChartStyle = ({
 				}}
 			/>
 
-			<div className="optionDescription">LINE HEIGHT</div>
+			<div className="optionDescription">Line Height</div>
 			<SliderWithInput
-				percent={false}
+				percent={true}
 				sliderValue={chartControls.properties[propKey].crossTabStyleOptions.lineHeight}
 				sliderMinMax={{ min: 1, max: 20, step: 0.5 }}
 				changeValue={value => {
@@ -86,11 +91,11 @@ const ChartStyle = ({
 				}}
 			/>
 
-			<div className="radioButtons">{renderLabels()}</div>
+			<div className="radioButtons" style={{ marginTop: "10px" }}>{renderLabels()}</div>
 			<React.Fragment>
 				<div style={{ display: "flex", paddingBottom: "8px", flexDirection: "column" }}>
 					<div>
-						<div className="optionDescription">LABEL COLOR</div>
+						<div className="optionDescription">Label Color</div>
 
 						<div className="optionDescription">
 							<input
@@ -136,9 +141,9 @@ const ChartStyle = ({
 							) : null}
 						</div>
 					</div>
-					<div className="optionDescription">FONT SIZE</div>
+					<div className="optionDescription">Font Size</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={options.fontSize}
 						sliderMinMax={{ min: 8, max: 50, step: 1 }}
 						changeValue={value => {
@@ -150,9 +155,9 @@ const ChartStyle = ({
 						}}
 					/>
 
-					<div className="optionDescription">FONT WEIGHT</div>
+					<div className="optionDescription">Font Weight</div>
 					<SliderWithInput
-						percent={false}
+						percent={true}
 						sliderValue={options.fontWeight}
 						sliderMinMax={{ min: 400, max: 900, step: 100 }}
 						changeValue={value => {

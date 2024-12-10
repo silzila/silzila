@@ -165,8 +165,9 @@ const Horizontalstacked = ({
           dataset: {
             dimensions: Object.keys(processedChartData[0]),
             source: processedChartData,
+            dimensions: Object.keys(processedChartData[0]),
+            source: processedChartData,
           },
-
           xAxis: {
             splitLine: {
               show: chartControl.axisOptions?.ySplitLine,

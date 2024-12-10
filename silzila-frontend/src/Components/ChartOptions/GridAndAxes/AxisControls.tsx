@@ -58,7 +58,14 @@ const GridControls = ({
 						onChange={e => {
 							updateGaugeAxisOptions(propKey, "startAngle", e.target.value);
 						}}
-						InputProps={{ ...textFieldStyleProps }}
+						InputProps={{ 
+							...textFieldStyleProps,
+							sx: {								
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", 
+								},
+							},
+						 }}
 					/>
 				</React.Fragment>
 			) : (
@@ -85,12 +92,13 @@ const GridControls = ({
 									color: "rgb(96, 96, 96)",
 									fontWeight: "600",
 									display: "flex",
+									marginTop: "4px"
 								}}
 							>
 								<label
 									htmlFor="enableDisable"
 									className="enableDisableLabel"
-									style={{ marginRight: "10px" }}
+									style={{ marginRight: "10px", marginLeft: "-1px" }}
 								>
 									ClockWise
 								</label>
@@ -123,10 +131,16 @@ const GridControls = ({
 							// changing value of end angle
 							updateGaugeAxisOptions(propKey, "endAngle", e.target.value);
 						}}
-						InputProps={{ ...textFieldStyleProps }}
+						InputProps={{ ...textFieldStyleProps,
+							sx: {								
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2bb9bb", // Set focused border color
+								},
+							},
+						 }}
 					/>
 
-					<div className="optionDescription">
+					<div className="optionDescription" style={{ marginLeft: "-3px" }}>
 						<input
 							type="checkbox"
 							id="enableDisable"
@@ -156,7 +170,7 @@ const GridControls = ({
 							/>
 							<div className="optionDescription">Tick Padding</div>
 							<SliderWithInput
-								percent={false}
+								percent={true}
 								sliderValue={property.gaugeAxisOptions.tickPadding}
 								sliderMinMax={{ min: 0, max: 90, step: 1 }}
 								changeValue={(value: number) => {
@@ -166,7 +180,7 @@ const GridControls = ({
 						</>
 					) : null}
 
-					<div className="optionDescription">
+					<div className="optionDescription" style={{ marginLeft: "-3px" }}>
 						<input
 							type="checkbox"
 							id="enableDisable"
@@ -187,7 +201,7 @@ const GridControls = ({
 						<>
 							<div className="optionDescription">Label Padding</div>
 							<SliderWithInput
-								percent={false}
+								percent={true}
 								sliderValue={property.gaugeAxisOptions.labelPadding}
 								sliderMinMax={{ min: 0, max: 90, step: 1 }}
 								changeValue={(value: number) => {

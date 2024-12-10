@@ -25,6 +25,7 @@ const HeatMap = ({
   // TODO: cant apply filters
   var chartControl: ChartControlsProps = chartControls.properties[propKey];
   let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
+
   const [chartDataKeys, setChartDataKeys] = useState<any[]>([]);
 
   const processedChartData = chartData.map(item => {

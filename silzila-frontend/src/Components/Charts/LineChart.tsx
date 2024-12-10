@@ -46,7 +46,6 @@ const LineChart = ({
         ])
     );
   });
-
   useEffect(() => {
     let seriesDataTemp = [];
     if (chartData.length >= 1) {

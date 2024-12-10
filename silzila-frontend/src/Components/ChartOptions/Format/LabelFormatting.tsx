@@ -126,17 +126,18 @@ const LabelFormatting = ({
 	const renderFormatOptions = () => {
 
 		return formatOptions.map((item: any) => {
+			const isSelected = item.value === formatObject?.measureFormats[formatObject.selectedMeasure.uId]?.formatValue;
 
 			return (
 				<div
 					key={item.value}
-					className={
-						item.value === formatObject?.measureFormats[formatObject.selectedMeasure.uId]?.formatValue
-							? "radioButtonSelected"
-							: "radioButton"
-					}
+					className={isSelected ? "radioButtonSelected" : "radioButton"}
+					style={{
+						backgroundColor: isSelected ? "rgba(224, 224, 224, 1)" : "white",
+						cursor: isSelected ? "auto" : "pointer",
+						fontWeight: isSelected ? "600" : "normal",
+					}}
 					onClick={() => {
-
 						if (item.value === "Percent") {
 							handleUpdateFormat("measureFormats", {
 								...(formatObject.measureFormats),
@@ -171,14 +172,16 @@ const LabelFormatting = ({
 
 	const renderSeparatorOptions = () => {
 		return separatorOptions.map((item: any) => {
+			const isSelected = item.value === formatObject?.measureFormats[formatObject.selectedMeasure.uId]?.numberSeparator;
 			return (
 				<div
 					key={item.value}
-					className={
-						item.value === formatObject?.measureFormats[formatObject.selectedMeasure.uId]?.numberSeparator
-							? "radioButtonSelected"
-							: "radioButton"
-					}
+					style={{
+						backgroundColor: isSelected ? 'rgba(224, 224, 224, 1)' : 'white',
+						cursor: isSelected ? "auto" : "pointer",
+						fontWeight: isSelected ? "600" : "normal",
+					}}
+					className="radioButton"
 					onClick={() => {
 
 						if (formatObject.measureFormats[formatObject.selectedMeasure.uId].formatValue === 'Percent') return
@@ -255,7 +258,18 @@ const LabelFormatting = ({
 								<MenuItem
 									key={index}
 									value={item}
-									sx={{ color: "black", fontSize: "13px", "&:hover": { backgroundColor: "rgb(238, 238, 238)" }, }}>
+									sx={{ 
+										color: "black", 
+										fontSize: "12px", 
+										padding: "2px 10px",
+										"&:hover": { backgroundColor: "rgb(238, 238, 238)" },
+										"&.Mui-selected": {
+											backgroundColor: "rgba(43, 185, 187, 0.1)", 											
+										},
+										"&.Mui-selected:hover": {
+											backgroundColor: "rgba(43, 185, 187, 0.2)", 
+										},
+									}}>
 									{item.displayname}
 								</MenuItem>
 							);
@@ -281,6 +295,11 @@ const LabelFormatting = ({
 										? "radioButtonSelected"
 										: "radioButton"
 								}
+								style={{
+									backgroundColor: formatObject.measureFormats[formatObject.selectedMeasure.uId]?.percentageCalculate === true ? "rgba(224, 224, 224, 1)" : "white",
+									cursor: formatObject.measureFormats[formatObject.selectedMeasure.uId]?.percentageCalculate === true ? "auto" : "pointer",
+									fontWeight: formatObject.measureFormats[formatObject.selectedMeasure.uId]?.percentageCalculate === true ? "600" : "normal",
+								}}
 								onClick={() => {
 
 									handleUpdateFormat("measureFormats", {
@@ -301,6 +320,11 @@ const LabelFormatting = ({
 										? "radioButtonSelected"
 										: "radioButton"
 								}
+								style={{
+									backgroundColor: formatObject.measureFormats[formatObject.selectedMeasure.uId]?.percentageCalculate === false ? "rgba(224, 224, 224, 1)" : "white",
+									cursor: formatObject.measureFormats[formatObject.selectedMeasure.uId]?.percentageCalculate === false ? "auto" : "pointer",
+									fontWeight: formatObject.measureFormats[formatObject.selectedMeasure.uId]?.percentageCalculate === false ? "600" : "normal",
+								}}
 								onClick={() => {
 
 									handleUpdateFormat("measureFormats", {
@@ -348,7 +372,7 @@ const LabelFormatting = ({
 				<div className="optionDescription">LABEL FORMAT</div>
 			)}
 
-			<div className="optionDescription">
+			<div className="optionDescription" style={{ marginLeft: "-5px"}}>
 				<label htmlFor="enableDisable" className="enableDisableLabel">
 					Separator
 				</label>
@@ -357,7 +381,7 @@ const LabelFormatting = ({
 				{renderSeparatorOptions()}
 			</div>
 
-			<div className="optionDescription">
+			<div className="optionDescription" style={{ marginLeft: "-5px"}}>
 				<label htmlFor="enableDisable" className="enableDisableLabel">
 					Round Off
 				</label>

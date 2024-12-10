@@ -40,7 +40,7 @@
 }
 
 #setButton {
-	background-color: rgb(0, 110, 255);
+	background-color: #2bb9bb;
 	color: white;
 	width: 5rem;
 	text-transform: none;
@@ -56,6 +56,7 @@
 	color: white;
 	width: 5rem;
 	margin-right: 3rem;
+	text-transform: none;
 }
 .relationArrowList {
 	margin: 1rem;

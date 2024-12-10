@@ -45,7 +45,13 @@ const ChartLabel = ({
           onChange={(e: any) => {
             updateCardControls(propKey, "subText", e.target.value);
           }}
-          InputProps={{ ...textFieldStyleProps }}
+          InputProps={{ ...textFieldStyleProps,
+            sx: {              
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#2bb9bb", // Set focused border color
+              },
+            },
+           }}
         />
       </div>
     </React.Fragment>
