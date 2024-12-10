@@ -434,6 +434,8 @@ const ChartAxes = ({
                 sx={{
                   "& .MuiInputBase-root": {
                     height: "25px",
+                    borderRadius: "4px",
+                    padding: "2px 0px",
                   },
                   "& .MuiOutlinedInput-input": {
                     textAlign: "center",
@@ -451,6 +453,17 @@ const ChartAxes = ({
                 label="Select Map"
               />
             )}
+            ListboxProps={{
+              sx: {
+                "& .MuiAutocomplete-option[aria-selected='true']": {
+                  backgroundColor: "rgba(43, 185, 187, 0.1) !important",
+                  color: "black",
+                },
+                "& .MuiAutocomplete-option[aria-selected='true']:hover": {
+                  backgroundColor: "rgba(43, 185, 187, 0.2) !important",                  
+                },                
+              },
+            }}
           />
         </div>
       </div>
@@ -521,6 +534,18 @@ const ChartAxes = ({
                     fill: "#2bb9bb !important",
                   },
                 }}
+                MenuProps={{
+									PaperProps: {
+										sx: {
+											"& .MuiMenuItem-root.Mui-selected": {
+												backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+											},
+											"& .MuiMenuItem-root.Mui-selected:hover": {
+												backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+											}
+										}
+									}
+								}}
                 style={{ borderRadius: "4px" }}
                 label="Select Mapss"
                 value={chartProp.properties[propKey].Geo.geoMapKey || "name"}

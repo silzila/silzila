@@ -56,11 +56,17 @@ const ChartLabels = ({
 	];
 	const renderLabels = () => {
 		return labelOptionsList.map((item: any, i: number) => {
+			const isSelected = item.value === showLabel;
 			return (
 				<button
 					onClick={() => updateLabelOption(propKey, "showLabel", item.value)}
-					className={item.value === showLabel ? "radioButtonSelected" : "radioButton"}
+					className={isSelected ? "radioButtonSelected" : "radioButton"}
 					key={i}
+					style = {{
+						backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
+						cursor: isSelected? "auto" : "pointer",
+						fontWeight: isSelected? "600" : "normal",
+					}}
 				>
 					{item.name}
 				</button>
@@ -70,7 +76,7 @@ const ChartLabels = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="radioButtons">{renderLabels()}</div>
+			<div className="radioButtons" style={{ marginTop: "15px" }}>{renderLabels()}</div>
 			{showLabel === true ? (
 				<React.Fragment>
 					<div style={{ display: "flex", paddingBottom: "8px", flexDirection: "column" }}>
@@ -96,6 +102,21 @@ const ChartLabels = ({
 											backgroundColor: "white",
 											height: "1.5rem",
 											color: "#404040",
+											"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+												borderColor: "#2bb9bb", // Set focused border color
+											},
+										}}
+										MenuProps={{
+											PaperProps: {
+												sx: {
+													"& .MuiMenuItem-root.Mui-selected": {
+														backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+													},
+													"& .MuiMenuItem-root.Mui-selected:hover": {
+														backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+													}
+												}
+											}
 										}}
 									>
 										{labelPositionOptions.map((position: any) => {
@@ -118,7 +139,7 @@ const ChartLabels = ({
 									<>
 										<div className="optionDescription">Label Padding</div>
 										<SliderWithInput
-											percent={false}
+											percent={true}
 											sliderValue={labelOptions.pieLabel.labelPadding}
 											sliderMinMax={{ min: 0, max: 40, step: 1 }}
 											changeValue={(value: number) => {
@@ -133,7 +154,7 @@ const ChartLabels = ({
 						<div>
 							<div className="optionDescription">Label Size</div>
 							<SliderWithInput
-								percent={false}
+								percent={true}
 								sliderValue={
 									chartControls.properties[propKey].labelOptions.fontSize
 								}
@@ -142,13 +163,13 @@ const ChartLabels = ({
 									updateLabelOption(propKey, "fontSize", value);
 								}}
 							/>
-							<div className="optionDescription">Label Color</div>
+							<div className="optionDescription" style={{ marginTop: "20px", marginBottom: "-10px" }}>Label Color</div>
 
 							<div className="optionDescription">
 								<label
 									htmlFor="enableDisable"
 									className="enableDisableLabel"
-									style={{ marginRight: "10px" }}
+									style={{ marginRight: "10px", marginLeft: "-5px" }}
 								>
 									Manual
 								</label>

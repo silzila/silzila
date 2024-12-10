@@ -155,8 +155,8 @@ const BubbleMapColors = ({
   if (!chartProperties.properties[propKey].chartAxes[1].fields[0]) {
     return (
       <>
-        <div className="optionDescription">Min</div>
-        <div className="optionDescription">
+        <div className="optionDescription" style={{ fontSize: "14px" }}>Min</div>
+        <div className="optionDescription" style={{ marginTop: "2px"}}>
           <InputBase
             style={{ height: "1.25rem", width: "35%" }}
             value={geoStyle.minValue}
@@ -186,8 +186,8 @@ const BubbleMapColors = ({
             {"  "}
           </div>
         </div>
-        <div className="optionDescription">Max</div>
-        <div className="optionDescription">
+        <div className="optionDescription" style={{ fontSize: "14px" }}>Max</div>
+        <div className="optionDescription" style={{ marginTop: "2px"}}>
           <InputBase
             style={{ height: "1.25rem", width: "35%" }}
             value={geoStyle.maxValue}

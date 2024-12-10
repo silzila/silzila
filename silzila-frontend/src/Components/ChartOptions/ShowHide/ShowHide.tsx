@@ -591,7 +591,18 @@ const ShowHide = ({
             }}
             onChange={handleValueChange}
             value={comparisonType}
-
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  "& .MuiMenuItem-root.Mui-selected": {
+                    backgroundColor: "rgba(43, 185, 187, 0.1)",                     
+                  "&:hover": {
+                    backgroundColor: "rgba(43, 185, 187, 0.2)",
+                  },
+                  },
+                },
+              },
+            }}
           >
             {equalPatternCollections.map((data, index) => (
               <MenuItem
@@ -599,7 +610,7 @@ const ShowHide = ({
                 value={data.value || ""}
                 sx={{
                   color: "black",
-                  fontSize: "13px",
+                  fontSize: "12px",
                   "&:hover": { backgroundColor: "rgb(238, 238, 238)" },
                 }}
                 onClick={() => {
@@ -832,17 +843,20 @@ const ShowHide = ({
     <React.Fragment>
       {data.length > 0 ? (
         <div>
+          <div style={{ overflowX: "hidden", width: "100%" }}> 
           <div className="sort">Show/Hide</div>
           <div style={{ display: "flex" }}>
             {/* Show Button */}
             <div
               style={{
-                borderRadius: "5px 0 0 5px",
-                cursor: "pointer",
+                borderRadius: "5px 0 0 5px",                
                 marginLeft: "10px",
                 marginBottom: "5px",
                 transition: "0.2s",
-                backgroundColor: isShownCss ? "white" : "#E0E0E0",
+                backgroundColor: isShownCss ? "#E0E0E0" : "white",
+                fontWeight: isShownCss? "600" : "normal",
+                cursor: isShownCss? "default" : "pointer",
+                boxSizing: "border-box",
               }}
               className={
                 chartControls.properties[propKey].sortOrder === "Ascending"
@@ -859,11 +873,13 @@ const ShowHide = ({
             {/* Hide Button */}
             <div
               style={{
-                borderRadius: "0 5px 5px 0",
-                cursor: "pointer",
+                borderRadius: "0 5px 5px 0",                
                 marginBottom: "10px",
                 transition: "0.2s",
-                backgroundColor: isShownCss ? "#E0E0E0" : "white",
+                backgroundColor: isShownCss ? "white" : "#E0E0E0",
+                fontWeight: isShownCss? "normal" : "600",
+                cursor: isShownCss? "pointer" : "default",
+                boxSizing: "border-box",
               }}
               className={
                 chartControls.properties[propKey].sortOrder === "Descending"
@@ -876,6 +892,7 @@ const ShowHide = ({
             >
               Hide
             </div>
+          </div>
           </div>
 
           <div className="sort">Field</div>
@@ -918,6 +935,18 @@ const ShowHide = ({
                 }}
                 onChange={handleSelectColumnOptions}
                 value={chartControls.properties[propKey].sortedValue || ""}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      "& .MuiMenuItem-root.Mui-selected": {
+                        backgroundColor: "rgba(43, 185, 187, 0.1)",
+                        "&:hover": {
+                          backgroundColor: "rgba(43, 185, 187, 0.2)",
+                        },
+                      },
+                    },
+                  },
+                }}
               >
                 {firstObjKey.map((data, index) => (
                   <MenuItem
@@ -926,7 +955,7 @@ const ShowHide = ({
                     onClick={() => handleClick(data)}
                     sx={{
                       color: "black",
-                      fontSize: "13px",
+                      fontSize: "12px",
                       "&:hover": { backgroundColor: "rgb(238, 238, 238)" },
                     }}
                   >

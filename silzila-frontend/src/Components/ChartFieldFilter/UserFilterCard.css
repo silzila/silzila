@@ -148,6 +148,22 @@ input[type="number"]::-ms-inner-spin-button {
   right: -10px;
 }
 
+.MuiPickersDay-root.Mui-selected {
+  background-color: #2bb9bb !important;
+}
+
+.MuiPickersDay-root.Mui-selected:hover {
+  background-color: rgba(43, 185, 187, 0.1) !important;
+}
+
+.MuiPickersYear-yearButton.Mui-selected {
+  background-color: #2bb9bb !important;
+}
+
+.MuiPickersYear-yearButton.Mui-selected:hover {
+  background-color: rgba(43, 185, 187, 0.1) !important;
+}
+
 /* .customNumberInput input[type="number"] {
   padding-right: 0px;
   padding-left: 0px;

@@ -62,7 +62,7 @@ const FilledMapStyles = ({
     <div className="optionsInfo">
       <div className="optionDescription">Map Zoom</div>
       <SliderWithInput
-        percent={false}
+        percent={true}
         sliderValue={geoStyle.mapZoom}
         sliderMinMax={{ min: 1, max: 5, step: 0.1 }}
         changeValue={(value) =>
@@ -72,7 +72,7 @@ const FilledMapStyles = ({
 
       <div className="optionDescription">Aspect Scale</div>
       <SliderWithInput
-        percent={false}
+        percent={true}
         sliderValue={geoStyle.aspectScale}
         sliderMinMax={{ min: 0.5, max: 3, step: 0.05 }}
         changeValue={(value) =>
@@ -82,7 +82,7 @@ const FilledMapStyles = ({
 
       <div className="optionDescription">Border Width</div>
       <SliderWithInput
-        percent={false}
+        percent={true}
         sliderValue={geoStyle.boderWidth}
         sliderMinMax={{ min: 1, max: 10, step: 0.5 }}
         changeValue={(value) =>
@@ -134,7 +134,7 @@ const FilledMapStyles = ({
         </div>
       </div>
 
-      <div className="optionDescription">EMPHASIS on MOUSEOVER:</div>
+      <div className="optionDescription">EMPHASIS ON MOUSEOVER:</div>
       <div className="optionDescription">
         <div style={{ width: "50%" }}>Area Color</div>
 
@@ -159,7 +159,7 @@ const FilledMapStyles = ({
       </div>
       <div className="optionDescription">
         <div style={{ width: "50%", height: "1.25rem" }}>Blur Others</div>
-        <div style={{ width: "50%", height: "1.25rem" }}>
+        <div style={{ width: "50%", height: "1.25rem", marginTop: "-8px" }}>
           <SwitchWithInput
             isChecked={geoStyle.enableSelfEmphasis}
             onSwitch={() => {
@@ -176,7 +176,7 @@ const FilledMapStyles = ({
       <div className="optionDescription">VISUAL SCALE:</div>
       <div className="optionDescription">
         <div style={{ width: "50%", height: "1.25rem" }}>Show Scale</div>
-        <div style={{ width: "50%", height: "1.25rem" }}>
+        <div style={{ width: "50%", height: "1.25rem", marginTop: "-8px" }}>
           <SwitchWithInput
             isChecked={geoStyle.showVisualScale}
             onSwitch={() => {

@@ -18,6 +18,9 @@ export const SelectComponentStyle = {
 	backgroundColor: "white",
 	height: "1.5rem",
 	color: "#404040",
+	"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+		borderColor: "#2bb9bb", // Set focused border color
+	},
 };
 
 const SankeyLabelOptions = ({
@@ -53,6 +56,18 @@ const SankeyLabelOptions = ({
 						updateSankeyStyleOptions(propKey, "labelPosition", e.target.value);
 					}}
 					sx={SelectComponentStyle}
+					MenuProps={{
+						PaperProps: {
+							sx: {
+								"& .MuiMenuItem-root.Mui-selected": {
+									backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+								},
+								"& .MuiMenuItem-root.Mui-selected:hover": {
+									backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+								}
+							}
+						}
+					}}
 				>
 					<MenuItem value="inside" key="inside" sx={menuItemStyle}>
 						Inside
@@ -81,6 +96,18 @@ const SankeyLabelOptions = ({
 						updateSankeyStyleOptions(propKey, "labelRotate", e.target.value);
 					}}
 					sx={SelectComponentStyle}
+					MenuProps={{
+						PaperProps: {
+							sx: {
+								"& .MuiMenuItem-root.Mui-selected": {
+									backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+								},
+								"& .MuiMenuItem-root.Mui-selected:hover": {
+									backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+								}
+							}
+						}
+					}}
 				>
 					{sankeyLabelRotationOption.map(position => {
 						return (
@@ -101,6 +128,18 @@ const SankeyLabelOptions = ({
 						updateSankeyStyleOptions(propKey, "overFlow", e.target.value);
 					}}
 					sx={SelectComponentStyle}
+					MenuProps={{
+						PaperProps: {
+							sx: {
+								"& .MuiMenuItem-root.Mui-selected": {
+									backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+								},
+								"& .MuiMenuItem-root.Mui-selected:hover": {
+									backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+								}
+							}
+						}
+					}}
 				>
 					<MenuItem sx={menuItemStyle} value="truncate">
 						Truncate

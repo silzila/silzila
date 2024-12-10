@@ -57,7 +57,7 @@ const ChartColors = ({
 
   return (
     <div className="optionsInfo">
-      <div className="optionDescription">COLOR SCHEME:</div>
+      <div className="optionDescription">Color Scheme:</div>
       <FormControl
         fullWidth
         size="small"
@@ -70,7 +70,11 @@ const ChartColors = ({
           onChange={(e) => {
             resetSelection(e.target.value);
           }}
-          sx={{ fontSize: "14px", margin: "0 1rem" }}
+          sx={{ fontSize: "14px", margin: "0 1rem",
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#2bb9bb", // Set focused border color
+            },
+          }}
         >
           {ColorSchemes.map((item: ColorSchemesProps) => {
             return (
@@ -112,7 +116,7 @@ const ChartColors = ({
       {chartProperties.properties[propKey].chartType === "area" ||
       chartProperties.properties[propKey].chartType === "stackedArea" ? (
         <React.Fragment>
-          <div className="optionDescription">Background Color</div>
+          <div className="optionDescription" style={{ marginTop: "20px" }}>Background Color</div>
           <div
             style={{
               height: "1.25rem",
@@ -128,7 +132,7 @@ const ChartColors = ({
               setColorPopOverOpen(!isColorPopoverOpen);
             }}
           ></div>
-          <div className="optionDescription">Opacity</div>
+          <div className="optionDescription" style={{ marginTop: "20px" }}>Opacity</div>
           <SliderWithInput
             pointNumbers={true}
             sliderValue={chartControls.properties[propKey].areaOpacity}
