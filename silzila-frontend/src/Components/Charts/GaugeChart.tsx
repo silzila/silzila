@@ -143,7 +143,6 @@ const GaugeChart = ({
                     formattedValue,
                     chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0].displayname
                   );
-                  console.log(formattedValue);
                   return formattedValue;
                 },
               },
