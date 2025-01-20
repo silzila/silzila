@@ -44,6 +44,7 @@ import { ChartPropertiesProps } from "../../redux/ChartPoperties/ChartProperties
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import { TabStateProps } from "../../redux/TabTile/TabStateInterfaces";
 import { TileStateProps } from "../../redux/TabTile/TileStateInterfaces";
+import theme from "../../assets/theme.png";
 
 interface DataViewerProps {
   tabTileProps: TabTileStateProps;
@@ -85,35 +86,44 @@ function DataViewer({
   // ===========================================================================================
   //                                      UI Components
   // ===========================================================================================
-
+  const dashBoardMenuStyles = {
+    height: "1.693rem",
+    width: "1.693rem",
+    padding: "0.2rem",
+    // margin: "0 4px"
+  };
   const rmenu: any[] = [
     {
       name: "Charts",
-      icon: chartControlIcon,
+      icon: "/chart_icon_outlined.png",
       style: {
-        height: "2rem",
-        width: "3rem",
-        margin: "0 19px"
-      }
+        height: "30px",
+        width: "30px",
+        padding: "0.2rem",
+        margin: "0 15px",
+      },
     },
     {
       name: "Chart controls",
-      icon: settingsIcon,
+      icon: "/filter_setting_icon.png",
       style: {
-        height: "2rem",
-        width: "3rem",
-        padding: "5px 6px",
-        margin: "0 19px"
-      }
+        height: "30px",
+        width: "30px",
+        padding: "0.2rem",
+        margin: "0 15px",
+        // paddingInline: "6px",
+      },
     },
     {
       name: "Report Filters",
-      icon: filterIcon,
+      icon: "/filter_icon_14_12_24.png",
       style: {
-        height: "2rem",
-        width: "3rem",
-        padding: "4px 3px",
-        marginRight: "19px"
+        height: "30px",
+        width: "30px",
+        padding: "0.2rem",
+        // padding: "6px 12.5px 5px 12.5px",
+        // margin: "0 10px",
+        margin: "0 15px",
       }
     }
   ];
@@ -147,47 +157,54 @@ function DataViewer({
         <div className="tabItems">
           <TabRibbon />
         </div>
-        {!tabTileProps.showDash?( <div
-            style={{
-              display: "flex",
-              alignItems: "right",
-              justifyContent: "center",
-              height: "2rem"
-            }}
-          >
+        {!tabTileProps.showDash?( 
+          <div
+          style={{
+            display: "flex",
+            alignItems: "right",
+            justifyContent: "center",
+            height: "2rem",
+            marginLeft: "11px",
+            gap: "1.5rem",
+          }}
+        >
             {renderMenu}
           </div>):null}
          
         
         {tabTileProps.showDash || tabTileProps.dashMode === "Present" ? (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              paddingRight: "8px",
-            }}
-          >
+          // <div
+          //   style={{
+          //     display: "flex",
+          //     alignItems: "center",
+          //     paddingRight: "8px",
+          //   }}
+          // >
+            <>
             {tabTileProps.dashMode === "Edit" ? (
               <div
                 style={{
                   display: "flex",
-                  columnGap: "18px",
-                  marginRight: "5px",
-                  height: "2rem",
-                  alignContent: "center",
-                  flexWrap: "wrap"
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "1rem",
+                  marginRight: "0.2rem",
+                  // marginRight: "5px"
                 }}
               >
-                <div
+                {/* <div
                   className={
                     showListofTileMenu
                       ? "dashboardMenuIconStyleSelected"
                       : "dashboardMenuIconStyle"
                   }
-                >
+                > */}
                   <Tooltip title="List of Tiles">
                     <GridViewIcon
-                      sx={{ fontSize: "20px", marginTop: "2px" }}
+                      sx={{...dashBoardMenuStyles }}
+                      className={
+                        showListofTileMenu ? "dashboardMenuIconStyleSelected" : ""
+                      }
                       onClick={() => {
                         if (tabTileProps.dashMode === "Edit") {
                           setDashboardResizeColumn(false);
@@ -197,41 +214,51 @@ function DataViewer({
                       }}
                     />
                   </Tooltip>
-                </div>
-                <div
+                {/* </div> */}
+                {/* <div
                   className={
                     dashboardResizeColumn
                       ? "dashboardMenuIconStyleSelected"
                       : "dashboardMenuIconStyle"
                   }
-                >
+                > */}
                   <Tooltip title="Dashboard Size">
-                    <AspectRatioRoundedIcon
-                      sx={{ fontSize: "20px", marginTop: "2px" }}
-                      onClick={() => {
-                        if (tabTileProps.dashMode === "Edit") {
-                          setShowListofTileMenu(false);
-                          setShowDashboardFilter(false);
-                          setDashboardResizeColumn(!dashboardResizeColumn);
-                        }
-                      }}
+                    <img
+                    src={theme}
+                    alt="Dashboard Size"
+                    style={{
+                      // width: "20px",
+                      // height: "20px",
+                      // marginTop: "2px",
+                      boxSizing: "border-box",
+                      cursor: "pointer",
+                      ...dashBoardMenuStyles,
+                    }}
+                    className={
+                      dashboardResizeColumn
+                        ? "dashboardMenuIconStyleSelected"
+                        : ""
+                    }
+                    onClick={() => {
+                      if (tabTileProps.dashMode === "Edit") {
+                        setShowListofTileMenu(false);
+                        setShowDashboardFilter(false);
+                        setDashboardResizeColumn(!dashboardResizeColumn);
+                      }
+                    }}
                     />
                   </Tooltip>
-                </div>
-              </div>
-            ) : null}
-            <div
-              className={
-                showDashboardFilter
-                  ? "dashboardMenuIconStyleSelected"
-                  : "dashboardMenuIconStyle"
-              }
-            >
-              <Tooltip title="Dashboard Filter">
-                <FilterAltOutlinedIcon
-                  sx={{
-                    fontSize: "25px"
+                  <Tooltip title="Dashboard Filter">
+                <img
+                  key={"Dashboard Filters"}
+                   style={{
+                       // height: "1.2rem",
+                      // width: "1.2rem",
+                      ...dashBoardMenuStyles,
                   }}
+                  src={"/filter_icon_14_12_24.png"}
+                  alt={"Dashboard Filters"}
+                  
                   onClick={() => {
                     // if (tabTileProps.dashMode === "Edit") {
                     setShowListofTileMenu(false);
@@ -239,10 +266,28 @@ function DataViewer({
                     setShowDashboardFilter(!showDashboardFilter);
                     // }
                   }}
+                  title={"Dashboard Filters"}
+                  className={
+                    showDashboardFilter
+                      ? "dashboardMenuIconStyleSelected"
+                      : ""
+                  }
                 />
+                
               </Tooltip>
-            </div>
-          </div>
+                {/* </div> */}
+              </div>
+            ) : null}
+            {/* <div
+              className={
+                showDashboardFilter
+                  ? "dashboardMenuIconStyleSelected"
+                  : "dashboardMenuIconStyle"
+              }
+            > */}
+             
+            {/* </div> */}
+            </>
         ) : null}
       </div>
       {/* Show tile page or Dashboard */}
