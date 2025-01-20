@@ -58,7 +58,7 @@ public class AuthenticationService {
         }
 
         return new AuthenticationResponse(
-                user.getName(), user.getUsername(), "Bearer",
+                user.getFirstName(),user.getLastName(), user.getUsername(), "Bearer",
                 this.tokenUtils.generateToken(userDetails, authenticationRequest.getDevice()));
     }
 
@@ -82,7 +82,8 @@ public class AuthenticationService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String hashedPassword = passwordEncoder.encode(signupRequest.getPassword());
         User newUser = User.builder()
-                .name(signupRequest.getName())
+                .firstName(signupRequest.getFirstName())
+                .lastName(signupRequest.getLastName())
                 .username(signupRequest.getUsername())
                 .password(hashedPassword)
                 .lastPasswordReset(new Date())
