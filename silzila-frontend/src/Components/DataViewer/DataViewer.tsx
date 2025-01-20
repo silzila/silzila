@@ -90,7 +90,7 @@ function DataViewer({
     height: "1.693rem",
     width: "1.693rem",
     padding: "0.2rem",
-    // margin: "0 4px"
+    marginLeft:"11px"
   };
   const rmenu: any[] = [
     {
@@ -164,7 +164,7 @@ function DataViewer({
             alignItems: "right",
             justifyContent: "center",
             height: "2rem",
-            marginLeft: "11px",
+            // marginLeft: "15px",
             gap: "1.5rem",
           }}
         >
