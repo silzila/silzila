@@ -2,7 +2,7 @@
 // export const serverEndPoint = "http://localhost:8080/api/";
 
 // for SERVER+LOCAL TWO TIER - separate front end & backend
-export const serverEndPoint = "https://bi.silzila.com/api/";
+export const serverEndPoint = process.env.REACT_APP_API_ENDPOINT;
 // for LOCAL-ONLY SINGLE TIER - single build with react app
 // export const serverEndPoint = "http://localhost:8080/";
 
