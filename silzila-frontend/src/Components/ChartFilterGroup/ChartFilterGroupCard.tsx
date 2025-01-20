@@ -1843,6 +1843,9 @@ const RenderMenu = () => {
         "&.Mui-focused fieldset": {
           borderColor: "#2bb9bb",
         },
+        "&:hover fieldset": {
+          borderColor: "#2bb9bb", 
+        }
       },
     },
   });
