@@ -1,5 +1,6 @@
 package com.silzila.service;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -7,7 +8,6 @@ import javax.validation.Valid;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -29,6 +29,10 @@ import com.silzila.repository.FileDataRepository;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.duckdb.DuckDBConnection;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -62,24 +66,23 @@ public class DuckDbService {
     @Value("${pepperForFlatFiles}")
     private String pepper;
 
-    //generating random value to encrypt
-    final String encryptPwd ="#VaNgaL#";
-
+    // generating random value to encrypt
+    final String encryptPwd = "#VaNgaL#";
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-     // load dataset details in buffer. This helps faster query execution.
-     public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId, String userId)
-     throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
+    // load dataset details in buffer. This helps faster query execution.
+    public DatasetDTO loadDatasetInBuffer(String dbConnectionId, String datasetId, String userId)
+            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException,
+            BadRequestException, SQLException {
         DatasetDTO dto = buffer.loadDatasetInBuffer(datasetId, userId);
-         if(!dto.getDataSchema().getFilterPanels().isEmpty()){
-             List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
-             dto.getDataSchema().setFilterPanels(filterPanels);
-         }
-         return dto;
+        if (!dto.getDataSchema().getFilterPanels().isEmpty()) {
+            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(
+                    dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId, this::relativeFilter);
+            dto.getDataSchema().setFilterPanels(filterPanels);
+        }
+        return dto;
     }
-
-
 
     private static final Logger logger = LogManager.getLogger(DuckDbService.class);
     // holds view name of DFs used in query
@@ -115,7 +118,7 @@ public class DuckDbService {
         stmtRecords.execute(query);
         ResultSet rsRecords = stmtRecords.executeQuery("SELECT * FROM tbl_" + fileName + " LIMIT 200");
         ResultSet rsMeta = stmtMeta.executeQuery("DESCRIBE tbl_" + fileName);
-        
+
         JSONArray jsonArrayRecords = ResultSetToJson.convertToJsonFlatFiles(rsRecords);
         // keep only column name & data type
         JSONArray jsonArrayMeta = DuckDbMetadataToJson.convertToJson(rsMeta);
@@ -186,8 +189,6 @@ public class DuckDbService {
         ArrayList<String> columnList = new ArrayList<String>();
         ArrayList<String> dataTypeList = new ArrayList<String>();
 
-      
-
         for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
             FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
             String colName = col.getFieldName().replaceAll("[^a-zA-Z0-9]", "_");
@@ -197,7 +198,7 @@ public class DuckDbService {
             String dataTypeString = "'" + duckDbDataType + "'";
             columnList.add(columnString);
             dataTypeList.add(dataTypeString);
-          }
+        }
         // build stringified list of columns
         String colMapString = "[" + String.join(", ", columnList) + "]";
         // build stringified list of data types
@@ -313,10 +314,10 @@ public class DuckDbService {
         }
 
         System.out.println(encryptVal);
-        //creating Encryption key to save parquet file securely
-        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
+        // creating Encryption key to save parquet file securely
+        String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
         // read CSV and write as Parquet file
-        final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/" +"/"
+        final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/" + "/"
                 + revisedInfoRequest.getFileId() + ".parquet";
         String query = "COPY (SELECT * from read_csv_auto('" + filePath + "', names=" + colMapString + ", types="
                 + dataTypeMapString + dateFormatCondition + timeStampFormatCondition + ")) TO '" + writeFile
@@ -337,23 +338,27 @@ public class DuckDbService {
     }
 
     // get sample records from Parquet file
-    public JSONArray getSampleRecords(String parquetFilePath,String userId,String datasetId, String tableName,String encryptVal) throws SQLException, RecordNotFoundException, JsonProcessingException, BadRequestException, ClassNotFoundException {
+    public JSONArray getSampleRecords(String parquetFilePath, String userId, String datasetId, String tableName,
+            String encryptVal) throws SQLException, RecordNotFoundException, JsonProcessingException,
+            BadRequestException, ClassNotFoundException {
 
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtRecords = conn2.createStatement();
 
         String query = "";
 
-        if(datasetId!=null) {
-            //getting dataset information to fetch filter panel information
-            DatasetDTO ds = loadDatasetInBuffer(null,datasetId, userId);
+        if (datasetId != null) {
+            // getting dataset information to fetch filter panel information
+            DatasetDTO ds = loadDatasetInBuffer(null, datasetId, userId);
             List<FilterPanel> filterPanels = new ArrayList<>();
             String tableId = "";
             String whereClause = "";
 
-            //iterating to filter panel list to get the particular filter panel for the table
+            // iterating to filter panel list to get the particular filter panel for the
+            // table
             for (int i = 0; i < ds.getDataSchema().getFilterPanels().size(); i++) {
-                if (ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableName().equalsIgnoreCase(tableName)) {
+                if (ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableName()
+                        .equalsIgnoreCase(tableName)) {
                     filterPanels.add(ds.getDataSchema().getFilterPanels().get(i));
                     tableId = ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableId();
 
@@ -361,24 +366,27 @@ public class DuckDbService {
 
             }
 
-            //generating where clause from the given filter panel
+            // generating where clause from the given filter panel
             whereClause = WhereClause.buildWhereClause(filterPanels, "duckdb");
 
-            //creating Encryption key to save parquet file securely
+            // creating Encryption key to save parquet file securely
             String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
             stmtRecords.execute(encryptKey);
-            //checking whether the dataset has filter panel or not
+            // checking whether the dataset has filter panel or not
             if (ds.getDataSchema().getFilterPanels().isEmpty()) {
-                query = "SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'}) LIMIT 200;";
+                query = "SELECT * from read_parquet('" + parquetFilePath
+                        + "',encryption_config = {footer_key: 'key256'}) LIMIT 200;";
             } else {
-                query = "SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'})" + " AS " + tableId + "\n" + whereClause + " LIMIT 200;";
+                query = "SELECT * from read_parquet('" + parquetFilePath
+                        + "',encryption_config = {footer_key: 'key256'})" + " AS " + tableId + "\n" + whereClause
+                        + " LIMIT 200;";
             }
-        }
-        else {
-            //creating Encryption key to save parquet file securely
+        } else {
+            // creating Encryption key to save parquet file securely
             String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
             stmtRecords.execute(encryptKey);
-            query = "SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'}) LIMIT 200;";
+            query = "SELECT * from read_parquet('" + parquetFilePath
+                    + "',encryption_config = {footer_key: 'key256'}) LIMIT 200;";
 
         }
         logger.info("************************\n" + query);
@@ -392,18 +400,18 @@ public class DuckDbService {
     }
 
     // get sample records from Parquet file
-    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath,String encryptVal) throws SQLException {
+    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath, String encryptVal) throws SQLException {
 
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtMeta = conn2.createStatement();
         Statement stmtRecords = conn2.createStatement();
 
-
-        //creating Encryption key to save parquet file securely
-        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
+        // creating Encryption key to save parquet file securely
+        String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
         stmtRecords.execute(encryptKey);
 
-        String query = "DESCRIBE SELECT * from read_parquet('" + parquetFilePath + "',encryption_config = {footer_key: 'key256'}) LIMIT 1;";
+        String query = "DESCRIBE SELECT * from read_parquet('" + parquetFilePath
+                + "',encryption_config = {footer_key: 'key256'}) LIMIT 1;";
         logger.info("************************\n" + query);
 
         ResultSet rsMeta = stmtMeta.executeQuery(query);
@@ -435,7 +443,8 @@ public class DuckDbService {
     }
 
     // create DF for flat files
-    public void createViewForFlatFiles(String userId, List<Table> tableObjList, List<FileData> fileDataList,String encryptVal)
+    public void createViewForFlatFiles(String userId, List<Table> tableObjList, List<FileData> fileDataList,
+            String encryptVal)
             throws SQLException, ClassNotFoundException {
         // System.out.println("Table Obj ============\n" + tableObjList.toString());
         // System.out.println("File Data List ============\n" +
@@ -465,18 +474,19 @@ public class DuckDbService {
                     if (flatFileId.equals(fileDataList.get(j).getId())) {
                         final String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId
                                 + "/" + fileDataList.get(j).getFileName();
-                        String salt= fileDataList.get(j).getSaltValue();
+                        String salt = fileDataList.get(j).getSaltValue();
 
                         // create view on DF and maintain the view name to know if view is already there
                         startDuckDb();
                         Connection conn2 = ((DuckDBConnection) conn).duplicate();
                         Statement stmt = conn2.createStatement();
 
-                        //creating Encryption key to save parquet file securely
-                        String encryptKey= "PRAGMA add_parquet_key('key256', '"+salt+encryptVal+"')";
+                        // creating Encryption key to save parquet file securely
+                        String encryptKey = "PRAGMA add_parquet_key('key256', '" + salt + encryptVal + "')";
                         stmt.execute(encryptKey);
 
-                        String query = "CREATE OR REPLACE VIEW " + viewName + " AS (SELECT * FROM read_parquet('"+filePath+"', encryption_config = {footer_key: 'key256'}))";
+                        String query = "CREATE OR REPLACE VIEW " + viewName + " AS (SELECT * FROM read_parquet('"
+                                + filePath + "', encryption_config = {footer_key: 'key256'}))";
                         logger.info("View creating query ==============\n" + query);
                         stmt.execute(query);
                         stmt.close();
@@ -506,11 +516,10 @@ public class DuckDbService {
     }
 
     public FileUploadResponseDuckDb readExcel(String fileName, String sheetName)
-            throws SQLException, ExpectationFailedException {
+            throws SQLException, ExpectationFailedException, IOException {
 
-        if(sheetName.equalsIgnoreCase(""))
-        {
-            throw new ExpectationFailedException("Could not upload because SHEETNAME is NULL") ;
+        if (sheetName.equalsIgnoreCase("")) {
+            throw new ExpectationFailedException("Could not upload because SHEETNAME is NULL");
         }
         // String filePath = SILZILA_DIR + "/" + fileName;
         String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
@@ -528,17 +537,19 @@ public class DuckDbService {
         stmtInstallLoad.execute("INSTALL spatial;");
         stmtInstallLoad.execute("LOAD spatial;");
 
+        boolean isHeader = detectHeader(filePath, sheetName);
+        String header = isHeader ? "FORCE" : "DISABLE";
+        System.out.println(header);
+
         String query = "CREATE OR REPLACE TABLE tbl_" + fileName + " AS SELECT * from st_read('" + filePath
-                + "',layer ='" + sheetName + "')";
+                + "',layer ='" + sheetName + "', open_options = ['HEADERS=" + header + "'])";
         try {
             stmtRecords.execute(query);
-        }
-        catch (SQLException e)
-        {
-            if(e.getMessage().contains("not recognized as a supported file format")) {
+        } catch (SQLException e) {
+            if (e.getMessage().contains("not recognized as a supported file format")) {
                 throw new ExpectationFailedException("Sorry!!! You are trying to upload unsupported file format ");
             } else if (e.getMessage().contains("Binder Error: Layer")) {
-                throw new ExpectationFailedException("Please check the SheetName, '"+sheetName+"' is not exist" );
+                throw new ExpectationFailedException("Please check the SheetName, '" + sheetName + "' is not exist");
             }
         }
 
@@ -611,7 +622,7 @@ public class DuckDbService {
         return fileUploadResponseDuckDb;
     }
 
-    public void writeExcelToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId,String encryptVal)
+    public void writeExcelToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId, String encryptVal)
             throws SQLException, ExpectationFailedException {
 
         String fileName = revisedInfoRequest.getFileId();
@@ -655,13 +666,13 @@ public class DuckDbService {
             timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
         }
 
-        //creating Encryption key to save parquet file securely
-        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
+        // creating Encryption key to save parquet file securely
+        String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
         stmtRecords.execute(encryptKey);
 
-               // read CSV and write as Parquet file
+        // read CSV and write as Parquet file
         final String writeFile = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/" + "/"
-                +  revisedInfoRequest.getFileId() + ".parquet";
+                + revisedInfoRequest.getFileId() + ".parquet";
         String query = "COPY (SELECT * from read_csv_auto('" + filePath + "', names=" + colMapString + ", types="
                 + dataTypeMapString + dateFormatCondition + timeStampFormatCondition + ")) TO '" + writeFile
                 + "' (ENCRYPTION_CONFIG {footer_key: 'key256'});";
@@ -676,26 +687,26 @@ public class DuckDbService {
         conn2.close();
     }
 
-
-    public FileUploadResponseDuckDb readJson(String fileName) throws SQLException, ExpectationFailedException, IOException {
+    public FileUploadResponseDuckDb readJson(String fileName)
+            throws SQLException, ExpectationFailedException, IOException {
 
         // String filePath = SILZILA_DIR + "/" + fileName;
         String filePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + "tmp" + "/" + fileName;
         String jsonStr = new String(Files.readAllBytes(Paths.get(filePath))).trim();
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
 
-         JsonValidator.validate(jsonStr);
+        JsonValidator.validate(jsonStr);
 
         Statement stmtRecords = conn2.createStatement();
         Statement stmtMeta = conn2.createStatement();
         Statement stmtDeleteTbl = conn2.createStatement();
         // checking for correct format and do the operation on json
-        try{
+        try {
             String query = "CREATE OR REPLACE TABLE tbl_" + fileName + " AS SELECT * from read_json_auto('" + filePath
                     + "',SAMPLE_SIZE=200)";
             stmtRecords.execute(query);
         } catch (SQLException e) {
-            if(e.getMessage().contains("Invalid Input Error: Malformed JSON")) {
+            if (e.getMessage().contains("Invalid Input Error: Malformed JSON")) {
                 throw new ExpectationFailedException("Sorry!!! Invalid JSON format");
             }
 
@@ -828,7 +839,7 @@ public class DuckDbService {
         return jsonArray;
     }
 
-    public void writeJsonToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId,String encryptVal)
+    public void writeJsonToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId, String encryptVal)
             throws SQLException, ExpectationFailedException {
 
         String fileName = revisedInfoRequest.getFileId();
@@ -877,8 +888,8 @@ public class DuckDbService {
         // Converting a map to string to pass correct format to column
         String columnsMapString = mapToString(map);
 
-        //creating Encryption key to save parquet file securely
-        String encryptKey= "PRAGMA add_parquet_key('key256', '"+encryptVal+"')";
+        // creating Encryption key to save parquet file securely
+        String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
         stmtRecords.execute(encryptKey);
 
         // read CSV and write as Parquet file
@@ -915,7 +926,6 @@ public class DuckDbService {
         ArrayList<String> columnList = new ArrayList<String>();
         ArrayList<String> dataTypeList = new ArrayList<String>();
 
-       
         for (int i = 0; i < revisedInfoRequest.getRevisedColumnInfos().size(); i++) {
             FileUploadRevisedColumnInfo col = revisedInfoRequest.getRevisedColumnInfos().get(i);
             String colName = col.getFieldName().replaceAll("[^a-zA-Z0-9]", "_");
@@ -925,7 +935,7 @@ public class DuckDbService {
             String dataTypeString = "'" + duckDbDataType + "'";
             columnList.add(columnString);
             dataTypeList.add(dataTypeString);
-         }
+        }
         // build stringified list of columns
         String colMapString = "[" + String.join(", ", columnList) + "]";
         // build stringified list of data types
@@ -966,46 +976,100 @@ public class DuckDbService {
     }
 
     public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,
-    @Valid RelativeFilterRequest relativeFilter)
-    throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
-    JsonMappingException, JsonProcessingException {
+            @Valid RelativeFilterRequest relativeFilter)
+            throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
+            JsonMappingException, JsonProcessingException {
 
-            // Load dataset into memory buffer
-            DatasetDTO ds = null;
-            if (datasetId != null) {
-                DatasetDTO bufferedDataset = buffer.getDatasetDetailsById(datasetId);
-                ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(dBConnectionId, datasetId, userId);
+        // Load dataset into memory buffer
+        DatasetDTO ds = null;
+        if (datasetId != null) {
+            DatasetDTO bufferedDataset = buffer.getDatasetDetailsById(datasetId);
+            ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(dBConnectionId, datasetId, userId);
+        }
+        // Initialize variables
+        JSONArray anchorDateArray;
+        String query;
+        // Check if dataset is flat file data or not
+        // Get the table ID from the filter request
+        String tableId = relativeFilter.getFilterTable().getTableId();
+
+        ColumnFilter columnFilter = relativeFilter.getFilterTable();
+
+        // Find the table object in the dataset schema
+        // Datasetfilter -> create a table object
+        Table tableObj = ds != null ? ds.getDataSchema().getTables().stream()
+                .filter(table -> table.getId().equals(tableId))
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!"))
+                : new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null,
+                        columnFilter.getTableId(), null, null, false, null);
+        // Load file names from file IDs and load the files as views
+        createViewForFlatFiles(userId, Collections.singletonList(tableObj), buffer.getFileDataByUserId(userId),
+                encryptPwd + pepper);
+        // Compose anchor date query for DuckDB and run it
+        String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery("duckdb", ds, relativeFilter);
+        anchorDateArray = runQuery(anchorDateQuery);
+
+        // Compose main query for DuckDB
+        query = relativeFilterQueryComposer.composeQuery("duckdb", ds, relativeFilter, anchorDateArray);
+
+        // Execute the main query and return the result
+        JSONArray jsonArray = runQuery(query);
+
+        return jsonArray;
+    }
+
+    public boolean detectHeader(String filePath, String sheetName) throws IOException {
+
+        FileInputStream fis = new FileInputStream(filePath);
+        Workbook workbook = WorkbookFactory.create(fis);
+        Sheet sheet = workbook.getSheet(sheetName);
+
+        if (sheet == null) {
+            workbook.close();
+            throw new IllegalArgumentException("Sheet with name '" + sheetName + "' not found.");
+        }
+
+        Iterator<Row> rowIterator = sheet.iterator();
+        if (!rowIterator.hasNext()) {
+            return false;
+        }
+        Row firstRow = rowIterator.next();
+
+        int stringCount = 0, totalCells = firstRow.getPhysicalNumberOfCells();
+        for (int i = 0; i < totalCells; i++) {
+            String cellValue = firstRow.getCell(i).toString();
+            if (cellValue.matches("^[a-zA-Z]+$")) {
+                stringCount++;
             }
-            // Initialize variables
-            JSONArray anchorDateArray;
-            String query;
-            // Check if dataset is flat file data or not
-                // Get the table ID from the filter request
-                String tableId = relativeFilter.getFilterTable().getTableId();
+        }
 
-                ColumnFilter columnFilter = relativeFilter.getFilterTable();
+        if (stringCount > totalCells / 2) {
+            workbook.close();
+            return true;
+        }
 
-                // Find the table object in the dataset schema 
-                // Datasetfilter -> create a table object
-                Table tableObj = ds!= null ? ds.getDataSchema().getTables().stream()
-                        .filter(table -> table.getId().equals(tableId))
-                        .findFirst()
-                        .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!")):new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null, columnFilter.getTableId()  , null, null, false, null);
-                // Load file names from file IDs and load the files as views
-                createViewForFlatFiles(userId, Collections.singletonList(tableObj),buffer.getFileDataByUserId(userId), encryptPwd+pepper);
-                // Compose anchor date query for DuckDB and run it
-                String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery("duckdb", ds, relativeFilter);
-                anchorDateArray = runQuery(anchorDateQuery);
+        int rowsToCheck = 5, mismatchCount = 0;
+        while (rowIterator.hasNext() && rowsToCheck > 0) {
+            Row row = rowIterator.next();
+            for (int i = 0; i < totalCells; i++) {
+                String cellValue = row.getCell(i).toString();
+                String firstRowValue = firstRow.getCell(i).toString();
+                if (!isSameType(firstRowValue, cellValue)) {
+                    mismatchCount++;
+                }
+            }
+            rowsToCheck--;
+        }
 
-                // Compose main query for DuckDB
-                query = relativeFilterQueryComposer.composeQuery("duckdb", ds, relativeFilter, anchorDateArray);
+        workbook.close();
+        return mismatchCount > totalCells / 2;
+    }
 
-            // Execute the main query and return the result
-            JSONArray jsonArray = runQuery(query);
-
-            return jsonArray;
-}
-
-
+    private boolean isSameType(String value1, String value2) {
+        boolean isNumeric1 = value1.matches("-?\\d+(\\.\\d+)?");
+        boolean isNumeric2 = value2.matches("-?\\d+(\\.\\d+)?");
+        return isNumeric1 == isNumeric2;
+    }
 
 }
