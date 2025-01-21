@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import reduxThunk from "redux-thunk";
 import { composeWithDevTools } from "redux-devtools-extension";
 import allReducers from "./redux";
-
+import './assets/Fonts/fonts.css'
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import Home from "./Components/Home";
