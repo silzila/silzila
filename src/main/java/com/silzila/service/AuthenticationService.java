@@ -2,7 +2,10 @@ package com.silzila.service;
 
 import java.util.Date;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -73,12 +76,26 @@ public class AuthenticationService {
         return new RefreshTokenResponse();
     }
 
-    public ResponseEntity<?> registerUser(SignupRequest signupRequest) {
-        if (userRepository.existsByUsername(signupRequest.getUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Email is already taken!"));
+    public ResponseEntity<?> registerUser(SignupRequest signupRequest) throws BadRequestException{
+        // if (userRepository.existsByUsername(signupRequest.getUsername())) {
+        //     return ResponseEntity
+        //             .badRequest()
+        //             .body(new MessageResponse("Error: Email is already taken!"));
+        // }
+        
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{2,})$";
+        // Compile the regex
+        Pattern pattern = Pattern.compile(emailRegex);
+        if (signupRequest.getUsername() == null) {
+            throw new BadRequestException("You must provide email");
         }
+        
+        // Match the email with the regex
+        Matcher matcher = pattern.matcher(signupRequest.getUsername());
+        if(!matcher.matches()){
+            throw new BadRequestException("Email not valid");
+        }
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String hashedPassword = passwordEncoder.encode(signupRequest.getPassword());
         User newUser = User.builder()
