@@ -537,12 +537,10 @@ public class DuckDbService {
         stmtInstallLoad.execute("INSTALL spatial;");
         stmtInstallLoad.execute("LOAD spatial;");
 
-        boolean isHeader = detectHeader(filePath, sheetName);
-        String header = isHeader ? "FORCE" : "DISABLE";
-        System.out.println(header);
+       
 
         String query = "CREATE OR REPLACE TABLE tbl_" + fileName + " AS SELECT * from st_read('" + filePath
-                + "',layer ='" + sheetName + "', open_options = ['HEADERS=" + header + "'])";
+                + "',layer ='" + sheetName + "', open_options = ['HEADERS=FORCE'])";
         try {
             stmtRecords.execute(query);
         } catch (SQLException e) {
@@ -1017,59 +1015,6 @@ public class DuckDbService {
         JSONArray jsonArray = runQuery(query);
 
         return jsonArray;
-    }
-
-    public boolean detectHeader(String filePath, String sheetName) throws IOException {
-
-        FileInputStream fis = new FileInputStream(filePath);
-        Workbook workbook = WorkbookFactory.create(fis);
-        Sheet sheet = workbook.getSheet(sheetName);
-
-        if (sheet == null) {
-            workbook.close();
-            throw new IllegalArgumentException("Sheet with name '" + sheetName + "' not found.");
-        }
-
-        Iterator<Row> rowIterator = sheet.iterator();
-        if (!rowIterator.hasNext()) {
-            return false;
-        }
-        Row firstRow = rowIterator.next();
-
-        int stringCount = 0, totalCells = firstRow.getPhysicalNumberOfCells();
-        for (int i = 0; i < totalCells; i++) {
-            String cellValue = firstRow.getCell(i).toString();
-            if (cellValue.matches("^[a-zA-Z]+$")) {
-                stringCount++;
-            }
-        }
-
-        if (stringCount > totalCells / 2) {
-            workbook.close();
-            return true;
-        }
-
-        int rowsToCheck = 5, mismatchCount = 0;
-        while (rowIterator.hasNext() && rowsToCheck > 0) {
-            Row row = rowIterator.next();
-            for (int i = 0; i < totalCells; i++) {
-                String cellValue = row.getCell(i).toString();
-                String firstRowValue = firstRow.getCell(i).toString();
-                if (!isSameType(firstRowValue, cellValue)) {
-                    mismatchCount++;
-                }
-            }
-            rowsToCheck--;
-        }
-
-        workbook.close();
-        return mismatchCount > totalCells / 2;
-    }
-
-    private boolean isSameType(String value1, String value2) {
-        boolean isNumeric1 = value1.matches("-?\\d+(\\.\\d+)?");
-        boolean isNumeric2 = value2.matches("-?\\d+(\\.\\d+)?");
-        return isNumeric1 == isNumeric2;
     }
 
 }

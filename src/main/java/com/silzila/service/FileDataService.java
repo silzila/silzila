@@ -548,14 +548,13 @@ public class FileDataService {
 
     public ExcelSheetResponse getAllSheetNames(MultipartFile file, String userId) throws BadRequestException {
 
-        // long fileMaxSize = "community".equals(tenantId) ? 50 * 1024 * 1024 : 100 *
-        // 1024 * 1024; // 50MB for "community",
-        // // 100MB for "Business"
-        // if (file.getSize() > fileMaxSize) {
-        // throw new IllegalArgumentException(
-        // "File size exceeds the allowed limit of " + (fileMaxSize / (1024 * 1024)) +
-        // "MB");
-        // }
+        long fileMaxSize = 50 * 1024 * 1024;
+        
+        if (file.getSize() > fileMaxSize) {
+        throw new IllegalArgumentException(
+        "File size exceeds the allowed limit of " + (fileMaxSize / (1024 * 1024)) +
+        "MB");
+        }
         org.apache.poi.util.IOUtils.setByteArrayMaxOverride(200 * 1024 * 1024);
         List<String> sheets = new ArrayList<>();
 
