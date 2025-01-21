@@ -3,6 +3,8 @@
 
 // for SERVER+LOCAL TWO TIER - separate front end & backend
 export const serverEndPoint = process.env.REACT_APP_API_ENDPOINT;
+export const localEndPoint = "http://localhost:3000/";
+
 // for LOCAL-ONLY SINGLE TIER - single build with react app
 // export const serverEndPoint = "http://localhost:8080/";
 
