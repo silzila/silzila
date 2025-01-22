@@ -91,6 +91,7 @@ const ChartFilterGroupsContainer = ({
   let selectedFilterGroups: any = [];
   const [anchorEl, setAnchorEl] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openAlert, setOpenAlert] = useState(false);
   const filterGroupToBeDeleted = useRef<{ id: string; name: string } | null>(
     null
   );
@@ -222,7 +223,22 @@ const ChartFilterGroupsContainer = ({
 			setDashboardFilterGroupNamelist(["No group selected"]);
 		}
 	}, [dashBoardGroup.groups]);
-
+  const deleteFilterGroup = () => {
+    if (!filterGroupToBeDeleted.current) return;
+    if (datasetGroupList.length === 1) {
+      setAnchorEl(null);
+      setOpenDialog(false);
+      setOpenAlert(true);
+      return;
+    }
+    deleteFilterGroupFromChartFilterGroup(filterGroupToBeDeleted.current.id);
+    deleteFilterGroupFromDashBoardFilterGroup(
+      filterGroupToBeDeleted.current.id
+    );
+    filterGroupToBeDeleted.current = null;
+    setOpenDialog(false);
+    setAnchorEl(null);
+  };
 	const MenuProps = {
 		PaperProps: {
 			style: {

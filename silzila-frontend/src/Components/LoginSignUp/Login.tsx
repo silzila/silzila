@@ -1,11 +1,11 @@
 // Login Page. For existing users.This will be the first component to show to users
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { validateEmail, validatePassword } from "../CommonFunctions/CommonFunctions";
 // import FetchData from "../ServerCall/FetchData";
 import { Link, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
-import { Button } from "@mui/material";
+import { AlertColor, Button } from "@mui/material";
 import "./LoginSignUp.css";
 import { userAuthentication } from "../../redux/UserInfo/isLoggedActions";
 import { LoggedDetailsType } from "../../redux/UserInfo/IsLoggedInterfaces";
@@ -13,85 +13,73 @@ import { Dispatch } from "redux";
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import { DispatchProps, LogginDetails } from "./LoginSignUpInterfaces";
 import FetchData from "../ServerCall/FetchData";
-
-const initialState = {
-	email: "",
-	emailError: "",
-
-	password: "",
-	passwordError: "",
-};
+import Header from "./Header";
+import "./header.css";
+import "./openSource_signin.css";
+import {DeleteAllCookies} from '../CommonFunctions/CommonFunctionsCookies';
+import Cookies from "js-cookie";
+import { serverEndPoint, localEndPoint } from "../ServerCall/EnvironmentVariables";
+import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 
 const Login = (props: DispatchProps) => {
-	const [account, setAccount] = useState<LogginDetails>(initialState);
-	const [loginStatus, setLoginStatus] = useState<boolean>(false);
-	const [loginError, setLoginError] = useState<boolean>(false);
-	const [serverErrorMessage, setServerErrorMessage] = useState<string>("");
-
-	const [loading, setLoading] = useState<boolean>(false);
-	const inputRef = useRef(null);
 	const navigate = useNavigate();
+	const [loginStatus, setLoginStatus] = useState<boolean>(false);
+	const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [tenantId] = useState("community"); // No need for setter since it's fixed
+  const [openAlert, setOpenAlert] = useState(false);
+  const [openAlertWithOk, setOpenAlertWithOk] = useState(false);
+  const [testMessage, setTestMessage] = useState("");
+  const [severity, setSeverity] = useState<AlertColor>("success");
+  const [isLoading, setIsLoading] = useState(false);
 
-	//  *************************************************************
-	//  Email
+  const showAlert = (message: string, severity: AlertColor) => {
+    setTestMessage(message);
+    setSeverity(severity);
+    setOpenAlert(true);
+    setTimeout(() => {
+      setOpenAlert(false);
+    }, 3000);
+  };
 
-	const resetEmailError = () => {
-		setAccount({
-			...account,
-			emailError: "",
-		});
+  useEffect(()=>{
+    //Cookies.remove("authToken");
+    //DeleteAllCookies();
+  },[])
 
-		setLoginError(false);
-	};
-
-	//  *************************************************************
-	//  Password
-
-	const resetPwdError = () => {
-		setAccount({
-			...account,
-			passwordError: "",
-		});
-	};
+	const isFormValid = () => email.trim() !== "" && password.trim() !== ""; // Basic validation
 
 	//  *************************************************************
 	//  Submit actions
 
-	async function handleSubmit(
-		e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
-	) {
-		e.preventDefault();
-		setLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-		// Enable login if all inputs are not null and have valid formats
-		var canLogin = false;
-		if (
-			account.email.length > 0 &&
-			account.password.length > 0 &&
-			account.emailError === "" &&
-			account.passwordError === ""
-		) {
-			canLogin = true;
-		}
+    if (!isFormValid()) {
+      setError("*Please fill in both Email and Password");
+      return; // Prevent submission if form is invalid
+    }
 
-		if (canLogin) {
-			// const form = new FormData();
-			// form.append("email", account.email);
-			// form.append("password", account.password);
-
-			let form = {
-				username: account.email,
-				password: account.password,
-				device: "web",
-			};
 			// TODO need to specify type
-			var response: any = await FetchData({
+		try {
+			const response: any = await FetchData({
 				requestType: "withData",
 				method: "POST",
 				url: "auth/signin",
-				data: form,
+				data: {
+					username: email,
+					password: password, 
+					device: "web",
+				},
 				headers: { "Content-Type": "application/json" },
 			});
+			console.log("Login response received:", response); 
+			console.log("Sending request:", {
+				username: email,
+				password: password,
+				device: "web",
+		});		
 			if (response.status) {
 				setLoginStatus(true);
 				var payload = {
@@ -100,134 +88,140 @@ const Login = (props: DispatchProps) => {
 					tokenType: response.data.tokenType,
 				};
 				props.userAuthentication(payload);
+				setIsLoading(false);
+				showAlert("Login Successful.", "success");
 				setTimeout(() => {
 					navigate("/datahome");
 				}, 1000);
-			} else {
-				setLoginError(true);
-				if (response.data.status === 401) {
-					setServerErrorMessage("Email or password is incorrect");
+	
+				// Set the auth token in cookies
+				const domain = new URL(localEndPoint).hostname
+					.split(".")
+					.slice(-2)
+					.join(".");
+	
+				Cookies.set("authToken", response.data.accessToken, {
+					sameSite: "None", // Cross-site cookie
+					secure: true,
+					domain: domain, // Cross-subdomain cookie
+					path: "/",
+					expires: 1, // 1 day
+				});
+	
+				// Redirect to the React.js landing page
+				navigate("/datahome");
+				setEmail("");
+				setPassword("");
+			 }
+			} catch (error: any) {
+				console.error("Login error:", error);
+		
+				// Check if the error contains a specific message about email verification
+				if (error.response && error.response.data && error.response.data.error) {
+						const apiErrorMessage = error.response.data.error;
+		
+						// Check for specific error messages
+						if (apiErrorMessage.includes("verify your mail")) {
+								setError("Please verify your email before logging in.");
+								//showAlert("Please verify your email before logging in.", "error");
+						} else {
+								// Generic fallback for unexpected error messages
+								setError("Invalid Credentials. Please try again.");
+								//showAlert("Login failed. Please try again.", "error");
+						}
 				} else {
-					setServerErrorMessage(response.data.detail);
+						// Generic fallback for errors without a clear API response
+						setError("Login Failed. Please try again.");
+						//showAlert("An unexpected error occurred. Please try again.", "error");
 				}
-			}
-		} else {
-			setLoginError(true);
-			setServerErrorMessage("Provide valid credentials");
+		
+				setIsLoading(false); // Stop loading spinner
 		}
-		setLoading(false);
 	}
 
 	return (
-		<div className="bgImage">
-			<div id="container1">
-				<h2>Welcome to Silzila!</h2>
+		<div className="container-login">
+		<Header />
+		<div
+				style={{
+					position: "fixed",
+					top: 0,
+					left: 0,
+					width: "100%",
+					height: "100%",
+					backgroundImage: 'url("/bg.png")',
+					backgroundSize: "cover",
+					backgroundPosition: "center",
+					zIndex: -1,
+				}}
+			></div>
+		{isLoading ? (
+			<div className="loading-overlay">
+				<div className="loading-container">
+					<h3>Logging in...</h3>
+					<div className="user-spinner"></div>
+				</div>
+			</div>
+		) : null}
+		<div className="right-side">
+			<div className="login-box">
 
-				<form
-					onSubmit={e => {
-						e.preventDefault();
-						handleSubmit(e);
-					}}
-					autoComplete="on"
-				>
-					<div id="formElement">
-						<input
-							ref={inputRef}
-							type="text"
-							placeholder="Email"
-							value={account.email}
-							onChange={e =>
-								setAccount({
-									...account,
-									email: e.target.value,
-								})
-							}
-							className="inputElement"
-							onFocus={resetEmailError}
-							onBlur={() => {
-								setLoginError(false);
-								var valid = validateEmail(account.email);
-								if (valid) {
-									setAccount({ ...account, emailError: "" });
-								} else {
-									setAccount({
-										...account,
-										emailError: "Enter valid email address",
-									});
-								}
-							}}
-						/>
-						<div id="error">{account.emailError}</div>
+				<form onSubmit={handleSubmit} className="form">
+					<h3>Personal Login</h3>
+					<input
+						type="email"
+						id="login-email"
+						name="login-email"
+						placeholder="Email"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+					/>
+					<input
+						type="password"
+						id="login-password"
+						name="login-password"
+						placeholder="Password"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+					/>
+					{error && <p className="error">{error}</p>}
+
+					<div className="community-signin-login-button-container">
+						<button type="submit" className="community-signin-login-button">
+							Login
+						</button>
 					</div>
 
-					<div id="formElement">
-						<input
-							type="password"
-							placeholder="Password"
-							value={account.password}
-							onChange={e =>
-								setAccount({
-									...account,
-									password: e.target.value,
-								})
-							}
-							className="inputElement"
-							onFocus={resetPwdError}
-							onBlur={() => {
-								setLoginError(false);
-								var valid = validatePassword(account.password);
-								if (valid) {
-									setAccount({ ...account, passwordError: "" });
-								} else {
-									setAccount({
-										...account,
-										passwordError: "Minimum 8 characters",
-									});
-								}
-							}}
-						/>
-						<div id="error">{account.passwordError}</div>
-					</div>
+					<div className="community-signin-forgot-new-button-container">
+						<Link to="/"
+							className="community-signin-login-link-forgot"
+							//={`/auth/community/signin/forgot-password_community?tenantId=${encodeURIComponent(
+							//	tenantId
+							//)}&email=${encodeURIComponent(email)}`}
+						>
+							Forgot Password
+						</Link>
 
-					<div className="buttonSuccess">
-						{loginStatus ? (
-							<span className="loginSuccess">
-								<h4>Logged in successfully!</h4>
-								<p>Redirecting....</p>
-							</span>
-						) : (
-							<React.Fragment>
-								{loginError ? (
-									<p className="loginFail" style={{color:'red'}}>{serverErrorMessage}</p>
-								) : null}
-								<div className="buttonText">
-									<Button
-										id="loginSignupButton"
-										variant="contained"
-										type="submit"
-										value="Login"
-										onClick={e => {
-											e.preventDefault();
-											handleSubmit(e);
-										}}
-									>
-										Login
-									</Button>
-									<br />
-									<span id="emailHelp">
-										Dont have an account yet?{" "}
-										<Link to="/signup" style={{ color: "#5502fb" }}>
-											Sign Up
-										</Link>
-									</span>
-								</div>
-							</React.Fragment>
-						)}
+						<div className="community-signin-login-link-new">
+							New User?{" "}
+								<Link to="/signup">
+								<span>Register here</span>
+							</Link>
+						</div>
 					</div>
 				</form>
-				{loading ? <LoadingPopover /> : null}
 			</div>
 		</div>
+		<NotificationDialog
+			openAlert={openAlert}
+			severity={severity}
+			testMessage={testMessage}
+			onCloseAlert={() => {
+				setOpenAlert(false);
+				setTestMessage("");
+			}}
+		/>
+	</div>
 	);
 };
 // TODO need to specify type
