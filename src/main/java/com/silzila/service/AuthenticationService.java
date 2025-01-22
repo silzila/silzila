@@ -77,11 +77,11 @@ public class AuthenticationService {
     }
 
     public ResponseEntity<?> registerUser(SignupRequest signupRequest) {
-        // if (userRepository.existsByUsername(signupRequest.getUsername())) {
-        // return ResponseEntity
-        // .badRequest()
-        // .body(new MessageResponse("Error: Email is already taken!"));
-        // }
+        if (userRepository.existsByUsername(signupRequest.getUsername())) {
+        return ResponseEntity
+        .badRequest()
+        .body(new MessageResponse("Error: Email is already taken!"));
+        }
 
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{2,})$";
         // Compile the regex
