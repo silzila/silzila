@@ -61,7 +61,7 @@ public class AuthenticationService {
         }
 
         return new AuthenticationResponse(
-                user.getFirstName(),user.getLastName(), user.getUsername(), "Bearer",
+                user.getFirstName(), user.getLastName(), user.getUsername(), "Bearer",
                 this.tokenUtils.generateToken(userDetails, authenticationRequest.getDevice()));
     }
 
@@ -76,24 +76,28 @@ public class AuthenticationService {
         return new RefreshTokenResponse();
     }
 
-    public ResponseEntity<?> registerUser(SignupRequest signupRequest) throws BadRequestException{
+    public ResponseEntity<?> registerUser(SignupRequest signupRequest) {
         // if (userRepository.existsByUsername(signupRequest.getUsername())) {
-        //     return ResponseEntity
-        //             .badRequest()
-        //             .body(new MessageResponse("Error: Email is already taken!"));
+        // return ResponseEntity
+        // .badRequest()
+        // .body(new MessageResponse("Error: Email is already taken!"));
         // }
-        
+
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{2,})$";
         // Compile the regex
         Pattern pattern = Pattern.compile(emailRegex);
-        if (signupRequest.getUsername() == null) {
-            throw new BadRequestException("You must provide email");
+        if (signupRequest.getUsername() == null || signupRequest.getUsername().trim().isEmpty()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email must not be empty!"));
         }
-        
+
         // Match the email with the regex
         Matcher matcher = pattern.matcher(signupRequest.getUsername());
-        if(!matcher.matches()){
-            throw new BadRequestException("Email not valid");
+        if (!matcher.matches()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Invalid email format!"));
         }
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();

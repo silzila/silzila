@@ -1,5 +1,6 @@
 package com.silzila.controller;
 
+import com.silzila.exception.BadRequestException;
 import com.silzila.payload.request.AuthenticationRequest;
 import com.silzila.payload.request.SignupRequest;
 import com.silzila.payload.response.AuthenticationResponse;
