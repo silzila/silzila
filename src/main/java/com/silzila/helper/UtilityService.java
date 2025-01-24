@@ -30,7 +30,7 @@ public class UtilityService {
             return workspace;
     }
     public User getUserFromEmail(String email)throws BadRequestException {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new BadRequestException("No such user"));;
+        User user = userRepository.findByUsername(email).orElseThrow(() -> new BadRequestException("No such user"));;
         return user;
     }
     public void isValidWorkspaceId(String workspaceId)throws BadRequestException{

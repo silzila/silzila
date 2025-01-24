@@ -6,12 +6,16 @@ import com.silzila.dto.WorkspaceDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.UtilityService;
 import com.silzila.payload.request.WorkspaceRequest;
+import com.silzila.payload.response.WorkspaceNode;
+import com.silzila.payload.response.WorkspaceTreeResponse;
 import com.silzila.repository.WorkspaceRepository;
 import com.silzila.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -24,7 +28,7 @@ public class ContentService {
 
     public ResponseEntity<?> createWorkspace(String userId, WorkspaceRequest request) throws BadRequestException {
         // Find user by email
-        Optional<User> optionalUser = userRepository.findByEmail(userId);
+        Optional<User> optionalUser = userRepository.findByUsername(userId);
         if (!optionalUser.isPresent()) {
             return ResponseEntity.badRequest().body("User not found");
         }
@@ -62,4 +66,8 @@ public class ContentService {
     }
 
 
+    
+
+
 }
+
