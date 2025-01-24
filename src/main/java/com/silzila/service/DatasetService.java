@@ -28,6 +28,8 @@ import com.silzila.dto.DatasetNoSchemaDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.domain.entity.Dataset;
+import com.silzila.domain.entity.User;
+import com.silzila.domain.entity.Workspace;
 import com.silzila.querybuilder.QueryComposer;
 import com.silzila.querybuilder.subTotalsCombination;
 import com.silzila.querybuilder.filteroptions.FilterOptionsQueryComposer;
@@ -35,6 +37,7 @@ import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.repository.DatasetRepository;
 import com.silzila.helper.CustomQueryValidator;
 import com.silzila.helper.RelativeFilterProcessor;
+import com.silzila.helper.UtilityService;
 
 @Service
 public class DatasetService {
@@ -52,6 +55,9 @@ public class DatasetService {
     QueryComposer queryComposer;
 
     @Autowired
+     UserService userService;
+
+    @Autowired
     FilterOptionsQueryComposer filterOptionsQueryComposer;
 
     @Autowired
@@ -62,6 +68,9 @@ public class DatasetService {
 
     @Autowired
     DuckDbService duckDbService;
+
+    @Autowired
+    UtilityService utilityService;
 
     @Autowired
     CustomQueryValidator customQueryValidator;
@@ -158,11 +167,15 @@ public class DatasetService {
     }
 
     // CREATE DATASET
-    public DatasetDTO registerDataset(DatasetRequest datasetRequest, String userId)
+    public DatasetDTO registerDataset(DatasetRequest datasetRequest, String userId,String workspaceId)
             throws JsonProcessingException, BadRequestException, ExpectationFailedException {
-        // if dataset name already exists, send error
+        User user = userService.getUserByUsername(userId).orElse(null);
+
         List<Dataset> datasets = datasetRepository.findByUserIdAndDatasetName(userId, datasetRequest.getDatasetName());
-        if (!datasets.isEmpty()) {
+        Workspace workspace = utilityService.getWorkspaceById(workspaceId);
+        String datasetName = datasetRequest.getDatasetName().trim();      
+        // if dataset name already exists, send error
+         if (!datasets.isEmpty()) {
             throw new BadRequestException("Error: Dataset Name is already taken!");
         }
         //checking whether the dataset is having custom query
@@ -173,14 +186,17 @@ public class DatasetService {
             // stringify dataschema (table + relationship section of API) to save in DB
             String jsonString = objectMapper.writeValueAsString(dataSchema);
             // crete dataset object and save in DB
-            Dataset dataset = new Dataset(
-                    datasetRequest.getConnectionId(),
-                    userId,
-                    datasetRequest.getDatasetName(),
-                    datasetRequest.getIsFlatFileData(),
-                    jsonString
-            );
+            Dataset dataset = new Dataset();
+            dataset.setConnectionId(datasetRequest.getConnectionId());
+            dataset.setUserId(userId);
+            dataset.setDatasetName(datasetName);
+            dataset.setIsFlatFileData(datasetRequest.getIsFlatFileData());
+            dataset.setDataSchema(jsonString);
+            dataset.setWorkspace(workspace);
+            dataset.setCreatedBy(user.getFirstName());
+
             datasetRepository.save(dataset);
+
             // repackage request object + dataset Id (from saved object) to return response
             DatasetDTO dto = new DatasetDTO(
                     dataset.getId(),
@@ -210,13 +226,14 @@ public class DatasetService {
                 // stringify dataschema (table + relationship section of API) to save in DB
                 String jsonString = objectMapper.writeValueAsString(dataSchema);
                 // crete dataset object and save in DB
-                Dataset dataset = new Dataset(
-                        datasetRequest.getConnectionId(),
-                        userId,
-                        datasetRequest.getDatasetName(),
-                        datasetRequest.getIsFlatFileData(),
-                        jsonString
-                );
+                Dataset dataset = new Dataset();
+                dataset.setConnectionId(datasetRequest.getConnectionId());
+                dataset.setUserId(userId);
+                dataset.setDatasetName(datasetName);
+                dataset.setIsFlatFileData(datasetRequest.getIsFlatFileData());
+                dataset.setDataSchema(jsonString);
+                dataset.setWorkspace(workspace);
+                dataset.setCreatedBy(user.getFirstName());
                 datasetRepository.save(dataset);
                 // repackage request object + dataset Id (from saved object) to return response
                 DatasetDTO dto = new DatasetDTO(
