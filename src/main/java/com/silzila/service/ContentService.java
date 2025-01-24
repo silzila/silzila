@@ -50,7 +50,7 @@ public class ContentService {
         Workspace workspace = Workspace.builder()
                 .name(workspaceName)
                 .parent(existingWorkspace)
-                .createdBy(user.getName())
+                .createdBy(user.getFirstName())
                 .build();
         Workspace savedWorkspace = workspaceRepository.save(workspace);
         WorkspaceDTO workspaceResponse = new WorkspaceDTO(

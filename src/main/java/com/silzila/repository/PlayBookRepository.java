@@ -12,6 +12,8 @@ public interface PlayBookRepository extends JpaRepository<PlayBook, String> {
 
     List<PlayBook> findByUserId(String userId);
 
+    Optional<PlayBook> findByIdAndUserIdAndWorkspaceId(String id, String userId, String workspaceId);
+
     Optional<PlayBook> findById(String id);
 
     Optional<PlayBook> findByIdAndUserId(String id, String userId);

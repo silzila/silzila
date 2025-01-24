@@ -69,11 +69,11 @@ public class DuckDbService {
     ObjectMapper objectMapper = new ObjectMapper();
 
      // load dataset details in buffer. This helps faster query execution.
-     public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId, String userId)
+     public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId,String workspaceId, String userId)
      throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
-        DatasetDTO dto = buffer.loadDatasetInBuffer(datasetId, userId);
+        DatasetDTO dto = buffer.loadDatasetInBuffer(workspaceId,datasetId, userId);
          if(!dto.getDataSchema().getFilterPanels().isEmpty()){
-             List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
+             List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,workspaceId,this::relativeFilter);
              dto.getDataSchema().setFilterPanels(filterPanels);
          }
          return dto;
@@ -337,7 +337,7 @@ public class DuckDbService {
     }
 
     // get sample records from Parquet file
-    public JSONArray getSampleRecords(String parquetFilePath,String userId,String datasetId, String tableName,String encryptVal) throws SQLException, RecordNotFoundException, JsonProcessingException, BadRequestException, ClassNotFoundException {
+    public JSONArray getSampleRecords(String workspaceId,String parquetFilePath,String userId,String datasetId, String tableName,String encryptVal) throws SQLException, RecordNotFoundException, JsonProcessingException, BadRequestException, ClassNotFoundException {
 
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtRecords = conn2.createStatement();
@@ -346,7 +346,7 @@ public class DuckDbService {
 
         if(datasetId!=null) {
             //getting dataset information to fetch filter panel information
-            DatasetDTO ds = loadDatasetInBuffer(null,datasetId, userId);
+            DatasetDTO ds = loadDatasetInBuffer(null,datasetId,workspaceId, userId);
             List<FilterPanel> filterPanels = new ArrayList<>();
             String tableId = "";
             String whereClause = "";
@@ -965,7 +965,7 @@ public class DuckDbService {
 
     }
 
-    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,
+    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,String workspaceId,
     @Valid RelativeFilterRequest relativeFilter)
     throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
     JsonMappingException, JsonProcessingException {
@@ -974,7 +974,7 @@ public class DuckDbService {
             DatasetDTO ds = null;
             if (datasetId != null) {
                 DatasetDTO bufferedDataset = buffer.getDatasetDetailsById(datasetId);
-                ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(dBConnectionId, datasetId, userId);
+                ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(dBConnectionId, datasetId,workspaceId, userId);
             }
             // Initialize variables
             JSONArray anchorDateArray;

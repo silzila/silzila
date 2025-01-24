@@ -8,7 +8,10 @@ import org.json.JSONObject;
 
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
+import com.silzila.helper.UtilityService;
 import com.silzila.domain.entity.PlayBook;
+import com.silzila.domain.entity.User;
+import com.silzila.domain.entity.Workspace;
 import com.silzila.dto.PlayBookMetaDTO;
 import com.silzila.payload.request.PlayBookRequest;
 import com.silzila.payload.response.PlayBookResponse;
@@ -27,10 +30,16 @@ public class PlayBookService {
         @Autowired
         PlayBookRepository playBookRepository;
 
+        @Autowired
+        UtilityService utilityService;
+
         // create Playbook
-        public PlayBook createPlayBook(PlayBookRequest playBookRequest, String userId)
+        public PlayBook createPlayBook(PlayBookRequest playBookRequest, String userId ,String workspaceId)
                         throws JsonProcessingException, BadRequestException {
 
+                String playbookName = playBookRequest.getName().trim();
+                Workspace workspace = utilityService.getWorkspaceById(workspaceId);
+                User user = utilityService.getUserFromEmail(userId);
                 // if Playbook already exists, send error
                 List<PlayBook> playBooks = playBookRepository.findByUserIdAndName(userId,
                                 playBookRequest.getName());
@@ -41,18 +50,21 @@ public class PlayBookService {
                 ObjectMapper mapper = new ObjectMapper();
                 JSONObject jsonObject = new JSONObject(mapper.writeValueAsString(playBookRequest.getContent()));
                 // create playbook object to persist in DB
-                PlayBook playBook = new PlayBook(
-                                userId,
-                                playBookRequest.getName(),
-                                playBookRequest.getDescription(),
-                                jsonObject.toString());
+                PlayBook playBook = new PlayBook();
+                playBook.setUserId(userId);
+                playBook.setName(playbookName);
+                playBook.setDescription(playBookRequest.getDescription());
+                playBook.setContent(jsonObject.toString());
+                playBook.setWorkspace(workspace);
+                playBook.setCreatedBy(user.getFirstName());
                 playBookRepository.save(playBook);
                 return playBook;
         }
 
         // read all Playbooks Metadata
-        public List<PlayBookMetaDTO> getAllPlayBooks(String userId) throws JsonProcessingException {
+        public List<PlayBookMetaDTO> getAllPlayBooks(String userId,String workspaceId) throws JsonProcessingException,BadRequestException {
                 List<PlayBook> playBooks = playBookRepository.findByUserId(userId);
+                utilityService.isValidWorkspaceId(workspaceId);
                 List<PlayBookMetaDTO> pbDtos = new ArrayList<>();
                 playBooks.forEach((pb) -> {
                         PlayBookMetaDTO dto = new PlayBookMetaDTO(pb.getId(), pb.getUserId(),
@@ -87,10 +99,12 @@ public class PlayBookService {
         }
 
         // update PlayBook
-        public PlayBook updatePlayBook(PlayBookRequest playBookRequest, String id, String userId)
+        public PlayBook updatePlayBook(PlayBookRequest playBookRequest, String id, String userId,String workspaceId)
                         throws RecordNotFoundException, JsonProcessingException, JsonMappingException,
                         BadRequestException {
 
+                String playbookName = playBookRequest.getName().trim();
+                User user = utilityService.getUserFromEmail(userId);
                 Optional<PlayBook> pOptional = playBookRepository.findByIdAndUserId(id, userId);
                 // if no PlayBook inside optional warpper, then send NOT FOUND Error
                 if (!pOptional.isPresent()) {
@@ -102,15 +116,18 @@ public class PlayBookService {
                 if (!playBooks.isEmpty()) {
                         throw new BadRequestException("Error: PlayBook Name is already taken!");
                 }
+                Workspace workspace = utilityService.getWorkspaceById(workspaceId);
                 // seriailze playbook content into json
                 ObjectMapper mapper = new ObjectMapper();
                 JSONObject jsonObject = new JSONObject(mapper.writeValueAsString(playBookRequest.getContent()));
                 // create playbook object to persist in DB
-                PlayBook playBook = new PlayBook(
-                                userId,
-                                playBookRequest.getName(),
-                                playBookRequest.getDescription(),
-                                jsonObject.toString());
+                PlayBook playBook = pOptional.get();
+                playBook.setUserId(userId);
+                playBook.setName(playbookName);
+                playBook.setDescription(playBookRequest.getDescription());
+                playBook.setContent(jsonObject.toString());
+                playBook.setWorkspace(workspace);
+                playBook.setUpdatedBy(user.getFirstName());
                 // add existing id of PlayBook to make it edit intead of save new
                 playBook.setId(id);
                 playBookRepository.save(playBook);
@@ -118,9 +135,9 @@ public class PlayBookService {
         }
 
         // delete PlayBook
-        public void deletePlayBook(String id, String userId) throws RecordNotFoundException {
+        public void deletePlayBook(String id, String userId,String workspaceId) throws RecordNotFoundException {
                 // fetch specific PlayBook for the user
-                Optional<PlayBook> pOptional = playBookRepository.findByIdAndUserId(id, userId);
+                Optional<PlayBook> pOptional = playBookRepository.findByIdAndUserIdAndWorkspaceId(id, userId,workspaceId);
                 // if no PlayBook inside optional warpper, then send NOT FOUND Error
                 if (!pOptional.isPresent()) {
                         throw new RecordNotFoundException("Error: No such PlayBook Id exists!");

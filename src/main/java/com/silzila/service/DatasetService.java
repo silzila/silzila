@@ -169,7 +169,7 @@ public class DatasetService {
     // CREATE DATASET
     public DatasetDTO registerDataset(DatasetRequest datasetRequest, String userId,String workspaceId)
             throws JsonProcessingException, BadRequestException, ExpectationFailedException {
-        User user = userService.getUserByUsername(userId).orElse(null);
+        User user = utilityService.getUserFromEmail(userId);
 
         List<Dataset> datasets = datasetRepository.findByUserIdAndDatasetName(userId, datasetRequest.getDatasetName());
         Workspace workspace = utilityService.getWorkspaceById(workspaceId);
@@ -255,10 +255,12 @@ public class DatasetService {
 
 
     // UPDATE DATASET
-    public DatasetDTO updateDataset(DatasetRequest datasetRequest, String id, String userId)
+    public DatasetDTO updateDataset(DatasetRequest datasetRequest, String id, String userId,String workspaceId)
             throws RecordNotFoundException, JsonProcessingException, JsonMappingException, BadRequestException, ExpectationFailedException
     {
-
+        User user =utilityService.getUserFromEmail(userId);
+        String _datasetName = datasetRequest.getDatasetName().trim();
+        Dataset _dataset = datasetRepository.findByIdAndWorkspaceId(id, workspaceId).orElseThrow();
         Optional<Dataset> dOptional = datasetRepository.findByIdAndUserId(id, userId);
         // if no connection details inside optional warpper, then send NOT FOUND Error
         if (!dOptional.isPresent()) {
@@ -278,9 +280,9 @@ public class DatasetService {
             // stringify dataschema (table + relationship section of API) to save in DB
             String jsonString = objectMapper.writeValueAsString(dataSchema);
 
-            Dataset _dataset = dOptional.get();
-            _dataset.setDatasetName(datasetRequest.getDatasetName());
+            _dataset.setDatasetName(_datasetName);
             _dataset.setDataSchema(jsonString);
+            _dataset.setUpdatedBy(user.getFirstName());
             datasetRepository.save(_dataset);
             // repackage request object + dataset Id (from saved object) to return response
             DatasetDTO dto = new DatasetDTO(
@@ -288,8 +290,7 @@ public class DatasetService {
                     _dataset.getConnectionId(),
                     _dataset.getDatasetName(),
                     _dataset.getIsFlatFileData(),
-                    dataSchema
-            );
+                    dataSchema);
             //add updated dataset in buffer
             buffer.addDatasetInBuffer(id, dto);
             return dto;
@@ -310,8 +311,7 @@ public class DatasetService {
                 // stringify dataschema (table + relationship section of API) to save in DB
                 String jsonString = objectMapper.writeValueAsString(dataSchema);
 
-                Dataset _dataset = dOptional.get();
-                _dataset.setDatasetName(datasetRequest.getDatasetName());
+                _dataset.setDatasetName(_datasetName);
                 _dataset.setDataSchema(jsonString);
                 datasetRepository.save(_dataset);
                 // repackage request object + dataset Id (from saved object) to return response
@@ -333,9 +333,12 @@ public class DatasetService {
     }
 
     // READ ALL DATASETS
-    public List<DatasetNoSchemaDTO> getAllDatasets(String userId)
-            throws JsonProcessingException {
+    public List<DatasetNoSchemaDTO> getAllDatasets(String userId,String workspaceId)
+            throws JsonProcessingException,BadRequestException {
         List<Dataset> datasets = datasetRepository.findByUserId(userId);
+        utilityService.isValidWorkspaceId(workspaceId);
+        // List<String> datasetIds = viewContentService.viewDatasetList(userId, workspaceId);
+        
         List<DatasetNoSchemaDTO> dsDtos = new ArrayList<>();
         datasets.forEach(ds -> {
             DatasetNoSchemaDTO dto = new DatasetNoSchemaDTO(
@@ -346,15 +349,15 @@ public class DatasetService {
     }
 
     // READ ONE DATASET
-    public DatasetDTO getDatasetById(String id, String userId)
+    public DatasetDTO getDatasetById(String id, String userId,String workspaceId)
             throws RecordNotFoundException, JsonMappingException, JsonProcessingException {
-        return buffer.getDatasetById(id, userId);
+        return buffer.getDatasetById(id, userId,workspaceId);
     }
 
     // DELETE DATASET
-    public void deleteDataset(String id, String userId) throws RecordNotFoundException {
+    public void deleteDataset(String id, String userId,String workspaceId) throws RecordNotFoundException {
         // fetch the specific Dataset for the user
-        Optional<Dataset> datasetOptional = datasetRepository.findByIdAndUserId(id, userId);
+              Optional<Dataset> datasetOptional = datasetRepository.findByIdAndWorkspaceId(id, workspaceId);
         // if no Dataset details, then send NOT FOUND Error
         if (!datasetOptional.isPresent()) {
             throw new RecordNotFoundException("Error: No such Dataset Id exists!");
@@ -366,18 +369,18 @@ public class DatasetService {
     }
 
     // load dataset details in buffer. This helps faster query execution.
-    public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId, String userId)
+    public DatasetDTO loadDatasetInBuffer(String workspaceId,String dbConnectionId,String datasetId, String userId)
     throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
-        DatasetDTO dto = buffer.loadDatasetInBuffer(datasetId, userId);
+        DatasetDTO dto = buffer.loadDatasetInBuffer(workspaceId,datasetId, userId);
         if(!dto.getDataSchema().getFilterPanels().isEmpty()){
-            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
+            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,workspaceId,this::relativeFilter);
             dto.getDataSchema().setFilterPanels(filterPanels);
         }
         return dto;
         }
 
     // RUN QUERY
-    public String runQuery(String userId, String dBConnectionId, String datasetId, Boolean isSqlOnly,
+    public String runQuery(String userId, String dBConnectionId, String datasetId, String workspaceId,Boolean isSqlOnly,
             List<Query> queries)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
             BadRequestException, ClassNotFoundException, ParseException {
@@ -385,7 +388,7 @@ public class DatasetService {
         
 
         // get dataset details in buffer
-        DatasetDTO ds = loadDatasetInBuffer(dBConnectionId,datasetId, userId);
+        DatasetDTO ds = loadDatasetInBuffer(workspaceId, dBConnectionId,datasetId, userId);
 
         String vendorName = "";
 
@@ -400,7 +403,7 @@ public class DatasetService {
              * create connection pool (if not) and then get vendor name.
              * SQL Dialect will be different based on vendor name
              */
-            vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
+            vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId,workspaceId);
             // System.out.println("Dialect *****************" + vendorName);
         }
 
@@ -414,7 +417,7 @@ public class DatasetService {
             // relative Date filter
             // Get the first filter panel from the request
             // Assuming req.getFilterPanels() returns a list of FilterPanel objects
-            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(req.getFilterPanels(), userId, dBConnectionId, datasetId,this::relativeFilter);
+            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(req.getFilterPanels(), userId, dBConnectionId, datasetId,workspaceId,this::relativeFilter);
             req.setFilterPanels(filterPanels);
         }
         /* DB based Dataset */
@@ -568,7 +571,7 @@ public class DatasetService {
 
 
     // Populate filter Options
-    public Object filterOptions(String userId, String dBConnectionId, String datasetId, ColumnFilter columnFilter)
+    public Object filterOptions(String userId, String dBConnectionId, String datasetId, String workspaceId,ColumnFilter columnFilter)
             throws RecordNotFoundException, SQLException, JsonProcessingException,
             BadRequestException, ClassNotFoundException {
         //checking for datasetId to perform filter options for dataset filter
@@ -587,7 +590,7 @@ public class DatasetService {
                 fileDataService.getFileNameFromFileId(userId, tableObjects);
                 jsonArray = duckDbService.runQuery(query);
             }else{
-                 vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
+                 vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId,workspaceId);
                  query = filterOptionsQueryComposer.composeQuery(columnFilter, null, vendorName);
                  logger.info("\n******* QUERY **********\n" + query);
                  jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
@@ -598,7 +601,7 @@ public class DatasetService {
 
         else {
             String vendorName = "";
-            DatasetDTO ds = loadDatasetInBuffer(dBConnectionId,datasetId, userId);
+            DatasetDTO ds = loadDatasetInBuffer(workspaceId,dBConnectionId,datasetId, userId);
             // for DB based datasets, connection id is must
             if (ds.getIsFlatFileData() == false) {
                 if (dBConnectionId == null || dBConnectionId.isEmpty()) {
@@ -609,7 +612,7 @@ public class DatasetService {
                  * create connection pool (if not) and then get vendor name.
                  * SQL Dialect will be different based on vendor name
                  */
-                vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId);
+                vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId,workspaceId);
                 String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, vendorName);
                 logger.info("\n******* QUERY **********\n" + query);
                 JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
@@ -647,12 +650,13 @@ public class DatasetService {
 
     }
 
-    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,
+  
+    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId, String workspaceId,
             @Valid RelativeFilterRequest relativeFilter)
             throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
             JsonMappingException, JsonProcessingException {
-        
-       return connectionPoolService.relativeFilter(userId, dBConnectionId, datasetId, relativeFilter);
+
+        return connectionPoolService.relativeFilter(userId, dBConnectionId, datasetId, workspaceId, relativeFilter);
 
     }
 

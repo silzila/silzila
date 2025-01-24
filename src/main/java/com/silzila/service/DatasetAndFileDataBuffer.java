@@ -39,19 +39,19 @@ public class DatasetAndFileDataBuffer {
 
     public static HashMap<String, List<FileData>> usersFileDatas = new HashMap<String, List<FileData>>();
 
-    public DatasetDTO loadDatasetInBuffer(String datasetId, String userId)
+    public DatasetDTO loadDatasetInBuffer(String workspaceId,String datasetId, String userId)
             throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
         DatasetDTO dto;
         if (datasetDetails.containsKey(datasetId)) {
             dto = datasetDetails.get(datasetId);
         } else {
-            dto = getDatasetById(datasetId, userId);
+            dto = getDatasetById(datasetId, userId,workspaceId);
             datasetDetails.put(datasetId, dto);
         }
         return dto;
     }
 
-    public DatasetDTO getDatasetById(String id, String userId)
+    public DatasetDTO getDatasetById(String id, String userId,String workspaceId)
             throws RecordNotFoundException, JsonMappingException, JsonProcessingException {
         Optional<Dataset> dOptional = datasetRepository.findByIdAndUserId(id, userId);
         // if no connection details inside optional warpper, then send NOT FOUND Error

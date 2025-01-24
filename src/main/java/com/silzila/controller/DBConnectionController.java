@@ -1,6 +1,7 @@
 package com.silzila.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ibm.db2.jcc.am.w;
 import com.silzila.payload.request.CustomQueryRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,52 +64,56 @@ public class DBConnectionController {
 
     @PostMapping("/database-connection")
     public ResponseEntity<?> registerDBConnection(@RequestHeader Map<String, String> reqHeader,
+            @RequestParam String workspaceId,
             @Valid @RequestBody DBConnectionRequest dbConnectionRequest) throws BadRequestException {
         // get the requester user id
         String userId = reqHeader.get("username");
         // make service call to add record
-        DBConnectionDTO dto = dbConnectionService.createDBConnection(dbConnectionRequest, userId);
+        DBConnectionDTO dto = dbConnectionService.createDBConnection(dbConnectionRequest, userId, workspaceId);
         return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/database-connection")
-    public ResponseEntity<?> getAllDBConnections(@RequestHeader Map<String, String> reqHeader) {
+    public ResponseEntity<?> getAllDBConnections(@RequestHeader Map<String, String> reqHeader,
+            @RequestParam String workspaceId) throws BadRequestException {
         // get the rquester user id
         String userId = reqHeader.get("username");
         // service call to get list of DB connections,
         // empty list will not throw exceptions but return as empty list
-        List<DBConnectionDTO> dtos = dbConnectionService.getAllDBConnections(userId);
+        List<DBConnectionDTO> dtos = dbConnectionService.getAllDBConnections(userId, workspaceId);
         return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/database-connection/{id}")
     public ResponseEntity<?> getConnectionById(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id) throws RecordNotFoundException {
+            @PathVariable(value = "id") String id, @RequestParam String workspaceId) throws RecordNotFoundException {
         // get the rquester user id
         String userId = reqHeader.get("username");
         // service call to get the DB Connection details
-        DBConnectionDTO dto = dbConnectionService.getDBConnectionById(id, userId);
+        DBConnectionDTO dto = dbConnectionService.getDBConnectionById(id, userId, workspaceId);
         return ResponseEntity.ok(dto);
 
     }
 
     @PutMapping("/database-connection/{id}")
     public ResponseEntity<?> updateDBConnection(@RequestHeader Map<String, String> reqHeader,
-            @Valid @RequestBody DBConnectionRequest dbConnectionRequest, @PathVariable(value = "id") String id)
+            @Valid @RequestBody DBConnectionRequest dbConnectionRequest, @PathVariable(value = "id") String id,
+            @RequestParam String workspaceId)
             throws RecordNotFoundException, BadRequestException {
         String userId = reqHeader.get("username");
         // service call to update
-        DBConnectionDTO dto = dbConnectionService.updateDBConnection(id, dbConnectionRequest, userId);
+        DBConnectionDTO dto = dbConnectionService.updateDBConnection(id, dbConnectionRequest, userId, workspaceId);
         return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/database-connection/{id}")
     public ResponseEntity<?> deleteDBConnection(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id) throws RecordNotFoundException, FileNotFoundException, BadRequestException {
+            @PathVariable(value = "id") String id, @RequestParam String workspaceId)
+            throws RecordNotFoundException, FileNotFoundException, BadRequestException {
         // get the rquester user id
         String userId = reqHeader.get("username");
         // service call to delete
-        dbConnectionService.deleteDBConnection(id, userId);
+        dbConnectionService.deleteDBConnection(id, userId, workspaceId);
         return ResponseEntity.ok().body(new MessageResponse("DB Connection is deleted!"));
 
     }
@@ -148,10 +153,10 @@ public class DBConnectionController {
     // Metadata discovery - get List of databases
     @GetMapping(value = "/metadata-databases/{id}")
     ResponseEntity<ArrayList<String>> getDatabase(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id)
+            @PathVariable(value = "id") String id, @RequestParam String workspaceId)
             throws RecordNotFoundException, SQLException {
         String userId = reqHeader.get("username");
-        ArrayList<String> databases = connectionPoolService.getDatabase(id, userId);
+        ArrayList<String> databases = connectionPoolService.getDatabase(id, userId, workspaceId);
         return ResponseEntity.status(HttpStatus.OK).body(databases);
     }
 
@@ -159,10 +164,11 @@ public class DBConnectionController {
     @GetMapping(value = "/metadata-schemas/{id}")
     ResponseEntity<List<String>> getSchema(@RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id,
+            @RequestParam String workspaceId,
             @RequestParam(name = "database", required = false) String databaseName)
             throws RecordNotFoundException, SQLException, BadRequestException {
         String userId = reqHeader.get("username");
-        List<String> schema = connectionPoolService.getSchema(id, userId, databaseName);
+        List<String> schema = connectionPoolService.getSchema(id, userId, databaseName, workspaceId);
         return ResponseEntity.status(HttpStatus.OK).body(schema);
     }
 
@@ -170,17 +176,19 @@ public class DBConnectionController {
     @GetMapping("/metadata-tables/{id}")
     ResponseEntity<?> getTable(@RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id,
+            @RequestParam String workspaceId,
             @RequestParam(name = "database", required = false) String databaseName,
             @RequestParam(name = "schema", required = false) String schemaName)
             throws RecordNotFoundException, SQLException, BadRequestException {
         String userId = reqHeader.get("username");
-        MetadataTable metadataTable = connectionPoolService.getTable(id, userId, databaseName, schemaName);
+        MetadataTable metadataTable = connectionPoolService.getTable(id, userId, databaseName, schemaName, workspaceId);
         return ResponseEntity.status(HttpStatus.OK).body(metadataTable);
     }
 
     // Metadata discovery - get List of fields
     @GetMapping("/metadata-columns/{id}")
     public ResponseEntity<?> getColumn(@RequestHeader Map<String, String> reqHeader,
+            @RequestParam String workspaceId,
             @PathVariable(value = "id") String id,
             @RequestParam(name = "database", required = false) String databaseName,
             @RequestParam(name = "schema", required = false) String schemaName,
@@ -188,53 +196,55 @@ public class DBConnectionController {
             throws RecordNotFoundException, SQLException, BadRequestException {
         String userId = reqHeader.get("username");
         ArrayList<MetadataColumn> metadataColumns = connectionPoolService.getColumn(id, userId, databaseName,
-                schemaName, tableName);
+                schemaName, tableName,workspaceId);
         return ResponseEntity.status(HttpStatus.OK).body(metadataColumns);
     }
 
     @PostMapping("/metadata-columns-customquery/{id}")
     public ResponseEntity<?> getColumnForCustomQuery(@RequestHeader Map<String, String> reqHeader,
-                                                     @PathVariable(value = "id") String id,
-                                         @RequestBody CustomQueryRequest customQueryRequest) throws RecordNotFoundException, SQLException, ExpectationFailedException
-    {
+            @PathVariable(value = "id") String id,
+            @RequestParam String workspaceId,
+            @RequestBody CustomQueryRequest customQueryRequest)
+            throws RecordNotFoundException, SQLException, ExpectationFailedException {
         String userId = reqHeader.get("username");
-        ArrayList<MetadataColumn> columnList=connectionPoolService.getColumForCustomQuery(id, userId, customQueryRequest.getQuery());
+        ArrayList<MetadataColumn> columnList = connectionPoolService.getColumForCustomQuery(id, userId,
+                customQueryRequest.getQuery(),workspaceId);
         return ResponseEntity.status(HttpStatus.OK).body(columnList);
     }
-
-
-
     // Metadata discovery - get sample records
     @GetMapping("/sample-records")
     public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
             @RequestParam(value = "databaseId") String databaseId,
-            @RequestParam(value = "datasetId" , required = false)  String datasetId,
+            @RequestParam(value = "datasetId", required = false) String datasetId,
             @RequestParam(value = "recordCount") Integer recordCount,
             @RequestParam(name = "database", required = false) String databaseName,
             @RequestParam(name = "schema", required = false) String schemaName,
+            @RequestParam String workspaceId,
             @RequestParam(name = "table") String tableName)
-            throws RecordNotFoundException, SQLException, BadRequestException, JsonProcessingException, ClassNotFoundException {
+            throws RecordNotFoundException, SQLException, BadRequestException, JsonProcessingException,
+            ClassNotFoundException {
         String userId = reqHeader.get("username");
-        JSONArray jsonArray = connectionPoolService.getSampleRecords(databaseId,datasetId, userId, databaseName,
+        JSONArray jsonArray = connectionPoolService.getSampleRecords(databaseId, datasetId, workspaceId,userId, databaseName,
                 schemaName, tableName, recordCount);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
     @PostMapping("/sample-records-customquery/{databaseId}/{recordCount}")
     public ResponseEntity<?> getSampleRecordsCustomQuery(@RequestHeader Map<String, String> reqHeader,
-                                                         @PathVariable(value = "databaseId") String databaseId,
-                                                         @PathVariable(value = "recordCount") Integer recordCount,
-                                                         @RequestBody CustomQueryRequest customQueryRequest
-                                             )
+            @PathVariable(value = "databaseId") String databaseId,
+            @PathVariable(value = "recordCount") Integer recordCount,
+            @RequestParam String workspaceId,
+            @RequestBody CustomQueryRequest customQueryRequest)
             throws RecordNotFoundException, SQLException, ExpectationFailedException, JsonProcessingException {
         String userId = reqHeader.get("username");
-        JSONArray jsonArray =connectionPoolService.getSampleRecordsForCustomQuery(databaseId,userId,customQueryRequest.getQuery(), recordCount);
+        JSONArray jsonArray = connectionPoolService.getSampleRecordsForCustomQuery(databaseId,workspaceId, userId,
+                customQueryRequest.getQuery(), recordCount);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
     @PostMapping("/testOracleConnection")
-    public ResponseEntity<?> testOracleConnection( @ModelAttribute OracleDTO oracleDTO
-    ) throws IOException, BadRequestException {
+    public ResponseEntity<?> testOracleConnection(@ModelAttribute OracleDTO oracleDTO)
+            throws IOException, BadRequestException {
 
         connectionPoolService.testOracleConnection(oracleDTO);
 
@@ -244,11 +254,11 @@ public class DBConnectionController {
     @PostMapping("/createOracleConnection")
     public ResponseEntity<?> createOracleConnection(
             @RequestHeader Map<String, String> reqHeader,
-            @ModelAttribute OracleDTO oracleDTO) throws IOException, BadRequestException {
+            @ModelAttribute OracleDTO oracleDTO,@RequestParam String workspaceId) throws IOException, BadRequestException {
 
         String userId = reqHeader.get("username");
 
-        DBConnectionDTO dto = dbConnectionService.createOracleDBConnection(userId, oracleDTO);
+        DBConnectionDTO dto = dbConnectionService.createOracleDBConnection(userId, oracleDTO,workspaceId);
 
         return ResponseEntity.ok(dto);
     }
@@ -259,12 +269,13 @@ public class DBConnectionController {
     public ResponseEntity<?> updateOracleConnection(
             @RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id,
+            @RequestParam String workspaceId,
             @ModelAttribute OracleDTO oracleDTO)
             throws IOException, BadRequestException, RecordNotFoundException {
 
         String userId = reqHeader.get("username");
 
-        DBConnectionDTO dto = dbConnectionService.updateOracleDBConnection(id, userId,oracleDTO);
+        DBConnectionDTO dto = dbConnectionService.updateOracleDBConnection(id, userId, oracleDTO,workspaceId);
 
         return ResponseEntity.ok(dto);
     }
