@@ -1,5 +1,6 @@
 package com.silzila.repository;
 
+import com.silzila.domain.entity.Workspace;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

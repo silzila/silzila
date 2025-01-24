@@ -2,20 +2,23 @@ package com.silzila.domain.entity;
 
 import com.silzila.domain.base.BaseEntity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import javax.validation.constraints.NotBlank;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 
-import jakarta.persistence.Convert;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
 
 import lombok.*;
+
+import java.time.OffsetDateTime;
+import java.util.Set;
 
 @Entity
 // @Data
@@ -44,5 +47,27 @@ public class PlayBook extends BaseEntity {
     // @Column(columnDefinition = "json")
     // @JsonRawValue
     private Object content;
+
+    @ManyToOne
+    @JoinColumn(name = "workspace_id", nullable = false)
+    private Workspace workspace;
+
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private OffsetDateTime createdAt;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
+
+    @OneToMany(mappedBy = "playbook", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<PlayBookLink> playbookLinks;
+
 
 }
