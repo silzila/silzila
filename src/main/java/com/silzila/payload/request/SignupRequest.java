@@ -15,10 +15,14 @@ public class SignupRequest extends ModelBase {
 
     @NotBlank
     @Size(min = 2, max = 30)
-    private String name;
+    private String firstName;
+    @NotBlank
+    @Size(min = 2, max = 30)
+    private String lastName;
     @NotBlank
     @Email(message = "Email id should be valid")
     private String username;
+    
     @NotNull(message = "Password must be provided")
     private String password;
     private String device;
