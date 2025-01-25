@@ -1,45 +1,196 @@
-#container1 {
-	height: auto;
-	width: 400px;
-	margin: 8rem auto;
-	border-radius: 3px;
-	padding: 20px;
-	border:2px solid #a9a9a9;
-	color:#5d5c5c
+/* Forgot Password page */
+.forgot-password-container,
+.forgot-password-container-community,
+.reset-password-container,
+.reset-password-container-community {
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  color: #000;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  overflow-y: hidden;
+  border-radius: 15px;
 }
-#formElement {
-	display: grid;
-	grid-template-rows: 70% auto;
-	row-gap: 5px;
-	margin: 10px;
+.forgot-password-right-side,
+.forgot-password-right-side-community,
+.reset-password-right-side,
+.reset-password-right-side-community {
+  border: 1px solid transparent;
+  margin-top: 12rem;
 }
-.bgImage{
-	background-image: url("../../assets/silzila_transparent_peacock.png");
-		background-size: cover;
-		background-position: center;
-		background-color: transparent;
-		height:100vh;
-		justify-content: space-around;
-		align-items: center;
-		display: flex;
-		
-}
-#error {
-	color: red;
-	font-size: 13px;
-}
-.inputElement {
-	height: 30px;
-	border-radius: 3px;
-	border: 1px solid black;
-	width: 70%;
-	margin: 1px auto;
-	padding: 10px;
-	background-color: transparent;
+.forgot-password-login-box,
+.forgot-password-login-box-community,
+.reset-password-login-box,
+.reset-password-login-box-community {
+  width: 350px;
+  padding: 25px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
 }
 
-#loginSignupButton {
-	background-color: #2bb9bb;
-	width: 40%;
-	margin: 10px;
+/* Header */
+.forgot-password-h3,
+.forgot-password-h3-community,
+.reset-password-h3,
+.reset-password-h3-community {
+  margin-top: 0px;
+  color: #616164;
+  font-family: Axiforma Heavy;
+  border: 1px solid transparent;
+  text-align: center;
+  color: #616164;
+  margin-bottom: 20px;
+}
+.forgot-password-h3 h3,
+.forgot-password-h3-community h3,
+.reset-password-h3 h3,
+.reset-password-h3-community h3 {
+  border: 1px solid transparent;
+  margin: 0;
+  font-family: Axiforma Light, system-ui, -apple-system, BlinkMacSystemFont,
+    Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+    Segoe UI Symbol, sans-serif;
+}
+
+/* decsription */
+.forgot-password-verification,
+.forgot-password-verification-community {
+  color: #616164;
+  border: 1px solid transparent;
+  font-size: 12px;
+  margin-bottom: 20px;
+  font-family: Axiforma Light, system-ui, -apple-system, BlinkMacSystemFont,
+    Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+    Segoe UI Symbol, sans-serif;
+}
+
+/* Form */
+.forgot-password-form,
+.forgot-password-form-community,
+.reset-password-form,
+.reset-password-form-community {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid transparent;
+  font-family: Axiforma Light; /*, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, sans-serif;*/
+}
+/* Form Input */
+.forgot-password-input,
+.forgot-password-input-community,
+.reset-password-input,
+.reset-password-input-community {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  background-color: white;
+  font-family: Axiforma Light, system-ui, -apple-system, BlinkMacSystemFont,
+    Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+    Segoe UI Symbol, sans-serif;
+}
+.forgot-password-input:focus,
+.forgot-password-input-community:focus,
+.reset-password-input:focus,
+.reset-password-input-community:focus {
+  border: 1px solid #2bb9bb;
+  outline: none;
+}
+
+.business-forgot-password-button,
+.community-forgot-password-button,
+.business-signin-forgot-new-button-container,
+.community-signin-forgot-new-button-container {
+  border: 1px solid transparent;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+.business-signin-login-link-forgot,
+.business-signin-login-link-new,
+.community-signin-login-link-forgot,
+.community-signin-login-link-new {
+  text-align: center;
+  text-wrap: nowrap;
+  font-size: 12px;
+  color: #747272;
+  border: 1px solid transparent;
+  font-family: Axiforma Light, system-ui, -apple-system, BlinkMacSystemFont,
+    Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+    Segoe UI Symbol, sans-serif;
+}
+
+.business-signin-login-link-forgot,
+.business-signin-login-link-new span,
+.community-signin-login-link-forgot,
+.community-signin-login-link-new span {
+  text-decoration: underline;
+  font-family: Axiforma Light, system-ui, -apple-system, BlinkMacSystemFont,
+    Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+    Segoe UI Symbol, sans-serif;
+}
+
+/* Submit button */
+.forgot-login-button-container,
+.forgot-login-button-container-container .reset-login-button-container,
+.reset-login-button-container-community {
+  width: 100%;
+  border: 1px solid transparent;
+  margin-top: 10px;
+}
+.forgot-login-button,
+.forgot-login-button-community,
+.reset-login-button,
+.reset-login-button-community {
+  padding: 10px;
+  border: none;
+  background: #2bb9bb;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  flex: 1;
+  width: 100%;
+  font-family: Axiforma Black, system-ui, -apple-system, BlinkMacSystemFont,
+    Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+    Segoe UI Symbol, sans-serif;
+}
+
+.forgot-login-button:hover,
+.forgot-login-button-community:hover,
+.reset-login-button:hover {
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Back Link */
+.forgot-password-back,
+.forgot-password-back-community {
+  border: 1px solid transparent;
+  margin-top: 25px;
+  text-align: left;
+}
+.forgot-password-back-Link,
+.forgot-password-back-Link-community {
+  font-size: 10px;
+  color: #616164;
+  text-decoration: none;
+  font-weight: none;
+}
+
+.forgot-password-back-Link:hover,
+.forgot-password-back-Link-community:hover {
+  color: #2bb9bb;
+}
+.forgot-password-back img,
+.forgot-password-back-community img {
+  height: 11px;
+  width: 11px;
+  transform: translateY(2px);
+  margin-right: 4px;
 }

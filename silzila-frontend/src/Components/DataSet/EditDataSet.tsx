@@ -364,12 +364,13 @@ const EditDataSet = ({
         arrowObj = columns_in_relationships.map((el: any) => {
           startTableName = x[0].table;
           endTableName = y[0].table;
-
+          const startColumnId=canvasTables.filter((table:tableObjProps)=>table.id===x[0].id)[0].columns.filter((column:ColumnsWithUid)=>column.columnName===el.tab1)[0].uid;
+          const endColumnId=canvasTables.filter((table:tableObjProps)=>table.id===y[0].id)[0].columns.filter((column:ColumnsWithUid)=>column.columnName===el.tab2)[0].uid;
           return {
             isSelected: false,
 
             start: res.data.isFlatFileData
-              ? x[0].flatFileId.concat(x[0].table).concat(el.tab1)
+              ? startColumnId
               : x[0].schema.concat(x[0].table).concat(el.tab1),
             table1_uid: res.data.isFlatFileData
               ? x[0].flatFileId
@@ -380,7 +381,7 @@ const EditDataSet = ({
             startId: x[0].id,
 
             end: res.data.isFlatFileData
-              ? y[0].table.concat(el.tab2)
+              ? endColumnId
               : y[0].schema.concat(y[0].table).concat(el.tab2),
             table2_uid: res.data.isFlatFileData
               ? y[0].flatFileId

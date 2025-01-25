@@ -157,7 +157,7 @@ const Sidebar = ({
     setViews([]);
 
     if (serverName === "mysql") {
-      // getTables()
+      getTables(e)
     } else {
       getSchemaList(e);
     }
@@ -257,7 +257,7 @@ const Sidebar = ({
     var schema: string = "";
 
     if (serverName === "mysql") {
-      url = `metadata-tables/${e}?database=${selectedDb}`;
+      url = `metadata-tables/${connectionValue}?database=${selectedDb}`;
     } else {
       schema = e.target.value;
       url = `metadata-tables/${connectionValue}?database=${selectedDb}&schema=${schema}`;
