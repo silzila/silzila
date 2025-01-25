@@ -2,9 +2,10 @@
 // 	- alerting actions of User interactions
 // 	- Server success / failure message display
 
-import { Alert, AlertColor, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import { Alert, AlertColor, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, PaperProps, SxProps, Theme } from "@mui/material";
 import { resetState } from "../../redux/DataSet/datasetActions";
 import { useDispatch } from "react-redux";
+import { palette } from "../..";
 
 // Simple alert to display for 2-3 seconds after a user action like deleting, adding items, server CallSharp, etc
 
@@ -42,6 +43,35 @@ export const NotificationDialog = ({
         </Alert>
       </Dialog>
     </>
+  );
+};
+interface IPopUpSpinner {
+  show: boolean;
+  sx?: SxProps<Theme>;
+  spinnerColor?: string;
+  paperProps?: PaperProps;
+}
+export const PopUpSpinner = ({
+  sx = {},
+  show,
+  spinnerColor = palette.primary.main,
+  paperProps = {},
+}: IPopUpSpinner) => {
+  return (
+    <Dialog open={show} PaperProps={{ ...paperProps }}>
+      <Box
+        sx={{
+          display: "flex",
+          height: "10rem",
+          width: "10rem",
+          alignItems: "center",
+          justifyContent: "center",
+          ...sx,
+        }}
+      >
+        <CircularProgress sx={{ color: spinnerColor }} />
+      </Box>
+    </Dialog>
   );
 };
 type Message = {
