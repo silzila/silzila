@@ -44,7 +44,9 @@ function IndividualTab({
   const handleTabNameValue = (e: any) => {
     setRenameValue(e.target.value);
   };
-  const tabWidth = inPopup ? "" : tabName.length > 10 ? "180px" : "70px";
+
+   const tabWidth = inPopup ? "" : tabName.length <= 7 ? "70px" : tabName.length <= 10 ? "100px" : tabName.length >= 10 && tabName.length <= 14 ? "120px" 
+   : tabName.length >= 14 && tabName.length <= 16 ? "130px" : "150px"; 
 
   if (selectedTab === tabId && editing) {
     return (

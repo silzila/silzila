@@ -21,8 +21,10 @@ public class User extends BaseEntity {
 
   private static final long serialVersionUID = 2353528370345499815L;
 
-  @Column(name = "name")
-  private String name;
+  @Column(name = "firstname")
+  private String firstName;
+  @Column(name = "lastname")
+  private String lastName;
   @Column(name = "username")
   private String username;
   @Column(name = "password")

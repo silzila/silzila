@@ -13,44 +13,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.silzila.domain.entity.DBConnection;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.helper.OracleDbJksRequestProcess;
-import com.silzila.helper.ResultSetToJson;
 import com.silzila.payload.request.DBConnectionRequest;
-import com.silzila.payload.response.MetadataColumn;
 import com.silzila.exception.BadRequestException;
-import com.silzila.exception.ExpectationFailedException;
 import com.silzila.security.encryption.AESEncryption;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-// import java.sql.Connection;
-// import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-// import java.sql.Statement;
+
 import java.util.ArrayList;
-import java.util.Comparator;
-// import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+
 import org.modelmapper.ModelMapper;
 
 @Service
@@ -59,7 +37,7 @@ public class DBConnectionService {
     private static final Logger logger = LogManager.getLogger(DBConnectionService.class);
     // all uploads are initially saved in tmp
     final String SILZILA_DIR = System.getProperty("user.home") + "/" +
-    "silzila-uploads";
+            "silzila-uploads";
     // private static final String SILZILA_DIR = "F:\\Silzila\\Oracle DB";
     @Autowired
     DBConnectionRepository dbConnectionRepository;
