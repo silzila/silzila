@@ -14,4 +14,6 @@ public interface WorkspaceRepository extends JpaRepository<Workspace,String> {
             "    WHERE w.name ILIKE ?1 AND COALESCE(w.parent_id, 'no_parent') = COALESCE(?2, 'no_parent')" +
             ") AS name_exists", nativeQuery = true)
     boolean existsByNameAndParentId(String name, String parentId);
+
+    Boolean existsByParentId(String workspaceId);
 }

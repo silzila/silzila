@@ -16,6 +16,8 @@ public interface DatasetRepository extends JpaRepository<Dataset, String> {
 
     List<Dataset> findByUserId(String userId);
 
+    Boolean existsByDatasetNameAndWorkspaceId(String name, String workspaceId);
+    
     Optional<Dataset> findById(String id);
 
     Optional<Dataset> findByIdAndUserId(String id, String userId);

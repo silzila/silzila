@@ -22,4 +22,8 @@ public interface PlayBookRepository extends JpaRepository<PlayBook, String> {
 
     List<PlayBook> findByUserIdAndName(String userId, String name);
 
+    Boolean existsByNameAndWorkspaceId(String name, String string);
+
+    Optional<PlayBook> findByIdAndWorkspaceId(String id,String workspaceId);
+
 }

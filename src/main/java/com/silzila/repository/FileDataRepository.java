@@ -12,6 +12,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface FileDataRepository extends JpaRepository<FileData, String> {
 
     List<FileData> findByUserId(String userId);
+    
+    Boolean existsByNameAndWorkspaceId(String name, String workspaceId);
 
     Optional<FileData> findById(String id);
     

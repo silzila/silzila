@@ -39,14 +39,14 @@ public class Dataset extends BaseEntity {
     private String dataSchema;
 
     @ManyToOne
-    @JoinColumn(name = "workspace_id", nullable = false)
+    @JoinColumn(name = "workspace_id")
     private Workspace workspace;
 
     @Column(name = "created_by")
     private String createdBy;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at")
     private OffsetDateTime createdAt;
 
     @Column(name = "updated_by")
