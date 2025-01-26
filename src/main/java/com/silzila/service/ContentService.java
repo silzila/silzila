@@ -9,13 +9,18 @@ import com.silzila.domain.entity.Workspace;
 import com.silzila.dto.WorkspaceDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
+import com.silzila.helper.OffsetDateTimeConverter;
 import com.silzila.helper.UtilityService;
 import com.silzila.payload.request.WorkspaceRequest;
 import com.silzila.payload.response.RenameRequest;
+import com.silzila.payload.response.WorkspaceNode;
+import com.silzila.payload.response.WorkspaceResponse;
+import com.silzila.payload.response.WorkspaceTreeResponse;
 import com.silzila.repository.WorkspaceRepository;
 
 import jakarta.transaction.Transactional;
 
+import javax.sql.DataSource;
 import com.silzila.repository.DBConnectionRepository;
 import com.silzila.repository.DatasetRepository;
 import com.silzila.repository.FileDataRepository;
@@ -29,8 +34,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -75,6 +88,7 @@ public class ContentService {
         Workspace workspace = Workspace.builder()
                 .name(workspaceName)
                 .parent(existingWorkspace)
+                .userId(userId)
                 .createdBy(user.getFirstName())
                 .build();
         Workspace savedWorkspace = workspaceRepository.save(workspace);
@@ -224,6 +238,134 @@ public class ContentService {
         }
     }
     
-    
+       
+    // public List<WorkspaceResponse> workspaceView(String  email,String tenantId) throws SQLException {
+    //     User user = utilityService.getUserFromEmail(email);
+    //    return viewContentService.workspaceView(userId);
+    // }
 
-}
+    public List<WorkspaceTreeResponse> getWorkspaceTree(String userId) {
+        // Get all workspaces for the user
+        List<Workspace> workspaces = workspaceRepository.findByUserId(userId);
+    
+        // Create a map of workspaceId to WorkspaceTreeResponse
+        Map<String, WorkspaceTreeResponse> workspaceTreeMap = new HashMap<>();
+    
+        for (Workspace workspace : workspaces) {
+            // Initialize WorkspaceTreeResponse for the current workspace
+            WorkspaceTreeResponse workspaceTreeResponse = workspaceTreeMap
+                    .computeIfAbsent(workspace.getId(), id -> new WorkspaceTreeResponse(
+                            workspace.getId(), workspace.getName(), new ArrayList<>())
+                    );
+    
+            // If the workspace has a parent, add it to the parent's subWorkspaces list
+            if (workspace.getParent() != null) {
+                WorkspaceTreeResponse parentWorkspace = workspaceTreeMap.get(workspace.getParent().getId());
+                if (parentWorkspace != null) {
+                    parentWorkspace.getSubWorkspaces().add(new WorkspaceNode(workspace.getId(), workspace.getName()));
+                }
+            }
+        }
+    
+        // Convert the map values into a list and return it
+        return new ArrayList<>(workspaceTreeMap.values());
+    }
+     
+
+
+
+    //     public List<WorkspaceResponse> workspaceView(Long userId) throws SQLException {
+//         List<WorkspaceResponse> workspaces = new ArrayList<>();
+//         DataSource dataSource = // Initialize your DataSource here (e.g., from a DataSourceManager)
+    
+//         // Use normal DataSource to get the database connection
+//         try (Connection connection = dataSource.getConnection();
+//              PreparedStatement statement = connection.prepareStatement(
+//                 """
+//                     WITH workspace_view AS (
+//                              SELECT DISTINCT
+//                                  w.id AS id,
+//                                  w.name AS name,
+//                                  COALESCE(w.parent_id, w.id) AS pid,
+//                                  w.inherit_permission AS inherited,
+//                                  w.created_by, w.created_at, w.updated_by, w.updated_at,
+//                                  a.content_id AS content_id,
+//                                  r.id AS role_id,
+//                                  r.name AS role_name
+//                              FROM "users" u
+//                              LEFT JOIN users_groups ug ON ug.user_id = u.id
+//                              LEFT JOIN "groups" g ON ug.group_id = g.id
+//                              LEFT JOIN "access" a ON (g.id = a.grantee_id AND a.is_group = TRUE) 
+//                                 OR (u.id = a.grantee_id AND a.is_group = FALSE)
+//                              JOIN role r ON a.role_id = r.id
+//                              JOIN workspace w ON a.workspace_id = w.id
+//                              WHERE u.id = ? AND (w.inherit_permission = FALSE OR a.content_id != '')
+//                              ORDER BY created_at, content_id, role_id
+//                     ),
+//                     ranked_rows AS (
+//                         SELECT *,
+//                             ROW_NUMBER() OVER (PARTITION BY pid ORDER BY created_at, content_id, role_id) AS row_rank
+//                         FROM workspace_view
+//                     ),
+//                     new_workspaces AS (
+//                         SELECT
+//                             COALESCE(pid, id) AS id,
+//                             inherited,
+//                             created_by,
+//                             created_at,
+//                             updated_by,
+//                             updated_at,
+//                             content_id,
+//                             CASE
+//                                 WHEN content_id != '' THEN NULL
+//                                 WHEN pid != id THEN NULL
+//                                 ELSE role_id
+//                             END AS role_id,
+//                             CASE
+//                                 WHEN content_id != '' THEN NULL
+//                                 WHEN pid != id THEN NULL
+//                                 ELSE role_name
+//                             END AS role_name,
+//                             row_rank
+//                         FROM ranked_rows
+//                         WHERE row_rank = 1
+//                     )
+//                     SELECT w.id, w.name, w.created_by, w.created_at, w.updated_by, w.updated_at, nw.role_id, nw.role_name
+//                     FROM workspace w
+//                     JOIN new_workspaces nw ON w.id = nw.id
+//                     ORDER BY w.created_at;
+//                 """
+//             )) {
+//             statement.setLong(1, userId);
+    
+//             try (ResultSet resultSet = statement.executeQuery()) {
+//                 while (resultSet.next()) {
+//                     Long roleId = resultSet.getLong("role_id");
+//                     String workspaceId = resultSet.getString("id");
+    
+    
+//                     workspaces.add(new WorkspaceResponse(
+//                             workspaceId,
+//                             resultSet.getString("name"),
+//                             null, 
+//                             null, 
+//                             null, 
+//                             resultSet.getString("created_by"),
+//                             OffsetDateTimeConverter.convertToOffsetDateTime(resultSet.getTimestamp("created_at")),
+//                             resultSet.getString("updated_by"),
+//                             OffsetDateTimeConverter.convertToOffsetDateTime(resultSet.getTimestamp("updated_at")),
+//                             roleId,
+//                             resultSet.getString("role_name"),
+//                             null
+//                     ));
+//                 }
+//             }
+//         }
+    
+//         return workspaces;
+//     }
+
+
+
+
+}    
