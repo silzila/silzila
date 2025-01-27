@@ -103,7 +103,7 @@ public class ContentService {
                 .parent(existingWorkspace)
                 .userId(userId)
                 .createdBy(user.getFirstName())
-                
+
                 .build();
         Workspace savedWorkspace = workspaceRepository.save(workspace);
         WorkspaceDTO workspaceResponse = new WorkspaceDTO(
@@ -164,38 +164,41 @@ public class ContentService {
         }
     }
 
-    public ResponseEntity<?> createSubWorkspace(String email,WorkspaceRequest request) throws SQLException,BadRequestException{
-        WorkspaceDTO savedWorkspace = (WorkspaceDTO) createWorkspace(email,request).getBody();
+    public ResponseEntity<?> createSubWorkspace(String email, WorkspaceRequest request)
+            throws SQLException, BadRequestException {
+        WorkspaceDTO savedWorkspace = (WorkspaceDTO) createWorkspace(email, request).getBody();
         String parentId = savedWorkspace.getParentId();
-        String subWorkspaceId= savedWorkspace.getId();
+        String subWorkspaceId = savedWorkspace.getId();
         // RoleResponse role = highestPrivilege(email,tenantId,parentId);
         // Long granteeId = utilityService.getUserIdFromEmail(email);
         // Map<Long,Boolean> owners = getWorkspaceOwners(tenantId,parentId);
         // if(role.getRoleID()==4){
-        //     owners.put(granteeId, false);
+        // owners.put(granteeId, false);
         // }
         // if(!owners.isEmpty()){
-        //     List<AccessRequest> ownerAccessRequest = subWorkspaceOwnerAccess(owners);
-        //     accessContentService.manageUserGroupAccess(granteeId,subWorkspaceId,ownerAccessRequest,tenantId);
+        // List<AccessRequest> ownerAccessRequest = subWorkspaceOwnerAccess(owners);
+        // accessContentService.manageUserGroupAccess(granteeId,subWorkspaceId,ownerAccessRequest,tenantId);
         // }
         return ResponseEntity.ok(savedWorkspace);
     }
- public ResponseEntity<?> reNameContent(String email, RenameRequest renameRequest)throws BadRequestException {
+
+    public ResponseEntity<?> reNameContent(String email, RenameRequest renameRequest) throws BadRequestException {
         Workspace workspace = utilityService.getWorkspaceById(renameRequest.getWorkspaceId());
 
         utilityService.validateNonEmptyString(renameRequest.getName().trim());
-    
+
         String name = renameRequest.getName().trim();
         String workspaceId = workspace.getId();
         String contentId = renameRequest.getContentId();
         Long contentTypeId = renameRequest.getContentTypeId();
-    
+
         switch (contentTypeId.intValue()) {
             case 2:
                 if (dBconnectionRepository.existsByConnectionNameAndWorkspaceId(name, workspaceId)) {
                     throw new BadRequestException("Name is already taken");
                 }
-                DBConnection dbConnection = dBconnectionRepository.findByIdAndWorkspaceId(contentId, workspaceId).orElseThrow();
+                DBConnection dbConnection = dBconnectionRepository.findByIdAndWorkspaceId(contentId, workspaceId)
+                        .orElseThrow();
                 dbConnection.setConnectionName(name);
                 dBconnectionRepository.save(dbConnection);
                 break;
@@ -226,12 +229,13 @@ public class ContentService {
             default:
                 throw new BadRequestException("Invalid content type");
         }
-    
+
         return ResponseEntity.ok("Rename was successful");
     }
-    
-    public void deleteContent(String email, String workspaceId, String id,Long contentTypeId) throws FileNotFoundException, BadRequestException, RecordNotFoundException, SQLException {
-        
+
+    public void deleteContent(String email, String workspaceId, String id, Long contentTypeId)
+            throws FileNotFoundException, BadRequestException, RecordNotFoundException, SQLException {
+
         int contentTypeInt = contentTypeId.intValue();
 
         switch (contentTypeInt) {
@@ -239,39 +243,38 @@ public class ContentService {
                 dbConnectionService.deleteDBConnection(id, email, workspaceId);
                 break;
             case 3:
-                datasetService.deleteDataset(id,email, workspaceId);
+                datasetService.deleteDataset(id, email, workspaceId);
                 break;
             case 4:
                 fileDataService.deleteFileData(id, email, workspaceId);
                 break;
             case 5:
-                playBookService.deletePlayBook(id,email, workspaceId);
+                playBookService.deletePlayBook(id, email, workspaceId);
                 break;
             default:
                 throw new BadRequestException("Invalid content type ID: " + contentTypeId);
         }
     }
-    
-       
-    // public List<WorkspaceResponse> workspaceView(String  email,String tenantId) throws SQLException {
-    //     User user = utilityService.getUserFromEmail(email);
-    //    return viewContentService.workspaceView(userId);
+
+    // public List<WorkspaceResponse> workspaceView(String email,String tenantId)
+    // throws SQLException {
+    // User user = utilityService.getUserFromEmail(email);
+    // return viewContentService.workspaceView(userId);
     // }
 
     public List<WorkspaceTreeResponse> getWorkspaceTree(String userId) {
         // Get all workspaces for the user
         List<Workspace> workspaces = workspaceRepository.findByUserId(userId);
-    
+
         // Create a map of workspaceId to WorkspaceTreeResponse
         Map<String, WorkspaceTreeResponse> workspaceTreeMap = new HashMap<>();
-    
+
         for (Workspace workspace : workspaces) {
             // Initialize WorkspaceTreeResponse for the current workspace
             WorkspaceTreeResponse workspaceTreeResponse = workspaceTreeMap
                     .computeIfAbsent(workspace.getId(), id -> new WorkspaceTreeResponse(
-                            workspace.getId(), workspace.getName(), new ArrayList<>())
-                    );
-    
+                            workspace.getId(), workspace.getName(), new ArrayList<>()));
+
             // If the workspace has a parent, add it to the parent's subWorkspaces list
             if (workspace.getParent() != null) {
                 WorkspaceTreeResponse parentWorkspace = workspaceTreeMap.get(workspace.getParent().getId());
@@ -280,14 +283,13 @@ public class ContentService {
                 }
             }
         }
-    
+
         // Convert the map values into a list and return it
         return new ArrayList<>(workspaceTreeMap.values());
     }
-     
-    
 
-    public List<WorkspaceContentResponse> contentDependency(String email,String workspaceId,String contentId,Long contentTypeId)throws BadRequestException{
+    public List<WorkspaceContentResponse> contentDependency(String email, String workspaceId, String contentId,
+            Long contentTypeId) throws BadRequestException {
 
         int contentTypeInt = contentTypeId.intValue();
 
@@ -296,15 +298,15 @@ public class ContentService {
 
         switch (contentTypeInt) {
             case 2:
-                workspaceContentDTOs =  dbConnectionService.dbConnectionDependency(email, workspaceId, contentId);
+                workspaceContentDTOs = dbConnectionService.dbConnectionDependency(email, workspaceId, contentId);
                 dependencies = transformWorkspacesForContent(workspaceContentDTOs, "dataset");
                 break;
             case 3:
-                workspaceContentDTOs =  datasetService.datasetDependency(email, workspaceId, contentId);
+                workspaceContentDTOs = datasetService.datasetDependency(email, workspaceId, contentId);
                 dependencies = transformWorkspacesForContent(workspaceContentDTOs, "playbook");
                 break;
             case 4:
-                workspaceContentDTOs =  fileDataService.flatfileDependency(email, workspaceId, contentId);
+                workspaceContentDTOs = fileDataService.flatfileDependency(email, workspaceId, contentId);
                 dependencies = transformWorkspacesForContent(workspaceContentDTOs, "dataset");
                 break;
             default:
@@ -313,57 +315,63 @@ public class ContentService {
 
         return dependencies;
     }
-    
-     // structured view of workspaces with contents in it
-    public List<WorkspaceContentResponse> transformWorkspacesForContent(List<WorkspaceContentDTO> workspaceContents,String contentType) {
+
+    // structured view of workspaces with contents in it
+    public List<WorkspaceContentResponse> transformWorkspacesForContent(List<WorkspaceContentDTO> workspaceContents,
+            String contentType) {
         Map<String, WorkspaceContentResponse> workspaceMap = new HashMap<>();
         List<WorkspaceContentResponse> topLevelWorkspaces = new ArrayList<>();
         Set<String> addedWorkspaceIds = new HashSet<>();
-    
+
         for (WorkspaceContentDTO dto : workspaceContents) {
             if (dto.getId() != null) {
                 workspaceMap.put(dto.getWorkspaceId(), WorkspaceContentResponse.builder()
-                    .workspaceId(dto.getWorkspaceId())
-                    .workspaceName(dto.getWorkspaceName())
-                    .contentType(contentType)
-                    .contents(new ArrayList<>())
-                    .subWorkspaces(new ArrayList<>())
-                    .build());
+                        .workspaceId(dto.getWorkspaceId())
+                        .workspaceName(dto.getWorkspaceName())
+                        .contentType(contentType)
+                        .contents(new ArrayList<>())
+                        .subWorkspaces(new ArrayList<>())
+                        .build());
             }
         }
-    
+
         for (WorkspaceContentDTO dto : workspaceContents) {
             if (dto.getId() != null) {
                 WorkspaceContentResponse workspaceDTO = workspaceMap.get(dto.getWorkspaceId());
                 if (workspaceDTO != null) {
                     IdNameDTO connectionDTO = IdNameDTO.builder()
-                        .id(dto.getId())
-                        .name(dto.getName())
-                        .createdBy(dto.getCreatedBy())
-                        .build();
+                            .id(dto.getId())
+                            .name(dto.getName())
+                            .createdBy(dto.getCreatedBy())
+                            .build();
                     workspaceDTO.getContents().add(connectionDTO);
-    
+
                     if (dto.getParentId() != null) {
                         WorkspaceContentResponse parentWorkspace = workspaceMap.get(dto.getParentId());
                         if (parentWorkspace != null) {
                             boolean subWorkspaceExists = parentWorkspace.getSubWorkspaces().stream()
-                            .anyMatch(sub -> sub.getWorkspaceId().equals(workspaceDTO.getWorkspaceId()));
-                        if (!subWorkspaceExists) {
-                            SubWorkspaceContentResponse subResponse = new SubWorkspaceContentResponse(workspaceDTO.getWorkspaceId(), workspaceDTO.getWorkspaceName(), workspaceDTO.getContents());
-                            parentWorkspace.getSubWorkspaces().add(subResponse);
+                                    .anyMatch(sub -> sub.getWorkspaceId().equals(workspaceDTO.getWorkspaceId()));
+                            if (!subWorkspaceExists) {
+                                SubWorkspaceContentResponse subResponse = new SubWorkspaceContentResponse(
+                                        workspaceDTO.getWorkspaceId(), workspaceDTO.getWorkspaceName(),
+                                        workspaceDTO.getContents());
+                                parentWorkspace.getSubWorkspaces().add(subResponse);
+                            }
                         }
-                        } 
-                        // if parent workspace is not present , creating a parent workspace with parent id and name
+                        // if parent workspace is not present , creating a parent workspace with parent
+                        // id and name
                         else {
                             WorkspaceContentResponse newParentWorkspace = WorkspaceContentResponse.builder()
-                                .workspaceId(dto.getParentId())
-                                .workspaceName(dto.getParentWorkspaceName())
-                                .contentType(contentType)
-                                .subWorkspaces(new ArrayList<>())
-                                .contents(new ArrayList<>())
-                                .build();
-                            workspaceMap.put(dto.getParentId(),newParentWorkspace);        
-                            SubWorkspaceContentResponse subResponse = new SubWorkspaceContentResponse(workspaceDTO.getWorkspaceId(), workspaceDTO.getWorkspaceName(), workspaceDTO.getContents());
+                                    .workspaceId(dto.getParentId())
+                                    .workspaceName(dto.getParentWorkspaceName())
+                                    .contentType(contentType)
+                                    .subWorkspaces(new ArrayList<>())
+                                    .contents(new ArrayList<>())
+                                    .build();
+                            workspaceMap.put(dto.getParentId(), newParentWorkspace);
+                            SubWorkspaceContentResponse subResponse = new SubWorkspaceContentResponse(
+                                    workspaceDTO.getWorkspaceId(), workspaceDTO.getWorkspaceName(),
+                                    workspaceDTO.getContents());
                             newParentWorkspace.getSubWorkspaces().add(subResponse);
 
                             topLevelWorkspaces.add(newParentWorkspace);
@@ -378,171 +386,208 @@ public class ContentService {
                 }
             }
         }
-    
-        topLevelWorkspaces.removeIf(workspace -> workspace.getContents().isEmpty() && workspace.getSubWorkspaces().isEmpty());
-    
+
+        topLevelWorkspaces
+                .removeIf(workspace -> workspace.getContents().isEmpty() && workspace.getSubWorkspaces().isEmpty());
+
         return topLevelWorkspaces;
     }
 
     public List<WorkspaceContentResponse> getDBConnectionsOnWorkspaces(String email) throws SQLException {
-        List<Workspace>allWorkspace=workspaceRepository.findByUserId(email);
+        List<Workspace> allWorkspace = workspaceRepository.findByUserId(email);
         System.out.println(allWorkspace.size());
-        List<WorkspaceContentDTO> workspaceContentDTOs = toWorkspaceContentDTO(allWorkspace);
+        List<WorkspaceContentDTO> workspaceContentDTOs = workspaceToWorkspaceContentDTO(allWorkspace);
 
-        return transformWorkspacesForContent(workspaceContentDTOs,"dbConnection");
+        return transformWorkspacesForContent(workspaceContentDTOs, "dbConnection");
+    }
+    public List<WorkspaceContentDTO> workspaceToWorkspaceContentDTO(List<Workspace> allWorkspaces) {
+        List<WorkspaceContentDTO> workspaceContentDTOs = new ArrayList<>();
+    
+        for (Workspace workspace : allWorkspaces) {
+            WorkspaceContentDTO dto = WorkspaceContentDTO.builder()
+                    .id(workspace.getId())
+                    .name(workspace.getName())
+                    .createdBy(workspace.getCreatedBy())
+                    .workspaceId(workspace.getId())
+                    .workspaceName(workspace.getName())
+                    .parentId(workspace.getParent() != null ? workspace.getParent().getId() : null) 
+                    .parentWorkspaceName(workspace.getParent() != null ? workspace.getParent().getName() : null) 
+                    .build();
+    
+            workspaceContentDTOs.add(dto);
+        }
+    
+        return workspaceContentDTOs;
     }
 
- 
-  public static List<WorkspaceContentDTO> toWorkspaceContentDTO(List<Workspace> workspaces) {
-       List<WorkspaceContentDTO>contentDTOs=new ArrayList<>();
-       for (Workspace w : workspaces) {
-        WorkspaceContentDTO wcDTO=new WorkspaceContentDTO();
-        wcDTO.setId(wcDTO.getId());
-       }
-
-       return contentDTOs;
+    
+    public ResponseEntity<Object> getWorkspaceResponse(List<Workspace> workspaces) {
+        List<Map<String, Object>> responseList = new ArrayList<>();
+    
+        for (Workspace workspace : workspaces) {
+            // Build the workspace-level structure
+            Map<String, Object> workspaceMap = new HashMap<>();
+            workspaceMap.put("workspaceId", workspace.getId());
+            workspaceMap.put("workspaceName", workspace.getName());
+            workspaceMap.put("contentType", "dbConnection");
+    
+            // Extract DB Connections and add them to 'contents'
+            List<Map<String, Object>> contents = new ArrayList<>();
+            if (workspace.getDbConnections() != null) {
+                for (DBConnection dbConnection : workspace.getDbConnections()) {
+                    Map<String, Object> connectionMap = new HashMap<>();
+                    connectionMap.put("id", dbConnection.getId());
+                    connectionMap.put("name", dbConnection.getConnectionName());
+                    connectionMap.put("createdBy", dbConnection.getCreatedBy());
+                    contents.add(connectionMap);
+                }
+            }
+            workspaceMap.put("contents", contents);
+    
+            // Add an empty 'subWorkspaces' (assuming it will be filled later)
+            workspaceMap.put("subWorkspaces", new ArrayList<>());
+    
+            // Add the constructed workspace map to the response list
+            responseList.add(workspaceMap);
+        }
+    
+        // Return the response using ResponseEntity
+        return ResponseEntity.status(HttpStatus.OK).body(responseList);
     }
+    
 
-
-    public List<WorkspaceResponse> workspaceView(String  email) throws SQLException {
-        List<Workspace>allworkspace=workspaceRepository.findByUserId(email);
+    public List<WorkspaceResponse> workspaceView(String email) throws SQLException {
+        List<Workspace> allworkspace = workspaceRepository.findByUserId(email);
         System.out.println(allworkspace.size());
-        List<WorkspaceResponse> result=new ArrayList<>();
+        List<WorkspaceResponse> result = new ArrayList<>();
         for (Workspace w : allworkspace) {
-            WorkspaceResponse wResponse=WorkspaceResponse.builder()
-            .id(w.getId())
-            .createdAt(w.getCreatedAt())
-            .createdBy(w.getCreatedBy())
-            .name(w.getName())
-            .updatedAt(w.getUpdatedAt())
-            .updatedBy(w.getUpdatedBy())
-            .build();
-            if(w.getParent()!=null){
+            WorkspaceResponse wResponse = WorkspaceResponse.builder()
+                    .id(w.getId())
+                    .createdAt(w.getCreatedAt())
+                    .createdBy(w.getCreatedBy())
+                    .name(w.getName())
+                    .updatedAt(w.getUpdatedAt())
+                    .updatedBy(w.getUpdatedBy())
+                    .build();
+            if (w.getParent() != null) {
                 wResponse.setParentWorkspaceId(w.getParent().getId());
                 wResponse.setParentWorkspaceName(w.getParent().getName());
-    
+
             }
             result.add(wResponse);
         }
-return result;
+        return result;
 
     }
 
-
-   
-
-    //  public static List<WorkspaceContentResponse> toWorkspaceContentResponseList(List<WorkspaceContentDTO> workspaceContentDTOs) {
-    //     return workspaceContentDTOs.stream()
-    //             .map(dto -> WorkspaceContentResponse.builder()
-    //                     .id(dto.getId())
-    //                     .name(dto.getName())
-    //                     .createdBy(dto.getCreatedBy())
-    //                     .workspaceId(dto.getWorkspaceId())
-    //                     .workspaceName(dto.getWorkspaceName())
-    //                     .parentId(dto.getParentId())
-    //                     .parentWorkspaceName(dto.getParentWorkspaceName())
-    //                     .build())
-    //             .collect(Collectors.toList());
+    // public static List<WorkspaceContentResponse>
+    // toWorkspaceContentResponseList(List<WorkspaceContentDTO>
+    // workspaceContentDTOs) {
+    // return workspaceContentDTOs.stream()
+    // .map(dto -> WorkspaceContentResponse.builder()
+    // .id(dto.getId())
+    // .name(dto.getName())
+    // .createdBy(dto.getCreatedBy())
+    // .workspaceId(dto.getWorkspaceId())
+    // .workspaceName(dto.getWorkspaceName())
+    // .parentId(dto.getParentId())
+    // .parentWorkspaceName(dto.getParentWorkspaceName())
+    // .build())
+    // .collect(Collectors.toList());
     // }
 
+    // public List<WorkspaceResponse> workspaceView(Long userId) throws SQLException
+    // {
+    // List<WorkspaceResponse> workspaces = new ArrayList<>();
+    // DataSource dataSource = // Initialize your DataSource here (e.g., from a
+    // DataSourceManager)
 
+    // // Use normal DataSource to get the database connection
+    // try (Connection connection = dataSource.getConnection();
+    // PreparedStatement statement = connection.prepareStatement(
+    // """
+    // WITH workspace_view AS (
+    // SELECT DISTINCT
+    // w.id AS id,
+    // w.name AS name,
+    // COALESCE(w.parent_id, w.id) AS pid,
+    // w.inherit_permission AS inherited,
+    // w.created_by, w.created_at, w.updated_by, w.updated_at,
+    // a.content_id AS content_id,
+    // r.id AS role_id,
+    // r.name AS role_name
+    // FROM "users" u
+    // LEFT JOIN users_groups ug ON ug.user_id = u.id
+    // LEFT JOIN "groups" g ON ug.group_id = g.id
+    // LEFT JOIN "access" a ON (g.id = a.grantee_id AND a.is_group = TRUE)
+    // OR (u.id = a.grantee_id AND a.is_group = FALSE)
+    // JOIN role r ON a.role_id = r.id
+    // JOIN workspace w ON a.workspace_id = w.id
+    // WHERE u.id = ? AND (w.inherit_permission = FALSE OR a.content_id != '')
+    // ORDER BY created_at, content_id, role_id
+    // ),
+    // ranked_rows AS (
+    // SELECT *,
+    // ROW_NUMBER() OVER (PARTITION BY pid ORDER BY created_at, content_id, role_id)
+    // AS row_rank
+    // FROM workspace_view
+    // ),
+    // new_workspaces AS (
+    // SELECT
+    // COALESCE(pid, id) AS id,
+    // inherited,
+    // created_by,
+    // created_at,
+    // updated_by,
+    // updated_at,
+    // content_id,
+    // CASE
+    // WHEN content_id != '' THEN NULL
+    // WHEN pid != id THEN NULL
+    // ELSE role_id
+    // END AS role_id,
+    // CASE
+    // WHEN content_id != '' THEN NULL
+    // WHEN pid != id THEN NULL
+    // ELSE role_name
+    // END AS role_name,
+    // row_rank
+    // FROM ranked_rows
+    // WHERE row_rank = 1
+    // )
+    // SELECT w.id, w.name, w.created_by, w.created_at, w.updated_by, w.updated_at,
+    // nw.role_id, nw.role_name
+    // FROM workspace w
+    // JOIN new_workspaces nw ON w.id = nw.id
+    // ORDER BY w.created_at;
+    // """
+    // )) {
+    // statement.setLong(1, userId);
 
-    
+    // try (ResultSet resultSet = statement.executeQuery()) {
+    // while (resultSet.next()) {
+    // Long roleId = resultSet.getLong("role_id");
+    // String workspaceId = resultSet.getString("id");
 
-    
+    // workspaces.add(new WorkspaceResponse(
+    // workspaceId,
+    // resultSet.getString("name"),
+    // null,
+    // null,
+    // null,
+    // resultSet.getString("created_by"),
+    // OffsetDateTimeConverter.convertToOffsetDateTime(resultSet.getTimestamp("created_at")),
+    // resultSet.getString("updated_by"),
+    // OffsetDateTimeConverter.convertToOffsetDateTime(resultSet.getTimestamp("updated_at")),
+    // roleId,
+    // resultSet.getString("role_name"),
+    // null
+    // ));
+    // }
+    // }
+    // }
 
-    //     public List<WorkspaceResponse> workspaceView(Long userId) throws SQLException {
-//         List<WorkspaceResponse> workspaces = new ArrayList<>();
-//         DataSource dataSource = // Initialize your DataSource here (e.g., from a DataSourceManager)
-    
-//         // Use normal DataSource to get the database connection
-//         try (Connection connection = dataSource.getConnection();
-//              PreparedStatement statement = connection.prepareStatement(
-//                 """
-//                     WITH workspace_view AS (
-//                              SELECT DISTINCT
-//                                  w.id AS id,
-//                                  w.name AS name,
-//                                  COALESCE(w.parent_id, w.id) AS pid,
-//                                  w.inherit_permission AS inherited,
-//                                  w.created_by, w.created_at, w.updated_by, w.updated_at,
-//                                  a.content_id AS content_id,
-//                                  r.id AS role_id,
-//                                  r.name AS role_name
-//                              FROM "users" u
-//                              LEFT JOIN users_groups ug ON ug.user_id = u.id
-//                              LEFT JOIN "groups" g ON ug.group_id = g.id
-//                              LEFT JOIN "access" a ON (g.id = a.grantee_id AND a.is_group = TRUE) 
-//                                 OR (u.id = a.grantee_id AND a.is_group = FALSE)
-//                              JOIN role r ON a.role_id = r.id
-//                              JOIN workspace w ON a.workspace_id = w.id
-//                              WHERE u.id = ? AND (w.inherit_permission = FALSE OR a.content_id != '')
-//                              ORDER BY created_at, content_id, role_id
-//                     ),
-//                     ranked_rows AS (
-//                         SELECT *,
-//                             ROW_NUMBER() OVER (PARTITION BY pid ORDER BY created_at, content_id, role_id) AS row_rank
-//                         FROM workspace_view
-//                     ),
-//                     new_workspaces AS (
-//                         SELECT
-//                             COALESCE(pid, id) AS id,
-//                             inherited,
-//                             created_by,
-//                             created_at,
-//                             updated_by,
-//                             updated_at,
-//                             content_id,
-//                             CASE
-//                                 WHEN content_id != '' THEN NULL
-//                                 WHEN pid != id THEN NULL
-//                                 ELSE role_id
-//                             END AS role_id,
-//                             CASE
-//                                 WHEN content_id != '' THEN NULL
-//                                 WHEN pid != id THEN NULL
-//                                 ELSE role_name
-//                             END AS role_name,
-//                             row_rank
-//                         FROM ranked_rows
-//                         WHERE row_rank = 1
-//                     )
-//                     SELECT w.id, w.name, w.created_by, w.created_at, w.updated_by, w.updated_at, nw.role_id, nw.role_name
-//                     FROM workspace w
-//                     JOIN new_workspaces nw ON w.id = nw.id
-//                     ORDER BY w.created_at;
-//                 """
-//             )) {
-//             statement.setLong(1, userId);
-    
-//             try (ResultSet resultSet = statement.executeQuery()) {
-//                 while (resultSet.next()) {
-//                     Long roleId = resultSet.getLong("role_id");
-//                     String workspaceId = resultSet.getString("id");
-    
-    
-//                     workspaces.add(new WorkspaceResponse(
-//                             workspaceId,
-//                             resultSet.getString("name"),
-//                             null, 
-//                             null, 
-//                             null, 
-//                             resultSet.getString("created_by"),
-//                             OffsetDateTimeConverter.convertToOffsetDateTime(resultSet.getTimestamp("created_at")),
-//                             resultSet.getString("updated_by"),
-//                             OffsetDateTimeConverter.convertToOffsetDateTime(resultSet.getTimestamp("updated_at")),
-//                             roleId,
-//                             resultSet.getString("role_name"),
-//                             null
-//                     ));
-//                 }
-//             }
-//         }
-    
-//         return workspaces;
-//     }
+    // return workspaces;
+    // }
 
-
-
-
-}    
+}
