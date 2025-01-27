@@ -459,7 +459,6 @@ public class ContentService {
     
     public List<WorkspaceContentResponse> getDatasetsOnWorkspaces(String email) throws SQLException {
         List<Workspace> allWorkspace = workspaceRepository.findByUserId(email);
-        System.out.println(allWorkspace.size());
 
         return getAllDatasetContent(allWorkspace, "dataset", email);
     }
@@ -517,16 +516,10 @@ public class ContentService {
         return WCResponse.isEmpty() ? Collections.emptyList() : WCResponse;
     }
        
-    // public List<WorkspaceContentResponse> getflatfilesOnWorkspaces(String email) throws SQLException {
-    //     List<Workspace> allWorkspace = workspaceRepository.findByUserId(email);
-    //     return getAllFlatefileContent(allWorkspace, "flatfile", email);
-    // }
     public List<WorkspaceContentResponse> getFlatFilesOnWorkspaces(String email) throws SQLException {
         List<Workspace> allWorkspace = workspaceRepository.findByUserId(email);
-        System.out.println(allWorkspace.size());
         return getAllFlatFileContent(allWorkspace, "flatfile", email);
     }
-    
     public List<WorkspaceContentResponse> getAllFlatFileContent(List<Workspace> allWorkspace, String contentType, String userId) {
         List<WorkspaceContentResponse> WCResponse = new ArrayList<>();
     
