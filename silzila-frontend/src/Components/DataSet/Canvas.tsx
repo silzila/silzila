@@ -73,7 +73,9 @@ const Canvas = ({
     /**
      * update the filters of the dataset
      */
-    setFiltersOfDataset(newFilters);
+    if(newFilters.length !== filtersOfDataset.length){
+      setFiltersOfDataset(newFilters);
+    }
   }, [filtersOfDataset, tempTable]);
 
   const clickOnArrowfunc = (index: number) => {
@@ -305,7 +307,7 @@ const Canvas = ({
               {/* </div> */}
             </div>
             <div style={{ position: "absolute", marginTop: "22px" }}>
-              {filtersOfDataset.length > 0 && (
+              {filtersOfDataset.length > 0 && tempTable.length>0 && (
                 <UserFilterDataset
                   tableFlatFileMap={tableFlatFileMap}
                   editMode={editMode}
