@@ -118,12 +118,11 @@ public class ContentController {
          return contentService.getDBConnectionsOnWorkspaces(email);
     }
 
-    // @GetMapping("dataset/tree")
-    // public List<WorkspaceContentResponse> getDatasetsOnWorkspaces(@RequestHeader Map<String,String> requestHeader) throws SQLException{
-    //     String email = requestHeader.get("email");
-    //     String tenantId = requestHeader.get("tenantId");
-    //      return contentService.getDatasetsOnWorkspaces(email,tenantId);
-    // }
+    @GetMapping("dataset/tree")
+    public List<WorkspaceContentResponse> getDatasetsOnWorkspaces(@RequestHeader Map<String,String> requestHeader) throws SQLException{
+        String email = requestHeader.get("username");
+         return contentService.getDatasetsOnWorkspaces(email);
+    }
 
     // @GetMapping("flatfile/tree")
     // public List<WorkspaceContentResponse> getFlatfilesOnWorkspaces(@RequestHeader Map<String,String> requestHeader) throws SQLException{
