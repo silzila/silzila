@@ -1,5 +1,7 @@
 package com.silzila.service;
 
+import com.databricks.client.jdbc42.internal.facebook.fb303.FacebookService.AsyncProcessor.reinitialize;
+import com.ibm.db2.jcc.am.al;
 import com.silzila.domain.entity.DBConnection;
 import com.silzila.domain.entity.Dataset;
 import com.silzila.domain.entity.FileData;
@@ -33,6 +35,7 @@ import com.silzila.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService.Work;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -68,6 +71,7 @@ public class ContentService {
     private final FileDataService fileDataService;
     private final PlayBookService playBookService;
     private final DatasetService datasetService;
+    private final DataSource dataSource;
 
     public ResponseEntity<?> createWorkspace(String userId, WorkspaceRequest request) throws BadRequestException {
         // Find user by email
@@ -99,6 +103,7 @@ public class ContentService {
                 .parent(existingWorkspace)
                 .userId(userId)
                 .createdBy(user.getFirstName())
+                
                 .build();
         Workspace savedWorkspace = workspaceRepository.save(workspace);
         WorkspaceDTO workspaceResponse = new WorkspaceDTO(
@@ -280,30 +285,6 @@ public class ContentService {
         return new ArrayList<>(workspaceTreeMap.values());
     }
      
-
-    public List<WorkspaceResponse> subFolderList(String userId, String parentWorkspaceId) {
-        // Fetch workspaces by userId and parentWorkspaceId
-        List<Workspace> workspaces = workspaceRepository.findByUserIdAndParentWorkspaceId(userId, parentWorkspaceId);
-System.out.println(workspaces.size());
-        // Map the Workspace entities to WorkspaceResponse DTOs
-        return workspaces.stream()
-                .map(this::convertToWorkspaceResponse)
-                .collect(Collectors.toList());
-    }
-
-    private WorkspaceResponse convertToWorkspaceResponse(Workspace workspace) {
-        return WorkspaceResponse.builder()
-                .id(workspace.getId())
-                .name(workspace.getName())
-                .parentWorkspaceId(workspace.getParent() != null ? workspace.getParent().getId() : null)
-                .parentWorkspaceName(workspace.getParent() != null ? workspace.getParent().getName() : null)
-                .createdBy(workspace.getCreatedBy())
-                .createdAt(workspace.getCreatedAt())
-                .updatedBy(workspace.getUpdatedBy())
-                .updatedAt(workspace.getUpdatedAt())
-                .build();
-    }
-
     
 
     public List<WorkspaceContentResponse> contentDependency(String email,String workspaceId,String contentId,Long contentTypeId)throws BadRequestException{
@@ -403,34 +384,54 @@ System.out.println(workspaces.size());
         return topLevelWorkspaces;
     }
 
-//     public List<WorkspaceContentResponse> getDBConnectionsOnWorkspaces(String email) throws SQLException {
-//         // Step 1: Fetch workspaces by user ID (email)
-//         List<Workspace> workspaces = workspaceRepository.findWorkspacesByUserId(email);
+    public List<WorkspaceContentResponse> getDBConnectionsOnWorkspaces(String email) throws SQLException {
+        List<Workspace>allWorkspace=workspaceRepository.findByUserId(email);
+        System.out.println(allWorkspace.size());
+        List<WorkspaceContentDTO> workspaceContentDTOs = toWorkspaceContentDTO(allWorkspace);
 
-//         // Step 2: Convert workspaces to DTO
-//         List<WorkspaceContentDTO> workspaceContentDTOs = toWorkspaceContentDTOList(workspaces);
+        return transformWorkspacesForContent(workspaceContentDTOs,"dbConnection");
+    }
 
-//         // Step 3: Convert DTO to Response
-//          toWorkspaceContentResponseList(workspaceContentDTOs);
-//     }
+ 
+  public static List<WorkspaceContentDTO> toWorkspaceContentDTO(List<Workspace> workspaces) {
+       List<WorkspaceContentDTO>contentDTOs=new ArrayList<>();
+       for (Workspace w : workspaces) {
+        WorkspaceContentDTO wcDTO=new WorkspaceContentDTO();
+        wcDTO.setId(wcDTO.getId());
+       }
 
-//   public static WorkspaceContentDTO toWorkspaceContentDTO(Workspace workspace) {
-//         if (workspace == null) {
-//             return null;
-//         }
+       return contentDTOs;
+    }
 
-//         return WorkspaceContentDTO.builder()
-//                 .id(workspace.getId()) // Entity ID
-//                 .name(workspace.getName()) // Workspace name
-//                 .createdBy(workspace.getCreatedBy()) // Created by
-//                 .workspaceId(workspace.getId()) // Workspace ID
-//                 .workspaceName(workspace.getName()) // Workspace name
-//                 .parentId(workspace.getParent() != null ? workspace.getParent().getId() : null) // Parent ID (null-safe)
-//                 .parentWorkspaceName(workspace.getParent() != null ? workspace.getParent().getName() : null) // Parent workspace name (null-safe)
-//                 .build();
-//     }
 
-     // public static List<WorkspaceContentResponse> toWorkspaceContentResponseList(List<WorkspaceContentDTO> workspaceContentDTOs) {
+    public List<WorkspaceResponse> workspaceView(String  email) throws SQLException {
+        List<Workspace>allworkspace=workspaceRepository.findByUserId(email);
+        System.out.println(allworkspace.size());
+        List<WorkspaceResponse> result=new ArrayList<>();
+        for (Workspace w : allworkspace) {
+            WorkspaceResponse wResponse=WorkspaceResponse.builder()
+            .id(w.getId())
+            .createdAt(w.getCreatedAt())
+            .createdBy(w.getCreatedBy())
+            .name(w.getName())
+            .updatedAt(w.getUpdatedAt())
+            .updatedBy(w.getUpdatedBy())
+            .build();
+            if(w.getParent()!=null){
+                wResponse.setParentWorkspaceId(w.getParent().getId());
+                wResponse.setParentWorkspaceName(w.getParent().getName());
+    
+            }
+            result.add(wResponse);
+        }
+return result;
+
+    }
+
+
+   
+
+    //  public static List<WorkspaceContentResponse> toWorkspaceContentResponseList(List<WorkspaceContentDTO> workspaceContentDTOs) {
     //     return workspaceContentDTOs.stream()
     //             .map(dto -> WorkspaceContentResponse.builder()
     //                     .id(dto.getId())

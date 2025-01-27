@@ -60,11 +60,11 @@ public class ContentController {
     }
 
 
-    // @GetMapping("/workspace")
-    // public List<WorkspaceResponse> workspaceView(@RequestHeader Map<String,String> requestHeader ) throws SQLException{
-    //     String email = requestHeader.get("username");
-    //     return contentService.workspaceView(email);
-    // }
+    @GetMapping("/workspace")
+    public List<WorkspaceResponse> workspaceView(@RequestHeader Map<String,String> requestHeader ) throws SQLException{
+        String email = requestHeader.get("username");
+        return contentService.workspaceView(email);
+    }
 
     // @GetMapping("/workspace/{workspaceId}")
     // public List<WorkspaceResponse> workspaceContentList(@RequestHeader Map<String,String> requestHeader,@PathVariable String workspaceId) throws SQLException{
@@ -112,11 +112,11 @@ public class ContentController {
         return contentService.getWorkspaceTree(email);
     }
 
-    // @GetMapping("dbConnection/tree")
-    // public List<WorkspaceContentResponse> getDBConnectionsOnWorkspaces(@RequestHeader Map<String,String> requestHeader) throws SQLException{
-    //     String email = requestHeader.get("username");
-    //      return contentService.getDBConnectionsOnWorkspaces(email);
-    // }
+    @GetMapping("dbConnection/tree")
+    public List<WorkspaceContentResponse> getDBConnectionsOnWorkspaces(@RequestHeader Map<String,String> requestHeader) throws SQLException{
+        String email = requestHeader.get("username");
+         return contentService.getDBConnectionsOnWorkspaces(email);
+    }
 
     // @GetMapping("dataset/tree")
     // public List<WorkspaceContentResponse> getDatasetsOnWorkspaces(@RequestHeader Map<String,String> requestHeader) throws SQLException{
