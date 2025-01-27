@@ -514,6 +514,12 @@ const Sidebar = ({
     setSelectQueryoption(0);
   };
 
+  const [isDisabled, setIsDisabled] = useState(false); 
+
+  useEffect(() => {
+    setIsDisabled(!tableList || tableList.length === 0);
+  }, [tableList]);
+
   // sidebar in edit mode get the list of saved custom query from dataset
   const getCustomQueryFromSavedDataSetlist: any = async () => {
     var res: any = await FetchData({
@@ -1034,6 +1040,7 @@ const Sidebar = ({
             </div>
           ) : null}
           <button
+           disabled={isDisabled}
             onClick={handleCustomQueryAddButton}
             style={{
               backgroundColor: "white",
@@ -1045,6 +1052,7 @@ const Sidebar = ({
               outline: "1px solid #2bb9bb",
               border: "none",
               borderRadius: "0.5rem",
+              cursor: isDisabled ? "not-allowed" : "pointer",
             }}
           >
             Add

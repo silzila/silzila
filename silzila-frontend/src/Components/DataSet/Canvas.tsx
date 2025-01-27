@@ -23,6 +23,8 @@ import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import UserFilterDataset from "./UserFilterDataset";
 import { IFilter } from "./BottomBarInterfaces";
 import { IFlatIdTableIdMap } from "./EditDataSetInterfaces";
+import { NotificationDialog } from "../CommonFunctions/DialogComponents";
+import { AlertColor } from "@mui/material";
 
 const Canvas = ({
   // state
@@ -39,6 +41,10 @@ const Canvas = ({
   const [showRelationCard, setShowRelationCard] = useState<boolean>(false);
   const [existingArrowProp, setExistingArrowProp] = useState<{}>({});
   const [existingArrow, setExistingArrow] = useState<boolean>(false);
+    const [openAlert, setOpenAlert] = useState<boolean>(false);
+    const [severity, setseverity] = useState<AlertColor>("success");
+    const [testMessage, setTestMessage] = useState<string>("");
+  
   const [isDataSetVisible, setIsDataSetVisible] = useState<boolean>(
     EditFilterdatasetArray.length > 0 ? true : false
   );
@@ -57,6 +63,13 @@ const Canvas = ({
 
   const handleDrop = (e: any) => {
     e.stopPropagation();
+    const tableHasCustomQuery = e.dataTransfer.getData("tableHasCustomquery");
+    if(tableHasCustomQuery === "true"){
+      setOpenAlert(true);
+      setTestMessage("Filter is disabled for tables with custom queries.");
+      setseverity("warning");
+      return;
+    }
     const refs = {
       isSelected: true,
       tableId: e.dataTransfer.getData("tableId"),
@@ -300,6 +313,15 @@ const Canvas = ({
         setExistingArrow={setExistingArrow}
         setExistingArrowProp={setExistingArrowProp}
       />
+      <NotificationDialog
+              onCloseAlert={() => {
+                setOpenAlert(false);
+                setTestMessage("");
+              }}
+              openAlert={openAlert}
+              severity={severity}
+              testMessage={testMessage}
+            />
     </div>
   );
 };
