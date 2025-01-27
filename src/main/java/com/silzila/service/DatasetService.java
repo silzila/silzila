@@ -25,9 +25,11 @@ import com.google.gson.JsonArray;
 import com.ibm.db2.cmx.runtime.internal.parser.EscapeLexer.sqlMode;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.dto.DatasetNoSchemaDTO;
+import com.silzila.dto.WorkspaceContentDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.domain.entity.Dataset;
+import com.silzila.domain.entity.PlayBook;
 import com.silzila.domain.entity.User;
 import com.silzila.domain.entity.Workspace;
 import com.silzila.querybuilder.QueryComposer;
@@ -35,6 +37,7 @@ import com.silzila.querybuilder.subTotalsCombination;
 import com.silzila.querybuilder.filteroptions.FilterOptionsQueryComposer;
 import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.repository.DatasetRepository;
+import com.silzila.repository.PlayBookRepository;
 import com.silzila.helper.CustomQueryValidator;
 import com.silzila.helper.RelativeFilterProcessor;
 import com.silzila.helper.UtilityService;
@@ -80,6 +83,9 @@ public class DatasetService {
 
     @Autowired
     DatasetAndFileDataBuffer buffer;
+
+    @Autowired
+    PlayBookRepository playBookRepository;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -330,6 +336,31 @@ public class DatasetService {
             }
 
         }
+    }
+
+    public List<WorkspaceContentDTO> datasetDependency(String email, String workspaceId, String datasetId) {
+
+        List<PlayBook> playbooks = playBookRepository.findByContentContaining(datasetId);
+
+        List<String> playbookids = playbooks.stream()
+                .map(PlayBook::getId)
+                .collect(Collectors.toList());
+
+        List<Object[]> dependentPlaybooks = playBookRepository.findPlayBooksWithWorkspaceAndParentDetails(playbookids);
+
+        List<WorkspaceContentDTO> workspaceContentDTOList = dependentPlaybooks.stream()
+                .map(result -> new WorkspaceContentDTO(
+                        (String) result[0], // playbookId
+                        (String) result[1], // playbookName
+                        (String) result[2], // createdBy
+                        (String) result[3], // workspaceId
+                        (String) result[4], // workspaceName
+                        (String) result[5], //parentWorkspaceId
+                        (String) result[6] // parentWorkspaceName
+                ))
+                .collect(Collectors.toList());
+
+        return workspaceContentDTOList;
     }
 
     // READ ALL DATASETS

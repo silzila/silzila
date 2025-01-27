@@ -5,6 +5,7 @@ import com.silzila.exception.RecordNotFoundException;
 import com.silzila.payload.request.WorkspaceRequest;
 import com.silzila.payload.response.MessageResponse;
 import com.silzila.payload.response.RenameRequest;
+import com.silzila.payload.response.WorkspaceContentResponse;
 import com.silzila.payload.response.WorkspaceResponse;
 import com.silzila.payload.response.WorkspaceTreeResponse;
 import com.silzila.service.ContentService;
@@ -79,7 +80,7 @@ public class ContentController {
         String email = requestHeader.get("username");
         return contentService.reNameContent(email, request);
     }
-
+   // Not yet tested
     @DeleteMapping("/content/delete/{id}")
     public ResponseEntity<?> contentDelete(@RequestHeader Map<String,String> requestHeader,
                                            @PathVariable String id,
@@ -96,11 +97,10 @@ public class ContentController {
 
 
    
-    // @GetMapping("/subfolder/list/{workspaceId}")
+    // @GetMapping("/sub-workspace-count/list/{workspaceId}")
     // public List<WorkspaceResponse> subFolderList(@RequestHeader Map<String,String> requestHeader,@PathVariable String workspaceId) throws SQLException{
-    //     String email = requestHeader.get("email");
-    //     String tenantId = requestHeader.get("tenantId");
-    //     return contentService.subFolderList(email,tenantId,workspaceId);
+    //     String email = requestHeader.get("username");
+    //     return contentService.subFolderList(email,workspaceId);
     // }
 
     
@@ -114,9 +114,8 @@ public class ContentController {
 
     // @GetMapping("dbConnection/tree")
     // public List<WorkspaceContentResponse> getDBConnectionsOnWorkspaces(@RequestHeader Map<String,String> requestHeader) throws SQLException{
-    //     String email = requestHeader.get("email");
-    //     String tenantId = requestHeader.get("tenantId");
-    //      return contentService.getDBConnectionsOnWorkspaces(email,tenantId);
+    //     String email = requestHeader.get("username");
+    //      return contentService.getDBConnectionsOnWorkspaces(email);
     // }
 
     // @GetMapping("dataset/tree")
@@ -133,16 +132,16 @@ public class ContentController {
     //      return contentService.getflatfilesOnWorkspaces(email,tenantId);
     // }
 
-    // @GetMapping("/content/dependency/{id}")
-    // public ResponseEntity<?> contentDependency(@RequestHeader Map<String,String> requestHeader,
-    //                                        @PathVariable String id,
-    //                                        @RequestParam(name = "workspaceId",required = true) String workspaceId,
-    //                                        @RequestParam(name = "contentType" , required = true) Long contentTpe  ) 
-    //                                        throws FileNotFoundException, BadRequestException, RecordNotFoundException, SQLException{
+    @GetMapping("/content/dependency/{id}")
+    public ResponseEntity<?> contentDependency(@RequestHeader Map<String,String> requestHeader,
+                                           @PathVariable String id,
+                                           @RequestParam(name = "workspaceId",required = true) String workspaceId,
+                                           @RequestParam(name = "contentType" , required = true) Long contentTpe  ) 
+                                           throws FileNotFoundException, BadRequestException, RecordNotFoundException, SQLException{
 
-    //     String email = requestHeader.get("email");
-    //     contentService.contentDependency(email, workspaceId, id, contentTpe);
-    //     return ResponseEntity.ok().body(contentService.contentDependency(email, workspaceId, id, contentTpe));
-    // }
+        String email = requestHeader.get("email");
+        contentService.contentDependency(email, workspaceId, id, contentTpe);
+        return ResponseEntity.ok().body(contentService.contentDependency(email, workspaceId, id, contentTpe));
+    }
 
 }

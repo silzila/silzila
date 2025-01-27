@@ -6,6 +6,8 @@ import com.silzila.domain.entity.FileData;
 import com.silzila.domain.entity.PlayBook;
 import com.silzila.domain.entity.User;
 import com.silzila.domain.entity.Workspace;
+import com.silzila.dto.IdNameDTO;
+import com.silzila.dto.WorkspaceContentDTO;
 import com.silzila.dto.WorkspaceDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
@@ -13,6 +15,8 @@ import com.silzila.helper.OffsetDateTimeConverter;
 import com.silzila.helper.UtilityService;
 import com.silzila.payload.request.WorkspaceRequest;
 import com.silzila.payload.response.RenameRequest;
+import com.silzila.payload.response.SubWorkspaceContentResponse;
+import com.silzila.payload.response.WorkspaceContentResponse;
 import com.silzila.payload.response.WorkspaceNode;
 import com.silzila.payload.response.WorkspaceResponse;
 import com.silzila.payload.response.WorkspaceTreeResponse;
@@ -28,6 +32,7 @@ import com.silzila.repository.PlayBookRepository;
 import com.silzila.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import org.hibernate.boot.registry.classloading.spi.ClassLoaderService.Work;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,9 +45,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -272,7 +281,174 @@ public class ContentService {
     }
      
 
+    public List<WorkspaceResponse> subFolderList(String userId, String parentWorkspaceId) {
+        // Fetch workspaces by userId and parentWorkspaceId
+        List<Workspace> workspaces = workspaceRepository.findByUserIdAndParentWorkspaceId(userId, parentWorkspaceId);
+System.out.println(workspaces.size());
+        // Map the Workspace entities to WorkspaceResponse DTOs
+        return workspaces.stream()
+                .map(this::convertToWorkspaceResponse)
+                .collect(Collectors.toList());
+    }
 
+    private WorkspaceResponse convertToWorkspaceResponse(Workspace workspace) {
+        return WorkspaceResponse.builder()
+                .id(workspace.getId())
+                .name(workspace.getName())
+                .parentWorkspaceId(workspace.getParent() != null ? workspace.getParent().getId() : null)
+                .parentWorkspaceName(workspace.getParent() != null ? workspace.getParent().getName() : null)
+                .createdBy(workspace.getCreatedBy())
+                .createdAt(workspace.getCreatedAt())
+                .updatedBy(workspace.getUpdatedBy())
+                .updatedAt(workspace.getUpdatedAt())
+                .build();
+    }
+
+    
+
+    public List<WorkspaceContentResponse> contentDependency(String email,String workspaceId,String contentId,Long contentTypeId)throws BadRequestException{
+
+        int contentTypeInt = contentTypeId.intValue();
+
+        List<WorkspaceContentResponse> dependencies = new ArrayList<>();
+        List<WorkspaceContentDTO> workspaceContentDTOs = new ArrayList<>();
+
+        switch (contentTypeInt) {
+            case 2:
+                workspaceContentDTOs =  dbConnectionService.dbConnectionDependency(email, workspaceId, contentId);
+                dependencies = transformWorkspacesForContent(workspaceContentDTOs, "dataset");
+                break;
+            case 3:
+                workspaceContentDTOs =  datasetService.datasetDependency(email, workspaceId, contentId);
+                dependencies = transformWorkspacesForContent(workspaceContentDTOs, "playbook");
+                break;
+            case 4:
+                workspaceContentDTOs =  fileDataService.flatfileDependency(email, workspaceId, contentId);
+                dependencies = transformWorkspacesForContent(workspaceContentDTOs, "dataset");
+                break;
+            default:
+                throw new BadRequestException("Invalid content type ID: " + contentTypeId);
+        }
+
+        return dependencies;
+    }
+    
+     // structured view of workspaces with contents in it
+    public List<WorkspaceContentResponse> transformWorkspacesForContent(List<WorkspaceContentDTO> workspaceContents,String contentType) {
+        Map<String, WorkspaceContentResponse> workspaceMap = new HashMap<>();
+        List<WorkspaceContentResponse> topLevelWorkspaces = new ArrayList<>();
+        Set<String> addedWorkspaceIds = new HashSet<>();
+    
+        for (WorkspaceContentDTO dto : workspaceContents) {
+            if (dto.getId() != null) {
+                workspaceMap.put(dto.getWorkspaceId(), WorkspaceContentResponse.builder()
+                    .workspaceId(dto.getWorkspaceId())
+                    .workspaceName(dto.getWorkspaceName())
+                    .contentType(contentType)
+                    .contents(new ArrayList<>())
+                    .subWorkspaces(new ArrayList<>())
+                    .build());
+            }
+        }
+    
+        for (WorkspaceContentDTO dto : workspaceContents) {
+            if (dto.getId() != null) {
+                WorkspaceContentResponse workspaceDTO = workspaceMap.get(dto.getWorkspaceId());
+                if (workspaceDTO != null) {
+                    IdNameDTO connectionDTO = IdNameDTO.builder()
+                        .id(dto.getId())
+                        .name(dto.getName())
+                        .createdBy(dto.getCreatedBy())
+                        .build();
+                    workspaceDTO.getContents().add(connectionDTO);
+    
+                    if (dto.getParentId() != null) {
+                        WorkspaceContentResponse parentWorkspace = workspaceMap.get(dto.getParentId());
+                        if (parentWorkspace != null) {
+                            boolean subWorkspaceExists = parentWorkspace.getSubWorkspaces().stream()
+                            .anyMatch(sub -> sub.getWorkspaceId().equals(workspaceDTO.getWorkspaceId()));
+                        if (!subWorkspaceExists) {
+                            SubWorkspaceContentResponse subResponse = new SubWorkspaceContentResponse(workspaceDTO.getWorkspaceId(), workspaceDTO.getWorkspaceName(), workspaceDTO.getContents());
+                            parentWorkspace.getSubWorkspaces().add(subResponse);
+                        }
+                        } 
+                        // if parent workspace is not present , creating a parent workspace with parent id and name
+                        else {
+                            WorkspaceContentResponse newParentWorkspace = WorkspaceContentResponse.builder()
+                                .workspaceId(dto.getParentId())
+                                .workspaceName(dto.getParentWorkspaceName())
+                                .contentType(contentType)
+                                .subWorkspaces(new ArrayList<>())
+                                .contents(new ArrayList<>())
+                                .build();
+                            workspaceMap.put(dto.getParentId(),newParentWorkspace);        
+                            SubWorkspaceContentResponse subResponse = new SubWorkspaceContentResponse(workspaceDTO.getWorkspaceId(), workspaceDTO.getWorkspaceName(), workspaceDTO.getContents());
+                            newParentWorkspace.getSubWorkspaces().add(subResponse);
+
+                            topLevelWorkspaces.add(newParentWorkspace);
+                            addedWorkspaceIds.add(newParentWorkspace.getWorkspaceId());
+                        }
+                    } else {
+                        if (!addedWorkspaceIds.contains(workspaceDTO.getWorkspaceId())) {
+                            topLevelWorkspaces.add(workspaceDTO);
+                            addedWorkspaceIds.add(workspaceDTO.getWorkspaceId());
+                        }
+                    }
+                }
+            }
+        }
+    
+        topLevelWorkspaces.removeIf(workspace -> workspace.getContents().isEmpty() && workspace.getSubWorkspaces().isEmpty());
+    
+        return topLevelWorkspaces;
+    }
+
+//     public List<WorkspaceContentResponse> getDBConnectionsOnWorkspaces(String email) throws SQLException {
+//         // Step 1: Fetch workspaces by user ID (email)
+//         List<Workspace> workspaces = workspaceRepository.findWorkspacesByUserId(email);
+
+//         // Step 2: Convert workspaces to DTO
+//         List<WorkspaceContentDTO> workspaceContentDTOs = toWorkspaceContentDTOList(workspaces);
+
+//         // Step 3: Convert DTO to Response
+//          toWorkspaceContentResponseList(workspaceContentDTOs);
+//     }
+
+//   public static WorkspaceContentDTO toWorkspaceContentDTO(Workspace workspace) {
+//         if (workspace == null) {
+//             return null;
+//         }
+
+//         return WorkspaceContentDTO.builder()
+//                 .id(workspace.getId()) // Entity ID
+//                 .name(workspace.getName()) // Workspace name
+//                 .createdBy(workspace.getCreatedBy()) // Created by
+//                 .workspaceId(workspace.getId()) // Workspace ID
+//                 .workspaceName(workspace.getName()) // Workspace name
+//                 .parentId(workspace.getParent() != null ? workspace.getParent().getId() : null) // Parent ID (null-safe)
+//                 .parentWorkspaceName(workspace.getParent() != null ? workspace.getParent().getName() : null) // Parent workspace name (null-safe)
+//                 .build();
+//     }
+
+     // public static List<WorkspaceContentResponse> toWorkspaceContentResponseList(List<WorkspaceContentDTO> workspaceContentDTOs) {
+    //     return workspaceContentDTOs.stream()
+    //             .map(dto -> WorkspaceContentResponse.builder()
+    //                     .id(dto.getId())
+    //                     .name(dto.getName())
+    //                     .createdBy(dto.getCreatedBy())
+    //                     .workspaceId(dto.getWorkspaceId())
+    //                     .workspaceName(dto.getWorkspaceName())
+    //                     .parentId(dto.getParentId())
+    //                     .parentWorkspaceName(dto.getParentWorkspaceName())
+    //                     .build())
+    //             .collect(Collectors.toList());
+    // }
+
+
+
+    
+
+    
 
     //     public List<WorkspaceResponse> workspaceView(Long userId) throws SQLException {
 //         List<WorkspaceResponse> workspaces = new ArrayList<>();

@@ -26,8 +26,6 @@ public class WorkspaceResponse {
     private OffsetDateTime createdAt;
     private String updatedBy = null;
     private OffsetDateTime updatedAt;
-    private Long roleId = null;
-    private String roleName = null;
-    private Long levelId = null;
+
 
 }
