@@ -66,15 +66,14 @@ public class ContentController {
         return contentService.workspaceView(email);
     }
 
-    // @GetMapping("/workspace/{workspaceId}")
-    // public List<WorkspaceResponse> workspaceContentList(@RequestHeader Map<String,String> requestHeader,@PathVariable String workspaceId) throws SQLException{
-    //     String email = requestHeader.get("username");
-    //     return contentService.workspaceContentList(email,workspaceId);
-    // }
+    @GetMapping("/workspace/{workspaceId}")
+    public List<WorkspaceResponse> workspaceContentList(@RequestHeader Map<String,String> requestHeader,@PathVariable String workspaceId) throws SQLException{
+        String email = requestHeader.get("username");
+        return contentService.workspaceContentList(email,workspaceId);
+    }
 
 
 
-    // Not yet tested
     @PutMapping("/content/rename")
     public ResponseEntity<?> contentRename(@RequestHeader Map<String,String> requestHeader,@RequestBody RenameRequest request) throws BadRequestException {
         String email = requestHeader.get("username");
@@ -130,16 +129,16 @@ public class ContentController {
          return contentService.getFlatFilesOnWorkspaces(email);
     }
 
-    @GetMapping("/content/dependency/{id}")
-    public ResponseEntity<?> contentDependency(@RequestHeader Map<String,String> requestHeader,
-                                           @PathVariable String id,
-                                           @RequestParam(name = "workspaceId",required = true) String workspaceId,
-                                           @RequestParam(name = "contentType" , required = true) Long contentTpe  ) 
-                                           throws FileNotFoundException, BadRequestException, RecordNotFoundException, SQLException{
+    // @GetMapping("/content/dependency/{id}")
+    // public ResponseEntity<?> contentDependency(@RequestHeader Map<String,String> requestHeader,
+    //                                        @PathVariable String id,
+    //                                        @RequestParam(name = "workspaceId",required = true) String workspaceId,
+    //                                        @RequestParam(name = "contentType" , required = true) Long contentTpe  ) 
+    //                                        throws FileNotFoundException, BadRequestException, RecordNotFoundException, SQLException{
 
-        String email = requestHeader.get("email");
-        contentService.contentDependency(email, workspaceId, id, contentTpe);
-        return ResponseEntity.ok().body(contentService.contentDependency(email, workspaceId, id, contentTpe));
-    }
+    //     String email = requestHeader.get("email");
+    //     contentService.contentDependency(email, workspaceId, id, contentTpe);
+    //     return ResponseEntity.ok().body(contentService.contentDependency(email, workspaceId, id, contentTpe));
+    // }
 
 }

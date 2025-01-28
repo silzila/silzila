@@ -396,20 +396,18 @@ public class ContentService {
 
     public List<WorkspaceContentResponse> getDBConnectionsOnWorkspaces(String email) throws SQLException {
         List<Workspace> allWorkspace = workspaceRepository.findByUserId(email);
-        System.out.println(allWorkspace.size());
-        // List<WorkspaceContentDTO> workspaceContentDTOs = workspaceToWorkspaceContentDTO(allWorkspace);
-
-        // return transformWorkspacesForContent(workspaceContentDTOs, "dbConnection",);
         return getAllDbContent(allWorkspace, "dbConnection", email);
     }
-    public List<WorkspaceContentResponse> getAllDbContent(List<Workspace> allworkspace, String contentType, String userId) {
+
+    public List<WorkspaceContentResponse> getAllDbContent(List<Workspace> allworkspace, String contentType,
+            String userId) {
         List<WorkspaceContentResponse> WCResponse = new ArrayList<>();
         for (Workspace w : allworkspace) {
             WorkspaceContentResponse response = new WorkspaceContentResponse();
             response.setContentType(contentType);
             response.setWorkspaceId(w.getId());
             response.setWorkspaceName(w.getName());
-    
+
             // Null check for DbConnections
             List<IdNameDTO> conecnts = new ArrayList<>();
             if (w.getDbConnections() != null && !w.getDbConnections().isEmpty()) {
@@ -421,14 +419,14 @@ public class ContentService {
                     conecnts.add(content);
                 }
             }
-    
+
             // Fetch all sub-workspaces
             List<SubWorkspaceContentResponse> subWorkspaceContent = new ArrayList<>();
             List<Workspace> subWorkpaces = workspaceRepository.findByUserIdAndParentWorkspaceId(userId, w.getId());
             if (subWorkpaces != null && !subWorkpaces.isEmpty()) {
                 for (Workspace sw : subWorkpaces) {
                     SubWorkspaceContentResponse swContent = new SubWorkspaceContentResponse();
-    
+
                     // Null check for sub-workspace DbConnections
                     List<IdNameDTO> subConecnts = new ArrayList<>();
                     if (sw.getDbConnections() != null && !sw.getDbConnections().isEmpty()) {
@@ -440,36 +438,38 @@ public class ContentService {
                             subConecnts.add(content);
                         }
                     }
-    
+
                     swContent.setContents(subConecnts);
                     swContent.setWorkspaceName(sw.getName());
                     swContent.setWorkspaceId(sw.getId());
                     subWorkspaceContent.add(swContent);
                 }
             }
-    
+
             response.setContents(conecnts);
             response.setSubWorkspaces(subWorkspaceContent);
             WCResponse.add(response);
         }
-    
+
         // Return empty list if no data exists
         return WCResponse.isEmpty() ? Collections.emptyList() : WCResponse;
     }
-    
+
     public List<WorkspaceContentResponse> getDatasetsOnWorkspaces(String email) throws SQLException {
         List<Workspace> allWorkspace = workspaceRepository.findByUserId(email);
 
         return getAllDatasetContent(allWorkspace, "dataset", email);
     }
-    public List<WorkspaceContentResponse> getAllDatasetContent(List<Workspace> allworkspace, String contentType, String userId) {
+
+    public List<WorkspaceContentResponse> getAllDatasetContent(List<Workspace> allworkspace, String contentType,
+            String userId) {
         List<WorkspaceContentResponse> WCResponse = new ArrayList<>();
         for (Workspace w : allworkspace) {
             WorkspaceContentResponse response = new WorkspaceContentResponse();
             response.setContentType(contentType);
             response.setWorkspaceId(w.getId());
             response.setWorkspaceName(w.getName());
-    
+
             // Null check for DbConnections
             List<IdNameDTO> conecnts = new ArrayList<>();
             if (w.getDataSets() != null && !w.getDataSets().isEmpty()) {
@@ -481,14 +481,14 @@ public class ContentService {
                     conecnts.add(content);
                 }
             }
-    
+
             // Fetch all sub-workspaces
             List<SubWorkspaceContentResponse> subWorkspaceContent = new ArrayList<>();
             List<Workspace> subWorkpaces = workspaceRepository.findByUserIdAndParentWorkspaceId(userId, w.getId());
             if (subWorkpaces != null && !subWorkpaces.isEmpty()) {
                 for (Workspace sw : subWorkpaces) {
                     SubWorkspaceContentResponse swContent = new SubWorkspaceContentResponse();
-    
+
                     // Null check for sub-workspace DbConnections
                     List<IdNameDTO> subConecnts = new ArrayList<>();
                     if (sw.getDataSets() != null && !sw.getDataSets().isEmpty()) {
@@ -500,35 +500,37 @@ public class ContentService {
                             subConecnts.add(content);
                         }
                     }
-    
+
                     swContent.setContents(subConecnts);
                     swContent.setWorkspaceName(sw.getName());
                     swContent.setWorkspaceId(sw.getId());
                     subWorkspaceContent.add(swContent);
                 }
             }
-    
+
             response.setContents(conecnts);
             response.setSubWorkspaces(subWorkspaceContent);
             WCResponse.add(response);
         }
-    
+
         return WCResponse.isEmpty() ? Collections.emptyList() : WCResponse;
     }
-       
+
     public List<WorkspaceContentResponse> getFlatFilesOnWorkspaces(String email) throws SQLException {
         List<Workspace> allWorkspace = workspaceRepository.findByUserId(email);
         return getAllFlatFileContent(allWorkspace, "flatfile", email);
     }
-    public List<WorkspaceContentResponse> getAllFlatFileContent(List<Workspace> allWorkspace, String contentType, String userId) {
+
+    public List<WorkspaceContentResponse> getAllFlatFileContent(List<Workspace> allWorkspace, String contentType,
+            String userId) {
         List<WorkspaceContentResponse> WCResponse = new ArrayList<>();
-    
+
         for (Workspace w : allWorkspace) {
             WorkspaceContentResponse response = new WorkspaceContentResponse();
             response.setContentType(contentType);
             response.setWorkspaceId(w.getId());
             response.setWorkspaceName(w.getName());
-    
+
             // Process flat files for the workspace
             List<IdNameDTO> flatFileContents = new ArrayList<>();
             if (w.getFlatFiles() != null && !w.getFlatFiles().isEmpty()) {
@@ -540,14 +542,14 @@ public class ContentService {
                     flatFileContents.add(content);
                 }
             }
-    
+
             // Process sub-workspaces
             List<SubWorkspaceContentResponse> subWorkspaceContent = new ArrayList<>();
             List<Workspace> subWorkspaces = workspaceRepository.findByUserIdAndParentWorkspaceId(userId, w.getId());
             if (subWorkspaces != null && !subWorkspaces.isEmpty()) {
                 for (Workspace sw : subWorkspaces) {
                     SubWorkspaceContentResponse swContent = new SubWorkspaceContentResponse();
-    
+
                     // Process flat files for sub-workspace
                     List<IdNameDTO> subFlatFileContents = new ArrayList<>();
                     if (sw.getFlatFiles() != null && !sw.getFlatFiles().isEmpty()) {
@@ -559,24 +561,22 @@ public class ContentService {
                             subFlatFileContents.add(content);
                         }
                     }
-    
+
                     swContent.setContents(subFlatFileContents);
                     swContent.setWorkspaceName(sw.getName());
                     swContent.setWorkspaceId(sw.getId());
                     subWorkspaceContent.add(swContent);
                 }
             }
-    
+
             // Set contents and sub-workspaces in the response
             response.setContents(flatFileContents);
             response.setSubWorkspaces(subWorkspaceContent);
             WCResponse.add(response);
         }
-    
+
         return WCResponse.isEmpty() ? Collections.emptyList() : WCResponse;
     }
-    
-
 
     public List<WorkspaceContentDTO> workspaceToWorkspaceContentDTO(List<Workspace> allWorkspaces) {
         List<WorkspaceContentDTO> workspaceContentDTOs = new ArrayList<>();
@@ -633,6 +633,7 @@ public class ContentService {
     }
 
     public List<WorkspaceResponse> workspaceView(String email) throws SQLException {
+        // not subworkspace
         List<Workspace> allworkspace = workspaceRepository.findByUserId(email);
         System.out.println(allworkspace.size());
         List<WorkspaceResponse> result = new ArrayList<>();
@@ -765,5 +766,115 @@ public class ContentService {
 
     // return workspaces;
     // }
+
+    // Main method to collect all workspace content
+    public List<WorkspaceResponse> workspaceContentList(String email, String workspaceId) throws SQLException {
+        List<WorkspaceResponse> allContents = new ArrayList<>();
+        allContents.addAll(subFolderList(email, workspaceId));
+        allContents.addAll(dbConnectionList(email, workspaceId)); 
+        allContents.addAll(datasetList(email, workspaceId));
+        allContents.addAll(flatfileList(email, workspaceId));
+        allContents.addAll(playbookList(email, workspaceId));
+        return allContents;
+    }
+
+    // Method to fetch list of subfolders
+    private List<WorkspaceResponse> subFolderList(String email, String workspaceId) {
+        
+        List<WorkspaceResponse> subFolders =new ArrayList<>();
+        List<Workspace> allsubWorkspaces= workspaceRepository.findByUserIdAndParentWorkspaceId(email, workspaceId);
+        for (Workspace w : allsubWorkspaces) {
+
+            WorkspaceResponse wResponse = WorkspaceResponse.builder()
+                    .id(w.getId())
+                    .createdAt(w.getCreatedAt())
+                    .createdBy(w.getCreatedBy())
+                    .name(w.getName())
+                    .contentType(1L)
+                    .updatedAt(w.getUpdatedAt())
+                    .updatedBy(w.getUpdatedBy())
+                    .build();
+                subFolders.add(wResponse);
+        }
+        return subFolders;
+    }
+
+    // Method to fetch list of database connections
+    private List<WorkspaceResponse> dbConnectionList(String email, String workspaceId) {
+        List<WorkspaceResponse> dbconnections =new ArrayList<>();
+        Workspace workspace= workspaceRepository.findWorkspaceById(workspaceId);
+        for(DBConnection db:workspace.getDbConnections()){
+            WorkspaceResponse wr= WorkspaceResponse.builder()
+            .id(db.getId())
+            .createdAt(db.getCreatedAt())
+            .createdBy(db.getCreatedBy())
+            .name(db.getConnectionName())
+            .contentType(2L)
+            .updatedAt(db.getUpdatedAt())
+            .updatedBy(db.getUpdatedBy())
+            .build();
+            dbconnections.add(wr);
+
+        }        
+        return dbconnections;
+    }
+
+    // Method to fetch list of datasets
+    private List<WorkspaceResponse> datasetList(String email, String workspaceId) {
+        List<WorkspaceResponse> dbconnections =new ArrayList<>();
+        Workspace workspace= workspaceRepository.findWorkspaceById(workspaceId);
+        for(Dataset db:workspace.getDataSets()){
+            WorkspaceResponse wr= WorkspaceResponse.builder()
+            .id(db.getId())
+            .createdAt(db.getCreatedAt())
+            .createdBy(db.getCreatedBy())
+            .name(db.getDatasetName())
+            .contentType(3L)
+            .updatedAt(db.getUpdatedAt())
+            .updatedBy(db.getUpdatedBy())
+            .build();
+            dbconnections.add(wr);
+
+        }        
+        return dbconnections;
+    }
+
+    // Method to fetch list of flat files
+    private List<WorkspaceResponse> flatfileList(String email, String workspaceId) {
+        List<WorkspaceResponse> dbconnections =new ArrayList<>();
+        Workspace workspace= workspaceRepository.findWorkspaceById(workspaceId);
+        for(FileData db:workspace.getFlatFiles()){
+            WorkspaceResponse wr= WorkspaceResponse.builder()
+            .id(db.getId())
+            .createdAt(db.getCreatedAt())
+            .createdBy(db.getCreatedBy())
+            .name(db.getName())
+            .contentType(4L)
+            .updatedAt(db.getUpdatedAt())
+            .updatedBy(db.getUpdatedBy())
+            .build();
+            dbconnections.add(wr);
+        }        
+        return dbconnections;
+    }
+
+    // Method to fetch list of playbooks
+    private List<WorkspaceResponse> playbookList(String email, String workspaceId) {
+        List<WorkspaceResponse> dbconnections =new ArrayList<>();
+        Workspace workspace= workspaceRepository.findWorkspaceById(workspaceId);
+        for(PlayBook db:workspace.getPlaybooks()){
+            WorkspaceResponse wr= WorkspaceResponse.builder()
+            .id(db.getId())
+            .createdAt(db.getCreatedAt())
+            .createdBy(db.getCreatedBy())
+            .name(db.getName())
+            .contentType(5L)
+            .updatedAt(db.getUpdatedAt())
+            .updatedBy(db.getUpdatedBy())
+            .build();
+            dbconnections.add(wr);
+        }        
+        return dbconnections;
+    }
 
 }
