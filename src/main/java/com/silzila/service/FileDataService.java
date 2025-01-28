@@ -7,16 +7,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import org.json.JSONArray;
 
 import com.silzila.helper.SaltGenerator;
+import com.silzila.helper.UtilityService;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.exception.RecordNotFoundException;
@@ -25,8 +30,13 @@ import com.silzila.payload.request.FileUploadRevisedColumnInfo;
 import com.silzila.payload.request.FileUploadRevisedInfoRequest;
 import com.silzila.payload.request.Table;
 import com.silzila.payload.response.FileUploadResponseDuckDb;
+import com.silzila.domain.entity.Dataset;
 import com.silzila.domain.entity.FileData;
+import com.silzila.domain.entity.User;
+import com.silzila.domain.entity.Workspace;
 import com.silzila.dto.FileDataDTO;
+import com.silzila.dto.WorkspaceContentDTO;
+import com.silzila.repository.DatasetRepository;
 import com.silzila.repository.FileDataRepository;
 
 
@@ -44,7 +54,12 @@ public class FileDataService {
     FileDataRepository fileDataRepository;
 
     @Autowired
+    DatasetRepository datasetRepository;
+    @Autowired
     DatasetAndFileDataBuffer buffer;
+
+    @Autowired
+    UtilityService utilityService;
 
     // all uploads are initially saved in tmp
     final String SILZILA_DIR = System.getProperty("user.home") + "/" + "silzila-uploads";
@@ -300,7 +315,7 @@ public class FileDataService {
     }
 
     // 2. update schema for uploaded file
-    public JSONArray fileUploadChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+    public JSONArray fileUploadChangeSchema(FileUploadRevisedInfoRequest revisedInfoRequest, String workspaceId,String userId)
             throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
             SQLException, ExpectationFailedException {
 
@@ -328,10 +343,12 @@ public class FileDataService {
     // 3. persist uploaded file (with/witout changed schema) as parquet file to disk
     // Steps: read uploaded file + change metadata if needed
     // + save the data as Parquet file + delete uploaded file
-    public FileDataDTO fileUploadSave(FileUploadRevisedInfoRequest revisedInfoRequest, String userId)
+    public FileDataDTO fileUploadSave(FileUploadRevisedInfoRequest revisedInfoRequest, String userId,String workspaceId)
             throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
             SQLException, ExpectationFailedException {
 
+        User user = utilityService.getUserFromEmail(userId);
+         Workspace workspace = utilityService.getWorkspaceById(workspaceId);
         // flatfile name can't have any spaces and special characters not more than one
         // underscore- contiuously
         if (revisedInfoRequest.getName() != null) {
@@ -364,7 +381,13 @@ public class FileDataService {
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
-            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved,salt);
+            FileData fileData = new FileData();
+            fileData.setUserId(userId);
+            fileData.setName(revisedInfoRequest.getName());
+            fileData.setFileName(fileNameToBeSaved);
+            fileData.setSaltValue(salt);
+            fileData.setCreatedBy(user.getFirstName());
+            fileData.setWorkspace(workspace);
             fileDataRepository.save(fileData);
             buffer.removeFileDataFromBuffer(userId);
             FileDataDTO fileDataDTO = new FileDataDTO(fileData.getId(), fileData.getUserId(), fileData.getName());
@@ -388,7 +411,14 @@ public class FileDataService {
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
-            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved,salt);
+            FileData fileData = new FileData();
+            fileData.setUserId(userId);
+            fileData.setName(revisedInfoRequest.getName());
+            fileData.setFileName(fileNameToBeSaved);
+            fileData.setSaltValue(salt);
+            fileData.setCreatedBy(user.getFirstName());
+            fileData.setWorkspace(workspace);
+            fileDataRepository.save(fileData);
             FileData savedFileData = fileDataRepository.save(fileData);
             buffer.addFileDataUser(userId, savedFileData);
             FileDataDTO fileDataDTO = new FileDataDTO(fileData.getId(), fileData.getUserId(), fileData.getName());
@@ -413,7 +443,14 @@ public class FileDataService {
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
-            FileData fileData = new FileData(userId, revisedInfoRequest.getName(), fileNameToBeSaved,salt);
+            FileData fileData = new FileData();
+            fileData.setUserId(userId);
+            fileData.setName(revisedInfoRequest.getName());
+            fileData.setFileName(fileNameToBeSaved);
+            fileData.setSaltValue(salt);
+            fileData.setCreatedBy(user.getFirstName());
+            fileData.setWorkspace(workspace);
+            fileDataRepository.save(fileData);
             FileData savedFileData = fileDataRepository.save(fileData);
             buffer.addFileDataUser(userId, savedFileData);
 
@@ -437,7 +474,8 @@ public class FileDataService {
     }
 
     // read all file data
-    public List<FileDataDTO> getAllFileDatas(String userId) {
+    public List<FileDataDTO> getAllFileDatas(String userId,String workspaceId) throws BadRequestException{
+        utilityService.isValidWorkspaceId(workspaceId);
         // read all file data for the user from DB
         List<FileData> fileDatas = fileDataRepository.findByUserId(userId);
         // re-map to DTO list of object - (to hide file name)
@@ -450,7 +488,7 @@ public class FileDataService {
     }
 
     // get sample records
-    public JSONArray getSampleRecords(String id, String userId, String datasetId, String tableName) throws RecordNotFoundException, JsonMappingException,
+    public JSONArray getSampleRecords(String id, String userId, String datasetId,String workspaceId, String tableName) throws RecordNotFoundException, JsonMappingException,
             JsonProcessingException, BadRequestException, ClassNotFoundException, SQLException {
         // if no file data inside optional wrapper, then send NOT FOUND Error
         Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
@@ -469,12 +507,12 @@ public class FileDataService {
 
         // start duckdb in memory
         duckDbService.startDuckDb();
-        JSONArray jsonArray = duckDbService.getSampleRecords(parquetFilePath,userId,datasetId,tableName, salt+encryptPwd+pepper);
+        JSONArray jsonArray = duckDbService.getSampleRecords(workspaceId,parquetFilePath,userId,datasetId,tableName, salt+encryptPwd+pepper);
         return jsonArray;
     }
 
     // get sample records
-    public List<Map<String, Object>> getColumns(String id, String userId) throws RecordNotFoundException,
+    public List<Map<String, Object>> getColumns(String id, String userId,String workspaceId) throws RecordNotFoundException,
             JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException, SQLException {
         // if no file data inside optional wrapper, then send NOT FOUND Error
         Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
@@ -497,14 +535,20 @@ public class FileDataService {
     }
 
     // Delete File Data
-    public void deleteFileData(String id, String userId) throws RecordNotFoundException {
+    public void deleteFileData(String id, String userId,String workspaceId) throws RecordNotFoundException ,BadRequestException {
         // if no file data inside optional wrapper, then send NOT FOUND Error
         // meaning if no file id in the DB, send error
-        Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
+        // Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
+        Optional<FileData> fdOptional = fileDataRepository.findByIdAndWorkspaceId(id, workspaceId);
         if (!fdOptional.isPresent()) {
             throw new RecordNotFoundException("Error: No such File Data Id exists!");
         }
         FileData fileData = fdOptional.get();
+         // check dependencies
+        if (flatfileDependency(userId, workspaceId, id).size() != 0) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Access is forbidden for the specified flat file,it has dependencies.");
+        }
 
         // delete the Parquet File from file system
         final String parquetFilePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
@@ -524,6 +568,33 @@ public class FileDataService {
         buffer.deleteFileDataUser(userId,id);
     }
 
+        public List<WorkspaceContentDTO> flatfileDependency(String email, String workspaceId, String flatfileId) throws BadRequestException {
+
+        FileData fileData = fileDataRepository.findById(flatfileId)
+                .orElseThrow(() -> new BadRequestException("No such flatfileId"));
+
+        List<Dataset> datasets = datasetRepository.findByDataSchemaContaining(fileData.getId());
+
+        List<String> datasetIds = datasets.stream()
+                .map(Dataset::getId)
+                .collect(Collectors.toList());
+
+        List<Object[]> dependentDatasets = datasetRepository.findDatasetsWithWorkspaceAndParentDetails(datasetIds);
+
+        List<WorkspaceContentDTO> workspaceContentDTOList = dependentDatasets.stream()
+                .map(result -> new WorkspaceContentDTO(
+                        (String) result[0], // datasetId
+                        (String) result[1], // datasetName
+                        (String) result[2], // createdBy
+                        (String) result[3], // workspaceId
+                        (String) result[4], // workspaceName
+                        (String) result[5], // parentWorkspaceId
+                        (String) result[6] // parentWorkspaceName
+                ))
+                .collect(Collectors.toList());
+
+        return workspaceContentDTOList;
+    }
     // HELPER FUNCTION - read all file data with file name
     public void getFileNameFromFileId(String userId, List<Table> tableObjList)
             throws BadRequestException, SQLException, ClassNotFoundException {

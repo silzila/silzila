@@ -106,24 +106,24 @@ public class ConnectionPoolService {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId, String userId)
+    public DatasetDTO loadDatasetInBuffer(String workspaceId,String dbConnectionId,String datasetId, String userId)
     throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
-        DatasetDTO dto = buffer.loadDatasetInBuffer(datasetId, userId);
+        DatasetDTO dto = buffer.loadDatasetInBuffer(workspaceId,datasetId, userId);
         if(!dto.getDataSchema().getFilterPanels().isEmpty()){
-            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,this::relativeFilter);
+            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,workspaceId,this::relativeFilter);
             dto.getDataSchema().setFilterPanels(filterPanels);
         }
         return dto;
         }
 
     // creates connection pool & gets vendor name
-    public String getVendorNameFromConnectionPool(String id, String userId)
+    public String getVendorNameFromConnectionPool(String id, String userId,String workspaceId)
             throws RecordNotFoundException, SQLException {
         String vendorName;
         if (connectionDetails.containsKey(id)) {
             vendorName = connectionDetails.get(id).getVendor();
         } else {
-            createConnectionPool(id, userId);
+            createConnectionPool(id, userId,workspaceId);
             vendorName = connectionDetails.get(id).getVendor();
         }
         return vendorName;
@@ -132,7 +132,7 @@ public class ConnectionPoolService {
 
 
     // creates connection pool if not created already for a connection
-    public void createConnectionPool(String id, String userId) throws RecordNotFoundException, SQLException {
+    public void createConnectionPool(String id, String userId,String workspaceId) throws RecordNotFoundException, SQLException {
 
         int minIdle=1;
         int maxPoolSize=2;
@@ -144,7 +144,7 @@ public class ConnectionPoolService {
         HikariConfig config = new HikariConfig();
 
         if (!connectionPool.containsKey(id)) {
-            DBConnection dbConnection = dbConnectionService.getDBConnectionWithPasswordById(id, userId);
+            DBConnection dbConnection = dbConnectionService.getDBConnectionWithPasswordById(id, userId,workspaceId);
             String fullUrl = "";
 
             // BigQuery - token file path to be sent in URL
@@ -380,9 +380,9 @@ public class ConnectionPoolService {
         }
     }
 
-       public ArrayList<MetadataColumn> getColumForCustomQuery(String id, String userId, String query) throws RecordNotFoundException, SQLException, ExpectationFailedException {
+       public ArrayList<MetadataColumn> getColumForCustomQuery(String id, String userId, String query,String workspaceId) throws RecordNotFoundException, SQLException, ExpectationFailedException {
         if(customQueryValidator.customQueryValidator(query)) {
-            createConnectionPool(id, userId);
+            createConnectionPool(id, userId,workspaceId);
             try {
                 try (Connection _connection = connectionPool.get(id).getConnection();
                      PreparedStatement pst = _connection.prepareStatement(query);
@@ -411,12 +411,12 @@ public class ConnectionPoolService {
             throw new ExpectationFailedException("Wrong query!! CustomQuery is only allowed only with SELECT clause");
         }
     }
-    public JSONArray getSampleRecordsForCustomQuery(String dBConnectionId, String userId, String query,Integer recordCount) throws RecordNotFoundException, SQLException, ExpectationFailedException {
+    public JSONArray getSampleRecordsForCustomQuery(String dBConnectionId,String workspaceId, String userId, String query,Integer recordCount) throws RecordNotFoundException, SQLException, ExpectationFailedException {
         if (customQueryValidator.customQueryValidator(query)) {
-            String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId);
+            String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId,workspaceId);
             String queryWithLimit="";
             try{
-            createConnectionPool(dBConnectionId, userId);
+            createConnectionPool(dBConnectionId, userId,workspaceId);
             if(recordCount>250|| recordCount==null)
             {
                 recordCount=250;
@@ -439,17 +439,17 @@ public class ConnectionPoolService {
         }
     }
     // Metadata discovery - Get Database names
-    public ArrayList<String> getDatabase(String id, String userId)
+    public ArrayList<String> getDatabase(String id, String userId,String workspaceId)
             throws RecordNotFoundException, SQLException {
         // first create connection pool to query DB
         // when connection id is not available, RecordNotFoundException will be throws
-        createConnectionPool(id, userId);
+        createConnectionPool(id, userId,workspaceId);
 
-        String vendorName = getVendorNameFromConnectionPool(id, userId);
+        String vendorName = getVendorNameFromConnectionPool(id, userId,workspaceId);
         String dataBaseNameFromUser="";
 
         if(vendorName.equalsIgnoreCase("db2")){
-            DBConnection dbConnection = dbConnectionService.getDBConnectionWithPasswordById(id, userId);
+            DBConnection dbConnection = dbConnectionService.getDBConnectionWithPasswordById(id, userId,workspaceId);
             dataBaseNameFromUser = dbConnection.getDatabase();
         }
 
@@ -507,10 +507,10 @@ public class ConnectionPoolService {
     }
 
     // Metadata discovery - Get Schema names
-    public List<String> getSchema(String id, String userId, String databaseName)
+    public List<String> getSchema(String id, String userId, String databaseName,String workspaceId)
             throws RecordNotFoundException, SQLException, BadRequestException {
         // first create connection pool to query DB
-        String vendorName = getVendorNameFromConnectionPool(id, userId);
+        String vendorName = getVendorNameFromConnectionPool(id, userId,workspaceId);
 
         List<String> schemaList = new ArrayList<>();
         try {
@@ -623,11 +623,11 @@ public class ConnectionPoolService {
         }
     }
 
-    public MetadataTable getTable(String id, String userId, String databaseName, String schemaName)
+    public MetadataTable getTable(String id, String userId, String databaseName, String schemaName,String workspaceId)
             throws RecordNotFoundException, SQLException, BadRequestException {
 
         // first create connection pool to query DB
-        String vendorName = getVendorNameFromConnectionPool(id, userId);
+        String vendorName = getVendorNameFromConnectionPool(id, userId,workspaceId);
 
         try (Connection _connection = connectionPool.get(id).getConnection();) {
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
@@ -804,11 +804,11 @@ public class ConnectionPoolService {
 
     // Metadata discovery - Get Column names
     public ArrayList<MetadataColumn> getColumn(String id, String userId, String databaseName, String schemaName,
-            String tableName)
+            String tableName,String workspaceId)
             throws RecordNotFoundException, SQLException, BadRequestException {
 
         // first create connection pool to query DB
-        String vendorName = getVendorNameFromConnectionPool(id, userId);
+        String vendorName = getVendorNameFromConnectionPool(id, userId,workspaceId);
 
 
         // metadataColumns list will contain the final result
@@ -888,16 +888,16 @@ public class ConnectionPoolService {
 
 
     // Metadata discovery - Get Sample Records of table
-    public JSONArray getSampleRecords(String databaseId,String datasetId, String userId, String databaseName, String schemaName,
+    public JSONArray getSampleRecords(String databaseId,String datasetId,String workspaceId, String userId, String databaseName, String schemaName,
             String tableName, Integer recordCount)
             throws RecordNotFoundException, SQLException, BadRequestException, JsonProcessingException, ClassNotFoundException {
         String query = "";
         // first create connection pool to query DB
-        String vendorName = getVendorNameFromConnectionPool(databaseId, userId);
+        String vendorName = getVendorNameFromConnectionPool(databaseId, userId,workspaceId);
 
         if (datasetId!=null) {
             //getting dataset information to fetch filter panel information
-            DatasetDTO ds = loadDatasetInBuffer(databaseId,datasetId, userId);
+            DatasetDTO ds = loadDatasetInBuffer(workspaceId,databaseId,datasetId, userId);
             List<FilterPanel> filterPanels = new ArrayList<>();
             String tableId = "";
             String whereClause = "";
@@ -1475,7 +1475,7 @@ public class ConnectionPoolService {
         }
     }
 
-    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,
+    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,String workspaceId,
             @Valid RelativeFilterRequest relativeFilter)
             throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
             JsonMappingException, JsonProcessingException {
@@ -1484,7 +1484,7 @@ public class ConnectionPoolService {
         DatasetDTO ds = null;
         if (datasetId != null) {
             DatasetDTO bufferedDataset = buffer.getDatasetDetailsById(datasetId);
-            ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(dBConnectionId, datasetId, userId);
+            ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(workspaceId,dBConnectionId, datasetId, userId);
         }
         // Initialize variables
         JSONArray anchorDateArray;
@@ -1520,7 +1520,7 @@ public class ConnectionPoolService {
             }
 
             // Get the vendor name from the connection pool using the DB connection ID
-            String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId);
+            String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId,workspaceId);
             // Compose anchor date query for the specific vendor and run it
             String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery(vendorName, ds, relativeFilter);
 

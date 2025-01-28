@@ -1,12 +1,12 @@
 package com.silzila.domain.entity;
 
 import com.silzila.domain.base.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.OffsetDateTime;
 import java.util.Date;
 
 @Entity
@@ -56,5 +56,24 @@ public class DBConnection extends BaseEntity {
     private String truststorePassword;
     @Column(name = "warehouse")
     private String warehouse;
+
+    @ManyToOne
+    @JoinColumn(name = "workspace_id", nullable = false)
+    private Workspace workspace;
+
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private OffsetDateTime createdAt;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
+
 
 }

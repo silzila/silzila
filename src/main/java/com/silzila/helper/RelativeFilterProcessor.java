@@ -20,7 +20,7 @@ import com.silzila.payload.request.RelativeFilterRequest;
 
 @Component
 public class RelativeFilterProcessor {
-    public List<FilterPanel> processFilterPanels(List<FilterPanel> filterPanels, String userId, String dBConnectionId, String datasetId, RelativeFilterFunction relativeFilterFunction)
+    public List<FilterPanel> processFilterPanels(List<FilterPanel> filterPanels, String userId, String dBConnectionId, String datasetId,String workspaceId, RelativeFilterFunction relativeFilterFunction)
         throws  ClassNotFoundException, RecordNotFoundException, BadRequestException, SQLException, JsonProcessingException {
 
         for (FilterPanel filterPanel : filterPanels) {
@@ -50,7 +50,7 @@ public class RelativeFilterProcessor {
                             }
 
                             // Call the passed relative filter function
-                            JSONArray relativeDateJson = relativeFilterFunction.apply(userId, dBConnectionId, datasetId, relativeFilter);
+                            JSONArray relativeDateJson = relativeFilterFunction.apply(userId, dBConnectionId, datasetId, workspaceId,relativeFilter);
 
                             // Extract 'fromdate' and 'todate' from the JSON response
                             String fromDate = extractDate(relativeDateJson.getJSONObject(0), "FROMDATE", "fromdate");
