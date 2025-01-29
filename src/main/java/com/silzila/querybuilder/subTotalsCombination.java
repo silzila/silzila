@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
+import com.silzila.helper.ColumnListFromClause;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Query;
@@ -155,7 +156,8 @@ public class subTotalsCombination {
             QueryClauseFieldListMap qMap = selectClauseSql(dim, vendorName);
             String selectClause = "\n\t" + qMap.getSelectList().stream().collect(Collectors.joining(",\n\t"));
             String groupByClause = "\n\t" + qMap.getGroupByList().stream().distinct().collect(Collectors.joining(",\n\t"));
-            String fromClause = RelationshipClauseGeneric.buildRelationship(dim, ds.getDataSchema(), vendorName);
+            List<String> allColumnList = ColumnListFromClause.getColumnListFromQuery(dim);
+            String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList, ds.getDataSchema(), vendorName);
 
             String groupBy = rowDim.isEmpty() ? "" : "\nGROUP BY" + groupByClause;
             
