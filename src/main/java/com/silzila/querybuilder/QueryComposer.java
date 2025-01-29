@@ -9,6 +9,7 @@ import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
+import com.silzila.helper.ColumnListFromClause;
 import com.silzila.payload.request.*;
 import com.silzila.payload.request.Dimension.DataType;
 import com.silzila.querybuilder.override.overrideCTE;
@@ -59,7 +60,8 @@ public class QueryComposer {
         /*
          * builds JOIN Clause of SQL - same for all dialects
          */
-        String fromClause = RelationshipClauseGeneric.buildRelationship(req, ds.getDataSchema(), vendorName);
+        List<String> allColumnList = ColumnListFromClause.getColumnListFromQuery(req);
+        String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList, ds.getDataSchema(), vendorName);
 
         // System.out.println("from clause ================\n" + fromClause);
         /*
