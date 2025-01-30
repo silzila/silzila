@@ -1,0 +1,1252 @@
+body {
+  overflow: hidden;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: "Roboto-Regular", "Roboto-Medium", "Roboto-Bold", "Roboto-Light",
+    "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
+}
+
+/* Spinner */
+.spinner,
+.user-spinner,
+.groupName-spinner,
+.group-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border-left-color: #2bb9bb;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading Container */
+.loading-container,
+.user-loading-container,
+.groupName-loading-container,
+.group-loading-container {
+  flex-grow: 1;
+  width: 100%;
+  margin-bottom: 115px;
+  margin-top: 25px;
+  border: 1px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  overflow-y: auto;
+  height: 70vh;
+}
+
+/* same as modal content table container */
+.modal-content-loading-container {
+  background-color: none;
+  margin-top: 10px;
+  flex-grow: 1;
+  width: 100%;
+  height: 80%;
+  border: 1px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.access-table_loader_wrapper {
+  width: 100%;
+  position: relative;
+  height: calc(100% - 8.6rem);
+}
+
+.save_reload_table_wrapper {
+  width: 100%;
+  height: 100%;
+  margin-top: 0.5rem;
+}
+
+/* Container */
+.workspace-container,
+.user-container,
+.subworkspace-container,
+.admin-container,
+.access-container,
+.groupName-container,
+.group-container {
+  border: 1px solid transparent;
+  background-color: white;
+  padding-bottom: 2rem;
+  padding-top: 30px;
+  padding: 0px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensures the container takes up full viewport height */
+  width: 100%;
+}
+
+/* Action Buttons */
+.user-actionButtons,
+.workspace-action-buttons,
+.adminActionButtons,
+.groupName-actionButtons,
+.group-actionButtons,
+.subworkspace-action-buttons,
+.access-action-buttons {
+  background-color: 1px solid transparent;
+  margin-left: 15px;
+}
+.user-button,
+.user-button1,
+.create-workspace,
+.admin-addButton,
+.groupName-button-group,
+.group-button-user,
+.access-button {
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #2bb9bb;
+  color: #2bb9bb;
+  border-radius: 4px;
+  /* padding: 8px; */
+  cursor: pointer;
+  text-decoration: none;
+  text-wrap: nowrap;
+  height: 28px;
+  width: 130px;
+  padding: 9px 10px;
+}
+
+.create-workspace {
+  padding: 8px 15px;
+  height: 28px;
+  width: 100px;
+}
+
+.create-workspace img {
+  margin-right: 7px;
+}
+
+/* Button Add Search Container */
+.workspace-button-add-search-container,
+.subworkspace-button-add-search-container,
+.user-button-add-search-container,
+.adminButtonAddSearchContainer,
+.groupName-button-add-search-container,
+.group-button-add-search-container {
+  display: flex;
+  position: relative; /* Ensures the dropdown menu positions correctly */
+  margin-top: 30px;
+  justify-content: space-between;
+  height: 30px;
+  border: 1px solid transparent;
+}
+
+/* Select Action Container */
+.workspaceSelectActionContainer,
+.user-select-action-container,
+.adminSelectActionContainer,
+.user-select-action-container,
+.subWorkspaceSelectActionContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid transparent;
+  width: 100%;
+}
+.workspaceActionsContainer,
+.user-actions-container,
+.adminActionsContainer,
+.subWorkspaceActionsContainer {
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  height: 30px;
+}
+.workspaceActionsCountContainer,
+.adminUserActionsCountContainer,
+.user-actions-count-container,
+.subWorkspaceActionsCountContainer {
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 30px;
+}
+
+.workspaceActionsContainer p,
+.user-actions-container p,
+.adminActionsContainer p,
+.subWorkspaceActionsContainer p {
+  font-size: 12px;
+  border: 1px solid rgb(201, 201, 201);
+  color: #484848;
+  width: 80px;
+  height: 28px;
+  border-radius: 4px;
+  padding-top: 5px;
+  font-weight: 400;
+  box-sizing: border-box;
+  margin: 0;
+  margin-left: 58px;
+}
+
+.workspaceActionsContainer p:hover,
+.user-actions-container p:hover,
+.adminActionsContainer p:hover,
+.subWorkspaceActionsContainer p:hover {
+  background-color: #dadada;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.workspaceActionsContainer span,
+.user-actions-container span,
+.adminActionsContainer span,
+.subWorkspaceActionsContainer span {
+  border-left: 1px solid #484848;
+  margin-left: 10px;
+  font-size: 12px;
+  width: 80px;
+  height: 18px;
+  padding-top: 1px;
+}
+
+/* search bar*/
+.workspaceSearchContainer,
+.user-searchContainer,
+.adminSearchContainer,
+.groupName-searchContainer,
+.group-searchContainer,
+.subWorkspaceSearchContainer {
+  border: 1px solid transparent;
+  margin-right: 13px;
+}
+
+.workspaceSearchInput,
+.user-searchInput,
+.adminSearchInput,
+.groupName-searchInput,
+.group-searchInput,
+.subWorkspaceSearchInput {
+  padding: 10px 8px;
+  /* margin-left: -150px; */
+  border: 1.5px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #ffffff;
+  height: 28px;
+  text-align: left;
+  color: #484848;
+  position: relative;
+  box-sizing: border-box;
+}
+.groupName-searchInput {
+  margin-top: -0.5px;
+}
+
+.workspaceSearchIcon,
+.user-searchIcon,
+.adminSearchIcon,
+.groupName-searchIcon,
+.group-searchIcon,
+.subWorkspaceSearchIcon {
+  position: absolute;
+  margin-left: -30px;
+  margin-top: 4px;
+  width: 19px;
+  height: 19px;
+}
+
+.groupName-searchIcon {
+  margin-top: 3.5px;
+}
+
+.workspaceSearchInput:focus,
+.user-searchInput:focus,
+.groupName-searchInput:focus,
+.group-searchInput:focus,
+.subWorkspaceSearchInput:focus {
+  border: 1.5px solid #2bb9bb;
+  outline: none;
+}
+.adminSearchInput:focus {
+  border: 1.5px solid #ac9bf8;
+  outline: none;
+}
+
+/* Table */
+.user-tableContainer,
+.workspace-tableContainer,
+.adminTableContainer,
+.groupName-tableContainer,
+.group-tableContainer,
+.subworkspce-table-container {
+  flex-grow: 1;
+  width: 100%;
+  margin-bottom: 115px;
+  margin-top: 25px;
+  border: 1px solid transparent;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  position: relative;
+  overflow-y: hidden;
+  height: 70vh;
+}
+
+.workspace-table,
+.user-userTable,
+.groupName-groupsTable,
+.admin-table,
+.group-userTable,
+.subWorkspace-table {
+  width: 100%;
+  margin-left: 15px;
+  margin-right: 13px;
+  height: 100%;
+  border-collapse: collapse;
+  position: relative;
+  position: sticky;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.workspace-table thead,
+.user-userTable thead,
+.admin-table thead,
+.groupName-groupsTable thead,
+.group-userTable thead,
+.subWorkspace-table thead,
+.resourcesTable thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: white;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+}
+
+.workspace-table th,
+.user-userTable th,
+.admin-table th,
+.groupName-groupsTable th,
+.group-userTable th,
+.subWorkspace-table th {
+  color: #2bb9bb;
+  height: 45px;
+  border: 1px solid white;
+  font-size: 0.75rem;
+  text-align: center;
+  vertical-align: middle;
+  text-align: left;
+  overflow: hidden;
+  vertical-align: middle;
+  position: sticky;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+/* Default for non-Firefox browsers */
+.workspace-table tbody,
+.user-userTable tbody,
+.admin-table tbody,
+.groupName-groupsTable tbody,
+.group-userTable tbody,
+.subWorkspace-table tbody {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border: 1px solid transparent;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* Firefox-specific styles */
+@-moz-document url-prefix() {
+  .workspace-table tbody,
+  .user-userTable tbody,
+  .admin-table tbody,
+  .groupName-groupsTable tbody,
+  .group-userTable tbody,
+  .subWorkspace-table tbody {
+    display: table-row-group;
+  }
+  .user-tableContainer,
+  .workspace-tableContainer,
+  .adminTableContainer,
+  .groupName-tableContainer,
+  .group-tableContainer,
+  .subworkspce-table-container {
+    overflow-y: auto;
+  }
+  .workspace-table,
+  .user-userTable,
+  .groupName-groupsTable,
+  .admin-table,
+  .group-userTable,
+  .subWorkspace-table {
+    margin-right: 15px;
+  }
+}
+
+.workspace-table tr,
+.user-userTable tr,
+.admin-table tr,
+.groupName-groupsTable tr,
+.group-userTable tr,
+.subWorkspace-table tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  box-sizing: border-box;
+}
+
+.workspace-table tbody tr td,
+.user-userTable td,
+.admin-table td,
+.groupName-groupsTable td,
+.group-userTable td,
+.subWorkspace-table td {
+  vertical-align: middle;
+  color: #484848;
+  border-radius: none;
+  border: 1px solid transparent;
+  font-size: 0.75rem;
+  height: 40px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.workspace-table tbody tr:not(.selectedRow):hover,
+.user-userTable tbody tr:not(.selectedRow):hover,
+.admin-table tbody tr:not(.selectedRow):hover,
+.groupName-groupsTable tr:not(.selectedRow):hover,
+.group-userTable tbody tr:not(.selectedRow):hover,
+.subWorkspace-table tbody tr:not(.selectedRow):hover {
+  background-color: #f9f9f9;
+}
+
+.selectedRow,
+.user-userTable tr.selectedRow,
+.workspace-table tr.selectedRow,
+.user-userTable tr.selectedRow,
+.groupName-groupsTable tr.selectedRow,
+.group-userTable tr.selectedRow,
+.subWorkspace-table tr.selectedRow {
+  background-color: #ecffff;
+}
+
+/* Folder Ribbon */
+.heading,
+.sub-heading {
+  display: flex;
+  border: 1px solid transparent;
+  height: 50px;
+  margin-left: 15px;
+  padding-top: 5px;
+}
+
+.heading h3,
+.sub-heading h3 {
+  color: #484848;
+  /* margin-top: 7px; */
+  margin-bottom: 0;
+  margin-left: 15px;
+  border: 1px solid transparent;
+}
+
+/* Sorting Icon */
+.icon-wrapper {
+  position: absolute;
+  top: 31%;
+  padding-left: 10px;
+  border: 1px solid transparent;
+}
+
+.user-headerIcon,
+.headerIcon,
+.headerIcon-up,
+.headerIcon-down {
+  width: 17px;
+  height: 17px;
+  transform: translateY(-1px);
+  border: 1px solid transparent;
+}
+
+.headerIcon-up,
+.headerIcon-down {
+  width: 14px;
+  height: 11px;
+  margin-left: 0px;
+  transform: none;
+}
+
+.icon-wrapper-modal {
+  position: absolute;
+  padding-left: 10px;
+  border: 1px solid transparent;
+}
+
+.user-headerIcon-modal,
+.headerIcon-modal,
+.headerIcon-up-modal,
+.headerIcon-down-modal {
+  width: 15px;
+  height: 15px;
+  border: 1px solid transparent;
+}
+
+.headerIcon-up-modal,
+.headerIcon-down-modal {
+  width: 11px;
+  height: 10px;
+  margin-left: 0px;
+  transform: none;
+}
+
+/* Scroll bar */
+::-webkit-scrollbar {
+  width: 7px;
+  background-color: #f1f1f1;
+}
+
+/* Track (background) */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #b2b2b2;
+  border-radius: 0px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #858585;
+}
+
+/* Scoped styles for input[type="checkbox"] within specific containers */
+.workspace-table input[type="checkbox"],
+.user-userTable input[type="checkbox"],
+.subWorkspace-table input[type="checkbox"],
+.adminTableContainer input[type="checkbox"],
+.groupName-groupsTable input[type="checkbox"],
+.group-userList input[type="checkbox"],
+.group-userTable input[type="checkbox"] {
+  appearance: none;
+  /* -webkit-appearance: none; */
+  background-color: white;
+  border: 1px solid #484848;
+  cursor: pointer;
+  border-radius: 4px;
+  position: relative;
+}
+
+.workspace-table input[type="checkbox"]:checked,
+.user-userTable input[type="checkbox"]:checked,
+.subWorkspace-table input[type="checkbox"]:checked,
+.adminTableContainer input[type="checkbox"]:checked,
+.groupName-groupsTable input[type="checkbox"]:checked,
+.group-userList input[type="checkbox"]:checked,
+.group-userTable input[type="checkbox"]:checked {
+  background-color: #2bb9bb;
+  border: 2px solid #2bb9bb;
+}
+
+.workspace-table input[type="checkbox"]:checked::after,
+.user-userTable input[type="checkbox"]:checked::after,
+.subWorkspace-table input[type="checkbox"]:checked::after,
+.adminTableContainer input[type="checkbox"]:checked::after,
+.groupName-groupsTable input[type="checkbox"]:checked::after,
+.group-userList input[type="checkbox"]:checked::after,
+.group-userTable input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0.3px;
+  width: 3px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* modal content input */
+.group-userList input[type="checkbox"]:checked::after {
+  left: 5px;
+  top: 1.3px;
+}
+.group-userList th:nth-child(1) input[type="checkbox"]:checked {
+  background-color: #ffffff;
+  border: 2px solid gray;
+}
+.group-userList th:nth-child(1) input[type="checkbox"]:checked::after {
+  display: none;
+}
+
+/* Modal Content */
+.adminListModal,
+.group-modal,
+.accessListModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  overflow: hidden;
+}
+
+.adminListModalContent,
+.group-modal-content,
+.accessListModalContent {
+  background-color: white;
+  border-radius: 10px;
+  height: 90vh;
+  width: 650px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  /* overflow-y: auto; */
+  position: relative;
+  font-size: 0.75rem;
+}
+
+/* Modal Content Header*/
+.adminListHeaderSection,
+.group-header-section,
+.accessListHeaderSection {
+  border: 1px solid transparent;
+}
+
+.adminListHeaderClose,
+.group-modal-content-close,
+.accessListHeaderClose {
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 8px;
+  margin-top: 8px;
+}
+
+/* Modal Content Title */
+.adminListModalTitle,
+.group-modal-title,
+.admin-modal-title,
+.access-modal-title {
+  border: 1px solid transparent;
+  display: flex;
+  justify-content: center;
+  margin-top: 3px;
+  color: #484848;
+}
+
+/* Modal Content Searchbar */
+.adminListSearchContainer,
+.group-modal-search-container,
+.accessListSearchContainer {
+  border: 1px solid transparent;
+  display: flex;
+  justify-content: flex-end;
+  height: 28px;
+}
+
+.adminListSearchInput,
+.group-modal-searchInput,
+.accessListSearchInput {
+  padding: 10px 8px;
+  /* margin-left: -150px; */
+  border: 1.3px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  background-color: #ffffff;
+  text-align: left;
+  color: #484848;
+  position: relative;
+  box-sizing: border-box;
+  height: 28px;
+  margin-right: 15px;
+  position: relative;
+  margin-top: -1px;
+}
+
+.adminListSearchIcon,
+.group-modal-searchIcon,
+.accessListSearchIcon {
+  position: absolute;
+  transform: translate(-25px, 3.5px);
+  width: 18px;
+  height: 18px;
+}
+.adminListSearchInput:focus,
+.group-modal-searchInput:focus,
+.accessListSearchInput:focus {
+  border: 1.3px solid #2bb9bb;
+  outline: none;
+}
+
+/* Modal Content Table */
+.adminListTableContainer,
+.group-table-container,
+.accessListTableContainer {
+  background-color: none;
+  margin-top: 10px;
+  /* flex-grow: 1; */
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
+  /* height: 80%; */
+  border: 1px solid transparent;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.adminListUserList,
+.adminListGroupList,
+.accessListUserList,
+.accessListGroupList,
+.admin-list-group-list,
+.adminListUserListTransfer,
+.group-userList {
+  width: 100%;
+  margin-left: 15px;
+  margin-right: 13px;
+  /* max-height: 50vh; */
+  border-collapse: collapse;
+  position: relative;
+  position: sticky;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+}
+
+.adminListUserList thead,
+.adminListGroupList thead,
+.accessListUserList thead,
+.accessListGroupList thead,
+.admin-list-group-list thead,
+.adminListUserListTransfer thead,
+.group-userList thead {
+  width: 100%;
+  height: 30px;
+  border-collapse: unset;
+  box-sizing: border-box;
+  top: -1px;
+  position: sticky;
+  z-index: 1;
+}
+
+.adminListUserList thead th,
+.adminListGroupList thead th,
+.accessListUserList thead th,
+.accessListGroupList thead th,
+.admin-list-group-list thead th,
+.adminListUserListTransfer thead th,
+.group-userList thead th {
+  top: 0;
+  table-layout: fixed;
+  color: #af98db;
+  position: sticky;
+  height: 30px;
+  border: 1px solid white;
+  font-size: 0.75rem;
+  text-align: center;
+  vertical-align: center;
+  z-index: 1;
+  overflow: hidden;
+  text-align: left;
+  vertical-align: middle;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+.group-userList thead th {
+  color: #2bb9bb;
+}
+
+.adminListUserList tbody,
+.adminListGroupList tbody,
+.accessListUserList tbody,
+.accessListGroupList tbody,
+.admin-list-group-list tbody,
+.adminListUserListTransfer tbody,
+.group-userList tbody {
+  display: block;
+  /* height: 59vh; */
+  width: 100%;
+  border: 1px solid transparent;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.adminListUserList tr,
+.adminListGroupList tr,
+.accessListUserList tr,
+.accessListGroupList tr,
+.admin-list-group-list tr,
+.adminListUserListTransfer tr,
+.group-userList tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  box-sizing: border-box;
+}
+.adminListUserList td,
+.adminListGroupList td,
+.accessListUserList td,
+.accessListGroupList td,
+.admin-list-group-list td,
+.adminListUserListTransfer td,
+.group-userList td {
+  height: 30px;
+  vertical-align: middle;
+  text-align: center;
+  box-sizing: border-box;
+  vertical-align: middle;
+  color: #484848;
+  font-size: 0.75rem;
+  border-radius: none;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.adminListUserList tbody tr:hover,
+.adminListGroupList tbody tr:hover,
+.accessListUserList tbody tr:hover,
+.accessListGroupList tbody tr:hover,
+.admin-list-group-list tbody tr:hover,
+.adminListUserListTransfer tbody tr:hover,
+.group-userList tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/*Modal Content Delete */
+.adminList-modal-content-delete,
+.group-modal-content-delete {
+  background-color: white;
+  border-radius: 5px;
+  height: 25vh;
+  width: 300px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid transparent;
+  display: flex;
+  justify-content: center;
+  margin-top: 25px;
+}
+.adminList-close,
+.group-close {
+  position: absolute;
+  top: 10px;
+  right: 13px;
+  cursor: pointer;
+  font-size: medium;
+}
+.adminList-close:hover,
+.adminList-close:focus,
+.group-close:hover,
+.group-close:focus {
+  color: rgb(192, 32, 32);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Modal Content Button */
+.admin-remove-modal,
+.group-remove-modal,
+.user-remove-modal,
+.groupName-remove-modal,
+.workspace-remove-modal,
+.access-remove-modal {
+  border: 1px solid transparent;
+  height: 150px;
+  width: 400px;
+  border-radius: 6px;
+  padding: 10px;
+  padding-top: 25px;
+  padding-bottom: 20px;
+}
+.admin-transfer-modal {
+  border: 1px solid transparent;
+  height: 180px;
+  width: 400px;
+  border-radius: 6px;
+  padding: 10px;
+}
+.admin-transfer-modalContent-p p{
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.admin-transfer-modalContent-p h3{
+  margin-top: 10px;
+  margin-bottom: 8px;
+}
+.admin-remove-modalContent-close,
+.group-remove-modalContent-close,
+.user-remove-modalContent-close,
+.groupName-remove-modalContent-close,
+.workspace-remove-modalContent-close,
+.access-remove-modalContent-close {
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 5px;
+  margin-right: 5px;
+  display: none;
+}
+
+.admin-remove-modalContent-p,
+.admin-transfer-modalContent-p,
+.group-remove-modalContent-p,
+.user-remove-modalContent-p,
+.groupName-remove-modalContent-p,
+.workspace-remove-modalContent-p,
+.access-remove-modalContent-p {
+  border: 1px solid transparent;
+  color: #484848;
+  font-size: 0.75rem;
+  vertical-align: middle;
+  text-align: center;
+  margin-top: -5px;
+  margin-bottom: 15px;
+}
+
+.admin-remove-modalContent-Buttons,
+.admin-transfer-modalContent-Buttons,
+.group-remove-modal-buttons,
+.groupName-modal-buttons,
+.user-remove-modalContent-Buttons,
+.workspace-modal-buttons,
+.workspace-remove-modalContent-Buttons,
+.access-remove-modalContent-Buttons {
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.admin-remove-modalCancel,
+.admin-remove-modalConfirm,
+.group-modal-content button,
+.admin-transfer-modalCancel,
+.admin-transfer-modalConfirm,
+.admin-transfer-content button,
+.group-modal-cancel,
+.group-modal-confirm,
+.user-remove-modalConfirm,
+.user-remove-modalCancel,
+.groupName-modal-cancel,
+.groupName-modal-confirm,
+.workspace-modal-cancel,
+.workspace-modal-confirm,
+.workspace-remove-modalCancel,
+.workspace-remove-modalConfirm,
+.access-remove-modalCancel,
+.access-remove-modalConfirm,
+.workspace-modal-cancel,
+.workspace-modal-confirm {
+  background-color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/*.admin-transfer-modalCancel,
+.admin-transfer-modalConfirm {
+  margin-top: 10px;
+} */
+
+/* Modal content Confirm Transfer 
+.modalTransferConfirm {
+  color: #af98db;
+  border: 1px solid #af98db;
+  background-color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.modalTransferConfirm:hover {
+  background-color: #af98db;
+  color: white;
+} */
+
+/* Modal Content remove and transfer Cancel */
+.group-modal-cancel,
+.group-modal-confirm {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.admin-remove-modalCancel,
+.admin-transfer-modalCancel,
+.group-modal-cancel,
+.user-remove-modalCancel,
+.groupName-modal-cancel,
+.workspace-remove-modalCancel,
+.access-remove-modalCancel,
+.workspace-modal-cancel {
+  border: 1px solid #808080;
+  background-color: #808080;
+  color: white;
+}
+
+.admin-remove-modalCancel:hover,
+.admin-transfer-modalCancel:hover,
+.group-modal-cancel:hover,
+.user-remove-modalCancel:hover,
+.groupName-modal-cancel:hover,
+.workspace-remove-modalCancel:hover,
+.access-remove-modalCancel:hover,
+.workspace-modal-cancel:hover {
+  background-color: #484848;
+  color: white;
+  border: 1px solid #484848;
+}
+
+/* Modal Content remove and (transfer 2nd time Confirm) */
+.admin-remove-modalConfirm,
+.admin-transfer-modalConfirm,
+.group-modal-confirm,
+.groupName-modal-confirm,
+.user-remove-modalConfirm,
+.workspace-remove-modalConfirm,
+.access-remove-modalConfirm,
+.workspace-modal-confirm {
+  border: 1px solid #f44336;
+  background-color: #f44336;
+  color: white;
+}
+
+.admin-remove-modalConfirm:hover,
+.admin-transfer-modalConfirm:hover,
+.group-modal-confirm:hover,
+.groupName-modal-confirm:hover,
+.user-remove-modalConfirm:hover,
+.workspace-remove-modalConfirm:hover,
+.access-remove-modalConfirm:hover,
+.workspace-modal-confirm:hover {
+  background-color: #d7372b;
+  color: white;
+}
+
+.adminListHeaderSection p {
+  border: 1px solid transparent;
+  padding-left: 15px;
+  color: #484848;
+  margin-bottom: 10px;
+  margin-top: 20px;
+}
+
+/* Modal Content Footer Section */
+.adminListFooterSection,
+.group-footer-section,
+.accessListFooterSection {
+  display: flex;
+  justify-content: flex-end;
+  border: 1px solid transparent;
+  bottom: 2px;
+  margin-top: 5px;
+  margin-right: 70px;
+  transition: all 0.3s;
+}
+
+.modal-add-users-btn {
+  padding: 10px 20px;
+  color: #2bb9bb;
+  border: 1px solid #2bb9bb;
+  border-radius: 5px;
+  cursor: pointer;
+  position: sticky;
+  white-space: nowrap;
+}
+
+.modal-add-users-btn:hover {
+  background-color: #2bb9bb;
+  color: white;
+}
+
+/* Modal Content Add Admin Table Buttons */
+.adminListModalFooterButton2,
+.accessListModalFooterButton2 {
+  background-color: white;
+  color: #af98db;
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  margin: 0;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #af98db;
+  box-sizing: border-box;
+}
+
+.adminListModalFooterButton2:hover,
+.accessListModalFooterButton2:hover {
+  background-color: #af98db; /* Slightly darker teal on hover */
+  color: white;
+}
+
+.adminListModalFooterButton1 {
+  background-color: #f44336;
+  color: white;
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  margin: 0;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #f44336;
+  box-sizing: border-box;
+}
+
+.adminListModalFooterButton1:hover {
+  background-color: #d7372b; /* Darker red on hover */
+  color: white;
+}
+
+/* Loading Error */
+.loading-error-info /*div*/ {
+  color: #484848;
+  font-size: 14px;
+  flex-grow: 1;
+  width: 100%;
+  margin-bottom: 115px;
+  margin-top: 25px;
+  border: 1px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  position: relative;
+  overflow-y: hidden;
+  height: 70vh;
+}
+.loading-default-text /*p*/ {
+  border: 1px solid transparent;
+}
+.modal-content-loading-error-info {
+  background-color: none;
+  margin-top: 10px;
+  flex-grow: 1;
+  width: 100%;
+  height: 80%;
+  border: 1px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+/* same as table container */
+.no-user-info /*div*/ {
+  color: #484848;
+  font-size: 14px;
+  flex-grow: 1;
+  width: 100%;
+  margin-bottom: 115px;
+  margin-top: 25px;
+  border: 1px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  height: 70vh;
+}
+/* same as table tbody */
+.no-user-info-insideTable {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  border: 1px solid transparent;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+/* Same as Modal content table tbody */
+.modal-content-no-user-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 59vh;
+  width: 100%;
+  border: 1px solid transparent;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+.loading-default-text /*p*/ {
+  border: 1px solid transparent;
+}
+
+.link {
+  display: inline-block;
+  font-weight: 500;
+  border: 1px solid transparent;
+  width: 80px;
+  white-space: nowrap;
+  text-align: left;
+  text-decoration: underline;
+}
+
+/* Actions icons */
+.user-img-icon,
+.group-img-icon,
+.admin-img-icon,
+.workspace-img-icon,
+.subworkspace-img-icon {
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-img-icon img,
+.group-img-icon img,
+.admin-img-icon img,
+.workspace-img-icon img,
+.subworkspace-img-icon img {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.placeholder {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  margin-left: 5px;
+  margin-right: 15px;
+  width: 15px;
+  height: 15px;
+  pointer-events: none;
+  border: 1px solid transparent;
+}

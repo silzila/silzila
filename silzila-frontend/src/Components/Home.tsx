@@ -14,6 +14,8 @@ import DataViewer from "./DataViewer/DataViewer";
 import EditFlatFileData from "./DataConnection/EditFlatFileData";
 import FlatFileUpload from "./DataConnection/FlatFileUpload";
 import NewDataConnection from "./DataConnection/NewDataConnection";
+import Workspace from "../pages/Workspace";
+import UserProf from "../pages/UserProf";
 
 const Home = (props: LoggedDetailsType) => {
   return (
@@ -29,6 +31,8 @@ const Home = (props: LoggedDetailsType) => {
             <Route path="/flatfileupload" element={<FlatFileUpload />} />
             <Route path="/editflatfile" element={<EditFlatFileData />} />
             <Route path="/newdataconnection" element={<NewDataConnection />} />
+            <Route path="/workspace" element={<Workspace />} />
+            <Route path= "/update-profile" element= {<UserProf /> } />
           </>
         ) : (
           // Redirect to login if user is not logged in

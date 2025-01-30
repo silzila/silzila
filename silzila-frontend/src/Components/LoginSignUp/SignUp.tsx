@@ -54,7 +54,8 @@ const SignUp = () => {
         method: "POST",
         url: "auth/signup",
         data: {
-					name: `${firstName} ${lastName}`,
+					firstName, 
+					lastName,
 					username: email,
 					password,
 					device: "web",
@@ -64,7 +65,7 @@ const SignUp = () => {
 
       if (response.status) {
         console.log("Registration successful:", response.data);
-        showAlert("Registration successful! Please check your email for verification.", "success"); 
+        showAlert("Registration successful!", "success"); 
 				setError(null);
         //navigate("/login");
       }
@@ -75,7 +76,7 @@ const SignUp = () => {
           error.response.data ===
             "Email is already taken!"
         ) {
-          showAlert(error.response.data, "success");
+          showAlert(error.response.data, "error");
           setError("");
         } else {
           showAlert(
@@ -200,8 +201,8 @@ const SignUp = () => {
 							</Link>
 						</div>
 					</div>
-					<div className="community-register-data-security">
-							<p>We take data security very seriously. All your data is encrypted at-rest and in-motion.</p>
+						<div className="community-register-data-security">
+							<p>All data is stored locally, and passwords cannot be recovered if lost.</p>
 						</div>
 				</form>
 			</div>

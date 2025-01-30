@@ -1,0 +1,311 @@
+.workspaceContainer {
+  border: 1px solid transparent;
+  background-color: white;
+  padding-bottom: 2rem;
+  padding-top: 30px;
+  padding: 0px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensures the container takes up full viewport height */
+  width: 100%;
+}
+.icon {
+  border-radius: 0%;
+}
+.nameHyperlink:hover {
+  text-decoration: underline;
+  color: #2bb9bb;
+  cursor: pointer;
+}
+
+/* New Button */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdownContent {
+  display: none;
+  position: absolute;
+  color: #484848;
+  background-color: white;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  min-width: 170px;
+}
+
+.dropdownContent button {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdownContent button:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdownContent {
+  display: block;
+}
+.dropdownIcon {
+  margin-right: 10px;
+  /* transform: translateY(-2px); */
+}
+
+.workspaceActionsContainer p {
+  margin-left: 20px;
+}
+
+.workspaceTable th:nth-child(1),
+.workspaceTable td:nth-child(1) {
+  width: 5%;
+  box-sizing: border-box;
+  display: none;
+}
+
+.workspaceTable td:nth-child(1) {
+  padding-top: 5px;
+  text-align: center;
+}
+
+.workspaceTable th:nth-child(2),
+.workspaceTable td:nth-child(2) {
+  width: 5%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.workspaceTable td:nth-child(2) {
+  padding-top: 6px;
+}
+
+.workspaceTable th:nth-child(3),
+.workspaceTable td:nth-child(3) {
+  width: 30%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.workspaceTable th:nth-child(2):hover,
+.workspaceTable th:nth-child(3):hover,
+.workspaceTable th:nth-child(4):hover,
+.workspaceTable th:nth-child(5):hover {
+  background-color: #eeeeee;
+}
+
+.workspaceTable th:nth-child(4),
+.workspaceTable td:nth-child(4) {
+  width: 30%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.workspaceTable th:nth-child(5),
+.workspaceTable td:nth-child(5) {
+  width: 15%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.workspaceTable th:nth-child(6),
+.workspaceTable td:nth-child(6) {
+  width: 15%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.workspaceTable th:nth-child(6) {
+  padding-right: 22px;
+}
+
+.workspaceTable td:nth-child(6) {
+  width: 14.4%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Confirmation messages */
+.workspaceModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* .workspaceModalContent {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  width: 350px;
+  height: 165px;
+} */
+
+.workspaceModalContent {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  width: 350px;
+  min-height: 165px;
+  max-height: 400px;
+  overflow-y: auto;
+  transition: height 0.3s ease;
+}
+
+.workspaceCloseContainer {
+  border: 1px solid transparent;
+  text-align: end;
+  transform: translate(8px, -8px);
+}
+
+.workspaceClose {
+  cursor: pointer;
+}
+
+.workspaceModalContent p {
+  border: 1px solid transparent;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.workspaceModalContent h3 {
+  margin-top: 5px;
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.748);
+  justify-content: center;
+  text-align: center;
+  border: 1px solid transparent;
+}
+
+.workspaceModalButtons {
+  border: 1px solid transparent;
+  display: flex;
+  flex-wrap: wrap;
+  /* justify-content: space-between; */
+  /* gap: 10px; */
+  justify-content: space-around;
+}
+
+.workspaceModalContent button {
+  /* margin-right: 50px;
+  margin-left: 40px; */
+  padding: 8px 16px;
+  /* flex: 1; */
+}
+.workspaceModalContent .workspaceModalCancel {
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background-color: gray;
+  color: white;
+  cursor: pointer;
+}
+.workspaceModalContent .workspaceModalCancel:hover {
+  background-color: rgb(104, 104, 104);
+}
+.workspaceModalContent .workspaceModalConfirm {
+  background-color: #f44336;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: white;
+}
+.workspaceModalContent .workspaceModalConfirm:hover {
+  background-color: #d32f2f;
+  color: white;
+}
+.workspaceModalContent .workspaceSaveButton {
+  border-radius: 4px;
+  border: 1px solid #26acaf;
+  background-color: #2bb9bb;
+  /* border: 1px solid #388E3C;
+  background-color: #4CAF50; */
+  /* border: 1px solid #D32F2F;
+  background-color: #F44336; */
+  color: white;
+  cursor: pointer;
+  margin-left: 35px;
+}
+
+.workspaceModalContentInput {
+  border: 1px solid transparent;
+  height: 40px;
+  margin-top: 5px;
+  margin-bottom: 18px;
+}
+.workspaceModalContent input {
+  width: 280px;
+  padding: 10px;
+  color: #616164;
+  border: 1px solid #6ec25a;
+  border-radius: 3px;
+}
+.workspaceModalContent input:focus {
+  border: 1px solid #6ec25a;
+  outline: none;
+}
+
+/* .errorMessage {
+  color: #d32f2f;
+  width: 280px;
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: left;
+} */
+
+.errorMessage {
+  display: flex;
+  justify-self: center;
+  justify-content: center;
+  align-items: center;
+  color: #d32f2f;
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  padding: 8px 8px;
+  border-radius: 3px;
+  font-size: 9.5px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  width: 280px;
+}
+
+.icons {
+  width: 20px;
+  border-left: 1px solid #2bb9bb;
+  border-right: 1px solid #2bb9bb;
+}
+
+.headerIcon {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+}
+
+.TooltipContainer {
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  transform: translate(-20px);
+}
+.Tooltip {
+  display: flex;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+}
