@@ -63,7 +63,7 @@
 * Rick Text slides
 
 ## How to Install
-Please refer to [Silzila Installation Guide](https://github.com/silzila/silzila/blob/main/docs/Installation%20Guide.md)
+Please refer to [Silzila Installation Guide](https://github.com/silzila/silzila/blob/main/docs/INSTALL.md)
 
 ### for Dashboard Developers
 Coming soon... for a single executable Java .jar file
