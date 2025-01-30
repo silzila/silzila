@@ -14,7 +14,7 @@
 
 ## 1. Connect to your Database
 <p align="center">
-<img src="https://user-images.githubusercontent.com/61963881/216837069-a5affb2a-b0f0-480b-a7a8-f3929c7f5a4c.png" alt="DB Connection" width="300">
+<img src="https://github.com/silzila/silzila/blob/main/images/DB%20Connection.png?raw=true" alt="DB Connection" width="300">
 </p>
 
 ## 2. Define your Dataset
