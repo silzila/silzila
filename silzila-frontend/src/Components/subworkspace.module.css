@@ -1,0 +1,466 @@
+.subworkspaceContainer {
+  border: 1px solid transparent;
+  background-color: white;
+  padding-bottom: 2rem;
+  padding-top: 30px;
+  padding: 0px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensures the container takes up full viewport height */
+  width: 100%;
+}
+
+.subLoadingContainer {
+  flex-grow: 1;
+  width: 100%;
+  margin-bottom: 115px;
+  margin-top: 25px;
+  border: 1px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  position: relative;
+  overflow-y: auto;
+  height: 70vh;
+}
+
+.homeIcon {
+  position: relative;
+  top: 3px;
+  margin-right: 8px;
+}
+.headerNameContainer {
+  padding-top: 7px;
+}
+.WorkspaceName {
+  /* display: inline-block; */
+  /* align-items: center; */
+  background-color: #fff;
+  border: none;
+  color: #616164;
+  text-wrap: nowrap;
+  font-size: 14px;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdownContent {
+  display: none;
+  position: absolute;
+  color: #616164;
+  background-color: white;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  min-width: 170px;
+}
+
+.dropdownContent button {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdownContent button:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdownContent {
+  display: block;
+}
+
+.nameHyperlink:hover {
+  text-decoration: underline;
+  color: #2bb9bb;
+  cursor: pointer;
+}
+
+/* Search Filter */
+.SearchFilterContainer {
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  height: 30px;
+  padding-top: 1px;
+}
+.filterDropdownContainer {
+  margin-right: 20px;
+  position: relative;
+  display: inline-block;
+  border: 1.3px solid rgb(201, 201, 201);
+  border-radius: 4px;
+  height: 28px;
+  padding-top: 2.5px;
+  cursor: pointer;
+  vertical-align: middle;
+  /* background-color: red; */
+}
+
+.filterDropdown {
+  display: block;
+  position: absolute;
+  background-color: white;
+  width: 180px;
+  z-index: 1;
+  position: absolute;
+  color: #616164;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  /* transform: translate(-10px, 10px); */
+}
+/* .filterDropdownContainer:hover .filterDropdown {
+  display: block;
+} */
+.disabledOption {
+  color: #ccc;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.filterDropdownContent {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.filterDropdownContent li {
+  height: 35px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  padding: 0 12px;
+  border: 1px solid transparent;
+}
+
+.filterDropdownContent li:hover {
+  background-color: #f1f1f1;
+}
+
+.filterDropdownContent img,
+.filterDropdownContent span {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  /* transform: translateY(3px); */
+  border: 1px solid transparent;
+}
+
+.filterTooltipImgContainer {
+  border: 1px solid transparent;
+  width: 60px;
+}
+
+/* .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); */
+/* Semi-transparent background */
+/* display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  } */
+
+/* .modalContent {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  } */
+
+/* .workspaceInput {
+    width: 80%;
+    padding: 8px;
+    margin-bottom: 10px;
+  } */
+
+/* button {
+    margin-right: 10px;
+  } */
+
+.subWorkspaceCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  margin-bottom: 20px;
+}
+
+.subWorkspaceItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+  width: 100px;
+}
+
+.workspaceIcon {
+  width: 50px;
+  height: 50px;
+}
+
+.workspaceName {
+  text-align: center;
+  margin-top: 5px;
+  font-size: 16px;
+  color: #616164;
+}
+
+.noWorkspaces {
+  color: #888;
+  text-align: center;
+  margin-top: 200px;
+}
+
+/* Table */
+.subWorkspaceTable th:nth-child(3):hover,
+.subWorkspaceTable th:nth-child(4):hover,
+.subWorkspaceTable th:nth-child(5):hover {
+  background-color: #f9f9f9;
+}
+
+.subWorkspaceTable th:nth-child(1),
+.subWorkspaceTable td:nth-child(1) {
+  width: 5%;
+  box-sizing: border-box;
+  display: none;
+}
+
+.subWorkspaceTable th:nth-child(2),
+.subWorkspaceTable td:nth-child(2) {
+  width: 5%;
+  box-sizing: border-box;
+}
+
+.subWorkspaceTable th:nth-child(3),
+.subWorkspaceTable td:nth-child(3) {
+  width: 30%;
+  box-sizing: border-box;
+}
+
+.subWorkspaceTable td:nth-child(3) {
+  text-align: left;
+}
+
+.subWorkspaceTable th:nth-child(4),
+.subWorkspaceTable td:nth-child(4) {
+  width: 30%;
+  box-sizing: border-box;
+}
+
+.subWorkspaceTable td:nth-child(4) {
+  text-align: left;
+}
+
+.subWorkspaceTable th:nth-child(5),
+.subWorkspaceTable td:nth-child(5) {
+  width: 15%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.subWorkspaceTable th:nth-child(6) {
+  text-align: center;
+}
+
+.subWorkspaceTable th:nth-child(6),
+.subWorkspaceTable td:nth-child(6) {
+  width: 15%;
+  box-sizing: border-box;
+}
+
+.subWorkspaceTable td:nth-child(6) {
+  width: 14.5%;
+}
+
+@media (max-width: 850px) {
+  .subWorkspaceTable th:nth-child(5),
+  .subWorkspaceTable td:nth-child(5) {
+    width: 20%;
+    box-sizing: border-box;
+  }
+
+  .subWorkspaceTable th:nth-child(6),
+  .subWorkspaceTable td:nth-child(6) {
+    width: 10%;
+    box-sizing: border-box;
+  }
+}
+
+/* Sorting Icon */
+.user-headerIcon {
+  position: absolute;
+  right: 10px;
+  bottom: 5;
+  width: 20px;
+  height: 18px;
+}
+
+.subWorkspaceTable tbody tr {
+  background-color: #fff; /* Default background color for all rows */
+}
+
+/*.subWorkspaceTable tbody tr:nth-child(odd) {
+    background-color: #f0f0f0;  Background color for odd rows 
+} 
+
+.subWorkspaceTable tbody tr:hover {
+    background-color: #b9b9b9;  Background color on hover 
+} */
+
+/* Confirmation messages */
+.subworkspaceModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* .subworkspaceModalContent {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  width: 350px;
+  height: 165px;
+} */
+
+.subworkspaceModalContent {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  width: 350px;
+  min-height: 165px;
+  max-height: 400px;
+  overflow-y: auto;
+  transition: height 0.3s ease;
+}
+.subworkspaceCloseContainer {
+  border: 1px solid transparent;
+  text-align: end;
+  transform: translate(8px, -8px);
+}
+
+.subworkspaceClose {
+  cursor: pointer;
+}
+
+.subworkspaceModalContent p {
+  border: 1px solid transparent;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.subworkspaceModalContent h3 {
+  margin-top: 5px;
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.748);
+  justify-content: center;
+  text-align: center;
+  border: 1px solid transparent;
+}
+
+.subworkspaceModalButtons {
+  border: 1px solid transparent;
+  display: flex;
+  justify-content: space-around;
+}
+
+.subworkspaceModalContent button {
+  /* margin-right: 50px;
+  margin-left: 40px; */
+  padding: 8px 16px;
+}
+.subworkspaceModalContent .subworkspaceModalCancel {
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background-color: gray;
+  color: white;
+  cursor: pointer;
+}
+.subworkspaceModalContent .subworkspaceModalCancel:hover {
+  background-color: rgb(104, 104, 104);
+}
+.subworkspaceModalContent .subworkspaceModalConfirm {
+  background-color: #f44336;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: white;
+}
+.subworkspaceModalContent .subworkspaceModalConfirm:hover {
+  background-color: #d32f2f;
+  color: white;
+}
+.subworkspaceModalContent .workspaceSaveButton {
+  border-radius: 4px;
+  border: 1px solid #26acaf;
+  background-color: #2bb9bb;
+  /* border: 1px solid #388E3C;
+  background-color: #4CAF50; */
+  /* border: 1px solid #D32F2F;
+  background-color: #F44336; */
+  color: white;
+  cursor: pointer;
+  margin-left: 35px;
+}
+
+.subworkspaceModalContentInput {
+  border: 1px solid transparent;
+  height: 40px;
+  margin-top: 5px;
+  margin-bottom: 18px;
+}
+.subworkspaceModalContentInput input {
+  width: 280px;
+  padding: 10px;
+  color: #616164;
+  border: 1px solid #b0b0b0;
+  border-radius: 3px;
+}
+.subworkspaceModalContentInput input:focus {
+  border: 1px solid #b69ee1;
+  outline: none;
+}
+
+.errorMessage {
+  display: flex;
+  justify-self: center;
+  justify-content: center;
+  align-items: center;
+  color: #d32f2f;
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  padding: 8px 8px;
+  border-radius: 3px;
+  font-size: 9.5px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  width: 280px;
+}
+
+/* Error */
+/* .error {
+  border: 1px solid transparent;
+} */
