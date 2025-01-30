@@ -19,7 +19,7 @@
 
 ## 2. Upload Flatfile
 <p align="center">
-<img src="https://github.com/silzila/silzila/blob/main/images/DB%20Connection.png?raw=true" alt="DB Connection" width="1000">
+<img src="https://github.com/silzila/silzila/blob/main/images/Flatfile%20Upload.png?raw=true" alt="Flatfile" width="1000">
 </p>
 
 ## 3. Define your Dataset
@@ -34,22 +34,22 @@
 
 ## 5. Present charts in dashboard
 <p align="center">
-<img src="https://user-images.githubusercontent.com/61963881/216837600-2e7ae24c-2d8d-469a-99bd-f33d9986cb2e.png" alt="Playbook" width="1000">
+<img src="https://github.com/silzila/silzila/blob/main/images/Charts-dashboard.png?raw=true" alt="Playbook" width="1000">
 </p>
 
 ## 6. No-Code drag-and-drop formula
 <p align="center">
-<img src="https://user-images.githubusercontent.com/61963881/216837600-2e7ae24c-2d8d-469a-99bd-f33d9986cb2e.png" alt="Playbook" width="1000">
+<img src="https://github.com/silzila/silzila/blob/main/images/nocode.gif?raw=true" alt="Nocode" width="1000">
 </p>
 
 ## 7. window function
 <p align="center">
-<img src="https://user-images.githubusercontent.com/61963881/216837600-2e7ae24c-2d8d-469a-99bd-f33d9986cb2e.png" alt="Playbook" width="1000">
+<img src="https://github.com/silzila/silzila/blob/main/images/windowFunction.gif?raw=true" alt="Window Function" width="1000">
 </p>
 
 ## 8. Override
 <p align="center">
-<img src="https://user-images.githubusercontent.com/61963881/216837600-2e7ae24c-2d8d-469a-99bd-f33d9986cb2e.png" alt="Playbook" width="1000">
+<img src="https://github.com/silzila/silzila/blob/main/images/overRide.gif?raw=true" alt="Over ride" width="1000">
 </p>
 
 ## Features
