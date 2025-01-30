@@ -59,7 +59,7 @@
 * Get SQL of any charts in two clicks
 * Advanced window functions (rank, running total, moving average, etc) in two clicks
 * Reusable DB connections and datasets
-* Download PDF, images of any visual in two clicks.
+* Download PDF, images of any visual in two clicks
 * Rick Text slides
 
 ## How to Install
@@ -81,5 +81,7 @@ The below features are our priority and the tentative timelines are given below:
 - [x] Snowflake connectivity
 - [x] Redshift connectivity
 - [x] Window functions
+- [ ] Installer file
+- [ ] Sync Filter
 - [ ] Formula builder (multi step)
 - [ ] Crosstab Subtotals
