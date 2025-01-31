@@ -44,6 +44,7 @@ body {
   box-sizing: border-box;
   overflow-y: auto;
   height: 70vh;
+  box-shadow: none;
 }
 
 /* same as modal content table container */
@@ -231,6 +232,8 @@ body {
 .subWorkspaceSearchContainer {
   border: 1px solid transparent;
   margin-right: 13px;
+  height: 30px;
+  margin-top: 1px;
 }
 
 .workspaceSearchInput,

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+//import useSWR from "swr";
 import axios from "axios";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import styles from "./workspace.module.css";
@@ -97,38 +98,32 @@ const WorkspaceList = () => {
 
   const fetchWorkspaces = async () => {
     setIsLoading(true);
-    setError(null); // Reset error state before request
-  
     try {
-      const token = localStorage.getItem("accessToken");
-      if (!token) throw new Error("No access token found");
-  
       const response = await FetchData({
         requestType: "noData",
         method: "GET",
-        url: "{{ _.baseURL }}/workspace", // Updated API endpoint
+        url: "workspace",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           "Content-Type": "application/json",
         },
       });
-  
-      if (response?.status) {
+
+      if (response.status) {
         setWorkspaces(response.data);
         sessionStorage.setItem("workspaces", JSON.stringify(response.data));
         dispatch(reduxSetWorkspaces(response.data));
       } else {
-        throw new Error(response?.data?.detail || "Failed to fetch workspaces");
+        setError(response.data.detail || "Failed to fetch workspaces");
       }
-    } catch (err: any) {
-      console.error("Error fetching workspaces:", err);
-      setError(err.message || "An error occurred while fetching workspaces");
+      // console.log(workspacess);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError("An error occurred while fetching workspaces");
     } finally {
       setIsLoading(false);
     }
   };
-  
-
   useEffect(() => {
     setTimeout(fetchWorkspaces, 2000);
 
@@ -545,15 +540,7 @@ const WorkspaceList = () => {
       </Link> */}
       <div className="workspace-button-add-search-container">
         <div className="workspace-action-buttons">
-          {(access === "community" ||
-            access === "account_admin" ||
-            access === "admin" ||
-            workspaces.some(
-              (workspace: any) =>
-                (workspace.roleId < 3 && workspace.roleId > 0) ||
-                workspace.roleId === 8
-            )) &&
-            !isLoading && (
+          {!isLoading && (
               <div
                 className={styles.dropdown}
                 onMouseEnter={() => setIsDropdownOpen(true)}
@@ -784,8 +771,6 @@ const WorkspaceList = () => {
                     </td>
 
                     <td>
-                      {(workspace.roleId < 3 && workspace.roleId > 0) ||
-                      workspace.roleId === 8 ? (
                         <div className="workspace-img-icon">
                           <button
                             onClick={(e) => {
@@ -799,6 +784,8 @@ const WorkspaceList = () => {
                             style={{
                               background: "none",
                               border: "none",
+                              marginLeft: "5px",
+                              marginRight: "5px",
                             }}
                           >
                             <Tooltip title="Rename">
@@ -826,6 +813,8 @@ const WorkspaceList = () => {
                             style={{
                               background: "none",
                               border: "none",
+                              marginLeft: "5px",
+                              marginRight: "5px",
                             }}
                           >
                             <Tooltip title="Delete">
@@ -846,153 +835,7 @@ const WorkspaceList = () => {
                               />
                             </Tooltip>
                           </button>
-
-                          {workspace.roleId < 3 && workspace.roleId > 0 ? (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openAccessModal(workspace.id);
-                              }}
-                              style={{
-                                background: "none",
-                                border: "none",
-                              }}
-                            >
-                              <Tooltip title="Manage Access">
-                                <img
-                                  src={
-                                    hoveredRowId === workspace.id
-                                      ? "/access.png"
-                                      : "/access_white.png"
-                                  }
-                                  alt="Access"
-                                  style={{
-                                    marginBottom: "-2.5px",
-                                    width: "20px",
-                                    height: "20px",
-                                  }}
-                                />
-                              </Tooltip>
-                            </button>
-                          ) : (
-                            <button
-                              style={{
-                                background: "none",
-                                border: "none",
-                              }}
-                            >
-                              <Tooltip title="Manage Access">
-                                <img
-                                  src={"/access_white.png"}
-                                  alt="Access"
-                                  style={{
-                                    marginBottom: "-2.5px",
-                                    width: "20px",
-                                    height: "20px",
-                                    pointerEvents: "none",
-                                  }}
-                                />
-                              </Tooltip>
-                            </button>
-                          )}
                         </div>
-                      ) : (
-                        <div className="workspace-img-icon">
-                          <button
-                            style={{
-                              background: "none",
-                              border: "none",
-                              cursor: "not-allowed",
-                            }}
-                          >
-                            <Tooltip title="Rename">
-                              <img
-                                src={"/edit_white.png"}
-                                alt="Edit"
-                                style={{
-                                  marginTop: "1px",
-                                  width: "16px",
-                                  height: "16px",
-                                  pointerEvents: "none",
-                                }}
-                              />
-                            </Tooltip>
-                          </button>
-
-                          <button
-                            style={{
-                              background: "none",
-                              border: "none",
-                              cursor: "not-allowed",
-                            }}
-                          >
-                            <Tooltip title="Delete">
-                              <img
-                                src={"/delete_white.png"}
-                                alt="Delete"
-                                style={{
-                                  marginTop: "1px",
-                                  width: "17px",
-                                  height: "17px",
-                                  fontSize: fontSize.medium,
-                                  color: palette.primary.contrastText,
-                                  pointerEvents: "none",
-                                }}
-                              />
-                            </Tooltip>
-                          </button>
-
-                          {workspace.roleId < 3 && workspace.roleId > 0 ? (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openAccessModal(workspace.id);
-                              }}
-                              style={{
-                                background: "none",
-                                border: "none",
-                              }}
-                            >
-                              <Tooltip title="Manage Access">
-                                <img
-                                  src={
-                                    hoveredRowId === workspace.id
-                                      ? "/access.png"
-                                      : "/access_white.png"
-                                  }
-                                  alt="Access"
-                                  style={{
-                                    marginBottom: "-2.5px",
-                                    width: "20px",
-                                    height: "20px",
-                                  }}
-                                />
-                              </Tooltip>
-                            </button>
-                          ) : (
-                            <button
-                              style={{
-                                background: "none",
-                                border: "none",
-                                cursor: "not-allowed",
-                              }}
-                            >
-                              <Tooltip title="Manage Access">
-                                <img
-                                  src={"/access_white.png"}
-                                  alt="Access"
-                                  style={{
-                                    marginBottom: "-2.5px",
-                                    width: "20px",
-                                    height: "20px",
-                                    pointerEvents: "none",
-                                  }}
-                                />
-                              </Tooltip>
-                            </button>
-                          )}
-                        </div>
-                      )}
                     </td>
                   </tr>
                 ))}

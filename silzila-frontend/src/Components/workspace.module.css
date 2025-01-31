@@ -118,10 +118,6 @@
   text-align: center;
 }
 
-.workspaceTable th:nth-child(6) {
-  padding-right: 22px;
-}
-
 .workspaceTable td:nth-child(6) {
   width: 14.4%;
   box-sizing: border-box;

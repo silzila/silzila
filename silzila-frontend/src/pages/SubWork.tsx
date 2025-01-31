@@ -18,11 +18,11 @@ const SubWork = () => {
             <div className="breadcrumb">
                 <div className="breadcrumb-header">
                    
-                    <Link to="/" className="breadcrumb-link">
+                    <Link to="/workspace" className="breadcrumb-link">
                        <a>Home</a>
                     </Link>
                    
-                    <Link to="/" className="breadcrumb-link">
+                    <Link to="/workspace" className="breadcrumb-link">
                         <a>Workspace</a>
                     </Link>
 
