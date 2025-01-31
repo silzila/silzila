@@ -23,11 +23,11 @@ const SubWorkDetails = () => {
         return (
             <div className="breadcrumb">
                 <div className="breadcrumb-header">
-                    <Link to="/" className="breadcrumb-link">
+                    <Link to="/workspace" className="breadcrumb-link">
                         <a style={{fontSize:fontSize.medium,color:palette.primary.contrastText}}>Home</a>
                     </Link>
                     
-                    <Link to="/" className="breadcrumb-link">
+                    <Link to="/workspace" className="breadcrumb-link">
                         <a style={{fontSize:fontSize.medium,color:palette.primary.contrastText}}>Workspace</a>
                     </Link>
                     

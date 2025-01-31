@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import useSWR from "swr";
+//import useSWR from "swr";
 import styles from "./subworkspace.module.css";
 import "./allPages.css";
 import { useParams } from "react-router-dom";
@@ -1127,7 +1127,9 @@ const SubWorkspace = () => {
 
   const openAccessModal = (workspaceId: any, workspaceName: string) => {
     // navigate(`/workspace/access/${parentId}`, { state: { workspaceId } });
-    navigate(`/workspace/access/${workspaceId}`, { state: { parentId, workspaceName } });
+    navigate(`/workspace/access/${workspaceId}`, {
+      state: { parentId, workspaceName },
+    });
   };
 
   const openAccessModalforContent = (workspaceId: any) => {
@@ -1740,7 +1742,6 @@ const SubWorkspace = () => {
                             : "No date available"}
                         </td>
                         <td>
-                          {workspace.roleId <= 8 && (
                             <div className="subworkspace-img-icon">
                               <button
                                 onClick={(e) => {
@@ -1759,6 +1760,8 @@ const SubWorkspace = () => {
                                 style={{
                                   background: "none",
                                   border: "none",
+                                  marginLeft: "5px",
+                                  marginRight: "5px",
                                 }}
                               >
                                 <Tooltip title="View / Edit">
@@ -1778,43 +1781,39 @@ const SubWorkspace = () => {
                                 </Tooltip>
                               </button>
 
-                              {(workspace.contentType === 1 &&
-                                workspace.roleId < 5 &&
-                                workspace.roleId > 0) ||
-                              (workspace.levelId && workspace.levelId < 3) ||
-                              workspace.roleId === 8 ? (
-                                <>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      openEditModal(
-                                        workspace.id,
-                                        workspace.name,
-                                        workspace.parentId,
-                                        workspace
-                                      );
-                                    }}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openEditModal(
+                                    workspace.id,
+                                    workspace.name,
+                                    workspace.parentId,
+                                    workspace
+                                  );
+                                }}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  marginLeft: "5px",
+                                  marginRight: "5px",
+                                }}
+                              >
+                                <Tooltip title="Rename">
+                                  <img
+                                    src={
+                                      hoveredRowId === workspace.id
+                                        ? "/edit.png"
+                                        : "/edit_white.png"
+                                    }
+                                    alt="Edit"
                                     style={{
-                                      background: "none",
-                                      border: "none",
+                                      marginTop: "1px",
+                                      width: "16px",
+                                      height: "16px",
                                     }}
-                                  >
-                                    <Tooltip title="Rename">
-                                      <img
-                                        src={
-                                          hoveredRowId === workspace.id
-                                            ? "/edit.png"
-                                            : "/edit_white.png"
-                                        }
-                                        alt="Edit"
-                                        style={{
-                                          marginTop: "1px",
-                                          width: "16px",
-                                          height: "16px",
-                                        }}
-                                      />
-                                    </Tooltip>
-                                  </button>
+                                  />
+                                </Tooltip>
+                              </button>
 
                                   <button
                                     onClick={(e) => {
@@ -1831,6 +1830,8 @@ const SubWorkspace = () => {
                                     style={{
                                       background: "none",
                                       border: "none",
+                                      marginLeft: "5px",
+                                      marginRight: "5px",
                                     }}
                                   >
                                     <Tooltip title="Delete">
@@ -1850,130 +1851,7 @@ const SubWorkspace = () => {
                                     </Tooltip>
                                   </button>
 
-                                  {workspace.roleId < 5 ? (
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (workspace.contentType === 1) {
-                                          openAccessModal(workspace.id, workspace.name);
-                                        } else {
-                                          openAccessModalforContent(
-                                            workspace.id
-                                          );
-                                        }
-                                      }}
-                                      style={{
-                                        background: "none",
-                                        border: "none",
-                                      }}
-                                    >
-                                      <Tooltip title="Manage Access">
-                                        <img
-                                          src={
-                                            hoveredRowId === workspace.id
-                                              ? "/access.png"
-                                              : "/access_white.png"
-                                          }
-                                          alt="Access"
-                                          style={{
-                                            marginBottom: "-2.5px",
-                                            width: "20px",
-                                            height: "20px",
-                                          }}
-                                        />
-                                      </Tooltip>
-                                    </button>
-                                  ) : (
-                                    <button
-                                      style={{
-                                        background: "none",
-                                        border: "none",
-                                        cursor: "not-allowed",
-                                      }}
-                                    >
-                                      <Tooltip title="Manage Access">
-                                        <img
-                                          src={"/access_white.png"}
-                                          alt="Access"
-                                          style={{
-                                            marginBottom: "-2.5px",
-                                            width: "20px",
-                                            height: "20px",
-                                            pointerEvents: "none",
-                                          }}
-                                        />
-                                      </Tooltip>
-                                    </button>
-                                  )}
-                                </>
-                              ) : (
-                                <>
-                                  <button
-                                    style={{
-                                      background: "none",
-                                      border: "none",
-                                      cursor: "not-allowed",
-                                    }}
-                                  >
-                                    <Tooltip title="Rename">
-                                      <img
-                                        src={"/edit_white.png"}
-                                        alt="Edit"
-                                        style={{
-                                          marginTop: "1px",
-                                          width: "16px",
-                                          height: "16px",
-                                          pointerEvents: "none",
-                                        }}
-                                      />
-                                    </Tooltip>
-                                  </button>
-
-                                  <button
-                                    style={{
-                                      background: "none",
-                                      border: "none",
-                                      cursor: "not-allowed",
-                                    }}
-                                  >
-                                    <Tooltip title="Delete">
-                                      <img
-                                        src={"/delete_white.png"}
-                                        alt="Delete"
-                                        style={{
-                                          marginTop: "1px",
-                                          width: "17px",
-                                          height: "17px",
-                                          pointerEvents: "none",
-                                        }}
-                                      />
-                                    </Tooltip>
-                                  </button>
-
-                                  <button
-                                    style={{
-                                      background: "none",
-                                      border: "none",
-                                      cursor: "not-allowed",
-                                    }}
-                                  >
-                                    <Tooltip title="Manage Access">
-                                      <img
-                                        src={"/access_white.png"}
-                                        alt="Access"
-                                        style={{
-                                          marginBottom: "-2.5px",
-                                          width: "20px",
-                                          height: "20px",
-                                          pointerEvents: "none",
-                                        }}
-                                      />
-                                    </Tooltip>
-                                  </button>
-                                </>
-                              )}
                             </div>
-                          )}
                         </td>
                       </tr>
                     )
