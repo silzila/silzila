@@ -1394,7 +1394,7 @@ public class ConnectionPoolService {
                     .findFirst()
                     .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!")):new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null, columnFilter.getTableId()  , null, null, false, null);
             // Load file names from file IDs and load the files as views
-            fileDataService.getFileNameFromFileId(userId, Collections.singletonList(tableObj));
+            fileDataService.getFileNameFromFileId(userId, Collections.singletonList(tableObj),workspaceId);
 
             // Compose anchor date query for DuckDB and run it
             String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery("duckdb", ds, relativeFilter);

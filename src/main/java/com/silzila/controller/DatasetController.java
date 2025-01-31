@@ -16,6 +16,8 @@ import com.silzila.payload.request.*;
 import com.silzila.payload.response.MessageResponse;
 import com.silzila.service.ConnectionPoolService;
 import com.silzila.service.DatasetService;
+
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -140,6 +142,20 @@ public class DatasetController {
         String userId = reqHeader.get("username");
         Object jsonArray = datasetService.relativeFilter(userId, dBConnectionId, datasetId,workspaceId, relativeFilter);
         return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+    }
+
+    @PostMapping("test-calculated-field")
+    public ResponseEntity<?> testCalculatedField(@RequestHeader Map<String, String> reqHeader,
+            @Valid @RequestBody List<CalculatedFieldRequest> calculatedFieldRequests,
+            @RequestParam String workspaceId,
+            @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
+            @RequestParam(name = "datasetid", required = false) String datasetId,
+            @RequestParam(name = "limit", required = false) Integer recordCount) throws JsonMappingException, JsonProcessingException, ClassNotFoundException, RecordNotFoundException, SQLException, BadRequestException{
+                String userId = reqHeader.get("username");
+                System.out.println(dBConnectionId);
+                System.out.println(datasetId);
+                JSONArray jsonArray =  datasetService.testCalculateField(userId,dBConnectionId,datasetId,workspaceId,calculatedFieldRequests,recordCount);
+                return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
 }
