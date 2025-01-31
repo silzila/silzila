@@ -34,7 +34,7 @@
 
 ## 5. Present charts in dashboard
 <p align="center">
-<img src="https://github.com/silzila/silzila/blob/main/images/Charts-dashboard.png?raw=true" alt="Playbook" width="1000">
+<img src="https://github.com/silzila/silzila/blob/main/images/dashborad.png?raw=true" alt="Playbook" width="1000">
 </p>
 
 ## 6. No-Code drag-and-drop formula
