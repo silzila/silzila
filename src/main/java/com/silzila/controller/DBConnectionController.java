@@ -1,6 +1,7 @@
 package com.silzila.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.silzila.payload.request.CalculatedFieldRequest;
 import com.silzila.payload.request.CustomQueryRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -212,7 +213,7 @@ public class DBConnectionController {
         return ResponseEntity.status(HttpStatus.OK).body(columnList);
     }
     // Metadata discovery - get sample records
-    @GetMapping("/sample-records")
+    @PostMapping("/sample-records")
     public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
             @RequestParam(value = "databaseId") String databaseId,
             @RequestParam(value = "datasetId", required = false) String datasetId,
@@ -221,12 +222,13 @@ public class DBConnectionController {
             @RequestParam(name = "schema", required = false) String schemaName,
             @RequestParam(name = "workspaceId", required = false) String workspaceId,
             @RequestParam(name = "table") String tableName,
-            @RequestParam(name = "tableId",required = false) String tableId)
+            @RequestParam(name = "tableId",required = false) String tableId,
+            @RequestBody(required = false) List<List<CalculatedFieldRequest>> calculatedFieldRequests)
             throws RecordNotFoundException, SQLException, BadRequestException, JsonProcessingException,
             ClassNotFoundException {
         String userId = reqHeader.get("username");
         JSONArray jsonArray = connectionPoolService.getSampleRecords(databaseId, datasetId, workspaceId,userId, databaseName,
-                schemaName, tableName, recordCount,tableId);
+                schemaName, tableName, recordCount,tableId,calculatedFieldRequests);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 

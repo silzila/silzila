@@ -11,6 +11,7 @@ import com.silzila.payload.request.RelativeFilterRequest;
 import com.silzila.payload.request.Table;
 import com.silzila.querybuilder.RelationshipClauseGeneric;
 import com.silzila.querybuilder.WhereClause;
+import com.silzila.querybuilder.CalculatedField.CalculatedFieldQueryComposer;
 import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.repository.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,6 @@ import org.json.JSONObject;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.silzila.VizApplication;
@@ -50,6 +50,7 @@ import com.silzila.exception.RecordNotFoundException;
 import com.silzila.helper.OracleDbJksRequestProcess;
 import com.silzila.helper.RelativeFilterProcessor;
 import com.silzila.helper.ResultSetToJson;
+import com.silzila.payload.request.CalculatedFieldRequest;
 import com.silzila.payload.request.ColumnFilter;
 import com.silzila.payload.request.DBConnectionRequest;
 import com.silzila.payload.response.MetadataColumn;
@@ -62,10 +63,9 @@ import com.silzila.helper.CustomQueryValidator;
 import com.silzila.service.DatasetService;
 import org.springframework.web.server.ResponseStatusException;
 
-
 @Service
 public class ConnectionPoolService {
-    
+
     @Autowired
     RelativeFilterQueryComposer relativeFilterQueryComposer;
 
@@ -73,8 +73,11 @@ public class ConnectionPoolService {
     FileDataService fileDataService;
 
     @Autowired
+    CalculatedFieldQueryComposer calculatedFieldQueryComposer;
+
+    @Autowired
     DuckDbService duckDbService;
-    
+
     @Autowired
     RelativeFilterProcessor relativeFilterProcessor;
 
@@ -108,45 +111,47 @@ public class ConnectionPoolService {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    public DatasetDTO loadDatasetInBuffer(String workspaceId,String dbConnectionId,String datasetId, String userId)
-    throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
-        DatasetDTO dto = buffer.loadDatasetInBuffer(workspaceId,datasetId, userId);
-        if(!dto.getDataSchema().getFilterPanels().isEmpty()){
-            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,workspaceId,this::relativeFilter);
+    public DatasetDTO loadDatasetInBuffer(String workspaceId, String dbConnectionId, String datasetId, String userId)
+            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException,
+            BadRequestException, SQLException {
+        DatasetDTO dto = buffer.loadDatasetInBuffer(workspaceId, datasetId, userId);
+        if (!dto.getDataSchema().getFilterPanels().isEmpty()) {
+            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(
+                    dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId, workspaceId,
+                    this::relativeFilter);
             dto.getDataSchema().setFilterPanels(filterPanels);
         }
         return dto;
-        }
+    }
 
     // creates connection pool & gets vendor name
-    public String getVendorNameFromConnectionPool(String id, String userId,String workspaceId)
+    public String getVendorNameFromConnectionPool(String id, String userId, String workspaceId)
             throws RecordNotFoundException, SQLException {
         String vendorName;
         if (connectionDetails.containsKey(id)) {
             vendorName = connectionDetails.get(id).getVendor();
         } else {
-            createConnectionPool(id, userId,workspaceId);
+            createConnectionPool(id, userId, workspaceId);
             vendorName = connectionDetails.get(id).getVendor();
         }
         return vendorName;
     }
 
-
-
     // creates connection pool if not created already for a connection
-    public void createConnectionPool(String id, String userId,String workspaceId) throws RecordNotFoundException, SQLException {
+    public void createConnectionPool(String id, String userId, String workspaceId)
+            throws RecordNotFoundException, SQLException {
 
-        int minIdle=1;
-        int maxPoolSize=2;
-        int maxLifetime=600000;
-        int idleTimeout=300000;
-        int connectionTimeout=300000;
+        int minIdle = 1;
+        int maxPoolSize = 2;
+        int maxLifetime = 600000;
+        int idleTimeout = 300000;
+        int connectionTimeout = 300000;
 
         HikariDataSource dataSource = null;
         HikariConfig config = new HikariConfig();
 
         if (!connectionPool.containsKey(id)) {
-            DBConnection dbConnection = dbConnectionService.getDBConnectionWithPasswordById(id, userId,workspaceId);
+            DBConnection dbConnection = dbConnectionService.getDBConnectionWithPasswordById(id, userId, workspaceId);
             String fullUrl = "";
 
             // BigQuery - token file path to be sent in URL
@@ -242,7 +247,7 @@ public class ConnectionPoolService {
 
             }
             // snowflake
-            else if (dbConnection.getVendor().equals("snowflake")){
+            else if (dbConnection.getVendor().equals("snowflake")) {
                 String port = "";
                 if (dbConnection.getPort() != null) {
                     port = ":" + dbConnection.getPort();
@@ -265,21 +270,21 @@ public class ConnectionPoolService {
                 dataSource = new HikariDataSource(config);
 
             }
-            //motherduck
+            // motherduck
             else if (dbConnection.getVendor().equals("motherduck")) {
-                fullUrl = "jdbc:duckdb:md:" + dbConnection.getDatabase() +  "?motherduck_token=" + dbConnection.getPasswordHash();
+                fullUrl = "jdbc:duckdb:md:" + dbConnection.getDatabase() + "?motherduck_token="
+                        + dbConnection.getPasswordHash();
                 config.setJdbcUrl(fullUrl);
                 dataSource = new HikariDataSource(config);
             }
-            //IBM-DB2 DBConnection
-            else if (dbConnection.getVendor().equals("db2"))
-            {
+            // IBM-DB2 DBConnection
+            else if (dbConnection.getVendor().equals("db2")) {
                 fullUrl = "jdbc:db2://" + dbConnection.getServer() + ":" + dbConnection.getPort()
-                            + "/" + dbConnection.getDatabase()+":user="+dbConnection.getUsername()
-                            +";password="+dbConnection.getPasswordHash()+";sslConnection=true;";
+                        + "/" + dbConnection.getDatabase() + ":user=" + dbConnection.getUsername()
+                        + ";password=" + dbConnection.getPasswordHash() + ";sslConnection=true;";
                 config.setJdbcUrl(fullUrl);
-//              config.addDataSourceProperty("user", dbConnection.getUsername());
-//              config.addDataSourceProperty("password", dbConnection.getPassword());
+                // config.addDataSourceProperty("user", dbConnection.getUsername());
+                // config.addDataSourceProperty("password", dbConnection.getPassword());
                 config.setDriverClassName("com.ibm.db2.jcc.DB2Driver");
                 config.setMaxLifetime(maxLifetime);
                 config.setIdleTimeout(idleTimeout);
@@ -288,9 +293,10 @@ public class ConnectionPoolService {
                 dataSource = new HikariDataSource(config);
 
             }
-            //teradata
+            // teradata
             else if (dbConnection.getVendor().equals("teradata")) {
-                fullUrl = "jdbc:teradata://"+dbConnection.getServer()+"/DATABASE="+dbConnection.getDatabase()+",DBS_PORT="+dbConnection.getPort();
+                fullUrl = "jdbc:teradata://" + dbConnection.getServer() + "/DATABASE=" + dbConnection.getDatabase()
+                        + ",DBS_PORT=" + dbConnection.getPort();
                 config.setJdbcUrl(fullUrl);
                 config.setUsername(dbConnection.getUsername());
                 config.setPassword(dbConnection.getPasswordHash());
@@ -382,19 +388,19 @@ public class ConnectionPoolService {
         }
     }
 
-       public ArrayList<MetadataColumn> getColumForCustomQuery(String id, String userId, String query,String workspaceId) throws RecordNotFoundException, SQLException, ExpectationFailedException {
-        if(customQueryValidator.customQueryValidator(query)) {
-            createConnectionPool(id, userId,workspaceId);
+    public ArrayList<MetadataColumn> getColumForCustomQuery(String id, String userId, String query, String workspaceId)
+            throws RecordNotFoundException, SQLException, ExpectationFailedException {
+        if (customQueryValidator.customQueryValidator(query)) {
+            createConnectionPool(id, userId, workspaceId);
             try {
                 try (Connection _connection = connectionPool.get(id).getConnection();
-                     PreparedStatement pst = _connection.prepareStatement(query);
-                     ResultSet rs = pst.executeQuery();)
-                {
+                        PreparedStatement pst = _connection.prepareStatement(query);
+                        ResultSet rs = pst.executeQuery();) {
                     ResultSetMetaData rsmd = rs.getMetaData();
                     int count = rsmd.getColumnCount();
                     ArrayList<MetadataColumn> metadataColumns = new ArrayList<MetadataColumn>();
                     for (int i = 1; i <= count; i++) {
-                        String columnName= rsmd.getColumnName(i);
+                        String columnName = rsmd.getColumnName(i);
                         String dataType = rsmd.getColumnTypeName(i);
                         MetadataColumn metadataColumn = new MetadataColumn(columnName, dataType);
                         metadataColumns.add(metadataColumn);
@@ -405,53 +411,56 @@ public class ConnectionPoolService {
                     logger.warn("error: " + e.toString());
                     throw e;
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new ExpectationFailedException("Wrong query!! Please check your query format");
             }
 
-        }else {
+        } else {
             throw new ExpectationFailedException("Wrong query!! CustomQuery is only allowed only with SELECT clause");
         }
     }
-    public JSONArray getSampleRecordsForCustomQuery(String dBConnectionId,String workspaceId, String userId, String query,Integer recordCount) throws RecordNotFoundException, SQLException, ExpectationFailedException {
-        if (customQueryValidator.customQueryValidator(query)) {
-            String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId,workspaceId);
-            String queryWithLimit="";
-            try{
-            createConnectionPool(dBConnectionId, userId,workspaceId);
-            if(recordCount>250|| recordCount==null)
-            {
-                recordCount=250;
-            }
-            if (vendorName.equals("oracle")) {
-                queryWithLimit = "select * from( " + query + ") WHERE ROWNUM <= " + recordCount;
-            } else if (vendorName.equals("sqlserver") || vendorName.equalsIgnoreCase("teradata")) {
-                queryWithLimit = "WITH CTE AS ( " + query + ") SELECT TOP " + recordCount + " * FROM CTE;";
-            } else {
-                queryWithLimit = "select * from( " + query + ") AS CQ limit " + recordCount;
-            }
 
-            JSONArray jsonArray = runQuery(dBConnectionId, userId, queryWithLimit);
-            return jsonArray;
-            }catch (Exception e) {
+    public JSONArray getSampleRecordsForCustomQuery(String dBConnectionId, String workspaceId, String userId,
+            String query, Integer recordCount)
+            throws RecordNotFoundException, SQLException, ExpectationFailedException {
+        if (customQueryValidator.customQueryValidator(query)) {
+            String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId, workspaceId);
+            String queryWithLimit = "";
+            try {
+                createConnectionPool(dBConnectionId, userId, workspaceId);
+                if (recordCount > 250 || recordCount == null) {
+                    recordCount = 250;
+                }
+                if (vendorName.equals("oracle")) {
+                    queryWithLimit = "select * from( " + query + ") WHERE ROWNUM <= " + recordCount;
+                } else if (vendorName.equals("sqlserver") || vendorName.equalsIgnoreCase("teradata")) {
+                    queryWithLimit = "WITH CTE AS ( " + query + ") SELECT TOP " + recordCount + " * FROM CTE;";
+                } else {
+                    queryWithLimit = "select * from( " + query + ") AS CQ limit " + recordCount;
+                }
+
+                JSONArray jsonArray = runQuery(dBConnectionId, userId, queryWithLimit);
+                return jsonArray;
+            } catch (Exception e) {
                 throw new ExpectationFailedException("Wrong query!! Please check your query format");
             }
-        }else {
+        } else {
             throw new ExpectationFailedException("Wrong query!! CustomQuery is only allowed with SELECT clause");
         }
     }
+
     // Metadata discovery - Get Database names
-    public ArrayList<String> getDatabase(String id, String userId,String workspaceId)
+    public ArrayList<String> getDatabase(String id, String userId, String workspaceId)
             throws RecordNotFoundException, SQLException {
         // first create connection pool to query DB
         // when connection id is not available, RecordNotFoundException will be throws
-        createConnectionPool(id, userId,workspaceId);
+        createConnectionPool(id, userId, workspaceId);
 
-        String vendorName = getVendorNameFromConnectionPool(id, userId,workspaceId);
-        String dataBaseNameFromUser="";
+        String vendorName = getVendorNameFromConnectionPool(id, userId, workspaceId);
+        String dataBaseNameFromUser = "";
 
-        if(vendorName.equalsIgnoreCase("db2")){
-            DBConnection dbConnection = dbConnectionService.getDBConnectionWithPasswordById(id, userId,workspaceId);
+        if (vendorName.equalsIgnoreCase("db2")) {
+            DBConnection dbConnection = dbConnectionService.getDBConnectionWithPasswordById(id, userId, workspaceId);
             dataBaseNameFromUser = dbConnection.getDatabase();
         }
 
@@ -460,7 +469,7 @@ public class ConnectionPoolService {
         try (Connection _connection = connectionPool.get(id).getConnection();) {
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
 
-            if (vendorName.equals("mysql") || vendorName.equals("oracle")  ) {
+            if (vendorName.equals("mysql") || vendorName.equals("oracle")) {
                 ResultSet resultSet = databaseMetaData.getSchemas();
                 while (resultSet.next()) {
                     String databaseName = resultSet.getString("TABLE_SCHEM");
@@ -468,7 +477,7 @@ public class ConnectionPoolService {
                     schemaList.add(databaseName);
                 }
             }
-            if (vendorName.equalsIgnoreCase("teradata")   ) {
+            if (vendorName.equalsIgnoreCase("teradata")) {
                 ResultSet resultSet = databaseMetaData.getSchemas();
                 while (resultSet.next()) {
                     String databaseName = resultSet.getString("TABLE_SCHEM");
@@ -489,12 +498,11 @@ public class ConnectionPoolService {
                 }
             }
             // returning the dataBaseNameFromUser for IBM_DB2
-            if(vendorName.equals("db2")) {
-                if(!schemaList.contains(dataBaseNameFromUser))
-                {
+            if (vendorName.equals("db2")) {
+                if (!schemaList.contains(dataBaseNameFromUser)) {
                     schemaList.add(dataBaseNameFromUser);
                 }
-                //checking for null value and removing it
+                // checking for null value and removing it
                 List<String> filteredList = schemaList.stream()
                         .filter(element -> element != null)
                         .collect(Collectors.toList());
@@ -509,10 +517,10 @@ public class ConnectionPoolService {
     }
 
     // Metadata discovery - Get Schema names
-    public List<String> getSchema(String id, String userId, String databaseName,String workspaceId)
+    public List<String> getSchema(String id, String userId, String databaseName, String workspaceId)
             throws RecordNotFoundException, SQLException, BadRequestException {
         // first create connection pool to query DB
-        String vendorName = getVendorNameFromConnectionPool(id, userId,workspaceId);
+        String vendorName = getVendorNameFromConnectionPool(id, userId, workspaceId);
 
         List<String> schemaList = new ArrayList<>();
         try {
@@ -552,7 +560,7 @@ public class ConnectionPoolService {
                 }
             }
             // Databricks & Snowflake
-            else if (vendorName.equals("databricks")|| vendorName.equals("snowflake")) {
+            else if (vendorName.equals("databricks") || vendorName.equals("snowflake")) {
                 if (databaseName == null || databaseName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Database name is not provided");
                 }
@@ -590,7 +598,7 @@ public class ConnectionPoolService {
                     while (resultSet.next()) {
                         String schemaName = resultSet.getString("TABLE_SCHEM");
                         // ignoring inbuilt database/schema which starts with ibm,sys,system,td
-                        if (!schemaName.matches("(?i)^(SYS|SYSTEM|IBM|TD).*")){
+                        if (!schemaName.matches("(?i)^(SYS|SYSTEM|IBM|TD).*")) {
                             schemaList.add(schemaName);
                         }
                     }
@@ -625,11 +633,11 @@ public class ConnectionPoolService {
         }
     }
 
-    public MetadataTable getTable(String id, String userId, String databaseName, String schemaName,String workspaceId)
+    public MetadataTable getTable(String id, String userId, String databaseName, String schemaName, String workspaceId)
             throws RecordNotFoundException, SQLException, BadRequestException {
 
         // first create connection pool to query DB
-        String vendorName = getVendorNameFromConnectionPool(id, userId,workspaceId);
+        String vendorName = getVendorNameFromConnectionPool(id, userId, workspaceId);
 
         try (Connection _connection = connectionPool.get(id).getConnection();) {
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
@@ -735,13 +743,12 @@ public class ConnectionPoolService {
                 }
                 resultSetTables.close();
             }
-            //fetching table for ibm_db2 and teradata
-            else if (vendorName.equalsIgnoreCase("db2") || vendorName.equalsIgnoreCase("teradata"))
-            {
+            // fetching table for ibm_db2 and teradata
+            else if (vendorName.equalsIgnoreCase("db2") || vendorName.equalsIgnoreCase("teradata")) {
                 if (schemaName == null || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Schema name is not provided!");
                 }
-                resultSetTables = databaseMetaData.getTables(null, schemaName, null, new String[] {"TABLE", "VIEW"});
+                resultSetTables = databaseMetaData.getTables(null, schemaName, null, new String[] { "TABLE", "VIEW" });
                 while (resultSetTables.next()) {
                     String tableName = resultSetTables.getString("TABLE_NAME");
                     String tableType = resultSetTables.getString("TABLE_TYPE");
@@ -755,7 +762,6 @@ public class ConnectionPoolService {
                 resultSetTables.close();
 
             }
-
 
             // postgres & MySql are handled the same but different from SQL Server
             else {
@@ -806,12 +812,11 @@ public class ConnectionPoolService {
 
     // Metadata discovery - Get Column names
     public ArrayList<MetadataColumn> getColumn(String id, String userId, String databaseName, String schemaName,
-            String tableName,String workspaceId)
+            String tableName, String workspaceId)
             throws RecordNotFoundException, SQLException, BadRequestException {
 
         // first create connection pool to query DB
-        String vendorName = getVendorNameFromConnectionPool(id, userId,workspaceId);
-
+        String vendorName = getVendorNameFromConnectionPool(id, userId, workspaceId);
 
         // metadataColumns list will contain the final result
         ArrayList<MetadataColumn> metadataColumns = new ArrayList<MetadataColumn>();
@@ -824,7 +829,8 @@ public class ConnectionPoolService {
             // based on database dialect, we pass either DB name or schema name at different
             // position in the funciton for POSTGRESQL DB
             if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName
-                    .equalsIgnoreCase("oracle") || vendorName.equals("db2") || vendorName.equalsIgnoreCase("teradata")) {
+                    .equalsIgnoreCase("oracle") || vendorName.equals("db2")
+                    || vendorName.equalsIgnoreCase("teradata")) {
                 // schema name is must for postgres
                 if (schemaName == null || schemaName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Schema name is not provided!");
@@ -887,26 +893,30 @@ public class ConnectionPoolService {
         }
     }
 
-
-
     // Metadata discovery - Get Sample Records of table
-    public JSONArray getSampleRecords(String databaseId,String datasetId,String workspaceId, String userId, String databaseName, String schemaName,
-            String tableName, Integer recordCount,String tblId)
-            throws RecordNotFoundException, SQLException, BadRequestException, JsonProcessingException, ClassNotFoundException {
+    public JSONArray getSampleRecords(String databaseId, String datasetId, String workspaceId, String userId,
+            String databaseName, String schemaName,
+            String tableName, Integer recordCount, String tblId,
+            List<List<CalculatedFieldRequest>> calculatedFieldRequests)
+            throws RecordNotFoundException, SQLException, BadRequestException, JsonProcessingException,
+            ClassNotFoundException {
         String query = "";
         // first create connection pool to query DB
-        String vendorName = getVendorNameFromConnectionPool(databaseId, userId,workspaceId);
+        String vendorName = getVendorNameFromConnectionPool(databaseId, userId, workspaceId);
 
-        if (datasetId!=null) {
-            //getting dataset information to fetch filter panel information
-            DatasetDTO ds = loadDatasetInBuffer(workspaceId,databaseId,datasetId, userId);
+        if (datasetId != null) {
+            // getting dataset information to fetch filter panel information
+            DatasetDTO ds = loadDatasetInBuffer(workspaceId, databaseId, datasetId, userId);
             List<FilterPanel> filterPanels = new ArrayList<>();
             String tableId = "";
 
-            String whereClause  = ds.getDataSchema().getFilterPanels().isEmpty()?"":WhereClause.buildWhereClause(ds.getDataSchema().getFilterPanels(), vendorName);
-            //iterating to filter panel list to get the particular filter panel for the table
+            String whereClause = ds.getDataSchema().getFilterPanels().isEmpty() ? ""
+                    : WhereClause.buildWhereClause(ds.getDataSchema().getFilterPanels(), vendorName);
+            // iterating to filter panel list to get the particular filter panel for the
+            // table
             for (int i = 0; i < ds.getDataSchema().getFilterPanels().size(); i++) {
-                if (ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableName().equalsIgnoreCase(tableName)) {
+                if (ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableName()
+                        .equalsIgnoreCase(tableName)) {
                     filterPanels.add(ds.getDataSchema().getFilterPanels().get(i));
                     tableId = ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableId();
                 }
@@ -918,57 +928,68 @@ public class ConnectionPoolService {
                 recordCount = 250;
             }
 
-
-
-             
-            String fromClause = RelationshipClauseGeneric.buildRelationship(List.of(tblId),ds.getDataSchema(),vendorName);
-
-            
-
-                // based on database dialect, we pass different SELECT * Statement
-                // for POSTGRESQL DB
-                if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
-                    // schema name is must for postgres & redshift
-                    // construct query
-                    query = "SELECT "+ tblId +".* " +   " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
-                }
-
-                // for BIGQUERY DB
-                else if (vendorName.equals("bigquery")) {
-                    // construct query
-                    query = "SELECT "+ tblId +".*" +  " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
-                }
-                // for MYSQL DB
-                else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
-                    // construct query
-                    query = "SELECT "+ tblId +".* " +   " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
-
-                }
-                // for SQL Server DB
-                else if (vendorName.equals("sqlserver")) {
-                    // construct query
-                    query = "SELECT TOP " + recordCount +" "+ tblId +".* " +   " FROM " + fromClause + whereClause;
-
-                }
-                // for Databricks
-                else if (vendorName.equals("databricks")) {
-                    // construct query
-                    query = "SELECT "+ tblId +".* " +   " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
-                }
-                // oracle
-                else if (vendorName.equalsIgnoreCase("oracle")) {
-                    query = "SELECT "+ tblId +".* " +   " FROM " + fromClause + whereClause +" FETCH FIRST " + recordCount + " ROWS ONLY";
-                }
-                // snowflake
-                else if (vendorName.equalsIgnoreCase("snowflake")) {
-                    // construct query
-                    query = "SELECT "+ tblId +".* " +   " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
-                } else if (vendorName.equals("teradata")) {
-                    // construct query
-                    query = "SELECT TOP " + recordCount +" "+ tblId +".* " +   " FROM " + fromClause + whereClause;
-                }
+            // generating fromclause
+            List<String> allColumnList = (calculatedFieldRequests != null)
+                    ? ColumnListFromClause.getColumnListFromListOfFieldRequests(calculatedFieldRequests)
+                    : new ArrayList<>();
+            if (!allColumnList.contains(tblId)) {
+                allColumnList.add(tblId);
             }
-        else{
+
+            String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList, ds.getDataSchema(),
+                    vendorName);
+
+            StringBuilder calculatedField = new StringBuilder();
+
+            if(calculatedFieldRequests!=null){
+                relativeFilterProcessor.processListOfCalculatedFields( calculatedFieldRequests, userId, databaseId, datasetId,workspaceId, this::relativeFilter);
+                calculatedField.append(" , ").append(calculatedFieldQueryComposer.calculatedFieldsComposed(ds,vendorName, calculatedFieldRequests));
+            }
+
+            // based on database dialect, we pass different SELECT * Statement
+            // for POSTGRESQL DB
+            if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
+                // schema name is must for postgres & redshift
+                // construct query
+                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+            }
+
+            // for BIGQUERY DB
+            else if (vendorName.equals("bigquery")) {
+                // construct query
+                query = "SELECT " + tblId + ".*" + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+            }
+            // for MYSQL DB
+            else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
+                // construct query
+                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+
+            }
+            // for SQL Server DB
+            else if (vendorName.equals("sqlserver")) {
+                // construct query
+                query = "SELECT TOP " + recordCount + " " + tblId + ".* " + " FROM " + fromClause + whereClause;
+
+            }
+            // for Databricks
+            else if (vendorName.equals("databricks")) {
+                // construct query
+                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+            }
+            // oracle
+            else if (vendorName.equalsIgnoreCase("oracle")) {
+                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " FETCH FIRST " + recordCount
+                        + " ROWS ONLY";
+            }
+            // snowflake
+            else if (vendorName.equalsIgnoreCase("snowflake")) {
+                // construct query
+                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+            } else if (vendorName.equals("teradata")) {
+                // construct query
+                query = "SELECT TOP " + recordCount + " " + tblId + ".* " + " FROM " + fromClause + whereClause;
+            }
+        } else {
             // based on database dialect, we pass different SELECT * Statement
             // for POSTGRESQL DB
             if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
@@ -986,7 +1007,8 @@ public class ConnectionPoolService {
                     throw new BadRequestException("Error: Schema name is not provided!");
                 }
                 // construct query
-                query = "SELECT * FROM `" + databaseName + "." + schemaName + "." + tableName + "` LIMIT " + recordCount;
+                query = "SELECT * FROM `" + databaseName + "." + schemaName + "." + tableName + "` LIMIT "
+                        + recordCount;
             }
             // for MYSQL DB
             else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
@@ -1017,7 +1039,8 @@ public class ConnectionPoolService {
                     throw new BadRequestException("Error: Database & Schema names are not provided!");
                 }
                 // construct query
-                query = "SELECT * FROM " + databaseName + ".`" + schemaName + "`." + tableName + " LIMIT " + recordCount;
+                query = "SELECT * FROM " + databaseName + ".`" + schemaName + "`." + tableName + " LIMIT "
+                        + recordCount;
             }
             // oracle
             else if (vendorName.equalsIgnoreCase("oracle")) {
@@ -1177,33 +1200,32 @@ public class ConnectionPoolService {
             dataSource.addDataSourceProperty("OAuthPvtKeyFilePath",
                     tempPath);
         }
-        //motherduck
+        // motherduck
         else if (request.getVendor().equals("motherduck")) {
-            String fullUrl = "jdbc:duckdb:md:" + request.getDatabase() +  "?motherduck_token=" + request.getPassword();
+            String fullUrl = "jdbc:duckdb:md:" + request.getDatabase() + "?motherduck_token=" + request.getPassword();
             config.setJdbcUrl(fullUrl);
             dataSource = new HikariDataSource(config);
         }
-        //Testing IBM-DB2 connection
-        else if (request.getVendor().equals("db2"))
-        {
+        // Testing IBM-DB2 connection
+        else if (request.getVendor().equals("db2")) {
             String fullUrl = "jdbc:db2://" + request.getServer() + ":" + request.getPort()
-                    + "/" + request.getDatabase()+":user="+request.getUsername()
-                    +";password="+request.getPassword()+";sslConnection=true;";
+                    + "/" + request.getDatabase() + ":user=" + request.getUsername()
+                    + ";password=" + request.getPassword() + ";sslConnection=true;";
             config.setJdbcUrl(fullUrl);
-//          config.addDataSourceProperty("user", request.getUsername());
-//          config.addDataSourceProperty("password", request.getPassword());
+            // config.addDataSourceProperty("user", request.getUsername());
+            // config.addDataSourceProperty("password", request.getPassword());
             config.setDriverClassName("com.ibm.db2.jcc.DB2Driver");
             dataSource = new HikariDataSource(config);
         }
-        //teradata
+        // teradata
         else if (request.getVendor().equals("teradata")) {
-            String fullUrl = "jdbc:teradata://"+request.getServer()+"/DATABASE="+request.getDatabase()+",DBS_PORT="+request.getPort();
+            String fullUrl = "jdbc:teradata://" + request.getServer() + "/DATABASE=" + request.getDatabase()
+                    + ",DBS_PORT=" + request.getPort();
             config.setJdbcUrl(fullUrl);
             config.setUsername(request.getUsername());
             config.setPassword(request.getPassword());
             dataSource = new HikariDataSource(config);
         }
-
 
         // Postgres & MySQL
         else {
@@ -1221,9 +1243,9 @@ public class ConnectionPoolService {
         // run a simple query and see it record is fetched
         try {
             statement = connection.createStatement();
-            if(request.getVendor().equals("db2")) {
+            if (request.getVendor().equals("db2")) {
                 resultSet = statement.executeQuery("SELECT 1 FROM SYSIBM.SYSDUMMY1 ");
-            }else {
+            } else {
                 resultSet = statement.executeQuery("SELECT 1 ");
             }
             while (resultSet.next()) {
@@ -1366,35 +1388,38 @@ public class ConnectionPoolService {
         }
     }
 
-    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,String workspaceId,
+    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId, String workspaceId,
             @Valid RelativeFilterRequest relativeFilter)
             throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
             JsonMappingException, JsonProcessingException {
-        
+
         // Load dataset into memory buffer
         DatasetDTO ds = null;
         if (datasetId != null) {
             DatasetDTO bufferedDataset = buffer.getDatasetDetailsById(datasetId);
-            ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(workspaceId,dBConnectionId, datasetId, userId);
+            ds = (bufferedDataset != null) ? bufferedDataset
+                    : loadDatasetInBuffer(workspaceId, dBConnectionId, datasetId, userId);
         }
         // Initialize variables
         JSONArray anchorDateArray;
         String query;
         // Check if dataset is flat file data or not
-        if ( ds != null && ds.getIsFlatFileData() || ds == null && dBConnectionId == null) {
+        if (ds != null && ds.getIsFlatFileData() || ds == null && dBConnectionId == null) {
             // Get the table ID from the filter request
             String tableId = relativeFilter.getFilterTable().getTableId();
 
             ColumnFilter columnFilter = relativeFilter.getFilterTable();
 
-            // Find the table object in the dataset schema 
+            // Find the table object in the dataset schema
             // Datasetfilter -> create a table object
-            Table tableObj = ds!= null ? ds.getDataSchema().getTables().stream()
+            Table tableObj = ds != null ? ds.getDataSchema().getTables().stream()
                     .filter(table -> table.getId().equals(tableId))
                     .findFirst()
-                    .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!")):new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null, columnFilter.getTableId()  , null, null, false, null);
+                    .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!"))
+                    : new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null,
+                            columnFilter.getTableId(), null, null, false, null);
             // Load file names from file IDs and load the files as views
-            fileDataService.getFileNameFromFileId(userId, Collections.singletonList(tableObj),workspaceId);
+            fileDataService.getFileNameFromFileId(userId, Collections.singletonList(tableObj), workspaceId);
 
             // Compose anchor date query for DuckDB and run it
             String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery("duckdb", ds, relativeFilter);
@@ -1403,15 +1428,14 @@ public class ConnectionPoolService {
             // Compose main query for DuckDB
             query = relativeFilterQueryComposer.composeQuery("duckdb", ds, relativeFilter, anchorDateArray);
 
-        } 
-        else {
+        } else {
             // Check if DB connection ID is provided
             if (dBConnectionId == null || dBConnectionId.isEmpty()) {
                 throw new BadRequestException("Error: DB Connection Id can't be empty!");
             }
 
             // Get the vendor name from the connection pool using the DB connection ID
-            String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId,workspaceId);
+            String vendorName = getVendorNameFromConnectionPool(dBConnectionId, userId, workspaceId);
             // Compose anchor date query for the specific vendor and run it
             String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery(vendorName, ds, relativeFilter);
 
@@ -1422,7 +1446,8 @@ public class ConnectionPoolService {
         }
 
         // Execute the main query and return the result
-        JSONArray jsonArray = ((ds != null && ds.getIsFlatFileData()) || (ds == null && dBConnectionId == null)) ? duckDbService.runQuery(query)
+        JSONArray jsonArray = ((ds != null && ds.getIsFlatFileData()) || (ds == null && dBConnectionId == null))
+                ? duckDbService.runQuery(query)
                 : runQuery(dBConnectionId, userId, query);
 
         return jsonArray;

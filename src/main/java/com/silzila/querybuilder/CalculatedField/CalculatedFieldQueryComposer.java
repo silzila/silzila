@@ -52,24 +52,19 @@ public class CalculatedFieldQueryComposer {
         String calculatedFieldId = "";
 
         for (CalculatedFieldRequest c : calculatedFieldRequests) {
-        System.out.println(1);
 
             calculatedFieldId = c.getCalculatedFieldId();
-        System.out.println(1);
 
             CalculatedFieldDTO calculatedField = calculatedFieldComposed(vendorName,ds, c, calculatedFieldMap);
             if (calculatedField.getIsAggregated()) {
-        System.out.println(1);
 
                 aggregatedCalculatedFieldQuery(ds,vendorName, c, calculatedField, calculatedFieldMap);
             }
-            System.out.println(2);
 
             System.out.println("CalculatedFieldDTO " + calculatedField.toString());
             calculatedFieldMap.put(calculatedFieldId, new CalculatedFieldDTO(calculatedField.getQuery(),
                     calculatedField.getDatatype(), calculatedField.getIsAggregated()));
         }
-        System.out.println(3);
 
         return calculatedFieldMap.get(calculatedFieldId).getQuery();
 
@@ -214,7 +209,6 @@ public class CalculatedFieldQueryComposer {
             if (firstFlow.getSource().size() != firstFlow.getSourceType().size()) {
                 throw new BadRequestException("Number of source and sourcetype should be equal");
             }
-            System.out.println(vendorName);
 
             QueryBuilder queryBuilder = QueryBuilderFactory.getQueryBuilder(vendorName);
             System.out.println(queryBuilder);
@@ -229,7 +223,6 @@ public class CalculatedFieldQueryComposer {
 
                 queryBuilder.processNonConditionalMathFlow(ds.getDataSchema(), firstFlow,
                         fields, flowStringMap, flowKey, calculatedFieldMap);
-                        System.out.println(1+"\n\\n\n\n\n\n\nn\\n");
 
 
             } else if (basicTextOperations.contains(firstFlow.getFlow())) {

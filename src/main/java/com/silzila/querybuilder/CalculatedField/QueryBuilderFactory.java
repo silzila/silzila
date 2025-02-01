@@ -6,7 +6,6 @@ public class QueryBuilderFactory {
     public static QueryBuilder getQueryBuilder(String vendor){
         switch(vendor){
             case "postgresql":
-            System.out.println("queryBuilder mai agya ");
                 return new PostgresSQLQueryBuilder();
             case "mysql":
                 return new MysqlQueryBuilder();

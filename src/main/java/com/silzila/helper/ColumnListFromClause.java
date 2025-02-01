@@ -45,6 +45,13 @@ public class ColumnListFromClause {
             .distinct()
             .collect(Collectors.toList());
     }
+    public static List<String> getColumnListFromListOfFieldRequests(List<List<CalculatedFieldRequest>> calculatedFieldsList) {
+        return calculatedFieldsList.stream()
+            .flatMap(List::stream) 
+            .flatMap(request -> getColumnListFromFieldsRequest(List.of(request)).stream())
+            .distinct()
+            .collect(Collectors.toList());
+    }
 
     
 }
