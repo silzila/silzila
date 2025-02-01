@@ -927,7 +927,7 @@ public class ConnectionPoolService {
             String tableId = "";
 
             String whereClause = ds.getDataSchema().getFilterPanels().isEmpty() ? ""
-                    : WhereClause.buildWhereClause(ds.getDataSchema().getFilterPanels(), vendorName);
+                    : WhereClause.buildWhereClause(ds.getDataSchema().getFilterPanels(), vendorName,ds);
             // iterating to filter panel list to get the particular filter panel for the
             // table
             for (int i = 0; i < ds.getDataSchema().getFilterPanels().size(); i++) {
