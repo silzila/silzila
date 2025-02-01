@@ -12,6 +12,7 @@ import com.silzila.payload.request.Table;
 import com.silzila.querybuilder.RelationshipClauseGeneric;
 import com.silzila.querybuilder.WhereClause;
 import com.silzila.querybuilder.CalculatedField.CalculatedFieldQueryComposer;
+import com.silzila.querybuilder.CalculatedField.helper.DataTypeProvider;
 import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.repository.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -828,7 +829,7 @@ public class ConnectionPoolService {
 
     // Metadata discovery - Get Column names
     public ArrayList<MetadataColumn> getColumn(String id, String userId, String databaseName, String schemaName,
-            String tableName, String workspaceId)
+            String tableName, String workspaceId, List<List<CalculatedFieldRequest>> calculatedFieldRequests)
             throws RecordNotFoundException, SQLException, BadRequestException {
 
         // first create connection pool to query DB
@@ -903,12 +904,30 @@ public class ConnectionPoolService {
                 metadataColumns.add(metadataColumn);
 
             }
+            metadataColumns.addAll(calculatedFieldMetadata(calculatedFieldRequests));
             return metadataColumns;
         } catch (Exception e) {
             throw e;
         }
     }
 
+     public ArrayList<MetadataColumn> calculatedFieldMetadata(List<List<CalculatedFieldRequest>> calculatedFieldRequests){
+        ArrayList<MetadataColumn> metadataColumns = new ArrayList<MetadataColumn>();
+
+        if(calculatedFieldRequests!=null){
+            Map<String, String> calculatedFieldDataType = DataTypeProvider.getCalculatedFieldsDataTypes(calculatedFieldRequests);
+                
+                for (Map.Entry<String, String> field : calculatedFieldDataType.entrySet()) {
+                    String columnName = field.getKey();
+                    String datatype = field.getValue();
+                    
+                    MetadataColumn metadataColumn = new MetadataColumn(columnName, datatype);
+                    metadataColumns.add(metadataColumn);
+                }
+        }
+        return metadataColumns;
+    }
+    
     // Metadata discovery - Get Sample Records of table
     public JSONArray getSampleRecords(String databaseId, String datasetId, String workspaceId, String userId,
             String databaseName, String schemaName,
