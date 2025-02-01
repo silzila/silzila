@@ -187,17 +187,18 @@ public class DBConnectionController {
     }
 
     // Metadata discovery - get List of fields
-    @GetMapping("/metadata-columns/{id}")
+    @PostMapping("/metadata-columns/{id}")
     public ResponseEntity<?> getColumn(@RequestHeader Map<String, String> reqHeader,
             @RequestParam(name = "workspaceId", required = false) String workspaceId,
             @PathVariable(value = "id") String id,
             @RequestParam(name = "database", required = false) String databaseName,
             @RequestParam(name = "schema", required = false) String schemaName,
-            @RequestParam(name = "table") String tableName)
+            @RequestParam(name = "table") String tableName,
+            @RequestBody(required = false) List<List<CalculatedFieldRequest>> calculatedFieldRequests)
             throws RecordNotFoundException, SQLException, BadRequestException {
         String userId = reqHeader.get("username");
         ArrayList<MetadataColumn> metadataColumns = connectionPoolService.getColumn(id, userId, databaseName,
-                schemaName, tableName,workspaceId);
+                schemaName, tableName,workspaceId,calculatedFieldRequests);
         return ResponseEntity.status(HttpStatus.OK).body(metadataColumns);
     }
 
