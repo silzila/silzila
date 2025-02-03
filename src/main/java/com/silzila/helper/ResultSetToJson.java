@@ -52,48 +52,7 @@ public class ResultSetToJson {
         }
         return result;
     }
-        public static JSONObject convertToArray(ResultSet resultSet) throws SQLException {
-        JSONObject result = new JSONObject();
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int numCols = metaData.getColumnCount();
-
-        // Map to hold Sets for each column to ensure unique values
-        Map<String, Set<Object>> columnSets = new HashMap<>();
-
-        // Initialize sets for each column
-        for (int i = 1; i <= numCols; i++) {
-            String columnName = metaData.getColumnName(i);
-            columnSets.put(columnName, new HashSet<>());
-        }
-
-        try {
-            while (resultSet.next()) {
-                for (int i = 1; i <= numCols; i++) {
-                    String columnName = metaData.getColumnName(i);
-                    Object value = resultSet.getObject(i);
-
-                    // Add the value to the corresponding column's set for uniqueness
-                    if (value == null) {
-                        columnSets.get(columnName).add(JSONObject.NULL);
-                    } else {
-                        columnSets.get(columnName).add(value);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        // Convert sets back to JSONArray and add to JSONObject
-        for (int i = 1; i <= numCols; i++) {
-            String columnName = metaData.getColumnName(i);
-            JSONArray jsonArray = new JSONArray(columnSets.get(columnName));
-            result.put(columnName, jsonArray);
-        }
-
-        return result;
-    }
-
+    
 
      public static JSONObject convertToArray(ResultSet resultSet) throws SQLException {
         JSONObject result = new JSONObject();
