@@ -596,7 +596,7 @@ public class FileDataService {
         return workspaceContentDTOList;
     }
     // HELPER FUNCTION - read all file data with file name
-    public void getFileNameFromFileId(String userId, List<Table> tableObjList)
+    public void getFileNameFromFileId(String userId, List<Table> tableObjList,String workspaceId)
             throws BadRequestException, SQLException, ClassNotFoundException {
         List<FileData> fileDataList = buffer.getFileDataByUserId(userId);
         // sparkService.createDfForFlatFiles(userId, tableObjList, fileDataList);
