@@ -2,6 +2,7 @@ package com.silzila.controller;
 
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import com.silzila.exception.ExpectationFailedException;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.payload.request.*;
 import com.silzila.payload.response.MessageResponse;
+import com.silzila.payload.response.TableRelationshipResponse;
 import com.silzila.service.ConnectionPoolService;
 import com.silzila.service.DatasetService;
 
@@ -63,6 +65,7 @@ public class DatasetController {
         DatasetDTO dto = datasetService.updateDataset(datasetRequest, id, userId,workspaceId);
         return ResponseEntity.ok(dto);
     }
+
 
     // list datasets
     @GetMapping("/dataset")
@@ -168,6 +171,16 @@ public class DatasetController {
                 String userId = reqHeader.get("username");
                 JSONObject jsonObject =  datasetService.calculatedFieldFilterOptions(userId,dBConnectionId,datasetId,workspaceId,calculatedFieldRequest);
                 return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK).body(jsonObject.toString());
+    }
+
+    @PostMapping("table-relationship")
+    public List<TableRelationshipResponse> tableRelationships(@RequestHeader Map<String, String> reqHeader,
+    @RequestParam(required = false) String workspaceId,
+    @RequestParam(name = "datasetId", required = true) String datasetId,
+    @RequestBody(required = true) Map<String,List<String>> tableIds
+    ) throws JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, RecordNotFoundException, SQLException{
+        String userId = reqHeader.get("email");
+        return datasetService.tablesRelationship(userId, workspaceId, tableIds.get("tableIds"), datasetId);
     }
 
 
