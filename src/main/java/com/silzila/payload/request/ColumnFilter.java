@@ -2,6 +2,7 @@ package com.silzila.payload.request;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -24,16 +25,20 @@ import com.fasterxml.jackson.annotation.JsonValue;
 @Generated("jsonschema2pojo")
 public class ColumnFilter implements Serializable {
 
+    @JsonProperty("isCalculatedField")
+    private Boolean isCalculatedField = false;
+    @JsonProperty("calculatedField")
+    private List<CalculatedFieldRequest> calculatedField;
     @JsonProperty("tableId")
     private String tableId;
     @JsonProperty("tableName")
-    private String tableName=null;
+    private String tableName = null;
     @JsonProperty("schemaName")
-    private String schemaName=null;
+    private String schemaName = null;
     @JsonProperty("dbName")
-    private String dbName=null;
+    private String dbName = null;
     @JsonProperty("flatFileId")
-    private String flatFileId=null;
+    private String flatFileId = null;
     @JsonProperty("fieldName")
     private String fieldName;
     @JsonProperty("dataType")
@@ -42,6 +47,8 @@ public class ColumnFilter implements Serializable {
     private ColumnFilter.FilterOption filterOption;
     @JsonProperty("timeGrain")
     private ColumnFilter.TimeGrain timeGrain;
+    @JsonProperty("whereClause")
+    private String whereClause = null;
     private final static long serialVersionUID = -2628722783214042914L;
 
     /**
@@ -62,9 +69,10 @@ public class ColumnFilter implements Serializable {
      * @param schemaName
      * @param dbName
      */
-    public ColumnFilter(String tableId,String tableName,String schemaName,String dbName,
-                        String fieldName,String flatFileId, ColumnFilter.DataType dataType,
-            ColumnFilter.FilterOption filterOption, ColumnFilter.TimeGrain timeGrain) {
+    public ColumnFilter(Boolean isCalculatedField, List<CalculatedFieldRequest> calculatedField, String tableId,
+            String tableName, String schemaName, String dbName,
+            String fieldName, String flatFileId, ColumnFilter.DataType dataType,
+            ColumnFilter.FilterOption filterOption, ColumnFilter.TimeGrain timeGrain,String whereClause) {
         super();
         this.tableId = tableId;
         this.tableName = tableName;
@@ -75,6 +83,29 @@ public class ColumnFilter implements Serializable {
         this.dataType = dataType;
         this.filterOption = filterOption;
         this.timeGrain = timeGrain;
+        this.isCalculatedField = isCalculatedField;
+        this.whereClause = whereClause;
+           this.calculatedField = calculatedField;
+    }
+
+    @JsonProperty("isCalculatedField")
+    public Boolean getIsCalculatedField() {
+        return isCalculatedField;
+    }
+
+    @JsonProperty("isCalculatedField")
+    public void setIsCalculatedField(Boolean calculatedField) {
+        isCalculatedField = calculatedField;
+    }
+
+    @JsonProperty("calculatedField")
+    public List<CalculatedFieldRequest> getCalculatedField() {
+        return calculatedField;
+    }
+
+    @JsonProperty("calculatedField")
+    public void setCalculatedField(List<CalculatedFieldRequest> calculatedField) {
+        this.calculatedField = calculatedField;
     }
 
     @JsonProperty("tableId")
@@ -86,38 +117,47 @@ public class ColumnFilter implements Serializable {
     public void setTableId(String tableId) {
         this.tableId = tableId;
     }
+
     @JsonProperty("tableName")
     public String getTableName() {
         return tableName;
     }
+
     @JsonProperty("tableName")
     public void setTableName(String tableName) {
         this.tableName = tableName;
     }
+
     @JsonProperty("schemaName")
     public String getSchemaName() {
         return schemaName;
     }
+
     @JsonProperty("schemaName")
     public void setSchemaName(String schemaName) {
         this.schemaName = schemaName;
     }
+
     @JsonProperty("dbName")
     public String getDBName() {
         return dbName;
     }
+
     @JsonProperty("dbName")
     public void setDBName(String dbName) {
         this.dbName = dbName;
     }
+
     @JsonProperty("flatFileId")
     public String getFlatFileId() {
         return flatFileId;
     }
+
     @JsonProperty("flatFileId")
     public void setFlatFileId(String flatFileId) {
         this.flatFileId = flatFileId;
     }
+
     @JsonProperty("fieldName")
     public String getFieldName() {
         return fieldName;
@@ -158,11 +198,28 @@ public class ColumnFilter implements Serializable {
         this.timeGrain = timeGrain;
     }
 
+    @JsonProperty("whereClause")
+    public String getWhereClause() {
+        return whereClause;
+    }
+
+    @JsonProperty("whereClause")
+    public void setWhereClause(String whereClause) {
+        this.whereClause = whereClause;
+    }
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(ColumnFilter.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this)))
                 .append('[');
+        sb.append("isCalculatedField");
+        sb.append('=');
+        sb.append((this.isCalculatedField));
+        sb.append(',');
+        sb.append("calculatedFieldName");
+        sb.append('=');
+        sb.append(((this.calculatedField == null) ? "<null>" : this.calculatedField));
+        sb.append(',');
         sb.append("tableId");
         sb.append('=');
         sb.append(((this.tableId == null) ? "<null>" : this.tableId));
