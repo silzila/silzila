@@ -18,6 +18,7 @@ import com.silzila.service.ConnectionPoolService;
 import com.silzila.service.DatasetService;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -157,5 +158,17 @@ public class DatasetController {
                 JSONArray jsonArray =  datasetService.testCalculateField(userId,dBConnectionId,datasetId,workspaceId,calculatedFieldRequests,recordCount);
                 return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
+    @PostMapping("calculated-field/filter-options")
+    public ResponseEntity<?> calculatedFieldFilterOptions(@RequestHeader Map<String, String> reqHeader,
+            @Valid @RequestBody List<CalculatedFieldRequest> calculatedFieldRequest,
+            @RequestParam(required = false) String workspaceId,
+            @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
+            @RequestParam(name = "datasetid", required = false) String datasetId,
+            @RequestParam(name = "limit", required = false) Integer recordCount) throws JsonMappingException, JsonProcessingException, ClassNotFoundException, RecordNotFoundException, SQLException, BadRequestException{
+                String userId = reqHeader.get("username");
+                JSONObject jsonObject =  datasetService.calculatedFieldFilterOptions(userId,dBConnectionId,datasetId,workspaceId,calculatedFieldRequest);
+                return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK).body(jsonObject.toString());
+    }
+
 
 }

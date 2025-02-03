@@ -735,5 +735,25 @@ public class DatasetService {
         }
 
     }
+    public JSONObject calculatedFieldFilterOptions(String userId, String dbConnectionId, String datasetId,String workspaceId,List<CalculatedFieldRequest> calculatedFieldRequest) 
+    throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException, 
+    ClassNotFoundException, BadRequestException{
+
+        String vendorName = connectionPoolService.getVendorNameFromConnectionPool(dbConnectionId, userId, workspaceId);
+
+        relativeFilterProcessor.processCalculatedFields( calculatedFieldRequest, userId, dbConnectionId, datasetId,workspaceId, this::relativeFilter);
+
+        DatasetDTO ds = loadDatasetInBuffer(workspaceId, dbConnectionId, datasetId, userId);
+
+
+        String query = calculatedFieldQueryComposer.composeFilterOptionsQuery(ds,vendorName,calculatedFieldRequest, ds.getDataSchema());
+
+        logger.info("\n******* QUERY **********\n" + query);
+
+        JSONObject jsonObject = connectionPoolService.runQueryObject(dbConnectionId, userId, query);
+
+        return jsonObject;
+    }
+
 
 }
