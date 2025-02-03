@@ -9,7 +9,7 @@
 
 ## Preview
 <p align="center">
-<img src="https://user-images.githubusercontent.com/61963881/216865592-d1b009fe-cd4d-4336-9c98-86892cd88f9f.gif" alt="preview" width="1000">
+<img src="https://github.com/silzila/silzila/blob/main/images/preview.gif?raw=true" alt="preview" width="1000">
 </p>
 
 ## 1. Connect to your Database
