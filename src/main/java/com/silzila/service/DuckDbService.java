@@ -362,7 +362,7 @@ public class DuckDbService {
             }
 
             //generating where clause from the given filter panel
-            whereClause = WhereClause.buildWhereClause(filterPanels, "duckdb");
+            whereClause = WhereClause.buildWhereClause(filterPanels, "duckdb",ds);
 
             //creating Encryption key to save parquet file securely
             String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";

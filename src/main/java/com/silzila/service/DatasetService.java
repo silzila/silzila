@@ -9,6 +9,8 @@ import javax.validation.Valid;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.*;
+import com.silzila.payload.response.TableRelationshipResponse;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -577,7 +579,7 @@ public class DatasetService {
             for (List<Dimension> dimensions : dimensionGroups) {
                 Query dimensionQuery = new Query(dimensions, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
                         null);
-                QueryClauseFieldListMap qMap = subTotalsCombination.selectClauseSql(dimensionQuery, vendorName);
+                QueryClauseFieldListMap qMap = subTotalsCombination.selectClauseSql(dimensionQuery, ds,vendorName);
                 List<String> combination = new ArrayList<>(qMap.getGroupByList());
                 subTotalCombinations.add(combination);
             }
@@ -861,7 +863,7 @@ public class DatasetService {
 
         return jsonObject;
     }
-
+        // to get relationship between tables
     public List<TableRelationshipResponse> tablesRelationship(String userId, String workspaceId, List<String> tableIds,
             String datasetId)
             throws JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException,

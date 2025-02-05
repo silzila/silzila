@@ -1,11 +1,15 @@
 package com.silzila.querybuilder;
 
+import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
 import com.silzila.payload.request.Query;
+import com.silzila.querybuilder.CalculatedField.CalculatedFieldQueryComposer;
+import com.silzila.querybuilder.CalculatedField.helper.DataTypeProvider;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,7 +20,7 @@ public class SelectClauseTeraData {
     private static final Logger logger = LogManager.getLogger(SelectClauseSqlserver.class);
 
     /* SELECT clause for SqlServer dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, Map<String,Integer>... aliasnumber) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,DatasetDTO ds, Map<String,Integer>... aliasnumber) throws BadRequestException {
         logger.info("SelectClauseTeraData calling ***********");
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
@@ -73,10 +77,18 @@ public class SelectClauseTeraData {
 
             }
             String field = "";
-
+ String selectField = (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) 
+            ? CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName, ds, dim.getCalculatedField()) 
+            : dim.getTableId() + "." + dim.getFieldName();
+        
+        if (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) {
+            dim.setDataType(Dimension.DataType.fromValue(
+                DataTypeProvider.getCalculatedFieldDataTypes(dim.getCalculatedField())
+            ));
+        }
             // for non Date fields, Keep column as is
             if (List.of("TEXT", "BOOLEAN", "INTEGER", "DECIMAL").contains(dim.getDataType().name())) {
-                field = dim.getTableId() + "." + dim.getFieldName();
+                field = selectField;
                 groupByDimList.add(field);
                 orderByDimList.add(field);
             }
@@ -87,13 +99,13 @@ public class SelectClauseTeraData {
                 // 'dayofweek', 'date', 'dayofmonth')
                 // year -> 2015
                 if (dim.getTimeGrain().name().equals("YEAR")) {
-                    field = "YEAR(" + dim.getTableId() + "." + dim.getFieldName() + ")";
+                    field = "YEAR(" + selectField + ")";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // quarter name -> Q3
                 else if (dim.getTimeGrain().name().equals("QUARTER")) {
-                    field = "CONCAT('Q', LTRIM(TD_QUARTER_OF_YEAR( " + dim.getTableId() + "." + dim.getFieldName() + ")))";
+                    field = "CONCAT('Q', LTRIM(TD_QUARTER_OF_YEAR( " + selectField + ")))";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
@@ -101,7 +113,7 @@ public class SelectClauseTeraData {
                 // for month, need to give month number also for column sorting
                 // which should be available in group by list but not in select list
                 else if (dim.getTimeGrain().name().equals("MONTH")) {
-                    String sortingField = "MONTH(" + dim.getTableId() + "." + dim.getFieldName() + ")";
+                    String sortingField = "MONTH(" + selectField + ")";
                     field = "case " +sortingField+"\n"+
                             "    when '01' then 'January'\n" +
                             "    when '02' then 'February'\n" +
@@ -123,20 +135,20 @@ public class SelectClauseTeraData {
                 }
                 // yearquarter name -> 2015-Q3
                 else if (dim.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "CONCAT(LTRIM(YEAR(" + dim.getTableId() + "." + dim.getFieldName()
-                            + ")), '-Q', LTRIM(TD_QUARTER_OF_YEAR( " + dim.getTableId() + "." + dim.getFieldName() + ")))";
+                    field = "CONCAT(LTRIM(YEAR(" + selectField
+                            + ")), '-Q', LTRIM(TD_QUARTER_OF_YEAR( " + selectField + ")))";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // yearmonth name -> 2015-08
                 else if (dim.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "CONCAT(LTRIM(YEAR("+ dim.getTableId() + "." + dim.getFieldName() +")),'-',LTRIM(MONTH("+ dim.getTableId() + "." + dim.getFieldName() +")(format '99')))";
+                    field = "CONCAT(LTRIM(YEAR("+ selectField +")),'-',LTRIM(MONTH("+ selectField +")(format '99')))";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // date -> 2022-08-31
                 else if (dim.getTimeGrain().name().equals("DATE")) {
-                    field = "(" + dim.getTableId() + "." + dim.getFieldName() + ")";
+                    field = "(" + selectField + ")";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
@@ -144,7 +156,7 @@ public class SelectClauseTeraData {
                 // for day of week, also give day of week number for column sorting
                 // which should be available in group by list but not in select list
                 else if (dim.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    String sortingField = "TD_DAY_OF_WEEK(" + dim.getTableId() + "." + dim.getFieldName() + ")";
+                    String sortingField = "TD_DAY_OF_WEEK(" + selectField + ")";
                     field = " case  "+sortingField+"\n" +
                             "\t\twhen 1 then 'Sunday'\n" +
                             "\t\twhen 2 then 'Monday'\n" +
@@ -160,7 +172,7 @@ public class SelectClauseTeraData {
                 }
                 // day of month -> 31
                 else if (dim.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    field = "MONTH(" + dim.getTableId() + "." + dim.getFieldName() + ")";
+                    field = "MONTH(" + selectField + ")";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 } else {
@@ -192,16 +204,25 @@ public class SelectClauseTeraData {
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
             String windowFn = "";
-            if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
+            String selectField = meas.getIsCalculatedField()?CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds,meas.getCalculatedField()): meas.getTableId() + "." + meas.getFieldName();
+            if (meas.getIsCalculatedField()) {
+                meas.setDataType(Measure.DataType.fromValue(
+                    DataTypeProvider.getCalculatedFieldDataTypes(meas.getCalculatedField())
+                ));
+            }
+            if(meas.getIsCalculatedField() && meas.getCalculatedField().get(meas.getCalculatedField().size()-1).getIsAggregated()){
+                field = selectField;
+            }
+            else if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
                 // checking ('count', 'countnn', 'countn', 'countu')
                 if (meas.getAggr().name().equals("COUNT")) {
                     field = "COUNT(*)";
                 } else if (meas.getAggr().name().equals("COUNTNN")) {
-                    field = "COUNT(" + meas.getTableId() + "." + meas.getFieldName() + ")";
+                    field = "COUNT(" + selectField + ")";
                 } else if (meas.getAggr().name().equals("COUNTU")) {
-                    field = "COUNT(DISTINCT " + meas.getTableId() + "." + meas.getFieldName() + ")";
+                    field = "COUNT(DISTINCT " + selectField + ")";
                 } else if (meas.getAggr().name().equals("COUNTN")) {
-                    field = "SUM(CASE WHEN " + meas.getTableId() + "." + meas.getFieldName()
+                    field = "SUM(CASE WHEN " + selectField
                             + " IS NULL THEN 1 ELSE 0 END)";
                 } else {
                     throw new BadRequestException(
@@ -260,20 +281,20 @@ public class SelectClauseTeraData {
                         && List.of("YEAR", "MONTH")
                         .contains(meas.getTimeGrain().name())) {
                     field = "COUNT(DISTINCT EXTRACT(" + timeGrainMap.get(meas.getTimeGrain().name())
-                            + " FROM " + meas.getTableId() + "." + meas.getFieldName() + "))";
+                            + " FROM " + selectField + "))";
                 }
                 // checking ('date')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("DATE")) {
-                    field = "COUNT(DISTINCT CAST( " + meas.getTableId() + "." + meas.getFieldName() + " AS DATE))";
+                    field = "COUNT(DISTINCT CAST( " + selectField + " AS DATE))";
                 }
                 // checking ('yearquarter')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "COUNT(DISTINCT(CONCAT(LTRIM(YEAR(" + meas.getTableId() + "." + meas.getFieldName()
-                            + ")), '-Q', LTRIM(TD_QUARTER_OF_YEAR( " + meas.getTableId() + "." + meas.getFieldName() + "))))";
+                    field = "COUNT(DISTINCT(CONCAT(LTRIM(YEAR(" + selectField
+                            + ")), '-Q', LTRIM(TD_QUARTER_OF_YEAR( " + selectField + "))))";
                 }
                 // checking ('yearmonth')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "COUNT(DISTINCT(CONCAT(LTRIM(YEAR("+ meas.getTableId() + "." + meas.getFieldName() +")),'-',LTRIM(MONTH("+ meas.getTableId() + "." + meas.getFieldName() +")(format '99'))))";
+                    field = "COUNT(DISTINCT(CONCAT(LTRIM(YEAR("+ selectField +")),'-',LTRIM(MONTH("+ selectField +")(format '99'))))";
                 }
                 // checking ('quarter')
                 else if(meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("QUARTER")){
@@ -297,9 +318,9 @@ public class SelectClauseTeraData {
                 else if (meas.getAggr().name().equals("COUNT")) {
                     field = "COUNT(*)";
                 } else if (meas.getAggr().name().equals("COUNTNN")) {
-                    field = "COUNT(" + meas.getTableId() + "." + meas.getFieldName() + ")";
+                    field = "COUNT(" + selectField + ")";
                 } else if (meas.getAggr().name().equals("COUNTN")) {
-                    field = "SUM(CASE WHEN " + meas.getTableId() + "." + meas.getFieldName()
+                    field = "SUM(CASE WHEN " + selectField
                             + " IS NULL THEN 1 ELSE 0 END)";
                 } else {
                     throw new BadRequestException("Error: Measure " + meas.getFieldName() +
@@ -310,16 +331,16 @@ public class SelectClauseTeraData {
             // for number fields, do aggregation
             else if (List.of("INTEGER", "DECIMAL").contains(meas.getDataType().name())) {
                 if (List.of("SUM", "AVG", "MIN", "MAX").contains(meas.getAggr().name())) {
-                    field = meas.getAggr().name() + "(" + meas.getTableId() + "." + meas.getFieldName()
+                    field = meas.getAggr().name() + "(" + selectField
                             + ")";
                 } else if (meas.getAggr().name().equals("COUNT")) {
                     field = "COUNT(*)";
                 } else if (meas.getAggr().name().equals("COUNTNN")) {
-                    field = "COUNT(" + meas.getTableId() + "." + meas.getFieldName() + ")";
+                    field = "COUNT(" + selectField + ")";
                 } else if (meas.getAggr().name().equals("COUNTU")) {
-                    field = "COUNT(DISTINCT " + meas.getTableId() + "." + meas.getFieldName() + ")";
+                    field = "COUNT(DISTINCT " + selectField + ")";
                 } else if (meas.getAggr().name().equals("COUNTN")) {
-                    field = "SUM(CASE WHEN " + meas.getTableId() + "." + meas.getFieldName()
+                    field = "SUM(CASE WHEN " + selectField
                             + " IS NULL THEN 1 ELSE 0 END)";
                 } else {
                     throw new BadRequestException(
@@ -328,7 +349,7 @@ public class SelectClauseTeraData {
             }
             // if windowFn not null it will execute window function for sqlserver
             if(meas.getWindowFn()[0] != null){
-                windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName);
+                windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName,ds);
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
                 // if aliasnumber is not null, to maintain alias sequence for measure field
                 if(aliasnumber != null && aliasnumber.length > 0){
