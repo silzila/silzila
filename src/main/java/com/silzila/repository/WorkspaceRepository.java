@@ -16,6 +16,8 @@ public interface WorkspaceRepository extends JpaRepository<Workspace,String> {
             ") AS name_exists", nativeQuery = true)
     boolean existsByNameAndParentId(String name, String parentId);
 
+    List<Workspace> findByUserIdAndParentIsNull(String userId);
+    
     Boolean existsByParentId(String workspaceId);
   
     @Query("SELECT w FROM Workspace w WHERE w.userId = :userId")
