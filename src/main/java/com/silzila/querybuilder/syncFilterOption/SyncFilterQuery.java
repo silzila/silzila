@@ -1,6 +1,7 @@
 package com.silzila.querybuilder.syncFilterOption;
 
 
+import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.*;
@@ -12,7 +13,7 @@ import java.util.*;
 @Slf4j
 public class SyncFilterQuery {
 
-    public static String getSyncFilterOptions(List<Filter> cf, String fromQuery, String vendorName) throws BadRequestException {
+    public static String getSyncFilterOptions(List<Filter> cf, String fromQuery, String vendorName,DatasetDTO ds) throws BadRequestException {
         QueryClauseFieldListMap selectQuery=null;
         boolean userSelection=false;
         String whereClause=null;
@@ -51,7 +52,7 @@ public class SyncFilterQuery {
 
 
                         // Create and add the Dimension object
-                        Dimension dimension = new Dimension(
+                        Dimension dimension = new Dimension(false,null,
                                 filter.getTableId(),
                                 filter.getFieldName(),
                                 Dimension.DataType.fromValue(filter.getDataType().toString()),
@@ -82,32 +83,32 @@ public class SyncFilterQuery {
             query.setMeasures(new ArrayList<>());
             query.setFields(null);
             if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
-               selectQuery = SelectClausePostgres.buildSelectClause(query, vendorName, aliasMap);
+               selectQuery = SelectClausePostgres.buildSelectClause(query, vendorName,ds, aliasMap);
             } else if (vendorName.equals("mysql")) {
-                selectQuery = SelectClauseMysql.buildSelectClause(query, vendorName, aliasMap);
+                selectQuery = SelectClauseMysql.buildSelectClause(query, vendorName,ds, aliasMap);
             } else if (vendorName.equals("sqlserver")) {
-                selectQuery = SelectClauseSqlserver.buildSelectClause(query, vendorName, aliasMap);
+                selectQuery = SelectClauseSqlserver.buildSelectClause(query, vendorName,ds, aliasMap);
             } else if (vendorName.equals("databricks")) {
-                selectQuery = SelectClauseDatabricks.buildSelectClause(query, vendorName, aliasMap);
+                selectQuery = SelectClauseDatabricks.buildSelectClause(query, vendorName,ds, aliasMap);
 
             } else if (vendorName.equals("duckdb")) {
-                selectQuery = SelectClauseMotherduck.buildSelectClause(query, vendorName, aliasMap);
+                selectQuery = SelectClauseMotherduck.buildSelectClause(query, vendorName,ds, aliasMap);
 
             } else if (vendorName.equals("bigquery")) {
-                selectQuery = SelectClauseBigquery.buildSelectClause(query, vendorName, aliasMap);
+                selectQuery = SelectClauseBigquery.buildSelectClause(query, vendorName,ds, aliasMap);
             } else if (vendorName.equals("oracle")) {
-                selectQuery = SelectClauseOracle.buildSelectClause(query, vendorName, aliasMap);
+                selectQuery = SelectClauseOracle.buildSelectClause(query, vendorName,ds, aliasMap);
             } else if (vendorName.equals("snowflake")) {
-                selectQuery = SelectClauseSnowflake.buildSelectClause(query, vendorName, aliasMap);
+                selectQuery = SelectClauseSnowflake.buildSelectClause(query, vendorName,ds, aliasMap);
 
             } else if (vendorName.equals("motherduck")) {
-                selectQuery = SelectClauseMotherduck.buildSelectClause(query, vendorName, aliasMap);
+                selectQuery = SelectClauseMotherduck.buildSelectClause(query, vendorName,ds, aliasMap);
 
             } else if (vendorName.equals("db2")) {
-                selectQuery = SelectClauseDB2.buildSelectClause(query, vendorName, aliasMap);
+                selectQuery = SelectClauseDB2.buildSelectClause(query, vendorName,ds, aliasMap);
 
             } else if (vendorName.equals("teradata")) {
-                selectQuery = SelectClauseTeraData.buildSelectClause(query, vendorName, aliasMap);
+                selectQuery = SelectClauseTeraData.buildSelectClause(query, vendorName,ds, aliasMap);
 
             } else {
                 throw new BadRequestException("Error: DB vendor Name is wrong!");
@@ -129,7 +130,7 @@ public class SyncFilterQuery {
 
             // Build WHERE clause using the panel
             if(userSelection){
-            whereClause = WhereClause.buildWhereClause(Collections.singletonList(panel), vendorName);
+            whereClause = WhereClause.buildWhereClause(Collections.singletonList(panel), vendorName,ds);
                 finalQuery.append(whereClause);
             }
             System.out.println("Generated  Query: " + finalQuery.toString());

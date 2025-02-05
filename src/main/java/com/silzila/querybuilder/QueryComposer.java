@@ -79,29 +79,29 @@ public class QueryComposer {
          */
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             // System.out.println("------ inside postges block");
-            qMap = SelectClausePostgres.buildSelectClause(req, vendorName, aliasnumber);
+            qMap = SelectClausePostgres.buildSelectClause(req, vendorName,ds, aliasnumber);
         } else if (vendorName.equals("mysql")) {
             // System.out.println("------ inside mysql block");
-            qMap = SelectClauseMysql.buildSelectClause(req, vendorName, aliasnumber);
+            qMap = SelectClauseMysql.buildSelectClause(req, vendorName,ds,  aliasnumber);
         } else if (vendorName.equals("sqlserver")) {
             // System.out.println("------ inside sql server block");
-            qMap = SelectClauseSqlserver.buildSelectClause(req, vendorName, aliasnumber);
+            qMap = SelectClauseSqlserver.buildSelectClause(req, vendorName,ds,  aliasnumber);
         } else if (vendorName.equals("bigquery")) {
             // System.out.println("------ inside Big Query block");
-            qMap = SelectClauseBigquery.buildSelectClause(req, vendorName, aliasnumber);
+            qMap = SelectClauseBigquery.buildSelectClause(req, vendorName,ds,  aliasnumber);
         } else if (vendorName.equals("databricks")) {
             // System.out.println("------ inside databricks block");
-            qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName, aliasnumber);
+            qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName,ds,  aliasnumber);
         } else if (vendorName.equals("oracle")) {
-            qMap = SelectClauseOracle.buildSelectClause(req, vendorName, aliasnumber);
+            qMap = SelectClauseOracle.buildSelectClause(req, vendorName,ds,  aliasnumber);
         } else if (vendorName.equals("snowflake")) {
-            qMap = SelectClauseSnowflake.buildSelectClause(req, vendorName, aliasnumber);
+            qMap = SelectClauseSnowflake.buildSelectClause(req, vendorName,ds,  aliasnumber);
         } else if (vendorName.equals("motherduck") || vendorName.equals("duckdb") ) {
-            qMap = SelectClauseMotherduck.buildSelectClause(req, vendorName, aliasnumber);
+            qMap = SelectClauseMotherduck.buildSelectClause(req, vendorName,ds,  aliasnumber);
         } else if (vendorName.equals("db2") ) {
-            qMap = SelectClauseDB2.buildSelectClause(req, vendorName, aliasnumber);
+            qMap = SelectClauseDB2.buildSelectClause(req, vendorName,ds,  aliasnumber);
         }else if (vendorName.equals("teradata") ) {
-            qMap = SelectClauseTeraData.buildSelectClause(req, vendorName, aliasnumber);
+            qMap = SelectClauseTeraData.buildSelectClause(req, vendorName,ds,  aliasnumber);
         }
         else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
@@ -311,7 +311,7 @@ public class QueryComposer {
 
                 for (Dimension dim : baseDimensions) {
                     // Create a new Dimension object with the same properties as dim
-                    Dimension newDim = new Dimension(dim.getTableId(),dim.getFieldName() , dim.getDataType(), dim.getTimeGrain(),dim.isRollupDepth());
+                    Dimension newDim = new Dimension(false,null,dim.getTableId(),dim.getFieldName() , dim.getDataType(), dim.getTimeGrain(),dim.isRollupDepth());
                     commonDimensions.add(newDim);
                 }
 
@@ -336,7 +336,7 @@ public class QueryComposer {
                 
                 for (Dimension dim : leftOverDimension) {
                     // Create a new Dimension object with the same properties as dim
-                    Dimension newDim = new Dimension(dim.getTableId(), dim.getFieldName(), dim.getDataType(),
+                    Dimension newDim = new Dimension(false,null ,dim.getTableId(), dim.getFieldName(), dim.getDataType(),
                             dim.getTimeGrain(), dim.isRollupDepth());
                     combinedDimensions.add(newDim);
                 }
@@ -399,7 +399,7 @@ public class QueryComposer {
 
                  // CTE expression
                 if (!leftOverDimension.isEmpty()) {                
-                    String CTEQuery = overrideCTE.overrideCTEq(tblNum, reqCTE, leftOverDimension, combinedDimensions,vendorName);
+                    String CTEQuery = overrideCTE.overrideCTEq(tblNum, reqCTE, leftOverDimension, combinedDimensions,vendorName,ds);
                     overrideQuery += CTEQuery;
                 }
 
@@ -451,7 +451,7 @@ public class QueryComposer {
             }
 
             if(windowFn){
-                updatedQuery = overrideCTE.windowQuery(overrideCTEQuery.toString(),CTEmainQuery.toString(),baseDimensions,windowMeasures,aliasMeasureOrder1,queries.get(0),vendorName);
+                updatedQuery = overrideCTE.windowQuery(overrideCTEQuery.toString(),CTEmainQuery.toString(),baseDimensions,windowMeasures,aliasMeasureOrder1,queries.get(0),vendorName,ds);
             }
             else{
                 overrideCTEQuery.append(CTEmainQuery.toString());

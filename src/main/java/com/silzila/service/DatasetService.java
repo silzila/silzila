@@ -579,7 +579,7 @@ public class DatasetService {
             for (List<Dimension> dimensions : dimensionGroups) {
                 Query dimensionQuery = new Query(dimensions, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
                         null);
-                QueryClauseFieldListMap qMap = subTotalsCombination.selectClauseSql(dimensionQuery, vendorName);
+                QueryClauseFieldListMap qMap = subTotalsCombination.selectClauseSql(dimensionQuery, ds,vendorName);
                 List<String> combination = new ArrayList<>(qMap.getGroupByList());
                 subTotalCombinations.add(combination);
             }
@@ -864,62 +864,6 @@ public class DatasetService {
         return jsonObject;
     }
         // to get relationship between tables
-    public List<TableRelationshipResponse> tablesRelationship(String userId, String workspaceId, List<String> tableIds, String datasetId)
-        throws JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException,
-        RecordNotFoundException, SQLException {
-
-    DatasetDTO datasetDTO = buffer.loadDatasetInBuffer(workspaceId, datasetId, userId);
-
-    DataSchema dataSchema = datasetDTO.getDataSchema();
-
-    List<Relationship> relationships = dataSchema.getRelationships();
-
-    List<TableRelationshipResponse> responses = new ArrayList<>();
-
-    for (int i = 0; i < tableIds.size(); i++) {
-        for (int j = i + 1; j < tableIds.size(); j++) {
-            String table1 = tableIds.get(i);
-            String table2 = tableIds.get(j);
-
-            boolean isDirectlyRelated = false;
-            String relationType = null;
-
-            for (Relationship relationship : relationships) {
-                if ((relationship.getTable1().equals(table1) && relationship.getTable2().equals(table2))
-                        || (relationship.getTable1().equals(table2) && relationship.getTable2().equals(table1))) {
-                    isDirectlyRelated = true;
-                    relationType = relationship.getCardinality();
-
-                    // Adjust the table order based on the relationship type
-                    if (relationType.equalsIgnoreCase("many to one") && relationship.getTable2().equals(table1)) {
-                        String temp = table1;
-                        table1 = table2;
-                        table2 = temp;
-                    } else if (relationType.equalsIgnoreCase("one to many") && relationship.getTable1().equals(table2)) {
-                        String temp = table1;
-                        table1 = table2;
-                        table2 = temp;
-                    }
-                    break;
-                }
-            }
-
-            // Create a relationship response
-            TableRelationshipResponse response = new TableRelationshipResponse();
-            response.setTable1(table1);
-            response.setTable2(table2);
-            response.setRelationship(isDirectlyRelated ? relationType : null);
-            response.setIsDirect(isDirectlyRelated);
-
-            responses.add(response);
-        }
-    }
-
-    return responses;
-}
-
-
-
     public List<TableRelationshipResponse> tablesRelationship(String userId, String workspaceId, List<String> tableIds,
             String datasetId)
             throws JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException,
