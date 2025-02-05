@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
+
+import com.databricks.client.jdbc42.internal.apache.arrow.flatbuf.Bool;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -51,8 +53,6 @@ public class Filter implements Serializable {
     private Filter.Operator operator;
     @JsonProperty("userSelection")
     private List<String> userSelection = null;
-    @JsonProperty("currentSelection")
-    private Boolean currentSelection=false;
     @JsonProperty("relativeCondition")
     private RelativeCondition relativeCondition = null;
     @JsonProperty("isTillDate")
@@ -60,6 +60,8 @@ public class Filter implements Serializable {
     @JsonProperty("isField")
     private Boolean isField = true;
     private final static long serialVersionUID = 4876626487235075859L;
+    @JsonProperty("currentSelection")
+    private Boolean currentSelection=false;
 
     /**
      * No args constructor for use in serialization
@@ -80,6 +82,7 @@ public class Filter implements Serializable {
      * @param operator
      * @param relativeCondition
      */
+
     public Filter(Boolean isCalculatedField,List<CalculatedFieldRequest> calculatedField,String tableId, String tableName, String fieldName, Filter.DataType dataType, String uid, Boolean shouldExclude,
             Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection,Boolean currentSelection, String filterType,
             RelativeCondition relativeCondition, Boolean  isTillDate,Boolean isField) {
@@ -99,6 +102,7 @@ public class Filter implements Serializable {
         this.filterType = filterType;
         this.relativeCondition = relativeCondition;
         this.isTillDate = isTillDate;
+        this.currentSelection=currentSelection;
         this.isField = isField;
     }
 
@@ -142,6 +146,8 @@ public class Filter implements Serializable {
     public void setTableId(String tableId) {
         this.tableId = tableId;
     }
+    
+   
 
     @JsonProperty("tableName")
     public String getTableName() {

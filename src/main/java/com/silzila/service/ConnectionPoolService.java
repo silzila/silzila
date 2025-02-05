@@ -12,13 +12,11 @@ import com.silzila.payload.request.Table;
 import com.silzila.querybuilder.RelationshipClauseGeneric;
 import com.silzila.querybuilder.WhereClause;
 import com.silzila.querybuilder.CalculatedField.CalculatedFieldQueryComposer;
-import com.silzila.querybuilder.CalculatedField.helper.DataTypeProvider;
 import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.repository.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -64,6 +62,7 @@ import com.silzila.helper.CustomQueryValidator;
 import com.silzila.service.DatasetService;
 import org.springframework.web.server.ResponseStatusException;
 
+
 @Service
 public class ConnectionPoolService {
 
@@ -72,7 +71,6 @@ public class ConnectionPoolService {
 
     @Autowired
     FileDataService fileDataService;
-
     @Autowired
     CalculatedFieldQueryComposer calculatedFieldQueryComposer;
 
@@ -330,65 +328,6 @@ public class ConnectionPoolService {
         }
     }
 
-    
-    public JSONObject runQueryObject(String id, String userId, String query) throws RecordNotFoundException, SQLException {
-        try (Connection _connection = connectionPool.get(id).getConnection();
-             PreparedStatement pst = _connection.prepareStatement(query);
-             ResultSet rs = pst.executeQuery();) {
-            // statement = _connection.createStatement();
-            // resultSet = statement.executeQuery(query);
-            JSONObject jsonObject = ResultSetToJson.convertToArray(rs);
-            // statement.close();
-            return jsonObject;
-        } catch (Exception e) {
-            logger.warn("runQuery Exception ----------------");
-            logger.warn("error: " + e.toString());
-            throw e;
-        }
-    }
-
-        public static JSONObject convertToArray(ResultSet resultSet) throws SQLException {
-        JSONObject result = new JSONObject();
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int numCols = metaData.getColumnCount();
-
-        // Map to hold Sets for each column to ensure unique values
-        Map<String, Set<Object>> columnSets = new HashMap<>();
-
-        // Initialize sets for each column
-        for (int i = 1; i <= numCols; i++) {
-            String columnName = metaData.getColumnName(i);
-            columnSets.put(columnName, new HashSet<>());
-        }
-
-        try {
-            while (resultSet.next()) {
-                for (int i = 1; i <= numCols; i++) {
-                    String columnName = metaData.getColumnName(i);
-                    Object value = resultSet.getObject(i);
-
-                    // Add the value to the corresponding column's set for uniqueness
-                    if (value == null) {
-                        columnSets.get(columnName).add(JSONObject.NULL);
-                    } else {
-                        columnSets.get(columnName).add(value);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        // Convert sets back to JSONArray and add to JSONObject
-        for (int i = 1; i <= numCols; i++) {
-            String columnName = metaData.getColumnName(i);
-            JSONArray jsonArray = new JSONArray(columnSets.get(columnName));
-            result.put(columnName, jsonArray);
-        }
-
-        return result;
-    }
-
     // STUB - not needed
     public JSONArray checkSqlServer() throws SQLException, RecordNotFoundException {
         String connectionUrl = "jdbc:sqlserver://3.7.39.222:1433;databaseName=landmark;user=balu;password=Marina!1234;encrypt=false";
@@ -509,6 +448,23 @@ public class ConnectionPoolService {
         }
     }
 
+
+    public JSONObject runQueryObject(String id, String userId, String query) throws RecordNotFoundException, SQLException {
+        try (Connection _connection = connectionPool.get(id).getConnection();
+             PreparedStatement pst = _connection.prepareStatement(query);
+             ResultSet rs = pst.executeQuery();) {
+            // statement = _connection.createStatement();
+            // resultSet = statement.executeQuery(query);
+            JSONObject jsonObject = ResultSetToJson.convertToArray(rs);
+            // statement.close();
+            return jsonObject;
+        } catch (Exception e) {
+            logger.warn("runQuery Exception ----------------");
+            logger.warn("error: " + e.toString());
+            throw e;
+        }
+    }
+   
     // Metadata discovery - Get Database names
     public ArrayList<String> getDatabase(String id, String userId, String workspaceId)
             throws RecordNotFoundException, SQLException {
@@ -872,7 +828,7 @@ public class ConnectionPoolService {
 
     // Metadata discovery - Get Column names
     public ArrayList<MetadataColumn> getColumn(String id, String userId, String databaseName, String schemaName,
-            String tableName, String workspaceId, List<List<CalculatedFieldRequest>> calculatedFieldRequests)
+            String tableName, String workspaceId)
             throws RecordNotFoundException, SQLException, BadRequestException {
 
         // first create connection pool to query DB
@@ -947,30 +903,12 @@ public class ConnectionPoolService {
                 metadataColumns.add(metadataColumn);
 
             }
-            metadataColumns.addAll(calculatedFieldMetadata(calculatedFieldRequests));
             return metadataColumns;
         } catch (Exception e) {
             throw e;
         }
     }
 
-     public ArrayList<MetadataColumn> calculatedFieldMetadata(List<List<CalculatedFieldRequest>> calculatedFieldRequests){
-        ArrayList<MetadataColumn> metadataColumns = new ArrayList<MetadataColumn>();
-
-        if(calculatedFieldRequests!=null){
-            Map<String, String> calculatedFieldDataType = DataTypeProvider.getCalculatedFieldsDataTypes(calculatedFieldRequests);
-                
-                for (Map.Entry<String, String> field : calculatedFieldDataType.entrySet()) {
-                    String columnName = field.getKey();
-                    String datatype = field.getValue();
-                    
-                    MetadataColumn metadataColumn = new MetadataColumn(columnName, datatype);
-                    metadataColumns.add(metadataColumn);
-                }
-        }
-        return metadataColumns;
-    }
-    
     // Metadata discovery - Get Sample Records of table
     public JSONArray getSampleRecords(String databaseId, String datasetId, String workspaceId, String userId,
             String databaseName, String schemaName,

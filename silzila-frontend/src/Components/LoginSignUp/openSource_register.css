@@ -161,6 +161,15 @@
   text-decoration: underline;
 }
 
+.community-register-login-link2 span:hover,
+.nested-link:hover{
+  color: transparent;
+  background: linear-gradient(to right, #af99db, #2bb9bb);
+  -webkit-background-clip: text;
+  background-clip: text; 
+  text-decoration: none !important;
+}
+
 .community-register-terms-link-container {
   display: flex;
   justify-content: space-between;

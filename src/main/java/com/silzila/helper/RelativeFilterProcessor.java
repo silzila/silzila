@@ -93,6 +93,55 @@ public class RelativeFilterProcessor {
                 : String.valueOf(jsonObject.get(fallbackKey));
     }
 
+    public void processFilter(Filter filter, String userId, String dBConnectionId, String datasetId, String workspaceId,
+            RelativeFilterFunction relativeFilterFunction)
+            throws ClassNotFoundException, RecordNotFoundException, BadRequestException, SQLException,
+            JsonProcessingException {
+        // Get the relative condition associated with the filter
+        RelativeCondition relativeCondition = filter.getRelativeCondition();
+        if (relativeCondition != null) {
+            // Create a new RelativeFilterRequest object with the relative condition and
+            // filter
+            RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
+
+            relativeFilter.setAnchorDate(relativeCondition.getAnchorDate());
+            relativeFilter.setFrom(relativeCondition.getFrom());
+            relativeFilter.setTo(relativeCondition.getTo());
+
+            // Check if both DataType and TimeGrain match for date
+            if (Filter.DataType.DATE.equals(filter.getDataType())
+                    && Filter.TimeGrain.DATE.equals(filter.getTimeGrain())) {
+                ColumnFilter relativeColumnFilter = new ColumnFilter();
+                relativeColumnFilter.setTableId(filter.getTableId());
+                relativeColumnFilter.setFieldName(filter.getFieldName());
+                relativeColumnFilter.setDataType(ColumnFilter.DataType.DATE); // Set DataType.DATE if both checks pass
+                relativeColumnFilter.setTimeGrain(ColumnFilter.TimeGrain.DATE); // Set TimeGrain.DATE
+                relativeFilter.setFilterTable(relativeColumnFilter);
+            }
+
+            // Call the passed relative filter function
+            JSONArray relativeDateJson = relativeFilterFunction.apply(userId, dBConnectionId, datasetId, workspaceId,
+                    relativeFilter);
+
+            // Extract 'fromdate' and 'todate' from the JSON response
+            String fromDate = extractDate(relativeDateJson.getJSONObject(0), "FROMDATE", "fromdate");
+            String toDate = extractDate(relativeDateJson.getJSONObject(0), "TODATE", "todate");
+
+            // Ensure fromDate is before toDate
+            if (fromDate.compareTo(toDate) > 0) {
+                String tempDate = fromDate;
+                fromDate = toDate;
+                toDate = tempDate;
+            }
+
+            // Set the user selection - date range
+            filter.setUserSelection(Arrays.asList(fromDate, toDate));
+        } else {
+            throw new BadRequestException("Error: There is no relative filter condition");
+        }
+
+    }
+
     public void processCalculatedFields(List<CalculatedFieldRequest> calculatedFieldRequests,
             String userId, String dBConnectionId, String datasetId, String workspaceId,
             RelativeFilterFunction relativeFilterFunction) {
@@ -153,7 +202,6 @@ public class RelativeFilterProcessor {
         // Extract 'fromdate' and 'todate' from the JSON response
         String fromDate = extractDate(relativeDateJson.getJSONObject(0), "FROMDATE", "fromdate");
         String toDate = extractDate(relativeDateJson.getJSONObject(0), "TODATE", "todate");
-
         // Ensure fromDate is before toDate
         if (fromDate.compareTo(toDate) > 0) {
             String tempDate = fromDate;
@@ -162,33 +210,6 @@ public class RelativeFilterProcessor {
         }
 
         return Arrays.asList(fromDate, toDate);
-    }
-
-    private boolean isRelativeFilterCondition(Condition condition) {
-        return "relativeFilter".equals(condition.getOperator());
-    }
-
-    private RelativeFilterRequest createRelativeFilterRequest(Map<String, Field> fields, Condition condition) {
-        RelativeCondition relativeCondition = condition.getRelativeCondition();
-
-        RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
-        relativeFilter.setAnchorDate(relativeCondition.getAnchorDate());
-        relativeFilter.setFrom(relativeCondition.getFrom());
-        relativeFilter.setTo(relativeCondition.getTo());
-
-        Field field = fields.get(condition.getLeftOperand().get(0));
-
-        // Set up the ColumnFilter based on the condition and field metadata
-        if (isRelativeFilterCondition(condition)) {
-            ColumnFilter relativeColumnFilter = new ColumnFilter();
-            relativeColumnFilter.setTableId(field.getTableId());
-            relativeColumnFilter.setFieldName(field.getFieldName());
-            relativeColumnFilter.setDataType(ColumnFilter.DataType.DATE);
-            relativeColumnFilter.setTimeGrain(ColumnFilter.TimeGrain.DATE);
-            relativeFilter.setFilterTable(relativeColumnFilter);
-        }
-        System.out.println("Relative filter" + relativeFilter);
-        return relativeFilter;
     }
 
     public void processListOfCalculatedFields(List<List<CalculatedFieldRequest>> calculatedFieldLists, String userId,
@@ -200,34 +221,10 @@ public class RelativeFilterProcessor {
         }
     }
 
-    public void processCalculatedFields(List<CalculatedFieldRequest> calculatedFieldRequests,
-            String userId, String tenantId, String dBConnectionId, String datasetId, String workspaceId,
-            RelativeFilterFunction relativeFilterFunction) {
-        for (CalculatedFieldRequest calculatedField : calculatedFieldRequests) {
-            if (calculatedField.getConditionFilters() != null && !calculatedField.getConditionFilters().isEmpty()) {
-                processConditionFilters(calculatedField.getFields(), calculatedField.getConditionFilters(), userId,
-                        tenantId, dBConnectionId, datasetId, workspaceId, relativeFilterFunction);
-            }
-        }
-    }
+   
 
-    private void processConditionFilters(Map<String, Field> fields, Map<String, List<ConditionFilter>> conditionFilters,
-            String userId, String tenantId, String dBConnectionId, String datasetId, String workspaceId,
-            RelativeFilterFunction relativeFilterFunction) {
-        conditionFilters.forEach((key, conditionFilterList) -> {
-            for (ConditionFilter conditionFilter : conditionFilterList) {
-                for (Condition condition : conditionFilter.getConditions()) {
-                    if (isRelativeFilterCondition(condition)) {
-                        try {
-                            processCalculatedField(fields, condition, userId, tenantId, dBConnectionId, datasetId,
-                                    workspaceId, relativeFilterFunction);
-                        } catch (Exception e) {
-                            e.printStackTrace(); // Better error handling could be implemented here
-                        }
-                    }
-                }
-            }
-        });
+    private boolean isRelativeFilterCondition(Condition condition) {
+        return "relativeFilter".equals(condition.getOperator());
     }
 
     public void processCalculatedField(Map<String, Field> fields, Condition condition, String userId, String tenantId,
@@ -246,6 +243,49 @@ public class RelativeFilterProcessor {
         List<String> relativeDates = processRelativeDateJson(relativeDateJson);
 
         settingConditionRelativeFilter(condition, relativeDates);
+    }
+    
+private RelativeFilterRequest createRelativeFilterRequest(Map<String, Field> fields, Condition condition) {
+    RelativeCondition relativeCondition = condition.getRelativeCondition();
+
+    RelativeFilterRequest relativeFilter = new RelativeFilterRequest();
+    relativeFilter.setAnchorDate(relativeCondition.getAnchorDate());
+    relativeFilter.setFrom(relativeCondition.getFrom());
+    relativeFilter.setTo(relativeCondition.getTo());
+
+    Field field = fields.get(condition.getLeftOperand().get(0));
+
+    // Set up the ColumnFilter based on the condition and field metadata
+    if (isRelativeFilterCondition(condition)) {
+        ColumnFilter relativeColumnFilter = new ColumnFilter();
+        relativeColumnFilter.setTableId(field.getTableId());
+        relativeColumnFilter.setFieldName(field.getFieldName());
+        relativeColumnFilter.setDataType(ColumnFilter.DataType.DATE);
+        relativeColumnFilter.setTimeGrain(ColumnFilter.TimeGrain.DATE);
+        relativeFilter.setFilterTable(relativeColumnFilter);
+    }
+    System.out.println("Relative filter" + relativeFilter);
+    return relativeFilter;
+}
+
+
+    private void processConditionFilters(Map<String, Field> fields, Map<String, List<ConditionFilter>> conditionFilters,
+            String userId, String tenantId, String dBConnectionId, String datasetId, String workspaceId,
+            RelativeFilterFunction relativeFilterFunction) {
+        conditionFilters.forEach((key, conditionFilterList) -> {
+            for (ConditionFilter conditionFilter : conditionFilterList) {
+                for (Condition condition : conditionFilter.getConditions()) {
+                    if (isRelativeFilterCondition(condition)) {
+                        try {
+                            processCalculatedField(fields, condition, userId, tenantId, dBConnectionId, datasetId,
+                                    workspaceId, relativeFilterFunction);
+                        } catch (Exception e) {
+                            e.printStackTrace(); // Better error handling could be implemented here
+                        }
+                    }
+                }
+            }
+        });
     }
 
 }

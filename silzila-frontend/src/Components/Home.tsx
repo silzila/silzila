@@ -14,6 +14,10 @@ import DataViewer from "./DataViewer/DataViewer";
 import EditFlatFileData from "./DataConnection/EditFlatFileData";
 import FlatFileUpload from "./DataConnection/FlatFileUpload";
 import NewDataConnection from "./DataConnection/NewDataConnection";
+import Workspace from "../pages/Workspace";
+import SubWork from "../pages/SubWork";
+import SubWorkDetails from "../pages/SubWorkDetails";
+import UserProf from "../pages/UserProf";
 
 const Home = (props: LoggedDetailsType) => {
   return (
@@ -22,13 +26,19 @@ const Home = (props: LoggedDetailsType) => {
         {/* Routes accessible only when user is logged in */}
         {props.isUserLogged ? (
           <>
-            <Route path="/newdataset" element={<NewDataSet />} />
-            <Route path="/editdataset" element={<EditDataSet />} />
+            <Route path="/newdataset/:parentId" element={<NewDataSet />} />
+            <Route path="/editdataset/:parentId" element={<EditDataSet />} />
             <Route path="/datahome" element={<DataHome />} />
-            <Route path="/dataviewer" element={<DataViewer />} />
-            <Route path="/flatfileupload" element={<FlatFileUpload />} />
-            <Route path="/editflatfile" element={<EditFlatFileData />} />
+            <Route path="/dataviewer/:parentId" element={<DataViewer />} />
+            <Route path="/flatfileupload/:parentId" element={<FlatFileUpload />} />
+            <Route path="/editflatfile/:parentId" element={<EditFlatFileData />} />
             <Route path="/newdataconnection" element={<NewDataConnection />} />
+            <Route path="/workspace" element={<Workspace />} />
+            <Route path= "/workspace/:parentId" element= {<SubWork />} />
+            <Route path= "/SubWorkspaceDetails/:parentId" element= {<SubWorkDetails />} />
+            <Route path= "/newdataconnection/:parentId" element= {<NewDataConnection />} />
+            <Route path= "/SubWorkspaceDetails/:parentId" element= {<SubWorkDetails />} />
+            <Route path= "/update-profile" element= {<UserProf /> } />
           </>
         ) : (
           // Redirect to login if user is not logged in

@@ -9,8 +9,6 @@ import javax.validation.Valid;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.*;
-import com.silzila.payload.response.TableRelationshipResponse;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -39,12 +37,14 @@ import com.silzila.querybuilder.subTotalsCombination;
 import com.silzila.querybuilder.CalculatedField.CalculatedFieldQueryComposer;
 import com.silzila.querybuilder.filteroptions.FilterOptionsQueryComposer;
 import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
+import com.silzila.querybuilder.syncFilterOption.SyncFilterOptionsQueryComposer;
 import com.silzila.repository.DatasetRepository;
 import com.silzila.repository.PlayBookRepository;
 import com.silzila.helper.ColumnListFromClause;
 import com.silzila.helper.CustomQueryValidator;
 import com.silzila.helper.RelativeFilterProcessor;
 import com.silzila.helper.UtilityService;
+import com.silzila.payload.response.TableRelationshipResponse;
 
 @Service
 public class DatasetService {
@@ -62,7 +62,7 @@ public class DatasetService {
 
     @Autowired
     UserService userService;
-    
+
     @Autowired
     CalculatedFieldQueryComposer calculatedFieldQueryComposer;
 
@@ -520,7 +520,7 @@ public class DatasetService {
             }
 
             // get files names from file ids and load the files as Views
-            fileDataService.getFileNameFromFileId(userId, tableObjList,workspaceId);
+            fileDataService.getFileNameFromFileId(userId, tableObjList, workspaceId);
             // come here
             String query = queryComposer.composeQuery(queries, ds, "duckdb");
 
@@ -627,7 +627,7 @@ public class DatasetService {
                 List<Table> tableObjects = new ArrayList<>();
                 tableObjects.add(table);
                 // calling this to crete a view to run on top of that
-                fileDataService.getFileNameFromFileId(userId, tableObjects,workspaceId);
+                fileDataService.getFileNameFromFileId(userId, tableObjects, workspaceId);
                 jsonArray = duckDbService.runQuery(query);
             } else {
                 vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId, workspaceId);
@@ -676,7 +676,7 @@ public class DatasetService {
                 }
 
                 // get files names from file ids and load the files as Views
-                fileDataService.getFileNameFromFileId(userId, tableObjList,workspaceId);
+                fileDataService.getFileNameFromFileId(userId, tableObjList, workspaceId);
                 // build query
                 String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, "duckdb");
                 logger.info("\n******* QUERY **********\n" + query);
@@ -698,6 +698,109 @@ public class DatasetService {
 
     }
 
+    public JSONObject syncFilterOption(String userId, List<Filter> filters, String dBConnectionId, String datasetId,
+            String workspaceId)
+            throws RecordNotFoundException, SQLException, JsonProcessingException, BadRequestException,
+            ClassNotFoundException {
+
+        // Check if the userId is null or empty, and throw an exception if it is invalid
+        if (userId == null || userId.isEmpty()) {
+            throw new BadRequestException("User ID must not be null or empty");
+        }
+        System.out.println(1);
+        System.out.println(filters.size());
+
+        // Load the dataset into memory using provided connection and dataset IDs
+        DatasetDTO ds = loadDatasetInBuffer(workspaceId, dBConnectionId, datasetId, userId);
+        System.out.println(ds);
+        System.out.println(2);
+
+        // if we have relative filter so we have to preprocess it
+        for (Filter filter : filters) {
+            if (filter.getRelativeCondition() != null) {
+                relativeFilterProcessor.processFilter(filter, userId, dBConnectionId, datasetId, workspaceId,
+                        this::relativeFilter);
+            }
+        }
+        System.out.println(2);
+
+        // Check if the data is not a flat file and is instead a database connection
+        if (ds.getIsFlatFileData() == false && ds.getIsFlatFileData() != null) {
+            // Validate that the DB connection ID is not null or empty for database queries
+            if (dBConnectionId == null || dBConnectionId.isEmpty()) {
+                throw new BadRequestException("Error: DB Connection Id can't be empty!");
+            }
+
+            // Retrieve the vendor name from the connection pool based on the DB connection
+            // ID and user ID
+            String vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId,
+                    workspaceId);
+
+            // Compose the SQL query specific to the database based on column filters,
+            // dataset, and vendor name
+            String query = SyncFilterOptionsQueryComposer.composeQuery(filters, ds, vendorName, userId);
+
+            // Validate that the query is not empty or null, and throw an exception if it is
+            // invalid
+            if (query.isEmpty() || query == null) {
+                throw new BadRequestException("Error: Empty query");
+            }
+
+            logger.info("\n******* QUERY **********\n" + query);
+
+            // Execute the query on the database using the connection pool service and
+            // return the result as a JSON object
+            JSONObject jsonObject = connectionPoolService.runQueryObject(dBConnectionId, userId, query);
+            return jsonObject;
+
+        } else {
+            // Process the case where the data is stored in flat files
+
+            // Extract all valid, non-null table IDs from the column filters
+            List<String> tableIds = filters.stream()
+                    .map(Filter::getTableId)
+                    .filter(Objects::nonNull)
+                    .filter(tableId -> !tableId.isEmpty())
+                    .collect(Collectors.toList());
+
+            // Ensure that there are valid table IDs, otherwise throw an exception
+            if (tableIds.isEmpty()) {
+                throw new BadRequestException("Error: No table ids found in column filters!");
+            }
+
+            // Retrieve table objects from the dataset schema that match the provided table
+            // IDs
+            List<Table> tableObjList = ds.getDataSchema().getTables().stream()
+                    .filter(table -> tableIds.contains(table.getId()))
+                    .collect(Collectors.toList());
+
+            // Check that at least one matching table object is found in the dataset, else
+            // throw an exception
+            if (tableObjList.size() < 1) {
+                throw new BadRequestException("Error: table id is not present in Dataset!");
+            }
+
+            // Load flat files as database views in DuckDB using the file service
+            fileDataService.getFileNameFromFileId(userId, tableObjList, workspaceId);
+
+            // Build the query for DuckDB based on the column filters, dataset, and
+            // specified 'duckdb' vendor type
+            String query = SyncFilterOptionsQueryComposer.composeQuery(filters, ds, "duckdb", userId);
+
+            // Ensure the DuckDB query is not empty or null, and throw an exception if
+            // invalid
+            if (query.isEmpty() || query == null) {
+                throw new BadRequestException("Error: Empty query");
+            }
+
+            logger.info("\n******* QUERY **********\n" + query);
+
+            // Execute the DuckDB query
+            return duckDbService.runSyncQuery(query);
+        }
+
+    }
+
     public JSONArray testCalculateField(String userId, String dbConnectionId, String datasetId,
             String workspaceId, List<CalculatedFieldRequest> calculatedFieldRequests, Integer recordCount)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
@@ -716,7 +819,6 @@ public class DatasetService {
                 ds.getDataSchema(), recordCount);
 
         logger.info("\n******* QUERY **********\n" + query);
-
         if (dbConnectionId == null || dbConnectionId.isEmpty()) {
 
             List<String> tableIds = ColumnListFromClause.getColumnListFromFieldsRequest(calculatedFieldRequests);
@@ -737,18 +839,21 @@ public class DatasetService {
         }
 
     }
-    public JSONObject calculatedFieldFilterOptions(String userId, String dbConnectionId, String datasetId,String workspaceId,List<CalculatedFieldRequest> calculatedFieldRequest) 
-    throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException, 
-    ClassNotFoundException, BadRequestException{
+
+    public JSONObject calculatedFieldFilterOptions(String userId, String dbConnectionId, String datasetId,
+            String workspaceId, List<CalculatedFieldRequest> calculatedFieldRequest)
+            throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
+            ClassNotFoundException, BadRequestException {
 
         String vendorName = connectionPoolService.getVendorNameFromConnectionPool(dbConnectionId, userId, workspaceId);
 
-        relativeFilterProcessor.processCalculatedFields( calculatedFieldRequest, userId, dbConnectionId, datasetId,workspaceId, this::relativeFilter);
+        relativeFilterProcessor.processCalculatedFields(calculatedFieldRequest, userId, dbConnectionId, datasetId,
+                workspaceId, this::relativeFilter);
 
         DatasetDTO ds = loadDatasetInBuffer(workspaceId, dbConnectionId, datasetId, userId);
 
-
-        String query = calculatedFieldQueryComposer.composeFilterOptionsQuery(ds,vendorName,calculatedFieldRequest, ds.getDataSchema());
+        String query = calculatedFieldQueryComposer.composeFilterOptionsQuery(ds, vendorName, calculatedFieldRequest,
+                ds.getDataSchema());
 
         logger.info("\n******* QUERY **********\n" + query);
 
@@ -756,62 +861,61 @@ public class DatasetService {
 
         return jsonObject;
     }
-        // to get relationship between tables
-    public List<TableRelationshipResponse> tablesRelationship(String userId, String workspaceId, List<String> tableIds, String datasetId)
-        throws JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException,
-        RecordNotFoundException, SQLException {
 
-    DatasetDTO datasetDTO = buffer.loadDatasetInBuffer(workspaceId, datasetId, userId);
+    public List<TableRelationshipResponse> tablesRelationship(String userId, String workspaceId, List<String> tableIds,
+            String datasetId)
+            throws JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException,
+            RecordNotFoundException, SQLException {
 
-    DataSchema dataSchema = datasetDTO.getDataSchema();
+        DatasetDTO datasetDTO = buffer.loadDatasetInBuffer(workspaceId, datasetId, userId);
 
-    List<Relationship> relationships = dataSchema.getRelationships();
+        DataSchema dataSchema = datasetDTO.getDataSchema();
 
-    List<TableRelationshipResponse> responses = new ArrayList<>();
+        List<Relationship> relationships = dataSchema.getRelationships();
 
-    for (int i = 0; i < tableIds.size(); i++) {
-        for (int j = i + 1; j < tableIds.size(); j++) {
-            String table1 = tableIds.get(i);
-            String table2 = tableIds.get(j);
+        List<TableRelationshipResponse> responses = new ArrayList<>();
 
-            boolean isDirectlyRelated = false;
-            String relationType = null;
+        for (int i = 0; i < tableIds.size(); i++) {
+            for (int j = i + 1; j < tableIds.size(); j++) {
+                String table1 = tableIds.get(i);
+                String table2 = tableIds.get(j);
 
-            for (Relationship relationship : relationships) {
-                if ((relationship.getTable1().equals(table1) && relationship.getTable2().equals(table2))
-                        || (relationship.getTable1().equals(table2) && relationship.getTable2().equals(table1))) {
-                    isDirectlyRelated = true;
-                    relationType = relationship.getCardinality();
+                boolean isDirectlyRelated = false;
+                String relationType = null;
 
-                    // Adjust the table order based on the relationship type
-                    if (relationType.equalsIgnoreCase("many to one") && relationship.getTable2().equals(table1)) {
-                        String temp = table1;
-                        table1 = table2;
-                        table2 = temp;
-                    } else if (relationType.equalsIgnoreCase("one to many") && relationship.getTable1().equals(table2)) {
-                        String temp = table1;
-                        table1 = table2;
-                        table2 = temp;
+                for (Relationship relationship : relationships) {
+                    if ((relationship.getTable1().equals(table1) && relationship.getTable2().equals(table2))
+                            || (relationship.getTable1().equals(table2) && relationship.getTable2().equals(table1))) {
+                        isDirectlyRelated = true;
+                        relationType = relationship.getCardinality();
+
+                        // Adjust the table order based on the relationship type
+                        if (relationType.equalsIgnoreCase("many to one") && relationship.getTable2().equals(table1)) {
+                            String temp = table1;
+                            table1 = table2;
+                            table2 = temp;
+                        } else if (relationType.equalsIgnoreCase("one to many")
+                                && relationship.getTable1().equals(table2)) {
+                            String temp = table1;
+                            table1 = table2;
+                            table2 = temp;
+                        }
+                        break;
                     }
-                    break;
                 }
+
+                // Create a relationship response
+                TableRelationshipResponse response = new TableRelationshipResponse();
+                response.setTable1(table1);
+                response.setTable2(table2);
+                response.setRelationship(isDirectlyRelated ? relationType : null);
+                response.setIsDirect(isDirectlyRelated);
+
+                responses.add(response);
             }
-
-            // Create a relationship response
-            TableRelationshipResponse response = new TableRelationshipResponse();
-            response.setTable1(table1);
-            response.setTable2(table2);
-            response.setRelationship(isDirectlyRelated ? relationType : null);
-            response.setIsDirect(isDirectlyRelated);
-
-            responses.add(response);
         }
+
+        return responses;
     }
-
-    return responses;
-}
-
-
-
 
 }
