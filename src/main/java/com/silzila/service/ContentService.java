@@ -648,7 +648,7 @@ public class ContentService {
 
     public List<WorkspaceResponse> workspaceView(String email) throws SQLException {
         // not subworkspace
-        List<Workspace> allworkspace = workspaceRepository.findByUserIdAndParentIsNull(email);
+        List<Workspace> allworkspace = workspaceRepository.findByUserId(email);
         System.out.println(allworkspace.size());
         List<WorkspaceResponse> result = new ArrayList<>();
         for (Workspace w : allworkspace) {
