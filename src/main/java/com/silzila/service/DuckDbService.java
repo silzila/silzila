@@ -362,7 +362,7 @@ public class DuckDbService {
             }
 
             //generating where clause from the given filter panel
-            whereClause = WhereClause.buildWhereClause(filterPanels, "duckdb");
+            whereClause = WhereClause.buildWhereClause(filterPanels, "duckdb",ds);
 
             //creating Encryption key to save parquet file securely
             String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
@@ -963,6 +963,35 @@ public class DuckDbService {
 
         return jsonArray;
 
+    }
+
+    public JSONObject runSyncQuery(String query) throws SQLException {
+        // Duplicate connection for running the query
+        Connection conn2 = ((DuckDBConnection) conn).duplicate();
+        Statement stmtRecords = null;
+        JSONObject jsonObject = null;
+
+        try {
+            // Create statement and execute query
+            stmtRecords = conn2.createStatement();
+            ResultSet resultSet = stmtRecords.executeQuery(query);
+
+            // Convert ResultSet to JSONObject
+            jsonObject = ResultSetToJson.convertToArray(resultSet);
+        } catch (SQLException e) {
+            // Handle SQL exception here
+            e.printStackTrace();
+            throw e; // Optionally rethrow the exception
+        } finally {
+            // Close statement and connection in finally block to ensure they are closed even if an error occurs
+            if (stmtRecords != null) {
+                stmtRecords.close();
+            }
+            if (conn2 != null) {
+                conn2.close();
+            }
+        }
+        return jsonObject;
     }
 
     public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,String workspaceId,

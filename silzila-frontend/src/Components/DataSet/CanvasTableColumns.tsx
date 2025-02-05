@@ -23,7 +23,6 @@ import { ArrowObj } from "./CanvasInterfaces";
 import { AlertColor } from "@mui/material/Alert";
 import ConnectsPointByColumn from "./ConnectsPointByColumn";
 
-
 const CanvasTableColumns = ({
   // props
   dragRef,
@@ -147,31 +146,35 @@ const CanvasTableColumns = ({
   };
 
   return (
-    <div id={itemId} ref={boxRef} style={{
-      cursor:tableHasCustomQuery ?"not-allowed" : "move"
-    }}
-    draggable={!tableHasCustomQuery} 
-    onDragStart={(e) => {
-      if(tableHasCustomQuery){
-        e.preventDefault();
-        return;
-      }
-      e.dataTransfer.setData("connectItemId", itemId);
-      e.dataTransfer.setData("connectIndex", index.toString());
-      e.dataTransfer.setData("connectTableName", tableName);
-      e.dataTransfer.setData("connectColumnName", columnName);
-      e.dataTransfer.setData("connectItemType", itemType);
-      e.dataTransfer.setData("connecttableUid", table_uid);
-      e.dataTransfer.setData("schema", schema);
-      e.dataTransfer.setData("tableId", table_Id);
-    }}
-
+    <div
+      id={itemId}
+      ref={boxRef}
+      style={{
+        cursor: "move",
+      }}
+     
+      draggable={true}
+      onDragStart={(e) => {
+          e.dataTransfer.setData("connectItemId", itemId);
+          e.dataTransfer.setData("connectIndex", index.toString());
+          e.dataTransfer.setData("connectTableName", tableName);
+          e.dataTransfer.setData("connectColumnName", columnName);
+          e.dataTransfer.setData("connectItemType", itemType);
+          e.dataTransfer.setData("connecttableUid", table_uid);
+          e.dataTransfer.setData("schema", schema);
+          e.dataTransfer.setData("tableId", table_Id);
+          e.dataTransfer.setData("tableHasCustomquery",`${tableHasCustomQuery}`);
+      }}
     >
       <div
         className="columnBox"
         id={itemId}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => arrowDropped(e)}
+        onDragOver={(e) => {
+          e.preventDefault(); 
+        }}
+        onDrop={(e) => { 
+          arrowDropped(e);
+        }}
       >
         <div className="columnItem">{itemTypeIcon(itemType)}</div>
         {/* {schema !== "" ? (
@@ -193,21 +196,21 @@ const CanvasTableColumns = ({
         ) : (
           <div style={{ padding: "0 5px" }}>{columnName}</div>
         )} */}
-  <ConnectsPointByColumn
-            {...{
-              itemId,
-              dragRef,
-              boxRef,
-              index,
-              itemType,
-              columnName,
-              tableName,
-              table_uid,
-              schema,
-              table_Id,
-              tableHasCustomQuery,
-            }}
-          />
+        <ConnectsPointByColumn
+          {...{
+            itemId,
+            dragRef,
+            boxRef,
+            index,
+            itemType,
+            columnName,
+            tableName,
+            table_uid,
+            schema,
+            table_Id,
+            tableHasCustomQuery,
+          }}
+        />
         <ConnectPointsWrapper
           {...{
             itemId,

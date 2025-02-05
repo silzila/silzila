@@ -38,7 +38,7 @@ const ConnectsPointByColumn = ({
     <div
       ref={ref1}
       draggable={!tableHasCustomQuery}
-      style={{ padding: "0 5px", cursor: tableHasCustomQuery?"no-drop":"move" }}
+      style={{ padding: "0 5px", cursor:"move" }}
       onDragStart={(e) => {
         if (tableHasCustomQuery) {
           e.preventDefault();

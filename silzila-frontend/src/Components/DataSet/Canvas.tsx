@@ -1,7 +1,7 @@
 // // Canvas component is part of Dataset Create / Edit page
 // // List of tables selected in sidebar is displayed here
 // // connections can be made between columns of different tables to define relationship in a dataset
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import "./Dataset.css";
 import Xarrow, { Xwrapper } from "react-xarrows";
@@ -23,6 +23,8 @@ import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import UserFilterDataset from "./UserFilterDataset";
 import { IFilter } from "./BottomBarInterfaces";
 import { IFlatIdTableIdMap } from "./EditDataSetInterfaces";
+import { NotificationDialog } from "../CommonFunctions/DialogComponents";
+import { AlertColor } from "@mui/material";
 
 const Canvas = ({
   // state
@@ -39,6 +41,10 @@ const Canvas = ({
   const [showRelationCard, setShowRelationCard] = useState<boolean>(false);
   const [existingArrowProp, setExistingArrowProp] = useState<{}>({});
   const [existingArrow, setExistingArrow] = useState<boolean>(false);
+  const [openAlert, setOpenAlert] = useState<boolean>(false);
+  const [severity, setseverity] = useState<AlertColor>("success");
+  const [testMessage, setTestMessage] = useState<string>("");
+
   const [isDataSetVisible, setIsDataSetVisible] = useState<boolean>(
     EditFilterdatasetArray.length > 0 ? true : false
   );
@@ -47,6 +53,30 @@ const Canvas = ({
   const [filtersOfDataset, setFiltersOfDataset] = useState<IFilter[]>(
     JSON.parse(JSON.stringify(EditFilterdatasetArray))
   );
+
+  /**
+   * when We remove a table from  canvas or unselect a table from sidebar then we need to remove the filters of that table
+   */
+  useEffect(() => {
+    /**
+     * get the table ids of the tables present in the canvas
+     */
+    const tableIdSet = new Set(
+      tempTable.map((table: tableObjProps) => table.id)
+    );
+    /**
+     * filter the filters of the dataset which are not present in the canvas
+     */
+    const newFilters = filtersOfDataset.filter((filter: IFilter) =>
+      tableIdSet.has(filter.tableId)
+    );
+    /**
+     * update the filters of the dataset
+     */
+    if(newFilters.length !== filtersOfDataset.length){
+      setFiltersOfDataset(newFilters);
+    }
+  }, [filtersOfDataset, tempTable]);
 
   const clickOnArrowfunc = (index: number) => {
     setExistingArrow(true);
@@ -57,6 +87,13 @@ const Canvas = ({
 
   const handleDrop = (e: any) => {
     e.stopPropagation();
+    const tableHasCustomQuery = e.dataTransfer.getData("tableHasCustomquery");
+    if (tableHasCustomQuery === "true") {
+      setOpenAlert(true);
+      setTestMessage("Filter is disabled for tables with custom queries.");
+      setseverity("warning");
+      return;
+    }
     const refs = {
       isSelected: true,
       tableId: e.dataTransfer.getData("tableId"),
@@ -153,9 +190,9 @@ const Canvas = ({
               height: "100vh",
               position: "fixed",
               right: "0",
-              width:"3rem",
-              borderLeft:"1px solid #d5d6d5",
-              backgroundColor:"white"
+              width: "3rem",
+              borderLeft: "1px solid #d5d6d5",
+              backgroundColor: "white",
             }}
           >
             <button
@@ -164,9 +201,8 @@ const Canvas = ({
                 outline: "none",
                 border: "none",
                 margin: "10px auto",
-                position:"relative",
-                backgroundColor:"white"
-
+                position: "relative",
+                backgroundColor: "white",
               }}
               onClick={() => setIsDataSetVisible(!isDataSetVisible)}
             >
@@ -271,7 +307,7 @@ const Canvas = ({
               {/* </div> */}
             </div>
             <div style={{ position: "absolute", marginTop: "22px" }}>
-              {filtersOfDataset.length > 0 && (
+              {filtersOfDataset.length > 0 && tempTable.length>0 && (
                 <UserFilterDataset
                   tableFlatFileMap={tableFlatFileMap}
                   editMode={editMode}
@@ -299,6 +335,15 @@ const Canvas = ({
         existingArrow={existingArrow}
         setExistingArrow={setExistingArrow}
         setExistingArrowProp={setExistingArrowProp}
+      />
+      <NotificationDialog
+        onCloseAlert={() => {
+          setOpenAlert(false);
+          setTestMessage("");
+        }}
+        openAlert={openAlert}
+        severity={severity}
+        testMessage={testMessage}
       />
     </div>
   );

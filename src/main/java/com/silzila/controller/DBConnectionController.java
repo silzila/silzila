@@ -1,7 +1,7 @@
 package com.silzila.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ibm.db2.jcc.am.w;
+import com.silzila.payload.request.CalculatedFieldRequest;
 import com.silzila.payload.request.CustomQueryRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -153,7 +153,8 @@ public class DBConnectionController {
     // Metadata discovery - get List of databases
     @GetMapping(value = "/metadata-databases/{id}")
     ResponseEntity<ArrayList<String>> getDatabase(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id, @RequestParam String workspaceId)
+            @PathVariable(value = "id") String id,
+            @RequestParam(name = "workspaceId", required = false) String workspaceId)
             throws RecordNotFoundException, SQLException {
         String userId = reqHeader.get("username");
         ArrayList<String> databases = connectionPoolService.getDatabase(id, userId, workspaceId);
@@ -164,7 +165,7 @@ public class DBConnectionController {
     @GetMapping(value = "/metadata-schemas/{id}")
     ResponseEntity<List<String>> getSchema(@RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id,
-            @RequestParam String workspaceId,
+            @RequestParam(name = "workspaceId", required = false) String workspaceId,
             @RequestParam(name = "database", required = false) String databaseName)
             throws RecordNotFoundException, SQLException, BadRequestException {
         String userId = reqHeader.get("username");
@@ -176,7 +177,7 @@ public class DBConnectionController {
     @GetMapping("/metadata-tables/{id}")
     ResponseEntity<?> getTable(@RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id,
-            @RequestParam String workspaceId,
+            @RequestParam(name = "workspaceId", required = false) String workspaceId,
             @RequestParam(name = "database", required = false) String databaseName,
             @RequestParam(name = "schema", required = false) String schemaName)
             throws RecordNotFoundException, SQLException, BadRequestException {
@@ -186,24 +187,25 @@ public class DBConnectionController {
     }
 
     // Metadata discovery - get List of fields
-    @GetMapping("/metadata-columns/{id}")
+    @PostMapping("/metadata-columns/{id}")
     public ResponseEntity<?> getColumn(@RequestHeader Map<String, String> reqHeader,
-            @RequestParam String workspaceId,
+            @RequestParam(name = "workspaceId", required = false) String workspaceId,
             @PathVariable(value = "id") String id,
             @RequestParam(name = "database", required = false) String databaseName,
             @RequestParam(name = "schema", required = false) String schemaName,
-            @RequestParam(name = "table") String tableName)
+            @RequestParam(name = "table") String tableName,
+            @RequestBody(required = false) List<List<CalculatedFieldRequest>> calculatedFieldRequests)
             throws RecordNotFoundException, SQLException, BadRequestException {
         String userId = reqHeader.get("username");
         ArrayList<MetadataColumn> metadataColumns = connectionPoolService.getColumn(id, userId, databaseName,
-                schemaName, tableName,workspaceId);
+                schemaName, tableName,workspaceId,calculatedFieldRequests);
         return ResponseEntity.status(HttpStatus.OK).body(metadataColumns);
     }
 
     @PostMapping("/metadata-columns-customquery/{id}")
     public ResponseEntity<?> getColumnForCustomQuery(@RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "id") String id,
-            @RequestParam String workspaceId,
+            @RequestParam(name = "workspaceId", required = false) String workspaceId,
             @RequestBody CustomQueryRequest customQueryRequest)
             throws RecordNotFoundException, SQLException, ExpectationFailedException {
         String userId = reqHeader.get("username");
@@ -212,20 +214,22 @@ public class DBConnectionController {
         return ResponseEntity.status(HttpStatus.OK).body(columnList);
     }
     // Metadata discovery - get sample records
-    @GetMapping("/sample-records")
+    @PostMapping("/sample-records")
     public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
             @RequestParam(value = "databaseId") String databaseId,
             @RequestParam(value = "datasetId", required = false) String datasetId,
-            @RequestParam(value = "recordCount") Integer recordCount,
+            @RequestParam(value = "recordCount",required = false) Integer recordCount,
             @RequestParam(name = "database", required = false) String databaseName,
             @RequestParam(name = "schema", required = false) String schemaName,
-            @RequestParam String workspaceId,
-            @RequestParam(name = "table") String tableName)
+            @RequestParam(name = "workspaceId", required = false) String workspaceId,
+            @RequestParam(name = "table") String tableName,
+            @RequestParam(name = "tableId",required = false) String tableId,
+            @RequestBody(required = false) List<List<CalculatedFieldRequest>> calculatedFieldRequests)
             throws RecordNotFoundException, SQLException, BadRequestException, JsonProcessingException,
             ClassNotFoundException {
         String userId = reqHeader.get("username");
         JSONArray jsonArray = connectionPoolService.getSampleRecords(databaseId, datasetId, workspaceId,userId, databaseName,
-                schemaName, tableName, recordCount);
+                schemaName, tableName, recordCount,tableId,calculatedFieldRequests);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
@@ -233,7 +237,7 @@ public class DBConnectionController {
     public ResponseEntity<?> getSampleRecordsCustomQuery(@RequestHeader Map<String, String> reqHeader,
             @PathVariable(value = "databaseId") String databaseId,
             @PathVariable(value = "recordCount") Integer recordCount,
-            @RequestParam String workspaceId,
+            @RequestParam(name = "workspaceId", required = false) String workspaceId,
             @RequestBody CustomQueryRequest customQueryRequest)
             throws RecordNotFoundException, SQLException, ExpectationFailedException, JsonProcessingException {
         String userId = reqHeader.get("username");

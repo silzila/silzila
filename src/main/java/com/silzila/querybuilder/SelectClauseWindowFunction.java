@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
@@ -22,32 +23,32 @@ import com.silzila.payload.request.Query;
 public class SelectClauseWindowFunction {
 
     // retrieve datas from given database
-    public static QueryClauseFieldListMap selectClauseSql(Query dim, String vendorName) throws BadRequestException {
+    public static QueryClauseFieldListMap selectClauseSql(Query dim, String vendorName,DatasetDTO ds) throws BadRequestException {
         QueryClauseFieldListMap qMap = new QueryClauseFieldListMap();
         if ("mysql".equals(vendorName)) {
-            qMap = SelectClauseMysql.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseMysql.buildSelectClause(dim, vendorName,ds);
         } else if ("duckdb".equals(vendorName)) {
-            qMap = SelectClauseMysql.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseMysql.buildSelectClause(dim, vendorName,ds);
         } else if ("sqlserver".equals(vendorName)) {
-            qMap = SelectClauseSqlserver.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseSqlserver.buildSelectClause(dim, vendorName,ds);
         } else if ("postgresql".equals(vendorName)) {
-            qMap = SelectClausePostgres.buildSelectClause(dim, vendorName);
+            qMap = SelectClausePostgres.buildSelectClause(dim, vendorName,ds);
         } else if("bigquery".equals(vendorName)){
-            qMap = SelectClauseBigquery.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseBigquery.buildSelectClause(dim, vendorName,ds);
         } else if ("databricks".equals(vendorName)) {
-            qMap = SelectClauseDatabricks.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseDatabricks.buildSelectClause(dim, vendorName,ds);
         } else if ("redshift".equals(vendorName)) {
-            qMap = SelectClausePostgres.buildSelectClause(dim, vendorName);
+            qMap = SelectClausePostgres.buildSelectClause(dim, vendorName,ds);
         } else if ("oracle".equals(vendorName)) {
-            qMap = SelectClauseOracle.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseOracle.buildSelectClause(dim, vendorName,ds);
         } else if ("snowflake".equals(vendorName)) {
-            qMap = SelectClauseSnowflake.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseSnowflake.buildSelectClause(dim, vendorName,ds);
         } else if ("motherduck".equals(vendorName)) {
-            qMap = SelectClauseMotherduck.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseMotherduck.buildSelectClause(dim, vendorName,ds);
         }  else if ("db2".equalsIgnoreCase(vendorName)) {
-            qMap = SelectClauseDB2.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseDB2.buildSelectClause(dim, vendorName,ds);
         } else if ("teradata".equalsIgnoreCase(vendorName)) {
-            qMap = SelectClauseTeraData.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseTeraData.buildSelectClause(dim, vendorName,ds);
         }
         else {
             throw new BadRequestException("Unsupported vendor: " + vendorName);
@@ -55,9 +56,9 @@ public class SelectClauseWindowFunction {
         return qMap;
     }
     // get all dimensions from given database
-    public static List<String> getDimension(Query req, String vendorName) throws BadRequestException{
+    public static List<String> getDimension(Query req, String vendorName,DatasetDTO ds) throws BadRequestException{
         Query query = new Query(req.getDimensions(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null);
-        QueryClauseFieldListMap qMap = selectClauseSql(query, vendorName);
+        QueryClauseFieldListMap qMap = selectClauseSql(query, vendorName,ds);
         List<String> dimension = qMap.getGroupByList().stream().collect(Collectors.toList());
         return dimension;
     }
@@ -75,7 +76,7 @@ public class SelectClauseWindowFunction {
         }
         return windowFunction4;
     }
-    public static String windowFunction(Measure meas, Query req, String field, String vendorName) throws BadRequestException {
+    public static String windowFunction(Measure meas, Query req, String field, String vendorName,DatasetDTO ds) throws BadRequestException {
         String window = "";
         String partitionName = "";
         String partition = "";
@@ -96,7 +97,7 @@ public class SelectClauseWindowFunction {
             List<String> partitionList = new ArrayList<>(); 
             final List<String> finalPartitionList = new ArrayList<>();
             List<String> orderByList = new ArrayList<>(); 
-            List<String> selectDimensionList = getDimension(req, vendorName);
+            List<String> selectDimensionList = getDimension(req, vendorName,ds);
   
             /* window function1 accepts only standard values like standing, sliding etc., 
              * window funtion2 accepts only standard values like default, dense etc., 
@@ -282,7 +283,7 @@ public class SelectClauseWindowFunction {
                 * here final partition list given for lambda fuction 
                 */ 
                 dim = new Query(rowVsColumnList, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null);
-                qMap = selectClauseSql(dim, vendorName); 
+                qMap = selectClauseSql(dim, vendorName,ds); 
                 partitionList = qMap.getGroupByList().stream().collect(Collectors.toList());
                 finalPartitionList.addAll(partitionList);
                 partitionName = finalPartitionList.stream().collect(Collectors.joining(",\n\t"));
@@ -326,11 +327,11 @@ public class SelectClauseWindowFunction {
             }
             // getting row values from database
             dim = new Query(row, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null);
-            qMap = selectClauseSql(dim, vendorName);
+            qMap = selectClauseSql(dim, vendorName,ds);
             rowList = qMap.getGroupByList().stream().collect(Collectors.toList());  
             // getting column values from database     
             dim = new Query(column, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null);
-            qMap = selectClauseSql(dim, vendorName);
+            qMap = selectClauseSql(dim, vendorName,ds);
             columnList = qMap.getGroupByList().stream().collect(Collectors.toList());
 
             // get rowPartition & columnPartition from api
@@ -365,7 +366,7 @@ public class SelectClauseWindowFunction {
             * here final partition list given for lambda fuction 
             */
             dim = new Query(rowVsColumnList, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null);
-            qMap = selectClauseSql(dim, vendorName); 
+            qMap = selectClauseSql(dim, vendorName,ds); 
             partitionList = qMap.getGroupByList().stream().collect(Collectors.toList());
             finalPartitionList.addAll(partitionList);
             partitionName = finalPartitionList.stream().collect(Collectors.joining(",\n\t")); 

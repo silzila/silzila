@@ -4,7 +4,7 @@ import Logger from "../../Logger";
 //import jwtDecode from "jwt-decode";
 
 type FetchDataPropType = {
-	requestType: string;
+	requestType:"withData" | "noData";
 	method: string;
 	url: string;
 	// TODO:need to specify types

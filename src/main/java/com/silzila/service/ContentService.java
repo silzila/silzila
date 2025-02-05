@@ -406,16 +406,18 @@ public class ContentService {
         List<WorkspaceContentResponse> WCResponse = new ArrayList<>();
         for (Workspace w : allworkspace) {
             WorkspaceContentResponse response = new WorkspaceContentResponse();
+=
 
             // Null check for DbConnections
-            List<IdNameDTO> conecnts = new ArrayList<>();
+            List<IdNameDTO> contents = new ArrayList<>();
             if (w.getDbConnections() != null && !w.getDbConnections().isEmpty()) {
+
                 for (DBConnection db : w.getDbConnections()) {
                     IdNameDTO content = new IdNameDTO();
                     content.setId(db.getId());
                     content.setCreatedBy(db.getCreatedBy());
                     content.setName(db.getConnectionName());
-                    conecnts.add(content);
+                    contents.add(content);
                 }
             }
 
@@ -427,21 +429,23 @@ public class ContentService {
                     SubWorkspaceContentResponse swContent = new SubWorkspaceContentResponse();
 
                     // Null check for sub-workspace DbConnections
-                    List<IdNameDTO> subConecnts = new ArrayList<>();
+                    List<IdNameDTO> subContents = new ArrayList<>();
                     if (sw.getDbConnections() != null && !sw.getDbConnections().isEmpty()) {
                         for (DBConnection db : sw.getDbConnections()) {
                             IdNameDTO content = new IdNameDTO();
                             content.setId(db.getId());
                             content.setCreatedBy(db.getCreatedBy());
                             content.setName(db.getConnectionName());
-                            subConecnts.add(content);
+                            subContents.add(content);
                         }
                     }
-                    if (!subConecnts.isEmpty())
-                        swContent.setContents(subConecnts);
+
+                    if(!subContents.isEmpty()){
+                    swContent.setContents(subContents);
                     swContent.setWorkspaceName(sw.getName());
                     swContent.setWorkspaceId(sw.getId());
                     subWorkspaceContent.add(swContent);
+                    }
                 }
             }
             if (!conecnts.isEmpty()) {
@@ -452,7 +456,6 @@ public class ContentService {
                 response.setSubWorkspaces(subWorkspaceContent);
                 WCResponse.add(response);
             }
-
         }
 
         // Return empty list if no data exists
@@ -472,14 +475,14 @@ public class ContentService {
             WorkspaceContentResponse response = new WorkspaceContentResponse();
 
             // Null check for DbConnections
-            List<IdNameDTO> conecnts = new ArrayList<>();
+            List<IdNameDTO> contents = new ArrayList<>();
             if (w.getDataSets() != null && !w.getDataSets().isEmpty()) {
                 for (Dataset d : w.getDataSets()) {
                     IdNameDTO content = new IdNameDTO();
                     content.setId(d.getId());
                     content.setCreatedBy(d.getCreatedBy());
                     content.setName(d.getDatasetName());
-                    conecnts.add(content);
+                    contents.add(content);
                 }
             }
 
@@ -491,22 +494,22 @@ public class ContentService {
                     SubWorkspaceContentResponse swContent = new SubWorkspaceContentResponse();
 
                     // Null check for sub-workspace DbConnections
-                    List<IdNameDTO> subConecnts = new ArrayList<>();
+                    List<IdNameDTO> subContents = new ArrayList<>();
                     if (sw.getDataSets() != null && !sw.getDataSets().isEmpty()) {
                         for (Dataset db : sw.getDataSets()) {
                             IdNameDTO content = new IdNameDTO();
                             content.setId(db.getId());
                             content.setCreatedBy(db.getCreatedBy());
                             content.setName(db.getDatasetName());
-                            subConecnts.add(content);
+                            subContents.add(content);
                         }
                     }
-                    if (!subConecnts.isEmpty()) {
-                        swContent.setContents(subConecnts);
+
+                    if(!subContents.isEmpty()){
+                        swContent.setContents(subContents);
                         swContent.setWorkspaceName(sw.getName());
                         swContent.setWorkspaceId(sw.getId());
                         subWorkspaceContent.add(swContent);
-                    }
                 }
             }
 
@@ -574,7 +577,16 @@ public class ContentService {
                 }
             }
 
-            if (!flatFileContents.isEmpty()) {
+                    if(!subFlatFileContents.isEmpty()){
+                        swContent.setContents(subFlatFileContents);
+                        swContent.setWorkspaceName(sw.getName());
+                        swContent.setWorkspaceId(sw.getId());
+                        subWorkspaceContent.add(swContent);
+                    }
+            }
+
+            // Set contents and sub-workspaces in the response
+            if(!flatFileContents.isEmpty() || !subWorkspaceContent.isEmpty()){
                 response.setContentType(contentType);
                 response.setWorkspaceId(w.getId());
                 response.setWorkspaceName(w.getName());
@@ -582,7 +594,6 @@ public class ContentService {
                 response.setSubWorkspaces(subWorkspaceContent);
                 WCResponse.add(response);
             }
-
         }
 
         return WCResponse.isEmpty() ? Collections.emptyList() : WCResponse;

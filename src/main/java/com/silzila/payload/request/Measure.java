@@ -31,6 +31,10 @@ import lombok.Builder;
 @Generated("jsonschema2pojo")
 public class Measure implements Serializable {
 
+    @JsonProperty("isCalculatedField")
+    private Boolean isCalculatedField = false;
+    @JsonProperty("calculatedField")
+    private List<CalculatedFieldRequest> calculatedField;
     @JsonProperty("tableId")
     private String tableId;
     @JsonProperty("fieldName")
@@ -76,10 +80,12 @@ public class Measure implements Serializable {
      * @param disableReportFilters
      * @param isOverrideMeasure
      */
-    public Measure(String tableId, String fieldName, Measure.DataType dataType, Measure.TimeGrain timeGrain, Measure.Aggr aggr,
+    public Measure(Boolean isCalculatedField,List<CalculatedFieldRequest> calculatedField,String tableId, String fieldName, Measure.DataType dataType, Measure.TimeGrain timeGrain, Measure.Aggr aggr,
             String[] windowFn, int[] windowFnOption, int[] rowColumnMatrix, int[] windowFnPartition, Boolean disableReportFilters,
             Integer measureOrder) {
         super();
+        this.isCalculatedField = isCalculatedField;
+        this.calculatedField = calculatedField;
         this.tableId = tableId;
         this.fieldName = fieldName;
         this.dataType = dataType;
@@ -93,6 +99,25 @@ public class Measure implements Serializable {
         this.measureOrder = measureOrder;
     }
 
+    @JsonProperty("isCalculatedField")
+    public Boolean getIsCalculatedField() {
+        return isCalculatedField;
+    }
+
+    @JsonProperty("isCalculatedField")
+    public void setIsCalculatedField(Boolean calculatedField) {
+        isCalculatedField = calculatedField;
+    }
+
+    @JsonProperty("calculatedField")
+    public List<CalculatedFieldRequest> getCalculatedField() {
+        return calculatedField;
+    }
+
+    @JsonProperty("calculatedField")
+    public void setCalculatedFieldName(List<CalculatedFieldRequest> calculatedField) {
+        this.calculatedField = calculatedField;
+    }
     @JsonProperty("tableId")
     public String getTableId() {
         return tableId;

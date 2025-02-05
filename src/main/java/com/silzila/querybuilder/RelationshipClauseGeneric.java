@@ -86,63 +86,9 @@ public class RelationshipClauseGeneric {
      * if we add a to c then there are two ways of joining a to c.
      * a to c directly and via b.
      */
-    public static String buildRelationship(Query req, DataSchema ds, String vendorName)
+    public static String buildRelationship(List<String> allColumnList, DataSchema ds, String vendorName)
             throws BadRequestException {
 
-        // declare lists to save incoming query requested tables accordingly
-        List<String> dimList = new ArrayList<>();
-        List<String> measureList = new ArrayList<>();
-        List<String> fieldList = new ArrayList<>();
-        List<String> filterList = new ArrayList<>();
-        List<String> allColumnList = new ArrayList<>();
-        // take list of unique dim tables & another list on all unique tables
-        req.getDimensions().forEach((dim) -> {
-            if (!dimList.contains(dim.getTableId())) {
-                dimList.add(dim.getTableId());
-            }
-            if (!allColumnList.contains(dim.getTableId())) {
-                allColumnList.add(dim.getTableId());
-            }
-        });
-        // take list of unique measure tables & another list on all unique tables
-        req.getMeasures().forEach((measure) -> {
-            if (!measureList.contains(measure.getTableId())) {
-                measureList.add(measure.getTableId());
-            }
-            if (!allColumnList.contains(measure.getTableId())) {
-                allColumnList.add(measure.getTableId());
-            }
-        });
-        // take list of unique field tables & another list on all unique tables
-        req.getFields().forEach((field) -> {
-            if (!fieldList.contains(field.getTableId())) {
-                fieldList.add(field.getTableId());
-            }
-            if (!allColumnList.contains(field.getTableId())) {
-                allColumnList.add(field.getTableId());
-            }
-        });
-        // take list of unique filter tables & another list on all unique tables
-        req.getFilterPanels().forEach((panel) -> {
-            panel.getFilters().forEach((filter) -> {
-                // System.out.println("----------------");
-                // System.out.println(filter.toString());
-                if (!filterList.contains(filter.getTableId())) {
-                    filterList.add(filter.getTableId());
-                }
-                if (!allColumnList.contains(filter.getTableId())) {
-                    allColumnList.add(filter.getTableId());
-                }
-            });
-        });
-
-        // System.out.println("-----------------------------------");
-        // System.out.println("allColumnList = " + allColumnList);
-        // System.out.println("dimList = " + dimList);
-        // System.out.println("measureList = " + measureList);
-        // System.out.println("fieldList = " + fieldList);
-        // System.out.println("filterList = " + filterList);
-        // System.out.println("-----------------------------------");
 
         String fromClause = "";
         List<Relationship> relationships = new ArrayList<>();
