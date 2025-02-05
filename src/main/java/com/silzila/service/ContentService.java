@@ -2,6 +2,7 @@ package com.silzila.service;
 
 import com.databricks.client.jdbc42.internal.facebook.fb303.FacebookService.AsyncProcessor.reinitialize;
 import com.ibm.db2.jcc.am.al;
+import com.ibm.db2.jcc.am.cu;
 import com.silzila.domain.entity.DBConnection;
 import com.silzila.domain.entity.Dataset;
 import com.silzila.domain.entity.FileData;
@@ -265,28 +266,29 @@ public class ContentService {
 
     public List<WorkspaceTreeResponse> getWorkspaceTree(String userId) {
         // Get all workspaces for the user
-        List<Workspace> workspaces = workspaceRepository.findByUserId(userId);
+        List<Workspace> workspaces = workspaceRepository.findByUserIdAndParentIsNull(userId);
 
-        // Create a map of workspaceId to WorkspaceTreeResponse
-        Map<String, WorkspaceTreeResponse> workspaceTreeMap = new HashMap<>();
+        Map<String, WorkspaceTreeResponse> workspaceAndSubworkspace = new HashMap<>();
+        for (Workspace w : workspaces) {
+            WorkspaceTreeResponse curr = new WorkspaceTreeResponse();
 
-        for (Workspace workspace : workspaces) {
-            // Initialize WorkspaceTreeResponse for the current workspace
-            WorkspaceTreeResponse workspaceTreeResponse = workspaceTreeMap
-                    .computeIfAbsent(workspace.getId(), id -> new WorkspaceTreeResponse(
-                            workspace.getId(), workspace.getName(), new ArrayList<>()));
+            curr.setWorkspaceId(w.getId());
+            curr.setWorkspaceName(w.getName());
 
-            // If the workspace has a parent, add it to the parent's subWorkspaces list
-            if (workspace.getParent() != null) {
-                WorkspaceTreeResponse parentWorkspace = workspaceTreeMap.get(workspace.getParent().getId());
-                if (parentWorkspace != null) {
-                    parentWorkspace.getSubWorkspaces().add(new WorkspaceNode(workspace.getId(), workspace.getName()));
-                }
+            // all workspaces of praticular WorksapceId
+            List<Workspace> subwWorkspaces = workspaceRepository.findByUserIdAndParentWorkspaceId(userId, w.getId());
+            List<WorkspaceNode> subNodes = new ArrayList<>();
+            for (Workspace sw : subwWorkspaces) {
+                WorkspaceNode node = new WorkspaceNode();
+                node.setWorkspaceId(sw.getId());
+                node.setWorkspaceName(sw.getName());
+                subNodes.add(node);
             }
+            curr.setSubWorkspaces(subNodes);
+            workspaceAndSubworkspace.put(w.getId(), curr);
         }
+        return new ArrayList<>(workspaceAndSubworkspace.values());
 
-        // Convert the map values into a list and return it
-        return new ArrayList<>(workspaceTreeMap.values());
     }
 
     public List<WorkspaceContentResponse> contentDependency(String email, String workspaceId, String contentId,
@@ -435,14 +437,14 @@ public class ContentService {
                             subConecnts.add(content);
                         }
                     }
-
-                    swContent.setContents(subConecnts);
+                    if (!subConecnts.isEmpty())
+                        swContent.setContents(subConecnts);
                     swContent.setWorkspaceName(sw.getName());
                     swContent.setWorkspaceId(sw.getId());
                     subWorkspaceContent.add(swContent);
                 }
             }
-            if (!conecnts.isEmpty() && !subWorkspaceContent.isEmpty()) {
+            if (!conecnts.isEmpty()) {
                 response.setContentType(contentType);
                 response.setWorkspaceId(w.getId());
                 response.setWorkspaceName(w.getName());
@@ -468,7 +470,6 @@ public class ContentService {
         List<WorkspaceContentResponse> WCResponse = new ArrayList<>();
         for (Workspace w : allworkspace) {
             WorkspaceContentResponse response = new WorkspaceContentResponse();
-            
 
             // Null check for DbConnections
             List<IdNameDTO> conecnts = new ArrayList<>();
@@ -500,16 +501,16 @@ public class ContentService {
                             subConecnts.add(content);
                         }
                     }
-
-                    swContent.setContents(subConecnts);
-                    swContent.setWorkspaceName(sw.getName());
-                    swContent.setWorkspaceId(sw.getId());
-                    subWorkspaceContent.add(swContent);
+                    if (!subConecnts.isEmpty()) {
+                        swContent.setContents(subConecnts);
+                        swContent.setWorkspaceName(sw.getName());
+                        swContent.setWorkspaceId(sw.getId());
+                        subWorkspaceContent.add(swContent);
+                    }
                 }
             }
 
-
-            if (!conecnts.isEmpty() && !subWorkspaceContent.isEmpty()) {
+            if (!conecnts.isEmpty()) {
                 response.setContentType(contentType);
                 response.setWorkspaceId(w.getId());
                 response.setWorkspaceName(w.getName());
@@ -534,7 +535,6 @@ public class ContentService {
 
         for (Workspace w : allWorkspace) {
             WorkspaceContentResponse response = new WorkspaceContentResponse();
-            
 
             // Process flat files for the workspace
             List<IdNameDTO> flatFileContents = new ArrayList<>();
@@ -566,7 +566,7 @@ public class ContentService {
                             subFlatFileContents.add(content);
                         }
                     }
-
+                    if(!subFlatFileContents.isEmpty())
                     swContent.setContents(subFlatFileContents);
                     swContent.setWorkspaceName(sw.getName());
                     swContent.setWorkspaceId(sw.getId());
@@ -574,7 +574,7 @@ public class ContentService {
                 }
             }
 
-            if (!flatFileContents.isEmpty() && !subWorkspaceContent.isEmpty()) {
+            if (!flatFileContents.isEmpty()) {
                 response.setContentType(contentType);
                 response.setWorkspaceId(w.getId());
                 response.setWorkspaceName(w.getName());
