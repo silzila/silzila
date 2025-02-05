@@ -2,6 +2,7 @@ package com.silzila.controller;
 
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,8 +15,12 @@ import com.silzila.exception.ExpectationFailedException;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.payload.request.*;
 import com.silzila.payload.response.MessageResponse;
+import com.silzila.payload.response.TableRelationshipResponse;
 import com.silzila.service.ConnectionPoolService;
 import com.silzila.service.DatasetService;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,6 +65,7 @@ public class DatasetController {
         DatasetDTO dto = datasetService.updateDataset(datasetRequest, id, userId, workspaceId);
         return ResponseEntity.ok(dto);
     }
+
 
     // list datasets
     @GetMapping("/dataset")
@@ -157,5 +163,41 @@ public class DatasetController {
                 relativeFilter);
         return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
+
+    @PostMapping("test-calculated-field")
+    public ResponseEntity<?> testCalculatedField(@RequestHeader Map<String, String> reqHeader,
+            @Valid @RequestBody List<CalculatedFieldRequest> calculatedFieldRequests,
+            @RequestParam String workspaceId,
+            @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
+            @RequestParam(name = "datasetid", required = false) String datasetId,
+            @RequestParam(name = "limit", required = false) Integer recordCount) throws JsonMappingException, JsonProcessingException, ClassNotFoundException, RecordNotFoundException, SQLException, BadRequestException{
+                String userId = reqHeader.get("username");
+                System.out.println(dBConnectionId);
+                System.out.println(datasetId);
+                JSONArray jsonArray =  datasetService.testCalculateField(userId,dBConnectionId,datasetId,workspaceId,calculatedFieldRequests,recordCount);
+                return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
+    }
+    @PostMapping("calculated-field/filter-options")
+    public ResponseEntity<?> calculatedFieldFilterOptions(@RequestHeader Map<String, String> reqHeader,
+            @Valid @RequestBody List<CalculatedFieldRequest> calculatedFieldRequest,
+            @RequestParam(required = false) String workspaceId,
+            @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
+            @RequestParam(name = "datasetid", required = false) String datasetId,
+            @RequestParam(name = "limit", required = false) Integer recordCount) throws JsonMappingException, JsonProcessingException, ClassNotFoundException, RecordNotFoundException, SQLException, BadRequestException{
+                String userId = reqHeader.get("username");
+                JSONObject jsonObject =  datasetService.calculatedFieldFilterOptions(userId,dBConnectionId,datasetId,workspaceId,calculatedFieldRequest);
+                return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK).body(jsonObject.toString());
+    }
+
+    @PostMapping("table-relationship")
+    public List<TableRelationshipResponse> tableRelationships(@RequestHeader Map<String, String> reqHeader,
+    @RequestParam(required = false) String workspaceId,
+    @RequestParam(name = "datasetId", required = true) String datasetId,
+    @RequestBody(required = true) Map<String,List<String>> tableIds
+    ) throws JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, RecordNotFoundException, SQLException{
+        String userId = reqHeader.get("email");
+        return datasetService.tablesRelationship(userId, workspaceId, tableIds.get("tableIds"), datasetId);
+    }
+
 
 }
