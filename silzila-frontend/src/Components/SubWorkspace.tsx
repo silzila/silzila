@@ -832,6 +832,7 @@ const SubWorkspace = () => {
   };
 
   const handleCreateItem = async () => {
+    
     let url;
     let data;
 
@@ -1994,8 +1995,7 @@ const SubWorkspace = () => {
                   <div className={styles.errorMessage}>{errorMessage}</div>
                 )}
               </div>
-              <br />
-              <br />
+
               <div className={styles.subworkspaceModalButtons}>
                 <button
                   className={styles.subworkspaceModalCancel}
