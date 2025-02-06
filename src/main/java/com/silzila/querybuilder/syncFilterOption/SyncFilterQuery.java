@@ -1,6 +1,5 @@
 package com.silzila.querybuilder.syncFilterOption;
 
-
 import com.silzila.exception.BadRequestException;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.*;
@@ -12,11 +11,12 @@ import java.util.*;
 @Slf4j
 public class SyncFilterQuery {
 
-    public static String getSyncFilterOptions(List<Filter> cf, String fromQuery, String vendorName) throws BadRequestException {
-        QueryClauseFieldListMap selectQuery=null;
-        boolean userSelection=false;
-        String whereClause=null;
-        int countCurrentSelection=0;
+    public static String getSyncFilterOptions(List<Filter> cf, String fromQuery, String vendorName)
+            throws BadRequestException {
+        QueryClauseFieldListMap selectQuery = null;
+        boolean userSelection = false;
+        String whereClause = null;
+        int countCurrentSelection = 0;
         boolean isUserSelectionAll=false;
         try {
             // Check for null or empty filters
@@ -24,11 +24,10 @@ public class SyncFilterQuery {
                 throw new IllegalArgumentException("Column filters cannot be null or empty.");
             }
 
-
             // Initialize variables
             StringBuilder finalQuery = new StringBuilder("SELECT DISTINCT ");
             List<String> selectedColumns = new ArrayList<>();
-            List<Filter>userSelcetionFilter=new ArrayList<>();
+            List<Filter> userSelcetionFilter = new ArrayList<>();
             FilterPanel panel = new FilterPanel();
             List<Dimension> dimensions = new ArrayList<>();
 
@@ -43,15 +42,15 @@ public class SyncFilterQuery {
                 }
 
                 // Add the column to the SELECT clause if currentSelection is false
-                if (!filter.getCurrentSelection() ) {
+                if (!filter.getCurrentSelection()) {
                     if (filter.getOperator() == Filter.Operator.IN) {
-
-                        String columnName = filter.getTableId() + ".\"" + filter.getFieldName() + "\"";
-                        selectedColumns.add(columnName);
-                        aliasMap.put(columnName, aliasCount++);
-                     
-                    
-
+                        if(filter.getUserSelection()!=null&&!filter.getUserSelection().get(0).equalsIgnoreCase("all")){
+                            String columnName = filter.getTableId() + ".\"" + filter.getFieldName() + "\"";
+                            selectedColumns.add(columnName);
+                            aliasMap.put(columnName, aliasCount++);
+                            isUserSelectionAll=true;
+                        }
+                        
 
                         // Create and add the Dimension object
                         Dimension dimension = new Dimension(
@@ -62,24 +61,24 @@ public class SyncFilterQuery {
                                 false);
                         dimensions.add(dimension);
                     }
-                }else{
+                } else {
                     countCurrentSelection++;
                 }
 
                 // User selections
                 List<String> userSelections = filter.getUserSelection();
-                if  (userSelections != null || "tillDate".equals(filter.getFilterType())) {
-                    if(!filter.getUserSelection().get(0).equalsIgnoreCase("all")){
-                        isUserSelectionAll=true;
-                    }
+                if (userSelections != null || "tillDate".equals(filter.getFilterType())) {
                     userSelcetionFilter.add(filter);
                     userSelection = true;
-                    
 
                 }
+            
             }
 
-            if(countCurrentSelection!=1){
+            if (dimensions == null) {
+                return null;
+            }
+            if (countCurrentSelection != 1) {
                 throw new BadRequestException("Error: Only one column can be current Selection!");
             }
             // Create Query object
@@ -89,7 +88,7 @@ public class SyncFilterQuery {
             query.setMeasures(new ArrayList<>());
             query.setFields(null);
             if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
-               selectQuery = SelectClausePostgres.buildSelectClause(query, vendorName, aliasMap);
+                selectQuery = SelectClausePostgres.buildSelectClause(query, vendorName, aliasMap);
             } else if (vendorName.equals("mysql")) {
                 selectQuery = SelectClauseMysql.buildSelectClause(query, vendorName, aliasMap);
             } else if (vendorName.equals("sqlserver")) {
@@ -120,10 +119,7 @@ public class SyncFilterQuery {
                 throw new BadRequestException("Error: DB vendor Name is wrong!");
             }
 
-//            if select condition is empty
-            if(selectQuery.getSelectList().toString()==null||selectQuery.getSelectList().toString().isEmpty()) {
-                return null;
-            }
+
             // Append selected columns to the final query
             finalQuery.append(String.join(", ", selectQuery.getSelectList()));
             finalQuery.append(" FROM ").append(fromQuery);
@@ -133,10 +129,9 @@ public class SyncFilterQuery {
             panel.setPanelName("panel_" + fromQuery);
             panel.setShouldAllConditionsMatch(true);
 
-
             // Build WHERE clause using the panel
-            if(userSelection&&!isUserSelectionAll){
-            whereClause = WhereClause.buildWhereClause(Collections.singletonList(panel), vendorName);
+            if (userSelection&&isUserSelectionAll) {
+                whereClause = WhereClause.buildWhereClause(Collections.singletonList(panel), vendorName);
                 finalQuery.append(whereClause);
             }
             System.out.println("Generated  Query: " + finalQuery.toString());
