@@ -97,38 +97,32 @@ const WorkspaceList = () => {
 
   const fetchWorkspaces = async () => {
     setIsLoading(true);
-    setError(null); // Reset error state before request
-  
     try {
-      const token = localStorage.getItem("accessToken");
-      if (!token) throw new Error("No access token found");
-  
       const response = await FetchData({
         requestType: "noData",
         method: "GET",
-        url: "{{ _.baseURL }}/workspace", // Updated API endpoint
+        url: "workspace",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           "Content-Type": "application/json",
         },
       });
-  
-      if (response?.status) {
+
+      if (response.status) {
         setWorkspaces(response.data);
         sessionStorage.setItem("workspaces", JSON.stringify(response.data));
         dispatch(reduxSetWorkspaces(response.data));
       } else {
-        throw new Error(response?.data?.detail || "Failed to fetch workspaces");
+        setError(response.data.detail || "Failed to fetch workspaces");
       }
-    } catch (err: any) {
-      console.error("Error fetching workspaces:", err);
-      setError(err.message || "An error occurred while fetching workspaces");
+      // console.log(workspacess);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError("An error occurred while fetching workspaces");
     } finally {
       setIsLoading(false);
     }
   };
-  
-
   useEffect(() => {
     setTimeout(fetchWorkspaces, 2000);
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import useSWR from "swr";
+//import useSWR from "swr";
 import styles from "./subworkspace.module.css";
 import "./allPages.css";
 import { useParams } from "react-router-dom";
@@ -832,6 +832,7 @@ const SubWorkspace = () => {
   };
 
   const handleCreateItem = async () => {
+    
     let url;
     let data;
 
@@ -2116,8 +2117,7 @@ const SubWorkspace = () => {
                   <div className={styles.errorMessage}>{errorMessage}</div>
                 )}
               </div>
-              <br />
-              <br />
+
               <div className={styles.subworkspaceModalButtons}>
                 <button
                   className={styles.subworkspaceModalCancel}
