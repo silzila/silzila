@@ -61,6 +61,9 @@ public class SyncFilterOptionsQueryComposer {
             // Check the vendor type and build the final query accordingly
             if (vendorName!=null||!vendorName.isEmpty() ) {
                 finalQuery = SyncFilterQuery.getSyncFilterOptions(cf, fromQuery, vendorName);
+                if (finalQuery==null) {
+                    return null;
+                }
             } else {
                 // Throw an exception if the vendor name does not match any known types
                 throw new BadRequestException("Error: DB vendor Name is wrong!");

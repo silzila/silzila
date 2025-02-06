@@ -779,7 +779,7 @@ public class DatasetService {
             // Ensure the DuckDB query is not empty or null, and throw an exception if
             // invalid
             if (query.isEmpty() || query == null) {
-                throw new BadRequestException("Error: Empty query");
+                return null;
             }
 
             logger.info("\n******* QUERY **********\n" + query);
