@@ -135,12 +135,16 @@ public class DatasetController {
     public ResponseEntity<?> syncFilterOptions(@RequestHeader Map<String, String> reqHeader,
             @Valid @RequestBody List<Filter> filter,
             @RequestParam(name = "dbconnectionid", required = false) String dBConnectionId,
-            @RequestParam(name="workspaceid",required = false) String workspaceId,
+            @RequestParam(name = "workspaceid", required = false) String workspaceId,
             @RequestParam(name = "datasetid", required = false) String datasetId)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
             BadRequestException, ClassNotFoundException {
         String userId = reqHeader.get("username");
-        Object jsonArray = datasetService.syncFilterOption(userId, filter, dBConnectionId, datasetId,workspaceId);
+        Object jsonArray = datasetService.syncFilterOption(userId, filter, dBConnectionId, datasetId, workspaceId);
+        if (jsonArray == null) {
+            return ResponseEntity.status(HttpStatus.OK).body(null);
+
+        }
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 

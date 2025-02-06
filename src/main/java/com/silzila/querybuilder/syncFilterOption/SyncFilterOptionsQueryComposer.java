@@ -46,7 +46,7 @@ public class SyncFilterOptionsQueryComposer {
 
             // Validate the query, ensuring it is not empty or null
             if (finalQuery == null || finalQuery.isEmpty()) {
-                throw new BadRequestException("No tables found for DuckDB (flat file processing)");
+                return null;
             }
 
         } else {

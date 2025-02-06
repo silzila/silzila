@@ -17,6 +17,7 @@ public class SyncFilterQuery {
         boolean userSelection=false;
         String whereClause=null;
         int countCurrentSelection=0;
+        boolean isUserSelectionAll=false;
         try {
             // Check for null or empty filters
             if (cf == null || cf.isEmpty()) {
@@ -48,6 +49,8 @@ public class SyncFilterQuery {
                         String columnName = filter.getTableId() + ".\"" + filter.getFieldName() + "\"";
                         selectedColumns.add(columnName);
                         aliasMap.put(columnName, aliasCount++);
+                     
+                    
 
 
                         // Create and add the Dimension object
@@ -66,8 +69,12 @@ public class SyncFilterQuery {
                 // User selections
                 List<String> userSelections = filter.getUserSelection();
                 if  (userSelections != null || "tillDate".equals(filter.getFilterType())) {
+                    if(!filter.getUserSelection().get(0).equalsIgnoreCase("all")){
+                        isUserSelectionAll=true;
+                    }
                     userSelcetionFilter.add(filter);
                     userSelection = true;
+                    
 
                 }
             }
@@ -115,7 +122,7 @@ public class SyncFilterQuery {
 
 //            if select condition is empty
             if(selectQuery.getSelectList().toString()==null||selectQuery.getSelectList().toString().isEmpty()) {
-                throw new BadRequestException("No select clause found for vendor " + vendorName);
+                return null;
             }
             // Append selected columns to the final query
             finalQuery.append(String.join(", ", selectQuery.getSelectList()));
@@ -128,7 +135,7 @@ public class SyncFilterQuery {
 
 
             // Build WHERE clause using the panel
-            if(userSelection){
+            if(userSelection&&!isUserSelectionAll){
             whereClause = WhereClause.buildWhereClause(Collections.singletonList(panel), vendorName);
                 finalQuery.append(whereClause);
             }

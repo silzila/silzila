@@ -737,7 +737,7 @@ public class DatasetService {
             // Validate that the query is not empty or null, and throw an exception if it is
             // invalid
             if (query.isEmpty() || query == null) {
-                throw new BadRequestException("Error: Empty query");
+               return null;
             }
 
             logger.info("\n******* QUERY **********\n" + query);
