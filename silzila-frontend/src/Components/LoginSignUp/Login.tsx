@@ -87,11 +87,12 @@ const Login = (props: DispatchProps) => {
 					accessToken: response.data.accessToken,
 					tokenType: response.data.tokenType,
 				};
+				localStorage.setItem("accessToken", payload.accessToken);
 				props.userAuthentication(payload);
 				setIsLoading(false);
 				showAlert("Login Successful.", "success");
 				setTimeout(() => {
-					navigate("/datahome");
+					navigate("/workspace");
 				}, 1000);
 	
 				// Set the auth token in cookies
@@ -109,7 +110,7 @@ const Login = (props: DispatchProps) => {
 				});
 	
 				// Redirect to the React.js landing page
-				navigate("/datahome");
+				navigate("/workspace");
 				setEmail("");
 				setPassword("");
 			 }
@@ -118,22 +119,19 @@ const Login = (props: DispatchProps) => {
 		
 				// Check if the error contains a specific message about email verification
 				if (error.response && error.response.data && error.response.data.error) {
-						const apiErrorMessage = error.response.data.error;
+					const { error: apiError, message, status } = error.response.data;
 		
-						// Check for specific error messages
-						if (apiErrorMessage.includes("verify your mail")) {
-								setError("Please verify your email before logging in.");
-								//showAlert("Please verify your email before logging in.", "error");
-						} else {
-								// Generic fallback for unexpected error messages
-								setError("Invalid Credentials. Please try again.");
-								//showAlert("Login failed. Please try again.", "error");
-						}
-				} else {
+					// Check for specific error messages
+					if (apiError === "Unauthorized" || status === 401) {
+						// Handle "Unauthorized" error specifically
+						setError("Invalid credentials. Please check your email and password.");
+					}
+
+					} else {
 						// Generic fallback for errors without a clear API response
 						setError("Login Failed. Please try again.");
 						//showAlert("An unexpected error occurred. Please try again.", "error");
-				}
+					}
 		
 				setIsLoading(false); // Stop loading spinner
 		}
@@ -193,15 +191,6 @@ const Login = (props: DispatchProps) => {
 					</div>
 
 					<div className="community-signin-forgot-new-button-container">
-						<Link to="/"
-							className="community-signin-login-link-forgot"
-							//={`/auth/community/signin/forgot-password_community?tenantId=${encodeURIComponent(
-							//	tenantId
-							//)}&email=${encodeURIComponent(email)}`}
-						>
-							Forgot Password
-						</Link>
-
 						<div className="community-signin-login-link-new">
 							New User?{" "}
 								<Link to="/signup">
@@ -209,6 +198,7 @@ const Login = (props: DispatchProps) => {
 							</Link>
 						</div>
 					</div>
+					
 				</form>
 			</div>
 		</div>

@@ -42,7 +42,7 @@ public class SyncFilterOptionsQueryComposer {
             String fromQuery = RelationshipClauseGeneric.buildRelationship(allIds, ds.getDataSchema(), vendorName);
 
             // Build the final query
-            finalQuery = SyncFilterQuery.getSyncFilterOptions(cf, fromQuery, vendorName);
+            finalQuery = SyncFilterQuery.getSyncFilterOptions(cf, fromQuery, vendorName,ds);
 
             // Validate the query, ensuring it is not empty or null
             if (finalQuery == null || finalQuery.isEmpty()) {
@@ -60,6 +60,7 @@ public class SyncFilterOptionsQueryComposer {
 
             // Check the vendor type and build the final query accordingly
             if (vendorName!=null||!vendorName.isEmpty() ) {
+
                 finalQuery = SyncFilterQuery.getSyncFilterOptions(cf, fromQuery, vendorName);
                 if (finalQuery==null) {
                     return null;

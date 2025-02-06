@@ -52,6 +52,7 @@ public class ResultSetToJson {
         }
         return result;
     }
+    
 
      public static JSONObject convertToArray(ResultSet resultSet) throws SQLException {
         JSONObject result = new JSONObject();

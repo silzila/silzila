@@ -25,6 +25,8 @@ public class Field implements Serializable {
     private String fieldName;
     @JsonProperty("dataType")
     private Field.DataType dataType;
+    @JsonProperty("timeGrain")
+    private String timeGrain = "year";
     private final static long serialVersionUID = -7207259868710547121L;
 
     /**
@@ -40,11 +42,12 @@ public class Field implements Serializable {
      * @param dataType
      * @param tableId
      */
-    public Field(String tableId, String fieldName, Field.DataType dataType) {
+    public Field(String tableId, String fieldName, Field.DataType dataType,String timeGrain) {
         super();
         this.tableId = tableId;
         this.fieldName = fieldName;
         this.dataType = dataType;
+        this.timeGrain = timeGrain;
     }
 
     @JsonProperty("tableId")
@@ -60,6 +63,14 @@ public class Field implements Serializable {
     @JsonProperty("fieldName")
     public String getFieldName() {
         return fieldName;
+    }
+
+    public String getTimeGrain() {
+        return timeGrain;
+    }
+
+    public void setTimeGrain(String timeGrain) {
+        this.timeGrain = timeGrain;
     }
 
     @JsonProperty("fieldName")

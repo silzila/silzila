@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
@@ -76,7 +77,7 @@ public static String joinCTE(int tblNum, List<Dimension> commonDimensions, List<
     }
 
     public static String overrideCTEq(int tblNum, Query reqCTE, List<Dimension> leftOverDimension,
-                                   List<Dimension> combinedDimensions, String vendorName) throws BadRequestException {
+                                   List<Dimension> combinedDimensions, String vendorName,DatasetDTO ds) throws BadRequestException {
 
     StringBuilder overrideQuery = new StringBuilder();
     try{
@@ -108,7 +109,7 @@ public static String joinCTE(int tblNum, List<Dimension> commonDimensions, List<
 
         reqCTE.setDimensions(combinedDimensions);
 
-        QueryClauseFieldListMap qMapOd = SelectClauseMysql.buildSelectClause(reqCTE, vendorName);
+        QueryClauseFieldListMap qMapOd = SelectClauseMysql.buildSelectClause(reqCTE, vendorName,ds);
 
         // Build SELECT and GROUP BY clauses
         String selectClauseOd = "\n\t"
@@ -138,7 +139,7 @@ public static String joinCTE(int tblNum, List<Dimension> commonDimensions, List<
 
 
 // to generate override query, while window function is there
-public static String windowQuery(String CTEQuery, String CTEmainQuery, List<Dimension> baseDimensions, HashMap<Integer, Measure> windowMeasure, List<String> aliasMeasureOrder,Query baseQuery, String vendorName) throws BadRequestException {
+public static String windowQuery(String CTEQuery, String CTEmainQuery, List<Dimension> baseDimensions, HashMap<Integer, Measure> windowMeasure, List<String> aliasMeasureOrder,Query baseQuery, String vendorName,DatasetDTO ds) throws BadRequestException {
     StringBuilder finalQuery = new StringBuilder();
 
     try{
@@ -193,7 +194,7 @@ public static String windowQuery(String CTEQuery, String CTEmainQuery, List<Dime
     baseQuery.setMeasures(overrideMeasures);
 
     // Build SELECT and GROUP BY clauses
-    QueryClauseFieldListMap qMapOd = SelectClauseMysql.buildSelectClause(baseQuery, vendorName);
+    QueryClauseFieldListMap qMapOd = SelectClauseMysql.buildSelectClause(baseQuery, vendorName,ds);
     String selectClauseOd = "\n\t" + qMapOd.getSelectList().stream().collect(Collectors.joining(",\n\t"));
     String groupByClauseOd = "\n\t" + qMapOd.getGroupByList().stream().distinct().collect(Collectors.joining(",\n\t"));
 

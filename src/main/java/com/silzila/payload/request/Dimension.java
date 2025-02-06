@@ -2,6 +2,7 @@ package com.silzila.payload.request;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,7 +23,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 })
 @Generated("jsonschema2pojo")
 public class Dimension implements Serializable {
-
+    @JsonProperty("isCalculatedField")
+    private Boolean isCalculatedField = false;
+    @JsonProperty("calculatedField")
+    private List<CalculatedFieldRequest> calculatedField;
     @JsonProperty("tableId")
     private String tableId;
     @JsonProperty("fieldName")
@@ -49,8 +53,10 @@ public class Dimension implements Serializable {
      * @param dataType
      * @param tableId
      */
-    public Dimension(String tableId, String fieldName, Dimension.DataType dataType, Dimension.TimeGrain timeGrain,Boolean rollupDepth) {
+    public Dimension(Boolean isCalculatedField,List<CalculatedFieldRequest> calculatedField,String tableId, String fieldName, Dimension.DataType dataType, Dimension.TimeGrain timeGrain,Boolean rollupDepth) {
         super();
+        this.isCalculatedField = isCalculatedField;
+        this.calculatedField = calculatedField;
         this.tableId = tableId;
         this.fieldName = fieldName;
         this.dataType = dataType;
@@ -69,6 +75,25 @@ public class Dimension implements Serializable {
 
     public void setRollupDepth(Boolean rollupDepth) {
         this.rollupDepth = rollupDepth;
+    }
+    @JsonProperty("isCalculatedField")
+    public Boolean getIsCalculatedField() {
+        return isCalculatedField;
+    }
+
+    @JsonProperty("isCalculatedField")
+    public void setIsCalculatedField(Boolean calculatedField) {
+        isCalculatedField = calculatedField;
+    }
+
+    @JsonProperty("calculatedField")
+    public List<CalculatedFieldRequest> getCalculatedField() {
+        return calculatedField;
+    }
+
+    @JsonProperty("calculatedField")
+    public void setCalculatedField(List<CalculatedFieldRequest> calculatedField) {
+        this.calculatedField = calculatedField;
     }
 
     @JsonProperty("tableId")

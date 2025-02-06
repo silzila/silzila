@@ -9,6 +9,8 @@ import javax.validation.Valid;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.*;
+import com.silzila.payload.response.TableRelationshipResponse;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -34,14 +36,17 @@ import com.silzila.domain.entity.User;
 import com.silzila.domain.entity.Workspace;
 import com.silzila.querybuilder.QueryComposer;
 import com.silzila.querybuilder.subTotalsCombination;
+import com.silzila.querybuilder.CalculatedField.CalculatedFieldQueryComposer;
 import com.silzila.querybuilder.filteroptions.FilterOptionsQueryComposer;
 import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.querybuilder.syncFilterOption.SyncFilterOptionsQueryComposer;
 import com.silzila.repository.DatasetRepository;
 import com.silzila.repository.PlayBookRepository;
+import com.silzila.helper.ColumnListFromClause;
 import com.silzila.helper.CustomQueryValidator;
 import com.silzila.helper.RelativeFilterProcessor;
 import com.silzila.helper.UtilityService;
+import com.silzila.payload.response.TableRelationshipResponse;
 
 @Service
 public class DatasetService {
@@ -59,6 +64,9 @@ public class DatasetService {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    CalculatedFieldQueryComposer calculatedFieldQueryComposer;
 
     @Autowired
     FilterOptionsQueryComposer filterOptionsQueryComposer;
@@ -514,7 +522,7 @@ public class DatasetService {
             }
 
             // get files names from file ids and load the files as Views
-            fileDataService.getFileNameFromFileId(userId, tableObjList);
+            fileDataService.getFileNameFromFileId(userId, tableObjList, workspaceId);
             // come here
             String query = queryComposer.composeQuery(queries, ds, "duckdb");
 
@@ -571,7 +579,7 @@ public class DatasetService {
             for (List<Dimension> dimensions : dimensionGroups) {
                 Query dimensionQuery = new Query(dimensions, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
                         null);
-                QueryClauseFieldListMap qMap = subTotalsCombination.selectClauseSql(dimensionQuery, vendorName);
+                QueryClauseFieldListMap qMap = subTotalsCombination.selectClauseSql(dimensionQuery, ds,vendorName);
                 List<String> combination = new ArrayList<>(qMap.getGroupByList());
                 subTotalCombinations.add(combination);
             }
@@ -621,7 +629,7 @@ public class DatasetService {
                 List<Table> tableObjects = new ArrayList<>();
                 tableObjects.add(table);
                 // calling this to crete a view to run on top of that
-                fileDataService.getFileNameFromFileId(userId, tableObjects);
+                fileDataService.getFileNameFromFileId(userId, tableObjects, workspaceId);
                 jsonArray = duckDbService.runQuery(query);
             } else {
                 vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId, workspaceId);
@@ -670,7 +678,7 @@ public class DatasetService {
                 }
 
                 // get files names from file ids and load the files as Views
-                fileDataService.getFileNameFromFileId(userId, tableObjList);
+                fileDataService.getFileNameFromFileId(userId, tableObjList, workspaceId);
                 // build query
                 String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, "duckdb");
                 logger.info("\n******* QUERY **********\n" + query);
@@ -702,14 +710,17 @@ public class DatasetService {
             throw new BadRequestException("User ID must not be null or empty");
         }
 
+
         // Load the dataset into memory using provided connection and dataset IDs
         DatasetDTO ds = loadDatasetInBuffer(workspaceId, dBConnectionId, datasetId, userId);
         
 
+
         // if we have relative filter so we have to preprocess it
         for (Filter filter : filters) {
             if (filter.getRelativeCondition() != null) {
-                relativeFilterProcessor.processFilter(filter, userId, dBConnectionId, datasetId,workspaceId, this::relativeFilter);
+                relativeFilterProcessor.processFilter(filter, userId, dBConnectionId, datasetId, workspaceId,
+                        this::relativeFilter);
             }
         }
 
@@ -770,7 +781,7 @@ public class DatasetService {
             }
 
             // Load flat files as database views in DuckDB using the file service
-            fileDataService.getFileNameFromFileId(userId, tableObjList);
+            fileDataService.getFileNameFromFileId(userId, tableObjList, workspaceId);
 
             // Build the query for DuckDB based on the column filters, dataset, and
             // specified 'duckdb' vendor type
@@ -788,6 +799,123 @@ public class DatasetService {
             return duckDbService.runSyncQuery(query);
         }
 
+    }
+
+    public JSONArray testCalculateField(String userId, String dbConnectionId, String datasetId,
+            String workspaceId, List<CalculatedFieldRequest> calculatedFieldRequests, Integer recordCount)
+            throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
+            ClassNotFoundException, BadRequestException {
+
+        String vendorName = !(dbConnectionId == null || dbConnectionId.equals("null") || dbConnectionId.isEmpty())
+                ? connectionPoolService.getVendorNameFromConnectionPool(dbConnectionId, userId, workspaceId)
+                : "duckdb";
+
+        relativeFilterProcessor.processCalculatedFields(calculatedFieldRequests, userId, dbConnectionId,
+                datasetId, workspaceId, this::relativeFilter);
+
+        DatasetDTO ds = loadDatasetInBuffer(workspaceId, dbConnectionId, datasetId, userId);
+
+        String query = CalculatedFieldQueryComposer.composeSampleRecordQuery(ds, vendorName, calculatedFieldRequests,
+                ds.getDataSchema(), recordCount);
+
+        logger.info("\n******* QUERY **********\n" + query);
+        if (dbConnectionId == null || dbConnectionId.isEmpty()) {
+
+            List<String> tableIds = ColumnListFromClause.getColumnListFromFieldsRequest(calculatedFieldRequests);
+
+            List<Table> tableObjList = ds.getDataSchema().getTables().stream()
+                    .filter(table -> tableIds.contains(table.getId()))
+                    .collect(Collectors.toList());
+
+            fileDataService.getFileNameFromFileId(userId, tableObjList, workspaceId);
+
+            JSONArray jsonArray = duckDbService.runQuery(query);
+
+            return jsonArray;
+        } else {
+
+            JSONArray jsonArray = connectionPoolService.runQuery(dbConnectionId, userId, query);
+            return jsonArray;
+        }
+
+    }
+
+    public JSONObject calculatedFieldFilterOptions(String userId, String dbConnectionId, String datasetId,
+            String workspaceId, List<CalculatedFieldRequest> calculatedFieldRequest)
+            throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
+            ClassNotFoundException, BadRequestException {
+
+        String vendorName = connectionPoolService.getVendorNameFromConnectionPool(dbConnectionId, userId, workspaceId);
+
+        relativeFilterProcessor.processCalculatedFields(calculatedFieldRequest, userId, dbConnectionId, datasetId,
+                workspaceId, this::relativeFilter);
+
+        DatasetDTO ds = loadDatasetInBuffer(workspaceId, dbConnectionId, datasetId, userId);
+
+        String query = calculatedFieldQueryComposer.composeFilterOptionsQuery(ds, vendorName, calculatedFieldRequest,
+                ds.getDataSchema());
+
+        logger.info("\n******* QUERY **********\n" + query);
+
+        JSONObject jsonObject = connectionPoolService.runQueryObject(dbConnectionId, userId, query);
+
+        return jsonObject;
+    }
+        // to get relationship between tables
+    public List<TableRelationshipResponse> tablesRelationship(String userId, String workspaceId, List<String> tableIds,
+            String datasetId)
+            throws JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException,
+            RecordNotFoundException, SQLException {
+
+        DatasetDTO datasetDTO = buffer.loadDatasetInBuffer(workspaceId, datasetId, userId);
+
+        DataSchema dataSchema = datasetDTO.getDataSchema();
+
+        List<Relationship> relationships = dataSchema.getRelationships();
+
+        List<TableRelationshipResponse> responses = new ArrayList<>();
+
+        for (int i = 0; i < tableIds.size(); i++) {
+            for (int j = i + 1; j < tableIds.size(); j++) {
+                String table1 = tableIds.get(i);
+                String table2 = tableIds.get(j);
+
+                boolean isDirectlyRelated = false;
+                String relationType = null;
+
+                for (Relationship relationship : relationships) {
+                    if ((relationship.getTable1().equals(table1) && relationship.getTable2().equals(table2))
+                            || (relationship.getTable1().equals(table2) && relationship.getTable2().equals(table1))) {
+                        isDirectlyRelated = true;
+                        relationType = relationship.getCardinality();
+
+                        // Adjust the table order based on the relationship type
+                        if (relationType.equalsIgnoreCase("many to one") && relationship.getTable2().equals(table1)) {
+                            String temp = table1;
+                            table1 = table2;
+                            table2 = temp;
+                        } else if (relationType.equalsIgnoreCase("one to many")
+                                && relationship.getTable1().equals(table2)) {
+                            String temp = table1;
+                            table1 = table2;
+                            table2 = temp;
+                        }
+                        break;
+                    }
+                }
+
+                // Create a relationship response
+                TableRelationshipResponse response = new TableRelationshipResponse();
+                response.setTable1(table1);
+                response.setTable2(table2);
+                response.setRelationship(isDirectlyRelated ? relationType : null);
+                response.setIsDirect(isDirectlyRelated);
+
+                responses.add(response);
+            }
+        }
+
+        return responses;
     }
 
 }
