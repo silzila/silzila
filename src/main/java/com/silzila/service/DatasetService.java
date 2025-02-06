@@ -701,13 +701,9 @@ public class DatasetService {
         if (userId == null || userId.isEmpty()) {
             throw new BadRequestException("User ID must not be null or empty");
         }
-        System.out.println(1);
-    System.out.println(filters.size());
 
         // Load the dataset into memory using provided connection and dataset IDs
         DatasetDTO ds = loadDatasetInBuffer(workspaceId, dBConnectionId, datasetId, userId);
-        System.out.println(ds);
-        System.out.println(2);
         
 
         // if we have relative filter so we have to preprocess it
@@ -716,7 +712,6 @@ public class DatasetService {
                 relativeFilterProcessor.processFilter(filter, userId, dBConnectionId, datasetId,workspaceId, this::relativeFilter);
             }
         }
-        System.out.println(2);
 
         // Check if the data is not a flat file and is instead a database connection
         if (ds.getIsFlatFileData() == false && ds.getIsFlatFileData() != null) {
