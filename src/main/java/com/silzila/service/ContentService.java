@@ -447,15 +447,17 @@ public class ContentService {
                     }
                 }
             }
-            if (!contents.isEmpty()) {
-                response.setContentType(contentType);
-                response.setWorkspaceId(w.getId());
-                response.setWorkspaceName(w.getName());
-                response.setContents(contents);
-                response.setSubWorkspaces(subWorkspaceContent);
-                WCResponse.add(response);
-            }
+
+            if(!contents.isEmpty() ){
+            response.setContentType(contentType);
+            response.setWorkspaceId(w.getId());
+            response.setWorkspaceName(w.getName());
+            response.setContents(contents);
+            response.setSubWorkspaces(subWorkspaceContent);
+            WCResponse.add(response);
+            
         }
+    }
 
         // Return empty list if no data exists
         return WCResponse.isEmpty() ? Collections.emptyList() : WCResponse;
@@ -511,8 +513,9 @@ public class ContentService {
                         subWorkspaceContent.add(swContent);
                 }
             }
+        }
 
-            if (!contents.isEmpty()) {
+            if(!contents.isEmpty() ){
                 response.setContentType(contentType);
                 response.setWorkspaceId(w.getId());
                 response.setWorkspaceName(w.getName());
@@ -520,82 +523,75 @@ public class ContentService {
                 response.setSubWorkspaces(subWorkspaceContent);
                 WCResponse.add(response);
             }
+   
+    }
+        return WCResponse.isEmpty() ? Collections.emptyList() : WCResponse;
+    
+}
+
+    public List<WorkspaceContentResponse> getFlatFilesOnWorkspaces(String email) throws SQLException {
+        List<Workspace> allWorkspace = workspaceRepository.findByUserId(email);
+        return getAllFlatFileContent(allWorkspace, "flatfile", email);
+    }
+
+    public List<WorkspaceContentResponse> getAllFlatFileContent(List<Workspace> allWorkspace, String contentType,
+            String userId) {
+        List<WorkspaceContentResponse> WCResponse = new ArrayList<>();
+
+        for (Workspace w : allWorkspace) {
+            WorkspaceContentResponse response = new WorkspaceContentResponse();
+
+            // Process flat files for the workspace
+            List<IdNameDTO> flatFileContents = new ArrayList<>();
+            if (w.getFlatFiles() != null && !w.getFlatFiles().isEmpty()) {
+                for (FileData f : w.getFlatFiles()) {
+                    IdNameDTO content = new IdNameDTO();
+                    content.setId(f.getId());
+                    content.setCreatedBy(f.getCreatedBy());
+                    content.setName(f.getName());
+                    flatFileContents.add(content);
+                }
+            }
+
+            // Process sub-workspaces
+            List<SubWorkspaceContentResponse> subWorkspaceContent = new ArrayList<>();
+            List<Workspace> subWorkspaces = workspaceRepository.findByUserIdAndParentWorkspaceId(userId, w.getId());
+            if (subWorkspaces != null && !subWorkspaces.isEmpty()) {
+                for (Workspace sw : subWorkspaces) {
+                    SubWorkspaceContentResponse swContent = new SubWorkspaceContentResponse();
+
+                    // Process flat files for sub-workspace
+                    List<IdNameDTO> subFlatFileContents = new ArrayList<>();
+                    if (sw.getFlatFiles() != null && !sw.getFlatFiles().isEmpty()) {
+                        for (FileData f : sw.getFlatFiles()) {
+                            IdNameDTO content = new IdNameDTO();
+                            content.setId(f.getId());
+                            content.setCreatedBy(f.getCreatedBy());
+                            content.setName(f.getName());
+                            subFlatFileContents.add(content);
+                        }
+                    }
+                    if(!subFlatFileContents.isEmpty())
+                    swContent.setContents(subFlatFileContents);
+                    swContent.setWorkspaceName(sw.getName());
+                    swContent.setWorkspaceId(sw.getId());
+                    subWorkspaceContent.add(swContent);
+                }
+            }
+
+            if (!flatFileContents.isEmpty() ) {
+                response.setContentType(contentType);
+                response.setWorkspaceId(w.getId());
+                response.setWorkspaceName(w.getName());
+                response.setContents(flatFileContents);
+                response.setSubWorkspaces(subWorkspaceContent);
+                WCResponse.add(response);
+            }
+        }
+        return WCResponse.isEmpty() ? Collections.emptyList() : WCResponse;
 
         }
 
-    }
-        return WCResponse.isEmpty() ? Collections.emptyList() : WCResponse;
-    }
-
-    // public List<WorkspaceContentResponse> getFlatFilesOnWorkspaces(String email) throws SQLException {
-    //     List<Workspace> allWorkspace = workspaceRepository.findByUserId(email);
-    //     return getAllFlatFileContent(allWorkspace, "flatfile", email);
-    // }
-
-    // public List<WorkspaceContentResponse> getAllFlatFileContent(List<Workspace> allWorkspace, String contentType,String userId) {
-    //     List<WorkspaceContentResponse> WCResponse = new ArrayList<>();
-
-    //     for (Workspace w : allWorkspace) {
-    //         WorkspaceContentResponse response = new WorkspaceContentResponse();
-
-    //         // Process flat files for the workspace
-    //         List<IdNameDTO> flatFileContents = new ArrayList<>();
-    //         if (w.getFlatFiles() != null && !w.getFlatFiles().isEmpty()) {
-    //             for (FileData f : w.getFlatFiles()) {
-    //                 IdNameDTO content = new IdNameDTO();
-    //                 content.setId(f.getId());
-    //                 content.setCreatedBy(f.getCreatedBy());
-    //                 content.setName(f.getName());
-    //                 flatFileContents.add(content);
-    //             }
-    //         }
-
-    //         // Process sub-workspaces
-    //         List<SubWorkspaceContentResponse> subWorkspaceContent = new ArrayList<>();
-    //         List<Workspace> subWorkspaces = workspaceRepository.findByUserIdAndParentWorkspaceId(userId, w.getId());
-    //         if (subWorkspaces != null && !subWorkspaces.isEmpty()) {
-    //             for (Workspace sw : subWorkspaces) {
-    //                 SubWorkspaceContentResponse swContent = new SubWorkspaceContentResponse();
-
-    //                 // Process flat files for sub-workspace
-    //                 List<IdNameDTO> subFlatFileContents = new ArrayList<>();
-    //                 if (sw.getFlatFiles() != null && !sw.getFlatFiles().isEmpty()) {
-    //                     for (FileData f : sw.getFlatFiles()) {
-    //                         IdNameDTO content = new IdNameDTO();
-    //                         content.setId(f.getId());
-    //                         content.setCreatedBy(f.getCreatedBy());
-    //                         content.setName(f.getName());
-    //                         subFlatFileContents.add(content);
-    //                     }
-    //                 }
-    //                 if(!subFlatFileContents.isEmpty())
-    //                 swContent.setContents(subFlatFileContents);
-    //                 swContent.setWorkspaceName(sw.getName());
-    //                 swContent.setWorkspaceId(sw.getId());
-    //                 subWorkspaceContent.add(swContent);
-    //             }
-    //         }
-
-    //                 if(!subFlatFileContents.isEmpty()){
-    //                     swContent.setContents(subFlatFileContents);
-    //                     swContent.setWorkspaceName(sw.getName());
-    //                     swContent.setWorkspaceId(sw.getId());
-    //                     subWorkspaceContent.add(swContent);
-    //                 }
-    //         }
-
-    //         // Set contents and sub-workspaces in the response
-    //         if(!flatFileContents.isEmpty() || !subWorkspaceContent.isEmpty()){
-    //             response.setContentType(contentType);
-    //             response.setWorkspaceId(w.getId());
-    //             response.setWorkspaceName(w.getName());
-    //             response.setContents(flatFileContents);
-    //             response.setSubWorkspaces(subWorkspaceContent);
-    //             WCResponse.add(response);
-    //         }
-
-    //         return WCResponse.isEmpty() ? Collections.emptyList() : WCResponse;
-    //     }
 
 
     public List<WorkspaceContentDTO> workspaceToWorkspaceContentDTO(List<Workspace> allWorkspaces) {
