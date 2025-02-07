@@ -3,8 +3,12 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { createTheme, CssBaseline } from "@mui/material";
-import { ThemeProvider } from "@mui/styles";
+import {
+	StyledEngineProvider,
+	ThemeProvider,
+	createTheme,
+  } from "@mui/material/styles";
+import {CssBaseline, } from "@mui/material";
 
 const theme = createTheme({
 	palette: {
@@ -112,8 +116,7 @@ const theme = createTheme({
 	  }
 	},
   });
-
-export const palette = {
+  export const palette = {
 	/**
 	 * user.css allPages.css ,groups.css pages.css has  color #484848 defined manually  on contrastText change change it in user.css allPages.css
 	 */
@@ -132,8 +135,21 @@ export const palette = {
 	  contrastText: "#fff",
 	},
   };
-
-export const fontSize = {
+  export const fonts = {
+	roboto: {
+	  regular: "Roboto-Regular",
+	  medium: "Roboto-Medium",
+	  bold: "Roboto-Bold",
+	  light: "Roboto-Light",
+	},
+	segoe: {
+	  regular: "Segoe UI",
+	  medium: "Segoe UI",
+	  bold: "Segoe UI",
+	  light: "Segoe UI",
+	},
+  };
+  export const fontSize = {
 	/**
 	 * allPages.css pages.css has  font-size 0.75rem defined manually  on fontSize change change it in allPages.css
 	 */
@@ -149,15 +165,18 @@ export const fontSize = {
 	TripleExtraLarge: "1.188rem", //19px
 	xxl: "1.25rem",//20px
   };
+  
 
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
 	// <React.StrictMode>
+	<StyledEngineProvider injectFirst>
 	<ThemeProvider theme={theme}>
         <CssBaseline />
         <App/>
       </ThemeProvider>
+	</StyledEngineProvider>
 	//  </React.StrictMode>
 );
 

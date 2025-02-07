@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { HashRouter as Router, Route, Routes } from "react-router-dom"; // Import necessary components from react-router-dom
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom"; // Import necessary components from react-router-dom
 import { Navigate } from "react-router-dom"; // Import Navigate component
 
 // Import your components
@@ -28,11 +28,11 @@ const Home = (props: LoggedDetailsType) => {
           <>
             <Route path="/newdataset/:parentId" element={<NewDataSet />} />
             <Route path="/editdataset/:parentId" element={<EditDataSet />} />
-            <Route path="/datahome" element={<DataHome />} />
+            {/* <Route path="/datahome" element={<DataHome />} /> */}
             <Route path="/dataviewer/:parentId" element={<DataViewer />} />
             <Route path="/flatfileupload/:parentId" element={<FlatFileUpload />} />
             <Route path="/editflatfile/:parentId" element={<EditFlatFileData />} />
-            <Route path="/newdataconnection" element={<NewDataConnection />} />
+            {/* <Route path="/newdataconnection" element={<NewDataConnection />} /> */}
             <Route path="/workspace" element={<Workspace />} />
             <Route path= "/workspace/:parentId" element= {<SubWork />} />
             <Route path= "/SubWorkspaceDetails/:parentId" element= {<SubWorkDetails />} />

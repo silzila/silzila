@@ -1,4 +1,4 @@
-import "react-quill/dist/quill.snow.css";
+// import "react-quill/dist/quill.snow.css";
 
 import { connect } from "react-redux";
 import './TextEditor.css';
