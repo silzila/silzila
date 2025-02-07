@@ -24,7 +24,7 @@ const TextFieldComponent = ({ onChange, onFocus, onBlur, value, viewMode, lable,
 	};
 
 	return (
-	<div style={{ width: "60%" }}>     
+	<div style={{ width: "60%" ,paddingBlock:'0.2rem'}}>     
       {type === "file" ? (
 		<>
         <TextField
@@ -56,7 +56,7 @@ const TextFieldComponent = ({ onChange, onFocus, onBlur, value, viewMode, lable,
 		</>
       ) : (
         <TextField
-          type={type}
+          type={type??'text'}
           label={lable}
           disabled={viewMode}
           value={value}
@@ -67,9 +67,19 @@ const TextFieldComponent = ({ onChange, onFocus, onBlur, value, viewMode, lable,
           onChange={onChange}
           onFocus={onFocus}
           onBlur={onBlur}
-          style={{ width: "60%" }}
-        
+          sx={{ width: "60%" ,color: "#484848"}}
+          // slotProps={{
+          //   htmlInput:{
+          //     color: "#484848",
+          //   }
+          // }}
+          inputProps={
+            {
+              style: { color: "#484848" ,border:"none",outline:'none'},
+            }
+          }
         />
+
       )}
     </div>
   );
