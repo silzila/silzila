@@ -709,13 +709,12 @@ public class DatasetService {
         if (userId == null || userId.isEmpty()) {
             throw new BadRequestException("User ID must not be null or empty");
         }
-        System.out.println(1);
-        System.out.println(filters.size());
+
 
         // Load the dataset into memory using provided connection and dataset IDs
         DatasetDTO ds = loadDatasetInBuffer(workspaceId, dBConnectionId, datasetId, userId);
-        System.out.println(ds);
-        System.out.println(2);
+        
+
 
         // if we have relative filter so we have to preprocess it
         for (Filter filter : filters) {
@@ -724,7 +723,6 @@ public class DatasetService {
                         this::relativeFilter);
             }
         }
-        System.out.println(2);
 
         // Check if the data is not a flat file and is instead a database connection
         if (ds.getIsFlatFileData() == false && ds.getIsFlatFileData() != null) {
@@ -745,7 +743,7 @@ public class DatasetService {
             // Validate that the query is not empty or null, and throw an exception if it is
             // invalid
             if (query.isEmpty() || query == null) {
-                throw new BadRequestException("Error: Empty query");
+               return null;
             }
 
             logger.info("\n******* QUERY **********\n" + query);
@@ -792,7 +790,7 @@ public class DatasetService {
             // Ensure the DuckDB query is not empty or null, and throw an exception if
             // invalid
             if (query.isEmpty() || query == null) {
-                throw new BadRequestException("Error: Empty query");
+                return null;
             }
 
             logger.info("\n******* QUERY **********\n" + query);
