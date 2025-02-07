@@ -10,6 +10,11 @@ import com.silzila.domain.entity.DBConnection;
 
 @Repository
 public interface DBConnectionRepository extends JpaRepository<DBConnection, String> {
+    Boolean existsByConnectionNameAndWorkspaceId(String name, String workspaceId);
+    
+    Optional<DBConnection> findByIdAndWorkspaceId(String id,String workspaceId);
+    
+    Boolean existsByIdAndWorkspaceId(String id, String workspaceId);
 
     List<DBConnection> findByUserId(String userId);
 

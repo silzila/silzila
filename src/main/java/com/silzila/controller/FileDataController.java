@@ -1,7 +1,6 @@
 package com.silzila.controller;
 
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -22,21 +21,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-
 import com.silzila.dto.FileDataDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.payload.request.FileUploadRevisedInfoRequest;
-import com.silzila.payload.response.FileUploadColumnInfo;
-import com.silzila.payload.response.FileUploadResponse;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -71,13 +65,13 @@ public class FileDataController {
     // edit schema of upload file
     @PostMapping("/file-upload-change-schema")
     public ResponseEntity<?> fileUploadChangeSchema(@RequestHeader Map<String, String> reqHeader,
-            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
+            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest,@RequestParam String workspaceId)
             throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
             SQLException, ExpectationFailedException {
         // get the requester user Id
         String userId = reqHeader.get("username");
         // calling Service function
-        JSONArray jsonArray = fileDataService.fileUploadChangeSchema(revisedInfoRequest, userId);
+        JSONArray jsonArray = fileDataService.fileUploadChangeSchema(revisedInfoRequest,workspaceId, userId);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
@@ -85,22 +79,22 @@ public class FileDataController {
     // save file data
     @PostMapping("/file-upload-save-data")
     public ResponseEntity<?> fileUploadSaveData(@RequestHeader Map<String, String> reqHeader,
-            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest)
+            @Valid @RequestBody FileUploadRevisedInfoRequest revisedInfoRequest,@RequestParam String workspaceId)
             throws JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException,
             SQLException, ExpectationFailedException {
         // get the requester user Id
         String userId = reqHeader.get("username");
         // calling Service function
-        FileDataDTO fileDataDTO = fileDataService.fileUploadSave(revisedInfoRequest, userId);
+        FileDataDTO fileDataDTO = fileDataService.fileUploadSave(revisedInfoRequest, userId,workspaceId);
         return ResponseEntity.status(HttpStatus.OK).body(fileDataDTO);
     }
 
     // list file datas
     @GetMapping("/file-data")
-    public List<FileDataDTO> getAllFileDatas(@RequestHeader Map<String, String> reqHeader) {
+    public List<FileDataDTO> getAllFileDatas(@RequestHeader Map<String, String> reqHeader,@RequestParam String workspaceId)throws BadRequestException {
         // get the requester user Id
         String userId = reqHeader.get("username");
-        List<FileDataDTO> fileDataDTOs = fileDataService.getAllFileDatas(userId);
+        List<FileDataDTO> fileDataDTOs = fileDataService.getAllFileDatas(userId,workspaceId);
         return fileDataDTOs;
     }
 
@@ -109,33 +103,34 @@ public class FileDataController {
     public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
                                               @RequestParam(value = "flatfileId",required = false) String flatfileId,
                                               @RequestParam(value = "datasetId",required = false) String datasetId,
+                                              @RequestParam String workspaceId,
                                               @RequestParam(name = "table",required = false) String tableName)
             throws JsonMappingException, JsonProcessingException,
             RecordNotFoundException, BadRequestException, ClassNotFoundException, SQLException {
         // get the requester user Id
         String userId = reqHeader.get("username");
-        JSONArray jsonArray = fileDataService.getSampleRecords(flatfileId, userId,datasetId,tableName);
+        JSONArray jsonArray = fileDataService.getSampleRecords(flatfileId, userId,datasetId,workspaceId,tableName);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
     // file data - Column details
     @GetMapping("/file-data-column-details/{id}")
     public ResponseEntity<?> getColumnDetails(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id) throws JsonMappingException, JsonProcessingException,
+            @PathVariable(value = "id") String id,@RequestParam String workspaceId) throws JsonMappingException, JsonProcessingException,
             RecordNotFoundException, BadRequestException, ClassNotFoundException, SQLException {
         // get the requester user Id
         String userId = reqHeader.get("username");
-        List<Map<String, Object>> metaList = fileDataService.getColumns(id, userId);
+        List<Map<String, Object>> metaList = fileDataService.getColumns(id, userId,workspaceId);
         return ResponseEntity.status(HttpStatus.OK).body(metaList);
     }
 
     // Delete File Data
     @DeleteMapping("/file-data/{id}")
     public ResponseEntity<?> deleteFileData(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id) throws RecordNotFoundException {
+            @PathVariable(value = "id") String id, @RequestParam(required = false) String workspaceId) throws RecordNotFoundException ,BadRequestException {
         // get the requester user Id
         String userId = reqHeader.get("username");
-        fileDataService.deleteFileData(id, userId);
+        fileDataService.deleteFileData(id, userId,workspaceId);
         return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("File Data is deleted"));
 
     }

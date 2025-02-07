@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
+
+import com.databricks.client.jdbc42.internal.apache.arrow.flatbuf.Bool;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -28,11 +30,15 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public class Filter implements Serializable {
 
     @JsonProperty("filterType")
-    private String filterType;
+    private String filterType = null;
+    @JsonProperty("isCalculatedField")
+    private Boolean isCalculatedField = false;
+    @JsonProperty("calculatedField")
+    private List<CalculatedFieldRequest> calculatedField;
     @JsonProperty("tableId")
     private String tableId;
     @JsonProperty("tableName")
-    private String tableName=null;
+    private String tableName = null;
     @JsonProperty("fieldName")
     private String fieldName;
     @JsonProperty("dataType")
@@ -51,7 +57,11 @@ public class Filter implements Serializable {
     private RelativeCondition relativeCondition = null;
     @JsonProperty("isTillDate")
     private Boolean isTillDate = false; 
+    @JsonProperty("isField")
+    private Boolean isField = true;
     private final static long serialVersionUID = 4876626487235075859L;
+    @JsonProperty("currentSelection")
+    private Boolean currentSelection=false;
 
     /**
      * No args constructor for use in serialization
@@ -72,10 +82,13 @@ public class Filter implements Serializable {
      * @param operator
      * @param relativeCondition
      */
-    public Filter(String tableId, String tableName, String fieldName, Filter.DataType dataType, String uid, Boolean shouldExclude,
-            Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection, String filterType,
-            RelativeCondition relativeCondition, Boolean  isTillDate) {
+
+    public Filter(Boolean isCalculatedField,List<CalculatedFieldRequest> calculatedField,String tableId, String tableName, String fieldName, Filter.DataType dataType, String uid, Boolean shouldExclude,
+            Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection,Boolean currentSelection, String filterType,
+            RelativeCondition relativeCondition, Boolean  isTillDate,Boolean isField) {
         super();
+        this.isCalculatedField = isCalculatedField;
+        this.calculatedField = calculatedField;
         this.tableId = tableId;
         this.tableName = tableName;
         this.fieldName = fieldName;
@@ -85,10 +98,14 @@ public class Filter implements Serializable {
         this.timeGrain = timeGrain;
         this.operator = operator;
         this.userSelection = userSelection;
+        this.currentSelection = currentSelection;
         this.filterType = filterType;
         this.relativeCondition = relativeCondition;
         this.isTillDate = isTillDate;
+        this.currentSelection=currentSelection;
+        this.isField = isField;
     }
+
 
     @JsonProperty("filterType")
     public String getFilterType() {
@@ -100,6 +117,26 @@ public class Filter implements Serializable {
         this.filterType = filterType;
     }
 
+    @JsonProperty("isCalculatedField")
+    public Boolean getIsCalculatedField() {
+        return isCalculatedField;
+    }
+
+    @JsonProperty("isCalculatedField")
+    public void setIsCalculatedField(Boolean calculatedField) {
+        isCalculatedField = calculatedField;
+    }
+
+    @JsonProperty("calculatedField")
+    public List<CalculatedFieldRequest> getCalculatedField() {
+        return calculatedField;
+    }
+
+    @JsonProperty("calculatedFieldName")
+    public void setCalculatedField(List<CalculatedFieldRequest> calculatedField) {
+        this.calculatedField = calculatedField;
+    }
+
     @JsonProperty("tableId")
     public String getTableId() {
         return tableId;
@@ -109,6 +146,8 @@ public class Filter implements Serializable {
     public void setTableId(String tableId) {
         this.tableId = tableId;
     }
+    
+   
 
     @JsonProperty("tableName")
     public String getTableName() {
@@ -136,8 +175,8 @@ public class Filter implements Serializable {
     }
 
     @JsonProperty("dataType")
-    public void setDataType(Filter.DataType dataType) {
-        this.dataType = dataType;
+    public void setDataType(DataType date) {
+        this.dataType = date;
     }
 
     @JsonProperty("uid")
@@ -190,6 +229,14 @@ public class Filter implements Serializable {
         this.userSelection = userSelection;
     }
 
+    public Boolean getCurrentSelection() {
+        return currentSelection;
+    }
+
+    public void setCurrentSelection(Boolean currentSelection) {
+        this.currentSelection = currentSelection;
+    }
+
     @JsonProperty("relativeCondition")
     public RelativeCondition getRelativeCondition() {
         return relativeCondition;
@@ -208,6 +255,15 @@ public class Filter implements Serializable {
         this.isTillDate = isTillDate;
     }
 
+    public Boolean getIsField() {
+        return isField;
+    }
+
+    public void setIsField(Boolean isField) {
+        this.isField = isField;
+    }
+
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -216,6 +272,14 @@ public class Filter implements Serializable {
         sb.append("filterType");
         sb.append('=');
         sb.append(((this.filterType == null) ? "<null>" : this.filterType));
+        sb.append(',');
+        sb.append("isCalculatedField");
+        sb.append('=');
+        sb.append((this.isCalculatedField));
+        sb.append(',');
+        sb.append("calculatedFieldName");
+        sb.append('=');
+        sb.append(((this.calculatedField == null) ? "<null>" : this.calculatedField));
         sb.append(',');
         sb.append("tableId");
         sb.append('=');

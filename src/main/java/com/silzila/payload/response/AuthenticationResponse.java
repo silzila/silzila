@@ -14,7 +14,8 @@ public class AuthenticationResponse extends ModelBase {
 
 	private static final long serialVersionUID = 7431193836933783650L;
 
-	private String name;
+	private String firstName;
+	private String lastName;
 	private String email;
 	private String tokenType;
 	private String accessToken;

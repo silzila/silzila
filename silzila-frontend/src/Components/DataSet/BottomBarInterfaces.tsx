@@ -91,9 +91,12 @@ export interface IFilter {
   operator: string;
   tableName: string;
   timeGrain?: string;
-  userSelection: string[] | (number|null)[]|Date[] ;
+  userSelection: string[] | number[]|Date[] ;
   relativeCondition?: IRelativeCondition | null;
   isTillDate?: boolean;
+  isCalculatedField?:boolean;
+  calculatedField?:any[]
+
 }
 export enum FilterDataType {
   TEXT = "text",

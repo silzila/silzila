@@ -5,12 +5,15 @@
 // 	- Select tables in a schema
 
 import {
+  Box,
   Button,
   Dialog,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
+  Skeleton,
+  Stack,
   TextField,
   Tooltip,
   Typography,
@@ -18,6 +21,7 @@ import {
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
+import ShortUniqueId from "short-unique-id";
 import {
   setConnectionValue,
   setServerName,
@@ -31,7 +35,6 @@ import { SelectListItem } from "../CommonFunctions/SelectListItem";
 import TableList from "./TableList";
 import "../DataConnection/DataSetup.css";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
-import { SidebarProps } from "./SidebarInterfaces";
 import {
   ConnectionItem,
   DataSetStateProps,
@@ -48,18 +51,41 @@ import Logger from "../../Logger";
 import CustomQueryResult from "./CustomQueryResult";
 import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
 
+import RichTreeViewControl from "../Controls/RichTreeViewControl";
+import {
+  ConvertListOfListToDataConnectionRichTreeViewList,
+  flattenList,
+} from "../CommonFunctions/CommonFunctions";
+import { useLocation, useNavigate } from "react-router-dom";
+import { resetState, setTempTables } from "../../redux/DataSet/datasetActions";
+import "../ChartOptions/ChartOptions.css";
+import { fontSize, palette } from "../..";
+import { TContentDetails, TLocationStateDS } from "./types";
+import { permissions, roles } from "../CommonFunctions/aliases";
+import { IPermission } from "../../redux/Permissions/types";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux";
+
 interface savedData {
   id: any;
   name: any;
   querydata: string;
 }
 
+// interface dataConn {
+//   id : string;
+//   label: string;
+//   workSpaceId: string;
+// }
+
 const Sidebar = ({
   //props
   editMode,
-  dsId,
-
+  _loading = false,
+  _id = "sidebar",
+  
   // state
+  dsId,
   token,
   tableList,
   tempTable,
@@ -72,20 +98,24 @@ const Sidebar = ({
   isFlatFile,
 
   // dispatch
+  resetState,
+  setTempTables,
   setConnection,
   setDataSchema,
   setUserTable,
   setServerName,
   setDatabaseNametoState,
   setViews,
-}: SidebarProps) => {
+}: any) => {
   const [schemaList, setSchemaList] = useState<string[]>([]);
-  const [selectedSchema, setSelectedSchema] = useState<string>("");
+  const [selectedSchema, setSelectedSchema] = useState<string>(
+    schemaValue ?? ""
+  );
   const [isSchemaAvailable, setIsSchemaAvailable] = useState<boolean>(true);
   const [openDlg, setOpenDlg] = useState<boolean>(false);
   const [resetDataset, setResetDataset] = useState<boolean>(false);
   const [databaseList, setDatabaseList] = useState<string[]>([]);
-  const [selectedDb, setSelectedDb] = useState<string>("");
+  const [selectedDb, setSelectedDb] = useState<string>(databaseName ?? "");
   const [tableExpand, setTableExpand] = useState<boolean>(true);
   const [viewExpand, setViewExpand] = useState<boolean>(true);
   const [disableDb, setDisableDb] = useState<boolean>(false);
@@ -105,12 +135,18 @@ const Sidebar = ({
   const [customQueryExpand, setcustomQueryExpand] = useState<boolean>(true);
   const [RenameInputValueCustomQueryname, setRenameInputValueCustomQueryname] =
     useState<string>("");
-
+  const location = useLocation();
+  const state:TLocationStateDS = location.state;
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(_loading);
   const [RenameNameQuery, setRenameNameQuery] = useState<string>("");
   const [RenameID, setRenameID] = useState<any>(0);
   const [EditCustomQuery, setEditCustomQuery] = useState<any>(0);
   const [RenameToCanvasProps, setRenameToCanvasProps] = useState<string>("");
-
+  const [viewerRestriction,setViewerRestriction]=useState<boolean>(false);
+  useEffect(() => {
+    setLoading(_loading);
+  }, [_loading]);
   // tableData  will be type of any
   const [tableData, setTableData] = useState<any[]>([]);
   const [objKeys, setObjKeys] = useState<string[]>([]);
@@ -118,6 +154,13 @@ const Sidebar = ({
 
   const [deleteCustomQuery, setdeleteCustomQuery] = useState<any>(0);
 
+  const [showTreeView, setShowTreeView] = useState<boolean>(false);
+  const [dataConnectionTree, setDataConnectionTree] = useState<Array<Object>>(
+    []
+  );
+  const [selectedDataConnection, setSelectedDataConnection] = useState<any>({});
+  const permission=useSelector((state:RootState)=>state.dataSetState.permission);
+  // const {workspaceContents,SubWorkspaceContents}=useSelector((state: RootState) => state.permissions)
   // Actions performed when dataConnection is changed
   // If user already selected some tables from another dataset
   // to display in canvas, provide a warning to reset data
@@ -144,6 +187,112 @@ const Sidebar = ({
     setSelectQueryoption,
     setRenameToCanvasProps,
   };
+  useEffect(() => {
+    if(!editMode||!dsId)return;
+
+    // const allContents=[...workspaceContents,...SubWorkspaceContents];
+    // const selectedDs=allContents.find((item:any)=>item.id===dsId);
+    // if(!selectedDs)return;
+    // if(selectedDs.levelId===permissions.view)setViewerRestriction(true);
+    // else if(selectedDs.roleName===roles.CustomCreator && selectedDs.levelId===permissions.view)setViewerRestriction(true);
+    if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)setViewerRestriction(true)
+    // else if(permission.roleName===roles.CustomCreator && permission.levelId===permissions.view)setViewerRestriction(true);
+    else setViewerRestriction(false);
+
+
+  },[ dsId, editMode, permission]);
+
+  const handleProceedButtonClick = (id: string) => {
+    let tree = JSON.parse(JSON.stringify(dataConnectionTree));
+
+    let flatList = flattenList(tree);
+
+    let found: any = flatList.find((item: any) => item.id === id);
+
+    //console.log(found)
+
+    if (found) {
+      setConnection(found.id);
+
+      ////console.log(" setConnection(found.id);")
+      setSelectedDataConnection(found);
+      //
+
+      setShowTreeView(false);
+    } else {
+      setOpenAlert(true);
+      setQueryErrorMessage("Please select a DataConnection.");
+    }
+  };
+
+  const getDbConnectionDetail = async () => {
+    if (selectedDataConnection.id || connectionValue) {
+      var result: any = await FetchData({
+        requestType: "noData",
+        method: "GET",
+        url: `database-connection/${
+          selectedDataConnection.id || connectionValue
+        }?workspaceId=${selectedDataConnection.workSpaceId || state?.parentId}`,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      let response: any = {};
+
+      if (result.status) {
+        //////("database-connection/", result.data);
+
+        response = result.data;
+
+        response.label = response.connectionName;
+        response.workSpaceId = state?.parentId;
+        setSelectedDataConnection(response);
+        setServerName(response.vendor);
+      } else {
+        Logger("error", result.data.detail);
+      }
+    }
+  };
+
+  useEffect(() => {
+      if(!state){
+        navigate("/")
+      }
+    }, [state, navigate])
+
+  useEffect(() => {
+    if (state?.mode === "New") {
+      getAllDataConnections();
+    }
+  }, []);
+
+  useEffect(() => {
+    // setTimeout(() => {
+    if (connectionValue) {
+      getDbConnectionDetail();
+    }
+    // }, 500);
+  }, [connectionValue]);
+
+  const getAllDataConnections = async () => {
+    var result: any = await FetchData({
+      requestType: "noData",
+      method: "GET",
+      url: `dbConnection/tree`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    let list = [];
+
+    if (result.status) {
+      list = result.data;
+    } else {
+      Logger("error", result.data.detail);
+    }
+
+    setDataConnectionTree(
+      ConvertListOfListToDataConnectionRichTreeViewList(list)
+    );
+  };
 
   const onConnectionChange = (e: string) => {
     setSelectedDb(e);
@@ -157,7 +306,7 @@ const Sidebar = ({
     setViews([]);
 
     if (serverName === "mysql") {
-      // getTables()
+      getTables(e);
     } else {
       getSchemaList(e);
     }
@@ -165,27 +314,45 @@ const Sidebar = ({
 
   useEffect(() => {
     if (!isFlatFile) {
-      if (serverName === "postgresql" && tempTable.length > 0) {
-        setDisableDb(true);
-      }
-      // If Dataset is opened in edit mode, set all required values to state
-      if (editMode) {
-        getAllMetaDb();
-        setSelectedDb(databaseName);
-        setSelectedSchema(schemaValue);
-        getCustomQueryFromSavedDataSetlist(); //get the custom query array from dataset table list
-        getSchemaList(databaseName);
-      } else {
-        getAllMetaDb();
+      if (connectionValue) {
+        if (
+          serverName === "postgresql" &&
+          tempTable.filter(
+            (table: any) =>
+              !table.hasOwnProperty("isCustomQuery") ||
+              table.isCustomQuery === false
+          ).length > 0
+        ) {
+          setDisableDb(true);
+          // console.log("postgresql (true);");
+        }
+        // If Dataset is opened in edit mode, set all required values to state
+        if (editMode) {
+          getAllMetaDb();
+          setSelectedDb(databaseName);
+          setSelectedSchema(schemaValue);
+          getCustomQueryFromSavedDataSetlist(); //get the custom query array from dataset table list
+          getSchemaList(databaseName);
+        } else {
+          getAllMetaDb();
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [serverName]);
 
   useEffect(() => {
     if (!isFlatFile) {
-      if (serverName === "postgresql" && tempTable.length > 0) {
+      if (
+        serverName === "postgresql" &&
+        tempTable.filter(
+          (table: any) =>
+            !table.hasOwnProperty("isCustomQuery") ||
+            table.isCustomQuery === false
+        ).length > 0
+      ) {
         setDisableDb(true);
+        //// console.log("setDisableDb(true);");
       }
       if (serverName === "postgresql" && tempTable.length === 0) {
         setDisableDb(false);
@@ -196,11 +363,13 @@ const Sidebar = ({
 
   // Reset all the values in store
   useEffect(() => {
-    if (resetDataset) {
+    if (resetDataset && connectionValue !== "") {
       getSchemaList("");
       setSelectedSchema("");
       setDataSchema("");
       setResetDataset(false);
+
+      //// console.log("if (resetDataset) {");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetDataset]);
@@ -211,16 +380,21 @@ const Sidebar = ({
     } else {
       setIsSchemaAvailable(true);
     }
+    setLoading(true);
     var res: any = await FetchData({
       requestType: "noData",
       method: "GET",
-      url: `metadata-databases/${connectionValue}`,
+      url: `metadata-databases/${connectionValue}?workspaceId=${
+        selectedDataConnection.workSpaceId || state?.parentId
+      }`,
       headers: { Authorization: `Bearer ${token}` },
     });
 
     if (res.status) {
+      setLoading(false);
       setDatabaseList(res.data);
     } else {
+      setLoading(false);
       Logger("info", "database List error", res.data.detail);
     }
   };
@@ -231,18 +405,22 @@ const Sidebar = ({
       setUserTable([]);
       setViews([]);
     }
-
+    setLoading(true);
     var res: any = await FetchData({
       requestType: "noData",
       method: "GET",
-      url: `metadata-schemas/${connectionValue}?database=${db}`,
+      url: `metadata-schemas/${connectionValue}?database=${db}&workspaceId=${
+        selectedDataConnection.workSpaceId || state?.parentId
+      }`,
       headers: { Authorization: `Bearer ${token}` },
       token: token,
     });
 
     if (res.status) {
+      setLoading(false);
       setSchemaList(res.data);
     } else {
+      setLoading(false);
     }
   };
 
@@ -257,15 +435,19 @@ const Sidebar = ({
     var schema: string = "";
 
     if (serverName === "mysql") {
-      url = `metadata-tables/${e}?database=${selectedDb}`;
+      url = `metadata-tables/${connectionValue}?workspaceId=${
+        selectedDataConnection.workSpaceId || state?.parentId
+      }&database=${e}`;
     } else {
       schema = e.target.value;
-      url = `metadata-tables/${connectionValue}?database=${selectedDb}&schema=${schema}`;
+      url = `metadata-tables/${connectionValue}?workspaceId=${
+        selectedDataConnection.workSpaceId || state?.parentId
+      }&database=${selectedDb}&schema=${schema}`;
     }
 
     setSelectedSchema(schema);
     setDataSchema(schema);
-
+    setLoading(true);
     var res: any = await FetchData({
       requestType: "noData",
       method: "GET",
@@ -276,14 +458,14 @@ const Sidebar = ({
 
     if (res.status) {
       var views: any = [];
-      // const uid: any = new ShortUniqueId({ length: 8 });
+      const uid: any = new ShortUniqueId({ length: 8 });
       if (res.data.views.length > 0) {
         views = res.data.views.map((el: any) => {
           var id = "";
           var bool = false;
 
           var tableAlreadyChecked = tempTable.filter(
-            (tbl) =>
+            (tbl: any) =>
               tbl.dcId === connectionValue &&
               tbl.schema === schema &&
               tbl.tableName === el
@@ -318,41 +500,20 @@ const Sidebar = ({
             isView: true,
             tableName: el,
             isSelected: false,
-            table_uid: schema[0].concat(el),
-            // id: uid(),
-            id:id,
+            table_uid: schema.length>0?schema[0].concat(el):schema.concat(el),
+            id: uid(),
             isNewTable: true,
             isCustomQuery: false,
             customQuery: "",
           };
         });
       }
-      const aliasMap: { [key: string]: string } = {};
-      const aliasCount: { [key: string]: number } = {};
       const userTable: UserTableProps[] = res.data.tables.map((el: string) => {
         var id = "";
         var bool = false;
 
         // Checking if the table is already selected to canvas by user
         // TODO: (p-1) check and mention type
-
-        function generateTableId(table:string) {
-          let alias = '';
-          const words = table.replace(/[-_]/g, ' ').split(' ');
-          if (words.length === 1) {
-              alias = words[0][0].toLowerCase();
-          } else {
-              alias = words.map(word => word[0].toLowerCase()).join('');
-          }
-          if (aliasMap[alias]) {
-              if (!aliasCount[alias]) aliasCount[alias] = 1; // Initialize the counter
-              aliasCount[alias]++;
-              alias = alias + aliasCount[alias]; // Append number suffix for uniqueness
-          }
-          aliasMap[alias] = table;
-      
-          return alias;
-      }
         var tableAlreadyChecked: any = tempTable.find(
           (tbl: tableObjProps) =>
             // tbl.dcId === connectionId && tbl.schema === schema && tbl.tableName === el
@@ -397,7 +558,7 @@ const Sidebar = ({
           tableName: el,
           isSelected: false,
           table_uid: schema.concat(el),
-          id: generateTableId(el),
+          id: uid(),
           isNewTable: true,
           isCustomQuery: false,
           customQuery: "",
@@ -405,7 +566,9 @@ const Sidebar = ({
       });
       setUserTable(userTable);
       setViews(views);
+      setLoading(false);
     } else {
+      setLoading(false);
     }
   };
 
@@ -418,6 +581,7 @@ const Sidebar = ({
     });
     return name;
   };
+
   // add custom Query Button
   const handleCustomQueryAddButton = () => {
     setCustomQueryData("");
@@ -438,7 +602,9 @@ const Sidebar = ({
     };
 
     try {
-      const url = `sample-records-customquery/${connectionValue}/${num}`;
+      const url = `sample-records-customquery/${connectionValue}/${num}?workspaceId=${
+        selectedDataConnection.workSpaceId || state?.parentId
+      }`;
       const res: any = await FetchData({
         requestType: "withData",
         method: "POST",
@@ -519,13 +685,15 @@ const Sidebar = ({
     var res: any = await FetchData({
       requestType: "noData",
       method: "GET",
-      url: `dataset/${dsId}`,
+      url: `dataset/${dsId}?workspaceId=${
+        selectedDataConnection.workSpaceId || state?.parentId
+      }`,
       headers: { Authorization: `Bearer ${token}` },
       token: token,
     });
 
-    const updatedCustomQueryArray = res.data.dataSchema.tables
-      .filter((item: any) => item.isCustomQuery)
+    const updatedCustomQueryArray = res.data.dataSchema?.tables
+      ?.filter((item: any) => item.isCustomQuery)
       .map((item: any) => ({
         id: item.id,
         name: item.alias,
@@ -552,33 +720,75 @@ const Sidebar = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [SelectQueryoption, RenameID]);
+
+  if(!state){
+    return null;
+  }
+
   return (
-    <div className="sidebar" ref={scrollRef}>
-      {isFlatFile ? (        
-        <div>
-          {tableList && tableList.length > 0 && (
-          <Typography            
-            style={{
-              display: "flex",
-              borderRadius: "5px",
-              marginBottom: "0.5rem",
-              textAlign: "left",
-              color: "#3F3F3F",
-            }}
-          >
-            Flat File Tables
-          </Typography>
-          )}
+    <Box
+      ref={scrollRef}
+      sx={{
+        width: "16rem",
+        borderRight: `2px solid rgba(224,224,224,1)`,
+        padding: "1rem 0.5rem",
+        borderTop: `2px solid rgba(224,224,224,1)`,
+        overflowY: "auto",
+        overflowX: "hidden",
+      }}
+      id={_id}
+    >
+      {showTreeView ? (
+        <RichTreeViewControl
+          currentWorkspace={state?.parentId}
+          list={dataConnectionTree}
+          title={"Select a DB Connection"}
+          showInPopup={showTreeView}
+          handleCloseButtonClick={(e: any) => {
+            setShowTreeView(false);
+          }}
+          handleProceedButtonClick={handleProceedButtonClick}
+        ></RichTreeViewControl>
+      ) : null}
 
-          {tableList ? (
-            tableList.map((tab: UserTableProps) => {
+      {isFlatFile ? (
+        <div style={{display: "flex", flexDirection: "column", height:"100%"}}>
+          {tableList && tableList.length > 0 ? (
+            <>
+            <Typography
+              style={{
+                display: "flex",
+                borderRadius: "5px",
+                marginBottom: "0.5rem",
+                textAlign: "left",
+                fontSize: fontSize.large,
+                fontWeight: "bold",
+              }}
+            >
+              Flat File Tables
+            </Typography>
 
-              return (
+          {loading ? (
+            <Stack
+              spacing={1}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Skeleton variant="text" sx={{ fontSize: "1rem" }} width="90%" />
+              <Skeleton variant="text" sx={{ fontSize: "1rem" }} width="90%" />
+              <Skeleton variant="text" sx={{ fontSize: "1rem" }} width="90%" />
+            </Stack>
+          ) :  (
+            tableList.map((tab: UserTableProps) =>  (
                 <SelectListItem
                   key={tab.tableName}
                   render={(xprops: any) => (
@@ -591,113 +801,200 @@ const Sidebar = ({
                         key={tab.tableName}
                         className="tableListElement"
                         table={tab}
-                        tableId={tab.id}
+                        tableId={tab.table_uid}
                         xprops={xprops}
+                        selectedWorkSpace={
+                          selectedDataConnection.workSpaceId || state?.parentId
+                        }
                         isFlatFile={isFlatFile}
-                        flatFileId={tab.table_uid}
+                        applyRestriction={viewerRestriction}
                       />
                     </div>
                   )}
                 />
-              );
-            })
+              ))
+            )}
+          </>
           ) : (
-            <div>No Tables Available</div>
-          )}
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%", // Adjust height to match container
+            }}>
+      <Typography
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+          textAlign: "center",
+          fontSize: fontSize.large,
+          paddingBottom: "3.5rem"
+        }}
+      >
+        No flatfiles in the current workspace
+      </Typography>
+      </div>
+    )}
         </div>
       ) : (
         <div>
           <div
           // style={{ padding: "0 1rem 0 1rem", margin: "15px 0px 15px 0px" }}
           >
-            <FormControl fullWidth size="small">
-              <TextField
-                label="DataConnection"
-                id="outlined-size-small"
-                size="small"
-                disabled={true}
-                value={getConnectionName(connectionValue)}
-                InputProps={{
-                  sx: {
-                    marginBottom: "1.5rem",
-                  },
+            {connectionValue ? (
+              <FormControl fullWidth size="small">
+                <TextField
+                  label={selectedDataConnection.label || "DataConnection"}
+                  id="outlined-size-small"
+                  size="small"
+                  disabled={true}
+                  value={selectedDataConnection.label}
+                  InputProps={{
+                    sx: {
+                      marginBottom: "1.5rem",
+                      fontSize: fontSize.medium,
+                    },
+                  }}
+                />
+              </FormControl>
+            ) : (
+              <Button
+                variant="contained"
+                style={{
+                  background: "#2BB9BB",
+                  fontSize: fontSize.medium,
+                  borderRadius: "5px",
+                  width: "100%",
+                  marginBottom: "1.5rem",
+                  color: "white",
+                  textTransform: "none",
                 }}
-              />
-            </FormControl>
+                onClick={(e: any) => {
+                  setShowTreeView(true);
+                }}
+              >
+                Choose a DB Connection
+              </Button>
+            )}
           </div>
 
-          <div>
-            <FormControl fullWidth size="small">
-              <InputLabel 
-                id="dcSelect"
-                sx={{
-                  "&.Mui-focused": {
-                    color: "#2bb9bb !important",
-                  },
-                }}              
-              >
-                Database
-              </InputLabel>
-              <Select
-                sx={{
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#2bb9bb",
-                    color: "#2bb9bb",
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#2bb9bb",
-                    color: "#2bb9bb",
-                  },
-                  "&.Mui-focused .MuiSvgIcon-root ": {
-                    fill: "#2bb9bb !important",
-                  },
-                }}
-                labelId="dcSelect"
-                className="selectBar"
-                onChange={(e: any) => {
-                  onConnectionChange(e.target.value);
-                }}
-                disabled={disableDb}
-                value={selectedDb}
-                label="Connection"
-                MenuProps={{
-                  PaperProps: {
+          {selectedDataConnection.label &&
+          selectedDataConnection.label !== "" ? (
+            <div>
+              <FormControl fullWidth size="small">
+                <InputLabel
+                  id="dcSelect"
+                  sx={{
+                    "&.Mui-focused": {
+                      color: "#2bb9bb !important",
+                    },
+                  }}
+                >
+                  Database
+                </InputLabel>
+                <Select
+                  sx={{
+                    fontSize: fontSize.medium,
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#2bb9bb",
+                      color: "#2bb9bb",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#2bb9bb",
+                      color: "#2bb9bb",
+                    },
+                    "&.Mui-focused .MuiSvgIcon-root ": {
+                      fill: "#2bb9bb !important",
+                    },
+                    ".MuiSelect-select .MuiTypography-root": {
+                      fontSize: fontSize.medium, 
+                    },
+                  }}
+                  inputProps={{
                     sx: {
-                      "& .MuiMenuItem-root.Mui-selected": {
-                        backgroundColor: "rgba(43, 185, 187, 0.1)",                         
-                        "&:hover": {
-                          backgroundColor: "rgba(43, 185, 187, 0.2)", 
+                      fontSize: fontSize.medium,
+                    },
+                  }}
+                  labelId="dcSelect"
+                  className="selectBar"
+                  onChange={(e: any) => {
+                    onConnectionChange(e.target.value);
+                  }}
+                  disabled={(serverName !== "mysql" && viewerRestriction)||disableDb}
+                  value={selectedDb}
+                  label="Connection"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        "& .MuiMenuItem-root.Mui-selected": {
+                          backgroundColor: "rgba(43, 185, 187, 0.1)",
+                          "&:hover": {
+                            backgroundColor: "rgba(43, 185, 187, 0.2)",
+                          },
                         },
                       },
                     },
-                  },
-                }}
-              >
-                {databaseList &&
-                  databaseList.map((db: string) => {
-                    return (
-                      <MenuItem value={db} key={db} title={db}>
-                        <Typography
-                          sx={{
-                            width: "auto",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            fontSize: "14px",
-                          }}
-                        >
-                          {db}
-                        </Typography>
-                      </MenuItem>
-                    );
-                  })}
-              </Select>
-            </FormControl>
-          </div>
+                  }}
+                >
+                  {loading ? (
+                    <Stack
+                      spacing={1}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Skeleton
+                        variant="text"
+                        sx={{ fontSize: "1rem" }}
+                        width="90%"
+                      />
+                      <Skeleton
+                        variant="text"
+                        sx={{ fontSize: "1rem" }}
+                        width="90%"
+                      />
+                      <Skeleton
+                        variant="text"
+                        sx={{ fontSize: "1rem" }}
+                        width="90%"
+                      />
+                    </Stack>
+                  ) : (
+                    databaseList &&
+                    databaseList.map((db: string) => {
+                      return (
+                        <MenuItem value={db} key={db} title={db}>
+                          <Typography
+                            sx={{
+                              width: "auto",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              fontSize: fontSize.medium,
+                            }}
+                          >
+                            {db}
+                          </Typography>
+                        </MenuItem>
+                      );
+                    })
+                  )}
+                </Select>
+              </FormControl>
+            </div>
+          ) : null}
 
-          {isSchemaAvailable ? (
+          {isSchemaAvailable &&
+          selectedDataConnection.label &&
+          selectedDataConnection.label !== "" ? (
             // <div style={{ padding: "0 1rem 0 1rem" }}>
             <FormControl fullWidth size="small">
-              <InputLabel id="schemaSelect"
+              <InputLabel
+                id="schemaSelect"
                 sx={{
                   "&.Mui-focused": {
                     color: "#2bb9bb !important",
@@ -719,6 +1016,9 @@ const Sidebar = ({
                   "&.Mui-focused .MuiSvgIcon-root ": {
                     fill: "#2bb9bb !important",
                   },
+                  ".MuiSelect-select .MuiTypography-root": {
+                      fontSize: fontSize.medium,
+                    },
                 }}
                 labelId="schemaSelect"
                 className="selectBar"
@@ -727,9 +1027,9 @@ const Sidebar = ({
                   PaperProps: {
                     sx: {
                       "& .MuiMenuItem-root.Mui-selected": {
-                        backgroundColor: "rgba(43, 185, 187, 0.1)",                         
+                        backgroundColor: "rgba(43, 185, 187, 0.1)",
                         "&:hover": {
-                          backgroundColor: "rgba(43, 185, 187, 0.2)", 
+                          backgroundColor: "rgba(43, 185, 187, 0.2)",
                         },
                       },
                     },
@@ -738,7 +1038,33 @@ const Sidebar = ({
                 onChange={(e: any) => getTables(e, null, null)}
                 value={selectedSchema}
               >
-                {schemaList &&
+                {loading ? (
+                  <Stack
+                    spacing={1}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Skeleton
+                      variant="text"
+                      sx={{ fontSize: "1rem" }}
+                      width="90%"
+                    />
+                    <Skeleton
+                      variant="text"
+                      sx={{ fontSize: "1rem" }}
+                      width="90%"
+                    />
+                    <Skeleton
+                      variant="text"
+                      sx={{ fontSize: "1rem" }}
+                      width="90%"
+                    />
+                  </Stack>
+                ) : (
+                  schemaList &&
                   schemaList.map((schema: string) => {
                     return (
                       <MenuItem value={schema} key={schema}>
@@ -747,159 +1073,237 @@ const Sidebar = ({
                             width: "auto",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
-                            fontSize: "14px",
+                            fontSize: fontSize.medium,
                           }}
                         >
                           {schema}
                         </Typography>
                       </MenuItem>
                     );
-                  })}
+                  })
+                )}
               </Select>
             </FormControl>
           ) : // </div>
           null}
 
-          
-          <div
-            style={{
-              display: "flex",
-              borderRadius: "5px",
-              marginBottom: "0.5rem",
-              textAlign: "left",
-              color: "#3F3F3F",
-            }}
-          >
-            <Typography>Tables</Typography>
-            <div>
-              {tableExpand ? (
-                <Tooltip title="Collapse">
-                  <ArrowDropDownIcon
-                    onClick={() => setTableExpand(!tableExpand)}
-                  />
-                </Tooltip>
-              ) : (
-                <Tooltip title="Expand">
-                  <ArrowRightIcon
-                    onClick={() => setTableExpand(!tableExpand)}
-                  />
-                </Tooltip>
-              )}
-            </div>
-          </div>
-          {tableExpand ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                borderRadius: "5px",
-                marginBottom: "1rem",
-                textAlign: "left",
-                maxHeight: "330px",
-                overflowY: "auto",
-                overflowX: "hidden",
-              }}
-            >
-              {tableList && tableList.length > 0 ? (
-                tableList.map((tab: UserTableProps) => {
-              
-                  return (
-                    <SelectListItem
-                      key={tab.tableName}
-                      render={(xprops: any) => (
-                        <div
-                          className="tableListStyle"
-                          onMouseOver={() => xprops.setOpen(true)}
-                          onMouseLeave={() => xprops.setOpen(false)}
-                        >
-                          <TableList
-                            key={tab.tableName}
-                            className="tableListElement"
-                            table={tab}
-                            tableId={tab.id}
-                            xprops={xprops}
-                            isFlatFile={isFlatFile}
-                          />
-                        </div>
-                      )}
-                    />
-                  );
-                })
-              ) : (
-                <div style={{ fontSize: "12px", textAlign: "center" }}>
-                  No Tables Available
+          {selectedDataConnection.label &&
+          selectedDataConnection.label !== "" ? (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  borderRadius: "5px",
+                  marginBottom: "0.5rem",
+                  textAlign: "left",
+                  maxHeight: "330px",
+                  overflowY: "auto",
+                  color: palette.primary.contrastText,
+                  // justifyContent: "space-between",
+                }}
+              >
+                <Typography>Tables</Typography>
+                <div>
+                  {tableExpand ? (
+                    <Tooltip title="Collapse">
+                      <ArrowDropDownIcon
+                        onClick={() => setTableExpand(!tableExpand)}
+                      />
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title="Expand">
+                      <ArrowRightIcon
+                        onClick={() => setTableExpand(!tableExpand)}
+                      />
+                    </Tooltip>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+              {tableExpand ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    borderRadius: "5px",
+                    marginBottom: "1rem",
+                    textAlign: "left",
+                  }}
+                >
+                  {loading ? (
+                    <Stack
+                      spacing={1}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Skeleton
+                        variant="text"
+                        sx={{ fontSize: "1rem" }}
+                        width="90%"
+                      />
+                      <Skeleton
+                        variant="text"
+                        sx={{ fontSize: "1rem" }}
+                        width="90%"
+                      />
+                      <Skeleton
+                        variant="text"
+                        sx={{ fontSize: "1rem" }}
+                        width="90%"
+                      />
+                    </Stack>
+                  ) : tableList && tableList.length > 0 ? (
+                    tableList.map((tab: UserTableProps, idx: number) => {
+                      return (
+                        <SelectListItem
+                          key={tab.tableName}
+                          render={(xprops: any) => (
+                            <div
+                              className="tableListStyle"
+                              onMouseOver={() => xprops.setOpen(true)}
+                              onMouseLeave={() => xprops.setOpen(false)}
+                              // style={{
+                              //   marginLeft: "2px",
+                              //   width: "97%",
+                              //   alignItems: "center",
+                              //   marginTop: idx === 0 ? "5px" : "0px",
+                              // }}\
+                            >
+                              <TableList
+                                key={tab.tableName}
+                                className="tableListElement"
+                                table={tab}
+                                tableId={tab.tableName}
+                                xprops={xprops}
+                                selectedWorkSpace={
+                                  selectedDataConnection.workSpaceId ||
+                                  state?.parentId
+                                }
+                                isFlatFile={isFlatFile}
+                                applyRestriction={viewerRestriction}
+                              />
+                            </div>
+                          )}
+                        />
+                      );
+                    })
+                  ) : (
+                    <div style={{ fontSize: "12px", textAlign: "center" }}>
+                      No Tables Available
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </>
           ) : null}
 
-          <div
-            style={{
-              display: "flex",
-              borderRadius: "5px",
-              marginBottom: "0.5rem",
-              textAlign: "left",
-              maxHeight: "330px",
-              overflowY: "auto",
-              color: "#3F3F3F",
-            }}
-          >
-            <Typography>Views</Typography>
-            <div>
-              {viewExpand ? (
-                <Tooltip title="Collapse">
-                  <ArrowDropDownIcon
-                    onClick={() => setViewExpand(!viewExpand)}
-                  />
-                </Tooltip>
-              ) : (
-                <Tooltip title="Expand">
-                  <ArrowRightIcon onClick={() => setViewExpand(!viewExpand)} />
-                </Tooltip>
-              )}
-            </div>
-          </div>
-
-          {viewExpand ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                borderRadius: "5px",
-                marginBottom: "1rem",
-                textAlign: "left",
-              }}
-            >
-              {views && views.length > 0 ? (
-                views.map((tab: any) => {
-                  return (
-                    <SelectListItem
-                      key={tab.tableName}
-                      render={(xprops: any) => (
-                        <div
-                          className="tableListStyle"
-                          onMouseOver={() => xprops.setOpen(true)}
-                          onMouseLeave={() => xprops.setOpen(false)}
-                        >
-                          <TableList
-                            key={tab.tableName}
-                            className="tableListElement"
-                            table={tab}
-                            tableId={tab.tableName}
-                            xprops={xprops}
-                            isFlatFile={isFlatFile}
-                          />
-                        </div>
-                      )}
-                    />
-                  );
-                })
-              ) : (
-                <div style={{ fontSize: "12px", textAlign: "center" }}>
-                  No Views Available
+          {selectedDataConnection.label &&
+          selectedDataConnection.label !== "" ? (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  borderRadius: "5px",
+                  marginBottom: "0.5rem",
+                  textAlign: "left",
+                  maxHeight: "330px",
+                  overflowY: "auto",
+                  color: palette.primary.contrastText,
+                }}
+              >
+                <Typography>Views</Typography>
+                <div>
+                  {viewExpand ? (
+                    <Tooltip title="Collapse">
+                      <ArrowDropDownIcon
+                        onClick={() => setViewExpand(!viewExpand)}
+                      />
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title="Expand">
+                      <ArrowRightIcon
+                        onClick={() => setViewExpand(!viewExpand)}
+                      />
+                    </Tooltip>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+
+              {viewExpand ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    borderRadius: "5px",
+                    marginBottom: "1rem",
+                    textAlign: "left",
+                  }}
+                >
+                  {loading ? (
+                    <Stack
+                      spacing={1}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Skeleton
+                        variant="text"
+                        sx={{ fontSize: "1rem" }}
+                        width="90%"
+                      />
+                      <Skeleton
+                        variant="text"
+                        sx={{ fontSize: "1rem" }}
+                        width="90%"
+                      />
+                      <Skeleton
+                        variant="text"
+                        sx={{ fontSize: "1rem" }}
+                        width="90%"
+                      />
+                    </Stack>
+                  ) : views && views.length > 0 ? (
+                    views.map((tab: any) => {
+                      return (
+                        <SelectListItem
+                          key={tab.tableName}
+                          render={(xprops: any) => (
+                            <div
+                              className="tableListStyle"
+                              onMouseOver={() => xprops.setOpen(true)}
+                              onMouseLeave={() => xprops.setOpen(false)}
+                              
+                            >
+                              <TableList
+                                key={tab.tableName}
+                                className="tableListElement"
+                                table={tab}
+                                tableId={tab.tableName}
+                                xprops={xprops}
+                                selectedWorkSpace={
+                                  selectedDataConnection.workSpaceId ||
+                                  state?.parentId
+                                }
+                                isFlatFile={isFlatFile}
+                                applyRestriction={viewerRestriction}
+                              />
+                            </div>
+                          )}
+                        />
+                      );
+                    })
+                  ) : (
+                    <div style={{ fontSize: "12px", textAlign: "center" }}>
+                      No Views Available
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </>
           ) : null}
 
           <ChangeConnection
@@ -912,35 +1316,41 @@ const Sidebar = ({
           />
         </div>
       )}
-      {!isFlatFile ? (
-      <div
-        style={{
-          display: "flex",
-          borderRadius: "5px",
-          marginBottom: "0.5rem",
-          textAlign: "left",
-          maxHeight: "330px",
-          overflowY: "auto",
-          color: "#3F3F3F",
-        }}
-      >
-        <Typography>Custom Query</Typography>
-        {customQueryExpand ? (
-          <Tooltip title="Collapse">
-            <ArrowDropDownIcon
-              onClick={() => setcustomQueryExpand(!customQueryExpand)}
-            />
-          </Tooltip>
-        ) : (
-          <Tooltip title="Expand">
-            <ArrowRightIcon
-              onClick={() => setcustomQueryExpand(!customQueryExpand)}
-            />
-          </Tooltip>
-        )}
-      </div>
+
+      {!isFlatFile &&
+      selectedDataConnection.label &&
+      selectedDataConnection.label !== "" ? (
+        <div
+          style={{
+            display: "flex",
+            borderRadius: "5px",
+            marginBottom: "0.5rem",
+            textAlign: "left",
+            maxHeight: "330px",
+            overflowY: "auto",
+            color: palette.primary.contrastText,
+          }}
+        >
+          <Typography>Custom Query</Typography>
+          {customQueryExpand ? (
+            <Tooltip title="Collapse">
+              <ArrowDropDownIcon
+                onClick={() => setcustomQueryExpand(!customQueryExpand)}
+              />
+            </Tooltip>
+          ) : (
+            <Tooltip title="Expand">
+              <ArrowRightIcon
+                onClick={() => setcustomQueryExpand(!customQueryExpand)}
+              />
+            </Tooltip>
+          )}
+        </div>
       ) : null}
-      {customQueryExpand && !isFlatFile ? (
+      {customQueryExpand &&
+      !isFlatFile &&
+      selectedDataConnection.label &&
+      selectedDataConnection.label !== "" ? (
         <div>
           {CustomQuerysArray.length > 0 ? (
             <div style={{ margin: "0 0 10% 0" }}>
@@ -976,7 +1386,14 @@ const Sidebar = ({
                         <div ref={scrollRef}>
                           <ul style={{ listStyle: "none" }}>
                             <li
+                              style={{
+                                fontSize: fontSize.medium,
+                                color: viewerRestriction?"rgba(0, 0, 0, 0.26)": palette.primary.contrastText,
+                                pointerEvents: viewerRestriction? "auto" : "all",
+                                cursor: viewerRestriction? "not-allowed" : "pointer",
+                              }}
                               onClick={() => {
+                                if(viewerRestriction)return
                                 setRenameID(item.id);
                                 setSelectQueryoption(item.id);
                                 setRenameInputValueCustomQueryname(item.name);
@@ -988,7 +1405,14 @@ const Sidebar = ({
                               Rename
                             </li>
                             <li
+                              style={{
+                                fontSize: fontSize.medium,
+                                color: viewerRestriction?"rgba(0, 0, 0, 0.26)": palette.primary.contrastText,
+                                pointerEvents: viewerRestriction? "auto" : "all",
+                                cursor: viewerRestriction? "not-allowed" : "pointer",
+                              }}
                               onClick={() => {
+                                if(viewerRestriction)return
                                 DeleteNameCustomQuery(item.id);
                                 setIsvisibleOption(false);
                               }}
@@ -996,7 +1420,14 @@ const Sidebar = ({
                               Delete
                             </li>
                             <li
+                              style={{
+                                fontSize: fontSize.medium,
+                                color: viewerRestriction?"rgba(0, 0, 0, 0.26)": palette.primary.contrastText,
+                                pointerEvents: viewerRestriction? "none" : "all",
+                                cursor: viewerRestriction? "not-allowed" : "pointer",
+                              }}
                               onClick={() => {
+                                if(viewerRestriction)return
                                 setEditCustomQuery(item.id);
                                 handleEditCustomQuery(item.id);
                                 setRenameNameQuery(item.name);
@@ -1035,16 +1466,19 @@ const Sidebar = ({
           ) : null}
           <button
             onClick={handleCustomQueryAddButton}
+            disabled={viewerRestriction}
             style={{
               backgroundColor: "white",
-              color: "#2bb9bb",
+              color: palette.primary.main,
               padding: "2%",
               position: "relative",
               width: "80%",
-              outlineColor: "#2bb9bb",
-              outline: "1px solid #2bb9bb",
+              outlineColor: palette.primary.main,
+              outline: `1px solid ${palette.primary.main}`,
               border: "none",
               borderRadius: "0.5rem",
+              cursor:viewerRestriction ? "not-allowed" : "pointer",
+
             }}
           >
             Add
@@ -1071,7 +1505,7 @@ const Sidebar = ({
                 name="customQuery"
                 id="customQuery"
                 placeholder="// SELECT * FROM table_name"
-                style={{ color: "#5c5c5c" }}
+                style={{ color: palette.primary.contrastText }}
                 ref={textareaRef}
                 value={CustomQueryData}
                 onChange={(e) => setCustomQueryData(e.target.value)}
@@ -1103,7 +1537,11 @@ const Sidebar = ({
                     setCustomQueryData("");
                   }}
                   id="cancelButton"
-                  sx={{ textTransform: "none" }}
+                  sx={{
+                    textTransform: "none",
+                    lineHeight: "normal",
+                    fontSize: fontSize.medium,
+                  }}
                 >
                   Cancel
                 </Button>
@@ -1113,7 +1551,11 @@ const Sidebar = ({
                   sx={{
                     textTransform: "none",
                   }}
-                  style={{ backgroundColor: "#2bb9bb" }}
+                  style={{
+                    backgroundColor: "#2bb9bb",
+                    lineHeight: "normal",
+                    fontSize: fontSize.medium,
+                  }}
                   type="submit"
                 >
                   Preview
@@ -1135,7 +1577,7 @@ const Sidebar = ({
           openAlert={openAlert}
         />
       ) : null}
-    </div>
+    </Box>
   );
 };
 
@@ -1166,6 +1608,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
     setDatabaseNametoState: (name: string) =>
       dispatch(setDatabaseNametoState(name)),
     setViews: (views: any[]) => dispatch(setViews(views)),
+    resetState: () => dispatch(resetState()),
+    setTempTables: (table: tableObjProps[]) => dispatch(setTempTables(table)),
   };
 };
 

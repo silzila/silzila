@@ -40,8 +40,6 @@
   /* display: inline-block; */
   margin: 3px 10px 0px 0px;
   /* margin-right: 10px; */
-  min-width: 100px;
-  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -54,14 +52,14 @@
   line-height: 1.5rem;
   margin-left: 2px;
   padding: 0 0 0 10px;
-  border-bottom: 2px solid #0076f6;
+  border-bottom: 2px solid #2bb9bb;
   border: none;
   background-color: white;
   font-size: 12px;
 }
 .editTabSelected:focus {
   outline: none;
-  border-bottom: 2px solid #0076f6;
+  border-bottom: 2px solid #2bb9bb;
 }
 .closeTab {
   /* border-radius: 2px; */

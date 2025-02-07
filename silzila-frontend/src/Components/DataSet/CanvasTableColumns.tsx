@@ -22,7 +22,7 @@ import "./Dataset.css";
 import { ArrowObj } from "./CanvasInterfaces";
 import { AlertColor } from "@mui/material/Alert";
 import ConnectsPointByColumn from "./ConnectsPointByColumn";
-
+import { da } from "date-fns/locale";
 
 const CanvasTableColumns = ({
   // props
@@ -36,7 +36,7 @@ const CanvasTableColumns = ({
   schema,
   checkRelationExists,
   table_Id,
-  tableHasCustomQuery,
+  disableDrag,
   //state
   arrows,
 }: CanvasTableColumnsProps) => {
@@ -147,33 +147,15 @@ const CanvasTableColumns = ({
   };
 
   return (
-    <div id={itemId} ref={boxRef} style={{
-      cursor:tableHasCustomQuery ?"not-allowed" : "move"
-    }}
-    draggable={!tableHasCustomQuery} 
-    onDragStart={(e) => {
-      if(tableHasCustomQuery){
-        e.preventDefault();
-        return;
-      }
-      e.dataTransfer.setData("connectItemId", itemId);
-      e.dataTransfer.setData("connectIndex", index.toString());
-      e.dataTransfer.setData("connectTableName", tableName);
-      e.dataTransfer.setData("connectColumnName", columnName);
-      e.dataTransfer.setData("connectItemType", itemType);
-      e.dataTransfer.setData("connecttableUid", table_uid);
-      e.dataTransfer.setData("schema", schema);
-      e.dataTransfer.setData("tableId", table_Id);
-    }}
-
-    >
+    <div id={itemId} ref={boxRef}>
       <div
         className="columnBox"
         id={itemId}
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => arrowDropped(e)}
+        style={{display: "flex", flexDirection: "row", alignItems: "center"}}
       >
-        <div className="columnItem">{itemTypeIcon(itemType)}</div>
+        <div className="columnItem" style={{display: "flex", flexDirection: "row", alignItems: "center"}}>{itemTypeIcon(itemType)}</div>
         {/* {schema !== "" ? (
           <ConnectsPointByColumn
             {...{
@@ -187,13 +169,12 @@ const CanvasTableColumns = ({
               table_uid,
               schema,
               table_Id,
-              tableHasCustomQuery,
             }}
           />
         ) : (
           <div style={{ padding: "0 5px" }}>{columnName}</div>
         )} */}
-  <ConnectsPointByColumn
+        <ConnectsPointByColumn
             {...{
               itemId,
               dragRef,
@@ -205,7 +186,8 @@ const CanvasTableColumns = ({
               table_uid,
               schema,
               table_Id,
-              tableHasCustomQuery,
+              disableDrag:disableDrag
+              // tableHasCustomQuery,
             }}
           />
         <ConnectPointsWrapper
@@ -220,6 +202,7 @@ const CanvasTableColumns = ({
             table_uid,
             schema,
             table_Id,
+            disableDrag:disableDrag
           }}
         />
       </div>

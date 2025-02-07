@@ -144,7 +144,7 @@ const IndividualTile = ({
     setRenameValue(e.target.value);
   };
  
-  const tileWidth = inPopup ? "" : tileName.length >= 20 ? "170px" : tileName.length >= 15 ? "150px" : tileName.length >= 10 ? "110px" : "70px";
+  const tileWidth = inPopup ? "" : tileName.length >= 15 ? "150px" : tileName.length >= 10 ? "110px" : "70px";
 
   var menuStyle = { fontSize: "12px", padding: "2px 1rem" };
 
@@ -332,7 +332,7 @@ const IndividualTile = ({
       >
 
         <span className="tabText">
-          {tileName.length > 15 ? tileName.substring(0, 25) + ".." : tileName}
+          {tileName.length > 20 ? tileName.substring(0, 25) + ".." : tileName}
         </span>
         <div className={!inPopup ? "close-container" : ""}>
         <span

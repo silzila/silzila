@@ -71,17 +71,15 @@ public class DuckDbService {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    // load dataset details in buffer. This helps faster query execution.
-    public DatasetDTO loadDatasetInBuffer(String dbConnectionId, String datasetId, String userId)
-            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException,
-            BadRequestException, SQLException {
-        DatasetDTO dto = buffer.loadDatasetInBuffer(datasetId, userId);
-        if (!dto.getDataSchema().getFilterPanels().isEmpty()) {
-            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(
-                    dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId, this::relativeFilter);
-            dto.getDataSchema().setFilterPanels(filterPanels);
-        }
-        return dto;
+     // load dataset details in buffer. This helps faster query execution.
+     public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId,String workspaceId, String userId)
+     throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
+        DatasetDTO dto = buffer.loadDatasetInBuffer(workspaceId,datasetId, userId);
+         if(!dto.getDataSchema().getFilterPanels().isEmpty()){
+             List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,workspaceId,this::relativeFilter);
+             dto.getDataSchema().setFilterPanels(filterPanels);
+         }
+         return dto;
     }
 
     private static final Logger logger = LogManager.getLogger(DuckDbService.class);
@@ -338,18 +336,16 @@ public class DuckDbService {
     }
 
     // get sample records from Parquet file
-    public JSONArray getSampleRecords(String parquetFilePath, String userId, String datasetId, String tableName,
-            String encryptVal) throws SQLException, RecordNotFoundException, JsonProcessingException,
-            BadRequestException, ClassNotFoundException {
+    public JSONArray getSampleRecords(String workspaceId,String parquetFilePath,String userId,String datasetId, String tableName,String encryptVal) throws SQLException, RecordNotFoundException, JsonProcessingException, BadRequestException, ClassNotFoundException {
 
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtRecords = conn2.createStatement();
 
         String query = "";
 
-        if (datasetId != null) {
-            // getting dataset information to fetch filter panel information
-            DatasetDTO ds = loadDatasetInBuffer(null, datasetId, userId);
+        if(datasetId!=null) {
+            //getting dataset information to fetch filter panel information
+            DatasetDTO ds = loadDatasetInBuffer(null,datasetId,workspaceId, userId);
             List<FilterPanel> filterPanels = new ArrayList<>();
             String tableId = "";
             String whereClause = "";
@@ -367,7 +363,7 @@ public class DuckDbService {
             }
 
             // generating where clause from the given filter panel
-            whereClause = WhereClause.buildWhereClause(filterPanels, "duckdb");
+            whereClause = WhereClause.buildWhereClause(filterPanels, "duckdb",ds);
 
             // creating Encryption key to save parquet file securely
             String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
@@ -973,48 +969,77 @@ public class DuckDbService {
 
     }
 
-    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,
-            @Valid RelativeFilterRequest relativeFilter)
-            throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
-            JsonMappingException, JsonProcessingException {
 
-        // Load dataset into memory buffer
-        DatasetDTO ds = null;
-        if (datasetId != null) {
-            DatasetDTO bufferedDataset = buffer.getDatasetDetailsById(datasetId);
-            ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(dBConnectionId, datasetId, userId);
+    public JSONObject runSyncQuery(String query) throws SQLException {
+        // Duplicate connection for running the query
+        Connection conn2 = ((DuckDBConnection) conn).duplicate();
+        Statement stmtRecords = null;
+        JSONObject jsonObject = null;
+
+        try {
+            // Create statement and execute query
+            stmtRecords = conn2.createStatement();
+            ResultSet resultSet = stmtRecords.executeQuery(query);
+
+            // Convert ResultSet to JSONObject
+            jsonObject = ResultSetToJson.convertToArray(resultSet);
+        } catch (SQLException e) {
+            // Handle SQL exception here
+            e.printStackTrace();
+            throw e; // Optionally rethrow the exception
+        } finally {
+            // Close statement and connection in finally block to ensure they are closed even if an error occurs
+            if (stmtRecords != null) {
+                stmtRecords.close();
+            }
+            if (conn2 != null) {
+                conn2.close();
+            }
         }
-        // Initialize variables
-        JSONArray anchorDateArray;
-        String query;
-        // Check if dataset is flat file data or not
-        // Get the table ID from the filter request
-        String tableId = relativeFilter.getFilterTable().getTableId();
-
-        ColumnFilter columnFilter = relativeFilter.getFilterTable();
-
-        // Find the table object in the dataset schema
-        // Datasetfilter -> create a table object
-        Table tableObj = ds != null ? ds.getDataSchema().getTables().stream()
-                .filter(table -> table.getId().equals(tableId))
-                .findFirst()
-                .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!"))
-                : new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null,
-                        columnFilter.getTableId(), null, null, false, null);
-        // Load file names from file IDs and load the files as views
-        createViewForFlatFiles(userId, Collections.singletonList(tableObj), buffer.getFileDataByUserId(userId),
-                encryptPwd + pepper);
-        // Compose anchor date query for DuckDB and run it
-        String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery("duckdb", ds, relativeFilter);
-        anchorDateArray = runQuery(anchorDateQuery);
-
-        // Compose main query for DuckDB
-        query = relativeFilterQueryComposer.composeQuery("duckdb", ds, relativeFilter, anchorDateArray);
-
-        // Execute the main query and return the result
-        JSONArray jsonArray = runQuery(query);
-
-        return jsonArray;
+        return jsonObject;
     }
+
+    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,String workspaceId,
+    @Valid RelativeFilterRequest relativeFilter)
+    throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
+    JsonMappingException, JsonProcessingException {
+
+            // Load dataset into memory buffer
+            DatasetDTO ds = null;
+            if (datasetId != null) {
+                DatasetDTO bufferedDataset = buffer.getDatasetDetailsById(datasetId);
+                ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(dBConnectionId, datasetId,workspaceId, userId);
+            }
+            // Initialize variables
+            JSONArray anchorDateArray;
+            String query;
+            // Check if dataset is flat file data or not
+                // Get the table ID from the filter request
+                String tableId = relativeFilter.getFilterTable().getTableId();
+
+                ColumnFilter columnFilter = relativeFilter.getFilterTable();
+
+                // Find the table object in the dataset schema 
+                // Datasetfilter -> create a table object
+                Table tableObj = ds!= null ? ds.getDataSchema().getTables().stream()
+                        .filter(table -> table.getId().equals(tableId))
+                        .findFirst()
+                        .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!")):new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null, columnFilter.getTableId()  , null, null, false, null);
+                // Load file names from file IDs and load the files as views
+                createViewForFlatFiles(userId, Collections.singletonList(tableObj),buffer.getFileDataByUserId(userId), encryptPwd+pepper);
+                // Compose anchor date query for DuckDB and run it
+                String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery("duckdb", ds, relativeFilter);
+                anchorDateArray = runQuery(anchorDateQuery);
+
+                // Compose main query for DuckDB
+                query = relativeFilterQueryComposer.composeQuery("duckdb", ds, relativeFilter, anchorDateArray);
+
+            // Execute the main query and return the result
+            JSONArray jsonArray = runQuery(query);
+
+            return jsonArray;
+}
+
+
 
 }

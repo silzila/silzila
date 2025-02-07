@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
+import com.silzila.helper.ColumnListFromClause;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Query;
@@ -18,32 +19,32 @@ import com.silzila.service.DatasetService;
 
 public class subTotalsCombination {
 
-    public static QueryClauseFieldListMap selectClauseSql(Query dim, String vendorName) throws BadRequestException {
+    public static QueryClauseFieldListMap selectClauseSql(Query dim,DatasetDTO ds, String vendorName) throws BadRequestException {
         QueryClauseFieldListMap qMap = new QueryClauseFieldListMap();
         if ("mysql".equals(vendorName)) {
-            qMap = SelectClauseMysql.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseMysql.buildSelectClause(dim, vendorName,ds);
         } else if ("duckdb".equals(vendorName)) {
-            qMap = SelectClauseMysql.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseMysql.buildSelectClause(dim, vendorName,ds);
         } else if ("sqlserver".equals(vendorName)) {
-            qMap = SelectClauseSqlserver.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseSqlserver.buildSelectClause(dim, vendorName,ds);
         } else if ("postgresql".equals(vendorName)) {
-            qMap = SelectClausePostgres.buildSelectClause(dim, vendorName);
+            qMap = SelectClausePostgres.buildSelectClause(dim, vendorName,ds);
         } else if("bigquery".equals(vendorName)){
-            qMap = SelectClauseBigquery.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseBigquery.buildSelectClause(dim, vendorName,ds);
         } else if ("databricks".equals(vendorName)) {
-            qMap = SelectClauseDatabricks.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseDatabricks.buildSelectClause(dim, vendorName,ds);
         } else if ("redshift".equals(vendorName)) {
-            qMap = SelectClausePostgres.buildSelectClause(dim, vendorName);
+            qMap = SelectClausePostgres.buildSelectClause(dim, vendorName,ds);
         } else if ("oracle".equals(vendorName)) {
-            qMap = SelectClauseOracle.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseOracle.buildSelectClause(dim, vendorName,ds);
         } else if ("snowflake".equals(vendorName)) {
-            qMap = SelectClauseSnowflake.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseSnowflake.buildSelectClause(dim, vendorName,ds);
         } else if ("motherduck".equals(vendorName)) {
-            qMap = SelectClauseMotherduck.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseMotherduck.buildSelectClause(dim, vendorName,ds);
         }  else if ("db2".equalsIgnoreCase(vendorName)) {
-            qMap = SelectClauseDB2.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseDB2.buildSelectClause(dim, vendorName,ds);
         } else if ("teradata".equalsIgnoreCase(vendorName)) {
-            qMap = SelectClauseTeraData.buildSelectClause(dim, vendorName);
+            qMap = SelectClauseTeraData.buildSelectClause(dim, vendorName,ds);
         }
         else {
             throw new BadRequestException("Unsupported vendor: " + vendorName);
@@ -138,7 +139,7 @@ public class subTotalsCombination {
         String whereClause = "";
         long countOfFilterPanels=ds.getDataSchema().getFilterPanels().size();
         if(countOfFilterPanels==0) {
-             whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName);
+             whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName,ds);
         } else {
             for(int i=0;i<countOfFilterPanels;i++) {
                 for (int j = 0; j < ds.getDataSchema().getFilterPanels().get(i).getFilters().size(); j++)
@@ -148,14 +149,15 @@ public class subTotalsCombination {
                     }
                 }
             }
-            whereClause=WhereClause.buildWhereClause(req.getFilterPanels(), vendorName);
+            whereClause=WhereClause.buildWhereClause(req.getFilterPanels(), vendorName,ds);
         }
         for (List<Dimension> rowDim : result) {
             Query dim = new Query(rowDim, req.getMeasures(), new ArrayList<>(), new ArrayList<>(), null);
-            QueryClauseFieldListMap qMap = selectClauseSql(dim, vendorName);
+            QueryClauseFieldListMap qMap = selectClauseSql(dim, ds,vendorName);
             String selectClause = "\n\t" + qMap.getSelectList().stream().collect(Collectors.joining(",\n\t"));
             String groupByClause = "\n\t" + qMap.getGroupByList().stream().distinct().collect(Collectors.joining(",\n\t"));
-            String fromClause = RelationshipClauseGeneric.buildRelationship(dim, ds.getDataSchema(), vendorName);
+            List<String> allColumnList = ColumnListFromClause.getColumnListFromQuery(dim);
+            String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList, ds.getDataSchema(), vendorName);
 
             String groupBy = rowDim.isEmpty() ? "" : "\nGROUP BY" + groupByClause;
             

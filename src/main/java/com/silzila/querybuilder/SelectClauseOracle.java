@@ -9,19 +9,22 @@ import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
 import com.silzila.payload.request.Query;
+import com.silzila.querybuilder.CalculatedField.CalculatedFieldQueryComposer;
+import com.silzila.querybuilder.CalculatedField.helper.DataTypeProvider;
 
 
 public class SelectClauseOracle {
     private static final Logger logger = LogManager.getLogger(SelectClauseOracle.class);
 
     /* SELECT clause for OracleSQL dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, Map<String,Integer>... aliasnumber) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,DatasetDTO ds, Map<String,Integer>... aliasnumber) throws BadRequestException {
         logger.info("SelectClauseOracle calling ***********");
         
         Map<String, Integer> aliasNumbering = new HashMap<>();
@@ -59,18 +62,36 @@ public class SelectClauseOracle {
                 
                 for(String key : aliasNumberingM.keySet()){
                     for(String key1 : aliasNumbering.keySet()){
-                    if(key.equals(req.getMeasures().get(0).getFieldName()) && key.equals(key1) && aliasNumbering.get(key).equals(aliasNumberingM.get(key1))){
-                            aliasNumbering.put(key, aliasNumbering.get(key) + 1);
-                    }
+                        if (aliasNumbering.containsKey(key) && aliasNumberingM.containsKey(key1)) {
+                            if (key.equals(req.getMeasures().get(0).getFieldName()) && key.equals(key1)) {
+                                // Increment the alias number only if both keys are equal and have the same alias number
+                                if (aliasNumbering.get(key).equals(aliasNumberingM.get(key1))) {
+                                    aliasNumbering.put(key, aliasNumbering.get(key) + 1);
+                                }
+                            }
+                        } else {
+                            // Handle the case where keys are not present in the maps
+                            System.out.println("One of the keys is missing in the maps.");
+                        }
                 }
                 }
                
             }
             String field = "";
+             String selectField = (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) 
+            ? CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName, ds, dim.getCalculatedField()) 
+            : dim.getTableId() + "." + dim.getFieldName();
+        
+        if (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) {
+            dim.setDataType(Dimension.DataType.fromValue(
+                DataTypeProvider.getCalculatedFieldDataTypes(dim.getCalculatedField())
+            ));
+        }
+
 
             // for non Date fields, Keep column as is
             if (List.of("TEXT", "BOOLEAN", "INTEGER", "DECIMAL").contains(dim.getDataType().name())) {
-                field = dim.getTableId() + "." + dim.getFieldName();
+                field = selectField;
                 groupByDimList.add(field);
                 orderByDimList.add(field);
             }
@@ -85,13 +106,13 @@ public class SelectClauseOracle {
                 // 'dayofweek', 'date', 'dayofmonth')
                 // year -> 2015
                 if (dim.getTimeGrain().name().equals("YEAR")) {
-                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'yyyy')";
+                    field = "TO_CHAR(" + selectField + ", 'yyyy')";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // quarter name -> Q3
                 else if (dim.getTimeGrain().name().equals("QUARTER")) {
-                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ",'\"Q\"Q')";
+                    field = "TO_CHAR(" + selectField + ",'\"Q\"Q')";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
@@ -99,27 +120,27 @@ public class SelectClauseOracle {
                 // for month, need to give month number also for column sorting
                 // which should be available in group by list but not in select list
                 else if (dim.getTimeGrain().name().equals("MONTH")) {
-                    String sortingFfield = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ",'mm')";
-                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'fmMonth')";
+                    String sortingFfield = "TO_CHAR(" + selectField + ",'mm')";
+                    field = "TO_CHAR(" + selectField + ", 'fmMonth')";
                     groupByDimList.add(sortingFfield);
                     groupByDimList.add(field);
                     orderByDimList.add(sortingFfield);
                 }
                 // yearquarter name -> 2015-Q3
                 else if (dim.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'YYYY-\"Q\"Q')";
+                    field = "TO_CHAR(" + selectField + ", 'YYYY-\"Q\"Q')";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // yearmonth name -> 2015-08
                 else if (dim.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'yyyy-mm')";
+                    field = "TO_CHAR(" + selectField + ", 'yyyy-mm')";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // date -> 2022-08-31
                 else if (dim.getTimeGrain().name().equals("DATE")) {
-                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'yyyy-mm-dd')";
+                    field = "TO_CHAR(" + selectField + ", 'yyyy-mm-dd')";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
@@ -127,15 +148,15 @@ public class SelectClauseOracle {
                 // for day of week, also give day of week number for column sorting
                 // which should be available in group by list but not in select list
                 else if (dim.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    String sortingFfield = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'D')";
-                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + " , 'fmDay')";
+                    String sortingFfield = "TO_CHAR(" + selectField + ", 'D')";
+                    field = "TO_CHAR(" + selectField + " , 'fmDay')";
                     groupByDimList.add(sortingFfield);
                     groupByDimList.add(field);
                     orderByDimList.add(sortingFfield);
                 }
                 // day of month -> 31
                 else if (dim.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    field = "TO_CHAR(" + dim.getTableId() + "." + dim.getFieldName() + ", 'dd')";
+                    field = "TO_CHAR(" + selectField + ", 'dd')";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 } else {
@@ -167,16 +188,26 @@ public class SelectClauseOracle {
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
             String windowFn = "";
-            if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
+            String selectField = meas.getIsCalculatedField()?CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds,meas.getCalculatedField()): meas.getTableId() + "." + meas.getFieldName();
+            if (meas.getIsCalculatedField()) {
+                meas.setDataType(Measure.DataType.fromValue(
+                    DataTypeProvider.getCalculatedFieldDataTypes(meas.getCalculatedField())
+                ));
+            }
+            if(meas.getIsCalculatedField() && meas.getCalculatedField().get(meas.getCalculatedField().size()-1).getIsAggregated()){
+                field = selectField;
+            }
+
+           else if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
                 // checking ('count', 'countnn', 'countn', 'countu')
                 if (meas.getAggr().name().equals("COUNT")) {
                     field = "COUNT(*)";
                 } else if (meas.getAggr().name().equals("COUNTNN")) {
-                    field = "COUNT(" + meas.getTableId() + "." + meas.getFieldName() + ")";
+                    field = "COUNT(" + selectField + ")";
                 } else if (meas.getAggr().name().equals("COUNTU")) {
-                    field = "COUNT(DISTINCT " + meas.getTableId() + "." + meas.getFieldName() + ")";
+                    field = "COUNT(DISTINCT " + selectField + ")";
                 } else if (meas.getAggr().name().equals("COUNTN")) {
-                    field = "SUM(CASE WHEN " + meas.getTableId() + "." + meas.getFieldName()
+                    field = "SUM(CASE WHEN " + selectField
                             + " IS NULL THEN 1 ELSE 0 END)";
                 } else {
                     throw new BadRequestException(
@@ -205,7 +236,7 @@ public class SelectClauseOracle {
 
                 // min & max
                 if (aggrList.contains(meas.getAggr().name()) && timeGrainList.contains(meas.getTimeGrain().name())) {
-                    field = meas.getAggr().name() + "(TO_CHAR" + "(" + meas.getTableId() + "." + meas.getFieldName()
+                    field = meas.getAggr().name() + "(TO_CHAR" + "(" + selectField
                             + "," + timeGrainEqualent.get(meas.getTimeGrain().name()) + "))";
                 }
 
@@ -213,17 +244,17 @@ public class SelectClauseOracle {
                  * countu is a special case & we can use time grain for this measure
                  */
                 else if (meas.getAggr().name().equals("COUNTU") && timeGrainList.contains(meas.getTimeGrain().name())) {
-                    field = "COUNT(DISTINCT(TO_CHAR" + "(" + meas.getTableId() + "." + meas.getFieldName()
+                    field = "COUNT(DISTINCT(TO_CHAR" + "(" + selectField
                             + "," + timeGrainEqualent.get(meas.getTimeGrain().name()) + ")))";
                 }
                 // checking ('yearquarter')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "COUNT(DISTINCT(TO_CHAR(" + meas.getTableId() + "." + meas.getFieldName()
+                    field = "COUNT(DISTINCT(TO_CHAR(" + selectField
                             + ", 'YYYY-\"Q\"Q')))";
                 }
                 // checking ('yearmonth')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "COUNT(DISTINCT(TO_CHAR(" + meas.getTableId() + "." + meas.getFieldName()
+                    field = "COUNT(DISTINCT(TO_CHAR(" + selectField
                             + ", 'yyyy-mm')))";
                 }
 
@@ -233,9 +264,9 @@ public class SelectClauseOracle {
                 else if (meas.getAggr().name().equals("COUNT")) {
                     field = "COUNT(*)";
                 } else if (meas.getAggr().name().equals("COUNTNN")) {
-                    field = "COUNT(" + meas.getTableId() + "." + meas.getFieldName() + ")";
+                    field = "COUNT(" + selectField + ")";
                 } else if (meas.getAggr().name().equals("COUNTN")) {
-                    field = "SUM(CASE WHEN " + meas.getTableId() + "." + meas.getFieldName()
+                    field = "SUM(CASE WHEN " + selectField
                             + " IS NULL THEN 1 ELSE 0 END)";
                 } else {
                     throw new BadRequestException("Error: Measure " + meas.getFieldName() +
@@ -245,16 +276,16 @@ public class SelectClauseOracle {
             // for number fields, do aggregation
             else if (List.of("INTEGER", "DECIMAL").contains(meas.getDataType().name())) {
                 if (List.of("SUM", "AVG", "MIN", "MAX").contains(meas.getAggr().name())) {
-                    field = meas.getAggr().name() + "(" + meas.getTableId() + "." + meas.getFieldName()
+                    field = meas.getAggr().name() + "(" + selectField
                             + ")";
                 } else if (meas.getAggr().name().equals("COUNT")) {
                     field = "COUNT(*)";
                 } else if (meas.getAggr().name().equals("COUNTNN")) {
-                    field = "COUNT(" + meas.getTableId() + "." + meas.getFieldName() + ")";
+                    field = "COUNT(" + selectField + ")";
                 } else if (meas.getAggr().name().equals("COUNTU")) {
-                    field = "COUNT(DISTINCT " + meas.getTableId() + "." + meas.getFieldName() + ")";
+                    field = "COUNT(DISTINCT " + selectField + ")";
                 } else if (meas.getAggr().name().equals("COUNTN")) {
-                    field = "SUM(CASE WHEN " + meas.getTableId() + "." + meas.getFieldName()
+                    field = "SUM(CASE WHEN " + selectField
                             + " IS NULL THEN 1 ELSE 0 END)";
                 } else {
                     throw new BadRequestException(
@@ -263,7 +294,7 @@ public class SelectClauseOracle {
             }
             // if windowFn not null it will execute window function for oracle
             if(meas.getWindowFn()[0] != null){
-                windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName);
+                windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName,ds);
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
                 // if aliasnumber is not null, to maintain alias sequence for measure field
                 if(aliasnumber != null && aliasnumber.length > 0){

@@ -10,7 +10,7 @@ import com.silzila.payload.request.RelativeFilterRequest;
 
 @FunctionalInterface
 public interface RelativeFilterFunction {
-    JSONArray apply(String userId, String dBConnectionId, String datasetId, RelativeFilterRequest relativeFilter)
+    JSONArray apply(String userId, String dBConnectionId, String datasetId,String workspaceId, RelativeFilterRequest relativeFilter)
         throws JsonProcessingException, RecordNotFoundException, SQLException, BadRequestException,ClassNotFoundException;
 }
 

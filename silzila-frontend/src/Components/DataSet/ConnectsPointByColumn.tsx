@@ -1,6 +1,7 @@
 // this component is used for draging the columns to put into dataset filter
 
 import { useRef, useState } from "react";
+import { fontSize } from "../..";
 
 interface ConnectPointsWrapperProps {
   itemId: string;
@@ -13,7 +14,7 @@ interface ConnectPointsWrapperProps {
   table_uid: string;
   schema: string;
   table_Id: string;
-  tableHasCustomQuery: boolean;
+  disableDrag: boolean;
 }
 
 const ConnectsPointByColumn = ({
@@ -27,7 +28,7 @@ const ConnectsPointByColumn = ({
   table_uid,
   schema,
   table_Id,
-  tableHasCustomQuery
+  disableDrag,
 }: ConnectPointsWrapperProps) => {
   // TODO: need to specify type
   const ref1 = useRef<any>(null);
@@ -37,13 +38,9 @@ const ConnectsPointByColumn = ({
   return (
     <div
       ref={ref1}
-      draggable={!tableHasCustomQuery}
-      style={{ padding: "0 5px", cursor: tableHasCustomQuery?"no-drop":"move" }}
+      draggable={!disableDrag}
+      style={{ padding: "0 5px",maxWidth:'100%',height:'fit-content',fontSize:fontSize.medium ,cursor:disableDrag?'default':'move'}}
       onDragStart={(e) => {
-        if (tableHasCustomQuery) {
-          e.preventDefault();
-          return;
-        }
         setBeingDragged(true);
 
         e.dataTransfer.setData("connectItemId", itemId);
@@ -70,8 +67,9 @@ const ConnectsPointByColumn = ({
           opacity: 0,
         });
       }}
-    >
-      {columnName}
+      data-lastthree={columnName.slice(-3)}
+      className="ellipsis"
+    >{columnName}
     </div>
   );
 };

@@ -3,12 +3,15 @@
 // Used for naming the dataset & saving it
 
 import { Close } from "@mui/icons-material";
-import { Button, Dialog, TextField, Tooltip } from "@mui/material";
+import { Box, Button, Dialog, TextField, Tooltip } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { resetState } from "../../redux/DataSet/datasetActions";
 import { useNavigate } from "react-router-dom";
-import { NotificationDialog } from "../CommonFunctions/DialogComponents";
+import {
+  NotificationDialog,
+  PopUpSpinner,
+} from "../CommonFunctions/DialogComponents";
 import FetchData from "../ServerCall/FetchData";
 import { Dispatch } from "redux";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
@@ -20,20 +23,29 @@ import {
 } from "../../redux/DataSet/DatasetStateInterfaces";
 import {
   BottomBarProps,
-  IDataSetCreatePayLoad,
-  IFilter,
-  IFilterPanel,
-  IRelationship,
-  ITable,
+  relationshipServerObjProps,
+  tablesSelectedInSidebarProps,
 } from "./BottomBarInterfaces";
 import { AlertColor } from "@mui/material/Alert";
 
 import { TextFieldBorderStyle } from "../DataConnection/muiStyles";
-import { CircularProgress } from "@mui/material";
+import Logger from "../../Logger";
+import RichTreeViewControl from "../Controls/RichTreeViewControl";
+import {
+  ConvertListOfListToRichTreeViewList,
+  GetWorkSpaceDetails,
+  isNameAllowed,
+} from "../CommonFunctions/CommonFunctions";
+import { useLocation } from "react-router-dom";
+import { fontSize, palette } from "../..";
+import { TContentDetails } from "./types";
+import { messages, permissions, roles } from "../CommonFunctions/aliases";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux";
+
 const BottomBar = ({
   //props
   editMode,
-  datasetFilterArray,
 
   // state
   tempTable,
@@ -42,13 +54,16 @@ const BottomBar = ({
   token,
   connection,
   dsId,
-  isFlatFile,
   datasetName,
   database,
+  isFlatFile,
+  datasetFilterArray,
 
   // dispatch
   resetState,
 }: BottomBarProps) => {
+  const [isSubWorkspaceSelected, setIsSubWorkspaceSelected] =
+    useState<boolean>(false);
   const [fname, setFname] = useState<string>(datasetName);
   const [sendOrUpdate, setSendOrUpdate] = useState<string>("Save");
   const [open, setOpen] = useState<boolean>(false);
@@ -56,143 +71,110 @@ const BottomBar = ({
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [testMessage, setTestMessage] = useState<string>("");
   const [severity, setSeverity] = useState<AlertColor>("success");
-  const [disableBtn, setDisableBtn] = useState<boolean>(false);
-
+  const [subWorkspaceList, setSubWorkspaceList] = useState<Array<Object>>([]);
+  const [selectedWorkspace, setSelectedWorkspace] = useState<string>("");
+  const [showWorkSpace, setShowWorkSpace] = useState<boolean>(false);
+  const location = useLocation();
+  const state = location.state;
+  const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if(!state){
+      navigate("/")
+    }
+  }, [state, navigate])
+
   const tablesWithoutRelation: string[] = [];
+  const [viewerRestriction,setViewerRestriction]=useState<boolean>(false);
+  // const {workspaceContents,SubWorkspaceContents}=useSelector((state: RootState) => state.permissions)
+  const permission=useSelector((state:RootState)=>state.dataSetState.permission);
+  useEffect(() => {
+      if(!editMode||!dsId)return;
+      // const allContents=[...workspaceContents,...SubWorkspaceContents];
+      // const selectedDs=allContents.find((item:any)=>item.id===dsId);
+      // if(!selectedDs)return;
+      // if(selectedDs.levelId===permissions.view)setViewerRestriction(true);
+      // else if(selectedDs.roleName===roles.CustomCreator && selectedDs.levelId===permissions.view)setViewerRestriction(true);
+      if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)setViewerRestriction(true);
+      // else if(permission.roleName===roles.CustomCreator && permission.levelId===permissions.view)setViewerRestriction(true);
+      else setViewerRestriction(false);
+  
+  
+    },[dsId, editMode, permission]);
+  useEffect(() => {
+    if (selectedWorkspace !== "") {
+      onSendData();
+      setShowWorkSpace(false);
+    }
+  }, [selectedWorkspace]);
+
+  useEffect(() => {
+    if (state?.mode === "New") {
+      setSendOrUpdate("Save");
+      setFname("");
+    }
+  }, [state?.mode]);
+
+  const getAllSubworkspace = async () => {
+    var result: any = await FetchData({
+      requestType: "noData",
+      method: "GET",
+      url: `workspaces/tree`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    let list = [];
+
+    if (result.status) {
+      list = result.data;
+    } else {
+      Logger("error", result.data.detail);
+    }
+
+    setSubWorkspaceList(ConvertListOfListToRichTreeViewList(list));
+  };
+
+  const handleProceedButtonClick = (selectedWorkspaceID: string, list: any) => {
+    if (!selectedWorkspaceID) {
+      setSeverity("error");
+      setOpenAlert(true);
+      setTestMessage("Select a workspace.");
+      return;
+    }
+
+    setIsSubWorkspaceSelected(
+      !list.find((item: any) => item.id === selectedWorkspaceID)
+    );
+
+    setSelectedWorkspace(selectedWorkspaceID);
+  };
 
   useEffect(() => {
     if (editMode) {
       setSendOrUpdate("Update");
+    } else {
+      getAllSubworkspace();
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  if (!state) {
+    return null;
+  }
 
-  // check  if pass values for filters are corrct or not
-  const validValues = (): Boolean => {
-    for (let i = 0; i < datasetFilterArray.length; ++i) {
-      const elem = datasetFilterArray[i];
-
-      if (
-        elem.filterType === "searchCondition" &&
-        elem.operator === "between"
-      ) {
-        if (
-          (elem.dataType === "integer" ||
-            elem.dataType === "float" ||
-            elem.dataType === "decimal") &&
-          Number(elem.userSelection[0]) > Number(elem.userSelection[1])
-        )
-          return false;
-        if (
-          (elem.dataType === "date" || elem.dataType === "timestamp") &&
-          elem.timeGrain === "date" &&
-          new Date(elem.userSelection[0]) > new Date(elem.userSelection[1])
-        )
-          return false;
-        if (
-          (elem.dataType === "date" || elem.dataType === "timestamp") &&
-          Number(elem.userSelection[0]) > Number(elem.userSelection[1])
-        )
-          return false;
-        if (
-          elem.dataType === "text" &&
-          elem.userSelection[0] > elem.userSelection[1]
-        )
-          return false;
-      }
-    }
-    return true;
-  };
-  /**
- * 
- * @param filter selected by the user 
- * @returns modified filters as per the API requirements
-  
- */
-  const modifyFilters = (filter: IFilter): IFilterPanel => {
-    // filter type of API is in camelCase
-    if (filter.filterType === "pickList") {
-      return {
-        panelName: "dataSetFilters",
-        shouldAllConditionsMatch: true,
-        filters: [
-          {
-            filterType: "pickList",
-            tableId: filter.tableId,
-            fieldName: filter.fieldName,
-            dataType: filter.dataType,
-            operator: "in",
-            shouldExclude: filter.shouldExclude,
-            userSelection: filter.userSelection,
-            uid: filter.uid,
-            tableName: filter.tableName,
-            ...(filter.dataType === "date" || filter.dataType === "timestamp"
-              ? { timeGrain: filter.timeGrain }
-              : {}),
-          },
-        ],
-      };
-    } else if (filter.filterType === "searchCondition") {
-      return {
-        panelName: "dataSetFilters",
-        shouldAllConditionsMatch: true,
-        filters: [
-          {
-            dataType: filter.dataType,
-            fieldName: filter.fieldName,
-            filterType: "searchCondition",
-            operator: filter.operator,
-            shouldExclude: filter.shouldExclude,
-            tableId: filter.tableId,
-            tableName: filter.tableName,
-            isTillDate: filter.isTillDate,
-            userSelection: filter.userSelection,
-            uid: filter.uid,
-            ...(filter.dataType === "date" || filter.dataType === "timestamp"
-              ? { timeGrain: filter.timeGrain }
-              : {}),
-          },
-        ],
-      };
-    } else {
-      return {
-        panelName: "dataSetFilters",
-        shouldAllConditionsMatch: true,
-        filters: [
-          {
-            dataType: filter.dataType,
-            relativeCondition: {
-              from: filter.relativeCondition?.from ?? [],
-              to: filter.relativeCondition?.to ?? [],
-              anchorDate:
-                filter.relativeCondition?.anchorDate === "specificDate"
-                  ? filter.userSelection[0]?.toString() || "" // Fallback to empty string if undefined
-                  : filter.relativeCondition?.anchorDate || "",
-            },
-            fieldName: filter.fieldName,
-            isTillDate: filter.isTillDate,
-            uid: filter.uid,
-            operator: "between",
-            userSelection: [],
-            shouldExclude: filter.shouldExclude,
-            filterType: "relativeFilter",
-            tableId: filter.tableId,
-            tableName: filter.tableName,
-            timeGrain: "date",
-          },
-        ],
-      };
-    }
-  };
+  // Check if every table has atleast one relationship before submitting the dataset
   const checkTableRelationShip = async (
-    selectedTables: ITable[],
+    tablesSelectedInSidebar: tablesSelectedInSidebarProps[],
     tablesWithRelation: string[]
   ) => {
-    if (selectedTables.length > 1) {
-      selectedTables.forEach((el: ITable) => {
-        if (!tablesWithRelation.includes(el.table)) {
+    let workspaceId = selectedWorkspace || state?.parentId;
+    setSelectedWorkspace("");
+
+    if (tablesSelectedInSidebar.length > 1) {
+      tablesSelectedInSidebar.forEach((el: tablesSelectedInSidebarProps) => {
+        if (tablesWithRelation.includes(el.table)) {
+        } else {
           tablesWithoutRelation.push(el.table);
         }
       });
@@ -216,14 +198,14 @@ const BottomBar = ({
     // case where there is only one table and no relations or
     // if all the tables have relations defined,
     // prepare data to be saved in server and submit
-    let tableRelationships: IRelationship[] = [];
+    var relationshipServerObj: relationshipServerObjProps[] = [];
 
     if (
       tablesWithoutRelation.length === 0 ||
-      (selectedTables.length === 1 && relationships.length === 0)
+      (tablesSelectedInSidebar.length === 1 && relationships.length === 0)
     ) {
       relationships.forEach((relation: RelationshipsProps) => {
-        let tableRelation: IRelationship = {
+        var relationObj: relationshipServerObjProps = {
           table1: relation.startId,
           table2: relation.endId,
           cardinality: relation.cardinality,
@@ -232,64 +214,79 @@ const BottomBar = ({
           table2Columns: [],
         };
 
-        let arrowsForRelation: ArrowsProps[] = [];
+        var arrowsForRelation: ArrowsProps[] = [];
         arrowsForRelation = arrows.filter(
           (arr: ArrowsProps) => arr.relationId === relation.relationId
         );
-        let tbl1: string[] = [];
-        let tbl2: string[] = [];
+        var tbl1: string[] = [];
+        var tbl2: string[] = [];
         arrowsForRelation.forEach((arr: ArrowsProps) => {
           tbl1.push(arr.startColumnName);
           tbl2.push(arr.endColumnName);
         });
 
-        tableRelation.table1Columns = tbl1;
-        tableRelation.table2Columns = tbl2;
+        relationObj.table1Columns = tbl1;
+        relationObj.table2Columns = tbl2;
 
-        tableRelationships.push(tableRelation);
+        relationshipServerObj.push(relationObj);
       });
+
       var apiurl: string;
 
       if (editMode) {
-        apiurl = "dataset/" + dsId;
+        apiurl = `dataset/${dsId}?workspaceId=${workspaceId}`;
       } else {
-        apiurl = "dataset";
+        apiurl = `dataset?workspaceId=${workspaceId}`;
       }
       //for datasetFilter array sent the data in the form of array
-      if (!validValues()) {
-        setTestMessage("Invalid Values for filters");
-        setSeverity("error");
-        setOpenAlert(true);
-        return;
-      }
-      const datasetFilter: IFilterPanel[] = datasetFilterArray.map(
-        (item): IFilterPanel => {
-          return modifyFilters(item);
-        }
-      );
+      const datasetFilter = datasetFilterArray.filter((item) => {
+        var excludeInclude: boolean =
+          item.includeexclude === false ? false : true;
 
-      if (tableRelationships.length >= 0) {
-        const payLoad: IDataSetCreatePayLoad = {
-          connectionId: isFlatFile ? "" : connection,
-          datasetName: fname,
-          isFlatFileData: isFlatFile,
-          dataSchema: {
-            tables: selectedTables,
-            relationships: tableRelationships,
-            filterPanels: datasetFilter,
-          },
+        return {
+          panelName: "dataSetFilters",
+          shouldAllConditionsMatch: true,
+          filters: [
+            {
+              filterType: item.fieldtypeoption,
+              fieldName: item.fieldName,
+              tableName: item.tableName,
+              dataType: item.dataType,
+              uid: item.uid,
+              displayName: item.displayName,
+              shouldExclude: excludeInclude,
+              timeGrain: item.timeGrain,
+              operator: item.exprType,
+              userSelection: item.userSelection,
+              isTillDate: item.isStillData,
+              tableId: item.tableId,
+              exprType: item.exprType,
+            },
+          ],
         };
+      });
+
+      if (relationshipServerObj.length >= 0) {
+        // TODO: need to specify type
+        setLoading(true);
         var options: any = await FetchData({
           requestType: "withData",
           method: editMode ? "PUT" : "POST",
-          // method: "PUT",
           url: apiurl,
-          // url:"filter-options?datasetid=" + dsId+"&dbconnectionid="+connection,
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          data: payLoad,
+          data: {
+            connectionId: isFlatFile ? null : connection,
+            datasetName: fname,
+            isFlatFileData: isFlatFile,
+            dataSchema: {
+              tables: [...tablesSelectedInSidebar],
+              relationships: [...relationshipServerObj],
+              filterPanels: [...datasetFilter],
+            },
+          },
         });
       } else {
         setTestMessage(
@@ -301,22 +298,48 @@ const BottomBar = ({
         setSeverity("error");
         setOpenAlert(true);
       }
-      // let options={
-      //   status:"",
-      //   data:{
-      //     message:""
-      //   }
-      // }
+
       if (options.status) {
+        setLoading(false);
         setSeverity("success");
         setOpenAlert(true);
         setTestMessage("Saved Successfully!");
+
         setTimeout(() => {
           setOpenAlert(false);
           setTestMessage("");
-          navigate("/datahome");
+
+          if (sendOrUpdate === "Update") {
+            navigate(-1);
+          } else {
+            if (isSubWorkspaceSelected) {
+              let workspaceDetail: any = GetWorkSpaceDetails(
+                subWorkspaceList,
+                workspaceId,
+                true
+              );
+              localStorage.setItem("workspaceName", workspaceDetail?.label);
+              localStorage.setItem(
+                "childWorkspaceName",
+                workspaceDetail.subLabel
+              );
+              localStorage.setItem("parentId", workspaceId);
+
+              navigate(`/SubWorkspaceDetails/${workspaceId}`);
+            } else {
+              let workspaceDetail: any = GetWorkSpaceDetails(
+                subWorkspaceList,
+                workspaceId
+              );
+              localStorage.setItem("workspaceName", workspaceDetail?.label);
+              localStorage.setItem("parentId", workspaceId);
+
+              navigate(`/workspace/${workspaceId}`);
+            }
+          }
         }, 2000);
       } else {
+        setLoading(false);
         setSeverity("error");
         setOpenAlert(true);
 
@@ -330,7 +353,7 @@ const BottomBar = ({
     }
 
     // Potential repeat of code in above section
-    // if (tablesInDataSet.length > 1 && relationships.length === 0) {
+    // if (tablesSelectedInSidebar.length > 1 && relationships.length === 0) {
     // 	setSeverity("error");
     // 	setOpenAlert(true);
     // 	setTestMessage(
@@ -349,8 +372,7 @@ const BottomBar = ({
     // If dataset name is provided,
     // prepare the tables with relations list and
     // check if table relationships and arrows meet requirements
-    if (fname !== "") {
-      setDisableBtn(true);
+    if (isNameAllowed(fname)) {
       const tablesSelectedInSidebar: any[] =
         // tablesSelectedInSidebarProps[]
         tempTable.map((el: tableObjProps) => {
@@ -362,9 +384,9 @@ const BottomBar = ({
             tablePositionX: el.tablePositionX,
             tablePositionY: el.tablePositionY,
             database: el.databaseName,
-            flatFileId: isFlatFile ? el.table_uid : "",
-            isCustomQuery: el.isCustomQuery || false,
-            customQuery: el.customQuery || "",
+            flatFileId: isFlatFile ? el.table_uid : null,
+            isCustomQuery: el.isCustomQuery,
+            customQuery: el.customQuery,
           };
         });
       const listOfStartTableNames: string[] = [];
@@ -378,16 +400,12 @@ const BottomBar = ({
         ...listOfEndTableNames,
       ];
 
-      checkTableRelationShip(
-        tablesSelectedInSidebar as ITable[],
-        tablesWithRelation
-      );
-      setDisableBtn(false);
+      checkTableRelationShip(tablesSelectedInSidebar, tablesWithRelation);
     } else {
       // If dataSet name is not provided, show error
       setSeverity("error");
       setOpenAlert(true);
-      setTestMessage("Please Enter A Dataset Name");
+      setTestMessage(messages.dataset.wrongName);
       // setTimeout(() => {
       // 	setOpenAlert(false);
       // 	setTestMessage("");
@@ -400,85 +418,162 @@ const BottomBar = ({
   };
 
   return (
-    <div className="bottomBar">
+    <Box
+      sx={{
+        height: "3.5rem",
+        borderTop: "1px solid #E0E0E0",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        zIndex: 99,
+        backgroundColor: palette.secondary.contrastText,
+        paddingInline: "0.5rem",
+      }}
+    >
+      {showWorkSpace ? (
+        <RichTreeViewControl
+          currentWorkspace={state?.parentId}
+          proceedButtonName={"Save"}
+          list={subWorkspaceList}
+          title={"Select a Workspace"}
+          showInPopup={showWorkSpace}
+          handleCloseButtonClick={(e: any) => {
+            setShowWorkSpace(false);
+          }}
+          handleProceedButtonClick={handleProceedButtonClick}
+        ></RichTreeViewControl>
+      ) : null}
+
       <Button
         variant="contained"
         onClick={onCancelOnDataset}
         id="cancelButton"
-        sx={{ textTransform: "none" }}
-        disabled={disableBtn}
+        sx={{
+          textTransform: "none",
+          fontSize: fontSize.medium,
+          lineHeight: "normal",
+          marginRight: 0,
+        }}
       >
         {editMode ? "Back" : "Cancel"}
       </Button>
 
-      <div
+      <Box
         style={{
           flex: 1,
           display: "flex",
           justifyContent: "flex-end",
+          alignItems: "center",
+          height: "1.625rem",
         }}
       >
         <Tooltip
-          title="Click to Edit"
+          title={editMode && viewerRestriction?'You are not allowed to make any changes':"Click to Edit"}
           sx={{
             "& .MuiTextField-root": { margin: 1, width: "20px" },
           }}
         >
           <TextField
+          disabled={editMode && viewerRestriction}
+            id="margin-none"
             sx={{
               flex: 1,
-              margin: "auto 20px",
+              margin: "0 20px",
               maxWidth: "200px",
-              '& label.Mui-focused': {
-                color: '#2bb9bb',
+              fontSize: fontSize.medium,
+              "& label.Mui-focused": {
+                color: "#2bb9bb",
+                transform: "translate(14px, -4.5px) scale(0.75)",
               },
-              '& label:hover': {
-                color: '#2bb9bb',
+              "& label:hover": {
+                color: "#2bb9bb",
               },
-              '& .MuiOutlinedInput-root': {
-                '&:hover fieldset': {
-                  borderColor: '#2bb9bb',
+              "& .MuiOutlinedInput-root": {
+                "&:hover fieldset": {
+                  borderColor: "#2bb9bb",
                 },
               },
-              '& .MuiOutlinedInput-root.Mui-focused fieldset': {
-                borderColor: '#2bb9bb',
+              "& label": {
+                fontSize: fontSize.medium,
+                color: palette.primary.contrastText,
+                transform: "translate(14px, 4.5px) scale(1)",
+              },
+              "& .MuiOutlinedInput-root.Mui-focused fieldset": {
+                borderColor: "#2bb9bb",
               },
             }}
             inputProps={{
               style: {
-                fontSize: "14px",
-                color: "#3B3C36",
+                fontSize: fontSize.medium,
+                padding: "0 12px", // Adjust padding for better alignment
+                color: palette.primary.contrastText,
+                lineHeight: "1.5", // Ensure line-height matches your design
               },
             }}
-            InputProps={TextFieldBorderStyle}
-            id="outlined-size-small"
+            InputProps={{
+              style: {
+                height: "1.625rem",
+              },
+            }}
             size="small"
             onChange={(e) => {
               e.preventDefault();
               setFname(e.target.value);
             }}
             value={fname}
-            label="Dataset Name"
+            label={fname === "" ? "Dataset Name" : ""}
           />
         </Tooltip>
 
         <Button
           variant="contained"
-          disabled={disableBtn}
-          onClick={onSendData}
+          onClick={(e) => {
+            e.preventDefault();
+            if (!isNameAllowed(fname)) {
+              setSeverity("error");
+              setOpenAlert(true);
+              setTestMessage(messages.dataset.wrongName);
+              return;
+            }
+            if (tempTable.length === 0) {
+              setSeverity("error");
+              setOpenAlert(true);
+              setTestMessage("Please add atleast one table");
+              return;
+            }
+            if (arrows.length === 0 && tempTable.length > 1) {
+              setSeverity("error");
+              setOpenAlert(true);
+              setTestMessage(
+                "Error: Every table should have atleast one relationship.\n" +
+                  "tables with no Relationship\n"
+              );
+              return;
+            }
+            if (sendOrUpdate === "Update") {
+              onSendData();
+            } else {
+              setShowWorkSpace(true);
+            }
+          }}
           id="setButton"
           sx={{
             textTransform: "none",
+            fontSize: fontSize.medium,
+            lineHeight: "normal",
+            marginRight:'0.2rem',
+            cursor:viewerRestriction?'not-allowed':'pointer',
+            '&:disabled':{
+              cursor:'not-allowed',
+              pointerEvents:'auto'
+            }
           }}
+          disabled={ viewerRestriction}
           style={{ backgroundColor: "#2BB9BB" }}
         >
-          {disableBtn ? (
-            <CircularProgress size={20} color="info" />
-          ) : (
-            sendOrUpdate
-          )}
+          {sendOrUpdate}
         </Button>
-      </div>
+      </Box>
 
       <NotificationDialog
         onCloseAlert={() => {
@@ -489,22 +584,31 @@ const BottomBar = ({
         testMessage={testMessage}
         openAlert={openAlert}
       />
+      
 
       <Dialog open={open}>
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            padding: "5px",
+            padding: "10px",
             width: "350px",
             height: "auto",
             justifyContent: "center",
           }}
         >
-          <div style={{ fontWeight: "bold", textAlign: "center" }}>
+          <div style={{ fontWeight: "bold", textAlign: "center", padding:"0.5rem" }}>
+            <div style={{
+              fontSize: fontSize.large
+            }}>
             {editMode ? "CANCEL DATASET EDIT" : "CANCEL DATASET CREATION"}
-            <Close style={{ float: "right" }} onClick={() => setOpen(false)} />
-            <br />
+            <button 
+              style={{ background: 'none', border: 'none', cursor: 'pointer', float: 'right' }} 
+              onClick={() => setOpen(false)}
+              >
+              <Close />
+            </button>
+            </div>
             <br />
             <p style={{ fontWeight: "normal" }}>
               {editMode
@@ -520,22 +624,70 @@ const BottomBar = ({
             }}
           >
             <Button
+              sx={{
+                backgroundColor: "white",
+                border: "1px solid gray",
+                marginLeft: "8px",
+                width: "105px",
+                fontSize: fontSize.medium,
+                boxShadow: "none",
+                "&:hover": {
+                  backgroundColor: "gray",
+                  color: "white",
+                },
+              }}
+              variant="contained"
+              onClick={() => {
+                setOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              sx={{
+                backgroundColor: "white",
+                border: "1px solid red",
+                marginLeft: "8px",
+                width: "105px",
+                fontSize: fontSize.medium,
+                boxShadow: "none",
+                "&:hover": {
+                  backgroundColor: "red",
+                  color: "white",
+                },
+              }}
+              variant="contained"
+              onClick={() => {
+                resetState();
+                setOpen(false);
+                // if (editMode) {
+                navigate(-1);
+                //}
+              }}
+            >
+              Ok
+            </Button>
+            {/* <Button
               style={{ backgroundColor: "red" }}
               variant="contained"
               onClick={() => {
                 resetState();
                 setOpen(false);
-                if (editMode) {
-                  navigate("/dataHome");
-                }
+                // if (editMode) {
+                navigate(-1);
+                //}
               }}
             >
               Ok
-            </Button>
+            </Button> */}
           </div>
         </div>
       </Dialog>
-    </div>
+      <PopUpSpinner
+        show={loading}
+        paperProps={{ style: { marginLeft: "16.7rem" } }}
+      />
+    </Box>
   );
 };
 
