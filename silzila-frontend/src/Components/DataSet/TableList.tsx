@@ -2,7 +2,7 @@
 // List of tables for a selected schema is returned along with option to check or uncheck
 
 import React, { useState } from "react";
-import { Checkbox, Tooltip } from "@mui/material";
+import { AlertColor, Checkbox, Tooltip } from "@mui/material";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import FetchData from "../ServerCall/FetchData";
 import {
@@ -25,15 +25,20 @@ import TableData from "./TableData";
 import { TableListProps, tabObj } from "./TableListInterfaces";
 import { Columns, ColumnsWithUid } from "./DatasetInterfaces";
 import Logger from "../../Logger";
+import { NotificationDialog, PopUpSpinner } from "../CommonFunctions/DialogComponents";
+import { fontSize, palette } from "../..";
 
-const TableList = (props: TableListProps) => {
+const TableList = (props: any) => {
 	const [selectedTable, setSelectedTable] = useState<string>("");
-	const [showTableData, setShowTableData] = useState<boolean>(false);
-
+	const [showDialogBox, setShowDialogBox] = useState<boolean>(false);
+	const [isError, setIsError] = useState<boolean>(false);
+	const [errorMessage, setErrorMessage] = useState<{severity:AlertColor,message:string}>({severity:'error',message:""});
 	// tableData  will be type of any
 	const [tableData, setTableData] = useState<any[]>([]);
 	const [objKeys, setObjKeys] = useState<string[]>([]);
-
+	const [isLoading, setIsLoading] = useState(false)
+	const [showEyeIcon, setShowEyeIcon] = useState(false);
+	const [loadingTableInCanvas, setLoadingTableInCanvas] = useState(false);
 	// Get all columns for a given table
 	const getTableColumns = async (tableName: string, isView: boolean) => {
 		Logger("info", "get Columns from tableList");
@@ -41,18 +46,18 @@ const TableList = (props: TableListProps) => {
 
 		var url: string = "";
 		if (props.isFlatFile) {
-			url = `file-data-column-details/${props.table.table_uid}`;
+			url = `file-data-column-details/${props.table.table_uid}?workspaceId=${props.selectedWorkSpace}`;
 		} else {
 			if (props.serverName === "mysql") {
-				url = `metadata-columns/${props.connectionId}?database=${props.databaseName}&table=${tableName}`;
+				url = `metadata-columns/${props.connectionId}?workspaceId=${props.selectedWorkSpace}&database=${props.databaseName}&table=${tableName}`;
 			} else {
-				url = `metadata-columns/${props.connectionId}?database=${props.databaseName}&schema=${props.schema}&table=${tableName}`;
+				url = `metadata-columns/${props.connectionId}?workspaceId=${props.selectedWorkSpace}&database=${props.databaseName}&schema=${props.schema}&table=${tableName}`;
 			}
 		}
-
+		setLoadingTableInCanvas(true);
 		var result: any = await FetchData({
 			requestType: "noData",
-			method: "GET",
+			method: "POST",
 			url: url,
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
@@ -127,12 +132,19 @@ const TableList = (props: TableListProps) => {
 				});
 			}
 			props.addTable(obj);
+			setLoadingTableInCanvas(false);
+		}
+		else{
+			setLoadingTableInCanvas(false);
+			setIsError(true);
+			setErrorMessage({severity:"error",message:result.data});
 		}
 	};
 
 	// Handles when a table listed in sidebar is checked or unchecked
 	// TODO: need to specify type for e
 	const checkAndUncheck = (e: any, id: string | number, table: any) => {
+		// setLoadingTableInCanvas(true);
 		if (table["isView"]) {
 			props.toggleOnCheckedOnView(id);
 		} else {
@@ -151,6 +163,7 @@ const TableList = (props: TableListProps) => {
 				});
 			}
 		}
+		// setLoadingTableInCanvas(false);
 	};
 
 	// ==============================================================
@@ -159,67 +172,82 @@ const TableList = (props: TableListProps) => {
 	const getTableData = async (table: string) => {
 		var url: string = "";
 		if (props.isFlatFile) {
-			url = `file-data-sample-records?flatfileId=${props.table.table_uid}&table=${table}`;
+			url = `file-data-sample-records?flatfileId=${props.table.table_uid}&table=${table}&workspaceId=${props.selectedWorkSpace}`;			
 		} else {
 			if (props.serverName === "mysql") {
-				url = `sample-records?databaseId=${props.connectionId}&recordCount=100&database=${props.databaseName}&table=${table}`;
+				url = `sample-records?workspaceId=${props.selectedWorkSpace}&databaseId=${props.connectionId}&recordCount=100&database=${props.databaseName}&table=${table}`;
 			} else {
-				url = `sample-records?databaseId=${props.connectionId}&recordCount=100&database=${props.databaseName}&schema=${props.schema}&table=${table}`;
+				url = `sample-records?workspaceId=${props.selectedWorkSpace}&databaseId=${props.connectionId}&recordCount=100&database=${props.databaseName}&schema=${props.schema}&table=${table}`;
 			}
 		}
+		setShowDialogBox(true);
+		setShowEyeIcon(false);
+		setIsLoading(true);
+		setTableData([]);
 		// TODO:need to specify type
 		var res: any = await FetchData({
 			requestType: "noData",
-			method: "GET",
+			method: "POST",
 			url: url,
 			headers: { Authorization: `Bearer ${props.token}` },
 		});
+
 		if (res.status) {
+			setIsLoading(false);
 			setTableData(res.data);
-			setShowTableData(true);
 			var keys: string[] = Object.keys(res.data[0]);
 			setObjKeys([...keys]);
 		} else {
+			setIsLoading(false);
 		}
 	};
 
 	// =========================== props to tableData ====================================
 
 	const properties = {
-		showTableData,
-		setShowTableData,
+		showDialogBox,
+		isLoading,
+		setShowDialogBox,
 		selectedTable,
 		setSelectedTable,
 		tableData,
 		setTableData,
 		objKeys,
+		setShowEyeIcon,
 	};
 
 	return (
-		<React.Fragment>
-			<Checkbox
-				sx={{
-					"&.Mui-checked": {
-						color: "#2bb9bb",
-					},
-					"&.Mui-disabled": {
-						color: "#B1B1B1",
-					},
-				}}
-				style={{ width: "0.5rem", height: "0.5rem", margin: "auto 5px auto 0" }}
-				size="small"
-				// size="1rem"
-				disabled={props.table.isNewTable ? false : true}
-				checked={props.table.isSelected ? true : false}
-				onClick={e => checkAndUncheck(e, props.table.id, props.table)}
-				value={props.table.tableName}
-			/>
+		<div style={{display:"flex",justifyContent:"space-between",width:"100%",alignItems:'center'}} onMouseOver={() => setShowEyeIcon(true)} onMouseLeave={() => setShowEyeIcon(false)}>
+			<label>
+				<Checkbox
+					sx={{
+						"&.Mui-checked": {
+							color: "#2bb9bb",
+						},
+						"&.Mui-disabled": {
+							color: "#B1B1B1",
+							cursor: "not-allowed",
+							pointerEvents:'auto'
+						},
+					}}
+					style={{ width: "0.5rem", height: "0.5rem", margin: "auto 5px auto 0" }}
+					size="small"
+					// size="1rem"
+					disabled={
+						props.applyRestriction || !props.table.isNewTable
+					  }
+					checked={props.table.isSelected ? true : false}
+					onChange={e => {
+						checkAndUncheck(e, props.table.id, props.table)
+					}}
+					value={props.table.tableName}
+				/>
 
-			<span className="tableName" title={props.table.tableName}>
-				{props.table.tableName}
-			</span>
-
-			{props.xprops.open ? (
+				<span className="ellipsis tableName" title={props.table.tableName} style={{fontSize:fontSize.medium,width:!showEyeIcon?'12rem':'10rem',display:'inline-flex'}} >
+					{props.table.tableName}
+				</span>
+			</label>
+			{showEyeIcon ? (
 				<Tooltip
 					title="View Table"
 					arrow
@@ -237,7 +265,24 @@ const TableList = (props: TableListProps) => {
 				</Tooltip>
 			) : null}
 			<TableData {...properties} />
-		</React.Fragment>
+			<PopUpSpinner show={loadingTableInCanvas} sx={{ background: "transparent" }}
+            paperProps={{
+              sx: {
+                backgroundColor: "transparent",
+                color: "white",
+                boxShadow: "none",
+              },
+            }}/>
+			{/* <NotificationDialog
+				openAlert={isError}
+				severity={errorMessage.severity}
+				testMessage={errorMessage.message}
+				onCloseAlert={() => {
+					setIsError(false);
+					setErrorMessage({severity:"error",message:""});
+				}}
+				/> */}
+		</div>
 	);
 };
 

@@ -9,7 +9,6 @@ import CanvasTables from "./CanvasTables";
 import filterIcon from "../../assets/filter_icon.svg";
 import RelationshipDefiningComponent from "./RelationshipDefiningComponent";
 import BottomBar from "./BottomBar";
-import collapsedSidebar from "../../assets/sidebar-collapse.svg";
 import {
   ArrowsProps,
   DataSetStateProps,
@@ -21,64 +20,40 @@ import ShortUniqueId from "short-unique-id";
 // import UserFilterDataset from "./UserFilterDataset";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import UserFilterDataset from "./UserFilterDataset";
-import { IFilter } from "./BottomBarInterfaces";
-import { IFlatIdTableIdMap } from "./EditDataSetInterfaces";
-import { NotificationDialog } from "../CommonFunctions/DialogComponents";
-import { AlertColor } from "@mui/material";
-
+import { fontSize, palette } from "../..";
+import { PopUpSpinner } from "../CommonFunctions/DialogComponents";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux";
+import { permissions } from "../CommonFunctions/aliases";
 const Canvas = ({
   // state
   tempTable,
+  dataSetState,
   arrows,
   dsId,
-  flatFileIdMap,
   //props
-  editMode = false,
+  editMode,
   EditFilterdatasetArray,
-  //dispatch
-  addFilter,
 }: CanvasProps) => {
   const [showRelationCard, setShowRelationCard] = useState<boolean>(false);
   const [existingArrowProp, setExistingArrowProp] = useState<{}>({});
   const [existingArrow, setExistingArrow] = useState<boolean>(false);
-  const [openAlert, setOpenAlert] = useState<boolean>(false);
-  const [severity, setseverity] = useState<AlertColor>("success");
-  const [testMessage, setTestMessage] = useState<string>("");
-
-  const [isDataSetVisible, setIsDataSetVisible] = useState<boolean>(
-    EditFilterdatasetArray.length > 0 ? true : false
-  );
-  const [tableFlatFileMap, setTableFlatFileMap] =
-    useState<IFlatIdTableIdMap[]>(flatFileIdMap);
-  const [filtersOfDataset, setFiltersOfDataset] = useState<IFilter[]>(
-    JSON.parse(JSON.stringify(EditFilterdatasetArray))
+  const [isDataSetVisible, setIsDataSetVisible] = useState<boolean>(false);
+  const [disPlayName, setDisplayName] = useState<string>("");
+  const [uid, setUid] = useState<any>();
+  const [tableId, setTableId] = useState<string>("");
+  const [dataType, setDataType] = useState<string>("");
+  const [tableName, setTableName] = useState<string>("");
+  const [field, setfield] = useState<any>({});
+  const [dataSetFilterArray, setDataSetFilterArray] = useState<any[]>(
+    EditFilterdatasetArray || []
   );
 
-  /**
-   * when We remove a table from  canvas or unselect a table from sidebar then we need to remove the filters of that table
-   */
-  useEffect(() => {
-    /**
-     * get the table ids of the tables present in the canvas
-     */
-    const tableIdSet = new Set(
-      tempTable.map((table: tableObjProps) => table.id)
-    );
-    /**
-     * filter the filters of the dataset which are not present in the canvas
-     */
-    const newFilters = filtersOfDataset.filter((filter: IFilter) =>
-      tableIdSet.has(filter.tableId)
-    );
-    /**
-     * update the filters of the dataset
-     */
-    if(newFilters.length !== filtersOfDataset.length){
-      setFiltersOfDataset(newFilters);
-    }
-  }, [filtersOfDataset, tempTable]);
 
+  const isFlatFile = dataSetState?.isFlatFile;
+  const permission=useSelector((state:RootState)=>state.dataSetState.permission);
   const clickOnArrowfunc = (index: number) => {
+    if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)return
     setExistingArrow(true);
     const temp = arrows.filter((el: ArrowsProps, i: number) => i === index)[0];
     setExistingArrowProp(temp);
@@ -87,13 +62,7 @@ const Canvas = ({
 
   const handleDrop = (e: any) => {
     e.stopPropagation();
-    const tableHasCustomQuery = e.dataTransfer.getData("tableHasCustomquery");
-    if (tableHasCustomQuery === "true") {
-      setOpenAlert(true);
-      setTestMessage("Filter is disabled for tables with custom queries.");
-      setseverity("warning");
-      return;
-    }
+
     const refs = {
       isSelected: true,
       tableId: e.dataTransfer.getData("tableId"),
@@ -107,42 +76,27 @@ const Canvas = ({
       startId: e.dataTransfer.getData("tableId"),
     };
 
-    const uid: any = new ShortUniqueId({ length: 6 });
+    const uid: any = new ShortUniqueId({ length: 4 });
 
-    const field: IFilter = {
+    const field = {
       tableId: refs.tableId,
       fieldName: refs.startColumnName,
-      filterType: ["decimal", "float", "double", "integer"].includes(
-        refs.dataType
-      )
-        ? "searchCondition"
-        : "pickList",
-      dataType: refs.dataType, //default value for
-      shouldExclude: false,
+      exprType: "greaterThan",
+      dataType: refs.dataType,
+      fieldtypeoption: "Pick List", //default value for
+      includeexclude: "Include", //default value for
+      displayName: refs.startColumnName,
       uid: uid(),
-      userSelection: [],
       tableName: refs.startTableName,
-      operator: "greaterThan",
-      timeGrain: "year",
-      isTillDate: false,
+      schema: refs.schema,
     };
-    // setFlatFileId(refs.table1_uid);
-    setTableFlatFileMap((prev) => {
-      return [
-        ...prev,
-        {
-          tableId: refs.tableId,
-          flatFileId: refs.table1_uid,
-        },
-      ];
-    });
-    // setfield(field);
-    // setTableName(field.tableName);
-    // setDisplayName(field.displayName);
-    // setUid(field.uid);
-    // setTableId(field.tableId);
-    // setDataType(field.dataType);
-    setFiltersOfDataset((prev) => [...prev, field]);
+    setfield(field);
+    setTableName(field.tableName);
+    setDisplayName(field.displayName);
+    setUid(field.uid);
+    setTableId(field.tableId);
+    setDataType(field.dataType);
+    setDataSetFilterArray((prev: any) => [...prev, field]);
   };
   //   // TODO need to specify type
   const RenderArrows: any = () => {
@@ -158,7 +112,7 @@ const Canvas = ({
           <Xarrow
             start={ar.start}
             end={ar.end}
-            color="#af99db"
+            color={palette.secondary.light}
             strokeWidth={2}
             showHead={ar.showHead}
             showTail={ar.showTail}
@@ -168,55 +122,85 @@ const Canvas = ({
       ))
     );
   };
+
+  console.log("tempTable", tempTable);
+
   return (
     <div className="canvas">
       <div
         className="canvasStyle"
         id="canvasTableArea"
-        style={{ width: !isDataSetVisible ? "100%" : "calc(99% - 198px)" }}
+        // style={{ width: !isDataSetVisible ? "100%" : "calc(99% - 198px)" }}
+        style={{ width: "100%" }}
+
       >
+        {
+          isFlatFile && !dataSetState.tables.length && tempTable.length === 0 ? <span style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            fontSize:fontSize.large,
+          }}>
+            No flatfiles in the current workspace
+          </span> : <></>
+        }
+        {
+          isFlatFile && dataSetState.tables.length > 0 && tempTable.length === 0 ? <span style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            fontSize:fontSize.large,
+          }}>
+            No flatfile is selected
+          </span> : <></>
+        }
+
         <Xwrapper>
+
           {tempTable &&
             tempTable.map((table: tableObjProps) => (
-              <div className="draggable-component" key={table.id}>
-                <CanvasTables tableData={table} />
-              </div>
+              table ? ( // Check if table is not null or undefined
+                <div className="draggable-component" key={table.id}>
+                  <CanvasTables tableData={table} editMode={editMode}/>
+                </div>
+              ) : null
             ))}
         </Xwrapper>
 
-        {isDataSetVisible === false && (
+        {/* {isDataSetVisible === false && (
           <div
             style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
               height: "100vh",
               position: "fixed",
-              right: "0",
-              width: "3rem",
-              borderLeft: "1px solid #d5d6d5",
-              backgroundColor: "white",
+              right: "3%",
             }}
           >
             <button
               title="Open dataset filter"
               style={{
+                backgroundColor: "white",
                 outline: "none",
                 border: "none",
-                margin: "10px auto",
-                position: "relative",
-                backgroundColor: "white",
+                margin: "auto auto",
               }}
-              onClick={() => setIsDataSetVisible(!isDataSetVisible)}
             >
               <img
                 src={filterIcon}
                 style={{
                   height: "1.5rem",
-                  width: "1.5rem",
+                  width: "2rem",
                 }}
-                // className="IconDataset"
+                className="IconDataset"
+                onClick={() => setIsDataSetVisible(!isDataSetVisible)}
                 alt="filter"
               />
             </button>
-            {/* <div
+            <div
               style={{
                 width: "1px",
                 height: "200vh",
@@ -224,7 +208,7 @@ const Canvas = ({
                 position: "absolute",
                 top: "0%",
               }}
-            /> */}
+            />
           </div>
         )}
         <div
@@ -234,9 +218,12 @@ const Canvas = ({
           style={{
             display: isDataSetVisible ? "block" : "none",
             position: "fixed",
+            right:"211px",
+            height: "100vh",
+            borderLeft:"1px solid #d5d6d5",
           }} // Controls visibility
         >
-          <div>
+          <div >
             <div
               style={{
                 display: "flex",
@@ -254,76 +241,50 @@ const Canvas = ({
                 src={filterIcon}
                 style={{
                   height: "1.5rem",
-                  width: "1.5rem",
-                  margin: "5px 0 0 10px",
+                  width: "2rem",
+                  margin: "0 10px",
                 }}
                 alt="filter"
               />
               <span className="axisTitle">Dataset Filter</span>
-              {/* <div> */}
-              <button
-                title="Hide Filter Tab"
-                style={{
-                  backgroundColor: "white",
-                  outline: "none",
-                  border: "none",
-                  padding: "0",
-                  margin: "5px 0 0 0",
-                  position: "relative",
-                  height: "2rem",
-                  width: "2rem",
-                }}
-                onClick={() => setIsDataSetVisible(!isDataSetVisible)}
-              >
-                {/* <ArrowBackRoundedIcon
+              <div>
+                <button
+                  title="minimize"
+                  style={{
+                    backgroundColor: "white",
+                    outline: "none",
+                    border: "none",
+                  }}
+                >
+                  <ArrowBackRoundedIcon
                     style={{
-                      // right: "92%",
+                      right: "92%",
                       top: "0px",
-                      left:"0",
-                      position:"absolute",
-                      width:"100%",
-                      height:"100%",
                       zIndex: "999",
                       transform: "rotate(180deg)",
-                      color:"gray"
                     }}
-                  /> */}
-                <img
-                  src={collapsedSidebar}
-                  alt=""
-                  style={{
-                    // right: "92%",
-                    top: "50%",
-                    left: "50%",
-                    position: "absolute",
-                    width: "1.75rem",
-                    height: "1.75rem",
-                    zIndex: "999",
-                    transform: "translate(-50%, -50%)",
-                    color: "gray",
-                  }}
-                />
-              </button>
-              {/* </div> */}
+                    onClick={() => setIsDataSetVisible(!isDataSetVisible)}
+                  />
+                </button>
+              </div>
             </div>
             <div style={{ position: "absolute", marginTop: "22px" }}>
-              {filtersOfDataset.length > 0 && tempTable.length>0 && (
+              {dataSetFilterArray.length > 0 && (
                 <UserFilterDataset
-                  tableFlatFileMap={tableFlatFileMap}
                   editMode={editMode}
-                  filters={filtersOfDataset}
-                  setDataSetFilterArray={setFiltersOfDataset}
+                  dataSetFilterArray={dataSetFilterArray}
+                  setDataSetFilterArray={setDataSetFilterArray}
                   dbConnectionId={tempTable[0].dcId}
                 />
               )}
             </div>
           </div>
-        </div>
+        </div> */}
 
         <RenderArrows />
       </div>
       <BottomBar
-        datasetFilterArray={filtersOfDataset}
+        datasetFilterArray={dataSetFilterArray}
         editMode={editMode ? editMode : false}
       />
 
@@ -336,15 +297,6 @@ const Canvas = ({
         setExistingArrow={setExistingArrow}
         setExistingArrowProp={setExistingArrowProp}
       />
-      <NotificationDialog
-        onCloseAlert={() => {
-          setOpenAlert(false);
-          setTestMessage("");
-        }}
-        openAlert={openAlert}
-        severity={severity}
-        testMessage={testMessage}
-      />
     </div>
   );
 };
@@ -355,6 +307,7 @@ const mapStateToProps = (
 ) => {
   return {
     tempTable: state.dataSetState.tempTable,
+    dataSetState: state.dataSetState,
     arrows: state.dataSetState.arrows,
     dsId: state.dataSetState.dsId,
     token: state.isLogged.accessToken,

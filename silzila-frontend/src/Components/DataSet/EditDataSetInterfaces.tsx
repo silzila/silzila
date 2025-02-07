@@ -34,7 +34,3 @@ export interface CanvasIndividualTableProps {
 	tablePositionX: number;
 	tablePositionY: number;
 }
-export interface IFlatIdTableIdMap{
-	tableId:string,
-	flatFileId:string
-}
