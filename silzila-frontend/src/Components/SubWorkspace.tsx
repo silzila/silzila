@@ -1851,7 +1851,6 @@ const SubWorkspace = () => {
                                       />
                                     </Tooltip>
                                   </button>
-
                             </div>
                         </td>
                       </tr>

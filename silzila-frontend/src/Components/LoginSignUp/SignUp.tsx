@@ -214,7 +214,7 @@ const SignUp = () => {
         testMessage={testMessage}
         onCloseAlert={() => {
           if (severity === "success")
-            window.location.href = "/login";
+          navigate("/login");
           setOpenAlert(false);
           setTestMessage("");
         }}

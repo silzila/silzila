@@ -492,6 +492,7 @@ const RelationshipDefiningComponent = ({
                 justifyContent: "center",
                 paddingBottom: "1rem",
                 marginTop: "2rem",
+                gap:'0.5rem'
               }}
             >
               {existingArrowProp ? (

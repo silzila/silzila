@@ -2,9 +2,9 @@
 // Tables can be given a friendly name by the user
 // These tables are draggable
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Draggable from "react-draggable";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { useXarrow } from "react-xarrows";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CanvasTableColumns from "./CanvasTableColumns";
@@ -32,10 +32,15 @@ import { CanvasTablesProps, RelationObjProps } from "./CanvasTablesIntefaces";
 import { newArrowObj } from "./CanvasInterfaces";
 import { ColumnsWithUid } from "./DatasetInterfaces";
 import { AlertColor } from "@mui/material/Alert";
+import { fontSize } from "../..";
+import { permissions, roles } from "../CommonFunctions/aliases";
+import { TContentDetails } from "./types";
+import { RootState } from "../../redux";
 
 const CanvasTables = ({
   // props
   tableData,
+  editMode=false,
 
   // state
   // dataSetState,
@@ -44,6 +49,7 @@ const CanvasTables = ({
   relationships,
   tables,
   views,
+  dsId,
 
   // dispatch
   addNewRelationship,
@@ -66,14 +72,28 @@ const CanvasTables = ({
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [severity, setseverity] = useState<AlertColor>("success");
   const [testMessage, setTestMessage] = useState<string>("");
-
+   const [viewerRestriction,setViewerRestriction]=useState<boolean>(false);
+  // const [startPosition, setStartPosition] = useState({ x, y });
   const [x, setX] = useState<number | any>(
     tableData.tablePositionX ? tableData.tablePositionX : 0
   );
   const [y, setY] = useState<number | any>(
     tableData.tablePositionY ? tableData.tablePositionY : 0
   );
-
+  // const {workspaceContents,SubWorkspaceContents}=useSelector((state: RootState) => state.permissions)
+    const permission=useSelector((state:RootState)=>state.dataSetState.permission);
+    useEffect(() => {
+      if(!editMode||!dsId)return;
+  
+      // const allContents=[...workspaceContents,...SubWorkspaceContents];
+      // const selectedDs=allContents.find((item:any)=>item.id===dsId);
+      // if(!selectedDs)return;
+      // if(selectedDs.levelId===permissions.view)setViewerRestriction(true);
+      // else if(selectedDs.roleName===roles.CustomCreator && selectedDs.levelId===permissions.view)setViewerRestriction(true);
+      if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)setViewerRestriction(true);
+      // else if(permission.roleName===roles.CustomCreator && permission.levelId===permissions.view)setViewerRestriction(true);
+      else setViewerRestriction(false);   
+    },[dsId, editMode, permission]);
   var uid = new ShortUniqueId({ length: 8 });
 
   // when a new arrow is created,check if there is alerady a relation between the two tables of this new arrow
@@ -100,6 +120,7 @@ const CanvasTables = ({
       relationships.forEach((rel: RelationshipsProps, i: number) => {
         // check if the relationship already exist by checking
         // if the start table and end table matches between the new arrow and existing realtionships
+
         if (
           rel.startId === newArrowObj.startId &&
           rel.endId === newArrowObj.endId
@@ -220,7 +241,7 @@ const CanvasTables = ({
   // Focusing the input text field during rename of table
   const selectText = () => {
     var input: any = document.getElementById("name");
-    input.select();
+    input?.select();
   };
 
   // When changing name of a table, make sure that it is not empty
@@ -253,9 +274,9 @@ const CanvasTables = ({
     // Check if newName is not empty and not just spaces
     if (newName.length > 0 && newName.length !== spaceCount) {
       // Check if the newName already exists in tempTable
-      const previousTableName = tempTable.find((tab: any) =>
-        tab.table_uid === tableId ? tab.tableName : ""
-      );
+      const previousTableInfo = tempTable.find((tab: any) => tab.table_uid === tableId);
+      // const previousTableName = previousTable ? previousTable.tableName : "";
+      // console.log("previousTableName", previousTableName);
       const isDuplicate = tempTable.some(
         (tab: tableObjProps) =>
           tab.alias === newName && tab.table_uid !== tableId
@@ -266,46 +287,49 @@ const CanvasTables = ({
         setseverity("error");
         setTestMessage("Table name already exists");
       } else {
-        const newTable = tempTable.map((tab: tableObjProps) => {
+        const newTempTables = tempTable.map((tab: tableObjProps) => {
           if (tab.table_uid === tableId) {
-            return { ...tab, alias: newName, tableName: newName };
+            return { ...tab, alias: newName };
           }
           return tab;
         });
         //change relationship name
         //find relation ship array which is related to
         const findRelation = arrows.filter((item: ArrowsProps) => {
-          if (
-            item.startTableName === previousTableName?.alias ||
-            item.endTableName === previousTableName?.alias
-          ) {
-            return item;
-          } else {
-            return null;
-          }
+          return (
+            item.startTableName === previousTableInfo?.alias ||
+            item.endTableName === previousTableInfo?.alias
+          );
         });
+        const clonedRelations = findRelation.map(item => ({
+          ...item,
+        }));
         //update name in relationship arrow
-        if (findRelation.length > 0) {
-          findRelation.forEach((item: ArrowsProps) => {
+        if (clonedRelations.length > 0) {
+          clonedRelations.forEach((item: ArrowsProps) => {
             let updated = false;
-            if (item.startTableName === previousTableName?.alias) {
+        
+            if (item.startTableName === previousTableInfo?.alias) {
+              // console.log('inside if start');
               item.startTableName = newName;
               item.table1_uid = newName;
               updated = true;
             }
-
-            if (item.endTableName === previousTableName?.alias) {
+        
+            if (item.endTableName === previousTableInfo?.alias) {
+              // console.log('inside if end');
               item.endTableName = newName;
               item.table2_uid = newName;
               updated = true;
+              // console.log('change update value');
             }
-
+        
             if (updated) {
-              updateRelationship(item.relationId, item);
+              updateRelationship(item.relationId, item); // Ensure this updates your global state immutably
             }
           });
         }
-        setTempTables(newTable);
+        setTempTables(newTempTables,'canvasTables line 309');
         setNewName("");
         setInputField(false);
       }
@@ -320,6 +344,7 @@ const CanvasTables = ({
       // }, 4000);
     }
   };
+
   return (
     <div>
       <Draggable
@@ -330,32 +355,40 @@ const CanvasTables = ({
           x: tableData.tablePositionX ? tableData.tablePositionX : x,
           y: tableData.tablePositionY ? tableData.tablePositionY : y,
         }}
+        onStart={() => {
+          setX(dragRef.current.state.x);
+          setY(dragRef.current.state.y);
+        }}
         onDrag={() => {
           updateXarrow();
           setX(dragRef.current.state.x);
           setY(dragRef.current.state.y);
         }}
         onStop={() => {
-          const newTable: tableObjProps[] = [...tempTable].map(
-            (tab: tableObjProps) => {
-              if (tab.table_uid === tableData.table_uid) {
-                tableData.tablePositionX = x;
-                tableData.tablePositionY = y;
+          const hasMoved = x !== dragRef.current.state.x || y !== dragRef.current.state.y;
+          if(hasMoved){
+            const newTable: tableObjProps[] = [...tempTable].map(
+              (tab: tableObjProps) => {
+                if (tab.table_uid === tableData.table_uid) {
+                  tableData.tablePositionX = x;
+                  tableData.tablePositionY = y;
+                }
+                return tab;
               }
-              return tab;
-            }
-          );
-          setTempTables(newTable);
-
-          updateXarrow();
+            );
+            setTempTables(newTable,'canvasTables line 350');
+  
+            updateXarrow();
+          }
         }}
       >
-        <div className="draggableBox" ref={dragRef}>
+        <div className="draggableBox" ref={dragRef} style={{maxWidth:'150px'}}>
           <div
             className="draggableBoxTitle"
             id={tableData.tableName}
             title={`${tableData.tableName} (${tableData.schema})`}
             onDoubleClick={() => {
+              if(viewerRestriction)return;
               setInputField(true);
               setNewName(tableData.alias);
               selectText();
@@ -365,6 +398,7 @@ const CanvasTables = ({
               <div
                 style={{
                   display: "flex",
+                  flexDirection: "column",
                   padding: "0px 5px 0px 5px",
                   width: "auto",
                 }}
@@ -374,30 +408,61 @@ const CanvasTables = ({
                   variant="standard"
                   id="name"
                   value={newName}
+                  InputProps={{
+                    style: {
+                      fontSize: "12px",
+                      color: "white",
+                      borderBottom: "1px solid white",
+                    },
+                  }}
+                  sx={{
+                    "& .MuiInputBase-root:before": {
+                      display: "none",
+                    },
+                  }}
                   onChange={(e) => {
                     e.preventDefault();
                     setNewName(e.target.value);
                   }}
                 />
-                <Button
-                  sx={{ fontSize: "12px" }}
-                  onClick={() => changeTableName(tableData.table_uid)}
-                >
-                  ok
-                </Button>
-                <Button
-                  sx={{ fontSize: "12px" }}
-                  onClick={() => {
-                    setInputField(false);
-                    setNewName("");
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row-reverse",
+                    columnGap: "5px",
+                    marginTop: "0.5rem",
                   }}
                 >
-                  cancel
-                </Button>
+                  <Button
+                    sx={{
+                      fontSize: "12px",
+                      color: "white",
+                      border: "1px solid white",
+                      paddingBlock:'0.2rem'
+                    }}
+                    onClick={() => changeTableName(tableData.table_uid)}
+                  >
+                    OK
+                  </Button>
+                  <Button
+                    sx={{
+                      fontSize: "12px",
+                      color: "white",
+                      border: "1px solid white",
+                      paddingBlock:'0.2rem'
+                    }}
+                    onClick={() => {
+                      setInputField(false);
+                      setNewName("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
               </div>
             ) : (
-              <>
-                <div style={{ flex: 1 }}>{tableData.alias}</div>
+              <div style={{ display: "flex" ,paddingInline:'0.5rem',justifyContent:'space-between',alignItems:'center',width:'100%'}}>
+                <p style={{ width:'90%',margin:0,fontSize:fontSize.medium}} className="ellipsis">{tableData.alias}</p>
                 <div style={{ cursor: "pointer" }}>
                   <MoreVertIcon
                     style={{ float: "right" }}
@@ -408,12 +473,11 @@ const CanvasTables = ({
                     }}
                   />
                 </div>
-              </>
+              </div>
             )}
           </div>
 
           {tableData.columns.map((item: ColumnsWithUid, index: number) => {
-
             return (
               <CanvasTableColumns
                 key={item.uid}
@@ -427,7 +491,7 @@ const CanvasTables = ({
                 schema={tableData.schema}
                 checkRelationExists={checkRelationExists}
                 table_Id={tableData.id}
-                tableHasCustomQuery={tableData.isCustomQuery}
+                disableDrag={viewerRestriction}
               />
             );
           })}
@@ -455,6 +519,7 @@ const CanvasTables = ({
         selectAction={selectAction}
         anchorEl={anchorEl}
         tableData={tableData}
+        disabled={viewerRestriction}
       />
     </div>
   );
@@ -467,6 +532,7 @@ const mapStateToProps = (state: DataSetStateProps, ownProps: any) => {
     relationships: state.dataSetState.relationships,
     tables: state.dataSetState.tables,
     views: state.dataSetState.views,
+    dsId: state.dataSetState.dsId,
   };
 };
 
@@ -480,7 +546,9 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
       tables: UserTableProps[],
       tableId: string
     ) => dispatch(actionsOnRemoveTable(tempTable, tables, tableId)),
-    setTempTables: (table: tableObjProps[]) => dispatch(setTempTables(table)),
+    setTempTables: (table: tableObjProps[],calledFrm?:string) => {
+      dispatch(setTempTables(table));
+    },
     updateRelationship: (relationId: any, relation: any) =>
       dispatch(updateRelationship(relationId, relation)),
   };

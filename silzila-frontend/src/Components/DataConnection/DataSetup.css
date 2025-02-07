@@ -170,7 +170,7 @@ Data Connections
 	display: flex;
 	align-items: center;
 	text-align: left;
-	column-gap: 34px;
+	column-gap: 0.5rem;
   padding-left: 8px;
 	border: 1px solid transparent;
 	border-radius: 4px;
@@ -185,11 +185,11 @@ Data Connections
 	display: flex;
 	align-items: center;
 	text-align: left;
-	column-gap: 34px;
+	column-gap: 0.5rem;
   padding-left: 8px;
 	border: 1px solid transparent;
 	border-radius: 4px;
-	margin-bottom: 10px;
+	margin-bottom: 0.5rem;
 	cursor: pointer;
 	width: 200px;
 	height: 45px;
@@ -207,10 +207,10 @@ Data Connections
 	display: flex;
 	align-items: center;
 	text-align: left;
-	column-gap: 34px;
+	column-gap:0.5rem;
   padding-left: 8px;
 	cursor: pointer;
-	margin-bottom: 10px;
+	margin-bottom: 0.5rem;
 	border: 1px solid #af99db;
 	border-radius: 4px;
 	height: 45px;
@@ -326,9 +326,6 @@ input:-webkit-autofill {
   transition: background-color 5000s ease-in-out 0s; 
 }
 
-
-
-
 /* 
 ===================================================
 Datasets
@@ -352,6 +349,7 @@ Datasets
   /* overflow-x: hidden; */
 }
 
+
 .selectBar {
   border-radius: 5px;
   background-color: white;
@@ -374,8 +372,8 @@ Datasets
 .tableListStyle {
   display: flex;
   flex-direction: row;
-  width: 98%;
-  margin: 2px;
+  width: 100%;
+  margin-top: 5px;
   padding: 2px;
   font-size: 14px;
 }
@@ -605,27 +603,6 @@ DataHome
   margin: 0%;
   padding: 1px 0px 0px 0;
 }
-
-.filter_dataset {
-  border: 2px solid rgba(224, 224, 224, 1);
-  text-align: center;
-  position: fixed;
-  display: flex;
-  padding-top: 0px;
-  height: 87%;
-  width: 211px;
-  top: 5.7%;
-  background-color: white;
-  right: 0%;
-  /* overflow: auto; */
-  overflow-x: hidden;
-  overflow-y: auto;
-  z-index: 90;
-  border-right: none;
-}
-.RightSidbar {
-  position: absolute;
-}
 @media only screen and (max-width: 860px) {
   .dataHomeItemsContainer {
     grid-template-columns: 1fr;
@@ -686,9 +663,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 34%;
+   /* column-gap: 34%;
     padding-left: 18.2%;
-    padding-right: 34.1%;
+    padding-right: 34.1%;*/
   }
 }
 
@@ -702,9 +679,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 32%;
+  /*  column-gap: 32%;
     padding-left: 17.9%;
-    padding-right: 34.1%;
+    padding-right: 34.1%; */
   }
 }
 
@@ -718,9 +695,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 29.9%;
+  /*  column-gap: 29.9%;
     padding-left: 17.4%;
-    padding-right: 33.9%;
+    padding-right: 33.9%;*/
   }
 }
 
@@ -734,9 +711,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 28%;
+   /* column-gap: 28%;
     padding-left: 17.1%;
-    padding-right: 33.9%;
+    padding-right: 33.9%;*/
   }
 }
 
@@ -750,9 +727,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 28%;
+    /*column-gap: 28%;
     padding-left: 17%;
-    padding-right: 34.1%;
+    padding-right: 34.1%;*/
   }
 }
 
@@ -766,9 +743,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 27.8%;
+ /*   column-gap: 27.8%;
     padding-left: 16.9%;
-    padding-right: 34.1%;
+    padding-right: 34.1%; */
   }
 }
 
@@ -785,9 +762,9 @@ DataHome
     column-gap: 27.8%;
     padding-left: 16.9%;
     padding-right: 34.1%;
-    column-gap: 12%;
+  column-gap: 12%;
     padding-left: 12.4%;
-    padding-right: 34.1%;
+    padding-right: 34.1%; 
   }
 }
 
@@ -815,9 +792,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 20%;
+   column-gap: 20%;
     padding-left: 15.4%;
-    padding-right: 38.9%;
+    padding-right: 38.9%; 
   }
 }
 
@@ -845,9 +822,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 31.8%;
+   column-gap: 31.8%;
     padding-left: 18.5%;
-    padding-right: 38.9%;
+    padding-right: 38.9%; 
   }
 }
 
@@ -875,9 +852,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 44%;
+  /*  column-gap: 44%;
     padding-left: 21.6%;
-    padding-right: 38.9%;
+    padding-right: 38.9%; */
   }
 }
 
@@ -905,9 +882,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 50.8%;
+   /* column-gap: 50.8%;
     padding-left: 22.4%;
-    padding-right: 39.1%;
+    padding-right: 39.1%; */
   }
 }
 
@@ -935,9 +912,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 55%;
+  /*  column-gap: 55%;
     padding-left: 23%;
-    padding-right: 39.1%;
+    padding-right: 39.1%; */
   }
 }
 
@@ -965,9 +942,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 59%;
+   /* column-gap: 59%;
     padding-left: 23.5%;
-    padding-right: 39.1%;
+    padding-right: 39.1%; */
   }
 }
 
@@ -995,9 +972,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 60.6%;
+  /*  column-gap: 60.6%;
     padding-left: 23.6%;
-    padding-right: 39.1%;
+    padding-right: 39.1%; */
   }
 }
 
@@ -1025,9 +1002,9 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 66.8%;
+  /*  column-gap: 66.8%;
     padding-left: 24.6%;
-    padding-right: 39.8%;
+    padding-right: 39.8%; */
   }
 }
 
@@ -1055,8 +1032,8 @@ DataHome
     background: rgb(255, 255, 255); /* Fully opaque background color */
     border-top: 2px solid rgba(224, 224, 224, 1);
     display: flex;
-    column-gap: 60%;
+  /*  column-gap: 60%;
     padding-left: 23.4%;
-    padding-right: 38.4%;
+    padding-right: 38.4%;*/
   }
 }
