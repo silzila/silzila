@@ -2,24 +2,11 @@ import React from "react";
 import { Divider, Menu, MenuItem, Radio, Tooltip } from "@mui/material";
 
 const MenuOption = ({ uid, open, anchorEl, onClose, filterFieldData }: any) => {
-  function toCamelCase(str:string) {
-    return str
-      .toLowerCase()
-      .split(/[\s-_]+/) // Split the string by spaces, dashes, or underscores
-      .map((word:string, index:number) => {
-        if (index === 0) {
-          return word; // Leave the first word in lowercase
-        }
-        return word.charAt(0).toUpperCase() + word.slice(1); // Capitalize the first letter of the rest
-      })
-      .join(''); // Join the words back into a single string
-  }  
   const options = ["Include", "Exclude"];
   let options2 = ["Pick List", "Search Condition"];
-
   if (
-    filterFieldData.current.dataType === "timestamp" ||
-    filterFieldData.current.dataType === "date"
+    filterFieldData.dataType === "timestamp" ||
+    filterFieldData.dataType === "date"
   ) {
     options2 = ["Pick List", "Search Condition", "Relative Filter"];
   }
@@ -35,14 +22,14 @@ const MenuOption = ({ uid, open, anchorEl, onClose, filterFieldData }: any) => {
       {options2.map((opt2, index) => (
         <div
           style={{ display: "flex" }}
-          onClick={() => onClose("opt2", toCamelCase(opt2), uid)}
+          onClick={() => onClose("opt2", opt2, uid)}
           key={index}
         >
           <Tooltip
-            title={toCamelCase(opt2) === filterFieldData.current.filterType ? "Selected" : null}
+            title={opt2 === filterFieldData.fieldtypeoption ? "Selected" : null}
           >
             <Radio
-              checked={toCamelCase(opt2) === filterFieldData.current.filterType}
+              checked={opt2 === filterFieldData.fieldtypeoption}
               sx={{
                 "& .MuiSvgIcon-root": {
                   fontSize: "12px",
@@ -77,17 +64,17 @@ const MenuOption = ({ uid, open, anchorEl, onClose, filterFieldData }: any) => {
           key={index}
         >
           <Tooltip
-            title={(opt==="Exclude" &&filterFieldData.current.shouldExclude) ||(opt==="Include" &&!filterFieldData.current.shouldExclude) ? "Selected" : null}
+            title={opt === filterFieldData.includeexclude ? "Selected" : null}
           >
             <Radio
-              checked={(opt==="Exclude" &&filterFieldData.current.shouldExclude) ||(opt==="Include" &&!filterFieldData.current.shouldExclude) }
+              checked={opt === filterFieldData.includeexclude}
               disabled={
                 opt === "Exclude" &&
-                filterFieldData.current.filterType === "Relative Filter"
+                filterFieldData.fieldtypeoption === "Relative Filter"
               }
               sx={
-                filterFieldData.current.shouldExclude &&
-                opt === "Exclude"
+                filterFieldData.includeexclude === "Exclude" &&
+                opt === filterFieldData.includeexclude
                   ? {
                       "& .MuiSvgIcon-root": {
                         fontSize: "12px",
@@ -112,7 +99,7 @@ const MenuOption = ({ uid, open, anchorEl, onClose, filterFieldData }: any) => {
           <MenuItem
             disabled={
               opt === "Exclude" &&
-              filterFieldData.current.filterType === "Relative Filter"
+              filterFieldData.fieldtypeoption === "Relative Filter"
             }
             sx={{
               fontSize: "12px",

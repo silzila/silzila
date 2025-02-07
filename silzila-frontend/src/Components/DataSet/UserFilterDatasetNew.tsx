@@ -52,6 +52,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import style from "react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark";
 import { color } from "echarts";
+import { fontSize, palette } from "../..";
 
 const UserFilterCardNew = ({
   field,
@@ -506,19 +507,10 @@ const UserFilterCardNew = ({
                           : false
                         : false
                       : false
-                  }
-                  // indeterminate={
-                  // 	filterFieldData.userSelection
-                  // 		? filterFieldData.includeexclude === "Exclude"
-                  // 			? filterFieldData.userSelection.includes(item)
-                  // 				? true
-                  // 				: false
-                  // 			: false
-                  // 		: false
-                  // }
+                  }                 
                   name={item}
                   style={{
-                    transform: "scale(0.6)",
+                    transform: "scale(0.8)",
                     // marginLeft: "10px",
                     paddingRight: "0px",
                   }}
@@ -551,7 +543,7 @@ const UserFilterCardNew = ({
                   // }
                   name={item}
                   style={{
-                    transform: "scale(0.6)",
+                    transform: "scale(0.8)",
                     paddingRight: "0px",
                   }}
                   sx={{
@@ -574,7 +566,7 @@ const UserFilterCardNew = ({
                   filterFieldData.userSelection.includes(item)
                     ? {
                         marginLeft: 0,
-                        marginTop: "3.5px",
+                        // marginTop: "3.5px",
                         justifySelf: "center",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
@@ -583,7 +575,7 @@ const UserFilterCardNew = ({
                       }
                     : {
                         marginLeft: 0,
-                        marginTop: "3.5px",
+                        // marginTop: "3.5px",
                         justifySelf: "center",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
@@ -642,9 +634,12 @@ const UserFilterCardNew = ({
                 "date"
               )
             }
-            renderInput={(params) => (
+            
+            slots={{
+              textField: (params: any) => (
               <TextField {...params} className="customDatePickerHeight" />
-            )}
+              ),
+            }}
           />
         </LocalizationProvider>
         {filterFieldData.isInValidData ? (
@@ -1544,7 +1539,8 @@ const UserFilterCardNew = ({
             onChange={(e) =>
               handleCustomRequiredValueOnBlur(e, "greaterThanOrEqualTo", "date")
             }
-            renderInput={(params) => (
+            slots={{
+              textField: (params: any) => (
               <TextField
                 {...params}
                 sx={
@@ -1568,7 +1564,8 @@ const UserFilterCardNew = ({
                 }}
                 className="customDatePickerHeight"
               />
-            )}
+            )
+            }}
           />
         </LocalizationProvider>
 
@@ -1578,7 +1575,8 @@ const UserFilterCardNew = ({
             onChange={(e) =>
               handleCustomRequiredValueOnBlur(e, "lessThanOrEqualTo", "date")
             }
-            renderInput={(params) => (
+            slots={{
+              textField: (params: any) => (
               <TextField
                 {...params}
                 sx={
@@ -1598,7 +1596,8 @@ const UserFilterCardNew = ({
                 }}
                 className="customDatePickerHeight"
               />
-            )}
+            )
+            }}
           />
         </LocalizationProvider>
         {filterFieldData.isInValidData ? (
@@ -1649,7 +1648,8 @@ const UserFilterCardNew = ({
                       onChange={(e) =>
                         handleCustomRequiredValueOnBlur(e, "exprInput", "date")
                       }
-                      renderInput={(params) => (
+                      slots={{
+                        textField: (params: any) => (
                         <TextField
                           {...params}
                           sx={
@@ -1672,7 +1672,8 @@ const UserFilterCardNew = ({
                           }}
                           className="customDatePickerHeight"
                         />
-                      )}
+                      )
+                      }}
                     />
                   </LocalizationProvider>
                   {filterFieldData.isInValidData ? (
@@ -1732,8 +1733,9 @@ const UserFilterCardNew = ({
                     width: "auto",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    fontSize: "12px",
+                    fontSize: fontSize.medium,
                     lineHeight: "20px",
+                    color: palette.primary.contrastText
                   }}
                 >
                   {item.value}
@@ -1770,7 +1772,8 @@ const UserFilterCardNew = ({
                     width: "auto",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    fontSize: "12px",
+                    fontSize: fontSize.medium,
+                    color: palette.primary.contrastText
                   }}
                 >
                   {item.value}

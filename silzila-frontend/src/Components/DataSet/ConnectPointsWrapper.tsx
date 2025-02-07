@@ -29,6 +29,7 @@ interface ConnectPointsWrapperProps {
 	table_uid: string;
 	schema: string;
 	table_Id: string;
+	disableDrag: boolean;
 }
 
 const ConnectPointsWrapper = ({
@@ -42,6 +43,7 @@ const ConnectPointsWrapper = ({
 	table_uid,
 	schema,
 	table_Id,
+	disableDrag,
 }: ConnectPointsWrapperProps) => {
 	// TODO: need to specify type
 	const ref1 = useRef<any>(null);
@@ -56,7 +58,7 @@ const ConnectPointsWrapper = ({
 				position: "absolute",
 				width: 10,
 				height: 10,
-				cursor: "pointer",
+				cursor:disableDrag?'default':'move',
 				borderRadius: "50%",
 				// ...connectPointStyle,
 				left: "100%",
@@ -65,7 +67,7 @@ const ConnectPointsWrapper = ({
 				// ...connectPointOffset["right"],
 				...position,
 			}}
-			draggable
+			draggable={!disableDrag}
 			onDragStart={e => {
 				setBeingDragged(true);
 

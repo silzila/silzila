@@ -32,6 +32,8 @@ import { removeArrows } from "../../redux/DataSet/datasetActions";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux";
 import { RelationObjProps } from "./CanvasTablesIntefaces";
+import { useLocation, useNavigate } from "react-router-dom";
+
 
 interface savedData {
   id: any;
@@ -89,6 +91,11 @@ function CustomQueryResult({
     setTableData([]);
   };
 
+  const location = useLocation();
+  const state	= location.state;
+  const navigate = useNavigate();
+  
+
   const dispatch = useDispatch();
   const [savedData, setsavedData] = useState<savedData>({
     id: 0,
@@ -118,10 +125,16 @@ function CustomQueryResult({
     return updatedData;
   }
 
+  useEffect(() => {
+    if(!state){
+      navigate("/")
+    }
+  }, [state, navigate])
+
   //add columns into canvas by fetching the query from server
   const OpentableColumnsCustomquery = async (data: any) => {
     try {
-      const url = `metadata-columns-customquery/${connectionValue}`;
+      const url = `metadata-columns-customquery/${connectionValue}?workspaceId=${state?.parentId}`;
       const res: any = await FetchData({
         requestType: "withData",
         method: "POST",
