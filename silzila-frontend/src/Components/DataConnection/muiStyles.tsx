@@ -169,12 +169,12 @@ export const useStyles: any = makeStyles((theme: any) =>
 );
 
 export const flatfilenamefield = {
-	height: "40px",
-	padding: "0px 10px",
-	fontSize: "20px",
-	fontWeight: "bold",
+  height: "40px",
+  padding: "0px 10px",
+  fontSize: "1rem",
+  fontWeight: "bold",
 
-	color: "rgba(0, 0, 0, 0.6)",
+  color: "#484848",
 };
 
 export const infoIconStyle = {
