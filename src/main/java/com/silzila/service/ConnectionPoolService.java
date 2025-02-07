@@ -942,21 +942,7 @@ public class ConnectionPoolService {
         if (datasetId != null) {
             // getting dataset information to fetch filter panel information
             DatasetDTO ds = loadDatasetInBuffer(workspaceId, databaseId, datasetId, userId);
-            List<FilterPanel> filterPanels = new ArrayList<>();
-            String tableId = "";
-
-            String whereClause = ds.getDataSchema().getFilterPanels().isEmpty() ? ""
-                    : WhereClause.buildWhereClause(ds.getDataSchema().getFilterPanels(), vendorName,ds);
-            // iterating to filter panel list to get the particular filter panel for the
-            // table
-            for (int i = 0; i < ds.getDataSchema().getFilterPanels().size(); i++) {
-                if (ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableName()
-                        .equalsIgnoreCase(tableName)) {
-                    filterPanels.add(ds.getDataSchema().getFilterPanels().get(i));
-                    tableId = ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableId();
-                }
-
-            }
+            List<FilterPanel> datasetFilterPanels = ds.getDataSchema().getFilterPanels();
 
             // set fall back record count
             if (recordCount == null || recordCount > 250) {
@@ -964,16 +950,18 @@ public class ConnectionPoolService {
             }
 
             // generating fromclause
-            List<String> allColumnList = (calculatedFieldRequests != null)
-                    ? ColumnListFromClause.getColumnListFromListOfFieldRequests(calculatedFieldRequests)
-                    : new ArrayList<>();
-            if (!allColumnList.contains(tblId)) {
-                allColumnList.add(tblId);
-            }
+            List<String> allColumnList = ColumnListFromClause.getColumnListFromCalculatedFieldAndFilterPanels(calculatedFieldRequests,datasetFilterPanels, tblId);
+
 
             String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList, ds.getDataSchema(),
                     vendorName);
 
+            // generating  where clause ( if dataaset filters presents)
+            String whereClause = "";
+            if(!datasetFilterPanels.isEmpty()){
+                whereClause = WhereClause.buildWhereClause(datasetFilterPanels, vendorName,ds);
+            }
+            // generating calculatedField
             StringBuilder calculatedField = new StringBuilder();
 
             if(calculatedFieldRequests!=null){
@@ -986,7 +974,7 @@ public class ConnectionPoolService {
             if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
                 // schema name is must for postgres & redshift
                 // construct query
-                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT DISTINCT "+ tblId +".* " + calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             }
 
             // for BIGQUERY DB

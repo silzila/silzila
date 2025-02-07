@@ -26,14 +26,16 @@ public class FilterQueryPostgres {
         if (table == null) {
             fromClause = " FROM " + req.getSchemaName() + "." + req.getTableName() + " AS " + req.getTableId()+" ";
         }
-        else{
-        if(!table.isCustomQuery()) {
-            fromClause = " FROM " + table.getSchema() + "." + table.getTable() + " AS " +table.getId()+" ";
-        }else{
-            fromClause= " FROM (" + table.getCustomQuery() + ") AS "+ table.getId()+" ";
+        else if(req.getIsCalculatedField()){
+            fromClause =" FROM " + req.getFromClause() + " ";
         }
+        else {
+            if (!table.isCustomQuery()) {
+                fromClause = " FROM " + req.getFromClause() + " ";
+            } else {
+                fromClause = " FROM (" + table.getCustomQuery() + ") AS " + table.getId() + " ";
+            }
         }
-
         if (List.of("TEXT", "BOOLEAN").contains(req.getDataType().name())) {
             query = "SELECT DISTINCT " + req.getTableId()+ "."  + req.getFieldName() + fromClause + "ORDER BY 1";
         }

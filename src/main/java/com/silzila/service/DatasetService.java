@@ -611,8 +611,7 @@ public class DatasetService {
     }
 
     // Populate filter Options
-    public Object filterOptions(String userId, String dBConnectionId, String datasetId, String workspaceId,
-            ColumnFilter columnFilter)
+    public Object  filterOptions(String userId,String tenantId, String dBConnectionId, String datasetId, String workspaceId,ColumnFilter columnFilter)
             throws RecordNotFoundException, SQLException, JsonProcessingException,
             BadRequestException, ClassNotFoundException {
         // checking for datasetId to perform filter options for dataset filter

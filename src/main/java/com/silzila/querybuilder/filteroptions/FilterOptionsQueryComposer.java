@@ -3,6 +3,8 @@ package com.silzila.querybuilder.filteroptions;
 import java.util.List;
 import java.util.Objects;
 
+import com.silzila.payload.request.CalculatedFieldRequest;
+import com.silzila.payload.request.FilterPanel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,25 +51,27 @@ public class FilterOptionsQueryComposer {
                 }
                 if (Objects.isNull(table)) {
                     throw new BadRequestException("Error: RequestedFiter Column is not available in Dataset!");
-                }  
+                }
+                List<FilterPanel> datasetFilterPanels = ds.getDataSchema().getFilterPanels();
 
-            if(cf.getIsCalculatedField()){
+                List<List<CalculatedFieldRequest>> calcualtedFieldRequests = null;
 
-                String selectField = CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds, cf.getCalculatedField());
+                if(cf.getIsCalculatedField()){
+                    String selectField = CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds, cf.getCalculatedField());
+                    calcualtedFieldRequests = List.of(cf.getCalculatedField());
+                    cf.setFieldName(selectField);
 
-                List<String> allColumnList = ColumnListFromClause.getColumnListFromFieldsRequest(cf.getCalculatedField());
+                }
+
+                if(!datasetFilterPanels.isEmpty()){
+                    String datasetFilterWhereClause = WhereClause.buildWhereClause(datasetFilterPanels, vendorName, ds);
+                    cf.setWhereClause(datasetFilterWhereClause);
+                }
+                List<String> allColumnList = ColumnListFromClause.getColumnListFromCalculatedFieldAndFilterPanels(calcualtedFieldRequests,ds.getDataSchema().getFilterPanels(), cf.getTableId());
 
                 String fromClause = ((!allColumnList.isEmpty()&&allColumnList.size()!=0))?RelationshipClauseGeneric.buildRelationship(allColumnList, ds.getDataSchema(),vendorName):"";
 
-                cf.setFieldName(selectField);
-                cf.setTableId(fromClause);
-
-            }
-
-            if(!ds.getDataSchema().getFilterPanels().isEmpty()){
-                String datasetFilterWhereClause = WhereClause.buildWhereClause(ds.getDataSchema().getFilterPanels(), vendorName, ds);
-                cf.setWhereClause(datasetFilterWhereClause);
-            }
+                cf.setFromClause(fromClause);
         }
 
             if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
