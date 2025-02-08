@@ -515,7 +515,7 @@ const MenuBar = ({
 						className="menuHomeIcon"
 						onClick={() => {
 							resetFlatFileState();
-							navigate("/dataHome");
+							navigate("/workspace");
 						}}
 					>
 						<HomeRounded sx={{ color: "#2bb9bb", fontSize: "1.7rem" }} />

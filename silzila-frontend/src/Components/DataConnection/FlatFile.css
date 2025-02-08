@@ -148,7 +148,7 @@ background-color: rgba(224, 224, 224, 1);
 .select-container{
   display: flex;
   justify-content: center;
-  padding-top: 20rem;
+  /* padding-top: 20rem; */
   width: 100%;
   color: #B4B4B3;
   font-size: 20px;
