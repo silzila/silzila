@@ -135,4 +135,21 @@ public class FileDataController {
 
     }
 
+    @PostMapping("/file-upload-excel-sheetname")
+    public ResponseEntity<?> allSheets(@RequestParam("file") MultipartFile file,
+    @RequestHeader Map<String, String> reqHeader)throws BadRequestException {
+        String userId = reqHeader.get("username");
+        return ResponseEntity.status(HttpStatus.OK).body(fileDataService.getAllSheetNames(file,userId));
+    }
+
+    @PostMapping("/file-upload-excel")
+    public ResponseEntity<?> fileUploadExcel(@RequestHeader Map<String, String> reqHeader,
+    @RequestParam(name = "fileId", required = true) String fileId,
+    @RequestParam(name = "fileName", required = true) String fileName,
+    @RequestParam(name = "sheetName", required = true) String sheetName,
+    @RequestParam(name = "limit", required = false) Integer recordCount) throws ClassNotFoundException, IOException, ExpectationFailedException, SQLException {
+        String userId = reqHeader.get("username");
+        return ResponseEntity.status(HttpStatus.OK).body(fileDataService.fileUploadExcel(fileId,fileName, sheetName, userId, recordCount));
+    }
+
 }
