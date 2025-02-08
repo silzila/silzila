@@ -1,13 +1,10 @@
-/**
- * This component is used to retrive a specific dataset to be edited
-  The information about this dataset is loaded to store
-  users can update existing dataset / re-define relationships in dataset
+// This component is used to retrive a specific dataset to be edited
+// The information about this dataset is loaded to store
+// users can update existing dataset / re-define relationships in dataset
 
-  for flatFiles "flatFileMaps" mapes table with their flat files 
-*/
 import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
-import CircularProgress from '@mui/material/CircularProgress';
 import ShortUniqueId from "short-unique-id";
 import {
   setCreateDsFromFlatFile,
@@ -35,69 +32,105 @@ import { Columns, ColumnsWithUid } from "./DatasetInterfaces";
 import {
   CanvasIndividualTableProps,
   EditDatasetProps,
-  IFlatIdTableIdMap,
 } from "./EditDataSetInterfaces";
 import Logger from "../../Logger";
-import { IFilter, IFilterPanel } from "./BottomBarInterfaces";
-import { Box } from "@mui/material";
+
+import { setDsId } from "../../redux/DataSet/datasetActions";
+import { PopUpSpinner } from "../CommonFunctions/DialogComponents";
+import { contentTypes } from "../CommonFunctions/aliases";
+import { useDispatch } from "react-redux";
 
 const EditDataSet = ({
   //state
   token,
   dsId,
+
   //dispatch
+  setDsId,
   setValuesToState,
   setUserTable,
   setDatabaseNametoState,
   setServerName,
-  setViews, 
+  setViews,
   setCreateDsFromFlatFile,
-}: EditDatasetProps) => {
-  let dbName: string = "";
-  let server: string = "";
+}: any) => {
+  var dbName: string = "";
+  var server: string = "";
 
   const [loadPage, setloadPage] = useState<boolean>(false);
-  const [datasetFilterArray, setDataSetFilterArray] = useState<IFilter[]>([]);
-  const [flatFileMaps, setFlatFileMaps] = useState<IFlatIdTableIdMap[]>([]);
+
+  var count: number = 0;
+
+  const [datasetFilterArray, setDataSetFilterArray] = useState<any[]>([]);
+  var data: any;
+
+  const location = useLocation();
+  const state = location.state;
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setAllInfo();
+    setDsId(state?.dsId);
   }, []);
+
+  useEffect(() => {
+    if (dsId) {
+      setAllInfo();
+    }
+  }, [dsId]);
+  const dispatch=useDispatch();
+
+  useEffect(() => {
+      if(!state){
+        navigate("/")
+      }
+    }, [state, navigate])
+    if (!state) {
+      return null;
+    }
+
   const setAllInfo = async () => {
+    const permissionRes=await FetchData({
+      requestType:'noData',
+      method:'GET',
+      url:`privilege?workspaceId=${state?.parentId}&contentTypeId=${contentTypes.Dataset}&contentId=${dsId}`,
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if(permissionRes.status){
+      const permission:{roleID:number,roleName:string,levelId:number}=permissionRes.data;
+      dispatch({type:'SET_PERMISSION',payload:permission})
+    }
+    else return
     var res: any = await FetchData({
       requestType: "noData",
       method: "GET",
-      url: "dataset/" + dsId,
+      url: `dataset/${dsId}?workspaceId=${state?.parentId}`,
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    
+    if (res.data.dataSchema.filterPanels) {
+      data = res.data.dataSchema.filterPanels
+        .map((item: any) => {
+          if (item.panelName === "dataSetFilters") {
+            return item.filters;
+          }
+          return null;
+        })
+        .filter(Boolean);
+      console.log(data);
+      setDataSetFilterArray(data.flat());
+    }
 
     if (res.status) {
       if (res.data.isFlatFileData) {
-        /**
-         * for flatFiles map tableId with their flatFile Id
-         */
-        const flatFileTableMap:IFlatIdTableIdMap[]=res.data.dataSchema.tables.map((table:any)=>{
-          return({
-            tableId:table.id,
-            flatFileId:table.flatFileId
-          })
-        })
-        setFlatFileMaps(flatFileTableMap)
         setCreateDsFromFlatFile(true);
       }
-      if (res.data.dataSchema.filterPanels) {
-        const data:IFilter[] = res.data.dataSchema.filterPanels
-          .filter((item:IFilterPanel) => item.panelName === "dataSetFilters")
-          .map((item:IFilterPanel) => item.filters[0]);
-        setDataSetFilterArray(data);
-      }
+      else setCreateDsFromFlatFile(false);
+
       if (!res.data.isFlatFileData) {
         var getDc: any = await FetchData({
           requestType: "noData",
           method: "GET",
-          url: "database-connection",
+          url: `database-connection?workspaceId=${state?.parentId}`,
           headers: { Authorization: `Bearer ${token}` },
         });
         if (getDc.status) {
@@ -109,11 +142,12 @@ const EditDataSet = ({
           });
         }
       }
-      dbName = res.data.dataSchema.tables[0].database;
+      dbName = res.data.dataSchema?.tables[0]?.database;
 
       // canvasTables - tables that are droped & used in canvas for creating dataset
       const canvasTables: tableObjProps[] = await Promise.all(
         res.data.dataSchema.tables?.map(async (tbl: any) => {
+          count++;
           if (tbl) {
             return {
               table_uid: res.data.isFlatFileData
@@ -144,7 +178,7 @@ const EditDataSet = ({
           }
         })
       );
-
+      
       // ======================== set tables & schema ====================================================
 
       var schema_list: string[] = res.data.dataSchema.tables.map(
@@ -159,12 +193,12 @@ const EditDataSet = ({
       const getTables = async () => {
         var url: string = "";
         if (res.data.isFlatFileData) {
-          url = `file-data`;
+          url = `file-data?workspaceId=${state?.parentId}`;
         } else {
           if (server === "mysql") {
-            url = `metadata-tables/${res.data.connectionId}?database=${dbName}`;
+            url = `metadata-tables/${res.data.connectionId}?database=${dbName}&workspaceId=${state?.parentId}`;
           } else {
-            url = `metadata-tables/${res.data.connectionId}?database=${dbName}&schema=${uniqueSchema[0]}`;
+            url = `metadata-tables/${res.data.connectionId}?database=${dbName}&schema=${uniqueSchema[0]}&workspaceId=${state?.parentId}`;
           }
         }
 
@@ -445,7 +479,7 @@ const EditDataSet = ({
     connection: any,
     name: string
   ) => {
-    var url: string = `metadata-columns-customquery/${connection}`;
+    var url: string = `metadata-columns-customquery/${connection}?workspaceId=${state?.parentId}`;
     var res: any = await FetchData({
       requestType: "withData",
       method: "POST",
@@ -475,12 +509,12 @@ const EditDataSet = ({
     var url: string = "";
     if (!flatFileId) {
       if (server === "mysql") {
-        url = `metadata-columns/${connection}?database=${databaseName}&table=${tableName}`;
+        url = `metadata-columns/${connection}?database=${databaseName}&table=${tableName}&workspaceId=${state?.parentId}`;
       } else {
-        url = `metadata-columns/${connection}?database=${databaseName}&schema=${schema}&table=${tableName}`;
+        url = `metadata-columns/${connection}?database=${databaseName}&schema=${schema}&table=${tableName}&workspaceId=${state?.parentId}`;
       }
     } else {
-      url = `file-data-column-details/${flatFileId}`;
+      url = `file-data-column-details/${flatFileId}?workspaceId=${state?.parentId}`;
     }
     if (isCustomQuery) {
       return getColumnTypeswithCustomQuery(customQuery, connection, tableName);
@@ -488,7 +522,7 @@ const EditDataSet = ({
 
     var result: any = await FetchData({
       requestType: "noData",
-      method: "GET",
+      method: "POST",
       url: url,
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -513,6 +547,7 @@ const EditDataSet = ({
       return arrayWithUid;
     }
   };
+  //console.log(datasetFilterArray);
   return (
     <div className="dataHome">
       <MenuBar from="dataSet" />
@@ -523,27 +558,26 @@ const EditDataSet = ({
             <Sidebar editMode={true} />
             {datasetFilterArray?.length > 0 ? (
               <Canvas
-                flatFileIdMap={flatFileMaps}
                 editMode={true}
                 EditFilterdatasetArray={datasetFilterArray}
               />
             ) : (
-              <Canvas editMode={true}
-              flatFileIdMap={flatFileMaps}
-              EditFilterdatasetArray={[]} />
+              <Canvas editMode={true} />
             )}
           </>
-        ) :  <Box sx={
-          {
-            height:"calc(100svh - 2.5rem)",
-            width:"100svw",
-            justifyContent:"center",
-            display:"flex",
-            alignItems:"center"
-          }
-        }>
-          <CircularProgress disableShrink />
-          </Box>}
+        ) : (
+          <PopUpSpinner
+            show={!loadPage}
+            sx={{ background: "transparent" }}
+            paperProps={{
+              sx: {
+                backgroundColor: "transparent",
+                color: "white",
+                boxShadow: "none",
+              },
+            }}
+          />
+        )}
       </div>
     </div>
   );
@@ -584,6 +618,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
       dispatch(setUserTable(payload)),
     setCreateDsFromFlatFile: (value: boolean) =>
       dispatch(setCreateDsFromFlatFile(value)),
+    setDsId: (id: string) => dispatch(setDsId(id)),
   };
 };
 

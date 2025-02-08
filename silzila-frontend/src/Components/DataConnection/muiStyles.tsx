@@ -49,7 +49,7 @@ export const TextFieldStyle = {
 		width: "170px",
 		height: "25px",
 		padding: "0px 10px",
-		fontSize: "12px",
+		fontSize: '0.75rem',
 	},
 };
 

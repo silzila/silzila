@@ -21,6 +21,7 @@ public class SyncFilterQuery {
         boolean userSelection=false;
         String whereClause=null;
         int countCurrentSelection=0;
+        boolean isUserSelectionAll=false;
 
         try {
             // Check for null or empty filters
@@ -136,7 +137,7 @@ public class SyncFilterQuery {
 
             // Build WHERE clause using the panel
 
-            if(userSelection){
+            if(userSelection&&isUserSelectionAll){
             whereClause = WhereClause.buildWhereClause(Collections.singletonList(panel), vendorName,ds);
                 finalQuery.append(whereClause);
             }

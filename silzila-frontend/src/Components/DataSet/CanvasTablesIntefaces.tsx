@@ -8,6 +8,7 @@ import {
 export interface CanvasTablesProps {
 	// props
 	tableData: tableObjProps;
+	editMode: boolean;
 
 	// state
 	// dataSetState: DatasetProps;
@@ -16,6 +17,7 @@ export interface CanvasTablesProps {
 	relationships: RelationshipsProps[];
 	tables: UserTableProps[];
 	views: any[];
+	dsId: string;
 
 	// dispatch
 	addNewRelationship: (payload: RelationObjProps) => void;
@@ -25,7 +27,7 @@ export interface CanvasTablesProps {
 		tables: UserTableProps[],
 		tableId: string
 	) => void;
-	setTempTables: (temptable: tableObjProps[]) => void;
+	setTempTables: (temptable: tableObjProps[],calledFrm?:string) => void;
 }
 
 export interface RelationObjProps {

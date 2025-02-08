@@ -61,7 +61,7 @@ public class SyncFilterOptionsQueryComposer {
             // Check the vendor type and build the final query accordingly
             if (vendorName!=null||!vendorName.isEmpty() ) {
 
-                finalQuery = SyncFilterQuery.getSyncFilterOptions(cf, fromQuery, vendorName);
+                finalQuery = SyncFilterQuery.getSyncFilterOptions(cf, fromQuery, vendorName,ds);
                 if (finalQuery==null) {
                     return null;
                 }

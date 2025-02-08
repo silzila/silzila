@@ -1485,7 +1485,6 @@ const SubWorkspaceDetails = () => {
                         </td>
 
                         <td>
-                          {workspace.roleId <= 8 && (
                             <div className="subworkspace-img-icon">
                               <button
                                 onClick={(e) => {
@@ -1495,6 +1494,8 @@ const SubWorkspaceDetails = () => {
                                 style={{
                                   background: "none",
                                   border: "none",
+                                  marginLeft: "5px",
+                                  marginRight: "5px",
                                 }}
                               >
                                 <Tooltip title="View / Edit ">
@@ -1514,190 +1515,71 @@ const SubWorkspaceDetails = () => {
                                 </Tooltip>
                               </button>
 
-                              {
-                                // workspace.contentType === 1 &&
-                                // workspace.roleId < 5 ||
-                                (workspace.levelId && workspace.levelId < 3) ||
-                                workspace.roleId === 8 ? (
-                                  <>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        openEditModal(
-                                          workspace.id,
-                                          workspace.name,
-                                          workspace.parentId,
-                                          workspace
-                                        );
-                                      }}
-                                      style={{
-                                        background: "none",
-                                        border: "none",
-                                      }}
-                                    >
-                                      <Tooltip title="Rename">
-                                        <img
-                                          src={
-                                            hoveredRowId === workspace.id
-                                              ? "/edit.png"
-                                              : "/edit_white.png"
-                                          }
-                                          alt="Edit"
-                                          style={{
-                                            width: "16px",
-                                            height: "16px",
-                                          }}
-                                        />
-                                      </Tooltip>
-                                    </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openEditModal(
+                                    workspace.id,
+                                    workspace.name,
+                                    workspace.parentId,
+                                    workspace
+                                  );
+                                }}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  marginLeft: "5px",
+                                  marginRight: "5px",
+                                }}
+                              >
+                                <Tooltip title="Rename">
+                                  <img
+                                    src={
+                                      hoveredRowId === workspace.id
+                                        ? "/edit.png"
+                                        : "/edit_white.png"
+                                    }
+                                    alt="Edit"
+                                    style={{
+                                      width: "16px",
+                                      height: "16px",
+                                    }}
+                                  />
+                                </Tooltip>
+                              </button>
 
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        // handleDeleteWorkspace(workspace.id);
-                                        // deleteWorkspace(workspace.id,workspace.name)
-                                        if (workspace.contentType !== 1) {
-                                          deleteContent(workspace);
-                                        }
-                                      }}
-                                      style={{
-                                        background: "none",
-                                        border: "none",
-                                      }}
-                                    >
-                                      <Tooltip title="Delete">
-                                        <img
-                                          src={
-                                            hoveredRowId === workspace.id
-                                              ? "/delete_red.png"
-                                              : "/delete_white.png"
-                                          }
-                                          alt="Delete"
-                                          style={{
-                                            width: "17px",
-                                            height: "17px",
-                                          }}
-                                        />
-                                      </Tooltip>
-                                    </button>
-
-                                    {workspace.roleId < 5 ? (
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          openAccessModal(workspace.id);
-                                        }}
-                                        style={{
-                                          background: "none",
-                                          border: "none",
-                                        }}
-                                      >
-                                        <Tooltip title="Manage Access">
-                                          <img
-                                            src={
-                                              hoveredRowId === workspace.id
-                                                ? "/access.png"
-                                                : "/access_white.png"
-                                            }
-                                            alt="Access"
-                                            style={{
-                                              marginBottom: "-2.5px",
-                                              width: "20px",
-                                              height: "20px",
-                                            }}
-                                          />
-                                        </Tooltip>
-                                      </button>
-                                    ) : (
-                                      <button
-                                        style={{
-                                          background: "none",
-                                          border: "none",
-                                          cursor: "not-allowed",
-                                        }}
-                                      >
-                                        <Tooltip title="Manage Access">
-                                          <img
-                                            src={"/access_white.png"}
-                                            alt="Access"
-                                            style={{
-                                              marginBottom: "-2.5px",
-                                              width: "20px",
-                                              height: "20px",
-                                              pointerEvents: "none",
-                                            }}
-                                          />
-                                        </Tooltip>
-                                      </button>
-                                    )}
-                                  </>
-                                ) : (
-                                  <>
-                                    <button
-                                      style={{
-                                        background: "none",
-                                        border: "none",
-                                        cursor: "not-allowed",
-                                      }}
-                                    >
-                                      <Tooltip title="Rename">
-                                        <img
-                                          src={"/edit_white.png"}
-                                          alt="Edit"
-                                          style={{
-                                            width: "16px",
-                                            height: "16px",
-                                            pointerEvents: "none",
-                                          }}
-                                        />
-                                      </Tooltip>
-                                    </button>
-
-                                    <button
-                                      style={{
-                                        background: "none",
-                                        border: "none",
-                                        cursor: "not-allowed",
-                                      }}
-                                    >
-                                      <Tooltip title="Delete">
-                                        <img
-                                          src={"/delete_white.png"}
-                                          alt="Delete"
-                                          style={{
-                                            width: "17px",
-                                            height: "17px",
-                                            pointerEvents: "none",
-                                          }}
-                                        />
-                                      </Tooltip>
-                                    </button>
-
-                                    <button
-                                      style={{
-                                        background: "none",
-                                        border: "none",
-                                        cursor: "not-allowed",
-                                      }}
-                                    >
-                                      <Tooltip title="Manage Access">
-                                        <img
-                                          src={"/access_white.png"}
-                                          alt="Access"
-                                          style={{
-                                            marginBottom: "-2.5px",
-                                            width: "20px",
-                                            height: "20px",
-                                            pointerEvents: "none",
-                                          }}
-                                        />
-                                      </Tooltip>
-                                    </button>
-                                  </>
-                                )
-                              }
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // handleDeleteWorkspace(workspace.id);
+                                  // deleteWorkspace(workspace.id,workspace.name)
+                                  if (workspace.contentType !== 1) {
+                                    deleteContent(workspace);
+                                  }
+                                }}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  marginLeft: "5px",
+                                  marginRight: "5px",
+                                }}
+                              >
+                                <Tooltip title="Delete">
+                                  <img
+                                    src={
+                                      hoveredRowId === workspace.id
+                                        ? "/delete_red.png"
+                                        : "/delete_white.png"
+                                    }
+                                    alt="Delete"
+                                    style={{
+                                      width: "17px",
+                                      height: "17px",
+                                    }}
+                                  />
+                                </Tooltip>
+                              </button>
                             </div>
-                          )}
                         </td>
                       </tr>
                     )

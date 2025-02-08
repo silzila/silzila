@@ -6,8 +6,21 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.ellipsis {
+  white-space: nowrap;        
+  overflow: hidden;           
+  text-overflow: ellipsis;    
+  /* width: 200px;                */
+}
 
 code {
   font-family: 'Roboto-Light', 'Segoe UI', source-code-pro, Menlo, Monaco, Consolas, 'Times New Roman',
     monospace;
+}
+.hideScrollBar {
+  overflow-y: auto; /* Allows vertical scrolling */
+  scrollbar-width: none; /* Firefox */
+}
+.hideScrollBar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Edge */
 }

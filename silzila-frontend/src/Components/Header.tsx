@@ -147,11 +147,7 @@ useEffect(() => {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-
-
   
-  
-
   return (
     <header className={styles.header}>
 

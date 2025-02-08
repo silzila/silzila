@@ -1,5 +1,6 @@
 import "./App.css";
-import React from "react";
+import './assets/Fonts/fonts.css'
+import React, { useEffect } from "react";
 import { createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
 import reduxThunk from "redux-thunk";
@@ -14,6 +15,23 @@ const middleware = [reduxThunk];
 const store = createStore(allReducers, composeWithDevTools(applyMiddleware(...middleware)));
 
 function App() {
+
+	useEffect(() => {
+		// Set the page title
+		document.title = "Silzila";
+	
+		// Dynamically set the favicon
+		const link = document.createElement('link');
+		link.rel = 'icon';
+		link.href = "/logo.png"
+		link.type = 'image/png';
+		document.head.appendChild(link);
+		
+		// Cleanup function (optional)
+		return () => {
+		  document.head.removeChild(link);
+		};
+	  }, []);
 	return (
 		<Provider store={store}>
 			<DndProvider backend={HTML5Backend}>
