@@ -15,8 +15,11 @@ import DownloadPageSettingReducer from "./PageSettings/DownloadPageSettingState"
 import chartFilterGroupReducer from "./ChartFilterGroup/ChartFilterGroupState";
 import DynamicMeasureReducer from "./DynamicMeasures/DynamicMeasureState";
 import dashBoardFilterGroupReducer from "./DashBoardFilterGroup/DashBoardFilterGroupState";
+import CalculationReducer from "./Calculations/Calculations";
+// import permissionReducer from "./Permissions/permission.reducer";
 
 const allReducers = combineReducers({
+
   isLogged: loggedReducer,
   dataSetState: DataSetReducer,
 
@@ -33,6 +36,8 @@ const allReducers = combineReducers({
   chartFilterGroup: chartFilterGroupReducer,
   dynamicMeasuresState: DynamicMeasureReducer,
   dashBoardFilterGroup: dashBoardFilterGroupReducer,
+
+  calculations: CalculationReducer
 });
 
 export type RootState = ReturnType<typeof allReducers>;
