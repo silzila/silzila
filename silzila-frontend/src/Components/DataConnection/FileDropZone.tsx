@@ -6,6 +6,7 @@ import { makeStyles } from "@mui/styles";
 import createStyles from "@mui/styles/createStyles";
 import Logger from "../../Logger";
 import { FileDropZoneProps } from "./FlatFileInterfaces";
+import { fontSize } from "../..";
 
 
 const useStyles: any = makeStyles(() =>
@@ -73,57 +74,69 @@ const FileDropZone = ({ setSelectedFile, selectedFile, fileType}: FileDropZonePr
 	};
 
 	return (
-		<div>
-			<form id="form-file-upload" onDragEnter={handleDrag} onSubmit={e => e.preventDefault()}>
-				<input
-					type="file"
-					id="input-file-upload"
-					multiple={false}
-					onChange={handleChange}
-					accept={
-						fileType === "excel" ? ".xlsx" :
-						fileType === "json" ? ".json" : ".csv"
-					} />
+    <div>
+      <form
+        id="form-file-upload"
+        onDragEnter={handleDrag}
+        onSubmit={(e) => e.preventDefault()}
+      >
+        <input
+          type="file"
+          id="input-file-upload"
+          multiple={false}
+          onChange={handleChange}
+          accept={
+            fileType === "excel"
+              ? ".xlsx"
+              : fileType === "json"
+              ? ".json"
+              : ".csv"
+          }
+        />
 
-				<UploadFileIcon className={classes.uploadIcon} />
+        <UploadFileIcon className={classes.uploadIcon} />
 
-				<p style={{ fontSize: "10px", margin: "10px auto" }}>Drag and Drop your file here</p>
+        <p style={{ fontSize: fontSize.medium, margin: "10px auto" }}>
+          Drag and Drop your file here
+        </p>
 
-				<label htmlFor="input-file-upload" className="upload-button">
-					Choose a file
-				</label>
+        <label htmlFor="input-file-upload" className="upload-button">
+          Choose a file
+        </label>
 
-			
-				<div style={{
-				border: "1px solid transparent",
-				height: "50px",
-				textAlign: "center",
-				display: "flex",
-				justifyContent: "center",
-				alignItems: "center",
+        <div
+          style={{
+            border: "1px solid transparent",
+            height: "50px",
+            textAlign: "center",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {selectedFile ? (
+            <div className="fileNameCard">
+              {selectedFile.name}
+              <CloseIcon
+                className={classes.closeIcon}
+                onClick={() => setSelectedFile()}
+              />
+            </div>
+          ) : null}
 
-			}}>
-				{selectedFile ? (
-					<div className="fileNameCard">
-						{selectedFile.name}
-						<CloseIcon className={classes.closeIcon} onClick={() => setSelectedFile()} />
-					</div>
-				) : null}
-
-				{dragActive && (
-					<div
-						id="drag-file-element"
-						onDragEnter={handleDrag}
-						onDragLeave={handleDrag}
-						onDragOver={handleDrag}
-						onDrop={handleDrop}
-					></div>
-				)}
-			</div>
-			</form>
-			
-		</div>
-	);
+          {dragActive && (
+            <div
+              id="drag-file-element"
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            ></div>
+          )}
+        </div>
+      </form>
+    </div>
+  );
 };
 
 export default FileDropZone;
