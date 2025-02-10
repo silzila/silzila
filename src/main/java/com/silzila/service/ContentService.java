@@ -397,7 +397,7 @@ public class ContentService {
     }
 
     public List<WorkspaceContentResponse> getDBConnectionsOnWorkspaces(String email) throws SQLException {
-        List<Workspace> allWorkspace = workspaceRepository.findByUserId(email);
+        List<Workspace> allWorkspace = workspaceRepository.findByUserIdAndParentIsNull(email);
         return getAllDbContent(allWorkspace, "dbConnection", email);
     }
 
@@ -464,7 +464,7 @@ public class ContentService {
     }
 
     public List<WorkspaceContentResponse> getDatasetsOnWorkspaces(String email) throws SQLException {
-        List<Workspace> allWorkspace = workspaceRepository.findByUserId(email);
+        List<Workspace> allWorkspace = workspaceRepository.findByUserIdAndParentIsNull(email);
 
         return getAllDatasetContent(allWorkspace, "dataset", email);
     }
@@ -530,7 +530,7 @@ public class ContentService {
 }
 
     public List<WorkspaceContentResponse> getFlatFilesOnWorkspaces(String email) throws SQLException {
-        List<Workspace> allWorkspace = workspaceRepository.findByUserId(email);
+        List<Workspace> allWorkspace = workspaceRepository.findByUserIdAndParentIsNull(email);
         return getAllFlatFileContent(allWorkspace, "flatfile", email);
     }
 
