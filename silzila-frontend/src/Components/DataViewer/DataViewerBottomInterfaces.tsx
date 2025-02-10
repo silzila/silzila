@@ -1,57 +1,64 @@
 import {
-	ChartPropertiesProps,
-	ChartPropertiesStateProps,
+  ChartPropertiesProps,
+  ChartPropertiesStateProps,
 } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import {
-	SampleRecordesColumnType,
-	SampleRecordsState,
+  SampleRecordesColumnType,
+  SampleRecordsState,
 } from "../../redux/SampleTableRecords/SampleTableRecordsInterfaces";
-import { TabStateProps, TabStateProps2 } from "../../redux/TabTile/TabStateInterfaces";
-import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
+import {
+  TabStateProps,
+  TabStateProps2,
+} from "../../redux/TabTile/TabStateInterfaces";
+import {
+  TabTileStateProps,
+  TabTileStateProps2,
+} from "../../redux/TabTile/TabTilePropsInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 
 export interface DataViewerBottomProps {
-	pbId?: string;
-	//state
-	token: string;
-	tabTileProps: TabTileStateProps;
-	chartProps: ChartPropertiesProps;
-	sampleRecords: any;
-	tabState: TabStateProps;
-	//Dispatch
-	setSelectedDataSetList: (dataset: string) => void;
-	setTablesForDs: (tablesObj: any) => void;
-	setSelectedDs: (propKey: string, selectedDs: any) => void;
-	setSelectedTable: (propKey: string, selectedTable: any) => void;
-	addRecords: (
-		ds_uid: string,
-		tableId: string,
-		tableRecords: any[],
-		columnType: SampleRecordesColumnType[]
-	) => void;
-	addTile: (
-		tabId: number,
-		nextTileId: number,
-		table: any,
-		selectedDataset: any,
-		selectedTables: any
-	) => void;
+  //state
+  token: string;
+  tabTileProps: TabTileStateProps;
+  chartProps: ChartPropertiesProps;
+  sampleRecords: any;
+  tabState: TabStateProps;
+  //Dispatch
+  setSelectedDataSetList: (dataset: string) => void;
+  setTablesForDs: (tablesObj: any) => void;
+  setSelectedDs: (propKey: string, selectedDs: any) => void;
+  setSelectedTable: (propKey: string, selectedTable: any) => void;
+  addRecords: (
+    ds_uid: string,
+    tableId: string,
+    tableRecords: any[],
+    columnType: SampleRecordesColumnType[]
+  ) => void;
+  addTile: (
+    tabId: number,
+    nextTileId: number,
+    table: any,
+    selectedDataset: any,
+    selectedTables: any
+  ) => void;
 }
+interface ChartFilterGroup {
+  chartFilterGroup: {
+    tabTile: {};
+    datasetGroupList: any[];
+    groups: {};
+  };
+}
+
 interface calculations {
-	calculations: {
-	  properties: {
-		[key: string]: any;
-	  };
-	};
-  }
-  interface ChartFilterGroup {
-	chartFilterGroup: {
-	  tabTile: {};
-	  datasetGroupList: any[];
-	  groups: {};
-	};
-  }
-  export type DataViewerBottomStateProps = TabTileStateProps2 &
+  calculations: {
+    properties: {
+      [key: string]: any;
+    };
+  };
+}
+
+export type DataViewerBottomStateProps = TabTileStateProps2 &
   ChartPropertiesStateProps &
   SampleRecordsState &
   TabStateProps2 &
