@@ -16,7 +16,7 @@ import {
 	DialogContent,
 	AlertColor,
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AbcIcon from "@mui/icons-material/Abc";
 import NumbersIcon from "@mui/icons-material/Numbers";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -25,8 +25,8 @@ import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { setEditApiResponseProp } from "../../redux/FlatFile/FlatFileStateActions";
 import { Dispatch } from "redux";
 import FetchData from "../ServerCall/FetchData";
-import { useNavigate } from "react-router-dom";
-import { resetFlatFileState } from "../../redux/FlatFile/FlatFileStateActions";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { resetFlatFileState, setEditApiResponse } from "../../redux/FlatFile/FlatFileStateActions";
 import { FlatFileStateProps } from "../../redux/FlatFile/FlatFileInterfaces";
 import { EditFlatFileProps } from "./FlatFileInterfaces";
 import MenuBar from "../DataViewer/MenuBar";
@@ -48,11 +48,15 @@ import {
 } from "./muiStyles";
 import { fontSize, palette } from "../..";
 import { PopUpSpinner } from "../CommonFunctions/DialogComponents";
+import RichTreeViewControl from "../Controls/RichTreeViewControl";
+import { GetWorkSpaceDetails, ConvertListOfListToRichTreeViewList,  isNameAllowed } from "../CommonFunctions/CommonFunctions";
+import Logger from "../../Logger";
 
 const EditFlatFileData = ({
 	token,
 	editApiResponse,
 
+  setEditApiResponseWorksapce,
 	setEditApiResponse,
 	resetFlatFileState,
 }: EditFlatFileProps) => {
@@ -60,6 +64,9 @@ const EditFlatFileData = ({
 	const classes2 = styles();
 
 	const navigate = useNavigate();
+  const { parentId } = useParams();
+  const location = useLocation();
+  const state = location.state;
 
 	const [dateFormat, setDateFormat] = useState<string>(
 		editApiResponse.dateFormat ? editApiResponse.dateFormat : ""
@@ -74,7 +81,91 @@ const EditFlatFileData = ({
 	const [severity, setSeverity] = useState<AlertColor>("success");
 	const [selectedFileType, setSelectedFileType] = useState<string | undefined>(
   editApiResponse.fileType);
+  const [showWorkSpace, setShowWorkSpace] = useState<boolean>(false);
+  const [selectedWorkspace, setSelectedWorkspace] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [isSubWorkspaceSelected, setIsSubWorkspaceSelected] =
+    useState<boolean>(false);
+  const [subWorkspaceList, setSubWorkspaceList] = useState<Array<Object>>([]);
+
+   useEffect(() => {
+    if (state?.mode === "New") {
+      getAllSubworkspace();
+    } else if (state?.mode === "Edit") {
+      onEditFlatFile(state?.file);
+    }
+    //eslint-disable-next-line
+  }, [state]);
+
+  useEffect(() => {
+    if(!state){
+      navigate("/")
+    }
+  }, [state, navigate]) 
+
+  useEffect(() => {
+    if (selectedWorkspace !== "") {
+      handleSave();
+      setShowWorkSpace(false);
+    }
+    //eslint-disable-next-line
+  }, [selectedWorkspace]);
+  
+  if (!state) {
+    return null;
+  }
+   const getAllSubworkspace = async () => {
+    var result: any = await FetchData({
+      requestType: "noData",
+      method: "GET",
+      url: `workspaces/tree`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    let list = [];
+
+    if (result.status) {
+      list = result.data;
+    } else {
+      Logger("error", result.data.detail);
+    }
+
+    setSubWorkspaceList(ConvertListOfListToRichTreeViewList(list));
+  };
+
+  const onEditFlatFile = async (file: any) => {
+    var result: any = await FetchData({
+      requestType: "noData",
+      method: "POST",
+      url: `file-data-column-details/${file.id}?workspaceId=${parentId}`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (result.status) {
+      var result2: any = await FetchData({
+        requestType: "noData",
+        method: "POST",
+        url: `file-data-sample-records?flatfileId=${file.id}&workspaceId=${parentId}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (result2.status) {
+        var fileObj = {
+          fileId: file.id,
+          name: file.name,
+          dateFormat: file.dateFormat,
+          timestampFormat: file.timestampFormat,
+          columnInfos: result.data,
+          sampleRecords: result2.data,
+        };
+        setEditApiResponseWorksapce(fileObj);
+        setEditApiResponse("fileObj", fileObj);
+      } else {
+      }
+    } else {
+    }
+    //props.setEditMode(true);
+  };
 	
 	const setDataToEditApiResponse = async () => {
 
@@ -89,7 +180,7 @@ const EditFlatFileData = ({
 		var result: any = await FetchData({
 			requestType: "withData",
 			method: "POST",
-			url: "file-upload-change-schema",
+			url: `file-upload-change-schema/?workspaceId=${parentId}`,
 			data: fileObj,
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -116,7 +207,24 @@ const EditFlatFileData = ({
 		}
 	};
 
+  const handleProceedButtonClick = (selectedWorkspaceID: string, list: any) => {
+    if (!selectedWorkspaceID) {
+      setSeverity("error");
+      setOpenAlert(true);
+      setTestMessage("Select a workspace.");
+      return;
+    }
+
+    setIsSubWorkspaceSelected(
+      !list.find((item: any) => item.id === selectedWorkspaceID)
+    );
+
+    setSelectedWorkspace(selectedWorkspaceID);
+  };
+
 	const handleSave = async () => {
+    let workspaceID: any = selectedWorkspace || parentId;
+    setSelectedWorkspace("");
 		var formObj = {
 			fileId: editApiResponse.fileId,
 			name: editApiResponse.name,
@@ -129,7 +237,7 @@ const EditFlatFileData = ({
 		var result: any = await FetchData({
 			requestType: "withData",
 			method: "POST",
-			url: "file-upload-save-data",
+			url: `file-upload-save-data?workspaceId=${workspaceID}`,
 			data: formObj,
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -144,9 +252,36 @@ const EditFlatFileData = ({
 			setTestMessage("Flatfile Successfully Saved!");
 			setTimeout(() => {
 				setOpenAlert(false);
-				navigate("/datahome");
+				// navigate("/datahome");
 				resetFlatFileState();
 			}, 3000);
+
+       if (state?.mode !== "New") {
+          navigate(-1);
+        } else {
+          if (isSubWorkspaceSelected) {
+            let workspaceDetail: any = GetWorkSpaceDetails(
+              subWorkspaceList,
+              workspaceID,
+              true
+            );
+            localStorage.setItem("workspaceName", workspaceDetail?.label);
+            localStorage.setItem(
+              "childWorkspaceName",
+              workspaceDetail.subLabel
+            );
+            localStorage.setItem("parentId", workspaceID);
+            navigate(`/SubWorkspaceDetails/${workspaceID}`);
+          } else {
+            let workspaceDetail: any = GetWorkSpaceDetails(
+              subWorkspaceList,
+              workspaceID
+            );
+            localStorage.setItem("workspaceName", workspaceDetail?.label);
+            localStorage.setItem("parentId", workspaceID);
+            navigate(`/workspace/${workspaceID}`);
+          }
+        }
 		} else {
       setLoading(false);
 			let errorMessage = result.data.message; 
@@ -172,6 +307,19 @@ const EditFlatFileData = ({
 
 	return (
     <div style={{ height: "100vh" }}>
+      {showWorkSpace ? (
+        <RichTreeViewControl
+          currentWorkspace={state?.parentId}
+          proceedButtonName={"Save"}
+          list={subWorkspaceList}
+          title={"Select a Workspace"}
+          showInPopup={showWorkSpace}
+          handleCloseButtonClick={(e: any) => {
+            setShowWorkSpace(false);
+          }}
+          handleProceedButtonClick={handleProceedButtonClick}
+        ></RichTreeViewControl>
+      ) : null}
       <MenuBar from="editFlatFile" />
       <div
         className="editFlatFileContainer"
@@ -442,15 +590,20 @@ const EditFlatFileData = ({
           <Button
             value="save"
             onClick={() => {
-              if (editApiResponse.name) {
-                handleSave();
-              } else {
-                setOpenAlert(true);
-                setSeverity("warning");
-                setTestMessage("File Name can not be empty");
-                setTimeout(() => {
+              if (state?.mode === "New") {
+                if (isNameAllowed(editApiResponse.name)) {
+                  //handleSave();
+                  setShowWorkSpace(true);
+                } else {
+                  setOpenAlert(true);
+                  setSeverity("warning");
+                  setTestMessage("File Name can not be empty");
+                  setTimeout(() => {
                   setOpenAlert(false);
-                }, 3000);
+                  }, 3000);
+                  }
+              } else {
+                handleSave();
               }
             }}
             sx={{
@@ -741,6 +894,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 	return {
 		setEditApiResponse: (key: string, file: any) => dispatch(setEditApiResponseProp(key, file)),
 		resetFlatFileState: () => dispatch(resetFlatFileState()),
+    setEditApiResponseWorksapce: (file: any) =>
+      dispatch(setEditApiResponse(file)),
 	};
 };
 export default connect(mapStateToProps, mapDispatchToProps)(EditFlatFileData);
