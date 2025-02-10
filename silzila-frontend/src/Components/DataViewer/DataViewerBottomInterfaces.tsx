@@ -11,6 +11,7 @@ import { TabTileStateProps, TabTileStateProps2 } from "../../redux/TabTile/TabTi
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 
 export interface DataViewerBottomProps {
+	pbId?: string;
 	//state
 	token: string;
 	tabTileProps: TabTileStateProps;
@@ -36,9 +37,24 @@ export interface DataViewerBottomProps {
 		selectedTables: any
 	) => void;
 }
-
-export type DataViewerBottomStateProps = TabTileStateProps2 &
-	ChartPropertiesStateProps &
-	SampleRecordsState &
-	TabStateProps2 &
-	isLoggedProps;
+interface calculations {
+	calculations: {
+	  properties: {
+		[key: string]: any;
+	  };
+	};
+  }
+  interface ChartFilterGroup {
+	chartFilterGroup: {
+	  tabTile: {};
+	  datasetGroupList: any[];
+	  groups: {};
+	};
+  }
+  export type DataViewerBottomStateProps = TabTileStateProps2 &
+  ChartPropertiesStateProps &
+  SampleRecordsState &
+  TabStateProps2 &
+  isLoggedProps &
+  calculations &
+  ChartFilterGroup;
