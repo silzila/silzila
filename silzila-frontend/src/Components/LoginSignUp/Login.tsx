@@ -90,10 +90,10 @@ const Login = (props: DispatchProps) => {
 				localStorage.setItem("accessToken", payload.accessToken);
 				props.userAuthentication(payload);
 				setIsLoading(false);
-				showAlert("Login Successful.", "success");
-				setTimeout(() => {
-					navigate("/workspace");
-				}, 1000);
+				// showAlert("Login Successful.", "success");
+				// setTimeout(() => {
+				// 	navigate("/workspace");
+				// }, 1000);
 	
 				// Set the auth token in cookies
 				const domain = new URL(localEndPoint).hostname
@@ -207,6 +207,7 @@ const Login = (props: DispatchProps) => {
 			severity={severity}
 			testMessage={testMessage}
 			onCloseAlert={() => {
+				navigate("/workspace")
 				setOpenAlert(false);
 				setTestMessage("");
 			}}

@@ -13,6 +13,7 @@ import { TileStateProps, TileStateProps2 } from "../../redux/TabTile/TileStateIn
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { ChartFilterGroupProps } from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 import { ChartFilterGroupStateProps } from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
+import { ICalculationSession } from "../../redux/Calculations/CurrentCalculationSessionInterface";
 
 export type MapStateProps = isLoggedProps &
 	TabStateProps2 &
@@ -36,6 +37,8 @@ export interface MenubarProps {
 	chartProperty: ChartPropertiesProps;
 	chartGroup: ChartFilterGroupProps;
 	dynamicMeasureState: any;
+	calculations:ICalculationSession;
+	sampleRecords:any
 	//Dispatch
 	resetUser: () => void;
 	updatePlayBookId: (

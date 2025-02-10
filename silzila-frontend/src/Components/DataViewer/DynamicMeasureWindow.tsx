@@ -9,7 +9,7 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ChartAxes from "../ChartAxes/ChartAxes";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -36,6 +36,9 @@ import { onCheckorUncheckOnDm } from "../../redux/DynamicMeasures/DynamicMeasure
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 
 import { updateRichTextOnAddingDYnamicMeasure } from "../../redux/ChartPoperties/ChartControlsActions";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import FlowList from "../Calculations/BottomMenu/BottomMenu";
 
 const DynamicMeasureWindow = ({
   //state
@@ -66,6 +69,19 @@ const DynamicMeasureWindow = ({
   const [testMessage, setTestMessage] = useState<string>("");
   const [severity, setSeverity] = useState<AlertColor>("success");
 
+  const location = useLocation();
+  const state = location.state;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+      if(!state){
+        navigate("/")
+      }
+    }, [state, navigate])
+    if (!state) {
+      return null;
+    }
+
   const handleTableChange = async (table: any, dsUid?: any) => {
     if (table.flatFileId) {
     }
@@ -81,9 +97,20 @@ const DynamicMeasureWindow = ({
         var dc_uid = selectedDynamicMeasureProps.selectedDs?.connectionId;
         var id = selectedDynamicMeasureProps.selectedDs?.id;
 
-        var tableRecords = await getTableData(dc_uid, table, token, id);
+        var tableRecords = await getTableData(
+          dc_uid,
+          table,
+          token,
+          selectedDynamicMeasureProps.selectedDs?.id,
+          state?.parentId
+        ); /*	Need to pass DS id and Workspace id	*/
 
-        var recordsType = await getColumnTypes(dc_uid, table, token);
+        var recordsType = await getColumnTypes(
+          dc_uid,
+          table,
+          token,
+          state?.parentId
+        ); /*	Need to pass  Workspace	id	*/
 
         addRecords(id, table.id, tableRecords, recordsType);
       }
@@ -301,7 +328,7 @@ const DynamicMeasureWindow = ({
             <div className="rightColumnControlsAndFilters">
               <div className="dm-ChartControls-style">Charts Controls</div>
               <ChartControlObjects />
-              <ControlDetail />
+              {/* <ControlDetail /> */}
             </div>
           </div>
         </div>
