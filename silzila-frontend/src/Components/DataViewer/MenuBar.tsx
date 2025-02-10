@@ -501,7 +501,7 @@ const MenuBar = ({
 					<div
 						className="menuHomeIcon"
 						onClick={() => {
-							navigate("/dataHome");
+							navigate("/workspace");
 						}}
 					>
 						<HomeRounded sx={{ color: "#2bb9bb", fontSize: "1.7rem" }} />
@@ -515,7 +515,7 @@ const MenuBar = ({
 						className="menuHomeIcon"
 						onClick={() => {
 							resetFlatFileState();
-							navigate("/dataHome");
+							navigate("/workspace");
 						}}
 					>
 						<HomeRounded sx={{ color: "#2bb9bb", fontSize: "1.7rem" }} />
@@ -532,7 +532,7 @@ const MenuBar = ({
 								setSaveModal(true);
 							} else {
 								resetAllStates();
-								navigate("/dataHome");
+								navigate("/workspace");
 							}
 						}}
 					>
@@ -566,7 +566,7 @@ const MenuBar = ({
 						) : (
 							<>
 							<div
-								onClick={() => navigate("/dataHome")}
+								onClick={() => navigate("/workspace")}
 								style={{ cursor: "pointer" }}
 							>
 								<img
