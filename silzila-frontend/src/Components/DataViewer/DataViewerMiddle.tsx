@@ -9,7 +9,7 @@ import { connect } from "react-redux";
 import "./dataViewerMiddle.css";
 // import chartControlIcon from "../../assets/chart-control-icon.svg";
 // import settingsIcon from "../../assets/charts_theme_settings_icon.svg";
-
+import CalculationRightPanel from "../Calculations/CalculationControlPanel/CalculationControlPanel";
 import { Dispatch } from "redux";
 import {
   DataViewerMiddleProps,
@@ -35,6 +35,7 @@ import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ChartData from "../ChartAxes/ChartData";
+import CalculationCanvas from "../Calculations/CalculationCanvas/CalculationCanvas";
 
 const DataViewerMiddle = ({
   // props
@@ -44,6 +45,7 @@ const DataViewerMiddle = ({
   // state
   tabTileProps,
   chartProp,
+  calculations,
 
   // dispatch
   setMenu,
@@ -165,11 +167,11 @@ const DataViewerMiddle = ({
         <>
           <GraphArea />
           <DynamicMeasureWindow />
-          <ChartData
+          {/* <ChartData
             tabId={tabId}
             tileId={tileId}
             screenFrom="richTextReportFilter"/>
-          <div className="rightColumn">{controlDisplayed()}</div>
+          <div className="rightColumn">{controlDisplayed()}</div> */}
         </>
       ) : (
         <>
@@ -185,8 +187,25 @@ const DataViewerMiddle = ({
               />
             </>
           ) : null}
-          <GraphArea />
-          <div className="rightColumn">{controlDisplayed()}</div>
+          {calculations.properties[propKey]?.currentCalculationSession ? (
+              <CalculationCanvas />
+            ) : (
+              <GraphArea />
+            )}
+          {calculations.properties[propKey]?.currentCalculationSession ? (
+              <CalculationRightPanel />
+            ) : (
+              <div
+                className="rightColumn"
+                style={{
+                  width: '14rem',
+                  overflowY: "auto",
+                  overflowX: "hidden",
+                }}
+              >
+                {controlDisplayed()}
+              </div>
+            )}
         </>
       )}
       <NotificationDialog
@@ -204,6 +223,7 @@ const mapStateToProps = (state: DataViewerMiddleStateProps & any) => {
     tabTileProps: state.tabTileProps,
     dynamicMeasureState: state.dynamicMeasuresState,
     chartControls: state.chartControls,
+    calculations: state.calculations,
   };
 };
 
