@@ -21,7 +21,7 @@ export interface EditFlatFileProps {
 	editMode: boolean;
 
 	setEditApiResponse: (key: string, file: any) => void;
-
+    setEditApiResponseWorksapce:(file:any)=>void
 	resetFlatFileState: () => void;
 }
 
