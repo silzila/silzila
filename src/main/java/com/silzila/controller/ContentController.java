@@ -123,11 +123,11 @@ public class ContentController {
          return contentService.getDatasetsOnWorkspaces(email);
     }
 
-    @GetMapping("flatfile/tree")
-    public List<WorkspaceContentResponse> getFlatfilesOnWorkspaces(@RequestHeader Map<String,String> requestHeader) throws SQLException{
-        String email = requestHeader.get("username");
-         return contentService.getFlatFilesOnWorkspaces(email);
-    }
+    // @GetMapping("flatfile/tree")
+    // public List<WorkspaceContentResponse> getFlatfilesOnWorkspaces(@RequestHeader Map<String,String> requestHeader) throws SQLException{
+    //     String email = requestHeader.get("username");
+    //      return contentService.getFlatFilesOnWorkspaces(email);
+    // }
 
     // @GetMapping("/content/dependency/{id}")
     // public ResponseEntity<?> contentDependency(@RequestHeader Map<String,String> requestHeader,

@@ -1747,8 +1747,7 @@ const SubWorkspaceDetails = () => {
                   <div className={styles.errorMessage}>{errorMessage}</div>
                 )}
               </div>
-              <br />
-              <br />
+
               <div className={styles.subworkspaceModalButtons}>
                 <button
                   className={styles.subworkspaceModalCancel}
