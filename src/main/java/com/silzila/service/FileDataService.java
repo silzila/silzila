@@ -1,10 +1,12 @@
 package com.silzila.service;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,12 +14,16 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONArray;
 
 import com.silzila.helper.SaltGenerator;
@@ -29,6 +35,7 @@ import com.silzila.helper.ConvertDuckDbDataType;
 import com.silzila.payload.request.FileUploadRevisedColumnInfo;
 import com.silzila.payload.request.FileUploadRevisedInfoRequest;
 import com.silzila.payload.request.Table;
+import com.silzila.payload.response.ExcelSheetResponse;
 import com.silzila.payload.response.FileUploadResponseDuckDb;
 import com.silzila.domain.entity.Dataset;
 import com.silzila.domain.entity.FileData;
@@ -38,9 +45,6 @@ import com.silzila.dto.FileDataDTO;
 import com.silzila.dto.WorkspaceContentDTO;
 import com.silzila.repository.DatasetRepository;
 import com.silzila.repository.FileDataRepository;
-
-
-
 
 @Service
 public class FileDataService {
@@ -69,10 +73,11 @@ public class FileDataService {
     @Value("${saltForFlatFiles}")
     private String salt;
 
-   // Convert byte array to a base64 encoded string
-    //generating random value to encrypt
-    final String encryptPwd ="#VaNgaL#";
-    //UUID.randomUUID().toString().substring(0, 32)
+    // Convert byte array to a base64 encoded string
+    // generating random value to encrypt
+    final String encryptPwd = "#VaNgaL#";
+
+    // UUID.randomUUID().toString().substring(0, 32)
     // 1. upload File Data
     public FileUploadResponseDuckDb fileUpload(MultipartFile file, String sheetName) throws ExpectationFailedException,
             IOException, SQLException, ClassNotFoundException {
@@ -373,14 +378,15 @@ public class FileDataService {
         // using condition to find the file type ad do the operation
         if (revisedInfoRequest.getFileType().equalsIgnoreCase("csv")) {
 
-//            int saltLength =4; // You can adjust the length as needed
-//            // Generate salt using SaltGenerator class
-//            String salt = SaltGenerator.generateSalt(saltLength);
+            // int saltLength =4; // You can adjust the length as needed
+            // // Generate salt using SaltGenerator class
+            // String salt = SaltGenerator.generateSalt(saltLength);
 
-            duckDbService.writeCsvToParquet(revisedInfoRequest, userId, salt+encryptPwd+pepper);
+            duckDbService.writeCsvToParquet(revisedInfoRequest, userId, salt + encryptPwd + pepper);
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
+
             FileData fileData = new FileData();
             fileData.setUserId(userId);
             fileData.setName(revisedInfoRequest.getName());
@@ -403,11 +409,11 @@ public class FileDataService {
 
             return fileDataDTO;
         } else if (revisedInfoRequest.getFileType().equalsIgnoreCase("json")) {
-            //int saltLength =4; // You can adjust the length as needed
+            // int saltLength =4; // You can adjust the length as needed
             // Generate salt using SaltGenerator class
-           // String salt = SaltGenerator.generateSalt(saltLength);
+            // String salt = SaltGenerator.generateSalt(saltLength);
 
-            duckDbService.writeJsonToParquet(revisedInfoRequest, userId, salt+encryptPwd+pepper);
+            duckDbService.writeJsonToParquet(revisedInfoRequest, userId, salt + encryptPwd + pepper);
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
@@ -435,11 +441,11 @@ public class FileDataService {
             return fileDataDTO;
 
         } else if (revisedInfoRequest.getFileType().equalsIgnoreCase("excel")) {
-            int saltLength =4; // You can adjust the length as needed
+            int saltLength = 4; // You can adjust the length as needed
             // Generate salt using SaltGenerator class
             String salt = SaltGenerator.generateSalt(saltLength);
 
-            duckDbService.writeExcelToParquet(revisedInfoRequest, userId, salt+encryptPwd+pepper);
+            duckDbService.writeExcelToParquet(revisedInfoRequest, userId, salt + encryptPwd + pepper);
 
             // save metadata to DB and return as response
             String fileNameToBeSaved = revisedInfoRequest.getFileId() + ".parquet";
@@ -488,6 +494,7 @@ public class FileDataService {
     }
 
     // get sample records
+
     public JSONArray getSampleRecords(String id, String userId, String datasetId,String workspaceId, String tableName) throws RecordNotFoundException, JsonMappingException,
             JsonProcessingException, BadRequestException, ClassNotFoundException, SQLException {
         // if no file data inside optional wrapper, then send NOT FOUND Error
@@ -496,7 +503,7 @@ public class FileDataService {
             throw new RecordNotFoundException("Error: No such File Data Id exists!");
         }
         FileData fileData = fdOptional.get();
-        String salt=fileData.getSaltValue();
+        String salt = fileData.getSaltValue();
 
         // if file not exists, throw error:
         final String parquetFilePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
@@ -520,7 +527,7 @@ public class FileDataService {
             throw new RecordNotFoundException("Error: No such File Data Id exists!");
         }
         FileData fileData = fdOptional.get();
-        String salt=fileData.getSaltValue();
+        String salt = fileData.getSaltValue();
 
         // if file not exists, throw error:
         final String parquetFilePath = System.getProperty("user.home") + "/" + "silzila-uploads" + "/" + userId + "/"
@@ -530,7 +537,8 @@ public class FileDataService {
         }
         // start duckdb in memory
         duckDbService.startDuckDb();
-        List<Map<String, Object>> metaList = duckDbService.getColumnMetaData(parquetFilePath, salt+encryptPwd+pepper);
+        List<Map<String, Object>> metaList = duckDbService.getColumnMetaData(parquetFilePath,
+                salt + encryptPwd + pepper);
         return metaList;
     }
 
@@ -565,7 +573,7 @@ public class FileDataService {
         }
         // remove the record from DB
         fileDataRepository.deleteById(id);
-        buffer.deleteFileDataUser(userId,id);
+        buffer.deleteFileDataUser(userId, id);
     }
 
         public List<WorkspaceContentDTO> flatfileDependency(String email, String workspaceId, String flatfileId) throws BadRequestException {
@@ -600,7 +608,7 @@ public class FileDataService {
             throws BadRequestException, SQLException, ClassNotFoundException {
         List<FileData> fileDataList = buffer.getFileDataByUserId(userId);
         // sparkService.createDfForFlatFiles(userId, tableObjList, fileDataList);
-        duckDbService.createViewForFlatFiles(userId, tableObjList, fileDataList, encryptPwd+pepper);
+        duckDbService.createViewForFlatFiles(userId, tableObjList, fileDataList, encryptPwd + pepper);
 
     }
 
@@ -608,5 +616,122 @@ public class FileDataService {
     // public void loadFilesAsDfForQuery(Query req, DatasetDTO ds) {
 
     // }
+
+    public ExcelSheetResponse getAllSheetNames(MultipartFile file, String userId) throws BadRequestException {
+
+        long fileMaxSize = 50 * 1024 * 1024;
+        
+        if (file.getSize() > fileMaxSize) {
+        throw new IllegalArgumentException(
+        "File size exceeds the allowed limit of " + (fileMaxSize / (1024 * 1024)) +
+        "MB");
+        }
+        org.apache.poi.util.IOUtils.setByteArrayMaxOverride(200 * 1024 * 1024);
+        List<String> sheets = new ArrayList<>();
+
+        if (file.isEmpty()) {
+            throw new BadRequestException("No file present");
+        }
+
+        String fileId = UUID.randomUUID().toString().substring(0, 8);
+
+        String path = saveExcelFile(userId, file, fileId);
+
+        try (FileInputStream fis = new FileInputStream(path)) {
+            Workbook workbook = new XSSFWorkbook(fis);
+
+            int numberOfSheets = workbook.getNumberOfSheets();
+
+            for (int i = 0; i < numberOfSheets; i++) {
+                sheets.add(workbook.getSheetName(i));
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading the Excel file: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred while processing the file: " + e.getMessage(), e);
+        }
+
+        String fileNameWithoutExtn = file.getOriginalFilename().substring(0,
+                file.getOriginalFilename().lastIndexOf("."));
+
+        return new ExcelSheetResponse(fileId, fileNameWithoutExtn, sheets);
+    }
+
+    private String saveExcelFile(String userId, MultipartFile file, String fileId) {
+        // Check if the file is an Excel file
+        if (file.getContentType().equals("application/vnd.ms-excel")
+                || file.getContentType().equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+
+            // Generate a unique name for the file to avoid collisions
+            String savedFileName = fileId + ".xlsx";
+
+            // Define the directory where the file will be saved
+            Path path = Paths.get(SILZILA_DIR + "/tmp");
+
+            try {
+                // Create directories if they don't exist
+                Files.createDirectories(path);
+
+                // Copy the file content to the desired path
+                Files.copy(file.getInputStream(), path.resolve(savedFileName), StandardCopyOption.REPLACE_EXISTING);
+
+            } catch (IOException e) {
+                // Handle any errors during file saving
+                throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
+            }
+
+            // File has been saved successfully, return the file path
+            String savedFilePath = path.resolve(savedFileName).toString();
+
+            // Now you can access the file anytime using the saved file path.
+            // If you want to process the file (e.g., read using DuckDB), you can pass this
+            // file path to the required method.
+            System.out.println("File saved at: " + savedFilePath);
+
+            return savedFilePath;
+        }
+
+        // If the file is not Excel, return an error message or handle accordingly
+        throw new IllegalArgumentException("The uploaded file is not an Excel file.");
+    }
+
+    public FileUploadResponseDuckDb fileUploadExcel(String fileId, String fileName, String sheetName, String userId,
+            Integer recordCount) throws IOException, ClassNotFoundException, ExpectationFailedException, SQLException {
+
+        Path excelFilePath = Paths.get(SILZILA_DIR, "tmp", fileId + ".xlsx");
+        MultipartFile file = getFileAsMultipartFile(excelFilePath);
+
+        FileUploadResponseDuckDb fileUploadResponseDuckDb = fileUpload(file,sheetName);
+        fileUploadResponseDuckDb.setName(fileName);
+        Files.deleteIfExists(excelFilePath);
+
+        return fileUploadResponseDuckDb;
+
+    }
+
+    public static MultipartFile getFileAsMultipartFile(Path filePath) throws IOException {
+        File file = filePath.toFile();
+        if (!file.exists() || !file.isFile()) {
+            throw new IllegalArgumentException("File does not exist or is not a valid file: " + filePath);
+        }
+
+        String mimeType = "";
+
+        String fileName = file.getName();
+        if (fileName.endsWith(".xlsx")) {
+            mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        } else if (fileName.endsWith(".xls")) {
+            mimeType = "application/vnd.ms-excel";
+        }
+
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            return new MockMultipartFile(
+                    file.getName(),
+                    file.getName(),
+                    mimeType,
+                    inputStream);
+        }
+    }
 
 }
