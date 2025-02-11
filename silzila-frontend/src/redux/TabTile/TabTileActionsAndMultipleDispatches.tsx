@@ -25,6 +25,10 @@ import {
 } from "./TabActions";
 import { addTile, removeTile, removeTilesOfTab, renameTile, resetTileState } from "./TileActions";
 
+import {resetCalculationState} from '../Calculations/CalculationsActions';
+import { resetState } from "../DataSet/datasetActions";
+import { resetChartFilterGroup } from "../ChartFilterGroup/ChartFilterGroupStateActions";
+import { reset } from "../Permissions/permissions.action";
 //1
 export const updateNextTabId = () => {
 	return { type: "UPDATE_NEXT_TAB_ID" };
@@ -125,6 +129,8 @@ export const resetTabTileState = () => {
 	return { type: "RESET_TABTILE_PROPS" };
 };
 
+
+
 //19
 export const setDashTileSwitched = (isSwitched: boolean) => {
 	return { type: "SET_DASH_TILE_SWITCHED", payload: isSwitched };
@@ -166,6 +172,11 @@ export const actionsToAddTab = ({
 
 export const resetAllStates = () => {
 	return (dispatch: Dispatch<any>) => {
+		/**
+		 * do not enable this dispatch
+		 */
+		// dispatch(reset());
+		dispatch(resetState());
 		dispatch(resetChartControls());
 		dispatch(resetChartProperties());
 		dispatch(resetSampleRecords());
@@ -173,6 +184,8 @@ export const resetAllStates = () => {
 		dispatch(resetTabState());
 		dispatch(resetTileState());
 		dispatch(resetTabTileState());
+		dispatch(resetCalculationState());
+		dispatch(resetChartFilterGroup());
 	};
 };
 

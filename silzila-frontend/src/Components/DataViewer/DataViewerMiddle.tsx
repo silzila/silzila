@@ -9,7 +9,7 @@ import { connect } from "react-redux";
 import "./dataViewerMiddle.css";
 // import chartControlIcon from "../../assets/chart-control-icon.svg";
 // import settingsIcon from "../../assets/charts_theme_settings_icon.svg";
-import CalculationRightPanel from "../Calculations/CalculationControlPanel/CalculationControlPanel";
+
 import { Dispatch } from "redux";
 import {
   DataViewerMiddleProps,
@@ -35,6 +35,7 @@ import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import CalculationCanvas from "../Calculations/CalculationCanvas/CalculationCanvas";
+import CalculationRightPanel from "../Calculations/CalculationControlPanel/CalculationControlPanel";
 import { fontSize } from "../..";
 import { chartTypes } from "../ChartOptions/ChartTypes";
 
@@ -169,37 +170,33 @@ const DataViewerMiddle = ({
   };
 
   return (
-    <div className="dataViewerMiddle" style={{ height: "300px" }}>
-      {chartProp.properties[propKey].chartType === "richText" ? (
-        <>
-          <GraphArea />
-          <DynamicMeasureWindow />
-          {/* <ChartData
-            tabId={tabId}
-            tileId={tileId}
-            screenFrom="richTextReportFilter"/>
-          <div className="rightColumn">{controlDisplayed()}</div> */}
-        </>
-      ) : (
-        <>
-          <ChartAxes tabId={tabId} tileId={tileId} uID="" />
-          {chartProp.properties[propKey].enableOverrideForUID !== null &&
-          chartProp.properties[propKey].enableOverrideForUID !== undefined &&
-          chartProp.properties[propKey].enableOverrideForUID !== "" ? (
-            <>
-              <ChartAxes
-                tabId={tabId}
-                tileId={tileId}
-                uID={chartProp.properties[propKey].enableOverrideForUID}
-              />
-            </>
-          ) : null}
-          {calculations.properties[propKey]?.currentCalculationSession ? (
+    <>
+      <div className="dataViewerMiddle" style={{ height: "300px" }}>
+        {chartProp.properties[propKey].chartType === "richText" ? (
+          <>
+            <GraphArea />
+            <DynamicMeasureWindow />
+          </>
+        ) : (
+          <>
+            <ChartAxes tabId={tabId} tileId={tileId} uID="" />
+            {chartProp.properties[propKey]?.enableOverrideForUID !== null &&
+            chartProp.properties[propKey]?.enableOverrideForUID !== undefined &&
+            chartProp.properties[propKey]?.enableOverrideForUID !== "" ? (
+              <>
+                <ChartAxes
+                  tabId={tabId}
+                  tileId={tileId}
+                  uID={chartProp.properties[propKey]?.enableOverrideForUID}
+                />
+              </>
+            ) : null}
+            {calculations.properties[propKey]?.currentCalculationSession ? (
               <CalculationCanvas />
             ) : (
               <GraphArea />
             )}
-          {calculations.properties[propKey]?.currentCalculationSession ? (
+            {calculations.properties[propKey]?.currentCalculationSession ? (
               <CalculationRightPanel />
             ) : (
               <div
@@ -213,14 +210,15 @@ const DataViewerMiddle = ({
                 {controlDisplayed()}
               </div>
             )}
-        </>
-      )}
-      <NotificationDialog
-        openAlert={openAlert}
-        severity={severity}
-        testMessage={testMessage}
-      />
-    </div>
+          </>
+        )}
+        <NotificationDialog
+          openAlert={openAlert}
+          severity={severity}
+          testMessage={testMessage}
+        />
+      </div>
+    </>
   );
 };
 

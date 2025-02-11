@@ -8,24 +8,24 @@ import { duplicateControl } from "../../redux/ChartPoperties/ChartControlsAction
 import {
   ChartControl,
   ChartControlsProps,
-  ChartControlStateProps
+  ChartControlStateProps,
 } from "../../redux/ChartPoperties/ChartControlsInterface";
 import { duplicateChartProperty } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import {
   ChartPropertiesProps,
-  ChartPropertiesStateProps
+  ChartPropertiesStateProps,
 } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import {
   TabStateProps,
-  TabStateProps2
+  TabStateProps2,
 } from "../../redux/TabTile/TabStateInterfaces";
 import {
   TabTileStateProps,
-  TabTileStateProps2
+  TabTileStateProps2,
 } from "../../redux/TabTile/TabTilePropsInterfaces";
 import {
   TileStateProps,
-  TileStateProps2
+  TileStateProps2,
 } from "../../redux/TabTile/TileStateInterfaces";
 import "./individualTile.css";
 import { connect } from "react-redux";
@@ -33,11 +33,12 @@ import { renameTile } from "../../redux/TabTile/TileActions";
 import { actionsToAddTile } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import {
   duplicateChartFilterGroups,
-  addChartFilterTabTileName
+  addChartFilterTabTileName,
 } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 import { ChartFilterGroupProps } from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 import { ChartFilterGroupStateProps } from "../../redux/ChartFilterGroup/ChartFilterGroupInterface";
 import Logger from "../../Logger";
+import ClearIcon from "@mui/icons-material/Clear";
 
 type IndTileStateProps = TabStateProps2 &
   TileStateProps2 &
@@ -64,7 +65,7 @@ interface IndividualTileProps {
   showDash: boolean;
   popupClass?: string;
   inPopup?: boolean;
-  style?: React.CSSProperties; 
+  style?: React.CSSProperties;
   //functions
   renameTileBegin: (tabId: number, tileId: number) => void;
   renameTileComplete: (
@@ -100,7 +101,6 @@ interface IndividualTileProps {
     tabTileName: string,
     selectedGroups: any
   ) => void;
-  
 }
 
 const IndividualTile = ({
@@ -112,7 +112,6 @@ const IndividualTile = ({
   tabId,
   tileId,
   showDash,
-
 
   // functions in parent
   renameTileBegin,
@@ -136,16 +135,16 @@ const IndividualTile = ({
   chartProperties,
   chartGroup,
   popupClass,
-  inPopup = false
+  inPopup = false,
 }: IndividualTileProps) => {
   const [renameValue, setRenameValue] = useState<string>(tileName);
-  
+
   const handleTileNameValue = (e: any) => {
     setRenameValue(e.target.value);
   };
- 
-  const tileWidth = inPopup ? "" : tileName.length >= 15 ? "150px" : tileName.length >= 10 ? "110px" : "70px";
 
+  const tileWidth = inPopup ? "" : tileName.length >= 15 ? "150px" : tileName.length >= 10 ? "110px" : "70px";  
+ 
   var menuStyle = { fontSize: "12px", padding: "2px 1rem" };
 
   const [anchorEl, setAnchorEl] = useState<null | any>(null);
@@ -158,7 +157,7 @@ const IndividualTile = ({
   const handleClose = () => {
     setAnchorEl(null);
   };
-  
+
   function setDuplicateName(
     fromTileName: string,
     newName: string,
@@ -230,24 +229,24 @@ const IndividualTile = ({
 
   const RightClickMenu = () => {
     return (
-      <Menu 
+      <Menu
         id="basic-menu"
         anchorEl={anchorEl}
         anchorOrigin={{
           vertical: "top",
-          horizontal: "right"
+          horizontal: "right",
         }}
         transformOrigin={{
           vertical: "bottom",
-          horizontal: "center"
+          horizontal: "center",
         }}
         open={open}
         onClose={() => handleClose()}
         MenuListProps={{
-          "aria-labelledby": "basic-button"
+          "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem 
+        <MenuItem
           onClick={(e) => {
             e.stopPropagation();
             renameTileBegin(tabId, tileId);
@@ -280,7 +279,6 @@ const IndividualTile = ({
       </Menu>
     );
   };
-  
 
   if (selectedTile === tileId && editing) {
     return (
@@ -303,13 +301,21 @@ const IndividualTile = ({
     );
   } else {
     return (
-      <span style={{ width: tileWidth }}
-      className={`${
-        selectedTile === tileId && !showDash
-          ? "commonTile indiItemHighlightTile"
-          : "commonTile indiItemTile"
-      } ${popupClass}`}
-    
+      <span
+        style={{
+          width: tileWidth,
+          height: "1.5rem",
+          display: "flex",
+          alignItems: "center",
+          paddingTop: 0,
+          overflow: "hidden",
+          ...(popupClass ? { paddingLeft: '7px' ,width:'100%'} : {}),
+        }}
+        className={`${
+          selectedTile === tileId && !showDash
+            ? "commonTile indiItemHighlightTile"
+            : "commonTile indiItemTile"
+        } ${popupClass}`}
         onDoubleClick={(e) => {
           e.stopPropagation();
           Logger("info", "Double clicked");
@@ -326,27 +332,30 @@ const IndividualTile = ({
           e.stopPropagation();
           Logger("info", "Right Click");
           setTimeout(() => {
-          handleClick(e);
+            handleClick(e);
           }, 100);
         }}
       >
-
-        <span className="tabText">
+        <span className="tabText" style={{ marginTop: 0 }}>
           {tileName.length > 20 ? tileName.substring(0, 25) + ".." : tileName}
         </span>
-        <div className={!inPopup ? "close-container" : ""}>
-        <span
-          title="Delete Tile"
-          className={`closeTile ${inPopup && selectedTile !== tileId ? "popupClose" : ""}
+        <ClearIcon
+          // title="Delete Tile"
+          style={{
+            fontSize: "0.75rem",
+            right: "5px",
+            transform: "none",
+            ...(popupClass ? {width:'0.75rem',height:'0.75rem' } : {}),
+          }}
+          className={`closeTile top-auto ${!inPopup ? "close-container" : ""} ${
+            inPopup && selectedTile !== tileId ? "popupClose" : ""
+          }
           ${inPopup && selectedTile === tileId ? "hidden" : ""}`}
           onClick={(e) => {
             e.stopPropagation();
             removeTile(tabId, tileId);
           }}
-        >
-          X
-        </span>
-        </div>
+        />
         <RightClickMenu />
       </span>
     );
@@ -360,7 +369,7 @@ const mapStateToProps = (state: IndTileStateProps) => {
     tabTileProps: state.tabTileProps,
     chartProperties: state.chartProperties,
     chartControls: state.chartControls,
-    chartGroup: state.chartFilterGroup
+    chartGroup: state.chartFilterGroup,
   };
 };
 
@@ -383,7 +392,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
           table,
           fromTab,
           selectedDs,
-          selectedTablesInDs
+          selectedTablesInDs,
         })
       ),
     duplicateControl: (propKey: string, chartControl: ChartControlsProps) =>
@@ -395,7 +404,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
       tabTileName: string
     ) => dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName)),
     duplicateChartFilterGroups: (tabTileName: string, selectedGroups: any) =>
-      dispatch(duplicateChartFilterGroups(tabTileName, selectedGroups))
+      dispatch(duplicateChartFilterGroups(tabTileName, selectedGroups)),
   };
 };
 

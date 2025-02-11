@@ -154,3 +154,25 @@ export const resetGraphHighlight = (tabId: any) => {
 export const updateGraphHighlight = (tabId: number, propKey: string, highlight: any) => {
 	return { type: "SET_GRAPH_BORDER_HIGHLIGHT", payload: { tabId, propKey, highlight } };
 };
+
+export const setTheme = (theme: string,tabId: number) => {
+	return {
+	  type: "SET_THEME",
+	  payload: {theme,tabId}
+	};
+  };
+
+  export const setDashColorScheme = (colorScheme: string,tabId:number) => { return { type: "SET_COLOR_SCHEME", payload: {colorScheme,tabId }, }; };
+  
+  export const toggleAllTabs = (tabId: number) => {console.log("hii")
+  
+  return {
+    type: "TOGGLE_ALL_TABS",
+    payload: { tabId }
+}};
+
+export const toggleAllTiles = (tabId: number) => {console.log("hiiiiiiiiiiii2")
+	return{
+    type: "TOGGLE_ALL_TILES",
+    payload: { tabId }
+}};
