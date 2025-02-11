@@ -27,6 +27,7 @@ import {
 } from "../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction";
 import { TileRibbonStateProps } from "../../Components/TabsAndTiles/TileRibbonInterfaces";
 import Logger from "../../Logger";
+import { fontSize, palette } from "../..";
 
 const ChartFilterGroups = ({
 	// props
@@ -251,8 +252,13 @@ const ChartFilterGroups = ({
 			<ExpandCollapseIconSwitch />
 
 			{
-				group && group.filters && group.filters.length ? null : <p style={{fontSize: "10px", color: "#999999"}}>Please drag a field here</p>
-			}
+             group && !group.isCollapsed ? (group.filters && group.filters.length ? null : (
+             <p 
+			 style={{ fontSize: fontSize.extraSmall, color: palette.primary.contrastText, textAlign: "center", marginBlock: "10px" }}>
+            {fromDashboard ? "No fields are there" : "Please drag a field here"}
+             </p>
+        )) : null
+      }
 			
 
 			<NotificationDialog
