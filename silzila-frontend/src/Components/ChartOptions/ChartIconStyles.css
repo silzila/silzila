@@ -3,19 +3,19 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   padding-bottom: 10px;
-  column-gap: 10px;
+  column-gap: 5px;
+  padding-top: 0.75rem;
   /* padding: 0 4px 8px 4px; */
 }
 
 .chartIcon {
-  padding: 8px;
-  width: 50px;
-  height: 50px;
-  margin: 10px auto;
-  border: 1px solid transparent;
-  border-radius: 2px;
-  transition: 0.1s;
-  text-transform: capitalize;
+  width: 30px;
+    height: 30px;
+    margin: 2px auto;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    transition: 0.1s;
+    text-transform: capitalize;
 }
 .chartIcon:hover {
   border: 2px solid rgba(224, 224, 224, 1);

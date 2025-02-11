@@ -35,6 +35,8 @@ import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ChartData from "../ChartAxes/ChartData";
+import { fontSize } from "../..";
+import { chartTypes } from "../ChartOptions/ChartTypes";
 
 const DataViewerMiddle = ({
   // props
@@ -63,6 +65,10 @@ const DataViewerMiddle = ({
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [testMessage, setTestMessage] = useState<string>("");
   const [severity, setSeverity] = useState<AlertColor>("success");
+  let selectedChart = chartProp.properties[propKey].chartType;
+  const selectedChartData = chartTypes.find(
+      (chart) => chart.name === selectedChart
+    );
 
   const MinimizeComponent = () => {
     return (
@@ -71,7 +77,7 @@ const DataViewerMiddle = ({
           sx={{
             fontSize: "18px",
             float: "right",
-            marginRight: "1rem",
+            marginTop: "2px",
           }}
           onClick={() => setMenu("")}
         />
@@ -87,7 +93,11 @@ const DataViewerMiddle = ({
               style={{
                 color: " #404040",
                 fontWeight: "600",
-                padding: "10px 0 0 0.5rem",
+                paddingTop: "0.5rem",
+                paddingLeft: "0.65rem",
+                textAlign: "start",
+                fontSize: fontSize.large,
+                marginRight: "1rem"
               }}
             >
               Charts
@@ -104,13 +114,32 @@ const DataViewerMiddle = ({
               style={{
                 color: " #404040",
                 fontWeight: "600",
-                // padding: "0 0.5rem",
-                padding: "10px 0 0 0.5rem",
-                marginBottom: "3px",
+                padding: "0.5rem 0 0 0.5rem",
+                textAlign: "start",
+                fontSize: fontSize.large,
+                marginBottom: "0.19rem"
               }}
             >
+              <div style={{ display: "flex", alignItems: "center" }}>
               Charts Controls
-              <MinimizeComponent />
+              {selectedChartData ? (
+               <img
+                src={selectedChartData.icon}
+                alt={selectedChartData.name}
+                title={selectedChartData.value}
+                className="selected-chart-icon"
+                style={{paddingLeft: "7px" }}
+               />
+              ) : (
+               <p>No icon available for the selected chart</p>
+              )}
+              <div style={{
+                paddingLeft: "3.85rem",
+                marginRight: "0"
+               }}>
+                <MinimizeComponent />
+              </div>
+              </div>
             </div>
             <ChartControlObjects />
           </div>
@@ -169,7 +198,13 @@ const DataViewerMiddle = ({
             tabId={tabId}
             tileId={tileId}
             screenFrom="richTextReportFilter"/>
-          <div className="rightColumn">{controlDisplayed()}</div>
+          <div 
+          className="rightColumn" 
+           style={{
+            width: '14rem',
+            overflowY: "auto",
+            overflowX: "hidden",
+          }}>{controlDisplayed()}</div>
         </>
       ) : (
         <>
@@ -186,7 +221,12 @@ const DataViewerMiddle = ({
             </>
           ) : null}
           <GraphArea />
-          <div className="rightColumn">{controlDisplayed()}</div>
+          <div className="rightColumn"
+          style={{
+            width: '14rem',
+            overflowY: "auto",
+            overflowX: "hidden",
+          }}>{controlDisplayed()}</div>
         </>
       )}
       <NotificationDialog
