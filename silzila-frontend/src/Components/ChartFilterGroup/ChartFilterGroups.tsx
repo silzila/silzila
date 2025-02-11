@@ -231,7 +231,7 @@ const ChartFilterGroups = ({
 					title="Press enter or click away to save"
 				/>
 			) : (
-				<span style={{ margin: "10px" }}>{group.name}</span>
+				<span>{group.name}</span>
 			)}
 			{fromDashboard ? (
 				<button
