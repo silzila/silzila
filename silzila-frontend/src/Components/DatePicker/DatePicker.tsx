@@ -1,3 +1,4 @@
+
 import { TextField } from '@mui/material';
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -50,5 +51,4 @@ const DatePicker = ({value,onChange}:IDatePicker) => {
         </LocalizationProvider>
   )
 }
-
 export default DatePicker
