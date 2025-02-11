@@ -89,17 +89,17 @@ const EditDataSet = ({
     }
 
   const setAllInfo = async () => {
-    const permissionRes=await FetchData({
-      requestType:'noData',
-      method:'GET',
-      url:`privilege?workspaceId=${state?.parentId}&contentTypeId=${contentTypes.Dataset}&contentId=${dsId}`,
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    if(permissionRes.status){
-      const permission:{roleID:number,roleName:string,levelId:number}=permissionRes.data;
-      dispatch({type:'SET_PERMISSION',payload:permission})
-    }
-    else return
+    // const permissionRes=await FetchData({
+    //   requestType:'noData',
+    //   method:'GET',
+    //   url:`privilege?workspaceId=${state?.parentId}&contentTypeId=${contentTypes.Dataset}&contentId=${dsId}`,
+    //   headers: { Authorization: `Bearer ${token}` },
+    // })
+    // if(permissionRes.status){
+    //   const permission:{roleID:number,roleName:string,levelId:number}=permissionRes.data;
+    //   dispatch({type:'SET_PERMISSION',payload:permission})
+    // }
+    // else return
     var res: any = await FetchData({
       requestType: "noData",
       method: "GET",

@@ -57,7 +57,7 @@ const TableList = (props: any) => {
 		setLoadingTableInCanvas(true);
 		var result: any = await FetchData({
 			requestType: "noData",
-			method: "POST",
+			method: props.isFlatFile?"GET":"POST",
 			url: url,
 			headers: { Authorization: `Bearer ${props.token}` },
 		});

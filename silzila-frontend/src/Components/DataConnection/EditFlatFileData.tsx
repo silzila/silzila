@@ -136,14 +136,14 @@ const EditFlatFileData = ({
   const onEditFlatFile = async (file: any) => {
     var result: any = await FetchData({
       requestType: "noData",
-      method: "POST",
+      method: "GET",
       url: `file-data-column-details/${file.id}?workspaceId=${parentId}`,
       headers: { Authorization: `Bearer ${token}` },
     });
     if (result.status) {
       var result2: any = await FetchData({
         requestType: "noData",
-        method: "POST",
+        method: "GET",
         url: `file-data-sample-records?flatfileId=${file.id}&workspaceId=${parentId}`,
         headers: {
           Authorization: `Bearer ${token}`,

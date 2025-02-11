@@ -2,6 +2,7 @@ import {
   ArrowsProps,
   tableObjProps,
 } from "../../redux/DataSet/DatasetStateInterfaces";
+import { IFlatIdTableIdMap } from "./EditDataSetInterfaces";
 
 export interface CanvasProps {
   //state
@@ -11,6 +12,7 @@ export interface CanvasProps {
   dsId?: string;
   //props
   editMode?: boolean;
+  flatFileIdMap:IFlatIdTableIdMap[];
   EditFilterdatasetArray: any[];
 }
 
