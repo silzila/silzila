@@ -74,6 +74,7 @@ const CanvasTables = ({
   const [testMessage, setTestMessage] = useState<string>("");
    const [viewerRestriction,setViewerRestriction]=useState<boolean>(false);
   // const [startPosition, setStartPosition] = useState({ x, y });
+  
   const [x, setX] = useState<number | any>(
     tableData.tablePositionX ? tableData.tablePositionX : 0
   );
@@ -81,7 +82,7 @@ const CanvasTables = ({
     tableData.tablePositionY ? tableData.tablePositionY : 0
   );
   // const {workspaceContents,SubWorkspaceContents}=useSelector((state: RootState) => state.permissions)
-    // const permission=useSelector((state:RootState)=>state.dataSetState.permission);
+    const permission=useSelector((state:RootState)=>state.dataSetState.permission);
     useEffect(() => {
       if(!editMode||!dsId)return;
   
@@ -90,10 +91,10 @@ const CanvasTables = ({
       // if(!selectedDs)return;
       // if(selectedDs.levelId===permissions.view)setViewerRestriction(true);
       // else if(selectedDs.roleName===roles.CustomCreator && selectedDs.levelId===permissions.view)setViewerRestriction(true);
-      // if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)setViewerRestriction(true);
+      if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)setViewerRestriction(true);
       // else if(permission.roleName===roles.CustomCreator && permission.levelId===permissions.view)setViewerRestriction(true);
-      // else setViewerRestriction(false);   
-    },[dsId, editMode]);
+      else setViewerRestriction(false);   
+    },[dsId, editMode, permission]);
   var uid = new ShortUniqueId({ length: 8 });
 
   // when a new arrow is created,check if there is alerady a relation between the two tables of this new arrow
@@ -492,6 +493,7 @@ const CanvasTables = ({
                 checkRelationExists={checkRelationExists}
                 table_Id={tableData.id}
                 disableDrag={viewerRestriction}
+                tableHasCustomQuery={tableData.isCustomQuery}
               />
             );
           })}
