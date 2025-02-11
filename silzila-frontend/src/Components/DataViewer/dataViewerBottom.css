@@ -62,7 +62,7 @@
 	border-radius: 2px;
 	/* background-color: white; */
 	font-weight: 600;
-	color: #2bb9bb;
+	color: #2bb9bb !important;
 	/* padding: 1px 0 1px 0.5rem; */
 	padding: 1px 0 1px 0;
 	text-align: left;
@@ -71,11 +71,12 @@
 
 .tileTableView {
 	overflow: hidden;
-	padding: 8px 12px 0px 0px;
+	padding-top: 0.3rem;
 	width: 100%;
 	/* padding-top:10px; */
 	/* border-top: 2px solid rgba(224, 224, 224, 1); */
 }
+
 .tileTableView:hover{
 	overflow: auto;
 }
@@ -128,6 +129,7 @@
 .showColumnsOnly {
 	font-size: 11px;
 	padding: 8px;
+	padding-left: 10px;
 	padding-bottom: 0.4%;
 /* background-color: white; */
 	display: grid;
@@ -193,7 +195,7 @@
 	display: flex;
 	cursor: move; 
 }
-.styleForTableHeader:hover{
+.styleForColumnsOnly:hover, .styleForTableHeader:hover{
 	background-color: rgb(211, 211, 211);
 }
 

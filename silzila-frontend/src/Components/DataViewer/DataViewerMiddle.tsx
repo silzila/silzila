@@ -9,7 +9,7 @@ import { connect } from "react-redux";
 import "./dataViewerMiddle.css";
 // import chartControlIcon from "../../assets/chart-control-icon.svg";
 // import settingsIcon from "../../assets/charts_theme_settings_icon.svg";
-
+import CalculationRightPanel from "../Calculations/CalculationControlPanel/CalculationControlPanel";
 import { Dispatch } from "redux";
 import {
   DataViewerMiddleProps,
@@ -34,7 +34,9 @@ import { changeChartOptionSelected } from "../../redux/ChartPoperties/ChartPrope
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import ChartData from "../ChartAxes/ChartData";
+import CalculationCanvas from "../Calculations/CalculationCanvas/CalculationCanvas";
+import { fontSize } from "../..";
+import { chartTypes } from "../ChartOptions/ChartTypes";
 
 const DataViewerMiddle = ({
   // props
@@ -44,6 +46,7 @@ const DataViewerMiddle = ({
   // state
   tabTileProps,
   chartProp,
+  calculations,
 
   // dispatch
   setMenu,
@@ -63,6 +66,11 @@ const DataViewerMiddle = ({
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [testMessage, setTestMessage] = useState<string>("");
   const [severity, setSeverity] = useState<AlertColor>("success");
+  var selectedChart = chartProp.properties[propKey].chartType;
+  const selectedChartData = chartTypes.find(
+      (chart) => chart.name === selectedChart
+    );
+  
 
   const MinimizeComponent = () => {
     return (
@@ -71,13 +79,15 @@ const DataViewerMiddle = ({
           sx={{
             fontSize: "18px",
             float: "right",
-            marginRight: "1rem",
+            marginTop: "2px",
+            // marginRight: "1rem",
           }}
           onClick={() => setMenu("")}
         />
       </Tooltip>
     );
   };
+
   const controlDisplayed = () => {
     switch (tabTileProps.selectedControlMenu) {
       case "Charts":
@@ -87,7 +97,12 @@ const DataViewerMiddle = ({
               style={{
                 color: " #404040",
                 fontWeight: "600",
-                padding: "10px 0 0 0.5rem",
+                // padding: "0.5rem 0 0 0.82rem",
+                paddingTop: "0.5rem",
+                paddingLeft: "0.65rem",
+                textAlign: "start",
+                fontSize: fontSize.large,
+                marginRight: "1rem"
               }}
             >
               Charts
@@ -104,13 +119,36 @@ const DataViewerMiddle = ({
               style={{
                 color: " #404040",
                 fontWeight: "600",
-                // padding: "0 0.5rem",
-                padding: "10px 0 0 0.5rem",
-                marginBottom: "3px",
+                padding: "0.5rem 0 0 0.5rem",
+                textAlign: "start",
+                fontSize: fontSize.large,
+                marginBottom: "0.19rem"
               }}
             >
+              {/* <div className="axisInfo" style={{ marginTop: "5px" }}> */}
+        {/* for{" "}
+        {chartTypes.filter((chart) => chart.name === selectedChart)[0].value} */}
+        <div style={{ display: "flex", alignItems: "center" }}>
+      {/* </div> */}
               Charts Controls
+        {selectedChartData ? (
+          <img
+            src={selectedChartData.icon}
+            alt={selectedChartData.name}
+            title={selectedChartData.value}
+            className="selected-chart-icon"
+            style={{paddingLeft: "7px" }}
+          />
+        ) : (
+          <p>No icon available for the selected chart</p>
+        )}
+        <div style={{
+          paddingLeft: "3.85rem",
+          marginRight: "0"
+        }}>
               <MinimizeComponent />
+        </div>
+              </div>
             </div>
             <ChartControlObjects />
           </div>
@@ -119,35 +157,6 @@ const DataViewerMiddle = ({
       case "Report Filters":
         return (
           <div className="rightColumnControlsAndFilters">
-            {/* <div
-              style={{
-                color: " #404040",
-                fontWeight: "600",
-                padding: "10px 0 0 0.5rem",
-                display:"flex",
-                alignItems:"center",
-                justifyContent:"space-between"
-              }}
-            >
-              Report Filter
-              <div
-                style={{
-                  float: "right",
-                  display: "flex",
-                  columnGap: "8px",
-                  alignItems: "center",
-                  // borderTop: "2px solid #d3d3d3"
-                }}
-              >
-                <MoreVertIcon
-                // @ts-ignore
-                  onClick={(event) => setAnchorEl(event.currentTarget)}
-                  style={{ height: "16px", width: "16px", color: "#878786" }}
-                />
-                <MinimizeComponent />
-
-              </div>
-            </div> */}
             <ChartFilterGroupsContainer
               propKey={propKey}
               fromDashboard={false}
@@ -165,11 +174,11 @@ const DataViewerMiddle = ({
         <>
           <GraphArea />
           <DynamicMeasureWindow />
-          <ChartData
+          {/* <ChartData
             tabId={tabId}
             tileId={tileId}
             screenFrom="richTextReportFilter"/>
-          <div className="rightColumn">{controlDisplayed()}</div>
+          <div className="rightColumn">{controlDisplayed()}</div> */}
         </>
       ) : (
         <>
@@ -185,8 +194,25 @@ const DataViewerMiddle = ({
               />
             </>
           ) : null}
-          <GraphArea />
-          <div className="rightColumn">{controlDisplayed()}</div>
+          {calculations.properties[propKey]?.currentCalculationSession ? (
+              <CalculationCanvas />
+            ) : (
+              <GraphArea />
+            )}
+          {calculations.properties[propKey]?.currentCalculationSession ? (
+              <CalculationRightPanel />
+            ) : (
+              <div
+                className="rightColumn"
+                style={{
+                  width: '14rem',
+                  overflowY: "auto",
+                  overflowX: "hidden",
+                }}
+              >
+                {controlDisplayed()}
+              </div>
+            )}
         </>
       )}
       <NotificationDialog
@@ -204,6 +230,7 @@ const mapStateToProps = (state: DataViewerMiddleStateProps & any) => {
     tabTileProps: state.tabTileProps,
     dynamicMeasureState: state.dynamicMeasuresState,
     chartControls: state.chartControls,
+    calculations: state.calculations,
   };
 };
 

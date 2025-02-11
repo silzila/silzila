@@ -1,167 +1,283 @@
+@font-face {
+  font-family: "Consolas";
+  src: url("../../assets/Fonts/Consolas.woff2") format("woff2");
+  font-display: swap;
+}
+
 .dataViewerMiddle {
-	flex: 1;
-	height: 100%;
-	display: flex;
-	transition: all 0.2s cubic-bezier(0, 1.26, 0.8, 1.28);
-	overflow: hidden;
-	/* margin-bottom: 0.25rem; */
-	/* border-top: 1px solid rgb(225, 225, 225); */
+  flex: 1;
+  height: 100%;
+  display: flex;
+  transition: all 0.2s cubic-bezier(0, 1.26, 0.8, 1.28);
+  overflow: hidden;
+  /* margin-bottom: 0.25rem; */
+  /* border-top: 1px solid rgb(225, 225, 225); */
 }
 
 .centerColumn {
-	flex: 1;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-	transition: all 0.2s cubic-bezier(0, 1.26, 0.8, 1.28);
-	margin: 0 0.5rem;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s cubic-bezier(0, 1.26, 0.8, 1.28);
+  margin: 0 0.5rem;
 }
 
 .graphTitleAndEdit {
-	width: 100%;
-	margin: 0;
-	padding: 0;
-	height: 3rem;
-	/* padding-left: 20px; */
-	display: flex;
-	/* border-bottom: 1px solid #d3d3d3; */
-	line-height: 3rem;
-	background-color: #fff;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  height: 3rem;
+  /* padding-left: 20px; */
+  display: flex;
+  /* border-bottom: 1px solid #d3d3d3; */
+  line-height: 3rem;
+  background-color: #fff;
 }
 
 .graphTitle {
-	width: 100%;
-	margin: 0;
-	padding: 0;
-	height: 3rem;
-	color: #b6b6b6;
-	/* text-transform: capitalize; */
-	text-align: center;
-	font-weight: 600;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  height: 3rem;
+  color: #b6b6b6;
+  /* text-transform: capitalize; */
+  text-align: center;
+  font-weight: 600;
 }
 
 .graphFullScreen {
-	display: flex;
-	flex-direction: column;
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
-	width: 100vw;
-	height: 100vh;
-	background-color: white;
-	z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 100vh;
+  background-color: white;
+  z-index: 2000;
 }
 
 .screenSettingsMenuItems {
-	display: flex;
-	column-gap: 10px;
-	font-size: 12px;
+  display: flex;
+  column-gap: 10px;
+  font-size: 12px;
 }
 
 .graphAreaIcons {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0 5px;
-	color: #b6b6b6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  color: #b6b6b6;
 }
 
 .graphAreaIcons:hover {
-	cursor: pointer;
-	color: #404040;
+  cursor: pointer;
+  color: #404040;
 }
 
 .graphAreaIconsSelected {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0 5px;
-	color: #404040;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  color: #404040;
 }
 
 .editTitle {
-	flex: 1;
-	width: 100%;
-	margin: 0;
-	padding: 0;
-	height: 3rem;
-	background-color: white;
-	/* text-transform: capitalize; */
-	text-align: center;
-	border: none;
-	font-weight: 600;
-	border-bottom: 1px solid #d3d3d3;
-	font-family: "Segoe UI";
+  flex: 1;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  height: 3rem;
+  background-color: white;
+  /* text-transform: capitalize; */
+  text-align: center;
+  border: none;
+  font-weight: 600;
+  border: 1px solid rgb(175, 153, 219);
+  font-family: "Segoe UI";
 }
 
 .graphContainer {
-	flex: 1;
-	overflow: auto;
-	background-color: #fff;
-	justify-content: center;
+  flex: 1;
+  overflow: auto;
+  background-color: #fff;
+  justify-content: center;
 }
 
 .syntaxHighlight {
-	text-align: left;
+  text-align: left;
+  color: #646161 !important;
+  font-family: "Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New" !important;
+  font-family: "Consolas" !important;
+}
+
+.syntaxHighlight span,
+.syntaxHighlight code {
+  color: black;
+  font-family: "Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New" !important;
+  font-family: "Consolas" !important;
+}
+
+.syntaxHighlight .hljs-keyword,
+.syntaxHighlight .hljs-built_in,
+.syntaxHighlight .hljs-title,
+.syntaxHighlight .hljs-string,
+.syntaxHighlight .hljs-comment,
+.syntaxHighlight .hljs-number,
+.syntaxHighlight .hljs-literal {
+  font-family: "Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New" !important;
+  font-family: "Consolas" !important;
 }
 
 .controlsIcon {
-	color: #666;
-	cursor: pointer;
-	border: 2px solid white;
-
+  color: #666;
+  cursor: pointer;
+  border: 2px solid white;
 }
 
 .controlsIcon:hover {
-	border: 2px solid rgba(224, 224, 224, 1);
-	background-color: white;
-	height: 100%;
+  border: 2px solid rgba(224, 224, 224, 1);
+  background-color: white;
+  height: 100%;
 }
 
 .selectedIcon {
-
-	border: 2px solid rgba(224, 224, 224, 1);
-	background-color: white;
-	height: 100%;
-
+  border: 2px solid rgba(224, 224, 224, 1);
+  background-color: white;
+  height: 100%;
 }
 
 .rightColumn {
-	padding: 0%;
-	height: 100%;
-	width: auto;
-	display: flex;
-	flex-direction: row;
-	overflow: auto;
+  padding: 0%;
+  /* height: 100%; */
+  width: auto;
+  display: flex;
+  flex-direction: row;
+
+  /* overflow: hidden;
+  /* Reserve scrollbar space to prevent width changes */
+  /* scrollbar-gutter: stable both-edges; */
+}
+/* .rightColumn:hover {
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
+.rightColumn::-webkit-scrollbar {
+  width: 5px;
+} */
 .rightColumnMenu {
-	height: 100%;
-	width: 3rem;
-	background-color: #eee;
-	display: flex;
-	flex-direction: column;
-	/* border-bottom: 1px solid rgb(211, 211, 211);
+  height: 100%;
+  width: 3rem;
+  background-color: #eee;
+  display: flex;
+  flex-direction: column;
+  /* border-bottom: 1px solid rgb(211, 211, 211);
 	border-top: 1px solid rgb(211, 211, 211); */
 }
 
 .rightColumnControlsAndFilters {
-	flex: 1;
-	height: 110%;
-	background-color: white;
-	width: 250px;
-	/* border-right: 1px solid #d3d3d3; */
-	/* border-bottom: 1px solid rgb(211, 211, 211); */
-	display: flex;
-	flex-direction: column;
-	padding: 0 8px 0 8px;
-	border-left: 2px solid rgba(224, 224, 224, 1);
-	/* border-top: 2px solid rgba(224, 224, 224, 1); */
-	/* border-collapse: collapse; */
-
+  flex: 1;
+  height: 100%;
+  background-color: white;
+  width: 250px;
+  /* border-right: 1px solid #d3d3d3; */
+  /* border-bottom: 1px solid rgb(211, 211, 211); */
+  display: flex;
+  flex-direction: column;
+  /* padding: 0 0px 0 8px; */
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-left: 2px solid rgba(224, 224, 224, 1);
+  /* border-top: 2px solid rgba(224, 224, 224, 1); */
+  /* border-collapse: collapse; */
+}
+.rightColumnControlsAndFilters::-webkit-scrollbar {
+  width: 4px;
 }
 
-.graphAreaViewSqlButtonStyle{
-	height: 16px; width: 16px; color: grey
+.graphAreaViewSqlButtonStyle {
+  height: 16px;
+  width: 16px;
+  color: grey;
+}
+
+
+.copy-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-container .copy {
+  background-color: #2bb9bb;
+}
+
+.copy,
+.copied{
+  width: 40px;
+  height: 38px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: 0.4s width;
+  transform-origin: left;
+  overflow: hidden; 
+  position: relative;
+  margin-right: 10px;
+  cursor: pointer;
+}
+.copy img,
+.copied .tick-icon{
+  width: 20px !important;
+  height: 18px !important;
+  color: white;
+  font-weight: bolder;
+  margin-left: 11.5px;
+}
+.copy:hover {
+  width: 90px;
+  transition: 0.4s width;
+  transform-origin: left;
+  background-color:  rgb(212, 212, 212);
+  border: 1px solid transparent;
+}
+.copy span {
+  opacity: 0;
+  margin-left: 12px;
+  white-space: nowrap;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.copy:hover span {
+  opacity: 1;
+}
+.copied{
+  width: 90px;
+  background-color:  rgb(212, 212, 212);
+  border: 1px solid transparent;
+}
+.copied .tick-icon{
+  width: 13px;
+  height: 14px;
+  margin-left: 10px;
+  border: 1px solid transparent;
+}
+.copied span{
+  margin-left: 8px;
+  white-space: nowrap;
+  font-weight: 600;
+  border: 1px solid transparent;
 }

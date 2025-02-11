@@ -39,6 +39,8 @@ import {
   DialogContent,
   DialogTitle,
 } from "@mui/material";
+import CalculationFunctionListHolder from "../Calculations/CalculationFunctionsListHolder/CalculationFunctionsListHolder";
+import { palette } from "../..";
 
 const ChartAxes = ({
   // props
@@ -49,6 +51,7 @@ const ChartAxes = ({
   enableOverrideForUIDAction,
   updateQueryParam,
   removeChartAxesForUID,
+  calculations,
   // state
 
   chartProp,
@@ -101,6 +104,8 @@ const ChartAxes = ({
     setAnchorMismatchElm(null);
     setShowOptionsMismatch(false);
   };
+
+  const currentCalculationSession = calculations.properties[propKey]?.currentCalculationSession;
 
   const OverrideMeasureDropZone = () => {
     return (
@@ -395,7 +400,7 @@ const ChartAxes = ({
         style={{
           display: "flex",
           flexDirection: "column",
-          paddingBottom: "5px",
+          padding: "10px 5px 0 11px",
         }}
       >
         <span className="axisTitle"></span>
@@ -411,9 +416,13 @@ const ChartAxes = ({
             options={options}
             sx={{
               color: "#2bb9bb",
-              width: "12rem",
+              width: "100%",
               "& .MuiAutocomplete-inputRoot": {
                 maxHeight: "32px !important",
+              },
+              '& .css-y0cxhw-MuiFormLabel-root-MuiInputLabel-root': {
+                 top:"-12px",
+                 fontSize: "12px"
               },
               "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
                 borderColor: "#2bb9bb !important",
@@ -435,7 +444,7 @@ const ChartAxes = ({
                   "& .MuiInputBase-root": {
                     height: "25px",
                     borderRadius: "4px",
-                    padding: "2px 0px",
+                    padding: "2px 0px"
                   },
                   "& .MuiOutlinedInput-input": {
                     textAlign: "center",
@@ -444,11 +453,14 @@ const ChartAxes = ({
                     fontSize: "13px",
                   },
                   "& .MuiSvgIcon-root": {
-                    fontSize: "18px",
+                    fontSize: "18px", //for cancel icon as well as autocomplete icon
                   },
                   "& .MuiAutocomplete-clearIndicator": {
                     padding: 0,
                   },
+                  "& .css-1d4y7n0-MuiSvgIcon-root":{
+                    fontSize: "13px" //for cancel icon
+                  }
                 }}
                 label="Select Map"
               />
@@ -471,22 +483,23 @@ const ChartAxes = ({
   };
 
   return (
-    <div className="charAxesArea">
-      {!uID &&
-      (chartProp.properties[propKey].chartType === "filledMap" ||
-        chartProp.properties[propKey].chartType === "bubbleMap") ? (
+    <div className="charAxesArea" style={{width:"15.625rem", paddingRight: "0.5rem"}}>
+      {!uID && 
+        (chartProp.properties[propKey].chartType === "filledMap" ||
+          chartProp.properties[propKey].chartType === "bubbleMap") ? (
         <ShowLocationPicker></ShowLocationPicker>
       ) : null}
-      {!uID &&
+      {!uID && 
         (chartProp.properties[propKey].chartType === "filledMap" ||
           chartProp.properties[propKey].chartType === "bubbleMap") && (
-          <div style={{ display: "flex", flexDirection: "row" }}>
+          <div style={{ display: "flex", flexDirection: "row", padding: "8px 5px 0 11px"}}>
             <FormControl
               sx={{
-                width: "12rem",
+                width: "100%",
                 margin: "0.5rem 0",
                 "& .MuiInputBase-root": {
                   borderRadius: "0px",
+                  color: palette.primary.contrastText,
                 },
                 "& .MuiInputBase-input": {
                   padding: "0px 32px 0px 0px",
@@ -501,7 +514,7 @@ const ChartAxes = ({
             >
               <InputLabel
                 sx={{
-                  fontSize: "1rem",
+                  // fontSize: "1rem",
                   lineHeight: "1.5rem",
                   "&.Mui-focused": {
                     color: "#2bb9bb",
@@ -618,7 +631,7 @@ const ChartAxes = ({
             ></GoeMismatch>
           </div>
         )}
-      {dropZones.map((zone: any, zoneI: any) =>
+      {!currentCalculationSession && dropZones.map((zone: any, zoneI: any) =>
         uID ? (
           zone !== "Measure" && zone !== "Y" ? (
             zone !== "X" ? (
@@ -644,6 +657,9 @@ const ChartAxes = ({
         )
       )}
       {
+        currentCalculationSession && <CalculationFunctionListHolder />
+      }
+      {
         uID ? null : (
           <ChartData
             tabId={tabId}
@@ -663,6 +679,7 @@ const mapStateToProps = (
   return {
     chartProp: state.chartProperties,
     chartControls: state.chartControls,
+    calculations: state.calculations,
   };
 };
 
