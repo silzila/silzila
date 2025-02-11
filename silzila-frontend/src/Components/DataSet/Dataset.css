@@ -96,3 +96,22 @@
   background-color: grey;
   opacity: 1;
 }
+
+.filter_dataset {
+  border: 2px solid rgba(224, 224, 224, 1);
+  text-align: center;
+  position: fixed;
+  display: flex;
+  padding-top: 1rem;
+  height: 87%;
+  width: 211px;
+  top: 5.7%;
+  background-color: white;
+  right: 0%;
+  /* overflow: auto; */
+  overflow-x: hidden;
+  overflow-y: auto;
+  z-index: 90;
+  border-right: none;
+  margin-top: 0.538rem;
+}
