@@ -1,0 +1,12 @@
+.bottom-menu-container {
+    position: absolute;
+    width: fit-content;
+    background-color: white;
+    /* border-top: 2px solid #d3d3d3; */
+    display: flex;
+    align-items: center;
+    padding: 4px 2px;
+    padding-inline: 1rem;
+    bottom:0;
+    right:0;
+}

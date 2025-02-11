@@ -34,67 +34,29 @@ const Header = (props:any) => {
   
   const [loading, setLoading] = useState(false); // Loading state
   const [error, setError] = useState(null); // Error state
-
-  // Fetch user details from the API
-  // useEffect(() => {
-  //   const token =localStorage.getItem('accessToken')
-  //   const fetchUserDetails = async () => {
-  //     try {
-  //       const response = await fetch('https://dev.silzila.com/api/user-details', {
-  //         method: 'GET',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           // Include authentication headers if required
-  //           'Authorization': `Bearer ${token}`,
-  //         },
-  //       });
-
-  //       if (!response.ok) {
-  //         throw new Error(`Error: ${response.status} ${response.statusText}`);
-  //       }
-
-  //       const data = await response.json();
-        
-  //       // Assuming the API returns data in the following format:
-  //       // { name: 'John Doe', email: 'john.doe@example.com', avatar: '/path/to/avatar.png' }
-  //       setUser({
-  //         firstName: data.firstName || ' ',
-  //         lastName: data.lastName||'',
-  //         email: data.email || 'N/A',
-  //         avatar: data.profileImage && data.profileImage.trim() !== '' ? `data:image/jpeg;base64,${data.profileImage}` : '/default.png',
-  //       });
-  //       setLoading(false);
-  //     } catch (err) {
-  //       console.error(err);
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchUserDetails();
-  // }, []);
-
   
     const fetchUserDetails = async (forceFetch = false) => {
       if(!forceFetch && props.isLogged.isUserLogged && props.isLogged.email!=='')return
         try {
             // Use the FetchData utility to make the request
             setLoading(true);
+            const apiUrl = `${localEndPoint}user-details`; 
+            console.log("Fetching user details from:", apiUrl);
             const response = await FetchData({
                 requestType: 'withData',
                 method: 'GET',
-                url: 'user-details',
+                url: apiUrl,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
                 },
             });
-
+            console.log("Full API Response:", response);
             if (!response.status) {
                 throw new Error(`Error: ${response.data.detail || 'Unknown error'}`);
             }
 
             const data = response.data;
-
             // Assuming the API returns data in the following format:
             // { name: 'John Doe', email: 'john.doe@example.com', avatar: '/path/to/avatar.png' }
             setUser({
@@ -110,11 +72,10 @@ const Header = (props:any) => {
               isUserLogged: true,
               accessToken: props.isLogged.accessToken,
               tokenType: props.isLogged.tokenType,
-              access: props.isLogged.access,
               firstName: data.firstName || ' ',
-                lastName: data.lastName || '',
-                email: data.email || 'N/A',
-                avatar: data.profileImage && data.profileImage.trim() !== '' 
+              lastName: data.lastName || '',
+              email: data.email || 'N/A',
+              avatar: data.profileImage && data.profileImage.trim() !== '' 
                     ? `data:image/jpeg;base64,${data.profileImage}` 
                     : '/default.png',
             });
@@ -129,11 +90,11 @@ const Header = (props:any) => {
       setTimeout(fetchUserDetails, 2000);
     }, [props.isLogged.email, props.isLogged.isUserLogged]);
 
-useEffect(() => {
-  if (location.pathname === '/admin/users') {
-    fetchUserDetails(true); // Force-fetch details when navigating to /admin/users
-  }
-}, [location.pathname]);
+// useEffect(() => {
+//   if (location.pathname === '/admin/users') {
+//     fetchUserDetails(true); // Force-fetch details when navigating to /admin/users
+//   }
+// }, [location.pathname]);
 
 
   const handleMenuOpen = (event:any) => {
@@ -301,33 +262,7 @@ useEffect(() => {
             <MenuItem 
             onClick={() => { 
               handleMenuClose(); 
-              //navigate('/logout');  
-
-              setTimeout(() => {
-                if(window.location.protocol === 'https:'){
-                  let authToken:any = Cookies.get('authToken');
-                  let decodedToken:any = jwtDecode(authToken);
-  
-                    if(decodedToken.access ===  "community"){
-                      window.location.href = `${localEndPoint}auth/community/signin`;
-                    }
-                    else{
-                      window.location.href = `${localEndPoint}auth/business/signin`;
-                    }
-                }
-                else{
-                  const payload = {
-                    isUserLogged: false,
-                    accessToken: "",
-                    tokenType: "",
-                    access: "", // Store the role in Redux
-                    };        
-                
-                  props.userAuthentication(payload);
-                } 
-
-              }, 2000);
-     
+              navigate('/');  
               DeleteAllCookies();              
               Cookies.remove('authToken');
               localStorage.clear();

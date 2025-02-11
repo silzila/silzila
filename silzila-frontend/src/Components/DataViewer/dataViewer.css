@@ -1,5 +1,6 @@
 .dataViewer {
   height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
   color: #333;
@@ -14,6 +15,7 @@
   /* padding-right: 0.5rem; */
   /* border-bottom: 2px solid rgba(224,224,224,1); */
   justify-content: space-between;
+  align-items: center;
 }
 
 /* ========================================================================================== */
@@ -35,14 +37,17 @@
   justify-content: center;
   width: 2rem;
   cursor: pointer;
-  margin-right: 16px;
+  margin-right: 17.1px;
 }
 
 .menuHomeIcon {
+  display: flex;
+  align-items: center;
   height: 80%;
-  width: 2.5rem;
-  padding: 4px 4px 4px 0px;
-  margin: 0 0 6px 2px;
+  /* width: 2.5rem; */
+  /* padding: 4px 6px; */
+  /* padding: 4px 4px 4px 0px; */
+  /* margin: 0 0 6px 2px; */
 }
 
 /* .menuHome:hover {
@@ -58,7 +63,7 @@
   border-radius: 2px;
   cursor: pointer;
   transition: 0.2s;
-  line-height: 2rem;
+  line-height: 1.5;
   padding: 0 8px;
 }
 
@@ -76,6 +81,15 @@
   color: #666;
 }
 
+.unsavedPlaybookName {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #a5a5a5;
+}
+
 .userInfo {
   margin-right: 7px;
   flex: 1;
@@ -88,11 +102,18 @@
   font-size: 12px;
 }
 
+.disabledOption {
+  color: #ccc;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* ========================================================================================== */
 /* TabRibbon styling */
 
 .tabArea {
   display: flex;
+  align-items: center;
   align-items: center;
   background-color: white;
   border-bottom: 2px solid rgba(224, 224, 224, 1);
