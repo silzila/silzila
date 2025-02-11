@@ -17,9 +17,13 @@ const loggedReducer = (
 				isUserLogged: action.payload.isUserLogged,
 				accessToken: action.payload.accessToken,
 				tokenType: action.payload.tokenType,
+				email: action.payload.email,
+				firstName: action.payload.firstName,
+				lastName: action.payload.lastName,
+				avatar: action.payload.avatar,
 			};
 			localStorage.setItem("accountInfo", JSON.stringify(info));
-
+			console.log("info", info);
 			return action.payload;
 
 		case "RESET_USER":
