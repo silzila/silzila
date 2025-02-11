@@ -41,6 +41,7 @@ interface IndTabRilePropsTablesForSelectedDatasets {
 	id: string;
 	alias: string;
 	table_position: null | string | number;
+	flatFileId?: string;
 }
 
 export interface TabTileStateProps2 {

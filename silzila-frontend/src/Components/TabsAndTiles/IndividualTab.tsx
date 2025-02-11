@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import "./IndividualTab.css";
 import { Widgets } from "@mui/icons-material";
 import style from "react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark";
+import ClearIcon from "@mui/icons-material/Clear";
 
 interface IndividualTabProps {
   tabName: string;
@@ -45,9 +46,9 @@ function IndividualTab({
     setRenameValue(e.target.value);
   };
 
-   const tabWidth = inPopup ? "" : tabName.length <= 7 ? "70px" : tabName.length <= 10 ? "100px" : tabName.length >= 10 && tabName.length <= 14 ? "120px" 
-   : tabName.length >= 14 && tabName.length <= 16 ? "130px" : "150px"; 
-
+  const tabWidth = inPopup ? "" : tabName.length <= 7 ? "70px" : tabName.length <= 10 ? "100px" : tabName.length >= 10 && tabName.length <= 14 ? "120px" 
+   : tabName.length >= 14 && tabName.length <= 16 ? "130px" : "150px";  
+ 
   if (selectedTab === tabId && editing) {
     return (
       <form
@@ -69,7 +70,15 @@ function IndividualTab({
     );
   } else {
     return (
-      <span style={{ width: tabWidth }}
+      <div
+        style={{ 
+          width: tabWidth, 
+          height: "1.5rem",
+          display: "flex",
+          alignItems: "center",
+          paddingTop: 0,
+          overflow: "hidden",
+          ...(popupClass ? { paddingLeft: '7px' ,width:'100%'} : {}), }}
         className={`${
           selectedTab === tabId
             ? "commonTab indiItemHighlightTab"
@@ -92,21 +101,26 @@ function IndividualTab({
         <span className="tabText">
           {tabName.length > 20 ? tabName.substring(0, 25) + ".." : tabName}
         </span>
-
-        <div className={!inPopup ? "close-container" : ""}>
-        <span style={{ backgroundColor: "transparent" }}
-          title="Delete Tab"
-          className={`closeTab ${inPopup && selectedTab !== tabId ? "popupClose" : ""}
-          ${inPopup && selectedTab === tabId ? "hidden" : ""}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            removeTab(tabName, tabId);
-          }}
-        >
-          X
-        </span>
-        </div>
-      </span>
+        {dashMode === "Edit" && (
+            <ClearIcon
+              style={{
+                fontSize: "0.75rem",
+                right: "5px",
+                transform: "none",
+                ...(inPopup ? {width:'0.75rem',height:'0.75rem', } : {position:'absolute',top:'0.4rem'}),
+              }}
+              className={`closeTab ${inPopup?'top-auto':""} ${
+                inPopup && selectedTab !== tabId ? "popupClose" : ""
+              }
+              ${inPopup && selectedTab === tabId ? "hidden" : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                removeTab(tabName, tabId);
+              }}
+              // title="Delete Tab"
+            />
+        )}
+      </div>
     );
   }
 }
