@@ -27,9 +27,7 @@ const Login = (props: DispatchProps) => {
 	const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [tenantId] = useState("community"); // No need for setter since it's fixed
   const [openAlert, setOpenAlert] = useState(false);
-  const [openAlertWithOk, setOpenAlertWithOk] = useState(false);
   const [testMessage, setTestMessage] = useState("");
   const [severity, setSeverity] = useState<AlertColor>("success");
   const [isLoading, setIsLoading] = useState(false);
@@ -86,7 +84,13 @@ const Login = (props: DispatchProps) => {
 					isUserLogged: true,
 					accessToken: response.data.accessToken,
 					tokenType: response.data.tokenType,
-				};
+					firstName: response.data.firstName || " ",
+          lastName: response.data.lastName || "",
+          email: response.data.email || "N/A",
+          avatar: response.data.profileImage?.trim()
+            ? `data:image/jpeg;base64,${response.data.profileImage}`
+            : "/default.png",
+        };
 				localStorage.setItem("accessToken", payload.accessToken);
 				props.userAuthentication(payload);
 				setIsLoading(false);
