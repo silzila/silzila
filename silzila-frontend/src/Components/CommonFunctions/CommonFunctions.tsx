@@ -44,7 +44,6 @@ export const DeleteAllCookies = () => {
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
   }
 
-  console.log("All cookies have been deleted.");
 };
 
 export const ConvertListOfListToRichTreeViewList = (list: any) => {
@@ -334,7 +333,7 @@ export const getLabelValues = async (
     // checking the column type To generate the name as it is in the chartData
     // chartProperties.properties[propKey].chartAxes[1].fields.forEach(async (el: any) => {
     // 	//if (el.dataType === "date") {
-    // 	//console.log();
+    // 	;
     // 	if (columnName.includes(el.fieldname)) {
     // 		//formattedColumnName = `${el.timeGrain} of ${el.fieldname}`;
     // 		if(["date", "timestamp"].includes(el.dataType)){
@@ -355,7 +354,7 @@ export const getLabelValues = async (
     chartProperties.properties[propKey].chartAxes[1].fields.forEach(
       async (el: any) => {
         //if (el.dataType === "date") {
-        //console.log();
+        
         // if (columnName.includes(el.fieldname)) {
         if (columnName === el.displayname) {
           //formattedColumnName = `${el.timeGrain} of ${el.fieldname}`;
@@ -393,7 +392,7 @@ export const getLabelValues = async (
     colors = [...colors, ...randomColors];
 
     const values = fieldValues?.data?.map((item: any, idx: number) => {
-      //console.log(item, columnName);
+
       return {
         colValue: item[formattedColumnName],
         backgroundColor: colors[idx],
@@ -539,7 +538,17 @@ const fetchFieldData = (
   });
 };
 
-export const modifyFilter = (filter: any): IFilter => {
+export const modifyFilter = (filter: any,savedCalculations?:any[]): IFilter => {
+  const getCalculationByUid = (uid: string,savedCalculations?:any[]) => {
+    if(!uid||!savedCalculations) return null;
+    return savedCalculations.find((calculation) => calculation.uuid === uid);
+
+  }
+  const calculation = getCalculationByUid(filter.SavedCalculationUUID,savedCalculations);
+  const calculationDetails={
+    calculatedField:[calculation?.calculationInfo],
+    isCalculatedField:true
+  }
   if (filter.fieldtypeoption === "Pick List") {
     return {
       filterType: "pickList",
@@ -556,6 +565,7 @@ export const modifyFilter = (filter: any): IFilter => {
       ...(filter.dataType === "date" || filter.dataType === "timestamp"
         ? { timeGrain: filter.prefix }
         : {}),
+      ...((filter.isCalculatedField &&calculation)? {...calculationDetails} : {})
     };
   } else if (filter.fieldtypeoption === "Search Condition") {
     return {
@@ -576,6 +586,7 @@ export const modifyFilter = (filter: any): IFilter => {
       ...(filter.dataType === "date" || filter.dataType === "timestamp"
         ? { timeGrain: filter.prefix }
         : {}),
+        ...((filter.isCalculatedField &&calculation)? {...calculationDetails} : {})
     };
   } else {
     // return {}
@@ -608,6 +619,7 @@ export const modifyFilter = (filter: any): IFilter => {
             ? filter.expTypeAnchorDate
             : filter.expTypeAnchorDate,
       },
+      ...((filter.isCalculatedField &&calculation)?{...calculationDetails} : {})
     };
   }
 };
@@ -682,3 +694,46 @@ export function getSQLDataType(value: any) {
       return "text"; // Default fallback for unsupported types
   }
 }
+
+export function areNestedObjectsEqual(obj1Str: string, obj2Str: string): boolean {
+  try {
+    // Parse the JSON strings into objects
+    const obj1 = JSON.parse(obj1Str);
+    const obj2 = JSON.parse(obj2Str);
+    
+    function deepCompare(obj1: any, obj2: any): boolean {
+      if (typeof obj1 !== typeof obj2) return false;
+
+      if (typeof obj1 !== 'object' || obj1 === null || obj2 === null) {
+
+        return obj1 === obj2; // Primitive or null comparison
+      }
+
+      const keys1 = Object.keys(obj1);
+      const keys2 = Object.keys(obj2);
+
+      if (keys1.length !== keys2.length) return false;
+
+      for (const key of keys1) {
+        if (!keys2.includes(key)) return false;
+        if (!deepCompare(obj1[key], obj2[key])) return false;
+      }
+
+      return true;
+    }
+
+    return deepCompare(obj1, obj2);
+  } catch (error) {
+    return false; // Return false if the input strings are not valid JSON
+  }
+}
+export function deletePlaybookDetailsFromSessionStorage() {
+  for (let i = 0; i < sessionStorage.length; i++) {
+    const key = sessionStorage.key(i);
+    if (key && key.startsWith("pb_id_")) {
+      sessionStorage.removeItem(key); 
+      i--; 
+    }
+  }
+}
+
