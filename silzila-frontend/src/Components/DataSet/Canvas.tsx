@@ -54,7 +54,7 @@ const Canvas = ({
   const [severity, setseverity] = useState<AlertColor>("success");
   const [testMessage, setTestMessage] = useState<string>("");
   
-  /**
+    /**
    * when We remove a table from  canvas or unselect a table from sidebar then we need to remove the filters of that table
    */
   useEffect(() => {
@@ -78,9 +78,6 @@ const Canvas = ({
     }
   }, [dataSetFilterArray, tempTable]);
 
-  /**
-   * keep filter section open by default if filter is applied in edit mode.
-   */
   useEffect(()=>{
    if(editMode && dataSetFilterArray.length > 0){
       setIsDataSetVisible(true)
@@ -276,7 +273,6 @@ const Canvas = ({
           onDragOver={(e) =>  e.preventDefault()}
           style={{
             display: isDataSetVisible ? "block" : "none",
-            position: "fixed",
           }} // Controls visibility
         >
           <div >
@@ -288,7 +284,7 @@ const Canvas = ({
                 // margin: "auto auto",
                 position: "fixed",
                 backgroundColor: "white",
-                width: "211px",
+                width: "13.063rem",
                 zIndex: "98",
                 // marginTop: "-25px",
               }}
