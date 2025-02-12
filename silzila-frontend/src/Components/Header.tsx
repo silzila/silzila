@@ -6,11 +6,12 @@ import {serverEndPoint, localEndPoint} from "./ServerCall/EnvironmentVariables";
 import Cookies from "js-cookie";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import { userAuthentication } from "../redux/UserInfo/isLoggedActions";
+import { resetUser, userAuthentication } from "../redux/UserInfo/isLoggedActions";
 import { jwtDecode } from "jwt-decode"; // Import jwt-decode
 import FetchData from './ServerCall/FetchData';
 import { palette } from '..';
 import {DeleteAllCookies} from '../Components/CommonFunctions/CommonFunctions';
+import { useDispatch } from 'react-redux';
 
 
 const Header = (props:any) => {
@@ -34,14 +35,14 @@ const Header = (props:any) => {
   
   const [loading, setLoading] = useState(false); // Loading state
   const [error, setError] = useState(null); // Error state
-  
+  const dispatch=useDispatch()
     const fetchUserDetails = async (forceFetch = false) => {
       if(!forceFetch && props.isLogged.isUserLogged && props.isLogged.email!=='')return
         try {
             // Use the FetchData utility to make the request
             setLoading(true);
             const apiUrl = `${localEndPoint}user-details`; 
-            console.log("Fetching user details from:", apiUrl);
+            // console.log("Fetching user details from:", apiUrl);
             const response = await FetchData({
                 requestType: 'withData',
                 method: 'GET',
@@ -51,7 +52,7 @@ const Header = (props:any) => {
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
                 },
             });
-            console.log("Full API Response:", response);
+            // console.log("Full API Response:", response);
             if (!response.status) {
                 throw new Error(`Error: ${response.data.detail || 'Unknown error'}`);
             }
@@ -89,6 +90,16 @@ const Header = (props:any) => {
     useEffect(() => {
       setTimeout(fetchUserDetails, 2000);
     }, [props.isLogged.email, props.isLogged.isUserLogged]);
+
+  
+
+    const handleLogout = () => {
+      dispatch(resetUser())
+      setTimeout(() => {
+        navigate('/login');
+      }, 1000);
+      
+    }
 
 // useEffect(() => {
 //   if (location.pathname === '/admin/users') {
@@ -272,7 +283,8 @@ const Header = (props:any) => {
               alignItems: "center",
             }}
           >
-            <Link to="/login" className="menuLink" 
+            <div  className="menuLink" 
+              onClick={handleLogout}
               style={{ 
                 textDecoration: 'none', 
                 color: 'inherit',
@@ -290,7 +302,7 @@ const Header = (props:any) => {
                 }}
               />
               <span>Logout</span>
-            </Link>
+            </div>
           </MenuItem>
           </Menu>
         </div>

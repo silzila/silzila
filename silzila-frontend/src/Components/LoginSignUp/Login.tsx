@@ -71,13 +71,7 @@ const Login = (props: DispatchProps) => {
 					device: "web",
 				},
 				headers: { "Content-Type": "application/json" },
-			});
-			console.log("Login response received:", response); 
-			console.log("Sending request:", {
-				username: email,
-				password: password,
-				device: "web",
-		});		
+			});;		
 			if (response.status) {
 				setLoginStatus(true);
 				var payload = {
@@ -119,7 +113,7 @@ const Login = (props: DispatchProps) => {
 				setPassword("");
 			 }
 			} catch (error: any) {
-				console.error("Login error:", error);
+				// console.error("Login error:", error);
 		
 				// Check if the error contains a specific message about email verification
 				if (error.response && error.response.data && error.response.data.error) {
