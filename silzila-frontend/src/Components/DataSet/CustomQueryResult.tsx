@@ -25,6 +25,7 @@ import {
   removeRelationshipFromTableList,
   setRelationship,
   updateRelationship,
+  setDatabaseNametoState
 } from "../../redux/DataSet/datasetActions";
 import { setTempTables } from "../../redux/DataSet/datasetActions";
 import { tableObjProps } from "../../redux/DataSet/DatasetStateInterfaces";
@@ -33,6 +34,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux";
 import { RelationObjProps } from "./CanvasTablesIntefaces";
 import { useLocation, useNavigate } from "react-router-dom";
+import { isNameAllowed } from "../CommonFunctions/CommonFunctions";
+import { messages } from "../CommonFunctions/aliases";
 
 
 interface savedData {
@@ -107,6 +110,7 @@ function CustomQueryResult({
   const [tempTableforCanvas, setTempTablesforCanvas] = useState<
     tableObjProps[]
   >([]);
+  const [isCustomTableNameAllowed, setIsCustomTableNameAllowed] = useState(false)
 
   const tempTable = useSelector(
     (state: RootState) => state.dataSetState.tempTable
@@ -131,6 +135,10 @@ function CustomQueryResult({
     }
   }, [state, navigate])
 
+  const  databaseName= useSelector(
+    (state: RootState) => state.dataSetState.databaseName
+  );
+  
   //add columns into canvas by fetching the query from server
   const OpentableColumnsCustomquery = async (data: any) => {
     try {
@@ -150,7 +158,7 @@ function CustomQueryResult({
         id: data.id,
         alias: data.name,
         columns: createResDatawithUId,
-        databaseName: "",
+        databaseName: databaseName,
         dcId: connectionValue,
         isNewTable: true,
         isSelected: true,
@@ -237,7 +245,9 @@ function CustomQueryResult({
   //save data
   const handleSavedData = () => {
     if (savedData.name.length > 0) {
-      setCustomQuerysArray((prev) => {
+      if(isCustomTableNameAllowed){
+        dispatch(setDatabaseNametoState(databaseName))
+        setCustomQuerysArray((prev) => {
         // Check for duplicate data
         if (EditCustomQuery !== 0) {
           //check for duplicate or not exept self
@@ -357,8 +367,12 @@ function CustomQueryResult({
           }
         }
       });
+      }else{
+      seterror(messages.dataset.tableWrongName);
+      setOpenAlert(true);
+      }
     } else {
-      seterror("Please provide a name for the query.");
+      seterror(messages.dataset.tableWrongName);
       setOpenAlert(true);
     }
   };
@@ -470,6 +484,17 @@ function CustomQueryResult({
     }
   }, [EditCustomQuery]);
 
+  function handleChangeCustomQueryData(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>){
+    let customName = e.target.value;
+    let isValid = isNameAllowed(customName);
+    setIsCustomTableNameAllowed(isValid)
+    setsavedData((prev) => ({
+      ...prev,
+      name: customName,
+      querydata: CustomQueryData,
+    }))
+  }
+
   return (
     <>
       <Dialog
@@ -562,19 +587,19 @@ function CustomQueryResult({
                   "& .MuiOutlinedInput-notchedOutline": {
                     borderColor: "#af99db",
                   },
+                  "& .css-ddqwwv-MuiFormLabel-root-MuiInputLabel-root.Mui-focused": {
+                    color: isCustomTableNameAllowed ? "#af99db" : "red"
+                  },
+                  "& .css-ejwmqw-MuiInputBase-root-MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                   borderColor: isCustomTableNameAllowed ? "#af99db" : "red"
+                  }
                 }}
                 InputProps={{
                   style: {
                     fontSize: "14px",
                   },
                 }}
-                onChange={(e) =>
-                  setsavedData((prev) => ({
-                    ...prev,
-                    name: e.target.value,
-                    querydata: CustomQueryData,
-                  }))
-                }
+                onChange={handleChangeCustomQueryData}
                 id="outlined-size-small"
                 size="small"
                 color="secondary"

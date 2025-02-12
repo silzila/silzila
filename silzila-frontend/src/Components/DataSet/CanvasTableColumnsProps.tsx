@@ -14,6 +14,7 @@ interface CanvasTableColumnsPropsFromParent {
 	checkRelationExists: (value: ArrowObj | any) => void;
 	table_Id: string;
 	disableDrag: boolean;
+	tableHasCustomQuery: boolean;
 }
 
 interface CanvasTableColumnsPropsFromState {

@@ -37,6 +37,7 @@ const CanvasTableColumns = ({
   checkRelationExists,
   table_Id,
   disableDrag,
+  tableHasCustomQuery,
   //state
   arrows,
 }: CanvasTableColumnsProps) => {
@@ -147,7 +148,24 @@ const CanvasTableColumns = ({
   };
 
   return (
-    <div id={itemId} ref={boxRef}>
+    <div id={itemId} 
+    ref={boxRef}
+    style={{
+      cursor: "move",
+    }}
+    draggable={true}
+    onDragStart={(e) => {
+          e.dataTransfer.setData("connectItemId", itemId);
+          e.dataTransfer.setData("connectIndex", index.toString());
+          e.dataTransfer.setData("connectTableName", tableName);
+          e.dataTransfer.setData("connectColumnName", columnName);
+          e.dataTransfer.setData("connectItemType", itemType);
+          e.dataTransfer.setData("connecttableUid", table_uid);
+          e.dataTransfer.setData("schema", schema);
+          e.dataTransfer.setData("tableId", table_Id);
+          e.dataTransfer.setData("tableHasCustomquery",`${tableHasCustomQuery}`);
+      }}
+    >
       <div
         className="columnBox"
         id={itemId}
@@ -186,8 +204,8 @@ const CanvasTableColumns = ({
               table_uid,
               schema,
               table_Id,
-              disableDrag:disableDrag
-              // tableHasCustomQuery,
+              disableDrag:disableDrag,
+              tableHasCustomQuery,
             }}
           />
         <ConnectPointsWrapper

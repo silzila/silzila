@@ -139,7 +139,9 @@ const NewDataSet = ({
 			<MenuBar from="dataSet" />
 			<div className="createDatasetPage" style={{ height:'calc(100svh - 2.5rem)' }}>
 				<Sidebar _loading={loading} _id='sidebar-from-newdataset-create'/>
-				<Canvas />
+				<Canvas 
+				EditFilterdatasetArray={[]}
+				flatFileIdMap={[]}/>
 			</div>
 		</div>
 		}

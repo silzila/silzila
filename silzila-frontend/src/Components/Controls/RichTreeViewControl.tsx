@@ -76,7 +76,6 @@ const RichTreeViewControl = ({
       return a.label.localeCompare(b.label);
     });
   }, [list]);
-  console.log(sortedList)
   proceedButtonName = proceedButtonName || "Proceed";
   const [lastSelectedItem, setLastSelectedItem] = React.useState<string | null>(
     null
