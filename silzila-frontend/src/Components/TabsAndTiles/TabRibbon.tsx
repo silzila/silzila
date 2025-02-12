@@ -194,13 +194,13 @@ const TabRibbon = ({
   };
 
   return (
-    <div style={{ display: "flex", overflow: "hidden" }}>
+    <div style={{ display: "flex", overflow: "hidden", alignItems: "center" }}>
       <Tooltip title="Display Tab List">
         <KeyboardArrowDownIcon
           style={{
             fontSize: "20px",
             background: "white",
-            color: "808080",
+            color: "rgb(128, 128, 128)",
             margin: "0px",
             height: "1.75rem",
             width: "1.6rem",            
@@ -218,30 +218,31 @@ const TabRibbon = ({
         anchorEl={anchorEl}
         open={tabOpen}
         onClose={handleClose}
-        PaperProps={{
-          style: {
-            minHeight: ITEM_HEIGHT * 4.5,
+        slotProps={{
+          paper: {
+            style:{
+              minHeight: ITEM_HEIGHT * 4.5,
             maxHeight: ITEM_HEIGHT * 12.3,
             width: "26ch",
             margin: "11px 0px 0px 1px",
-            padding: "0px 45px",
-            paddingLeft: "0px"
+            padding: "0",
+            }
           },
         }}
       >
         {tablist.map((tabItem) => (
           <MenuItem style={{ 
-            padding: "0px",
-            margin: "0px",
-            width: "225px",
-            height: "35px",
-            backgroundColor: "transparent"
+            width: "100%",
+              margin: "0px",
+              padding: "0px",
+              height: "35px",
+              backgroundColor: "transparent",
            }} onClick={handleClose}>
                 {React.cloneElement(tabItem, { popupClass: "popupTab",  inPopup: true  })} 
            </MenuItem>
         ))}
       </Menu>
-      <div style={{ overflow: "hidden", display: "flex" }} ref={tabWrapperRef}>
+      <div style={{ overflow: "hidden", display: "flex", alignItems: "center" }} ref={tabWrapperRef}>
         {tablist}
       </div>
       <div style={{ display: "flex" }}>

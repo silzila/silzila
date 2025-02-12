@@ -14,10 +14,13 @@ import {
 import IndividualTile from "./IndividualTile";
 import { TileRibbonProps, TileRibbonStateProps } from "./TileRibbonInterfaces";
 import AddIcon from "@mui/icons-material/Add";
-import { addChartFilterTabTileName, updateChartFilterSelectedGroups } from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
+import {
+  addChartFilterTabTileName,
+  updateChartFilterSelectedGroups,
+} from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions";
 import Logger from "../../Logger";
 import "./individualTile.css";
-import { Tooltip, Menu, MenuItem } from "@mui/material";
+import { Tooltip, Menu, MenuItem, Box, Button } from "@mui/material";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -217,7 +220,7 @@ const TileRibbon = ({
   const handleTileScroll = (step: number) => {
     tileWrapperRef.current!.scrollLeft += step;
   };
-  
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -225,12 +228,24 @@ const TileRibbon = ({
   return (
     <div style={{ display: "flex", overflow: "hidden" }}>
       <Tooltip title="Display Tile List">
-        <KeyboardArrowUpIcon
-          style={{ fontSize: "20px", color: "#808080", marginTop: "3px" }}
+        <Button
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "white",
+            padding: "5px",
+            minWidth:'1rem',
+          }}
           onClick={(e) => {
             setAnchorEl(e.currentTarget);
           }}
+          >
+            <KeyboardArrowUpIcon
+          style={{ fontSize: "20px", color: "#808080", }}
+          
         />
+          </Button>
       </Tooltip>
       <Menu
         id="long-menu"
@@ -240,33 +255,38 @@ const TileRibbon = ({
         anchorEl={anchorEl}
         open={tileOpen}
         onClose={handleClose}
-        PaperProps={{
-          style: {
-            minHeight: ITEM_HEIGHT * 4.5,
+        slotProps={{
+          paper: {
+            style:{
+              minHeight: ITEM_HEIGHT * 4.5,
             maxHeight: ITEM_HEIGHT * 12.3,
             width: "26ch",
             margin: "-26px 0px 0px -70px",
-            padding: "0px 45px",
-            paddingLeft: "0px"
+            padding: "0",
+            }
           },
         }}
       >
-        {tileList.map((tileItem,index) => (
-          <MenuItem key={index} onClick={handleClose} 
-          style={{ 
-            width: "225px", 
-            marginLeft: "0px", 
-            paddingLeft: "0px",
-            padding: "0px",
-            height: "35px",
-            backgroundColor: "transparent"
+        {tileList.map((tileItem, index) => (
+          <MenuItem
+            key={index}
+            onClick={handleClose}
+            style={{
+              width: "100%",
+              margin: "0px",
+              padding: "0px",
+              height: "35px",
+              backgroundColor: "transparent",
             }}
-            >
-           {React.cloneElement(tileItem, { popupClass: "popupTile",  inPopup: true })}
-      </MenuItem>
+          >
+            {React.cloneElement(tileItem, {
+              popupClass: "popupTile",
+              inPopup: true,
+            })}
+          </MenuItem>
         ))}
       </Menu>
-      <div style={{ display: "flex", overflow: "hidden"}} ref={tileWrapperRef}>
+      <div style={{ display: "flex", overflow: "hidden" }} ref={tileWrapperRef}>
         {tileList}
       </div>
       <div style={{ display: "flex" }}>

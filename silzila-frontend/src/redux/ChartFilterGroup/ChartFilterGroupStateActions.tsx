@@ -106,3 +106,6 @@ export const loadReportFilterGroup = (chartFilterGroup: any) => {
 export const deleteFilterGroupFromChartFilterGroup= (groupId: string) => {
 	return { type: "DELETE_FILTER_GROUP_FROM_CHART_FILTER_GROUP", payload: groupId };
 }
+export const resetChartFilterGroup=()=>{
+	return {type:"RESET_CHART_FILTER_GROUP"}
+}
