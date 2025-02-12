@@ -84,7 +84,6 @@ import {
 } from "../CommonFunctions/aliases";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-import { log } from "console";
 
 const MenuBar = ({
   // props
@@ -119,7 +118,7 @@ const MenuBar = ({
   const state = location.state;
 
   // Check if the current state of playbook is the same as old state or not
-  if (from === "dataViewer" && playBookState.oldContent) {
+  if (from === fromRoute.dataViewer && playBookState.oldContent) {
     if (
       _.isEqual(tabState, playBookState.oldContent.tabState) &&
       _.isEqual(tileState, playBookState.oldContent.tileState) &&
@@ -209,21 +208,21 @@ const MenuBar = ({
   useEffect(() => {
     setPlayBookName(playBookState?.playBookName);
 
-    const getPrivilegeforPlayBook = async () => {
-      const permissionRes = await FetchData({
-        requestType: "noData",
-        method: "GET",
-        url: `privilege?workspaceId=${state?.parentId}&contentTypeId=${contentTypes.Playbook}&contentId=${playBookState.playBookUid}`,
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (permissionRes.status) {
-        setDisableEdit(
-          !permissionRes.data.levelId || permissionRes.data.levelId === 3
-        );
-      } else return;
-    };
+    // const getPrivilegeforPlayBook = async () => {
+    //   const permissionRes = await FetchData({
+    //     requestType: "noData",
+    //     method: "GET",
+    //     url: `privilege?workspaceId=${state?.parentId}&contentTypeId=${contentTypes.Playbook}&contentId=${playBookState.playBookUid}`,
+    //     headers: { Authorization: `Bearer ${token}` },
+    //   });
+    //   if (permissionRes.status) {
+    //     setDisableEdit(
+    //       !permissionRes.data.levelId || permissionRes.data.levelId === 3
+    //     );
+    //   } else return;
+    // };
 
-    if (from === "dataViewer") getPrivilegeforPlayBook();
+    // if (from === "dataViewer") getPrivilegeforPlayBook();
   }, [playBookState]);
 
   // useEffect(() => {
@@ -405,7 +404,10 @@ const MenuBar = ({
       localStorage.clear();
       localStorage.setItem("isLoggingOut", "true");
       window.history.pushState(null, "", "/");
-      window.location.href = `${localEndPoint}auth/business/signin`;
+      resetUser();
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
       // window.location.reload();
     }
     // resetUser();
@@ -489,8 +491,6 @@ const MenuBar = ({
           }
         }, 2000);
 
-        //console.log(JSON.stringify(result.data.content["tabTileProps"], null, "\t"));
-        //console.log(JSON.stringify(tabTileProps, null, "\t"));
       }
     } else {
       setSaveModal(true);
@@ -552,7 +552,7 @@ const MenuBar = ({
         return;
       }
       setLoading(true);
-      var result: any = await FetchData({
+      var result= await FetchData({
         requestType: "withData",
         method: "POST",
         url: `playbook?workspaceId=${workSpaceId}`,
@@ -561,11 +561,12 @@ const MenuBar = ({
       });
 
       if (result.status) {
+        const data=JSON.parse(result.data);
         updatePlayBookId(
-          result.data.name,
-          result.data.id,
-          result.data.description,
-          JSON.parse(result.data.content)
+          data.name,
+          data.id,
+          data.description,
+          data.content
         );
         if (
           !saveFromHomeIcon &&
@@ -573,8 +574,8 @@ const MenuBar = ({
           !saveFromUpdateProfile
         ) {
           sessionStorage.setItem(
-            `pb_id_${result.data.id}`,
-            result.data.content
+            `pb_id_${data.id}`,
+            data.content
           );
         }
         setSaveModal(false);
@@ -680,7 +681,6 @@ const MenuBar = ({
         navigate("/update-profile");
       resetAllStates();
     } else {
-      console.log("some pb values are changed");
       if (routeTo === navigatetTo.login) setSaveFromLogoutIcon(true);
       else if (routeTo === navigatetTo.updateProfile)
         setSaveFromUpdateProfile(true);
@@ -1276,7 +1276,7 @@ const MenuBar = ({
       </div>} */}
       <div style={{ borderBottom: "none" }}>
         <Header
-          from={fromRoute.dataViewer}
+          from={from}
           saveAndNavigateTo={saveAndNavigateTo}
         />
       </div>
