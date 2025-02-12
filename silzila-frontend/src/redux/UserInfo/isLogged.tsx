@@ -23,7 +23,6 @@ const loggedReducer = (
 				avatar: action.payload.avatar,
 			};
 			localStorage.setItem("accountInfo", JSON.stringify(info));
-			console.log("info", info);
 			return action.payload;
 
 		case "RESET_USER":

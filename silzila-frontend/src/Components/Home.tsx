@@ -34,20 +34,23 @@ const Home = (props: LoggedDetailsType) => {
             <Route path="/editflatfile/:parentId" element={<EditFlatFileData />} />
             {/* <Route path="/newdataconnection" element={<NewDataConnection />} /> */}
             <Route path="/workspace" element={<Workspace />} />
+            <Route path="/" element={<Navigate to="/workspace" />} />
             <Route path= "/workspace/:parentId" element= {<SubWork />} />
             <Route path= "/SubWorkspaceDetails/:parentId" element= {<SubWorkDetails />} />
             <Route path= "/newdataconnection/:parentId" element= {<NewDataConnection />} />
             <Route path= "/SubWorkspaceDetails/:parentId" element= {<SubWorkDetails />} />
             <Route path= "/update-profile" element= {<UserProf /> } />
+            <Route path="/*" element={<Navigate to="/workspace" />} />
           </>
         ) : (
           // Redirect to login if user is not logged in
+          <>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
           <Route path="/*" element={<Navigate to="/login" />} />
+            </>
+          
         )}
-        {/* Routes accessible whether user is logged in or not */}
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
       </Routes>
     </Router>
   );

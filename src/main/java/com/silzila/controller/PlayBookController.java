@@ -11,6 +11,7 @@ import com.silzila.domain.entity.PlayBook;
 import com.silzila.dto.PlayBookMetaDTO;
 import com.silzila.payload.request.PlayBookRequest;
 import com.silzila.payload.response.MessageResponse;
+import com.silzila.payload.response.PlayBookCreationResponse;
 import com.silzila.payload.response.PlayBookResponse;
 import com.silzila.service.PlayBookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class PlayBookController {
         // get the rquester user id
         String userId = reqHeader.get("username");
         // call service function to create
-        PlayBook playBook = playBookService.createPlayBook(playBookRequest, userId,workspaceId);
+        PlayBookCreationResponse playBook = playBookService.createPlayBook(playBookRequest, userId,workspaceId);
         return ResponseEntity.ok(playBook);
     }
 
