@@ -88,7 +88,7 @@ const BottomBar = ({
   const tablesWithoutRelation: string[] = [];
   const [viewerRestriction,setViewerRestriction]=useState<boolean>(false);
   // const {workspaceContents,SubWorkspaceContents}=useSelector((state: RootState) => state.permissions)
-  const permission=useSelector((state:RootState)=>state.dataSetState.permission);
+  // const permission=useSelector((state:RootState)=>state.dataSetState.permission);
   useEffect(() => {
       if(!editMode||!dsId)return;
       // const allContents=[...workspaceContents,...SubWorkspaceContents];
@@ -96,12 +96,12 @@ const BottomBar = ({
       // if(!selectedDs)return;
       // if(selectedDs.levelId===permissions.view)setViewerRestriction(true);
       // else if(selectedDs.roleName===roles.CustomCreator && selectedDs.levelId===permissions.view)setViewerRestriction(true);
-      if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)setViewerRestriction(true);
+      // if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)setViewerRestriction(true);
       // else if(permission.roleName===roles.CustomCreator && permission.levelId===permissions.view)setViewerRestriction(true);
-      else setViewerRestriction(false);
+      // else setViewerRestriction(false);
   
   
-    },[dsId, editMode, permission]);
+    },[dsId, editMode]);
   useEffect(() => {
     if (selectedWorkspace !== "") {
       onSendData();

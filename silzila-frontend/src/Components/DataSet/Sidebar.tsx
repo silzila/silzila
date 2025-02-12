@@ -61,10 +61,10 @@ import { resetState, setTempTables } from "../../redux/DataSet/datasetActions";
 import "../ChartOptions/ChartOptions.css";
 import { fontSize, palette } from "../..";
 import { TContentDetails, TLocationStateDS } from "./types";
-import { permissions, roles } from "../CommonFunctions/aliases";
-import { IPermission } from "../../redux/Permissions/types";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux";
+// import { permissions, roles } from "../CommonFunctions/aliases";
+// import { IPermission } from "../../redux/Permissions/types";
+// import { useSelector } from "react-redux";
+// import { RootState } from "../../redux";
 
 interface savedData {
   id: any;
@@ -159,7 +159,6 @@ const Sidebar = ({
     []
   );
   const [selectedDataConnection, setSelectedDataConnection] = useState<any>({});
-  const permission=useSelector((state:RootState)=>state.dataSetState.permission);
   // const {workspaceContents,SubWorkspaceContents}=useSelector((state: RootState) => state.permissions)
   // Actions performed when dataConnection is changed
   // If user already selected some tables from another dataset
@@ -195,12 +194,12 @@ const Sidebar = ({
     // if(!selectedDs)return;
     // if(selectedDs.levelId===permissions.view)setViewerRestriction(true);
     // else if(selectedDs.roleName===roles.CustomCreator && selectedDs.levelId===permissions.view)setViewerRestriction(true);
-    if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)setViewerRestriction(true)
+    // if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)setViewerRestriction(true)
     // else if(permission.roleName===roles.CustomCreator && permission.levelId===permissions.view)setViewerRestriction(true);
-    else setViewerRestriction(false);
+    // else setViewerRestriction(false);
 
 
-  },[ dsId, editMode, permission]);
+  },[ dsId, editMode]);
 
   const handleProceedButtonClick = (id: string) => {
     let tree = JSON.parse(JSON.stringify(dataConnectionTree));

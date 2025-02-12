@@ -18,6 +18,12 @@ export interface IndTabs {
 	nextTileId: number;
 	tilesInDashboard: any[];
 	dashTilesDetails: any;
+	dashboardState:{
+		theme:string,
+		colorScheme:string,
+		allTabs:boolean,
+		allTiles:boolean,
+	}
 }
 
 export interface Tabs {
@@ -25,6 +31,7 @@ export interface Tabs {
 }
 
 export interface TabStateProps {
+	
 	tabs: Tabs;
 	tabList: Array<number>;
 }
@@ -208,6 +215,15 @@ interface UpdateGraphHighlight {
 	type: "SET_GRAPH_BORDER_HIGHLIGHT";
 	payload: { tabId: number; propKey: string; highlight: any };
 }
+interface SetTheme { 	
+	type: "SET_THEME"; 
+	payload: {theme:string,tabId:number}; 
+
+}
+interface SetDashColorScheme { type: "SET_COLOR_SCHEME"; payload: {  colorScheme: string;tabId: number; }; }
+
+interface ToggleAllTabs{type:"TOGGLE_ALL_TABS"; payload:{tabId:number};}
+interface ToggleAllTiles{type:"TOGGLE_ALL_TILES"; payload:{tabId:number};}
 
 export type ActionsOfTabState =
 	| AddTab
@@ -238,4 +254,9 @@ export type ActionsOfTabState =
 	| ToggleEditingTab
 	| ShowDashBoard
 	| ResetGraphHighlight
-	| UpdateGraphHighlight;
+	| UpdateGraphHighlight
+	| SetTheme
+	| SetDashColorScheme
+	|ToggleAllTabs
+	|ToggleAllTiles;
+	

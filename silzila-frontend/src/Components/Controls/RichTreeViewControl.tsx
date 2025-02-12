@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { RichTreeView } from "@mui/x-tree-view/RichTreeView";
 import {
   Menu,
@@ -70,12 +70,13 @@ const RichTreeViewControl = ({
   handleProceedButtonClick,
   handleDirectClick,
 }: any) => {
+  const currentWorkspaceRef = useRef<HTMLDivElement | null>(null)
   const sortedList = React.useMemo(() => {
     return [...list].sort((a: any, b: any) => {
       return a.label.localeCompare(b.label);
     });
   }, [list]);
-
+  console.log(sortedList)
   proceedButtonName = proceedButtonName || "Proceed";
   const [lastSelectedItem, setLastSelectedItem] = React.useState<string | null>(
     null
@@ -99,6 +100,8 @@ const RichTreeViewControl = ({
 
     if (isWorkspace) {
       apiRef.current!.setItemExpansion(event, currentWorkspace, true);
+      apiRef.current!.selectItem({event,itemId: currentWorkspace,keepExistingSelection:false,shouldBeSelected:true})
+      currentWorkspaceRef.current?.scrollIntoView({behavior: "smooth", block: "center"})
     } else {
       let parentWorkspace: any = null;
       let current: any = null;
@@ -117,9 +120,10 @@ const RichTreeViewControl = ({
       });
 
       apiRef.current!.setItemExpansion(event, parentWorkspace?.id, true);
-
+      apiRef.current!.selectItem({event,itemId: parentWorkspace?.id,keepExistingSelection:false,shouldBeSelected:true})
       setTimeout(() => {
         apiRef.current!.setItemExpansion(event, currentWorkspace, true);
+        apiRef.current!.selectItem({event,itemId: currentWorkspace,keepExistingSelection:false,shouldBeSelected:true})
       }, 300);
     }
   };
@@ -250,12 +254,14 @@ const RichTreeViewControl = ({
   }) as unknown as typeof Typography;
 
   interface CustomLabelProps {
+    itemId: string;
     children: React.ReactNode;
     icon?: React.ElementType;
     expandable?: boolean;
   }
 
   function CustomLabel({
+    itemId,
     icon: Icon,
     expandable,
     children,
@@ -263,6 +269,7 @@ const RichTreeViewControl = ({
   }: CustomLabelProps) {
     return (
       <TreeItem2Label
+        ref={currentWorkspace === itemId ? currentWorkspaceRef: null}
         {...other}
         sx={{
           display: "flex",
@@ -346,7 +353,7 @@ const RichTreeViewControl = ({
         y="9"
         width="30"
         height="28"
-        stroke="#808080"
+        stroke="currentColor"
         stroke-width="6"
       />
       <rect
@@ -354,23 +361,23 @@ const RichTreeViewControl = ({
         y="15.7727"
         width="18.0588"
         height="5.18182"
-        fill="#808080"
-        stroke="#808080"
+        fill="currentColor"
+        stroke="currentColor"
       />
       <rect
         x="10.9706"
         y="25.0454"
         width="18.0588"
         height="5.18182"
-        fill="#808080"
-        stroke="#808080"
+        fill="currentColor"
+        stroke="currentColor"
       />
       <rect
         x="5"
         y="65"
         width="30"
         height="28"
-        stroke="#808080"
+        stroke="currentColor"
         stroke-width="6"
       />
       <rect
@@ -378,23 +385,23 @@ const RichTreeViewControl = ({
         y="71.7727"
         width="18.0588"
         height="5.18182"
-        fill="#808080"
-        stroke="#808080"
+        fill="currentColor"
+        stroke="currentColor"
       />
       <rect
         x="10.9706"
         y="81.0454"
         width="18.0588"
         height="5.18182"
-        fill="#808080"
-        stroke="#808080"
+        fill="currentColor"
+        stroke="currentColor"
       />
       <rect
         x="55"
         y="37"
         width="30"
         height="28"
-        stroke="#808080"
+        stroke="currentColor"
         stroke-width="6"
       />
       <rect
@@ -402,32 +409,32 @@ const RichTreeViewControl = ({
         y="43.7727"
         width="18.0588"
         height="5.18182"
-        fill="#808080"
-        stroke="#808080"
+        fill="currentColor"
+        stroke="currentColor"
       />
       <rect
         x="60.9706"
         y="53.0454"
         width="18.0588"
         height="5.18182"
-        fill="#808080"
-        stroke="#808080"
+        fill="currentColor"
+        stroke="currentColor"
       />
       <rect
         x="38.5"
         y="19.5"
         width="29"
         height="3"
-        fill="#808080"
-        stroke="#808080"
+        fill="currentColor"
+        stroke="currentColor"
       />
       <rect
         x="38.5"
         y="78.5"
         width="34"
         height="3"
-        fill="#808080"
-        stroke="#808080"
+        fill="currentColor"
+        stroke="currentColor"
       />
       <rect
         x="68.5"
@@ -435,8 +442,8 @@ const RichTreeViewControl = ({
         width="14"
         height="3"
         transform="rotate(-90 68.5 33.5)"
-        fill="#808080"
-        stroke="#808080"
+        fill="currentColor"
+        stroke="currentColor"
       />
       <rect
         x="69.5"
@@ -444,8 +451,8 @@ const RichTreeViewControl = ({
         width="9"
         height="3"
         transform="rotate(-90 69.5 77.5)"
-        fill="#808080"
-        stroke="#808080"
+        fill="currentColor"
+        stroke="currentColor"
       />
     </svg>,
     "DatasetIcon"
@@ -466,37 +473,37 @@ const RichTreeViewControl = ({
     >
       <path
         d="M31 39V50"
-        stroke="#808080"
+        stroke="currentColor"
         stroke-width="8"
         stroke-linecap="round"
       />
       <path
         d="M55 67L56.9101 77.8329"
-        stroke="#808080"
+        stroke="currentColor"
         stroke-width="8"
         stroke-linecap="square"
       />
       <path
         d="M39.9101 68L38 78.8329"
-        stroke="#808080"
+        stroke="currentColor"
         stroke-width="8"
         stroke-linecap="square"
       />
       <path
         d="M47 31V50"
-        stroke="#808080"
+        stroke="currentColor"
         stroke-width="8"
         stroke-linecap="round"
       />
       <path
         d="M64 80H31"
-        stroke="#808080"
+        stroke="currentColor"
         stroke-width="8"
         stroke-linecap="round"
       />
       <path
         d="M64 22V50"
-        stroke="#808080"
+        stroke="currentColor"
         stroke-width="8"
         stroke-linecap="round"
       />
@@ -509,7 +516,7 @@ const RichTreeViewControl = ({
         width="88"
         height="61"
         rx="7"
-        stroke="#808080"
+        stroke="currentColor"
         stroke-width="16"
         mask="url(#path-7-inside-1_22_22)"
       />
@@ -584,6 +591,7 @@ const RichTreeViewControl = ({
             <CustomLabel
               {...getLabelProps({
                 icon,
+                itemId,
                 expandable: expandable && status.expanded,
               })}
             />

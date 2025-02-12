@@ -385,7 +385,6 @@ function DataViewer({
         height: "30px",
         width: "30px",
         padding: "0.2rem",
-        // margin: "0 13px",
       },
     },
     {
@@ -405,11 +404,9 @@ function DataViewer({
         height: "30px",
         width: "30px",
         padding: "0.2rem",
-        // padding: "6px 12.5px 5px 12.5px",
-        // margin: "0 10px",
         marginRight: "0.1rem"
-      },
-    },
+      }
+    }
   ];
 
   const renderMenu = rmenu.map((rm: any, i: number) => {
