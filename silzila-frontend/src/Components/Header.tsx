@@ -12,6 +12,7 @@ import FetchData from './ServerCall/FetchData';
 import { palette } from '..';
 import {DeleteAllCookies} from '../Components/CommonFunctions/CommonFunctions';
 import { useDispatch } from 'react-redux';
+import { fromRoute, navigatetTo } from './CommonFunctions/aliases';
 
 
 const Header = (props:any) => {
@@ -42,7 +43,6 @@ const Header = (props:any) => {
             // Use the FetchData utility to make the request
             setLoading(true);
             const apiUrl = `${localEndPoint}user-details`; 
-            // console.log("Fetching user details from:", apiUrl);
             const response = await FetchData({
                 requestType: 'withData',
                 method: 'GET',
@@ -52,7 +52,6 @@ const Header = (props:any) => {
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
                 },
             });
-            // console.log("Full API Response:", response);
             if (!response.status) {
                 throw new Error(`Error: ${response.data.detail || 'Unknown error'}`);
             }
@@ -95,6 +94,9 @@ const Header = (props:any) => {
 
     const handleLogout = () => {
       dispatch(resetUser())
+      DeleteAllCookies();              
+      Cookies.remove('authToken');
+      localStorage.clear();
       setTimeout(() => {
         navigate('/login');
       }, 1000);
@@ -273,10 +275,15 @@ const Header = (props:any) => {
             <MenuItem 
             onClick={() => { 
               handleMenuClose(); 
-              navigate('/');  
-              DeleteAllCookies();              
-              Cookies.remove('authToken');
-              localStorage.clear();
+              if (
+                props.from === fromRoute.dataViewer &&
+                typeof props.saveAndNavigateTo === "function"
+              )
+              props.saveAndNavigateTo(navigatetTo.login);
+              else{
+                handleLogout()
+              }
+              
             }} 
             style={{
               height: "50px",
@@ -284,7 +291,6 @@ const Header = (props:any) => {
             }}
           >
             <div  className="menuLink" 
-              onClick={handleLogout}
               style={{ 
                 textDecoration: 'none', 
                 color: 'inherit',
