@@ -14,6 +14,7 @@ import com.silzila.domain.entity.User;
 import com.silzila.domain.entity.Workspace;
 import com.silzila.dto.PlayBookMetaDTO;
 import com.silzila.payload.request.PlayBookRequest;
+import com.silzila.payload.response.PlayBookCreationResponse;
 import com.silzila.payload.response.PlayBookResponse;
 import com.silzila.repository.PlayBookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,8 @@ public class PlayBookService {
         UtilityService utilityService;
 
         // create Playbook
-        public PlayBook createPlayBook(PlayBookRequest playBookRequest, String userId ,String workspaceId)
+        public PlayBookCreationResponse createPlayBook(PlayBookRequest playBookRequest, String userId,
+                        String workspaceId)
                         throws JsonProcessingException, BadRequestException {
 
                 String playbookName = playBookRequest.getName().trim();
@@ -57,12 +59,24 @@ public class PlayBookService {
                 playBook.setContent(jsonObject.toString());
                 playBook.setWorkspace(workspace);
                 playBook.setCreatedBy(user.getFirstName());
-                playBookRepository.save(playBook);
-                return playBook;
+                PlayBook savedPlayBook = playBookRepository.save(playBook);
+
+                PlayBookCreationResponse response = PlayBookCreationResponse.builder()
+                                .id(savedPlayBook.getId())
+                                .userId(savedPlayBook.getUserId())
+                                .name(savedPlayBook.getName())
+                                .description(savedPlayBook.getDescription())
+                                .content(savedPlayBook.getContent())
+                                .workspaceId(savedPlayBook.getWorkspace().getId())
+                                .createdBy(savedPlayBook.getCreatedBy())
+                                .createdAt(savedPlayBook.getCreatedAt())
+                                .build();
+                return response;
         }
 
         // read all Playbooks Metadata
-        public List<PlayBookMetaDTO> getAllPlayBooks(String userId,String workspaceId) throws JsonProcessingException,BadRequestException {
+        public List<PlayBookMetaDTO> getAllPlayBooks(String userId, String workspaceId)
+                        throws JsonProcessingException, BadRequestException {
                 List<PlayBook> playBooks = playBookRepository.findByUserId(userId);
                 utilityService.isValidWorkspaceId(workspaceId);
                 List<PlayBookMetaDTO> pbDtos = new ArrayList<>();
@@ -99,7 +113,7 @@ public class PlayBookService {
         }
 
         // update PlayBook
-        public PlayBook updatePlayBook(PlayBookRequest playBookRequest, String id, String userId,String workspaceId)
+        public PlayBook updatePlayBook(PlayBookRequest playBookRequest, String id, String userId, String workspaceId)
                         throws RecordNotFoundException, JsonProcessingException, JsonMappingException,
                         BadRequestException {
 
@@ -135,9 +149,10 @@ public class PlayBookService {
         }
 
         // delete PlayBook
-        public void deletePlayBook(String id, String userId,String workspaceId) throws RecordNotFoundException {
+        public void deletePlayBook(String id, String userId, String workspaceId) throws RecordNotFoundException {
                 // fetch specific PlayBook for the user
-                Optional<PlayBook> pOptional = playBookRepository.findByIdAndUserIdAndWorkspaceId(id, userId,workspaceId);
+                Optional<PlayBook> pOptional = playBookRepository.findByIdAndUserIdAndWorkspaceId(id, userId,
+                                workspaceId);
                 // if no PlayBook inside optional warpper, then send NOT FOUND Error
                 if (!pOptional.isPresent()) {
                         throw new RecordNotFoundException("Error: No such PlayBook Id exists!");
