@@ -67,6 +67,8 @@ export const messages = {
   dataset: {
     wrongName:
       "Dataset name cannot be empty and must not contain special characters except underscores (_), hyphens (-), and spaces ( ).",
+    tableWrongName: 
+      "Table name cannot be empty and must not contain special characters except underscores (_), hyphens (-), and spaces ( )."
   },
   dataConnection: {
     wrongName:

@@ -422,7 +422,7 @@ const AddUser = (props: any) => {
     <div className="profile-user-container">
       <div className="profile-header-image-form-container">
         {loading ? (
-          <div className="loading-container" style={{ overflow: "hidden" }}>
+          <div className="loading-container" style={{ overflow: "hidden" ,paddingBottom:'20px'}}>
             <div className="user-spinner"></div>
           </div>
         ) : (
@@ -431,6 +431,7 @@ const AddUser = (props: any) => {
               style={{
                 fontSize: fontSize.xxl,
                 color: palette.primary.contrastText,
+                paddingBottom:"20px",
               }}
             >
               {isUpdating ? "Update Profile" : "Create New User"}

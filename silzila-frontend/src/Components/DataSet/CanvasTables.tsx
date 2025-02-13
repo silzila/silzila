@@ -74,6 +74,7 @@ const CanvasTables = ({
   const [testMessage, setTestMessage] = useState<string>("");
    const [viewerRestriction,setViewerRestriction]=useState<boolean>(false);
   // const [startPosition, setStartPosition] = useState({ x, y });
+  
   const [x, setX] = useState<number | any>(
     tableData.tablePositionX ? tableData.tablePositionX : 0
   );
@@ -81,7 +82,6 @@ const CanvasTables = ({
     tableData.tablePositionY ? tableData.tablePositionY : 0
   );
   // const {workspaceContents,SubWorkspaceContents}=useSelector((state: RootState) => state.permissions)
-    // const permission=useSelector((state:RootState)=>state.dataSetState.permission);
     useEffect(() => {
       if(!editMode||!dsId)return;
   
@@ -492,6 +492,7 @@ const CanvasTables = ({
                 checkRelationExists={checkRelationExists}
                 table_Id={tableData.id}
                 disableDrag={viewerRestriction}
+                tableHasCustomQuery={tableData.isCustomQuery}
               />
             );
           })}
