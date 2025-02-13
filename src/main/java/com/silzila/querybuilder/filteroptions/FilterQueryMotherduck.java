@@ -27,7 +27,7 @@ public class FilterQueryMotherduck {
             fromClause = " FROM " + req.getDBName() + "." + req.getSchemaName() + "."+ req.getTableName() + " AS " + req.getTableId() + " ";
         }else {
             if (!table.isCustomQuery()) {
-                fromClause = " FROM " + table.getDatabase() +"." + req.getSchemaName() + "." + table.getTable() + " AS " + table.getId() + " ";
+                fromClause = " FROM " + table.getDatabase() +"." + table.getSchema() + "." + table.getTable() + " AS " + table.getId() + " ";
             } else {
                 fromClause = " FROM (" + table.getCustomQuery() + ") AS " + table.getId() + " ";
             }
