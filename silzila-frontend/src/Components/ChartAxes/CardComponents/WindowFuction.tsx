@@ -21,6 +21,7 @@ import { fieldName } from "../../CommonFunctions/CommonFunctions";
 import { Height } from "@mui/icons-material";
 import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 import { BsColumnsGap } from "react-icons/bs";
+import { palette } from "../../..";
 
 interface WindowFunctionProps {
   anchorElm: any;
@@ -105,20 +106,30 @@ const WindowFunction = ({
   const [selectedWindowFnOptions, setSelectedWindowFnOptions] =
     useState<string>("");
 
+  type TWindowFnField={
+      fieldName:string;
+      id:string;
+    }
   //Fetch fields from Dimension, Row, Column, Distribution
-  var rows: any[] = [];
-  var columns: any[] = [];
+  let rows: TWindowFnField[] = [];
+  let columns: TWindowFnField[] = [];
 
   if (chartProp.properties[propKey].chartAxes[1].fields.length > 0) {
     chartProp.properties[propKey].chartAxes[1].fields.forEach((item: any) => {
-      rows.push(fieldName(item));
+      rows.push({
+        fieldName: fieldName(item),
+        id: item.uId,
+      });
     });
   }
 
   if (["heatmap", "crossTab", "boxPlot", "bubbleMap"].includes(chartType)) {
     if (chartProp.properties[propKey].chartAxes[2].fields.length > 0) {
       chartProp.properties[propKey].chartAxes[2].fields.forEach((item: any) => {
-        columns.push(fieldName(item));
+        columns.push({
+          fieldName: fieldName(item),
+          id: item.uId,
+        });
       });
     }
   }
@@ -162,8 +173,9 @@ const WindowFunction = ({
 
   useEffect(() => {
     if (rows.length !== 0 || columns.length !== 0) {
-      const rowValues = ["(Entire Table)", ...rows];
-      const columnValues = ["(Entire Table)", ...columns];
+
+      const rowValues = ["(Entire Table)", ...rows.map((item) => item.id)];
+      const columnValues = ["(Entire Table)", ...columns.map((item) => item.id)];
       const isStandingRowPresent = [windowFnValues.standingRow].some((value) =>
         rowValues.includes(value)
       );
@@ -233,8 +245,8 @@ const WindowFunction = ({
         const standingSlidingColumnValue = [
           windowfnvalue.standingSlidingColumn,
         ];
-        const rowValues = ["(Entire Table)", ...rows];
-        const columnValues = ["(Entire Table)", ...columns];
+        const rowValues = ["(Entire Table)", ...rows.map((item) => item.id)];
+        const columnValues = ["(Entire Table)", ...columns.map((item) => item.id)];
         const isStandingRowPresentInRows = standingRowValue.some((value) =>
           rowValues.includes(value)
         );
@@ -311,7 +323,7 @@ const WindowFunction = ({
   };
 
   const selectedButtonStyle1 = {
-    backgroundColor: "orange",
+    backgroundColor: palette.primary.main,
     width: "5px",
     height: "auto",
   };
@@ -393,70 +405,59 @@ const WindowFunction = ({
     switch (windowFnValues.windowFnOptions) {
       case "standing":
         if (subOption === "row") {
+          const selected=rows.find(row=>row.id===value);
           setWindowFnValues((prevState: any) => ({
             ...prevState,
             standingRowIndex:
-              value === "(Entire Table)" ? -1 : rows.indexOf(value),
-          }));
-          setWindowFnValues((prevState: any) => ({
-            ...prevState,
-            standingRow: value,
+              value === "(Entire Table)" ? -1 : rows.findIndex(row=>row.id===value),
+              standingRow: value==="(Entire Table)"?"(Entire Table)":selected?.id??value,
           }));
         } else if (subOption === "column") {
+          const selected=columns.find(column=>column.id===value);
           setWindowFnValues((prevState: any) => ({
             ...prevState,
             standingColumnIndex:
-              value === "(Entire Table)" ? -1 : columns.indexOf(value),
-          }));
-          setWindowFnValues((prevState: any) => ({
-            ...prevState,
-            standingColumn: value,
+              value === "(Entire Table)" ? -1 : columns.findIndex(column=>column.id===value),
+              standingColumn: value==="(Entire Table)"?"(Entire Table)":selected?.id??value,
           }));
         }
         break;
       case "sliding":
         if (subOption === "row") {
+          const selected=rows.find(row=>row.id===value);
           setWindowFnValues((prevState: any) => ({
             ...prevState,
             slidingRowIndex:
-              value === "(Entire Table)" ? -1 : rows.indexOf(value),
-          }));
-          setWindowFnValues((prevState: any) => ({
-            ...prevState,
-            slidingRow: value,
+              value === "(Entire Table)" ? -1 : rows.findIndex(row=>row.id===value),
+              slidingRow: value==="(Entire Table)"?"(Entire Table)":selected?.id??value,
           }));
         } else if (subOption === "column") {
+          const selected=columns.find(column=>column.id===value);
           setWindowFnValues((prevState: any) => ({
             ...prevState,
             slidingColumnIndex:
-              value === "(Entire Table)" ? -1 : columns.indexOf(value),
-          }));
-          setWindowFnValues((prevState: any) => ({
-            ...prevState,
-            slidingColumn: value,
+              value === "(Entire Table)" ? -1 : columns.findIndex(column=>column.id===value),
+              slidingColumn: value==="(Entire Table)"?"(Entire Table)":selected?.id??value,
           }));
         }
         break;
       case "standingsvssliding":
         if (subOption === "row") {
+          const selected=rows.find(row=>row.id===value);
+
           setWindowFnValues((prevState: any) => ({
             ...prevState,
             standingSlidingRowIndex:
-              value === "(Entire Table)" ? -1 : rows.indexOf(value),
-          }));
-          setWindowFnValues((prevState: any) => ({
-            ...prevState,
-            standingSlidingRow: value,
+              value === "(Entire Table)" ? -1 : rows.findIndex(row=>row.id===value),
+              standingSlidingRow: value==="(Entire Table)"?"(Entire Table)":selected?.id??value,
           }));
         } else if (subOption === "column") {
+          const selected=columns.find(column=>column.id===value);
           setWindowFnValues((prevState: any) => ({
             ...prevState,
             standingSlidingColumnIndex:
-              value === "(Entire Table)" ? -1 : columns.indexOf(value),
-          }));
-          setWindowFnValues((prevState: any) => ({
-            ...prevState,
-            standingSlidingColumn: value,
+              value === "(Entire Table)" ? -1 : columns.findIndex(column=>column.id===value),
+              standingSlidingColumn: value==="(Entire Table)"?"(Entire Table)":selected?.id??value,
           }));
         }
         break;
@@ -565,8 +566,9 @@ const WindowFunction = ({
                 <Typography
                   sx={{
                     fontSize: "12px",
-                    fontWeight: "600",
-                    color: "rgb(87, 87, 87)",
+                    fontWeight: "bold",
+                    color: "primary.main",
+
                     paddingLeft: "15px",
                   }}
                 >
@@ -666,11 +668,10 @@ const WindowFunction = ({
                 sx={{
                   fontSize: "12px",
                   paddingLeft: "15px",
-                  fontWeight: "600",
-                  color: "rgb(96, 96, 96)",
-                }}
+                  fontWeight: "bold",
+                  color: "primary.main",}}
               >
-                MOVING CALCULATION
+                Moving Calculation
               </Typography>
               <Typography
                 sx={{
@@ -766,16 +767,19 @@ const WindowFunction = ({
               (windowFnValues.slidingPreInc === 0 &&
                 windowFnValues.slidingNextInc === 0) ? (
                 <div style={{ display: "flex", marginLeft: "6px" }}>
-                  <Checkbox
-                    size="small"
-                    sx={{ "& .MuiSvgIcon-root": { fontSize: 16 } }}
-                    defaultChecked
-                    disabled
-                    value={windowFnValues.slidingCurrent}
-                  />
-                  <Typography sx={{ fontSize: "12px", marginTop: "10px" }}>
-                    Current
-                  </Typography>
+                  <label>
+                    <Checkbox
+                      size="small"
+                      sx={{ "& .MuiSvgIcon-root": { fontSize: 16 } }}
+                      defaultChecked
+                      disabled
+                      value={windowFnValues.slidingCurrent}
+                    />
+                    </label>
+                    <Typography sx={{ fontSize: "12px", marginTop: "10px" }}>
+                      Current
+                    </Typography>
+                  
                 </div>
               ) : null}
 
@@ -784,21 +788,24 @@ const WindowFunction = ({
               (windowFnValues.slidingPreInc === 0 &&
                 windowFnValues.slidingNextInc !== 0) ? (
                 <div style={{ display: "flex", marginLeft: "6px" }}>
-                  <Checkbox
-                    size="small"
-                    sx={{ ...radioButton }}
-                    checked={windowFnValues.slidingCurrent === 1}
-                    onChange={(e) =>
-                      setWindowFnValues((prevState: any) => ({
-                        ...prevState,
-                        slidingCurrent: e.target.checked ? 1 : 0,
-                      }))
-                    }
-                    value={windowFnValues.slidingCurrent}
-                  />
-                  <Typography sx={{ fontSize: "12px", marginTop: "10px" }}>
-                    Current
-                  </Typography>
+                  <label>
+                    <Checkbox
+                      size="small"
+                      sx={{ ...radioButton }}
+                      checked={windowFnValues.slidingCurrent === 1}
+                      onChange={(e) =>
+                        setWindowFnValues((prevState: any) => ({
+                          ...prevState,
+                          slidingCurrent: e.target.checked ? 1 : 0,
+                        }))
+                      }
+                      value={windowFnValues.slidingCurrent}
+                    />
+                     </label>
+                    <Typography sx={{ fontSize: "12px", marginTop: "10px" }}>
+                      Current
+                    </Typography>
+                 
                 </div>
               ) : null}
 
@@ -1048,16 +1055,19 @@ const WindowFunction = ({
                 (windowFnValues.standingSlidingPreInc === 0 &&
                   windowFnValues.standingSlidingNextInc === 0) ? (
                   <div style={{ display: "flex", marginLeft: "24px" }}>
-                    <Checkbox
-                      size="small"
-                      sx={{ "& .MuiSvgIcon-root": { fontSize: 16 } }}
-                      disabled
-                      defaultChecked
-                      value={windowFnValues.standingSlidingCurrent}
-                    />
-                    <Typography sx={{ fontSize: "12px", marginTop: "10px" }}>
-                      Current
-                    </Typography>
+                     <label>
+                      <Checkbox
+                        size="small"
+                        sx={{ "& .MuiSvgIcon-root": { fontSize: 16 } }}
+                        disabled
+                        defaultChecked
+                        value={windowFnValues.standingSlidingCurrent}
+                      />
+                       </label>
+                      <Typography sx={{ fontSize: "12px", marginTop: "10px" }}>
+                        Current
+                      </Typography>
+                   
                   </div>
                 ) : null}
 
@@ -1066,24 +1076,27 @@ const WindowFunction = ({
                 (windowFnValues.standingSlidingPreInc === 0 &&
                   windowFnValues.standingSlidingNextInc !== 0) ? (
                   <div style={{ display: "flex", marginLeft: "24px" }}>
-                    <Checkbox
-                      size="small"
-                      sx={{ ...radioButton }}
-                      checked={windowFnValues.standingSlidingCurrent === 1}
-                      disabled={
-                        windowFnValues.standingSlidingReferenceWn !== "PNC"
-                      }
-                      onChange={(e) =>
-                        setWindowFnValues((prevState: any) => ({
-                          ...prevState,
-                          standingSlidingCurrent: e.target.checked ? 1 : 0,
-                        }))
-                      }
-                      value={windowFnValues.standingSlidingCurrent}
-                    />
-                    <Typography sx={{ fontSize: "12px", marginTop: "10px" }}>
-                      Current
-                    </Typography>
+                     <label>
+                      <Checkbox
+                        size="small"
+                        sx={{ ...radioButton }}
+                        checked={windowFnValues.standingSlidingCurrent === 1}
+                        disabled={
+                          windowFnValues.standingSlidingReferenceWn !== "PNC"
+                        }
+                        onChange={(e) =>
+                          setWindowFnValues((prevState: any) => ({
+                            ...prevState,
+                            standingSlidingCurrent: e.target.checked ? 1 : 0,
+                          }))
+                        }
+                        value={windowFnValues.standingSlidingCurrent}
+                      />
+                       </label>
+                      <Typography sx={{ fontSize: "12px", marginTop: "10px" }}>
+                        Current
+                      </Typography>
+                   
                   </div>
                 ) : null}
               </div>
@@ -1170,7 +1183,7 @@ const WindowFunction = ({
               ? rows.map((row, i) => (
                   <MenuItem
                     key={i}
-                    value={row}
+                    value={row.id}
                     sx={{ fontSize: "12px", padding: "2px 1rem" }}
                     selected={
                       i ===
@@ -1184,7 +1197,7 @@ const WindowFunction = ({
                         : -1)
                     }
                   >
-                    {row}
+                    {row.fieldName}
                   </MenuItem>
                 ))
               : null}
@@ -1232,7 +1245,7 @@ const WindowFunction = ({
                   ? columns.map((column, i) => (
                       <MenuItem
                         key={i}
-                        value={column}
+                        value={column.id}
                         sx={{ fontSize: "12px", padding: "2px 1rem" }}
                         selected={
                           i ===
@@ -1246,7 +1259,7 @@ const WindowFunction = ({
                             : -1)
                         }
                       >
-                        {column}
+                        {column.fieldName}
                       </MenuItem>
                     ))
                   : null}
@@ -1410,6 +1423,8 @@ const WindowFunction = ({
               display: "flex",
               flexDirection: "row",
               columnGap: "0.2rem",
+              justifyContent:'space-between',
+              width:'100%',
             }}
           >
             <Button
@@ -1419,19 +1434,22 @@ const WindowFunction = ({
               sx={{
                 fontSize: "10px",
                 boxShadow: "none",
-                border: "2px solid #b6b6b6",
+                border: "2px solid gray",
+                color: "gray",
                 borderRadius: "2px",
                 textTransform: "initial",
                 "&:hover": {
                   color: "white",
                   backgroundColor: "red",
-                  boxShadow: "0px 0px 2px 1px rgb(199, 199, 199)",
+                  border: "2px solid red",
+                  boxShadow: "0px 0px 2px 1px red",
                 },
               }}
               onClick={() => {
                 setWindowfn(false);
                 var field2 = JSON.parse(JSON.stringify(field));
                 field2.windowfn = null;
+                field2.displayname=fieldName(field2)
                 updateQueryParam(propKey, bIndex, itemIndex, field2);
               }}
             >
@@ -1446,18 +1464,20 @@ const WindowFunction = ({
                 setWindowfn(false);
                 var field2 = JSON.parse(JSON.stringify(field));
                 field2.windowfn = windowFnValues;
+                field2.displayname=field2.displayname.startsWith('window fn. of')?field2.displayname:`window fn. of ${field2.displayname}`
                 updateQueryParam(propKey, bIndex, itemIndex, field2);
               }}
               sx={{
                 fontSize: "10px",
                 boxShadow: "none",
-                border: "2px solid #2bb9bb",
+                border: `2px solid ${palette.primary.main}`,
                 borderRadius: "1px",
                 textTransform: "initial",
+                color: palette.primary.main,
                 "&:hover": {
                   color: "white",
-                  backgroundColor: "#2bb9bb",
-                  boxShadow: "0px 0px 2px 1px #af99db",
+                  backgroundColor: palette.primary.main,
+                  boxShadow: `0px 0px 2px 1px ${palette.primary.main}`,
                 },
               }}
             >

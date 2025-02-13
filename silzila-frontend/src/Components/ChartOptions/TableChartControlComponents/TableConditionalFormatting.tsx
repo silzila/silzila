@@ -14,7 +14,8 @@ import LabelComponent from "./LabelComponent";
 import GradientComponent from "./GradientComponent";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import RuleComponent from "./RuleComponent";
-import { getContrastColor, getLabelValues, fieldName} from '../../CommonFunctions/CommonFunctions';
+import { getContrastColor, getLabelValues, displayName} from '../../CommonFunctions/CommonFunctions';
+import { palette } from "../../..";
 
 
 export const addConditionButtonStyle = {
@@ -23,6 +24,7 @@ export const addConditionButtonStyle = {
 	width: "100%",
 	color: "white",
 	textTransform: "none",
+	marginLeft: "4px",
 	"&:hover": {
 		backgroundColor: "rgb(43, 185, 187)",
 	},
@@ -215,7 +217,7 @@ const TableConditionalFormatting = ({
 					accumulator = accumulator.concat(
 						zone.fields.map((value: any) => ({
 							isLabel: zone.name !== "Measure",
-							columnName: fieldName(value),
+							columnName: displayName(value),
 						}))
 					);					
 				}	
@@ -231,19 +233,19 @@ const TableConditionalFormatting = ({
 		<div className="optionsInfo">
 			<div
 				className="optionDescription"
-				style={{ display: "flex", flexDirection: "column", marginTop: "0px" }}
+				style={{ display: "flex", flexDirection: "column", marginTop: "0px", paddingRight: "0.5rem" }}
 			>
 				{chartControls.properties[propKey].tableConditionalFormats &&
 					chartControls.properties[propKey].tableConditionalFormats.map(
 						(format: any, i: number) => {
 							return (
 								<>
-									<div>
+									<div style={{width: "100%", borderBottom: "2px solid rgb(224,224,224)", paddingBottom: "0.2rem"}}>
 										<div className="ColumnTitle">
-											<span style={{ fontSize: "16px", color: "#5d5c5c" }}>
+											<span style={{ fontSize: "12px", color: palette.primary.contrastText }}>
 												{format.name}{" "}
 											</span>
-											<span className="expandLessMoreContainer">
+											<span className="expandLessMoreContainer" style={{display: "flex", alignItems: "center"}}>
 												{format.isCollapsed ? (
 													<ChevronRightIcon
 														sx={{
@@ -270,7 +272,7 @@ const TableConditionalFormatting = ({
 													/>
 												)}
 											</span>
-											<span className="deleteIconContainer">
+											<span className="deleteIconContainer" style={{display: "flex", alignItems: "center"}}>
 												<DeleteOutlineOutlinedIcon
 													sx={{ fontSize: "16px" }}
 													onClick={() => deleteTablecf(propKey, i)}
@@ -305,7 +307,7 @@ const TableConditionalFormatting = ({
 						}
 					)}
 			</div>
-			<div>
+			<div style={{width:"98%", paddingRight: "2px", marginTop: "0.8rem"}}>
 				<Button
 					sx={addConditionButtonStyle}
 					disabled={chartControls.properties[propKey].chartData.length > 0 ? false : true}

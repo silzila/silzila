@@ -129,8 +129,13 @@ const LabelFormatingForRichText= ({
 		});
 	};
 
+	useEffect(() => {
+		console.log("Current formatObject:", formatObject); // Logs whenever formatObject is updated
+	}, [formatObject]); // Add dependencies to track changes
+
 	return (
 		<React.Fragment>
+			
 			<div className="optionDescription">FORMAT VALUE</div>
 			<div className="radioButtons" style={{ padding: "0", margin: "auto" }}>
 				{renderFormatOptions()}
@@ -141,8 +146,9 @@ const LabelFormatingForRichText= ({
 						<span style={{ margin: "auto" }}>Curency Symbol</span>
 						<InputSymbol
 							value={formatObject.currencySymbol}
-							updateValue={(value: any) =>
+							updateValue={(value: any) =>{
 								handleUpdateFormat("currencySymbol", value, "labelFormats")
+							}
 							}
 						/>
 					</div>

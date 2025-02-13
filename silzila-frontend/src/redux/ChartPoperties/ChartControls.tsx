@@ -38,7 +38,13 @@ const chartControl = {
         text: [
           {
             type: "p",
-            children: [{ text: "Enter some text..." }],
+            children: [{
+              text: "Enter some text...",
+              fontFamily: "sans" ,
+              fontSize: "normal" ,
+              color:'black',
+
+            }],
           },
         ],
         style: null,
@@ -81,11 +87,13 @@ const chartControl = {
         selectedMargin: "top",
         top: 5,
         right: 5,
-        bottom: 20,
+        bottom: 5,
         left: 5,
       },
 
       cardControls: {
+        height: 200,
+        width: 350,
         fontSize: 35,
         subtextFontSize: 15,
         isDragging: false,
@@ -112,7 +120,7 @@ const chartControl = {
         dayLabelMargin: 5,
         dayLabelPosition: "start",
         dayLabelColor: "black",
-        dayLabelFontSize: 12,
+        dayLabelFontSize: 10,
         showMonthLabel: true,
         monthLabelMargin: 5,
         monthLabelPosition: "start",
@@ -193,7 +201,7 @@ const chartControl = {
 
       crossTabStyleOptions: {
         borderWidth: 1,
-        lineHeight: 1,
+        lineHeight: 1.25,
       },
       crossTabHeaderLabelOptions: {
         labelColorManual: false,
@@ -203,12 +211,6 @@ const chartControl = {
         fontWeigth: "normal",
         fontFamily: "sans-serif",
         fontWeight: "500",
-        selectedMembers: [],
-        inputValue: "0", 
-        showCss: "",
-        columnName:"",
-        columnType: "",
-        comparison: "> Greater than",
       },
       crossTabCellLabelOptions: {
         labelColorManual: false,
@@ -243,7 +245,7 @@ const chartControl = {
           numberSeparator: "Abbrev",
           selectedMeasure: {},
           // measureFormats will keep the format options for the measure selected in the chart for individual measure
-          measureFormats: {}
+          measureFormats: {},
         },
 
         yAxisFormats: {
@@ -450,6 +452,8 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               left: 5,
             },
             cardControls: {
+              height: 200,
+              width: 350,
               fontSize: 35,
               subtextFontSize: 15,
               isDragging: false,
@@ -477,7 +481,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               dayLabelMargin: 5,
               dayLabelPosition: "start",
               dayLabelColor: "black",
-              dayLabelFontSize: 12,
+              dayLabelFontSize: 10,
               showMonthLabel: true,
               monthLabelMargin: 5,
               monthLabelPosition: "start",
@@ -558,7 +562,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 
             crossTabStyleOptions: {
               borderWidth: 1,
-              lineHeight: 1,
+              lineHeight: 1.25,
             },
             crossTabHeaderLabelOptions: {
               labelColorManual: false,
@@ -568,12 +572,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               fontWeigth: "normal",
               fontFamily: "sans-serif",
               fontWeight: "500",
-              selectedMembers: [],
-              inputValue: "0", 
-              showCss: "",
-              columnName:"",
-              columnType: "",
-              comparison: "> Greater than",
             },
             crossTabCellLabelOptions: {
               labelColorManual: false,
@@ -787,6 +785,8 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               maxColor: "#af99db",
             },
             cardControls: {
+              height: 200,
+              width: 350,
               fontSize: 35,
               subtextFontSize: 15,
               isDragging: false,
@@ -841,7 +841,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               dayLabelMargin: 5,
               dayLabelPosition: "start",
               dayLabelColor: "black",
-              dayLabelFontSize: 12,
+              dayLabelFontSize: 10,
               showMonthLabel: true,
               monthLabelMargin: 5,
               monthLabelPosition: "start",
@@ -922,7 +922,7 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
 
             crossTabStyleOptions: {
               borderWidth: 1,
-              lineHeight: 1,
+              lineHeight: 1.25,
             },
             crossTabHeaderLabelOptions: {
               labelColorManual: false,
@@ -932,12 +932,6 @@ const chartControlsReducer = (state: any = chartControl, action: any) => {
               fontWeigth: "normal",
               fontFamily: "sans-serif",
               fontWeight: "500",
-              selectedMembers: [],
-              inputValue: "0", 
-              showCss: "",
-              columnName:"",
-              columnType: "",
-              comparison: "> Greater than",
             },
             crossTabCellLabelOptions: {
               labelColorManual: false,

@@ -28,9 +28,13 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 const DashBoardLayoutControl = ({
   // props
   setDashboardResizeColumn,
+  
+  setBackgroundColor,  // Receive function to update background color
   //state
   tabTileProps,
   tabState,
+  softUISlider,
+  backgroundColor,  // Receive background color as prop
   //dispatch
   setDashLayout,
   setDashLayoutSelectedOptionForAuto,
@@ -307,7 +311,7 @@ DashBoardLayoutProps) => {
   return (
     <div className="dashboardLayoutControl">
       <div className="axisTitle">
-        Dashboard Size
+        {/* Dashboard Size
         <Tooltip title="Hide">
           <KeyboardArrowUpIcon
             sx={{
@@ -317,11 +321,11 @@ DashBoardLayoutProps) => {
             }}
             onClick={() => setDashboardResizeColumn(false)}
           />
-        </Tooltip>
+        </Tooltip> */}
       </div>
       {/* {dashSizeOptionBtn()} */}
-      {whenPageSizeisAuto()}
-
+      {/* {whenPageSizeisAuto()} */}
+      {softUISlider}
       {/* {isAutoSelected ? (
 				whenPageSizeisAuto()
 			) : (

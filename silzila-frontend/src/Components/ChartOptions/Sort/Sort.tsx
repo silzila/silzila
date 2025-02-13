@@ -109,14 +109,14 @@ const Sort = ({
 					
 					{/* itreate and display firstObjKey */}
 					<div>
-						<FormControl fullWidth  sx={{margin: "0 10px 0 10px"}}>
+						<FormControl fullWidth  sx={{margin: "0 10px 0 10px", width: "97%"}}>
 
 							{chartControls.properties[propKey].sortedValue ? null :
-							<Typography sx={{color: "#ccc", fontSize: "10px", textAlign: "left", padding: "0 0 3px 5px", fontStyle: "italic"}}>
+							<Typography sx={{color: "#ccc", fontSize: "10px", textAlign: "left", padding: "0 0 3px 0px", fontStyle: "italic"}}>
 								*Select a Column name*
 							</Typography>}
 
-							<Select sx={{width: "95.5%", height: "26px", fontSize: "13px",'&.MuiOutlinedInput-root': {
+							<Select sx={{width: "95.5%", height: "26px", fontSize: "13px", paddingRight: "8px",'&.MuiOutlinedInput-root': {
 								'& fieldset': {
 									border: '1px solid rgb(211, 211, 211)', // Change the border color here
 								},
@@ -147,7 +147,7 @@ const Sort = ({
 
 								{firstObjKey.map((data,index) => (
 									<MenuItem key={index} value={data} 
-									sx={{color: "black", fontSize: "12px",padding: "2px 10px" , "&:hover" : {backgroundColor: "rgb(238, 238, 238)"},}}>
+									sx={{color: "black", fontSize: "12px",padding: "2px 10px", "&:hover" : {backgroundColor: "rgb(238, 238, 238)"},}}>
 										{data}
 									</MenuItem>
 									))}	
@@ -158,11 +158,11 @@ const Sort = ({
 					
 					<div className='sort'>Sort Type</div>
 					
-					<div style={{display: "flex"}}>
+					<div style={{display: "flex", paddingRight: "8px"}}>
 						{chartControls.properties[propKey].sortedValue ?
 						/* Column name or value gets selected then ascending, descending enable */
 						<>
-						<div style={{borderRadius: "5px 0 0 5px", marginLeft: "10px", marginBottom: "10px", transition: "0.2s",
+						<div style={{ borderRadius: "5px 0 0 5px", marginLeft: "10px", marginBottom: "10px", transition: "0.2s",
 							backgroundColor: chartControls.properties[propKey].sortOrder === "Ascending" ? "rgba(224, 224, 224, 1)" : "white",
 							cursor: chartControls.properties[propKey].sortOrder === "Ascending" ? "auto" : "pointer",
 							fontWeight: chartControls.properties[propKey].sortOrder === "Ascending" ? "600" : "normal",
@@ -223,15 +223,15 @@ const Sort = ({
 				<div>
 					<div className='sortDisable'>Sortby</div>
 
-					<div>
-						<FormControl fullWidth disabled sx={{margin: "0 10px 0 10px"}}>
-							<Select sx={{width: "95.5%", height: "26px"}}></Select>
+					<div style={{width:"100%",}}>
+						<FormControl fullWidth disabled sx={{margin: "0 10px 0 10px", paddingRight: "18px"}}>
+							<Select sx={{ height: "26px", }}></Select>
 						</FormControl>
 	                </div>
 					
 					<div className='sortDisable'>Sort Type</div>
 					
-					<div style={{display: "flex"}}>
+					<div style={{display: "flex", paddingRight: "8px"}}>
 						<div style={{color: "#b6b6b6", borderRadius: "5px 0 0 5px", marginLeft: "10px"}} className= "radioButton">
 							Ascending 
 	                    </div>

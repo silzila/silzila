@@ -17,6 +17,7 @@
 
 .displayFlex {
     display: flex;
+    justify-content: center;
 }
 
 .gradientComponentContainer {
@@ -62,6 +63,7 @@
 
 .ColumnTitle {
     display: flex;
+    align-items: center;
     min-height: 25px;
     height: auto;
 }
