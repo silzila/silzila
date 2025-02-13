@@ -91,7 +91,7 @@ public class RelationshipClauseGeneric {
 
 
         String fromClause = "";
-        List<Relationship> relationships = new ArrayList<>();
+        List<Relationship> relationships = new ArrayList<>();   
         /*
          * Build relationship - when ONLY ONE TABLE in qry
          */
@@ -109,8 +109,11 @@ public class RelationshipClauseGeneric {
                     fromClause = "\n\t" + table.getSchema() + "." + table.getTable() + " AS " + table.getId();
                 }
                 // MySQL has the format of Database_name.Table_name
-                else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
+                else if (vendorName.equals("mysql") ) {
                     fromClause = "\n\t" + table.getDatabase() + "." + table.getTable() + " AS " + table.getId();
+                }
+                else if ( vendorName.equals("motherduck")) {
+                    fromClause = "\n\t" + table.getDatabase() +  "." + table.getSchema() + "." + table.getTable() + " AS " + table.getId();
                 }
                 // SQL Server & Snowflake has the format of Database_name.Schema_name.Table_name
                 else if (vendorName.equals("sqlserver") || (vendorName.equals("snowflake"))) {
@@ -473,17 +476,17 @@ public class RelationshipClauseGeneric {
             else if (vendorName.equals("motherduck")) {
                 if (i == 0) {
                     if (!fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
-                        fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getTable() + " AS "
+                        fromClause += "\n\t" + fromTable.getDatabase() +  "." + fromTable.getSchema() + "." + fromTable.getTable() + " AS "
                                 + fromTable.getId()
-                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."+ fromTable.getSchema() + "."
                                 + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
                     } else if (fromTable.isCustomQuery() && !toTable.isCustomQuery()) {
                         fromClause += "\n\t" + "(" + fromTable.getCustomQuery() + ") AS "
                                 + fromTable.getId()
-                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."
+                                + "\n\t" + joins.get(_rship.getRefIntegrity()) + " " + toTable.getDatabase() + "."+ fromTable.getSchema() + "."
                                 + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
                     } else if (toTable.isCustomQuery() && !fromTable.isCustomQuery()) {
-                        fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getTable() + " AS "
+                        fromClause += "\n\t" + fromTable.getDatabase() + "." + fromTable.getSchema() + "."+ fromTable.getTable() + " AS "
                                 + fromTable.getId()
                                 + "\n\t" + joins.get(_rship.getRefIntegrity()) + " (" + toTable.getCustomQuery()
                                 + ") AS " + toTable.getId() + " ON \n\t\t " + joinString;
@@ -498,7 +501,7 @@ public class RelationshipClauseGeneric {
                             _rship.getTable1().equals(_relationships.get(i - 1).getTable2())) {
                         if(!toTable.isCustomQuery()) {
                             fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
-                                    + toTable.getDatabase() + "."
+                                    + toTable.getDatabase() + "."+ fromTable.getSchema() + "."
                                     + toTable.getTable() + " AS " + toTable.getId() + " ON \n\t\t " + joinString;
                         }else {
                             fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " ("
@@ -508,7 +511,7 @@ public class RelationshipClauseGeneric {
                             _rship.getTable2().equals(_relationships.get(i - 1).getTable2())) {
                         if(!fromTable.isCustomQuery()) {
                             fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
-                                    + fromTable.getDatabase() + "."
+                                    + fromTable.getDatabase() + "."+ fromTable.getSchema() + "."
                                     + fromTable.getTable() + " AS " + fromTable.getId() + " ON \n\t\t " + joinString;
                         }
                         else{
@@ -529,7 +532,7 @@ public class RelationshipClauseGeneric {
                             Table _to = _tbl2Optional.get();
                             if (!_to.isCustomQuery()) {
                                 fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " "
-                                        + _to.getDatabase() + "."
+                                        + _to.getDatabase() + "."+ fromTable.getSchema() + "."
                                         + _to.getTable() + " AS " + _to.getId() + " ON \n\t\t " + joinString;
                             } else {
                                 fromClause += "\n\t" + joins.get(_rship.getRefIntegrity()) + " ("
@@ -542,7 +545,7 @@ public class RelationshipClauseGeneric {
                             Table _from = _tbl1Optional.get();
                             if (!_from.isCustomQuery()) {
                                 fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " "
-                                        + _from.getDatabase() + "." + _from.getTable() + " AS " + _from.getId()
+                                        + _from.getDatabase() + "." + fromTable.getSchema() + "."+ _from.getTable() + " AS " + _from.getId()
                                         + " ON \n\t\t " + joinString;
                             } else {
                                 fromClause += "\n\t" + mirrorJoins.get(_rship.getRefIntegrity()) + " ("
