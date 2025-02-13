@@ -251,7 +251,7 @@ const ColorSteps = ({
 				<ChartColors />
 			</div>
 
-			<div className="optionDescription" style={{ marginTop: "10px" }}>
+			<div className="optionDescription" style={{ marginTop: "10px", paddingLeft: "0.7rem" }}>
 				STEPS:
 			</div>
 			<div className=" colorStepsList">

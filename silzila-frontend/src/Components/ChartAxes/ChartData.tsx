@@ -2,7 +2,7 @@
 // Number of dropzones and its name is returned according to the chart type selected.
 // Once minimum number of fields are met for the given chart type, server call is made to get chart data and saved in store
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { connect } from "react-redux";
 import ChartsInfo from "./ChartsInfo2";
@@ -42,6 +42,8 @@ import { TileRibbonStateProps } from "../../Components/TabsAndTiles/TileRibbonIn
 import { setDashTileSwitched } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { updateChartDataForDm } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
 import Logger from "../../Logger";
+import { NotificationDialog } from "../CommonFunctions/DialogComponents";
+import { AlertColor } from "@mui/material/Alert";
 
 import {
   deleteTablecf,
@@ -58,6 +60,7 @@ import {
 } from "../CommonFunctions/CommonFunctions";
 import { IFilter, IFilterPanel } from "../DataSet/BottomBarInterfaces";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
+import _ from "lodash";
 // format the chartAxes into the way it is needed for api call
 export const getChartData = async (
   axesValues: AxesValuProps[],
@@ -68,9 +71,15 @@ export const getChartData = async (
   screenFrom: string,
   token: string,
   chartType: any,
-  forQueryData?: boolean
+  forQueryData?: boolean,
+  savedCalculations?: any,
+  showErrorNotification?: any
 ) => {
   let _chartAxes: any = [];
+
+  const savedCalculatedFieldNames = savedCalculations?.map(
+    (item: any) => item.calculationInfo.calculatedFieldName
+  );
 
   if (chartProp.chartAxes) {
     _chartAxes = chartProp.chartAxes;
@@ -135,6 +144,7 @@ export const getChartData = async (
         return [""];
       }
       if (item.fieldtypeoption === "Search Condition") {
+        if (item.exprType === "blank") return [];
         if (
           item.exprType === "between" &&
           (item.greaterThanOrEqualTo || item.lessThanOrEqualTo)
@@ -201,7 +211,8 @@ export const getChartData = async (
             _isInvalidValue(item.lessThanOrEqualTo))
         ) {
           return false;
-        } else if (
+        } else if (item.exprType === "blank") return true;
+        else if (
           item.exprType !== "between" &&
           _isInvalidValue(item.exprInput)
         ) {
@@ -216,7 +227,13 @@ export const getChartData = async (
 
       return true;
     };
+    const getCalculationInfoByUid = (uid: string) => {
+      if(!savedCalculations||!uid) return null;
 
+      return savedCalculations.find(
+        (item: any) => item.uuid === uid
+      );
+    }
     let _items = [];
 
     if (_chartProp.fields) _items = _chartProp.fields;
@@ -281,7 +298,12 @@ export const getChartData = async (
       }
 
       _filter.userSelection = _getUserSelection(item);
-
+      if(item.SavedCalculationUUID){
+        const calculation=getCalculationInfoByUid(item.SavedCalculationUUID)
+        if(calculation){
+        _filter.calculatedField=[calculation.calculationInfo]
+        _filter.isCalculatedField=true}
+      }
       if (_getIsFilterValidToAdd(item)) {
         _type.filters.push(_filter);
       }
@@ -349,6 +371,7 @@ export const getChartData = async (
         if (axis.name === "Measure") {
           formattedField.aggr = field.agg;
 
+          if (formattedField.aggr === 'agg') formattedField.aggr = 'sum'
           //Updating windowFunction in QueryAPI
           if (field.windowfn) {
             //Function used to convert all the values of windowFunction in camelCase
@@ -655,8 +678,8 @@ export const getChartData = async (
                       )
                         ? toCamelCase(field.windowfn.standingSlidingReferenceWn)
                         : toCamelCase(
-                            field.windowfn.standingSlidingAggregation
-                          ),
+                          field.windowfn.standingSlidingAggregation
+                        ),
                     ];
                   }
                 } else {
@@ -677,11 +700,11 @@ export const getChartData = async (
                           field.windowfn.standingSlidingReferenceWn
                         )
                           ? toCamelCase(
-                              field.windowfn.standingSlidingReferenceWn
-                            )
+                            field.windowfn.standingSlidingReferenceWn
+                          )
                           : toCamelCase(
-                              field.windowfn.standingSlidingAggregation
-                            ),
+                            field.windowfn.standingSlidingAggregation
+                          ),
                       ];
                     }
                   }
@@ -864,12 +887,12 @@ export const getChartData = async (
     }
 
     if (
-      axesValuesParam.find((axes: any) => axes.name == "Measure")?.fields[0]
+      axesValuesParam.find((axes: any) => axes.name === "Measure")?.fields[0]
         ?.disableReportFilterForOverride
     ) {
       Logger(
         "info",
-        axesValuesParam.find((axes: any) => axes.name == "Measure").fields[0]
+        axesValuesParam.find((axes: any) => axes.name === "Measure").fields[0]
       );
     } else {
       if (screenFrom === "Dashboard") {
@@ -920,7 +943,6 @@ export const getChartData = async (
   let hasNoMeasureOverride = allMeasureFields?.fields.filter((field: any) => {
     return field.override ? false : true;
   });
-
   let formattedAxes: any = [];
 
   if (hasMeasureOverride && hasMeasureOverride.length > 0) {
@@ -954,6 +976,7 @@ export const getChartData = async (
       }
 
       tempOverrideAxes.find((axis: any) => axis.name === "Measure").fields = [];
+      // console.log("tempMeasureField", tempMeasureField);
       tempOverrideAxes
         .find((axis: any) => axis.name === "Measure")
         .fields.push(tempMeasureField);
@@ -974,11 +997,11 @@ export const getChartData = async (
     _selectedDS = chartProp.properties[propKey].selectedDs;
   }
 
-  var url: string = "";
+  let url = "";
   if (_selectedDS.isFlatFileData) {
     url = `query?datasetid=${_selectedDS.id}`;
   } else {
-    url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}`;
+    url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}&workspaceId=${_selectedDS.workSpaceId}`;
   }
 
   /*	PRS 21/07/2022	*/
@@ -988,6 +1011,77 @@ export const getChartData = async (
     (formattedAxes[0].dimensions.length > 0 ||
       formattedAxes[0].measures.length > 0)
   ) {
+    if (savedCalculations) {
+      // check whether the measure is a calculated field or not
+      formattedAxes.forEach((axis: any) => {
+        const formattedMeasures = axis.measures;
+
+      const formattedDimensions = axis.dimensions;
+
+      savedCalculations &&
+        formattedMeasures.forEach((measure: any) => {
+          const measureFieldName = measure.fieldName;
+
+          if (savedCalculatedFieldNames.includes(measureFieldName)) {
+            const savedCalculationForThisMeasure = savedCalculations?.find(
+              (item: any) =>
+                item.calculationInfo.calculatedFieldName === measureFieldName
+            );
+            const allSavedFlows = Object.keys(
+              savedCalculationForThisMeasure.calculationInfo.flows
+            );
+
+            const isAgg =
+              savedCalculationForThisMeasure.calculationInfo.flows[
+                allSavedFlows[allSavedFlows.length - 1]
+              ][0].isAggregation;
+            measure.isCalculatedField = true;
+            measure.calculatedField = [{
+              calculatedFieldName: measureFieldName.split(" ").join(" "),
+              // TODO: [0] make it dynamic
+              isAggregated: isAgg,
+              fields: savedCalculationForThisMeasure.calculationInfo.fields,
+              flows: savedCalculationForThisMeasure.calculationInfo.flows,
+              conditionFilters:
+                savedCalculationForThisMeasure.calculationInfo.conditionFilters,
+              // isAggregated: savedCalculationForThisMeasure.calculationInfo.flows[allSavedFlows[allSavedFlows.length - 1]][0].isAggregated,
+            }];
+          }
+        });
+
+      savedCalculations &&
+        formattedDimensions.forEach((dimension: any) => {
+          const measureFieldName = dimension.fieldName;
+
+          if (savedCalculatedFieldNames.includes(measureFieldName)) {
+            const savedCalculationForThisMeasure = savedCalculations?.find(
+              (item: any) =>
+                item.calculationInfo.calculatedFieldName === measureFieldName
+            );
+            const allSavedFlows = Object.keys(
+              savedCalculationForThisMeasure.calculationInfo.flows
+            );
+
+            const isAgg =
+              savedCalculationForThisMeasure.calculationInfo.flows[
+                allSavedFlows[allSavedFlows.length - 1]
+              ][0].isAggregation;
+            dimension.isCalculatedField = true;
+            dimension.calculatedField = [{
+              calculatedFieldName: measureFieldName.split(" ").join(" "),
+              // TODO: [0] make it dynamic
+              isAggregated: isAgg,
+              fields: savedCalculationForThisMeasure.calculationInfo.fields,
+              flows: savedCalculationForThisMeasure.calculationInfo.flows,
+              conditionFilters:
+                savedCalculationForThisMeasure.calculationInfo.conditionFilters,
+              // isAggregated: savedCalculationForThisMeasure.calculationInfo.flows[allSavedFlows[allSavedFlows.length - 1]][0].isAggregated,
+            }];
+          }
+        })
+      });
+    }
+
     var res: any = await FetchData({
       requestType: "withData",
       method: "POST",
@@ -1011,6 +1105,10 @@ export const getChartData = async (
       }
     } else {
       Logger("error", "Get Table Data Error", res.data.message);
+
+      if (showErrorNotification) {
+        showErrorNotification("error", res.data.message);
+      }
     }
   }
 };
@@ -1056,12 +1154,12 @@ const ChartData = ({
   tileState,
   tabState,
   chartControls,
+  calculations,
 
   chartProperties,
   chartGroup,
   dashBoardGroup,
   dynamicMeasureState,
-
   // dispatch
 
   storeServerData,
@@ -1080,6 +1178,15 @@ const ChartData = ({
   const [loading, setLoading] = useState<boolean>(false);
 
   var _propKey: string = `${tabId}.${tileId}`;
+
+  const [openAlert, setOpenAlert] = useState<boolean>(false);
+  const [testMessage, setTestMessage] = useState<string>("");
+  const [severity, setSeverity] = useState<AlertColor>("success");
+
+  const savedCalculations = useMemo(
+    () => calculations?.savedCalculations,
+    [calculations?.savedCalculations]
+  );
   // every time chartAxes or chartType is changed, check if
   // new data must be obtained from server
   // check for minimum requirements in each dropzone for the given chart type
@@ -1094,9 +1201,9 @@ const ChartData = ({
     let formattedValue = value;
     formattedValue = formatChartLabelValue(
       dynamicMeasureState.dynamicMeasureProps?.[
-        dynamicMeasureState.selectedTabId
+      dynamicMeasureState.selectedTabId
       ]?.[dynamicMeasureState.selectedTileId]?.[
-        `${dynamicMeasureState.selectedTileId}.${dmId}`
+      `${dynamicMeasureState.selectedTileId}.${dmId}`
       ],
       formattedValue
     );
@@ -1104,12 +1211,12 @@ const ChartData = ({
   };
   var chartProp: any =
     chartProperties.properties[_propKey].chartType === "richText" &&
-    chartProperties.properties[_propKey].isDynamicMeasureWindowOpened
+      chartProperties.properties[_propKey].isDynamicMeasureWindowOpened
       ? dynamicMeasureState.dynamicMeasureProps?.[
-          dynamicMeasureState.selectedTabId
-        ]?.[dynamicMeasureState.selectedTileId]?.[
-          `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
-        ]
+      dynamicMeasureState.selectedTabId
+      ]?.[dynamicMeasureState.selectedTileId]?.[
+      `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+      ]
       : chartProperties.properties[_propKey];
 
   // chartProperties.properties[_propKey].chartType === "richText" &&
@@ -1185,18 +1292,18 @@ const ChartData = ({
             deleteTablecf(_propKey, index);
           } else {
             let findMeasureField = measureFields.find((item: any) => {
-              return item.fieldname == name;
+              return item.fieldname === name;
             });
 
             if (!findMeasureField) {
               let _colValues = format.isLabel
                 ? await getLabelValues(
-                    format.name,
-                    chartControls,
-                    chartProperties,
-                    _propKey,
-                    token
-                  )
+                  format.name,
+                  chartControls,
+                  chartProperties,
+                  _propKey,
+                  token
+                )
                 : "";
 
               format.value = _colValues;
@@ -1208,13 +1315,13 @@ const ChartData = ({
                 let minMaxValue: any = getMinAndMaxValue(fieldName(findField));
 
                 let minObject = format.value.find(
-                    (val: any) => val.name == "Min"
-                  ),
+                  (val: any) => val.name === "Min"
+                ),
                   maxObject = format.value.find(
-                    (val: any) => val.name == "Max"
+                    (val: any) => val.name === "Max"
                   ),
                   midObject = format.value.find(
-                    (val: any) => val.name?.trim() == "Mid Value"
+                    (val: any) => val.name?.trim() === "Mid Value"
                   );
 
                 if (!minObject.isUserChanged) minObject.value = minMaxValue.min;
@@ -1370,11 +1477,21 @@ const ChartData = ({
         }
       }
 
+      const showErrorNotification = (type: AlertColor, message: string) => {
+        setSeverity(type);
+        setOpenAlert(true);
+        setTestMessage(message);
+
+        setTimeout(() => {
+          setOpenAlert(false);
+          setTestMessage("");
+        }, 2000);
+      };
+
       let serverData = [];
 
       if (serverCall) {
         setLoading(true);
-
         serverData = await getChartData(
           axesValues1,
           chartProp,
@@ -1383,7 +1500,10 @@ const ChartData = ({
           _propKey,
           screenFrom,
           token,
-          chartProperties.properties[_propKey].chartType
+          chartProperties.properties[_propKey].chartType,
+          undefined,
+          savedCalculations,
+          showErrorNotification
         );
 
         Logger("info", "", serverData);
@@ -1432,6 +1552,7 @@ const ChartData = ({
     };
 
     if (screenFrom === "Dashboard") {
+
       /**
        * the chart Data is tored in  chartData of respective tabTile if chart type is not richText else stored in richText
        *
@@ -1461,7 +1582,9 @@ const ChartData = ({
             ) {
               let filters: IFilter[] = [];
               chartGroup.groups[filterGroupID].filters.forEach((filter: any) =>
-                filters.push(modifyFilter(filter))
+              {
+                filters.push(modifyFilter(filter,savedCalculations))
+              }
               );
               if (filters.length > 0) {
                 if (tabTilesAndTheirFilters[tabTileID]) {
@@ -1485,15 +1608,15 @@ const ChartData = ({
       );
 
       Object.keys(tabTilesAndTheirFilters).forEach((tabTileID: string) => {
+        if (chartProperties.properties[`${tabTileID}`].chartType === "richText") return;
         const chartProp: any =
           chartProperties.properties[`${tabTileID}`].chartType === "richText"
             ? dynamicMeasureState.dynamicMeasureProps?.[
-                tabTileID.split(".")[0]
-              ]?.[tabTileID.split(".")[1]]?.[
-                `${tabTileID.split(".")[1]}.${
-                  dynamicMeasureState.selectedDynamicMeasureId
-                }`
-              ]
+            tabTileID.split(".")[0]
+            ]?.[tabTileID.split(".")[1]]?.[
+            `${tabTileID.split(".")[1]}.${dynamicMeasureState.selectedDynamicMeasureId
+            }`
+            ]
             : chartProperties.properties[`${tabTileID}`];
         const sortChartData = (chartData: any[]): any[] => {
           let result: any[] = [];
@@ -1561,6 +1684,36 @@ const ChartData = ({
 
           return result;
         };
+
+        let serverCall = false;
+        if (
+          chartProp.axesEdited ||
+          chartGroup.chartFilterGroupEdited ||
+          dashBoardGroup.dashBoardGroupEdited ||
+          tabTileProps.isDashboardTileSwitched
+        ) {
+          if (chartProp.reUseData) {
+            serverCall = false;
+          } else {
+            var minReq = checkMinRequiredCards(
+              chartProp,
+              chartProperties.properties[tabTileID].chartType
+            );
+
+            if (minReq) {
+              serverCall = true;
+              storeServerData(tabTileID, "");
+            } else {
+              if (
+                chartProperties.properties[tabTileID].chartType === "richText"
+              ) {
+                updateChartDataForDm("");
+              } else {
+                updateChartData(tabTileID, "");
+              }
+            }
+          }
+        }
         const filters = tabTilesAndTheirFilters[tabTileID];
 
         const filterPanels: IFilterPanel[] = [
@@ -1639,6 +1792,8 @@ const ChartData = ({
                   displayName: filter.displayname,
                   tableId: filter.tableId,
                   rollupDepth: false,
+                  timeGrain:
+                    filter.timeGrain /*  PRAKASH 14Nov2024 Demo Changes  */,
                 }))
               ),
               fields: [],
@@ -1646,57 +1801,59 @@ const ChartData = ({
             },
           ];
         }
-        (async () => {
-          const _selectedDS =
-            chartProperties.properties[`${tabTileID}`].selectedDs;
-          let url = "";
-          if (_selectedDS.isFlatFileData) {
-            url = `query?datasetid=${_selectedDS.id}`;
-          } else {
-            url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}`;
-          }
-          setLoading(true);
-          const res = await FetchData({
-            requestType: "withData",
-            method: "POST",
-            url: url,
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            data: payLoad,
-          });
-          if (res.status) {
-            storeServerData(tabTileID, res.data);
-            if (
-              chartProperties.properties[tabTileID].chartType === "richText"
-            ) {
-              updateChartDataForDm(sortChartData(res.data));
-              const values = Object.values(res.data[0]);
-              updateRichTextDynamicValue(
-                tabTileID,
-                getFormatedValue(chartProp.dynamicMeasureId, values[0])
-              );
+        if (serverCall) {
+          (async () => {
+            const _selectedDS =
+              chartProperties.properties[`${tabTileID}`].selectedDs;
+            let url = "";
+            if (_selectedDS.isFlatFileData) {
+              url = `query?datasetid=${_selectedDS.id}`;
             } else {
-              updateChartData(tabTileID, sortChartData(res.data));
+              url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}&workspaceId=${_selectedDS.workSpaceId}`;
             }
-            setLoading(false);
-          } else {
-            Logger("error", "Get Table Data Error", res.data.message);
-            setLoading(false);
-          }
-        })();
+            setLoading(true);
+            const res = await FetchData({
+              requestType: "withData",
+              method: "POST",
+              url: url,
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              data: payLoad,
+            });
+            if (res.status) {
+              storeServerData(tabTileID, res.data);
+              if (
+                chartProperties.properties[tabTileID].chartType === "richText"
+              ) {
+                updateChartDataForDm(sortChartData(res.data));
+                const values = Object.values(res.data[0]);
+                updateRichTextDynamicValue(
+                  tabTileID,
+                  getFormatedValue(chartProp.dynamicMeasureId, values[0])
+                );
+              } else {
+                updateChartData(tabTileID, sortChartData(res.data));
+              }
+              setLoading(false);
+            } else {
+              Logger("error", "Get Table Data Error", res.data.message);
+              setLoading(false);
+            }
+          })();
+        }
       });
       tabTileIDsWithoutFilterGroups.forEach((tabTileID: string) => {
+        if (chartProperties.properties[`${tabTileID}`].chartType === "richText") return;
         const chartProp: any =
           chartProperties.properties[`${tabTileID}`].chartType === "richText"
             ? dynamicMeasureState.dynamicMeasureProps?.[
-                tabTileID.split(".")[0]
-              ]?.[tabTileID.split(".")[1]]?.[
-                `${tabTileID.split(".")[1]}.${
-                  dynamicMeasureState.selectedDynamicMeasureId
-                }`
-              ]
+            tabTileID.split(".")[0]
+            ]?.[tabTileID.split(".")[1]]?.[
+            `${tabTileID.split(".")[1]}.${dynamicMeasureState.selectedDynamicMeasureId
+            }`
+            ]
             : chartProperties.properties[`${tabTileID}`];
 
         const sortChartData = (chartData: any[]): any[] => {
@@ -1765,6 +1922,35 @@ const ChartData = ({
 
           return result;
         };
+        let serverCall = false;
+        if (
+          chartProp.axesEdited ||
+          chartGroup.chartFilterGroupEdited ||
+          dashBoardGroup.dashBoardGroupEdited ||
+          tabTileProps.isDashboardTileSwitched
+        ) {
+          if (chartProp.reUseData) {
+            serverCall = false;
+          } else {
+            var minReq = checkMinRequiredCards(
+              chartProp,
+              chartProperties.properties[tabTileID].chartType
+            );
+
+            if (minReq) {
+              serverCall = true;
+              storeServerData(tabTileID, "");
+            } else {
+              if (
+                chartProperties.properties[tabTileID].chartType === "richText"
+              ) {
+                updateChartDataForDm("");
+              } else {
+                updateChartData(tabTileID, "");
+              }
+            }
+          }
+        }
         if (
           ["funnel", "gauge", "simplecard", "richText"].includes(
             chartProperties.properties[`${tabTileID}`].chartType
@@ -1836,6 +2022,8 @@ const ChartData = ({
                   displayName: filter.displayname,
                   tableId: filter.tableId,
                   rollupDepth: false,
+                  timeGrain:
+                    filter.timeGrain /*  PRAKASH 14Nov2024 Demo Changes  */,
                 }))
               ),
               fields: [],
@@ -1843,250 +2031,49 @@ const ChartData = ({
             },
           ];
         }
-        (async () => {
-          const _selectedDS =
-            chartProperties.properties[`${tabTileID}`].selectedDs;
-          let url = "";
-          if (_selectedDS.isFlatFileData) {
-            url = `query?datasetid=${_selectedDS.id}`;
-          } else {
-            url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}`;
-          }
-          setLoading(true);
-          const res = await FetchData({
-            requestType: "withData",
-            method: "POST",
-            url: url,
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            data: payLoad,
-          });
-          if (res.status) {
-            storeServerData(tabTileID, res.data);
-            if (
-              chartProperties.properties[tabTileID].chartType === "richText"
-            ) {
-              updateChartDataForDm(sortChartData(res.data));
-              const values = Object.values(res.data[0]);
-              updateRichTextDynamicValue(
-                tabTileID,
-                getFormatedValue(chartProp.dynamicMeasureId, values[0])
-              );
+        if (serverCall) {
+          (async () => {
+            const _selectedDS =
+              chartProperties.properties[`${tabTileID}`].selectedDs;
+            let url = "";
+            if (_selectedDS.isFlatFileData) {
+              url = `query?datasetid=${_selectedDS.id}`;
             } else {
-              updateChartData(tabTileID, sortChartData(res.data));
+              url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}&workspaceId=${_selectedDS.workSpaceId}`;
             }
-            setLoading(false);
-          } else {
-            Logger("error", "Get Table Data Error", res.data.message);
-            setLoading(false);
-          }
-        })();
-      });
-    } else if (screenFrom === "richTextReportFilter") {
-
-    /**
-     *
-     * screenFrom === "richTextReportFilter" if chartData is rendered from DataViewerMidle
-     */
-      const chartProp =
-        chartProperties.properties[`${_propKey}`].chartType === "richText"
-          ? dynamicMeasureState.dynamicMeasureProps?.[tabId]?.[tileId]?.[
-              `${tileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
-            ]
-          : chartProperties.properties[`${_propKey}`];
-
-
-      /**
-         * if Dynamic measures  it not selected we ownt be able to make api call as measures is required
-        */
-      if (!chartProp || !chartProp.chartAxes) return;
-
-
-
-      const sortChartData = (chartData: any[]): any[] => {
-        let result: any[] = [];
-        let axesValues1 = JSON.parse(JSON.stringify(chartProp.chartAxes));
-        if (chartData && chartData.length > 0) {
-          let _zones: any = axesValues1.filter(
-            (zones: any) => zones.name !== "Filter"
-          );
-          //let _zonesFields:any = [];
-          // let _fieldTempObject: any = {};
-          let _chartFieldTempObject: any = {};
-
-          /*	Find and return field's new name	*/
-          const findFieldIndexName = (name: string, i: number = 2): string => {
-            if (_chartFieldTempObject[`${name}_${i}`] !== undefined) {
-              i++;
-              return findFieldIndexName(name, i);
-            } else {
-              return `${name}_${i}`;
-            }
-          };
-
-          _zones.forEach((zoneItem: any) => {
-            zoneItem.fields.forEach((field: any) => {
-              let _nameWithAgg: string = "";
-
-              _nameWithAgg = field.displayname;
-
-              if (_chartFieldTempObject[field.fieldname] !== undefined) {
-                let _name = findFieldIndexName(field.fieldname);
-
-                field["NameWithIndex"] = _name;
-                _chartFieldTempObject[_name] = "";
-                // Logger("info", "NameWithIndex", field);
+            setLoading(true);
+            const res = await FetchData({
+              requestType: "withData",
+              method: "POST",
+              url: url,
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              data: payLoad,
+            });
+            if (res.status) {
+              storeServerData(tabTileID, res.data);
+              if (
+                chartProperties.properties[tabTileID].chartType === "richText"
+              ) {
+                updateChartDataForDm(sortChartData(res.data));
+                const values = Object.values(res.data[0]);
+                updateRichTextDynamicValue(
+                  tabTileID,
+                  getFormatedValue(chartProp.dynamicMeasureId, values[0])
+                );
               } else {
-                field["NameWithIndex"] = field.fieldname;
-                _chartFieldTempObject[field.fieldname] = "";
-                // Logger("info", "NameWithIndex", field);
+                updateChartData(tabTileID, sortChartData(res.data));
               }
-
-              // if (_fieldTempObject[_nameWithAgg] === undefined) {
-              field["NameWithAgg"] = _nameWithAgg;
-              //_fieldTempObject[_nameWithAgg] = "";
-              // Logger("info", "NameWithAgg", field);
-              //}
-            });
-          });
-
-          chartData.forEach((data: any) => {
-            let _chartDataObj: any = {};
-
-            _zones.forEach((zoneItem: any) => {
-              zoneItem.fields.forEach((field: any) => {
-                _chartDataObj[field.NameWithAgg] = data[field.NameWithIndex];
-              });
-            });
-
-            Logger("info", "_chartDataObj", _chartDataObj);
-            result.push(_chartDataObj);
-          });
+              setLoading(false);
+            } else {
+              Logger("error", "Get Table Data Error", res.data.message);
+              setLoading(false);
+            }
+          })();
         }
-
-        return result;
-      };
-
-
-      let payload: any[] = [];
-      const filterGroupsToBeAppliedOnTile: string[] =
-        chartGroup.tabTile[_propKey];
-      if (!filterGroupsToBeAppliedOnTile) return;
-      let filters: IFilter[] = [];
-
-
-      /**
-       * If no filter group is selectedfilterPanel is empty else apply filters of filterGroups
-       */
-      if(filterGroupsToBeAppliedOnTile.length===0){
-        const measures = chartProp.chartAxes.filter(
-          (axes: AxesValuProps) => axes.name === "Measure"
-        );
-        const filtersForAPI = chartProp.chartAxes.filter(
-          (axes: AxesValuProps) => axes.name === "Filter"
-        );
-        payload = [
-          {
-            dimensions: [],
-            fields: [],
-            filterPanels:[],
-            filters: filtersForAPI.map((filter: any) => filter.fields),
-            measures: measures.flatMap((measure: any) =>
-              measure.fields.map((el: any) => ({
-                dataType: el.dataType,
-                uid: el.uId,
-                fieldName: el.fieldname,
-                displayName: el.displayname,
-                rollupDepth: false,
-                measureOrder: 1,
-                aggr: el.agg,
-                tableId: el.tableId,
-              }))
-            ),
-          },
-        ];
-      }
-      else{
-        filterGroupsToBeAppliedOnTile.forEach((filterGroupID: string) => {
-          chartGroup.groups[filterGroupID].filters.forEach((filter: any) =>
-            filters.push(modifyFilter(filter))
-          );
-  
-          
-          const measures = chartProp.chartAxes.filter(
-            (axes: AxesValuProps) => axes.name === "Measure"
-          );
-          const filtersForAPI = chartProp.chartAxes.filter(
-            (axes: AxesValuProps) => axes.name === "Filter"
-          );
-          payload = [
-            {
-              dimensions: [],
-              fields: [],
-              filterPanels:
-                filters.length > 0
-                  ? [
-                      {
-                        panelName: "reportFilter",
-                        shouldAllConditionsMatch: true,
-                        filters: [...filters],
-                      },
-                    ]
-                  : [],
-              filters: filtersForAPI.map((filter: any) => filter.fields),
-              measures: measures.flatMap((measure: any) =>
-                measure.fields.map((el: any) => ({
-                  dataType: el.dataType,
-                  uid: el.uId,
-                  fieldName: el.fieldname,
-                  displayName: el.displayname,
-                  rollupDepth: false,
-                  measureOrder: 1,
-                  aggr: el.agg,
-                  tableId: el.tableId,
-                }))
-              ),
-            },
-          ]; 
-        });
-      }
-      (async () => {
-        const _selectedDS =
-          chartProperties.properties[`${_propKey}`].selectedDs;
-        let url = "";
-        if (_selectedDS.isFlatFileData) {
-          url = `query?datasetid=${_selectedDS.id}`;
-        } else {
-          url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}`;
-        }
-        setLoading(true);
-        const res = await FetchData({
-          requestType: "withData",
-          method: "POST",
-          url: url,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          data: payload,
-        });
-        if (res.status) {
-          storeServerData(_propKey, res.data);
-          updateChartDataForDm(sortChartData(res.data));
-          const values = Object.values(res.data[0]);
-          updateRichTextDynamicValue(
-            _propKey,
-            getFormatedValue(chartProp.dynamicMeasureId, values[0])
-          );
-
-          setLoading(false);
-        } else {
-          Logger("error", "Get Table Data Error", res.data.message);
-          setLoading(false);
-        }
-      })();
+      });
     } else {
       if (
         tabTileProps.previousTabId === 0 ||
@@ -2126,7 +2113,18 @@ const ChartData = ({
   };
 
   return (
-    <div className="charAxesArea">{loading ? <LoadingPopover /> : null}</div>
+    <>
+      <NotificationDialog
+        openAlert={openAlert}
+        severity={severity}
+        testMessage={testMessage}
+        onCloseAlert={() => {
+          setOpenAlert(false);
+          setTestMessage("");
+        }}
+      />
+      <div className="charAxesArea">{loading ? <LoadingPopover /> : null}</div>
+    </>
   );
 };
 
@@ -2147,6 +2145,7 @@ const mapStateToProps = (
     tileState: state.tileState,
     tabState: state.tabState,
     chartControls: state.chartControls,
+    calculations: state.calculations,
 
     // userFilterGroup: state.userFilterGroup,
     chartProperties: state.chartProperties,

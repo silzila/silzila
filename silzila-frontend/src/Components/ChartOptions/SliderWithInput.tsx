@@ -68,10 +68,15 @@ const SliderWithInput = ({
 					margin: "0px 4px 0px 2px",
 					color: "rgb(157, 156, 156)",
 					"& .MuiSlider-thumb": {
-						boxShadow: "0 1px 2px 1px rgba(0,0,0,0.1)",
-
+						boxShadow: "0 1px 2px 1px #9c9c9c",
 						height: "13px",
 						width: "13px",
+					},
+					"& .MuiSlider-track": {
+						color: "#9c9c9c",
+					},
+					"& .MuiSlider-rail": {
+						color: "#c6c6c6",
 					},
 				}}
 				min={sliderMinMax.min}

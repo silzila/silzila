@@ -48,7 +48,7 @@ const CardStyle = ({
         <label
           htmlFor="enableDisable"
           className="enableDisableLabel"
-          style={{ marginRight: "10px", marginLeft: "-5px" }}
+          style={{ marginRight: "10px", paddingLeft: "0" }}
         >
           Custom Font Style
         </label>
@@ -123,13 +123,13 @@ const CardStyle = ({
             PaperProps: {
               sx: {
                 "& .MuiMenuItem-root.Mui-selected": {
-                  backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+                  backgroundColor: "rgba(43, 185, 187, 0.1) !important", // Force background color
                 },
                 "& .MuiMenuItem-root.Mui-selected:hover": {
-                  backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
-                }
-              }
-            }
+                  backgroundColor: "rgba(43, 185, 187, 0.2) !important", // Change hover state for selected item
+                },
+              },
+            },
           }}
         >
           {borderStyle.map((item: string) => {
@@ -159,13 +159,13 @@ const CardStyle = ({
             PaperProps: {
               sx: {
                 "& .MuiMenuItem-root.Mui-selected": {
-                  backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+                  backgroundColor: "rgba(43, 185, 187, 0.1) !important", // Force background color
                 },
                 "& .MuiMenuItem-root.Mui-selected:hover": {
-                  backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
-                }
-              }
-            }
+                  backgroundColor: "rgba(43, 185, 187, 0.2) !important", // Change hover state for selected item
+                },
+              },
+            },
           }}
         >
           {fontStyle.map((item: string) => {
@@ -182,12 +182,12 @@ const CardStyle = ({
         <div
           style={{
             height: "1.25rem",
-            width: "50%",
-            marginLeft: "20px",
+            width: "60%",
             backgroundColor: cardStyleOptions.borderColor,
             color: cardStyleOptions.borderColor,
             border: "2px solid darkgray",
             margin: "auto",
+            marginLeft: "0.5rem",
           }}
           onClick={() => {
             setColorPopOverOpen(!colorPopoveropen);

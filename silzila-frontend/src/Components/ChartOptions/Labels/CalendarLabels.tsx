@@ -31,7 +31,7 @@ const CalendarLabels = ({
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
-					style={{ marginRight: "10px" }}
+					style={{ marginRight: "10px", paddingLeft: "0" }}
 				>
 					Show Year Label
 				</label>
@@ -75,8 +75,8 @@ const CalendarLabels = ({
 							}}
 							sx={{
 								fontSize: "12px",
-								width: "90%",
-								margin: "0 auto 0.5rem auto",
+								width: "96%",
+								margin: "0 auto 0.5rem 0.3rem",
 								backgroundColor: "white",
 								height: "1.5rem",
 								color: "#404040",
@@ -116,12 +116,12 @@ const CalendarLabels = ({
 						<div
 							style={{
 								height: "1.25rem",
-								width: "50%",
-								marginLeft: "20px",
+								width: "75%",
 								backgroundColor: calStyle.yearLabelColor,
 								color: calStyle.yearLabelColor,
 								border: "2px solid darkgray",
 								margin: "auto",
+								marginLeft: "1.05rem",
 							}}
 							onClick={e => {
 								setColorPopOverOpen(!isColorPopoverOpen);
@@ -152,7 +152,7 @@ const CalendarLabels = ({
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
-					style={{ marginRight: "10px" }}
+					style={{ marginRight: "10px", paddingLeft: "0" }}
 				>
 					Show Month Label
 				</label>
@@ -197,8 +197,8 @@ const CalendarLabels = ({
 							}}
 							sx={{
 								fontSize: "12px",
-								width: "90%",
-								margin: "0 auto 0.5rem auto",
+								width: "96%",
+								margin: "0 auto 0.5rem 0.3rem",
 								backgroundColor: "white",
 								height: "1.5rem",
 								color: "#404040",
@@ -232,12 +232,12 @@ const CalendarLabels = ({
 						<div
 							style={{
 								height: "1.25rem",
-								width: "50%",
-								marginLeft: "20px",
+								width: "75%",
 								backgroundColor: calStyle.monthLabelColor,
 								color: calStyle.monthLabelColor,
 								border: "2px solid darkgray",
 								margin: "auto",
+								marginLeft: "1.05rem",
 							}}
 							onClick={() => {
 								setColorPopOverOpen(!isColorPopoverOpen);
@@ -268,7 +268,7 @@ const CalendarLabels = ({
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
-					style={{ marginRight: "10px" }}
+					style={{ marginRight: "10px", paddingLeft: "0" }}
 				>
 					Show Day Label
 				</label>
@@ -308,8 +308,8 @@ const CalendarLabels = ({
 							}}
 							sx={{
 								fontSize: "12px",
-								width: "90%",
-								margin: "0 auto 0.5rem auto",
+								width: "96%",
+								margin: "0 auto 0.5rem 0.3rem",
 								backgroundColor: "white",
 								height: "1.5rem",
 								color: "#404040",
@@ -344,12 +344,12 @@ const CalendarLabels = ({
 						<div
 							style={{
 								height: "1.25rem",
-								width: "50%",
-								marginLeft: "20px",
+								width: "75%",
 								backgroundColor: calStyle.dayLabelColor,
 								color: calStyle.dayLabelColor,
 								border: "2px solid darkgray",
 								margin: "auto",
+								marginLeft: "1.05rem",
 							}}
 							onClick={() => {
 								setColorPopOverOpen(!isColorPopoverOpen);

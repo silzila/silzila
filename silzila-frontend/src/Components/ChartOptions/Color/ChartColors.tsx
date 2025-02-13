@@ -1,7 +1,7 @@
 // This component list all color themes available for charts
 
 import { FormControl, MenuItem, Popover, Select } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ColorResult, SketchPicker } from "react-color";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -19,7 +19,11 @@ import {
 import SliderWithInput from "../SliderWithInput";
 import SwitchWithInput from "../SwitchWithInput";
 import { ColorSchemes, ColorSchemesProps } from "./ColorScheme";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux";
 interface ChartColorsActions {
+  from?: string;
+  selectedTab?: number;
   setColorScheme: (propKey: string, color: string) => void;
   switchAutotoManualinSteps: (propKey: string, value: any) => void;
   setAreaColorOptions: (propKey: string, option: string, value: any) => void;
@@ -29,39 +33,88 @@ interface ChartColorsActions {
     value: any
   ) => void;
 }
+export interface ChartColorsProps {
+  onBackgroundColorChange: (details: { schemeName: string; color: string }) => void; // Updated Prop
+}
+
 const ChartColors = ({
   // state
+
   chartControls,
   tabTileProps,
   chartProperties,
+
+  //props
+  from,
+  selectedTab,
+  onBackgroundColorChange,
 
   // dispatch
   setColorScheme,
   setAreaColorOptions,
   switchAutotoManualinSteps,
   updateBoxPlotStyleOptions,
-}: ChartOptionsProps & ChartColorsActions) => {
+}: ChartOptionsProps & ChartColorsActions & ChartColorsProps) => {
   var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
+  const TabState = useSelector((state: RootState) => state.tabState)
+
+  const selectedTheme = selectedTab ? TabState.tabs[selectedTab]?.dashboardState?.colorScheme : undefined
   const [selectedMenu, setSelectedMenu] = useState<string>(
-    chartControls.properties[propKey].colorScheme
+    (selectedTheme && from === "dashboard") ? selectedTheme :
+      chartControls.properties[propKey].colorScheme
   );
   const [isColorPopoverOpen, setColorPopOverOpen] = useState<boolean>(false);
+  useEffect(() => {
+    setSelectedMenu((selectedTheme && from === "dashboard") ? selectedTheme :
+      chartControls.properties[propKey].colorScheme)
+  },[from, selectedTab])
 
   const resetSelection = (data_value: string) => {
     if (chartProperties.properties[propKey].chartType === "gauge") {
       switchAutotoManualinSteps(propKey, true);
     }
     setSelectedMenu(data_value);
-    setColorScheme(propKey, data_value);
+
+    // Apply the color scheme to all tiles
+    // Object.keys(chartControls.properties).forEach((key) => {
+    //   setColorScheme(key, data_value);
+    // });
+
+    if (from !== "dashboard") {
+      Object.keys(chartControls.properties).forEach((key) => {
+        setColorScheme(key, data_value);
+      });
+    }
+
+    const selectedScheme = ColorSchemes.find(
+      (scheme) => scheme.name === data_value
+    );
+    if (!selectedScheme) {
+      console.warn(`No color scheme found for: ${data_value}`);
+      return; // Exit early to avoid errors
+    }
+
+    if (typeof onBackgroundColorChange === "function") {
+      onBackgroundColorChange({
+        schemeName: selectedScheme.name,
+        color: selectedScheme.background,
+      });
+      console.log(`Scheme: ${selectedScheme.name}, Color: ${selectedScheme.background}`);
+    }
+    else {
+      console.log("onBackgroundColorChange is not defined or not a function.");
+    }
   };
+
+
 
   return (
     <div className="optionsInfo">
-      <div className="optionDescription">Color Scheme:</div>
+      <div className="optionDescription colorScheme-head" style={{ paddingLeft: "0.3rem" }}>Color Scheme:</div>
       <FormControl
         fullWidth
         size="small"
-        style={{ fontSize: "12px", borderRadius: "4px" }}
+        style={{ fontSize: "12px", borderRadius: "4px", width: "98%", paddingLeft: "0.3rem" }}
       >
         <Select
           size="small"
@@ -70,9 +123,14 @@ const ChartColors = ({
           onChange={(e) => {
             resetSelection(e.target.value);
           }}
-          sx={{ fontSize: "14px", margin: "0 1rem",
+          sx={{
+            fontSize: "14px",
+            // margin: "0 1rem", 
+            ".MuiSelect-select": {
+              padding: "5px 30px 5px 5px !important",
+            },
             "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-              borderColor: "#2bb9bb", // Set focused border color
+              borderColor: "#2bb9bb",// Set focused border color
             },
           }}
         >
@@ -82,17 +140,17 @@ const ChartColors = ({
                 value={item.name}
                 key={item.name}
                 sx={{
-                  padding: "2px 10px",
+                  padding: "5px 5px",
                 }}
               >
                 <div
                   className="custom-option"
                   style={{
                     backgroundColor: item.background,
-                    color: item.dark ? "white" : "#3b3b3b",
+                    color: ["purplePassion", "chalk", "dark", "halloween"].includes(item.name) ? "white" : "#3b3b3b",
                   }}
                 >
-                  <span className="color-name">{item.name}</span>
+                  <span style={{ color: ["purplePassion", "chalk", "dark", "halloween"].includes(item.name) ? "white" : "#3b3b3b", }} className="color-name">{item.name}</span>
                   <div className="color-palette">
                     {item.colors.map((color: string) => {
                       return (
@@ -114,19 +172,20 @@ const ChartColors = ({
         </Select>
       </FormControl>
       {chartProperties.properties[propKey].chartType === "area" ||
-      chartProperties.properties[propKey].chartType === "stackedArea" ? (
+        chartProperties.properties[propKey].chartType === "stackedArea" ? (
         <React.Fragment>
           <div className="optionDescription" style={{ marginTop: "20px" }}>Background Color</div>
           <div
             style={{
               height: "1.25rem",
-              width: "50%",
-              marginLeft: "20px",
+              width: "96%",
               backgroundColor:
                 chartControls.properties[propKey].areaBackgroundColor,
               color: chartControls.properties[propKey].areaBackgroundColor,
               border: "2px solid darkgray",
               margin: "auto",
+              marginLeft: "5px",
+
             }}
             onClick={() => {
               setColorPopOverOpen(!isColorPopoverOpen);
@@ -145,11 +204,11 @@ const ChartColors = ({
       ) : null}
       {chartProperties.properties[propKey].chartType === "boxPlot" ? (
         <React.Fragment>
-          <div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
+          <div className="optionDescription" style={{ paddingLeft: "0.3rem" }}>
             <label
               htmlFor="enableDisable"
               className="enableDisableLabel"
-              style={{ marginRight: "10px" }}
+              style={{ marginRight: "10px", paddingLeft: "0" }}
             >
               Color By Category
             </label>
@@ -188,7 +247,22 @@ const ChartColors = ({
             width="16rem"
             // styles={{ padding: "0" }}
             onChangeComplete={(color: ColorResult) => {
+              // Update color option and notify background change
               setAreaColorOptions(propKey, "areaBackgroundColor", color.hex);
+              if (typeof onBackgroundColorChange === "function") {
+                onBackgroundColorChange({
+                  schemeName: selectedMenu,
+                  color: color.hex,
+                });
+                console.log(`Scheme: ${selectedMenu}, Color: ${color.hex}`);
+              }
+              else {
+                console.warn("onBackgroundColorChange is not defined or not a function.");
+              }
+              // onBackgroundColorChange({
+              //   schemeName: selectedMenu, // Current selected scheme name
+              //   color: color.hex,        // Selected color
+              // });
             }}
             onChange={(color: ColorResult) =>
               setAreaColorOptions(propKey, "areaBackgroundColor", color.hex)
