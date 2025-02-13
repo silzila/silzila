@@ -76,10 +76,13 @@ const Canvas = ({
     if (newFilters.length !== dataSetFilterArray.length) {
       setDataSetFilterArray(newFilters);
     }
+
+    if(tempTable.length <= 0 ){
+      setIsDataSetVisible(false)
+    }
   }, [dataSetFilterArray, tempTable]);
 
   useEffect(()=>{
-    console.log("DataSetVisible", tempTable)
    if(editMode && dataSetFilterArray.length > 0){
       setIsDataSetVisible(true)
     }
@@ -180,8 +183,6 @@ const Canvas = ({
     );
   };
 
-  console.log("tempTable", tempTable);
-
   return (
     <div className="canvas">
       <div
@@ -225,80 +226,37 @@ const Canvas = ({
               ) : null
             ))}
         </Xwrapper>
-
-        {isDataSetVisible === false && tempTable.length > 0 && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100vh",
-              position: "fixed",
-              right: "3%",
-            }}
-          >
-            <button
-              title="Open dataset filter"
-              style={{
-                backgroundColor: "white",
-                outline: "none",
-                border: "none",
-                margin: "auto auto",
-              }}
-            >
-              <img
-                src={filterIcon}
-                style={{
-                  height: "1.5rem",
-                  width: "2rem",
-                }}
-                className="IconDataset"
-                onClick={() => setIsDataSetVisible(!isDataSetVisible)}
-                alt="filter"
-              />
-            </button>
-            <div
-              style={{
-                width: "1px",
-                height: "200vh",
-                border: "1px solid rgba(224, 224, 224, 1)",
-                position: "absolute",
-                top: "0%",
-              }}
-            />
-          </div>
-        )}
-        {tempTable.length > 0 &&         <div
+        {/* conditionally showing filter section according to length of tempTable(list of tables in canvas. initially width = 3rem) on clicking which visibility changes and changes the width of section */}
+        {tempTable.length > 0 &&     
+        <div
           className="filter_dataset"
           onDrop={(e) => handleDrop(e)}
           onDragOver={(e) =>  e.preventDefault()}
-          style={{
-            display: isDataSetVisible ? "block" : "none",
-          }} // Controls visibility
+          style={{width: isDataSetVisible ? "13.063rem": "3rem"}}
         >
-          <div >
+          <div>
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-around",
                 alignItems: "center",
-                // margin: "auto auto",
                 position: "fixed",
                 backgroundColor: "white",
-                width: "13.063rem",
+                width: isDataSetVisible ? "13.063rem": "3rem",
+                margin: "auto",
                 zIndex: "98",
-                // marginTop: "-25px",
               }}
             >
               <img
                 src={filterIcon}
+                onClick={() => !isDataSetVisible && setIsDataSetVisible(!isDataSetVisible)}
                 style={{
                   height: "1.5rem",
-                  // width: "2rem",
-                  // margin: "0 10px",
                 }}
                 alt="filter"
               />
+              {isDataSetVisible &&
+              <>
               <span className="axisTitle">Dataset Filter</span>
               <div>
                 <button
@@ -321,6 +279,8 @@ const Canvas = ({
                   />
                 </button>
               </div>
+              </>
+              }
             </div>
             <NotificationDialog
               onCloseAlert={() => {
@@ -332,7 +292,8 @@ const Canvas = ({
               testMessage={testMessage}
             />
             <div style={{ position: "absolute", marginTop: "22px" }}>
-              {dataSetFilterArray.length > 0 && tempTable.length > 0 && (
+              {isDataSetVisible && dataSetFilterArray.length > 0 && 
+              tempTable.length > 0 && (
                 <UserFilterDataset
                   editMode={editMode}
                   tableFlatFileMap={tableFlatFileMap}
