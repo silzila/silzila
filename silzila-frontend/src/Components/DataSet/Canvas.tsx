@@ -79,6 +79,7 @@ const Canvas = ({
   }, [dataSetFilterArray, tempTable]);
 
   useEffect(()=>{
+    console.log("DataSetVisible", tempTable)
    if(editMode && dataSetFilterArray.length > 0){
       setIsDataSetVisible(true)
     }
@@ -225,7 +226,7 @@ const Canvas = ({
             ))}
         </Xwrapper>
 
-        {isDataSetVisible === false && (
+        {isDataSetVisible === false && tempTable.length > 0 && (
           <div
             style={{
               display: "flex",
@@ -267,7 +268,7 @@ const Canvas = ({
             />
           </div>
         )}
-        <div
+        {tempTable.length > 0 &&         <div
           className="filter_dataset"
           onDrop={(e) => handleDrop(e)}
           onDragOver={(e) =>  e.preventDefault()}
@@ -343,7 +344,7 @@ const Canvas = ({
             </div>
           </div>
         </div>
-
+        }
         <RenderArrows />
       </div>
       <BottomBar
