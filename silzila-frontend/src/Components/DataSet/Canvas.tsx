@@ -190,8 +190,8 @@ const Canvas = ({
         id="canvasTableArea"
         // style={{ width: !isDataSetVisible ? "100%" : "calc(99% - 198px)" }}
         style={{ width: "100%" }}
-
       >
+        <div style={{display: "flex", flexWrap: "wrap", maxWidth: "calc(100% - 13.063rem)"}}>
         {
           isFlatFile && !dataSetState.tables.length && tempTable.length === 0 ? <span style={{
             position: "absolute",
@@ -226,6 +226,7 @@ const Canvas = ({
               ) : null
             ))}
         </Xwrapper>
+        </div>
         {/* conditionally showing filter section according to length of tempTable(list of tables in canvas. Initially width is 3rem) on clicking which visibility changes and changes the width of section */}
         {tempTable.length > 0 &&     
         <div
