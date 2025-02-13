@@ -226,12 +226,12 @@ const Canvas = ({
               ) : null
             ))}
         </Xwrapper>
-        {/* conditionally showing filter section according to length of tempTable(list of tables in canvas. initially width = 3rem) on clicking which visibility changes and changes the width of section */}
+        {/* conditionally showing filter section according to length of tempTable(list of tables in canvas. Initially width is 3rem) on clicking which visibility changes and changes the width of section */}
         {tempTable.length > 0 &&     
         <div
           className="filter_dataset"
-          onDrop={(e) => handleDrop(e)}
-          onDragOver={(e) =>  e.preventDefault()}
+          onDrop={(e) => isDataSetVisible && handleDrop(e)}
+          onDragOver={(e) =>  isDataSetVisible && e.preventDefault()}
           style={{width: isDataSetVisible ? "13.063rem": "3rem"}}
         >
           <div>
