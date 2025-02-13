@@ -98,10 +98,10 @@ input {
     Segoe UI Symbol, sans-serif;
 }
 
-input:focus {
+/* input:focus {
   border: 1px solid #2bb9bb;
   outline: #2bb9bb;
-}
+} */
 
 .button-tab {
   padding: 10px;
