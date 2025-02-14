@@ -12,6 +12,7 @@
   flex: 1;
   position: relative;
   overflow: auto;
+  overflow-x: hidden;
   display: flex;
   height: 100%;
   flex-wrap: wrap;

@@ -15,13 +15,12 @@ import {
   tableObjProps,
 } from "../../redux/DataSet/DatasetStateInterfaces";
 import { CanvasProps } from "./CanvasInterfaces";
-import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import collapsedSidebar from "../../assets/sidebar-collapse.svg";
 import ShortUniqueId from "short-unique-id";
 // import UserFilterDataset from "./UserFilterDataset";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import UserFilterDataset from "./UserFilterDataset";
 import { fontSize, palette } from "../..";
-import { PopUpSpinner } from "../CommonFunctions/DialogComponents";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux";
 import { permissions } from "../CommonFunctions/aliases";
@@ -259,27 +258,28 @@ const Canvas = ({
               {isDataSetVisible &&
               <>
               <span className="axisTitle">Dataset Filter</span>
-              <div>
-                <button
-                  title="minimize"
-                  style={{
-                    backgroundColor: "white",
+               <button
+                title="Hide Filter Tab"
+                style={{
+                  backgroundColor: "white",
                     outline: "none",
                     border: "none",
                     padding: "0"
-                  }}
-                >
-                  <ArrowBackRoundedIcon
-                    style={{
+                }}
+                onClick={() => setIsDataSetVisible(!isDataSetVisible)}
+              >
+                <img
+                  src={collapsedSidebar}
+                  alt="filter section collapse icon"
+                  style={{
                       right: "92%",
                       top: "0px",
                       zIndex: "999",
                       transform: "rotate(180deg)",
-                    }}
-                    onClick={() => setIsDataSetVisible(!isDataSetVisible)}
-                  />
-                </button>
-              </div>
+                      height: "1.5rem",
+                  }}
+                />
+              </button>
               </>
               }
             </div>
