@@ -104,8 +104,12 @@ public class TokenUtils {
     return new Date(System.currentTimeMillis());
   }
 
-  private Date generateExpirationDate() {
-    return new Date(System.currentTimeMillis() + this.expiration * 1000);
+  private Date generateAccessTokenExpirationDate() {
+    return new Date(System.currentTimeMillis() + (15 * 60 * 1000));
+  }
+
+  private Date generateRefreshTokenExpirationDate() {
+    return new Date(System.currentTimeMillis() + (8 * 60 * 60 * 1000)); 
   }
 
   private Boolean isTokenExpired(String token) {
@@ -135,18 +139,29 @@ public class TokenUtils {
     return (this.AUDIENCE_TABLET.equals(audience) || this.AUDIENCE_MOBILE.equals(audience));
   }
 
-  public String generateToken(UserDetails userDetails, String device) {
+  public Map<String, Object> claims(String emailId, String device){
     Map<String, Object> claims = new HashMap<String, Object>();
-    claims.put("sub", userDetails.getUsername());
+    claims.put("sub", emailId);
     claims.put("audience", this.generateAudience(device));
-    claims.put("iat", this.generateCurrentDate()); // iat = issued at
-    return this.buildToken(claims);
+    claims.put("iat", this.generateCurrentDate());
+    return claims;
   }
 
-  private String buildToken(Map<String, Object> claims) {
+  public String generateRefreshToken(String emailId, String device) {
+    Map<String, Object> claims = claims(emailId,device);
+    return this.buildToken(claims,this.generateRefreshTokenExpirationDate());
+  }
+
+  public String generateAccessToken(String emailId, String device) {
+    Map<String, Object> claims = claims(emailId,device);
+    return this.buildToken(claims,this.generateAccessTokenExpirationDate());
+  }
+
+
+  private String buildToken(Map<String, Object> claims,Date expirationTime) {
     return Jwts.builder()
         .claims(claims)
-        .expiration(this.generateExpirationDate())
+        .expiration(expirationTime)
         .signWith(getSecKey())
         .compact();
   }
@@ -163,7 +178,7 @@ public class TokenUtils {
     try {
       final Claims claims = this.getClaimsFromToken(token);
       claims.put("iat", this.generateCurrentDate());
-      refreshedToken = this.buildToken(claims);
+      refreshedToken = this.buildToken(claims,this.generateAccessTokenExpirationDate());
     } catch (Exception e) {
       refreshedToken = null;
     }
