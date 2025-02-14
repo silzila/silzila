@@ -99,22 +99,18 @@ const ChartColors = ({
         schemeName: selectedScheme.name,
         color: selectedScheme.background,
       });
-      console.log(`Scheme: ${selectedScheme.name}, Color: ${selectedScheme.background}`);
-    }
-    else {
-      console.log("onBackgroundColorChange is not defined or not a function.");
     }
   };
 
 
 
   return (
-    <div className="optionsInfo">
-      <div className="optionDescription colorScheme-head" style={{ paddingLeft: "0.3rem" }}>Color Scheme:</div>
+    <div className="optionsInfo" style={{ padding: "0",scrollbarGutter: 'auto' }}>
+      <div className="optionDescription colorScheme-head" style={{ paddingLeft: "0" }}>Color Scheme:</div>
       <FormControl
         fullWidth
         size="small"
-        style={{ fontSize: "12px", borderRadius: "4px", width: "98%", paddingLeft: "0.3rem" }}
+        style={{ fontSize: "12px", borderRadius: "4px", width: "100%", }}
       >
         <Select
           size="small"
