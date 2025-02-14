@@ -2,10 +2,10 @@ export interface LoggedDetailsType {
     isUserLogged: boolean;
     accessToken: string;
     tokenType: string;
-    email: string ;
-    firstName: string ;
-    lastName: string ;
-    avatar: string ;
+    email?: string ;
+    firstName?: string ;
+    lastName?: string ;
+    avatar?: string ;
   }
   
   export interface isLoggedProps {

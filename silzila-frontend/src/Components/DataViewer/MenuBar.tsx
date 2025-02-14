@@ -561,12 +561,11 @@ const MenuBar = ({
       });
 
       if (result.status) {
-        const data=JSON.parse(result.data);
         updatePlayBookId(
-          data.name,
-          data.id,
-          data.description,
-          data.content
+          result.data.name,
+          result.data.id,
+          result.data.description,
+          result.data.content
         );
         if (
           !saveFromHomeIcon &&
@@ -574,8 +573,8 @@ const MenuBar = ({
           !saveFromUpdateProfile
         ) {
           sessionStorage.setItem(
-            `pb_id_${data.id}`,
-            data.content
+            `pb_id_${result.data.id}`,
+            result.data.content
           );
         }
         setSaveModal(false);

@@ -93,13 +93,9 @@ const DisplayTable = ({
       var tableKeys = Object.keys(SampleRecords[0]);
       var dataType = tableRecords.recordsColumnType[dsId][table];
 
-      console.log("dataType", dataType);
-      console.log("tableKeys", tableKeys);
 
       for (let i = 0; i < tableKeys.length; i++) {
 
-        console.log("tableKeys[i]", tableKeys[i]);
-        console.log("dataType for tableKeys[i]", dataType.filter((sc: any) => sc.columnName === tableKeys[i])[0].dataType);
 
         _fieldsData.push({
           fieldname: tableKeys[i],

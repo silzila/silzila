@@ -30,6 +30,7 @@ const loggedReducer = (
 				isUserLogged: false,
 				accessToken: "",
 			};
+			localStorage.clear()
 			localStorage.setItem("accountInfo", JSON.stringify(resetInfo));
 
 			return resetInfo;
