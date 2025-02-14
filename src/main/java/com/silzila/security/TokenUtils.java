@@ -100,14 +100,17 @@ public class TokenUtils {
     return claims;
   }
 
+
   private Date generateCurrentDate() {
     return new Date(System.currentTimeMillis());
   }
 
+  // expiration time - 15 mins
   private Date generateAccessTokenExpirationDate() {
     return new Date(System.currentTimeMillis() + (15 * 60 * 1000));
   }
 
+  // expiration time - 8 hrs
   private Date generateRefreshTokenExpirationDate() {
     return new Date(System.currentTimeMillis() + (8 * 60 * 60 * 1000)); 
   }
@@ -139,6 +142,7 @@ public class TokenUtils {
     return (this.AUDIENCE_TABLET.equals(audience) || this.AUDIENCE_MOBILE.equals(audience));
   }
 
+  //claims
   public Map<String, Object> claims(String emailId, String device){
     Map<String, Object> claims = new HashMap<String, Object>();
     claims.put("sub", emailId);
@@ -147,11 +151,13 @@ public class TokenUtils {
     return claims;
   }
 
+  // to get a refresh token with 8 hrs validity
   public String generateRefreshToken(String emailId, String device) {
     Map<String, Object> claims = claims(emailId,device);
     return this.buildToken(claims,this.generateRefreshTokenExpirationDate());
   }
 
+  // to get a access token with 15 mins validity
   public String generateAccessToken(String emailId, String device) {
     Map<String, Object> claims = claims(emailId,device);
     return this.buildToken(claims,this.generateAccessTokenExpirationDate());
