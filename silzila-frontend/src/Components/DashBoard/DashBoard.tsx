@@ -696,7 +696,6 @@ const handleToggleAllTiles = () => {
         className="checkboxOption"
         style={{
           textAlign: "left",
-          marginLeft: "25px",
           color: "#616164",
           fontSize: "15px",
           marginBottom: "15px",
@@ -715,7 +714,6 @@ const handleToggleAllTiles = () => {
         className="checkboxOption"
         style={{
           textAlign: "left",
-          marginLeft: "25px",
           color: "#616164",
           fontSize: "15px",
         }}
@@ -783,25 +781,25 @@ const handleToggleAllTiles = () => {
         />
       </div>
       <div style={{  marginTop: "20px" }}>
-        <div style={{ marginBottom: "10px", display: "flex", alignItems: "center", fontSize:"13px",marginLeft: "25px"}}>
+        <div style={{ marginBottom: "10px", display: "flex", alignItems: "center", fontSize:"13px",marginLeft: "35px"}}>
           <input
             type="checkbox"
             id="applytoAllTabs"
             checked={ApplytoAllTabs}
             onChange={() => handleToggleAllTabs()} 
-            style= {{margin: "0", marginRight: "5px"}}
+            style= {{margin: "0", marginRight: "6px"}}
           />
           <label htmlFor="applytoAllTabs" >
             Apply Scheme across Playbook
           </label>
         </div>
-        <div style={{marginBottom: "10px", display: "flex", alignItems: "center", fontSize:"13px",marginLeft: "25px"}}>
+        <div style={{marginBottom: "10px", display: "flex", alignItems: "center", fontSize:"13px",marginLeft: "35px"}}>
           <input
             type="checkbox"
             id="applytoCurrentTab"
             checked={ApplytoTiles}
             onChange={() => handleToggleAllTiles()} 
-            style= {{margin: "0", marginRight: "5px"}} 
+            style= {{margin: "0", marginRight: "6px"}} 
           />
           <label htmlFor="applytoCurrentTab" style={{border: "1pxx solid red"}} >
             Apply Scheme to all tiles

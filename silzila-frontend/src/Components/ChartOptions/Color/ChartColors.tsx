@@ -114,7 +114,7 @@ const ChartColors = ({
       <FormControl
         fullWidth
         size="small"
-        style={{ fontSize: "12px", borderRadius: "4px", width: "98%"}}
+        style={{ fontSize: "12px", borderRadius: "4px", width: "92%", marginLeft: "20px"}}
       >
         <Select
           size="small"

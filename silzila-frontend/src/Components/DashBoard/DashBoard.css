@@ -114,7 +114,7 @@
 
 /* Style the container */
 .checkboxOption {
-  margin-left: 25px;
+  margin-left: 35px;
   margin-bottom: 15px;
   font-size: 15px;
   position: relative;
@@ -130,7 +130,7 @@
 /* Style the label to act as a custom radio button */
 .customLabel {
   position: relative;
-  padding-left: 30px;
+  padding-left: 20px;
   cursor: pointer;
   color: #616164;
 }
