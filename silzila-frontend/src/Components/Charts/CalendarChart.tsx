@@ -17,6 +17,8 @@ const CalendarChart = ({
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartControls,
@@ -89,7 +91,7 @@ const CalendarChart = ({
                 30 +
                 i * chartControl.calendarStyleOptions.calendarGap,
 
-              left: chartControl.chartMargin.left + 25,
+              left: chartControl.chartMargin.left + 35,
               right: chartControl.chartMargin.right,
               // height: (graphDimension.height * 80) / 100 / uniqueYears.length,
 
@@ -142,6 +144,12 @@ const CalendarChart = ({
               coordinateSystem: "calendar",
               calendarIndex: index,
               data: getVirtulData(yr),
+              itemStyle: softUI?{
+                shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+                shadowBlur: 10, // Blur effect for shadow
+                shadowOffsetX: 3, // Horizontal offset of shadow
+                shadowOffsetY: 3, // Vertical offset of shadow
+              }:{},
             };
           }
         );
@@ -171,7 +179,10 @@ const CalendarChart = ({
   }
 
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if (colorScheme)
+      return el.name === colorScheme;
+    else
+      return el.name === chartControl.colorScheme
   });
 
   const totalCalendarHeight =
@@ -213,7 +224,17 @@ const CalendarChart = ({
                   chartControls.properties[propKey],
                   chartProperties.properties[propKey],
                   formattedValue,
-                  chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname ? chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname : ""
+                  chartProperties.properties[propKey].chartAxes[
+                    chartProperties.properties[propKey].chartAxes.findIndex(
+                      (item: any) => item.name === "Measure"
+                    )
+                  ]?.fields[0]?.displayname
+                    ? chartProperties.properties[propKey].chartAxes[
+                      chartProperties.properties[propKey].chartAxes.findIndex(
+                        (item: any) => item.name === "Measure"
+                      )
+                    ]?.fields[0]?.displayname
+                    : ""
                 );
 
                 return formattedValue;

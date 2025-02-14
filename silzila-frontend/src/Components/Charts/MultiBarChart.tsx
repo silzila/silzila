@@ -15,6 +15,9 @@ import {
   FormatterValueProps,
 } from "./ChartsCommonInterfaces";
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
+import { palette } from "../..";
+import {getContrastColor} from '../CommonFunctions/CommonFunctions';
+
 
 const MultiBarChart = ({
   // props
@@ -22,6 +25,8 @@ const MultiBarChart = ({
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartControls,
@@ -57,6 +62,12 @@ const MultiBarChart = ({
           emphasis: {
             focus: "series",
           },
+          itemStyle:softUI? {
+            shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+            shadowBlur: 10, // Blurring effect
+            shadowOffsetX: 3, // Horizontal shadow displacement
+            shadowOffsetY: 3, // Vertical shadow displacement
+          }:{},
           label: {
             show:
               graphDimension.height > 140 && graphDimension.height > 150
@@ -87,9 +98,12 @@ const MultiBarChart = ({
       setSeriesData(seriesDataTemp);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartData, chartControl]);
+  }, [chartData, chartControl,softUI]);
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+     return el.name === colorScheme;
+    else 
+    return el.name === chartControl.colorScheme
   });
 
   const getHeightAndWidth = () => {
@@ -198,6 +212,7 @@ const MultiBarChart = ({
           backgroundColor: chartThemes[0].background,
           animation: false,
           legend: {
+            // textStyle :{color : getContrastColor(chartThemes[0].background)},
             type: "scroll",
             show: getLegentShowValue(),
             itemHeight: getHeightAndWidth().height,
@@ -214,6 +229,9 @@ const MultiBarChart = ({
             bottom:
               chartControl.legendOptions?.position?.top === "bottom" ? 0 : null,
             orient: chartControl.legendOptions?.orientation,
+            textStyle:{
+              color:chartThemes[0].dark?"#ffffff":palette.primary.contrastText,
+            }
           },
           grid: {
             left: chartControl.chartMargin.left + 5 + "%",
@@ -228,6 +246,10 @@ const MultiBarChart = ({
                     100 +
                   35
                 : chartControl.chartMargin.bottom + "%",
+                shadowColor: "rgba(0, 0, 0, 0.5)", // Setting shadow color
+                shadowBlur: 10,
+                shadowOffsetX: 3,
+                shadowOffsetY: 3,
             // height: getHeightOfChart(),
           },
 

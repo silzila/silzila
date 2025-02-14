@@ -61,24 +61,27 @@ const CrossTabChart = ({
   const [showAsColumn, setShowAsColumn] = React.useState(true);
 
   const [formatedChartPropData, setFormatedChartPropData] = useState([]);
+  const [sortedChartPropData, setSortedChartPropData] = useState([]);
 
   /*
   To apply chart data format from 'property.formatOptions'. Deep cloned chart  data is used.
   */
-
   useEffect(() => {
     if (tempFormatedChartPropData && tempFormatedChartPropData[0]) {
       var chartDataKeys = Object.keys(tempFormatedChartPropData[0]);
-
       let _formChartData: any = [];
 
       tempFormatedChartPropData.forEach((item: any) => {
         let formattedValue: any = {};
 
         for (let i = 0; i < chartDataKeys.length; i++) {
-          /*  Need to format numeric values and boolean values  */
-          if (typeof item[chartDataKeys[i]] === "boolean") {
-            formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]] ? "True" : "False";
+          /*  Need to format only numeric values  */
+          if (item[chartDataKeys[i]] === null) {
+            formattedValue[chartDataKeys[i]] = "(Blank)";
+          } else if (typeof item[chartDataKeys[i]] === "boolean") {
+            formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]]
+              ? "True"
+              : "False";
           } else if (
             typeof item[chartDataKeys[i]] === "number" ||
             !isNaN(item[chartDataKeys[i]])
@@ -88,7 +91,6 @@ const CrossTabChart = ({
               chartDataKeys[i].includes(field.displayname)
             );
             /*  Need to format Measure dustbin fields */
-
             if (
               _isMeasureField &&
               chartProperties.properties[propKey].chartAxes[
@@ -105,7 +107,8 @@ const CrossTabChart = ({
                   chartDataKeys[i]
                 );
             } else {
-              formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]];
+              formattedValue[chartDataKeys[i]] =
+                item[chartDataKeys[i]].toString();
             }
           } else {
             formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]];
@@ -114,12 +117,14 @@ const CrossTabChart = ({
 
         _formChartData.push(formattedValue);
       });
-      setFormatedChartPropData(_formChartData);
+
+      setFormatedChartPropData(CrossTab.cloneData(_formChartData));
+      setSortedChartPropData(CrossTab.cloneData(_formChartData));
     }
   }, [chartPropData, property.formatOptions]);
 
   /*
-	Assign deeply cloned values from Dustbins
+    Assign deeply cloned values from Dustbins
   */
   if (
     chartPropAxes[1] &&
@@ -146,7 +151,7 @@ const CrossTabChart = ({
   }
 
   /*
-	To update the ColumnSpan of header segment
+    To update the ColumnSpan of header segment
 */
   const updateColSpan = (noValue?: boolean) => {
     /*  Need to add those measure fields values to ColumnCSV collection.  */
@@ -172,7 +177,7 @@ const CrossTabChart = ({
             /*  Last but above row of the Column header span always of size measure fields count */
             spanSize = dustbinValues.length;
           } else if (hdrRow === 0) {
-            /* Top row column span calulated from ColumnCSV list with matching data list length  */
+            /* Top row column span calulated from ColumnCSV list with matching data list lenght  */
             let _list = chartDataCSV.columns.filter((item: any) =>
               item.includes(colData.displayData)
             );
@@ -195,6 +200,16 @@ const CrossTabChart = ({
       }
     } else {
       /*  No measure fields where added, so no values in the cell */
+      function compareFirstNContents(
+        string1: string,
+        string2: string,
+        n: number
+      ) {
+        const array1 = string1.split(CrossTab.delimiter).slice(0, n);
+        const array2 = string2.split(CrossTab.delimiter).slice(0, n);
+
+        return array1.every((value, index) => value === array2[index]);
+      }
       if (noValue) {
         for (let hdrRow = crossTabData.length - 1; hdrRow >= 0; hdrRow--) {
           for (
@@ -205,7 +220,7 @@ const CrossTabChart = ({
             let colData = crossTabData[hdrRow].columnItems[colIndex];
             let spanSize = 1;
 
-            if (hdrRow - 1 === crossTabData.length) {
+            if (hdrRow + 1 === crossTabData.length) {
               spanSize = 1;
             } else {
               let compObj = "";
@@ -215,7 +230,8 @@ const CrossTabChart = ({
               });
 
               let _list = chartDataCSV.columns.filter((item: any) =>
-                item.includes(compObj)
+                // item.includes(compObj)
+                compareFirstNContents(item, compObj, hdrRow + 1)
               );
               spanSize = _list.length;
             }
@@ -251,7 +267,7 @@ const CrossTabChart = ({
   };
 
   /*
-	Push Dusbin Rows into crossTabData Header Area collection
+    Push Dusbin Rows into crossTabData Header Area collection
 */
   const appendRowsFieldsAsColumns = () => {
     for (let i = crossTabData.length - 1; i >= 0; i--) {
@@ -572,7 +588,7 @@ const CrossTabChart = ({
   };
 
   /*
-	Push Dusbin Values Measures into crossTabData Header Area collection
+    Push Dusbin Values Measures into crossTabData Header Area collection
 */
 
   const addMeasureValuesInColumnHeaderArea = () => {
@@ -645,10 +661,10 @@ const CrossTabChart = ({
 
           /* IMPROMENT
 
-		 let _list = chartDataCSV.columns.filter(item => item.includes(crossTabData[i].columnItems[colItem].displayData))
+         let _list = chartDataCSV.columns.filter(item => item.includes(crossTabData[i].columnItems[colItem].displayData))
 
-		 CrossTab.getColumnList(i, _list).forEach() --> form comp obj then filter using "getFilteredChartPropDataByCompareObject"
-		 */
+         CrossTab.getColumnList(i, _list).forEach() --> form comp obj then filter using "getFilteredChartPropDataByCompareObject"
+         */
 
           distinctList = distinctList || [];
           tempRowObj.columnList.push(distinctList);
@@ -737,6 +753,7 @@ const CrossTabChart = ({
             tempColumnObj.isRowField = true;
           }
           tempColumnObj.compareObj = compObj;
+          tempColumnObj.isHeaderField = true;
 
           tempColumnObj.rowIndex = i;
           tempRowObj.columnItems.push(tempColumnObj);
@@ -969,16 +986,96 @@ const CrossTabChart = ({
         );
       });
 
+      //// Added later for adding sort functionality
+      // dustbinColumns.forEach((colField) => {
+      //   _combineColumn = _combineColumn.concat(
+      //     data[CrossTab.getKeyWithPrefix(colField, "col")],
+      //     CrossTab.delimiter
+      //   );
+      //   console.log(
+      //     data[CrossTab.getKeyWithPrefix(colField, "col")],
+      //     _combineColumn
+      //   );
+      // });
+
+      if (_combineRow && !chartDataCSV.rows.includes(_combineRow)) {
+        chartDataCSV.rows.push(_combineRow);
+      }
+
+      // if (_combineColumn && !chartDataCSV.columns.includes(_combineColumn)) {
+      //   chartDataCSV.columns.push(_combineColumn);
+      // }
+    });
+
+    // For Sorting Month
+    const monthOrder = {
+      January: 1,
+      February: 2,
+      March: 3,
+      April: 4,
+      May: 5,
+      June: 6,
+      July: 7,
+      August: 8,
+      September: 9,
+      October: 10,
+      November: 11,
+      December: 12,
+    };
+
+    // For Sorting Day
+    const dayOrder = {
+      Sunday: 0,
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
+      Saturday: 6,
+    };
+
+    let sortKeys: string[] = []; // For Sorting Column Values
+    dustbinColumns.forEach((item) => {
+      sortKeys.push(item.displayname);
+    });
+
+    let sortedData: any[];
+    sortedData = sortedChartPropData.sort((a, b) => {
+      for (let key of sortKeys) {
+        // Compare current key
+        if (a[key] === "(Blank)") return 1;
+        if (b[key] === "(Blank)") return -1;
+        if (!isNaN(parseFloat(a[key])) && isFinite(a[key])) {
+          if (parseFloat(a[key]) < parseFloat(b[key])) return -1;
+          if (parseFloat(a[key]) > parseFloat(b[key])) return 1;
+        } else if (
+          monthOrder.hasOwnProperty(a[key]) &&
+          monthOrder.hasOwnProperty(b[key])
+        ) {
+          return monthOrder[a[key]] - monthOrder[b[key]];
+        } else if (
+          dayOrder.hasOwnProperty(a[key]) &&
+          dayOrder.hasOwnProperty(b[key])
+        ) {
+          return dayOrder[a[key]] - dayOrder[b[key]];
+        } else {
+          if (a[key] < b[key]) return -1;
+          if (a[key] > b[key]) return 1;
+        }
+
+        // If equal, move to the next key
+      }
+      return 0;
+    });
+
+    sortedData.forEach((data) => {
+      let _combineColumn = "";
       dustbinColumns.forEach((colField) => {
         _combineColumn = _combineColumn.concat(
           data[CrossTab.getKeyWithPrefix(colField, "col")],
           CrossTab.delimiter
         );
       });
-
-      if (_combineRow && !chartDataCSV.rows.includes(_combineRow)) {
-        chartDataCSV.rows.push(_combineRow);
-      }
 
       if (_combineColumn && !chartDataCSV.columns.includes(_combineColumn)) {
         chartDataCSV.columns.push(_combineColumn);

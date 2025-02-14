@@ -14,12 +14,19 @@ import {
   FormatterValueProps,
 } from "./ChartsCommonInterfaces";
 
+import { palette } from "../..";
+
+import {getContrastColor} from '../CommonFunctions/CommonFunctions';
+
+
 const AreaChart = ({
   //props
   propKey,
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartControls,
@@ -54,11 +61,21 @@ const AreaChart = ({
         var seriesObj = {
           type: "line",
           smooth: chartControls.properties[propKey].smoothCurve?.enable,
-          areaStyle: {
+          lineStyle: {
+            shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+            shadowBlur: 10, // Blur radius
+            shadowOffsetX: 3, // Horizontal shadow offset
+            shadowOffsetY: 3, // Vertical shadow offset
+          },
+          areaStyle: softUI?{
             // color: chartThemes[0].colors,
             color: chartControl.areaBackgroundColor,
             opacity: chartControl.areaOpacity,
-          },
+            // shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+            // shadowBlur: 10, // Blur radius
+            // shadowOffsetX: 3, // Horizontal shadow offset
+            // shadowOffsetY: 3,
+          }:{},
           // color: chartThemes[0].colors,
           color: chartControl.areaBackgroundColor,
           label: {
@@ -88,10 +105,13 @@ const AreaChart = ({
       }
       setSeriesData(seriesDataTemp);
     }
-  }, [chartData, chartControl]);
+  }, [chartData, chartControl,softUI]);
 
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+     return el.name === colorScheme;
+    else 
+    return el.name === chartControl.colorScheme
   });
 
   const getTopMarginForLegend = () => {
@@ -127,6 +147,8 @@ const AreaChart = ({
           backgroundColor: chartThemes[0].background,
           animation: chartArea ? false : true,
           legend: {
+            // textStyle :{color : getContrastColor(chartThemes[0].background)},
+            
             show:
               graphDimension.height > 210
                 ? chartControl.legendOptions?.showLegend
@@ -143,6 +165,10 @@ const AreaChart = ({
             itemHeight: chartControl.legendOptions?.symbolHeight,
             itemWidth: chartControl.legendOptions?.symbolWidth,
             itemGap: chartControl.legendOptions?.itemGap,
+            textStyle:{
+              color:chartThemes[0].dark?"#ffffff":palette.primary.contrastText,
+            },
+            
           },
           tooltip: {
             show: chartControl.mouseOver.enable,
@@ -160,6 +186,8 @@ const AreaChart = ({
                     100 +
                   35
                 : chartControl.chartMargin.bottom + "%",
+                shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+                shadowBlur: 10, // Size of shadow blur
           },
           dataset: {
             dimensions: Object.keys(processedChartData[0]),

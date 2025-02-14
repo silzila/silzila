@@ -11,12 +11,19 @@ import {
 } from "./ChartsCommonInterfaces";
 import { displayName, fieldName } from "../CommonFunctions/CommonFunctions";
 
+import { palette } from "../..";
+
+import {getContrastColor} from '../CommonFunctions/CommonFunctions';
+
+
 const DoughnutChart = ({
   //props
   propKey,
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartProperties,
@@ -40,6 +47,10 @@ const DoughnutChart = ({
           // Map over chart data and replace nulls with "(Blank)" without modifying the original array
           const mappedChartData = chartControl.chartData.map((el : any) => {
               const newEl = { ...el }; // Create a shallow copy of the element to avoid direct mutation
+              //Converts the negative value from integer to string
+              if (objKey in newEl && typeof newEl[objKey] === "number" && !isNaN(newEl[objKey])) {
+                newEl[objKey] = newEl[objKey].toString();
+              }
               if (newEl[objKey] === null || newEl[objKey] === "null") {
                   newEl[objKey] = "(Blank)";
               } else if (typeof newEl[objKey] === "boolean") {
@@ -55,7 +66,10 @@ const DoughnutChart = ({
     }
   }, [chartData, chartControl]);
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+     return el.name === colorScheme;
+    else 
+    return el.name === chartControl.colorScheme
   });
   
   const RenderChart = () => {
@@ -80,6 +94,7 @@ const DoughnutChart = ({
             backgroundColor: chartThemes[0].background,
             animation: chartArea ? false : true,
             legend: {
+              // textStyle :{color : getContrastColor(chartThemes[0].background)},
               type: "scroll",
               show:
                 graphDimension.height > 300 && graphDimension.width > 265
@@ -95,6 +110,9 @@ const DoughnutChart = ({
               // left: "50%",
               // top: "95%",
               orient: chartControl.legendOptions?.orientation,
+              textStyle:{
+                color:chartThemes[0].dark?"#ffffff":palette.primary.contrastText,
+              }
             },
 
             tooltip: { show: chartControl.mouseOver.enable },
@@ -149,6 +167,12 @@ const DoughnutChart = ({
                   chartControl.chartMargin.innerRadius + "%",
                   chartControl.chartMargin.outerRadius + "%",
                 ],
+                itemStyle:softUI? {
+                  shadowBlur: 10, // Blur intensity of the shadow
+                  shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+                  shadowOffsetX: 5, // Horizontal shadow offset
+                  shadowOffsetY: 5, // Vertical shadow offset
+                }:{},
               },
             ],
           }}
