@@ -15,13 +15,12 @@ import {
   tableObjProps,
 } from "../../redux/DataSet/DatasetStateInterfaces";
 import { CanvasProps } from "./CanvasInterfaces";
-import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import collapsedSidebar from "../../assets/sidebar-collapse.svg";
 import ShortUniqueId from "short-unique-id";
 // import UserFilterDataset from "./UserFilterDataset";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import UserFilterDataset from "./UserFilterDataset";
 import { fontSize, palette } from "../..";
-import { PopUpSpinner } from "../CommonFunctions/DialogComponents";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux";
 import { permissions } from "../CommonFunctions/aliases";
@@ -75,6 +74,10 @@ const Canvas = ({
      */
     if (newFilters.length !== dataSetFilterArray.length) {
       setDataSetFilterArray(newFilters);
+    }
+
+    if(tempTable.length <= 0 ){
+      setIsDataSetVisible(false)
     }
   }, [dataSetFilterArray, tempTable]);
 
@@ -179,8 +182,6 @@ const Canvas = ({
     );
   };
 
-  console.log("tempTable", tempTable);
-
   return (
     <div className="canvas">
       <div
@@ -188,8 +189,8 @@ const Canvas = ({
         id="canvasTableArea"
         // style={{ width: !isDataSetVisible ? "100%" : "calc(99% - 198px)" }}
         style={{ width: "100%" }}
-
       >
+        <div style={{display: "flex", flexWrap: "wrap", maxWidth: "calc(100% - 13.063rem)"}}>
         {
           isFlatFile && !dataSetState.tables.length && tempTable.length === 0 ? <span style={{
             position: "absolute",
@@ -224,102 +225,63 @@ const Canvas = ({
               ) : null
             ))}
         </Xwrapper>
-
-        {isDataSetVisible === false && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100vh",
-              position: "fixed",
-              right: "3%",
-            }}
-          >
-            <button
-              title="Open dataset filter"
-              style={{
-                backgroundColor: "white",
-                outline: "none",
-                border: "none",
-                margin: "auto auto",
-              }}
-            >
-              <img
-                src={filterIcon}
-                style={{
-                  height: "1.5rem",
-                  width: "2rem",
-                }}
-                className="IconDataset"
-                onClick={() => setIsDataSetVisible(!isDataSetVisible)}
-                alt="filter"
-              />
-            </button>
-            <div
-              style={{
-                width: "1px",
-                height: "200vh",
-                border: "1px solid rgba(224, 224, 224, 1)",
-                position: "absolute",
-                top: "0%",
-              }}
-            />
-          </div>
-        )}
+        </div>
+        {/* conditionally showing filter section according to length of tempTable(list of tables in canvas. Initially width is 2.7rem) on clicking which visibility changes and changes the width of section */}
+        {tempTable.length > 0 &&     
         <div
           className="filter_dataset"
-          onDrop={(e) => handleDrop(e)}
-          onDragOver={(e) =>  e.preventDefault()}
-          style={{
-            display: isDataSetVisible ? "block" : "none",
-          }} // Controls visibility
+          onDrop={(e) => isDataSetVisible && handleDrop(e)}
+          onDragOver={(e) =>  isDataSetVisible && e.preventDefault()}
+          style={{width: isDataSetVisible ? "13.063rem": "2.7rem"}}
         >
-          <div >
+          <div>
             <div
               style={{
                 display: "flex",
-                justifyContent: "space-around",
+                justifyContent: isDataSetVisible ? "space-between" : "center",
+                paddingLeft: isDataSetVisible ? "1rem": "0.8rem",
                 alignItems: "center",
-                // margin: "auto auto",
                 position: "fixed",
-                backgroundColor: "white",
-                width: "13.063rem",
+                width: isDataSetVisible ? "12.5rem": "",
+                margin: "auto",
                 zIndex: "98",
-                // marginTop: "-25px",
               }}
             >
               <img
                 src={filterIcon}
+                onClick={() => !isDataSetVisible && setIsDataSetVisible(!isDataSetVisible)}
                 style={{
                   height: "1.5rem",
-                  // width: "2rem",
-                  // margin: "0 10px",
                 }}
                 alt="filter"
               />
+              {isDataSetVisible &&
+              <>
               <span className="axisTitle">Dataset Filter</span>
-              <div>
-                <button
-                  title="minimize"
-                  style={{
-                    backgroundColor: "white",
+               <button
+                title="Hide Filter Tab"
+                style={{
+                  backgroundColor: "white",
                     outline: "none",
                     border: "none",
                     padding: "0"
-                  }}
-                >
-                  <ArrowBackRoundedIcon
-                    style={{
+                }}
+                onClick={() => setIsDataSetVisible(!isDataSetVisible)}
+              >
+                <img
+                  src={collapsedSidebar}
+                  alt="filter section collapse icon"
+                  style={{
                       right: "92%",
                       top: "0px",
                       zIndex: "999",
                       transform: "rotate(180deg)",
-                    }}
-                    onClick={() => setIsDataSetVisible(!isDataSetVisible)}
-                  />
-                </button>
-              </div>
+                      height: "1.5rem",
+                  }}
+                />
+              </button>
+              </>
+              }
             </div>
             <NotificationDialog
               onCloseAlert={() => {
@@ -331,7 +293,8 @@ const Canvas = ({
               testMessage={testMessage}
             />
             <div style={{ position: "absolute", marginTop: "22px" }}>
-              {dataSetFilterArray.length > 0 && tempTable.length > 0 && (
+              {isDataSetVisible && dataSetFilterArray.length > 0 && 
+              tempTable.length > 0 && (
                 <UserFilterDataset
                   editMode={editMode}
                   tableFlatFileMap={tableFlatFileMap}
@@ -343,7 +306,7 @@ const Canvas = ({
             </div>
           </div>
         </div>
-
+        }
         <RenderArrows />
       </div>
       <BottomBar

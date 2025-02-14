@@ -95,12 +95,13 @@ const FilledMapStyles = ({
         <div
           style={{
             height: "1.25rem",
-            width: "50%",
+            width: "70%",
             marginLeft: "20px",
             backgroundColor: geoStyle.borderColor,
             color: geoStyle.borderColor,
             border: "2px solid darkgray",
             margin: "auto",
+            marginRight: "4px"
           }}
           onClick={() => {
             setColor(geoStyle.borderColor);
@@ -117,12 +118,13 @@ const FilledMapStyles = ({
         <div
           style={{
             height: "1.25rem",
-            width: "50%",
+            width: "70%",
             marginLeft: "20px",
             backgroundColor: geoStyle.areaColor,
             color: geoStyle.areaColor,
             border: "2px solid darkgray",
             margin: "auto",
+            marginRight: "4px"
           }}
           onClick={() => {
             setColor(geoStyle.areaColor);
@@ -141,12 +143,13 @@ const FilledMapStyles = ({
         <div
           style={{
             height: "1.25rem",
-            width: "50%",
+            width: "70%",
             marginLeft: "20px",
             backgroundColor: geoStyle.emphasisAreaColor,
             color: geoStyle.emphasisAreaColor,
             border: "2px solid darkgray",
             margin: "auto",
+            marginRight: "4px"
           }}
           onClick={() => {
             setColor(geoStyle.emphasisAreaColor);
@@ -173,7 +176,7 @@ const FilledMapStyles = ({
         </div>
       </div>
 
-      <div className="optionDescription">VISUAL SCALE:</div>
+      <div className="optionDescription">Visual Scale:</div>
       <div className="optionDescription">
         <div style={{ width: "50%", height: "1.25rem" }}>Show Scale</div>
         <div style={{ width: "50%", height: "1.25rem", marginTop: "-8px" }}>
@@ -193,7 +196,7 @@ const FilledMapStyles = ({
       <div className="optionDescription">Min</div>
       <div className="optionDescription">
         <InputBase
-          style={{ height: "1.25rem", width: "35%" }}
+          style={{ height: "1.25rem", minWidth: "35%", width: "50%" }}
           value={geoStyle.minValue}
           onChange={(e: any) => {
             updateGeoChartStyleOptions(propKey, "minValue", e.target.value);
@@ -205,12 +208,12 @@ const FilledMapStyles = ({
         <div
           style={{
             height: "1.25rem",
-            width: "50%",
+            width: "70%",
             marginLeft: "20px",
             backgroundColor: geoStyle.minColor,
             color: geoStyle.minColor,
             border: "2px solid darkgray",
-            margin: "auto",
+            margin: "auto 4px auto 6px",
           }}
           onClick={() => {
             setColor(geoStyle.minColor);
@@ -224,7 +227,7 @@ const FilledMapStyles = ({
       <div className="optionDescription">Max</div>
       <div className="optionDescription">
         <InputBase
-          style={{ height: "1.25rem", width: "35%" }}
+          style={{ height: "1.25rem", minWidth: "35%", width: "50%" }}
           value={geoStyle.maxValue}
           onChange={(e: any) => {
             updateGeoChartStyleOptions(propKey, "maxValue", e.target.value);
@@ -236,12 +239,12 @@ const FilledMapStyles = ({
         <div
           style={{
             height: "1.25rem",
-            width: "50%",
+            width: "70%",
             marginLeft: "20px",
             backgroundColor: geoStyle.maxColor,
             color: geoStyle.maxColor,
             border: "2px solid darkgray",
-            margin: "auto",
+            margin: "auto 4px auto 6px",
           }}
           onClick={() => {
             setColor(geoStyle.maxColor);

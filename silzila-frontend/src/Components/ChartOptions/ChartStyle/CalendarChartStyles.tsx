@@ -29,7 +29,7 @@ const CalendarChartStyles = ({
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
-					style={{ marginRight: "10px" }}
+					style={{ marginRight: "10px", paddingLeft: "0" }}
 				>
 					Show SplitLine
 				</label>
@@ -51,12 +51,12 @@ const CalendarChartStyles = ({
 						<div
 							style={{
 								height: "1.25rem",
-								width: "50%",
-								marginLeft: "20px",
+								width: "75%",
 								backgroundColor: calStyle.splitLineColor,
 								color: calStyle.splitLineColor,
 								border: "2px solid darkgray",
 								margin: "auto",
+								marginLeft: "1.05rem",
 							}}
 							onClick={() => {
 								setColorPopOverOpen(!isColorPopoverOpen);
@@ -93,8 +93,8 @@ const CalendarChartStyles = ({
 							}}
 							sx={{
 								fontSize: "12px",
-								width: "90%",
-								margin: "0 auto 0.5rem auto",
+								width: "96%",
+								margin: "0 auto 0.5rem 0.3rem",
 								backgroundColor: "white",
 								height: "1.5rem",
 								color: "#404040",

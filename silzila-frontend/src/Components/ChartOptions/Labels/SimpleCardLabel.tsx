@@ -38,20 +38,14 @@ const ChartLabel = ({
           transition: "ease-in 0.3s linear",
         }}
       >
-        <div className="optionDescription">LABEL NAME</div>
+        <div className="optionDescription" style={{paddingLeft: "0.6rem"}}>LABEL NAME</div>
         <TextField
           value={chartControls.properties[propKey].cardControls.subText}
           variant="outlined"
           onChange={(e: any) => {
             updateCardControls(propKey, "subText", e.target.value);
           }}
-          InputProps={{ ...textFieldStyleProps,
-            sx: {              
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "#2bb9bb", // Set focused border color
-              },
-            },
-           }}
+          InputProps={{ ...textFieldStyleProps }}
         />
       </div>
     </React.Fragment>

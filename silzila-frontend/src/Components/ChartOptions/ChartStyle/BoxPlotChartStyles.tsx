@@ -56,7 +56,7 @@ const BoxPlotChartStyles = ({
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
-					style={{ marginRight: "10px" }}
+					style={{ marginRight: "10px", paddingLeft: "0" }}
 				>
 					Flip Axis
 				</label>
@@ -73,7 +73,7 @@ const BoxPlotChartStyles = ({
 					<TextField
 						type="number"
 						value={boxStyle.minBoxWidth}
-						onChange={e => { 
+						onChange={e => {
 							updateBoxPlotStyleOptions(propKey, "minBoxWidth", e.target.value);
 						}}
 						label="Min"

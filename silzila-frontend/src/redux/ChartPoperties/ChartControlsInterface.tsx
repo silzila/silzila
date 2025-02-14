@@ -166,9 +166,10 @@ interface ChartConSankeyControls {
 }
 
 interface ChartConCrossTabStyleOptions {
-  borderWidth: number;
-  lineHeight: number;
-  crossTabdata: any[];
+
+	borderWidth: number;
+	lineHeight: number;
+	crossTabdata: any[];
 }
 
 interface ChartConCrosstabHeaderLabelOptions {
@@ -179,12 +180,6 @@ interface ChartConCrosstabHeaderLabelOptions {
   fontWeigth: string;
   fontFamily: string;
   fontWeight: number | string;
-  selectedMembers: string[];
-  inputValue: number;
-  showCss: boolean,
-  columnName: string,
-  columnType: string,
-  comparison: string,
 }
 
 interface ChartConCrossTabCellLabelOptions {
@@ -347,6 +342,8 @@ interface ChartConAxisMinMax {
 }
 
 interface CardControls {
+  height: number;
+  width: number;
   fontSize: number;
   subtextFontSize: number;
   isDragging: boolean;

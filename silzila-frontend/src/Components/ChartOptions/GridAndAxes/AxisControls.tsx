@@ -19,10 +19,11 @@ import SwitchWithInput from "../SwitchWithInput";
 const textFieldStyleProps = {
 	style: {
 		fontSize: "12px",
-		width: "90%",
+		width: "96%",
 		margin: "0 auto 0.5rem auto",
 		backgroundColor: "white",
 		height: "1.5rem",
+		paddingLeft: "px",
 		color: "#404040",
 	},
 };
@@ -47,10 +48,11 @@ const GridControls = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="optionDescription">Start Angle</div>
 			{chartProperties.properties[propKey].chartType === "gauge" ? (
 				<React.Fragment>
-					<div className="optionDescription">Start Angle</div>
+					<div className="optionDescription" style={{
+						paddingLeft: "0.3rem"
+					}}>Start Angle</div>
 					<TextField
 						value={property.gaugeAxisOptions.startAngle}
 						variant="outlined"
@@ -62,10 +64,14 @@ const GridControls = ({
 							...textFieldStyleProps,
 							sx: {								
 								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-									borderColor: "#2bb9bb", 
+									borderColor: "#2bb9bb", // Set focused border color
 								},
 							},
 						 }}
+						//  style={{
+						// 	width: "98%",
+						// 	paddingLeft: "2px"
+						//  }}
 					/>
 				</React.Fragment>
 			) : (
@@ -74,6 +80,9 @@ const GridControls = ({
 					chartProperties.properties[propKey].chartType === "donut" ||
 					chartProperties.properties[propKey].chartType === "rose" ? (
 						<React.Fragment>
+							<div className="optionDescription" style={{
+								paddingLeft: "0.3rem"
+							}}>Start Angle</div>
 							<TextField
 								value={property.pieAxisOptions.pieStartAngle}
 								variant="outlined"
@@ -86,8 +95,8 @@ const GridControls = ({
 							<div
 								className="optionDescription"
 								style={{
-									padding: "0 6% 5px 4%",
-									width: " 88%",
+									padding: "0 6% 5px 0px",
+									width: "98%",
 									textAlign: "left",
 									color: "rgb(96, 96, 96)",
 									fontWeight: "600",
@@ -98,7 +107,7 @@ const GridControls = ({
 								<label
 									htmlFor="enableDisable"
 									className="enableDisableLabel"
-									style={{ marginRight: "10px", marginLeft: "-1px" }}
+									style={{ marginRight: "10px" }}
 								>
 									ClockWise
 								</label>
@@ -121,7 +130,7 @@ const GridControls = ({
 
 			{chartProperties.properties[propKey].chartType === "gauge" ? (
 				<React.Fragment>
-					<div className="optionDescription">End Angle</div>
+					<div className="optionDescription" style={{paddingLeft: "0.3rem"}}>End Angle</div>
 
 					<TextField
 						value={property.gaugeAxisOptions.endAngle}
@@ -140,9 +149,10 @@ const GridControls = ({
 						 }}
 					/>
 
-					<div className="optionDescription" style={{ marginLeft: "-3px" }}>
+						<div className="optionDescription" style={{ marginLeft: "-3px" }}>
 						<input
 							type="checkbox"
+							style={{width: "16px", height: "16px"}}
 							id="enableDisable"
 							checked={property.gaugeAxisOptions.showTick}
 							onChange={() => {
@@ -180,9 +190,10 @@ const GridControls = ({
 						</>
 					) : null}
 
-					<div className="optionDescription" style={{ marginLeft: "-3px" }}>
+						<div className="optionDescription" style={{ marginLeft: "-3px" }}>
 						<input
 							type="checkbox"
+							style={{width: "16px", height: "16px"}}
 							id="enableDisable"
 							checked={property.gaugeAxisOptions.showAxisLabel}
 							onChange={() => {

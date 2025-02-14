@@ -18,8 +18,8 @@ import { textFieldStyleProps } from "../GridAndAxes/GridAndAxes";
 import { updateCardControls } from "../../../redux/ChartPoperties/ChartControlsActions";
 
 var titleOptions: any[] = [
-	{ type: "Auto" },
-	{ type: "Manual", hintTitle: "Click to Select Manual" },
+	{ type: "Auto",title:'Reset title'},
+	{ type: "Manual", hintTitle: "Click to Select Manual" ,title:'Manual'},
 ];
 
 var titleAlignOptions: any[] = [
@@ -113,10 +113,10 @@ const ChartTitle = ({
 			) : (
 				<>
 					<div className="optionsInfo">
-						<div className="radioButtons" style={{ marginTop: "15px" }}>
+					<div className="radioButtons" style={{ marginTop: "15px" }}>
 							<RenderTitleOptions
 								generateTitle={generateTitle}
-								handleOnClick={setGenerateTitle}
+								setTitleOption={setGenerateTitle}
 							/>
 						</div>
 					</div>
@@ -133,7 +133,6 @@ const ChartTitle = ({
 							<InputPositiveNumber
 								value={chartProperties.properties[propKey].titleOptions.fontSize}
 								updateValue={(value: number) => setTitleSize(propKey, value)}
-								
 							/>
 						</div>
 					</div>
