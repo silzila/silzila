@@ -12,6 +12,7 @@ import com.silzila.helper.UtilityService;
 import com.silzila.domain.entity.PlayBook;
 import com.silzila.domain.entity.User;
 import com.silzila.domain.entity.Workspace;
+import com.silzila.dto.PlayBookJsonNode;
 import com.silzila.dto.PlayBookMetaDTO;
 import com.silzila.payload.request.PlayBookRequest;
 import com.silzila.payload.response.PlayBookCreationResponse;
@@ -100,7 +101,9 @@ public class PlayBookService {
                 // seriaize to JSON content
                 ObjectMapper mapper = new ObjectMapper();
                 PlayBook playBook = pOptional.get();
-                JsonNode jsonContent = mapper.valueToTree(playBook);
+                PlayBookJsonNode playBookJsonNode = new PlayBookJsonNode(playBook.getId(), playBook.getUserId(),
+                                playBook.getName(), playBook.getDescription(), playBook.getContent());
+                JsonNode jsonContent = mapper.valueToTree(playBookJsonNode);
                 // create response object
                 PlayBookResponse playBookResponse = new PlayBookResponse(
                                 playBook.getId(),
