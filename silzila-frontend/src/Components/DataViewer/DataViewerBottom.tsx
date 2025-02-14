@@ -3,11 +3,11 @@
 // 	- List of tables for selected dataset
 // 	- Tablle for sample records
 
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { FormControl, InputLabel, MenuItem, Select, useMediaQuery } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import LinearProgress from "@mui/material/LinearProgress";
 // import {
 // 	setSelectedDsInTile,
 // 	setSelectedTableInTile,
@@ -27,43 +27,88 @@ import DisplayTable from "./DisplayTable";
 import {
   setSelectedDsInTile,
   setSelectedTableInTile,
+  resetChartProperties
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { addTableRecords } from "../../redux/SampleTableRecords/SampleTableRecordsActions";
 import {
   DataViewerBottomProps,
   DataViewerBottomStateProps,
 } from "./DataViewerBottomInterfaces";
-import Box from "@mui/material/Box";
 import {
   actionsToAddTile,
+  resetAllStates,
   setSelectedDataSetList,
   setTablesForSelectedDataSets,
 } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
 import { IndChartPropProperties } from "../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import Logger from "../../Logger";
+import { setSelectedDatasetForDynamicMeasure } from "../../redux/DynamicMeasures/DynamicMeasuresActions";
+import RichTreeViewControl from '../Controls/RichTreeViewControl';
+import { ConvertListOfListToDataConnectionRichTreeViewList, flattenList } from '../CommonFunctions/CommonFunctions';
+import {
+  addChartFilterGroupName,
+  addChartFilterTabTileName,
+  updateChartFilterSelectedGroups
+} from "../../redux/ChartFilterGroup/ChartFilterGroupStateActions"
+import {
+  NotificationDialog,
+} from "../CommonFunctions/DialogComponents";
+import SavedCalculationsHolder from "../Calculations/SavedCalculationHolder/SavedCalculationsHolder";
+
+import { resetPlayBookData } from '../../redux/PlayBook/PlayBookActions';
+import { resetChartControls } from '../../redux/ChartPoperties/ChartControlsActions';
+import { resetSampleRecords } from '../../redux/SampleTableRecords/SampleTableRecordsActions';
+import Box from "@mui/material/Box";
+import { palette } from "../..";
 
 export const getTableData = async (
   dc_uid: string,
   tableObj: any,
   token: string,
-  ds_id: string
+  ds_id: string,
+  workSpaceId: string,
+  allPreviousSavedNonAggregatedCalculations?: any
 ) => {
   var database: string = tableObj.database;
   var schema: string = tableObj.schema;
   var table: string = tableObj.table;
   var url: string = "";
   if (tableObj.flatFileId) {
-    url = `file-data-sample-records?flatfileId=${tableObj.flatFileId}&datasetId=${ds_id}&table=${table}`;
+    url = `file-data-sample-records?workspaceId=${workSpaceId}&flatfileId=${tableObj.flatFileId}&datasetId=${ds_id}&table=${table}&tableId=${tableObj.id}`;
   } else {
-    url = `sample-records?databaseId=${dc_uid}&datasetId=${ds_id}&recordCount=100&database=${database}&schema=${schema}&table=${table}`;
+    url = `sample-records?workspaceId=${workSpaceId}&databaseId=${dc_uid}&datasetId=${ds_id}&recordCount=100&database=${database}&schema=${schema}&table=${table}&tableId=${tableObj.id}`;
   }
 
-  var res: any = await FetchData({
-    requestType: "noData",
-    method: "GET",
-    url: url,
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  let res: any;
+
+  if (
+    allPreviousSavedNonAggregatedCalculations?.length > 0
+    // we have to write a check here for tables. We can't allow this if statement to run on just all the tables
+    // TODO: here we have to verify if the table is same as the one where we should render the sample records + saved calculations.
+  ) {
+    const payload= allPreviousSavedNonAggregatedCalculations.map((calculation: any) => [calculation])
+    res = await FetchData({
+      requestType: "withData",
+      method: "POST",
+      url: url,
+      headers: { Authorization: `Bearer ${token}` },
+
+      // TODO: put real data in data here.
+      data: payload
+    });
+
+  } else {
+
+    res = await FetchData({
+      requestType: "noData",
+      method: "POST",
+      url: url,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+  }
+
+
 
   if (res.status) {
     return res.data;
@@ -74,9 +119,10 @@ export const getTableData = async (
 export const getTableDataWithCustomQuery = async (
   dc_uid: string,
   table: any,
-  token: string
+  token: string,
+  workSpaceId: string
 ) => {
-  var url: string = `sample-records-customquery/${dc_uid}/200`;
+  var url: string = `sample-records-customquery/${dc_uid}/200?workspaceId=${workSpaceId}`;
 
   var res: any = await FetchData({
     requestType: "withData",
@@ -99,9 +145,10 @@ export const getTableDataWithCustomQuery = async (
 export const getColumnTypeswithCustomQuery = async (
   dc_uid: string,
   table: any,
-  token: string
+  token: string,
+  workSpaceId: string
 ) => {
-  var url: string = `metadata-columns-customquery/${dc_uid}`;
+  var url: string = `metadata-columns-customquery/${dc_uid}?workspaceId=${workSpaceId}`;
 
   var res: any = await FetchData({
     requestType: "withData",
@@ -123,24 +170,47 @@ export const getColumnTypeswithCustomQuery = async (
 export const getColumnTypes = async (
   dc_uid: string,
   tableObj: any,
-  token: string
+  token: string,
+  workSpaceId: string,
+  allPreviousSavedNonAggregatedCalculations?: any
 ) => {
   var database: string = tableObj.database;
   var schema: string = tableObj.schema;
   var table: string = tableObj.table;
   var url: string = "";
   if (tableObj.flatFileId) {
-    url = `file-data-column-details/${tableObj.flatFileId}`;
+    url = `file-data-column-details/${tableObj.flatFileId}?workspaceId=${workSpaceId}&tableId=${tableObj.id}`;
   } else {
-    url = `metadata-columns/${dc_uid}?database=${database}&schema=${schema}&table=${table}`;
+    url = `metadata-columns/${dc_uid}?workspaceId=${workSpaceId}&database=${database}&schema=${schema}&table=${table}`;
   }
 
-  var res: any = await FetchData({
-    requestType: "noData",
-    method: "GET",
-    url: url,
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  let res: any;
+
+  if (allPreviousSavedNonAggregatedCalculations?.length > 0) {
+    /**
+     * every calculation info has to be inside an array
+     * API requirement:::::
+     * [
+     *  [{calculationInfo1Properties}],
+     * [{calculationInfo2Properties}],
+     * ]
+     */
+    const payload=allPreviousSavedNonAggregatedCalculations.map((calculation: any) => [calculation])
+    res = await FetchData({
+      requestType: "withData",
+      method: "POST",
+      url: url,
+      headers: { Authorization: `Bearer ${token}` },
+      data: payload
+    });
+  } else {
+    res = await FetchData({
+      requestType: "noData",
+      method: "POST",
+      url: url,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
 
   if (res.status) {
     let finalResult: any = [];
@@ -167,6 +237,9 @@ const DataViewerBottom = ({
   chartProps,
   sampleRecords,
   tabState,
+  chartFilterGroup,
+  pbId,
+  calculations,
 
   // dispatch
   setSelectedDataSetList,
@@ -175,19 +248,179 @@ const DataViewerBottom = ({
   setTablesForDs,
   addRecords,
   addTile,
-}: DataViewerBottomProps) => {
+  resetChartProperties,
+  resetPlayBookData,
+  resetChartControls,
+  resetSampleRecords,
+  addChartFilterGroupName,
+  updateChartFilterSelectedGroups,
+  addChartFilterTabTileName,
+}: any) => {
   var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
   var selectedChartProp: IndChartPropProperties =
     chartProps.properties[propKey];
 
   var tables: any =
     tabTileProps?.tablesForSelectedDataSets?.[
-      selectedChartProp?.selectedDs?.id
+    selectedChartProp?.selectedDs?.id
     ];
+
+  const [openAlert, setOpenAlert] = useState<boolean>(true);
+  const [QueryErrorMessage, setQueryErrorMessage] = useState<string>("");
+
+  const [showTreeView, setShowTreeView] = useState<boolean>(false);
+  const [dataSetTree, setDataSetTree] = useState<Array<Object>>([]);
+  const [selectedDataSet, setSelectedDataSet] = useState<any>({});
+
+  const savedCalculations = useMemo(() => {
+    // Filter logic inside useMemo's body
+    return calculations?.savedCalculations?.filter(
+      (calculation: any) => calculation.datasetId === selectedDataSet?.id
+    );
+  }, [calculations?.savedCalculations, selectedDataSet?.id]);
+
+
+  const location = useLocation();
+  const state = location.state;
+  const getNewGroupName = (numOfGroups: number): string => {
+    let isUnique = true;
+    let newName = "Filter Group " + numOfGroups;
+    Object.keys(chartFilterGroup.groups).forEach((grp) => {
+      if (chartFilterGroup.groups[grp].name === newName) {
+        isUnique = false;
+        return;
+      }
+    });
+    if (!isUnique) {
+      return getNewGroupName(numOfGroups + 1);
+    } else {
+      return newName;
+    }
+  };
+
+  const handleProceedButtonClick = (id: string) => {
+    let tree = JSON.parse(JSON.stringify(dataSetTree));
+
+    let flatList = flattenList(tree);
+
+    let found: any = flatList.find((item: any) => item.id === id)
+
+    //console.log(found)
+
+    if (found) {
+      setSelectedDataSet(found);
+
+      setShowTreeView(false);
+    }
+    else {
+      setOpenAlert(true);
+      setQueryErrorMessage("Please select a DataSet.");
+    }
+  }
+
+  useEffect(() => {
+    
+    const fetchData = async () => {
+      if (selectedDataSet.id && !tabTileProps.selectedDataSetList.find((ds: any) => ds.id === selectedDataSet.id)) {
+        setLoading(true);
+        let dataSetResponse = await getDataSetDetail();
+        let dataSet: any = {
+          connectionId: dataSetResponse.connectionId,
+          datasetName: selectedDataSet.label,
+          id: selectedDataSet.id,
+          isFlatFileData: false,
+          workSpaceId: selectedDataSet.workSpaceId
+        };
+
+        setSelectedDataSetList(dataSet);
+        setSelectedDatasetForDynamicMeasure(dataSet);
+
+        //var datasetFromServer: any = await getTables(dataSet.id);
+        setTablesForDs({ [dataSet.id]: dataSetResponse.dataSchema.tables });
+        //setSelectedDs("1.1", dataSet);
+        /*  PRS 13Nov2024 */
+        setSelectedDs(propKey, dataSet);
+        if (!chartProps.properties[propKey].selectedDs.id) {
+          addChartFilterTabTileName(dataSet.id, "1.1");
+          let numOfGroups = 0;
+          if (
+            Object.keys(chartFilterGroup.groups) &&
+            Object.keys(chartFilterGroup.groups).length > 0
+          ) {
+            numOfGroups = Object.keys(chartFilterGroup.groups).length;
+          }
+          let newGroupName = getNewGroupName(numOfGroups + 1);
+          let groupId =
+            dataSet.id + "_" + newGroupName + new Date().getMilliseconds();
+
+          addChartFilterGroupName(dataSet.id, groupId, newGroupName);
+          updateChartFilterSelectedGroups("1.1", groupId);
+        }
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDataSet]);
+
+  const getDataSetDetail = async () => {
+    var result: any = await FetchData({
+      requestType: "noData",
+      method: "GET",
+      url: `dataset/${selectedDataSet.id}?workspaceId=${selectedDataSet.workSpaceId || state?.parentId}`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    let response: any = {};
+
+    if (result.status) {
+      response = result.data;
+      return response;
+
+    } else {
+      Logger("error", result.data.detail);
+    }
+  }
+
+  const getAllDataSets = async () => {
+    var result: any = await FetchData({
+      requestType: "noData",
+      method: "GET",
+      url: `dataset/tree`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    let list = [];
+
+    if (result.status) {
+      list = result.data;
+    } else {
+      Logger("error", result.data.detail);
+    }
+
+    setDataSetTree(ConvertListOfListToDataConnectionRichTreeViewList(list, 'dataset'));
+
+    if (!pbId && !selectedChartProp.selectedDs?.id) {
+      setShowTreeView(true);
+    }
+  }
+
+  useEffect(() => {
+    if (!pbId && !selectedChartProp.selectedDs?.id) {
+      resetChartProperties();
+      resetPlayBookData();
+      resetChartControls();
+      resetSampleRecords();
+    }
+
+    getAllDataSets();
+  }, [pbId])
 
   const [open, setOpen] = useState<boolean>(false);
   const [selectedDataset, setSelectedDataset] = useState<string | any>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const [openChangeDatasetDlg, setOpenChangeDatasetDlg] =
     useState<boolean>(false);
@@ -205,9 +438,18 @@ const DataViewerBottom = ({
       if (isAlready.length > 0) {
         window.alert("Dataset already in selected list");
       } else {
-        setSelectedDataSetList(selectedDataset);
-        setSelectedDs(propKey, selectedDataset);
-        setOpen(false);
+
+        const fetchData = async () => {
+          setSelectedDataSetList(selectedDataset);
+          setSelectedDatasetForDynamicMeasure(selectedDataset);
+
+          var datasetFromServer: any = await getTables(selectedDataset.id);
+          setTablesForDs({ [selectedDataset.id]: datasetFromServer.dataSchema.tables });
+          setSelectedDs(propKey, selectedDataset);
+          setOpen(false);
+        };
+
+        fetchData();
       }
     }
   }, [selectedDataset]);
@@ -219,7 +461,7 @@ const DataViewerBottom = ({
     const fetchData = async () => {
       if (
         tabTileProps?.tablesForSelectedDataSets?.[
-          selectedChartProp?.selectedDs?.id
+        selectedChartProp?.selectedDs?.id
         ] === undefined
       ) {
         setLoading(true);
@@ -234,7 +476,9 @@ const DataViewerBottom = ({
       }
     };
 
-    fetchData();
+    if (selectedChartProp.selectedDs?.id) {
+      fetchData();
+    }
   }, [selectedChartProp.selectedDs]);
 
   const getTables = async (uid: any) => {
@@ -247,9 +491,18 @@ const DataViewerBottom = ({
 
     if (result.status) {
       return result.data;
-    } else {
+    } else { 
     }
   };
+
+  useEffect(() => {
+      if(!state){
+        navigate("/")
+      }
+    }, [state, navigate])
+    if (!state) {
+      return null;
+    }
 
   // const handleDataSetChange = (value) => {
   // 	if (value === "addNewDataset") {
@@ -261,10 +514,16 @@ const DataViewerBottom = ({
   // };
 
   /*When a table selected in dataset is changed,
-	check if this table's sample records are already present
-	if yes,display them. If no, get the table records and save in store*/
+  check if this table's sample records are already present
+  if yes,display them. If no, get the table records and save in store*/
 
-  const handleTableChange = async (table: any, dsUid?: any) => {
+  const handleTableChange= async (table: any, dsUid?: any, savedNonAggregatedCalculations?: any) => {
+
+    if (!savedNonAggregatedCalculations) {
+      console.log("Something went wrong")
+      return
+    }
+
     if (table.flatFileId) {
     }
     if (table.id !== selectedChartProp.selectedTable) {
@@ -283,17 +542,20 @@ const DataViewerBottom = ({
           tableRecords = await getTableDataWithCustomQuery(
             dc_uid,
             table,
-            token
+            token,
+            selectedChartProp.selectedDs.workSpaceId || state?.parentId
           );
           recordsType = await getColumnTypeswithCustomQuery(
             dc_uid,
             table,
-            token
+            token,
+            selectedChartProp.selectedDs.workSpaceId
           );
         } else {
-          tableRecords = await getTableData(dc_uid, table, token, id);
+         
+          tableRecords = await getTableData(dc_uid, table, token, id, selectedChartProp.selectedDs.workSpaceId || state?.parentId, savedNonAggregatedCalculations);
 
-          recordsType = await getColumnTypes(dc_uid, table, token);
+          recordsType = await getColumnTypes(dc_uid, table, token, selectedChartProp.selectedDs.workSpaceId || state?.parentId, savedNonAggregatedCalculations);
         }
 
         addRecords(id, table.id, tableRecords, recordsType);
@@ -308,17 +570,18 @@ const DataViewerBottom = ({
       return tables.map((table: any) => {
         return (
           <div
+          style={{fontSize: "0.75rem",color:palette.primary.contrastText}}
             className={
               table.id ===
-              selectedChartProp.selectedTable?.[
+                selectedChartProp.selectedTable?.[
                 selectedChartProp.selectedDs?.id
-              ]
+                ]
                 ? "dsIndiTableInTileSelected"
                 : "dsIndiTableInTile"
             }
             key={table.id}
             onClick={() => {
-              handleTableChange(table);
+              handleTableChange(table, undefined, savedCalculations?.length > 0 ? savedCalculations?.filter((calculation: any) => (!calculation?.isAggregated && calculation?.tableId === table.id))?.map((calculation: any) => calculation?.calculationInfo) : [])
             }}
           >
             {table.alias}
@@ -328,11 +591,11 @@ const DataViewerBottom = ({
     } else return null;
   };
 
-  var selectInput = { fontSize: "12px", padding: "2px 1rem" };
+  var selectInput = { fontSize: "0.75rem", padding: "2px 1rem" };
 
   /* when the dataset itself is changed,
-	if there are no added fields in dropzone, allow the change.
-	else, open a new tile with the selected dataset*/
+  if there are no added fields in dropzone, allow the change.
+  else, open a new tile with the selected dataset*/
   const handleDataSetChange = (value: any) => {
     const axes = chartProps.properties[propKey].chartAxes;
     setAddNewOrChooseExistingDS(value);
@@ -343,10 +606,12 @@ const DataViewerBottom = ({
           count = count + 1;
         }
       });
+
       if (count > 0) {
         setOpenChangeDatasetDlg(true);
       } else {
-        setOpen(true);
+        //setOpen(true); ////TODO:
+        setShowTreeView(true);
       }
     } else {
       var count = 0;
@@ -380,7 +645,9 @@ const DataViewerBottom = ({
 
     setOpenChangeDatasetDlg(false);
     if (addNewOrChooseExistingDS === "addNewDataset") {
-      setOpen(true);
+      /*  PRS 13Nov2024 */
+      setShowTreeView(true);
+      //setOpen(true);
     } else {
       var dsObj = tabTileProps.selectedDataSetList.filter(
         (ds: any) => ds.id === addNewOrChooseExistingDS
@@ -390,10 +657,41 @@ const DataViewerBottom = ({
   };
   return (
     <React.Fragment>
+      {QueryErrorMessage.length > 0 ? (
+        <NotificationDialog
+          onCloseAlert={() => {
+            setOpenAlert(false);
+            setQueryErrorMessage("");
+          }}
+          severity={"error"}
+          testMessage={QueryErrorMessage}
+          openAlert={openAlert}
+        />
+      ) : null}
+      {showTreeView ? (
+        <RichTreeViewControl
+          currentWorkspace={state?.parentId}
+          list={dataSetTree}
+          title={"Select a DataSet"}
+          showInPopup={showTreeView}
+          showControls={true}
+          handleCloseButtonClick={(e: any) => {
+            if (selectedDataSet?.id) {
+              setShowTreeView(false);
+            } else {
+              setShowTreeView(false);
+              navigate("/");
+              resetAllStates();
+            }
+          }}
+          handleProceedButtonClick={handleProceedButtonClick}
+        ></RichTreeViewControl>
+      ) : null}
+
       {chartProps.properties[propKey].chartType === "richText" ? null : (
         <div className="dataViewerBottom">
-          <div className="dataSetAndTableList">
-            <div className="dataSetSelect">
+          <div className="dataSetAndTableList" style={{padding:'0.5rem 1rem 0.5rem 0.9rem',minWidth:'15.625rem'}}>
+            <div className="dataSetSelect" style={{width: "100%",padding:'0'}}>
               <FormControl
                 sx={{
                   "& .MuiInputBase-root": {
@@ -426,23 +724,24 @@ const DataViewerBottom = ({
                   title={selectedChartProp.selectedDs.datasetName}
                   label="DataSet"
                   labelId="selectDataSet"
-                  value={selectedChartProp.selectedDs?.id}
+                  value={selectedChartProp.selectedDs?.id ?? selectedDataSet.id}
                   variant="outlined"
+                  key={selectedDataSet.id || selectedChartProp.selectedDs?.id}
                   onChange={(e) => {
                     handleDataSetChange(e.target.value);
                   }}
                   sx={{
                     height: "1.5rem",
-                    fontSize: "13px",
-                    color: "grey",
+                    fontSize: "0.75rem",
+                    color: "primary.contrastText",
 
                     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#2bb9bb",
-                      color: "#2bb9bb",
+                      borderColor: "primary.main",
+                      color: "primary.main",
                     },
                     "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#2bb9bb",
-                      color: "#2bb9bb",
+                      borderColor: "primary.main",
+                      color: "primary.main",
                     },
                     "&.Mui-focused .MuiSvgIcon-root ": {
                       fill: "#2bb9bb !important",
@@ -452,7 +751,7 @@ const DataViewerBottom = ({
                 >
                   <MenuItem
                     sx={{
-                      fontSize: "12px",
+                      fontSize: "0.75rem",
                       padding: "2px 1rem",
                       borderBottom: "1px solid lightgray",
                     }}
@@ -473,7 +772,7 @@ const DataViewerBottom = ({
             </div>
 
             <div className="tileTableList">
-              <div className="tablescontainerinDataviewerBottom">
+              <div className="tablescontainerinDataviewerBottom" style={{padding:0  }}>
                 <TableListForDs />
               </div>
             </div>
@@ -486,19 +785,11 @@ const DataViewerBottom = ({
           </div>
           {selectedChartProp.selectedTable?.[
             selectedChartProp.selectedDs.id
-          ] ? loading? (
-            <Box sx={{ width: "100%",display: "flex",
-              alignItems: "center",
-              justifyContent: "center",flex:"1",
-              flexDirection:"column"
-              }}>
-              <LinearProgress sx={{minWidth:"3rem",maxWidth
-                :"20%"
-              }}/>
-              <p>Please wait while we fetch the data</p>
-            </Box>
-          ) :(
-            <div className="tileTableView">
+          ] ? (
+            <Box
+              className="tileTableView"
+              sx={{ "&::-webkit-scrollbar": { width: "4px", height: "4px" } }}
+            >
               <DisplayTable
                 dsId={selectedChartProp.selectedDs?.id}
                 table={
@@ -507,7 +798,7 @@ const DataViewerBottom = ({
                   ]
                 }
               />
-            </div>
+            </Box>
           ) : (
             <div
               className="axisInfo"
@@ -516,24 +807,10 @@ const DataViewerBottom = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                color:palette.primary.contrastText
               }}
             >
-              {loading ? (
-                
-                <Box sx={{ width: "100%",display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",flex:"1",
-                  flexDirection:"column"
-                  }}>
-                  <LinearProgress sx={{minWidth:"3rem",maxWidth
-                :"20%"
-              }}/>
-                  <p>Please wait while we fetch the data</p>
-                </Box>
-                
-              ) : (
-                "Select any table from the list on left to show records here"
-              )}
+              Select any table from the list on left to show records here
             </div>
           )}
           {loading ? <LoadingPopover /> : null}
@@ -544,6 +821,9 @@ const DataViewerBottom = ({
             heading="CHANGE DATASET"
             message="Want to open in new tile?"
           />
+          {/* <div> */}
+          <SavedCalculationsHolder propKey={propKey} />
+          {/* </div> */}
         </div>
       )}
     </React.Fragment>
@@ -557,6 +837,8 @@ const mapStateToProps = (state: DataViewerBottomStateProps) => {
     chartProps: state.chartProperties,
     sampleRecords: state.sampleRecords,
     tabState: state.tabState,
+    chartFilterGroup: state.chartFilterGroup,
+    calculations: state.calculations,
   };
 };
 
@@ -593,6 +875,25 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
           selectedTablesInDs: selectedTables,
         })
       ),
+    setSelectedDatasetForDynamicMeasure: (dataset: any) =>
+      dispatch(setSelectedDatasetForDynamicMeasure(dataset)),
+    resetChartProperties: () => dispatch(resetChartProperties()),
+    resetPlayBookData: () => dispatch(resetPlayBookData()),
+    resetChartControls: () => dispatch(resetChartControls()), //resetSampleRecords
+    resetSampleRecords: () => dispatch(resetSampleRecords()),
+
+    updateChartFilterSelectedGroups: (groupId: string, filters: any) =>
+      dispatch(updateChartFilterSelectedGroups(groupId, filters)),
+    addChartFilterGroupName: (
+      selectedDatasetID: string,
+      groupId: string,
+      groupName: string
+    ) =>
+      dispatch(addChartFilterGroupName(selectedDatasetID, groupId, groupName)),
+    addChartFilterTabTileName: (
+      selectedDatasetID: string,
+      tabTileName: string
+    ) => dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName)),
   };
 };
 

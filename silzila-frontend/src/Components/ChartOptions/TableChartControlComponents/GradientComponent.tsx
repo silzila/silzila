@@ -221,20 +221,22 @@ const GradientComponent = ({
 				);
 			})}
 			<div className="midvalue">
-				<Checkbox
-					sx={checkbosStyle}
-					className="checkboxStyle"
-					size="small"
-					checked={format.value.length === 4 ? true : false}
-					onClick={() => {
-						if (format.value.length === 4) {
-							onRemoveMidValue();
-						} else {
-							onAddMidValue();
-						}
-					}}
-				/>
-				Add Mid Value
+				<label>
+					<Checkbox
+						sx={checkbosStyle}
+						className="checkboxStyle"
+						size="small"
+						checked={format.value.length === 4 ? true : false}
+						onClick={() => {
+							if (format.value.length === 4) {
+								onRemoveMidValue();
+							} else {
+								onAddMidValue();
+							}
+						}}
+					/>
+					Add Mid Value
+				</label>
 			</div>
 		</>
 	);

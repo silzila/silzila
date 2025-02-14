@@ -28,7 +28,7 @@ const TreeMapLegend = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
+			<div className="optionDescription" style={{ paddingBottom: "5px", paddingLeft: "2px" }}>
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
@@ -85,6 +85,7 @@ const TreeMapLegend = ({
 								color: treeLegend.bcColor,
 								border: "2px solid darkgray",
 								margin: "auto",
+								marginRight: "3px"
 							}}
 							onClick={() => {
 								setColorPopOverOpen(!isColorPopoverOpen);

@@ -307,8 +307,13 @@ export const GetInputField = ({ condition, onChangeValueProps }: any) => {
             onBlur={(e: any) => {
               onChangeValueProps("target", e.target.value);
             }}
-            sx={{ marginTop: "5px" }}
             InputProps={{ ...textFieldStyleProps }}
+            sx={{ marginTop: "5px",
+              "& .MuiInputBase-root": {
+                width: "100% !important",
+                margin: "0 auto 0.5rem auto !important"
+              },
+            }}
             fullWidth
           />
         </>

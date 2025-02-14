@@ -11,7 +11,7 @@ import {
 import { ColorSchemes } from "./ColorScheme";
 import Logger from "../../../Logger";
 
-const SankeyColorControls = ({
+const SimpleCardColors = ({
   // state
   chartControls,
   tabTileProps,
@@ -40,13 +40,13 @@ const SankeyColorControls = ({
         <div
           style={{
             height: "1.25rem",
-            width: "50%",
-            marginLeft: "20px",
+            width: "75%",
             backgroundColor:
-              chartControls.properties[propKey].cardControls.valueColor,
+            chartControls.properties[propKey].cardControls.valueColor,
             color: chartControls.properties[propKey].cardControls.valueColor,
             border: "2px solid darkgray",
             margin: "auto",
+            marginRight: "0.2rem",
           }}
           onClick={() => {
             setSelectedItem("valueColor");
@@ -62,13 +62,13 @@ const SankeyColorControls = ({
         <div
           style={{
             height: "1.25rem",
-            width: "50%",
-            marginLeft: "20px",
+            width: "75%",
             backgroundColor:
               chartControls.properties[propKey].cardControls.labelColor,
             color: chartControls.properties[propKey].cardControls.labelColor,
             border: "2px solid darkgray",
             margin: "auto",
+            marginRight: "0.2rem",
           }}
           onClick={() => {
             setSelectedItem("labelColor");
@@ -84,13 +84,13 @@ const SankeyColorControls = ({
         <div
           style={{
             height: "1.25rem",
-            width: "50%",
-            marginLeft: "20px",
+            width: "75%",
             backgroundColor:
               chartControls.properties[propKey].cardControls.bgColor,
             color: chartControls.properties[propKey].cardControls.bgColor,
             border: "2px solid darkgray",
             margin: "auto",
+            marginRight: "0.2rem",
           }}
           onClick={() => {
             setSelectedItem("bgColor");
@@ -144,7 +144,4 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SankeyColorControls);
+export default connect(mapStateToProps, mapDispatchToProps)(SimpleCardColors);

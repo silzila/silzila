@@ -15,6 +15,10 @@ export interface DashBoardProps {
 	tabTileProps: TabTileStateProps;
 	tileState: TileStateProps;
 	pageSettings: any;
+	chartControls:any;
+	ColorSchemes:any;
+	theme:string;
+	
 
 	// Dispatch
 	toggleGraphSize: (tileKey: string, graphSize: boolean) => void;
@@ -28,6 +32,10 @@ export interface DashBoardProps {
 		tabId: number,
 		propIndex: number
 	) => void;
+	setTheme:(theme:string,tabId:number)=>void;
+	toggleAllTiles:(tabId:number)=>void;
+	toggleAllTabs:(tabId:number)=>void;
+	setDashColorScheme:(colorScheme:string,tabId:number)=>void;
 	setShowListofTileMenu: (value: boolean) => void;
 	setDashboardResizeColumn: (value: boolean) => void;
 	setShowDashBoardFilter: (value: boolean) => void;
@@ -38,6 +46,7 @@ export interface DashBoardProps {
 	addDashBoardFilterGroupTabTiles: (groupId: string) => void;
 	setDashBoardFilterGroupsTabTiles: (groupId: string, selectedTabTiles: any) => void;
 	deleteDashBoardSelectedTabTiles: (groupId: string, selectedTabTiles: any) => void;
+	setDashboardColorScheme: (tabId: number, colorScheme: any) => void;
 }
 
 export type DashBoardStateProps = TabStateProps2 & TabTileStateProps2 & TileStateProps2;

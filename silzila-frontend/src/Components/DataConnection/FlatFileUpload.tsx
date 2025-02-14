@@ -570,6 +570,7 @@ const FlatFileUpload = ({
                 fontSize: fontSize.medium,
                 color: palette.primary.contrastText,
                 fontWeight: "bold",
+                alignSelf: "center"
               }}
             >
               Select a File Type

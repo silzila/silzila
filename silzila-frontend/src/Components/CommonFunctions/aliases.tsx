@@ -1,3 +1,4 @@
+import { Table } from "@mui/material";
 import DataConnection from "../DataConnection/DataConnection";
 
 export type TRole =
@@ -8,7 +9,25 @@ export type TRole =
   | "creator"
   | "custom_creator"
   | "player";
+export const fromRoute={
+  dataViewer:'dataViewer',
 
+}
+export const navigatetTo={
+  home:'home',
+  login:'login',
+  updateProfile:'updateProfile',
+}
+export const AxisType={
+  Row:'Row',
+  Column:'Column',
+  Measure:'Measure',
+  Dimension:'Dimension',
+  X:'X Axis',
+  Y:'Y Axis',
+  ChartFilter:'Filter'
+
+}
 export const roles = {
   AccountAdmin: "account_admin",
   Admin: "admin",
@@ -48,6 +67,8 @@ export const messages = {
   dataset: {
     wrongName:
       "Dataset name cannot be empty and must not contain special characters except underscores (_), hyphens (-), and spaces ( ).",
+    tableWrongName: 
+      "Table name cannot be empty and must not contain special characters except underscores (_), hyphens (-), and spaces ( )."
   },
   dataConnection: {
     wrongName:
@@ -60,9 +81,28 @@ export const messages = {
   playbook: {
     wrongName:
       "Playbook name cannot be empty and must not contain special characters except underscores (_), hyphens (-), and spaces ( ).",
+      WindowFunctionRemoved:"Window functions are removed as dimensions are changed.",
   },
   workspace: {
     wrongName:
       "File name cannot be empty and must not contain special characters except underscores (_), hyphens (-), and spaces ( ).",
   },
 };
+
+export const DragFrom={
+  TABLE:99
+}
+export const DropTo={
+  MEASURE:'Measure',
+  DIMENSION:'Dimension',
+  CHART_FILTER:'Filter',
+  X:'X Axis',
+  Y:'Y Axis',
+  ROW:'Row',
+  COLUMN:'Column',
+}
+export const Area={
+  MEASURE:"Measure",
+  CHART_FILTER:"Filter",
+  TABLE:"Table",
+}

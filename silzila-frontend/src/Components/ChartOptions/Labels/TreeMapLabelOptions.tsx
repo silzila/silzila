@@ -195,17 +195,17 @@ const TreeMapLabelOptions = ({
 					}}
 					sx={SelectComponentStyle}
 					MenuProps={{
-									PaperProps: {
-										sx: {
-											"& .MuiMenuItem-root.Mui-selected": {
-												backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
-											},
-											"& .MuiMenuItem-root.Mui-selected:hover": {
-												backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
-											}
-										}
-									}
-								}}
+						PaperProps: {
+							sx: {
+								"& .MuiMenuItem-root.Mui-selected": {
+									backgroundColor: "rgba(43, 185, 187, 0.1) !important",  // Force background color												
+								},
+								"& .MuiMenuItem-root.Mui-selected:hover": {
+									backgroundColor: "rgba(43, 185, 187, 0.2) !important",  // Change hover state for selected item
+								}
+							}
+						}
+					}}
 				>
 					<MenuItem sx={menuItemStyle} value="top">
 						Top

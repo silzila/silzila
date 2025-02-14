@@ -67,7 +67,7 @@
   /* margin-left: 5px; */
   /* padding: 0px 5px; */
   color: #606060;
-  font-size: 9px;
+  font-size: 13px;
   cursor: pointer;
   position: relative;
 }
@@ -77,8 +77,9 @@
 }
 .close-container {
   position: absolute; 
+  display: flex;
   right: 5px; 
-  top: 45%; 
+  top: 55%; 
   transform: translateY(-50%);
 }
 
@@ -131,3 +132,7 @@
   height: 11.73px ;
   width: 5.31px;
 } 
+
+.top-auto{
+  top:auto !important
+}

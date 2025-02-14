@@ -18,6 +18,8 @@ import { useDispatch } from "react-redux";
 import { setWorkspaces as reduxSetWorkspaces } from "../redux/Permissions/permissions.action";
 import { isNameAllowed } from "./CommonFunctions/CommonFunctions";
 import { messages } from "./CommonFunctions/aliases";
+import { resetUser } from "../redux/UserInfo/isLoggedActions";
+import Logger from "../Logger";
 
 const WorkspaceList = () => {
   const [hoveredRowId, setHoveredRowId] = useState(null);
@@ -40,7 +42,7 @@ const WorkspaceList = () => {
       const decodedToken: any = jwtDecode(token);
       access = decodedToken.access; // Access could be 'user' or 'admin'
     } catch (error) {
-      console.error("Error decoding token:", error);
+      Logger("error", "WorkspaceList",  error);
     }
   }
 
@@ -109,16 +111,27 @@ const WorkspaceList = () => {
         },
       });
 
+
       if (response.status) {
         setWorkspaces(response.data);
+        
         sessionStorage.setItem("workspaces", JSON.stringify(response.data));
         dispatch(reduxSetWorkspaces(response.data));
       } else {
+        if(response.responseStatusCode===401){
+          dispatch(resetUser())
+          localStorage.clear()
+          setTimeout(() => {
+            navigate("/login");
+          }
+          , 1000);
+          return
+        }
         setError(response.data.detail || "Failed to fetch workspaces");
       }
       // console.log(workspacess);
     } catch (err) {
-      console.error("Error fetching data:", err);
+      Logger("error","Error fetching data:", err);
       setError("An error occurred while fetching workspaces");
     } finally {
       setIsLoading(false);
@@ -187,7 +200,7 @@ const WorkspaceList = () => {
       });
 
       if (response.status) {
-        console.log("Workspace created successfully");
+        Logger("info","Workspace created successfully");
         // mutate();
         fetchWorkspaces();
         setIsModalOpen(false);
@@ -195,11 +208,20 @@ const WorkspaceList = () => {
         setWorkspaceName("");
         setErrorMessage("");
       } else {
+        if(response.responseStatusCode===401){
+          dispatch(resetUser())
+          localStorage.clear()
+          setTimeout(() => {
+            navigate("/login");
+          }
+          , 1000);
+          return
+        }
         setErrorMessage(response.data.message || "Failed to create workspace.");
-        console.error("Failed to create workspace:", response.data.message);
+        Logger("error","Failed to create workspace:", response.data.message);
       }
     } catch (error) {
-      console.error("Error creating workspace:", error);
+      Logger("error","Error creating workspace:", error);
     } finally {
       setIsLoading(false);
     }
@@ -340,20 +362,20 @@ const WorkspaceList = () => {
         );
         setWorkspaceName(""); // Reset the workspace name
       } else if (response.status) {
-        console.log("Workspace updated successfully");
+        Logger("info","Workspace updated successfully");
         fetchWorkspaces();
         // mutate();
         setIsEditModalOpen(false);
         setWorkspaceName("");
         setEditWorkspaceId(null);
       } else {
-        console.error(
+        Logger("error",
           "Failed to update workspace:",
           response.data.detail || "Unknown error"
         );
       }
     } catch (error) {
-      console.error("Error updating workspace:", error);
+      Logger("error","Error updating workspace:", error);
     } finally {
       setIsLoading(false);
     }
@@ -430,7 +452,7 @@ const WorkspaceList = () => {
         setSeverity("error");
       }
     } catch (error) {
-      console.error("Error fetching workspace:", error);
+      Logger("error","Error fetching workspace:", error);
     } finally {
       if (!canDelete) {
         setIsLoading(false);
@@ -452,17 +474,17 @@ const WorkspaceList = () => {
         });
 
         if (response.status) {
-          console.log("Workspace deleted successfully");
+          Logger("info","Workspace deleted successfully");
           fetchWorkspaces();
           // mutate();
         } else {
-          console.error(
+          Logger("error",
             "Failed to delete workspace:",
             response.data.detail || "Unknown error"
           );
         }
       } catch (error) {
-        console.error("Error deleting workspace:", error);
+        Logger("error","Error deleting workspace:", error);
       } finally {
         setIsLoading(false);
         setShowDeleteConfirmation(false);

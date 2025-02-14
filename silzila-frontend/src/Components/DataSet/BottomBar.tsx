@@ -88,7 +88,7 @@ const BottomBar = ({
   const tablesWithoutRelation: string[] = [];
   const [viewerRestriction,setViewerRestriction]=useState<boolean>(false);
   // const {workspaceContents,SubWorkspaceContents}=useSelector((state: RootState) => state.permissions)
-  const permission=useSelector((state:RootState)=>state.dataSetState.permission);
+  // const permission=useSelector((state:RootState)=>state.dataSetState.permission);
   useEffect(() => {
       if(!editMode||!dsId)return;
       // const allContents=[...workspaceContents,...SubWorkspaceContents];
@@ -96,12 +96,12 @@ const BottomBar = ({
       // if(!selectedDs)return;
       // if(selectedDs.levelId===permissions.view)setViewerRestriction(true);
       // else if(selectedDs.roleName===roles.CustomCreator && selectedDs.levelId===permissions.view)setViewerRestriction(true);
-      if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)setViewerRestriction(true);
+      // if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)setViewerRestriction(true);
       // else if(permission.roleName===roles.CustomCreator && permission.levelId===permissions.view)setViewerRestriction(true);
-      else setViewerRestriction(false);
+      // else setViewerRestriction(false);
   
   
-    },[dsId, editMode, permission]);
+    },[dsId, editMode]);
   useEffect(() => {
     if (selectedWorkspace !== "") {
       onSendData();
@@ -238,25 +238,25 @@ const BottomBar = ({
       } else {
         apiurl = `dataset?workspaceId=${workspaceId}`;
       }
-      //for datasetFilter array sent the data in the form of array
-      const datasetFilter = datasetFilterArray.filter((item) => {
+      // for datasetFilter array sent the data in the form of array
+      const datasetFilter = datasetFilterArray.map((item) => {
         var excludeInclude: boolean =
-          item.includeexclude === false ? false : true;
-
+          item.shouldExclude === false ? false : true;
         return {
           panelName: "dataSetFilters",
           shouldAllConditionsMatch: true,
           filters: [
             {
-              filterType: item.fieldtypeoption,
+              filterType: item.filterType,
               fieldName: item.fieldName,
               tableName: item.tableName,
               dataType: item.dataType,
               uid: item.uid,
+              relativeCondition: item.filterType === "relativeFilter" ? { from: item.relativeCondition?.from ?? [], to: item.relativeCondition?.to ?? [], anchorDate: item.relativeCondition?.anchorDate === "specificDate" ? item.userSelection[0]?.toString() || "" : item.relativeCondition?.anchorDate || ""} : undefined,
               displayName: item.displayName,
-              shouldExclude: excludeInclude,
-              timeGrain: item.timeGrain,
-              operator: item.exprType,
+              shouldExclude:  excludeInclude,
+              timeGrain: item.filterType === "relativeFilter"? "date" : item.timeGrain,
+              operator: item.filterType === "pickList" ? "in" : item.operator,
               userSelection: item.userSelection,
               isTillDate: item.isStillData,
               tableId: item.tableId,
@@ -278,13 +278,13 @@ const BottomBar = ({
             Authorization: `Bearer ${token}`,
           },
           data: {
-            connectionId: isFlatFile ? null : connection,
+            connectionId: isFlatFile ? "" : connection,
             datasetName: fname,
             isFlatFileData: isFlatFile,
             dataSchema: {
-              tables: [...tablesSelectedInSidebar],
-              relationships: [...relationshipServerObj],
-              filterPanels: [...datasetFilter],
+              tables: tablesSelectedInSidebar,
+              relationships: relationshipServerObj,
+              filterPanels: datasetFilter,
             },
           },
         });
@@ -324,8 +324,9 @@ const BottomBar = ({
                 workspaceDetail.subLabel
               );
               localStorage.setItem("parentId", workspaceId);
+              const childWorkspaceName = localStorage.getItem("childWorkspaceName")
 
-              navigate(`/SubWorkspaceDetails/${workspaceId}`);
+              navigate(`/SubWorkspaceDetails/${workspaceId}`, {state: {childWorkspaceName}});
             } else {
               let workspaceDetail: any = GetWorkSpaceDetails(
                 subWorkspaceList,
@@ -384,9 +385,9 @@ const BottomBar = ({
             tablePositionX: el.tablePositionX,
             tablePositionY: el.tablePositionY,
             database: el.databaseName,
-            flatFileId: isFlatFile ? el.table_uid : null,
-            isCustomQuery: el.isCustomQuery,
-            customQuery: el.customQuery,
+            flatFileId: isFlatFile ? el.table_uid : "",
+            isCustomQuery: el.isCustomQuery || false,
+            customQuery: el.customQuery || "",
           };
         });
       const listOfStartTableNames: string[] = [];

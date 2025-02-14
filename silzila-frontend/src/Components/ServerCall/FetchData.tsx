@@ -2,11 +2,13 @@ import axios from "axios";
 import { serverEndPoint } from "./EnvironmentVariables";
 import Logger from "../../Logger";
 //import jwtDecode from "jwt-decode";
-
+import { Dispatch } from "redux";
+import { resetUser,userAuthentication } from "../../redux/UserInfo/isLoggedActions";
 type FetchDataPropType = {
 	requestType:"withData" | "noData";
 	method: string;
 	url: string;
+	dispatch?:Dispatch;
 	// TODO:need to specify types
 
 	data?: any;
@@ -16,6 +18,7 @@ type FetchDataPropType = {
 export interface IAPIResponse {
 	status: boolean;
 	data: any;
+	responseStatusCode?: number;
 }
 
 // const CheckTokenValidity = async (token) => {
@@ -40,7 +43,6 @@ export interface IAPIResponse {
 
 const FetchData = async (props: FetchDataPropType):Promise<IAPIResponse> => {
 	const { requestType, method, url, headers, data } = props;
-
 	// if (token) {
 	//     var token2 = await CheckTokenValidity(token);
 	// }
@@ -55,26 +57,37 @@ const FetchData = async (props: FetchDataPropType):Promise<IAPIResponse> => {
 		switch (requestType) {
 			case "withData":
 				axios({ method, url: serverEndPoint + url, headers, data, timeout:1000 * 10 })
-					.then(res => resolve({ status: true, data: res.data }))
+					.then(res => resolve({ status: true, data: res.data, responseStatusCode: res.status }))
 					.catch(err => {
-						Logger("error", err);
+						/**
+						 * UnAuthorized access will be handled later 
+						 * 401 - UnAuthorized
+						 */
+						Logger("info", err.response.status??"no val");
 						if (err?.response?.data) {
-							resolve({ status: false, data: err.response.data });
+							resolve({ status: false, data: err.response.data , responseStatusCode: err.response?.status});
 						} else {
-							resolve({ status: false, data: { detail: "Unknown error" } });
+							resolve({ status: false, data: { detail: "Unknown error" }, responseStatusCode: err.response?.status });
 						}
 					});
 				break;
 
 			case "noData":
 				axios({ method, url: serverEndPoint + url, headers, timeout:1000 * 10 })
-					.then(res => resolve({ status: true, data: res.data }))
+					.then(res => {
+						Logger("info", undefined,res);
+						resolve({ status: true, data: res.data, responseStatusCode: res.status })
+					})
 					.catch(err => {
+						/**
+						 * UnAuthorized access will be handled later 
+						 * 401 - UnAuthorized
+						 */
 						Logger("error", err);
 						if (err?.response?.data) {
-							resolve({ status: false, data: err.response.data });
+							resolve({ status: false, data: err.response.data ,responseStatusCode: err.response?.status});
 						} else {
-							resolve({ status: false, data: { detail: "Unknown error" } });
+							resolve({ status: false, data: { detail: "Unknown error" },responseStatusCode: err.response?.status });
 						}
 					});
 				break;

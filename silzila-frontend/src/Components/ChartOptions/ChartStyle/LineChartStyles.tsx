@@ -29,7 +29,7 @@ const LineChartStyles = ({
         <label
           htmlFor="enableDisable"
           className="enableDisableLabel"
-          style={{ marginRight: "10px" }}
+          style={{ marginRight: "10px", paddingLeft: "0" }}
         >
           Smooth Curve
         </label>

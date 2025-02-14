@@ -12,12 +12,14 @@ import {
   sortAxes,
   enableOverrideForUIDAction,
   createChartAxesForUID,
+  setMeasureAxisFields,
 } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import {
   Button,
   Divider,
   Menu,
   MenuItem,
+  Snackbar,
   Tooltip,
   styled,
   withStyles,
@@ -51,6 +53,12 @@ import { id } from "date-fns/locale";
 import { TooltipProps } from "@mui/material/Tooltip";
 import { setDisplayName } from "../ChartAxes/setDisplayName";
 import ChartsInfo from "./ChartsInfo2";
+import { AxisType, messages } from "../CommonFunctions/aliases";
+import { useDispatch } from "react-redux";
+import { AcceptRejectDialog } from "../CommonFunctions/DialogComponents";
+import { set } from "lodash";
+import SnackBar from "../SnackBar";
+import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 
 // interface PriceTagTooltipProps {
 //     text: string|undefined;
@@ -129,12 +137,19 @@ const Card = ({
   revertAxesForDm,
 }: CardProps) => {
   field.dataType = field?.dataType?.toLowerCase();
-
+  const [showPopup, setShowPopup] = useState<boolean>(false);
   var chartType =
     chartProp.properties[
       `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
     ].chartType;
-
+    const dispatch=useDispatch();
+  const getAllMeasureFields=():any[]=>{
+    let allMeasureFields: any[] = [];
+    const measure = chartProp.properties[propKey]?.chartAxes?.find((axis:any)=>axis.name===AxisType.Measure);
+    if(!measure) return allMeasureFields;
+    allMeasureFields =[...measure.fields]
+    return allMeasureFields;
+  }
   const originalIndex =
     chartType === "richText"
       ? dynamicMeasureState.dynamicMeasureProps?.[
@@ -147,8 +162,9 @@ const Card = ({
       : chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
           (item: any) => item.uId === field.uId
         );
-
-  const deleteItem = () => {
+        
+  const deleteItem = async() => {
+    let showSnackBar = false;
     if (chartType === "richText") {
       deleteDropZoneItemsForDm(propKey, bIndex, itemIndex);
     } else {
@@ -158,10 +174,27 @@ const Card = ({
       ) {
         enableOverrideForUIDAction(propKey, "");
       }
-
-      deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName);
+      if(axisTitle===AxisType.Measure){
+        deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName)
+        return
+      };
+      
+      const allMeasureFields = getAllMeasureFields();
+      
+      if(allMeasureFields.length===0|| allMeasureFields.filter((field:any)=>field.windowfn).length===0)deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName);
+      else{
+        showSnackBar=true;
+        const newMeasureFields=allMeasureFields.map((field:any)=>{
+          if(!field.windowfn)return field;
+          else return {...field,windowfn:null,displayname:fieldName(field)}
+        })
+        // console.log('newMeasureFields',newMeasureFields);
+        dispatch(setMeasureAxisFields(propKey,newMeasureFields));
+        deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName);
+      }
+      // chartPropUpdated(true);
     }
-    // chartPropUpdated(true);
+    if(showSnackBar)setShowPopup(true);
   };
 
   let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
@@ -245,7 +278,7 @@ const Card = ({
   };
 
   const handleOverrideOnClick = (event: any, optionName: any) => {
-    if (optionName.id == "override") {
+    if (optionName.id === "override") {
       setAnchorEl(null);
       setOverrideFn(true);
       setShowTooltip(false);
@@ -450,7 +483,10 @@ const Card = ({
   var menuSelectedStyle = {
     fontSize: "12px",
     padding: "2px 1.5rem",
-    backgroundColor: "rgba(25, 118, 210, 0.08)",
+    backgroundColor: "rgba(175, 153, 219,0.3)",
+    "&:hover": {
+      backgroundColor: "rgba(175, 153, 219, 0.5)",
+    },
   };
 
   // Properties and behaviour when a card is dragged
@@ -465,6 +501,7 @@ const Card = ({
       // type: "card",
       bIndex,
       originalIndex,
+      dragFrom:axisTitle
     },
     type: "card",
 
@@ -476,6 +513,22 @@ const Card = ({
           revertAxesForDm(propKey, bIndex, uId, originalIndex);
         } else {
           revertAxes(propKey, bIndex, uId, originalIndex, currentChartAxesName);
+        }
+      }
+      else{
+        if(axisTitle!==AxisType.Measure || axisTitle!==AxisType.ChartFilter){
+          let showSnackBar = false;
+          const allMeasureFields = getAllMeasureFields();
+          if(allMeasureFields.length===0|| allMeasureFields.filter((field:any)=>field.windowfn).length===0)return
+          else{
+            showSnackBar=true;
+            const newMeasureFields=allMeasureFields.map((field:any)=>{
+              if(!field.windowfn)return field;
+              else return {...field,windowfn:null,displayname:fieldName(field)}
+            })
+            dispatch(setMeasureAxisFields(propKey,newMeasureFields));
+          }
+          if(showSnackBar)setShowPopup(true);
         }
       }
     },
@@ -507,10 +560,10 @@ const Card = ({
   });
 
   useEffect(() => {
-    if (chartProp.properties[propKey].enableOverrideForUID === "") {
+    if (chartProp.properties[propKey]?.enableOverrideForUID === "") {
       setOverrideFn(false);
     }
-  }, [chartProp.properties[propKey].enableOverrideForUID]);
+  }, [chartProp.properties[propKey]?.enableOverrideForUID]);
 
   useEffect(() => {
     //If two dimensional charts dimension, row, column, distribution without any fields, then window function will get disable
@@ -636,7 +689,7 @@ const Card = ({
                       ...(opt?.id === field?.agg && menuSelectedStyle),
                     }}
                     key={opt?.id}
-                    disabled={isItemDisabled(opt.name)}
+                    disabled={opt?.name ? isItemDisabled(opt?.name) : true}
                   >
                     {opt?.name}
                   </MenuItem>
@@ -709,7 +762,7 @@ const Card = ({
         chartType === "simplecard"
           ? null
           : windowfn?.length > 0
-          ? [...windowfn.filter((item: any) => item.id === "windowfn")]?.map(
+          ? [...windowfn.filter((item: any) => item?.id === "windowfn")]?.map(
               (opt: any, idx: number) => {
                 return (
                   <div style={{ display: "flex" }} key={idx}>
@@ -734,9 +787,9 @@ const Card = ({
                         padding: "2px 1.5rem",
                         width: "100%",
                       }}
-                      key={opt.id}
+                      key={opt?.id}
                     >
-                      {opt.name}
+                      {opt?.name || "Unnamed Option"}{" "}
                     </MenuItem>
                   </div>
                 );
@@ -747,8 +800,9 @@ const Card = ({
         {chartType === "simplecard"
           ? null
           : overRideMenuList?.length > 0
-          ? [...overRideMenuList].map((opt: any, idx: number) => {
-              return (
+          ? overRideMenuList
+              .filter((opt: any) => opt && opt.id) // Ensure only valid objects are processed
+              .map((opt: any, idx: number) => (
                 <div style={{ display: "flex" }} key={idx}>
                   <span
                     style={{
@@ -757,14 +811,14 @@ const Card = ({
                       position: "absolute",
                     }}
                   >
-                    {(opt.id == "override" && field.override) ||
-                    (opt.id == "disableFilter" &&
-                      field.disableReportFilterForOverride) ? (
+                    {(opt.id === "override" && field?.override) ||
+                    (opt.id === "disableFilter" &&
+                      field?.disableReportFilterForOverride) ? (
                       <IoMdCheckmark />
                     ) : null}
                   </span>
                   <MenuItem
-                    disabled={opt.id == "disableFilter" && !field.override}
+                    disabled={opt.id === "disableFilter" && !field?.override}
                     onClick={(e: any) => handleOverrideOnClick(e, opt)}
                     sx={{
                       fontSize: "12px",
@@ -776,11 +830,16 @@ const Card = ({
                     {opt.name}
                   </MenuItem>
                 </div>
-              );
-            })
+              ))
           : null}
 
-        {(windowfn?.length !== 0 || axisTitle === "Row") && (
+        {(windowfn?.length !== 0 ||
+          axisTitle === "Row" ||
+          axisTitle === "Column" ||
+          axisTitle === "Dimension" ||
+          axisTitle === "X Axis" ||
+          axisTitle === "Y Axis" ||
+          axisTitle === "Distribution") && (
           <MenuItem
             onClick={() => {
               handleClose("rename");
@@ -817,7 +876,9 @@ const Card = ({
     <div
       className="axisField"
       ref={(node: any) => drag(drop(node))}
-      style={windowFunction || overrideFn ? { border: "1.5px solid blue" } : {}}
+      style={
+        windowFunction || overrideFn ? { border: "1.5px solid #2bb9bb" } : {}
+      }
       onMouseOver={(event: any) => {
         setShowOptions(true);
         if (event.target.classList.contains("columnName"))
@@ -846,7 +907,14 @@ const Card = ({
         <CloseRoundedIcon style={{ fontSize: "13px", margin: "auto" }} />
       </button>
 
-      <span className="columnName">{field.fieldname}</span>
+      <span
+        className="columnName"
+        style={{
+          fontWeight: "normal",
+          paddingTop: "6px"
+        }}
+      >{field.fieldname}
+      </span>
 
       {/* window function have any values in state, then window icon will get enable */}
       {chartType === "gauge" ||
@@ -912,31 +980,48 @@ const Card = ({
         </button>
       ) : null}
 
-      <span className="columnPrefix">
-        {field.agg ? AggregatorKeys[field.agg] : null}
+      {field.isAggregated ? (
+        <span style={{ paddingRight: "20px" }} className="columnPrefix">
+          Agg
+        </span>
+      ) : (
+        <>
+          <span style={{
+            paddingTop: "3.5px",
+            paddingRight: "2px",
+          }} className="columnPrefix">
+            {field.agg ? AggregatorKeys[field.agg] : null}
 
-        {field.timeGrain && field.agg ? (
-          <React.Fragment>, </React.Fragment>
-        ) : null}
-        {field.timeGrain ? AggregatorKeys[field.timeGrain] : null}
-        {field.prefix ? `${field.prefix}` : null}
-      </span>
+            {field.timeGrain && field.agg ? (
+              <React.Fragment>, </React.Fragment>
+            ) : null}
+            {field.timeGrain ? AggregatorKeys[field.timeGrain] : null}
+            {field.prefix ? `${field.prefix}` : null}
+          </span>
+        </>
+      )}
+
       {/* <span className="columnPrefix"> {field.prefix ? `${field.prefix}` : null}</span> */}
-      <button
-        type="button"
-        className="buttonCommon columnDown"
-        onClick={(e: any) => {
-          handleClick(e);
-        }}
-        title="Click for Menu Options"
-        style={
-          showOptions ? { visibility: "visible" } : { visibility: "hidden" }
-        }
-      >
-        <KeyboardArrowDownRoundedIcon
-          style={{ fontSize: "14px", margin: "auto" }}
-        />
-      </button>
+      {field.isAggregated ? (
+        <div style={{ marginRight: "4px" }}></div>
+      ) : (
+        <button
+          type="button"
+          className="buttonCommon columnDown"
+          onClick={(e: any) => {
+            handleClick(e);
+          }}
+          title="Click for Menu Options"
+          style={
+            showOptions ? { visibility: "visible", paddingLeft: "1px", } : { visibility: "hidden", paddingLeft: "1px", }
+          }
+        >
+          <KeyboardArrowDownRoundedIcon
+            style={{ fontSize: "14px", margin: "auto" }}
+          />
+        </button>
+      )}
+
       <RenderMenu />
       {windowFunction ? (
         <WindowFunction
@@ -973,6 +1058,7 @@ const Card = ({
           style={{ display: "inline-block", fontSize: 0, lineHeight: 0 }}
         ></span>
       </CustomTooltip>
+      <SnackBar show={showPopup} message={messages.playbook.WindowFunctionRemoved} onClose={()=>setShowPopup(false)}/>
     </div>
   ) : null;
 };

@@ -28,6 +28,7 @@ export const updateQueryResult = (propKey: string, query: string | any) => {
 };
 
 export const setColorScheme = (propKey: string, color: string) => {
+  console.log(color)
   return { type: "CHANGE_COLOR_SCHEME", payload: { propKey, color } };
 };
 
@@ -148,7 +149,7 @@ export const updateCrossTabStyleOptions = (
 export const updateCrossTabHeaderLabelOptions = (
   propKey: string,
   option: string | number,
-  value: string | number |  string[]
+  value: string | number | string[]
 ) => {
   return {
     type: "UPDATE_CROSSTAB_HEADER_LABEL_OPTIONS",
@@ -395,12 +396,6 @@ export const updateSankeyStyleOptions = (
 export const updateRichText = (propKey: string, value: string | number) => {
   return { type: "UPDATE_RICH_TEXT", payload: { propKey, value } };
 };
-export const updateRichTextDynamicValue=(propKey:string,value:string|number)=>{
-  return {
-    type:"UPDATE_RICH_TEXT_DYNAMIC_VALUE",
-    payload:{propKey, value}
-  }
-}
 
 export const updateRichTextOnAddingDYnamicMeasure = (
   propKey: string,
@@ -497,3 +492,10 @@ export const Showhide= (propKey: string, value: string | any) => {
 		payload: { propKey, value },
 	};
 };
+
+export const updateRichTextDynamicValue=(propKey:string,value:string|number)=>{
+  return {
+    type:"UPDATE_RICH_TEXT_DYNAMIC_VALUE",
+    payload:{propKey, value}
+  }
+}

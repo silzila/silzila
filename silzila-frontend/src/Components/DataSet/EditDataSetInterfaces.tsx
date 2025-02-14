@@ -26,11 +26,17 @@ export interface EditDatasetProps {
 	setCreateDsFromFlatFile: (value: boolean) => void;
 }
 export interface CanvasIndividualTableProps {
-	id: string;
+    id: string;
 	database: string;
 	schema: string;
 	table: string;
 	alias: string;
 	tablePositionX: number;
 	tablePositionY: number;
+	isCustomQuery?: boolean;
+	customQuery?: string;
+}
+export interface IFlatIdTableIdMap{
+	tableId:string,
+	flatFileId:string
 }

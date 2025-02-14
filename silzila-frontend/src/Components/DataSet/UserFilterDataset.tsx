@@ -5,7 +5,6 @@ import { UserFilterDatasetProps } from "./UserFilterDatasetInterfaces";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { DataSetStateProps } from "../../redux/DataSet/DatasetStateInterfaces";
 import FilterElement from "./FilterElement";
-import { AnyAction } from "redux";
 
 const UserFilterDataset = ({
   //props
@@ -17,17 +16,17 @@ const UserFilterDataset = ({
   // list of fliters addedby user for dataset
   filters,
   setDataSetFilterArray,
-}: any) => {
+}: UserFilterDatasetProps) => {
   const getFlatFileIdByTableId=(tableId:string):string=>{
     const found = tableFlatFileMap.find((item:any)=> item.tableId === tableId);
   return found ? found.flatFileId : "";
   }
   return (
     <div
-      style={{ display: "flex", flexDirection: "column", marginTop: "25px" }}
+      style={{ display: "flex", flexDirection: "column", margin: "25px 5px auto" }}
     >
       {filters && filters.length > 0 &&
-        filters.map((filter:AnyAction) => {
+        filters.map((filter) => {
           return ((
             <FilterElement
               key={filter.uid}

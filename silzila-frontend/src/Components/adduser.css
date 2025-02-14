@@ -323,7 +323,7 @@ html, body {
 .profile-input-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 1rem;
+    /* margin-bottom: 1rem; */
     border-radius: 5px;
     width: 330px;
      
@@ -395,7 +395,7 @@ html, body {
     justify-content:space-evenly;
     border: 1px solid transparent;
     width: 100%;
-    margin-top: 25px;
+    margin-top: 9px;
 }
 .profile-cancel-button, .profile-add-button {
     height: 32px;

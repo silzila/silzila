@@ -54,8 +54,7 @@ export interface ChartFilterGroupsContainerProps {
 	dashBoardGroup: any;
 	tileState: any;
 	tabTileProps: any;
-	deleteFilterGroupFromChartFilterGroup: (groupId: string) => void;
-	delteFilterGroupFromDashBoardFilterGroup: (groupId: string) => void;
+
 	addChartFilterGroupName: (
 		selectedDatasetID: string,
 		groupId: string,
@@ -82,6 +81,7 @@ export interface ChartFilterGroupsProps {
 	tileState: any;
 	tabTileProps: any;
 	dashBoardGroup: any;
+	calculations: any;
 
 	updateChartFilterGroupsFilters: (
 		selectedDatasetID: string,
