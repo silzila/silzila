@@ -42,7 +42,7 @@
 
 .dashboardLayoutControl {
   flex: 1;
-  border: 1px solid red;
+  /* border: 1px solid red; */
 }
 
 .listOfGraphs {
@@ -70,8 +70,8 @@
 
 .themeSelector {
   font-family: Arial, sans-serif;
-  font-size: 16px;
-  border: 1px solid red;
+  font-size: 1rem;
+  padding-inline: 0.5rem;
 }
 
 .checkboxOption {
@@ -116,12 +116,10 @@
 
 /* Style the container */
 .checkboxOption {
-  margin-left: 25px;
-  margin-bottom: 15px;
-  font-size: 15px;
   position: relative;
   display: flex;
   align-items: center;
+  font-size: 15px;
 }
 
 /* Hide the default radio button */
@@ -134,7 +132,6 @@
   position: relative;
   padding-left: 30px;
   cursor: pointer;
-  color: #616164;
 }
 
 /* Create the custom radio circle */
