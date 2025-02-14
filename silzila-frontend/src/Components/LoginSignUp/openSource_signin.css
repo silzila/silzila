@@ -1,6 +1,6 @@
 * {
   margin: 0;
-  padding: 0;
+  /* padding: 0; */
   box-sizing: border-box;
 }
 .container-login {
@@ -75,7 +75,7 @@
 form {
   display: flex;
   flex-direction: column;
-  font-family: Axiforma Light; /*, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, sans-serif;*/
+  /* font-family: Axiforma Light; , system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, sans-serif; */
 }
 
 .side-by-side {
@@ -98,10 +98,10 @@ input {
     Segoe UI Symbol, sans-serif;
 }
 
-input:focus {
+/* input:focus {
   border: 1px solid #2bb9bb;
   outline: #2bb9bb;
-}
+} */
 
 .button-tab {
   padding: 10px;

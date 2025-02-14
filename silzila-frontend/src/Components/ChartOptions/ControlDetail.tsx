@@ -140,19 +140,15 @@ const ControlDetail = ({
         } else {
           return <ChartFormat chartType={chartType} />;
         }
-      case "Conditional Formatting":
+      case "Cond.Form":
+        //   return <TableConditionalFormating />;
+        // case "Conditional Formatting":
         if (chartType === "richText") {
           return <DynamicMeasureConditionalFormattingComponent />;
         } else if (chartType === "simplecard") {
           return <SimplecardConditionalFormatting />;
         } else {
           return <TableConditionalFormating />;
-        }
-      case "Show/Hide":
-        if (chartType === "crossTab") {
-          return <ShowHide />;
-        } else {
-          return <ShowHide />;
         }
       case "Sort":
         if (chartType === "crossTab") {

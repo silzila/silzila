@@ -1,24 +1,19 @@
 // This component provides individual dropzone
 // Each Dropzone can have allowed number of cards.
 // Cards can be moved between dropzones & also sorted within a dropzone
+
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import {
-  FormControl,
   ListItemText,
   MenuItem,
-  Select,
   Tooltip,
   Typography,
   Menu,
-  Button,
   Divider,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
-import Collapse from "@mui/material/Collapse";
-import List from "@mui/material/List";
-import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ChartFilterGroups from "./ChartFilterGroups";
 import { useState, useEffect, useRef } from "react";
@@ -56,8 +51,8 @@ import {
   AcceptRejectDialog,
   NotificationDialog,
 } from "../CommonFunctions/DialogComponents";
-import { text } from "stream/consumers";
 import { setSelectedControlMenu } from "../../redux/TabTile/TabTileActionsAndMultipleDispatches";
+import { fontSize, palette } from "../../";
 const ChartFilterGroupsContainer = ({
   // props
   propKey,
@@ -91,7 +86,6 @@ const ChartFilterGroupsContainer = ({
   let selectedFilterGroups: any = [];
   const [anchorEl, setAnchorEl] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const [openAlert, setOpenAlert] = useState(false);
   const filterGroupToBeDeleted = useRef<{ id: string; name: string } | null>(
     null
   );
@@ -129,6 +123,7 @@ const ChartFilterGroupsContainer = ({
   };
 
   const handleCBChange = (event: any) => {
+    console.log(event.target.name, event.target.checked);
     if (event.target.checked) {
       if (fromDashboard) {
         addDashBoardFilterGroupTabTiles(event.target.name);
@@ -190,7 +185,7 @@ const ChartFilterGroupsContainer = ({
   ]);
 
   /* getting names of selected filter groups to store the names in filterGropNamelist 
-	state  to give it as a value for choose group dropdown when user select or deselect filtergrops in tile */
+  state  to give it as a value for choose group dropdown when user select or deselect filtergrops in tile */
   useEffect(() => {
     if (chartGroup?.tabTile[propKey]) {
       let temp = chartGroup?.tabTile[propKey].map((el: any) => {
@@ -210,19 +205,38 @@ const ChartFilterGroupsContainer = ({
     useState<string[]>(["No group selected"]);
 
   /* getting names of selected filter group of dashboard to store the names in dashboardFilterGroupNamelist 
-	state  to give it as a value for choose group dropdown of dashboard when user select or deselect filtergrops in dashboard */
+  state  to give it as a value for choose group dropdown of dashboard when user select or deselect filtergrops in dashboard */
 
-
-	useEffect(() => {
-		if (dashBoardGroup.groups.length > 0) {
-			const selectedDashboardFilterGropsNames = dashBoardGroup.groups.map((el: any) => {
-				return chartGroup.groups[el].name;
-			});
-			setDashboardFilterGroupNamelist(selectedDashboardFilterGropsNames);
-		} else {
-			setDashboardFilterGroupNamelist(["No group selected"]);
-		}
-	}, [dashBoardGroup.groups]);
+  useEffect(() => {
+    if (dashBoardGroup.groups.length > 0) {
+      const selectedDashboardFilterGropsNames = dashBoardGroup.groups.map(
+        (el: any) => {
+          return chartGroup.groups[el].name;
+        }
+      );
+      setDashboardFilterGroupNamelist(selectedDashboardFilterGropsNames);
+    } else {
+      setDashboardFilterGroupNamelist(["No group selected"]);
+    }
+  }, [dashBoardGroup.groups]);
+  const [openAlert, setOpenAlert] = useState(false);
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        width: 180,
+      },
+    },
+  };
+  /**
+   *
+   * selected FilterGroup  will be deleted from
+   * > chartFilterGroup.groups
+   * > For  each tiles in chartFilterGroup.tabTile if selected filterGroup is in any tile then it will be deleted from that tile
+   *
+   * >
+   *
+   *
+   */
   const deleteFilterGroup = () => {
     if (!filterGroupToBeDeleted.current) return;
     if (datasetGroupList.length === 1) {
@@ -239,154 +253,265 @@ const ChartFilterGroupsContainer = ({
     setOpenDialog(false);
     setAnchorEl(null);
   };
-	const MenuProps = {
-		PaperProps: {
-			style: {
-				width: 180,
-			},
-		},
-	};
-	return (
-		<div className="chartFilterGroupContainer">
-			<div className="chartFilterGroupcontainersHead">
-				<div>
-					<span className="chooseGroupDropDownContainer">
-						<Typography sx={{ fontSize: "14px", textAlign: "left", color: "grey" }}>
-							Choose Group
-						</Typography>
-						{fromDashboard ? (
-							<Tooltip title="Hide">
-								<KeyboardArrowUpIcon
-									sx={{
-										fontSize: "16px",
-										float: "right",
-										color: "grey",
-										marginRight: "10px",
-									}}
-									// onClick={() => setShowDashBoardFilter(false)}
-								/>
-							</Tooltip>
-						) : null}
-					</span>
-					<FormControl sx={{ mt: 1, width: fromDashboard ? 212 : 175 }}>
-						<Select
-							labelId="demo-multiple-checkbox-label"
-							id="demo-multiple-checkbox"
-							multiple
-							value={
-								fromDashboard ? dashboardFilterGroupNamelist : filterGroupNamelist
-							}
-							renderValue={selected => selected.join(", ")}
-							MenuProps={MenuProps}
-							sx={{
-								height: "1.8rem",
-								fontSize: "13px",
-								color: "grey",
+  const MinimizeComponent = () => {
+    return (
+      <Tooltip title="Hide">
+        <KeyboardArrowUpIcon
+          sx={{
+            fontSize: "18px",
+            float: "right",
+            // marginRight: "0.75rem"
+            // marginRight: "1rem",
+          }}
+          onClick={() => setMenu("")}
+        />
+      </Tooltip>
+    );
+  };
+  return (
+    <div className="chartFilterGroupContainer">
+      <div
+        style={{
+          color: " #404040",
+          fontWeight: "600",
+          padding: "0 0.5rem 0 0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          fontSize: "0.875rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+        >
+          <span style={{ fontSize: fontSize.large, color: " #404040" }}>
+            Report Filter
+          </span>
+        </div>
 
-								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-									borderColor: "#2bb9bb",
-									color: "#2bb9bb",
-								},
+        <div
+          style={{
+            // float: "right",
+            display: "flex",
+            columnGap: "5px",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            marginRight: "0.75rem",
+            // borderTop: "2px solid #d3d3d3"
+          }}
+        >
+          <MoreVertIcon
+            onClick={(event) => {
+              // @ts-ignore
+              setAnchorEl(event.currentTarget);
+            }}
+            style={{
+              height: "16px",
+              width: "16px",
+              color: palette.primary.contrastText,
+            }}
+          />
+          <MinimizeComponent />
 
-								"&.Mui-focused .MuiSvgIcon-root ": {
-									fill: "#2bb9bb !important",
-								},
-							}}
-						>
-							{datasetGroupList?.map((item: string) => (
-								<MenuItem
-									key={item}
-									value={chartGroup.groups[item].name}
-									sx={{
-										height: "30px",
-										padding: "2px 1rem 2px 0.5rem",
-										"&.Mui-selected": {
-											backgroundColor: "rgba(43, 185, 187, 0.1)", // Selected option bg color
-										},											
-										"&.Mui-selected:hover": {
-											backgroundColor: "rgba(43, 185, 187, 0.2)", // Hover bg color for selected option
-										},
-										"& .MuiTypography-root": {
-											fontSize: "14px",
-										},
-									}}
-								>
-									<Checkbox
-										disabled={
-											fromDashboard
-												? tabState.tabs[tabTileProps.selectedTabId]
-														.tilesInDashboard.length > 0
-													? false
-													: true
-												: false
-										}
-										checked={selectedFilterGroups.includes(item)}
-										name={item}
-										style={{
-											transform: "scale(0.7)",
-											paddingRight: "0px",
-											marginRight: "10px",
-										}}
-										sx={{
-											"&.Mui-checked": {
-												color: "#2bb9bb",
-											},
-										}}
-										onChange={e => handleCBChange(e)}
-									/>
-									<ListItemText primary={chartGroup.groups[item].name} />
-								</MenuItem>
-							))}
-						</Select>
-					</FormControl>
-				</div>
+          {/**
+          Menu  will appear when  user click on more icon
+           */}
+          <Menu
+            id="basic-menu"
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={() => {
+              setAnchorEl(null);
+            }}
+            slotProps={{
+              paper: {
+                style: {
+                  width: "28ch",
+                },
+              },
+            }}
+            sx={{}}
+            MenuListProps={{
+              "aria-labelledby": "basic-button",
+            }}
+          >
+            <>
+              <MenuItem>
+                <Typography
+                  variant="subtitle1"
+                  component="div"
+                  sx={{
+                    marginInline: "1rem",
+                    fontWeight: "700",
+                    color: "text.secondary",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  Available Filter Groups
+                </Typography>
+              </MenuItem>
+              {datasetGroupList?.length > 0 ? (
+                datasetGroupList.map((filterGroupId: string, index: number) => {
+                  return (
+                    <MenuItem
+                      key={index}
+                      sx={{
+                        height: "30px",
+                        display: "flex",
+                        justifyContent: "flex-start",
+                        textAlign: "left",
+                      }}
+                    >
+                      <label>
+                        <Checkbox
+                          size="small"
+                          disabled={
+                            fromDashboard
+                              ? tabState.tabs[tabTileProps.selectedTabId]
+                                  .tilesInDashboard.length > 0
+                                ? false
+                                : true
+                              : false
+                          }
+                          checked={selectedFilterGroups.includes(filterGroupId)}
+                          name={filterGroupId}
+                          onChange={(e) => {
+                            handleCBChange(e);
+                          }}
+                          sx={{
+                            "&.Mui-checked": {
+                              color: "#2bb9bb",
+                            },
+                          }}
+                        />
+                      </label>
+                      <ListItemText
+                        primary={chartGroup.groups[filterGroupId].name}
+                        sx={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          minWidth: "60px",
+                        }}
+                      />
+                      <Tooltip
+                        title={
+                          datasetGroupList.length === 1 ? "Disabled" : "delete"
+                        }
+                      >
+                        <IconButton
+                          aria-label="delete"
+                          sx={{
+                            "&:hover .MuiSvgIcon-root": {
+                              color: "red",
+                            },
+                          }}
+                          disabled={index === 0}
+                          onClick={() => {
+                            filterGroupToBeDeleted.current = {
+                              id: filterGroupId,
+                              name: chartGroup.groups[filterGroupId].name,
+                            };
+                            setOpenDialog(true);
+                          }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </MenuItem>
+                  );
+                })
+              ) : (
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  No Filter Group is available create a new one
+                </Typography>
+              )}
+            </>
+            {!fromDashboard ? (
+              <>
+                <Divider />
+                <MenuItem
+                  sx={{
+                    backgroundColor: "#2bb9bb",
+                    "&:hover": {
+                      backgroundColor: "#50d5d7",
+                    },
+                    marginInline: "1.8rem",
+                    paddingRight: "0",
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: "0.5rem",
+                    borderRadius: "5px",
+                  }}
+                  onClick={(e) => {
+                    if (
+                      !(selectedFilterGroups && selectedFilterGroups.length > 0)
+                    ) {
+                      addChartFilterTabTileName(selectedDatasetID, propKey);
+                    }
 
-				{!fromDashboard ? (
-					<div
-						title="Create New Filter Group"
-						className="addFilterGroupButton"
-						onClick={e => {
-							if (!(selectedFilterGroups && selectedFilterGroups.length > 0)) {
-								addChartFilterTabTileName(selectedDatasetID, propKey);
-							}
+                    //let newGroupName = "Filter Group " + ((datasetGroupList?.length + 1) || 1);
+                    let numOfGroups = 0;
 
-							//let newGroupName = "Filter Group " + ((datasetGroupList?.length + 1) || 1);
-							let numOfGroups = 0;
+                    if (
+                      Object.keys(chartGroup.groups) &&
+                      Object.keys(chartGroup.groups).length > 0
+                    ) {
+                      numOfGroups = Object.keys(chartGroup.groups).length;
+                    }
 
-							if (
-								Object.keys(chartGroup.groups) &&
-								Object.keys(chartGroup.groups).length > 0
-							) {
-								numOfGroups = Object.keys(chartGroup.groups).length;
-							}
-
-							let newGroupName = getNewGroupName(numOfGroups + 1);
-							let groupId =
-								selectedDatasetID +
-								"_" +
-								newGroupName +
-								new Date().getMilliseconds();
-							addChartFilterGroupName(selectedDatasetID, groupId, newGroupName);
-							collapseOtherGroups();
-							updateChartFilterSelectedGroups(propKey, groupId);
-						}}
-					>
-						<AddIcon />
-					</div>
-				) : null}
-			</div>
-			<div>
-				{showFilters.map((group: groupProp, indx: number) => (
-					<ChartFilterGroups
-						key={indx}
-						propKey={propKey}
-						group={group}
-						fromDashboard={fromDashboard}
-					></ChartFilterGroups>
-				))}
-			</div>
-      		
+                    let newGroupName = getNewGroupName(numOfGroups + 1);
+                    let groupId =
+                      selectedDatasetID +
+                      "_" +
+                      newGroupName +
+                      new Date().getMilliseconds();
+                    addChartFilterGroupName(
+                      selectedDatasetID,
+                      groupId,
+                      newGroupName
+                    );
+                    collapseOtherGroups();
+                    updateChartFilterSelectedGroups(propKey, groupId);
+                    setAnchorEl(null);
+                  }}
+                >
+                  <Typography variant="body2" sx={{ color: "white" }}>
+                    Add New Group
+                  </Typography>
+                  <ListItemIcon>
+                    <AddIcon htmlColor="white" />
+                  </ListItemIcon>
+                </MenuItem>
+              </>
+            ) : null}
+          </Menu>
+        </div>
+      </div>
+      {/* <div className="chartFilterGroupcontainersHead">
+        <div></div>
+      </div> */}
+      <div
+        style={{
+          padding: "0px 0.5rem 0px 0px",
+          width: "99%",
+        }}
+      >
+        {showFilters.map((group: groupProp, indx: number) => (
+          <ChartFilterGroups
+            key={indx}
+            propKey={propKey}
+            group={group}
+            fromDashboard={fromDashboard}
+          ></ChartFilterGroups>
+        ))}
+      </div>
       <AcceptRejectDialog
+        varient="animated"
         open={openDialog}
         acceptFunction={deleteFilterGroup}
         rejectFunction={() => {
@@ -418,6 +543,20 @@ const ChartFilterGroupsContainer = ({
         ]}
         acceptText="Delete"
         rejectText="Cancel"
+        acceptTransition={{
+          transitionTime: "0.2s",
+          backgroundColor: "secondary.contrastText",
+          color: "primary.main",
+          hoverBackgroundColor: "primary.main",
+          hoverColor: "secondary.contrastText",
+        }}
+        rejectTransition={{
+          transitionTime: "0.2s",
+          backgroundColor: "secondary.contrastText",
+          color: "red",
+          hoverBackgroundColor: "red",
+          hoverColor: "secondary.contrastText",
+        }}
       />
 
       <NotificationDialog
@@ -433,7 +572,6 @@ const ChartFilterGroupsContainer = ({
       />
     </div>
   );
-
 };
 
 const mapStateToProps = (

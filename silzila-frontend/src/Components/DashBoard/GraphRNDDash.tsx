@@ -14,14 +14,27 @@ import {
   updateDashGraphSize,
 } from "../../redux/TabTile/TabActions";
 import { Rnd } from "react-rnd";
+import {ColorSchemes} from "../ChartOptions/Color/ColorScheme";
+
+interface GraphRNDDashProps {
+  backgroundColor: string;
+  colorScheme: string; // Accept backgroundColor prop from parent
+  softUI:boolean;// Other props like chart data, etc.
+}
 
 const GraphRNDDash = ({
   style,
   setStyle,
   style2,
 
+  backgroundColor,  // Background color received as a prop
+  setBackgroundColor,  // If you need to change background color dynamically
+
+  
+  softUI,
   tabId,
   boxDetails,
+  colorScheme,
 
   updateDashGraphPos,
   updateDashGraphSz,
@@ -37,13 +50,50 @@ const GraphRNDDash = ({
   const dragGridY = gridSize.y;
   const resizeGridX = gridSize.x;
   const resizeGridY = gridSize.y;
-
+  console.log("GraphRNDDash",softUI)
   const [hovering, setHovering] = useState<boolean>(false);
+  const [selectedScheme, setselectedScheme]=useState(colorScheme)
+  const skeuomorphicStyles = softUI
+    ? {
+      borderRadius: "12px",
+      backgroundColor: backgroundColor,
+      transistion: "all 0.3s ease-in-out",
+      textShadow:"2px 2px 7px rgba(0,0,0,0.2)",
+      fontSize:"16px",
+      }
+    : {};
+
+const extendedStyle = {
+  ...style,
+  backgroundColor:backgroundColor,
+  ...(boxDetails.highlight || hovering ? skeuomorphicStyles : {}),
+};
+
+
+const extendedStyle2 = {
+  ...style2,
+  ...(boxDetails.highlight || hovering ? skeuomorphicStyles : {}),
+};
+
+
+const innerSkeuomorphicStyles = softUI
+? {
+  //boxShadow: `
+        //inset 6px 6px 20px rgba(256, 256, 256, 0.6),   /* Bottom-right shadow */
+        //inset -6px -6px 20px rgba(190, 190, 190, 0.6),  /* Top-left shadow */
+        //inset 6px -6px 20px rgba(190, 190, 190, 0.6),  /* Bottom-left shadow */
+       // inset -6px 6px 20px rgba(190, 190, 190, 0.6) /* Top-right shadow */
+      //`,
+    
+    borderRadius:"3px",
+  }
+: {};
+
 
   useEffect(() => {
     if (!boxDetails.highlight) setHovering(false);
   }, [boxDetails.highlight]);
-
+ 
   return (
     // Drag and resize component
     <Rnd
@@ -68,7 +118,8 @@ const GraphRNDDash = ({
       dragGrid={[dragGridX, dragGridY]}
       resizeGrid={[resizeGridX, resizeGridY]}
       // Compute the width * height based on number of background grids each component takes
-      style={boxDetails.highlight || hovering ? style2 : style}
+      //style={boxDetails.highlight || hovering ? style2 : style}
+      style={boxDetails.highlight || hovering ? extendedStyle2 : extendedStyle}
       size={{
         width: boxDetails.width * gridSize.x,
         height: boxDetails.height * gridSize.y,
@@ -86,7 +137,7 @@ const GraphRNDDash = ({
           (d.lastY - 80) / gridSize.y
           // (d.lastY - 60) / gridSize.y
         );
-        setStyle({ ...style, border: "1px solid transparent" });
+        setStyle({ ...style, border: "1px solid gray" });
       }}
       onResize={(e: any, direction: any, ref: any, position: any) => {
         var width = ref.style.width.replace("px", "");
@@ -126,14 +177,14 @@ const GraphRNDDash = ({
           widthInt / gridSize.x,
           heightInt / gridSize.y
         );
-        setStyle({ ...style, border: "1px solid transparent" });
+        setStyle({ ...style, border: "1px solid #616164" });
       }}
       dragHandleClassName="dragHeader"
     >
       {/* <div className="rndObject" propKey={boxDetails.propKey}> */}
 
       {chartProp.properties[boxDetails.propKey].chartType === "simplecard" ? (
-        <div className="rndObject">
+        <div className="rndObject" style={softUI ? skeuomorphicStyles : {}}>
           <div
             className="dragHeader"
             style={{
@@ -147,6 +198,7 @@ const GraphRNDDash = ({
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
+              backgroundColor:backgroundColor,
             }}
           >
             <div
@@ -163,7 +215,7 @@ const GraphRNDDash = ({
           </div>
         </div>
       ) : (
-        <div className="rndObject">
+        <div className="rndObject" style={softUI ? skeuomorphicStyles : {}}>
           <div
             className="dragHeader"
             style={
@@ -173,12 +225,14 @@ const GraphRNDDash = ({
                     fontSize:
                       chartProp.properties[boxDetails.propKey].titleOptions
                         .fontSize,
+                    backgroundColor:!backgroundColor? "white":backgroundColor
                   }
                 : {
                     cursor: "move",
                     fontSize:
                       chartProp.properties[boxDetails.propKey].titleOptions
                         .fontSize,
+                        backgroundColor:!backgroundColor? "white":backgroundColor
                     // fontSize:
                     //   (parseInt(
                     //     tabState.tabs[tabId].dashTilesDetails[
@@ -189,6 +243,7 @@ const GraphRNDDash = ({
                     //     gridSize.x) /
                     //   25,
                   }
+
             }
             // propKey={boxDetails.propKey}
           >
@@ -196,7 +251,8 @@ const GraphRNDDash = ({
           </div>
 
           <div
-            className="dashChart"
+            className="dashChart" style={{backgroundColor : backgroundColor ,...(softUI ? innerSkeuomorphicStyles : {})}}
+
             id="dashChart"
             // propKey={boxDetails.propKey}
           >
@@ -204,6 +260,8 @@ const GraphRNDDash = ({
               propKey={boxDetails.propKey}
               tabId={tabId}
               gridSize={gridSize}
+              colorScheme={colorScheme}
+              softUI={softUI}
             />
           </div>
         </div>

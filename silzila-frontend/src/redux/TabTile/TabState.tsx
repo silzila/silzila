@@ -2,6 +2,7 @@ import update from "immutability-helper";
 import { ActionsOfTabState, TabStateProps } from "./TabStateInterfaces";
 
 const initialTabState = {
+	
 	tabs: {
 		1: {
 			tabId: 1,
@@ -23,13 +24,73 @@ const initialTabState = {
 			nextTileId: 2,
 			tilesInDashboard: [],
 			dashTilesDetails: {},
+			dashboardState: { 
+				theme: 'FlatUI', 
+				colorScheme: 'peacock', 
+				allTabs:true,
+				allTiles:true,
+			},
+			
 		},
 	},
 	tabList: [1],
+
 };
 
 const tabStateReducer = (state: TabStateProps = initialTabState, action: ActionsOfTabState) => {
 	switch (action.type) {
+		case "SET_THEME": return update(state, { tabs:{
+			[action.payload.tabId]:{
+				dashboardState:{
+					theme:{$set:action.payload.theme}
+				}
+			}
+		}, }, );
+		case "SET_COLOR_SCHEME":
+			const payload = action.payload || {};
+			const tabId = payload.tabId || '1';
+			const colorScheme = payload.colorScheme || 'peacock';
+			console.log(action.payload.colorScheme)
+			// return update(state, { tabs:{
+			// [tabId]:{
+			// 	dashboardState:{
+			// 		colorScheme:{$set:colorScheme}
+			// 	}
+			// }
+			// }, }, );
+			return (
+				{...state,
+					tabs:{
+						...state.tabs,
+						[tabId]:{
+							...state.tabs[tabId],
+							dashboardState:{
+								colorScheme:colorScheme
+							}
+
+						}
+					}
+				}
+			)
+
+
+		case "TOGGLE_ALL_TABS":
+
+			return update(state, { tabs: {
+					[action.payload.tabId]: {
+						dashboardState: { allTabs: { $set: !state.tabs[action.payload.tabId].dashboardState.allTabs } }
+					}
+				}
+			});
+		
+		case "TOGGLE_ALL_TILES":
+			return update(state, { tabs: {
+					[action.payload.tabId]: {
+						dashboardState: { allTiles: { $set: !state.tabs[action.payload.tabId].dashboardState.allTiles } }
+					}
+				}
+			});
+
 		// ==================================================================
 		// Tab Properties
 		// ==================================================================
@@ -64,6 +125,12 @@ const tabStateReducer = (state: TabStateProps = initialTabState, action: Actions
 						nextTileId: 2,
 						tilesInDashboard: [],
 						dashTilesDetails: {},
+						dashboardState: { 
+							theme: 'FlatUI', 
+							colorScheme: 'peacock', 
+							allTabs:true,
+							allTiles:true,
+						},
 					},
 				},
 			};

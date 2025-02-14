@@ -87,7 +87,7 @@ const ChartLabels = ({
 								<FormControl
 									fullWidth
 									size="small"
-									style={{ fontSize: "12px", borderRadius: "4px" }}
+									style={{ fontSize: "12px", borderRadius: "4px", paddingLeft: "4px" }}
 								>
 									<Select
 										value={labelOptions.pieLabel.labelPosition}
@@ -97,7 +97,7 @@ const ChartLabels = ({
 										}}
 										sx={{
 											fontSize: "12px",
-											width: "90%",
+											width: "99%",
 											margin: "0 auto 0.5rem auto",
 											backgroundColor: "white",
 											height: "1.5rem",
@@ -105,6 +105,7 @@ const ChartLabels = ({
 											"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
 												borderColor: "#2bb9bb", // Set focused border color
 											},
+											
 										}}
 										MenuProps={{
 											PaperProps: {

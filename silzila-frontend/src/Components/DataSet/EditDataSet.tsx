@@ -32,6 +32,7 @@ import { Columns, ColumnsWithUid } from "./DatasetInterfaces";
 import {
   CanvasIndividualTableProps,
   EditDatasetProps,
+  IFlatIdTableIdMap,
 } from "./EditDataSetInterfaces";
 import Logger from "../../Logger";
 
@@ -58,6 +59,7 @@ const EditDataSet = ({
   var server: string = "";
 
   const [loadPage, setloadPage] = useState<boolean>(false);
+  const [flatFileMaps, setFlatFileMaps] = useState<IFlatIdTableIdMap[]>([]);
 
   var count: number = 0;
 
@@ -89,17 +91,6 @@ const EditDataSet = ({
     }
 
   const setAllInfo = async () => {
-    const permissionRes=await FetchData({
-      requestType:'noData',
-      method:'GET',
-      url:`privilege?workspaceId=${state?.parentId}&contentTypeId=${contentTypes.Dataset}&contentId=${dsId}`,
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    if(permissionRes.status){
-      const permission:{roleID:number,roleName:string,levelId:number}=permissionRes.data;
-      dispatch({type:'SET_PERMISSION',payload:permission})
-    }
-    else return
     var res: any = await FetchData({
       requestType: "noData",
       method: "GET",
@@ -122,6 +113,16 @@ const EditDataSet = ({
 
     if (res.status) {
       if (res.data.isFlatFileData) {
+        /**
+         * for flatFiles map tableId with their flatFile Id
+         */
+        const flatFileTableMap:IFlatIdTableIdMap[]=res.data.dataSchema.tables.map((table:any)=>{
+          return({
+            tableId:table.id,
+            flatFileId:table.flatFileId
+          })
+        })
+        setFlatFileMaps(flatFileTableMap)
         setCreateDsFromFlatFile(true);
       }
       else setCreateDsFromFlatFile(false);
@@ -181,12 +182,9 @@ const EditDataSet = ({
       
       // ======================== set tables & schema ====================================================
 
-      var schema_list: string[] = res.data.dataSchema.tables.map(
-        (table: CanvasIndividualTableProps) => {
-          return table.schema;
-        }
-      );
-
+      var schema_list: string[] = res.data.dataSchema.tables.filter(
+        (table: CanvasIndividualTableProps) => !table.isCustomQuery
+      ).map((table:CanvasIndividualTableProps)=>table.schema);
       // getting unique schema used in dataset
       var uniqueSchema: string[] = Array.from(new Set(schema_list));
 
@@ -558,11 +556,15 @@ const EditDataSet = ({
             <Sidebar editMode={true} />
             {datasetFilterArray?.length > 0 ? (
               <Canvas
+                flatFileIdMap={flatFileMaps}
                 editMode={true}
                 EditFilterdatasetArray={datasetFilterArray}
               />
             ) : (
-              <Canvas editMode={true} />
+              <Canvas 
+              flatFileIdMap={flatFileMaps} 
+              editMode={true} 
+              EditFilterdatasetArray={[]}/>
             )}
           </>
         ) : (

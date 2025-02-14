@@ -49,3 +49,4 @@ silzila-frontend/package-lock.json
 src/main/resources/static
 *.log
 *.hprof
+.history

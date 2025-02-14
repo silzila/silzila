@@ -22,15 +22,16 @@ public class MetadataColumn {
     public MetadataColumn(String columnName, String dataType) {
         this.columnName = columnName;
         HashSet<String> integerType = new HashSet<String>(
-                Set.of("int4","INT64","INT","int","NUMBER","BIGINT","INTEGER","SMALLINT","LONG"));;
+                Set.of("int4","INT64","INT","int","NUMBER","BIGINT","INTEGER","SMALLINT","LONG","integer"));;
         HashSet<String> decimalType = new HashSet<String>(
                 Set.of("numeric","FLOAT64","DECIMAL","decimal","DOUBLE","FLOAT"));
         HashSet<String> textType = new HashSet<String>(
-                Set.of("varchar","STRING","VARCHAR","CHAR","CHAR2","nvarchar","VARCHAR2","NVARCHAR2","NVARCHAR","NCHAR"));
+                Set.of("varchar","STRING","VARCHAR","CHAR","CHAR2","nvarchar","VARCHAR2","NVARCHAR2","NVARCHAR","NCHAR","text"));
         HashSet<String> dateType = new HashSet<String>(
                 Set.of("date","DATE"));
         HashSet<String> timestampType = new HashSet<String>(
                 Set.of("timestamp","TIMESTAMP","datetime2","TIMESTAMPNTZ","DATETIME","DATETIME2","timestamptz","TIMESTAMP(6)"));
+        HashSet<String> booleanType = new HashSet<String>(Set.of("bool","BOOL","boolean","BOOLEAN","bit","BIT"));
         // checking the DB specific datatypes with the bucket data types
         if (integerType.contains(dataType)) {
             this.dataType = "integer";
@@ -38,6 +39,8 @@ public class MetadataColumn {
             this.dataType = "decimal";
         } else if (textType.contains(dataType)) {
             this.dataType = "text";
+        }else if (booleanType.contains(dataType)) {
+            this.dataType = "boolean"; 
         } else if (dateType.contains(dataType)) {
             this.dataType = "date";
         } else if (timestampType.contains(dataType)) {

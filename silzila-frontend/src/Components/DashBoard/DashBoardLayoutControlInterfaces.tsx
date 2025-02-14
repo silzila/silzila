@@ -2,6 +2,8 @@ export interface DashBoardLayoutProps {
 	// State
 	tabTileProps: any;
 	tabState: any;
+	softUISlider:any;
+	backgroundColor: string;
 	//Dispatch
 	setDashLayout: (tabId: number, value: any) => void;
 	setDashLayoutSelectedOptionForAuto: (tabId: number, value: any) => void;
@@ -15,4 +17,5 @@ export interface DashBoardLayoutProps {
 	setCustomRMaxWidth: (tabId: number, value: any) => void;
 	setCustomRMaxHeight: (tabId: number, value: any) => void;
 	setDashboardResizeColumn: (value: boolean) => void;
+	setBackgroundColor: (color: string) => void; //softUi background
 }

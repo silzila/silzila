@@ -28,7 +28,6 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { PatternCollectionType } from "../ChartFieldFilter/UserFilterCardInterface";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import moment from 'moment';
 
 import {
   Checkbox,
@@ -72,6 +71,8 @@ const FilterElement = ({
   setDataSetFilterArray,
 }: any) => {
   var switchColor = "#2bb9bb";
+  const searchConditionOperatorText=["beginsWith", "endsWith", "contains", "exactMatch"]
+
   const withPatternCollections: PatternCollectionType[] = [
     { key: "beginsWith", value: "Start With" },
     { key: "endsWith", value: "Ends With" },
@@ -189,18 +190,14 @@ const FilterElement = ({
     to: "",
   });
   const formatDateToYYYYMMDD = (date: any): string => {
-    let formated = format(new Date(date), "yyyy-MM-dd");
+    let formated = format(date ? new Date(date) : new Date(), "yyyy-MM-dd");
 
     return formated;
   };
   const fetchFieldData = (type: string) => {
     let url: string;
     let bodyData: any;
-
-    url =
-      schema !== ""
-        ? `filter-options?dbconnectionid=${dbConnectionId}`
-        : "filter-options";
+    url = `filter-options?dbconnectionid=${dbConnectionId}`
     bodyData = {
       exprType: filterFieldData.current.operator,
       tableId: filterFieldData.current.tableId,
@@ -298,15 +295,13 @@ const FilterElement = ({
     
     */
     if (filterType === "pickList") {
+      filterFieldData.current.operator = "in";
       (async () => {
         setLoading(true)
         const res:any = await FetchData({
           requestType: "withData",
           method: "POST",
-          url:
-            schema !== ""
-              ? `filter-options?dbconnectionid=${dbConnectionId}`
-              : "filter-options",
+          url: `filter-options?dbconnectionid=${dbConnectionId}`,
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -365,9 +360,15 @@ const FilterElement = ({
         setLoading(false)
       })();
     } else if (filterType === "searchCondition") {
-      filterFieldData.current.operator = operator;
+      if(filterFieldData.current.operator === "in"){
+         filterFieldData.current.operator = filterFieldData.current.dataType === "text" ?  withPatternCollections[0].key : "greaterThan"
+      }
+      let isValidOperator  = true
+      if(filterFieldData.current.dataType === "text" && !searchConditionOperatorText.includes(operator)){
+        isValidOperator = false
+      }
+      filterFieldData.current.operator = isValidOperator?filterFieldData.current.operator:withPatternCollections[0].key;
       setSearchCondition(filterFieldData.current.operator);
-
       if (
         filterFieldData.current.dataType === "date" ||
         filterFieldData.current.dataType === "timestamp"
@@ -698,14 +699,15 @@ const FilterElement = ({
   };
 
 
-  const handleCustomRequiredValueOnBlur = async (
+ const handleCustomRequiredValueOnBlur = async (
     val: number | string | Date | null,
     type: string,
     valType?: string
   ) => {
     if (val === null) return;
     if (filterFieldData.current.filterType === "relativeFilter") {
-      const strDate = moment(val).format("yyyy-MM-dd");
+      // @ts-ignore
+      const strDate = format(val, "yyyy-MM-dd");
       filterFieldData.current.userSelection[0] = strDate;
       getFormatedDate();
       setConditionValue(val);
@@ -719,7 +721,8 @@ const FilterElement = ({
     } else {
       let temp_val = val;
       if (valType && valType === "date") {
-        temp_val = moment(temp_val).format("yyyy-MM-dd");
+        // @ts-ignore
+        temp_val = format(temp_val, "yyyy-MM-dd");
       } else {
         temp_val = Number(val);
       }
@@ -738,8 +741,8 @@ const FilterElement = ({
           : [temp_val];
         setConditionValue(val);
       }
-      if (valType && valType === "date") {
-        if (
+      if (valType && valType === "date" ) {
+        if ((filterFieldData.current.userSelection[0]!==null && filterFieldData.current.userSelection[1]!==null) &&
           new Date(filterFieldData.current.userSelection[0]) >
           new Date(filterFieldData.current.userSelection[1])
         ) {
@@ -747,6 +750,7 @@ const FilterElement = ({
           return;
         }
       } else if (
+        (filterFieldData.current.userSelection[0]!==null && filterFieldData.current.userSelection[1]!==null) &&
         filterFieldData.current.userSelection[0] >
         filterFieldData.current.userSelection[1]
       ) {
@@ -845,7 +849,7 @@ const FilterElement = ({
         exprType={exprType}
       ></DropDownForRelativePattern>
     );
-    return <div style={{ marginRight: "22px", width: "90px" }}>{members}</div>;
+    return <div>{members}</div>;
   };
 
   const ExpandCollaseIconSwitch = () => {
@@ -1044,7 +1048,7 @@ const FilterElement = ({
         exprType={exprType}
       ></RelativeFilterValueInputControl>
     );
-    return <div style={{ width: "60px" }}>{members}</div>;
+    return <div style={{width: "60px"}}>{members}</div>;
   };
 
   const SelecRelativeFilterCard = () => {
@@ -1097,20 +1101,20 @@ const FilterElement = ({
           display: "flex",
           flexDirection: "column",
           rowGap: "8px",
-          marginTop: "-10px",
+          // marginTop: "-10px",
           marginLeft: "6px",
           marginBottom: "6px",
           width: "94%",
-          fontSize: "13px",
+          fontSize: "12px",
           color: "black",
           textAlign: "left",
-          paddingLeft: "15px",
-          paddingRight: "15px",
+          // paddingLeft: "15px",
+          // paddingRight: "15px",
           paddingBottom: "3px",
         }}
       >
         From ({formatedDate.from}) {/*To dispaly from-date after fetching*/}
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
           <RequiredFieldForRelativeFilter exprType="last_current_next_from"></RequiredFieldForRelativeFilter>
           {filterFieldData.current.relativeCondition?.from[0] !== "current" ? (
             <ValueFieldForRelativeFilter exprType="value_from"></ValueFieldForRelativeFilter>
@@ -1118,7 +1122,7 @@ const FilterElement = ({
         </div>
         {membersFrom}
         To ({formatedDate.to}) {/*To dispaly to-date after fetching*/}
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
           <RequiredFieldForRelativeFilter exprType="last_current_next_to"></RequiredFieldForRelativeFilter>
           {filterFieldData.current.relativeCondition?.to[0] !== "current" ? (
             <ValueFieldForRelativeFilter exprType="value_to"></ValueFieldForRelativeFilter>
@@ -1376,7 +1380,8 @@ const FilterElement = ({
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     fontSize: fontSize.medium,
-                    color: palette.primary.contrastText
+                    color: palette.primary.contrastText,
+                    paddingTop: "2px"
                   }}
                 >
                   {item.value}
@@ -1772,6 +1777,7 @@ const FilterElement = ({
           display: "flex",
           padding: "1px",
           justifyContent: "space-between",
+          alignItems: "center",
           margin: "3px 6px",
           color: !isCollapsed ? "rgb(175, 153, 219)" : "",
           border: !isCollapsed ? "1px solid rgb(175, 153, 219)" : "",
@@ -1805,7 +1811,7 @@ const FilterElement = ({
           {/* Filter column name */}
           <span
             className="columnName"
-            style={{ lineHeight: "15px", display: "block" }}
+            style={{ lineHeight: "15px", display: "block", paddingTop: "0" }}
           >
             {filter.fieldName}
           </span>
@@ -1871,6 +1877,7 @@ const FilterElement = ({
                 flexDirection: "column",
                 rowGap: "8px",
                 marginLeft: "6px",
+                marginRight: "6px",
                 paddingTop: "2px",
               }}
             >

@@ -7,6 +7,7 @@ import { loadTabTileProps, updateSelectedTab } from "./TabTileActionsAndMultiple
 import { loadTileState } from "./TileActions";
 import {loadReportFilterGroup} from '../ChartFilterGroup/ChartFilterGroupStateActions';
 import {loadDynamicMeasures} from '../DynamicMeasures/DynamicMeasuresActions';
+import { setCalculationsState } from "../Calculations/CalculationsActions";
 
 // //  *************************************************************
 // //  to tile state reducer
@@ -83,6 +84,7 @@ export const actionsToRenameTab = (renameValue: string, tabId: number) => {
 
 export const loadPlaybook = (playbook: any) => {
 	return (dispatch: Dispatch<any>) => {
+		dispatch(setCalculationsState(playbook.calculations))
 		dispatch(loadTabState(playbook.tabState));
 		dispatch(loadTileState(playbook.tileState));
 		dispatch(loadTabTileProps(playbook.tabTileProps));

@@ -1,3 +1,8 @@
+*{
+  font-family: "Roboto-Regular", "Roboto-Medium", "Roboto-Bold", "Roboto-Light",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif; 
+}
 .dashboardWrapper {
   flex: 1;
   display: flex;
@@ -21,7 +26,7 @@
 }
 
 .dashBoardSideBar {
-  width: 15rem;
+  width: 15.625rem;
   height: 100%;
   border-left: 2px solid rgba(224, 224, 224, 1);
   display: flex;
@@ -37,6 +42,7 @@
 
 .dashboardLayoutControl {
   flex: 1;
+  /* border: 1px solid red; */
 }
 
 .listOfGraphs {
@@ -62,14 +68,28 @@
   margin: 5px;
 }
 
+.themeSelector {
+  font-family: Arial, sans-serif;
+  font-size: 1rem;
+  padding-inline: 0.5rem;
+}
+
+.checkboxOption {
+  margin: 5px 0;
+}
+
+.checkboxOption input {
+  margin-right: 10px;
+}
+
 .dragHeader {
   font-weight: 600;
   color: #929292;
   /* border-bottom: 1px solid rgb(211, 211, 211); */
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  background-color: white;
 }
 
 .dragHeader:hover {
@@ -83,11 +103,71 @@
 
 .rndObject {
   box-sizing: border-box;
-  border: 1px #fff solid;
+  /* border: 1px #fff solid; */
   width: 100%;
   height: 100%;
   /* display: flex;
     flex-direction: column; */
   overflow: auto;
   box-sizing: border-box;
+  
+}
+
+
+/* Style the container */
+.checkboxOption {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+}
+
+/* Hide the default radio button */
+.customRadio {
+  display: none;
+}
+
+/* Style the label to act as a custom radio button */
+.customLabel {
+  position: relative;
+  padding-left: 30px;
+  cursor: pointer;
+}
+
+/* Create the custom radio circle */
+.customLabel::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  border: 2px solid #616164;
+  border-radius: 50%;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+/* Inner circle when selected */
+.customLabel::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translate(-32%,-50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+
+/* Change color of the custom radio when checked */
+.customRadio:checked + .customLabel::before {
+  border-color: #2bb9bb;
+}
+
+.customRadio:checked + .customLabel::after {
+  background-color: #2bb9bb;
 }

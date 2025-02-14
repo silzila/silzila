@@ -94,9 +94,13 @@ export interface IFilter {
   userSelection: string[] | number[]|Date[] ;
   relativeCondition?: IRelativeCondition | null;
   isTillDate?: boolean;
+  exprType?: string;
+  fieldtypeoption?: string;
+  includeexclude?: string;
+  displayName? :any;
+  schema?: any;
   isCalculatedField?:boolean;
   calculatedField?:any[]
-
 }
 export enum FilterDataType {
   TEXT = "text",

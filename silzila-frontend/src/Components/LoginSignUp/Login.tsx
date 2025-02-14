@@ -27,9 +27,7 @@ const Login = (props: DispatchProps) => {
 	const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [tenantId] = useState("community"); // No need for setter since it's fixed
   const [openAlert, setOpenAlert] = useState(false);
-  const [openAlertWithOk, setOpenAlertWithOk] = useState(false);
   const [testMessage, setTestMessage] = useState("");
   const [severity, setSeverity] = useState<AlertColor>("success");
   const [isLoading, setIsLoading] = useState(false);
@@ -73,27 +71,27 @@ const Login = (props: DispatchProps) => {
 					device: "web",
 				},
 				headers: { "Content-Type": "application/json" },
-			});
-			console.log("Login response received:", response); 
-			console.log("Sending request:", {
-				username: email,
-				password: password,
-				device: "web",
-		});		
+			});;		
 			if (response.status) {
 				setLoginStatus(true);
 				var payload = {
 					isUserLogged: true,
 					accessToken: response.data.accessToken,
 					tokenType: response.data.tokenType,
-				};
+					firstName: response.data.firstName || " ",
+          lastName: response.data.lastName || "",
+          email: response.data.email || "N/A",
+          avatar: response.data.profileImage?.trim()
+            ? `data:image/jpeg;base64,${response.data.profileImage}`
+            : "/default.png",
+        };
 				localStorage.setItem("accessToken", payload.accessToken);
 				props.userAuthentication(payload);
 				setIsLoading(false);
-				showAlert("Login Successful.", "success");
-				setTimeout(() => {
-					navigate("/workspace");
-				}, 1000);
+				// showAlert("Login Successful.", "success");
+				// setTimeout(() => {
+				// 	navigate("/workspace");
+				// }, 1000);
 	
 				// Set the auth token in cookies
 				const domain = new URL(localEndPoint).hostname
@@ -115,7 +113,7 @@ const Login = (props: DispatchProps) => {
 				setPassword("");
 			 }
 			} catch (error: any) {
-				console.error("Login error:", error);
+				// console.error("Login error:", error);
 		
 				// Check if the error contains a specific message about email verification
 				if (error.response && error.response.data && error.response.data.error) {
@@ -207,6 +205,7 @@ const Login = (props: DispatchProps) => {
 			severity={severity}
 			testMessage={testMessage}
 			onCloseAlert={() => {
+				navigate("/workspace")
 				setOpenAlert(false);
 				setTestMessage("");
 			}}
