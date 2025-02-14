@@ -10,16 +10,17 @@ const SwitchWithInput = ({
 }) => {
   const SwitchComponent = styled(Switch)(() => ({
     padding: 9,
-    height: 35,
+    height: 30,
     width: 54,
     "& .MuiSwitch-track": {
       borderRadius: 16,
+      backgroundColor: "#c9c9cb",
     },
     "& .MuiSwitch-thumb": {
       boxShadow: "none",
-      width: 13,
-      height: 13,
-      margin: "1.8px",
+      width: 20, 
+      height: 20,
+      margin: "-4px",
     },
     "& .Mui-checked .MuiSwitch-thumb": {
       backgroundColor: "#2bb9bb !important",

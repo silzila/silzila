@@ -80,7 +80,7 @@ export const formatChartLabelValueForSelectedMeasure = (
 		return value;
 	}
 
-	const field = measureAxis.fields.find((val: any) => val.displayname === columnName);
+	const field = measureAxis.fields.find((val: any) => val?.displayname === columnName);
 	if (!field) {
 		console.warn(`Field with displayname "${columnName}" not found`);
 		return value;

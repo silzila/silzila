@@ -7,7 +7,7 @@
 // 		- Full screen view
 // 	- Also provides the sql query used to generate data for this graph
 import { connect } from "react-redux";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Dispatch } from "redux";
 import {
   setChartTitle,
@@ -66,6 +66,8 @@ import { renameDynamicMeasure } from "../../redux/DynamicMeasures/DynamicMeasure
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
 import TableChart from "../Charts/TableChart/TableChart";
 import Logger from "../../Logger";
+import "../DataViewer/dataViewerMiddle.css";
+import { fontFamily } from "html2canvas/dist/types/css/property-descriptors/font-family";
 
 const popoverButtonStyle = {
   textTransform: "none",
@@ -86,6 +88,7 @@ const GraphArea = ({
   pageSettings,
   dashBoardGroup,
   dynamicMeasureState,
+  calculations,
 
   // dispatch
   setChartTitle,
@@ -101,9 +104,9 @@ const GraphArea = ({
 
   var selectedDynamicMeasureProp =
     dynamicMeasureState.dynamicMeasureProps?.[
-      `${dynamicMeasureState.selectedTabId}`
+    `${dynamicMeasureState.selectedTabId}`
     ]?.[`${dynamicMeasureState.selectedTileId}`]?.[
-      `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+    `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
     ];
 
   const [backgroundColor, setBackgroundColor] = useState<string>("");
@@ -111,6 +114,21 @@ const GraphArea = ({
   const [italicText, setItalicText] = useState<string>("");
   const [boldText, setBoldText] = useState<string>("");
   const [textUnderline, setTextUnderline] = useState<string>("");
+  const [copyCommand, setCopyCommand] = useState<string | null>(null);
+
+const copyToClipboard = (text: string, command: string): void => {
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      setCopyCommand(command);
+      setTimeout(() => {
+        setCopyCommand(null);
+      }, 3000); 
+    })
+    .catch((err) => {
+      console.error("Could not copy text: ", err);
+    });
+};
 
   useEffect(() => {
     var formats = selectedDynamicMeasureProp?.conditionalFormats;
@@ -479,7 +497,7 @@ const GraphArea = ({
             <TextEditor
               propKey={propKey}
               graphDimension={fullScreen ? graphDimension2 : graphDimension}
-              graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
+              // graphTileSize={tileState.tiles[propKey]?.graphSizeFull}
             />
           );
         }
@@ -554,11 +572,11 @@ const GraphArea = ({
           var tempTitle = "";
           fields.forEach((element: any, index: number) => {
             if (index === 0) {
-              let titlePart = element?.fieldname;
+              let titlePart = element?.displayname;
               tempTitle = tempTitle + titlePart;
             }
             if (index > 0) {
-              let titlePart: any = `, ${element?.fieldname}`;
+              let titlePart: any = `, ${element?.displayname}`;
               tempTitle = tempTitle + titlePart;
             }
           });
@@ -634,15 +652,43 @@ const GraphArea = ({
   const ShowFormattedQuery = () => {
     var query = chartControlState.properties[propKey].queryResult;
 
+    const customStyles = {
+      hljs: {
+        color: "gray",
+        background: "#f5f5f5",
+        // fontFamily:
+        // "Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New",
+      },
+    };
+
     return (
+      <div style={{ position: "relative" }}>
       <SyntaxHighlighter
         className="syntaxHighlight"
         language="sql"
         // style={a11yLight}
+        style={customStyles}
         showLineNumbers={true}
       >
         {query ? query : null}
       </SyntaxHighlighter>
+          <div
+            className='copy-container'
+            onClick={() => copyToClipboard(query, "Copied")}
+          >
+            {copyCommand === "Copied" ? (
+              <div className='copied'>
+                <img className='tick-icon' src="/tick-icon.png" alt="Tick Icon" />
+                <span>copied</span>
+              </div>
+            ) : (
+              <div className='copy'>
+                <img src="/copy-image.png" alt="Copy Icon" />
+                <span>copy</span>
+              </div>
+            )}
+            </div>
+        </div>
     );
   };
 
@@ -692,6 +738,9 @@ const GraphArea = ({
   };
 
   const getSqlQuery = () => {
+    const savedCalculations =
+      calculations?.savedCalculations;
+
     getChartData(
       chartProperties.properties[propKey].chartAxes,
       chartProperties,
@@ -701,13 +750,15 @@ const GraphArea = ({
       "Chartaxes",
       token,
       chartProperties.properties[propKey].chartType,
-      true
+      true,
+      savedCalculations,
+      undefined
     ).then(async (data) => {
       var url: string = "";
       if (chartProperties.properties[propKey].selectedDs.isFlatFileData) {
         url = `query?datasetid=${chartProperties.properties[propKey].selectedDs.id}`;
       } else {
-        url = `query?dbconnectionid=${chartProperties.properties[propKey].selectedDs.connectionId}&datasetid=${chartProperties.properties[propKey].selectedDs.id}`;
+        url = `query?dbconnectionid=${chartProperties.properties[propKey].selectedDs.connectionId}&datasetid=${chartProperties.properties[propKey].selectedDs.id}&workspaceId=${chartProperties.properties[propKey].selectedDs.workSpaceId}`;
       }
       var res: any = await FetchData({
         requestType: "withData",
@@ -729,10 +780,10 @@ const GraphArea = ({
   };
 
   /* 
-	*************************************************
-	ON DOWNLOAD PDF & ON DOWNLOAD IMAGE
-	*************************************************
-	*/
+  *************************************************
+  ON DOWNLOAD PDF & ON DOWNLOAD IMAGE
+  *************************************************
+  */
 
   const getHeightAndWidth = (paperHeight: number, paperWidth: number) => {
     var graphHeight = graphDimension2.height;
@@ -761,9 +812,8 @@ const GraphArea = ({
 
     // genaration a date to give as a fileName
     const d = new Date();
-    const id = `${tabTileProps.selectedTileName}_${d.getDate()}${
-      d.getMonth() + 1
-    }${d.getFullYear()}:${d.getHours()}${d.getMinutes()}${d.getSeconds()}`;
+    const id = `${tabTileProps.selectedTileName}_${d.getDate()}${d.getMonth() + 1
+      }${d.getFullYear()}:${d.getHours()}${d.getMinutes()}${d.getSeconds()}`;
 
     // this case will run if We clicked on Download PDF
     if (pageSettings.downloadType === "pdf") {
@@ -814,6 +864,7 @@ const GraphArea = ({
   return (
     <div className="centerColumn" id="centerColumn">
       <div className="graphTitleAndEdit">
+        {/* TODO: read this to re-implement name editing */}
         {editTitle ? (
           <form
             style={{ width: "100%" }}
@@ -834,6 +885,8 @@ const GraphArea = ({
                   .isDynamicMeasureWindowOpened
                   ? "left"
                   : chartProperties.properties[propKey].titleOptions.titleAlign,
+                  border: "1px solid rgb(175, 153, 219)",
+                  outline: "1px solid rgb(175, 153, 219)",
               }}
               type="text"
               className="editTitle"
@@ -859,7 +912,7 @@ const GraphArea = ({
                   .isDynamicMeasureWindowOpened
                   ? selectedDynamicMeasureProp?.titleLeftPadding
                   : chartProperties.properties[propKey].titleOptions
-                      .titleLeftPadding,
+                    .titleLeftPadding,
               }}
               onDoubleClick={() => editTitleText()}
               title="Double click to set title manually"
@@ -884,11 +937,18 @@ const GraphArea = ({
         ) : (
           <>
             {!pageSettings.callForDownload &&
-            !chartProperties.properties[propKey]
-              .isDynamicMeasureWindowOpened ? (
+              chartProperties?.properties[propKey].chartType !== "richText" &&
+              !chartProperties.properties[propKey]
+                .isDynamicMeasureWindowOpened ? (
               <div className="graphAreaIcons">
                 <MoreVertOutlined
                   onClick={(e: any) => {
+                    if (
+                      chartProperties?.properties[propKey].chartType ===
+                      "richText"
+                    )
+                      return;
+
                     setOpen(true);
                     setAnchorEl(e.currentTarget);
                   }}
@@ -1101,6 +1161,7 @@ const mapStateToProps = (state: any) => {
     pageSettings: state.pageSettings,
     dynamicMeasureState: state.dynamicMeasuresState,
     dashBoardGroup: state.dashBoardFilterGroup,
+    calculations: state.calculations,
   };
 };
 

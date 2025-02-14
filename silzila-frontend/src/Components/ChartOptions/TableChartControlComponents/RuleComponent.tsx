@@ -175,7 +175,11 @@ const RuleComponent = ({
 														e.target.value
 													);
 												}}
-												sx={SelectComponentStyle}
+												sx={{
+													...SelectComponentStyle,
+													width: "100% !important",
+													margin: "0 auto 0.5rem auto !important"													
+												}}
 											>
 												{conditionTypes.map((item: any) => {
 													return (
@@ -204,6 +208,7 @@ const RuleComponent = ({
 												display: "flex",
 												marginTop: "5px",
 												marginLeft: "0px",
+												justifyContent: "center"
 											}}
 										>
 											<StyleButtons
@@ -239,7 +244,16 @@ const RuleComponent = ({
 			</div>
 
 			<Button
-				sx={addConditionButtonStyle}
+				sx={{
+					backgroundColor: "rgb(43, 185, 187)",
+					height: "25px",
+					width: "100%",
+					color: "white",
+					textTransform: "none",
+					"&:hover": {
+						backgroundColor: "rgb(43, 185, 187)",
+					},	
+				}}
 				onClick={() => {
 					onAddCondition(format, i);
 				}}

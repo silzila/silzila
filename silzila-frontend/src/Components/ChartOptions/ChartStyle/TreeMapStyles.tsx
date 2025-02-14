@@ -54,7 +54,7 @@ const TreeMapStyles = ({
 					}}
 					sx={{
 						fontSize: "12px",
-						width: "90%",
+						width: "96%",
 						margin: "0 auto 0.5rem auto",
 						backgroundColor: "white",
 						height: "1.5rem",
@@ -62,6 +62,7 @@ const TreeMapStyles = ({
 						"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
 							borderColor: "#2bb9bb", // Set focused border color
 						},
+						marginLeft: "5px"
 					}}
 					MenuProps={{
 						PaperProps: {

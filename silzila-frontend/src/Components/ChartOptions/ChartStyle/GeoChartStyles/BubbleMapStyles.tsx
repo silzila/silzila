@@ -118,12 +118,13 @@ const BubbleMapStyles = ({
         <div
           style={{
             height: "1.25rem",
-            width: "50%",
+            width: "70%",
             marginLeft: "20px",
             backgroundColor: geoStyle.borderColor,
             color: geoStyle.borderColor,
             border: "2px solid darkgray",
             margin: "auto",
+            marginRight: "4px"
           }}
           onClick={() => {
             setColor(geoStyle.borderColor);
@@ -140,12 +141,13 @@ const BubbleMapStyles = ({
         <div
           style={{
             height: "1.25rem",
-            width: "50%",
+            width: "70%",
             marginLeft: "20px",
             backgroundColor: geoStyle.areaColor,
             color: geoStyle.areaColor,
             border: "2px solid darkgray",
             margin: "auto",
+            marginRight: "4px"
           }}
           onClick={() => {
             setColor(geoStyle.areaColor);
@@ -164,12 +166,13 @@ const BubbleMapStyles = ({
         <div
           style={{
             height: "1.25rem",
-            width: "50%",
+            width: "70%",
             marginLeft: "20px",
             backgroundColor: geoStyle.emphasisAreaColor,
             color: geoStyle.emphasisAreaColor,
             border: "2px solid darkgray",
             margin: "auto",
+            marginRight: "4px"
           }}
           onClick={() => {
             setColor(geoStyle.emphasisAreaColor);

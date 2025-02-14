@@ -25,11 +25,7 @@ const ChartControlObjects = ({
     ]?.[`${dynamicMeasureState.selectedTileId}`]?.[
       `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
     ];
-  const richTextOptionList: string[] = [
-    "Format",
-    "Style",
-    "Conditional Formatting",
-  ];
+  const richTextOptionList: string[] = ["Format", "Style", "Cond.Form"];
 
   const [value, setValue] = useState(false);
 
@@ -63,9 +59,9 @@ const ChartControlObjects = ({
     "Margin",
     "Tooltip",
     "Colors",
+    "Format",
     "Style",
     "Sort",
-    "Format"
   ];
 
   const pieOptionsList: string[] = [
@@ -125,8 +121,8 @@ const ChartControlObjects = ({
     "Colors",
     "Grid/Axes",
     "Style",
-    "Sort",
     "Format",
+    "Sort",
   ];
   const calendarOptionList: string[] = [
     "Title",
@@ -155,7 +151,7 @@ const ChartControlObjects = ({
     "Format",
     "Style",
     "Sort",
-    "Conditional Formatting",
+    "Cond.Form",
   ];
   const tableOptionList: string[] = [
     "Title",
@@ -163,7 +159,7 @@ const ChartControlObjects = ({
     "Style",
     "Format",
     "Sort",
-    "Conditional Formatting",
+    "Cond.Form",
   ];
 
   const filledMapOptionList: string[] = ["Title", "Labels", "Tooltip", "Style"];
@@ -173,6 +169,7 @@ const ChartControlObjects = ({
     "Labels",
     "Tooltip",
     "Colors",
+    "Format",
     "Style",
   ];
 
@@ -182,7 +179,7 @@ const ChartControlObjects = ({
     } else {
       changeChartOption(propKey, "Title");
     }
-  }, [chartProp.properties[propKey].chartType]);
+  }, [chartProp.properties[propKey].chartType, propKey]);
 
   const RenderOptions: any = () => {
     switch (selectedChart) {
@@ -371,7 +368,7 @@ const ChartControlObjects = ({
               }
               style={{
                 textAlign: "center",
-                gridColumn: i === 5 ? "1/span 2" : "auto",
+                // gridColumn: i === 5 ? "1/span 2" : "auto",
               }}
               onClick={() => changeChartOption(propKey, option)}
             >
@@ -459,7 +456,7 @@ const ChartControlObjects = ({
               }
               style={{
                 textAlign: "center",
-                gridColumn: i === 5 ? "1/span 2" : "auto",
+                // gridColumn: i === 5 ? "1/span 2" : "auto",
               }}
               onClick={() => changeChartOption(propKey, option)}
             >
@@ -475,10 +472,20 @@ const ChartControlObjects = ({
 
   return (
     <>
-      <div className="axisInfo" style={{ marginTop: "5px" }}>
-        for{" "}
-        {chartTypes.filter((chart) => chart.name === selectedChart)[0].value}
-      </div>
+        {/* for{" "}
+        {chartTypes.filter((chart) => chart.name === selectedChart)[0].value} */}
+      {/* <div className="axisInfo" style={{ marginTop: "5px" }}>
+        {selectedChartData ? (
+          <img
+            src={selectedChartData.icon}
+            alt={selectedChartData.name}
+            title={selectedChartData.value}
+            className="selected-chart-icon"
+          />
+        ) : (
+          <p>No icon available for the selected chart</p>
+        )}
+      </div> */}
       <div>
         <div className="chartOptionImagesContainer">
           <RenderOptions />
