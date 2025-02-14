@@ -17,3 +17,15 @@
 img{
   height: 15px;
 }
+
+#url-input{
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #E0E0E0;
+  border-radius: 7px;
+}
+
+#url-input:focus {
+  border: 1px solid #2bb9bb;
+  outline: #2bb9bb;
+}

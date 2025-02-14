@@ -15,12 +15,19 @@ import {
 } from "./ChartsCommonInterfaces";
 import { TabTileStateProps2 } from "../../redux/TabTile/TabTilePropsInterfaces";
 
+import { palette } from "../..";
+
+import {getContrastColor} from '../CommonFunctions/CommonFunctions';
+
+
 const StackedBar = ({
   //props
   propKey,
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartControls,
@@ -60,6 +67,12 @@ const StackedBar = ({
           emphasis: {
             focus: "series",
           },
+          itemStyle:softUI? {
+            shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+            shadowBlur: 10, // Blurring effect
+            shadowOffsetX: 3, // Horizontal shadow displacement
+            shadowOffsetY: 3, // Vertical shadow displacement
+          }:{},
           label: {
             show:
               graphDimension.height > 140 && graphDimension.height > 150
@@ -89,9 +102,12 @@ const StackedBar = ({
       setSeriesData(seriesDataTemp);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartData, chartControl.formatOptions]);
+  }, [chartData, chartControl.formatOptions,softUI]);
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+     return el.name === colorScheme;
+    else 
+    return el.name === chartControl.colorScheme
   });
 
   const getHeightAndWidth = () => {
@@ -186,6 +202,7 @@ const StackedBar = ({
           backgroundColor: chartThemes[0].background,
           animation: false,
           legend: {
+            // textStyle :{color : getContrastColor(chartThemes[0].background)},
             type: "scroll",
             show: getLegentShowValue(),
             itemHeight: getHeightAndWidth().height,
@@ -213,6 +230,9 @@ const StackedBar = ({
             left: chartControl.legendOptions?.position?.left,
             // top: tabTileProps.showDash ? "95%" : "90%",
             orient: chartControl.legendOptions?.orientation,
+            textStyle:{
+              color:chartThemes[0].dark?"#ffffff":palette.primary.contrastText,
+            }
           },
           grid: {
             left: chartControl.chartMargin.left + 5 + "%",
@@ -227,6 +247,10 @@ const StackedBar = ({
                 100 +
                 35
                 : chartControl.chartMargin.bottom + "%",
+                shadowColor: "rgba(0, 0, 0, 0.3)", // Shadow color for grid
+                shadowBlur: 5, // Shadow blur for grid
+                shadowOffsetX: 2, // Horizontal shadow offset for grid
+                shadowOffsetY: 2, // Vertical shadow offset for grid
             // height: getHeightOfChart(),
             // height: tabTileProps.showDash
             // 	? graphDimension.height < 220

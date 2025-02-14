@@ -9,12 +9,19 @@ import {
   ChartsReduxStateProps,
 } from "./ChartsCommonInterfaces";
 
+import { palette } from "../..";
+
+import { getContrastColor } from '../CommonFunctions/CommonFunctions';
+
+
 const BoxPlotChart = ({
   // props
   propKey,
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartControls,
@@ -91,7 +98,10 @@ const BoxPlotChart = ({
   }, [chartData, chartControl]);
 
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+    return el.name === colorScheme;
+   else 
+   return el.name === chartControl.colorScheme
   });
 
   const getTopMarginForLegend = () => {
@@ -120,14 +130,16 @@ const BoxPlotChart = ({
           border: chartArea
             ? "none"
             : graphTileSize
-            ? "none"
-            : "1px solid rgb(238,238,238)",
+              ? "none"
+              : "1px solid rgb(238,238,238)",
         }}
         option={{
           color: chartThemes[0].colors,
           backgroundColor: chartThemes[0].background,
           animation: false,
           legend: {
+            // textStyle :{color : getContrastColor(chartThemes[0].background)},
+
             type: "scroll",
             show:
               graphDimension.height > 210
@@ -146,6 +158,9 @@ const BoxPlotChart = ({
             bottom:
               chartControl.legendOptions?.position?.top === "bottom" ? 0 : null,
             orient: chartControl.legendOptions?.orientation,
+            textStyle: {
+              color: chartThemes[0].dark ? "#ffffff" : palette.primary.contrastText,
+            }
           },
           grid: {
             left: chartControl.chartMargin.left + 5 + "%",
@@ -157,9 +172,17 @@ const BoxPlotChart = ({
             bottom:
               chartControl.legendOptions?.position?.top === "bottom"
                 ? (graphDimension.height * chartControl.chartMargin.bottom) /
-                    100 +
-                  35
+                100 +
+                35
                 : chartControl.chartMargin.bottom + "%",
+                ...(softUI
+                  ? {
+                      shadowBlur: 10, // Shadow blur size
+                      shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+                      shadowOffsetX: 3, // Horizontal shadow offset
+                      shadowOffsetY: 3, // Vertical shadow offset
+                    }
+                  : {}),
           },
 
           tooltip: {
@@ -346,6 +369,10 @@ const BoxPlotChart = ({
               ],
               itemStyle: {
                 borderWidth: chartControl.boxPlotChartControls.boxborderWidth,
+                shadowBlur: 10,
+                shadowColor: "rgba(0, 0, 0, 0.5)",
+                shadowOffsetX: 3,
+                shadowOffsetY: 3,
               },
             },
             {

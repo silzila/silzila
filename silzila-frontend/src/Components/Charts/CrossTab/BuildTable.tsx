@@ -10,6 +10,9 @@ import React, {
 import debounce from "lodash.debounce";
 import ShowDataPopup from "../../ChartOptions/ShowDataPopup";
 import * as CrossTab from "./CrossTab";
+import { ChartColorsProps } from "../../ChartOptions/Color/ChartColors";
+import { Box, TableContainer } from "@mui/material";
+import { ColorSchemes } from "../../ChartOptions/Color/ColorScheme";
 
 export const BuildTable = ({
   crossTabData,
@@ -23,7 +26,7 @@ export const BuildTable = ({
   graphDimension,
 }: any) => {
   const [columnWidths, setColumnWidths] = useState<number[]>([]);
-
+  var bgcolor: string = "";
   const tableRef = useRef<HTMLTableElement>(null);
 
   useLayoutEffect(() => {
@@ -46,6 +49,12 @@ export const BuildTable = ({
   const [userClickedCell, serUserClickedCell] = useState(
     chartProperties.properties[propKey].crossTabUserClicked
   );
+
+  let chartThemes = ColorSchemes.filter((el) => {
+    return el.name === chartControls.properties[propKey].colorScheme;
+  });
+
+  let isDark = chartThemes[0].dark || false;
 
   const prevCountRef = useRef();
 
@@ -160,7 +169,7 @@ export const BuildTable = ({
     let _header = "";
 
     _header =
-      rowIndex < dustbinColumns.length
+      rowIndex < dustbinColumns.length || rowIndex === 0
         ? "CrossTabHeader "
         : "CrossTabLeftColumnHeader";
 
@@ -189,7 +198,8 @@ export const BuildTable = ({
         col.displayData,
         chartProperties,
         propKey,
-        chartControls
+        chartControls,
+        false
       );
 
       /// topPosition and leftPosition calculated for fixing headers to top and left in case of Scrolling
@@ -247,12 +257,6 @@ export const BuildTable = ({
                 : colIndex === 0
                 ? 1
                 : 0,
-
-            // Ensures the background stays solid on scroll
-            backgroundColor:
-              chartProperties?.properties[propKey]?.chartType === "table"
-                ? "#fff"
-                : "auto",
           }}
         >
           {col.displayData}
@@ -268,7 +272,8 @@ export const BuildTable = ({
           col.displayData,
           chartProperties,
           propKey,
-          chartControls
+          chartControls,
+          isDark
         );
 
         return (
@@ -279,7 +284,9 @@ export const BuildTable = ({
               "CrossTabCell " + _getUserClickedColor(col, rowIndex, colIndex)
             }
             key={colIndex}
-            style={tdStyle}
+            style={{
+              ...tdStyle,
+            }}
             colSpan={col.columnSpan}
             rowSpan={col.rowSpan}
             data-compareobj={JSON.stringify(col.compareObj)}
@@ -334,13 +341,18 @@ export const BuildTable = ({
   /*  Render table and show popup */
   return (
     <div className="CrossTab">
-      <div
-        style={{
+      <TableContainer
+        sx={{
           maxHeight: graphDimension.height,
           maxWidth: graphDimension.width,
-          overflowY: "auto",
-          // overflowX: "hidden",
+          overflow: "hidden",
+          "&:hover": {
+            overflow: "auto",
+          },
+
+          // overflowX: "auto",
         }}
+        className="CrossTabTableHeader"
       >
         <table
           ref={tableRef}
@@ -354,7 +366,7 @@ export const BuildTable = ({
         >
           {_tableContent}
         </table>
-      </div>
+      </TableContainer>
       {showPopup ? (
         <ShowDataPopup
           chartProp={chartControls.properties[propKey]}

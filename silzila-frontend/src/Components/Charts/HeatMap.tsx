@@ -11,12 +11,19 @@ import {
 } from "./ChartsCommonInterfaces";
 import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 
+import { palette } from "../..";
+
+import { getContrastColor } from '../CommonFunctions/CommonFunctions';
+
+
 const HeatMap = ({
   //props
   propKey,
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartControls,
@@ -75,7 +82,10 @@ const HeatMap = ({
     }
   }, [chartData]);
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+     return el.name === colorScheme;
+    else 
+    return el.name === chartControl.colorScheme
   });
 
   const getTopMarginForLegend = () => {
@@ -111,6 +121,7 @@ const HeatMap = ({
           backgroundColor: chartThemes[0].background,
           animation: chartArea ? false : true,
           legend: {
+            // textStyle :{color : getContrastColor(chartThemes[0].background)},
             type: "scroll",
             show:
               graphDimension.height > 210
@@ -129,6 +140,9 @@ const HeatMap = ({
             bottom:
               chartControl.legendOptions?.position?.top === "bottom" ? 0 : null,
             orient: chartControl.legendOptions?.orientation,
+            textStyle: {
+              color: chartThemes[0].dark ? "#ffffff" : palette.primary.contrastText,
+            }
           },
           grid: {
             left: chartControl.chartMargin.left + 5 + "%",
@@ -276,7 +290,7 @@ const HeatMap = ({
                 formatter: (value: FormatterValueProps) => {
                   if (chartDataKeys.length > 0) {
 
-                    var formattedValue = value.value[chartDataKeys[2]]; 
+                    var formattedValue = value.value[chartDataKeys[2]];
                     formattedValue = formatChartLabelValueForSelectedMeasure(
                       chartControls.properties[propKey],
                       chartProperties.properties[propKey],
@@ -290,6 +304,16 @@ const HeatMap = ({
                 color: chartControl.labelOptions.labelColorManual
                   ? chartControl.labelOptions.labelColor
                   : null,
+              },
+              itemStyle: {
+                borderColor: "#ccc",
+                borderWidth: 1,
+
+                // Add shadow to heatmap cells
+                shadowBlur: 8,
+                shadowColor: "rgba(0, 0, 0, 0.4)",
+                shadowOffsetX: 2,
+                shadowOffsetY: 2,
               },
             },
           ],

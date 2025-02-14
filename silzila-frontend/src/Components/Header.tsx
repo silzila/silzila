@@ -36,7 +36,8 @@ const Header = (props:any) => {
   
   const [loading, setLoading] = useState(false); // Loading state
   const [error, setError] = useState(null); // Error state
-  const dispatch=useDispatch()
+  const dispatch=useDispatch();
+
     const fetchUserDetails = async (forceFetch = false) => {
       if(!forceFetch && props.isLogged.isUserLogged && props.isLogged.email!=='')return
         try {
@@ -59,15 +60,17 @@ const Header = (props:any) => {
             const data = response.data;
             // Assuming the API returns data in the following format:
             // { name: 'John Doe', email: 'john.doe@example.com', avatar: '/path/to/avatar.png' }
-            setUser({
-
-                firstName: data.firstName || ' ',
-                lastName: data.lastName || '',
-                email: data.email || 'N/A',
-                avatar: data.profileImage && data.profileImage.trim() !== '' 
-                    ? `data:image/jpeg;base64,${data.profileImage}` 
-                    : '/default.png',
-            });
+            const userDetails = {
+              firstName: data.firstName || ' ',
+              lastName: data.lastName || '',
+              email: data.email || 'N/A',
+              avatar: data.profileImage && data.profileImage.trim() !== '' 
+                ? `data:image/jpeg;base64,${data.profileImage}` 
+                : '/default.png',
+            };
+            localStorage.setItem("userDetails", JSON.stringify(userDetails));
+            setUser(userDetails);
+            
             props.userAuthentication({
               isUserLogged: true,
               accessToken: props.isLogged.accessToken,
@@ -87,10 +90,13 @@ const Header = (props:any) => {
     };
 
     useEffect(() => {
-      setTimeout(fetchUserDetails, 2000);
-    }, [props.isLogged.email, props.isLogged.isUserLogged]);
-
-  
+      const storedUser = localStorage.getItem("userDetails");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser)); 
+      } else {
+        setTimeout(() => fetchUserDetails(), 2000); 
+      }
+    }, [props.isLogged.email, props.isLogged.isUserLogged]);    
 
     const handleLogout = () => {
       dispatch(resetUser())
@@ -203,7 +209,7 @@ const Header = (props:any) => {
                 <div>
                   <img 
                     src={user.avatar!} 
-                    alt="Admin" 
+                    alt="User" 
                     className="adminImage"
                     style={{ 
                       border: "1px solid gray",
