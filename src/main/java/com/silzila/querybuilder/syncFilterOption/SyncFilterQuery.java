@@ -94,7 +94,7 @@ public class SyncFilterQuery {
             
             }
 
-            if (dimensions == null) {
+            if (dimensions.isEmpty()) {
                 return null;
             }
             if (countCurrentSelection != 1) {
