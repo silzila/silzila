@@ -995,7 +995,12 @@ public class ConnectionPoolService {
                 query = "SELECT " + tblId + ".*" + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             }
             // for MYSQL DB
-            else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
+            else if (vendorName.equals("mysql") ) {
+                // construct query
+                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+
+            }
+            else if (vendorName.equals("motherduck")) {
                 // construct query
                 query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
 
@@ -1046,13 +1051,26 @@ public class ConnectionPoolService {
                         + recordCount;
             }
             // for MYSQL DB
-            else if (vendorName.equals("mysql") || vendorName.equals("motherduck")) {
+            else if (vendorName.equals("mysql") ) {
                 // DB name is must for MySQL & Motherduck
                 if (databaseName == null || databaseName.trim().isEmpty()) {
                     throw new BadRequestException("Error: Database name is not provided!");
                 }
                 // construct query
-                query = "SELECT * FROM " + databaseName + "." + tableName + " LIMIT " + recordCount;
+                query = "SELECT * FROM " + databaseName +"." + tableName + " LIMIT " + recordCount;
+
+            } 
+            //for motherduck
+            else if ( vendorName.equals("motherduck")) {
+                // DB name and schema name is must for  Motherduck
+                if (databaseName == null || databaseName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: Database  name is not provided!");
+                }
+                if (schemaName == null || schemaName.trim().isEmpty()) {
+                    throw new BadRequestException("Error: schema  name is not provided!");
+                }
+                // construct query
+                query = "SELECT * FROM " + databaseName + "."+schemaName+"." + tableName + " LIMIT " + recordCount;
 
             }
             // for SQL Server DB
