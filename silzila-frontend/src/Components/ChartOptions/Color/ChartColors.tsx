@@ -110,11 +110,11 @@ const ChartColors = ({
 
   return (
     <div className="optionsInfo">
-      <div className="optionDescription colorScheme-head" style={{ paddingLeft: "0.3rem" }}>Color Scheme:</div>
+      <div className="optionDescription colorScheme-head">Color Scheme</div>
       <FormControl
         fullWidth
         size="small"
-        style={{ fontSize: "12px", borderRadius: "4px", width: "98%", paddingLeft: "0.3rem" }}
+        style={{ fontSize: "12px", borderRadius: "4px", width: "98%"}}
       >
         <Select
           size="small"

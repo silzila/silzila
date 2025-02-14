@@ -42,7 +42,6 @@
 
 .dashboardLayoutControl {
   flex: 1;
-  border: 1px solid red;
 }
 
 .listOfGraphs {
@@ -71,7 +70,6 @@
 .themeSelector {
   font-family: Arial, sans-serif;
   font-size: 16px;
-  border: 1px solid red;
 }
 
 .checkboxOption {
