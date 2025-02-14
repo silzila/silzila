@@ -20,6 +20,9 @@ export interface LoggedDetailsType {
   interface ResetUser {
     type: "RESET_USER";
   }
+  interface CustomDefault {
+    type: "CUSTOM_DEFAULT";
+  }
   
-  export type Action = UserAuthentication | ResetUser;
+  export type Action = UserAuthentication | ResetUser | CustomDefault;
   

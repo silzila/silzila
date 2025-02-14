@@ -5,3 +5,6 @@ export const userAuthentication = (payload: {}) => {
 export const resetUser = () => {
 	return { type: "RESET_USER" };
 };
+export const CustomDefault=()=>{
+	return {type:"CUSTOM_DEFAULT"}
+}

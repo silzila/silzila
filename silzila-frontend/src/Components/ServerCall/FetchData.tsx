@@ -3,7 +3,8 @@ import { serverEndPoint } from "./EnvironmentVariables";
 import Logger from "../../Logger";
 //import jwtDecode from "jwt-decode";
 import { Dispatch } from "redux";
-import { resetUser,userAuthentication } from "../../redux/UserInfo/isLoggedActions";
+import { CustomDefault, resetUser,userAuthentication } from "../../redux/UserInfo/isLoggedActions";
+import { dispatchAction } from "../../redux/globalDispatch";
 type FetchDataPropType = {
 	requestType:"withData" | "noData";
 	method: string;
@@ -54,6 +55,7 @@ const FetchData = async (props: FetchDataPropType):Promise<IAPIResponse> => {
 	// }
 
 	return new Promise(resolve => {
+		dispatchAction(CustomDefault())
 		switch (requestType) {
 			case "withData":
 				axios({ method, url: serverEndPoint + url, headers, data, timeout:1000 * 10 })

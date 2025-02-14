@@ -34,7 +34,8 @@ const loggedReducer = (
 			localStorage.setItem("accountInfo", JSON.stringify(resetInfo));
 
 			return resetInfo;
-
+		case "CUSTOM_DEFAULT":
+			return state;
 		default:
 			return state;
 	}

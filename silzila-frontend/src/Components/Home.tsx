@@ -1,5 +1,5 @@
-import React from "react";
-import { connect} from "react-redux";
+import React, { useEffect } from "react";
+import { connect, useDispatch} from "react-redux";
 import { BrowserRouter as Router, Route, Routes,Navigate } from "react-router-dom";
 
 // Import your components
@@ -16,8 +16,13 @@ import SubWork from "../pages/SubWork";
 import SubWorkDetails from "../pages/SubWorkDetails";
 import UserProf from "../pages/UserProf";
 import { isLoggedProps, LoggedDetailsType } from "../redux/UserInfo/IsLoggedInterfaces";
+import { setGlobalDispatch } from "../redux/globalDispatch";
 
 const Home = (props: LoggedDetailsType) => {
+  const dispatch=useDispatch();
+  useEffect(() => {
+    setGlobalDispatch(dispatch); // Set the global dispatch
+  }, [dispatch]);
   const isUserLogged = props.isUserLogged
 
   return (
