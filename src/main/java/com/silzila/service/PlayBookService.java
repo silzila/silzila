@@ -100,7 +100,9 @@ public class PlayBookService {
                 // seriaize to JSON content
                 ObjectMapper mapper = new ObjectMapper();
                 PlayBook playBook = pOptional.get();
-                JsonNode jsonContent = mapper.valueToTree(playBook);
+                PlayBookJsonNode playBookJsonNode = new PlayBookJsonNode(playBook.getId(), playBook.getUserId(),
+                                playBook.getName(), playBook.getDescription(), playBook.getContent());
+                JsonNode jsonContent = mapper.valueToTree(playBookJsonNode);
                 // create response object
                 PlayBookResponse playBookResponse = new PlayBookResponse(
                                 playBook.getId(),
