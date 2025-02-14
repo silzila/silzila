@@ -12,7 +12,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import Home from "./Components/Home";
 
 const middleware = [reduxThunk];
-const store = createStore(allReducers, composeWithDevTools(applyMiddleware(...middleware)));
+export const store = createStore(allReducers, composeWithDevTools(applyMiddleware(...middleware)));
 
 function App() {
 

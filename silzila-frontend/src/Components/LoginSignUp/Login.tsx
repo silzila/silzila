@@ -106,6 +106,13 @@ const Login = (props: DispatchProps) => {
 					path: "/",
 					expires: 1, // 1 day
 				});
+				Cookies.set("refreshToken", response.data.refreshToken, {
+					sameSite: "none", // Cross-site cookie
+					secure: true,
+					domain: domain, // Cross-subdomain cookie
+					path: "/",
+					expires: 1, // 1 day
+				});
 	
 				// Redirect to the React.js landing page
 				navigate("/workspace");

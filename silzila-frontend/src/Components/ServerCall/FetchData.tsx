@@ -5,6 +5,7 @@ import Logger from "../../Logger";
 import { Dispatch } from "redux";
 import { CustomDefault, resetUser,userAuthentication } from "../../redux/UserInfo/isLoggedActions";
 import { dispatchAction } from "../../redux/globalDispatch";
+import {store} from '../../App';
 type FetchDataPropType = {
 	requestType:"withData" | "noData";
 	method: string;
@@ -55,7 +56,8 @@ const FetchData = async (props: FetchDataPropType):Promise<IAPIResponse> => {
 	// }
 
 	return new Promise(resolve => {
-		dispatchAction(CustomDefault())
+		// dispatchAction(CustomDefault())
+		store.dispatch(CustomDefault());
 		switch (requestType) {
 			case "withData":
 				axios({ method, url: serverEndPoint + url, headers, data, timeout:1000 * 10 })
