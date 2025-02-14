@@ -5,17 +5,20 @@
   overflow: hidden;
   background-color: white;
   width: 100%;
+  overflow-x: hidden;
 }
 
 .canvasStyle {
   flex: 1;
   position: relative;
   overflow: auto;
+  overflow-x: hidden;
   display: flex;
   height: 100%;
   flex-wrap: wrap;
   border-top: 2px solid rgba(224, 224, 224, 1);
-  width: calc(99% - 15vw);
+  /* width: calc(99% - 15vw); */
+  scrollbar-gutter: stable;
 }
 
 .draggableBox {
