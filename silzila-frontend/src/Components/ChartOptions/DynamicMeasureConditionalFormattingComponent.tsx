@@ -281,7 +281,7 @@ const DynamicMeasureConditionalFormattingComponent = ({
 														setUpdateState(true);
 													}}
 													sx={{ marginTop: "5px" }}
-													InputProps={{ ...textFieldStyleProps }}
+													InputProps={{ ...textFieldStyleProps}}
 													fullWidth
 												/>
 											</>

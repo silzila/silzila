@@ -22,7 +22,9 @@ const ChartMouseOver = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="optionDescription">
+			<div className="optionDescription" style={{
+				paddingLeft: "0.1rem"
+			}}>
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"

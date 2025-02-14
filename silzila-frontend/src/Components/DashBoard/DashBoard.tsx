@@ -23,6 +23,12 @@ import { toPng } from "html-to-image";
 import { resetPageSettings } from "../../redux/PageSettings/DownloadPageSettingsActions";
 import ChartFilterGroupsContainer from "../ChartFilterGroup/ChartFilterGroupsContainer";
 import ChartData from "../ChartAxes/ChartData";
+import Switch from "@mui/material/Switch";
+import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
+import ChartColors from "../ChartOptions/Color/ChartColors";
+import { useDispatch } from "react-redux";
+import { setTheme, setDashColorScheme,toggleAllTiles,toggleAllTabs } from "../../redux/TabTile/TabActions";
+
 
 import {
   updateDashBoardGroups,
@@ -34,10 +40,13 @@ import {
 } from "../../redux/DashBoardFilterGroup/DashBoardFilterGroupAction";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import Logger from "../../Logger";
+import { setColorScheme } from "../../redux/ChartPoperties/ChartControlsActions";
+import { number } from "echarts";
 
 const DashBoard = ({
   // props
   showListofTileMenu,
+
   dashboardResizeColumn,
   showDashBoardFilterMenu,
   setShowListofTileMenu,
@@ -51,8 +60,15 @@ const DashBoard = ({
   tabTileProps,
   tileState,
   pageSettings,
+  chartControls,
+
+  //ColorSchemes,
 
   // dispatch
+  setTheme,
+  toggleAllTabs,
+  toggleAllTiles,
+  setDashColorScheme,
   updateDashDetails,
   toggleGraphSize,
   setGridSize,
@@ -67,21 +83,171 @@ const DashBoard = ({
   deleteDashBoardSelectedTabTiles,
 }: DashBoardProps) => {
   var targetRef = useRef<any>();
-  const [mouseDownOutsideGraphs, setmouseDownOutsideGraphs] =
-    useState<boolean>(false);
+  const dispatch = useDispatch()
+  const selectedTab = tabTileProps.selectedTabId
+  //console.log("selectedTab",selectedTab)
+  const dashTheme = tabState.tabs[selectedTab]?.dashboardState?.colorScheme? tabState.tabs[selectedTab]?.dashboardState?.colorScheme:'peacock'
+  const scheme_passed = dashTheme ?? chartControls.properties[Object.keys(chartControls.properties)[0]].colorScheme ? dashTheme ?? chartControls.properties[Object.keys(chartControls.properties)[0]].colorScheme:'peacock'
+  const [mouseDownOutsideGraphs, setmouseDownOutsideGraphs] = useState<boolean>(false);
   const [dimensions, setDimensions] = useState<any>({});
+  const theme = tabState.tabs[selectedTab]?.dashboardState?.theme ? tabState.tabs[selectedTab]?.dashboardState?.theme: 'FlatUI'
+  const color_scheme = tabState.tabs[selectedTab]?.dashboardState?.colorScheme ? tabState.tabs[selectedTab]?.dashboardState?.colorScheme :'peacock'
   const [innerDimensions, setinnerDimensions] = useState<any>({});
+  const [softUI, setSoftUI] = useState<boolean>(theme === 'SoftUI');
+  const [selectedColorScheme, setSelectedColorScheme] = useState("");
+  const [schemeColor, setSchemeColor] = useState<string>(scheme_passed);
+  const Tabs_Toggle=tabState.tabs[selectedTab]?.dashboardState?.allTabs ? tabState.tabs[selectedTab]?.dashboardState?.allTabs: true
+  const Tiles_Toggle=tabState.tabs[selectedTab]?.dashboardState?.allTiles? tabState.tabs[selectedTab]?.dashboardState?.allTiles: true
+  const [ApplytoAllTabs, setApplytoAllTabs] = useState<boolean>(Tabs_Toggle);
+  const [ApplytoTiles, setApplytoTiles]=useState<boolean>(Tiles_Toggle);
 
-  var dashbackground: string = `linear-gradient(-90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+  useEffect(() => { setSoftUI(theme === 'SoftUI'); setSchemeColor(color_scheme) }, [theme, color_scheme,softUI]);
+  const handleThemeChange = (newtheme: string) => {
+    //console.log(newtheme,softUI)
+    let chosenTheme=newtheme
+    //console.log(chosenTheme)
+    setSoftUI(chosenTheme === 'SoftUI');
+    //console.log(newtheme,softUI)
+    setTheme(newtheme, tabTileProps.selectedTabId);
+
+  }; // Dispatch Redux action };
+  useEffect(()=>{
+    console.log(softUI)
+    console.log(theme)
+  },[softUI,theme])
+
+  // Handle Toggle for "Apply to All Tabs"
+  const handleToggleAllTabs = () => {
+    const newState = !ApplytoAllTabs; // Toggle state
+    setApplytoAllTabs(newState);
+    Object.keys(tabState.tabs).forEach((tabkey) => {
+      toggleAllTabs(parseInt(tabkey, 10)) // Update Redux state
+    });
+  };
+
+// Handle Toggle for "Apply to All Tiles"
+const handleToggleAllTiles = () => {
+    const newState = !ApplytoTiles; // Toggle state
+    setApplytoTiles(newState);
+    Object.keys(tabState.tabs).forEach((tabkey) => {
+      console.log("Dispatching TOGGLE_ALL_TILES for tab:", tabkey);
+      toggleAllTiles(parseInt(tabkey, 10))
+     // Update Redux state
+  });
+};
+
+  const getBoxShadow = (schemeColor: any) => {
+    if (schemeColor === "dark") {
+      // Dark Scheme: rgba(51, 51, 51, 1) (Use a strong dark shadow)
+      return "8px 8px 20px rgba(0,0,0,0.6), -8px -8px 20px rgba(0,0,0,0.2)"; // Darker shadow for uplifted look
+    } else if (schemeColor === "chalk") {
+      // Chalk Scheme: rgba(41, 52, 65, 1) (Use a subtle, moderate shadow)
+      return "8px 8px 18px rgba(0,0,0,0.4), -8px -8px 18px rgba(0,0,0,0.2)"; // Slightly muted shadow
+    } else if (schemeColor === "halloween") {
+      // Halloween Scheme: rgba(64, 64, 64, 0.75) (Use a light dark shadow for contrast)
+      return "8px 8px 15px rgba(0,0,0,0.3), -8px -8px 15px rgba(0,0,0,0.1)"; // Light shadow
+    } else if (schemeColor === "purplePassion") {
+      // Purple Passion Scheme: rgba(91, 92, 110, 1) (Use a strong dark shadow)
+      return "8px 8px 20px rgba(0,0,0,0.5), -8px -8px 20px rgba(0,0,0,0.2)"; // Stronger shadow for a rich look
+    }
+
+    // Default return for any other scheme (fallback to light shadow)
+    return "8px 8px 15px rgba(0,0,0,0.15), -8px -8px 15px rgba(255,255,255,0.8)";
+  };
+
+
+
+  var dashbackground: string = `
+  linear-gradient(-90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
 	linear-gradient( rgba(0, 0, 0, 0.05) 1px, transparent 1px),
 	linear-gradient(-90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-	linear-gradient( rgba(0, 0, 0, 0.05) 1px, transparent 1px)`;
+	linear-gradient( rgba(0, 0, 0, 0.05) 1px, transparent 1px)`;//only in light color scheme
+
+  var darkbackground: string = `linear-gradient(-90deg, rgba(204, 204, 204, 0.1) 1px, transparent 1px),
+  linear-gradient(rgba(204, 204, 204, 0.1) 1px, transparent 1px),
+  linear-gradient(-90deg, rgba(204, 204, 204, 0.1) 1px, transparent 1px),
+  linear-gradient(rgba(204, 204, 204, 0.1) 1px, transparent 1px)`; // only in dark color scheme
+
+
+  const [backgroundColor, setBackgroundColor] = useState<string>("");
+  var presentbackground: string = backgroundColor;
+   // useEffect(()=>{
+  //   console.log(ColorSchemes)
+  //   const selectedScheme=ColorSchemes.filter(scheme=> scheme.name===scheme_passed)
+  //   console.log(selectedScheme);
+  //   const bgcolor=selectedScheme[0].background
+  //   setBackgroundColor(bgcolor);
+  // },[selectedTab])
+
+  useEffect(() => {
+    
+
+    // Find the selected color scheme
+    const selectedScheme = ColorSchemes.find(scheme => scheme.name === scheme_passed);
+  
+    if (selectedScheme) {
+      
+      const bgcolor = selectedScheme.background;
+      setBackgroundColor(bgcolor);
+      
+  
+      if (ApplytoAllTabs) {
+        // Apply the background color to all tabs
+        Object.keys(tabState.tabs).forEach((tabkey) => {
+          setDashColorScheme(scheme_passed, parseInt(tabkey, 10));
+    
+          tileState.tileList[parseInt(tabkey, 10)].forEach((propkey) =>
+            dispatch(setColorScheme(propkey, scheme_passed))
+          );
+        });
+        // Object.keys(tabState).forEach((tabkey)=>
+        //   console.log(tabkey),
+        //   setDashColorScheme(scheme_passed,parseInt(tabkey,10))
+        // );
+      }  
+      if(!ApplytoAllTabs){
+        const allTilesForSelectedTab = tileState.tileList[selectedTab];
+        setDashColorScheme(scheme_passed,selectedTab);
+        allTilesForSelectedTab.forEach((propkey) =>
+          dispatch(setColorScheme(propkey, scheme_passed))
+        );
+
+      }if(ApplytoTiles) {
+        // Apply to all tiles, the color scheme 
+        const allTilesForSelectedTab = tileState.tileList[selectedTab];
+        allTilesForSelectedTab.forEach((propkey) =>
+          dispatch(setColorScheme(propkey, scheme_passed))
+        );
+      } if(!ApplytoTiles){
+        const allTilesForSelectedTab = tileState.tileList[selectedTab];
+        allTilesForSelectedTab.forEach((propkey) =>
+          dispatch(setColorScheme(propkey, "peacock"))
+        );
+
+      }
+    } else {
+      console.warn('No matching color scheme found');
+    }
+  }, [selectedTab, scheme_passed, ApplytoAllTabs,ApplytoTiles]);
+  
 
   const [dashStyle, setdashStyle] = useState<any>({
     width: innerDimensions.width,
     height: innerDimensions.height,
-    background: dashbackground,
+    backgroundImage: ["dark", "halloween", "purplePassion", "chalk"].includes(
+      schemeColor
+    )
+      ? darkbackground
+      : dashbackground,
   });
+
+  const [dashStyle1, setdashStyle1] = useState<any>({
+    width: innerDimensions.width,
+    height: innerDimensions.height,
+    backgroundColor: presentbackground,
+  });
+
+
 
   const [style, setStyle] = useState<any>({
     display: "flex",
@@ -102,6 +268,24 @@ const DashBoard = ({
     boxSizing: "border-box",
     zIndex: 20,
   });
+
+  const skeuomorphicStyle = {
+    /*boxShadow: "8px 8px 15px rgba(0,0,0,0.15), -8px -8px 15px rgba(255,255,255,0.8)",*/
+    //backgroundColor: backgroundColor,
+    // borderRadius: "12px",
+  };
+  const tileskeuomorphicStyle = {
+    boxShadow: getBoxShadow(schemeColor), // backgroundColor is dynamically passed
+    borderRadius: "12px",
+  };
+
+  const skeuomorphicInnerStyle = {
+    boxShadow:
+      "inset 4px 4px 8px rgba(0,0,0,0.2), inset -4px -4px 8px rgba(255,255,255,0.7)",
+    //backgroundColor: backgroundColor,//"#EEF0F7",//f3f3f3
+    borderRadius: "8px",
+  };
+
   const getHeightAndWidth = (paperHeight: number, paperWidth: number) => {
     var graphHeight = dashStyle.height;
     var graphWidth = dashStyle.width;
@@ -125,9 +309,8 @@ const DashBoard = ({
       ) as HTMLElement;
 
       const d = new Date();
-      const id = `${tabTileProps.selectedTabName}_${d.getDate()}${
-        d.getMonth() + 1
-      }${d.getFullYear()}:${d.getHours()}${d.getMinutes()}${d.getSeconds()}`;
+      const id = `${tabTileProps.selectedTabName}_${d.getDate()}${d.getMonth() + 1
+        }${d.getFullYear()}:${d.getHours()}${d.getMinutes()}${d.getSeconds()}`;
 
       if (pageSettings.downloadType === "pdf") {
         html2canvas(input).then((canvas) => {
@@ -174,17 +357,27 @@ const DashBoard = ({
     graphArea();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [dimensions, tabState.tabs[tabTileProps.selectedTabId].dashLayout]);
+  }, [dimensions, tabState.tabs[tabTileProps.selectedTabId].dashLayout, tabTileProps.dashMode]);
 
   // When dashboard is changed from edit to present mode, enable or disable
   // the grid like background in dashboard area
   useEffect(() => {
     if (tabTileProps.dashMode === "Present") {
-      setdashStyle({ ...dashStyle, background: null });
-    } else {
-      setdashStyle({ ...dashStyle, background: dashbackground });
+      setdashStyle1({ ...dashStyle1, background: presentbackground });
+    } else if (tabTileProps.dashMode === "Edit") {
+      setdashStyle({
+        ...dashStyle,
+        backgroundImage: [
+          "dark",
+          "halloween",
+          "purplePassion",
+          "chalk",
+        ].includes(schemeColor)
+          ? darkbackground
+          : dashbackground,
+      });
     }
-  }, [tabTileProps.dashMode]);
+  }, [tabTileProps.dashMode, schemeColor]);
 
   let movement_timer: null | any = null;
   const RESET_TIMEOUT: number = 300;
@@ -215,9 +408,55 @@ const DashBoard = ({
   // Given the dimension of dashboard area available,
   // if Fullscreen option or Aspect ratio option selected,
   // compute the width and height of available area for graphs
+  useEffect(() => {
+    if (softUI) {
+      setdashStyle((prevStyle: any) => ({
+        ...prevStyle,
+        backgroundColor: backgroundColor,
+        boxShadow: softUI
+          ? "8px 8px 15px rgba(0,0,0,0.15), -8px -8px 15px rgba(255,255,255,0.8)"
+          : "none", // Conditionally apply SoftUI box-shadow
+        ...skeuomorphicStyle,
+      }));
+      setStyle((prevStyle: any) => ({
+        ...prevStyle,
+        backgroundColor: backgroundColor,
+        ...tileskeuomorphicStyle,
+      }));
+      setStyle2((prevStyle: any) => ({
+        ...prevStyle,
+        backgroundColor: backgroundColor,
+        ...skeuomorphicInnerStyle,
+      }));
+    } else {
+      setdashStyle((prevStyle: any) => ({
+        ...prevStyle,
+        boxShadow: "none",
+        backgroundColor: backgroundColor,
+        borderRadius: "0px",
+      }));
+      setStyle((prevStyle: any) => ({
+        ...prevStyle,
+        boxShadow: "none",
+        backgroundColor: backgroundColor,
+        borderRadius: "0px",
+      }));
+      setStyle2((prevStyle: any) => ({
+        ...prevStyle,
+        boxShadow: "none",
+        backgroundColor: backgroundColor,
+        borderRadius: "0px",
+      }));
+    }
+  }, [backgroundColor, softUI]);
+
+  // Ensure schemeColor and softUI are dependencies to trigger when they change
+
   const graphArea = () => {
     var dashLayoutProperty =
       tabState.tabs[tabTileProps.selectedTabId].dashLayout;
+
+
 
     if (
       dashLayoutProperty.dashboardLayout === "Auto" &&
@@ -233,16 +472,33 @@ const DashBoard = ({
       // setting dashboard graph area according to above size
       setinnerDimensions({ width: fullWidth, height: fullHeight });
 
-      // set grid like background of dashboard accordingly
-      setdashStyle({
-        ...dashStyle,
-        width: fullWidth,
-        height: fullHeight,
-        backgroundSize: `${fullWidth / 32}px ${fullHeight / 18}px, 
+      if (tabTileProps.dashMode === "Present") {
+
+        setdashStyle1({
+          ...dashStyle1,
+          backgroundColor: backgroundColor,
+          width: fullWidth,
+          height: fullHeight,
+          backgroundSize: `${fullWidth / 32}px ${fullHeight / 18}px, 
+          ${fullWidth / 32}px ${fullHeight / 18}px, 
+          ${fullWidth / 2}px ${fullWidth / 2}px,
+          ${fullHeight / 2}px ${fullHeight / 2}px`,
+        });
+      }
+      else if (tabTileProps.dashMode === "Edit") {
+        // set grid like background of dashboard accordingly
+        console.log("Edit function")
+
+        setdashStyle({
+          ...dashStyle,
+          width: fullWidth,
+          height: fullHeight,
+          backgroundSize: `${fullWidth / 32}px ${fullHeight / 18}px, 
 				${fullWidth / 32}px ${fullHeight / 18}px, 
 				${fullWidth / 2}px ${fullWidth / 2}px,
 				${fullHeight / 2}px ${fullHeight / 2}px`,
-      });
+        });
+      }
 
       // compute size of each of the grid and save it in store
       // used by graph area in tile for displaying graph in dashboard size
@@ -287,6 +543,7 @@ const DashBoard = ({
 					${truncatedX * dashLayoutProperty.aspectRatio.height}px 
 					${truncatedX * dashLayoutProperty.aspectRatio.height}px`,
         });
+
         setGridSize({ x: truncatedX, y: truncatedX });
       }
 
@@ -302,6 +559,7 @@ const DashBoard = ({
           width: truncatedY * (dashLayoutProperty.aspectRatio.width * 2),
           height: truncatedY * (dashLayoutProperty.aspectRatio.height * 2),
         });
+
         setdashStyle({
           ...dashStyle,
           width: truncatedY * (dashLayoutProperty.aspectRatio.width * 2),
@@ -313,6 +571,7 @@ const DashBoard = ({
 					${truncatedY * dashLayoutProperty.aspectRatio.height}px 
 					${truncatedY * dashLayoutProperty.aspectRatio.height}px`,
         });
+
         setGridSize({ x: truncatedY, y: truncatedY });
       }
     }
@@ -353,38 +612,36 @@ const DashBoard = ({
             : "listOfGraphs"
         }
       >
-        <Checkbox
-          size="small"
-          key={index}
-          checked={checked}
-          onChange={(event) => {
-            updateDashBoardFilters(event, propKey);
-            updateDashDetails(
-              checked,
-              propKey,
-              dashSpecs,
-              tabTileProps.selectedTabId,
-              propIndex
-            );
-            toggleGraphSize(propKey, checked ? true : false);
-            //toggleGraphSize(propIndex, checked ? true : false);
-          }}
-          style={{
-            transform: "scale(0.8)",
-            margin: "0px 4px",
-          }}
-          sx={{
-            "&.MuiCheckbox-root": {
-              padding: "0px",
-              margin: "0px",
-            },
-            "&.Mui-checked": {
-              color: "#2bb9bb",
-            },
-          }}
-        />
+        <label>
+          <Checkbox
+            sx={{
+              "&.Mui-checked": {
+                color: "#2bb9bb",
+              },
+              "&.Mui-disabled": {
+                color: "#B1B1B1",
+              },
+            }}
+            style={{ width: "0.5rem", height: "0.5rem", margin: "auto 5px auto 0" }}
+            size="small"
+            key={index}
+            checked={checked}
+            onChange={(event) => {
+              updateDashBoardFilters(event, propKey);
+              updateDashDetails(
+                checked,
+                propKey,
+                dashSpecs,
+                tabTileProps.selectedTabId,
+                propIndex
+              );
+              ////toggleGraphSize(propKey, checked ? true : false); /*  PRAKASH 23Dec2024 */
+              //toggleGraphSize(propIndex, checked ? true : false);
+            }}
 
-        <span className="graphName">{currentObj.tileName}</span>
+          />
+          <span className="graphName">{currentObj.tileName}</span>
+        </label>
       </div>
     );
   });
@@ -430,19 +687,150 @@ const DashBoard = ({
     renderGraphs();
   }, [tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails, dashStyle]);
 
+  const softUISliderComponent = (
+    <div className="themeSelector">
+      <h4 style={{ textAlign: "left", marginLeft: "15px", color: "#616164" }}>
+        Theme
+      </h4>
+      <div
+        className="checkboxOption"
+        style={{
+          textAlign: "left",
+          marginLeft: "25px",
+          color: "#616164",
+          fontSize: "15px",
+          marginBottom: "15px",
+        }}
+      >
+        <input
+          type="radio"
+          id="flatUI"
+          checked={!softUI}
+          onChange={() => handleThemeChange('FlatUI')}
+          className="customRadio"
+        />
+        <label htmlFor="flatUI" className="customLabel">FlatUI</label>
+      </div>
+      <div
+        className="checkboxOption"
+        style={{
+          textAlign: "left",
+          marginLeft: "25px",
+          color: "#616164",
+          fontSize: "15px",
+        }}
+      >
+        <input
+          type="radio"
+          id="softUI"
+          checked={softUI}
+          onChange={() => handleThemeChange("SoftUI")}
+          className="customRadio"
+        />
+        <label htmlFor="softUI" className="customLabel">SoftUI</label>
+      </div>
+
+      <div
+        className="colorSchemeSelector"
+        style={{ marginLeft: "15px", marginTop: "20px" }}
+      >
+        {/* Include the ChartColors or ColorScheme component */}
+        <ChartColors
+          //chart color has a default behaviour of changing color scheme of all tiles in all tabs
+          //from=dashboard will prevent this behaviour
+          from="dashboard"
+          selectedTab={selectedTab}
+          onBackgroundColorChange={(color: {
+            schemeName: string;
+            color: string;
+          }) => {
+            // Extract schemeName and color from the object
+            const { schemeName, color: backgroundColor } = color;
+            setSchemeColor(schemeName);
+            //setDashColorScheme(schemeName, selectedTab);
+            // Update state or perform other actions
+            setBackgroundColor(backgroundColor); // Example: Updating a state in the parent
+            //Setting Color scheme for all tiles in a particular tab
+            if (ApplytoAllTabs) {
+              // Apply to all tabs
+              Object.keys(tabState.tabs).forEach((tabkey) => {
+                setDashColorScheme(schemeName, parseInt(tabkey, 10));
+                tileState.tileList[parseInt(tabkey, 10)].forEach((propkey) =>
+                  dispatch(setColorScheme(propkey, schemeName))
+                );
+              });
+            }  if(!ApplytoAllTabs){
+              const allTilesForSelectedTab = tileState.tileList[selectedTab];
+              setDashColorScheme(schemeName,selectedTab);
+              allTilesForSelectedTab.forEach((propkey) =>
+                dispatch(setColorScheme(propkey, scheme_passed))
+              );
+            }
+            if(ApplytoTiles) {
+              // Apply to all tiles, the color scheme 
+              const allTilesForSelectedTab = tileState.tileList[selectedTab];
+              allTilesForSelectedTab.forEach((propkey) =>
+                dispatch(setColorScheme(propkey, scheme_passed))
+              );
+            } if(!ApplytoTiles){
+              //Applying default Color Scheme "Peacock" to all tiles
+              const allTilesForSelectedTab = tileState.tileList[selectedTab];
+              allTilesForSelectedTab.forEach((propkey) =>
+                dispatch(setColorScheme(propkey, "peacock"))
+              );
+            }
+          }}
+        />
+      </div>
+      <div style={{  marginTop: "20px" }}>
+        <div style={{ marginBottom: "10px",alignItems: "left", fontSize:"13px",marginLeft: "12px", }}>
+          <input
+            type="checkbox"
+            id="applytoAllTabs"
+            checked={ApplytoAllTabs}
+            onChange={() => handleToggleAllTabs()} 
+
+          />
+          <label htmlFor="applytoAllTabs" >
+            Apply Scheme across Playbook
+          </label>
+        </div>
+        <div style={{ marginBottom: "10px",alignItems: "left", fontSize:"13px",marginLeft: "-28px" }}>
+          <input
+            type="checkbox"
+            id="applytoCurrentTab"
+            checked={ApplytoTiles}
+            onChange={() => handleToggleAllTiles()} 
+
+            
+          />
+          <label htmlFor="applytoCurrentTab" style={{border: "1pxx solid red"}} >
+            Apply Scheme to all tiles
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderGraphs = () => {
     return tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.map(
       (box, index) => {
         var boxDetails =
           tabState.tabs[tabTileProps.selectedTabId].dashTilesDetails[box];
-
+        let colorScheme = chartControls.properties[box].colorScheme;
+        if(!ApplytoTiles){
+          colorScheme=scheme_passed
+        }
         return (
           <GraphRNDDash
             key={index}
+            softUI={softUI}
+            style={softUI ? tileskeuomorphicStyle : ""}
+            backgroundColor={backgroundColor}
+            colorScheme={colorScheme}
             mouseDownOutsideGraphs={mouseDownOutsideGraphs}
             tabId={tabTileProps.selectedTabId}
             boxDetails={boxDetails}
-            style={style}
             setStyle={setStyle}
             style2={style2}
             setStyle2={setStyle2}
@@ -468,39 +856,34 @@ const DashBoard = ({
             e.target.attributes.class.value === container3
           ) {
             setmouseDownOutsideGraphs(false);
-            // graphHighlight(
-            // 	tabTileProps.selectedTabId,
-            // 	e.target.attributes.propkey.value,
-            // 	true
-            // );
           } else {
             setmouseDownOutsideGraphs(true);
-            // resetHighlight(tabTileProps.selectedTabId);
           }
         }
       }}
     >
       <div className="dashboardOuter" ref={targetRef}>
         <div
-          className="dashboardArea"
           id="GraphAreaToDownload"
+          className={`dashboardArea ${softUI ? "skeuomorphic" : ""}`}
           style={
             pageSettings.callForDownload
               ? {
-                  ...dashStyle,
-                  background: "none",
-                  backgroundColor: "white",
-                  borderTop: "2px solid rgba(224,224,224,1)",
-                }
-              : dashStyle
+                ...dashStyle,
+                // backgroundColor: { backgroundColor },
+                borderTop: "2px solid rgba(224,224,224,1)",
+                boxShadow: "none",
+              }
+              : tabTileProps.dashMode === "Edit" ? { ...dashStyle, backgroundColor: backgroundColor } : { ...dashStyle1, backgroundColor: backgroundColor }
           }
         >
           {tabState.tabs[tabTileProps.selectedTabId].tilesInDashboard.length >
-          0 ? (
+            0 ? (
             renderGraphs()
           ) : (
             <div
               id="GraphAreaToDownload"
+              className={softUI ? "skeuomorphic-inner" : ""}
               style={{
                 height: "100%",
                 display: "flex",
@@ -512,9 +895,8 @@ const DashBoard = ({
                   : "0px",
               }}
             >
-              <pre style={{ fontFamily: "Monaco", fontSize: "16px" }}>
-                No graphs selected{"\n\n"} Select tiles from right panel to
-                place graph here
+              <pre style={{ fontSize: "16px", fontFamily: "Roboto-Regular !important",}}>
+                {tabTileProps.dashMode === "Edit" ? `No graphs selected\n\nSelect tiles from right panel to place graph here` : `No graphs selected`}
               </pre>
             </div>
           )}
@@ -522,11 +904,6 @@ const DashBoard = ({
       </div>
       {tabTileProps.dashMode === "Edit" ? (
         <div>
-           <ChartData
-              tabId={tabTileProps.selectedTabId}
-              tileId={tabTileProps.selectedTileId}
-              screenFrom="Dashboard"
-            ></ChartData>
           {showListofTileMenu ? (
             <div className="dashBoardSideBar">
               <div className="tileListContainer">
@@ -537,7 +914,7 @@ const DashBoard = ({
                       sx={{
                         fontSize: "16px",
                         float: "right",
-                        marginRight: "-4px",
+                        marginRight: "0.7rem",
                       }}
                       onClick={() => setShowListofTileMenu(false)}
                     />
@@ -552,56 +929,31 @@ const DashBoard = ({
                 <div className="dashBoardSideBar">
                   <DashBoardLayoutControl
                     setDashboardResizeColumn={setDashboardResizeColumn}
+                    softUISlider={softUISliderComponent}
+                    backgroundColor={backgroundColor} // Pass the backgroundColor prop
+                    setBackgroundColor={setBackgroundColor}
                   />
                 </div>
               ) : null}
             </>
-          ) :showDashBoardFilterMenu?(
-        <>
-          <div className="dashBoardSideBar">
-           
-            <ChartFilterGroupsContainer
-              propKey={"0.0"}
-              fromDashboard={true}
-            ></ChartFilterGroupsContainer>
-            {/* <Tooltip title="Hide">
-								<KeyboardArrowUpIcon
-									sx={{
-										fontSize: "16px",
-										float: "right",
-										margin: "16px 0px 5px 8px",
-										color: "grey",
-									}}
-									onClick={() => setShowDashBoardFilter(false)}
-								/>
-							</Tooltip> */}
-          </div>
-        </>
-      ): null}
+          ) : null}
         </div>
       ) : null}
-      {/* {showDashBoardFilterMenu ? (
+      {showDashBoardFilterMenu ? (
         <>
           <div className="dashBoardSideBar">
-           
+            <ChartData
+              tabId={tabTileProps.selectedTabId}
+              tileId={tabTileProps.selectedTileId}
+              screenFrom="Dashboard"
+            ></ChartData>
             <ChartFilterGroupsContainer
               propKey={"0.0"}
               fromDashboard={true}
             ></ChartFilterGroupsContainer>
-            {/* <Tooltip title="Hide">
-								<KeyboardArrowUpIcon
-									sx={{
-										fontSize: "16px",
-										float: "right",
-										margin: "16px 0px 5px 8px",
-										color: "grey",
-									}}
-									onClick={() => setShowDashBoardFilter(false)}
-								/>
-							</Tooltip> */}
-          {/* </div>
+          </div>
         </>
-      ) : null} */} 
+      ) : null}
     </div>
   );
 };
@@ -614,11 +966,16 @@ const mapStateToProps = (state: DashBoardStateProps & any, ownProps: any) => {
     tabTileProps: state.tabTileProps,
     tileState: state.tileState,
     pageSettings: state.pageSettings,
+    chartControls: state.chartControls,
   };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   return {
+    setTheme: (theme: string, tabId: number) => dispatch(setTheme(theme, tabId)),
+    setDashColorScheme: (colorScheme: string, tabId: number,) => dispatch(setDashColorScheme(colorScheme, tabId)),
+    toggleAllTiles:(tabId:number)=>dispatch(toggleAllTiles(tabId)),
+    toggleAllTabs:(tabId:number)=>dispatch(toggleAllTabs(tabId)),
     updateDashDetails: (
       checked: boolean,
       propKey: string,
@@ -659,3 +1016,11 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(DashBoard);
+function setDashboardColorScheme(selectedTabId: number, scheme: any): any {
+  throw new Error("Function not implemented.");
+}
+
+function propkey(value: string, index: number, array: string[]): void {
+  throw new Error("Function not implemented.");
+}
+

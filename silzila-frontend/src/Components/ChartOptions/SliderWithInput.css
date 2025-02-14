@@ -1,7 +1,7 @@
 .sliderWithInput {
-    width: 90%;
+    width: 96%;
     display: flex;
-    margin: 0 5% 10px 5%;
+    margin: 0 5px;
     height: 1.5rem;
     color: black;
     border: 1px solid lightgray;
@@ -19,6 +19,7 @@
     line-height: 1rem;
     margin-right: 5px;
     color: rgb(128, 128, 128);
+    padding-right: 13px;
 }
 
 .textValue {
@@ -26,12 +27,7 @@
     flex: 1;
     height: 1.5rem;
     line-height: 1.5rem;
-    margin-right: 5px;
+    margin-right: 10px;
     color: rgb(128, 128, 128);
+    font-size: 12px;    /*  PRAKASH 23DEC2024   */
 }
-
-
-
-
-
-

@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { Box, Button, Menu, MenuItem, TextField, Typography } from "@mui/material";
+import { Box, Button, Menu, MenuItem, TextField, Typography,Dialog,DialogTitle,DialogContent } from "@mui/material";
 import { connect } from "react-redux";
 import { ChartPropertiesProps} from "../../../redux/ChartPoperties/ChartPropertiesInterfaces";
 import { editChartPropItem } from "../../../redux/ChartPoperties/ChartPropertiesActions";
@@ -45,7 +45,8 @@ const RenameFunction = ({
     Logger("info", "**field****", field);
 
      // Initialize renameText with the current name_with_aggr value
-    const Aggname=`${field.agg}${field.timeGrain ? ' ' + field.timeGrain : ''} of ${field.fieldname}`;
+    //  const Aggname=`${field.agg}${field.timeGrain ? ' ' + field.timeGrain : ''} of ${field.fieldname}`;
+     const Aggname=`${field.displayname}`;
     const initialRenameText = field.agg && field.agg.trim() !== "" && !field.isTextRenamed ? Aggname : field.displayname;
      
     const [renameText, setRenameText] = useState(initialRenameText || "");
@@ -120,48 +121,24 @@ const RenameFunction = ({
     
     return (
         <div>
-            <Menu  
+            <Dialog  
                 open={renamefn}
                 onClose={() => setRenamefn(false)}
-                sx={{ textAlign:"center",
-                '&:hover': {
-                    backgroundColor: 'transparent !important',
-                },
-                }}
-                MenuListProps={{
-                    "aria-labelledby": "basic-button",
-                }}
-                anchorOrigin={{
-                    vertical: "center",
-                    horizontal: "center",
-                }}
-                transformOrigin={{
-                    vertical: "center",
-                    horizontal: "center",
-                }}
-
+                PaperProps={{
+                    sx : {
+                        textAlign:"center",                   
+                    }
+                 }}  
             >
-
-     
-               <Typography variant="h5" sx={{ padding: "px",color:"#b6b6b6",marginBottom:"20px",marginTop:'10px',
-               }}
-               >
-                     Rename for Visual
-                </Typography>
-
-                <MenuItem disableRipple
-                 sx={{
-                    '&:hover': {
-                        backgroundColor: 'transparent !important',
-                    },
-                    '&.Mui-focusVisible': {
-                        backgroundColor: 'transparent !important',
-                    },
-                    '&.Mui-focused': {
-                        backgroundColor: 'transparent !important',
-                    },
+                <DialogTitle>
+                <Typography variant="h5" sx={{ padding: "px",color:"#b6b6b6",marginBottom:"20px",marginTop:'10px',
                 }}
                 >
+                        Rename for Visual
+                    </Typography>
+                </DialogTitle>
+
+                <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%',marginBottom:"10px"}}>
                     
                    
@@ -257,9 +234,8 @@ const RenameFunction = ({
                             </Button>             
                         </Box>
                     </Box>
-                  
-                </MenuItem>
-            </Menu>
+                </DialogContent>       
+            </Dialog>
         </div>
     );
 };

@@ -14,7 +14,8 @@ import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import { displayName, fieldName } from "../CommonFunctions/CommonFunctions";
 
 interface PieChartProps {
-  updateChartMargins: (propKey: string, option: string, value: any) => void;
+  updateChartMargins: (propKey: string, option: string, value: any,) => void;
+  colorScheme: string;
 }
 const PieChart = ({
   //props
@@ -22,6 +23,7 @@ const PieChart = ({
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
 
   //state
   chartProperties,

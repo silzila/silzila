@@ -48,8 +48,8 @@ const SankeyStyles = ({
 					}}
 					sx={{
 						fontSize: "12px",
-						width: "90%",
-						margin: "0 auto 0.5rem auto",
+						width: "96%",
+						margin: "0 auto 0.5rem 0.3rem",
 						backgroundColor: "white",
 						height: "1.5rem",
 						color: "#404040",
@@ -93,8 +93,8 @@ const SankeyStyles = ({
 					}}
 					sx={{
 						fontSize: "12px",
-						width: "90%",
-						margin: "0 auto 0.5rem auto",
+						width: "96%",
+						margin: "0 auto 0.5rem 0.3rem",
 						backgroundColor: "white",
 						height: "1.5rem",
 						color: "#404040",

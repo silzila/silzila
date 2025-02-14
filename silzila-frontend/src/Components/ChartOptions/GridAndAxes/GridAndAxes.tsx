@@ -32,8 +32,8 @@ import { ChartOptionsProps, ChartOptionsStateProps } from "../CommonInterfaceFor
 export const textFieldStyleProps = {
 	style: {
 		fontSize: "12px",
-		width: "90%",
-		margin: "0 auto 0.5rem auto",
+		width: "93%",
+		margin: "0 0.5rem 0.5rem 0.5rem",
 		backgroundColor: "white",
 		height: "1.5rem",
 		color: "#404040",
@@ -108,6 +108,7 @@ const GridAndAxes = ({
 						backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
 						cursor: isSelected? "auto" : "pointer",
 						fontWeight: isSelected? "600" : "normal",
+						marginLeft: "0"
 					}}
 				>
 					{item.type}
@@ -139,6 +140,7 @@ const GridAndAxes = ({
 						backgroundColor: isSelected? "rgba(224, 224, 224, 1)" : "white",
 						cursor: isSelected? "auto" : "pointer",
 						fontWeight: isSelected? "600" : "normal",
+						marginLeft: "0"
 					}}
 				>
 					{item.type}
@@ -156,7 +158,7 @@ const GridAndAxes = ({
 
 			{chartProperties.properties[propKey].chartType !== "scatterPlot" ? (
 				<>
-					<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
+					<div className="optionDescription" style={{ paddingLeft: "0.1rem", paddingRight: "0.5rem", paddingBottom: "0.2rem" }}>
 						<label
 							htmlFor="enableDisable"
 							className="enableDisableLabel"
@@ -175,6 +177,7 @@ const GridAndAxes = ({
 					<div className="optionDescription" style={{ marginTop: "2px" }}>
 						<input
 							type="checkbox"
+							style={{width: "16px", height: "16px"}}
 							id="enableDisable"
 							checked={property.axisMinMax.enableMin}
 							onChange={() => {
@@ -193,6 +196,7 @@ const GridAndAxes = ({
 					<div className="optionDescription" style={{ marginTop: "2px" }}>
 						<input
 							type="checkbox"
+							style={{width: "16px", height: "16px"}}
 							id="enableDisable"
 							checked={property.axisMinMax.enableMax}
 							onChange={() => {
@@ -231,7 +235,7 @@ const GridAndAxes = ({
 						<label
 							htmlFor="enableDisable"
 							className="enableDisableLabel"
-							style={{ marginRight: "10px" }}
+							style={{ marginRight: "10px", paddingLeft: "0px" }}
 						>
 							Enable Dimension-Grid
 						</label>
@@ -245,11 +249,11 @@ const GridAndAxes = ({
 				</>
 			) : null}
 
-			<div className="optionDescription" style={{ padding: "0 6% 5px 4%", marginTop: "2px" }}>
+				<div className="optionDescription" style={{ padding: "0 6% 5px 4%", marginTop: "2px" }}>
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
-					style={{ marginRight: "10px" }}
+					style={{ marginRight: "10px", paddingLeft: "0px" }}
 				>
 					Show Label
 				</label>
@@ -268,6 +272,7 @@ const GridAndAxes = ({
 							<div className="optionDescription" style={{ marginTop: "2px" }}>
 								<input
 									type="checkbox"
+									style={{width: "16px", height: "16px"}}
 									id="enableDisable"
 									checked={property.scatterChartMinMax.x_enableMin}
 									onChange={() => {
@@ -292,6 +297,7 @@ const GridAndAxes = ({
 							<div className="optionDescription" style={{ marginTop: "2px" }}>
 								<input
 									type="checkbox"
+									style={{width: "16px", height: "16px"}}
 									id="enableDisable"
 									checked={property.scatterChartMinMax.x_enableMax}
 									onChange={() => {
@@ -316,7 +322,7 @@ const GridAndAxes = ({
 					) : null}
 					<div className="radioButtons" style={{ marginTop: "15px" }}>{renderAxisOptionsForX()}</div>
 
-					<div className="optionDescription">Axis Name</div>
+					<div className="optionDescription" style={{paddingLeft: "0.4rem"}}>Axis Name</div>
 					<TextField
 						value={xAxisProps.name}
 						variant="outlined"
@@ -333,7 +339,7 @@ const GridAndAxes = ({
 						 }}
 					/>
 
-					<div className="optionDescription">Name Position</div>
+					<div className="optionDescription" style={{paddingLeft: "0.4rem"}}>Name Position</div>
 					<FormControl
 						fullWidth
 						size="small"
@@ -348,7 +354,7 @@ const GridAndAxes = ({
 							}}
 							sx={{
 								fontSize: "12px",
-								width: "90%",
+								width: "95%",
 								margin: "0 auto 0.5rem auto",
 								backgroundColor: "white",
 								height: "1.5rem",
@@ -386,7 +392,7 @@ const GridAndAxes = ({
 							})}
 						</Select>
 					</FormControl>
-					<div className="optionDescription">Name Gap</div>
+					<div className="optionDescription" style={{paddingLeft: "0.4rem"}}>Name Gap</div>
 
 					<TextField
 						value={xAxisProps.nameGap}
@@ -396,7 +402,7 @@ const GridAndAxes = ({
 						}}
 						InputProps={{ 
 							...textFieldStyleProps,
-						
+
 							sx: {								
 								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
 									borderColor: "#2bb9bb", // Set focused border color
@@ -413,20 +419,21 @@ const GridAndAxes = ({
 							updateAxisOptions(propKey, "xAxis", "nameSize", value);
 						}}
 					/>
-					<div style={{ display: "flex", marginTop: "2px", marginBottom: "2px" }}>
+					<div style={{ display: "flex", marginTop: "2px", marginBottom: "2px", marginRight: "2px" }}>
 						<div className="optionDescription">Name Color</div>
 						<div
 							style={{
-								width: " 30%",
-								margin: "0 5% 10px 0",
+								width: "90%",
+								// margin: "0 5% 10px 0",
 								height: "1.25rem",
-								color: xAxisProps.nameColor,
+								color: yAxisProps.nameColor,
 								border: "1px solid lightgray",
 								borderRadius: "3px",
 								padding: "0 5px",
 								marginTop: "10px",
-								marginBottom: "2px",
-								backgroundColor: xAxisProps.nameColor,
+								marginBottom: "0.2rem",
+								backgroundColor: yAxisProps.nameColor,
+								alignSelf: "end"
 							}}
 							onClick={() => {
 								setXColorPopOverOpen(!isXColorPopoverOpen);
@@ -512,7 +519,7 @@ const GridAndAxes = ({
 						<label
 							htmlFor="enableDisable"
 							className="enableDisableLabel"
-							style={{ marginRight: "10px" }}
+							style={{ marginRight: "10px", paddingLeft: "0" }}
 						>
 							Enable Measure-Grid
 						</label>
@@ -529,7 +536,7 @@ const GridAndAxes = ({
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
-					style={{ marginRight: "10px" }}
+					style={{ marginRight: "10px", paddingLeft: "0px" }}
 				>
 					Show Label
 				</label>
@@ -548,6 +555,7 @@ const GridAndAxes = ({
 							<div className="optionDescription" style={{ marginTop: "2px" }}>
 								<input
 									type="checkbox"
+									style={{width: "16px", height: "16px"}}
 									id="enableDisable"
 									checked={property.scatterChartMinMax.y_enableMin}
 									onChange={() => {
@@ -572,6 +580,7 @@ const GridAndAxes = ({
 							<div className="optionDescription" style={{ marginTop: "2px" }}>
 								<input
 									type="checkbox"
+									style={{width: "16px", height: "16px"}}
 									id="enableDisable"
 									checked={property.scatterChartMinMax.y_enableMax}
 									onChange={() => {
@@ -596,7 +605,7 @@ const GridAndAxes = ({
 					) : null}
 					<div className="radioButtons" style={{ marginTop: "15px" }}>{renderAxisOptionsForY()}</div>
 
-					<div className="optionDescription">Axis Name</div>
+					<div className="optionDescription" style={{paddingLeft: "0.4rem"}}>Axis Name</div>
 
 					<TextField
 						value={yAxisProps.name}
@@ -614,7 +623,7 @@ const GridAndAxes = ({
 						 }}
 					/>
 
-					<div className="optionDescription">Name Position</div>
+					<div className="optionDescription" style={{paddingLeft: "0.4rem"}}>Name Position</div>
 					<FormControl
 						fullWidth
 						size="small"
@@ -629,7 +638,7 @@ const GridAndAxes = ({
 							}}
 							sx={{
 								fontSize: "12px",
-								width: "90%",
+								width: "95%",
 								margin: "0 auto 0.5rem auto",
 								backgroundColor: "white",
 								height: "1.5rem",
@@ -667,7 +676,7 @@ const GridAndAxes = ({
 							})}
 						</Select>
 					</FormControl>
-					<div className="optionDescription">Name Gap</div>
+					<div className="optionDescription" style={{paddingLeft: "0.4rem"}}>Name Gap</div>
 
 					<TextField
 						value={yAxisProps.nameGap}
@@ -693,20 +702,21 @@ const GridAndAxes = ({
 							updateAxisOptions(propKey, "yAxis", "nameSize", value);
 						}}
 					/>
-					<div style={{ display: "flex", marginTop: "2px", marginBottom: "2px" }}>
+					<div style={{ display: "flex", marginTop: "2px", marginBottom: "2px", marginRight: "2px" }}>
 						<div className="optionDescription">Name Color</div>
 						<div
 							style={{
-								width: " 30%",
-								margin: "0 5% 10px 0",
+								width: "90%",
+								// margin: "0 5% 10px 0",
 								height: "1.25rem",
 								color: yAxisProps.nameColor,
 								border: "1px solid lightgray",
 								borderRadius: "3px",
 								padding: "0 5px",
 								marginTop: "10px",
-								marginBottom: "2px",
+								marginBottom: "0.2rem",
 								backgroundColor: yAxisProps.nameColor,
+								alignSelf: "end"
 							}}
 							onClick={e => {
 								setYColorPopOverOpen(!isYColorPopoverOpen);

@@ -97,7 +97,12 @@ const ChartLegend = ({
 
 	return (
 		<div className="optionsInfo" style={{ overflowX: "hidden" }}>
-			<div className="optionDescription" style={{ padding: "0 6% 5px 4%" }}>
+			<div className="optionDescription" 
+			// style={{ padding: "0 6% 5px 4%" }}
+			style={{
+				paddingLeft: "0.1rem"
+			}}
+			>
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
@@ -114,12 +119,12 @@ const ChartLegend = ({
 			</div>
 			{showLegend ? (
 				<React.Fragment>
-					<div className="optionDescription" style={{ marginTop: "3px" }}>Position:</div>
+					<div className="optionDescription" style={{ marginTop: "3px", paddingLeft: "0.4rem" }}>Position:</div>
 					{selectedPosition?.pos ? (
 						<FormControl
 							fullWidth
 							size="small"
-							style={{ fontSize: "12px", borderRadius: "4px" }}
+							style={{ fontSize: "12px", borderRadius: "4px", paddingLeft: "4px"}}
 						>
 							<Select
 								label=""
@@ -130,7 +135,7 @@ const ChartLegend = ({
 								}}
 								sx={{
 									fontSize: "12px",
-									width: "90%",
+									width: "99%",
 									margin: "0 auto 0.5rem auto",
 									backgroundColor: "white",
 									height: "1.5rem",
@@ -175,8 +180,7 @@ const ChartLegend = ({
 							<label
 								htmlFor="enableDisable"
 								className="enableDisableLabel"
-								style={{ marginRight: "10px" }}
-								
+								style={{ marginRight: "10px", paddingLeft:"0" }}
 							>
 								Piecewise
 							</label>
@@ -197,9 +201,7 @@ const ChartLegend = ({
 					) : null}
 					<div className="optionDescription" style={{ marginTop: "3px" }}>Orientation:</div>
 					<div className="radioButtons">{renderOrientation()}</div>
-
 					<Divider style={{ margin: "10px 0" }} />
-
 					<div className="optionDescription">RESIZE:</div>
 					{chartProperties.properties[propKey].chartType === "calendar" ||
 					chartProperties.properties[propKey].chartType === "heatmap" ? (
@@ -216,6 +218,7 @@ const ChartLegend = ({
 										changeValue={(value: number) =>
 											updateLegendOption(propKey, "itemGap", value)
 										}
+
 									/>
 								</>
 							) : null}
@@ -228,7 +231,6 @@ const ChartLegend = ({
 									chartControls.properties[propKey].legendOptions.itemGap
 								}
 								sliderMinMax={itemSpacingMinMax}
-								percent={true}
 								changeValue={(value: number) =>
 									updateLegendOption(propKey, "itemGap", value)
 								}

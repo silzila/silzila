@@ -85,13 +85,15 @@ const ChartStyle = ({
 			<SliderWithInput
 				percent={true}
 				sliderValue={chartControls.properties[propKey].crossTabStyleOptions.lineHeight}
-				sliderMinMax={{ min: 1, max: 20, step: 0.5 }}
+				sliderMinMax={{ min: 1, max: 10, step: 0.25 }}
 				changeValue={value => {
 					updateCrossTabStyleOptions(propKey, "lineHeight", value);
 				}}
 			/>
 
-			<div className="radioButtons" style={{ marginTop: "10px" }}>{renderLabels()}</div>
+			<div style={{ borderTop: "1px solid rgb(211,211,211)", margin: "1rem 6% 1rem" }}></div>
+
+			<div className="radioButtons" style={{ marginTop: "10px", paddingRight: "0.5px" }}>{renderLabels()}</div>
 			<React.Fragment>
 				<div style={{ display: "flex", paddingBottom: "8px", flexDirection: "column" }}>
 					<div>
@@ -100,6 +102,7 @@ const ChartStyle = ({
 						<div className="optionDescription">
 							<input
 								type="checkbox"
+								style={{width: "16px", height: "16px"}}
 								id="enableDisable"
 								checked={options.labelColorManual}
 								onChange={() => {
@@ -143,7 +146,7 @@ const ChartStyle = ({
 					</div>
 					<div className="optionDescription">Font Size</div>
 					<SliderWithInput
-						percent={true}
+						
 						sliderValue={options.fontSize}
 						sliderMinMax={{ min: 8, max: 50, step: 1 }}
 						changeValue={value => {

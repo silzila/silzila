@@ -155,10 +155,10 @@ const BubbleMapColors = ({
   if (!chartProperties.properties[propKey].chartAxes[1].fields[0]) {
     return (
       <>
-        <div className="optionDescription" style={{ fontSize: "14px" }}>Min</div>
-        <div className="optionDescription" style={{ marginTop: "2px"}}>
+         <div className="optionDescription" style={{ fontSize: "14px" }}>Min</div>
+         <div className="optionDescription" style={{ marginTop: "2px"}}>
           <InputBase
-            style={{ height: "1.25rem", width: "35%" }}
+            style={{ height: "1.25rem", minWidth: "35%", width: "50%" }}
             value={geoStyle.minValue}
             onChange={(e: any) => {
               updateGeoChartStyleOptions(propKey, "minValue", e.target.value);
@@ -170,12 +170,12 @@ const BubbleMapColors = ({
           <div
             style={{
               height: "1.25rem",
-              width: "50%",
+              width: "70%",
               marginLeft: "20px",
               backgroundColor: geoStyle.minColor,
               color: geoStyle.minColor,
               border: "2px solid darkgray",
-              margin: "auto",
+              margin: "auto 8px auto 6px",
             }}
             onClick={() => {
               setColor(geoStyle.minColor);
@@ -189,7 +189,7 @@ const BubbleMapColors = ({
         <div className="optionDescription" style={{ fontSize: "14px" }}>Max</div>
         <div className="optionDescription" style={{ marginTop: "2px"}}>
           <InputBase
-            style={{ height: "1.25rem", width: "35%" }}
+            style={{ height: "1.25rem", minWidth: "35%", width: "50%" }}
             value={geoStyle.maxValue}
             onChange={(e: any) => {
               updateGeoChartStyleOptions(propKey, "maxValue", e.target.value);
@@ -201,12 +201,12 @@ const BubbleMapColors = ({
           <div
             style={{
               height: "1.25rem",
-              width: "50%",
+              width: "70%",
               marginLeft: "20px",
               backgroundColor: geoStyle.maxColor,
               color: geoStyle.maxColor,
               border: "2px solid darkgray",
-              margin: "auto",
+              margin: "auto 8px auto 6px",
             }}
             onClick={() => {
               setColor(geoStyle.maxColor);

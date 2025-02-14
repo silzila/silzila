@@ -118,13 +118,13 @@ const SankeyColorControls = ({
         <div
           style={{
             height: "1.25rem",
-            width: "50%",
-            marginLeft: "20px",
+            width: "75%",
             backgroundColor:
-              chartControls.properties[propKey].sankeyControls.linkColor,
+            chartControls.properties[propKey].sankeyControls.linkColor,
             color: chartControls.properties[propKey].sankeyControls.linkColor,
             border: "2px solid darkgray",
             margin: "auto",
+            marginRight: "0.25rem",
           }}
           onClick={() => {
             setSelectedItem("linkColor");

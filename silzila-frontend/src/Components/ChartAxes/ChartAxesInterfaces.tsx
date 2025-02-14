@@ -170,6 +170,9 @@ export interface Card {
 		disableReportFilterForOverride?:boolean;
 		rollupDepth?:boolean;
 		override?:any;
+		isCalculatedField?: boolean;
+		isAggregated?: boolean;
+		windowfn?: any;
 	};
 	bIndex: number;
 	itemIndex: number;
