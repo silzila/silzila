@@ -12,6 +12,7 @@ import com.silzila.helper.UtilityService;
 import com.silzila.domain.entity.PlayBook;
 import com.silzila.domain.entity.User;
 import com.silzila.domain.entity.Workspace;
+import com.silzila.dto.PlayBookJsonNode;
 import com.silzila.dto.PlayBookMetaDTO;
 import com.silzila.payload.request.PlayBookRequest;
 import com.silzila.payload.response.PlayBookCreationResponse;
