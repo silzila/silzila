@@ -101,7 +101,7 @@ export const getTableData = async (
 
     res = await FetchData({
       requestType: "noData",
-      method: tableObj.flatFileId?"GET":"POST",
+      method: "POST",
       url: url,
       headers: { Authorization: `Bearer ${token}` },
     });

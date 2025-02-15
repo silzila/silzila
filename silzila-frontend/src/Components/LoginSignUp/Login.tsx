@@ -20,6 +20,7 @@ import {DeleteAllCookies} from '../CommonFunctions/CommonFunctionsCookies';
 import Cookies from "js-cookie";
 import { serverEndPoint, localEndPoint } from "../ServerCall/EnvironmentVariables";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
+import Logger from "../../Logger";
 
 const Login = (props: DispatchProps) => {
 	const navigate = useNavigate();
@@ -53,8 +54,9 @@ const Login = (props: DispatchProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+	Logger("info","formt submitted")
     if (!isFormValid()) {
+		Logger("info","form not valid")
       setError("*Please fill in both Email and Password");
       return; // Prevent submission if form is invalid
     }
