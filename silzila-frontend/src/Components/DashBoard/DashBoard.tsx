@@ -85,7 +85,6 @@ const DashBoard = ({
   var targetRef = useRef<any>();
   const dispatch = useDispatch()
   const selectedTab = tabTileProps.selectedTabId
-  //console.log("selectedTab",selectedTab)
   const dashTheme = tabState.tabs[selectedTab]?.dashboardState?.colorScheme? tabState.tabs[selectedTab]?.dashboardState?.colorScheme:'peacock'
   const scheme_passed = dashTheme ?? chartControls.properties[Object.keys(chartControls.properties)[0]].colorScheme ? dashTheme ?? chartControls.properties[Object.keys(chartControls.properties)[0]].colorScheme:'peacock'
   const [mouseDownOutsideGraphs, setmouseDownOutsideGraphs] = useState<boolean>(false);
@@ -103,18 +102,11 @@ const DashBoard = ({
 
   useEffect(() => { setSoftUI(theme === 'SoftUI'); setSchemeColor(color_scheme) }, [theme, color_scheme,softUI]);
   const handleThemeChange = (newtheme: string) => {
-    //console.log(newtheme,softUI)
     let chosenTheme=newtheme
-    //console.log(chosenTheme)
     setSoftUI(chosenTheme === 'SoftUI');
-    //console.log(newtheme,softUI)
     setTheme(newtheme, tabTileProps.selectedTabId);
 
   }; // Dispatch Redux action };
-  useEffect(()=>{
-    console.log(softUI)
-    console.log(theme)
-  },[softUI,theme])
 
   // Handle Toggle for "Apply to All Tabs"
   const handleToggleAllTabs = () => {
@@ -130,7 +122,6 @@ const handleToggleAllTiles = () => {
     const newState = !ApplytoTiles; // Toggle state
     setApplytoTiles(newState);
     Object.keys(tabState.tabs).forEach((tabkey) => {
-      console.log("Dispatching TOGGLE_ALL_TILES for tab:", tabkey);
       toggleAllTiles(parseInt(tabkey, 10))
      // Update Redux state
   });
@@ -172,9 +163,7 @@ const handleToggleAllTiles = () => {
   const [backgroundColor, setBackgroundColor] = useState<string>("");
   var presentbackground: string = backgroundColor;
    // useEffect(()=>{
-  //   console.log(ColorSchemes)
   //   const selectedScheme=ColorSchemes.filter(scheme=> scheme.name===scheme_passed)
-  //   console.log(selectedScheme);
   //   const bgcolor=selectedScheme[0].background
   //   setBackgroundColor(bgcolor);
   // },[selectedTab])
@@ -201,7 +190,7 @@ const handleToggleAllTiles = () => {
           );
         });
         // Object.keys(tabState).forEach((tabkey)=>
-        //   console.log(tabkey),
+        // 
         //   setDashColorScheme(scheme_passed,parseInt(tabkey,10))
         // );
       }  
@@ -487,7 +476,6 @@ const handleToggleAllTiles = () => {
       }
       else if (tabTileProps.dashMode === "Edit") {
         // set grid like background of dashboard accordingly
-        console.log("Edit function")
 
         setdashStyle({
           ...dashStyle,
@@ -782,26 +770,36 @@ const handleToggleAllTiles = () => {
       </div>
       <div style={{  marginTop: "20px" }}>
         <div style={{ marginBottom: "10px", display: "flex", alignItems: "center", fontSize:"13px",marginLeft: "35px"}}>
-          <input
-            type="checkbox"
+          <Checkbox
             id="applytoAllTabs"
+            sx={{
+              "&.Mui-checked": {
+                color: "#2bb9bb",
+              },
+            }}
+            style= {{margin: "0", marginRight: "6px", padding: "0"}}
+            size="small"
             checked={ApplytoAllTabs}
             onChange={() => handleToggleAllTabs()} 
-            style= {{margin: "0", marginRight: "6px"}}
           />
-          <label htmlFor="applytoAllTabs" >
+          <label htmlFor="applytoAllTabs" style={{textAlign: "left"}}>
             Apply Scheme across Playbook
           </label>
         </div>
         <div style={{marginBottom: "10px", display: "flex", alignItems: "center", fontSize:"13px",marginLeft: "35px"}}>
-          <input
-            type="checkbox"
+           <Checkbox
             id="applytoCurrentTab"
+            sx={{
+              "&.Mui-checked": {
+                color: "#2bb9bb",
+              },
+            }}
+            style= {{margin: "0", marginRight: "6px", padding: "0"}}
+            size="small"
             checked={ApplytoTiles}
             onChange={() => handleToggleAllTiles()} 
-            style= {{margin: "0", marginRight: "6px"}} 
           />
-          <label htmlFor="applytoCurrentTab" style={{border: "1pxx solid red"}} >
+          <label htmlFor="applytoCurrentTab" style={{textAlign: "left"}} >
             Apply Scheme to all tiles
           </label>
         </div>
