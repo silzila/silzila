@@ -942,43 +942,31 @@ public class ConnectionPoolService {
         if (datasetId != null) {
             // getting dataset information to fetch filter panel information
             DatasetDTO ds = loadDatasetInBuffer(workspaceId, databaseId, datasetId, userId);
-            List<FilterPanel> filterPanels = new ArrayList<>();
-            String tableId = "";
+            List<FilterPanel> datasetFilterPanels =ds.getDataSchema().getFilterPanels();
 
-            String whereClause = ds.getDataSchema().getFilterPanels().isEmpty() ? ""
-                    : WhereClause.buildWhereClause(ds.getDataSchema().getFilterPanels(), vendorName,ds);
-            // iterating to filter panel list to get the particular filter panel for the
-            // table
-            for (int i = 0; i < ds.getDataSchema().getFilterPanels().size(); i++) {
-                if (ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableName()
-                        .equalsIgnoreCase(tableName)) {
-                    filterPanels.add(ds.getDataSchema().getFilterPanels().get(i));
-                    tableId = ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableId();
-                }
+            //generating fromclause
+            List<String> allColumnList = ColumnListFromClause.getColumnListFromCalculatedFieldAndFilterPanels(calculatedFieldRequests,datasetFilterPanels, tblId);
 
+            String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList,ds.getDataSchema(),vendorName);
+
+            // generating  where clause ( if dataaset filters presents)
+            String whereClause = "";
+
+            if(!datasetFilterPanels.isEmpty()){
+                whereClause = WhereClause.buildWhereClause(datasetFilterPanels, vendorName,ds.getDataSchema()); 
             }
 
             // set fall back record count
-            if (recordCount == null || recordCount > 250) {
-                recordCount = 250;
+            if (recordCount == null || recordCount > 100) {
+                recordCount = 100;
             }
 
-            // generating fromclause
-            List<String> allColumnList = (calculatedFieldRequests != null)
-                    ? ColumnListFromClause.getColumnListFromListOfFieldRequests(calculatedFieldRequests)
-                    : new ArrayList<>();
-            if (!allColumnList.contains(tblId)) {
-                allColumnList.add(tblId);
-            }
-
-            String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList, ds.getDataSchema(),
-                    vendorName);
 
             StringBuilder calculatedField = new StringBuilder();
 
             if(calculatedFieldRequests!=null){
                 relativeFilterProcessor.processListOfCalculatedFields( calculatedFieldRequests, userId, databaseId, datasetId,workspaceId, this::relativeFilter);
-                calculatedField.append(" , ").append(calculatedFieldQueryComposer.calculatedFieldsComposed(ds,vendorName, calculatedFieldRequests));
+                calculatedField.append(" , ").append(calculatedFieldQueryComposer.calculatedFieldsComposed(ds.getDataSchema(),vendorName, calculatedFieldRequests));
             }
 
             // based on database dialect, we pass different SELECT * Statement

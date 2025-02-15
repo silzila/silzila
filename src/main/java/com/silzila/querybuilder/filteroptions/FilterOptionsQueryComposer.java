@@ -53,7 +53,7 @@ public class FilterOptionsQueryComposer {
 
             if(cf.getIsCalculatedField()){
 
-                String selectField = CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds, cf.getCalculatedField());
+                String selectField = CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds.getDataSchema(), cf.getCalculatedField());
 
                 List<String> allColumnList = ColumnListFromClause.getColumnListFromFieldsRequest(cf.getCalculatedField());
 
@@ -65,7 +65,7 @@ public class FilterOptionsQueryComposer {
             }
 
             if(!ds.getDataSchema().getFilterPanels().isEmpty()){
-                String datasetFilterWhereClause = WhereClause.buildWhereClause(ds.getDataSchema().getFilterPanels(), vendorName, ds);
+                String datasetFilterWhereClause = WhereClause.buildWhereClause(ds.getDataSchema().getFilterPanels(), vendorName, ds.getDataSchema());
                 cf.setWhereClause(datasetFilterWhereClause);
             }
         }

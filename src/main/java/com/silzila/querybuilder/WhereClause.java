@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.silzila.payload.request.DataSchema;
 import com.silzila.payload.request.Filter;
 import com.silzila.payload.request.FilterPanel;
 // import com.silzila.querybuilder.WhereClauseDatePostgres;
@@ -26,7 +27,7 @@ public class WhereClause {
      * "WHERE" key word should be kept only if there is Where condition expression.
      * it is Dialect specific and each dialect is handled as separate sections below
      */
-    public static String buildWhereClause(List<FilterPanel> filterPanels, String vendorName,DatasetDTO ds)
+    public static String buildWhereClause(List<FilterPanel> filterPanels, String vendorName,DataSchema ds)
             throws BadRequestException {
 
         String whereClause = "";
@@ -55,7 +56,7 @@ public class WhereClause {
     }
     
     // to handle each filterpanel
-    public static String filterPanelWhereString (List<Filter> filters,Boolean allConditionMatch, String vendorName,DatasetDTO ds) throws BadRequestException{
+    public static String filterPanelWhereString (List<Filter> filters,Boolean allConditionMatch, String vendorName,DataSchema ds) throws BadRequestException{
 
         // comparsion operator name to symbol mapping
         Map<String, String> comparisonOperatorMap = Map.of("GREATER_THAN", " > ", "LESS_THAN", " < ",
