@@ -311,7 +311,7 @@ public class QueryComposer {
 
                 for (Dimension dim : baseDimensions) {
                     // Create a new Dimension object with the same properties as dim
-                    Dimension newDim = new Dimension(false,null,dim.getTableId(),dim.getFieldName() , dim.getDataType(), dim.getTimeGrain(),dim.isRollupDepth());
+                    Dimension newDim = new Dimension(false,null,dim.getTableId(),dim.getFieldName() , dim.getDataType(), dim.getTimeGrain(),dim.isRollupDepth(),dim.getAlias());
                     commonDimensions.add(newDim);
                 }
 
@@ -337,7 +337,7 @@ public class QueryComposer {
                 for (Dimension dim : leftOverDimension) {
                     // Create a new Dimension object with the same properties as dim
                     Dimension newDim = new Dimension(false,null ,dim.getTableId(), dim.getFieldName(), dim.getDataType(),
-                            dim.getTimeGrain(), dim.isRollupDepth());
+                            dim.getTimeGrain(), dim.isRollupDepth(),dim.getAlias());
                     combinedDimensions.add(newDim);
                 }
 
