@@ -256,6 +256,14 @@ interface ToggleOnCheckedOnView {
   type: "ON_CHECKED_ON_VIEW";
   payload: string | number;
 }
+interface ISetPermisson{
+  type: "SET_PERMISSION";
+  payload: {
+    roleID: number;
+    roleName: string;
+    levelId: number;
+  };
+}
 
 export type ActionTypeOfDataSet =
   | SetDatabaseNametoState
@@ -285,4 +293,5 @@ export type ActionTypeOfDataSet =
   | setDataConnectionListToState
   | setViews
   | ToggleOnCheckedOnView
-  | setCreateDsFromFlatFile;
+  | setCreateDsFromFlatFile
+  | ISetPermisson;

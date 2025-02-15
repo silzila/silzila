@@ -26,6 +26,8 @@ const Treemap = ({
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartControls,
@@ -37,7 +39,8 @@ const Treemap = ({
   var chartControl: ChartControlsProps = chartControls.properties[propKey];
 
   let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
-  
+  const [sourceData, setsourceData] = useState<any>([]);
+
   const processedChartData = chartData.map(item => {
     return Object.fromEntries(
         Object.entries(item).map(([key, value]) => [
@@ -50,8 +53,6 @@ const Treemap = ({
         ])
     );
   });
-
-  const [sourceData, setsourceData] = useState<any>([]);
 
   var dimensionsKeys: string[] | any = [];
   var measure: string = "";
@@ -220,7 +221,10 @@ const Treemap = ({
     return sourceData;
   };
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+     return el.name === colorScheme;
+    else 
+    return el.name === chartControl.colorScheme
   });
 
   const RenderChart = () => {
@@ -304,6 +308,11 @@ const Treemap = ({
                 borderWidth: chartControl.treeMapChartControls.borderWidth,
                 gapWidth: chartControl.treeMapChartControls.gapWidth,
                 borderColorSaturation: 1,
+                ...(softUI?{shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+                shadowBlur: 10, // Blur radius
+                shadowOffsetX: 3, // Horizontal shadow offset
+                shadowOffsetY: 3, }:{})
+                
               },
               breadcrumb: {
                 show:

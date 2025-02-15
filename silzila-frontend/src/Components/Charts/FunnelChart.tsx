@@ -13,12 +13,19 @@ import {
   FormatterValueProps,
 } from "./ChartsCommonInterfaces";
 
+import { palette } from "../..";
+
+import {getContrastColor} from '../CommonFunctions/CommonFunctions';
+
+
 const FunnelChart = ({
   //props
   propKey,
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartControls,
@@ -43,7 +50,10 @@ const FunnelChart = ({
     }
   }, [chartData]);
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+     return el.name === colorScheme;
+    else 
+    return el.name === chartControl.colorScheme
   });
 
   const RenderChart = () => {
@@ -68,6 +78,7 @@ const FunnelChart = ({
           backgroundColor: chartThemes[0].background,
           animation: chartArea ? false : true,
           legend: {
+            // textStyle :{color : getContrastColor(chartThemes[0].background)},
             type: "scroll",
             show:
               graphDimension.height > 200
@@ -86,6 +97,9 @@ const FunnelChart = ({
             left: chartControl.legendOptions?.position?.left,
             top: chartControl.legendOptions?.position?.top,
             orient: chartControl.legendOptions?.orientation,
+            textStyle:{
+              color:chartThemes[0].dark?"#ffffff":palette.primary.contrastText,
+            }
           },
 
           tooltip: { show: chartControl.mouseOver.enable },
@@ -124,11 +138,17 @@ const FunnelChart = ({
               bottom:
                 chartControl.legendOptions?.position?.top === "bottom"
                   ? (graphDimension.height * chartControl.chartMargin.bottom) /
-                  100 +
-                  20
+                      100 +
+                    20
                   : chartControl.chartMargin.bottom + "%",
               left: chartControl.chartMargin.funnelLeft + "%",
               right: chartControl.chartMargin.funnelRight + "%",
+              itemStyle:softUI? {
+                shadowBlur: 10, // Intensity of the blur
+                shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+                shadowOffsetX: 5, // Horizontal shadow offset
+                shadowOffsetY: 5, // Vertical shadow offset
+              }:{},
             },
           ],
         }}

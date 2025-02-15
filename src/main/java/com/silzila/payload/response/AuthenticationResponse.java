@@ -19,5 +19,6 @@ public class AuthenticationResponse extends ModelBase {
 	private String email;
 	private String tokenType;
 	private String accessToken;
+	private String refreshToken;
 
 }

@@ -42,6 +42,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import Logger from "../../Logger";
 import { setColorScheme } from "../../redux/ChartPoperties/ChartControlsActions";
 import { number } from "echarts";
+import { palette } from "../..";
 
 const DashBoard = ({
   // props
@@ -677,16 +678,18 @@ const handleToggleAllTiles = () => {
 
   const softUISliderComponent = (
     <div className="themeSelector">
-      <h4 style={{ textAlign: "left", marginLeft: "15px", color: "#616164" }}>
+      <div id="soft_flat_UI-wrapper">
+      <h4 style={{ textAlign: "left",color:palette.primary.contrastText }}>
         Theme
       </h4>
+      <div className="checkbox-wrapper"
+      style={{
+        paddingInline: '0.5rem',
+      }}>
       <div
         className="checkboxOption"
         style={{
           textAlign: "left",
-          color: "#616164",
-          fontSize: "15px",
-          marginBottom: "15px",
         }}
       >
         <input
@@ -702,8 +705,7 @@ const handleToggleAllTiles = () => {
         className="checkboxOption"
         style={{
           textAlign: "left",
-          color: "#616164",
-          fontSize: "15px",
+          
         }}
       >
         <input
@@ -715,10 +717,11 @@ const handleToggleAllTiles = () => {
         />
         <label htmlFor="softUI" className="customLabel">SoftUI</label>
       </div>
+      </div>
+      </div>
 
       <div
         className="colorSchemeSelector"
-        style={{ marginLeft: "15px", marginTop: "20px" }}
       >
         {/* Include the ChartColors or ColorScheme component */}
         <ChartColors
@@ -768,17 +771,14 @@ const handleToggleAllTiles = () => {
           }}
         />
       </div>
-      <div style={{  marginTop: "20px" }}>
-        <div style={{ marginBottom: "10px", display: "flex", alignItems: "center", fontSize:"13px",marginLeft: "35px"}}>
-          <Checkbox
+      <div style={{  marginTop: "1rem" }}>
+        <div style={{ marginBottom: "10px", fontSize:"13px",display:"flex",alignItems:"center",gap:"0.5rem" }}>
+          <input
+            type="checkbox"
             id="applytoAllTabs"
-            sx={{
-              "&.Mui-checked": {
-                color: "#2bb9bb",
-              },
+            style={{
+              marginBottom:0
             }}
-            style= {{margin: "0", marginRight: "6px", padding: "0"}}
-            size="small"
             checked={ApplytoAllTabs}
             onChange={() => handleToggleAllTabs()} 
           />
@@ -786,16 +786,13 @@ const handleToggleAllTiles = () => {
             Apply Scheme across Playbook
           </label>
         </div>
-        <div style={{marginBottom: "10px", display: "flex", alignItems: "center", fontSize:"13px",marginLeft: "35px"}}>
-           <Checkbox
+        <div style={{ marginBottom: "10px",fontSize:"13px" ,display:"flex",alignItems:"center",gap:"0.5rem" }}>
+          <input
+            type="checkbox"
             id="applytoCurrentTab"
-            sx={{
-              "&.Mui-checked": {
-                color: "#2bb9bb",
-              },
+            style={{
+              marginBottom:0
             }}
-            style= {{margin: "0", marginRight: "6px", padding: "0"}}
-            size="small"
             checked={ApplytoTiles}
             onChange={() => handleToggleAllTiles()} 
           />
