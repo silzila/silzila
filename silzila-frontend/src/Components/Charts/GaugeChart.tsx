@@ -9,12 +9,19 @@ import { ColorSchemes } from "../ChartOptions/Color/ColorScheme";
 import { formatChartLabelValue, formatChartLabelValueForSelectedMeasure } from "../ChartOptions/Format/NumberFormatter";
 import { ChartsMapStateToProps, ChartsReduxStateProps } from "./ChartsCommonInterfaces";
 
+import { palette } from "../..";
+
+import {getContrastColor} from '../CommonFunctions/CommonFunctions';
+
+
 const GaugeChart = ({
   //props
   propKey,
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartControls,
@@ -52,7 +59,10 @@ const GaugeChart = ({
     }
   }, [chartData]);
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+     return el.name === colorScheme;
+    else 
+    return el.name === chartControl.colorScheme
   });
 
   const RenderChart = () => {
@@ -77,6 +87,7 @@ const GaugeChart = ({
           backgroundColor: chartThemes[0].background,
           animation: chartArea ? false : true,
           legend: {
+            // textStyle :{color : getContrastColor(chartThemes[0].background)},
             type: "scroll",
             show: chartControl.legendOptions?.showLegend,
             itemHeight:
@@ -92,6 +103,9 @@ const GaugeChart = ({
             left: chartControl.legendOptions?.position?.left,
             top: chartControl.legendOptions?.position?.top,
             orient: chartControl.legendOptions?.orientation,
+            textStyle:{
+              color:chartThemes[0].dark?"#ffffff":palette.primary.contrastText,
+            }
           },
           tooltip: { show: chartControl.mouseOver.enable },
 
@@ -114,6 +128,12 @@ const GaugeChart = ({
                 lineStyle: {
                   width: 10,
                   color: [...colorArray],
+                  ...(softUI?{
+                    shadowBlur: 10,
+                    shadowColor: "rgba(0, 0, 0, 0.5)",
+                    shadowOffsetX: 3,
+                    shadowOffsetY: 3,
+                  }:{})
                 },
 
                 roundCap: true,
@@ -141,7 +161,8 @@ const GaugeChart = ({
                     chartControls.properties[propKey],
                     chartProperties.properties[propKey],
                     formattedValue,
-                    chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0].displayname
+                    chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex(
+                        (item: any) => item.name === 'Measure')]?.fields[0]?.displayname
                   );
                   return formattedValue;
                 },
@@ -157,7 +178,8 @@ const GaugeChart = ({
                     chartControls.properties[propKey],
                     chartProperties.properties[propKey],
                     formattedValue,
-                    chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0].displayname
+                    chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex(
+                      (item: any) => item.name === 'Measure')]?.fields[0]?.displayname
                   );
                   return formattedValue;
                 },

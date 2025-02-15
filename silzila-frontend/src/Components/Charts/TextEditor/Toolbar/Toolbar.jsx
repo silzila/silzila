@@ -18,7 +18,7 @@ import LinkButton from "../Elements/Link/LinkButton";
 import Embed from "../Elements/Embed/Embed";
 import Table from "../Elements/Table/Table";
 import InTable from "../Elements/Table/InTable";
-const Toolbar = ({propKey, onAddingNewDynamicMeaasure, setDynamicMeasureWindowOpen}) => {
+const Toolbar = ({ propKey, onAddingNewDynamicMeaasure, setDynamicMeasureWindowOpen }) => {
   const editor = useSlate();
   const isTable = useTable(editor);
   const [toolbarGroups, setToolbarGroups] = useState(defaultToolbarGroups);
@@ -131,7 +131,7 @@ const Toolbar = ({propKey, onAddingNewDynamicMeaasure, setDynamicMeasureWindowOp
         </span>
       ))}
 
-        <Button className="MeasureButton" 
+      {/* <Button disable={true} className="MeasureButton" 
            
             onClick={() => {
                 setDynamicMeasureWindowOpen(propKey, true);
@@ -139,7 +139,7 @@ const Toolbar = ({propKey, onAddingNewDynamicMeaasure, setDynamicMeasureWindowOp
             }}
             >
             Add Dynamic Measure
-          </Button>
+          </Button> */}
     </div>
   );
 };

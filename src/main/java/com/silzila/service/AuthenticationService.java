@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,9 +15,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.silzila.domain.entity.User;
-import com.silzila.model.security.SecurityUser;
 import com.silzila.payload.request.AuthenticationRequest;
 import com.silzila.payload.request.SignupRequest;
 import com.silzila.payload.response.AuthenticationResponse;
@@ -27,11 +26,7 @@ import com.silzila.payload.response.RefreshTokenResponse;
 import com.silzila.repository.UserRepository;
 import com.silzila.security.TokenUtils;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -62,18 +57,13 @@ public class AuthenticationService {
 
         return new AuthenticationResponse(
                 user.getFirstName(), user.getLastName(), user.getUsername(), "Bearer",
-                this.tokenUtils.generateToken(userDetails, authenticationRequest.getDevice()));
+                this.tokenUtils.generateAccessToken(userDetails.getUsername(), authenticationRequest.getDevice()),
+                this.tokenUtils.generateRefreshToken(userDetails.getUsername(), authenticationRequest.getDevice()));
     }
 
-    public RefreshTokenResponse refreshToken(String token) {
-        // get token from "Bearer <token>"
-        String _token = token.substring(7, token.length());
-        String username = this.tokenUtils.getUsernameFromToken(_token);
-        SecurityUser user = (SecurityUser) this.userDetailsService.loadUserByUsername(username);
-        if (this.tokenUtils.canTokenBeRefreshed(_token, user.getLastPasswordReset())) {
-            return new RefreshTokenResponse(this.tokenUtils.refreshToken(_token));
-        }
-        return new RefreshTokenResponse();
+    public RefreshTokenResponse refreshToken(String userName) {
+        String accessToken = this.tokenUtils.generateAccessToken(userName,"web");
+        return new RefreshTokenResponse(accessToken);
     }
 
     public ResponseEntity<?> registerUser(SignupRequest signupRequest) {

@@ -14,6 +14,8 @@ const Sankey = ({
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartControls,
@@ -143,7 +145,10 @@ const Sankey = ({
     }
   }, [chartData, chartControl]);
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+     return el.name === colorScheme;
+    else 
+    return el.name === chartControl.colorScheme
   });
 
   const RenderChart = () => {
@@ -210,7 +215,6 @@ const Sankey = ({
             triggerOn: "mousemove",
             formatter: function (params: any) {
               // Check if it's a node
-              // console.log(params);
               if (params.dataType === "node") {
                 return params.data.label.formatter; // Return the custom label
               }
@@ -294,6 +298,10 @@ const Sankey = ({
                   depth: 3,
                   itemStyle: {
                     color: "#decbe4",
+                    ...(softUI?{shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+                    shadowBlur: 10, // Shadow blur
+                    shadowOffsetX: 3, // Horizontal shadow offset
+                    shadowOffsetY: 3,}:{})
                   },
                   lineStyle: {
                     color: "source",

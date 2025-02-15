@@ -17,6 +17,8 @@ import {
   FormatterValueProps,
 } from "./ChartsCommonInterfaces";
 import { fieldName } from "../CommonFunctions/CommonFunctions";
+import { palette } from "../..";
+import {getContrastColor} from '../CommonFunctions/CommonFunctions';
 
 const LineChart = ({
   //props
@@ -24,6 +26,8 @@ const LineChart = ({
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartControls,
@@ -34,6 +38,7 @@ const LineChart = ({
   let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
   const [seriesData, setSeriesData] = useState<any>([]);
+
   const processedChartData = chartData.map(item => {
     return Object.fromEntries(
         Object.entries(item).map(([key, value]) => [
@@ -57,6 +62,12 @@ const LineChart = ({
         let seriesObj = {
           type: "line",
           smooth: chartControls.properties[propKey].smoothCurve?.enable,
+          lineStyle:softUI? {
+            shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+            shadowBlur: 10, // Blur radius
+            shadowOffsetX: 3, // Horizontal shadow offset
+            shadowOffsetY: 3, // Vertical shadow offset
+          }:{},
           label: {
             show:
               graphDimension.height > 140 && graphDimension.height > 150
@@ -87,7 +98,10 @@ const LineChart = ({
   }, [chartData, chartControl, chartProperties]);
 
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+     return el.name === colorScheme;
+    else 
+    return el.name === chartControl.colorScheme
   });
 
   const getTopMarginForLegend = () => {
@@ -123,6 +137,7 @@ const LineChart = ({
           backgroundColor: chartThemes[0].background,
           animation: chartArea ? false : true,
           legend: {
+            // textStyle :{color : getContrastColor(chartThemes[0].background)},
             type: "scroll",
             show:
               graphDimension.height > 210
@@ -141,6 +156,9 @@ const LineChart = ({
             bottom:
               chartControl.legendOptions?.position?.top === "bottom" ? 0 : null,
             orient: chartControl.legendOptions?.orientation,
+            textStyle:{
+              color:chartThemes[0].dark?"#ffffff":palette.primary.contrastText,
+            }
           },
           grid: {
             left: chartControl.chartMargin.left + 5 + "%",
@@ -154,7 +172,9 @@ const LineChart = ({
                 ? (graphDimension.height * chartControl.chartMargin.bottom) /
                 100 +
                 35
-                : chartControl.chartMargin.bottom + "%"
+                : chartControl.chartMargin.bottom + "%",
+                shadowColor: "rgba(0, 0, 0, 0.5)", // Setting shadow color
+                shadowBlur: 10,
           },
 
           tooltip: { show: chartControl.mouseOver.enable },

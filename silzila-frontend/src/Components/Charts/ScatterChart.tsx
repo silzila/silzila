@@ -14,12 +14,19 @@ import {
   FormatterValueProps,
 } from "./ChartsCommonInterfaces";
 
+import { palette } from "../..";
+
+import {getContrastColor} from '../CommonFunctions/CommonFunctions';
+
+
 const ScatterChart = ({
   //props
   propKey,
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartControls,
@@ -29,6 +36,7 @@ const ScatterChart = ({
   let chartData: any[] = chartControl.chartData ? chartControl.chartData : [];
 
   const [seriesData, setSeriesData] = useState<any>([]);
+
   const processedChartData = chartData.map(item => {
     return Object.fromEntries(
         Object.entries(item).map(([key, value]) => [
@@ -55,6 +63,12 @@ const ScatterChart = ({
             tooltip: chartData ? Object.keys(chartData[0])[0] : "",
           },
           name: chartData ? Object.keys(chartData[0])[0] : "",
+          itemStyle:softUI? {
+            shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+            shadowBlur: 10, // Blur radius
+            shadowOffsetX: 3, // Horizontal shadow offset
+            shadowOffsetY: 3, // Vertical shadow offset
+          }:{},
           label: {
             show:
               graphDimension.height > 140 && graphDimension.height > 150
@@ -80,9 +94,12 @@ const ScatterChart = ({
       }
       setSeriesData(seriesObj);
     }
-  }, [chartData, chartControl.formatOptions]);
+  }, [chartData, chartControl.formatOptions,softUI]);
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+     return el.name === colorScheme;
+    else 
+    return el.name === chartControl.colorScheme
   });
 
   const getTopMarginForLegend = () => {
@@ -118,6 +135,7 @@ const ScatterChart = ({
             backgroundColor: chartThemes[0].background,
             animation: chartArea ? false : true,
             legend: {
+              // textStyle :{color : getContrastColor(chartThemes[0].background)},
               type: "scroll",
               show:
                 graphDimension.height > 210
@@ -138,6 +156,9 @@ const ScatterChart = ({
                   ? 0
                   : null,
               orient: chartControl.legendOptions?.orientation,
+              textStyle:{
+                color:chartThemes[0].dark?"#ffffff":palette.primary.contrastText,
+              }
             },
             grid: {
               left: chartControl.chartMargin.left + 5 + "%",
@@ -152,6 +173,10 @@ const ScatterChart = ({
                       100 +
                     35
                   : chartControl.chartMargin.bottom + "%",
+                   shadowColor: "rgba(0, 0, 0, 0.3)", // Shadow color for grid
+                  shadowBlur: 5, // Shadow blur for grid
+                  shadowOffsetX: 2, // Horizontal shadow offset for grid
+                  shadowOffsetY: 2, // Vertical shadow offset for grid
             },
             tooltip: { show: chartControl.mouseOver.enable },
             dataset: {

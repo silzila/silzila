@@ -39,4 +39,8 @@ public class UserControllerV1 extends BaseController implements IUserController 
         return userService.updateUser(userId, request);
 
     }
+    @GetMapping("/checktoken")
+    public String checkTokenValidation(){
+      return "Success";
+    }
 }
