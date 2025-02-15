@@ -86,13 +86,9 @@ const Login = (props: DispatchProps) => {
             : "/default.png",
         };
 				localStorage.setItem("accessToken", payload.accessToken);
-				props.userAuthentication(payload);
+				
 				setIsLoading(false);
-				// showAlert("Login Successful.", "success");
-				// setTimeout(() => {
-				// 	navigate("/workspace");
-				// }, 1000);
-	
+
 				// Set the auth token in cookies
 				const domain = new URL(localEndPoint).hostname
 					.split(".")
@@ -114,10 +110,14 @@ const Login = (props: DispatchProps) => {
 					expires: 1, // 1 day
 				});
 	
-				// Redirect to the React.js landing page
-				navigate("/workspace");
+				// Redirect to the home page
 				setEmail("");
 				setPassword("");
+				showAlert("Login Successful.", "success");
+				setTimeout(() => {
+					props.userAuthentication(payload);
+					navigate("/workspace");
+				}, 3000);
 			 }
 			} catch (error: any) {
 				// console.error("Login error:", error);
@@ -208,15 +208,14 @@ const Login = (props: DispatchProps) => {
 			</div>
 		</div>
 		<NotificationDialog
-			openAlert={openAlert}
-			severity={severity}
-			testMessage={testMessage}
-			onCloseAlert={() => {
-				navigate("/workspace")
-				setOpenAlert(false);
-				setTestMessage("");
-			}}
-		/>
+        openAlert={openAlert}
+        severity={severity}
+        testMessage={testMessage}
+        onCloseAlert={() => {
+          setOpenAlert(false);
+          setTestMessage("");
+        }}
+      />
 	</div>
 	);
 };

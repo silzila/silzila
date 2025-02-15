@@ -17,12 +17,19 @@ import {
   FormatterValueProps,
 } from "./ChartsCommonInterfaces";
 
+import { palette } from "../..";
+
+import {getContrastColor} from '../CommonFunctions/CommonFunctions';
+
+
 const StackedAreaChart = ({
   //props
   propKey,
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
+  softUI,
 
   //state
   chartControls,
@@ -59,9 +66,19 @@ const StackedAreaChart = ({
           emphasis: {
             focus: "series",
           },
-          areaStyle: {
-            opacity: chartControl.areaOpacity,
+          lineStyle:{
+            shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+            shadowBlur: 10, // Blur radius
+            shadowOffsetX: 3, // Horizontal shadow offset
+            shadowOffsetY: 3,
           },
+          areaStyle:softUI? {
+            opacity: chartControl.areaOpacity,
+            shadowColor: "rgba(0, 0, 0, 0.5)", // Shadow color
+            shadowBlur: 10, // Blur radius
+            shadowOffsetX: 3, // Horizontal shadow offset
+            shadowOffsetY: 3,
+          }:{},
           label: {
             show: chartControl.labelOptions.showLabel,
             fontSize: chartControl.labelOptions.fontSize,
@@ -86,9 +103,12 @@ const StackedAreaChart = ({
       }
       setSeriesData(seriesDataTemp);
     }
-  }, [chartData, chartControl]);
+  }, [chartData, chartControl,softUI]);
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+     return el.name === colorScheme;
+    else 
+    return el.name === chartControl.colorScheme
   });
 
   const getTopMarginForLegend = () => {
@@ -124,6 +144,7 @@ const StackedAreaChart = ({
           backgroundColor: chartThemes[0].background,
           animation: chartArea ? false : true,
           legend: {
+            // textStyle :{color : getContrastColor(chartThemes[0].background)},
             show:
               graphDimension.height > 210
                 ? chartControl.legendOptions?.showLegend
@@ -140,6 +161,9 @@ const StackedAreaChart = ({
             itemHeight: chartControl.legendOptions?.symbolHeight,
             itemWidth: chartControl.legendOptions?.symbolWidth,
             itemGap: chartControl.legendOptions?.itemGap,
+            textStyle:{
+              color:chartThemes[0].dark?"#ffffff":palette.primary.contrastText,
+            }
           },
           tooltip: { show: chartControl.mouseOver.enable },
           grid: {
@@ -155,6 +179,10 @@ const StackedAreaChart = ({
                 100 +
                 35
                 : chartControl.chartMargin.bottom + "%",
+                shadowColor: "rgba(0, 0, 0, 0.3)", // Shadow color for grid
+                shadowBlur: 5, // Shadow blur for grid
+                shadowOffsetX: 2, // Horizontal shadow offset for grid
+                shadowOffsetY: 2, // Vertical shadow offset for grid
           },
           dataset: {
             dimensions: Object.keys(processedChartData[0]),

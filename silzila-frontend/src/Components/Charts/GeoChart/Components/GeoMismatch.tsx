@@ -20,6 +20,7 @@ import {
   ffDialogTitle,
   ffButtonStyle,
 } from "../../../DataConnection/muiStyles";
+import { fontSize } from "../../../..";
 
 const GoeMismatch = ({
   propKey,
@@ -146,13 +147,15 @@ const GoeMismatch = ({
             flexDirection: "row",
             columnGap: "0.5rem",
             marginTop: "15px",
+            alignItems: "center"
           }}
         >
-          <span
+        <span
             style={{
               width: "10rem",
               wordWrap: "normal",
               verticalAlign: "center",
+              fontSize: fontSize.semiLarge
             }}
           >
             {item[dimensionName]}
@@ -169,9 +172,24 @@ const GoeMismatch = ({
             options={options}
             sx={{
               width: "15rem",
+              "& .MuiAutocomplete-inputRoot": {
+                maxHeight: "32px !important",
+              },
+              '& .css-y0cxhw-MuiFormLabel-root-MuiInputLabel-root': {
+                top: "-9.5px"
+              }
             }}
             renderInput={(params) => (
-              <TextField {...params} label="Location" variant="outlined" />
+              <TextField {...params} label="Location" variant="outlined" sx={{ "& .MuiInputBase-root": {
+                    height: "30px",
+                    padding: "2px 0px"
+                  },
+                "& .MuiOutlinedInput-input": {
+                    textAlign: "center",
+                    height: "30px !important",
+                    fontSize: "13px",
+                  },
+                }}/>
             )}
           />
         </div>
@@ -187,17 +205,18 @@ const GoeMismatch = ({
       PaperProps={{
         sx: {
           minHeight: "20%",
+          maxHeight: "75%"
         },
       }}
     >
-      <DialogTitle sx={{ ...ffDialogTitle, background: "#8eedef" }}>
+      <DialogTitle sx={{ ...ffDialogTitle, background: "#8eedef", alignItems: "center" }}>
         <div>
           <b>Fix Unmatched Locations</b>
         </div>
 
         <CloseOutlined
           onClick={handleCloseButtonClick}
-          style={{ float: "right" }}
+          style={{ float: "right", cursor: "pointer" }}
         />
       </DialogTitle>
       <DialogContent sx={{ height: "25rem", overflowY: "auto" }}>
@@ -206,10 +225,10 @@ const GoeMismatch = ({
       <div
         style={{
           display: "flex",
-          flexDirection: "row-reverse",
+          justifyContent: "flex-end",
           fontSize: "16px",
           columnGap: "1rem",
-          paddingRight: "1rem",
+          paddingRight: "1.5rem",
           paddingBottom: "1rem",
           paddingTop: "1rem",
         }}
@@ -230,7 +249,10 @@ const GoeMismatch = ({
             ...ffButtonStyle,
             backgroundColor: "#2bb9bb",
             border: "2px solid #2bb9bb",
-            color: "black",
+            color: "white",
+            "&:hover":{
+              color: "#2bb9bb"
+            }
           }}
         >
           Save

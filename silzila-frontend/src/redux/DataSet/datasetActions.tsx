@@ -99,6 +99,13 @@ export const updateRelationship = (relationId: any, relation: any) => {
 	return { type: "UPDATE_RELATIONSHIP", payload: { relationId, relation } };
 };
 
+export const setPermissionForDs=({roleID,roleName,levelId}:{
+	roleID:number,
+	roleName:string,
+	levelId:number
+})=>{
+	return {type:"SET_PERMISSION",payload:{roleID,roleName,levelId}}
+}
 // ===============================================================
 // Actions from Tables
 // ===============================================================

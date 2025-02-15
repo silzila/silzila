@@ -12,6 +12,7 @@ import {
   formatChartLabelValueForSelectedMeasure,
 } from "../../ChartOptions/Format/NumberFormatter";
 import Logger from "../../../Logger";
+import { ChartColorsProps } from "../../ChartOptions/Color/ChartColors";
 
 const TableChart = ({
   propKey,
@@ -21,6 +22,10 @@ const TableChart = ({
   chartControls,
   chartProperties,
 }: ChartsReduxStateProps) => {
+  // const handleBackgroundColorChange: ChartColorsProps["onBackgroundColorChange"] = (color:any) => {
+  //   const { schemeName, color: backgroundColor } = color;
+  // };
+
   let enable = false,
     defaultTemplate = false,
     chartDataCSV: any = { rows: [], columns: [] },
@@ -73,10 +78,14 @@ const TableChart = ({
         let formattedValue: any = {};
 
         for (let i = 0; i < chartDataKeys.length; i++) {
-          /*  Need to format boolean values and numeric values  */
-          if (typeof item[chartDataKeys[i]] === "boolean") {
-            formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]] ? "True" : "False";
-        } else if (
+          /*  Need to format only numeric values  */
+          if (item[chartDataKeys[i]] === null) {
+            formattedValue[chartDataKeys[i]] = "(Blank)";
+          } else if (typeof item[chartDataKeys[i]] === "boolean") {
+            formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]]
+              ? "True"
+              : "False";
+          } else if (
             typeof item[chartDataKeys[i]] === "number" ||
             !isNaN(item[chartDataKeys[i]])
           ) {
@@ -86,14 +95,10 @@ const TableChart = ({
             );
             /*  Need to format Measure dustbin fields */
             if (_isMeasureField) {
-              // formatChartLabelValueForSelectedMeasure is used to format values as per selected measure
-              formattedValue[chartDataKeys[i]] =
-                formatChartLabelValueForSelectedMeasure(
-                  property,
-                  chartProperties.properties[propKey],
-                  item[chartDataKeys[i]],
-                  chartDataKeys[i]
-                );
+              formattedValue[chartDataKeys[i]] = formatChartLabelValue(
+                property,
+                item[chartDataKeys[i]]
+              );
             } else {
               formattedValue[chartDataKeys[i]] = item[chartDataKeys[i]];
             }
@@ -716,6 +721,7 @@ const TableChart = ({
           tempColumnObj.isRowField = true;
           //}
           tempColumnObj.compareObj = compObj;
+          tempColumnObj.isHeaderField = true;
 
           tempColumnObj.rowIndex = i;
           tempRowObj.columnItems.push(tempColumnObj);

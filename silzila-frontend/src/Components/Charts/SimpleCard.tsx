@@ -15,6 +15,7 @@ const SimpleCard = ({
   graphDimension,
   chartArea,
   graphTileSize,
+  colorScheme,
 
   //state
   pageSettings,
@@ -78,19 +79,17 @@ const SimpleCard = ({
 
   const getFormatedChartData = () => {
     var formattedValue = cardData;
-    if (formattedValue === null) {
+     if (formattedValue === null) {
       return "(Blank)";
     }
-    formattedValue = formatChartLabelValueForSelectedMeasure(
-      chartControls.properties[propKey],
-      chartProperties.properties[propKey],
-      formattedValue,
-      chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname ? chartProperties.properties[propKey].chartAxes[chartProperties.properties[propKey].chartAxes.findIndex((item: any) => item.name === 'Measure')]?.fields[0]?.displayname : ""
-    );
+    formattedValue = formatChartLabelValue(chartControl, formattedValue);
     return formattedValue;
   };
   var chartThemes: any[] = ColorSchemes.filter((el) => {
-    return el.name === chartControl.colorScheme;
+    if(colorScheme)
+     return el.name === colorScheme;
+    else 
+    return el.name === chartControl.colorScheme
   });
 
   ////////// Use when enabling the dragging option

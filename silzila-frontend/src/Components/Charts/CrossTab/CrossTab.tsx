@@ -40,8 +40,8 @@ export const getKeyWithPrefix = (item : any = {}, dustbinName? :string, fieldTem
   }
   else{
      let _timeGrain:string = item.timeGrain || "";
-     _nameWithAgg = 	_timeGrain ? `${_timeGrain} of ${item.fieldname}`: item.fieldname;
-	//_nameWithAgg =	displayName(item);
+    //  _nameWithAgg = 	_timeGrain ? `${_timeGrain} of ${item.fieldname}`: item.fieldname;
+	_nameWithAgg =	displayName(item);
   }
 
   return _nameWithAgg;

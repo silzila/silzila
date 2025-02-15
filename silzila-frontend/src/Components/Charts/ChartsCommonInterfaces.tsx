@@ -12,9 +12,10 @@ export interface ChartsReduxStateProps {
 	graphDimension?: any;
 	chartArea?: any;
 	graphTileSize?: number;
-
+	colorScheme?:string;
 	chartProperties: ChartPropertiesProps;
 	chartControls: ChartControl;
+	softUI?:boolean;
 }
 
 export type ChartsMapStateToProps = ChartControlStateProps & ChartPropertiesStateProps;

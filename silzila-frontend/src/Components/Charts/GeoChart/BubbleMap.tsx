@@ -104,7 +104,7 @@ const BubbleMap = ({
       if (chartProperties.properties[propKey].selectedDs.isFlatFileData) {
         url = `query?datasetid=${chartProperties.properties[propKey].selectedDs.id}`;
       } else {
-        url = `query?dbconnectionid=${chartProperties.properties[propKey].selectedDs.connectionId}&datasetid=${chartProperties.properties[propKey].selectedDs.id}`;
+        url = `query?dbconnectionid=${chartProperties.properties[propKey].selectedDs.connectionId}&datasetid=${chartProperties.properties[propKey].selectedDs.id}&workspaceId=${chartProperties.properties[propKey].selectedDs.workSpaceId}`;
       }
       res = await FetchData({
         requestType: "withData",
