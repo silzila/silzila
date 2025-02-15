@@ -3,7 +3,6 @@ import { serverEndPoint } from "./EnvironmentVariables";
 import Logger from "../../Logger";
 import { jwtDecode } from "jwt-decode";
 import {  updateToken} from "../../redux/UserInfo/isLoggedActions";
-import { dispatchAction } from "../../redux/globalDispatch";
 import { store } from '../../App';
 import Cookies from "js-cookie";
 type FetchDataPropType = {
@@ -58,23 +57,21 @@ const isTokenExpired = (token: string): boolean => {
 // Function to make API requests
 const FetchData = async (props: FetchDataPropType): Promise<IAPIResponse> => {
 	let { requestType, method, url, headers, data ,checkToken=true} = props;
-	// let token = localStorage.getItem("accessToken");
-	// if(checkToken){
+	let token = localStorage.getItem("accessToken");
+	if(checkToken){
 
-	// // Check token validity
-	// if (!token || isTokenExpired(token)) {
-	// 	token = await refreshToken();
-	// 	if (!token) {
-	// 		return { status: false, data: { detail: "Token Expired. Please login again." }, responseStatusCode: 401 };
-	// 	}
-	// }
-	// Logger("info", "Token", token);
-	// store.dispatch(updateToken(token));
-	// Logger("info", "Token", "storeDispatch");
-	// // dispatchAction(updateToken(token));
-	// // Attach the token to the headers
-	// headers = { ...headers, Authorization: `Bearer ${token}` };
-	// }
+	// Check token validity
+	if (!token || isTokenExpired(token)) {
+		token = await refreshToken();
+		if (!token) {
+			return { status: false, data: { detail: "Token Expired. Please login again." }, responseStatusCode: 401 };
+		}
+	}
+	Logger("info", "Token", token);
+	store.dispatch(updateToken(token));
+	Logger("info", "Token", "storeDispatch");
+	headers = { ...headers, Authorization: `Bearer ${token}` };
+	}
 
 	const makeRequest = async (): Promise<IAPIResponse> => {
 		try {
