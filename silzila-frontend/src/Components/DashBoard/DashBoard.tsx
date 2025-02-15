@@ -685,6 +685,7 @@ const handleToggleAllTiles = () => {
       <div className="checkbox-wrapper"
       style={{
         paddingInline: '0.5rem',
+        marginLeft: "25px"
       }}>
       <div
         className="checkboxOption"
@@ -772,13 +773,16 @@ const handleToggleAllTiles = () => {
         />
       </div>
       <div style={{  marginTop: "1rem" }}>
-        <div style={{ marginBottom: "10px", fontSize:"13px",display:"flex",alignItems:"center",gap:"0.5rem" }}>
-          <input
-            type="checkbox"
+        <div style={{ marginBottom: "10px", fontSize:"13px",display:"flex",alignItems:"center",gap:"0.5rem", marginLeft: "25px" }}>
+          <Checkbox
             id="applytoAllTabs"
-            style={{
-              marginBottom:0
+            sx={{
+              "&.Mui-checked": {
+                color: "#2bb9bb",
+              },
             }}
+            style= {{margin: "0", marginRight: "6px", padding: "0"}}
+            size="small"
             checked={ApplytoAllTabs}
             onChange={() => handleToggleAllTabs()} 
           />
@@ -786,13 +790,16 @@ const handleToggleAllTiles = () => {
             Apply Scheme across Playbook
           </label>
         </div>
-        <div style={{ marginBottom: "10px",fontSize:"13px" ,display:"flex",alignItems:"center",gap:"0.5rem" }}>
-          <input
-            type="checkbox"
+        <div style={{ marginBottom: "10px",fontSize:"13px" ,display:"flex",alignItems:"center",gap:"0.5rem", marginLeft: "25px" }}>
+          <Checkbox
             id="applytoCurrentTab"
-            style={{
-              marginBottom:0
+            sx={{
+              "&.Mui-checked": {
+                color: "#2bb9bb",
+              },
             }}
+            style= {{margin: "0", marginRight: "6px", padding: "0"}}
+            size="small"
             checked={ApplytoTiles}
             onChange={() => handleToggleAllTiles()} 
           />
