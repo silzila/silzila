@@ -34,7 +34,14 @@ const loggedReducer = (
 			localStorage.setItem("accountInfo", JSON.stringify(resetInfo));
 
 			return resetInfo;
-
+		case "UPDATE_TOKEN":
+			var updateToken = {
+				...state,
+				accessToken: action.payload,
+			};
+			localStorage.setItem("accountInfo", JSON.stringify(updateToken));
+			localStorage.setItem("accessToken", action.payload);
+			return updateToken;
 		default:
 			return state;
 	}

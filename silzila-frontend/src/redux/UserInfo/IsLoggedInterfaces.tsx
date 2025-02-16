@@ -20,6 +20,11 @@ export interface LoggedDetailsType {
   interface ResetUser {
     type: "RESET_USER";
   }
+
+  interface UpdateToken{
+    type: "UPDATE_TOKEN";
+    payload: string;
+  }
   
-  export type Action = UserAuthentication | ResetUser;
+  export type Action = UserAuthentication | ResetUser  | UpdateToken;
   

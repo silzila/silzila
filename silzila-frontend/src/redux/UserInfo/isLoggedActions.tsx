@@ -5,3 +5,10 @@ export const userAuthentication = (payload: {}) => {
 export const resetUser = () => {
 	return { type: "RESET_USER" };
 };
+
+export const updateToken = (payload: string) => {
+	return {
+		type: "UPDATE_TOKEN",
+		payload: payload,
+	};
+}

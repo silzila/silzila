@@ -5,11 +5,13 @@ import { validateEmail, validatePassword } from "../CommonFunctions/CommonFuncti
 // import FetchData from "../ServerCall/FetchData";
 import { Link, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
-import { AlertColor, Button } from "@mui/material";
+import { AlertColor, Box, Button } from "@mui/material";
 import "./LoginSignUp.css";
 import { userAuthentication } from "../../redux/UserInfo/isLoggedActions";
 import { LoggedDetailsType } from "../../redux/UserInfo/IsLoggedInterfaces";
 import { Dispatch } from "redux";
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import { DispatchProps, LogginDetails } from "./LoginSignUpInterfaces";
 import FetchData from "../ServerCall/FetchData";
@@ -20,7 +22,8 @@ import {DeleteAllCookies} from '../CommonFunctions/CommonFunctionsCookies';
 import Cookies from "js-cookie";
 import { serverEndPoint, localEndPoint } from "../ServerCall/EnvironmentVariables";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
-
+import Logger from "../../Logger";
+import IconButton from '@mui/material/IconButton';
 const Login = (props: DispatchProps) => {
 	const navigate = useNavigate();
 	const [loginStatus, setLoginStatus] = useState<boolean>(false);
@@ -31,6 +34,7 @@ const Login = (props: DispatchProps) => {
   const [testMessage, setTestMessage] = useState("");
   const [severity, setSeverity] = useState<AlertColor>("success");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const showAlert = (message: string, severity: AlertColor) => {
     setTestMessage(message);
@@ -53,8 +57,9 @@ const Login = (props: DispatchProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+	Logger("info","formt submitted")
     if (!isFormValid()) {
+		Logger("info","form not valid")
       setError("*Please fill in both Email and Password");
       return; // Prevent submission if form is invalid
     }
@@ -71,6 +76,7 @@ const Login = (props: DispatchProps) => {
 					device: "web",
 				},
 				headers: { "Content-Type": "application/json" },
+				checkToken: false,
 			});;		
 			if (response.status) {
 				setLoginStatus(true);
@@ -97,6 +103,13 @@ const Login = (props: DispatchProps) => {
 	
 				Cookies.set("authToken", response.data.accessToken, {
 					sameSite: "None", // Cross-site cookie
+					secure: true,
+					domain: domain, // Cross-subdomain cookie
+					path: "/",
+					expires: 1, // 1 day
+				});
+				Cookies.set("refreshToken", response.data.refreshToken, {
+					sameSite: "none", // Cross-site cookie
 					secure: true,
 					domain: domain, // Cross-subdomain cookie
 					path: "/",
@@ -171,15 +184,50 @@ const Login = (props: DispatchProps) => {
 						placeholder="Email"
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
+						style={{
+							outline:'none',
+						}}
 					/>
+					<Box
+					sx={{
+						display: 'flex',
+						alignItems: 'center',
+						width: '100%',
+						border:'1px solid #ddd',
+						borderRadius:'7px',
+						backgroundColor:'white',
+						height:'fit-content',
+						marginBottom:'1rem',
+						
+					}}
+					>
 					<input
-						type="password"
+						type={showPassword ? "text" : "password"}
 						id="login-password"
 						name="login-password"
 						placeholder="Password"
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
+						style={{
+							border:'none',flexGrow:1,
+							marginBottom:'0',
+							outline:'none',
+						}}
 					/>
+					<IconButton
+						aria-label="toggle password visibility"
+						sx={{
+							marginRight:0
+						}}
+						onClick={() => setShowPassword(!showPassword)}
+						edge="end">
+						{
+							showPassword ? <RemoveRedEyeIcon fontSize="small" /> : <VisibilityOffIcon fontSize="small"/>
+						}
+					</IconButton>
+
+
+					</Box>
 					{error && <p className="error">{error}</p>}
 
 					<div className="community-signin-login-button-container">

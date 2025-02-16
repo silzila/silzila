@@ -655,6 +655,7 @@ const RichTreeViewControl = ({
               items={sortedList}
               onItemSelectionToggle={handleItemSelectionToggle}
               sx={{
+                minHeight:'15rem',
                 height: "fit-content",
                 flexGrow: 1,
                 // maxWidth: 400,
@@ -831,6 +832,7 @@ const RichTreeViewControl = ({
           onItemSelectionToggle={handleItemSelectionToggle}
           items={sortedList}
           sx={{
+            minHeight:'15rem',
             height: "fit-content",
             flexGrow: 1,
             maxWidth: 400,
