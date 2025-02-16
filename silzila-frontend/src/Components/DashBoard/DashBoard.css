@@ -130,7 +130,7 @@
 /* Style the label to act as a custom radio button */
 .customLabel {
   position: relative;
-  padding-left: 30px;
+  padding-left: 20px;
   cursor: pointer;
 }
 

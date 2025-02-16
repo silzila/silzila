@@ -60,8 +60,8 @@ button:focus {
   flex-direction: column;
   transition: ease-in 0.3s linear;
   overflow: hidden;
-
-  scrollbar-gutter: stable both-edges;
+  scrollbar-gutter: stable;
+  /* scrollbar-gutter: stable both-edges; */
   position: relative;
 }
 
@@ -83,7 +83,7 @@ button:focus {
   width: 100%;
   padding-top: 0.5rem;
   padding-bottom: 0.25rem;
-  padding-left: 0.5rem;
+  /* padding-left: 0.5rem; */
   text-align: left;
   color: #404040;
   font-weight: 600;
