@@ -139,7 +139,7 @@ public class subTotalsCombination {
         String whereClause = "";
         long countOfFilterPanels=ds.getDataSchema().getFilterPanels().size();
         if(countOfFilterPanels==0) {
-             whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName,ds);
+             whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName,ds.getDataSchema());
         } else {
             for(int i=0;i<countOfFilterPanels;i++) {
                 for (int j = 0; j < ds.getDataSchema().getFilterPanels().get(i).getFilters().size(); j++)
@@ -149,7 +149,7 @@ public class subTotalsCombination {
                     }
                 }
             }
-            whereClause=WhereClause.buildWhereClause(req.getFilterPanels(), vendorName,ds);
+            whereClause=WhereClause.buildWhereClause(req.getFilterPanels(), vendorName,ds.getDataSchema());
         }
         for (List<Dimension> rowDim : result) {
             Query dim = new Query(rowDim, req.getMeasures(), new ArrayList<>(), new ArrayList<>(), null);

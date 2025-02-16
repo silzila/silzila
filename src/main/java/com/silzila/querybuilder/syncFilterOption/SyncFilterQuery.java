@@ -152,7 +152,7 @@ public class SyncFilterQuery {
             // Build WHERE clause using the panel
 
             if(userSelection&&isUserSelectionAll){
-            whereClause = WhereClause.buildWhereClause(Collections.singletonList(panel), vendorName,ds);
+            whereClause = WhereClause.buildWhereClause(Collections.singletonList(panel), vendorName,ds.getDataSchema());
                 finalQuery.append(whereClause);
             }
             System.out.println("Generated  Query: " + finalQuery.toString());

@@ -26,10 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.ibm.db2.jcc.am.ca;
 import com.silzila.dto.FileDataDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.exception.RecordNotFoundException;
+import com.silzila.payload.request.CalculatedFieldRequest;
 import com.silzila.payload.request.FileUploadRevisedInfoRequest;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -91,7 +93,8 @@ public class FileDataController {
 
     // list file datas
     @GetMapping("/file-data")
-    public List<FileDataDTO> getAllFileDatas(@RequestHeader Map<String, String> reqHeader,@RequestParam String workspaceId)throws BadRequestException {
+    public List<FileDataDTO> getAllFileDatas(@RequestHeader Map<String, String> reqHeader
+    ,@RequestParam String workspaceId)throws BadRequestException {
         // get the requester user Id
         String userId = reqHeader.get("username");
         List<FileDataDTO> fileDataDTOs = fileDataService.getAllFileDatas(userId,workspaceId);
@@ -99,28 +102,32 @@ public class FileDataController {
     }
 
     // file data - sample records
-    @GetMapping("/file-data-sample-records")
+    @PostMapping("/file-data-sample-records")
     public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
                                               @RequestParam(value = "flatfileId",required = false) String flatfileId,
                                               @RequestParam(value = "datasetId",required = false) String datasetId,
                                               @RequestParam String workspaceId,
-                                              @RequestParam(name = "table",required = false) String tableName)
+                                              @RequestParam(name = "tableId",required = false) String tableId,
+                                              @RequestParam(name = "table",required = false) String tableName,
+                                               @RequestBody(required = false) List<List<CalculatedFieldRequest>> calculatedFieldRequests
+            )
             throws JsonMappingException, JsonProcessingException,
             RecordNotFoundException, BadRequestException, ClassNotFoundException, SQLException {
         // get the requester user Id
         String userId = reqHeader.get("username");
-        JSONArray jsonArray = fileDataService.getSampleRecords(flatfileId, userId,datasetId,workspaceId,tableName);
+        JSONArray jsonArray = fileDataService.getSampleRecords(flatfileId, userId,datasetId,workspaceId,tableName,tableId,calculatedFieldRequests);
         return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
     }
 
     // file data - Column details
-    @GetMapping("/file-data-column-details/{id}")
+    @PostMapping("/file-data-column-details/{id}")
     public ResponseEntity<?> getColumnDetails(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id,@RequestParam String workspaceId) throws JsonMappingException, JsonProcessingException,
+            @PathVariable(value = "id") String id,@RequestParam String workspaceId,
+            @RequestBody(required = false) List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws JsonMappingException, JsonProcessingException,
             RecordNotFoundException, BadRequestException, ClassNotFoundException, SQLException {
         // get the requester user Id
         String userId = reqHeader.get("username");
-        List<Map<String, Object>> metaList = fileDataService.getColumns(id, userId,workspaceId);
+        List<Map<String, Object>> metaList = fileDataService.getColumns(id, userId,workspaceId,calculatedFieldRequests);
         return ResponseEntity.status(HttpStatus.OK).body(metaList);
     }
 

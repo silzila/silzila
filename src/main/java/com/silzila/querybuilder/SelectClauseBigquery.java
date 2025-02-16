@@ -79,7 +79,7 @@ public class SelectClauseBigquery {
             }
             String field = "";
             String selectField = (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null)
-                    ? CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName, ds, dim.getCalculatedField())
+                    ? CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName, ds.getDataSchema(), dim.getCalculatedField())
                     : dim.getTableId() + "." + dim.getFieldName();
 
             if (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) {
@@ -205,7 +205,7 @@ public class SelectClauseBigquery {
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
             String windowFn = "";
-            String selectField = meas.getIsCalculatedField()?CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds,meas.getCalculatedField()): meas.getTableId() + "." + meas.getFieldName();
+            String selectField = meas.getIsCalculatedField()?CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds.getDataSchema(),meas.getCalculatedField()): meas.getTableId() + "." + meas.getFieldName();
             if (meas.getIsCalculatedField()) {
                 meas.setDataType(Measure.DataType.fromValue(
                     DataTypeProvider.getCalculatedFieldDataTypes(meas.getCalculatedField())

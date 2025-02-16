@@ -28,7 +28,7 @@ public class SnowflakeQueryBuilder implements QueryBuilder{
                                         Map<String, List<ConditionFilter>> conditionFilterMap,
                                         Map<String, String> conditionFilterStringMap,
                                         Map<String, Field> fields,
-                                        String flowKey,Map<String,CalculatedFieldDTO> calculatedFieldMap,DatasetDTO ds) throws BadRequestException {
+                                        String flowKey,Map<String,CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
 
             ConditionFlow.processConditionalFlow("snowflake", flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
     }

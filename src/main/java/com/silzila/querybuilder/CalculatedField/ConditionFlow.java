@@ -8,6 +8,7 @@ import com.silzila.dto.DatasetDTO;
 import com.silzila.dto.FlowDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.payload.request.ConditionFilter;
+import com.silzila.payload.request.DataSchema;
 import com.silzila.payload.request.Field;
 import com.silzila.payload.request.Filter;
 import com.silzila.payload.request.Flow;
@@ -27,7 +28,7 @@ public class ConditionFlow {
                                         Map<String, List<ConditionFilter>> conditionFilterMap,
                                         Map<String, String> conditionFilterStringMap,
                                         Map<String, Field> fields,
-                                        String flowKey,Map<String,CalculatedFieldDTO> calculatedFieldMap,DatasetDTO ds) throws BadRequestException {
+                                        String flowKey,Map<String,CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
 
             StringBuilder caseQuery = new StringBuilder("CASE ");
 
@@ -57,7 +58,7 @@ public class ConditionFlow {
                                              Map<String, String> conditionFilterStringMap,
                                              String key,
                                              Map<String,CalculatedFieldDTO> calculatedFieldMap
-                                             ,DatasetDTO ds) throws BadRequestException {
+                                             ,DataSchema ds) throws BadRequestException {
     if (conditionFilterMap == null || conditionFilterMap.isEmpty() || !conditionFilterMap.containsKey(key)) {
         return "";
     }

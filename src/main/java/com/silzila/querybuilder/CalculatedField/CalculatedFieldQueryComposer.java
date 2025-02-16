@@ -44,7 +44,7 @@ public class CalculatedFieldQueryComposer {
 
     // to compose a multiple calculated fields(using of calculated field in other
     // calculated field)
-    public static String calculatedFieldComposed( String vendorName,DatasetDTO ds,
+    public static String calculatedFieldComposed( String vendorName,DataSchema ds,
             List<CalculatedFieldRequest> calculatedFieldRequests) throws BadRequestException {
 
         Map<String, CalculatedFieldDTO> calculatedFieldMap = new HashMap();
@@ -71,14 +71,14 @@ public class CalculatedFieldQueryComposer {
     }
 
     // if the calculated field is aggregated
-    public static void aggregatedCalculatedFieldQuery(DatasetDTO ds,String vendorName, CalculatedFieldRequest calculatedFieldRequest,
+    public static void aggregatedCalculatedFieldQuery(DataSchema ds,String vendorName, CalculatedFieldRequest calculatedFieldRequest,
             CalculatedFieldDTO calculatedFieldDTO, Map<String, CalculatedFieldDTO> calculatedFieldMap) throws BadRequestException {
 
         StringBuilder query = new StringBuilder();
 
         String fromClause = RelationshipClauseGeneric.buildRelationship(
                 ColumnListFromClause.getColumnListFromFields(calculatedFieldRequest.getFields()),
-                ds.getDataSchema(),
+                ds,
                 vendorName);
 
         query.append("(SELECT ").append(calculatedFieldDTO.getQuery()).append(" FROM ").append(fromClause).append(" )");
@@ -88,7 +88,7 @@ public class CalculatedFieldQueryComposer {
     }
 
     // to compose a multiple calculated fields(sample records)
-    public String calculatedFieldsComposed(DatasetDTO ds ,String vendorName,
+    public String calculatedFieldsComposed(DataSchema ds ,String vendorName,
             List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws BadRequestException {
         StringBuilder calculatedFieldString = new StringBuilder();
 
@@ -105,7 +105,7 @@ public class CalculatedFieldQueryComposer {
     }
 
     // to compose a calculated field without alias
-    public static CalculatedFieldDTO calculatedFieldComposed(String vendorName,DatasetDTO ds,
+    public static CalculatedFieldDTO calculatedFieldComposed(String vendorName,DataSchema ds,
             CalculatedFieldRequest calculatedFieldRequest, Map<String, CalculatedFieldDTO> calculatedFieldMap)
             throws BadRequestException {
 
@@ -135,7 +135,7 @@ public class CalculatedFieldQueryComposer {
     }
 
     // to compose a fields with alias
-    public static String calculatedFieldComposedWithAlias(String vendorName,DatasetDTO ds ,
+    public static String calculatedFieldComposedWithAlias(String vendorName,DataSchema ds ,
             List<CalculatedFieldRequest> calculatedFieldRequests) throws BadRequestException {
 
         StringBuilder calculatedField = new StringBuilder();
@@ -148,7 +148,7 @@ public class CalculatedFieldQueryComposer {
     }
 
     // composing a query to get sample records of calculated field
-    public static String composeSampleRecordQuery(DatasetDTO ds,String vendorName, List<CalculatedFieldRequest> calculatedFieldRequests,
+    public static String composeSampleRecordQuery(DataSchema ds,String vendorName, List<CalculatedFieldRequest> calculatedFieldRequests,
             DataSchema dataSchema, Integer recordCount) throws BadRequestException {
 
         if (recordCount == null || recordCount == 0 || recordCount > 100) {
@@ -174,7 +174,7 @@ public class CalculatedFieldQueryComposer {
     }
 
     // to get distinct records
-    public String composeFilterOptionsQuery(DatasetDTO ds,String vendorName, List<CalculatedFieldRequest> calculatedFieldRequest,
+    public String composeFilterOptionsQuery(DataSchema ds,String vendorName, List<CalculatedFieldRequest> calculatedFieldRequest,
             DataSchema dataSchema) throws BadRequestException {
         StringBuilder query = new StringBuilder("SELECT DISTINCT \n\t");
 
@@ -195,7 +195,7 @@ public class CalculatedFieldQueryComposer {
     }
 
     // to process flows
-    private static void processFlows(DatasetDTO ds,String vendorName, Map<String, List<Flow>> flowMap,
+    private static void processFlows(DataSchema ds,String vendorName, Map<String, List<Flow>> flowMap,
             Map<String, Field> fields,
             Map<String, FlowDTO> flowStringMap,
             Map<String, List<ConditionFilter>> conditionFilterMap,
@@ -221,7 +221,7 @@ public class CalculatedFieldQueryComposer {
                     || (firstFlow.getFlow().equals("none") && firstFlow.getIsAggregation())) {// aggregation only allow
                                                                                               // for math operation
 
-                queryBuilder.processNonConditionalMathFlow(ds.getDataSchema(), firstFlow,
+                queryBuilder.processNonConditionalMathFlow(ds, firstFlow,
                         fields, flowStringMap, flowKey, calculatedFieldMap);
 
 
