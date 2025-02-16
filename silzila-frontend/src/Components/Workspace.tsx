@@ -118,15 +118,6 @@ const WorkspaceList = () => {
         sessionStorage.setItem("workspaces", JSON.stringify(response.data));
         dispatch(reduxSetWorkspaces(response.data));
       } else {
-        if(response.responseStatusCode===401){
-          dispatch(resetUser())
-          localStorage.clear()
-          setTimeout(() => {
-            navigate("/login");
-          }
-          , 1000);
-          return
-        }
         setError(response.data.detail || "Failed to fetch workspaces");
       }
       // console.log(workspacess);
