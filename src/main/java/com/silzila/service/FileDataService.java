@@ -520,7 +520,7 @@ public class FileDataService {
     }
 
     // get sample records
-    public List<Map<String, Object>> getColumns(String id, String userId,String workspaceId) throws RecordNotFoundException,
+    public List<Map<String, Object>> getColumns(String id, String userId,String workspaceId, List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws RecordNotFoundException,
             JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException, SQLException {
         // if no file data inside optional wrapper, then send NOT FOUND Error
         Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
@@ -539,7 +539,7 @@ public class FileDataService {
         // start duckdb in memory
         duckDbService.startDuckDb();
         List<Map<String, Object>> metaList = duckDbService.getColumnMetaData(parquetFilePath,
-                salt + encryptPwd + pepper);
+                salt + encryptPwd + pepper, calculatedFieldRequests);
         return metaList;
     }
 

@@ -120,13 +120,14 @@ public class FileDataController {
     }
 
     // file data - Column details
-    @GetMapping("/file-data-column-details/{id}")
+    @PostMapping("/file-data-column-details/{id}")
     public ResponseEntity<?> getColumnDetails(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id,@RequestParam String workspaceId) throws JsonMappingException, JsonProcessingException,
+            @PathVariable(value = "id") String id,@RequestParam String workspaceId,
+            @RequestBody(required = false) List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws JsonMappingException, JsonProcessingException,
             RecordNotFoundException, BadRequestException, ClassNotFoundException, SQLException {
         // get the requester user Id
         String userId = reqHeader.get("username");
-        List<Map<String, Object>> metaList = fileDataService.getColumns(id, userId,workspaceId);
+        List<Map<String, Object>> metaList = fileDataService.getColumns(id, userId,workspaceId,calculatedFieldRequests);
         return ResponseEntity.status(HttpStatus.OK).body(metaList);
     }
 

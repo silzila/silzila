@@ -26,6 +26,7 @@ import com.silzila.payload.request.*;
 import com.silzila.querybuilder.RelationshipClauseGeneric;
 import com.silzila.querybuilder.WhereClause;
 import com.silzila.querybuilder.CalculatedField.CalculatedFieldQueryComposer;
+import com.silzila.querybuilder.CalculatedField.helper.DataTypeProvider;
 import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.repository.DatasetRepository;
 import com.silzila.repository.FileDataRepository;
@@ -378,6 +379,12 @@ public class DuckDbService {
                 relativeFilterProcessor.processListOfCalculatedFields( calculatedFieldRequests, userId, null, datasetId,workspaceId, this::relativeFilter);
                 calculatedField.append(" , ").append(calculatedFieldQueryComposer.calculatedFieldsComposed(ds.getDataSchema(),"duckdb", calculatedFieldRequests));
             }
+        System.out.println();
+        System.out.println();
+        System.out.println(calculatedField);
+        System.out.println();
+        System.out.println();
+
 
             List<String> allColumnList = (calculatedFieldRequests!=null) 
                                          ? ColumnListFromClause.getColumnListFromListOfFieldRequests(calculatedFieldRequests) 
@@ -426,7 +433,7 @@ public class DuckDbService {
     }
 
     // get sample records from Parquet file
-    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath, String encryptVal) throws SQLException {
+    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath, String encryptVal, List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws SQLException {
 
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtMeta = conn2.createStatement();
@@ -465,7 +472,25 @@ public class DuckDbService {
         }
         stmtMeta.close();
         conn2.close();
+        metaList.addAll(calculatedFieldMetadata(calculatedFieldRequests));
         return metaList;
+    }
+
+        public List<Map<String, Object>> calculatedFieldMetadata(List<List<CalculatedFieldRequest>> calculatedFieldRequests) {
+        List<Map<String, Object>> metadataList = new ArrayList<>();
+
+        if (calculatedFieldRequests != null) {
+            Map<String, String> calculatedFieldDataType = DataTypeProvider.getCalculatedFieldsDataTypes(calculatedFieldRequests);
+
+            for (Map.Entry<String, String> field : calculatedFieldDataType.entrySet()) {
+                Map<String, Object> metadataMap = new HashMap<>();
+                metadataMap.put("fieldName", field.getKey());
+                metadataMap.put("dataType", field.getValue());
+
+                metadataList.add(metadataMap);
+            }
+        }
+        return metadataList;
     }
 
     // create DF for flat files
