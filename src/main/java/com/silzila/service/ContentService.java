@@ -423,12 +423,12 @@ public class ContentService {
             // Fetch all sub-workspaces
             List<SubWorkspaceContentResponse> subWorkspaceContent = new ArrayList<>();
             List<Workspace> subWorkpaces = workspaceRepository.findByUserIdAndParentWorkspaceId(userId, w.getId());
+            List<IdNameDTO> subContents = new ArrayList<>();
             if (subWorkpaces != null && !subWorkpaces.isEmpty()) {
                 for (Workspace sw : subWorkpaces) {
                     SubWorkspaceContentResponse swContent = new SubWorkspaceContentResponse();
 
                     // Null check for sub-workspace DbConnections
-                    List<IdNameDTO> subContents = new ArrayList<>();
                     if (sw.getDbConnections() != null && !sw.getDbConnections().isEmpty()) {
                         for (DBConnection db : sw.getDbConnections()) {
                             IdNameDTO content = new IdNameDTO();
@@ -448,7 +448,7 @@ public class ContentService {
                 }
             }
 
-            if(!contents.isEmpty() ){
+            if(!contents.isEmpty()||!subContents.isEmpty() ){
             response.setContentType(contentType);
             response.setWorkspaceId(w.getId());
             response.setWorkspaceName(w.getName());
@@ -490,12 +490,13 @@ public class ContentService {
             // Fetch all sub-workspaces
             List<SubWorkspaceContentResponse> subWorkspaceContent = new ArrayList<>();
             List<Workspace> subWorkpaces = workspaceRepository.findByUserIdAndParentWorkspaceId(userId, w.getId());
+            List<IdNameDTO> subContents = new ArrayList<>();
+
             if (subWorkpaces != null && !subWorkpaces.isEmpty()) {
                 for (Workspace sw : subWorkpaces) {
                     SubWorkspaceContentResponse swContent = new SubWorkspaceContentResponse();
 
                     // Null check for sub-workspace DbConnections
-                    List<IdNameDTO> subContents = new ArrayList<>();
                     if (sw.getDataSets() != null && !sw.getDataSets().isEmpty()) {
                         for (Dataset db : sw.getDataSets()) {
                             IdNameDTO content = new IdNameDTO();
@@ -515,7 +516,7 @@ public class ContentService {
             }
         }
 
-            if(!contents.isEmpty() ){
+            if(!contents.isEmpty()||!subContents.isEmpty() ){
                 response.setContentType(contentType);
                 response.setWorkspaceId(w.getId());
                 response.setWorkspaceName(w.getName());
@@ -556,12 +557,13 @@ public class ContentService {
             // Process sub-workspaces
             List<SubWorkspaceContentResponse> subWorkspaceContent = new ArrayList<>();
             List<Workspace> subWorkspaces = workspaceRepository.findByUserIdAndParentWorkspaceId(userId, w.getId());
+            List<IdNameDTO> subFlatFileContents = new ArrayList<>();
+
             if (subWorkspaces != null && !subWorkspaces.isEmpty()) {
                 for (Workspace sw : subWorkspaces) {
                     SubWorkspaceContentResponse swContent = new SubWorkspaceContentResponse();
 
                     // Process flat files for sub-workspace
-                    List<IdNameDTO> subFlatFileContents = new ArrayList<>();
                     if (sw.getFlatFiles() != null && !sw.getFlatFiles().isEmpty()) {
                         for (FileData f : sw.getFlatFiles()) {
                             IdNameDTO content = new IdNameDTO();
@@ -579,7 +581,7 @@ public class ContentService {
                 }
             }
 
-            if (!flatFileContents.isEmpty() ) {
+            if (!flatFileContents.isEmpty()||!subFlatFileContents.isEmpty() ) {
                 response.setContentType(contentType);
                 response.setWorkspaceId(w.getId());
                 response.setWorkspaceName(w.getName());
