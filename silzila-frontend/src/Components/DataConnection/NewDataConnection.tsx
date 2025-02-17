@@ -873,7 +873,7 @@ const NewDataConnection = (props: any) => {
               "childWorkspaceName",
               workspaceDetail.subLabel
             );
-            localStorage.setItem("parentId", workSpaceId);
+            // localStorage.setItem("parentId", workSpaceId);
 
             navigate(`/SubWorkspaceDetails/${workSpaceId}`);
           } else {
