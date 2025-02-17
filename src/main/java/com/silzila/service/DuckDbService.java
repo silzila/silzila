@@ -319,7 +319,6 @@ public class DuckDbService {
             timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
         }
 
-        System.out.println(encryptVal);
         // creating Encryption key to save parquet file securely
         String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
         // read CSV and write as Parquet file
@@ -379,11 +378,6 @@ public class DuckDbService {
                 relativeFilterProcessor.processListOfCalculatedFields( calculatedFieldRequests, userId, null, datasetId,workspaceId, this::relativeFilter);
                 calculatedField.append(" , ").append(calculatedFieldQueryComposer.calculatedFieldsComposed(ds.getDataSchema(),"duckdb", calculatedFieldRequests));
             }
-        System.out.println();
-        System.out.println();
-        System.out.println(calculatedField);
-        System.out.println();
-        System.out.println();
 
 
             List<String> allColumnList = (calculatedFieldRequests!=null) 
@@ -405,7 +399,6 @@ public class DuckDbService {
             createViewForFlatFiles(userId, tableObjList, fileDataList, encryptPwd + pepper);
 
             String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList,ds.getDataSchema(),"duckdb");
-
             // creating Encryption key to save parquet file securely
             String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
             stmtRecords.execute(encryptKey);
