@@ -117,7 +117,7 @@ public class QueryComposer {
         // checking the filter panel size to add where condition
         long countOfFilterPanels=ds.getDataSchema().getFilterPanels().size();
         if(countOfFilterPanels==0) {
-             whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName,ds);
+             whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName,ds.getDataSchema());
         }else {
             for(int i=0;i<countOfFilterPanels;i++) {
                 for (int j = 0; j < ds.getDataSchema().getFilterPanels().get(i).getFilters().size(); j++)
@@ -127,7 +127,7 @@ public class QueryComposer {
                     }
                 }
             }
-            whereClause=WhereClause.buildWhereClause(req.getFilterPanels(), vendorName,ds);
+            whereClause=WhereClause.buildWhereClause(req.getFilterPanels(), vendorName,ds.getDataSchema());
         }
         // for bigquery only
         if (vendorName.equals("bigquery")) {

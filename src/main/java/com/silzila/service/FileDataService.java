@@ -32,6 +32,7 @@ import com.silzila.exception.BadRequestException;
 import com.silzila.exception.ExpectationFailedException;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.helper.ConvertDuckDbDataType;
+import com.silzila.payload.request.CalculatedFieldRequest;
 import com.silzila.payload.request.FileUploadRevisedColumnInfo;
 import com.silzila.payload.request.FileUploadRevisedInfoRequest;
 import com.silzila.payload.request.Table;
@@ -495,7 +496,7 @@ public class FileDataService {
 
     // get sample records
 
-    public JSONArray getSampleRecords(String id, String userId, String datasetId,String workspaceId, String tableName) throws RecordNotFoundException, JsonMappingException,
+    public JSONArray getSampleRecords(String id, String userId, String datasetId,String workspaceId, String tableName,String tableId, List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws RecordNotFoundException, JsonMappingException,
             JsonProcessingException, BadRequestException, ClassNotFoundException, SQLException {
         // if no file data inside optional wrapper, then send NOT FOUND Error
         Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
@@ -514,12 +515,12 @@ public class FileDataService {
 
         // start duckdb in memory
         duckDbService.startDuckDb();
-        JSONArray jsonArray = duckDbService.getSampleRecords(workspaceId,parquetFilePath,userId,datasetId,tableName, salt+encryptPwd+pepper);
+        JSONArray jsonArray = duckDbService.getSampleRecords(workspaceId,parquetFilePath,userId,datasetId,tableName,tableId, salt+encryptPwd+pepper,calculatedFieldRequests);
         return jsonArray;
     }
 
     // get sample records
-    public List<Map<String, Object>> getColumns(String id, String userId,String workspaceId) throws RecordNotFoundException,
+    public List<Map<String, Object>> getColumns(String id, String userId,String workspaceId, List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws RecordNotFoundException,
             JsonMappingException, JsonProcessingException, BadRequestException, ClassNotFoundException, SQLException {
         // if no file data inside optional wrapper, then send NOT FOUND Error
         Optional<FileData> fdOptional = fileDataRepository.findByIdAndUserId(id, userId);
@@ -538,7 +539,7 @@ public class FileDataService {
         // start duckdb in memory
         duckDbService.startDuckDb();
         List<Map<String, Object>> metaList = duckDbService.getColumnMetaData(parquetFilePath,
-                salt + encryptPwd + pepper);
+                salt + encryptPwd + pepper, calculatedFieldRequests);
         return metaList;
     }
 

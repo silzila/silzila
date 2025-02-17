@@ -815,7 +815,7 @@ public class DatasetService {
 
         DatasetDTO ds = loadDatasetInBuffer(workspaceId, dbConnectionId, datasetId, userId);
 
-        String query = CalculatedFieldQueryComposer.composeSampleRecordQuery(ds, vendorName, calculatedFieldRequests,
+        String query = CalculatedFieldQueryComposer.composeSampleRecordQuery(ds.getDataSchema(), vendorName, calculatedFieldRequests,
                 ds.getDataSchema(), recordCount);
 
         logger.info("\n******* QUERY **********\n" + query);
@@ -852,7 +852,7 @@ public class DatasetService {
 
         DatasetDTO ds = loadDatasetInBuffer(workspaceId, dbConnectionId, datasetId, userId);
 
-        String query = calculatedFieldQueryComposer.composeFilterOptionsQuery(ds, vendorName, calculatedFieldRequest,
+        String query = calculatedFieldQueryComposer.composeFilterOptionsQuery(ds.getDataSchema(), vendorName, calculatedFieldRequest,
                 ds.getDataSchema());
 
         logger.info("\n******* QUERY **********\n" + query);
