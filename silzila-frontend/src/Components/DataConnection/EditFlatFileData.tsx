@@ -270,7 +270,7 @@ const EditFlatFileData = ({
               "childWorkspaceName",
               workspaceDetail.subLabel
             );
-            localStorage.setItem("parentId", workspaceID);
+            // localStorage.setItem("parentId", workspaceID);
             navigate(`/SubWorkspaceDetails/${workspaceID}`);
           } else {
             let workspaceDetail: any = GetWorkSpaceDetails(
