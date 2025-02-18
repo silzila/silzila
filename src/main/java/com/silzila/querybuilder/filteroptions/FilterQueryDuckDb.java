@@ -25,12 +25,17 @@ public class FilterQueryDuckDb {
         //if table is null getting information from column filter request directly
         if(table==null){
             fromClause = " FROM vw_" + req.getTableId() + "_" + req.getFlatFileId().substring(0, 8) + " ";
-        }
+        }else if(req.getIsCalculatedField()){
+            fromClause =" FROM " + req.getFromClause() + " ";
+        }         
         else{
 
             fromClause = " FROM vw_" + table.getAlias() + "_" + table.getFlatFileId().substring(0, 8) + " ";
         }
         
+        if (req.getWhereClause() != null) {
+            fromClause = fromClause + " " + req.getWhereClause() ;
+        }
 
         if (List.of("TEXT", "BOOLEAN").contains(req.getDataType().name())) {
             query = "SELECT DISTINCT " + req.getFieldName() + fromClause + "ORDER BY 1";

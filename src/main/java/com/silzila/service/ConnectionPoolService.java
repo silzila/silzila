@@ -974,48 +974,48 @@ public class ConnectionPoolService {
             if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
                 // schema name is must for postgres & redshift
                 // construct query
-                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             }
 
             // for BIGQUERY DB
             else if (vendorName.equals("bigquery")) {
                 // construct query
-                query = "SELECT " + tblId + ".*" + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT " + tblId + ".*"+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             }
             // for MYSQL DB
             else if (vendorName.equals("mysql") ) {
                 // construct query
-                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
 
             }
             else if (vendorName.equals("motherduck")) {
                 // construct query
-                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
 
             }
             // for SQL Server DB
             else if (vendorName.equals("sqlserver")) {
                 // construct query
-                query = "SELECT TOP " + recordCount + " " + tblId + ".* " + " FROM " + fromClause + whereClause;
+                query = "SELECT TOP " + recordCount + " " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause;
 
             }
             // for Databricks
             else if (vendorName.equals("databricks")) {
                 // construct query
-                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             }
             // oracle
             else if (vendorName.equalsIgnoreCase("oracle")) {
-                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " FETCH FIRST " + recordCount
+                query = "SELECT " + tblId + ".* " + calculatedField + " FROM " + fromClause + whereClause + " FETCH FIRST " + recordCount
                         + " ROWS ONLY";
             }
             // snowflake
             else if (vendorName.equalsIgnoreCase("snowflake")) {
                 // construct query
-                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT " + tblId + ".* " + calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             } else if (vendorName.equals("teradata")) {
                 // construct query
-                query = "SELECT TOP " + recordCount + " " + tblId + ".* " + " FROM " + fromClause + whereClause;
+                query = "SELECT TOP " + recordCount + " " + tblId + ".* "+ calculatedField  + " FROM " + fromClause + whereClause;
             }
         } else {
             // based on database dialect, we pass different SELECT * Statement

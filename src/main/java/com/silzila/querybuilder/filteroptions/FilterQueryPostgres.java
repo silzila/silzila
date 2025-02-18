@@ -26,6 +26,9 @@ public class FilterQueryPostgres {
         if (table == null) {
             fromClause = " FROM " + req.getSchemaName() + "." + req.getTableName() + " AS " + req.getTableId()+" ";
         }
+        else if(req.getIsCalculatedField()){
+            fromClause =" FROM " + req.getFromClause() + " ";
+        }
         else{
         if(!table.isCustomQuery()) {
             fromClause = " FROM " + table.getSchema() + "." + table.getTable() + " AS " +table.getId()+" ";

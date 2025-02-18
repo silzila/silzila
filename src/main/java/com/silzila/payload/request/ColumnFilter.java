@@ -49,6 +49,8 @@ public class ColumnFilter implements Serializable {
     private ColumnFilter.TimeGrain timeGrain;
     @JsonProperty("whereClause")
     private String whereClause = null;
+    @JsonProperty("fromClause")
+    private String fromClause = null;
     private final static long serialVersionUID = -2628722783214042914L;
 
     /**
@@ -72,7 +74,8 @@ public class ColumnFilter implements Serializable {
     public ColumnFilter(Boolean isCalculatedField, List<CalculatedFieldRequest> calculatedField, String tableId,
             String tableName, String schemaName, String dbName,
             String fieldName, String flatFileId, ColumnFilter.DataType dataType,
-            ColumnFilter.FilterOption filterOption, ColumnFilter.TimeGrain timeGrain,String whereClause) {
+            ColumnFilter.FilterOption filterOption, ColumnFilter.TimeGrain timeGrain, String whereClause,
+            String fromClause) {
         super();
         this.tableId = tableId;
         this.tableName = tableName;
@@ -85,7 +88,9 @@ public class ColumnFilter implements Serializable {
         this.timeGrain = timeGrain;
         this.isCalculatedField = isCalculatedField;
         this.whereClause = whereClause;
-           this.calculatedField = calculatedField;
+        this.calculatedField = calculatedField;
+        this.fromClause = fromClause;
+
     }
 
     @JsonProperty("isCalculatedField")
@@ -207,6 +212,17 @@ public class ColumnFilter implements Serializable {
     public void setWhereClause(String whereClause) {
         this.whereClause = whereClause;
     }
+    
+    @JsonProperty("fromClause")
+    public String getFromClause() {
+        return fromClause;
+    }
+
+    @JsonProperty("fromClause")
+    public void setFromClause(String fromClause) {
+        this.fromClause = fromClause;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
