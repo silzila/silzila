@@ -55,8 +55,9 @@ public class SyncFilterQuery {
                             String columnName = filter.getTableId() + ".\"" + filter.getFieldName() + "\"";
                             selectedColumns.add(columnName);
                             aliasMap.put(columnName, aliasCount++);
-                            isUserSelectionAll=true;
 
+                        }else{
+                            isUserSelectionAll=true;
                         }
 
                         // Create and add the Dimension object
@@ -87,9 +88,11 @@ public class SyncFilterQuery {
                 // User selections
                 List<String> userSelections = filter.getUserSelection();
                 if (userSelections != null || "tillDate".equals(filter.getFilterType())) {
-                    userSelcetionFilter.add(filter);
-                    userSelection = true;
-
+                    if(!isUserSelectionAll){
+                        userSelcetionFilter.add(filter);
+                        userSelection = true;
+                    }
+                   
                 }
             
             }
@@ -151,7 +154,7 @@ public class SyncFilterQuery {
 
             // Build WHERE clause using the panel
 
-            if(userSelection&&isUserSelectionAll){
+            if(userSelection){
             whereClause = WhereClause.buildWhereClause(Collections.singletonList(panel), vendorName,ds.getDataSchema());
                 finalQuery.append(whereClause);
             }
