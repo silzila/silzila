@@ -1,6 +1,9 @@
 package com.silzila.service;
 
 import com.silzila.domain.entity.User;
+import com.silzila.dto.UserDetailsDTO;
+import com.silzila.exception.BadRequestException;
+import com.silzila.helper.UtilityService;
 import com.silzila.payload.request.UserRequest;
 import com.silzila.repository.UserRepository;
 
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UtilityService utilityService;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -52,5 +56,10 @@ public class UserService {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to update user: " + e.getMessage());
         }
+    }
+        public UserDetailsDTO getUserDetails(String email) throws BadRequestException {
+        User user = utilityService.getUserFromEmail(email);
+        UserDetailsDTO userDetails = new UserDetailsDTO(user.getFirstName(), user.getLastName(), user.getUsername());
+        return userDetails;
     }
 }
