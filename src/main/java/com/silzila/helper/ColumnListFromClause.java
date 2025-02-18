@@ -18,26 +18,22 @@ public class ColumnListFromClause {
 
         Set<String> uniqueTables = new HashSet<>();
 
-        req.getDimensions().forEach(dim -> collectTableIds(dim.getTableId(), uniqueTables));
-        req.getMeasures().forEach(measure -> collectTableIds(measure.getTableId(), uniqueTables));
+        req.getDimensions().forEach(dim -> collectTableIds(dim.getTableId(),
+                dim.getIsCalculatedField() ? dim.getCalculatedField() : null, uniqueTables));
+        req.getMeasures().forEach(measure -> collectTableIds(measure.getTableId(),
+                measure.getIsCalculatedField() ? measure.getCalculatedField() : null, uniqueTables));
         req.getFields().forEach(field -> uniqueTables.add(field.getTableId()));
-        req.getFilterPanels().forEach(
-                panel -> panel.getFilters().forEach(filter -> collectTableIds(filter.getTableId(), uniqueTables)));
-
+        req.getFilterPanels().forEach(panel -> panel.getFilters().forEach(filter -> collectTableIds(filter.getTableId(),
+                filter.getIsCalculatedField() ? filter.getCalculatedField() : null, uniqueTables)));
         return new ArrayList<>(uniqueTables);
     }
 
+    
     public static List<String> getColumnListFromFields(Map<String, Field> fields) {
         return fields.values().stream()
                 .map(Field::getTableId)
                 .distinct()
                 .collect(Collectors.toList());
-    }
-
-    private static void collectTableIds(String tableId, Set<String> uniqueTables) {
-        if (tableId != null) {
-            uniqueTables.add(tableId);
-        }
     }
 
     public static List<String> getColumnListFromFieldsRequest(List<CalculatedFieldRequest> calculatedFieldRequests) {
@@ -101,5 +97,7 @@ public class ColumnListFromClause {
             }
         }
     }
+    
+    
 
 }

@@ -26,6 +26,9 @@ public class FilterQueryMysql {
         if(table==null) {
             fromClause = " FROM " + req.getDBName() + "." + req.getTableName()+ " AS " + req.getTableId() + " ";
         }
+        else if(req.getIsCalculatedField()){
+            fromClause =" FROM " + req.getTableId() + " ";
+        }
         else{
         if(!table.isCustomQuery()) {
             fromClause = " FROM " + table.getDatabase() + "." + table.getTable() + " AS " + table.getId() + " ";

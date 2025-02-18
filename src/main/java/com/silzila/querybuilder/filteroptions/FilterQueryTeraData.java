@@ -24,7 +24,11 @@ public class FilterQueryTeraData {
         //if table is null getting information from column filter request directly
         if(table==null){
             fromClause = " FROM " + req.getTableName() + " " + req.getTableId() + " ";
-        }else {
+        }
+        else if(req.getIsCalculatedField()){
+            fromClause =" FROM " + req.getTableId() + " ";
+        }
+        else {
             if (!table.isCustomQuery()) {
                 fromClause = " FROM " + table.getTable() + " " + table.getId() + " ";
             } else {
