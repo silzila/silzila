@@ -106,7 +106,7 @@ public class FileDataController {
     public ResponseEntity<?> getSampleRecords(@RequestHeader Map<String, String> reqHeader,
                                               @RequestParam(value = "flatfileId",required = false) String flatfileId,
                                               @RequestParam(value = "datasetId",required = false) String datasetId,
-                                              @RequestParam String workspaceId,
+                                              @RequestParam (value = "workspaceId",required = false)String workspaceId,
                                               @RequestParam(name = "tableId",required = false) String tableId,
                                               @RequestParam(name = "table",required = false) String tableName,
                                                @RequestBody(required = false) List<List<CalculatedFieldRequest>> calculatedFieldRequests
