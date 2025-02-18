@@ -90,8 +90,10 @@ public class SyncFilterQuery {
                 if (userSelections != null || "tillDate".equals(filter.getFilterType())) {
                     if(!isUserSelectionAll){
                         userSelcetionFilter.add(filter);
-                        userSelection = true;
                     }
+                        userSelection = true;
+                        isUserSelectionAll=false;
+                    
                    
                 }
             
