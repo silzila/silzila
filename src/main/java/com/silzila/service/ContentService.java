@@ -85,7 +85,7 @@ public class ContentService {
         String workspaceName = request.getName().trim();
         utilityService.validateNonEmptyString(workspaceName);
 
-        if (workspaceRepository.existsByNameAndParentId(workspaceName, request.getParentId())) {
+        if (workspaceRepository.existsByNameAndParentIdAndUserId(workspaceName, request.getParentId(), userId)) {
             throw new BadRequestException("Name is already taken");
         }
         Workspace existingWorkspace = null;
@@ -129,10 +129,9 @@ public class ContentService {
 
         utilityService.validateNonEmptyString(workspaceName);
 
-        if (workspaceRepository.existsByNameAndParentId(workspaceName, request.getParentId())) {
+        if (workspaceRepository.existsByNameAndParentIdAndUserId(workspaceName, request.getParentId(), email)) {
             return ResponseEntity.badRequest().body("Name is already taken");
         }
-
         workspace.setName(workspaceName);
         workspace.setUpdatedBy(user.getFirstName());
 
