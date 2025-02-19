@@ -51,7 +51,7 @@ public class SyncFilterQuery {
                 if (!filter.getCurrentSelection() ) {
                     if (filter.getOperator() == Filter.Operator.IN) {
 
-                        if(filter.getUserSelection()!=null&&!filter.getUserSelection().get(0).equalsIgnoreCase("all")){
+                        if(filter.getUserSelection()!=null&&!filter.getUserSelection().get(0).equalsIgnoreCase("(all)")){
                             String columnName = filter.getTableId() + ".\"" + filter.getFieldName() + "\"";
                             selectedColumns.add(columnName);
                             aliasMap.put(columnName, aliasCount++);
@@ -90,10 +90,8 @@ public class SyncFilterQuery {
                 if (userSelections != null || "tillDate".equals(filter.getFilterType())) {
                     if(!isUserSelectionAll){
                         userSelcetionFilter.add(filter);
-                    }
                         userSelection = true;
-                        isUserSelectionAll=false;
-                    
+                    }
                    
                 }
             
