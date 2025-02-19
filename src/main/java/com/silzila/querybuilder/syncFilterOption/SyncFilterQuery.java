@@ -51,7 +51,7 @@ public class SyncFilterQuery {
                 if (!filter.getCurrentSelection() ) {
                     if (filter.getOperator() == Filter.Operator.IN) {
 
-                        if(filter.getUserSelection()!=null&&!filter.getUserSelection().get(0).equalsIgnoreCase("all")){
+                        if(filter.getUserSelection()!=null&&!filter.getUserSelection().get(0).equalsIgnoreCase("(all)")){
                             String columnName = filter.getTableId() + ".\"" + filter.getFieldName() + "\"";
                             selectedColumns.add(columnName);
                             aliasMap.put(columnName, aliasCount++);
