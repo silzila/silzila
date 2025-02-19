@@ -28,7 +28,7 @@ public class TokenUtils {
   private String secret;
 
   @Value("${jwtExpirationMs}")
-  private Long expiration;
+  private Long expirationTimeAccess;
 
   public String getUsernameFromToken(String token) {
     String username;
@@ -107,7 +107,7 @@ public class TokenUtils {
 
   // expiration time - 15 mins
   private Date generateAccessTokenExpirationDate() {
-    return new Date(System.currentTimeMillis() + (15 * 60 * 1000));
+    return new Date(System.currentTimeMillis() + (expirationTimeAccess));
   }
 
   // expiration time - 8 hrs
