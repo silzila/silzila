@@ -1,6 +1,6 @@
 // Sign up component. Used to create new accounts
 
-import { AlertColor } from "@mui/material";
+import { AlertColor, Box, IconButton } from "@mui/material";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import FetchData from "../ServerCall/FetchData";
@@ -9,7 +9,10 @@ import Header from "./Header";
 import "./header.css";
 import "./openSource_register.css";
 import NotificationDialogRegister from "../CommonFunctions/DialogComponentforRegister";
-
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import Logger from "../../Logger";
+import { PopUpSpinner } from "../CommonFunctions/DialogComponents";
 const SignUp = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -21,7 +24,7 @@ const SignUp = () => {
   const [openAlert, setOpenAlert] = useState(false);
   const [testMessage, setTestMessage] = useState("");
   const [severity, setSeverity] = useState<AlertColor>("success");
-
+	const [showPassword, setShowPassword] = useState(false);
 	const showAlert = (message: string, severity: "success" | "error") => {
 		setTestMessage(message);
 		setSeverity(severity);
@@ -34,14 +37,17 @@ const SignUp = () => {
   const isPasswordValid = () => password.trim().length >= 6;
 
   const handleSubmit = async (e: React.FormEvent) => {
+	Logger("info","form submitted")
     e.preventDefault();
 
     if (!isFormValid()) {
+		Logger("info","form not valid")
       setError("*Please fill in Email, First name and Password");
       return;
     }
 
     if (!isPasswordValid()) {
+		Logger("info","password not valid")
       setError("*Password should have at least 6 characters");
       return;
     }
@@ -49,6 +55,7 @@ const SignUp = () => {
     setLoading(true);
 
     try {
+		Logger("info","fetching data")
       const response = await FetchData({
         requestType: "withData",
         method: "POST",
@@ -61,15 +68,17 @@ const SignUp = () => {
 					device: "web",
 				},
         headers: { "Content-Type": "application/json" },
+		checkToken: false,
       });
 
       if (response.status) {
-        console.log("Registration successful:", response.data);
+        // console.log("Registration successful:", response.data);
         showAlert("Registration successful!", "success"); 
 				setError(null);
         //navigate("/login");
       }
     } catch (error: any) {
+		Logger("error",error)
       if (error.response) {
         if (
           error.response.status === 400 &&
@@ -86,7 +95,7 @@ const SignUp = () => {
           setError("An error occurred. Please check your input and try again.");
         }
       } else {
-        console.error("Unexpected error:", error);
+        // console.error("Unexpected error:", error);
         showAlert(
           "A network error occurred. Please try again later.",
           "error"
@@ -116,12 +125,7 @@ const SignUp = () => {
 			></div>
 		<div className="right-side">
 			{loading ? (
-				<div className="loading-overlay">
-					<div className="loading-container">
-						<p>Registering User...</p>
-						<div className="user-spinner"></div>
-					</div>
-				</div>
+				<PopUpSpinner show={!loading} />
 			) : null}
 			<div className="community-register-login-box">
 				<form onSubmit={handleSubmit} className="community-register-form">
@@ -155,21 +159,53 @@ const SignUp = () => {
 							onChange={(e) => setLastName(e.target.value)}
 						/>
 					</div>
+					<Box
+					sx={{
+						display: 'flex',
+						alignItems: 'center',
+						width: '100%',
+						border:'1px solid #ddd',
+						borderRadius:'7px',
+						backgroundColor:'white',
+						height:'fit-content',
+						marginBottom:'1rem',
+						
+					}}
+					>
 					<input
-						type="password"
-						id="password"
-						className="community-register-input"
-						name="password"
-						placeholder="Password*"
+						type={showPassword ? "text" : "password"}
+						id="login-password"
+						name="login-password"
+						placeholder="Password"
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
+						style={{
+							border:'none',flexGrow:1,
+							marginBottom:'0',
+							outline:'none',
+						}}
 					/>
+					<IconButton
+						aria-label="toggle password visibility"
+						sx={{
+							marginRight:0
+						}}
+						onClick={() => setShowPassword(!showPassword)}
+						edge="end">
+						{
+							showPassword ? <RemoveRedEyeIcon fontSize="small" /> : <VisibilityOffIcon fontSize="small"/>
+						}
+					</IconButton>
+
+
+					</Box>
 					{error && <p className="error">{error}</p>}{" "}
 					{/* Display error message if error state is not null */}
 					<div className="community-register-register-buttons">
 						<button
 							type="submit"
 							className="community-register-register-button"
+							
 						>
 							Register
 						</button>
