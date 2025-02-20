@@ -317,8 +317,8 @@
 							<outputDirectory>target/classes/static</outputDirectory>
 							<resources>
 								<resource>
-									<directory>src/main/resources/static</directory>
-									<filtering>true</filtering>
+									<directory>silzila-frontend/build</directory>
+									<filtering>false</filtering>
 								</resource>
 							</resources>
 

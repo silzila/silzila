@@ -33,9 +33,13 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
     String requestURI = httpRequest.getRequestURI();
 
     // Bypass authentication for specific endpoints
-    if (requestURI.startsWith("/api/auth/") || requestURI.startsWith("/api/h2-console/") || requestURI.startsWith("/api/h2-ui") 
+    if (requestURI.equals("/")|| requestURI.startsWith("/api/auth/") || requestURI.startsWith("/api/h2-console/") || requestURI.startsWith("/api/h2-ui") 
         || requestURI.startsWith("/api/api-docs/") || requestURI.startsWith("/api/swagger-ui.html") 
-        || requestURI.startsWith("/api/swagger-ui/") || requestURI.startsWith("/api/auth/")) {
+        || requestURI.startsWith("/api/swagger-ui/") || requestURI.startsWith("/static/") || requestURI.endsWith(".json") || requestURI.startsWith("/logo") || 
+        requestURI.endsWith(".woff2") || requestURI.endsWith(".txt") || requestURI.endsWith(".png") || requestURI.endsWith(".jpg") || requestURI.endsWith(".jpeg") || 
+        requestURI.endsWith(".gif") || requestURI.endsWith(".svg") || requestURI.endsWith(".ico") || requestURI.endsWith(".css")|| requestURI.endsWith(".js") ||
+        requestURI.endsWith(".map") || requestURI.startsWith("/auth/") || requestURI.startsWith("/h2-console/") || requestURI.startsWith("/h2-ui") ||
+        requestURI.startsWith("/api-docs/") || requestURI.startsWith("/swagger-ui.html") || requestURI.startsWith("/swagger-ui/")) {
         filterChain.doFilter(request, response);
         return;
     }
