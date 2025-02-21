@@ -214,7 +214,9 @@ const TileRibbon = ({
   const tileWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setCurrentTileLength(tileState.tileList[1].length);
+    if(tileState.tileList[1]){
+      setCurrentTileLength(tileState.tileList[1].length);
+    }
   }, [tileState.tileList]);
 
   const handleTileScroll = (step: number) => {
