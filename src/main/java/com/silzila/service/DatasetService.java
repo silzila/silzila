@@ -611,7 +611,7 @@ public class DatasetService {
     }
 
     // Populate filter Options
-    public Object filterOptions(String userId, String dBConnectionId, String datasetId, String workspaceId,
+    public JSONObject filterOptions(String userId, String dBConnectionId, String datasetId, String workspaceId,
             ColumnFilter columnFilter)
             throws RecordNotFoundException, SQLException, JsonProcessingException,
             BadRequestException, ClassNotFoundException {
@@ -619,7 +619,7 @@ public class DatasetService {
         if (datasetId == null || datasetId.isEmpty()) {
             String vendorName = "";
             String query = "";
-            JSONArray jsonArray = null;
+            JSONObject jsonObject = null;
             if (dBConnectionId == null || dBConnectionId.isEmpty()) {
                 query = filterOptionsQueryComposer.composeQuery(columnFilter, null, "duckdb");
                 logger.info("\n******* QUERY **********\n" + query);
@@ -630,14 +630,14 @@ public class DatasetService {
                 tableObjects.add(table);
                 // calling this to crete a view to run on top of that
                 fileDataService.getFileNameFromFileId(userId, tableObjects, workspaceId);
-                jsonArray = duckDbService.runQuery(query);
+                jsonObject = duckDbService.runQueryObject(query);
             } else {
                 vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId, workspaceId);
                 query = filterOptionsQueryComposer.composeQuery(columnFilter, null, vendorName);
                 logger.info("\n******* QUERY **********\n" + query);
-                jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
+                jsonObject = connectionPoolService.runQueryObject(dBConnectionId, userId, query);
             }
-            return jsonArray;
+            return jsonObject;
 
         }
 
@@ -657,8 +657,8 @@ public class DatasetService {
                 vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId, workspaceId);
                 String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, vendorName);
                 logger.info("\n******* QUERY **********\n" + query);
-                JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
-                return jsonArray;
+                JSONObject jsonObject = connectionPoolService.runQueryObject(dBConnectionId, userId, query);
+                return jsonObject;
             }
 
             /* Flat file based dataset, create DFs for necessary files used in query */
@@ -684,8 +684,8 @@ public class DatasetService {
                 logger.info("\n******* QUERY **********\n" + query);
                 // List<JsonNode> jsonNodes = sparkService.runQuery(query);
                 // return jsonNodes;
-                JSONArray jsonArray = duckDbService.runQuery(query);
-                return jsonArray.toString();
+                JSONObject jsonObject = duckDbService.runQueryObject(query);
+                return jsonObject;
             }
         }
 
