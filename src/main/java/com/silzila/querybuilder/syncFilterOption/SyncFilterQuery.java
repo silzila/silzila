@@ -117,13 +117,13 @@ public class SyncFilterQuery {
             } else if (vendorName.equals("sqlserver")) {
                 selectQuery = SelectClauseSqlserver.buildSelectClause(query, vendorName,ds, aliasMap);
             } else if (vendorName.equals("databricks")) {
-                selectQuery = SelectClauseDatabricks.buildSelectClause(query, vendorName,ds, aliasMap);
+                selectQuery = SelectClauseDatabricks.buildSelectClause(query, vendorName,ds,"", aliasMap);
 
             } else if (vendorName.equals("duckdb")) {
                 selectQuery = SelectClauseMotherduck.buildSelectClause(query, vendorName,ds, aliasMap);
 
             } else if (vendorName.equals("bigquery")) {
-                selectQuery = SelectClauseBigquery.buildSelectClause(query, vendorName,ds, aliasMap);
+                selectQuery = SelectClauseBigquery.buildSelectClause(query, vendorName,ds,"", aliasMap);
             } else if (vendorName.equals("oracle")) {
                 selectQuery = SelectClauseOracle.buildSelectClause(query, vendorName,ds, aliasMap);
             } else if (vendorName.equals("snowflake")) {
