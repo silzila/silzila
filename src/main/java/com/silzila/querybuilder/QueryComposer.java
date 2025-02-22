@@ -32,7 +32,7 @@ public class QueryComposer {
      * Different dialects will have different syntaxes.
      */
     @SuppressWarnings("unchecked")
-    public String composeQuery(List<Query> queries, DatasetDTO ds, String vendorName,Map<String,Integer>... aliasnumber) throws BadRequestException {
+    public String composeQuery(List<Query> queries, DatasetDTO ds, String vendorName,Boolean isOverride,Map<String,Integer>... aliasnumber) throws BadRequestException {
 
         QueryClauseFieldListMap qMap = new QueryClauseFieldListMap();
         String updatedQuery = "";
@@ -40,20 +40,16 @@ public class QueryComposer {
 
         Query req = queries.get(0);
 
-        // flag --> override function or not
-        if (queries.size() > 1) {
-            queryCTE = true;
-        }
-
-        //creating tableId list to check the filter list id which is present in query
-        List<String> tableIDList = new ArrayList<String>();
-
-        req.getMeasures().forEach(measure -> tableIDList.add(measure.getTableId()));
-        req.getFields().forEach(field -> tableIDList.add(field.getTableId()));
-        req.getDimensions().forEach(dimension -> tableIDList.add(dimension.getTableId()));
-        for (int i = 0; i < req.getFilterPanels().size(); i++) {
-            for (int j = 0; j < req.getFilterPanels().get(i).getFilters().size(); j++) {
-                tableIDList.add(req.getFilterPanels().get(i).getFilters().get(j).getTableId());
+        // dataset filter
+        long countOfFilterPanels=ds.getDataSchema().getFilterPanels().size();
+        if(countOfFilterPanels==0) {      
+        }else {
+            for(int i=0;i<countOfFilterPanels;i++) {
+                for (int j = 0; j < ds.getDataSchema().getFilterPanels().get(i).getFilters().size(); j++)
+                {
+                        req.getFilterPanels().add(ds.getDataSchema().getFilterPanels().get(i));
+  
+                }
             }
         }
 
@@ -88,10 +84,10 @@ public class QueryComposer {
             qMap = SelectClauseSqlserver.buildSelectClause(req, vendorName,ds,  aliasnumber);
         } else if (vendorName.equals("bigquery")) {
             // System.out.println("------ inside Big Query block");
-            qMap = SelectClauseBigquery.buildSelectClause(req, vendorName,ds,  aliasnumber);
+            qMap = SelectClauseBigquery.buildSelectClause(req, vendorName,ds,"",aliasnumber);
         } else if (vendorName.equals("databricks")) {
             // System.out.println("------ inside databricks block");
-            qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName,ds,  aliasnumber);
+            qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName,ds, "", aliasnumber);
         } else if (vendorName.equals("oracle")) {
             qMap = SelectClauseOracle.buildSelectClause(req, vendorName,ds,  aliasnumber);
         } else if (vendorName.equals("snowflake")) {
@@ -115,20 +111,9 @@ public class QueryComposer {
         String orderByClause = "\n\t" + qMap.getOrderByList().stream().distinct().collect(Collectors.joining(",\n\t"));
         String whereClause="";
         // checking the filter panel size to add where condition
-        long countOfFilterPanels=ds.getDataSchema().getFilterPanels().size();
-        if(countOfFilterPanels==0) {
-             whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName,ds.getDataSchema());
-        }else {
-            for(int i=0;i<countOfFilterPanels;i++) {
-                for (int j = 0; j < ds.getDataSchema().getFilterPanels().get(i).getFilters().size(); j++)
-                {
-                    if(tableIDList.contains(ds.getDataSchema().getFilterPanels().get(i).getFilters().get(j).getTableId())) {
-                        req.getFilterPanels().add(ds.getDataSchema().getFilterPanels().get(i));
-                    }
-                }
-            }
-            whereClause=WhereClause.buildWhereClause(req.getFilterPanels(), vendorName,ds.getDataSchema());
-        }
+        // building where clause
+        whereClause = WhereClause.buildWhereClause(req.getFilterPanels(), vendorName,ds.getDataSchema());
+
         // for bigquery only
         if (vendorName.equals("bigquery")) {
             boolean isDateOrTimestamp = false;
@@ -186,6 +171,54 @@ public class QueryComposer {
                         + fromClause + whereClause + "\nGROUP BY" + groupByClause
                         + "\n) AS Tbl\nORDER BY" + orderByClause;
 
+            } // for databricks windowfunction only
+            else if (vendorName.equals("databricks") && qMap.getSelectList().stream().anyMatch(column -> column.contains("_0"))) {
+                List<String> filteredlist = new ArrayList<>();
+                List<String> filteredSelectList = new ArrayList<>();
+                List<String> filteredListOrderBy = new ArrayList<>();
+                List<String> filteredOrderBy = new ArrayList<>();
+                // if selectlist contains _0 it will filter window function only and then we
+                // replace the _0 by ""
+                String filteredWindowFunction = qMap.getSelectList().stream().filter(column -> column.contains("_0"))
+                        .map(column -> column.replace("_0", "")).collect(Collectors.joining(",\n\t"));
+                // filter all columns except window function and then replace _* by ""
+                List<String> filteredSelect = qMap.getSelectList().stream().filter(column -> !column.contains("_0"))
+                        .map(column -> column.replace("_*", "")).collect(Collectors.toList());
+                String filteredSelectClause = filteredSelect.stream().collect(Collectors.joining(",\n\t"));
+    
+                for (int i = 0; i < qMap.getSelectList().size(); i++) {
+                    String regex = "(?:.*\\sAS\\s)([a-zA-Z0-9_\\*\\$\\-]+)$"; // using regex to get alias after 'AS'
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(qMap.getSelectList().get(i));
+                    while (matcher.find()) {
+                        String alias = matcher.group(1);
+                        filteredlist.add(alias); // aliases add into filteredlist
+                        logger.info("Alias: " + alias);
+                    }
+                }
+    
+                filteredSelectList = filteredlist.stream().filter(column -> (!column.contains("_*") && !column.contains("_0") && !column.startsWith("_")))
+                            .collect(Collectors.toList());
+    
+                filteredOrderBy = qMap.getSelectList().stream()
+                .filter(column -> !(column.contains("_0") || column.contains("_*"))) // Exclude columns starting with _0 or _*
+                .collect(Collectors.toList());
+                for (int i = 0; i < filteredOrderBy.size(); i++) {
+                    String regex = "\\bAS\\s+(\\w+)"; // using regex to get alias after 'AS'
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(filteredOrderBy.get(i));
+                    while (matcher.find()) {
+                        String alias = matcher.group(1);
+                        filteredListOrderBy.add(alias); // aliases add into filteredlist
+                        logger.info("Alias: " + alias);
+                    }
+                }
+                String orderBy = "\n\t" + filteredListOrderBy.stream().collect(Collectors.joining(",\n\t"));
+                String filteredSelectClauseList = "\n\t" + filteredSelectList.stream().collect(Collectors.joining(",\n\t"));
+                finalQuery = "SELECT " + filteredSelectClauseList + ",\n\t" + filteredWindowFunction + "\nFROM ("
+                        + "\nSELECT " + filteredSelectClause + "\nFROM"
+                        + fromClause + whereClause + "\nGROUP BY" + groupByClause
+                        + "\n) AS Tbl\nORDER BY" + orderBy;
             }
             // if time grain month or day of week
             else if (isDateOrTimestamp && isMonthOrDayOfWeek) {
@@ -236,7 +269,7 @@ public class QueryComposer {
         }
 
         // override does not require orderbyclause
-        if (queryCTE && !req.getDimensions().isEmpty() && !vendorName.equals("bigquery")) {
+        if (isOverride && !req.getDimensions().isEmpty() && !vendorName.equals("bigquery")) {
             finalQuery = "SELECT " + selectClause + "\nFROM " + fromClause + whereClause + "\nGROUP BY " + groupByClause;
         }        
 
@@ -268,7 +301,7 @@ public class QueryComposer {
             Boolean windowFn = false;
             HashMap<Integer, Measure> windowMeasures = new HashMap<>();
             // baseQuery
-            String baseQuery = composeQuery(Collections.singletonList(queries.get(0)), ds, vendorName);
+            String baseQuery = composeQuery(Collections.singletonList(queries.get(0)), ds, vendorName,true);
 
             StringBuilder overrideCTEQuery = new StringBuilder();
 
@@ -311,7 +344,7 @@ public class QueryComposer {
 
                 for (Dimension dim : baseDimensions) {
                     // Create a new Dimension object with the same properties as dim
-                    Dimension newDim = new Dimension(false,null,dim.getTableId(),dim.getFieldName() , dim.getDataType(), dim.getTimeGrain(),dim.isRollupDepth(),dim.getAlias());
+                    Dimension newDim = new Dimension(dim.getIsCalculatedField(), dim.getCalculatedField(),dim.getTableId(),dim.getFieldName() , dim.getDataType(), dim.getTimeGrain(),dim.isRollupDepth(), dim.getAlias());
                     commonDimensions.add(newDim);
                 }
 
@@ -336,8 +369,8 @@ public class QueryComposer {
                 
                 for (Dimension dim : leftOverDimension) {
                     // Create a new Dimension object with the same properties as dim
-                    Dimension newDim = new Dimension(false,null ,dim.getTableId(), dim.getFieldName(), dim.getDataType(),
-                            dim.getTimeGrain(), dim.isRollupDepth(),dim.getAlias());
+                    Dimension newDim = new Dimension(dim.getIsCalculatedField(), dim.getCalculatedField(),dim.getTableId(), dim.getFieldName(), dim.getDataType(),
+                            dim.getTimeGrain(), dim.isRollupDepth(), dim.getAlias());
                     combinedDimensions.add(newDim);
                 }
 
@@ -349,9 +382,6 @@ public class QueryComposer {
 
                 //join CTE column--> join with all common column between base and override
                 List<String> joinValues = overrideCTE.joinValues(commonDimensions, baseDimensions);
-
-                // override base CTE
-                queryCTE = true;
         
                 reqCTE.setDimensions(combinedDimensions);
 
@@ -363,6 +393,7 @@ public class QueryComposer {
                                                             .aggr(Meas.getAggr())
                                                             .windowFn(new String[]{null})
                                                             .measureOrder(Meas.getMeasureOrder())
+                                                            .isCalculatedField(Meas.getIsCalculatedField())
                                                             .build();
                         reqCTE.getMeasures().set(0,measure);
                         windowFn = true;
@@ -370,7 +401,9 @@ public class QueryComposer {
 
 
                 // override base query
-                String baseCTEquery = composeQuery(Collections.singletonList(reqCTE), ds, vendorName,aliasNumberingCTE);
+                System.out.println("Aliases : " + aliasNumberingCTE);
+
+                String baseCTEquery = composeQuery(Collections.singletonList(reqCTE), ds, vendorName,true,aliasNumberingCTE);
 
                 //fieldname alias
                 String alias = AilasMaker.aliasing(reqCTE.getMeasures().get(0).getFieldName(), aliasNumberingCTE);
@@ -393,8 +426,7 @@ public class QueryComposer {
                 }
                 if(List.of("COUNT", "COUNTU","COUNTN","COUNTNN").contains(reqCTE.getMeasures().get(0).getAggr().name())){
                     reqCTE.getMeasures().get(0).setAggr(com.silzila.payload.request.Measure.Aggr.SUM);
-                } 
-
+                }
                 tblNum++; // increment
 
                  // CTE expression
@@ -458,12 +490,11 @@ public class QueryComposer {
                 updatedQuery = overrideCTEQuery.toString();
             }
             } catch (Exception e) {
-                queryCTE = false;
                 throw new BadRequestException("An error occurred while processing the override: " + e.getMessage());
             }
             
         }
-        queryCTE = false;
+
         return updatedQuery;
     }
 }

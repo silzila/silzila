@@ -23,7 +23,7 @@ public class SelectClauseBigquery {
     private static final Logger logger = LogManager.getLogger(SelectClauseBigquery.class);
 
     /* SELECT clause for MySQL dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,DatasetDTO ds, Map<String,Integer>... aliasnumber) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,DatasetDTO ds,String method, Map<String,Integer>... aliasnumber) throws BadRequestException {
         logger.info("SelectClauseBigquery calling ***********");
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
