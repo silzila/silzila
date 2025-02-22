@@ -30,9 +30,9 @@ public class subTotalsCombination {
         } else if ("postgresql".equals(vendorName)) {
             qMap = SelectClausePostgres.buildSelectClause(dim, vendorName,ds);
         } else if("bigquery".equals(vendorName)){
-            qMap = SelectClauseBigquery.buildSelectClause(dim, vendorName,ds);
+            qMap = SelectClauseBigquery.buildSelectClause(dim, vendorName,ds,"");
         } else if ("databricks".equals(vendorName)) {
-            qMap = SelectClauseDatabricks.buildSelectClause(dim, vendorName,ds);
+            qMap = SelectClauseDatabricks.buildSelectClause(dim, vendorName,ds,"");
         } else if ("redshift".equals(vendorName)) {
             qMap = SelectClausePostgres.buildSelectClause(dim, vendorName,ds);
         } else if ("oracle".equals(vendorName)) {

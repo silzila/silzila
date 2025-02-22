@@ -38,7 +38,22 @@ public class Query implements Serializable {
      */
     public Query() {
     }
-
+    
+    /**
+     *
+     * @param measures
+     * @param filterPanels
+     * @param fields
+     * @param dimensions
+     */
+    public Query(List<Dimension> dimensions, List<Measure> measures, List<Field> fields,
+    List<FilterPanel> filterPanels) {
+super();
+this.dimensions = dimensions;
+this.measures = measures;
+this.fields = fields;
+this.filterPanels = filterPanels;
+}
     /**
      *
      * @param measures

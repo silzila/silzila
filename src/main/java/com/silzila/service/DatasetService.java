@@ -433,6 +433,8 @@ public class DatasetService {
 
         String vendorName = "";
 
+        Boolean isOverride = queries.size()>1;
+
         // for DB based datasets, connection id is must
         if (ds.getIsFlatFileData() == false) {
             if (dBConnectionId == null || dBConnectionId.isEmpty()) {
@@ -463,7 +465,7 @@ public class DatasetService {
         }
         /* DB based Dataset */
         if (ds.getIsFlatFileData() == false) {
-            String query = queryComposer.composeQuery(queries, ds, vendorName);
+            String query = queryComposer.composeQuery(queries, ds, vendorName,isOverride);
 
             // for totals & subtotals only
             for (Query req : queries) {
@@ -524,7 +526,7 @@ public class DatasetService {
             // get files names from file ids and load the files as Views
             fileDataService.getFileNameFromFileId(userId, tableObjList, workspaceId);
             // come here
-            String query = queryComposer.composeQuery(queries, ds, "duckdb");
+            String query = queryComposer.composeQuery(queries, ds, "duckdb",isOverride);
 
             // for totals & subtotals only
             for (Query req : queries) {

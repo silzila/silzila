@@ -23,7 +23,7 @@ public class SelectClauseDatabricks {
     private static final Logger logger = LogManager.getLogger(SelectClauseDatabricks.class);
 
     /* SELECT clause for Databricks dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, DatasetDTO ds,
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, DatasetDTO ds,String method,
             Map<String, Integer>... aliasnumber) throws BadRequestException {
         logger.info("SelectClauseDatabricks calling ***********");
 
