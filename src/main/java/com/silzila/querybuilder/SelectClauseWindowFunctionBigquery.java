@@ -208,21 +208,21 @@ public static String windowFunction(Measure meas, Query req, String field, Strin
             if (meas.getWindowFnPartition()[0] < -1 || meas.getWindowFnPartition()[0] > req.getDimensions().size() - 1) {
                 throw new BadRequestException("Error: bad request! partition dimensional size is invalid");
             }// if matrix value given this condition will work
-            if (meas.getWindowFnMatrix().length > 0) {
-                if (meas.getWindowFnMatrix().length != 2) {
+            if (meas.getrowColumnMatrix().length > 0) {
+                if (meas.getrowColumnMatrix().length != 2) {
                     throw new BadRequestException("Error: Invalid matrix length");
                 }
-                if ((meas.getWindowFnMatrix()[0] != 0 && meas.getWindowFnMatrix()[1] != 0) || (meas.getWindowFnMatrix()[0] < 0 && meas.getWindowFnMatrix()[1] < 0)) {
+                if ((meas.getrowColumnMatrix()[0] != 0 && meas.getrowColumnMatrix()[1] != 0) || (meas.getrowColumnMatrix()[0] < 0 && meas.getrowColumnMatrix()[1] < 0)) {
                     throw new BadRequestException("Error: bad request! atleast one matrix element should be zero or matrix element should not be less than -1");
                 }
-                if (req.getDimensions().size() != (meas.getWindowFnMatrix()[0] + meas.getWindowFnMatrix()[1])) {
+                if (req.getDimensions().size() != (meas.getrowColumnMatrix()[0] + meas.getrowColumnMatrix()[1])) {
                     throw new BadRequestException("Error: invalid matrix dimensional size");
                 }
                 // split row and column
-                for (int x = 0; x < meas.getWindowFnMatrix()[0]; x++) {
+                for (int x = 0; x < meas.getrowColumnMatrix()[0]; x++) {
                     row.add(req.getDimensions().get(x));
                 }
-                for (int y = meas.getWindowFnMatrix()[0]; y < meas.getWindowFnMatrix()[0] + meas.getWindowFnMatrix()[1]; y++) {
+                for (int y = meas.getrowColumnMatrix()[0]; y < meas.getrowColumnMatrix()[0] + meas.getrowColumnMatrix()[1]; y++) {
                     column.add(req.getDimensions().get(y));
                 }        
             }
@@ -290,16 +290,16 @@ public static String windowFunction(Measure meas, Query req, String field, Strin
         } 
         // partition value for row & column
         else if (meas.getWindowFnPartition().length == 2 || meas.getWindowFnPartition().length == 3) {
-        if (meas.getWindowFnMatrix().length != 2 || meas.getWindowFnMatrix()[0] < 0 || meas.getWindowFnMatrix()[1] < 0 || meas.getWindowFnPartition()[0] < -1 || meas.getWindowFnPartition()[1] < -1) {
+        if (meas.getrowColumnMatrix().length != 2 || meas.getrowColumnMatrix()[0] < 0 || meas.getrowColumnMatrix()[1] < 0 || meas.getWindowFnPartition()[0] < -1 || meas.getWindowFnPartition()[1] < -1) {
             throw new BadRequestException("Error: matrix & partition (length or value) should not exceeds or fall below the limit");
         }
-        if (req.getDimensions().size() != (meas.getWindowFnMatrix()[0] + meas.getWindowFnMatrix()[1])) {
+        if (req.getDimensions().size() != (meas.getrowColumnMatrix()[0] + meas.getrowColumnMatrix()[1])) {
             throw new BadRequestException("Error: invalid matrix dimensional size");
         }
          // get rowValue & columnValue from api
         List<Dimension> aliasDimensions = aliasingDim(req.getDimensions());
-        int rowValue = meas.getWindowFnMatrix()[0];
-        int columnValue = meas.getWindowFnMatrix()[1];
+        int rowValue = meas.getrowColumnMatrix()[0];
+        int columnValue = meas.getrowColumnMatrix()[1];
         // split dimensions into row and column  
         for (int x = 0; x < rowValue; x++) {
             row.add(aliasDimensions.get(x));
