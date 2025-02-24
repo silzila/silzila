@@ -3,6 +3,8 @@ package com.silzila.controller.v1;
 import com.silzila.controller.BaseController;
 import com.silzila.controller.IUserController;
 import com.silzila.domain.entity.User;
+import com.silzila.dto.UserDetailsDTO;
+import com.silzila.exception.BadRequestException;
 import com.silzila.exception.NoUserFoundException;
 import com.silzila.payload.request.UserRequest;
 import com.silzila.service.UserService;
@@ -43,4 +45,12 @@ public class UserControllerV1 extends BaseController implements IUserController 
     public String checkTokenValidation(){
       return "Success";
     }
+
+    
+    @GetMapping("/user-details")
+    public UserDetailsDTO getUserDetails(@RequestHeader Map<String,String> requestHeader) throws BadRequestException {
+      String email = requestHeader.get("username");
+      return userService.getUserDetails( email);
+    }
+
 }

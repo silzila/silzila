@@ -3,6 +3,7 @@ package com.silzila.service;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -22,7 +23,10 @@ import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.exception.RecordNotFoundException;
 import com.silzila.payload.request.*;
+import com.silzila.querybuilder.RelationshipClauseGeneric;
 import com.silzila.querybuilder.WhereClause;
+import com.silzila.querybuilder.CalculatedField.CalculatedFieldQueryComposer;
+import com.silzila.querybuilder.CalculatedField.helper.DataTypeProvider;
 import com.silzila.querybuilder.relativefilter.RelativeFilterQueryComposer;
 import com.silzila.repository.DatasetRepository;
 import com.silzila.repository.FileDataRepository;
@@ -42,6 +46,7 @@ import org.springframework.stereotype.Service;
 
 import com.silzila.domain.entity.FileData;
 import com.silzila.exception.ExpectationFailedException;
+import com.silzila.helper.ColumnListFromClause;
 import com.silzila.helper.ConvertDuckDbDataType;
 import com.silzila.helper.DuckDbMetadataToJson;
 import com.silzila.helper.JsonValidator;
@@ -62,6 +67,9 @@ public class DuckDbService {
     RelativeFilterQueryComposer relativeFilterQueryComposer;
     @Autowired
     RelativeFilterProcessor relativeFilterProcessor;
+
+     @Autowired
+    CalculatedFieldQueryComposer calculatedFieldQueryComposer;
 
     @Value("${pepperForFlatFiles}")
     private String pepper;
@@ -311,7 +319,6 @@ public class DuckDbService {
             timeStampFormatCondition = ", timestampformat='" + revisedInfoRequest.getTimestampFormat().trim() + "'";
         }
 
-        System.out.println(encryptVal);
         // creating Encryption key to save parquet file securely
         String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
         // read CSV and write as Parquet file
@@ -336,16 +343,16 @@ public class DuckDbService {
     }
 
     // get sample records from Parquet file
-    public JSONArray getSampleRecords(String workspaceId,String parquetFilePath,String userId,String datasetId, String tableName,String encryptVal) throws SQLException, RecordNotFoundException, JsonProcessingException, BadRequestException, ClassNotFoundException {
-
+    public JSONArray getSampleRecords(String workspaceId, String parquetFilePath,String userId,String datasetId, String tableName,String tblId,String encryptVal, List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws SQLException, RecordNotFoundException, JsonProcessingException, BadRequestException, ClassNotFoundException {
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtRecords = conn2.createStatement();
 
         String query = "";
 
+
         if(datasetId!=null) {
             //getting dataset information to fetch filter panel information
-            DatasetDTO ds = loadDatasetInBuffer(null,datasetId,workspaceId, userId);
+            DatasetDTO ds = loadDatasetInBuffer(null,datasetId, workspaceId,userId);
             List<FilterPanel> filterPanels = new ArrayList<>();
             String tableId = "";
             String whereClause = "";
@@ -363,26 +370,49 @@ public class DuckDbService {
             }
 
             // generating where clause from the given filter panel
-            whereClause = WhereClause.buildWhereClause(filterPanels, "duckdb",ds);
+            whereClause = ds.getDataSchema().getFilterPanels().isEmpty()?"":WhereClause.buildWhereClause(filterPanels, "duckdb",ds.getDataSchema());
 
+            StringBuilder calculatedField = new StringBuilder();
+
+            if(calculatedFieldRequests!=null){
+                relativeFilterProcessor.processListOfCalculatedFields( calculatedFieldRequests, userId, null, datasetId,workspaceId, this::relativeFilter);
+                calculatedField.append(" , ").append(calculatedFieldQueryComposer.calculatedFieldsComposed(ds.getDataSchema(),"duckdb", calculatedFieldRequests));
+            }
+
+
+            List<String> allColumnList = (calculatedFieldRequests!=null) 
+                                         ? ColumnListFromClause.getColumnListFromListOfFieldRequests(calculatedFieldRequests) 
+                                         : new ArrayList<>();
+            if(!allColumnList.contains(tblId)){
+                    allColumnList.add(tblId);
+            }
+
+            List<Table> tableObjList = ds.getDataSchema().getTables().stream()
+                    .filter(table -> allColumnList.contains(table.getId()))
+                    .collect(Collectors.toList());
+
+            List<String> flatFileIds = tableObjList.stream().map((table) -> table.getFlatFileId())
+                    .collect(Collectors.toList());
+    
+            List<FileData> fileDataList = fileDataRepository.findAllById(flatFileIds);
+            
+            createViewForFlatFiles(userId, tableObjList, fileDataList, encryptPwd + pepper);
+
+            String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList,ds.getDataSchema(),"duckdb");
             // creating Encryption key to save parquet file securely
             String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
             stmtRecords.execute(encryptKey);
             // checking whether the dataset has filter panel or not
-            if (ds.getDataSchema().getFilterPanels().isEmpty()) {
-                query = "SELECT * from read_parquet('" + parquetFilePath
-                        + "',encryption_config = {footer_key: 'key256'}) LIMIT 200;";
-            } else {
-                query = "SELECT * from read_parquet('" + parquetFilePath
-                        + "',encryption_config = {footer_key: 'key256'})" + " AS " + tableId + "\n" + whereClause
-                        + " LIMIT 200;";
-            }
+        
+            query =  "SELECT " + tblId +".* " + calculatedField + " FROM " + fromClause + whereClause + " LIMIT 200";
+             
+            
         } else {
             // creating Encryption key to save parquet file securely
             String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
             stmtRecords.execute(encryptKey);
             query = "SELECT * from read_parquet('" + parquetFilePath
-                    + "',encryption_config = {footer_key: 'key256'}) LIMIT 200;";
+                    + "',encryption_config = {footer_key: 'key256'}) LIMIT 200";
 
         }
         logger.info("************************\n" + query);
@@ -396,7 +426,7 @@ public class DuckDbService {
     }
 
     // get sample records from Parquet file
-    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath, String encryptVal) throws SQLException {
+    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath, String encryptVal, List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws SQLException {
 
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtMeta = conn2.createStatement();
@@ -435,7 +465,25 @@ public class DuckDbService {
         }
         stmtMeta.close();
         conn2.close();
+        metaList.addAll(calculatedFieldMetadata(calculatedFieldRequests));
         return metaList;
+    }
+
+        public List<Map<String, Object>> calculatedFieldMetadata(List<List<CalculatedFieldRequest>> calculatedFieldRequests) {
+        List<Map<String, Object>> metadataList = new ArrayList<>();
+
+        if (calculatedFieldRequests != null) {
+            Map<String, String> calculatedFieldDataType = DataTypeProvider.getCalculatedFieldsDataTypes(calculatedFieldRequests);
+
+            for (Map.Entry<String, String> field : calculatedFieldDataType.entrySet()) {
+                Map<String, Object> metadataMap = new HashMap<>();
+                metadataMap.put("fieldName", field.getKey());
+                metadataMap.put("dataType", field.getValue());
+
+                metadataList.add(metadataMap);
+            }
+        }
+        return metadataList;
     }
 
     // create DF for flat files

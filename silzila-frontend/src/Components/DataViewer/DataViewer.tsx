@@ -644,6 +644,7 @@ function DataViewer({
             tabId={tabTileProps.selectedTabId}
             tileId={tabTileProps.selectedTileId}
           />
+          
           {tabTileProps.showDataViewerBottom ? (
             <DataViewerBottom pbId={state?.playbookId} />
           ) : null}

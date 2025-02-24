@@ -9,6 +9,8 @@ import com.silzila.service.ConnectionPoolService;
 
 import javax.annotation.PreDestroy;
 import java.io.*;
+import java.net.URI;
+import java.awt.Desktop;
 
 @SpringBootApplication
 public class VizApplication {
@@ -18,20 +20,31 @@ public class VizApplication {
 
 	public static void main(String[] args) throws IOException {
 		SpringApplication.run(VizApplication.class, args);
-
-		// UNCOMMENT for Single build with react
-		// System.out.println(
-		// "------- Trying to open App in browser." +
-		// "If not loaded properly then refresh page again --------");
-		// // don't add /api at the end of URL for opening React Home page
-		// String home_url = "http://localhost:8080";
-		// System.setProperty("java.awt.headless", "false");
+        
+		// UNCOMMENT FOR SINGLE BUILD WITH REACT APP
 		// try {
-		// Thread.sleep(1500);
-		// java.awt.Desktop.getDesktop().browse(java.net.URI.create(home_url));
-		// } catch (InterruptedException ie) {
-		// Thread.currentThread().interrupt();
+		// URI url = new URI("http://localhost:8080");
+		// Thread.sleep(2000);
+		
+		// if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+		// 	Desktop.getDesktop().browse(url);
+		// } else {
+		// 	String os = System.getProperty("os.name").toLowerCase();
+		// 	if (os.contains("linux")) {
+		// 	new ProcessBuilder("xdg-open", url.toString()).start();
+		// 	}
+		// 	else if (os.contains("mac")) {
+		// 	new ProcessBuilder("open", url.toString()).start();	
+		// 	}
+		// 	else if (os.contains("win")) {
+		// 		new ProcessBuilder("rundll32", "url.dll,FileProtocolHandler", url.toString()).start();
+		// 	} else {
+		// 		System.err.println("Opening the browser is not supported on this OS.");
+		// 	}
 		// }
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        // }
 	}
 
 	// during shut down or killing of app, this closes all connections

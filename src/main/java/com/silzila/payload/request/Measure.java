@@ -1,7 +1,6 @@
 package com.silzila.payload.request;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -187,7 +186,7 @@ public class Measure implements Serializable {
     public void setWindowFnOption(int[] windowFnOption) {
         this.windowFnOption = windowFnOption;
     }
-
+    
     @JsonProperty("rowColumnMatrix")
     public int[] getrowColumnMatrix() {
         return rowColumnMatrix;
@@ -233,6 +232,14 @@ public class Measure implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append(Measure.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this)))
                 .append('[');
+        sb.append("isCalculatedField");
+        sb.append('=');
+        sb.append((this.isCalculatedField));
+        sb.append(',');
+        sb.append("calculatedFieldName");
+        sb.append('=');
+        sb.append(((this.calculatedField == null) ? "<null>" : this.calculatedField));
+        sb.append(',');
         sb.append("tableId");
         sb.append('=');
         sb.append(((this.tableId == null) ? "<null>" : this.tableId));

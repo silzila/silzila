@@ -323,7 +323,7 @@ const BottomBar = ({
                 "childWorkspaceName",
                 workspaceDetail.subLabel
               );
-              localStorage.setItem("parentId", workspaceId);
+              // localStorage.setItem("parentId", workspaceId);
               const childWorkspaceName = localStorage.getItem("childWorkspaceName")
 
               navigate(`/SubWorkspaceDetails/${workspaceId}`, {state: {childWorkspaceName}});

@@ -42,7 +42,7 @@ public class MysqlQueryBuilder implements QueryBuilder {
     public void processConditionalFlow(List<Flow> flows, Map<String, List<Flow>> flowMap,
             Map<String, FlowDTO> flowStringMap, Map<String, List<ConditionFilter>> conditionFilterMap,
             Map<String, String> conditionFilterStringMap, Map<String, Field> fields, String flowKey,
-            Map<String, CalculatedFieldDTO> calculatedFieldMap,DatasetDTO ds) throws BadRequestException {
+            Map<String, CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
             ConditionFlow.processConditionalFlow("mysql", flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);    
 
 

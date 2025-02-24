@@ -942,43 +942,31 @@ public class ConnectionPoolService {
         if (datasetId != null) {
             // getting dataset information to fetch filter panel information
             DatasetDTO ds = loadDatasetInBuffer(workspaceId, databaseId, datasetId, userId);
-            List<FilterPanel> filterPanels = new ArrayList<>();
-            String tableId = "";
+            List<FilterPanel> datasetFilterPanels =ds.getDataSchema().getFilterPanels();
 
-            String whereClause = ds.getDataSchema().getFilterPanels().isEmpty() ? ""
-                    : WhereClause.buildWhereClause(ds.getDataSchema().getFilterPanels(), vendorName,ds);
-            // iterating to filter panel list to get the particular filter panel for the
-            // table
-            for (int i = 0; i < ds.getDataSchema().getFilterPanels().size(); i++) {
-                if (ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableName()
-                        .equalsIgnoreCase(tableName)) {
-                    filterPanels.add(ds.getDataSchema().getFilterPanels().get(i));
-                    tableId = ds.getDataSchema().getFilterPanels().get(i).getFilters().get(0).getTableId();
-                }
+            //generating fromclause
+            List<String> allColumnList = ColumnListFromClause.getColumnListFromCalculatedFieldAndFilterPanels(calculatedFieldRequests,datasetFilterPanels, tblId);
 
+            String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList,ds.getDataSchema(),vendorName);
+
+            // generating  where clause ( if dataaset filters presents)
+            String whereClause = "";
+
+            if(!datasetFilterPanels.isEmpty()){
+                whereClause = WhereClause.buildWhereClause(datasetFilterPanels, vendorName,ds.getDataSchema()); 
             }
 
             // set fall back record count
-            if (recordCount == null || recordCount > 250) {
-                recordCount = 250;
+            if (recordCount == null || recordCount > 100) {
+                recordCount = 100;
             }
 
-            // generating fromclause
-            List<String> allColumnList = (calculatedFieldRequests != null)
-                    ? ColumnListFromClause.getColumnListFromListOfFieldRequests(calculatedFieldRequests)
-                    : new ArrayList<>();
-            if (!allColumnList.contains(tblId)) {
-                allColumnList.add(tblId);
-            }
-
-            String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList, ds.getDataSchema(),
-                    vendorName);
 
             StringBuilder calculatedField = new StringBuilder();
 
             if(calculatedFieldRequests!=null){
                 relativeFilterProcessor.processListOfCalculatedFields( calculatedFieldRequests, userId, databaseId, datasetId,workspaceId, this::relativeFilter);
-                calculatedField.append(" , ").append(calculatedFieldQueryComposer.calculatedFieldsComposed(ds,vendorName, calculatedFieldRequests));
+                calculatedField.append(" , ").append(calculatedFieldQueryComposer.calculatedFieldsComposed(ds.getDataSchema(),vendorName, calculatedFieldRequests));
             }
 
             // based on database dialect, we pass different SELECT * Statement
@@ -986,48 +974,48 @@ public class ConnectionPoolService {
             if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
                 // schema name is must for postgres & redshift
                 // construct query
-                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             }
 
             // for BIGQUERY DB
             else if (vendorName.equals("bigquery")) {
                 // construct query
-                query = "SELECT " + tblId + ".*" + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT " + tblId + ".*"+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             }
             // for MYSQL DB
             else if (vendorName.equals("mysql") ) {
                 // construct query
-                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
 
             }
             else if (vendorName.equals("motherduck")) {
                 // construct query
-                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
 
             }
             // for SQL Server DB
             else if (vendorName.equals("sqlserver")) {
                 // construct query
-                query = "SELECT TOP " + recordCount + " " + tblId + ".* " + " FROM " + fromClause + whereClause;
+                query = "SELECT TOP " + recordCount + " " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause;
 
             }
             // for Databricks
             else if (vendorName.equals("databricks")) {
                 // construct query
-                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             }
             // oracle
             else if (vendorName.equalsIgnoreCase("oracle")) {
-                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " FETCH FIRST " + recordCount
+                query = "SELECT " + tblId + ".* " + calculatedField + " FROM " + fromClause + whereClause + " FETCH FIRST " + recordCount
                         + " ROWS ONLY";
             }
             // snowflake
             else if (vendorName.equalsIgnoreCase("snowflake")) {
                 // construct query
-                query = "SELECT " + tblId + ".* " + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT " + tblId + ".* " + calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             } else if (vendorName.equals("teradata")) {
                 // construct query
-                query = "SELECT TOP " + recordCount + " " + tblId + ".* " + " FROM " + fromClause + whereClause;
+                query = "SELECT TOP " + recordCount + " " + tblId + ".* "+ calculatedField  + " FROM " + fromClause + whereClause;
             }
         } else {
             // based on database dialect, we pass different SELECT * Statement

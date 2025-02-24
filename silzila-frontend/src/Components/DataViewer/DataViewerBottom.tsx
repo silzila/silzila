@@ -89,7 +89,7 @@ export const getTableData = async (
     const payload= allPreviousSavedNonAggregatedCalculations.map((calculation: any) => [calculation])
     res = await FetchData({
       requestType: "withData",
-      method: "POST",
+      method:"POST",
       url: url,
       headers: { Authorization: `Bearer ${token}` },
 

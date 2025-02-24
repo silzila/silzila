@@ -433,6 +433,8 @@ public class DatasetService {
 
         String vendorName = "";
 
+        Boolean isOverride = queries.size()>1;
+
         // for DB based datasets, connection id is must
         if (ds.getIsFlatFileData() == false) {
             if (dBConnectionId == null || dBConnectionId.isEmpty()) {
@@ -463,7 +465,7 @@ public class DatasetService {
         }
         /* DB based Dataset */
         if (ds.getIsFlatFileData() == false) {
-            String query = queryComposer.composeQuery(queries, ds, vendorName);
+            String query = queryComposer.composeQuery(queries, ds, vendorName,isOverride);
 
             // for totals & subtotals only
             for (Query req : queries) {
@@ -524,7 +526,7 @@ public class DatasetService {
             // get files names from file ids and load the files as Views
             fileDataService.getFileNameFromFileId(userId, tableObjList, workspaceId);
             // come here
-            String query = queryComposer.composeQuery(queries, ds, "duckdb");
+            String query = queryComposer.composeQuery(queries, ds, "duckdb",isOverride);
 
             // for totals & subtotals only
             for (Query req : queries) {
@@ -742,7 +744,7 @@ public class DatasetService {
 
             // Validate that the query is not empty or null, and throw an exception if it is
             // invalid
-            if (query.isEmpty() || query == null) {
+            if ( query == null) {
                return null;
             }
 
@@ -789,7 +791,7 @@ public class DatasetService {
 
             // Ensure the DuckDB query is not empty or null, and throw an exception if
             // invalid
-            if (query.isEmpty() || query == null) {
+            if ( query == null) {
                 return null;
             }
 
@@ -815,7 +817,7 @@ public class DatasetService {
 
         DatasetDTO ds = loadDatasetInBuffer(workspaceId, dbConnectionId, datasetId, userId);
 
-        String query = CalculatedFieldQueryComposer.composeSampleRecordQuery(ds, vendorName, calculatedFieldRequests,
+        String query = CalculatedFieldQueryComposer.composeSampleRecordQuery(ds.getDataSchema(), vendorName, calculatedFieldRequests,
                 ds.getDataSchema(), recordCount);
 
         logger.info("\n******* QUERY **********\n" + query);
@@ -852,7 +854,7 @@ public class DatasetService {
 
         DatasetDTO ds = loadDatasetInBuffer(workspaceId, dbConnectionId, datasetId, userId);
 
-        String query = calculatedFieldQueryComposer.composeFilterOptionsQuery(ds, vendorName, calculatedFieldRequest,
+        String query = calculatedFieldQueryComposer.composeFilterOptionsQuery(ds.getDataSchema(), vendorName, calculatedFieldRequest,
                 ds.getDataSchema());
 
         logger.info("\n******* QUERY **********\n" + query);

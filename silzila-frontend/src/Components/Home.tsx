@@ -1,5 +1,5 @@
 import React from "react";
-import { connect} from "react-redux";
+import { connect, } from "react-redux";
 import { BrowserRouter as Router, Route, Routes,Navigate } from "react-router-dom";
 
 // Import your components
@@ -17,7 +17,9 @@ import SubWorkDetails from "../pages/SubWorkDetails";
 import UserProf from "../pages/UserProf";
 import { isLoggedProps, LoggedDetailsType } from "../redux/UserInfo/IsLoggedInterfaces";
 
+
 const Home = (props: LoggedDetailsType) => {
+
   const isUserLogged = props.isUserLogged
 
   return (

@@ -8,14 +8,15 @@ import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.silzila.payload.internals.QueryClauseFieldListMap;
+
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
+import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
 import com.silzila.payload.request.Query;
-import com.silzila.querybuilder.CalculatedField.CalculatedFieldQueryComposer;
+import com.silzila.querybuilder.CalculatedField.*;
 import com.silzila.querybuilder.CalculatedField.helper.DataTypeProvider;
 
 public class SelectClauseDatabricks {
@@ -23,23 +24,30 @@ public class SelectClauseDatabricks {
     private static final Logger logger = LogManager.getLogger(SelectClauseDatabricks.class);
 
     /* SELECT clause for Databricks dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, DatasetDTO ds,
-            Map<String, Integer>... aliasnumber) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,DatasetDTO ds, String method, Map<String,Integer>... aliasnumber) throws BadRequestException {
         logger.info("SelectClauseDatabricks calling ***********");
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
-        // aliasing for only measure override
-        Map<String, Integer> aliasNumberingM = new HashMap<>();
+        // aliasing for only measure  override 
+        Map<String,Integer> aliasNumberingM = new HashMap<>();
+
+        // for window function only (if dimension has alias, & aliasnumber)
+        if (!req.getDimensions().isEmpty() && req.getDimensions().get(0).getAlias() > 0 && (aliasnumber != null && aliasnumber.length > 0) && method.equals("wnFn")) {
+            Map<String, Integer> aliasNumber = aliasnumber[0];
+            aliasNumber.forEach((key, value) -> aliasNumbering.put(key, value));
+            aliasNumber.clear();
+        }
 
         if (aliasnumber != null && aliasnumber.length > 0) {
             Map<String, Integer> aliasNumber = aliasnumber[0];
             aliasNumber.forEach((key, value) -> aliasNumberingM.put(key, value));
-        }
+        }  
         List<String> selectList = new ArrayList<>();
         List<String> selectDimList = new ArrayList<>();
         List<String> selectMeasureList = new ArrayList<>();
         List<String> groupByDimList = new ArrayList<>();
         List<String> orderByDimList = new ArrayList<>();
+        boolean hasWindowFunction = false;
 
         Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "QUARTER", "QUARTER",
                 "MONTH", "MONTH", "DATE", "DATE", "DAYOFWEEK", "DAYOFWEEK", "DAYOFMONTH", "DAYOFMONTH");
@@ -56,43 +64,44 @@ public class SelectClauseDatabricks {
          */
         for (int i = 0; i < req.getDimensions().size(); i++) {
             Dimension dim = req.getDimensions().get(i);
-            // If the base dimension goes up to order_date_2 and the measure is order_date,
-            // it should be order_date_3.
-            // If the overridden dimension includes additional order_date values, we want to
-            // keep the measure as order_date_3.
-            if (aliasnumber != null && aliasnumber.length > 0) {
+            // If the base dimension goes up to order_date_2 and the measure is order_date, it should be order_date_3.
+            // If the overridden dimension includes additional order_date values, we want to keep the measure as order_date_3.
+            if(aliasnumber != null && aliasnumber.length > 0){
+                
+                for(String key : aliasNumberingM.keySet()){
 
-                for (String key : aliasNumberingM.keySet()) {
-
-                    for (String key1 : aliasNumbering.keySet()) {
-                        // Ensure that both keys exist in their respective maps before accessing
-                        if (aliasNumbering.containsKey(key) && aliasNumberingM.containsKey(key1)) {
-                            if (key.equals(req.getMeasures().get(0).getFieldName())
-                                    && key.equals(key1)
-                                    && aliasNumbering.get(key).equals(aliasNumberingM.get(key1))) {
-                                aliasNumbering.put(key, aliasNumbering.get(key) + 1);
-                            }
-                        } else {
-                            // Handle the case where keys are not present in the maps
-                            System.out.println("One of the keys is missing in the maps: " + key + ", " + key1);
+                    for(String key1 : aliasNumbering.keySet()){
+                     // Ensure that both keys exist in their respective maps before accessing
+                     if (aliasNumbering.containsKey(key) && aliasNumberingM.containsKey(key1)) {
+                        if (key.equals(req.getMeasures().get(0).getFieldName())
+                                && key.equals(key1)
+                                && aliasNumbering.get(key).equals(aliasNumberingM.get(key1))) {
+                            aliasNumbering.put(key, aliasNumbering.get(key) + 1);
                         }
+                    } else {
+                        // Handle the case where keys are not present in the maps
+                        System.out.println("One of the keys is missing in the maps: " + key + ", " + key1);
                     }
+                }
                 }
             }
             String field = "";
-            String selectField = (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null)
-                    ? CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName, ds, dim.getCalculatedField())
-                    : dim.getTableId() + "." + dim.getFieldName();
-
-            if (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) {
-                dim.setDataType(Dimension.DataType.fromValue(
-                        DataTypeProvider.getCalculatedFieldDataTypes(dim.getCalculatedField())));
-            }
-
+            String selectField = (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) 
+            ? CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName, ds.getDataSchema(), dim.getCalculatedField()) 
+            : dim.getTableId() + "." + dim.getFieldName();
+        
+        if (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) {
+            dim.setDataType(Dimension.DataType.fromValue(
+                DataTypeProvider.getCalculatedFieldDataTypes(dim.getCalculatedField())
+            ));
+        }
+            
             // for non Date fields, Keep column as is
             if (List.of("TEXT", "BOOLEAN", "INTEGER", "DECIMAL").contains(dim.getDataType().name())) {
                 field = selectField;
-                groupByDimList.add(field);
+                String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
+                selectDimList.add(field + " AS " + alias);
+                                groupByDimList.add(field);
                 orderByDimList.add(field);
             }
             // for date fields, need to Parse as year, month, etc.. to aggreate
@@ -107,12 +116,16 @@ public class SelectClauseDatabricks {
                 // year -> 2015
                 if (dim.getTimeGrain().name().equals("YEAR")) {
                     field = "YEAR(" + selectField + ")";
+                    String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
+                    selectDimList.add(field + " AS " + alias);
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // quarter name -> Q3
                 else if (dim.getTimeGrain().name().equals("QUARTER")) {
                     field = "CONCAT('Q', QUARTER(" + selectField + "))";
+                    String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
+                    selectDimList.add(field + " AS " + alias);
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
@@ -122,6 +135,20 @@ public class SelectClauseDatabricks {
                 else if (dim.getTimeGrain().name().equals("MONTH")) {
                     String sortingFfield = "MONTH(" + selectField + ")";
                     field = "DATE_FORMAT(" + selectField + ", 'MMMM')";
+                    String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
+                    selectDimList.add(field + " AS " + alias);
+                    for (Measure measures : req.getMeasures()) {
+                        if (measures.getWindowFn()[0] != null) {
+                            hasWindowFunction = true;
+                        }
+                        if (hasWindowFunction) {
+                            selectDimList.add(sortingFfield + " AS _" + alias);
+                            break; 
+                        }
+                    }
+                    if (req.getDimensions().get(0).getAlias() > 0 && method.equals("wnFn")) {
+                        selectDimList.add(sortingFfield + " AS _" + alias);
+                    }
                     groupByDimList.add(sortingFfield);
                     groupByDimList.add(field);
                     orderByDimList.add(sortingFfield);
@@ -130,18 +157,24 @@ public class SelectClauseDatabricks {
                 else if (dim.getTimeGrain().name().equals("YEARQUARTER")) {
                     field = "CONCAT(YEAR(" + selectField
                             + "), '-Q', QUARTER(" + selectField + "))";
+                    String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
+                    selectDimList.add(field + " AS " + alias);
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // yearmonth name -> 2015-08
                 else if (dim.getTimeGrain().name().equals("YEARMONTH")) {
                     field = "DATE_FORMAT(" + selectField + ", 'yyyy-MM')";
+                    String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
+                    selectDimList.add(field + " AS " + alias);
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
                 // date -> 2022-08-31
                 else if (dim.getTimeGrain().name().equals("DATE")) {
                     field = "DATE(" + selectField + ")";
+                    String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
+                    selectDimList.add(field + " AS " + alias);
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
@@ -151,6 +184,20 @@ public class SelectClauseDatabricks {
                 else if (dim.getTimeGrain().name().equals("DAYOFWEEK")) {
                     String sortingFfield = "DAYOFWEEK(" + selectField + ")";
                     field = "DATE_FORMAT(" + selectField + ", 'EEEE')";
+                    String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
+                    selectDimList.add(field + " AS " + alias);
+                    for (Measure measures : req.getMeasures()) {
+                        if (measures.getWindowFn()[0] != null) {
+                            hasWindowFunction = true;
+                        }
+                        if (hasWindowFunction) {
+                            selectDimList.add(sortingFfield + " AS _" + alias);
+                            break; 
+                        }
+                    }
+                    if (req.getDimensions().get(0).getAlias() > 0 && method.equals("wnFn")) {
+                        selectDimList.add(sortingFfield + " AS _" + alias);
+                    }
                     groupByDimList.add(sortingFfield);
                     groupByDimList.add(field);
                     orderByDimList.add(sortingFfield);
@@ -158,6 +205,8 @@ public class SelectClauseDatabricks {
                 // day of month -> 31
                 else if (dim.getTimeGrain().name().equals("DAYOFMONTH")) {
                     field = "DAYOFMONTH(" + selectField + ")";
+                    String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
+                    selectDimList.add(field + " AS " + alias);
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 } else {
@@ -165,8 +214,6 @@ public class SelectClauseDatabricks {
                             " should have timegrain!");
                 }
             }
-            String alias = AilasMaker.aliasing(dim.getFieldName(), aliasNumbering);
-            selectDimList.add(field + " AS " + alias);
         }
         ;
 
@@ -189,17 +236,16 @@ public class SelectClauseDatabricks {
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
             String windowFn = "";
-            String selectField = meas.getIsCalculatedField()
-                    ? CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName, ds, meas.getCalculatedField())
-                    : meas.getTableId() + "." + meas.getFieldName();
+            String selectField = meas.getIsCalculatedField()?CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds.getDataSchema(),meas.getCalculatedField()): meas.getTableId() + "." + meas.getFieldName();
             if (meas.getIsCalculatedField()) {
                 meas.setDataType(Measure.DataType.fromValue(
-                        DataTypeProvider.getCalculatedFieldDataTypes(meas.getCalculatedField())));
+                    DataTypeProvider.getCalculatedFieldDataTypes(meas.getCalculatedField())
+                ));
             }
-            if (meas.getIsCalculatedField()
-                    && meas.getCalculatedField().get(meas.getCalculatedField().size() - 1).getIsAggregated()) {
+            if(meas.getIsCalculatedField() && meas.getCalculatedField().get(meas.getCalculatedField().size()-1).getIsAggregated()){
                 field = selectField;
-            } else if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
+            }
+            else if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
                 // checking ('count', 'countnn', 'countn', 'countu')
                 if (meas.getAggr().name().equals("COUNT")) {
                     field = "COUNT(*)";
@@ -290,22 +336,22 @@ public class SelectClauseDatabricks {
                 }
             }
             // if windowFn not null it will execute window function for databricks
-            if (meas.getWindowFn()[0] != null) {
-                windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName, ds);
+            if(meas.getWindowFn()[0] != null){
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+                windowFn = SelectClauseWindowFunctionBigquery.windowFunction(meas, req, alias, vendorName,ds);
                 // if aliasnumber is not null, to maintain alias sequence for measure field
-                if (aliasnumber != null && aliasnumber.length > 0) {
-                    alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
-                }
-                // selectMeasureList.add(field + " AS *" + alias);
-                selectMeasureList.add(windowFn + " AS " + alias);
-            } else {
-                String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-                // if aliasnumber is not null, to maintain alias sequence for measure field
-                if (aliasnumber != null && aliasnumber.length > 0) {
-                    alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
-                }
-                selectMeasureList.add(field + " AS " + alias);
+                if(aliasnumber != null && aliasnumber.length > 0){
+                    alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
+                    }
+                    selectMeasureList.add(field + " AS _*" + alias);
+                    selectMeasureList.add(windowFn + " AS " + alias);
+            } else{
+            String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+            // if aliasnumber is not null, to maintain alias sequence for measure field
+                if(aliasnumber != null && aliasnumber.length > 0){
+                    alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
+                    }
+            selectMeasureList.add(field + " AS " + alias);
             }
         }
         ;
