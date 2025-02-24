@@ -685,7 +685,7 @@ const handleToggleAllTiles = () => {
       <div className="checkbox-wrapper"
       style={{
         paddingInline: '0.5rem',
-        marginLeft: "25px"
+        marginLeft: "12px"
       }}>
       <div
         className="checkboxOption"
@@ -773,7 +773,7 @@ const handleToggleAllTiles = () => {
         />
       </div>
       <div style={{  marginTop: "1rem" }}>
-        <div style={{ marginBottom: "10px", fontSize:"13px",display:"flex",alignItems:"center",gap:"0.5rem", marginLeft: "25px" }}>
+        <div style={{ marginBottom: "10px", fontSize:"13px",display:"flex",alignItems:"center",gap:"0.5rem", marginLeft: "20px" }}>
           <Checkbox
             id="applytoAllTabs"
             sx={{
@@ -790,7 +790,7 @@ const handleToggleAllTiles = () => {
             Apply Scheme across Playbook
           </label>
         </div>
-        <div style={{ marginBottom: "10px",fontSize:"13px" ,display:"flex",alignItems:"center",gap:"0.5rem", marginLeft: "25px" }}>
+        <div style={{ marginBottom: "10px",fontSize:"13px" ,display:"flex",alignItems:"center",gap:"0.5rem", marginLeft: "20px" }}>
           <Checkbox
             id="applytoCurrentTab"
             sx={{
