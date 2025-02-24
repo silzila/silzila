@@ -15,12 +15,13 @@ import {
   tableObjProps,
 } from "../../redux/DataSet/DatasetStateInterfaces";
 import { CanvasProps } from "./CanvasInterfaces";
-import collapsedSidebar from "../../assets/sidebar-collapse.svg";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import ShortUniqueId from "short-unique-id";
 // import UserFilterDataset from "./UserFilterDataset";
 import { isLoggedProps } from "../../redux/UserInfo/IsLoggedInterfaces";
 import UserFilterDataset from "./UserFilterDataset";
 import { fontSize, palette } from "../..";
+import { PopUpSpinner } from "../CommonFunctions/DialogComponents";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux";
 import { permissions } from "../CommonFunctions/aliases";
@@ -229,22 +230,19 @@ const Canvas = ({
         {/* conditionally showing filter section according to length of tempTable(list of tables in canvas. Initially width is 2.7rem) on clicking which visibility changes and changes the width of section */}
         {tempTable.length > 0 &&     
         <div
-          className="filter_dataset"
+          className="filter_dataset hideScrollBar"
           onDrop={(e) => isDataSetVisible && handleDrop(e)}
           onDragOver={(e) =>  isDataSetVisible && e.preventDefault()}
-          style={{width: isDataSetVisible ? "13.063rem": "2.7rem"}}
+          // style={{width: isDataSetVisible ? "13.063rem": "2.7rem"}}
         >
-          <div>
             <div
               style={{
                 display: "flex",
                 justifyContent: isDataSetVisible ? "space-between" : "center",
                 paddingLeft: isDataSetVisible ? "1rem": "0.8rem",
                 alignItems: "center",
-                position: "fixed",
                 width: isDataSetVisible ? "12.5rem": "",
-                margin: "auto",
-                zIndex: "98",
+                margin: "0",
               }}
             >
               <img
@@ -258,41 +256,32 @@ const Canvas = ({
               {isDataSetVisible &&
               <>
               <span className="axisTitle">Dataset Filter</span>
-               <button
-                title="Hide Filter Tab"
-                style={{
-                  backgroundColor: "white",
+              <div>
+                <button
+                  title="minimize"
+                  style={{
+                    backgroundColor: "white",
                     outline: "none",
                     border: "none",
                     padding: "0"
-                }}
-                onClick={() => setIsDataSetVisible(!isDataSetVisible)}
-              >
-                <img
-                  src={collapsedSidebar}
-                  alt="filter section collapse icon"
-                  style={{
+                  }}
+                >
+                  <ArrowBackRoundedIcon
+                    style={{
                       right: "92%",
                       top: "0px",
                       zIndex: "999",
                       transform: "rotate(180deg)",
-                      height: "1.5rem",
-                  }}
-                />
-              </button>
+                    }}
+                    onClick={() => setIsDataSetVisible(!isDataSetVisible)}
+                  />
+                </button>
+              </div>
               </>
               }
             </div>
-            <NotificationDialog
-              onCloseAlert={() => {
-                setOpenAlert(false);
-                setTestMessage("");
-              }}
-              openAlert={openAlert}
-              severity={severity}
-              testMessage={testMessage}
-            />
-            <div style={{ position: "absolute", marginTop: "22px" }}>
+
+            <div style={{marginTop: "0px", }}>
               {isDataSetVisible && dataSetFilterArray.length > 0 && 
               tempTable.length > 0 && (
                 <UserFilterDataset
@@ -304,7 +293,16 @@ const Canvas = ({
                 />
               )}
             </div>
-          </div>
+            
+            <NotificationDialog
+              onCloseAlert={() => {
+                setOpenAlert(false);
+                setTestMessage("");
+              }}
+              openAlert={openAlert}
+              severity={severity}
+              testMessage={testMessage}
+            />
         </div>
         }
         <RenderArrows />
