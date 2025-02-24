@@ -233,7 +233,7 @@ const Canvas = ({
           className="filter_dataset hideScrollBar"
           onDrop={(e) => isDataSetVisible && handleDrop(e)}
           onDragOver={(e) =>  isDataSetVisible && e.preventDefault()}
-          // style={{width: isDataSetVisible ? "13.063rem": "2.7rem"}}
+          style={{width: isDataSetVisible ? "13.063rem": "2.7rem"}}
         >
             <div
               style={{
