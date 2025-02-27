@@ -19,6 +19,8 @@ public interface FileDataRepository extends JpaRepository<FileData, String> {
     
     Optional<FileData> findByIdAndWorkspaceId(String id,String workspaceId);
 
+    boolean existsByNameAndUserIdAndWorkspaceId(String fileName, String userId, String workspaceId);
+
     Optional<FileData> findByIdAndUserId(String id, String userId);
 
     List<FileData> findByIdNotAndUserIdAndName(String id, String userId, String fileName);
