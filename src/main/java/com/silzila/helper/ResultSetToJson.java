@@ -3,6 +3,7 @@ package com.silzila.helper;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -60,11 +61,11 @@ public class ResultSetToJson {
         int numCols = metaData.getColumnCount();
 
         // Map to hold Sets for each column to ensure unique values
-        Map<String, Set<Object>> columnSets = new HashMap<>();
+        Map<String, List<Object>> columnSets = new HashMap<>();
         // Initialize sets for each column
         for (int i = 1; i <= numCols; i++) {
             String columnName = metaData.getColumnName(i);
-            columnSets.put(columnName, new HashSet<>());
+            columnSets.put(columnName, new ArrayList<>());
         }
         try {
             while (resultSet.next()) {

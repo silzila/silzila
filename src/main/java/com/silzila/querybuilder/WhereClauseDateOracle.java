@@ -7,8 +7,9 @@ import com.silzila.helper.OptionsBuilder;
 import com.silzila.helper.QueryNegator;
 import com.silzila.payload.request.Filter;
 
-public class WhereClauseDateOracle {
-    public static String buildWhereClauseDate(Filter filter) throws BadRequestException {
+public class WhereClauseDateOracle implements WhereClauseDate{
+
+    public String buildWhereClauseDate(Filter filter) throws BadRequestException {
         // MAP of request comparison operator name to symbol in Oracle
         Map<String, String> comparisonOperator = Map.of("GREATER_THAN", " > ", "GREATER_THAN_OR_EQUAL_TO", " >= ",
                 "LESS_THAN", " < ", "LESS_THAN_OR_EQUAL_TO", " <= ", "NOT_EQUAL_TO", " <> ");
@@ -23,6 +24,8 @@ public class WhereClauseDateOracle {
             filter.setShouldExclude(false);
         }
 
+        String whereField = filter.getIsCalculatedField() || !"field".equals(filter.getConditionType().getLeftOperandType())? filter.getFieldName() : filter.getTableId() + "." + filter.getFieldName();
+
         // input of number less than 10 in userSelection is should be in '01','02'
         // format not '1','2'
         if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
@@ -30,24 +33,7 @@ public class WhereClauseDateOracle {
         }
 
         // field
-        if (filter.getTimeGrain().name().equals("YEAR")) {
-            field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'yyyy')";
-        } else if (filter.getTimeGrain().name().equals("QUARTER")) {
-            field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ",'\"Q\"Q')";
-        } else if (filter.getTimeGrain().name().equals("MONTH")) {
-            field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'fmMonth')";
-        } else if (filter.getTimeGrain().name().equals("YEARQUARTER")) {
-            field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'YYYY-\"Q\"Q')";
-        } else if (filter.getTimeGrain().name().equals("YEARMONTH")) {
-            field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'yyyy-mm')";
-        } else if (filter.getTimeGrain().name().equals("DATE")) {
-            field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'yyyy-mm-dd')";
-        } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
-            field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + " , 'fmDay')";
-        } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
-            field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'dd')";
-        }
-        ;
+        field = getDatePartExpression(filter.getTimeGrain().name(), whereField);
 
         /*
          * EXACT MATCH - Can be single match or multiple matches
@@ -83,13 +69,12 @@ public class WhereClauseDateOracle {
             // format not '1','2'
             if (filter.getTimeGrain().name().equals("MONTH")) {
                 filter.setUserSelection(formatNumber(filter.getUserSelection()));
-                field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'mm')";
+                field = "TO_CHAR(" + whereField + ", 'mm')";
             } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
-                field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + " , 'D')";
-            }else if (filter.getTimeGrain().name().equals("QUARTER")) {
-                field = "TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ",'Q')";
+                field = "TO_CHAR(" + whereField + " , 'D')";
+            } else if (filter.getTimeGrain().name().equals("QUARTER")) {
+                field = "TO_CHAR(" + whereField + ",'Q')";
             }
-
             // Between requires 2 values and other operators require just 1 value
             // SLIDER - numerical time grain match - eg., year = 2018
             if (filter.getOperator().name().equals("EQUAL_TO")) {
@@ -105,14 +90,12 @@ public class WhereClauseDateOracle {
 
                 String excludeOperator = QueryNegator.makeNegateCondition(filter.getShouldExclude());
 
-                where = excludeOperator + field + comparisonOperator.get(filter.getOperator().name()) + "'"
-                        + filter.getUserSelection().get(0) + "'";
+                where = OptionsBuilder.buildSingleOption(filter, excludeOperator, field, comparisonOperator);
             } else if (filter.getOperator().name().equals("BETWEEN")) {
                 if (filter.getUserSelection().size() > 1) {
                     String excludeOperator = QueryNegator.makeNegateCondition(filter.getShouldExclude());
 
-                    where = excludeOperator + field + " BETWEEN '" + filter.getUserSelection().get(0) + "' AND '"
-                            + filter.getUserSelection().get(1) + "'";
+                    where = OptionsBuilder.buildBetweenOptions(filter, excludeOperator, field);
                 }
                 // for between, throw error if 2 values are not given
                 else {
@@ -147,5 +130,29 @@ public class WhereClauseDateOracle {
         });
 
         return userSelection;
+    }
+
+    public String getDatePartExpression(String timeGrain, String columnName){
+        String dateExpression = "";
+        
+        if (timeGrain.equals("YEAR")) {
+            dateExpression = "TO_CHAR(" + columnName + ", 'yyyy')";
+        } else if (timeGrain.equals("QUARTER")) {
+            dateExpression = "TO_CHAR(" + columnName + ",'\"Q\"Q')";
+        } else if (timeGrain.equals("MONTH")) {
+            dateExpression = "TO_CHAR(" + columnName + ", 'fmMonth')";
+        } else if (timeGrain.equals("YEARQUARTER")) {
+            dateExpression = "TO_CHAR(" + columnName + ", 'YYYY-\"Q\"Q')";
+        } else if (timeGrain.equals("YEARMONTH")) {
+            dateExpression = "TO_CHAR(" + columnName + ", 'yyyy-mm')";
+        } else if (timeGrain.equals("DATE")) {
+            dateExpression = "TO_CHAR(" + columnName + ", 'yyyy-mm-dd')";
+        } else if (timeGrain.equals("DAYOFWEEK")) {
+            dateExpression = "TO_CHAR(" + columnName + " , 'fmDay')";
+        } else if (timeGrain.equals("DAYOFMONTH")) {
+            dateExpression = "TO_CHAR(" + columnName + ", 'dd')";
+        };
+
+        return dateExpression;
     }
 }

@@ -9,8 +9,8 @@ import com.silzila.exception.BadRequestException;
 import com.silzila.helper.OptionsBuilder;
 import com.silzila.helper.QueryNegator;
 
-public class WhereClauseDateBigquery {
-        public static String buildWhereClauseDate(Filter filter) throws BadRequestException {
+public class WhereClauseDateBigquery implements WhereClauseDate {
+    public  String buildWhereClauseDate(Filter filter) throws BadRequestException {
         // MAP of request time grain to date function parameter in Postgres
         Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "MONTH", "MONTH", "QUARTER", "QUARTER",
                 "DATE", "DATE", "DAYOFWEEK", "DAYOFWEEK", "DAYOFMONTH", "DAY");
@@ -28,6 +28,8 @@ public class WhereClauseDateBigquery {
             filter.setShouldExclude(false);
         }
 
+         String whereField = filter.getIsCalculatedField() || !"field".equals(filter.getConditionType().getLeftOperandType())? filter.getFieldName() : filter.getTableId() + "." + filter.getFieldName();
+
         /*
          * EXACT MATCH - Can be single match or multiple matches
          */
@@ -38,35 +40,12 @@ public class WhereClauseDateBigquery {
             // DROP DOWN - string time grain match - eg., month in (January, February)
             if (filter.getOperator().name().equals("IN")) {
 
-                String options = "";
+                String options = List.of("YEAR","DAYOFMONTH").contains(filter.getTimeGrain().name())?
+                OptionsBuilder.buildIntegerOptions(filter.getUserSelection()):
+                OptionsBuilder.buildStringOptions(filter.getUserSelection()); 
 
-                if (filter.getTimeGrain().name().equals("YEAR")) {
-                    field = "EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + ")";
-                    options = OptionsBuilder.buildIntegerOptions(filter.getUserSelection());                    
-                } else if (filter.getTimeGrain().name().equals("QUARTER")) {
-                    field = "CONCAT('Q', EXTRACT(QUARTER FROM " + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    options = OptionsBuilder.buildStringOptions(filter.getUserSelection());                   
-                } else if (filter.getTimeGrain().name().equals("MONTH")) {
-                    field = "FORMAT_DATE('%B', DATE(" + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    options = OptionsBuilder.buildStringOptions(filter.getUserSelection());  
-                } else if (filter.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "CONCAT(EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + "), '-Q', EXTRACT(QUARTER FROM "
-                            + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    options = OptionsBuilder.buildStringOptions(filter.getUserSelection()); 
-                } else if (filter.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "FORMAT_DATE('%Y-%m', DATE(" + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    options = OptionsBuilder.buildStringOptions(filter.getUserSelection()); 
-                } else if (filter.getTimeGrain().name().equals("DATE")) {
-                    field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
-                    options = OptionsBuilder.buildStringOptions(filter.getUserSelection());                  
-                } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    field = "FORMAT_DATE('%A', DATE(" + filter.getTableId() + "." + filter.getFieldName() + "))";
-                    options = OptionsBuilder.buildStringOptions(filter.getUserSelection());                   
-                } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    field = "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ")";
-                    options = OptionsBuilder.buildIntegerOptions(filter.getUserSelection()); 
-                   
-                }
+
+            field = getDatePartExpression(filter.getTimeGrain().name(), whereField);
                 
                 String nullCondition = NullClauseGenerator.generateNullCheckQuery(filter, excludeOperator);
                 where = field + excludeOperator + "IN (" + options + ")" + nullCondition;
@@ -163,5 +142,30 @@ public class WhereClauseDateBigquery {
         return where;
 
     }
+    public String getDatePartExpression(String timeGrain, String columnName){
+        String dateExpression = "";
+        
+        if (timeGrain.equals("YEAR")) {
+            dateExpression = "EXTRACT(YEAR FROM " +columnName + ")";                    
+        } else if (timeGrain.equals("QUARTER")) {
+            dateExpression = "CONCAT('Q', EXTRACT(QUARTER FROM " +columnName + "))";                   
+        } else if (timeGrain.equals("MONTH")) {
+            dateExpression = "FORMAT_DATE('%B', DATE(" + columnName + "))";  
+        } else if (timeGrain.equals("YEARQUARTER")) {
+            dateExpression = "CONCAT(EXTRACT(YEAR FROM " + columnName+ "), '-Q', EXTRACT(QUARTER FROM "
+                    +columnName + "))"; 
+        } else if (timeGrain.equals("YEARMONTH")) {
+            dateExpression = "FORMAT_DATE('%Y-%m', DATE(" +columnName + "))"; 
+        } else if (timeGrain.equals("DATE")) {
+            dateExpression = "DATE(" + columnName + ")";                  
+        } else if (timeGrain.equals("DAYOFWEEK")) {
+            dateExpression = "FORMAT_DATE('%A', DATE(" +columnName + "))";                   
+        } else if (timeGrain.equals("DAYOFMONTH")) {
+            dateExpression = "EXTRACT(DAY FROM " + columnName+ ")"; 
+        }
+
+        return dateExpression;
+    }
+
 
 }
