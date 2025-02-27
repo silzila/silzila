@@ -180,7 +180,7 @@ const EditFlatFileData = ({
 		var result: any = await FetchData({
 			requestType: "withData",
 			method: "POST",
-			url: `file-upload-change-schema/?workspaceId=${parentId}`,
+			url: `file-upload-change-schema?workspaceId=${parentId}`,
 			data: fileObj,
 			headers: {
 				Authorization: `Bearer ${token}`,
