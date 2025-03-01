@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.silzila.dto.CalculatedFieldDTO;
 import com.silzila.dto.FlowDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.payload.request.Condition;
@@ -12,12 +13,12 @@ import com.silzila.payload.request.Field;
 import com.silzila.payload.request.Filter;
 import com.silzila.payload.request.Flow;
 import com.silzila.payload.request.Filter.DataType;
+import com.silzila.querybuilder.WhereClauseDateFactory;
 import com.silzila.querybuilder.CalculatedField.helper.DataTypeProvider;
-
 
 public class ConditionFilterToFilter {
     
-    public static List<Filter> mapConditionFilterToFilter(List<Condition> conditions, Map<String, Field> fields,Map<String, List<Flow>> flows,Map<String, FlowDTO> flowMap) {
+    public static List<Filter>  mapConditionFilterToFilter(String vendorName,List<Condition> conditions, Map<String, Field> fields,Map<String, List<Flow>> flows,Map<String, FlowDTO> flowMap,Map<String,CalculatedFieldDTO> calculatedFieldMap) throws BadRequestException {
 
     List<Filter> filters = new ArrayList<>();
 
@@ -29,26 +30,25 @@ public class ConditionFilterToFilter {
         List<String> rightOperandType = condition.getRightOperandType();
 
         if(leftOperand.size()!=leftOperandType.size() || (rightOperand != null&&rightOperandType!=null && rightOperand.size() != rightOperandType.size())){
-                    try {
-                        throw new BadRequestException("Number of source and sourcetype should be equal");
-                    } catch (BadRequestException e) {
-                        e.printStackTrace();
-                    }        
+                    throw new BadRequestException("Number of source and sourcetype should be equal");        
         }
 
         if (leftOperandType.get(0).equals("field")) {
-            setFieldFilter(leftOperand.get(0), filter, fields);
+            setFieldFilter(leftOperand.get(0),condition.getTimeGrain(), filter, fields);
         } else if (leftOperandType.get(0).equals("flow")) {
-            setFlowFilter(leftOperand.get(0),rightOperandType.get(0), filter, flowMap,fields,flows);
-        } else {
+            setFlowFilter(leftOperand.get(0),rightOperandType.get(0),condition.getTimeGrain(), filter, flowMap,fields,flows);
+        } else if (leftOperand.get(0).equals("calculatedField")){
+            setCalculatedFieldFilter(leftOperand.get(0),rightOperandType.get(0),condition.getTimeGrain(), filter, flowMap,fields,flows,calculatedFieldMap);
+        }
+        else {
             filter.setFieldName(leftOperand.get(0));
-            filter.setIsField(false);
+            filter.getConditionType().setLeftOperandType("static");
         }
 
         mapOperatorAndType(condition, filter);
         filter.setShouldExclude(condition.getShouldExclude());
         filter.setIsTillDate(condition.getIsTillDate());
-        filter.setUserSelection(buildUserSelection(rightOperand, rightOperandType,leftOperand,leftOperandType,fields, flowMap,flows));
+        filter.setUserSelection(buildUserSelection(vendorName,filter,rightOperand, rightOperandType,leftOperand,leftOperandType,condition.getTimeGrain(),fields, flowMap,flows,calculatedFieldMap));
 
         filters.add(filter);
     });
@@ -58,22 +58,34 @@ public class ConditionFilterToFilter {
     return filters;
 }
 
-private static void setFieldFilter(String leftOperand, Filter filter, Map<String, Field> fields) {
+private static void setFieldFilter(String leftOperand,String timeGrain, Filter filter, Map<String, Field> fields) {
     Field field = fields.get(leftOperand);
     filter.setTableId(field.getTableId());
     filter.setFieldName(field.getFieldName());
-    filter.setIsField(true);
+    filter.getConditionType().setLeftOperandType("field");
     filter.setDataType(Filter.DataType.fromValue(field.getDataType().value()));
     System.out.println("Filter timegrain  " + field.getTimeGrain());
-    filter.setTimeGrain(Filter.TimeGrain.fromValue(field.getTimeGrain()));
+    filter.setTimeGrain(Filter.TimeGrain.fromValue(timeGrain));
 }
 
-private static void setFlowFilter(String leftOperand,String rightOperandType, Filter filter, Map<String, FlowDTO> flowMap, Map<String, Field> fields,Map<String, List<Flow>> flows) {
-    String flow = rightOperandType.equals("field")? flowMap.get(leftOperand +"@").getFlow(): flowMap.get(leftOperand).getFlow() ;
+
+private static void setFlowFilter(String leftOperand,String rightOperandType,String timeGrain, Filter filter, Map<String, FlowDTO> flowMap, Map<String, Field> fields,Map<String, List<Flow>> flows) {
+    String flow = rightOperandType.equals("field") && flowMap.get(leftOperand).getIsAggregated()? flowMap.get(leftOperand +"@").getFlow(): flowMap.get(leftOperand).getFlow() ;
     Flow flowType = flows.get(leftOperand).get(0);
     filter.setFieldName(flow);
     filter.setDataType(Filter.DataType.fromValue(DataTypeProvider.getDataType(flows, fields, flowType)));
-    filter.setIsField(false);
+    filter.setTimeGrain(Filter.TimeGrain.fromValue(timeGrain));
+    filter.getConditionType().setLeftOperandType("flow");
+    
+}
+
+private static void setCalculatedFieldFilter(String leftOperand,String rightOperandType,String timeGrain, Filter filter, Map<String, FlowDTO> flowMap, Map<String, Field> fields,Map<String, List<Flow>> flows,Map<String,CalculatedFieldDTO> calculatedFieldMap) {
+    String calculatedField = (rightOperandType.equals("field") || rightOperandType.equals("flow")) && calculatedFieldMap.get(leftOperand).getIsAggregated()? calculatedFieldMap.get(leftOperand +"@").getQuery(): calculatedFieldMap.get(leftOperand).getQuery() ;
+    CalculatedFieldDTO field = calculatedFieldMap.get(leftOperand);
+    filter.setFieldName(calculatedField);
+    filter.setDataType(Filter.DataType.fromValue(field.getDatatype()));
+    filter.setTimeGrain(Filter.TimeGrain.fromValue(timeGrain));
+    filter.getConditionType().setLeftOperandType("calculatedField");
 }
 
 private static void mapOperatorAndType(Condition condition, Filter filter) {
@@ -94,31 +106,40 @@ private static void mapOperatorAndType(Condition condition, Filter filter) {
     }
 }
 
-private static List<String> buildUserSelection(List<String> rightOperand, List<String> rightOperandType,List<String> leftOperand,List<String> leftOperAndType, Map<String, Field> fields, Map<String, FlowDTO> flowMap,Map<String, List<Flow>> flows) {
+private static List<String> buildUserSelection(String vendorName,Filter filter,List<String> rightOperand, List<String> rightOperandType,List<String> leftOperand,List<String> leftOperAndType,String timeGrain, Map<String, Field> fields, Map<String, FlowDTO> flowMap,Map<String, List<Flow>> flows,Map<String,CalculatedFieldDTO> calculatedFieldMap) {
     List<String> userSelection = new ArrayList<>();
     if(rightOperand != null){
         for (int i = 0; i < rightOperand.size(); i++) {
             String rightOp = rightOperand.get(i);
             String rightOpType = rightOperandType.get(i);
+            String selection = rightOp;
             if (rightOpType.equals("field")) {
                 Field field = fields.get(rightOp);
-                userSelection.add(field.getFieldName());
+                selection = field.getDataType().value().equals("date")?datePartExcecution(vendorName, timeGrain, field.getTableId() + "." + field.getFieldName()):field.getTableId() + "." + field.getFieldName();
+                filter.getConditionType().setRightOperandType("field");
             } else if (rightOpType.equals("flow")) {
-                String flow = leftOperAndType.get(0).equals("field") 
+                FlowDTO flowDTO = flowMap.get(rightOp);
+                String flow = leftOperAndType.get(0).equals("field") && flowDTO.getIsAggregated()
                                 ? flowMap.get(rightOp + "@").getFlow()
-                                : flowMap.get(rightOp).getFlow();
-
-               if(leftOperAndType.get(0).equals("flow")){
-                       flow = !getFieldListOfFlow(flows.get(leftOperand.get(0)).get(0), fields, flows).isEmpty()
-                       ? flowMap.get(rightOp + "@").getFlow()
-                       : flowMap.get(rightOp).getFlow();
-               }     
-                userSelection.add(flow);
-            }            
-            else {
-                userSelection.add(rightOp);
+                                : flowDTO.getFlow();
+                if(leftOperAndType.get(0).equals("flow")){
+                        flow = !getFieldListOfFlow(flows.get(leftOperand.get(0)).get(0), fields, flows).isEmpty() && flowDTO.getIsAggregated()  
+                        ? flowMap.get(rightOp + "@").getFlow()
+                        : flowDTO.getFlow();
+                }
+                selection = flowDTO.getDataType().equals("date")?datePartExcecution(vendorName, timeGrain, flow):flow;
+                filter.getConditionType().setRightOperandType("flow");
             }
-
+            else if (rightOpType.equals("calculatedField")) {
+                CalculatedFieldDTO calculatedFieldDTO = calculatedFieldMap.get(rightOp);
+                String calculatedField = List.of("field","flow").contains(leftOperAndType.get(0)) && calculatedFieldDTO.getIsAggregated() ? calculatedFieldMap.get(rightOp +"@").getQuery(): calculatedFieldDTO.getQuery();
+                selection = calculatedFieldDTO.getDatatype().equals("date")?datePartExcecution(vendorName, timeGrain, calculatedField):calculatedField;
+                filter.getConditionType().setRightOperandType("calculatedField");
+            }         
+            else {
+                filter.getConditionType().setRightOperandType("static");
+            }
+            userSelection.add(selection);
         }
     }
     return userSelection;
@@ -186,6 +207,10 @@ private static List<Field> getFieldListOfFlow(Flow flow, Map<String, Field> fiel
     }
 
     return fieldsOfFlow;
+}
+
+private static String datePartExcecution(String vendorName,String timeGrain,String field){
+   return WhereClauseDateFactory.buildDateExpression(vendorName).getDatePartExpression(timeGrain.toUpperCase(), field);
 }
 
 }

@@ -7,9 +7,10 @@ import com.silzila.payload.request.Filter;
 
 import java.util.List;
 import java.util.Map;
+public class WhereClauseDateDB2 implements WhereClauseDate{
 
-public class WhereClauseDateDB2 {
-    public static String buildWhereClauseDate(Filter filter) throws BadRequestException {
+
+    public  String buildWhereClauseDate(Filter filter) throws BadRequestException {
         // MAP of request time grain to date function parameter in Postgres
         Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "MONTH", "MONTH", "QUARTER", "QUARTER", "DAYOFWEEK",
                 "DOW", "DAYOFMONTH", "DAY");
@@ -27,6 +28,8 @@ public class WhereClauseDateDB2 {
             filter.setShouldExclude(false);
         }
 
+        String whereField = filter.getIsCalculatedField() || !"field".equals(filter.getConditionType().getLeftOperandType())? filter.getFieldName() : filter.getTableId() + "." + filter.getFieldName();
+
         /*
          * EXACT MATCH - Can be single match or multiple matches
          */
@@ -37,34 +40,7 @@ public class WhereClauseDateDB2 {
             // DROP DOWN - string time grain match - eg., month in (January, February)
             if (filter.getOperator().name().equals("IN")) {
 
-                if (filter.getTimeGrain().name().equals("YEAR")) {
-                    field = "EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
-                } else if (filter.getTimeGrain().name().equals("QUARTER")) {
-                    field = "CONCAT('Q', EXTRACT(QUARTER FROM " + filter.getTableId() + "." + filter.getFieldName()
-                            + ")::INTEGER)";
-                } else if (filter.getTimeGrain().name().equals("MONTH")) {
-                    field = "TRIM(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Month'))";
-                } else if (filter.getTimeGrain().name().equals("YEARQUARTER")) {
-                    field = "TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
-                            + ")) || '-Q' || TO_CHAR(QUARTER(" + filter.getTableId() + "."
-                            + filter.getFieldName() + "))";
-                    field = "TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
-                            + ")) || '-Q' || TO_CHAR(QUARTER(" + filter.getTableId() + "."
-                            + filter.getFieldName() + "))";
-                } else if (filter.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
-                            + "))|| '-' || LPAD(TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
-                            + ")),2,0)";
-                    field = "TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
-                            + "))|| '-' || LPAD(TO_CHAR(YEAR(" + filter.getTableId() + "." + filter.getFieldName()
-                            + ")),2,0)";
-                } else if (filter.getTimeGrain().name().equals("DATE")) {
-                    field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
-                } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    field = "TRIM(TO_CHAR(" + filter.getTableId() + "." + filter.getFieldName() + ", 'Day'))";
-                } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    field = "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
-                }
+                field = getDatePartExpression(filter.getTimeGrain().name(), whereField);
 
                 String nullCondition = NullClauseGenerator.generateNullCheckQuery(filter, excludeOperator);
                 String options = OptionsBuilder.buildStringOptions(filter.getUserSelection());
@@ -83,18 +59,18 @@ public class WhereClauseDateDB2 {
                 }
                 // Allowable Time Grains
                 if (filter.getTimeGrain().name().equals("YEAR")) {
-                    field = "EXTRACT(YEAR FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
+                    field = "EXTRACT(YEAR FROM " + whereField + ")::INTEGER";
                 } else if (filter.getTimeGrain().name().equals("QUARTER")) {
-                    field = "EXTRACT(QUARTER FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
+                    field = "EXTRACT(QUARTER FROM " + whereField + ")::INTEGER";
                 } else if (filter.getTimeGrain().name().equals("MONTH")) {
-                    field = "EXTRACT(MONTH FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
+                    field = "EXTRACT(MONTH FROM " + whereField + ")::INTEGER";
                 } else if (filter.getTimeGrain().name().equals("DATE")) {
-                    field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+                    field = "DATE(" + whereField + ")";
                 } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
-                    field = "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER ";
-                    field = "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER ";
+                    field = "EXTRACT(DOW FROM " + whereField + ")::INTEGER ";
+                    field = "EXTRACT(DOW FROM " + whereField + ")::INTEGER ";
                 } else if (filter.getTimeGrain().name().equals("DAYOFMONTH")) {
-                    field = "EXTRACT(DAY FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER";
+                    field = "EXTRACT(DAY FROM " + whereField + ")::INTEGER";
                 }
                 where = field + excludeOperator + "= '" + filter.getUserSelection().get(0) + "'";
             }
@@ -118,10 +94,10 @@ public class WhereClauseDateDB2 {
                 field = "EXTRACT(" + timeGrainMap.get(filter.getTimeGrain().name()) + " FROM " + filter.getTableId()
                         + "." + filter.getFieldName() + ")::INTEGER";
             } else if (filter.getTimeGrain().name().equals("DATE")) {
-                field = "DATE(" + filter.getTableId() + "." + filter.getFieldName() + ")";
+                field = "DATE(" + whereField + ")";
             } else if (filter.getTimeGrain().name().equals("DAYOFWEEK")) {
-                field = "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER ";
-                field = "EXTRACT(DOW FROM " + filter.getTableId() + "." + filter.getFieldName() + ")::INTEGER ";
+                field = "EXTRACT(DOW FROM " + whereField + ")::INTEGER ";
+                field = "EXTRACT(DOW FROM " + whereField + ")::INTEGER ";
             }
             // decides if it is '=' or '!='
             String excludeOperator = QueryNegator.makeNegateCondition(filter.getShouldExclude());
@@ -129,12 +105,10 @@ public class WhereClauseDateDB2 {
             // Between requires 2 values and other operators require just 1 value
             if (List.of("GREATER_THAN", "GREATER_THAN_OR_EQUAL_TO", "LESS_THAN", "LESS_THAN_OR_EQUAL_TO")
                     .contains(filter.getOperator().name())) {
-                where = excludeOperator + field + comparisonOperator.get(filter.getOperator().name()) + "'"
-                        + filter.getUserSelection().get(0) + "'";
+                where = OptionsBuilder.buildSingleOption(filter, excludeOperator, field, comparisonOperator);
             } else if (filter.getOperator().name().equals("BETWEEN")) {
                 if (filter.getUserSelection().size() > 1) {
-                    where = excludeOperator + field + " BETWEEN '" + filter.getUserSelection().get(0) + "' AND '"
-                            + filter.getUserSelection().get(1) + "'";
+                    where = OptionsBuilder.buildBetweenOptions(filter, excludeOperator, field);
                 }
                 // for between, throw error if 2 values are not given
                 else {
@@ -156,5 +130,38 @@ public class WhereClauseDateDB2 {
 
         return where;
 
+    }
+
+    public String getDatePartExpression(String timeGrain, String columnName){
+        String dateExpression = "";
+        
+        if (timeGrain.equals("YEAR")) {
+            dateExpression = "EXTRACT(YEAR FROM " + columnName + ")::INTEGER";
+        } else if (timeGrain.equals("QUARTER")) {
+            dateExpression = "CONCAT('Q', EXTRACT(QUARTER FROM " + columnName
+                    + ")::INTEGER)";
+        } else if (timeGrain.equals("MONTH")) {
+            dateExpression = "TRIM(TO_CHAR(" + columnName + ", 'Month'))";
+        } else if (timeGrain.equals("YEARQUARTER")) {
+            dateExpression = "TO_CHAR(YEAR(" + columnName
+                    + ")) || '-Q' || TO_CHAR(QUARTER(" + columnName + "))";
+            dateExpression = "TO_CHAR(YEAR(" + columnName
+                    + ")) || '-Q' || TO_CHAR(QUARTER(" + columnName + "))";
+        } else if (timeGrain.equals("YEARMONTH")) {
+            dateExpression = "TO_CHAR(YEAR(" + columnName
+                    + "))|| '-' || LPAD(TO_CHAR(YEAR(" + columnName
+                    + ")),2,0)";
+            dateExpression = "TO_CHAR(YEAR(" + columnName
+                    + "))|| '-' || LPAD(TO_CHAR(YEAR(" + columnName
+                    + ")),2,0)";
+        } else if (timeGrain.equals("DATE")) {
+            dateExpression = "DATE(" + columnName + ")";
+        } else if (timeGrain.equals("DAYOFWEEK")) {
+            dateExpression = "TRIM(TO_CHAR(" + columnName + ", 'Day'))";
+        } else if (timeGrain.equals("DAYOFMONTH")) {
+            dateExpression = "EXTRACT(DAY FROM " + columnName + ")::INTEGER";
+        }
+
+        return dateExpression;
     }
 }

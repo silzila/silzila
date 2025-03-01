@@ -1,6 +1,5 @@
 package com.silzila.querybuilder.CalculatedField;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,12 +21,10 @@ import com.silzila.payload.request.DataSchema;
 import com.silzila.payload.request.Field;
 import com.silzila.payload.request.Flow;
 import com.silzila.querybuilder.RelationshipClauseGeneric;
-
+import com.silzila.querybuilder.WhereClause;
 
 @Component
 public class CalculatedFieldQueryComposer {
-
-
 
     private final static List<String> basicMathOperations = List.of(
             "addition", "subtraction", "multiplication", "division",
@@ -44,7 +41,7 @@ public class CalculatedFieldQueryComposer {
 
     // to compose a multiple calculated fields(using of calculated field in other
     // calculated field)
-    public static String calculatedFieldComposed( String vendorName,DataSchema ds,
+    public static String calculatedFieldComposed(String vendorName, DataSchema ds,
             List<CalculatedFieldRequest> calculatedFieldRequests) throws BadRequestException {
 
         Map<String, CalculatedFieldDTO> calculatedFieldMap = new HashMap();
@@ -55,10 +52,10 @@ public class CalculatedFieldQueryComposer {
 
             calculatedFieldId = c.getCalculatedFieldId();
 
-            CalculatedFieldDTO calculatedField = calculatedFieldComposed(vendorName,ds, c, calculatedFieldMap);
+            CalculatedFieldDTO calculatedField = calculatedFieldComposed(vendorName, ds, c, calculatedFieldMap);
             if (calculatedField.getIsAggregated()) {
 
-                aggregatedCalculatedFieldQuery(ds,vendorName, c, calculatedField, calculatedFieldMap);
+                aggregatedCalculatedFieldQuery(ds, vendorName, c, calculatedField, calculatedFieldMap);
             }
 
             System.out.println("CalculatedFieldDTO " + calculatedField.toString());
@@ -71,8 +68,10 @@ public class CalculatedFieldQueryComposer {
     }
 
     // if the calculated field is aggregated
-    public static void aggregatedCalculatedFieldQuery(DataSchema ds,String vendorName, CalculatedFieldRequest calculatedFieldRequest,
-            CalculatedFieldDTO calculatedFieldDTO, Map<String, CalculatedFieldDTO> calculatedFieldMap) throws BadRequestException {
+    public static void aggregatedCalculatedFieldQuery(DataSchema ds, String vendorName,
+            CalculatedFieldRequest calculatedFieldRequest,
+            CalculatedFieldDTO calculatedFieldDTO, Map<String, CalculatedFieldDTO> calculatedFieldMap)
+            throws BadRequestException {
 
         StringBuilder query = new StringBuilder();
 
@@ -88,7 +87,7 @@ public class CalculatedFieldQueryComposer {
     }
 
     // to compose a multiple calculated fields(sample records)
-    public String calculatedFieldsComposed(DataSchema ds ,String vendorName,
+    public String calculatedFieldsComposed(DataSchema ds, String vendorName,
             List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws BadRequestException {
         StringBuilder calculatedFieldString = new StringBuilder();
 
@@ -98,14 +97,15 @@ public class CalculatedFieldQueryComposer {
             } else {
                 calculatedFieldString.append("\n");
             }
-            calculatedFieldString.append(calculatedFieldComposedWithAlias(vendorName,ds, calculatedFieldRequests.get(i)));
+            calculatedFieldString
+                    .append(calculatedFieldComposedWithAlias(vendorName, ds, calculatedFieldRequests.get(i)));
         }
 
         return calculatedFieldString.toString();
     }
 
     // to compose a calculated field without alias
-    public static CalculatedFieldDTO calculatedFieldComposed(String vendorName,DataSchema ds,
+    public static CalculatedFieldDTO calculatedFieldComposed(String vendorName, DataSchema ds,
             CalculatedFieldRequest calculatedFieldRequest, Map<String, CalculatedFieldDTO> calculatedFieldMap)
             throws BadRequestException {
 
@@ -125,7 +125,7 @@ public class CalculatedFieldQueryComposer {
             flowKey = key;
         }
 
-        processFlows(ds,vendorName, flowMap, fields, flowStringMap, conditionFilterMap, conditionFilterStringMap,
+        processFlows(ds, vendorName, flowMap, fields, flowStringMap, conditionFilterMap, conditionFilterStringMap,
                 calculatedFieldMap);
 
         FlowDTO field = flowStringMap.get(flowKey);
@@ -135,7 +135,7 @@ public class CalculatedFieldQueryComposer {
     }
 
     // to compose a fields with alias
-    public static String calculatedFieldComposedWithAlias(String vendorName,DataSchema ds ,
+    public static String calculatedFieldComposedWithAlias(String vendorName, DataSchema ds,
             List<CalculatedFieldRequest> calculatedFieldRequests) throws BadRequestException {
 
         StringBuilder calculatedField = new StringBuilder();
@@ -143,12 +143,13 @@ public class CalculatedFieldQueryComposer {
         String formattedAliasName = FieldNameProcessor.formatFieldName(
                 calculatedFieldRequests.get(calculatedFieldRequests.size() - 1).getCalculatedFieldName());
 
-        return calculatedField.append(" (").append(calculatedFieldComposed(vendorName,ds, calculatedFieldRequests))
+        return calculatedField.append(" (").append(calculatedFieldComposed(vendorName, ds, calculatedFieldRequests))
                 .append(") AS ").append(formattedAliasName).toString();
     }
 
     // composing a query to get sample records of calculated field
-    public static String composeSampleRecordQuery(DataSchema ds,String vendorName, List<CalculatedFieldRequest> calculatedFieldRequests,
+    public static String composeSampleRecordQuery(DataSchema ds, String vendorName,
+            List<CalculatedFieldRequest> calculatedFieldRequests,
             DataSchema dataSchema, Integer recordCount) throws BadRequestException {
 
         if (recordCount == null || recordCount == 0 || recordCount > 100) {
@@ -165,7 +166,7 @@ public class CalculatedFieldQueryComposer {
             }
         }
 
-        String selectField = calculatedFieldComposedWithAlias(vendorName, ds,calculatedFieldRequests);
+        String selectField = calculatedFieldComposedWithAlias(vendorName, ds, calculatedFieldRequests);
 
         QueryBuilder queryBuilder = QueryBuilderFactory.getQueryBuilder(vendorName);
 
@@ -174,28 +175,51 @@ public class CalculatedFieldQueryComposer {
     }
 
     // to get distinct records
-    public String composeFilterOptionsQuery(DataSchema ds,String vendorName, List<CalculatedFieldRequest> calculatedFieldRequest,
+     public String composeFilterOptionsQuery(DataSchema ds,String vendorName, List<CalculatedFieldRequest> calculatedFieldRequests,
             DataSchema dataSchema) throws BadRequestException {
         StringBuilder query = new StringBuilder("SELECT DISTINCT \n\t");
 
-        query.append(calculatedFieldComposedWithAlias(vendorName,ds, calculatedFieldRequest));
+        query.append(calculatedFieldComposedWithAlias(vendorName,ds, calculatedFieldRequests));
 
-        List<String> allColumnList = (calculatedFieldRequest != null)
-                ? ColumnListFromClause.getColumnListFromFieldsRequest(calculatedFieldRequest)
-                : new ArrayList<>();
+        Set<String> allColumnList = new HashSet<>();
+
+        for (CalculatedFieldRequest calculatedFieldRequest : calculatedFieldRequests) {
+            if (!calculatedFieldRequest.getFields().isEmpty()) {
+                List<String> fieldIds = ColumnListFromClause
+                        .getColumnListFromFields(calculatedFieldRequest.getFields());
+                allColumnList.addAll(fieldIds);
+            }
+        }
+
+        if(ds.getFilterPanels().size()>0){
+            List<String> filterTableIds = ColumnListFromClause.getColumnListFromFilterPanels(ds.getFilterPanels());
+            allColumnList.addAll(filterTableIds);
+        }
+
         if (((!allColumnList.isEmpty() && allColumnList.size() != 0))) {
-
-            String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList, dataSchema, vendorName);
-
+            String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList), dataSchema, vendorName);
             query.append("\nFROM ").append(fromClause);
+            if(dataSchema.getFilterPanels().size() > 0){ 
+
+                String whereClause = WhereClause.buildWhereClause(dataSchema.getFilterPanels(), vendorName , dataSchema);
+
+                query.append(whereClause);
+            }
+        }
+
+        // order by the first column
+        query.append(" ORDER BY 1");
+
+        // xxplicitly specify ascending order if not Amazon Athena
+        if (vendorName != null && !"amazonathena".equalsIgnoreCase(vendorName)) {
+            query.append(" ASC");
         }
 
         return query.toString();
-
     }
 
     // to process flows
-    private static void processFlows(DataSchema ds,String vendorName, Map<String, List<Flow>> flowMap,
+    private static void processFlows(DataSchema ds, String vendorName, Map<String, List<Flow>> flowMap,
             Map<String, Field> fields,
             Map<String, FlowDTO> flowStringMap,
             Map<String, List<ConditionFilter>> conditionFilterMap,
@@ -215,7 +239,7 @@ public class CalculatedFieldQueryComposer {
 
             if (firstFlow.getCondition() != null) {
                 queryBuilder.processConditionalFlow(flows, flowMap, flowStringMap, conditionFilterMap,
-                        conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
+                        conditionFilterStringMap, fields, flowKey, calculatedFieldMap, ds);
 
             } else if (basicMathOperations.contains(firstFlow.getFlow())
                     || (firstFlow.getFlow().equals("none") && firstFlow.getIsAggregation())) {// aggregation only allow
@@ -223,7 +247,6 @@ public class CalculatedFieldQueryComposer {
 
                 queryBuilder.processNonConditionalMathFlow(ds, firstFlow,
                         fields, flowStringMap, flowKey, calculatedFieldMap);
-
 
             } else if (basicTextOperations.contains(firstFlow.getFlow())) {
                 queryBuilder.processNonConditionalTextFlow(firstFlow, fields, flowStringMap, flowKey,
@@ -239,7 +262,4 @@ public class CalculatedFieldQueryComposer {
         }
     }
 
-
-
 }
-

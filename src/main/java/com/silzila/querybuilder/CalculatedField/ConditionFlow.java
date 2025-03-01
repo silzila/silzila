@@ -68,7 +68,7 @@ public class ConditionFlow {
 
     for (ConditionFilter conditionFilter : conditionFilters) {
         List<Filter> filters = ConditionFilterToFilter.mapConditionFilterToFilter(
-                conditionFilter.getConditions(), fields, flows, flowStringMap);
+            vendorName,conditionFilter.getConditions(), fields, flows, flowStringMap, calculatedFieldMap);
 
         String whereClause = WhereClause.filterPanelWhereString(
                 filters, conditionFilter.getShouldAllConditionsMatch(), vendorName,ds);

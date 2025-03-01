@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.silzila.payload.internals.ConditionType;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -59,6 +60,8 @@ public class Filter implements Serializable {
     private Boolean isTillDate = false; 
     @JsonProperty("isField")
     private Boolean isField = true;
+    @JsonProperty("conditionType")
+    private ConditionType conditionType = new ConditionType();
     private final static long serialVersionUID = 4876626487235075859L;
     @JsonProperty("currentSelection")
     private Boolean currentSelection=false;
@@ -104,6 +107,7 @@ public class Filter implements Serializable {
         this.isTillDate = isTillDate;
         this.currentSelection=currentSelection;
         this.isField = isField;
+        this.conditionType = conditionType;
     }
 
 
@@ -262,8 +266,16 @@ public class Filter implements Serializable {
     public void setIsField(Boolean isField) {
         this.isField = isField;
     }
+    
+    public ConditionType getConditionType() {
+        return conditionType;
+    }
 
+    public void setConditionType(ConditionType conditionType) {
+        this.conditionType = conditionType;
+    }
 
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
