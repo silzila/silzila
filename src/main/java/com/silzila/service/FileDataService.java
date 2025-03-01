@@ -258,10 +258,10 @@ public class FileDataService {
 
     // helper function to check if file data name is alreay taken
     // used to check while creating new File Data
-    public void isFileDataNameAlreadyTaken(String userId, String fileDataName) throws BadRequestException {
+    public void isFileDataNameAlreadyTaken(String userId, String fileDataName,String workspaceId) throws BadRequestException {
         // check in DB if file data name is already taken
-        List<FileData> fileDatas = fileDataRepository.findByUserIdAndName(userId, fileDataName);
-        if (!fileDatas.isEmpty()) {
+        boolean fileExist=fileDataRepository.existsByNameAndUserIdAndWorkspaceId(fileDataName,userId,workspaceId);
+        if (fileExist) {
             throw new BadRequestException("Error: File Data Name is already taken!");
         }
     }
@@ -326,7 +326,7 @@ public class FileDataService {
             SQLException, ExpectationFailedException {
 
         // check in DB if file data name is already taken
-        isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName());
+        isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName(),workspaceId);
 
         // start duckdb in memory
         duckDbService.startDuckDb();
@@ -362,7 +362,7 @@ public class FileDataService {
                     .setName(revisedInfoRequest.getName().trim().replaceAll("[^a-zA-Z0-9]", "_").replaceAll("_+", "_"));
         }
         // check in DB if file data name is already taken
-        isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName());
+        isFileDataNameAlreadyTaken(userId, revisedInfoRequest.getName(),workspaceId);
 
         // if not exists, create folder for user - to save file
         Path path = Paths.get(SILZILA_DIR, userId);
@@ -484,7 +484,7 @@ public class FileDataService {
     public List<FileDataDTO> getAllFileDatas(String userId,String workspaceId) throws BadRequestException{
         utilityService.isValidWorkspaceId(workspaceId);
         // read all file data for the user from DB
-        List<FileData> fileDatas = fileDataRepository.findByUserId(userId);
+        List<FileData> fileDatas = fileDataRepository.findByUserIdAndWorkspaceId(userId,workspaceId);
         // re-map to DTO list of object - (to hide file name)
         List<FileDataDTO> fDataDTOs = new ArrayList<>();
         fileDatas.forEach((fd) -> {
