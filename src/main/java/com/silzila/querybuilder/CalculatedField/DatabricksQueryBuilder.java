@@ -19,6 +19,7 @@ import com.silzila.querybuilder.CalculatedField.DateFlow.DatabricksDateFlow;
 import com.silzila.querybuilder.CalculatedField.MathFlow.DatabricksMathFlow;
 import com.silzila.querybuilder.CalculatedField.TextFlow.DatabricksTextFlow;
 public class DatabricksQueryBuilder implements QueryBuilder {
+    static final String vendor = "databricks";
 
     @Override
     public String composeSampleRecordQuery(String selectField, Set<String> allColumnList, DataSchema dataSchema,
@@ -28,7 +29,7 @@ public class DatabricksQueryBuilder implements QueryBuilder {
         query.append(selectField);
         if (!allColumnList.isEmpty()) {
             String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList), dataSchema,
-                    "databricks");
+                    vendor);
 
             query.append("\nFROM ").append(fromClause);
         }
@@ -43,7 +44,7 @@ public class DatabricksQueryBuilder implements QueryBuilder {
             Map<String, FlowDTO> flowStringMap, Map<String, List<ConditionFilter>> conditionFilterMap,
             Map<String, String> conditionFilterStringMap, Map<String, Field> fields, String flowKey,
             Map<String, CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
-        ConditionFlow.processConditionalFlow("databricks", flows, flowMap, flowStringMap, conditionFilterMap,
+        ConditionFlow.processConditionalFlow(vendor, flows, flowMap, flowStringMap, conditionFilterMap,
                 conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
 
     }

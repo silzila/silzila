@@ -19,6 +19,7 @@ import com.silzila.querybuilder.CalculatedField.MathFlow.MysqlMathFlow;
 import com.silzila.querybuilder.CalculatedField.TextFlow.MysqlTextFlow;
 
 public class MysqlQueryBuilder implements QueryBuilder {
+    static final String vendor = "mysql";
 
     @Override
     public String composeSampleRecordQuery(String selectField, Set<String> allColumnList, DataSchema dataSchema,
@@ -28,7 +29,7 @@ public class MysqlQueryBuilder implements QueryBuilder {
         query.append(selectField);
         if (!allColumnList.isEmpty() && allColumnList.size() != 0) {
             String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList), dataSchema,
-                    "mysql");
+                    vendor);
 
             query.append("\nFROM ").append(fromClause);
         }
@@ -43,7 +44,7 @@ public class MysqlQueryBuilder implements QueryBuilder {
             Map<String, FlowDTO> flowStringMap, Map<String, List<ConditionFilter>> conditionFilterMap,
             Map<String, String> conditionFilterStringMap, Map<String, Field> fields, String flowKey,
             Map<String, CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
-            ConditionFlow.processConditionalFlow("mysql", flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);    
+            ConditionFlow.processConditionalFlow(vendor, flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);    
 
 
     }

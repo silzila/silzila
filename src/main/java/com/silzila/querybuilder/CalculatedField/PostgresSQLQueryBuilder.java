@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.ibm.db2.jcc.am.v;
 import com.silzila.dto.CalculatedFieldDTO;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.dto.FlowDTO;
@@ -20,6 +21,7 @@ import com.silzila.querybuilder.CalculatedField.MathFlow.PostgresMathFlow;
 import com.silzila.querybuilder.CalculatedField.TextFlow.PostgresTextFlow;
 
 public class PostgresSQLQueryBuilder implements QueryBuilder{
+    static final String vendor = "postgresql";
     
     
 
@@ -32,7 +34,7 @@ public class PostgresSQLQueryBuilder implements QueryBuilder{
                                         Map<String, Field> fields,
                                         String flowKey,Map<String,CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
 
-            ConditionFlow.processConditionalFlow("postgresql", flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
+            ConditionFlow.processConditionalFlow(vendor, flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
     }
 
     @Override
@@ -67,7 +69,7 @@ public class PostgresSQLQueryBuilder implements QueryBuilder{
         
         if(((!allColumnList.isEmpty()&&allColumnList.size()!=0))) {
                                     
-        String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,"postgresql");
+        String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,vendor);
 
         query.append("\nFROM ").append(fromClause);
         }

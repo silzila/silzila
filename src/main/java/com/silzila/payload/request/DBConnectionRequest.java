@@ -51,4 +51,10 @@ public class DBConnectionRequest {
     
     @Size(max = 255)
     private String warehouse;
+    
+    @Size(max = 255)
+    private String region;
+
+    @Size(max = 255)
+    private String s3Location;
 }

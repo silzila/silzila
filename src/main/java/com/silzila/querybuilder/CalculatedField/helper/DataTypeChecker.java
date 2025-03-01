@@ -33,13 +33,18 @@ public class DataTypeChecker {
             if (commonDataType == null) {
                 commonDataType = currentDataType;
             } else if (!commonDataType.equals(currentDataType)) {
-                throw new IllegalArgumentException(
-                    String.format("Data type mismatch: expected '%s' but found '%s'", commonDataType, currentDataType)
-                );
+                if (!(isNumericType(commonDataType) && isNumericType(currentDataType))) {
+                    throw new IllegalArgumentException(
+                        String.format("Data type mismatch: expected '%s' but found '%s'", commonDataType, currentDataType)
+                    );
+                }
             }
         }
     
         return commonDataType != null ? commonDataType : "No data type found";
+    }
+    private static boolean isNumericType(String dataType) {
+        return "integer".equalsIgnoreCase(dataType) || "decimal".equalsIgnoreCase(dataType);
     }
     
 }

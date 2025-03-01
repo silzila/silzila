@@ -7,12 +7,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.silzila.dto.OracleDTO;
 import com.silzila.payload.request.DBConnectionRequest;
 
-
+@Component
 public class OracleDbJksRequestProcess {
     
     // all uploads are initially saved in tmp
@@ -55,7 +56,7 @@ public class OracleDbJksRequestProcess {
         DBConnectionRequest reqWithoutFileName = new DBConnectionRequest(oracleDTO.getVendor(), oracleDTO.getHost(),
                 Integer.parseInt(oracleDTO.getPort()), oracleDTO.getServiceName(), oracleDTO.getUsername(),
                 oracleDTO.getPassword(), null, oracleDTO.getConnectionName(), null, oracleDTO.getKeystorePassword(),
-                null, oracleDTO.getTruststorePassword(), null);
+                null, oracleDTO.getTruststorePassword(), null,null,null);
 
         DBConnectionRequest req = processKeyStoreAndTrustStore(reqWithoutFileName,
                 oracleDTO.getKeystore(), oracleDTO.getTruststore(), store);

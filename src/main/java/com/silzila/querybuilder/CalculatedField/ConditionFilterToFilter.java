@@ -53,8 +53,6 @@ public class ConditionFilterToFilter {
         filters.add(filter);
     });
 
-    System.out.println("Filters " + filters);
-
     return filters;
 }
 

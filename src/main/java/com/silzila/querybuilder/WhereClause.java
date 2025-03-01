@@ -76,7 +76,7 @@ public class WhereClause {
             CalculatedFieldQueryComposer calculatedFieldQueryComposer = new CalculatedFieldQueryComposer();
             String field = filter.getIsCalculatedField() 
                             ? calculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds,filter.getCalculatedField()) 
-                            : (filter.getIsField()
+                            : ("field".equals(filter.getConditionType().getLeftOperandType())
                                 ? filter.getTableId() + "." + filter.getFieldName() 
                                 : filter.getFieldName());
 
@@ -153,6 +153,10 @@ public class WhereClause {
                     where = field + excludeSymbol + "= "
                             + filter.getUserSelection().get(0);
 
+                }
+                else if (filter.getOperator().name().equals("NOT_EQUAL_TO")) {
+                    where = field + excludeSymbol + "= "
+                            + filter.getUserSelection().get(0);
                 }
                 // multiple values (any one value) exact match
                 else if (filter.getOperator().name().equals("IN")) {

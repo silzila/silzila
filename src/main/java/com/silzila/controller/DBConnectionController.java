@@ -194,11 +194,13 @@ public class DBConnectionController {
             @RequestParam(name = "database", required = false) String databaseName,
             @RequestParam(name = "schema", required = false) String schemaName,
             @RequestParam(name = "table") String tableName,
+            @RequestParam(name = "datasetId",required = false) String datasetId,
+            @RequestParam(name = "tableId",required = false) String tableId,
             @RequestBody(required = false) List<List<CalculatedFieldRequest>> calculatedFieldRequests)
-            throws RecordNotFoundException, SQLException, BadRequestException {
+            throws JsonProcessingException, ClassNotFoundException, Throwable {
         String userId = reqHeader.get("username");
-        ArrayList<MetadataColumn> metadataColumns = connectionPoolService.getColumn(id, userId, databaseName,
-                schemaName, tableName,workspaceId,calculatedFieldRequests);
+        ArrayList<MetadataColumn> metadataColumns = connectionPoolService.getColumn(id, userId,workspaceId, databaseName,
+                schemaName, tableName,datasetId,tableId,calculatedFieldRequests);
         return ResponseEntity.status(HttpStatus.OK).body(metadataColumns);
     }
 

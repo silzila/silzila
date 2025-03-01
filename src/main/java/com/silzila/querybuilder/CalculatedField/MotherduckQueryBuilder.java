@@ -19,6 +19,7 @@ import com.silzila.querybuilder.CalculatedField.DateFlow.MotherDuckDateFlow;
 import com.silzila.querybuilder.CalculatedField.MathFlow.MotherduckMathFlow;
 import com.silzila.querybuilder.CalculatedField.TextFlow.MotherduckTextFlow;
 public class MotherduckQueryBuilder implements QueryBuilder{
+    static final String vendor = "motherduck";
     
     @Override
    public void processConditionalFlow(List<Flow> flows,
@@ -29,7 +30,7 @@ public class MotherduckQueryBuilder implements QueryBuilder{
                                         Map<String, Field> fields,
                                         String flowKey,Map<String,CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
 
-            ConditionFlow.processConditionalFlow("motherduck", flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
+            ConditionFlow.processConditionalFlow(vendor, flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
     }
 
     @Override
@@ -63,7 +64,7 @@ public class MotherduckQueryBuilder implements QueryBuilder{
         
         if(((!allColumnList.isEmpty()&&allColumnList.size()!=0))) {
                                     
-        String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,"motherduck");
+        String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,vendor);
 
         query.append("\nFROM ").append(fromClause);
         }
