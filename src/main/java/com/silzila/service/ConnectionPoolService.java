@@ -79,6 +79,9 @@ public class ConnectionPoolService {
     DuckDbService duckDbService;
 
     @Autowired
+    PlayBookService playBookService;
+
+    @Autowired
     RelativeFilterProcessor relativeFilterProcessor;
 
     private static final Logger logger = LogManager.getLogger(ConnectionPoolService.class);
@@ -465,6 +468,8 @@ public class ConnectionPoolService {
             throw e;
         }
     }
+    
+    
    
     // Metadata discovery - Get Database names
     public ArrayList<String> getDatabase(String id, String userId, String workspaceId)
@@ -828,9 +833,9 @@ public class ConnectionPoolService {
     }
 
     // Metadata discovery - Get Column names
-    public ArrayList<MetadataColumn> getColumn(String id, String userId, String databaseName, String schemaName,
-            String tableName, String workspaceId, List<List<CalculatedFieldRequest>> calculatedFieldRequests)
-            throws RecordNotFoundException, SQLException, BadRequestException {
+    public ArrayList<MetadataColumn> getColumn(String id, String userId, String workspaceId,String databaseName, String schemaName,
+            String tableName, String datasetId,String tableId , List<List<CalculatedFieldRequest>> calculatedFieldRequests)
+            throws  RecordNotFoundException, SQLException, BadRequestException, Throwable, JsonProcessingException, ClassNotFoundException {
 
         // first create connection pool to query DB
         String vendorName = getVendorNameFromConnectionPool(id, userId, workspaceId);
@@ -843,73 +848,67 @@ public class ConnectionPoolService {
             DatabaseMetaData databaseMetaData = _connection.getMetaData();
             ResultSet resultSet = null;
 
-            // based on database dialect, we pass either DB name or schema name at different
-            // position in the funciton for POSTGRESQL DB
-            if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName
-                    .equalsIgnoreCase("oracle") || vendorName.equals("db2")
-                    || vendorName.equalsIgnoreCase("teradata")) {
-                // schema name is must for postgres
-                if (schemaName == null || schemaName.trim().isEmpty()) {
-                    throw new BadRequestException("Error: Schema name is not provided!");
-                }
-                // get column names from the given schema and Table name
-                resultSet = databaseMetaData.getColumns(null, schemaName, tableName, null);
-            }
-            // for MYSQL DB
-            else if (vendorName.equals("mysql")) {
-                // DB name is must for MySQL
-                if (databaseName == null || databaseName.trim().isEmpty()) {
-                    throw new BadRequestException("Error: Database name is not provided!");
-                }
-                // get column names from the given schema and Table name
-                resultSet = databaseMetaData.getColumns(databaseName, null, tableName, null);
 
-            }
-            // for SQL Server DB
-            else if (vendorName.equals("sqlserver")) {
-                // DB name & schema name are must for SQL Server
-                if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
-                        || schemaName.trim().isEmpty()) {
-                    throw new BadRequestException("Error: Database & Schema names are not provided!");
+            if (tableId != null && !tableId.isEmpty()) {
+                DatasetDTO ds = loadDatasetInBuffer(workspaceId, id, datasetId, userId);
+                Optional<Table> optionalTable = ds.getDataSchema().getTables().stream()
+                                                  .filter(t -> t.getId().equals(tableId))
+                                                  .findFirst();
+    
+                Table table = optionalTable.orElseThrow(() -> new NoSuchElementException("Table not found for ID: " + tableId));
+    
+                if (table.isCustomQuery()) {
+                    metadataColumns = getColumForCustomQuery(id, userId, workspaceId, table.getCustomQuery());
+                    metadataColumns.addAll(calculatedFieldMetadata(calculatedFieldRequests));
+                    return metadataColumns;
                 }
-                // get column names from the given schema and Table name
-                resultSet = databaseMetaData.getColumns(databaseName, schemaName, tableName, null);
-
+    
+                // Extract table details
+                databaseName = table.getDatabase();
+                schemaName = table.getSchema();
+                tableName = table.getTable();
             }
-            // for Databricks & Snowflake
-            else if (vendorName.equals("databricks") || vendorName.equals("snowflake")) {
-                // DB name & schema name are must for Databricks & Snowflake
-                if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
-                        || schemaName.trim().isEmpty()) {
-                    throw new BadRequestException("Error: Database & Schema names are not provided!");
-                }
-                // get column names from the given schema and Table name
-                resultSet = databaseMetaData.getColumns(databaseName, schemaName, tableName, null);
-            }
-            // for Bigquery & Motherduck
-            else if (vendorName.equals("bigquery") || vendorName.equals("motherduck")) {
-                // DB name & schema name are must for Bigquery & Motherduck
-                if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null
-                        || schemaName.trim().isEmpty()) {
-                    throw new BadRequestException("Error: Database & Schema names are not provided!");
-                }
-                // get column names from the given schema and Table name
-                resultSet = databaseMetaData.getColumns(databaseName, schemaName, tableName, null);
-            }
-            // iterate table names and add it to List
-            while (resultSet.next()) {
-                String columnName = resultSet.getString("COLUMN_NAME");
-                String dataType = resultSet.getString("TYPE_NAME");
-                MetadataColumn metadataColumn = new MetadataColumn(columnName, dataType);
-                metadataColumns.add(metadataColumn);
-
-            }
-            metadataColumns.addAll(calculatedFieldMetadata(calculatedFieldRequests));
-            return metadataColumns;
-        } catch (Exception e) {
-            throw e;
+    
+            // Get columns from database metadata based on vendor
+            resultSet = getColumnsByVendor(vendorName, databaseMetaData, databaseName, schemaName, tableName);
+           // Add database columns to result
+        while (resultSet.next()) {
+            String columnName = resultSet.getString("COLUMN_NAME");
+            String dataType = resultSet.getString("TYPE_NAME");
+            metadataColumns.add(new MetadataColumn(columnName, dataType));
         }
+
+        // Add calculated fields if available
+        metadataColumns.addAll(calculatedFieldMetadata(calculatedFieldRequests));
+    } catch (Exception e) {
+        throw e;
     }
+    return metadataColumns;
+}
+
+    private ResultSet getColumnsByVendor(String vendorName, DatabaseMetaData databaseMetaData, String databaseName, String schemaName, String tableName)
+    throws SQLException, BadRequestException {
+if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equalsIgnoreCase("oracle")
+        || vendorName.equals("db2") || vendorName.equalsIgnoreCase("teradata") || vendorName.equalsIgnoreCase("amazonathena")) {
+    if (schemaName == null || schemaName.trim().isEmpty()) {
+        throw new BadRequestException("Error: Schema name is not provided!");
+    }
+    return databaseMetaData.getColumns(null, schemaName, tableName, null);
+} else if (vendorName.equals("mysql")) {
+    if (databaseName == null || databaseName.trim().isEmpty()) {
+        throw new BadRequestException("Error: Database name is not provided!");
+    }
+    return databaseMetaData.getColumns(databaseName, null, tableName, null);
+} else if (vendorName.equals("sqlserver") || vendorName.equals("databricks") || vendorName.equals("snowflake")
+        || vendorName.equals("bigquery") || vendorName.equals("motherduck")) {
+    if (databaseName == null || databaseName.trim().isEmpty() || schemaName == null || schemaName.trim().isEmpty()) {
+        throw new BadRequestException("Error: Database & Schema names are not provided!");
+    }
+    return databaseMetaData.getColumns(databaseName, schemaName, tableName, null);
+}
+throw new BadRequestException("Unsupported vendor: " + vendorName);
+}
+
 
      public ArrayList<MetadataColumn> calculatedFieldMetadata(List<List<CalculatedFieldRequest>> calculatedFieldRequests){
         ArrayList<MetadataColumn> metadataColumns = new ArrayList<MetadataColumn>();
@@ -974,7 +973,7 @@ public class ConnectionPoolService {
             if (vendorName.equals("postgresql") || vendorName.equals("redshift") || vendorName.equals("db2")) {
                 // schema name is must for postgres & redshift
                 // construct query
-                query = "SELECT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
+                query = "SELECT DISTINCT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             }
 
             // for BIGQUERY DB

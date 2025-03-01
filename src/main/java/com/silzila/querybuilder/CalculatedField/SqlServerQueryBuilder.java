@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class SqlServerQueryBuilder implements QueryBuilder {
+    static final String vendor = "sqlserver";
 
     @Override
     public String composeSampleRecordQuery(String selectField, Set<String> allColumnList, DataSchema dataSchema,
@@ -35,7 +36,7 @@ public class SqlServerQueryBuilder implements QueryBuilder {
         query.append(selectField);
 
         if (!allColumnList.isEmpty()&&allColumnList.size()!=0) {
-            String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList), dataSchema, "sqlserver");
+            String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList), dataSchema, vendor);
             query.append("\nFROM ").append(fromClause);
         }
     
@@ -49,7 +50,7 @@ public class SqlServerQueryBuilder implements QueryBuilder {
             Map<String, String> conditionFilterStringMap, Map<String, Field> fields, String flowKey,
             Map<String, CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
         
-                ConditionFlow.processConditionalFlow("sqlserver", flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
+                ConditionFlow.processConditionalFlow(vendor, flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
             }
 
     @Override

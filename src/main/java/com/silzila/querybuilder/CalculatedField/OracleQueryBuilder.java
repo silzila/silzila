@@ -20,6 +20,7 @@ import com.silzila.querybuilder.CalculatedField.MathFlow.OracleMathFlow;
 import com.silzila.querybuilder.CalculatedField.TextFlow.OracleTextFlow;
 
 public class OracleQueryBuilder implements QueryBuilder{
+    static final String vendor = "oracle";
     
    @Override
    public void processConditionalFlow(List<Flow> flows,
@@ -30,7 +31,7 @@ public class OracleQueryBuilder implements QueryBuilder{
                                         Map<String, Field> fields,
                                         String flowKey,Map<String,CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
 
-            ConditionFlow.processConditionalFlow("oracle", flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
+            ConditionFlow.processConditionalFlow(vendor, flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
     }
 
     @Override
@@ -64,7 +65,7 @@ public class OracleQueryBuilder implements QueryBuilder{
         
         if(((!allColumnList.isEmpty()&&allColumnList.size()!=0))) {
                                     
-        String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,"oracle");
+        String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,vendor);
 
         query.append("\nFROM ").append(fromClause);
         }

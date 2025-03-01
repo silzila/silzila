@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class TeradataQueryBuilder implements QueryBuilder {
+    static final String vendor = "teradata";
 
     @Override
     public String composeSampleRecordQuery(String selectField, Set<String> allColumnList, DataSchema dataSchema,
@@ -36,7 +37,7 @@ public class TeradataQueryBuilder implements QueryBuilder {
 
         if (!allColumnList.isEmpty()) {
             String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList), dataSchema,
-                    "teradata");
+                    vendor);
             query.append("\nFROM ").append(fromClause);
         }
 
@@ -48,7 +49,7 @@ public class TeradataQueryBuilder implements QueryBuilder {
             Map<String, FlowDTO> flowStringMap, Map<String, List<ConditionFilter>> conditionFilterMap,
             Map<String, String> conditionFilterStringMap, Map<String, Field> fields, String flowKey,
             Map<String, CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
-            ConditionFlow.processConditionalFlow("teradata", flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
+            ConditionFlow.processConditionalFlow(vendor, flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
 
     }
 

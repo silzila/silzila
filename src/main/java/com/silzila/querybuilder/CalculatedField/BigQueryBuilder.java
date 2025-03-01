@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class BigQueryBuilder implements QueryBuilder{
+    static final String vendor = "bigquery";
 
     @Override
     public String composeSampleRecordQuery(String selectField, Set<String> allColumnList, DataSchema dataSchema,
@@ -34,7 +35,7 @@ public class BigQueryBuilder implements QueryBuilder{
 
                    
                     if ((!allColumnList.isEmpty() && allColumnList.size() != 0)) {
-                    String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,"bigquery");
+                    String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,vendor);
                         query.append("\nFROM ").append(fromClause);
                     }
             
@@ -50,7 +51,7 @@ public class BigQueryBuilder implements QueryBuilder{
             Map<String, String> conditionFilterStringMap, Map<String, Field> fields, String flowKey,
             Map<String, CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
         
-            ConditionFlow.processConditionalFlow("bigquery", flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
+            ConditionFlow.processConditionalFlow(vendor, flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
 
         
     }
