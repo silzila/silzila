@@ -18,7 +18,6 @@ public class SyncFilterQuery {
 
     public static String getSyncFilterOptions(List<Filter> cf, String fromQuery, String vendorName,DatasetDTO ds) throws BadRequestException {
         QueryClauseFieldListMap selectQuery=null;
-        boolean userSelection=false;
         String whereClause=null;
         int countCurrentSelection=0;
         boolean isUserSelectionAll=false;
@@ -34,6 +33,7 @@ public class SyncFilterQuery {
             StringBuilder finalQuery = new StringBuilder("SELECT DISTINCT ");
             List<String> selectedColumns = new ArrayList<>();
             List<Filter> userSelcetionFilter = new ArrayList<>();
+            List<FilterPanel> filterPanels = new ArrayList<>();
             FilterPanel panel = new FilterPanel();
             List<Dimension> dimensions = new ArrayList<>();
 
@@ -90,7 +90,6 @@ public class SyncFilterQuery {
                 if (userSelections != null || "tillDate".equals(filter.getFilterType())) {
                     if(!isUserSelectionAll){
                         userSelcetionFilter.add(filter);
-                        userSelection = true;
                     }
                    
                 }
@@ -147,15 +146,23 @@ public class SyncFilterQuery {
             finalQuery.append(String.join(", ", selectQuery.getSelectList()));
             finalQuery.append(" FROM ").append(fromQuery);
 
-            // Create FilterPanels from allFilters
-            panel.setFilters(userSelcetionFilter);
-            panel.setPanelName("panel_" + fromQuery);
-            panel.setShouldAllConditionsMatch(true);
+            if(!userSelcetionFilter.isEmpty()){
+                // Create FilterPanels from allFilters
+                panel.setFilters(userSelcetionFilter);
+                panel.setPanelName("panel_" + fromQuery);
+                panel.setShouldAllConditionsMatch(true);
+                //add a filter
+                filterPanels.add(panel);
+            }
 
-            // Build WHERE clause using the panel
+            //applying a dataset filter
+            if(!ds.getDataSchema().getFilterPanels().isEmpty()&& ds.getDataSchema().getFilterPanels().size() != 0){
+                filterPanels.addAll(ds.getDataSchema().getFilterPanels());
+            }
 
-            if(userSelection){
-            whereClause = WhereClause.buildWhereClause(Collections.singletonList(panel), vendorName,ds.getDataSchema());
+           // Build WHERE clause using the panel
+           if(!filterPanels.isEmpty()){
+            whereClause = WhereClause.buildWhereClause(filterPanels, vendorName,ds.getDataSchema());
                 finalQuery.append(whereClause);
             }
             System.out.println("Generated  Query: " + finalQuery.toString());

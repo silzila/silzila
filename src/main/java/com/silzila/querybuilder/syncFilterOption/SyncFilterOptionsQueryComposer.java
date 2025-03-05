@@ -3,8 +3,10 @@ package com.silzila.querybuilder.syncFilterOption;
 
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
+import com.silzila.payload.request.CalculatedFieldRequest;
 import com.silzila.payload.request.ColumnFilter;
 import com.silzila.payload.request.Filter;
+import com.silzila.payload.request.FilterPanel;
 import com.silzila.querybuilder.RelationshipClauseGeneric;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,14 +34,20 @@ public class SyncFilterOptionsQueryComposer {
         String finalQuery;
 
         // Retrieve all table IDs from column filters
-        List<String> allIds = allTableIds(cf);
+        Set<String> allIds = allTableIds(cf);
+        List<List<CalculatedFieldRequest>> calcualtedFieldRequests = null;
+
+
+        if(!ds.getDataSchema().getFilterPanels().isEmpty()){
+            allIds.addAll(allFilterPanelIds(ds.getDataSchema().getFilterPanels()));
+        }
 
         // Check if the vendor is DuckDB, which is used for flat file processing
         if (vendorName.equals("duckdb")) {
             logger.info("------ inside DuckDB block for flat file processing");
 
             // Build the 'FROM'
-            String fromQuery = RelationshipClauseGeneric.buildRelationship(allIds, ds.getDataSchema(), vendorName);
+            String fromQuery = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allIds), ds.getDataSchema(), vendorName);
 
             // Build the final query
             finalQuery = SyncFilterQuery.getSyncFilterOptions(cf, fromQuery, vendorName,ds);
@@ -51,7 +59,7 @@ public class SyncFilterOptionsQueryComposer {
 
         } else {
             // For other database vendors, generate the 'FROM' part of the query
-            String fromQuery = RelationshipClauseGeneric.buildRelationship(allIds, ds.getDataSchema(), vendorName);
+            String fromQuery = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allIds), ds.getDataSchema(), vendorName);
 
             // Check if the 'FROM' query part is valid
             if (fromQuery == null || fromQuery.isEmpty()) {
@@ -75,14 +83,24 @@ public class SyncFilterOptionsQueryComposer {
     }
 
     // Method to retrieve all unique table IDs from the list of column filters
-    public static List<String> allTableIds(List<Filter> cf) {
-        if (cf.isEmpty()) return new ArrayList<>();
+    public static Set<String> allTableIds(List<Filter> cf) {
+        if (cf.isEmpty())   return new HashSet<>();
 
         Set<String> allTableIds = new HashSet<>();
         for (Filter c : cf) {
             allTableIds.add(c.getTableId());
         }
-        List<String> listOfIds = new ArrayList<>(allTableIds);
-        return listOfIds;
+          
+        return allTableIds;
+    }
+    
+      public static Set<String> allFilterPanelIds(List<FilterPanel> filterPanels) {
+        Set<String> allTableIds = new HashSet<>();
+    
+        for (FilterPanel fp : filterPanels) {
+            allTableIds.addAll(allTableIds(fp.getFilters())); // Collecting unique table IDs
+        }
+    
+        return allTableIds;
     }
 }
