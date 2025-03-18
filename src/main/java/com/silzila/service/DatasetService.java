@@ -184,11 +184,11 @@ public class DatasetService {
             throws JsonProcessingException, BadRequestException, ExpectationFailedException {
         User user = utilityService.getUserFromEmail(userId);
 
-        List<Dataset> datasets = datasetRepository.findByUserIdAndDatasetName(userId, datasetRequest.getDatasetName());
+        Boolean datasetExits = datasetRepository.existsByDatasetNameAndWorkspaceIdAndUserId( datasetRequest.getDatasetName(),workspaceId,userId);
         Workspace workspace = utilityService.getWorkspaceById(workspaceId);
         String datasetName = datasetRequest.getDatasetName().trim();
         // if dataset name already exists, send error
-        if (!datasets.isEmpty()) {
+        if (datasetExits) {
             throw new BadRequestException("Error: Dataset Name is already taken!");
         }
         // checking whether the dataset is having custom query
@@ -278,9 +278,9 @@ public class DatasetService {
             throw new RecordNotFoundException("Error: No such Dataset Id exists!");
         }
         // if dataset name already exists, send error
-        List<Dataset> datasets = datasetRepository.findByIdNotAndUserIdAndDatasetName(id, userId,
-                datasetRequest.getDatasetName());
-        if (!datasets.isEmpty()) {
+        Boolean datasetExist=datasetRepository.existsByDatasetNameAndWorkspaceIdAndUserId(
+                datasetRequest.getDatasetName(),workspaceId,userId);
+        if (datasetExist) {
             throw new BadRequestException("Error: Dataset Name is already taken!");
         }
         // rename id to table alias (short name)
