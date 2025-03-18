@@ -18,7 +18,7 @@ public class JsonValidator {
 
             for (String key : jsonObject.keySet()) {
                 if (jsonObject.get(key) instanceof JSONArray || jsonObject.get(key) instanceof JSONObject) {
-                    throw new ExpectationFailedException("Invalid JSON format: array found for key '" + key + "'");
+                    throw new ExpectationFailedException("Invalid JSON format: you are using diffrent datatype in '" + key + "'");
                 }
             }
         } catch(Exception e){

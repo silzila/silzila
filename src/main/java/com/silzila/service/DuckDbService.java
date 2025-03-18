@@ -3,6 +3,7 @@ package com.silzila.service;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -15,6 +16,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -68,7 +70,7 @@ public class DuckDbService {
     @Autowired
     RelativeFilterProcessor relativeFilterProcessor;
 
-     @Autowired
+    @Autowired
     CalculatedFieldQueryComposer calculatedFieldQueryComposer;
 
     @Value("${pepperForFlatFiles}")
@@ -79,15 +81,18 @@ public class DuckDbService {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-     // load dataset details in buffer. This helps faster query execution.
-     public DatasetDTO loadDatasetInBuffer(String dbConnectionId,String datasetId,String workspaceId, String userId)
-     throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException, BadRequestException, SQLException {
-        DatasetDTO dto = buffer.loadDatasetInBuffer(workspaceId,datasetId, userId);
-         if(!dto.getDataSchema().getFilterPanels().isEmpty()){
-             List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId,workspaceId,this::relativeFilter);
-             dto.getDataSchema().setFilterPanels(filterPanels);
-         }
-         return dto;
+    // load dataset details in buffer. This helps faster query execution.
+    public DatasetDTO loadDatasetInBuffer(String dbConnectionId, String datasetId, String workspaceId, String userId)
+            throws RecordNotFoundException, JsonMappingException, JsonProcessingException, ClassNotFoundException,
+            BadRequestException, SQLException {
+        DatasetDTO dto = buffer.loadDatasetInBuffer(workspaceId, datasetId, userId);
+        if (!dto.getDataSchema().getFilterPanels().isEmpty()) {
+            List<FilterPanel> filterPanels = relativeFilterProcessor.processFilterPanels(
+                    dto.getDataSchema().getFilterPanels(), userId, dbConnectionId, datasetId, workspaceId,
+                    this::relativeFilter);
+            dto.getDataSchema().setFilterPanels(filterPanels);
+        }
+        return dto;
     }
 
     private static final Logger logger = LogManager.getLogger(DuckDbService.class);
@@ -343,16 +348,18 @@ public class DuckDbService {
     }
 
     // get sample records from Parquet file
-    public JSONArray getSampleRecords(String workspaceId, String parquetFilePath,String userId,String datasetId, String tableName,String tblId,String encryptVal, List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws SQLException, RecordNotFoundException, JsonProcessingException, BadRequestException, ClassNotFoundException {
+    public JSONArray getSampleRecords(String workspaceId, String parquetFilePath, String userId, String datasetId,
+            String tableName, String tblId, String encryptVal,
+            List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws SQLException, RecordNotFoundException,
+            JsonProcessingException, BadRequestException, ClassNotFoundException {
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtRecords = conn2.createStatement();
 
         String query = "";
 
-
-        if(datasetId!=null) {
-            //getting dataset information to fetch filter panel information
-            DatasetDTO ds = loadDatasetInBuffer(null,datasetId, workspaceId,userId);
+        if (datasetId != null) {
+            // getting dataset information to fetch filter panel information
+            DatasetDTO ds = loadDatasetInBuffer(null, datasetId, workspaceId, userId);
             List<FilterPanel> filterPanels = new ArrayList<>();
             String tableId = "";
             String whereClause = "";
@@ -370,21 +377,23 @@ public class DuckDbService {
             }
 
             // generating where clause from the given filter panel
-            whereClause = ds.getDataSchema().getFilterPanels().isEmpty()?"":WhereClause.buildWhereClause(filterPanels, "duckdb",ds.getDataSchema());
+            whereClause = ds.getDataSchema().getFilterPanels().isEmpty() ? ""
+                    : WhereClause.buildWhereClause(filterPanels, "duckdb", ds.getDataSchema());
 
             StringBuilder calculatedField = new StringBuilder();
 
-            if(calculatedFieldRequests!=null){
-                relativeFilterProcessor.processListOfCalculatedFields( calculatedFieldRequests, userId, null, datasetId,workspaceId, this::relativeFilter);
-                calculatedField.append(" , ").append(calculatedFieldQueryComposer.calculatedFieldsComposed(ds.getDataSchema(),"duckdb", calculatedFieldRequests));
+            if (calculatedFieldRequests != null) {
+                relativeFilterProcessor.processListOfCalculatedFields(calculatedFieldRequests, userId, null, datasetId,
+                        workspaceId, this::relativeFilter);
+                calculatedField.append(" , ").append(calculatedFieldQueryComposer
+                        .calculatedFieldsComposed(ds.getDataSchema(), "duckdb", calculatedFieldRequests));
             }
 
-
-            List<String> allColumnList = (calculatedFieldRequests!=null) 
-                                         ? ColumnListFromClause.getColumnListFromListOfFieldRequests(calculatedFieldRequests) 
-                                         : new ArrayList<>();
-            if(!allColumnList.contains(tblId)){
-                    allColumnList.add(tblId);
+            List<String> allColumnList = (calculatedFieldRequests != null)
+                    ? ColumnListFromClause.getColumnListFromListOfFieldRequests(calculatedFieldRequests)
+                    : new ArrayList<>();
+            if (!allColumnList.contains(tblId)) {
+                allColumnList.add(tblId);
             }
 
             List<Table> tableObjList = ds.getDataSchema().getTables().stream()
@@ -393,20 +402,20 @@ public class DuckDbService {
 
             List<String> flatFileIds = tableObjList.stream().map((table) -> table.getFlatFileId())
                     .collect(Collectors.toList());
-    
+
             List<FileData> fileDataList = fileDataRepository.findAllById(flatFileIds);
-            
+
             createViewForFlatFiles(userId, tableObjList, fileDataList, encryptPwd + pepper);
 
-            String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList,ds.getDataSchema(),"duckdb");
+            String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList, ds.getDataSchema(),
+                    "duckdb");
             // creating Encryption key to save parquet file securely
             String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
             stmtRecords.execute(encryptKey);
             // checking whether the dataset has filter panel or not
-        
-            query =  "SELECT " + tblId +".* " + calculatedField + " FROM " + fromClause + whereClause + " LIMIT 200";
-             
-            
+
+            query = "SELECT " + tblId + ".* " + calculatedField + " FROM " + fromClause + whereClause + " LIMIT 200";
+
         } else {
             // creating Encryption key to save parquet file securely
             String encryptKey = "PRAGMA add_parquet_key('key256', '" + encryptVal + "')";
@@ -426,7 +435,8 @@ public class DuckDbService {
     }
 
     // get sample records from Parquet file
-    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath, String encryptVal, List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws SQLException {
+    public List<Map<String, Object>> getColumnMetaData(String parquetFilePath, String encryptVal,
+            List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws SQLException {
 
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
         Statement stmtMeta = conn2.createStatement();
@@ -469,11 +479,13 @@ public class DuckDbService {
         return metaList;
     }
 
-        public List<Map<String, Object>> calculatedFieldMetadata(List<List<CalculatedFieldRequest>> calculatedFieldRequests) {
+    public List<Map<String, Object>> calculatedFieldMetadata(
+            List<List<CalculatedFieldRequest>> calculatedFieldRequests) {
         List<Map<String, Object>> metadataList = new ArrayList<>();
 
         if (calculatedFieldRequests != null) {
-            Map<String, String> calculatedFieldDataType = DataTypeProvider.getCalculatedFieldsDataTypes(calculatedFieldRequests);
+            Map<String, String> calculatedFieldDataType = DataTypeProvider
+                    .getCalculatedFieldsDataTypes(calculatedFieldRequests);
 
             for (Map.Entry<String, String> field : calculatedFieldDataType.entrySet()) {
                 Map<String, Object> metadataMap = new HashMap<>();
@@ -581,8 +593,6 @@ public class DuckDbService {
         stmtInstallLoad.execute("INSTALL spatial;");
         stmtInstallLoad.execute("LOAD spatial;");
 
-       
-
         String query = "CREATE OR REPLACE TABLE tbl_" + fileName + " AS SELECT * from st_read('" + filePath
                 + "',layer ='" + sheetName + "', open_options = ['HEADERS=FORCE'])";
         try {
@@ -637,8 +647,7 @@ public class DuckDbService {
                 metaList.add(rowObj);
             }
         }
-        // System.out.println(jsonArrayRecords.toString());
-        // System.out.println(jsonArrayMeta.toString());
+       
         // delete the in-memory table as it's not required
 
         // copying excel file to csv for further operation
@@ -763,7 +772,7 @@ public class DuckDbService {
 
         List<Map<String, Object>> recordList = new ArrayList<Map<String, Object>>();
         List<Map<String, Object>> metaList = new ArrayList<Map<String, Object>>();
-
+        ValidateJsonResponse(jsonArrayRecords, jsonArrayMeta, recordList, metaList);
         // Sample Records
         // convert JsonArray -> List of JsonObject -> List of Map(String, Object)
         if (jsonArrayRecords != null) {
@@ -796,8 +805,7 @@ public class DuckDbService {
                 metaList.add(rowObj);
             }
         }
-        // System.out.println(jsonArrayRecords.toString());
-        // System.out.println(jsonArrayMeta.toString());
+     
         // delete the in-memory table as it's not required
         String deleteQuery = "DROP TABLE IF EXISTS tbl_" + fileName;
         stmtDeleteTbl.execute(deleteQuery);
@@ -810,6 +818,86 @@ public class DuckDbService {
                 recordList);
 
         return fileUploadResponseDuckDb;
+
+    }
+
+    private void ValidateJsonResponse(JSONArray jsonArrayRecords, JSONArray jsonArrayMeta,
+            List<Map<String, Object>> recordList, List<Map<String, Object>> metaList) {
+        Map<String, String> AllCurrentDatatype = new HashMap<>();
+        if (jsonArrayRecords != null) {
+            for (int i = 0; i < jsonArrayRecords.length(); i++) {
+                JSONObject rec = jsonArrayRecords.getJSONObject(i);
+                Map<String, Object> rowObj = new HashMap<>();
+                rec.keySet().forEach(keyStr -> {
+                    Object keyValue = rec.get(keyStr);
+                    rowObj.put(keyStr, keyValue);
+                });
+                recordList.add(rowObj);
+            }
+        }
+
+        if (jsonArrayMeta != null) {
+            AtomicInteger counterDatatype = new AtomicInteger(0);
+            for (int i = 0; i < jsonArrayMeta.length(); i++) {
+                JSONObject rec = jsonArrayMeta.getJSONObject(i);
+                Map<String, Object> rowObj = new HashMap<String, Object>();
+                rec.keySet().forEach(keyStr -> {
+                    Object keyValue = rec.get(keyStr);
+                    // DuckDB Data type -> Silzila Data Type
+                    if (keyStr.equals("dataType")) {
+                        String silzilaDataType = ConvertDuckDbDataType.toSilzilaDataType(keyValue.toString());
+                        rowObj.put(keyStr, silzilaDataType);
+                    } else {
+                        rowObj.put(keyStr, keyValue);
+                    }
+                });
+                metaList.add(rowObj);
+                counterDatatype.incrementAndGet();
+            }
+        }
+
+        for (Map<String, Object> fieldMap : metaList) {
+            String fieldName = (String) fieldMap.get("fieldName");
+            String dataType = (String) fieldMap.get("dataType");
+            AllCurrentDatatype.put(fieldName, dataType);
+        }
+
+        for (int i = 0; i < jsonArrayRecords.length(); i++) {
+            JSONObject rec = jsonArrayRecords.getJSONObject(i);
+
+            rec.keySet().forEach(keyStr -> {
+
+                Object keyValue = rec.get(keyStr);
+
+                String expectedType = AllCurrentDatatype.get(keyStr);
+
+                if (expectedType.equalsIgnoreCase("integer") && !(keyValue instanceof Number)) {
+                    throw new BadRequestException("Datatype mismatch: you are using diffrent datatype in : " + keyStr);
+                } else if (expectedType.equalsIgnoreCase("text") && !(keyValue instanceof String)) {
+                    throw new BadRequestException("Datatype mismatch: you are using diffrent datatype in: " + keyStr);
+                } else if (expectedType.equalsIgnoreCase("date")) {
+                    try {
+                        java.sql.Date.valueOf(keyValue.toString());
+                    } catch (IllegalArgumentException e) {
+                        throw new BadRequestException(
+                                "Datatype mismatch: you are using diffrent datatype in: " + keyStr);
+                    }
+                } else if (expectedType.equalsIgnoreCase("timestamp") && !(keyValue instanceof Timestamp)) {
+                    if (!(keyValue instanceof Timestamp)) {
+                        throw new BadRequestException(
+                                "Datatype mismatch: you are using diffrent datatype in: " + keyStr);
+                    }
+                }
+
+                else if (expectedType.equalsIgnoreCase("boolean")) {
+                    if (!(keyValue instanceof Boolean)) {
+                        throw new BadRequestException(
+                                "Datatype mismatch: you are using diffrent datatype in: " + keyStr);
+                    }
+                }
+
+            });
+        }
 
     }
 
@@ -1017,7 +1105,6 @@ public class DuckDbService {
 
     }
 
-
     public JSONObject runSyncQuery(String query) throws SQLException {
         // Duplicate connection for running the query
         Connection conn2 = ((DuckDBConnection) conn).duplicate();
@@ -1036,7 +1123,8 @@ public class DuckDbService {
             e.printStackTrace();
             throw e; // Optionally rethrow the exception
         } finally {
-            // Close statement and connection in finally block to ensure they are closed even if an error occurs
+            // Close statement and connection in finally block to ensure they are closed
+            // even if an error occurs
             if (stmtRecords != null) {
                 stmtRecords.close();
             }
@@ -1047,47 +1135,49 @@ public class DuckDbService {
         return jsonObject;
     }
 
-    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId,String workspaceId,
-    @Valid RelativeFilterRequest relativeFilter)
-    throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
-    JsonMappingException, JsonProcessingException {
+    public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId, String workspaceId,
+            @Valid RelativeFilterRequest relativeFilter)
+            throws RecordNotFoundException, BadRequestException, SQLException, ClassNotFoundException,
+            JsonMappingException, JsonProcessingException {
 
-            // Load dataset into memory buffer
-            DatasetDTO ds = null;
-            if (datasetId != null) {
-                DatasetDTO bufferedDataset = buffer.getDatasetDetailsById(datasetId);
-                ds = (bufferedDataset != null) ? bufferedDataset : loadDatasetInBuffer(dBConnectionId, datasetId,workspaceId, userId);
-            }
-            // Initialize variables
-            JSONArray anchorDateArray;
-            String query;
-            // Check if dataset is flat file data or not
-                // Get the table ID from the filter request
-                String tableId = relativeFilter.getFilterTable().getTableId();
+        // Load dataset into memory buffer
+        DatasetDTO ds = null;
+        if (datasetId != null) {
+            DatasetDTO bufferedDataset = buffer.getDatasetDetailsById(datasetId);
+            ds = (bufferedDataset != null) ? bufferedDataset
+                    : loadDatasetInBuffer(dBConnectionId, datasetId, workspaceId, userId);
+        }
+        // Initialize variables
+        JSONArray anchorDateArray;
+        String query;
+        // Check if dataset is flat file data or not
+        // Get the table ID from the filter request
+        String tableId = relativeFilter.getFilterTable().getTableId();
 
-                ColumnFilter columnFilter = relativeFilter.getFilterTable();
+        ColumnFilter columnFilter = relativeFilter.getFilterTable();
 
-                // Find the table object in the dataset schema 
-                // Datasetfilter -> create a table object
-                Table tableObj = ds!= null ? ds.getDataSchema().getTables().stream()
-                        .filter(table -> table.getId().equals(tableId))
-                        .findFirst()
-                        .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!")):new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null, columnFilter.getTableId()  , null, null, false, null);
-                // Load file names from file IDs and load the files as views
-                createViewForFlatFiles(userId, Collections.singletonList(tableObj),buffer.getFileDataByUserId(userId), encryptPwd+pepper);
-                // Compose anchor date query for DuckDB and run it
-                String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery("duckdb", ds, relativeFilter);
-                anchorDateArray = runQuery(anchorDateQuery);
+        // Find the table object in the dataset schema
+        // Datasetfilter -> create a table object
+        Table tableObj = ds != null ? ds.getDataSchema().getTables().stream()
+                .filter(table -> table.getId().equals(tableId))
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("Error: table id is not present in Dataset!"))
+                : new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null,
+                        columnFilter.getTableId(), null, null, false, null);
+        // Load file names from file IDs and load the files as views
+        createViewForFlatFiles(userId, Collections.singletonList(tableObj), buffer.getFileDataByUserId(userId),
+                encryptPwd + pepper);
+        // Compose anchor date query for DuckDB and run it
+        String anchorDateQuery = relativeFilterQueryComposer.anchorDateComposeQuery("duckdb", ds, relativeFilter);
+        anchorDateArray = runQuery(anchorDateQuery);
 
-                // Compose main query for DuckDB
-                query = relativeFilterQueryComposer.composeQuery("duckdb", ds, relativeFilter, anchorDateArray);
+        // Compose main query for DuckDB
+        query = relativeFilterQueryComposer.composeQuery("duckdb", ds, relativeFilter, anchorDateArray);
 
-            // Execute the main query and return the result
-            JSONArray jsonArray = runQuery(query);
+        // Execute the main query and return the result
+        JSONArray jsonArray = runQuery(query);
 
-            return jsonArray;
-}
-
-
+        return jsonArray;
+    }
 
 }
