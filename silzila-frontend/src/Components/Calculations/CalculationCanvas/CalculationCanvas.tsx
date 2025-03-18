@@ -181,11 +181,11 @@ const CalculationCanvas = ({
                 return
             }
 
-            // if (Object.keys(allFlowsList).length === 1) {
+            if (Object.keys(allFlowsList).length === 1) {
 
-            //     setAlert({ severity: 'warning', message: 'Multi step calculation will be added in future release' })
-            //     return;
-            // }
+                setAlert({ severity: 'warning', message: 'Multi step calculation will be added in future release' })
+                return;
+            }
 
             handleNewFlowCreation(item, relativeX, relativeY);
 

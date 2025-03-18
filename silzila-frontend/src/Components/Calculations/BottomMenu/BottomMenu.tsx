@@ -132,7 +132,7 @@ const FlowList = ({
 
       const tableMetaDataForSelectedDataset = sampleRecords.recordsColumnType[datasetId];
 
-      if (tableMetaDataForSelectedDataset[tableIdToPushInto].find((el: any) => el['columnName'].toLowerCase().split(" ").join("_").split("-").join("_") === calculationLocalName.toLowerCase().split(" ").join("_").split("-").join("_"))) {
+      if (tableMetaDataForSelectedDataset[tableIdToPushInto].find((el: any) => el['columnName'].toLowerCase().split(" ").join("_").split("-").join("_") === calculationLocalName.toLowerCase().split(" ").join("_").split("-").join("_")) && !currentCalculationSession.uuid) {
         if (alert) {
           setAlert(null)
         }
