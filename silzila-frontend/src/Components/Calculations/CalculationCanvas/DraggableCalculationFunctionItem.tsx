@@ -62,7 +62,6 @@ const DraggableCalculationFunctionItem = ({
 
     const [showIfElse, setShowIfElse] = useState(false)
 
-    const currentFlowInfo = functionDefinitions.All.find((item: any) => item.fieldName === flows[flowUID][0].flow);
     const activeFlowName = flows[flowUID][0].flow
 
     const aggregationType = (flows[flowUID][0].isAggregation);

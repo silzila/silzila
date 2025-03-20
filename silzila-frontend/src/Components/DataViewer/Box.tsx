@@ -81,14 +81,7 @@ export const Box = ({
 
               informationForPropDeletion[propKeyForThisDeleteInfo].forEach((item: any) => {
                 const binIndexForThisPropKey = item.binIndex
-                const fieldIndexForThisPropKey = item.fieldIndex
-
-                console.log("deleting", {
-                  propKeyForThisDeleteInfo,
-                  binIndexForThisPropKey,
-                  fieldIndexForThisPropKey
-                })
-
+                const fieldIndexForThisPropKey = item.fieldIndex 
                 deleteIfPresentInAxes(propKeyForThisDeleteInfo, binIndexForThisPropKey, fieldIndexForThisPropKey)
               })
 
