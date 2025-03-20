@@ -42,14 +42,9 @@ const FlowList = ({
     () => `${tabTileProps?.selectedTabId}.${tabTileProps?.selectedTileId}`,
     [tabTileProps?.selectedTabId, tabTileProps?.selectedTileId]
   );
-  const flowList =
-    calculations.properties[propKey]?.currentCalculationSession?.calculationInfo
-      .flows;
   const [lastTestSuccess, setLastTestSuccess] = useState<boolean>(false);
-  let calculationInfo =
-    calculations.properties[propKey]?.currentCalculationSession?.calculationInfo;
-  const currentCalculationSession =
-    calculations.properties[propKey]?.currentCalculationSession;
+  let calculationInfo = calculations.properties[propKey]?.currentCalculationSession?.calculationInfo;
+  const currentCalculationSession = calculations.properties[propKey]?.currentCalculationSession;
   const calculationName = currentCalculationSession.name;
   const totalSavedCalculations = calculations?.savedCalculations?.length
   const activeFlowId = currentCalculationSession?.activeFlow

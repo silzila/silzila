@@ -42,7 +42,6 @@ const CalculationCanvas = ({
     }, [currentCalculationSession?.calculationInfo?.flowPositions])
 
     const activeFlow = currentCalculationSession?.activeFlow
-    const activeFlowType = currentCalculationSession?.activeFlowType
     const getIsAggregation = (name: string): boolean => {
 
         /**
@@ -191,8 +190,6 @@ const CalculationCanvas = ({
 
         },
     })
-
-    const categorizedOperations = useMemo(() => categorizedOperationsForFlowWarning, []);
 
     const defaultCardEditState = Object.keys(flows).reduce((obj: { [key: string]: boolean }, key: string) => {
         obj[key] = false
