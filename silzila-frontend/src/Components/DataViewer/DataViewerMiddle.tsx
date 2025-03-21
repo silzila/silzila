@@ -69,9 +69,9 @@ const DataViewerMiddle = ({
   const [severity, setSeverity] = useState<AlertColor>("success");
   var selectedChart = chartProp.properties[propKey].chartType;
   const selectedChartData = chartTypes.find(
-      (chart) => chart.name === selectedChart
-    );
-  
+    (chart) => chart.name === selectedChart
+  );
+
 
   const MinimizeComponent = () => {
     return (
@@ -127,28 +127,28 @@ const DataViewerMiddle = ({
               }}
             >
               {/* <div className="axisInfo" style={{ marginTop: "5px" }}> */}
-        {/* for{" "}
+              {/* for{" "}
         {chartTypes.filter((chart) => chart.name === selectedChart)[0].value} */}
-        <div style={{ display: "flex", alignItems: "center" }}>
-      {/* </div> */}
-              Charts Controls
-        {selectedChartData ? (
-          <img
-            src={selectedChartData.icon}
-            alt={selectedChartData.name}
-            title={selectedChartData.value}
-            className="selected-chart-icon"
-            style={{paddingLeft: "7px" }}
-          />
-        ) : (
-          <p>No icon available for the selected chart</p>
-        )}
-        <div style={{
-          paddingLeft: "3.85rem",
-          marginRight: "0"
-        }}>
-              <MinimizeComponent />
-        </div>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                {/* </div> */}
+                Charts Controls
+                {selectedChartData ? (
+                  <img
+                    src={selectedChartData.icon}
+                    alt={selectedChartData.name}
+                    title={selectedChartData.value}
+                    className="selected-chart-icon"
+                    style={{ paddingLeft: "7px" }}
+                  />
+                ) : (
+                  <p>No icon available for the selected chart</p>
+                )}
+                <div style={{
+                  paddingLeft: "3.85rem",
+                  marginRight: "0"
+                }}>
+                  <MinimizeComponent />
+                </div>
               </div>
             </div>
             <ChartControlObjects />
@@ -181,14 +181,16 @@ const DataViewerMiddle = ({
           <>
             <ChartAxes tabId={tabId} tileId={tileId} uID="" />
             {chartProp.properties[propKey]?.enableOverrideForUID !== null &&
-            chartProp.properties[propKey]?.enableOverrideForUID !== undefined &&
-            chartProp.properties[propKey]?.enableOverrideForUID !== "" ? (
+              chartProp.properties[propKey]?.enableOverrideForUID !== undefined &&
+              chartProp.properties[propKey]?.enableOverrideForUID !== "" ? (
               <>
-                <ChartAxes
-                  tabId={tabId}
-                  tileId={tileId}
-                  uID={chartProp.properties[propKey]?.enableOverrideForUID}
-                />
+                {
+                  !(calculations.properties[propKey]?.currentCalculationSession) && <ChartAxes
+                    tabId={tabId}
+                    tileId={tileId}
+                    uID={chartProp.properties[propKey]?.enableOverrideForUID}
+                  />
+                }
               </>
             ) : null}
             {calculations.properties[propKey]?.currentCalculationSession ? (
