@@ -246,9 +246,9 @@ const FlowList = ({
                   fieldName: currentCalculationSession.calculationInfo.calculatedFieldName,
                   displayName: 'agg of' + ' ' + currentCalculationSession.calculationInfo.calculatedFieldName,
                   dataType: currentCalculationSession.calculationInfo.fields[Object.keys(currentCalculationSession.calculationInfo.fields)[0]].dataType,
-                  tableId: 'pos', // TODO: needs change, for now it should be fine as it doesn't really matter in case of aggregated calculation? we aren't storing it anywhere
+                  tableId: tableInfo?.id,
                   uId: field.uId,
-                  agg: 'sum', // keep it to any random thing it doesn't matter,
+                  agg: 'agg', // keep it to any random thing it doesn't matter,
                   SavedCalculationUUID: currentCalculationSession.uuid,
                   isTextRenamed: false
                 }
@@ -407,9 +407,9 @@ const FlowList = ({
               propKeysToUpdate[eachPropKey] = {
                 binIndex: axId,
                 fieldIndex: fieldId,
-                fieldName: currentCalculationSession.calculationInfo.calculatedFieldName,
+                fieldName: calculationInfo.calculatedFieldName,
                 displayName: `${field.agg} of ${currentCalculationSession.calculationInfo.calculatedFieldName}`,
-                dataType: currentCalculationSession.calculationInfo.fields[Object.keys(currentCalculationSession.calculationInfo.fields)[0]].dataType,
+                dataType: calculationInfo.fields[Object.keys(currentCalculationSession.calculationInfo.fields)[0]].dataType,
                 tableId: tableInfo.id,
                 uId: field.uId,
                 agg: field.agg,
@@ -434,7 +434,9 @@ const FlowList = ({
             uId: propKeysToUpdate[propKey].uId,
             agg: propKeysToUpdate[propKey].agg,
             SavedCalculationUUID: propKeysToUpdate[propKey].SavedCalculationUUID,
-            isTextRenamed: propKeysToUpdate[propKey].isTextRenamed
+            isTextRenamed: propKeysToUpdate[propKey].isTextRenamed,
+            isCalculatedField: true,
+            isAggregated: false
           },
           'chartAxes'
         )
