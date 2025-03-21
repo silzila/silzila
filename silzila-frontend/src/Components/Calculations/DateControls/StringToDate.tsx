@@ -184,7 +184,7 @@ const StringToDate = ({
       <DateDropZone propKey={propKey} flow="stringToDate">
         {source[0] === null || source[0] === undefined ? (
           <p style={{ fontSize: "11px", color: "#999999" }}>
-            Drag the source from below column to here
+            Drop a column or click + to add static values
           </p>
         ) : (
           <ListItem

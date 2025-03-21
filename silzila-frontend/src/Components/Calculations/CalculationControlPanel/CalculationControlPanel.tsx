@@ -85,6 +85,20 @@ const CalculationRightPanel = ({
 
   const sources = activeFlow ? currentCalculationSession.calculationInfo.flows[activeFlow][0].source : null
 
+  const stringFunctions = [
+    "lowercase",
+    "uppercase",
+    "propercase",
+    "trim",
+    "substringleft",
+    "substringright",
+    "length",
+    "ltrim",
+    "rtrim",
+    "replace",
+    "split",
+  ];
+
   useEffect(() => {
     if (currentCalculationSession?.calculationInfo?.flows[activeFlow]) {
       setActiveFlowName(
@@ -608,11 +622,18 @@ const CalculationRightPanel = ({
                 {currentCalculationSession.calculationInfo.flows[activeFlow][
                   activeCondition === null ? 0 : activeCondition
                 ].source.length === 0 && (
-                    <p style={{ fontSize: "11px", color: "#999999", paddingLeft: "8px", textAlign: "start" }}>
-                      {" "}
-                      Drop a column or click + to add static values
-                      {" "}
-                    </p>
+                    stringFunctions.includes(activeFlowName) ? (
+                      <p style={{ fontSize: "11px", color: "#999999", paddingLeft: "8px", textAlign: "start" }}>
+                        {" "}
+                        Drag the source from below column to here
+                        {" "}
+                      </p>) : (
+                      <p style={{ fontSize: "11px", color: "#999999", paddingLeft: "8px", textAlign: "start" }}>
+                        {" "}
+                        Drop a column or click + to add static values
+                        {" "}
+                      </p>
+                    )
                   )}
                 <div style={{ height: "100%" }}>
                   <div

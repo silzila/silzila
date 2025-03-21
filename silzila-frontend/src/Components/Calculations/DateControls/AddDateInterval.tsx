@@ -200,7 +200,7 @@ const AddDateInterval = ({
       >
         {source.length === 0 ? (
           <p style={{ fontSize: "11px", color: "#999999", paddingLeft: "8px", }}>
-            Drag the source from below column to here
+            Drop a column or click + to add static values
           </p>
         ) : (
           <>
@@ -284,7 +284,7 @@ const AddDateInterval = ({
               height: "2rem",
               marginTop: "0.5rem",
               fontSize: "11px",
-               
+
               "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                 borderColor: "#2bb9bb",
               },
@@ -298,7 +298,7 @@ const AddDateInterval = ({
             {intervalTypes.map((intervalType) => (
               <MenuItem key={intervalType.value} value={intervalType.value} sx={{
                 fontSize: "11px",
-                 
+
                 "&.Mui-selected": {
                   backgroundColor: "rgba(43, 185, 187, 0.3)",
                 },

@@ -11,7 +11,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import React, { useMemo,} from "react";
+import React, { useMemo, } from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { connect } from "react-redux";
 import { ICalculationSession } from "../../../redux/Calculations/CurrentCalculationSessionInterface";
@@ -47,7 +47,7 @@ const TruncateDate = ({
   const currCalculation = calculations.properties[propKey];
   const truncateTo = useMemo(
     () => [
-      
+
       {
         value: "week",
         label: "Week",
@@ -130,7 +130,7 @@ const TruncateDate = ({
               marginLeft: "0.3rem",
             }}
           >
-            ({source?.length>0?1:0} of 1/1)
+            ({source?.length > 0 ? 1 : 0} of 1/1)
           </Typography>
         </Box>
         <Tooltip title="Add Custom Date">
@@ -144,40 +144,40 @@ const TruncateDate = ({
           </IconButton>
         </Tooltip>
         <Menu
-        open={Boolean(anchorEl)}
-        anchorEl={anchorEl}
-        onClose={() => setAnchorEl(null)}
-      >
-        {valueTypes.map((type, index) => {
-          return (
-            <MenuItem
-              key={index}
-              sx={{ width: "7rem" }}
-              disabled={type!=='date'}
-              value={type}
-              onClick={() => {
-                setAnchorEl(null);
-                setSource(
-                  propKey,
-                  activeFlow,
-                  0,
-                  new Date().toISOString().split("T")[0],
-                  "date",
-                  0
-                );
-                setSource(propKey, activeFlow, 0, "year", "text", 1);
-              }}
-            >
-              {type.replace(/\b\w/g, (char) => char.toUpperCase())}
-            </MenuItem>
-          );
-        })}
-      </Menu>
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={() => setAnchorEl(null)}
+        >
+          {valueTypes.map((type, index) => {
+            return (
+              <MenuItem
+                key={index}
+                sx={{ width: "7rem" }}
+                disabled={type !== 'date'}
+                value={type}
+                onClick={() => {
+                  setAnchorEl(null);
+                  setSource(
+                    propKey,
+                    activeFlow,
+                    0,
+                    new Date().toISOString().split("T")[0],
+                    "date",
+                    0
+                  );
+                  setSource(propKey, activeFlow, 0, "year", "text", 1);
+                }}
+              >
+                {type.replace(/\b\w/g, (char) => char.toUpperCase())}
+              </MenuItem>
+            );
+          })}
+        </Menu>
       </Box>
       <DateDropZone propKey={propKey} flow={calculationInfo?.flows[activeFlow][0]!.flow}>
         {source.length === 0 ? (
           <p style={{ fontSize: "11px", color: "#999999", paddingLeft: "8px" }}>
-            Drag the source from below column to here
+            Drop a column or click + to add static values
           </p>
         ) : (
           <>
@@ -222,23 +222,23 @@ const TruncateDate = ({
                   }}
                 />
               ) : sourceType[0] === "field" ? (
-                <ListItemText primary={getName()} sx={{'& .MuiListItemText-primary': { fontSize: '11px' }}}/>
+                <ListItemText primary={getName()} sx={{ '& .MuiListItemText-primary': { fontSize: '11px' } }} />
               ) : null}
             </ListItem>
-            
+
           </>
         )}
       </DateDropZone>
       {
         source.length > 0 && (
           <Box
-          sx={{
-            cursor: "pointer",
-            textAlign: "left",
-            paddingBottom: "10px",
-            minHeight: "4rem",
-            marginTop: "0",
-          }}
+            sx={{
+              cursor: "pointer",
+              textAlign: "left",
+              paddingBottom: "10px",
+              minHeight: "4rem",
+              marginTop: "0",
+            }}
           >
             <InputLabel
               sx={{
@@ -246,7 +246,7 @@ const TruncateDate = ({
                 marginTop: "0.5rem",
                 fontSize: "12px",
                 // color: "gray",
-                 
+
               }}
             >
               Truncate to start of
@@ -265,15 +265,15 @@ const TruncateDate = ({
                   borderColor: "#2bb9bb",
                 },
               }}
-                value={source[1]}
-                onChange={(e) =>
-                  setSource(propKey, activeFlow, 0, e.target.value, "text", 1)
-                }
+              value={source[1]}
+              onChange={(e) =>
+                setSource(propKey, activeFlow, 0, e.target.value, "text", 1)
+              }
             >
               {truncateTo.map((truncateType) => (
                 <MenuItem key={truncateType.value} value={truncateType.value} sx={{
                   fontSize: '11px',
-                   
+
                   "&.Mui-selected": {
                     backgroundColor: "rgba(43, 185, 187, 0.3)",
                   },

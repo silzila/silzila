@@ -92,7 +92,7 @@ const SubstringRightSettings = ({
                 onMouseEnter={() => setSecondSourceCardHoverActive(true)}
                 onMouseLeave={() => setSecondSourceCardHoverActive(false)}
             >
-                <span style={{ fontSize: "14px", textAlign: "start", margin: "4px" }}>Count</span>
+                {/* <span style={{ fontSize: "14px", textAlign: "start", margin: "4px" }}>Count</span> */}
                 <div style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -103,7 +103,7 @@ const SubstringRightSettings = ({
                     border: secondInputFocused ? '1px solid #2BB9BB' : '1px solid lightgray',
                     color: 'rgb(128, 128, 128)'
                 }}>
-                    
+
                     <NumberInput
                         autoFocus={false}
                         inputValue={secondInputValue}
@@ -111,6 +111,7 @@ const SubstringRightSettings = ({
                         setInputValue={setSecondInputValue}
                     />
                 </div>
+                <span style={{ fontWeight: 'bold', color: 'gray', textAlign: 'start', display: 'flex', gap: '10px', justifyContent: "space-between", paddingTop: "10px" }}>Include or Exclude</span>
                 <IncludeExcludeToggleButton includeOrExclude={includeOrExclude} setIncludeOrExclude={setIncludeOrExclude} />
             </div>
         </div>

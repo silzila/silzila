@@ -194,7 +194,7 @@ const DateToNameOrNumberPipe = ({
       <DateDropZone propKey={propKey} flow={flow}>
         {source.length === 0 ? (
           <p style={{ fontSize: "11px", color: "#999999", paddingLeft: "8px" }}>
-            Drag the source from below column to here
+            Drop a column or click + to add static values
           </p>
         ) : (
           <>

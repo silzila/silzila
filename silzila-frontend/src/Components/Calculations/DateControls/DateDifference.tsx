@@ -48,7 +48,7 @@ interface IDateDifference {
     sourceType: string,
     sourceIndex?: number
   ) => void;
-  deleteSourceFromFlow:(flowId:string,source:any,propKey:string,sourceIndex:number)=>void;
+  deleteSourceFromFlow: (flowId: string, source: any, propKey: string, sourceIndex: number) => void;
 }
 const DateDifference = ({
   flow,
@@ -105,9 +105,9 @@ const DateDifference = ({
     /**
      * source length===2  means 1 field/custom date and one  dropdown selected value
      */
-    if (source.length === 2 )
+    if (source.length === 2)
       resetSource(propKey, activeFlow, 0);
-    else deleteSourceFromFlow(activeFlow,source[sourceIdx],propKey,sourceIdx);
+    else deleteSourceFromFlow(activeFlow, source[sourceIdx], propKey, sourceIdx);
   };
   return (
     <Container
@@ -161,7 +161,7 @@ const DateDifference = ({
               marginLeft: "0.3rem",
             }}
           >
-            ({source?.length-1<0?0:source.length-1} of 2/2)
+            ({source?.length - 1 < 0 ? 0 : source.length - 1} of 2/2)
           </Typography>
         </Box>
         <Tooltip title="Add Custom Date">
@@ -227,7 +227,7 @@ const DateDifference = ({
       <DateDropZone flow={flow} propKey={propKey} sourceLength={source.length}>
         {source.length === 0 ? (
           <p style={{ fontSize: "11px", color: "#999999", paddingLeft: "8px", }}>
-            Drag the source from below column to here.
+            Drop a column or click + to add static values
           </p>
         ) : (
           <>
@@ -241,7 +241,7 @@ const DateDifference = ({
                 display: "flex",
                 justifyContent: "flex-start",
                 alignItems: "center",
-                height: "24px", 
+                height: "24px",
                 width: "95%",
                 gap: "0.2rem",
               }}
@@ -273,7 +273,7 @@ const DateDifference = ({
                   }}
                 />
               ) : sourceType[0] === "field" ? (
-                <ListItemText primary={getName(0)} sx={{'& .MuiListItemText-primary': { fontSize: '11px' }}} />
+                <ListItemText primary={getName(0)} sx={{ '& .MuiListItemText-primary': { fontSize: '11px' } }} />
               ) : null}
             </ListItem>
             {sourceType[1] !== "text" ? (
@@ -318,16 +318,16 @@ const DateDifference = ({
                     }}
                   />
                 ) : sourceType[1] === "field" ? (
-                  <ListItemText primary={getName(1)} sx={{'& .MuiListItemText-primary': { fontSize: '11px' }}}/>
+                  <ListItemText primary={getName(1)} sx={{ '& .MuiListItemText-primary': { fontSize: '11px' } }} />
                 ) : null}
               </ListItem>
             ) : null}
-            
+
           </>
         )}
       </DateDropZone>
       {
-        source?.length>0 && (<Box
+        source?.length > 0 && (<Box
           sx={{
             cursor: "pointer",
             textAlign: "left",
@@ -337,58 +337,58 @@ const DateDifference = ({
           }}
         >
           <InputLabel
-              sx={{
-                marginLeft: "0.5rem",
-                marginTop: "0.5rem",
-                fontSize: fontSize.medium,
-                // color: "gray",
-                // fontFamily:'Axiforma Black'
-              }}
-            >
-              Time Difference In
-            </InputLabel>
-            <Select
-              key={sourceType[1] !== "text" ? source[2] : source[1]}
-              labelId="demo-simple-select-readonly-label"
-              id="demo-simple-select-readonly"
-              sx={{
-                width: "95%",
-                marginLeft: "0.5rem",
-                height: "2rem",
-                marginTop: "0.5rem",
-                fontSize: "11px",
-                 
-                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "#2bb9bb",
+            sx={{
+              marginLeft: "0.5rem",
+              marginTop: "0.5rem",
+              fontSize: fontSize.medium,
+              // color: "gray",
+              // fontFamily:'Axiforma Black'
+            }}
+          >
+            Time Difference In
+          </InputLabel>
+          <Select
+            key={sourceType[1] !== "text" ? source[2] : source[1]}
+            labelId="demo-simple-select-readonly-label"
+            id="demo-simple-select-readonly"
+            sx={{
+              width: "95%",
+              marginLeft: "0.5rem",
+              height: "2rem",
+              marginTop: "0.5rem",
+              fontSize: "11px",
+
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#2bb9bb",
+              },
+            }}
+            value={source[2] ?? source[1]}
+            onChange={(e) =>
+              setSource(
+                propKey,
+                activeFlow,
+                0,
+                e.target.value,
+                "text",
+                source[2] === undefined ? 1 : 2
+              )
+            }
+          >
+            {differenceUnits.map((Difference) => (
+              <MenuItem key={Difference.value} value={Difference.value} sx={{
+                fontSize: '11px',
+
+                "&.Mui-selected": {
+                  backgroundColor: "rgba(43, 185, 187, 0.3)",
                 },
-              }}
-              value={source[2] ?? source[1]}
-              onChange={(e) =>
-                setSource(
-                  propKey,
-                  activeFlow,
-                  0,
-                  e.target.value,
-                  "text",
-                  source[2] === undefined ? 1 : 2
-                )
-              }
-            >
-              {differenceUnits.map((Difference) => (
-                <MenuItem key={Difference.value} value={Difference.value} sx={{
-                  fontSize: '11px',
-                   
-                  "&.Mui-selected": {
-                    backgroundColor: "rgba(43, 185, 187, 0.3)",
-                  },
-                  "&.Mui-selected:hover": {
-                    backgroundColor: "rgba(43, 185, 187, 0.5)",
-                  },
-                }}>
-                  {Difference.label}
-                </MenuItem>
-              ))}
-            </Select>
+                "&.Mui-selected:hover": {
+                  backgroundColor: "rgba(43, 185, 187, 0.5)",
+                },
+              }}>
+                {Difference.label}
+              </MenuItem>
+            ))}
+          </Select>
         </Box>)
       }
     </Container>
@@ -405,7 +405,7 @@ const mapStateToProps = (state: any) => {
 };
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    deleteSourceFromFlow:(flowId:string,source:any,propKey:string,sourceIndex:number)=>dispatch(deleteSourceFromFlow(flowId,source,propKey,sourceIndex)),
+    deleteSourceFromFlow: (flowId: string, source: any, propKey: string, sourceIndex: number) => dispatch(deleteSourceFromFlow(flowId, source, propKey, sourceIndex)),
     setSource: (
       propKey: string,
       flowId: string,

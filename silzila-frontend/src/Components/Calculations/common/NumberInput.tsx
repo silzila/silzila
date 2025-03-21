@@ -3,12 +3,14 @@ import React from 'react'
 const NumberInput = ({
     inputValue,
     autoFocus,
+    onKeyDown,
 
     setInputValue,
     setInputFocused,
 }: {
     inputValue: number,
     autoFocus: boolean,
+    onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 
     setInputValue: React.Dispatch<React.SetStateAction<number>>,
     setInputFocused: React.Dispatch<React.SetStateAction<boolean>>,
@@ -33,6 +35,7 @@ const NumberInput = ({
             type="number"
             value={inputValue}
             onChange={e => { setInputValue(Number(e.target.value)) }}
+            onKeyDown={onKeyDown}
         />
     )
 }
