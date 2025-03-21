@@ -147,6 +147,11 @@ const SplitSettings = ({
                         inputValue={secondInputValue}
                         setInputFocused={setSecondInputFocused}
                         setInputValue={setSecondInputValue}
+                        onKeyDown={(e) => {
+                            if (e.key === '.' || e.key === ',' || e.key === 'e' || e.key === 'E') {
+                                e.preventDefault();
+                            }
+                        }}
                     />
                 </div>
             </div>
