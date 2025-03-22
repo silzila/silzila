@@ -19,7 +19,7 @@ import { Dispatch } from "redux";
 // 	setTablesForSelectedDataSets,
 // } from "../../redux/TabTile/actionsTabTile";
 import FetchData from "../ServerCall/FetchData";
-import { ChangeConnection } from "../CommonFunctions/DialogComponents";
+import { AcceptRejectDialog, ChangeConnection } from "../CommonFunctions/DialogComponents";
 import DatasetListPopover from "../CommonFunctions/PopOverComponents/DatasetListPopover";
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import "./dataViewerBottom.css";
@@ -60,6 +60,7 @@ import { resetChartControls } from '../../redux/ChartPoperties/ChartControlsActi
 import { resetSampleRecords } from '../../redux/SampleTableRecords/SampleTableRecordsActions';
 import Box from "@mui/material/Box";
 import { palette } from "../..";
+import { resetCurrentCalculationSession } from "../../redux/Calculations/CalculationsActions";
 
 export const getTableData = async (
   dc_uid: string,
@@ -79,6 +80,8 @@ export const getTableData = async (
     url = `sample-records?workspaceId=${workSpaceId}&databaseId=${dc_uid}&datasetId=${ds_id}&recordCount=100&database=${database}&schema=${schema}&table=${table}&tableId=${tableObj.id}`;
   }
 
+
+
   let res: any;
 
   if (
@@ -86,10 +89,10 @@ export const getTableData = async (
     // we have to write a check here for tables. We can't allow this if statement to run on just all the tables
     // TODO: here we have to verify if the table is same as the one where we should render the sample records + saved calculations.
   ) {
-    const payload= allPreviousSavedNonAggregatedCalculations.map((calculation: any) => [calculation])
+    const payload = allPreviousSavedNonAggregatedCalculations.map((calculation: any) => [calculation])
     res = await FetchData({
       requestType: "withData",
-      method:"POST",
+      method: "POST",
       url: url,
       headers: { Authorization: `Bearer ${token}` },
 
@@ -195,7 +198,7 @@ export const getColumnTypes = async (
      * [{calculationInfo2Properties}],
      * ]
      */
-    const payload=allPreviousSavedNonAggregatedCalculations.map((calculation: any) => [calculation])
+    const payload = allPreviousSavedNonAggregatedCalculations.map((calculation: any) => [calculation])
     res = await FetchData({
       requestType: "withData",
       method: "POST",
@@ -240,6 +243,7 @@ const DataViewerBottom = ({
   chartFilterGroup,
   pbId,
   calculations,
+  chartControls,
 
   // dispatch
   setSelectedDataSetList,
@@ -255,6 +259,7 @@ const DataViewerBottom = ({
   addChartFilterGroupName,
   updateChartFilterSelectedGroups,
   addChartFilterTabTileName,
+  resetCalculationSession
 }: any) => {
   var propKey: string = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
   var selectedChartProp: IndChartPropProperties =
@@ -271,7 +276,14 @@ const DataViewerBottom = ({
   const [showTreeView, setShowTreeView] = useState<boolean>(false);
   const [dataSetTree, setDataSetTree] = useState<Array<Object>>([]);
   const [selectedDataSet, setSelectedDataSet] = useState<any>({});
-
+  const chartData = chartControls.properties[propKey].chartData
+  const chartFilter = chartProps.properties[propKey].chartAxes[0].fields
+  const currentCalculationSession = calculations?.properties[propKey]?.currentCalculationSession
+  const [isDatasetSwitchDialogOpen, setIsDatasetSwitchDialogOpen] =
+    useState(false);
+  const [pendingDatasetValue, setPendingDatasetValue] = useState<string | null>(
+    null
+  );
   const savedCalculations = useMemo(() => {
     // Filter logic inside useMemo's body
     return calculations?.savedCalculations?.filter(
@@ -319,7 +331,7 @@ const DataViewerBottom = ({
   }
 
   useEffect(() => {
-    
+
     const fetchData = async () => {
       if (selectedDataSet.id && !tabTileProps.selectedDataSetList.find((ds: any) => ds.id === selectedDataSet.id)) {
         setLoading(true);
@@ -491,18 +503,18 @@ const DataViewerBottom = ({
 
     if (result.status) {
       return result.data;
-    } else { 
+    } else {
     }
   };
 
   useEffect(() => {
-      if(!state){
-        navigate("/")
-      }
-    }, [state, navigate])
     if (!state) {
-      return null;
+      navigate("/")
     }
+  }, [state, navigate])
+  if (!state) {
+    return null;
+  }
 
   // const handleDataSetChange = (value) => {
   // 	if (value === "addNewDataset") {
@@ -517,7 +529,7 @@ const DataViewerBottom = ({
   check if this table's sample records are already present
   if yes,display them. If no, get the table records and save in store*/
 
-  const handleTableChange= async (table: any, dsUid?: any, savedNonAggregatedCalculations?: any) => {
+  const handleTableChange = async (table: any, dsUid?: any, savedNonAggregatedCalculations?: any, dcConnId?: string) => {
 
     if (!savedNonAggregatedCalculations) {
       console.log("Something went wrong")
@@ -533,8 +545,8 @@ const DataViewerBottom = ({
 
       if (sampleRecords?.[selectedChartProp.selectedDs?.id]?.[table.id]) {
       } else {
-        setLoading(true);
-        var dc_uid = selectedChartProp.selectedDs?.connectionId;
+        // setLoading(true);
+        var dc_uid = dcConnId ?? selectedChartProp.selectedDs?.connectionId;
         var id = selectedChartProp.selectedDs?.id;
         var tableRecords;
         var recordsType;
@@ -552,7 +564,7 @@ const DataViewerBottom = ({
             selectedChartProp.selectedDs.workSpaceId
           );
         } else {
-         
+
           tableRecords = await getTableData(dc_uid, table, token, id, selectedChartProp.selectedDs.workSpaceId || state?.parentId, savedNonAggregatedCalculations);
 
           recordsType = await getColumnTypes(dc_uid, table, token, selectedChartProp.selectedDs.workSpaceId || state?.parentId, savedNonAggregatedCalculations);
@@ -570,7 +582,7 @@ const DataViewerBottom = ({
       return tables.map((table: any) => {
         return (
           <div
-          style={{fontSize: "0.75rem",color:palette.primary.contrastText}}
+            style={{ fontSize: "0.75rem", color: palette.primary.contrastText }}
             className={
               table.id ===
                 selectedChartProp.selectedTable?.[
@@ -597,7 +609,23 @@ const DataViewerBottom = ({
   if there are no added fields in dropzone, allow the change.
   else, open a new tile with the selected dataset*/
   const handleDataSetChange = (value: any) => {
+    const currentSession =
+      calculations.properties[propKey]?.currentCalculationSession;
+
+    if (
+      currentSession &&
+      value !== (selectedChartProp.selectedDs?.id ?? selectedDataSet.id)
+    ) {
+      setPendingDatasetValue(value);
+      setIsDatasetSwitchDialogOpen(true);
+      return;
+    }
+    proceedWithDatasetChange(value);
+  };
+
+  const proceedWithDatasetChange = (value: any) => {
     const axes = chartProps.properties[propKey].chartAxes;
+
     setAddNewOrChooseExistingDS(value);
     if (value === "addNewDataset") {
       var count = 0;
@@ -628,11 +656,31 @@ const DataViewerBottom = ({
           (ds: any) => ds.id === value
         )[0];
         setSelectedDs(propKey, dsObj);
+        handleTableChange(
+          tabTileProps.tablesForSelectedDataSets[dsObj.id][0],
+          dsObj.id,
+          savedCalculations?.length > 0
+            ? savedCalculations
+              ?.filter(
+                (calculation: any) =>
+                  calculation?.isAggregated &&
+                  calculation?.tableId ===
+                  tabTileProps.tablesForSelectedDataSets[dsObj.id][0].id
+              )
+              ?.map((calculation: any) => calculation?.calculationInfo)
+            : [],
+          dsObj.connectionId
+        );
+        // setShowLoader(true);
+        // setTimeout(() => {
+        //   setShowLoader(false);
+        // }, 3000);
       }
     }
   };
 
   const onChangeOrAddDataset = () => {
+    const datasetToUse = pendingDatasetValue || addNewOrChooseExistingDS;
     let tabObj = tabState.tabs[tabTileProps.selectedTabId];
 
     addTile(
@@ -643,14 +691,16 @@ const DataViewerBottom = ({
       chartProps.properties[propKey].selectedTable
     );
 
-    setOpenChangeDatasetDlg(false);
-    if (addNewOrChooseExistingDS === "addNewDataset") {
+    if (openChangeDatasetDlg) setOpenChangeDatasetDlg(false);
+    if (isDatasetSwitchDialogOpen) setIsDatasetSwitchDialogOpen(false);
+
+    if (datasetToUse === "addNewDataset") {
       /*  PRS 13Nov2024 */
       setShowTreeView(true);
       //setOpen(true);
     } else {
       var dsObj = tabTileProps.selectedDataSetList.filter(
-        (ds: any) => ds.id === addNewOrChooseExistingDS
+        (ds: any) => ds.id === datasetToUse
       )[0];
       setSelectedDs(`${tabObj.tabId}.${tabObj.nextTileId}`, dsObj);
     }
@@ -690,8 +740,8 @@ const DataViewerBottom = ({
 
       {chartProps.properties[propKey].chartType === "richText" ? null : (
         <div className="dataViewerBottom">
-          <div className="dataSetAndTableList" style={{padding:'0.5rem 1rem 0.5rem 0.9rem',minWidth:'15.625rem'}}>
-            <div className="dataSetSelect" style={{width: "100%",padding:'0'}}>
+          <div className="dataSetAndTableList" style={{ padding: '0.5rem 1rem 0.5rem 0.9rem', minWidth: '15.625rem' }}>
+            <div className="dataSetSelect" style={{ width: "100%", padding: '0' }}>
               <FormControl
                 sx={{
                   "& .MuiInputBase-root": {
@@ -772,7 +822,7 @@ const DataViewerBottom = ({
             </div>
 
             <div className="tileTableList">
-              <div className="tablescontainerinDataviewerBottom" style={{padding:0  }}>
+              <div className="tablescontainerinDataviewerBottom" style={{ padding: 0 }}>
                 <TableListForDs />
               </div>
             </div>
@@ -794,7 +844,7 @@ const DataViewerBottom = ({
                 dsId={selectedChartProp.selectedDs?.id}
                 table={
                   selectedChartProp.selectedTable[
-                    selectedChartProp.selectedDs?.id
+                  selectedChartProp.selectedDs?.id
                   ]
                 }
               />
@@ -807,13 +857,32 @@ const DataViewerBottom = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color:palette.primary.contrastText
+                color: palette.primary.contrastText
               }}
             >
               Select any table from the list on left to show records here
             </div>
           )}
           {loading ? <LoadingPopover /> : null}
+          {(!currentCalculationSession || currentCalculationSession === null) &&
+            <AcceptRejectDialog
+              open={openChangeDatasetDlg}
+              closeFunction={() => setOpenChangeDatasetDlg(false)}
+              heading="CHANGE IN DATASET DETECTED"
+              messages={[
+                {
+                  text: "Do you want to open the changed dataset in a new tile?",
+                },
+              ]}
+              acceptFunction={() => {
+                setOpenChangeDatasetDlg(false);
+                onChangeOrAddDataset();
+              }}
+              rejectFunction={() => setOpenChangeDatasetDlg(false)}
+              acceptText="Yes"
+              rejectText="No"
+            />
+          }
           <ChangeConnection
             onChangeOrAddDataset={onChangeOrAddDataset}
             open={openChangeDatasetDlg}
@@ -826,11 +895,57 @@ const DataViewerBottom = ({
           {/* </div> */}
         </div>
       )}
+      {isDatasetSwitchDialogOpen && ((!chartData && !chartFilter) ? (
+        <AcceptRejectDialog
+          open={isDatasetSwitchDialogOpen}
+          closeFunction={() => setIsDatasetSwitchDialogOpen(false)}
+          heading="Switch Dataset"
+          messages={[
+            {
+              text: "There are unsaved changes in the formula builder. If you switch the dataset, unsaved changes will be discarded. Do you want to switch?",
+            },
+          ]}
+          acceptFunction={() => {
+            setIsDatasetSwitchDialogOpen(false);
+
+            resetCalculationSession(propKey);
+            if (pendingDatasetValue !== null) {
+              proceedWithDatasetChange(pendingDatasetValue);
+            }
+
+            setPendingDatasetValue(null);
+          }}
+          rejectFunction={() => setIsDatasetSwitchDialogOpen(false)}
+          acceptText="Switch"
+          rejectText="Cancel"
+        />
+      ) : (
+        <AcceptRejectDialog
+          open={isDatasetSwitchDialogOpen}
+          closeFunction={() => setIsDatasetSwitchDialogOpen(false)}
+          heading="Switch Dataset"
+          messages={[
+            {
+              text: "There are unsaved changes in the formula builder. If you switch the dataset, unsaved changes will be discarded. Do you want to switch?",
+            },
+          ]}
+          acceptFunction={() => {
+            if (pendingDatasetValue !== null) setAddNewOrChooseExistingDS(pendingDatasetValue);
+            setIsDatasetSwitchDialogOpen(false);
+            onChangeOrAddDataset();
+          }}
+          rejectFunction={() => setIsDatasetSwitchDialogOpen(false)}
+          acceptText="Switch"
+          rejectText="Cancel"
+
+        />
+
+      ))}
     </React.Fragment>
   );
 };
 
-const mapStateToProps = (state: DataViewerBottomStateProps) => {
+const mapStateToProps = (state: DataViewerBottomStateProps & any) => {
   return {
     token: state.isLogged.accessToken,
     tabTileProps: state.tabTileProps,
@@ -839,6 +954,7 @@ const mapStateToProps = (state: DataViewerBottomStateProps) => {
     tabState: state.tabState,
     chartFilterGroup: state.chartFilterGroup,
     calculations: state.calculations,
+    chartControls: state.chartControls
   };
 };
 
@@ -894,6 +1010,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
       selectedDatasetID: string,
       tabTileName: string
     ) => dispatch(addChartFilterTabTileName(selectedDatasetID, tabTileName)),
+    resetCalculationSession: (propKey: string) =>
+      dispatch(resetCurrentCalculationSession(propKey)),
   };
 };
 
