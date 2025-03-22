@@ -334,7 +334,7 @@ const DisplayTable = ({
                     });
 
                     const headers = await FetchData({
-                      url: flatFileId ? `file-data-sample-records?flatfileId=${flatFileId}&datasetId=${datasetId}&tableId=${tableId}` :
+                      url: flatFileId ? `/file-data-column-details/${flatFileId}` :
                         `metadata-columns/${databaseId}?workspaceId=${workspaceId}&database=${database}&schema=${schema}&table=${tableName}`,
                       method: "post",
                       requestType: "withData",
@@ -368,7 +368,7 @@ const DisplayTable = ({
                     });
 
                     const headers = await FetchData({
-                      url: flatFileId ? `file-data-sample-records?flatfileId=${flatFileId}&datasetId=${datasetId}&tableId=${tableId}` :
+                      url: flatFileId ? `/file-data-column-details/${flatFileId}` :
                         `metadata-columns/${databaseId}?workspaceId=${workspaceId}&database=${database}&schema=${schema}&table=${tableName}`,
                       method: "post",
                       headers: {
