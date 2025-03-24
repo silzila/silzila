@@ -244,7 +244,7 @@ const FlowList = ({
                   binIndex: axId,
                   fieldIndex: fieldId,
                   fieldName: currentCalculationSession.calculationInfo.calculatedFieldName,
-                  displayName: 'agg of' + ' ' + currentCalculationSession.calculationInfo.calculatedFieldName,
+                  displayName: calculationInfo.calculatedFieldName,
                   dataType: currentCalculationSession.calculationInfo.fields[Object.keys(currentCalculationSession.calculationInfo.fields)[0]].dataType,
                   tableId: tableInfo?.id,
                   uId: field.uId,
@@ -400,6 +400,9 @@ const FlowList = ({
         }
       } = {}
 
+      const flowsInCurrentCalculation = Object.keys(currentCalculationSession.calculationInfo.flows);
+      const isCurrentCalculationAggregated = currentCalculationSession.calculationInfo.flows[flowsInCurrentCalculation[flowsInCurrentCalculation.length - 1]][0].isAggregation
+
       for (const eachPropKey of allPropKeys) {
         chartProperties?.properties[eachPropKey]?.chartAxes?.forEach((ax: any, axId: number) => {
           ax?.fields?.forEach((field: any, fieldId: number) => {
@@ -408,11 +411,11 @@ const FlowList = ({
                 binIndex: axId,
                 fieldIndex: fieldId,
                 fieldName: calculationInfo.calculatedFieldName,
-                displayName: `${field.agg} of ${currentCalculationSession.calculationInfo.calculatedFieldName}`,
+                displayName: calculationInfo.calculatedFieldName,
                 dataType: calculationInfo.fields[Object.keys(currentCalculationSession.calculationInfo.fields)[0]].dataType,
                 tableId: tableInfo.id,
                 uId: field.uId,
-                agg: field.agg,
+                agg: isCurrentCalculationAggregated ? field.agg : "",
                 SavedCalculationUUID: currentCalculationSession.uuid,
                 isTextRenamed: false
               }

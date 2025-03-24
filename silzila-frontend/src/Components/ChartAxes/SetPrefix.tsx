@@ -6,11 +6,17 @@ export const setPrefix = (
 	chartType: string,
 	geoLocation: string = "world"
 ) => {
+
 	if (!fieldData) {
 		return fieldData;
 	}
 
 	let data = JSON.parse(JSON.stringify(fieldData));
+
+	if (data.isCalculatedField) {
+		return data
+	}
+
 	switch (data.dataType.toLowerCase()) {
 		case "integer":
 		case "decimal":
