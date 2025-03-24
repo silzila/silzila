@@ -173,6 +173,7 @@ export interface Card {
 		isCalculatedField?: boolean;
 		isAggregated?: boolean;
 		windowfn?: any;
+		SavedCalculationUUID: string,
 	};
 	bIndex: number;
 	itemIndex: number;

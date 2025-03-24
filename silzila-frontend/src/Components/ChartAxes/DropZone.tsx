@@ -247,7 +247,7 @@ const DropZone = ({
       name !== "Measure" &&
       savedAggregatedCalculations.find(
         (calc: any) =>
-          calc.calculationInfo.calculatedFieldName === item.fieldData.fieldname
+          calc.calculationInfo.calculatedFieldName === item.fieldData?.fieldname || (calc.uuid === item.SavedCalculationUUID)
       )
     ) {
       setSeverity("warning");

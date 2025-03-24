@@ -142,28 +142,28 @@ const Card = ({
     chartProp.properties[
       `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`
     ].chartType;
-    const dispatch=useDispatch();
-  const getAllMeasureFields=():any[]=>{
+  const dispatch = useDispatch();
+  const getAllMeasureFields = (): any[] => {
     let allMeasureFields: any[] = [];
-    const measure = chartProp.properties[propKey]?.chartAxes?.find((axis:any)=>axis.name===AxisType.Measure);
-    if(!measure) return allMeasureFields;
-    allMeasureFields =[...measure.fields]
+    const measure = chartProp.properties[propKey]?.chartAxes?.find((axis: any) => axis.name === AxisType.Measure);
+    if (!measure) return allMeasureFields;
+    allMeasureFields = [...measure.fields]
     return allMeasureFields;
   }
   const originalIndex =
     chartType === "richText"
       ? dynamicMeasureState.dynamicMeasureProps?.[
-          dynamicMeasureState.selectedTabId
-        ]?.[dynamicMeasureState.selectedTileId]?.[
-          `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
-        ].chartAxes[bIndex].fields.findIndex(
-          (item: any) => item.uId === field.uId
-        )
+        dynamicMeasureState.selectedTabId
+      ]?.[dynamicMeasureState.selectedTileId]?.[
+        `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+      ].chartAxes[bIndex].fields.findIndex(
+        (item: any) => item.uId === field.uId
+      )
       : chartProp.properties[propKey].chartAxes[bIndex].fields.findIndex(
-          (item: any) => item.uId === field.uId
-        );
-        
-  const deleteItem = async() => {
+        (item: any) => item.uId === field.uId
+      );
+
+  const deleteItem = async () => {
     let showSnackBar = false;
     if (chartType === "richText") {
       deleteDropZoneItemsForDm(propKey, bIndex, itemIndex);
@@ -174,27 +174,27 @@ const Card = ({
       ) {
         enableOverrideForUIDAction(propKey, "");
       }
-      if(axisTitle===AxisType.Measure){
+      if (axisTitle === AxisType.Measure) {
         deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName)
         return
       };
-      
+
       const allMeasureFields = getAllMeasureFields();
-      
-      if(allMeasureFields.length===0|| allMeasureFields.filter((field:any)=>field.windowfn).length===0)deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName);
-      else{
-        showSnackBar=true;
-        const newMeasureFields=allMeasureFields.map((field:any)=>{
-          if(!field.windowfn)return field;
-          else return {...field,windowfn:null,displayname:fieldName(field)}
+
+      if (allMeasureFields.length === 0 || allMeasureFields.filter((field: any) => field.windowfn).length === 0) deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName);
+      else {
+        showSnackBar = true;
+        const newMeasureFields = allMeasureFields.map((field: any) => {
+          if (!field.windowfn) return field;
+          else return { ...field, windowfn: null, displayname: fieldName(field) }
         })
         // console.log('newMeasureFields',newMeasureFields);
-        dispatch(setMeasureAxisFields(propKey,newMeasureFields));
+        dispatch(setMeasureAxisFields(propKey, newMeasureFields));
         deleteDropZoneItems(propKey, bIndex, itemIndex, currentChartAxesName);
       }
       // chartPropUpdated(true);
     }
-    if(showSnackBar)setShowPopup(true);
+    if (showSnackBar) setShowPopup(true);
   };
 
   let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
@@ -459,7 +459,7 @@ const Card = ({
     ) {
       let _field =
         chartProp.properties[propKey][currentChartAxesName][binIndex].fields[
-          index
+        index
         ];
 
       if (_field) {
@@ -501,7 +501,8 @@ const Card = ({
       // type: "card",
       bIndex,
       originalIndex,
-      dragFrom:axisTitle
+      dragFrom: axisTitle,
+      SavedCalculationUUID: field.SavedCalculationUUID,
     },
     type: "card",
 
@@ -515,20 +516,20 @@ const Card = ({
           revertAxes(propKey, bIndex, uId, originalIndex, currentChartAxesName);
         }
       }
-      else{
-        if(axisTitle!==AxisType.Measure || axisTitle!==AxisType.ChartFilter){
+      else {
+        if (axisTitle !== AxisType.Measure || axisTitle !== AxisType.ChartFilter) {
           let showSnackBar = false;
           const allMeasureFields = getAllMeasureFields();
-          if(allMeasureFields.length===0|| allMeasureFields.filter((field:any)=>field.windowfn).length===0)return
-          else{
-            showSnackBar=true;
-            const newMeasureFields=allMeasureFields.map((field:any)=>{
-              if(!field.windowfn)return field;
-              else return {...field,windowfn:null,displayname:fieldName(field)}
+          if (allMeasureFields.length === 0 || allMeasureFields.filter((field: any) => field.windowfn).length === 0) return
+          else {
+            showSnackBar = true;
+            const newMeasureFields = allMeasureFields.map((field: any) => {
+              if (!field.windowfn) return field;
+              else return { ...field, windowfn: null, displayname: fieldName(field) }
             })
-            dispatch(setMeasureAxisFields(propKey,newMeasureFields));
+            dispatch(setMeasureAxisFields(propKey, newMeasureFields));
           }
-          if(showSnackBar)setShowPopup(true);
+          if (showSnackBar) setShowPopup(true);
         }
       }
     },
@@ -666,103 +667,103 @@ const Card = ({
       >
         {aggr?.length > 0
           ? aggr?.map((opt: any, idx: number) => {
-              return (
-                <div style={{ display: "flex" }} key={idx}>
-                  <span
-                    style={{
-                      color: "rgb(211, 211, 211)",
-                      paddingLeft: "5px",
-                      position: "absolute",
-                    }}
-                  >
-                    {chartProp.properties[propKey].chartAxes[bIndex].fields[
-                      itemIndex
-                    ]?.agg?.toUpperCase() === opt?.name?.toUpperCase() ? (
-                      <IoMdCheckmark />
-                    ) : null}
-                  </span>
-                  <MenuItem
-                    onClick={() => handleClose("agg", opt.id)}
-                    sx={{
-                      ...menuStyle,
-                      width: "100%",
-                      ...(opt?.id === field?.agg && menuSelectedStyle),
-                    }}
-                    key={opt?.id}
-                    disabled={opt?.name ? isItemDisabled(opt?.name) : true}
-                  >
-                    {opt?.name}
-                  </MenuItem>
-                </div>
-              );
-            })
+            return (
+              <div style={{ display: "flex" }} key={idx}>
+                <span
+                  style={{
+                    color: "rgb(211, 211, 211)",
+                    paddingLeft: "5px",
+                    position: "absolute",
+                  }}
+                >
+                  {chartProp.properties[propKey].chartAxes[bIndex].fields[
+                    itemIndex
+                  ]?.agg?.toUpperCase() === opt?.name?.toUpperCase() ? (
+                    <IoMdCheckmark />
+                  ) : null}
+                </span>
+                <MenuItem
+                  onClick={() => handleClose("agg", opt.id)}
+                  sx={{
+                    ...menuStyle,
+                    width: "100%",
+                    ...(opt?.id === field?.agg && menuSelectedStyle),
+                  }}
+                  key={opt?.id}
+                  disabled={opt?.name ? isItemDisabled(opt?.name) : true}
+                >
+                  {opt?.name}
+                </MenuItem>
+              </div>
+            );
+          })
           : null}
 
         {axisTitle === "Dimension" ||
-        axisTitle === "Row" ||
-        axisTitle === "Column" ||
-        axisTitle === "Distribution" ||
-        chartType === "gauge" ||
-        chartType === "funnel" ||
-        chartType === "simplecard" ? null : (
+          axisTitle === "Row" ||
+          axisTitle === "Column" ||
+          axisTitle === "Distribution" ||
+          chartType === "gauge" ||
+          chartType === "funnel" ||
+          chartType === "simplecard" ? null : (
           <Divider />
         )}
 
         {(chartType === "gauge" && timegrain?.length > 0) ||
-        (chartType === "funnel" && timegrain?.length > 0) ||
-        (chartType === "simplecard" && timegrain?.length > 0) ? (
+          (chartType === "funnel" && timegrain?.length > 0) ||
+          (chartType === "simplecard" && timegrain?.length > 0) ? (
           <Divider />
         ) : null}
 
         {timegrain?.length > 0
           ? timegrain?.map((opt2: any, idx: number) => {
-              return (
-                <div style={{ display: "flex" }} key={idx}>
-                  <span
-                    style={{
-                      color: "rgb(211, 211, 211)",
-                      paddingLeft: "5px",
-                      position: "absolute",
-                    }}
-                  >
-                    {chartProp.properties[propKey].chartAxes[bIndex].fields[
-                      itemIndex
-                    ]?.agg?.toUpperCase() === opt2.name?.toUpperCase() ? (
-                      <IoMdCheckmark />
-                    ) : null}
-                  </span>
-                  <MenuItem
-                    onClick={() => handleClose("timeGrain", opt2.id)}
-                    sx={{
-                      ...menuStyle,
-                      width: "100%",
-                      ...(opt2.id === field.timeGrain && menuSelectedStyle),
-                    }}
-                    key={opt2.id}
-                  >
-                    {opt2.name}
-                  </MenuItem>
-                </div>
-              );
-            })
+            return (
+              <div style={{ display: "flex" }} key={idx}>
+                <span
+                  style={{
+                    color: "rgb(211, 211, 211)",
+                    paddingLeft: "5px",
+                    position: "absolute",
+                  }}
+                >
+                  {chartProp.properties[propKey].chartAxes[bIndex].fields[
+                    itemIndex
+                  ]?.agg?.toUpperCase() === opt2.name?.toUpperCase() ? (
+                    <IoMdCheckmark />
+                  ) : null}
+                </span>
+                <MenuItem
+                  onClick={() => handleClose("timeGrain", opt2.id)}
+                  sx={{
+                    ...menuStyle,
+                    width: "100%",
+                    ...(opt2.id === field.timeGrain && menuSelectedStyle),
+                  }}
+                  key={opt2.id}
+                >
+                  {opt2.name}
+                </MenuItem>
+              </div>
+            );
+          })
           : null}
 
         {axisTitle === "Dimension" ||
-        axisTitle === "Row" ||
-        axisTitle === "Column" ||
-        axisTitle === "Distribution" ||
-        chartType === "gauge" ||
-        chartType === "funnel" ||
-        chartType === "simplecard" ? null : timegrain?.length > 0 ? (
-          <Divider />
-        ) : null}
+          axisTitle === "Row" ||
+          axisTitle === "Column" ||
+          axisTitle === "Distribution" ||
+          chartType === "gauge" ||
+          chartType === "funnel" ||
+          chartType === "simplecard" ? null : timegrain?.length > 0 ? (
+            <Divider />
+          ) : null}
 
         {chartType === "gauge" ||
-        chartType === "funnel" ||
-        chartType === "simplecard"
+          chartType === "funnel" ||
+          chartType === "simplecard"
           ? null
           : windowfn?.length > 0
-          ? [...windowfn.filter((item: any) => item?.id === "windowfn")]?.map(
+            ? [...windowfn.filter((item: any) => item?.id === "windowfn")]?.map(
               (opt: any, idx: number) => {
                 return (
                   <div style={{ display: "flex" }} key={idx}>
@@ -795,12 +796,12 @@ const Card = ({
                 );
               }
             )
-          : null}
+            : null}
 
         {chartType === "simplecard"
           ? null
           : overRideMenuList?.length > 0
-          ? overRideMenuList
+            ? overRideMenuList
               .filter((opt: any) => opt && opt.id) // Ensure only valid objects are processed
               .map((opt: any, idx: number) => (
                 <div style={{ display: "flex" }} key={idx}>
@@ -812,8 +813,8 @@ const Card = ({
                     }}
                   >
                     {(opt.id === "override" && field?.override) ||
-                    (opt.id === "disableFilter" &&
-                      field?.disableReportFilterForOverride) ? (
+                      (opt.id === "disableFilter" &&
+                        field?.disableReportFilterForOverride) ? (
                       <IoMdCheckmark />
                     ) : null}
                   </span>
@@ -831,7 +832,7 @@ const Card = ({
                   </MenuItem>
                 </div>
               ))
-          : null}
+            : null}
 
         {(windowfn?.length !== 0 ||
           axisTitle === "Row" ||
@@ -840,17 +841,17 @@ const Card = ({
           axisTitle === "X Axis" ||
           axisTitle === "Y Axis" ||
           axisTitle === "Distribution") && (
-          <MenuItem
-            onClick={() => {
-              handleClose("rename");
-              setRenameFunction(true);
-              setShowTooltip(false);
-            }}
-            sx={menuStyle}
-          >
-            Rename for Visual
-          </MenuItem>
-        )}
+            <MenuItem
+              onClick={() => {
+                handleClose("rename");
+                setRenameFunction(true);
+                setShowTooltip(false);
+              }}
+              sx={menuStyle}
+            >
+              Rename for Visual
+            </MenuItem>
+          )}
 
         {uID ? (
           <div style={{ display: "flex" }}>
@@ -918,8 +919,8 @@ const Card = ({
 
       {/* window function have any values in state, then window icon will get enable */}
       {chartType === "gauge" ||
-      chartType === "funnel" ||
-      chartType === "simplecard" ? null : chartProp.properties[propKey]
+        chartType === "funnel" ||
+        chartType === "simplecard" ? null : chartProp.properties[propKey]
           .chartAxes[bIndex].fields[itemIndex]?.windowfn ? (
         <button
           type="button"
@@ -940,7 +941,7 @@ const Card = ({
         </button>
       ) : null}
       {chartType === "simplecard" ? null : chartProp.properties[propKey]
-          .chartAxes[bIndex].fields[itemIndex]?.override ? (
+        .chartAxes[bIndex].fields[itemIndex]?.override ? (
         <button
           type="button"
           className="buttonCommon columnDown"
@@ -960,8 +961,8 @@ const Card = ({
         </button>
       ) : null}
       {chartType === "simplecard" ? null : chartProp.properties[propKey][
-          currentChartAxesName
-        ][bIndex].fields[itemIndex]?.rollupDepth ? (
+        currentChartAxesName
+      ][bIndex].fields[itemIndex]?.rollupDepth ? (
         <button
           type="button"
           className="buttonCommon columnDown"
@@ -1058,7 +1059,7 @@ const Card = ({
           style={{ display: "inline-block", fontSize: 0, lineHeight: 0 }}
         ></span>
       </CustomTooltip>
-      <SnackBar show={showPopup} message={messages.playbook.WindowFunctionRemoved} onClose={()=>setShowPopup(false)}/>
+      <SnackBar show={showPopup} message={messages.playbook.WindowFunctionRemoved} onClose={() => setShowPopup(false)} />
     </div>
   ) : null;
 };
