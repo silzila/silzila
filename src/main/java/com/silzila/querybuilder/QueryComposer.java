@@ -31,8 +31,7 @@ public class QueryComposer {
      * Group By clause & Order By clause
      * Different dialects will have different syntaxes.
      */
-    @SuppressWarnings("unchecked")
-    public String composeQuery(List<Query> queries, DatasetDTO ds, String vendorName,Boolean isOverride,Map<String,Integer>... aliasnumber) throws BadRequestException {
+    public String composeQuery(List<Query> queries, DatasetDTO ds, String vendorName,Boolean isOverride,Map<String,Integer> aliasNumber) throws BadRequestException {
 
         QueryClauseFieldListMap qMap = new QueryClauseFieldListMap();
         String updatedQuery = "";
@@ -75,29 +74,29 @@ public class QueryComposer {
          */
         if (vendorName.equals("postgresql") || vendorName.equals("redshift")) {
             // System.out.println("------ inside postges block");
-            qMap = SelectClausePostgres.buildSelectClause(req, vendorName,ds, aliasnumber);
+            qMap = SelectClausePostgres.buildSelectClause(req, vendorName,ds, aliasNumber);
         } else if (vendorName.equals("mysql")) {
             // System.out.println("------ inside mysql block");
-            qMap = SelectClauseMysql.buildSelectClause(req, vendorName,ds,  aliasnumber);
+            qMap = SelectClauseMysql.buildSelectClause(req, vendorName,ds, aliasNumber);
         } else if (vendorName.equals("sqlserver")) {
             // System.out.println("------ inside sql server block");
-            qMap = SelectClauseSqlserver.buildSelectClause(req, vendorName,ds,  aliasnumber);
+            qMap = SelectClauseSqlserver.buildSelectClause(req, vendorName,ds, aliasNumber);
         } else if (vendorName.equals("bigquery")) {
             // System.out.println("------ inside Big Query block");
-            qMap = SelectClauseBigquery.buildSelectClause(req, vendorName,ds,"",aliasnumber);
+            qMap = SelectClauseBigquery.buildSelectClause(req, vendorName,ds,"",aliasNumber);
         } else if (vendorName.equals("databricks")) {
             // System.out.println("------ inside databricks block");
-            qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName,ds, "", aliasnumber);
+            qMap = SelectClauseDatabricks.buildSelectClause(req, vendorName,ds, "", aliasNumber);
         } else if (vendorName.equals("oracle")) {
-            qMap = SelectClauseOracle.buildSelectClause(req, vendorName,ds,  aliasnumber);
+            qMap = SelectClauseOracle.buildSelectClause(req, vendorName,ds, aliasNumber);
         } else if (vendorName.equals("snowflake")) {
-            qMap = SelectClauseSnowflake.buildSelectClause(req, vendorName,ds,  aliasnumber);
+            qMap = SelectClauseSnowflake.buildSelectClause(req, vendorName,ds, aliasNumber);
         } else if (vendorName.equals("motherduck") || vendorName.equals("duckdb") ) {
-            qMap = SelectClauseMotherduck.buildSelectClause(req, vendorName,ds,  aliasnumber);
+            qMap = SelectClauseMotherduck.buildSelectClause(req, vendorName,ds, aliasNumber);
         } else if (vendorName.equals("db2") ) {
-            qMap = SelectClauseDB2.buildSelectClause(req, vendorName,ds,  aliasnumber);
+            qMap = SelectClauseDB2.buildSelectClause(req, vendorName,ds, aliasNumber);
         }else if (vendorName.equals("teradata") ) {
-            qMap = SelectClauseTeraData.buildSelectClause(req, vendorName,ds,  aliasnumber);
+            qMap = SelectClauseTeraData.buildSelectClause(req, vendorName, ds,aliasNumber);
         }
         else {
             throw new BadRequestException("Error: DB vendor Name is wrong!");
@@ -259,6 +258,7 @@ public class QueryComposer {
             } else if (!req.getMeasures().isEmpty()) {
                 finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause + whereClause;
             }
+        
         } else if (!req.getDimensions().isEmpty()) {
             finalQuery = "SELECT " + selectClause + "\nFROM" + fromClause + whereClause + "\nGROUP BY"
                     + groupByClause
@@ -301,7 +301,7 @@ public class QueryComposer {
             Boolean windowFn = false;
             HashMap<Integer, Measure> windowMeasures = new HashMap<>();
             // baseQuery
-            String baseQuery = composeQuery(Collections.singletonList(queries.get(0)), ds, vendorName,true);
+            String baseQuery = composeQuery(Collections.singletonList(queries.get(0)), ds, vendorName,true,null);
 
             StringBuilder overrideCTEQuery = new StringBuilder();
 
@@ -394,6 +394,7 @@ public class QueryComposer {
                                                             .windowFn(new String[]{null})
                                                             .measureOrder(Meas.getMeasureOrder())
                                                             .isCalculatedField(Meas.getIsCalculatedField())
+                                                            .calculatedField(Meas.getCalculatedField())
                                                             .build();
                         reqCTE.getMeasures().set(0,measure);
                         windowFn = true;
@@ -421,12 +422,13 @@ public class QueryComposer {
 
                  // for measures--> setting the datatype for date and timestamp -- year(date) not required in aggregation
                                 // --> setting the aggregation for count -- count does not need aggregation
-                if (List.of("DATE", "TIMESTAMP","TEXT","BOOLEAN").contains(reqCTE.getMeasures().get(0).getDataType().name())) {
+                  if (List.of("DATE", "TIMESTAMP","TEXT","BOOLEAN").contains(reqCTE.getMeasures().get(0).getDataType().name())) {
                     reqCTE.getMeasures().get(0).setDataType(com.silzila.payload.request.Measure.DataType.INTEGER);
                 }
                 if(List.of("COUNT", "COUNTU","COUNTN","COUNTNN").contains(reqCTE.getMeasures().get(0).getAggr().name())){
                     reqCTE.getMeasures().get(0).setAggr(com.silzila.payload.request.Measure.Aggr.SUM);
                 }
+
                 tblNum++; // increment
 
                  // CTE expression

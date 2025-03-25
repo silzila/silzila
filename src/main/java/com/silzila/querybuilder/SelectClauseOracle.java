@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
+import com.silzila.helper.TypeCastingUtil;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
@@ -23,16 +24,20 @@ import com.silzila.querybuilder.CalculatedField.helper.DataTypeProvider;
 public class SelectClauseOracle {
     private static final Logger logger = LogManager.getLogger(SelectClauseOracle.class);
 
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, DatasetDTO ds) throws BadRequestException {
+        
+        return buildSelectClause(req, vendorName, ds, null);
+    }
+
     /* SELECT clause for OracleSQL dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,DatasetDTO ds, Map<String,Integer>... aliasnumber) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,DatasetDTO ds, Map<String,Integer> aliasNumber) throws BadRequestException {
         logger.info("SelectClauseOracle calling ***********");
         
         Map<String, Integer> aliasNumbering = new HashMap<>();
    // aliasing for only measure  override 
         Map<String,Integer> aliasNumberingM = new HashMap<>();
 
-        if (aliasnumber != null && aliasnumber.length > 0) {
-            Map<String, Integer> aliasNumber = aliasnumber[0];
+        if (aliasNumber != null ) {
             aliasNumber.forEach((key, value) -> aliasNumberingM.put(key, value));
         }  
 
@@ -58,27 +63,28 @@ public class SelectClauseOracle {
             Dimension dim = req.getDimensions().get(i);
             // If the base dimension goes up to order_date_2 and the measure is order_date, it should be order_date_3.
             // If the overridden dimension includes additional order_date values, we want to keep the measure as order_date_3.
-            if(aliasnumber != null && aliasnumber.length > 0){
+            if(aliasNumber != null ){
                 
                 for(String key : aliasNumberingM.keySet()){
                     for(String key1 : aliasNumbering.keySet()){
-                        if (aliasNumbering.containsKey(key) && aliasNumberingM.containsKey(key1)) {
-                            if (key.equals(req.getMeasures().get(0).getFieldName()) && key.equals(key1)) {
-                                // Increment the alias number only if both keys are equal and have the same alias number
-                                if (aliasNumbering.get(key).equals(aliasNumberingM.get(key1))) {
-                                    aliasNumbering.put(key, aliasNumbering.get(key) + 1);
-                                }
+                    // Ensure that both keys exist in their respective maps before accessing
+                    if (aliasNumbering.containsKey(key) && aliasNumberingM.containsKey(key1)) {
+                        if (key.equals(req.getMeasures().get(0).getFieldName()) && key.equals(key1)) {
+                            // Increment the alias number only if both keys are equal and have the same alias number
+                            if (aliasNumbering.get(key).equals(aliasNumberingM.get(key1))) {
+                                aliasNumbering.put(key, aliasNumbering.get(key) + 1);
                             }
-                        } else {
-                            // Handle the case where keys are not present in the maps
-                            System.out.println("One of the keys is missing in the maps.");
                         }
+                    } else {
+                        // Handle the case where keys are not present in the maps
+                        System.out.println("One of the keys is missing in the maps.");
+                    }
                 }
                 }
                
             }
             String field = "";
-             String selectField = (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) 
+            String selectField = (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) 
             ? CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName, ds.getDataSchema(), dim.getCalculatedField()) 
             : dim.getTableId() + "." + dim.getFieldName();
         
@@ -87,7 +93,6 @@ public class SelectClauseOracle {
                 DataTypeProvider.getCalculatedFieldDataTypes(dim.getCalculatedField())
             ));
         }
-
 
             // for non Date fields, Keep column as is
             if (List.of("TEXT", "BOOLEAN", "INTEGER", "DECIMAL").contains(dim.getDataType().name())) {
@@ -188,6 +193,7 @@ public class SelectClauseOracle {
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
             String windowFn = "";
+
             String selectField = meas.getIsCalculatedField()?CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds.getDataSchema(),meas.getCalculatedField()): meas.getTableId() + "." + meas.getFieldName();
             if (meas.getIsCalculatedField()) {
                 meas.setDataType(Measure.DataType.fromValue(
@@ -275,6 +281,7 @@ public class SelectClauseOracle {
             }
             // for number fields, do aggregation
             else if (List.of("INTEGER", "DECIMAL").contains(meas.getDataType().name())) {
+                selectField = TypeCastingUtil.castDatatype(selectField, vendorName,"BIGINT");
                 if (List.of("SUM", "AVG", "MIN", "MAX").contains(meas.getAggr().name())) {
                     field = meas.getAggr().name() + "(" + selectField
                             + ")";
@@ -295,17 +302,17 @@ public class SelectClauseOracle {
             // if windowFn not null it will execute window function for oracle
             if(meas.getWindowFn()[0] != null){
                 windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName,ds);
+                // if aliasNumber is not null, to maintain alias sequence for measure field
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-                // if aliasnumber is not null, to maintain alias sequence for measure field
-                if(aliasnumber != null && aliasnumber.length > 0){
+                if(aliasNumber != null ){
                     alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
                 }
-                // selectMeasureList.add(field + " AS " + alias);
+                //selectMeasureList.add(field + " AS _*" + alias);
                 selectMeasureList.add(windowFn + " AS " + alias);
             } else {
             String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-            // if aliasnumber is not null, to maintain alias sequence for measure field
-                if(aliasnumber != null && aliasnumber.length > 0){
+            // if aliasNumber is not null, to maintain alias sequence for measure field
+                if(aliasNumber != null ){
                     alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
                 }
             selectMeasureList.add(field + " " + alias);

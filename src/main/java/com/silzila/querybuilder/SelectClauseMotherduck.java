@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
+import com.silzila.helper.TypeCastingUtil;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
@@ -22,17 +23,20 @@ import com.silzila.querybuilder.CalculatedField.helper.DataTypeProvider;
 public class SelectClauseMotherduck {
     private static final Logger logger = LogManager.getLogger(SelectClauseMotherduck.class);
 
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, DatasetDTO ds) throws BadRequestException {
+        
+        return buildSelectClause(req, vendorName, ds, null);
+    }
+
     /* SELECT clause for MySQL dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, DatasetDTO ds,
-            Map<String, Integer>... aliasnumber) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,DatasetDTO ds, Map<String,Integer> aliasNumber) throws BadRequestException {
         logger.info("SelectClauseMotherDuck calling ***********");
-
+ 
         Map<String, Integer> aliasNumbering = new HashMap<>();
-        // aliasing for only measure override
-        Map<String, Integer> aliasNumberingM = new HashMap<>();
+        // aliasing for only measure  override 
+        Map<String,Integer> aliasNumberingM = new HashMap<>();
 
-        if (aliasnumber != null && aliasnumber.length > 0) {
-            Map<String, Integer> aliasNumber = aliasnumber[0];
+        if (aliasNumber != null ) {
             aliasNumber.forEach((key, value) -> aliasNumberingM.put(key, value));
         }
 
@@ -59,15 +63,16 @@ public class SelectClauseMotherduck {
             Dimension dim = req.getDimensions().get(i);
 
             String field = "";
-            String selectField = (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null)
-                    ? CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName, ds.getDataSchema(), dim.getCalculatedField())
-                    : dim.getTableId() + "." + dim.getFieldName();
-
-            if (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) {
-                dim.setDataType(Dimension.DataType.fromValue(
-                        DataTypeProvider.getCalculatedFieldDataTypes(dim.getCalculatedField())));
-            }
-
+            String selectField = (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) 
+            ? CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName, ds.getDataSchema(), dim.getCalculatedField()) 
+            : dim.getTableId() + "." + dim.getFieldName();
+        
+        if (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) {
+            dim.setDataType(Dimension.DataType.fromValue(
+                DataTypeProvider.getCalculatedFieldDataTypes(dim.getCalculatedField())
+            ));
+        }
+            
             // for non Date fields, Keep column as is
             if (List.of("TEXT", "BOOLEAN", "INTEGER", "DECIMAL").contains(dim.getDataType().name())) {
                 field = selectField;
@@ -130,7 +135,7 @@ public class SelectClauseMotherduck {
                 else if (dim.getTimeGrain().name().equals("DAYOFWEEK")) {
                     String sortingFfield = "DAYOFWEEK(" + selectField + ") + 1";
                     field = "DAYNAME(" + selectField + ")";
-                    groupByDimList.add(sortingFfield);
+                                        groupByDimList.add(sortingFfield);
                     groupByDimList.add(field);
                     orderByDimList.add(sortingFfield);
                 }
@@ -168,6 +173,7 @@ public class SelectClauseMotherduck {
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
             String windowFn = "";
+
             String selectField = meas.getIsCalculatedField()?CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds.getDataSchema(),meas.getCalculatedField()): meas.getTableId() + "." + meas.getFieldName();
             if (meas.getIsCalculatedField()) {
                 meas.setDataType(Measure.DataType.fromValue(
@@ -212,13 +218,13 @@ public class SelectClauseMotherduck {
                 // 'yearquarter', 'dayofmonth')
 
                 if (aggrList.contains(meas.getAggr().name()) && meas.getTimeGrain().name().equals("DATE")) {
-                    field = meas.getAggr().name() + "(CAST(" + selectField
-                            + " AS DATE))";
-                } else if (aggrList.contains(meas.getAggr().name()) && meas.getTimeGrain().name().equals("DAYOFWEEK")) {
+                    field = meas.getAggr().name() + "(CAST(" + selectField + " AS DATE))";
+                } 
+                else if (aggrList.contains(meas.getAggr().name()) && meas.getTimeGrain().name().equals("DAYOFWEEK")) {
                     field = meas.getAggr().name() + "(" + timeGrainMap.get(meas.getTimeGrain().name())
-                            + "(" + selectField + ") + 1)";
-                } else if (aggrList.contains(meas.getAggr().name())
-                        && timeGrainList.contains(meas.getTimeGrain().name())) {
+                    + "(" + selectField + ") + 1)";
+                }
+                else if (aggrList.contains(meas.getAggr().name()) && timeGrainList.contains(meas.getTimeGrain().name())) {
                     field = meas.getAggr().name() + "(" + timeGrainMap.get(meas.getTimeGrain().name())
                             + "(" + selectField + "))";
                 }
@@ -228,9 +234,10 @@ public class SelectClauseMotherduck {
                  */
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("DATE")) {
                     field = "COUNT(DISTINCT(CAST(" + selectField + " AS DATE)))";
-                } else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("DAYOFWEEK")) {
+                }
+                else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("DAYOFWEEK")) {
                     field = "COUNT(DISTINCT(" + timeGrainMap.get(meas.getTimeGrain().name())
-                            + "(" + selectField + ") + 1))";
+                    + "(" + selectField + ") + 1))";
                 }
                 // checking ('yearquarter')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARQUARTER")) {
@@ -239,11 +246,10 @@ public class SelectClauseMotherduck {
                 }
                 // checking ('yearmonth')
                 else if (meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "COUNT(DISTINCT(CONCAT(EXTRACT(YEAR FROM " + selectField
-                            + "), '-', LPAD(EXTRACT(MONTH FROM "
-                            + selectField + "), 2, '0'))))";
-                } else if (meas.getAggr().name().equals("COUNTU")
-                        && timeGrainList.contains(meas.getTimeGrain().name())) {
+                    field = "COUNT(DISTINCT(CONCAT(EXTRACT(YEAR FROM " + selectField + "), '-', LPAD(EXTRACT(MONTH FROM " 
+                    + selectField + "), 2, '0'))))";
+                }
+                else if (meas.getAggr().name().equals("COUNTU") && timeGrainList.contains(meas.getTimeGrain().name())) {
                     field = "COUNT(DISTINCT(" + timeGrainMap.get(meas.getTimeGrain().name())
                             + "(" + selectField + ")))";
                 }
@@ -265,6 +271,7 @@ public class SelectClauseMotherduck {
             }
             // for number fields, do aggregation
             else if (List.of("INTEGER", "DECIMAL").contains(meas.getDataType().name())) {
+                selectField = TypeCastingUtil.castDatatype(selectField, "motherduck","BIGINT");
                 if (List.of("SUM", "AVG", "MIN", "MAX").contains(meas.getAggr().name())) {
                     field = meas.getAggr().name() + "(" + selectField
                             + ")";
@@ -283,22 +290,23 @@ public class SelectClauseMotherduck {
                 }
             }
             // if windowFn not null it will execute window function for mysql
-            if (meas.getWindowFn()[0] != null) {
-                windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName, ds);
+            if(meas.getWindowFn()[0] != null){
+                windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName,ds);
+                // if aliasNumber is not null, to maintain alias sequence for measure field
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-                // if aliasnumber is not null, to maintain alias sequence for measure field
-                if (aliasnumber != null && aliasnumber.length > 0) {
-                    alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
+                if(aliasNumber != null ){
+                alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
                 }
-                // selectMeasureList.add(field + " AS " + alias);
+                //selectMeasureList.add(field + " AS _*" + alias);
                 selectMeasureList.add(windowFn + " AS " + alias);
-            } else {
-                String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-                // if aliasnumber is not null, to maintain alias sequence for measure field
-                if (aliasnumber != null && aliasnumber.length > 0) {
-                    alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
-                }
-                selectMeasureList.add(field + " AS " + alias);
+            } 
+            else{
+            String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
+            // if aliasNumber is not null, to maintain alias sequence for measure field
+            if(aliasNumber != null ){
+                alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
+            }
+            selectMeasureList.add(field + " AS " + alias);
             }
         }
         ;

@@ -3,6 +3,7 @@ package com.silzila.querybuilder;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
+import com.silzila.helper.TypeCastingUtil;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
@@ -19,16 +20,20 @@ public class SelectClauseTeraData {
 
     private static final Logger logger = LogManager.getLogger(SelectClauseSqlserver.class);
 
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, DatasetDTO ds) throws BadRequestException {
+        
+        return buildSelectClause(req, vendorName, ds, null);
+    }
+
     /* SELECT clause for SqlServer dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,DatasetDTO ds, Map<String,Integer>... aliasnumber) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,DatasetDTO ds, Map<String,Integer> aliasNumber) throws BadRequestException {
         logger.info("SelectClauseTeraData calling ***********");
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
         // aliasing for only measure  override
         Map<String,Integer> aliasNumberingM = new HashMap<>();
 
-        if (aliasnumber != null && aliasnumber.length > 0) {
-            Map<String, Integer> aliasNumber = aliasnumber[0];
+        if (aliasNumber != null ) {
             aliasNumber.forEach((key, value) -> aliasNumberingM.put(key, value));
         }
 
@@ -37,7 +42,6 @@ public class SelectClauseTeraData {
         List<String> selectMeasureList = new ArrayList<>();
         List<String> groupByDimList = new ArrayList<>();
         List<String> orderByDimList = new ArrayList<>();
-
 
         Map<String, String> timeGrainMap = Map.of("YEAR", "YEAR", "MONTH", "MONTH", "QUARTER", "QUARTER",
                 "DAYOFWEEK", "WEEKDAY", "DAYOFMONTH", "DAY");
@@ -56,7 +60,7 @@ public class SelectClauseTeraData {
             Dimension dim = req.getDimensions().get(i);
             // If the base dimension goes up to order_date_2 and the measure is order_date, it should be order_date_3.
             // If the overridden dimension includes additional order_date values, we want to keep the measure as order_date_3.
-            if(aliasnumber != null && aliasnumber.length > 0){
+            if(aliasNumber != null ){
 
                 for(String key : aliasNumberingM.keySet()){
 
@@ -77,7 +81,7 @@ public class SelectClauseTeraData {
 
             }
             String field = "";
- String selectField = (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) 
+            String selectField = (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) 
             ? CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName, ds.getDataSchema(), dim.getCalculatedField()) 
             : dim.getTableId() + "." + dim.getFieldName();
         
@@ -204,7 +208,8 @@ public class SelectClauseTeraData {
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
             String windowFn = "";
-            String selectField = meas.getIsCalculatedField()?CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds.getDataSchema(),meas.getCalculatedField()): meas.getTableId() + "." + meas.getFieldName();
+            
+            String selectField = meas.getIsCalculatedField()?CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds.getDataSchema() ,meas.getCalculatedField()): meas.getTableId() + "." + meas.getFieldName();
             if (meas.getIsCalculatedField()) {
                 meas.setDataType(Measure.DataType.fromValue(
                     DataTypeProvider.getCalculatedFieldDataTypes(meas.getCalculatedField())
@@ -213,6 +218,7 @@ public class SelectClauseTeraData {
             if(meas.getIsCalculatedField() && meas.getCalculatedField().get(meas.getCalculatedField().size()-1).getIsAggregated()){
                 field = selectField;
             }
+
             else if (List.of("TEXT", "BOOLEAN").contains(meas.getDataType().name())) {
                 // checking ('count', 'countnn', 'countn', 'countu')
                 if (meas.getAggr().name().equals("COUNT")) {
@@ -250,26 +256,20 @@ public class SelectClauseTeraData {
 
                     //checking for ('date','quarter,year, month,dayofmonth and dayofweek)
                     if (meas.getTimeGrain().name().equals("DATE")) {
-                        field = meas.getAggr().name() + " (CAST( " + meas.getTableId() + "."
-                                + meas.getFieldName() + ") AS DATE)";
+                        field = meas.getAggr().name() + " (CAST( " + selectField + ") AS DATE)";
                     } else if((meas.getTimeGrain().name().equals("QUARTER"))){
-                        field = meas.getAggr().name() + " CAST(TD_QUARTER_OF_YEAR(" + meas.getTableId()
-                                + "." + meas.getFieldName() + ") AS INT)";
+                        field = meas.getAggr().name() + " CAST(TD_QUARTER_OF_YEAR(" +selectField+ ") AS INT)";
                     }else if((meas.getTimeGrain().name().equals("YEAR"))){
                         field = meas.getAggr().name() + " CAST(Extract(" + timeGrainMap.get(meas.getTimeGrain().name())
-                                + " FROM " + meas.getTableId()
-                                + "." + meas.getFieldName() + ") AS INT)";
+                                + " FROM " +selectField+ ") AS INT)";
                     }else if((meas.getTimeGrain().name().equals("MONTH"))){
                         field = meas.getAggr().name() + " CAST(Extract(" + timeGrainMap.get(meas.getTimeGrain().name())
-                                + " FROM " + meas.getTableId()
-                                + "." + meas.getFieldName() + ") AS INT)";
+                                + " FROM " +selectField+ ") AS INT)";
                     }
                     else if((meas.getTimeGrain().name().equals("DAYOFMONTH"))){
-                        field = meas.getAggr().name() + "CAST(TD_DAY_OF_MONTH (" + meas.getTableId()
-                                + "." + meas.getFieldName() + ") AS INT)";
+                        field = meas.getAggr().name() + "CAST(TD_DAY_OF_MONTH (" +selectField+ ") AS INT)";
                     }else if((meas.getTimeGrain().name().equals("DAYOFWEEK"))){
-                        field = meas.getAggr().name() + "CAST(TD_DAY_OF_WEEK (" + meas.getTableId()
-                                + "." + meas.getFieldName() + ") AS INT)";
+                        field = meas.getAggr().name() + "CAST(TD_DAY_OF_WEEK (" +selectField+ ") AS INT)";
                     }
                 }
 
@@ -298,18 +298,15 @@ public class SelectClauseTeraData {
                 }
                 // checking ('quarter')
                 else if(meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("QUARTER")){
-                    field= "COUNT(DISTINCT CAST(TD_QUARTER_OF_YEAR(" + meas.getTableId()
-                            + "." + meas.getFieldName() + ") AS INT)";
+                    field= "COUNT(DISTINCT CAST(TD_QUARTER_OF_YEAR(" + selectField + ") AS INT)";
                 }
                 // checking ('dayofweek')
                 else if(meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("DAYOFWEEK")){
-                    field= "COUNT(DISTINCT CAST(TD_DAY_OF_WEEK (" + meas.getTableId()
-                            + "." + meas.getFieldName() + ") AS INT)";
+                    field= "COUNT(DISTINCT CAST(TD_DAY_OF_WEEK (" + selectField + ") AS INT)";
                 }
                 // checking ('dayofmonth')
                 else if(meas.getAggr().name().equals("COUNTU") && meas.getTimeGrain().name().equals("DAYOFMONTH")){
-                    field= "COUNT(DISTINCT CAST(TD_DAY_OF_MONTH (" + meas.getTableId()
-                            + "." + meas.getFieldName() + ") AS INT)";
+                    field= "COUNT(DISTINCT CAST(TD_DAY_OF_MONTH (" + selectField + ") AS INT)";
                 }
 
                 /*
@@ -330,6 +327,7 @@ public class SelectClauseTeraData {
 
             // for number fields, do aggregation
             else if (List.of("INTEGER", "DECIMAL").contains(meas.getDataType().name())) {
+                selectField = TypeCastingUtil.castDatatype(selectField, vendorName,"BIGINT");
                 if (List.of("SUM", "AVG", "MIN", "MAX").contains(meas.getAggr().name())) {
                     field = meas.getAggr().name() + "(" + selectField
                             + ")";
@@ -350,17 +348,17 @@ public class SelectClauseTeraData {
             // if windowFn not null it will execute window function for sqlserver
             if(meas.getWindowFn()[0] != null){
                 windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName,ds);
+                // if aliasNumber is not null, to maintain alias sequence for measure field
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-                // if aliasnumber is not null, to maintain alias sequence for measure field
-                if(aliasnumber != null && aliasnumber.length > 0){
+                if(aliasNumber != null ){
                     alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
                 }
-                // selectMeasureList.add(field + " AS " + alias);
+                //selectMeasureList.add(field + " AS _*" + alias);
                 selectMeasureList.add(windowFn + " AS " + alias);
             } else{
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-                // if aliasnumber is not null, to maintain alias sequence for measure field
-                if(aliasnumber != null && aliasnumber.length > 0){
+                // if aliasNumber is not null, to maintain alias sequence for measure field
+                if(aliasNumber != null ){
                     alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
                 }
                 selectMeasureList.add(field + " AS " + alias);
@@ -375,3 +373,4 @@ public class SelectClauseTeraData {
         return qFieldListMap;
     }
 }
+

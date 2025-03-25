@@ -217,7 +217,7 @@ public class WhereClause {
 
                 // Calling Dialect specific methods
                 if (filter.getFilterType().equals("tillDate")) {
-                    where = TillDate.tillDate(vendorName, filter);
+                    where = TillDate.tillDate(vendorName, filter,field);
                 } else {
                     if(filter.getIsCalculatedField()){
                         filter.setFieldName(field);

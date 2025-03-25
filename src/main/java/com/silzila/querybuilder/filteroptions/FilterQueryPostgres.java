@@ -26,21 +26,16 @@ public class FilterQueryPostgres {
         if (table == null) {
             fromClause = " FROM " + req.getSchemaName() + "." + req.getTableName() + " AS " + req.getTableId()+" ";
         }
-        else if(req.getIsCalculatedField()){
-            fromClause =" FROM " + req.getFromClause() + " ";
+        else if (table.isCustomQuery()) { 
+            fromClause = " FROM (" + table.getCustomQuery() + ") AS " + table.getId() + " ";
+        } else {
+            fromClause = " FROM " + req.getFromClause() + " ";
         }
-        else{
-        if(!table.isCustomQuery()) {
-            fromClause = " FROM " + req.getFromClause() +" ";
-        }else{
-            fromClause= " FROM (" + table.getCustomQuery() + ") AS "+ table.getId()+" ";
-        }
-        }
-
+        
         if (req.getWhereClause() != null) {
-            fromClause = fromClause + " " + req.getWhereClause() ;
-        }        
-
+            fromClause += " " + req.getWhereClause();
+        }   
+        
         String selectField = req.getIsCalculatedField()?req.getFieldName():req.getTableId()+ "."  + req.getFieldName();
 
         if (List.of("TEXT", "BOOLEAN").contains(req.getDataType().name())) {
