@@ -199,6 +199,8 @@ public class DBConnectionService {
                 dbConnection.setTruststoreFileName(dbConnectionRequest.getTruststore());
                 dbConnection.setTruststorePassword(dbConnectionRequest.getTruststorePassword());
                 dbConnection.setWarehouse(dbConnectionRequest.getWarehouse());
+                dbConnection.setRegion(dbConnectionRequest.getRegion());
+                dbConnection.setS3Location(dbConnectionRequest.getS3Location());
                 dbConnection.setWorkspace(workspace);
                 dbConnection.setCreatedBy(user.getFirstName()); 
                 dbConnection.setUpdatedBy(null); 
@@ -247,6 +249,8 @@ public class DBConnectionService {
         _dbConnection.setKeystorePassword(dbConnectionRequest.getKeystorePassword());
         _dbConnection.setTruststoreFileName(dbConnectionRequest.getTruststore());
         _dbConnection.setTruststorePassword(dbConnectionRequest.getTruststorePassword());
+        _dbConnection.setRegion(dbConnectionRequest.getRegion());
+        _dbConnection.setS3Location(dbConnectionRequest.getS3Location());
         dbConnectionRepository.save(_dbConnection);
         DBConnectionDTO dto = mapper.map(_dbConnection, DBConnectionDTO.class);
         return dto;
