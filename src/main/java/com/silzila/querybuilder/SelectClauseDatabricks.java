@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
+import com.silzila.helper.TypeCastingUtil;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
@@ -23,23 +24,26 @@ public class SelectClauseDatabricks {
 
     private static final Logger logger = LogManager.getLogger(SelectClauseDatabricks.class);
 
+     public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, DatasetDTO ds,String method) throws BadRequestException {
+        
+        return buildSelectClause(req, vendorName, ds, method,null);
+    }
+
     /* SELECT clause for Databricks dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,DatasetDTO ds, String method, Map<String,Integer>... aliasnumber) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,DatasetDTO ds, String method, Map<String,Integer> aliasNumber) throws BadRequestException {
         logger.info("SelectClauseDatabricks calling ***********");
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
         // aliasing for only measure  override 
         Map<String,Integer> aliasNumberingM = new HashMap<>();
 
-        // for window function only (if dimension has alias, & aliasnumber)
-        if (!req.getDimensions().isEmpty() && req.getDimensions().get(0).getAlias() > 0 && (aliasnumber != null && aliasnumber.length > 0) && method.equals("wnFn")) {
-            Map<String, Integer> aliasNumber = aliasnumber[0];
+        // for window function only (if dimension has alias, & aliasNumber)
+        if (!req.getDimensions().isEmpty() && req.getDimensions().get(0).getAlias() > 0 && (aliasNumber != null ) && method.equals("wnFn")) {
             aliasNumber.forEach((key, value) -> aliasNumbering.put(key, value));
             aliasNumber.clear();
         }
 
-        if (aliasnumber != null && aliasnumber.length > 0) {
-            Map<String, Integer> aliasNumber = aliasnumber[0];
+        if (aliasNumber != null ) {
             aliasNumber.forEach((key, value) -> aliasNumberingM.put(key, value));
         }  
         List<String> selectList = new ArrayList<>();
@@ -66,7 +70,7 @@ public class SelectClauseDatabricks {
             Dimension dim = req.getDimensions().get(i);
             // If the base dimension goes up to order_date_2 and the measure is order_date, it should be order_date_3.
             // If the overridden dimension includes additional order_date values, we want to keep the measure as order_date_3.
-            if(aliasnumber != null && aliasnumber.length > 0){
+            if(aliasNumber != null ){
                 
                 for(String key : aliasNumberingM.keySet()){
 
@@ -318,6 +322,7 @@ public class SelectClauseDatabricks {
             }
             // for number fields, do aggregation
             else if (List.of("INTEGER", "DECIMAL").contains(meas.getDataType().name())) {
+                selectField = TypeCastingUtil.castDatatype(selectField, vendorName,"BIGINT");
                 if (List.of("SUM", "AVG", "MIN", "MAX").contains(meas.getAggr().name())) {
                     field = meas.getAggr().name() + "(" + selectField
                             + ")";
@@ -339,16 +344,16 @@ public class SelectClauseDatabricks {
             if(meas.getWindowFn()[0] != null){
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
                 windowFn = SelectClauseWindowFunctionBigquery.windowFunction(meas, req, alias, vendorName,ds);
-                // if aliasnumber is not null, to maintain alias sequence for measure field
-                if(aliasnumber != null && aliasnumber.length > 0){
+                // if aliasNumber is not null, to maintain alias sequence for measure field
+                if(aliasNumber != null ){
                     alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
                     }
                     selectMeasureList.add(field + " AS _*" + alias);
                     selectMeasureList.add(windowFn + " AS " + alias);
             } else{
             String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-            // if aliasnumber is not null, to maintain alias sequence for measure field
-                if(aliasnumber != null && aliasnumber.length > 0){
+            // if aliasNumber is not null, to maintain alias sequence for measure field
+                if(aliasNumber != null ){
                     alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
                     }
             selectMeasureList.add(field + " AS " + alias);

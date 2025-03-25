@@ -18,9 +18,12 @@ import com.silzila.payload.request.Measure;
 import com.silzila.payload.request.Query;
 
 public class SelectClauseWindowFunctionBigquery {
+    public static QueryClauseFieldListMap selectClauseSql(Query dim, String vendorName, DatasetDTO ds, String method) throws BadRequestException {
+        return selectClauseSql(dim, vendorName, ds, method, null);
+ }
 
 // retrieve datas from given database
-public static QueryClauseFieldListMap selectClauseSql(Query dim, String vendorName, DatasetDTO ds, String method, Map<String,Integer> ...aliasNumber) throws BadRequestException {
+public static QueryClauseFieldListMap selectClauseSql(Query dim, String vendorName, DatasetDTO ds, String method, Map<String,Integer> aliasNumber) throws BadRequestException {
     QueryClauseFieldListMap qMap = new QueryClauseFieldListMap();
     if ("bigquery".equals(vendorName)) {
         qMap = SelectClauseBigquery.buildSelectClause(dim, vendorName, ds, method, aliasNumber);

@@ -26,12 +26,12 @@ public class FilterQueryDuckDb {
         if(table == null){
             fromClause = " FROM vw_" + req.getTableId() + "_" + req.getFlatFileId().substring(0, 8) + " ";
         }
-        else{
-            fromClause =" FROM " + req.getFromClause() + " ";
-        }        
-
+        else {
+            fromClause = " FROM " + req.getFromClause() + " ";
+        } 
+        
         if (req.getWhereClause() != null) {
-            fromClause = fromClause + " " + req.getWhereClause() ;
+            fromClause += " " + req.getWhereClause();
         }
 
         String selectField = table == null ? req.getFieldName() : req.getTableId()+"."+req.getFieldName();

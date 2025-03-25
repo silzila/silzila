@@ -25,20 +25,16 @@ public class FilterQueryTeraData {
         if(table==null){
             fromClause = " FROM " + req.getTableName() + " " + req.getTableId() + " ";
         }
-        else if(req.getIsCalculatedField()){
-            fromClause =" FROM " + req.getTableId() + " ";
+        else if (table.isCustomQuery()) { 
+            fromClause = " FROM (" + table.getCustomQuery() + ") AS " + table.getId() + " ";
+        } else {
+            fromClause = " FROM " + req.getFromClause() + " ";
         }
-        else {
-            if (!table.isCustomQuery()) {
-                fromClause = " FROM " + table.getTable() + " " + table.getId() + " ";
-            } else {
-                fromClause = " FROM (" + table.getCustomQuery() + ") AS " + table.getId() + " ";
-            }
-        }
-
+        
         if (req.getWhereClause() != null) {
-            fromClause = fromClause + " " + req.getWhereClause() ;
+            fromClause += " " + req.getWhereClause();
         }
+        
         
         String selectField = req.getIsCalculatedField()?req.getFieldName():req.getTableId()+ "."  + req.getFieldName();
 

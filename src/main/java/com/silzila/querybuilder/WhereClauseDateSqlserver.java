@@ -104,7 +104,7 @@ public class WhereClauseDateSqlserver implements WhereClauseDate{
         }
         //tillDate
         if(filter.getIsTillDate() && List.of("MONTH","DAYOFMONTH","YEARMONTH","YEAR","DAYOFWEEK","QUARTER","YEARQUARTER").contains(filter.getTimeGrain().name())){
-            where = "(\n\t\t" + where + TillDate.tillDate("sqlserver", filter) + "\n\t\t)";
+            where = "(\n\t\t" + where + TillDate.tillDate("sqlserver", filter,whereField) + "\n\t\t)";
             if(shouldExcludeTillDate){
                 where = " NOT " + where;
             }
