@@ -249,20 +249,7 @@ public class DuckDbService {
 
     }
     
-    public JSONObject runQueryObject(String query) throws SQLException {
-
-        Connection conn2 = ((DuckDBConnection) conn).duplicate();
-        Statement stmtRecords = conn2.createStatement();
-
-        ResultSet resultSet = stmtRecords.executeQuery(query);
-        JSONObject jsonArray = ResultSetToJson.convertToArray(resultSet);
-        stmtRecords.close();
-        conn2.close();
-
-        return jsonArray;
-    }
-
-
+  
     // creating a map from column and dtype list to send as a columns parameter to
     // read_csv_auto query
     public static Map<String, String> convertToMap(ArrayList<String> keys, ArrayList<String> values) {
