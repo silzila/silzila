@@ -28,7 +28,7 @@ import {
 import { addTableRecords } from "../../redux/SampleTableRecords/SampleTableRecordsActions";
 import FetchData from "../ServerCall/FetchData";
 import { serverEndPoint } from "../ServerCall/EnvironmentVariables";
-import { deleteItemInChartProp } from "../../redux/ChartPoperties/ChartPropertiesActions";
+import { deleteItemInChartProp, toggleAxesEdited } from "../../redux/ChartPoperties/ChartPropertiesActions";
 import { palette } from "../..";
 import { NotificationDialog } from "../CommonFunctions/DialogComponents";
 
@@ -43,6 +43,7 @@ interface DisplayTableProps {
   addRecords: any;
   chartProperties: any;
   deleteItemFromChartFunc: any;
+  toggleAxesEdit: any;
 }
 
 const DisplayTable = ({
@@ -59,6 +60,8 @@ const DisplayTable = ({
   deleteCalculationFunc,
   deleteItemFromChartFunc,
   addRecords,
+  toggleAxesEdit,
+
 }: DisplayTableProps) => {
   const propKey = `${tabTileProps.selectedTabId}.${tabTileProps.selectedTileId}`;
   const selectedDataset = chartProperties?.properties[propKey]?.selectedDs;
@@ -250,7 +253,10 @@ const DisplayTable = ({
               }}
               informationForPropDeletion={informationForPropDeletion}
               isPresentInAxes={isCalculationPresentInChartAxes}
-              deleteIfPresentInAxes={deleteItemFromChartFunc}
+              deleteIfPresentInAxes={(propKeyForThisDeleteInfo: string, binIndexForThisPropKey: string, fieldIndexForThisPropKey: string) => {
+                deleteItemFromChartFunc(propKeyForThisDeleteInfo, binIndexForThisPropKey, fieldIndexForThisPropKey)
+                toggleAxesEdit(propKey, true)
+              }}
               handleDeleteButton={async () => {
 
                 if (currentCalculationSession && currentCalculationSession.uuid && key === currentCalculationSession.calculationInfo.calculatedFieldName) {
@@ -603,6 +609,8 @@ const mapDispatchToProps = (dispatch: any) => {
       binIndex: number,
       itemIndex: number
     ) => dispatch(deleteItemInChartProp(propKey, binIndex, itemIndex)),
+    toggleAxesEdit: (propKey: string, didEdit: boolean) =>
+      dispatch(toggleAxesEdited(propKey, didEdit))
   };
 };
 

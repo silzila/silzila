@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import { Box as CustomBox } from "../../DataViewer/Box";
 import { fontSize, palette } from "../../..";
-import { deleteItemInChartProp } from "../../../redux/ChartPoperties/ChartPropertiesActions";
+import { deleteItemInChartProp, toggleAxesEdited } from "../../../redux/ChartPoperties/ChartPropertiesActions";
 import { NotificationDialog } from "../../CommonFunctions/DialogComponents";
 
 const AddFunctionIcon = createSvgIcon(
@@ -50,7 +50,8 @@ const SavedCalculationsHolder = ({
   chartProperties,
   editCalculationFunc,
   deleteCalculationFunc,
-  deleteItemFromChartFunc
+  deleteItemFromChartFunc,
+  toggleAxesEdit,
 }: {
   propKey: string;
   calculations: any;
@@ -61,6 +62,7 @@ const SavedCalculationsHolder = ({
   editCalculationFunc: any;
   deleteCalculationFunc: any;
   deleteItemFromChartFunc: any;
+  toggleAxesEdit: any;
 }) => {
 
   const realSelectedDatasetId = chartProperties?.properties[propKey]?.selectedDs?.id
@@ -760,7 +762,10 @@ const SavedCalculationsHolder = ({
                           );
                         }}
                         propKey={propKey}
-                        deleteIfPresentInAxes={deleteItemFromChartFunc}
+                        deleteIfPresentInAxes={(propKeyForThisDeleteInfo: string, binIndexForThisPropKey: string, fieldIndexForThisPropKey: string) => {
+                          deleteItemFromChartFunc(propKeyForThisDeleteInfo, binIndexForThisPropKey, fieldIndexForThisPropKey)
+                          toggleAxesEdit(propKey, true)
+                        }}
                         handleDeleteButton={() => {
                           if (currentCalculationSession && currentCalculationSession.uuid && calculation.calculationInfo.calculatedFieldName === currentCalculationSession.calculationInfo.calculatedFieldName) {
                             setAlert({ severity: 'warning', message: 'Either save or close the current calculation before deleting the calculation' })
@@ -910,7 +915,9 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(editSavedCalculation(propKey, calculationFieldName)),
     deleteCalculationFunc: (calculationFieldName: string, propKey: string) =>
       dispatch(deleteSavedCalculation(calculationFieldName, propKey)),
-    deleteItemFromChartFunc: (propKey: string, binIndex: number, itemIndex: number) => dispatch(deleteItemInChartProp(propKey, binIndex, itemIndex))
+    deleteItemFromChartFunc: (propKey: string, binIndex: number, itemIndex: number) => dispatch(deleteItemInChartProp(propKey, binIndex, itemIndex)),
+    toggleAxesEdit: (propKey: string, didEdit: boolean) =>
+      dispatch(toggleAxesEdited(propKey, didEdit)),
   };
 };
 
