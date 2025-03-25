@@ -122,7 +122,8 @@ public class FileDataController {
     // file data - Column details
     @PostMapping("/file-data-column-details/{id}")
     public ResponseEntity<?> getColumnDetails(@RequestHeader Map<String, String> reqHeader,
-            @PathVariable(value = "id") String id,@RequestParam (required = false)String workspaceId,
+            @PathVariable(value = "id") String id,
+            @RequestParam (required = false)String workspaceId,
             @RequestBody(required = false) List<List<CalculatedFieldRequest>> calculatedFieldRequests) throws JsonMappingException, JsonProcessingException,
             RecordNotFoundException, BadRequestException, ClassNotFoundException, SQLException {
         // get the requester user Id

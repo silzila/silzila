@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -199,5 +200,28 @@ public class TokenUtils {
     return (username.equals(user.getUsername()) && !(this.isTokenExpired(token))
         && !(this.isCreatedBeforeLastPasswordReset(iat, user.getLastPasswordReset())));
   }
+
+  //testing
+  // to get a expiration time of 1 min
+  private Date generateAccessTokenExpirationDateForTesting() {
+    return new Date(System.currentTimeMillis() + (1 * 60 * 1000));
+  }
+
+  // to get a expiration time of 5 min
+  private Date generateRefreshTokenExpirationDateForTesting() {
+    return new Date(System.currentTimeMillis() + (5 * 60 * 1000)); 
+  }
+
+    // to generate a refresh token for testing
+    public String generateRefreshTokenForTesting(String emailId, String device, String tenantId) throws SQLException {
+      Map<String, Object> claims = claims(emailId,device);
+      return this.buildToken(claims,this.generateRefreshTokenExpirationDateForTesting());
+    }
+  
+    // to generate a access token for testing
+    public String generateAccessTokenForTesting(String emailId, String device, String tenantId) throws SQLException {
+      Map<String, Object> claims = claims(emailId,device);
+      return this.buildToken(claims,this.generateAccessTokenExpirationDateForTesting());
+    }
 
 }

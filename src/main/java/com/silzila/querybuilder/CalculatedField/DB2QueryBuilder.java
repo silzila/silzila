@@ -20,6 +20,7 @@ import com.silzila.querybuilder.CalculatedField.MathFlow.DB2MathFlow;
 import com.silzila.querybuilder.CalculatedField.TextFlow.DB2TextFlow;
 
 public class DB2QueryBuilder implements QueryBuilder{
+    static final String vendor = "db2";
     
      @Override
    public void processConditionalFlow(List<Flow> flows,
@@ -30,7 +31,7 @@ public class DB2QueryBuilder implements QueryBuilder{
                                         Map<String, Field> fields,
                                         String flowKey,Map<String,CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
 
-            ConditionFlow.processConditionalFlow("db2", flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
+            ConditionFlow.processConditionalFlow(vendor, flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
     }
 
     @Override
@@ -64,7 +65,7 @@ public class DB2QueryBuilder implements QueryBuilder{
         
         if(((!allColumnList.isEmpty()&&allColumnList.size()!=0))) {
                                     
-        String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,"db2");
+        String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,vendor);
 
         query.append("\nFROM ").append(fromClause);
         }

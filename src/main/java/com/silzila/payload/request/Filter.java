@@ -58,8 +58,6 @@ public class Filter implements Serializable {
     private RelativeCondition relativeCondition = null;
     @JsonProperty("isTillDate")
     private Boolean isTillDate = false; 
-    @JsonProperty("isField")
-    private Boolean isField = true;
     @JsonProperty("conditionType")
     private ConditionType conditionType = new ConditionType();
     private final static long serialVersionUID = 4876626487235075859L;
@@ -88,7 +86,7 @@ public class Filter implements Serializable {
 
     public Filter(Boolean isCalculatedField,List<CalculatedFieldRequest> calculatedField,String tableId, String tableName, String fieldName, Filter.DataType dataType, String uid, Boolean shouldExclude,
             Filter.TimeGrain timeGrain, Filter.Operator operator, List<String> userSelection,Boolean currentSelection, String filterType,
-            RelativeCondition relativeCondition, Boolean  isTillDate,Boolean isField) {
+            RelativeCondition relativeCondition, Boolean  isTillDate,ConditionType conditionType) {
         super();
         this.isCalculatedField = isCalculatedField;
         this.calculatedField = calculatedField;
@@ -106,7 +104,6 @@ public class Filter implements Serializable {
         this.relativeCondition = relativeCondition;
         this.isTillDate = isTillDate;
         this.currentSelection=currentSelection;
-        this.isField = isField;
         this.conditionType = conditionType;
     }
 
@@ -258,14 +255,6 @@ public class Filter implements Serializable {
     public void setIsTillDate(Boolean isTillDate) {
         this.isTillDate = isTillDate;
     }
-
-    public Boolean getIsField() {
-        return isField;
-    }
-
-    public void setIsField(Boolean isField) {
-        this.isField = isField;
-    }
     
     public ConditionType getConditionType() {
         return conditionType;
@@ -336,6 +325,9 @@ public class Filter implements Serializable {
         sb.append("isTillDate");
         sb.append('=');
         sb.append(((this.isTillDate == null) ? "<null>" : this.isTillDate));
+        sb.append("isField");
+        sb.append('=');
+        sb.append(((this.conditionType == null) ? "<null>" : this.conditionType));
         sb.append(',');
         if (sb.charAt((sb.length() - 1)) == ',') {
             sb.setCharAt((sb.length() - 1), ']');

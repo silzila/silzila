@@ -15,6 +15,13 @@ public class QueryNegator {
             else if (expression.equals("IN")) {
                 excludeString = " NOT ";
             }
+
+        }
+        // c
+        if (!shouldExclude) {
+            if (expression.equals("NOT_EQUAL_TO")) {
+                excludeString = " !";
+            }
         }
         return excludeString;
 

@@ -56,6 +56,10 @@ public class DBConnection extends BaseEntity {
     private String truststorePassword;
     @Column(name = "warehouse")
     private String warehouse;
+    @Column(name = "region")
+    private String region;
+    @Column(name = "s3Location")
+    private String s3Location;
 
     @ManyToOne
     @JoinColumn(name = "workspace_id", nullable = false)
