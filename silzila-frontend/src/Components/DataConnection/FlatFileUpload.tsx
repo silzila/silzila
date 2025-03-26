@@ -398,7 +398,8 @@ const FlatFileUpload = ({
         } else {
           setLoading(false);
           Logger("info", "error");
-          setErrorDialogMessage("Error uploading the file");
+          const errorMessage = result.data?.message ?? "Error uploading the file";
+          setErrorDialogMessage(errorMessage);
           setErrorDialogOpen(true);
           setSelectedFile(undefined); // reset selectedFile after error
           // setSelectedSheetName("");
