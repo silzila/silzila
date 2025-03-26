@@ -17,7 +17,7 @@ import FetchData from "../../ServerCall/FetchData";
 import { minMax } from "../constants";
 import { NotificationDialog } from "../../CommonFunctions/DialogComponents";
 import { getFlowTypeFromFunctionName } from "../utils";
-import { editChartPropItem, setSelectedTableInTile } from "../../../redux/ChartPoperties/ChartPropertiesActions";
+import { editChartPropItem, setSelectedTableInTile, toggleAxesEdited } from "../../../redux/ChartPoperties/ChartPropertiesActions";
 import { set } from "lodash";
 import { fonts, fontSize, palette } from "../../..";
 import { isNameAllowed } from "../../CommonFunctions/CommonFunctions";
@@ -36,7 +36,8 @@ const FlowList = ({
   addTableIdToCurrentCalculationSessionFunction,
   setTable,
   updateQueryParam,
-  chartProperties
+  chartProperties,
+  toggleAxesEdit
 }: any) => {
   const propKey = useMemo(
     () => `${tabTileProps?.selectedTabId}.${tabTileProps?.selectedTileId}`,
@@ -276,9 +277,9 @@ const FlowList = ({
           )
         }
 
-        console.log('update is one the way: ', propKeysToUpdate)
-
       }
+
+      toggleAxesEdit(propKey, true)
 
       saveCalculation(propKey, isCurrentCalculationPresentInAggregatedCalculations ? currentCalculationSession.uuid : uuid);
 
@@ -444,6 +445,8 @@ const FlowList = ({
           'chartAxes'
         )
       }
+
+      toggleAxesEdit(propKey, true)
 
       saveCalculation(propKey, isCurrentCalculationPresent ? currentCalculationSession.uuid : uuid);
 
@@ -1016,6 +1019,8 @@ const mapDispatchToProps = (dispatch: any) => {
     updateQueryParam: (propKey: string, binIndex: number, itemIndex: number, item: any, currentChartAxesName: string) =>
       dispatch(editChartPropItem("updateQuery", { propKey, binIndex, itemIndex, item, currentChartAxesName })
       ),
+    toggleAxesEdit: (propKey: string, didEdit: boolean) =>
+      dispatch(toggleAxesEdited(propKey, didEdit)),
   };
 };
 
