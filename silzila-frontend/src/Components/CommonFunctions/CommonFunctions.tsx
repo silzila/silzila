@@ -46,6 +46,16 @@ export const DeleteAllCookies = () => {
 
 };
 
+export const getCalculationByUid = (uid: string, savedCalculations?: any[]) => {
+  if (!uid || !savedCalculations) return {};
+  const calc = savedCalculations.find((calculation) => calculation.uuid === uid);
+  if (!calc) return {};
+  return {
+    calculatedField: [calc.calculationInfo],
+    isCalculatedField: true,
+  }
+};
+
 export const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
   if (event.key === 'Backspace' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
     return;
