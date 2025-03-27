@@ -490,7 +490,6 @@ public class DatasetService {
         /* Flat file based dataset, create DFs for necessary files used in query */
         // get table Id -> file Id -> file name
         else {
-
             // get all the table ids used in query
             List<String> tableIds = new ArrayList<String>();
             for (Query req : queries) {
@@ -509,11 +508,18 @@ public class DatasetService {
                     }
                 }
             }
+            if(ds.getDataSchema().getFilterPanels()!=null){
+                for (int i = 0; i < ds.getDataSchema().getFilterPanels().size(); i++) {
+                    for (int j = 0; j < ds.getDataSchema().getFilterPanels().get(i).getFilters().size(); j++) {
+                        tableIds.add(ds.getDataSchema().getFilterPanels().get(i).getFilters().get(j).getTableId());
+                    }
+                }
+            }
+
             // get distinct table ids
             final List<String> uniqueTableIds = tableIds.stream().distinct().collect(Collectors.toList());
             // get all file Ids (which is inside table obj)
             List<Table> tableObjList = ds.getDataSchema().getTables().stream()
-                    .filter(table -> uniqueTableIds.contains(table.getId()))
                     .collect(Collectors.toList());
 
             logger.info("unique table id =======\n" + uniqueTableIds.toString() +
