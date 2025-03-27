@@ -55,11 +55,11 @@ public class ColumnListFromClause {
 
     public static List<String> getColumnListFromCalculatedFieldAndFilterPanels(
             List<List<CalculatedFieldRequest>> calculatedFieldRequests, List<FilterPanel> filterPanels,
-            String tableId) {
+             String tableId) {
 
-        Set<String> columnTableIds = new HashSet<>();
+        Set<String> columnTableIds = new HashSet<>();   
 
-        if (calculatedFieldRequests != null) {
+        if (calculatedFieldRequests!=null && calculatedFieldRequests.get(0) != null) {
             List<String> calculatedFieldRequestIds = getColumnListFromListOfFieldRequests(calculatedFieldRequests);
             columnTableIds.addAll(calculatedFieldRequestIds);
         }
