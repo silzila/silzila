@@ -228,7 +228,7 @@ const Canvas = ({
         </Xwrapper>
         </div>
         {/* conditionally showing filter section according to length of tempTable(list of tables in canvas. Initially width is 2.7rem) on clicking which visibility changes and changes the width of section */}
-        {tempTable.length > 0 &&     
+        {/* {tempTable.length > 0 &&     
         <div
           className="filter_dataset hideScrollBar"
           onDrop={(e) => isDataSetVisible && handleDrop(e)}
@@ -304,7 +304,7 @@ const Canvas = ({
               testMessage={testMessage}
             />
         </div>
-        }
+        } */}
         <RenderArrows />
       </div>
       <BottomBar
