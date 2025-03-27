@@ -949,11 +949,7 @@ throw new BadRequestException("Unsupported vendor: " + vendorName);
             String fromClause = RelationshipClauseGeneric.buildRelationship(allColumnList,ds.getDataSchema(),vendorName);
 
             // generating  where clause ( if dataaset filters presents)
-            String whereClause = "";
-
-            if(!datasetFilterPanels.isEmpty()){
-                whereClause = WhereClause.buildWhereClause(datasetFilterPanels, vendorName,ds.getDataSchema()); 
-            }
+            String whereClause = datasetFilterPanels.isEmpty() ? "" : WhereClause.buildWhereClause(datasetFilterPanels, vendorName, ds.getDataSchema());
 
             // set fall back record count
             if (recordCount == null || recordCount > 100) {
@@ -976,45 +972,21 @@ throw new BadRequestException("Unsupported vendor: " + vendorName);
                 query = "SELECT DISTINCT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             }
 
-            // for BIGQUERY DB
-            else if (vendorName.equals("bigquery")) {
+             // for BIGQUERY DB, MYSQL DB,Databricks DB,snowflakeDB
+            else if (vendorName.equals("mysql") || vendorName.equals("motherduck")||vendorName.equals("bigquery")||vendorName.equals("databricks")||vendorName.equalsIgnoreCase("snowflake")) {
                 // construct query
                 query = "SELECT " + tblId + ".*"+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             }
-            // for MYSQL DB
-            else if (vendorName.equals("mysql") ) {
-                // construct query
-                query = "SELECT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
-
-            }
-            else if (vendorName.equals("motherduck")) {
-                // construct query
-                query = "SELECT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
-
-            }
-            // for SQL Server DB
-            else if (vendorName.equals("sqlserver")) {
+                       // for SQL Server DB
+            else if (vendorName.equals("sqlserver")||vendorName.equals("teradata")) {
                 // construct query
                 query = "SELECT TOP " + recordCount + " " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause;
 
-            }
-            // for Databricks
-            else if (vendorName.equals("databricks")) {
-                // construct query
-                query = "SELECT " + tblId + ".* "+ calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
             }
             // oracle
             else if (vendorName.equalsIgnoreCase("oracle")) {
                 query = "SELECT " + tblId + ".* " + calculatedField + " FROM " + fromClause + whereClause + " FETCH FIRST " + recordCount
                         + " ROWS ONLY";
-            }
-            // snowflake
-            else if (vendorName.equalsIgnoreCase("snowflake")) {
-                // construct query
-                query = "SELECT " + tblId + ".* " + calculatedField + " FROM " + fromClause + whereClause + " LIMIT " + recordCount;
-            } else if (vendorName.equals("teradata")) {
-                // construct query
-                query = "SELECT TOP " + recordCount + " " + tblId + ".* "+ calculatedField  + " FROM " + fromClause + whereClause;
             }
         } else {
             // based on database dialect, we pass different SELECT * Statement
