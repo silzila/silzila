@@ -135,18 +135,21 @@ public class CalculatedFieldQueryComposer {
     }
 
     // to compose a fields with alias
-    public static String calculatedFieldComposedWithAlias(String vendorName, DataSchema ds,
-            List<CalculatedFieldRequest> calculatedFieldRequests) throws BadRequestException {
+    public static String calculatedFieldComposedWithAlias(String vendorName,DataSchema ds ,
+    List<CalculatedFieldRequest> calculatedFieldRequests) throws BadRequestException {
 
         StringBuilder calculatedField = new StringBuilder();
 
         String formattedAliasName = FieldNameProcessor.formatFieldName(
                 calculatedFieldRequests.get(calculatedFieldRequests.size() - 1).getCalculatedFieldName());
 
-        return calculatedField.append(" (").append(calculatedFieldComposed(vendorName, ds, calculatedFieldRequests))
+        if (List.of("oracle", "snowflake").contains(vendorName)) {
+                    formattedAliasName = "\"" + formattedAliasName + "\"";
+        }      
+        
+        return calculatedField.append(" (").append(calculatedFieldComposed(vendorName,ds, calculatedFieldRequests))
                 .append(") AS ").append(formattedAliasName).toString();
-    }
-
+        }
     // composing a query to get sample records of calculated field
     public static String composeSampleRecordQuery(String vendorName,
             List<CalculatedFieldRequest> calculatedFieldRequests,
