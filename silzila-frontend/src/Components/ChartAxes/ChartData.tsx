@@ -57,10 +57,11 @@ import {
   displayName,
   getLabelValues,
   modifyFilter,
+  getCalculationByUid,
 } from "../CommonFunctions/CommonFunctions";
 import { IFilter, IFilterPanel } from "../DataSet/BottomBarInterfaces";
 import { formatChartLabelValue } from "../ChartOptions/Format/NumberFormatter";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 // format the chartAxes into the way it is needed for api call
 export const getChartData = async (
   axesValues: AxesValuProps[],
@@ -136,12 +137,13 @@ export const getChartData = async (
 
     /*	Set User Selection property */
     const _getUserSelection = (item: any) => {
+      Logger("info", "user selection", item.userSelection ?? "undefined");
       if (
         item.filterTypeTillDate === "enabled" &&
         item.fieldtypeoption === "Pick List" &&
         item.exprTypeTillDate
       ) {
-        return [""];
+        return item.userSelection;
       }
       if (item.fieldtypeoption === "Search Condition") {
         if (item.exprType === "blank") return [];
@@ -156,7 +158,7 @@ export const getChartData = async (
           return [""];
         }
       } else if (item.fieldtypeoption === "Pick List") {
-        return item.userSelection;
+        return item.userSelection?.filter((item: any) => item !== "(All)");
       } else {
         return [""];
       }
@@ -172,6 +174,7 @@ export const getChartData = async (
 
     /*	Determine whether to add a particular field	*/
     const _getIsFilterValidToAdd = (item: any) => {
+      Logger("info", "item in chart data", item);
       if (!item.fieldtypeoption) {
         return false;
       }
@@ -181,15 +184,46 @@ export const getChartData = async (
         // item.userSelection &&
         // item.userSelection.length > 0
       ) {
-        if (item.filterTypeTillDate !== "enabled") {
+        // if (item.filterTypeTillDate !== "enabled") {
+        //   return true;
+        // } else {
+        //   if (item.exprTypeTillDate) {
+        //     return true;
+        //   } else {
+        //     return false;
+        //   }
+        // }
+        // return item.userSelection&& item.userSelection.length>0 && !item.userSelection.includes("(All)");
+        // if (item.userSelection) {
+        //   if (
+        //     item.filterTypeTillDate === "enabled" &&
+        //     !item.exprTypeTillDate
+
+        //   ) {
+        //     return (item.userSelection.length === 0||item.userSelection.inclides("(All)") )
+        //   }
+        //   else if ()
+        //   else {
+        //     return true;
+        //   }
+        // }
+        // else if( item.exprTypeTillDate === true)return true
+        // else {
+        //   return false;
+        // }
+        if (item.filterTypeTillDate === "enabled" && item.exprTypeTillDate)
           return true;
-        } else {
-          if (item.exprTypeTillDate) {
-            return true;
-          } else {
+        else if (item.userSelection) {
+          if (
+            item.userSelection.length === 0 ||
+            item.userSelection.includes("(All)")
+          )
             return false;
+          else {
+            return true;
           }
         }
+        return false;
       } else if (item.fieldtypeoption === "Search Condition") {
         //   if (
         //     item.exprType === "between" &&
@@ -228,17 +262,14 @@ export const getChartData = async (
       return true;
     };
     const getCalculationInfoByUid = (uid: string) => {
-      if(!savedCalculations||!uid) return null;
+      if (!savedCalculations || !uid) return null;
 
-      return savedCalculations.find(
-        (item: any) => item.uuid === uid
-      );
-    }
+      return savedCalculations.find((item: any) => item.uuid === uid);
+    };
     let _items = [];
 
     if (_chartProp.fields) _items = _chartProp.fields;
     else _items = _chartProp;
-
     /*	Iterate through each fields added in the Filter Dropzone	*/
     _items.forEach((item: any) => {
       let _filter: any = {};
@@ -298,11 +329,12 @@ export const getChartData = async (
       }
 
       _filter.userSelection = _getUserSelection(item);
-      if(item.SavedCalculationUUID){
-        const calculation=getCalculationInfoByUid(item.SavedCalculationUUID)
-        if(calculation){
-        _filter.calculatedField=[calculation.calculationInfo]
-        _filter.isCalculatedField=true}
+      if (item.SavedCalculationUUID) {
+        const calculation = getCalculationInfoByUid(item.SavedCalculationUUID);
+        if (calculation) {
+          _filter.calculatedField = [calculation.calculationInfo];
+          _filter.isCalculatedField = true;
+        }
       }
       if (_getIsFilterValidToAdd(item)) {
         _type.filters.push(_filter);
@@ -339,11 +371,11 @@ export const getChartData = async (
           dim = "measures";
           break;
 
-        case "X":
+        case "X Axis":
           dim = "measures";
           break;
 
-        case "Y":
+        case "Y Axis":
           dim = "measures";
           break;
       }
@@ -371,7 +403,7 @@ export const getChartData = async (
         if (axis.name === "Measure") {
           formattedField.aggr = field.agg;
 
-          if (formattedField.aggr === 'agg') formattedField.aggr = 'sum'
+          if (formattedField.aggr === "agg") formattedField.aggr = "sum";
           //Updating windowFunction in QueryAPI
           if (field.windowfn) {
             //Function used to convert all the values of windowFunction in camelCase
@@ -879,11 +911,8 @@ export const getChartData = async (
 
     //let _filterObj = getChartLeftFilter(_chartAxes[0]); /*	PRS 21/07/2022	Get filter object and pushed to request body object	*/
     let _filterObj = getChartLeftFilter(axesValuesParam[0], "chartFilters");
-
     if (_filterObj.filters.length > 0) {
       formattedAxes.filterPanels.push(_filterObj);
-    } else {
-      formattedAxes.filterPanels = [];
     }
 
     if (
@@ -892,6 +921,7 @@ export const getChartData = async (
     ) {
       Logger(
         "info",
+        "report filter  override",
         axesValuesParam.find((axes: any) => axes.name === "Measure").fields[0]
       );
     } else {
@@ -912,6 +942,7 @@ export const getChartData = async (
         });
       } else {
         //chartGroup
+        Logger("info", "getting reportfilkter");
         chartGroup.tabTile[propKey]?.forEach((grp: any) => {
           let rightFilterObj = getChartLeftFilter(
             chartGroup.groups[grp].filters,
@@ -955,8 +986,8 @@ export const getChartData = async (
     tempAxesValues.find((axis: any) => axis.name === "Measure").fields = [];
     tempAxesValues.find((axis: any) => axis.name === "Measure").fields =
       hasNoMeasureOverrideFields;
-
-    formattedAxes.push(getFormattedAxes(tempAxesValues));
+    let tempFormattedAxes = getFormattedAxes(tempAxesValues);
+    tempFormattedAxes && formattedAxes.push(tempFormattedAxes);
 
     hasMeasureOverride.forEach((measureField: any) => {
       let tempMeasureField = JSON.parse(JSON.stringify(measureField));
@@ -982,11 +1013,11 @@ export const getChartData = async (
         .fields.push(tempMeasureField);
 
       let overrideFormattedAxes: any = getFormattedAxes(tempOverrideAxes);
-
-      formattedAxes.push(overrideFormattedAxes);
+      overrideFormattedAxes && formattedAxes.push(overrideFormattedAxes);
     });
   } else {
-    formattedAxes.push(getFormattedAxes(axesValues));
+    let tempFormattedAxes = getFormattedAxes(axesValues);
+    tempFormattedAxes && formattedAxes.push(tempFormattedAxes);
   }
 
   let _selectedDS: any = {};
@@ -1016,70 +1047,189 @@ export const getChartData = async (
       formattedAxes.forEach((axis: any) => {
         const formattedMeasures = axis.measures;
 
-      const formattedDimensions = axis.dimensions;
+        const formattedDimensions = axis.dimensions;
 
-      savedCalculations &&
-        formattedMeasures.forEach((measure: any) => {
-          const measureFieldName = measure.fieldName;
+        savedCalculations &&
+          formattedMeasures.forEach((measure: any) => {
+            const measureFieldName = measure.fieldName;
 
-          if (savedCalculatedFieldNames.includes(measureFieldName)) {
-            const savedCalculationForThisMeasure = savedCalculations?.find(
-              (item: any) =>
-                item.calculationInfo.calculatedFieldName === measureFieldName
-            );
-            const allSavedFlows = Object.keys(
-              savedCalculationForThisMeasure.calculationInfo.flows
-            );
+            if (savedCalculatedFieldNames.includes(measureFieldName)) {
+              const savedCalculationForThisMeasure = savedCalculations?.find(
+                (item: any) =>
+                  item.calculationInfo.calculatedFieldName === measureFieldName
+              );
+              const allSavedFlows = Object.keys(
+                savedCalculationForThisMeasure.calculationInfo.flows
+              );
 
-            const isAgg =
-              savedCalculationForThisMeasure.calculationInfo.flows[
-                allSavedFlows[allSavedFlows.length - 1]
-              ][0].isAggregation;
-            measure.isCalculatedField = true;
-            measure.calculatedField = [{
-              calculatedFieldName: measureFieldName.split(" ").join(" "),
-              // TODO: [0] make it dynamic
-              isAggregated: isAgg,
-              fields: savedCalculationForThisMeasure.calculationInfo.fields,
-              flows: savedCalculationForThisMeasure.calculationInfo.flows,
-              conditionFilters:
-                savedCalculationForThisMeasure.calculationInfo.conditionFilters,
-              // isAggregated: savedCalculationForThisMeasure.calculationInfo.flows[allSavedFlows[allSavedFlows.length - 1]][0].isAggregated,
-            }];
-          }
-        });
+              const isAgg =
+                savedCalculationForThisMeasure.calculationInfo.flows[
+                  allSavedFlows[allSavedFlows.length - 1]
+                ][0].isAggregation;
+              measure.isCalculatedField = true;
+              measure.calculatedField = [
+                {
+                  calculatedFieldName: measureFieldName.split(" ").join(" "),
+                  // TODO: [0] make it dynamic
+                  isAggregated: isAgg,
+                  fields: savedCalculationForThisMeasure.calculationInfo.fields,
+                  flows: savedCalculationForThisMeasure.calculationInfo.flows,
+                  conditionFilters:
+                    savedCalculationForThisMeasure.calculationInfo
+                      .conditionFilters,
+                  // isAggregated: savedCalculationForThisMeasure.calculationInfo.flows[allSavedFlows[allSavedFlows.length - 1]][0].isAggregated,
+                },
+              ];
+            }
+          });
 
-      savedCalculations &&
-        formattedDimensions.forEach((dimension: any) => {
-          const measureFieldName = dimension.fieldName;
+        savedCalculations &&
+          formattedDimensions.forEach((dimension: any) => {
+            const measureFieldName = dimension.fieldName;
 
-          if (savedCalculatedFieldNames.includes(measureFieldName)) {
-            const savedCalculationForThisMeasure = savedCalculations?.find(
-              (item: any) =>
-                item.calculationInfo.calculatedFieldName === measureFieldName
-            );
-            const allSavedFlows = Object.keys(
-              savedCalculationForThisMeasure.calculationInfo.flows
-            );
+            if (savedCalculatedFieldNames.includes(measureFieldName)) {
+              const savedCalculationForThisMeasure = savedCalculations?.find(
+                (item: any) =>
+                  item.calculationInfo.calculatedFieldName === measureFieldName
+              );
+              const allSavedFlows = Object.keys(
+                savedCalculationForThisMeasure.calculationInfo.flows
+              );
 
-            const isAgg =
-              savedCalculationForThisMeasure.calculationInfo.flows[
-                allSavedFlows[allSavedFlows.length - 1]
-              ][0].isAggregation;
-            dimension.isCalculatedField = true;
-            dimension.calculatedField = [{
-              calculatedFieldName: measureFieldName.split(" ").join(" "),
-              // TODO: [0] make it dynamic
-              isAggregated: isAgg,
-              fields: savedCalculationForThisMeasure.calculationInfo.fields,
-              flows: savedCalculationForThisMeasure.calculationInfo.flows,
-              conditionFilters:
-                savedCalculationForThisMeasure.calculationInfo.conditionFilters,
-              // isAggregated: savedCalculationForThisMeasure.calculationInfo.flows[allSavedFlows[allSavedFlows.length - 1]][0].isAggregated,
-            }];
-          }
-        })
+              const isAgg =
+                savedCalculationForThisMeasure.calculationInfo.flows[
+                  allSavedFlows[allSavedFlows.length - 1]
+                ][0].isAggregation;
+              dimension.isCalculatedField = true;
+              dimension.calculatedField = [
+                {
+                  calculatedFieldName: measureFieldName.split(" ").join(" "),
+                  // TODO: [0] make it dynamic
+                  isAggregated: isAgg,
+                  fields: savedCalculationForThisMeasure.calculationInfo.fields,
+                  flows: savedCalculationForThisMeasure.calculationInfo.flows,
+                  conditionFilters:
+                    savedCalculationForThisMeasure.calculationInfo
+                      .conditionFilters,
+                  // isAggregated: savedCalculationForThisMeasure.calculationInfo.flows[allSavedFlows[allSavedFlows.length - 1]][0].isAggregated,
+                },
+              ];
+            }
+          });
       });
+
+      const formattedAxesWhereFlowsNeedToBeSorted = formattedAxes[0];
+
+      for (const axes in formattedAxesWhereFlowsNeedToBeSorted) {
+        for (const field of formattedAxesWhereFlowsNeedToBeSorted[axes]) {
+          const isCalculatedField = field.isCalculatedField;
+
+          if (!isCalculatedField) continue;
+          else {
+            for (const calc of field.calculatedField) {
+              const calculationWhereFlowHasToBeSorted = calc;
+
+              const dependencyTracker: {
+                [key: string]: boolean;
+              } = {};
+
+              for (const flow in calculationWhereFlowHasToBeSorted.flows) {
+                dependencyTracker[flow] = false;
+              }
+
+              const sortedDependencyStack: any = [];
+
+              let cycleDetected = false;
+
+              const flowSorter = (flow: string, visited: Set<string>) => {
+                // Early return if a cycle was already detected
+                if (cycleDetected) return;
+
+                if (sortedDependencyStack.includes(flow)) return;
+                if (visited.has(flow)) {
+                  console.log("Cycle detected in flow: ", flow);
+                  cycleDetected = true; // Set the flag when a cycle is detected
+                  return;
+                }
+
+                visited.add(flow);
+                dependencyTracker[flow] = true;
+
+                for (const condition of calculationWhereFlowHasToBeSorted.flows[
+                  flow
+                ]) {
+                  // Check early if cycle was detected in a recursive call
+                  if (cycleDetected) return;
+
+                  const sourceList = condition.source.filter(
+                    (source: string, index: number) =>
+                      condition.sourceType[index] === "flow"
+                  );
+
+                  if (condition.flow === "IfElse") {
+                    const filterId = condition.filter;
+                    const filter =
+                      calculationWhereFlowHasToBeSorted.conditionFilters[
+                      filterId
+                      ][0];
+
+                    for (const leftOperand of filter.conditions) {
+                      const leftOperandType = leftOperand.leftOperandType[0];
+                      if (
+                        leftOperandType === "flow" &&
+                        !sourceList.includes(leftOperand.leftOperand[0])
+                      ) {
+                        sourceList.push(leftOperand.leftOperand[0]);
+                      }
+
+                      const rightOperandType = leftOperand.rightOperandType[0];
+                      if (
+                        rightOperandType === "flow" &&
+                        !sourceList.includes(leftOperand.rightOperand[0])
+                      ) {
+                        sourceList.push(leftOperand.rightOperand[0]);
+                      }
+                    }
+                  }
+
+                  for (const source of sourceList) {
+                    flowSorter(source, new Set(visited)); // Pass a new set to avoid mutation issues
+                    // Check after each recursive call
+                    if (cycleDetected) return;
+                  }
+                }
+
+                visited.delete(flow);
+
+                if (!sortedDependencyStack.includes(flow)) {
+                  sortedDependencyStack.push(flow);
+                }
+              };
+
+              for (const flow in dependencyTracker) {
+                if (cycleDetected) break; // Stop processing if a cycle was detected
+                if (!sortedDependencyStack.includes(flow)) {
+                  flowSorter(flow, new Set());
+                }
+              }
+
+              if (cycleDetected) {
+                console.log("Cyclic dependency detected");
+                return;
+              }
+
+              const newSortedFlows: any = {};
+
+              for (const sortedDependency of sortedDependencyStack) {
+                newSortedFlows[sortedDependency] =
+                  calculationWhereFlowHasToBeSorted.flows[sortedDependency];
+              }
+
+              calc.flows = newSortedFlows;
+            }
+          }
+        }
+      }
     }
 
     var res: any = await FetchData({
@@ -1176,6 +1326,13 @@ const ChartData = ({
   updateQueryParam,
 }: ChartAxesProps & TileRibbonStateProps) => {
   const [loading, setLoading] = useState<boolean>(false);
+
+  let link: string = "";
+
+  if (window.location.href.includes("dashboard")) {
+    let url = window.location.href.split("/").slice(-1);
+    link = url.toString();
+  }
 
   var _propKey: string = `${tabId}.${tileId}`;
 
@@ -1490,7 +1647,7 @@ const ChartData = ({
 
       let serverData = [];
 
-      if (serverCall) {
+      if (serverCall || chartProp.chartType === "crossTab") {
         setLoading(true);
         serverData = await getChartData(
           axesValues1,
@@ -1552,7 +1709,6 @@ const ChartData = ({
     };
 
     if (screenFrom === "Dashboard") {
-
       /**
        * the chart Data is tored in  chartData of respective tabTile if chart type is not richText else stored in richText
        *
@@ -1581,10 +1737,21 @@ const ChartData = ({
               )
             ) {
               let filters: IFilter[] = [];
-              chartGroup.groups[filterGroupID].filters.forEach((filter: any) =>
-              {
-                filters.push(modifyFilter(filter,savedCalculations))
-              }
+              chartGroup.groups[filterGroupID].filters.forEach(
+                (filter: any) => {
+                  if (
+                    filter.fieldtypeoption === "Pick List" &&
+                    (filter.userSelection?.length === 0 ||
+                      filter.userSelection?.includes("(All)"))
+                  ) {
+                    if (
+                      filter.filterTypeTillDate === "enabled" &&
+                      !filter.exprTypeTillDate
+                    )
+                      return;
+                  }
+                  filters.push(modifyFilter(filter, savedCalculations));
+                }
               );
               if (filters.length > 0) {
                 if (tabTilesAndTheirFilters[tabTileID]) {
@@ -1608,7 +1775,8 @@ const ChartData = ({
       );
 
       Object.keys(tabTilesAndTheirFilters).forEach((tabTileID: string) => {
-        if (chartProperties.properties[`${tabTileID}`].chartType === "richText") return;
+        if (chartProperties.properties[`${tabTileID}`].chartType === "richText")
+          return;
         const chartProp: any =
           chartProperties.properties[`${tabTileID}`].chartType === "richText"
             ? dynamicMeasureState.dynamicMeasureProps?.[
@@ -1715,6 +1883,25 @@ const ChartData = ({
           }
         }
         const filters = tabTilesAndTheirFilters[tabTileID];
+        const chartFilters = chartProp.chartAxes.filter(
+          (axes: AxesValuProps) => axes.name === "Filter"
+        );
+        const appliedChartFilters = chartFilters[0]?.fields;
+        const payloadChartFilter: IFilter[] = [];
+        appliedChartFilters?.forEach((_filter: any) => {
+          if (
+            _filter.fieldtypeoption === "Pick List" &&
+            (_filter.userSelection?.length === 0 ||
+              _filter.userSelection?.includes("(All)"))
+          ) {
+            if (
+              _filter.filterTypeTillDate === "enabled" &&
+              !_filter.exprTypeTillDate
+            )
+              return;
+            payloadChartFilter.push(modifyFilter(_filter, savedCalculations));
+          }
+        });
 
         const filterPanels: IFilterPanel[] = [
           {
@@ -1723,24 +1910,28 @@ const ChartData = ({
             filters: [...filters],
           },
         ];
+        if (payloadChartFilter.length > 0) {
+          filterPanels.push({
+            panelName: "chartFilters",
+            shouldAllConditionsMatch: !appliedChartFilters[0].any_condition_match,
+            filters: payloadChartFilter
+          });
+        }
         let payLoad: any[] = [];
+        const measures = chartProp.chartAxes.filter((axes: AxesValuProps) =>
+          ["Measure", "X Axis", "Y Axis"].includes(axes.name)
+        );
         if (
           ["funnel", "gauge", "simplecard", "richText"].includes(
             chartProperties.properties[`${tabTileID}`].chartType
           )
         ) {
-          const measures = chartProp.chartAxes.filter(
-            (axes: AxesValuProps) => axes.name === "Measure"
-          );
-          const filters = chartProp.chartAxes.filter(
-            (axes: AxesValuProps) => axes.name === "Filter"
-          );
           payLoad = [
             {
               dimensions: [],
               fields: [],
               filterPanels: filterPanels,
-              filters: filters.map((filter: any) => filter.fields),
+              filters: chartFilters.map((filter: any) => filter.fields),
               measures: measures.flatMap((measure: any) =>
                 measure.fields.map((el: any) => ({
                   dataType: el.dataType,
@@ -1751,6 +1942,10 @@ const ChartData = ({
                   measureOrder: 1,
                   aggr: el.agg,
                   tableId: el.tableId,
+                  ...getCalculationByUid(
+                    el.SavedCalculationUUID,
+                    savedCalculations
+                  ),
                 }))
               ),
             },
@@ -1760,18 +1955,14 @@ const ChartData = ({
             `${tabTileID}`
           ].chartAxes.filter(
             (axes: AxesValuProps) =>
-              axes.name !== "Measure" && axes.name !== "Filter"
+              !["Measure", "Filter", "X Axis", "Y Axis"].includes(axes.name)
           );
-
-          const measures = chartProperties.properties[
-            `${tabTileID}`
-          ].chartAxes.filter((axes: AxesValuProps) => axes.name === "Measure");
-          const filters = chartProperties.properties[
+          const chartFilters = chartProperties.properties[
             `${tabTileID}`
           ].chartAxes.filter((axes: AxesValuProps) => axes.name === "Filter");
           payLoad = [
             {
-              filters: filters.flatMap((filter: any) => filter.fields),
+              filters: chartFilters.flatMap((filter: any) => filter.fields),
               measures: measures.flatMap((measure: any) =>
                 measure.fields.map((el: any) => ({
                   dataType: el.dataType,
@@ -1782,6 +1973,10 @@ const ChartData = ({
                   measureOrder: 1,
                   aggr: el.agg,
                   tableId: el.tableId,
+                  ...getCalculationByUid(
+                    el.SavedCalculationUUID,
+                    savedCalculations
+                  ),
                 }))
               ),
               dimensions: dimensions.flatMap((axes: AxesValuProps) =>
@@ -1794,6 +1989,10 @@ const ChartData = ({
                   rollupDepth: false,
                   timeGrain:
                     filter.timeGrain /*  PRAKASH 14Nov2024 Demo Changes  */,
+                  ...getCalculationByUid(
+                    filter.SavedCalculationUUID,
+                    savedCalculations
+                  ),
                 }))
               ),
               fields: [],
@@ -1807,19 +2006,34 @@ const ChartData = ({
               chartProperties.properties[`${tabTileID}`].selectedDs;
             let url = "";
             if (_selectedDS.isFlatFileData) {
-              url = `query?datasetid=${_selectedDS.id}`;
+              if (link && link !== "") {
+                url = `open-link/query?datasetid=${_selectedDS.id}&linkId=${link}`;
+              } else {
+                url = `query?datasetid=${_selectedDS.id}`;
+              }
             } else {
-              url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}&workspaceId=${_selectedDS.workSpaceId}`;
+              if (link && link !== "") {
+                url = `open-link/query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}&workspaceId=${_selectedDS.workSpaceId}&linkId=${link}`;
+              } else {
+                url = `query?dbconnectionid=${_selectedDS.connectionId}&datasetid=${_selectedDS.id}&workspaceId=${_selectedDS.workSpaceId}`;
+              }
             }
             setLoading(true);
             const res = await FetchData({
+              checkToken: link === "",
               requestType: "withData",
               method: "POST",
               url: url,
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
+              headers:
+                link && link !== ""
+                  ? {
+                    "Content-Type": "application/json",
+                    "X-TENANT-ID": "community",
+                  }
+                  : {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
               data: payLoad,
             });
             if (res.status) {
@@ -1845,7 +2059,8 @@ const ChartData = ({
         }
       });
       tabTileIDsWithoutFilterGroups.forEach((tabTileID: string) => {
-        if (chartProperties.properties[`${tabTileID}`].chartType === "richText") return;
+        if (chartProperties.properties[`${tabTileID}`].chartType === "richText")
+          return;
         const chartProp: any =
           chartProperties.properties[`${tabTileID}`].chartType === "richText"
             ? dynamicMeasureState.dynamicMeasureProps?.[
@@ -1951,25 +2166,47 @@ const ChartData = ({
             }
           }
         }
+        const measures = chartProp.chartAxes.filter((axes: AxesValuProps) =>
+          ["Measure", "X Axis", "Y Axis"].includes(axes.name)
+        );
+        const filterPanels: IFilterPanel[] = [];
+        const chartFilters = chartProp.chartAxes.filter(
+          (axes: AxesValuProps) => axes.name === "Filter"
+        );
+        const appliedChartFilters = chartFilters[0]?.fields;
+        const payloadChartFilter: IFilter[] = [];
+        appliedChartFilters?.forEach((_filter: any) => {
+          if (
+            _filter.fieldtypeoption === "Pick List" &&
+            (_filter.userSelection?.length === 0 ||
+              _filter.userSelection?.includes("(All)"))
+          ) {
+            if (
+              _filter.filterTypeTillDate === "enabled" &&
+              !_filter.exprTypeTillDate
+            )
+              return;
+            payloadChartFilter.push(modifyFilter(_filter, savedCalculations));
+          }
+        });
+        if (payloadChartFilter.length > 0) {
+          filterPanels.push({
+            panelName: "chartFilters",
+            shouldAllConditionsMatch: !appliedChartFilters[0].any_condition_match,
+            filters: payloadChartFilter
+          });
+        }
         if (
           ["funnel", "gauge", "simplecard", "richText"].includes(
             chartProperties.properties[`${tabTileID}`].chartType
           )
         ) {
-          const measures = chartProp.chartAxes.filter(
-            (axes: AxesValuProps) => axes.name === "Measure"
-          );
-
-          const filters = chartProp.chartAxes.filter(
-            (axes: AxesValuProps) => axes.name === "Filter"
-          );
-
           payLoad = [
             {
               dimensions: [],
               fields: [],
-              filterPanels: [],
-              filters: filters.flatMap((filter: any) => filter.fields),
+              filterPanels: filterPanels,
+              filters: chartFilters.flatMap((filter: any) => filter.fields),
               measures: measures.flatMap((measure: any) =>
                 measure.fields.map((el: any) => ({
                   dataType: el.dataType,
@@ -1980,6 +2217,10 @@ const ChartData = ({
                   measureOrder: 1,
                   aggr: el.agg,
                   tableId: el.tableId,
+                  ...getCalculationByUid(
+                    el.SavedCalculationUUID,
+                    savedCalculations
+                  ),
                 }))
               ),
             },
@@ -1989,19 +2230,12 @@ const ChartData = ({
             `${tabTileID}`
           ].chartAxes.filter(
             (axes: AxesValuProps) =>
-              axes.name !== "Measure" && axes.name !== "Filter"
+              !["Measure", "Filter", "X Axis", "Y Axis"].includes(axes.name)
           );
-
-          const measures = chartProperties.properties[
-            `${tabTileID}`
-          ].chartAxes.filter((axes: AxesValuProps) => axes.name === "Measure");
-          const filters = chartProperties.properties[
-            `${tabTileID}`
-          ].chartAxes.filter((axes: AxesValuProps) => axes.name === "Filter");
 
           payLoad = [
             {
-              filters: filters.map((filter: any) => filter.fields),
+              filters: chartFilters.map((filter: any) => filter.fields),
               measures: measures.flatMap((measure: any) =>
                 measure.fields.map((el: any) => ({
                   dataType: el.dataType,
@@ -2012,6 +2246,10 @@ const ChartData = ({
                   measureOrder: 1,
                   aggr: el.agg,
                   tableId: el.tableId,
+                  ...getCalculationByUid(
+                    el.SavedCalculationUUID,
+                    savedCalculations
+                  ),
                 }))
               ),
               dimensions: dimensions.flatMap((axes: AxesValuProps) =>
@@ -2024,10 +2262,14 @@ const ChartData = ({
                   rollupDepth: false,
                   timeGrain:
                     filter.timeGrain /*  PRAKASH 14Nov2024 Demo Changes  */,
+                  ...getCalculationByUid(
+                    filter.SavedCalculationUUID,
+                    savedCalculations
+                  ),
                 }))
               ),
               fields: [],
-              filterPanels: [],
+              filterPanels: filterPanels,
             },
           ];
         }
@@ -2084,7 +2326,10 @@ const ChartData = ({
         chartGroup.chartFilterGroupEdited ||
         dashBoardGroup.dashBoardGroupEdited
       ) {
-        makeServiceCall();
+        const debouncedMakeServiceCall = debounce(makeServiceCall, 1000);
+        if (chartProp.chartType === "crossTab") {
+          debouncedMakeServiceCall();
+        } else makeServiceCall();
       }
     }
 
