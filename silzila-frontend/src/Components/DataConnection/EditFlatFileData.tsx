@@ -193,6 +193,9 @@ const EditFlatFileData = ({
 			setOpenAlert(true);
 			setSeverity("success");
 			setTestMessage("Preview Successful!");
+      setTimeout(() => {
+        setOpenAlert(false);
+      }, 3000);
 		} else {
 			let errorMessage = result.data.message;
         
