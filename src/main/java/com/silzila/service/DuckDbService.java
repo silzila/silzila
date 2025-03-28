@@ -35,10 +35,6 @@ import com.silzila.repository.FileDataRepository;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.duckdb.DuckDBConnection;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -248,7 +244,6 @@ public class DuckDbService {
         return jsonArray;
 
     }
-
     // creating a map from column and dtype list to send as a columns parameter to
     // read_csv_auto query
     public static Map<String, String> convertToMap(ArrayList<String> keys, ArrayList<String> values) {
@@ -969,6 +964,18 @@ public class DuckDbService {
         return jsonArray;
     }
 
+    public JSONObject runQueryObject(String query) throws SQLException {
+
+        Connection conn2 = ((DuckDBConnection) conn).duplicate();
+        Statement stmtRecords = conn2.createStatement();
+
+        ResultSet resultSet = stmtRecords.executeQuery(query);
+        JSONObject jsonArray = ResultSetToJson.convertToArray(resultSet);
+        stmtRecords.close();
+        conn2.close();
+
+        return jsonArray;
+    }
     public void writeJsonToParquet(FileUploadRevisedInfoRequest revisedInfoRequest, String userId, String encryptVal)
             throws SQLException, ExpectationFailedException {
 

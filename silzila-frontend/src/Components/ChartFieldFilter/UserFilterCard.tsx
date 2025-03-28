@@ -6,6 +6,7 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { connect } from "react-redux";
 import {
   Checkbox,
+  CircularProgress,
   Divider,
   FormControl,
   Menu,
@@ -21,6 +22,7 @@ import { alpha, styled } from "@mui/material/styles";
 import { makeStyles } from "@mui/styles";
 import Radio from "@mui/material/Radio";
 // import { green } from "@mui/material/colors";
+import { fonts, fontSize, palette } from "../..";
 
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import TextField from "@mui/material/TextField";
@@ -37,8 +39,8 @@ import {
 import LoadingPopover from "../CommonFunctions/PopOverComponents/LoadingPopover";
 import FetchData from "../ServerCall/FetchData";
 import moment from "moment";
-
-import DoneIcon from "@mui/icons-material/Done";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux";
 
 // import { UnCheckedIcon } from "material-ui/svg-icons/toggle/check-box-outline-blank";
 // import { CheckedIcon } from "material-ui/svg-icons/toggle/check-box";
@@ -52,8 +54,9 @@ import { UserFilterCardProps } from "./UserFilterCardInterface";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import style from "react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark";
-import { color } from "echarts";
+import DropDownForPatternCommon from "../Common/DropDownForPattern";
+import { AxisType } from "../CommonFunctions/aliases";
+import { handleKeyDown } from "../CommonFunctions/CommonFunctions";
 
 const UserFilterCard = ({
   propKey,
@@ -73,6 +76,8 @@ const UserFilterCard = ({
   revertAxes,
   updtateFilterExpandeCollapse,
 }: UserFilterCardProps & any) => {
+    const calculations=useSelector((state:RootState)=>state.calculations.savedCalculations);
+
   field.dataType = field.dataType.toLowerCase();
 
   let currentChartAxesName = uID ? "chartAxes_" + uID : "chartAxes";
@@ -98,10 +103,12 @@ const UserFilterCard = ({
 
   //const [showOptions, setShowOptions] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [cirloading, setCirLoading] = useState<boolean>(false);
   let sliderRange = [0, 0];
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const [isHovered, setIsHovered] = useState(false);
 
   const withPatternCollections: PatternCollectionType[] = [
     { key: "beginsWith", value: "Start With" },
@@ -148,15 +155,17 @@ const UserFilterCard = ({
     { key: "dayofmonth", value: "Day Of Month" },
     { key: "dayofweek", value: "Day Of Week" },
   ];
-  const equalPatternCollections: PatternCollectionType[] = [
-    { key: "greaterThan", value: "> Greater than" },
-    { key: "lessThan", value: "< Less than" },
+  const equalPatternCollections = [
+    { key: "greaterThan", value: ">  Greater than" },
+    { key: "lessThan", value: "<  Less than" },
     { key: "greaterThanOrEqualTo", value: ">= Greater than or Equal to" },
     { key: "lessThanOrEqualTo", value: "<= Less than or Equal to" },
-    { key: "equalTo", value: "= Equal to" },
+    { key: "equalTo", value: "=  Equal to" },
     { key: "notEqualTo", value: "<> Not Equal to" },
     { key: "between", value: ">= Between <=" },
+    { key: "blank", value: "   (Blank)" },
   ];
+
   const RelativeFilterPatternCollections: PatternCollectionType[] = [
     { key: "last", value: "Last" },
     { key: "current", value: "Current" },
@@ -233,13 +242,9 @@ const UserFilterCard = ({
       }
 
       async function _preFetchData() {
-        if (!filterFieldData.rawselectmembers) {
+        if (filterFieldData.rawselectmembers?.length === 0) {
           setLoading(true);
-          await GetPickListItems({
-            sortDesc: false,      // Default sorting is ascending
-            removeBlank: false,   // Don't remove (blank)
-            blankAtBottom: false  // Don't move (blank) to the bottom
-          });
+          await GetPickListItems([]);
           setLoading(false);
         }
       }
@@ -281,13 +286,30 @@ const UserFilterCard = ({
 
   ///Fech Field data for Pick List
   const fetchFieldData = (type: string) => {
-    let bodyData: any = {
+    let bodyData: any;
+    if(field.SavedCalculationUUID){
+    let toFilterCalculation = calculations.filter((calculation:any) => calculation.uuid === field.SavedCalculationUUID)[0].calculationInfo
+      bodyData = {
       tableId: tableId,
       fieldName: fieldname,
       dataType: dataType,
       filterOption: "allValues",
+      isCalculatedField: true,
+      calculatedField: [
+        {
+        ...toFilterCalculation, 
+        calculatedFieldId: field.SavedCalculationUUID
+      }
+    ]
     };
-
+    }else{
+       bodyData = {
+      tableId: tableId,
+      fieldName: fieldname,
+      dataType: dataType,
+      filterOption: "allValues",
+     };
+    }
     if (dataType === "timestamp" || dataType === "date") {
       bodyData["timeGrain"] = filterFieldData.prefix || "year";
     }
@@ -361,8 +383,8 @@ const UserFilterCard = ({
         return filterFieldData.fieldtypeoption === "Search Condition"
           ? "date_search"
           : filterFieldData.fieldtypeoption === "Relative Filter"
-            ? "relativeFilter"
-            : "date_user_selection";
+          ? "relativeFilter"
+          : "date_user_selection";
 
       default:
         return "text_user_selection";
@@ -370,47 +392,61 @@ const UserFilterCard = ({
   };
 
   ///To fetch Pick list items
-  const GetPickListItems = async (options: { sortDesc: boolean; removeBlank: boolean; blankAtBottom: boolean }) => {
+  const GetPickListItems = async (sortOptions: string[]) => {
+    // Avoid fetching data again if the sort options have not changed
+    if (
+      filterFieldData["previousSortOptions"] === JSON.stringify(sortOptions) &&
+      dataType !== "date" &&
+      dataType !== "timestamp"
+    ) {
+      return; // Return early if no changes in sort options
+    }
+
     let result: any = await fetchFieldData(_getFilterType());
 
-    if (result && result.data && result.data.length > 0) {
-      result = result.data.map((item: any) =>
-        item[Object.keys(result.data[0])[0]] ?? "(blank)"
-      );
+    if (result && result.status && result.data ) {
+        const key=Object.keys(result.data)[0];
+        const options=result.data[key];
+        result = result = options.map((value: any) => {
+          return value !== null
+            ? typeof value === "boolean"
+              ? value
+                ? "True"
+                : "False" // Convert boolean to string
+              : value
+            : "(Blank)";
+        });
+      
 
-      // Custom sorting logic
-      result.sort((a: any, b: any) => {
-        const valueA = a ?? "(blank)";
-        const valueB = b ?? "(blank)";
+      // Maintain an original unfiltered copy
+      filterFieldData.rawselectmembersOriginal = ["(All)", ...result];
 
-        // Convert to strings if they aren't already, for safe comparison
-        const strA = String(valueA);
-        const strB = String(valueB);
+      // Start with unfiltered data
+      let tempResult = [...filterFieldData.rawselectmembersOriginal];
 
-        return options.sortDesc ? strB.localeCompare(strA) : strA.localeCompare(strB);
-      });
-
-      // Always put "(blank)" at the top unless removed
-      if (!options.removeBlank) {
-        result = result.filter((item: string) => item !== "(blank)");
-        result.unshift("(blank)");
+      // Apply multiple sort options
+      if (sortOptions.includes("Sort Desc")) {
+        tempResult = ["(All)", ...result.sort().reverse()];
+      } else {
+        tempResult = ["(All)", ...result.sort()]; // Default to ascending if no "Sort Desc"
       }
 
-      // Handle "(blank)" at bottom
-      if (options.blankAtBottom) {
-        result = result.filter((item: string) => item !== "(blank)");
-        result.push("(blank)");
+      if (sortOptions.includes("Remove Blank")) {
+        tempResult = tempResult.filter((val: string) => val !== "(Blank)");
       }
 
-      // Handle Remove "(blank)"
-      if (options.removeBlank) {
-        result = result.filter((item: string) => item !== "(blank)");
+      if (sortOptions.includes("Blank at Bottom")) {
+        const blanks = tempResult.filter((val: string) => val === "(Blank)");
+        tempResult = tempResult
+          .filter((val: string) => val !== "(Blank)")
+          .concat(blanks);
       }
+      // Store sorted data in filterFieldData
+      filterFieldData.rawselectmembers = [...tempResult];
+      filterFieldData.userSelection = tempResult;
 
-      let tempResult = ["(All)", ...result];
-      filterFieldData["rawselectmembers"] = [...tempResult];
-      filterFieldData["userSelection"] = tempResult;
-
+      // Save the sort options for comparison in future updates
+      filterFieldData.previousSortOptions = JSON.stringify(sortOptions);
       updateUserFilterItem(
         propKey,
         0,
@@ -421,16 +457,25 @@ const UserFilterCard = ({
     }
   };
 
+  function convertKeysToLowercase<T extends Record<string, any>>(
+    obj: T
+  ): Record<string, any> {
+    return Object.keys(obj).reduce((acc, key) => {
+      acc[key.toLowerCase()] = obj[key];
+      return acc;
+    }, {} as Record<string, any>);
+  }
+
   ///To fetch Relative Filter items
   const GetRelativeFilterItems = async () => {
+    // setLoading(true);
     let result: any = await fetchRelativeFilterFieldData(_getFilterType());
 
     if (result) {
       if (result.data && result.data.length > 0) {
-        filterFieldData["fromDate"] =
-          result.data[0][Object.keys(result.data[0])[1]];
-        filterFieldData["toDate"] =
-          result.data[0][Object.keys(result.data[0])[0]];
+        const modifiedRes = convertKeysToLowercase(result.data[0]);
+        filterFieldData["fromDate"] = modifiedRes["fromdate"];
+        filterFieldData["toDate"] = modifiedRes["todate"];
       }
 
       updateUserFilterItem(
@@ -441,6 +486,7 @@ const UserFilterCard = ({
         currentChartAxesName
       );
     }
+    // setLoading(false);
   };
 
   /// Properties and behaviour when a filter card is dragged
@@ -454,6 +500,8 @@ const UserFilterCard = ({
       // type: "card",
       bIndex,
       originalIndex,
+      dragFrom:AxisType.ChartFilter,
+      SavedCalculationUUID:field.SavedCalculationUUID,
     },
     type: "card",
 
@@ -485,50 +533,86 @@ const UserFilterCard = ({
   ///Pick list CB change
 
   const handleCBChange = (event: any) => {
-    if (event.target.name.toString() === "(All)") {
+    if (event.target.name === "(All)") {
       if (event.target.checked) {
-        filterFieldData["userSelection"] = [
-          ...filterFieldData.rawselectmembers,
-        ];
+        filterFieldData["userSelection"] = filterFieldData.rawselectmembers.map(
+          (item: any) => {
+            if (item === "(Blank)") {
+              return null;
+            }
+            return item;
+          }
+        );
         filterFieldData["filterTypeTillDate"] = "enabled";
       } else {
         filterFieldData["userSelection"] = [];
       }
     } else {
       filterFieldData["filterTypeTillDate"] = "disabled";
+
       if (event.target.checked) {
         if (!isNaN(event.target.name) && isFinite(event.target.name)) {
           let _name = event.target.name;
-
           if (_name.includes(".")) {
             _name = parseFloat(event.target.name);
           } else {
             _name = parseInt(event.target.name);
           }
-
           if (_name) {
+            if (_name === "(Blank)") {
+              _name = null;
+            }
             filterFieldData.userSelection.push(_name);
           }
         } else {
-          filterFieldData.userSelection.push(event.target.name);
+          if (event.target.name === "(Blank)") {
+            filterFieldData.userSelection.push(null);
+          } else {
+            filterFieldData.userSelection.push(event.target.name);
+          }
         }
       } else {
-        let idx = filterFieldData.userSelection.findIndex(
-          (item: any) => item.toString() === event.target.name.toString()
-        );
-        filterFieldData.userSelection.splice(idx, 1);
+        let idx = filterFieldData.userSelection.findIndex((item: any) => {
+          if (item === null) {
+            item = "(Blank)";
+          }
+          return item.toString() === event.target.name.toString();
+        });
+
+        if (idx >= 0) {
+          filterFieldData.userSelection.splice(idx, 1);
+        }
       }
+
       if (!filterFieldData.userSelection.length) {
         filterFieldData["filterTypeTillDate"] = "enabled";
       }
-
-      let AllIdx = filterFieldData.userSelection.findIndex(
-        (item: any) => item.toString() === "(All)"
-      );
+      let AllIdx = filterFieldData.userSelection.findIndex((item: any) => {
+        if (item === null) {
+          item = "(Blank)";
+        }
+        return item.toString() === "(All)";
+      });
 
       if (AllIdx >= 0) {
         filterFieldData.userSelection.splice(AllIdx, 1);
       }
+    }
+    filterFieldData.userSelection = filterFieldData.userSelection.map(
+      (item: any) => {
+        if (item === "(Blank)") {
+          return null;
+        }
+        return item;
+      }
+    );
+
+    const nullIndex = filterFieldData.userSelection.indexOf(null);
+    if (nullIndex >= 0) {
+      filterFieldData.userSelection = [
+        ...filterFieldData.userSelection.filter((item: any) => item !== null),
+        null,
+      ];
     }
     updateUserFilterItem(
       propKey,
@@ -542,8 +626,12 @@ const UserFilterCard = ({
   ///Render Pick list card from raw select members
   const SelecPickListCard = () => {
     let _selectionMembers = null;
-
     if (filterFieldData && filterFieldData.rawselectmembers) {
+      const userSelection = filterFieldData.userSelection
+        ? filterFieldData.userSelection.map((item: any) =>
+            item === null ? "(Blank)" : item
+          )
+        : ["(Blank)"];
       _selectionMembers = filterFieldData.rawselectmembers.map(
         (item: any, index: number) => {
           return (
@@ -551,27 +639,15 @@ const UserFilterCard = ({
               {filterFieldData.includeexclude === "Include" ? (
                 <Checkbox
                   checked={
-                    filterFieldData.userSelection
+                    userSelection
                       ? filterFieldData.includeexclude === "Include"
-                        ? filterFieldData.userSelection.includes(item)
-                          ? true
-                          : false
+                        ? userSelection.includes(item)
                         : false
                       : false
                   }
-                  // indeterminate={
-                  // 	filterFieldData.userSelection
-                  // 		? filterFieldData.includeexclude === "Exclude"
-                  // 			? filterFieldData.userSelection.includes(item)
-                  // 				? true
-                  // 				: false
-                  // 			: false
-                  // 		: false
-                  // }
                   name={item}
                   style={{
-                    transform: "scale(0.6)",
-                    // marginLeft: "10px",
+                    transform: "scale(0.8)",
                     paddingRight: "0px",
                   }}
                   sx={{
@@ -585,35 +661,23 @@ const UserFilterCard = ({
               ) : (
                 <Checkbox
                   checked={
-                    filterFieldData.userSelection
+                    
+                    userSelection
+
                       ? filterFieldData.includeexclude === "Exclude"
-                        ? filterFieldData.userSelection.includes(item)
-                          ? true
-                          : false
+                        ? userSelection.includes(item)
                         : false
                       : false
                   }
-                  // indeterminate={
-                  // 	// filterFieldData.userSelection
-                  // 	// 	? filterFieldData.includeexclude === "Exclude"
-                  // 	// 		?
-                  // 	filterFieldData.userSelection.includes(item) ? true : false
-                  // 	// 	: false
-                  // 	// : false
-                  // }
                   name={item}
                   style={{
-                    transform: "scale(0.6)",
+                    transform: "scale(0.8)",
                     paddingRight: "0px",
                   }}
                   sx={{
-                    // color: "red",
                     "&.Mui-checked": {
                       color: "orange",
                     },
-                    // "&.MuiCheckbox-indeterminate": {
-                    // 	color: "orange",
-                    // },
                   }}
                   onChange={(e) => handleCBChange(e)}
                 />
@@ -623,24 +687,26 @@ const UserFilterCard = ({
                 title={item}
                 style={
                   filterFieldData.includeexclude === "Exclude" &&
-                    filterFieldData.userSelection.includes(item)
+                  userSelection.includes(item)
                     ? {
-                      marginLeft: 0,
-                      marginTop: "3.5px",
-                      justifySelf: "center",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textDecoration: "line-through",
-                    }
+                        marginLeft: 0,
+                        // marginTop: "3.5px",
+                        justifySelf: "center",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textDecoration: "line-through",
+                        fontSize: "12px",
+                      }
                     : {
-                      marginLeft: 0,
-                      marginTop: "3.5px",
-                      justifySelf: "center",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                    }
+                        marginLeft: 0,
+                        // marginTop: "3.5px",
+                        justifySelf: "center",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        fontSize: "0.688rem",
+                      }
                 }
               >
                 {item}
@@ -699,8 +765,12 @@ const UserFilterCard = ({
               textField: (params) => (
                 <TextField
                   {...params}
-                  className={`customDatePickerHeight ${dropDownStyles().customSelect
-                    }`}
+                  className={`customDatePickerHeight ${
+                    dropDownStyles().customSelect
+                  }`}
+                  sx={{
+                    minWidth: "100%"
+                  }}
                 />
               ),
             }}
@@ -719,28 +789,70 @@ const UserFilterCard = ({
           flexDirection: "column",
           rowGap: "8px",
           marginTop: "-10px",
-          marginLeft: "6px",
+          // marginLeft: "6px",
           marginBottom: "6px",
-          width: "94%",
+          // width: "94%",{}
           fontSize: "13px",
-          color: "black",
           textAlign: "left",
-          paddingLeft: "15px",
-          paddingRight: "15px",
+          // paddingLeft: "15px",
+          // paddingRight: "15px",
           paddingBottom: "3px",
         }}
       >
-        From ({filterFieldData.fromDate}){" "}
+        <span
+          style={{
+            display: "flex",
+            gap: "0.5rem",
+            alignItems: "center",
+            fontSize: fontSize.medium,
+            color: palette.primary.contrastText,
+          }}
+        >
+          From{" "}
+          {cirloading ? (
+            <CircularProgress size={15} />
+          ) : (
+            `(${filterFieldData.fromDate})`
+          )}{" "}
+        </span>
         {/*To dispaly from-date after fetching*/}
-        <div style={{ display: "flex" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "1rem",
+          }}
+        >
           <RequiredFieldForRelativeFilter exprType="expTypeFromRelativeDate"></RequiredFieldForRelativeFilter>
           {filterFieldData.expTypeFromRelativeDate !== "current" ? (
             <ValueFieldForRelativeFilter exprType="exprInputFromValueType"></ValueFieldForRelativeFilter>
           ) : null}
         </div>
         {membersFrom}
-        To ({filterFieldData.toDate}) {/*To dispaly to-date after fetching*/}
-        <div style={{ display: "flex" }}>
+        <span
+          style={{
+            display: "flex",
+            gap: "0.5rem",
+            alignItems: "center",
+            fontSize: fontSize.medium,
+            color: palette.primary.contrastText,
+          }}
+        >
+          To{" "}
+          {cirloading ? (
+            <CircularProgress size={15} />
+          ) : (
+            `(${filterFieldData.toDate})`
+          )}
+        </span>{" "}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "1rem",
+            color: palette.primary.contrastText,
+          }}
+        >
           <RequiredFieldForRelativeFilter exprType="expTypeToRelativeDate"></RequiredFieldForRelativeFilter>
           {filterFieldData.expTypeToRelativeDate !== "current" ? (
             <ValueFieldForRelativeFilter exprType="exprInputToValueType"></ValueFieldForRelativeFilter>
@@ -818,15 +930,15 @@ const UserFilterCard = ({
     return (
       <FormGroup
         sx={{
-          marginLeft: "6px",
+          // marginLeft: "6px",
           paddingLeft: "10px",
           paddingBottom: "8px",
         }}
       >
         {filterFieldData.prefix !== "date" &&
-          ((filterFieldData.fieldtypeoption === "Search Condition" &&
-            filterFieldData.switchEnableSearchCondition) ||
-            filterFieldData.fieldtypeoption === "Pick List") ? (
+        ((filterFieldData.fieldtypeoption === "Search Condition" &&
+          filterFieldData.switchEnableSearchCondition) ||
+          filterFieldData.fieldtypeoption === "Pick List") ? (
           <FormControlLabel
             value="end"
             control={
@@ -840,16 +952,16 @@ const UserFilterCard = ({
               <Typography
                 sx={
                   filterFieldData.exprTypeTillDate &&
-                    filterFieldData.includeexclude === "Exclude"
+                  filterFieldData.includeexclude === "Exclude"
                     ? {
-                      fontSize: "13px",
-                      paddingRight: "15px",
-                      textDecoration: "line-through",
-                    }
+                        fontSize: "13px",
+                        paddingRight: "15px",
+                        textDecoration: "line-through",
+                      }
                     : {
-                      fontSize: "13px",
-                      paddingRight: "15px",
-                    }
+                        fontSize: "13px",
+                        paddingRight: "15px",
+                      }
                 }
               >
                 {labelName} Till Date
@@ -951,17 +1063,13 @@ const UserFilterCard = ({
 
         if (queryParam === "Pick List") {
           setLoading(true);
-          await GetPickListItems({
-            sortDesc: false,      // Default sorting is ascending
-            removeBlank: false,   // Don't remove (blank)
-            blankAtBottom: false  // Don't move (blank) to the bottom
-          });
+          await GetPickListItems([]);
           setLoading(false);
         }
         if (queryParam === "Relative Filter") {
-          setLoading(true);
+          setCirLoading(true);
           await GetRelativeFilterItems();
-          setLoading(false);
+          setCirLoading(false);
         }
       }
 
@@ -994,9 +1102,9 @@ const UserFilterCard = ({
       }
     } else {
       if (filterFieldData.fieldtypeoption === "Relative Filter") {
-        setLoading(true);
+        setCirLoading(true);
         await GetRelativeFilterItems();
-        setLoading(false);
+        setCirLoading(false);
       }
     }
 
@@ -1010,227 +1118,543 @@ const UserFilterCard = ({
   };
 
   /// List of options to show at the end of each filter card
-const RenderMenu = () => {
-    var options = ["Include", "Exclude"];
-    var options2 = ["Pick List", "Search Condition"];
+  // const RenderMenu = () => {
+  //     var options = ["Include", "Exclude"];
+  //     var options2 = ["Pick List", "Search Condition"];
 
-    if (filterFieldData.dataType === "timestamp" || filterFieldData.dataType === "date") {
-        options2 = ["Pick List", "Search Condition", "Relative Filter"];
+  //     if (filterFieldData.dataType === "timestamp" || filterFieldData.dataType === "date") {
+  //         options2 = ["Pick List", "Search Condition", "Relative Filter"];
+  //     }
+
+  //     const [selectedSortOptions, setSelectedSortOptions] = useState<string[]>([]);
+
+  //     // Function to handle sort options toggling
+  //     const handleSortOptionToggle = (option: string) => {
+  //       setSelectedSortOptions((prevOptions) => {
+  //         const isSelected = prevOptions.includes(option);
+
+  //         // Update the state based on whether the option is selected or not
+  //         const updatedOptions = isSelected
+  //             ? prevOptions.filter((opt) => opt !== option) // Remove if selected
+  //             : [...prevOptions, option];
+
+  //             // Trigger GetPickListItems with the updated options
+  //             GetPickListItems({
+  //                 sortDesc: updatedOptions.includes("Sort Desc"),
+  //                 removeBlank: updatedOptions.includes("Remove Blank"),
+  //                 blankAtBottom: updatedOptions.includes("Blank at Bottom"),
+  //             });
+
+  //             return updatedOptions;
+  //         });
+  //     };
+
+  //     return (
+  //         <Menu
+  //             id="basic-menu"
+  //             anchorEl={anchorEl}
+  //             open={open}
+  //             onClose={() => handleClose("clickOutside")}
+  //             MenuListProps={{
+  //                 "aria-labelledby": "basic-button",
+  //             }}
+  //         >
+  //             {options2.length > 0
+  //                 ? options2.map((opt2, index) => (
+  //                     <div key={index}>
+  //                         <div style={{ display: "flex" }} onClick={() => handleClose("opt2", opt2)}>
+  //                             <Tooltip title={opt2 === filterFieldData.fieldtypeoption ? "Selected" : null}>
+  //                                 <Radio
+  //                                     checked={opt2 === filterFieldData.fieldtypeoption}
+  //                                     sx={{
+  //                                         "& .MuiSvgIcon-root": {
+  //                                             fontSize: "12px",
+  //                                             height: "12px",
+  //                                             color: "#af99db",
+  //                                         },
+  //                                         alignSelf: "center",
+  //                                         marginLeft: "5px",
+  //                                     }}
+  //                                 />
+  //                             </Tooltip>
+  //                             <MenuItem
+  //                                 sx={{
+  //                                     flex: 1,
+  //                                     fontSize: "12px",
+  //                                     alignSelf: "center",
+  //                                     padding: "2px 0px",
+  //                                     paddingRight: "1rem",
+  //                                 }}
+  //                             >
+  //                                 {opt2}
+  //                             </MenuItem>
+  //                         </div>
+
+  //                         {/* Only show nested options if "Pick List" is selected */}
+  //                         {filterFieldData.fieldtypeoption === "Pick List" && opt2 === "Pick List" && (
+  //                             <div style={{ marginLeft: "20px" }}>
+  //                                 {/* Sort Desc */}
+  //                                 <div style={{ display: "flex" }} onClick={() => handleSortOptionToggle("Sort Desc")}>
+  //                                     <Tooltip title={selectedSortOptions.includes("Sort Desc") ? "Selected" : null}>
+  //                                         <Checkbox
+  //                                             checked={selectedSortOptions.includes("Sort Desc")}
+  //                                             sx={{
+  //                                                 "& .MuiSvgIcon-root": {
+  //                                                     fontSize: "12px",
+  //                                                     height: "12px",
+  //                                                     color: "#af99db",
+  //                                                 },
+  //                                                 alignSelf: "center",
+  //                                                 marginLeft: "5px",
+  //                                             }}
+  //                                         />
+  //                                     </Tooltip>
+  //                                     <MenuItem
+  //                                         sx={{
+  //                                             flex: 1,
+  //                                             fontSize: "12px",
+  //                                             alignSelf: "center",
+  //                                             padding: "2px 0px",
+  //                                             paddingRight: "1rem",
+  //                                         }}
+  //                                     >
+  //                                         Sort Desc
+  //                                     </MenuItem>
+  //                                 </div>
+
+  //                                 {/* Remove Blank */}
+  //                                 <div style={{ display: "flex" }} onClick={() => handleSortOptionToggle("Remove Blank")}>
+  //                                     <Tooltip title={selectedSortOptions.includes("Remove Blank") ? "Selected" : null}>
+  //                                         <Checkbox
+  //                                             checked={selectedSortOptions.includes("Remove Blank")}
+  //                                             sx={{
+  //                                                 "& .MuiSvgIcon-root": {
+  //                                                     fontSize: "12px",
+  //                                                     height: "12px",
+  //                                                     color: "#af99db",
+  //                                                 },
+  //                                                 alignSelf: "center",
+  //                                                 marginLeft: "5px",
+  //                                             }}
+  //                                         />
+  //                                     </Tooltip>
+  //                                     <MenuItem
+  //                                         sx={{
+  //                                             flex: 1,
+  //                                             fontSize: "12px",
+  //                                             alignSelf: "center",
+  //                                             padding: "2px 0px",
+  //                                             paddingRight: "1rem",
+  //                                         }}
+  //                                     >
+  //                                         Remove (blank) values
+  //                                     </MenuItem>
+  //                                 </div>
+
+  //                                 {/* Blank at Bottom */}
+  //                                 <div style={{ display: "flex" }} onClick={() => handleSortOptionToggle("Blank at Bottom")}>
+  //                                     <Tooltip title={selectedSortOptions.includes("Blank at Bottom") ? "Selected" : null}>
+  //                                         <Checkbox
+  //                                             checked={selectedSortOptions.includes("Blank at Bottom")}
+  //                                             sx={{
+  //                                                 "& .MuiSvgIcon-root": {
+  //                                                     fontSize: "12px",
+  //                                                     height: "12px",
+  //                                                     color: "#af99db",
+  //                                                 },
+  //                                                 alignSelf: "center",
+  //                                                 marginLeft: "5px",
+  //                                             }}
+  //                                         />
+  //                                     </Tooltip>
+  //                                     <MenuItem
+  //                                         sx={{
+  //                                             flex: 1,
+  //                                             fontSize: "12px",
+  //                                             alignSelf: "center",
+  //                                             padding: "2px 0px",
+  //                                             paddingRight: "1rem",
+  //                                         }}
+  //                                     >
+  //                                         (blank) at bottom
+  //                                     </MenuItem>
+  //                                 </div>
+  //                             </div>
+  //                         )}
+  //                     </div>
+  //                 ))
+  //                 : null}
+
+  //             <Divider sx={{ margin: "5px 0px" }} />
+
+  //             {options.length > 0
+  //                 ? options.map((opt, index) => (
+  //                     <div
+  //                         key={index}
+  //                         style={{ display: "flex" }}
+  //                         onClick={() => handleClose("opt1", opt)}
+  //                     >
+  //                         <Tooltip
+  //                             title={
+  //                                 opt === filterFieldData.includeexclude ? "Selected" : null
+  //                             }
+  //                         >
+  //                             <Radio
+  //                                 checked={opt === filterFieldData.includeexclude}
+  //                                 disabled={
+  //                                     opt === "Exclude" &&
+  //                                     filterFieldData.fieldtypeoption === "Relative Filter"
+  //                                 }
+  //                                 sx={{
+  //                                     "& .MuiSvgIcon-root": {
+  //                                         fontSize: "12px",
+  //                                         height: "12px",
+  //                                         color: opt === "Exclude" ? "#ffb74d" : "#af99db",
+  //                                     },
+  //                                     alignSelf: "center",
+  //                                     marginLeft: "5px",
+  //                                 }}
+  //                             />
+  //                         </Tooltip>
+  //                         <MenuItem
+  //                             disabled={
+  //                                 opt === "Exclude" &&
+  //                                 filterFieldData.fieldtypeoption === "Relative Filter"
+  //                             }
+  //                             sx={{
+  //                                 fontSize: "12px",
+  //                                 alignSelf: "center",
+  //                                 padding: "2px 0px",
+  //                                 flex: 1,
+  //                             }}
+  //                         >
+  //                             {opt}
+  //                         </MenuItem>
+  //                     </div>
+  //                 ))
+  //                 : null}
+  //         </Menu>
+  //     );
+  // };
+  const RenderMenu = () => {
+    const [selectedSortOptions, setSelectedSortOptions] = useState<string[]>(
+      filterFieldData["previousSortOptions"]
+        ? JSON.parse(filterFieldData["previousSortOptions"])
+        : []
+    );
+    const [selectedOption, setSelectedOption] = useState(
+      filterFieldData.fieldtypeoption === "Pick List"
+        ? "Pick List"
+        : filterFieldData.fieldtypeoption
+    );
+
+    const options = ["Include", "Exclude"];
+    const options2 = ["Pick List", "Search Condition"];
+
+    if (
+      filterFieldData.dataType === "timestamp" ||
+      filterFieldData.dataType === "date"
+    ) {
+      options2.push("Relative Filter");
     }
 
-    const [selectedSortOptions, setSelectedSortOptions] = useState<string[]>([]);
+    useEffect(() => {
+      // Ensure `rawselectmembers` is initialized properly
+      if (!Array.isArray(filterFieldData.rawselectmembers)) {
+        filterFieldData.rawselectmembers = [];
+      }
+      if (!Array.isArray(filterFieldData.rawselectmembersOriginal)) {
+        filterFieldData.rawselectmembersOriginal = [
+          ...filterFieldData.rawselectmembers,
+        ];
+      }
+    }, []);
 
-    // Function to handle sort options toggling
-    const handleSortOptionToggle = (option: string) => {
-        setSelectedSortOptions((prev) => {
-            let updatedOptions;
-            if (prev.includes(option)) {
-                // Uncheck if already selected
-                updatedOptions = prev.filter((opt) => opt !== option);
-            } else {
-                // Select new option
-                updatedOptions = [...prev, option];
-            }
+    const handleOptionSelect = (option: string) => {
+      setSelectedOption(option);
+      if (option !== "Pick List") {
+        setSelectedSortOptions([]);
+      } else {
+        filterFieldData["userSelection"] = [];
+        filterFieldData["filterTypeTillDate"] = "enabled";
+        GetPickListItems(selectedSortOptions);
+      }
+      handleClose("opt2", option);
+      updateUserFilterItem(
+        propKey,
+        0,
+        itemIndex,
+        constructChartAxesFieldObject(),
+        currentChartAxesName
+      );
+    };
 
-            // Trigger GetPickListItems with the updated options
-            GetPickListItems({
-                sortDesc: updatedOptions.includes("Sort Desc"),
-                removeBlank: updatedOptions.includes("Remove Blank"),
-                blankAtBottom: updatedOptions.includes("Blank at Bottom"),
-            });
+    const handleSortOptionToggle = (sortOpt: string) => {
+      const sortOptions = selectedSortOptions.includes(sortOpt)
+        ? selectedSortOptions.filter((opt: any) => opt !== sortOpt) // Deselect if already selected
+        : [...selectedSortOptions, sortOpt];
 
-            return updatedOptions;
-        });
+      // Always start with the original unfiltered data
+      let tempResult = [...filterFieldData.rawselectmembersOriginal];
+
+      // Apply multiple sort options
+      if (sortOptions.includes("Sort Desc")) {
+        tempResult = [
+          "(All)",
+          ...tempResult
+            .filter((item: any) => item !== "(All)")
+            .sort()
+            .reverse(),
+        ];
+      } else {
+        tempResult = [
+          "(All)",
+          ...tempResult.filter((item: any) => item !== "(All)").sort(),
+        ];
+      }
+
+      if (sortOptions.includes("Remove Blank")) {
+        tempResult = tempResult.filter((val: string) => val !== "(blank)");
+      }
+
+      if (sortOptions.includes("Blank at Bottom")) {
+        const blanks = tempResult.filter((val: string) => val === "(blank)");
+        tempResult = tempResult
+          .filter((val: string) => val !== "(blank)")
+          .concat(blanks);
+      }
+
+      // Store the updated sorted data
+      filterFieldData.rawselectmembers = [...tempResult];
+      filterFieldData.previousSortOptions = JSON.stringify(sortOptions);
+
+      // Update the UI state
+      setSelectedSortOptions([...sortOptions]);
+
+      // Trigger an update for the chart
+      updateUserFilterItem(
+        propKey,
+        0,
+        itemIndex,
+        constructChartAxesFieldObject(),
+        currentChartAxesName
+      );
     };
 
     return (
-        <Menu
-            id="basic-menu"
-            anchorEl={anchorEl}
-            open={open}
-            onClose={() => handleClose("clickOutside")}
-            MenuListProps={{
-                "aria-labelledby": "basic-button",
-            }}
-        >
-            {options2.length > 0
-                ? options2.map((opt2, index) => (
-                    <div key={index}>
-                        <div style={{ display: "flex" }} onClick={() => handleClose("opt2", opt2)}>
-                            <Tooltip title={opt2 === filterFieldData.fieldtypeoption ? "Selected" : null}>
-                                <Radio
-                                    checked={opt2 === filterFieldData.fieldtypeoption}
-                                    sx={{
-                                        "& .MuiSvgIcon-root": {
-                                            fontSize: "12px",
-                                            height: "12px",
-                                            color: "#af99db",
-                                        },
-                                        alignSelf: "center",
-                                        marginLeft: "5px",
-                                    }}
-                                />
-                            </Tooltip>
-                            <MenuItem
-                                sx={{
-                                    flex: 1,
-                                    fontSize: "12px",
-                                    alignSelf: "center",
-                                    padding: "2px 0px",
-                                    paddingRight: "1rem",
-                                }}
-                            >
-                                {opt2}
-                            </MenuItem>
-                        </div>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={() => handleClose("clickOutside")}
+        MenuListProps={{
+          "aria-labelledby": "basic-button",
+        }}
+      >
+        {options2.length > 0 &&
+          options2.map((opt2, index) => (
+            <div key={index}>
+              <div
+                style={{ display: "flex" }}
+                onClick={() => handleOptionSelect(opt2)}
+              >
+                <Tooltip
+                  title={
+                    opt2 === filterFieldData.fieldtypeoption ? "Selected" : null
+                  }
+                >
+                  <Radio
+                    checked={opt2 === selectedOption}
+                    sx={{
+                      "& .MuiSvgIcon-root": {
+                        fontSize: "12px",
+                        height: "12px",
+                        color: "#af99db",
+                      },
+                      alignSelf: "center",
+                      marginLeft: "5px",
+                    }}
+                  />
+                </Tooltip>
+                <MenuItem
+                  sx={{
+                    flex: 1,
+                    fontSize: "12px",
+                    alignSelf: "center",
+                    padding: "2px 0px",
+                    paddingRight: "1rem",
+                  }}
+                >
+                  {opt2}
+                </MenuItem>
+              </div>
 
-                        {/* Only show nested options if "Pick List" is selected */}
-                        {filterFieldData.fieldtypeoption === "Pick List" && opt2 === "Pick List" && (
-                            <div style={{ marginLeft: "20px" }}>
-                                {/* Sort Desc */}
-                                <div style={{ display: "flex" }} onClick={() => handleSortOptionToggle("Sort Desc")}>
-                                    <Tooltip title={selectedSortOptions.includes("Sort Desc") ? "Selected" : null}>
-                                        <Checkbox
-                                            checked={selectedSortOptions.includes("Sort Desc")}
-                                            sx={{
-                                                "& .MuiSvgIcon-root": {
-                                                    fontSize: "12px",
-                                                    height: "12px",
-                                                    color: "#af99db",
-                                                },
-                                                alignSelf: "center",
-                                                marginLeft: "5px",
-                                            }}
-                                        />
-                                    </Tooltip>
-                                    <MenuItem
-                                        sx={{
-                                            flex: 1,
-                                            fontSize: "12px",
-                                            alignSelf: "center",
-                                            padding: "2px 0px",
-                                            paddingRight: "1rem",
-                                        }}
-                                    >
-                                        Sort Desc
-                                    </MenuItem>
-                                </div>
-
-                                {/* Remove Blank */}
-                                <div style={{ display: "flex" }} onClick={() => handleSortOptionToggle("Remove Blank")}>
-                                    <Tooltip title={selectedSortOptions.includes("Remove Blank") ? "Selected" : null}>
-                                        <Checkbox
-                                            checked={selectedSortOptions.includes("Remove Blank")}
-                                            sx={{
-                                                "& .MuiSvgIcon-root": {
-                                                    fontSize: "12px",
-                                                    height: "12px",
-                                                    color: "#af99db",
-                                                },
-                                                alignSelf: "center",
-                                                marginLeft: "5px",
-                                            }}
-                                        />
-                                    </Tooltip>
-                                    <MenuItem
-                                        sx={{
-                                            flex: 1,
-                                            fontSize: "12px",
-                                            alignSelf: "center",
-                                            padding: "2px 0px",
-                                            paddingRight: "1rem",
-                                        }}
-                                    >
-                                        Remove (blank) values
-                                    </MenuItem>
-                                </div>
-
-                                {/* Blank at Bottom */}
-                                <div style={{ display: "flex" }} onClick={() => handleSortOptionToggle("Blank at Bottom")}>
-                                    <Tooltip title={selectedSortOptions.includes("Blank at Bottom") ? "Selected" : null}>
-                                        <Checkbox
-                                            checked={selectedSortOptions.includes("Blank at Bottom")}
-                                            sx={{
-                                                "& .MuiSvgIcon-root": {
-                                                    fontSize: "12px",
-                                                    height: "12px",
-                                                    color: "#af99db",
-                                                },
-                                                alignSelf: "center",
-                                                marginLeft: "5px",
-                                            }}
-                                        />
-                                    </Tooltip>
-                                    <MenuItem
-                                        sx={{
-                                            flex: 1,
-                                            fontSize: "12px",
-                                            alignSelf: "center",
-                                            padding: "2px 0px",
-                                            paddingRight: "1rem",
-                                        }}
-                                    >
-                                        (blank) at bottom
-                                    </MenuItem>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                ))
-                : null}
-
-            <Divider sx={{ margin: "5px 0px" }} />
-
-            {options.length > 0
-                ? options.map((opt, index) => (
-                    <div
-                        key={index}
-                        style={{ display: "flex" }}
-                        onClick={() => handleClose("opt1", opt)}
+              {selectedOption === "Pick List" && opt2 === "Pick List" && (
+                <div style={{ marginLeft: "20px" }}>
+                  <div
+                    style={{ display: "flex" }}
+                    onClick={() => handleSortOptionToggle("Sort Desc")}
+                  >
+                    <Tooltip
+                      title={
+                        selectedSortOptions.includes("Sort Desc")
+                          ? "Selected"
+                          : null
+                      }
                     >
-                        <Tooltip
-                            title={
-                                opt === filterFieldData.includeexclude ? "Selected" : null
-                            }
-                        >
-                            <Radio
-                                checked={opt === filterFieldData.includeexclude}
-                                disabled={
-                                    opt === "Exclude" &&
-                                    filterFieldData.fieldtypeoption === "Relative Filter"
-                                }
-                                sx={{
-                                    "& .MuiSvgIcon-root": {
-                                        fontSize: "12px",
-                                        height: "12px",
-                                        color: opt === "Exclude" ? "#ffb74d" : "#af99db",
-                                    },
-                                    alignSelf: "center",
-                                    marginLeft: "5px",
-                                }}
-                            />
-                        </Tooltip>
-                        <MenuItem
-                            disabled={
-                                opt === "Exclude" &&
-                                filterFieldData.fieldtypeoption === "Relative Filter"
-                            }
-                            sx={{
-                                fontSize: "12px",
-                                alignSelf: "center",
-                                padding: "2px 0px",
-                                flex: 1,
-                            }}
-                        >
-                            {opt}
-                        </MenuItem>
-                    </div>
-                ))
-                : null}
-        </Menu>
-    );
-};
+                      <Checkbox
+                        checked={selectedSortOptions.includes("Sort Desc")}
+                        sx={{
+                          "& .MuiSvgIcon-root": {
+                            fontSize: "12px",
+                            height: "12px",
+                            color: "#af99db",
+                          },
+                          alignSelf: "center",
+                          marginLeft: "5px",
+                        }}
+                      />
+                    </Tooltip>
+                    <MenuItem
+                      sx={{
+                        flex: 1,
+                        fontSize: "12px",
+                        alignSelf: "center",
+                        padding: "2px 0px",
+                        paddingRight: "1rem",
+                      }}
+                    >
+                      Sort Desc
+                    </MenuItem>
+                  </div>
 
+                  <div
+                    style={{ display: "flex" }}
+                    onClick={() => handleSortOptionToggle("Remove Blank")}
+                  >
+                    <Tooltip
+                      title={
+                        selectedSortOptions.includes("Remove Blank")
+                          ? "Selected"
+                          : null
+                      }
+                    >
+                      <Checkbox
+                        checked={selectedSortOptions.includes("Remove Blank")}
+                        sx={{
+                          "& .MuiSvgIcon-root": {
+                            fontSize: "12px",
+                            height: "12px",
+                            color: "#af99db",
+                          },
+                          alignSelf: "center",
+                          marginLeft: "5px",
+                        }}
+                      />
+                    </Tooltip>
+                    <MenuItem
+                      sx={{
+                        flex: 1,
+                        fontSize: "12px",
+                        alignSelf: "center",
+                        padding: "2px 0px",
+                        paddingRight: "1rem",
+                      }}
+                    >
+                      Remove (Blank) values
+                    </MenuItem>
+                  </div>
+
+                  <div
+                    style={{ display: "flex" }}
+                    onClick={() => handleSortOptionToggle("Blank at Bottom")}
+                  >
+                    <Tooltip
+                      title={
+                        selectedSortOptions.includes("Blank at Bottom")
+                          ? "Selected"
+                          : null
+                      }
+                    >
+                      <Checkbox
+                        checked={selectedSortOptions.includes(
+                          "Blank at Bottom"
+                        )}
+                        sx={{
+                          "& .MuiSvgIcon-root": {
+                            fontSize: "12px",
+                            height: "12px",
+                            color: "#af99db",
+                          },
+                          alignSelf: "center",
+                          marginLeft: "5px",
+                        }}
+                      />
+                    </Tooltip>
+                    <MenuItem
+                      sx={{
+                        flex: 1,
+                        fontSize: "12px",
+                        alignSelf: "center",
+                        padding: "2px 0px",
+                        paddingRight: "1rem",
+                      }}
+                    >
+                      (Blank) at bottom
+                    </MenuItem>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+        <Divider sx={{ margin: "5px 0px" }} />
+
+        {options.map((opt, index) => (
+          <div
+            key={index}
+            style={{ display: "flex" }}
+            onClick={() => handleClose("opt1", opt)}
+          >
+            <Tooltip
+              title={opt === filterFieldData.includeexclude ? "Selected" : null}
+            >
+              <Radio
+                checked={opt === filterFieldData.includeexclude}
+                disabled={
+                  opt === "Exclude" &&
+                  filterFieldData.fieldtypeoption === "Relative Filter"
+                }
+                sx={{
+                  "& .MuiSvgIcon-root": {
+                    fontSize: "12px",
+                    height: "12px",
+                    color: opt === "Exclude" ? "#ffb74d" : "#af99db",
+                  },
+                  alignSelf: "center",
+                  marginLeft: "5px",
+                }}
+              />
+            </Tooltip>
+            <MenuItem
+              disabled={
+                opt === "Exclude" &&
+                filterFieldData.fieldtypeoption === "Relative Filter"
+              }
+              sx={{
+                fontSize: "12px",
+                alignSelf: "center",
+                padding: "2px 0px",
+                flex: 1,
+              }}
+            >
+              {opt}
+            </MenuItem>
+          </div>
+        ))}
+      </Menu>
+    );
+  };
 
   ///set Search condition condition initiallize slider control
   const setSliderRange = () => {
@@ -1239,16 +1663,36 @@ const RenderMenu = () => {
       filterFieldData.exprType === "between"
     ) {
       if (
-        filterFieldData.rawselectmembers &&
+        filterFieldData.rawselectmembersOriginal &&
         !filterFieldData.greaterThanOrEqualTo &&
         !filterFieldData.lessThanOrEqualTo
       ) {
         filterFieldData.greaterThanOrEqualTo =
-          filterFieldData.rawselectmembers[1];
+          filterFieldData.rawselectmembersOriginal[1];
+        if (typeof filterFieldData.rawselectmembersOriginal[1] === "string") {
+          filterFieldData.greaterThanOrEqualTo = null;
+        }
         filterFieldData.lessThanOrEqualTo =
-          filterFieldData.rawselectmembers[
-          filterFieldData.rawselectmembers.length - 1
+          filterFieldData.rawselectmembersOriginal[
+            filterFieldData.rawselectmembersOriginal.length - 1
           ];
+        if (
+          filterFieldData.rawselectmembersOriginal[
+            filterFieldData.rawselectmembersOriginal.length - 1
+          ] === "(Blank)"
+        ) {
+          filterFieldData.lessThanOrEqualTo =
+            filterFieldData.rawselectmembersOriginal[
+              filterFieldData.rawselectmembersOriginal.length - 2
+            ];
+          if (
+            typeof filterFieldData.rawselectmembersOriginal[
+              filterFieldData.rawselectmembersOriginal.length - 2
+            ] === "string"
+          ) {
+            filterFieldData.lessThanOrEqualTo = null;
+          }
+        }
       }
 
       sliderRange = [
@@ -1259,17 +1703,45 @@ const RenderMenu = () => {
       ["date", "timestamp"].includes(dataType) &&
       filterFieldData.prefix !== "date"
     ) {
-      if (filterFieldData.prefix !== "year") {
+      if (filterFieldData.prefix === "month") {
         filterFieldData.greaterThanOrEqualTo = 1;
-        filterFieldData.lessThanOrEqualTo =
-          filterFieldData.rawselectmembers.length - 1;
+        filterFieldData.lessThanOrEqualTo = 12;
+      } else if (filterFieldData.prefix === "quarter") {
+        filterFieldData.greaterThanOrEqualTo = 1;
+        filterFieldData.lessThanOrEqualTo = 4;
+      } else if (filterFieldData.prefix === "dayofmonth") {
+        filterFieldData.greaterThanOrEqualTo = 1;
+        filterFieldData.lessThanOrEqualTo = 31;
+      } else if (filterFieldData.prefix === "dayofweek") {
+        filterFieldData.greaterThanOrEqualTo = 1;
+        filterFieldData.lessThanOrEqualTo = 7;
       } else {
         filterFieldData.greaterThanOrEqualTo =
-          filterFieldData.rawselectmembers[1];
+          filterFieldData.rawselectmembersOriginal[1];
+        if (typeof filterFieldData.rawselectmembersOriginal[1] === "string") {
+          filterFieldData.greaterThanOrEqualTo = null;
+        }
         filterFieldData.lessThanOrEqualTo =
-          filterFieldData.rawselectmembers[
-          filterFieldData.rawselectmembers.length - 1
+          filterFieldData.rawselectmembersOriginal[
+            filterFieldData.rawselectmembersOriginal.length - 1
           ];
+        if (
+          filterFieldData.rawselectmembersOriginal[
+            filterFieldData.rawselectmembersOriginal.length - 1
+          ] === "(Blank)"
+        ) {
+          filterFieldData.lessThanOrEqualTo =
+            filterFieldData.rawselectmembersOriginal[
+              filterFieldData.rawselectmembersOriginal.length - 2
+            ];
+          if (
+            typeof filterFieldData.rawselectmembersOriginal[
+              filterFieldData.rawselectmembersOriginal.length - 2
+            ] === "string"
+          ) {
+            filterFieldData.lessThanOrEqualTo = null;
+          }
+        }
       }
     }
   };
@@ -1333,17 +1805,13 @@ const RenderMenu = () => {
     filterFieldData[key] = event.target.value;
 
     if (filterFieldData.fieldtypeoption === "Relative Filter") {
-      setLoading(true);
+      setCirLoading(true);
       await GetRelativeFilterItems();
-      setLoading(false);
+      setCirLoading(false);
     } else {
       if (filterFieldData.exprType === "between") {
         //setLoading(true);
-        await GetPickListItems({
-          sortDesc: false,      // Default sorting is ascending
-          removeBlank: false,   // Don't remove (blank)
-          blankAtBottom: false  // Don't move (blank) to the bottom
-        });
+        await GetPickListItems([]);
         setSliderRange();
         // setLoading(false);
       }
@@ -1404,7 +1872,7 @@ const RenderMenu = () => {
       filterFieldData.fieldtypeoption === "Search Condition" &&
       event.target.value !== "date"
     ) {
-      if (filterFieldData["exprInput"].includes("-")) {
+      if (filterFieldData["exprInput"]?.includes("-")) {
         filterFieldData["exprInput"] = "";
         filterFieldData["switchEnableSearchCondition"] = false;
       }
@@ -1414,11 +1882,7 @@ const RenderMenu = () => {
 
     // if (filterFieldData.fieldtypeoption === "Pick List") {
     setLoading(true);
-    await GetPickListItems({
-      sortDesc: false,      // Default sorting is ascending
-      removeBlank: false,   // Don't remove (blank)
-      blankAtBottom: false  // Don't move (blank) to the bottom
-    });
+    await GetPickListItems([]);
     setLoading(false);
     setSliderRange();
     // }
@@ -1434,10 +1898,11 @@ const RenderMenu = () => {
   };
 
   const checkForValidData = () => {
-    if (
+    if (filterFieldData.exprType === "blank") return true;
+    else if (
       filterFieldData.prefix === "date" &&
       new Date(filterFieldData.greaterThanOrEqualTo) >
-      new Date(filterFieldData.lessThanOrEqualTo)
+        new Date(filterFieldData.lessThanOrEqualTo)
     ) {
       filterFieldData["isInValidData"] = true;
     } else {
@@ -1468,9 +1933,9 @@ const RenderMenu = () => {
       filterFieldData["isInValidData"] = false;
 
       if (filterFieldData.fieldtypeoption === "Relative Filter") {
-        setLoading(true);
+        setCirLoading(true);
         await GetRelativeFilterItems();
-        setLoading(false);
+        setCirLoading(false);
       }
 
       if (
@@ -1498,7 +1963,7 @@ const RenderMenu = () => {
           filterFieldData.greaterThanOrEqualTo,
           filterFieldData.lessThanOrEqualTo,
         ];
-      } else if (!filterFieldData.exprInput.length) {
+      } else if (!filterFieldData.exprInput?.length) {
         filterFieldData["switchEnableSearchCondition"] = false;
         filterFieldData.exprTypeTillDate = false;
       }
@@ -1522,14 +1987,28 @@ const RenderMenu = () => {
             style: {
               height: "25px",
               width: "100%",
+              minWidth: "100%",
               fontSize: "13px",
               marginRight: "30px",
             },
           }}
           className={dropDownStyles().customSelect}
+          sx={{
+            minWidth: "100%",
+            "& .MuiOutlinedInput-input": {
+             padding: "16.5px 14px", // Consistent padding for all browsers
+            },
+           // Firefox-specific styling
+           "@supports (-moz-appearance: none)": {
+             "& .MuiOutlinedInput-input": {
+             padding: "16.5px 2px 16.5px 14px",
+           }
+          }
+          }}
           placeholder="Value"
           defaultValue={filterFieldData[exprType]}
           type={type}
+          onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => handleKeyDown(event)}
           onBlur={(e) =>
             handleCustomRequiredValueOnBlur(e.target.value, exprType)
           }
@@ -1551,7 +2030,7 @@ const RenderMenu = () => {
         exprType={exprType}
       ></DropDownForPattern>
     );
-    return <div style={{ marginRight: "22px", width: "90px" }}>{members}</div>;
+    return <div style={{ width: "100%" }}>{members}</div>;
   };
 
   const ValueFieldForRelativeFilter = ({ exprType }: any) => {
@@ -1562,7 +2041,7 @@ const RenderMenu = () => {
         exprType={exprType}
       ></RelativeFilterValueInputControl>
     );
-    return <div style={{ width: "60px" }}>{members}</div>;
+    return <div>{members}</div>;
   };
 
   ///Render Search Condition Custom Input Control
@@ -1573,35 +2052,56 @@ const RenderMenu = () => {
           InputProps={
             filterFieldData.includeexclude === "Exclude"
               ? {
-                style: {
-                  height: "25px",
-                  width: "100%",
-                  fontSize: "13px",
-                  marginRight: "30px",
-                  textDecoration: "line-through",
-                  color: "#ffb74d",
-                },
-              }
+                  style: {
+                    height: "25px",
+                    minWidth: "100%",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                    textDecoration: "line-through",
+                    color: "#ffb74d",
+                  },
+                }
               : {
-                style: {
-                  height: "25px",
-                  width: "100%",
-                  fontSize: "13px",
-                  marginRight: "30px",
-                },
-              }
+                  style: {
+                    height: "25px",
+                    minWidth: "100%",
+                    width: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                  },
+                }
           }
           className={dropDownStyles().customSelect}
           placeholder="Value"
           sx={{
             paddingBottom: "8px",
+            minWidth: "100%",
+            "& .MuiOutlinedInput-input": {
+             padding: "16.5px 14px", // Consistent padding for all browsers
+            },
+           // Firefox-specific styling
+           "@supports (-moz-appearance: none)": {
+             "& .MuiOutlinedInput-input": {
+             padding: "16.5px 2px 16.5px 14px",
+            }
+           }
           }}
           defaultValue={filterFieldData.exprInput}
           type={type}
-          onBlur={(e) => handleCustomRequiredValueOnBlur((e.target as HTMLInputElement).value)}
-          onKeyDown={(e) => {
+          onBlur={(e) =>
+            handleCustomRequiredValueOnBlur(
+              (e.target as HTMLInputElement).value
+            )
+          }
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (type === "number"){
+              handleKeyDown(e)
+            }
             if (e.key === "Enter") {
-              handleCustomRequiredValueOnBlur((e.target as HTMLInputElement).value);
+              handleCustomRequiredValueOnBlur(
+                (e.target as HTMLInputElement).value
+              );
             }
           }}
         />
@@ -1622,29 +2122,42 @@ const RenderMenu = () => {
           InputProps={
             filterFieldData.includeexclude === "Exclude"
               ? {
-                style: {
-                  height: "26px",
-                  width: "100%",
-                  fontSize: "13px",
-                  marginRight: "30px",
-                  textDecoration: "line-through",
-                  color: "#ffb74d",
-                },
-              }
+                  style: {
+                    height: "26px",
+                    width: "100%",
+                    minWidth: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                    textDecoration: "line-through",
+                    color: "#ffb74d",
+                  },
+                }
               : {
-                style: {
-                  height: "26px",
-                  width: "100%",
-                  fontSize: "13px",
-                  marginRight: "30px",
-                },
-              }
+                  style: {
+                    height: "26px",
+                    width: "100%",
+                    minWidth: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                  },
+                }
           }
           className={`CustomInputValue ${dropDownStyles().customSelect}`}
           sx={{
             paddingBottom: "8px",
+            minWidth:"100%",
+            "& .MuiOutlinedInput-input": {
+             padding: "16.5px 14px", //padding for all browsers
+            },
+           // Firefox-specific style
+           "@supports (-moz-appearance: none)": {
+             "& .MuiOutlinedInput-input": {
+             padding: "16.5px 2px 16.5px 14px",
+           }
+          }
           }}
           defaultValue={filterFieldData.greaterThanOrEqualTo}
+          onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => handleKeyDown(event)}
           onBlur={(e) => {
             handleCustomRequiredValueOnBlur(
               e.target.value,
@@ -1657,29 +2170,42 @@ const RenderMenu = () => {
           InputProps={
             filterFieldData.includeexclude === "Exclude"
               ? {
-                style: {
-                  height: "26px",
-                  width: "100%",
-                  fontSize: "13px",
-                  marginRight: "30px",
-                  textDecoration: "line-through",
-                  color: "#ffb74d",
-                },
-              }
+                  style: {
+                    height: "26px",
+                    width: "100%",
+                    minWidth: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                    textDecoration: "line-through",
+                    color: "#ffb74d",
+                  },
+                }
               : {
-                style: {
-                  height: "26px",
-                  width: "100%",
-                  fontSize: "13px",
-                  marginRight: "30px",
-                },
-              }
+                  style: {
+                    height: "26px",
+                    width: "100%",
+                    minWidth: "100%",
+                    fontSize: "13px",
+                    marginRight: "30px",
+                  },
+                }
           }
           className={`CustomInputValue ${dropDownStyles().customSelect}`}
           sx={{
             paddingBottom: "8px",
+            minWidth: "100%",
+              "& .MuiOutlinedInput-input": {
+             padding: "16.5px 14px", // Consistent padding for all browsers
+            },
+           // Firefox-specific styling
+           "@supports (-moz-appearance: none)": {
+             "& .MuiOutlinedInput-input": {
+             padding: "16.5px 2px 16.5px 14px",
+           }
+          }
           }}
           defaultValue={filterFieldData.lessThanOrEqualTo}
+          onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => handleKeyDown(event)}
           onBlur={(e) => {
             handleCustomRequiredValueOnBlur(
               e.target.value,
@@ -1713,11 +2239,12 @@ const RenderMenu = () => {
                   sx={
                     filterFieldData.includeexclude === "Exclude"
                       ? {
-                        paddingBottom: "5px",
-                        color: "#ffb74d",
-                        textDecoration: "line-through",
-                      }
-                      : { paddingBottom: "8px" }
+                          paddingBottom: "5px",
+                          color: "#ffb74d",
+                          textDecoration: "line-through",
+                          minWidth: "100%"
+                        }
+                      : { paddingBottom: "8px", minWidth: "100%" }
                   }
                   InputProps={{
                     ...params.InputProps,
@@ -1729,8 +2256,9 @@ const RenderMenu = () => {
                           : "inherit",
                     },
                   }}
-                  className={`customDatePickerHeight ${dropDownStyles().customSelect
-                    }`}
+                  className={`customDatePickerHeight ${
+                    dropDownStyles().customSelect
+                  }`}
                 />
               ),
             }}
@@ -1750,8 +2278,8 @@ const RenderMenu = () => {
                   {...params}
                   sx={
                     filterFieldData.includeexclude === "Exclude"
-                      ? { textDecoration: "line-through", color: "#ffb74d" }
-                      : {}
+                      ? { textDecoration: "line-through", color: "#ffb74d", minWidth: "100%" }
+                      : {minWidth: "100%"}
                   }
                   InputProps={{
                     ...params.InputProps,
@@ -1763,8 +2291,9 @@ const RenderMenu = () => {
                           : "inherit",
                     },
                   }}
-                  className={`customDatePickerHeight ${dropDownStyles().customSelect
-                    }`}
+                  className={`customDatePickerHeight ${
+                    dropDownStyles().customSelect
+                  }`}
                 />
               ),
             }}
@@ -1780,7 +2309,7 @@ const RenderMenu = () => {
   ///Render Search condition user input control
   const CustomRequiredField = () => {
     var members = null;
-
+    if (filterFieldData.exprType === "blank") return <div>{members}</div>;
     if (dataType) {
       switch (dataType) {
         case "decimal":
@@ -1826,9 +2355,9 @@ const RenderMenu = () => {
                             sx={
                               filterFieldData.includeexclude === "Exclude"
                                 ? {
-                                  textDecoration: "line-through",
-                                  color: "#ffb74d",
-                                }
+                                    textDecoration: "line-through",
+                                    color: "#ffb74d",
+                                  }
                                 : {}
                             }
                             InputProps={{
@@ -1841,8 +2370,9 @@ const RenderMenu = () => {
                                     : "inherit",
                               },
                             }}
-                            className={`customDatePickerHeight ${dropDownStyles().customSelect
-                              }`}
+                            className={`customDatePickerHeight ${
+                              dropDownStyles().customSelect
+                            }`}
                           />
                         ),
                       }}
@@ -1890,20 +2420,25 @@ const RenderMenu = () => {
   });
 
   ///Dropdown list to select Time grain
-  const DropDownForDatePattern = ({ items }: any) => {
+  const DropDownForDatePattern = ({ items, usersx }: any) => {
     return (
       <FormControl
         fullWidth
         size="small"
         className={dropDownStyles().customSelect}
-        
       >
         <Select
           sx={{
             height: "1.5rem",
-            fontSize: "14px",
+            fontSize: fontSize.large,
             textAlign: "left",
-            
+            ".MuiSelect-icon": {
+              fontSize: fontSize.TripleExtraLarge,
+              marginLeft: "20px",
+              color: palette.primary.contrastText,
+              right: "5px",
+              ...usersx
+            },
           }}
           IconComponent={KeyboardArrowDownIcon}
           onChange={(e) => {
@@ -1916,7 +2451,7 @@ const RenderMenu = () => {
               <MenuItem
                 key={item.key}
                 value={item.key}
-                selected={item.key === filterFieldData.exprType} 
+                selected={item.key === filterFieldData.exprType}
                 sx={{
                   "&.Mui-selected": {
                     backgroundColor: "rgba(43, 185, 187, 0.1)", // Change background color for selected option
@@ -1924,12 +2459,13 @@ const RenderMenu = () => {
                   "&.Mui-selected:hover": {
                     backgroundColor: "rgba(43, 185, 187, 0.2)", // Change hover background color
                   },
-                }}               
+                }}
               >
                 <Typography
                   sx={{
                     // width: "155px",
                     // widht: "94%",
+                    minWidth: "100%",
                     width: "auto",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
@@ -1948,18 +2484,25 @@ const RenderMenu = () => {
   };
 
   ///Search Condition and Relative Filter Dropdown list to select condition
-  const DropDownForPattern = ({ items, exprType = "exprType" }: any) => {
+  const DropDownForPattern = ({ items, exprType = "exprType", usersx }: any) => {
     return (
       <FormControl
         fullWidth
         size="small"
-        className={dropDownStyles().customSelect}        
+        className={dropDownStyles().customSelect}
       >
         <Select
           sx={{
             height: "1.5rem",
-            fontSize: "14px",
-            textAlign: "left",            
+            fontSize: fontSize.large,
+            textAlign: "left",
+            ".MuiSelect-icon": {
+              fontSize: fontSize.TripleExtraLarge,
+              marginLeft: "20px",
+              color: palette.primary.contrastText,
+              ...usersx
+              // right: "3.5px",
+            },
           }}
           IconComponent={KeyboardArrowDownIcon}
           onChange={(e) => {
@@ -1969,19 +2512,22 @@ const RenderMenu = () => {
         >
           {items.map((item: any) => {
             return (
-              <MenuItem key={item.key} value={item.key}
-              sx={{
-                "&.Mui-selected": {
-                  backgroundColor: "rgba(43, 185, 187, 0.1)", // Change background color for selected option
-                },
-                "&.Mui-selected:hover": {
-                  backgroundColor: "rgba(43, 185, 187, 0.2)", // Change hover background color
-                },
-              }}
+              <MenuItem
+                key={item.key}
+                value={item.key}
+                sx={{
+                  "&.Mui-selected": {
+                    backgroundColor: "rgba(43, 185, 187, 0.1)", // Change background color for selected option
+                  },
+                  "&.Mui-selected:hover": {
+                    backgroundColor: "rgba(43, 185, 187, 0.2)", // Change hover background color
+                  },
+                }}
               >
                 <Typography
                   sx={{
                     width: "auto",
+                    minWidth: "100%",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     fontSize: "12px",
@@ -2006,9 +2552,13 @@ const RenderMenu = () => {
         case "decimal":
         case "integer":
           members = (
-            <DropDownForPattern
+            <DropDownForPatternCommon
+              value={filterFieldData["exprType"]}
+              handleDropDownChange={handleDropDownForPatternOnChange}
+              exprType={"exprType"}
               items={equalPatternCollections}
-            ></DropDownForPattern>
+              usersx={{ marginRight: "0rem", right: "4.5px" }}
+            ></DropDownForPatternCommon>
           );
           break;
         case "text":
@@ -2023,6 +2573,9 @@ const RenderMenu = () => {
           members = (
             <DropDownForPattern
               items={equalPatternCollections}
+              usersx={{
+                  marginRight: "-0.15rem",
+              }}
             ></DropDownForPattern>
           );
           break;
@@ -2039,9 +2592,9 @@ const RenderMenu = () => {
           display: "flex",
           flexDirection: "column",
           rowGap: "8px",
-          marginLeft: "6px",
+          // marginLeft: "6px",
           paddingTop: "2px",
-          width: "94%",
+          // width: "95%",
         }}
       >
         {members}
@@ -2054,7 +2607,11 @@ const RenderMenu = () => {
   const ExpandCollaseIconSwitch = () => {
     return filterFieldData.isCollapsed ? (
       <ChevronRightIcon
-        style={{ height: "18px", width: "18px", color: "#999999" }}
+        style={{
+          height: "18px",
+          width: "18px",
+          color: palette.primary.contrastText,
+        }}
         onClick={(e) => {
           filterFieldData.isCollapsed = false;
           updateUserFilterItem(
@@ -2068,7 +2625,11 @@ const RenderMenu = () => {
       />
     ) : (
       <KeyboardArrowDownIcon
-        style={{ height: "18px", width: "18px", color: "#999999" }}
+        style={{
+          height: "18px",
+          width: "18px",
+          color: palette.primary.contrastText,
+        }}
         onClick={(e) => {
           filterFieldData.isCollapsed = true;
           updateUserFilterItem(
@@ -2106,11 +2667,13 @@ const RenderMenu = () => {
         style={
           !filterFieldData.isCollapsed
             ? {
-              border: "1px #af99db solid",
-              color: "#af99db",
-              fontWeight: "bold",
-            }
-            : {}
+                border: "1px #af99db solid",
+                borderRadius: "4px",
+                color: "#af99db",
+                // fontWeight: "bold",
+                height: "1.5rem",
+              }
+            : { height: "1.5rem" }
         }
       >
         {/* remove column  */}
@@ -2119,24 +2682,54 @@ const RenderMenu = () => {
           className="buttonCommon columnClose"
           onClick={deleteItem}
           title="Remove field"
+          onMouseEnter={() => setIsHovered(true)} 
+          onMouseLeave={() => setIsHovered(false)} 
+          style={{ cursor: "pointer" }}
         >
-          <CloseRoundedIcon style={{ fontSize: "13px" }} />
+          <CloseRoundedIcon
+            style={{
+              fontSize: fontSize.semiLarge,
+              color: isHovered ? "red" : palette.primary.contrastText,
+            }}
+            // id="first_field_close_icon"
+          />
         </button>
 
         {/* filter column name */}
 
-        <span className="columnName" style={{ lineHeight: "15px" }}>
+        {/* <span className="columnName" style={{  }}>
           {field.fieldname}
-        </span>
+        </span> */}
+        <Typography
+          variant="body2"
+          sx={{
+            flexGrow: 1,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            // fontWeight: "600",
+            color: palette.primary.contrastText,
+            fontSize: fontSize.medium,
+          }}
+        >
+          {field.fieldname}
+        </Typography>
         {/* down arrow icon */}
         <button
           type="button"
           className="buttonCommon"
-          style={{ backgroundColor: "transparent" }}
+          style={{ backgroundColor: "transparent", padding: "1px 3px" }}
           title="More Options"
           onClick={handleClick}
         >
-          <MoreVertIcon style={{ fontSize: "16px", color: "#999999" }} />
+          <MoreVertIcon
+            style={{
+              fontSize: fontSize.semiLarge,
+              color: palette.primary.contrastText,
+              marginTop: "3px",
+              // marginRight: "2px",
+            }}
+          />
         </button>
 
         {/* expand colapse icon */}
@@ -2144,6 +2737,7 @@ const RenderMenu = () => {
           type="button"
           className="buttonCommon columnDown"
           title={filterFieldData.isCollapsed ? "Expand" : "Collapse"}
+          style={{ paddingInline: "4px" }}
         >
           <ExpandCollaseIconSwitch />
         </button>
@@ -2162,7 +2756,7 @@ const RenderMenu = () => {
             }
           >
             {filterFieldData.dataType === "timestamp" ||
-              filterFieldData.dataType === "date" ? (
+            filterFieldData.dataType === "date" ? (
               <div
                 className="CustomRequiredField"
                 style={{
@@ -2170,9 +2764,9 @@ const RenderMenu = () => {
                   display: "flex",
                   flexDirection: "column",
                   rowGap: "8px",
-                  marginLeft: "6px",
+                  // marginLeft: "6px",
                   paddingTop: "2px",
-                  width: "94%",
+                  // width: "95%",
                 }}
               >
                 {filterFieldData.fieldtypeoption === "Pick List" ? (
@@ -2190,7 +2784,7 @@ const RenderMenu = () => {
               <>
                 <SelecPickListCard></SelecPickListCard>
                 {filterFieldData.dataType === "timestamp" ||
-                  filterFieldData.dataType === "date" ? (
+                filterFieldData.dataType === "date" ? (
                   <SelecTillDate></SelecTillDate>
                 ) : null}
               </>
@@ -2200,7 +2794,7 @@ const RenderMenu = () => {
               <>
                 <CustomCard></CustomCard>
                 {filterFieldData.dataType === "timestamp" ||
-                  filterFieldData.dataType === "date" ? (
+                filterFieldData.dataType === "date" ? (
                   <SelecTillDate></SelecTillDate>
                 ) : null}
               </>

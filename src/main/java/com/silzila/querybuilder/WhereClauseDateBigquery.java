@@ -112,12 +112,10 @@ public class WhereClauseDateBigquery implements WhereClauseDate {
             
                 if (List.of("GREATER_THAN", "GREATER_THAN_OR_EQUAL_TO", "LESS_THAN", "LESS_THAN_OR_EQUAL_TO")
                     .contains(filter.getOperator().name())) {
-                where = excludeOperator + field + comparisonOperator.get(filter.getOperator().name()) + "'"
-                        + filter.getUserSelection().get(0) + "'";
+                where = OptionsBuilder.buildSingleOption(filter, excludeOperator, field, comparisonOperator);
                 } else if (filter.getOperator().name().equals("BETWEEN")) {
                 if (filter.getUserSelection().size() > 1) {
-                    where = excludeOperator + field + " BETWEEN '" + filter.getUserSelection().get(0) + "' AND '"
-                            + filter.getUserSelection().get(1) + "'";
+                    where = OptionsBuilder.buildSingleOption(filter, excludeOperator, field, comparisonOperator);
                 }
                 // for between, throw error if 2 values are not given
                 else {
@@ -134,7 +132,7 @@ public class WhereClauseDateBigquery implements WhereClauseDate {
         }
         //tillDate
         if(filter.getIsTillDate() && List.of("MONTH","DAYOFMONTH","YEARMONTH","YEAR","DAYOFWEEK","QUARTER","YEARQUARTER").contains(filter.getTimeGrain().name())){
-            where = "(\n\t\t" + where + TillDate.tillDate("bigquery", filter) + "\n\t\t)";
+            where = "(\n\t\t" + where + TillDate.tillDate("bigquery", filter,whereField) + "\n\t\t)";
             if(shouldExcludeTillDate){
                 where = " NOT " + where;
             }
@@ -159,8 +157,8 @@ public class WhereClauseDateBigquery implements WhereClauseDate {
         } else if (timeGrain.equals("DATE")) {
             dateExpression = "DATE(" + columnName + ")";                  
         } else if (timeGrain.equals("DAYOFWEEK")) {
-            dateExpression = "FORMAT_DATE('%A', DATE(" +columnName + "))";                   
-        } else if (timeGrain.equals("DAYOFMONTH")) {
+            dateExpression = "FORMAT_DATE('%A', DATE(" +columnName + "))";   
+        }else if (timeGrain.equals("DAYOFMONTH")) {
             dateExpression = "EXTRACT(DAY FROM " + columnName+ ")"; 
         }
 

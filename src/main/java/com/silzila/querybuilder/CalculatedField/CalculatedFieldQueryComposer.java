@@ -135,20 +135,23 @@ public class CalculatedFieldQueryComposer {
     }
 
     // to compose a fields with alias
-    public static String calculatedFieldComposedWithAlias(String vendorName, DataSchema ds,
-            List<CalculatedFieldRequest> calculatedFieldRequests) throws BadRequestException {
+    public static String calculatedFieldComposedWithAlias(String vendorName,DataSchema ds ,
+    List<CalculatedFieldRequest> calculatedFieldRequests) throws BadRequestException {
 
         StringBuilder calculatedField = new StringBuilder();
 
         String formattedAliasName = FieldNameProcessor.formatFieldName(
                 calculatedFieldRequests.get(calculatedFieldRequests.size() - 1).getCalculatedFieldName());
 
-        return calculatedField.append(" (").append(calculatedFieldComposed(vendorName, ds, calculatedFieldRequests))
+        if (List.of("oracle", "snowflake").contains(vendorName)) {
+                    formattedAliasName = "\"" + formattedAliasName + "\"";
+        }      
+        
+        return calculatedField.append(" (").append(calculatedFieldComposed(vendorName,ds, calculatedFieldRequests))
                 .append(") AS ").append(formattedAliasName).toString();
-    }
-
+        }
     // composing a query to get sample records of calculated field
-    public static String composeSampleRecordQuery(DataSchema ds, String vendorName,
+    public static String composeSampleRecordQuery(String vendorName,
             List<CalculatedFieldRequest> calculatedFieldRequests,
             DataSchema dataSchema, Integer recordCount) throws BadRequestException {
 
@@ -166,7 +169,7 @@ public class CalculatedFieldQueryComposer {
             }
         }
 
-        String selectField = calculatedFieldComposedWithAlias(vendorName, ds, calculatedFieldRequests);
+        String selectField = calculatedFieldComposedWithAlias(vendorName, dataSchema, calculatedFieldRequests);
 
         QueryBuilder queryBuilder = QueryBuilderFactory.getQueryBuilder(vendorName);
 
@@ -175,11 +178,11 @@ public class CalculatedFieldQueryComposer {
     }
 
     // to get distinct records
-     public String composeFilterOptionsQuery(DataSchema ds,String vendorName, List<CalculatedFieldRequest> calculatedFieldRequests,
+     public String composeFilterOptionsQuery(String vendorName, List<CalculatedFieldRequest> calculatedFieldRequests,
             DataSchema dataSchema) throws BadRequestException {
         StringBuilder query = new StringBuilder("SELECT DISTINCT \n\t");
 
-        query.append(calculatedFieldComposedWithAlias(vendorName,ds, calculatedFieldRequests));
+        query.append(calculatedFieldComposedWithAlias(vendorName,dataSchema, calculatedFieldRequests));
 
         Set<String> allColumnList = new HashSet<>();
 
@@ -191,8 +194,8 @@ public class CalculatedFieldQueryComposer {
             }
         }
 
-        if(ds.getFilterPanels().size()>0){
-            List<String> filterTableIds = ColumnListFromClause.getColumnListFromFilterPanels(ds.getFilterPanels());
+        if(dataSchema.getFilterPanels().size()>0){
+            List<String> filterTableIds = ColumnListFromClause.getColumnListFromFilterPanels(dataSchema.getFilterPanels());
             allColumnList.addAll(filterTableIds);
         }
 

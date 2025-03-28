@@ -80,28 +80,28 @@ const BottomBar = ({
   const navigate = useNavigate();
 
   useEffect(() => {
-    if(!state){
+    if (!state) {
       navigate("/")
     }
   }, [state, navigate])
 
   const tablesWithoutRelation: string[] = [];
-  const [viewerRestriction,setViewerRestriction]=useState<boolean>(false);
+  const [viewerRestriction, setViewerRestriction] = useState<boolean>(false);
   // const {workspaceContents,SubWorkspaceContents}=useSelector((state: RootState) => state.permissions)
   // const permission=useSelector((state:RootState)=>state.dataSetState.permission);
   useEffect(() => {
-      if(!editMode||!dsId)return;
-      // const allContents=[...workspaceContents,...SubWorkspaceContents];
-      // const selectedDs=allContents.find((item:any)=>item.id===dsId);
-      // if(!selectedDs)return;
-      // if(selectedDs.levelId===permissions.view)setViewerRestriction(true);
-      // else if(selectedDs.roleName===roles.CustomCreator && selectedDs.levelId===permissions.view)setViewerRestriction(true);
-      // if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)setViewerRestriction(true);
-      // else if(permission.roleName===roles.CustomCreator && permission.levelId===permissions.view)setViewerRestriction(true);
-      // else setViewerRestriction(false);
-  
-  
-    },[dsId, editMode]);
+    if (!editMode || !dsId) return;
+    // const allContents=[...workspaceContents,...SubWorkspaceContents];
+    // const selectedDs=allContents.find((item:any)=>item.id===dsId);
+    // if(!selectedDs)return;
+    // if(selectedDs.levelId===permissions.view)setViewerRestriction(true);
+    // else if(selectedDs.roleName===roles.CustomCreator && selectedDs.levelId===permissions.view)setViewerRestriction(true);
+    // if(permission.levelId===permissions.view||permission.levelId===permissions.restricted)setViewerRestriction(true);
+    // else if(permission.roleName===roles.CustomCreator && permission.levelId===permissions.view)setViewerRestriction(true);
+    // else setViewerRestriction(false);
+
+
+  }, [dsId, editMode]);
   useEffect(() => {
     if (selectedWorkspace !== "") {
       onSendData();
@@ -186,8 +186,8 @@ const BottomBar = ({
       setOpenAlert(true);
       setTestMessage(
         "Error: Every table should have atleast one relationship.\n" +
-          "tables with no Relationship\n" +
-          tablesWithoutRelation.map((el: string) => "\n" + el)
+        "tables with no Relationship\n" +
+        tablesWithoutRelation.map((el: string) => "\n" + el)
       );
       // setTimeout(() => {
       // 	setOpenAlert(false);
@@ -252,10 +252,10 @@ const BottomBar = ({
               tableName: item.tableName,
               dataType: item.dataType,
               uid: item.uid,
-              relativeCondition: item.filterType === "relativeFilter" ? { from: item.relativeCondition?.from ?? [], to: item.relativeCondition?.to ?? [], anchorDate: item.relativeCondition?.anchorDate === "specificDate" ? item.userSelection[0]?.toString() || "" : item.relativeCondition?.anchorDate || ""} : undefined,
+              relativeCondition: item.filterType === "relativeFilter" ? { from: item.relativeCondition?.from ?? [], to: item.relativeCondition?.to ?? [], anchorDate: item.relativeCondition?.anchorDate === "specificDate" ? item.userSelection[0]?.toString() || "" : item.relativeCondition?.anchorDate || "" } : undefined,
               displayName: item.displayName,
-              shouldExclude:  excludeInclude,
-              timeGrain: item.filterType === "relativeFilter"? "date" : item.timeGrain,
+              shouldExclude: excludeInclude,
+              timeGrain: item.filterType === "relativeFilter" ? "date" : item.timeGrain,
               operator: item.filterType === "pickList" ? "in" : item.operator,
               userSelection: item.userSelection,
               isTillDate: item.isStillData,
@@ -291,8 +291,8 @@ const BottomBar = ({
       } else {
         setTestMessage(
           "Error: Every table should have atleast one relationship.\n" +
-            "tables with no Relationship\n" +
-            tempTable.map((el: any) => "\n," + el.tableName)
+          "tables with no Relationship\n" +
+          tempTable.map((el: any) => "\n," + el.tableName)
         );
 
         setSeverity("error");
@@ -326,7 +326,8 @@ const BottomBar = ({
               // localStorage.setItem("parentId", workspaceId);
               const childWorkspaceName = localStorage.getItem("childWorkspaceName")
 
-              navigate(`/SubWorkspaceDetails/${workspaceId}`, {state: {childWorkspaceName}});
+              navigate(`/SubWorkspaceDetails/${workspaceId}`, { state: { childWorkspaceName } });
+              resetState();
             } else {
               let workspaceDetail: any = GetWorkSpaceDetails(
                 subWorkspaceList,
@@ -336,6 +337,7 @@ const BottomBar = ({
               localStorage.setItem("parentId", workspaceId);
 
               navigate(`/workspace/${workspaceId}`);
+              resetState();
             }
           }
         }, 2000);
@@ -469,13 +471,13 @@ const BottomBar = ({
         }}
       >
         <Tooltip
-          title={editMode && viewerRestriction?'You are not allowed to make any changes':"Click to Edit"}
+          title={editMode && viewerRestriction ? 'You are not allowed to make any changes' : "Click to Edit"}
           sx={{
             "& .MuiTextField-root": { margin: 1, width: "20px" },
           }}
         >
           <TextField
-          disabled={editMode && viewerRestriction}
+            disabled={editMode && viewerRestriction}
             id="margin-none"
             sx={{
               flex: 1,
@@ -547,7 +549,7 @@ const BottomBar = ({
               setOpenAlert(true);
               setTestMessage(
                 "Error: Every table should have atleast one relationship.\n" +
-                  "tables with no Relationship\n"
+                "tables with no Relationship\n"
               );
               return;
             }
@@ -562,14 +564,14 @@ const BottomBar = ({
             textTransform: "none",
             fontSize: fontSize.medium,
             lineHeight: "normal",
-            marginRight:'0.2rem',
-            cursor:viewerRestriction?'not-allowed':'pointer',
-            '&:disabled':{
-              cursor:'not-allowed',
-              pointerEvents:'auto'
+            marginRight: '0.2rem',
+            cursor: viewerRestriction ? 'not-allowed' : 'pointer',
+            '&:disabled': {
+              cursor: 'not-allowed',
+              pointerEvents: 'auto'
             }
           }}
-          disabled={ viewerRestriction}
+          disabled={viewerRestriction}
           style={{ backgroundColor: "#2BB9BB" }}
         >
           {sendOrUpdate}
@@ -585,7 +587,7 @@ const BottomBar = ({
         testMessage={testMessage}
         openAlert={openAlert}
       />
-      
+
 
       <Dialog open={open}>
         <div
@@ -598,17 +600,17 @@ const BottomBar = ({
             justifyContent: "center",
           }}
         >
-          <div style={{ fontWeight: "bold", textAlign: "center", padding:"0.5rem" }}>
+          <div style={{ fontWeight: "bold", textAlign: "center", padding: "0.5rem" }}>
             <div style={{
               fontSize: fontSize.large
             }}>
-            {editMode ? "CANCEL DATASET EDIT" : "CANCEL DATASET CREATION"}
-            <button 
-              style={{ background: 'none', border: 'none', cursor: 'pointer', float: 'right' }} 
-              onClick={() => setOpen(false)}
+              {editMode ? "CANCEL DATASET EDIT" : "CANCEL DATASET CREATION"}
+              <button
+                style={{ background: 'none', border: 'none', cursor: 'pointer', float: 'right' }}
+                onClick={() => setOpen(false)}
               >
-              <Close />
-            </button>
+                <Close />
+              </button>
             </div>
             <br />
             <p style={{ fontWeight: "normal" }}>

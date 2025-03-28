@@ -19,6 +19,8 @@ import com.silzila.querybuilder.CalculatedField.DateFlow.MotherDuckDateFlow;
 import com.silzila.querybuilder.CalculatedField.MathFlow.DuckDbMathFlow;
 import com.silzila.querybuilder.CalculatedField.TextFlow.MotherduckTextFlow;
 public class DuckDbQueryBuilder implements QueryBuilder {
+    static final String vendor = "motherduck";
+
     @Override
    public void processConditionalFlow(List<Flow> flows,
                                         Map<String, List<Flow>> flowMap,
@@ -28,7 +30,7 @@ public class DuckDbQueryBuilder implements QueryBuilder {
                                         Map<String, Field> fields,
                                         String flowKey,Map<String,CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
 
-            ConditionFlow.processConditionalFlow("motherduck", flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
+            ConditionFlow.processConditionalFlow(vendor, flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
     }
 
     @Override
@@ -59,7 +61,7 @@ public class DuckDbQueryBuilder implements QueryBuilder {
 
         StringBuilder query = new StringBuilder("SELECT \n\t");
         query.append(selectField);
-        
+
         if(((!allColumnList.isEmpty()&&allColumnList.size()!=0))) {
                                     
         String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,"duckdb");

@@ -25,19 +25,14 @@ public class FilterQueryBigquery {
         if(table==null){
             fromClause = " FROM `" + req.getDBName() + "." + req.getSchemaName() + "." + req.getTableName() + "` AS " + req.getTableId() + " ";
         }
-        else if(req.getIsCalculatedField()){
-            fromClause =" FROM " + req.getTableId() + " ";
-        }
-        else {
-            if (!table.isCustomQuery()) {
-                fromClause = " FROM `" + table.getDatabase() + "." + table.getSchema() + "." + table.getTable() + "` AS " + table.getId() + " ";
-            } else {
-                fromClause = " FROM (" + table.getCustomQuery() + ") AS " + table.getId() + " ";
-            }
+        else if (table.isCustomQuery()) { 
+            fromClause = " FROM (" + table.getCustomQuery() + ") AS " + table.getId() + " ";
+        } else {
+            fromClause = " FROM " + req.getFromClause() + " ";
         }
 
         if (req.getWhereClause() != null) {
-            fromClause = fromClause + " " + req.getWhereClause() ;
+            fromClause +=  " " + req.getWhereClause() ;
         }
         
         String selectField = req.getIsCalculatedField()?req.getFieldName():req.getTableId()+ "."  + req.getFieldName();

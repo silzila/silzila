@@ -70,6 +70,7 @@ const FileDropZone = ({ setSelectedFile, selectedFile, fileType}: FileDropZonePr
 		if (e.target.files && e.target.files[0]) {
 			Logger("info", e.target.files[0], "handleChange");
 			setSelectedFile(e.target.files[0]);
+      e.target.value = "";
 		} 
 	};
 

@@ -46,6 +46,7 @@ import { IFilter, IRelativeCondition } from "./BottomBarInterfaces";
 import { format } from "date-fns";
 import de from "date-fns/locale/de";
 import { fontSize, palette } from "../..";
+import { handleKeyDown } from "../CommonFunctions/CommonFunctions";
 export interface FilterElementProps {
   // filter: dataSetFilterArrayProps;
   filter: IFilter;
@@ -71,7 +72,7 @@ const FilterElement = ({
   setDataSetFilterArray,
 }: any) => {
   var switchColor = "#2bb9bb";
-  const searchConditionOperatorText=["beginsWith", "endsWith", "contains", "exactMatch"]
+  const searchConditionOperatorText = ["beginsWith", "endsWith", "contains", "exactMatch"]
 
   const withPatternCollections: PatternCollectionType[] = [
     { key: "beginsWith", value: "Start With" },
@@ -139,6 +140,7 @@ const FilterElement = ({
     tableId: filter.tableId,
     fieldName: filter.fieldName,
     dataType: filter.dataType,
+    schema: filter.schema,
     shouldExclude: filter.shouldExclude || false,
     timeGrain: filter.timeGrain || "year",
     operator: filter.operator,
@@ -184,7 +186,7 @@ const FilterElement = ({
   const [filterType, setFilterType] = useState(filter.filterType);
   const [inValidValueError, setInvalidValueError] = useState(false);
   const [operator, setOperator] = useState(filter.operator);
-  const [isTillDate,setIsTillDate]=useState(filter.isTillDate??false)
+  const [isTillDate, setIsTillDate] = useState(filter.isTillDate ?? false)
   const [formatedDate, setFormatedDate] = useState({
     from: "",
     to: "",
@@ -205,11 +207,11 @@ const FilterElement = ({
       dataType: filterFieldData.current.dataType,
       filterOption: "allValues",
       tableName: filterFieldData.current.tableName,
-      schemaName: schema,
+      schemaName: filterFieldData.current.schema,
       dbName,
       flatFileId: flatFileId,
       ...(filterFieldData.current.dataType === "timestamp" ||
-      filterFieldData.current.dataType === "date"
+        filterFieldData.current.dataType === "date"
         ? { timeGrain: filterFieldData.current.timeGrain || "year" }
         : {}),
     };
@@ -242,7 +244,7 @@ const FilterElement = ({
 
         anchorDate:
           filterFieldData.current.relativeCondition?.anchorDate ===
-          "specificDate"
+            "specificDate"
             ? formatDateToYYYYMMDD(filterFieldData.current.userSelection[0])
             : filterFieldData.current.relativeCondition?.anchorDate,
       };
@@ -263,12 +265,12 @@ const FilterElement = ({
 
         anchorDate:
           filterFieldData.current.relativeCondition?.anchorDate ===
-          "specificDate"
+            "specificDate"
             ? formatDateToYYYYMMDD(filterFieldData.current.userSelection[0])
             : filterFieldData.current.relativeCondition?.anchorDate,
       };
     }
-    const res:any = await FetchData({
+    const res: any = await FetchData({
       requestType: "withData",
       method: "POST",
       url: url,
@@ -298,7 +300,7 @@ const FilterElement = ({
       filterFieldData.current.operator = "in";
       (async () => {
         setLoading(true)
-        const res:any = await FetchData({
+        const res: any = await FetchData({
           requestType: "withData",
           method: "POST",
           url: `filter-options?dbconnectionid=${dbConnectionId}`,
@@ -313,23 +315,23 @@ const FilterElement = ({
             dataType: filterFieldData.current.dataType,
             filterOption: "allValues",
             tableName: filterFieldData.current.tableName,
-            schemaName: schema,
+            schemaName: filterFieldData.current.schema,
             dbName,
             flatFileId: flatFileId,
             ...(filterFieldData.current.dataType === "timestamp" ||
-            filterFieldData.current.dataType === "date"
+              filterFieldData.current.dataType === "date"
               ? { timeGrain: filterFieldData.current.timeGrain || "year" }
               : {}),
           },
         });
         if (res && res.status) {
+          const key = Object.keys(res.data)[0];
+          const values = res.data[key] || [];
           const data = [
             "(All)",
-            ...res.data
-              .map((item: any) => item[Object.keys(res.data[0])[0]])
-              .map((item: any) => {
-                return item!==null?item.toString():"Null"
-              }),
+            ...Array.isArray(values)
+              ? values.map((item) => (item !== null ? item.toString() : "Null"))
+              : [],
           ];
 
           filterFieldData.current = {
@@ -350,8 +352,8 @@ const FilterElement = ({
           });
           // setInclude(true);
         }
-        setDataSetFilterArray((prevFilters:any) => {
-          return prevFilters.map((filter:any) =>
+        setDataSetFilterArray((prevFilters: any) => {
+          return prevFilters.map((filter: any) =>
             filter.uid === filterFieldData.current.uid
               ? filterFieldData.current
               : filter
@@ -360,14 +362,14 @@ const FilterElement = ({
         setLoading(false)
       })();
     } else if (filterType === "searchCondition") {
-      if(filterFieldData.current.operator === "in"){
-         filterFieldData.current.operator = filterFieldData.current.dataType === "text" ?  withPatternCollections[0].key : "greaterThan"
+      if (filterFieldData.current.operator === "in") {
+        filterFieldData.current.operator = filterFieldData.current.dataType === "text" ? withPatternCollections[0].key : "greaterThan"
       }
-      let isValidOperator  = true
-      if(filterFieldData.current.dataType === "text" && !searchConditionOperatorText.includes(operator)){
+      let isValidOperator = true
+      if (filterFieldData.current.dataType === "text" && !searchConditionOperatorText.includes(operator)) {
         isValidOperator = false
       }
-      filterFieldData.current.operator = isValidOperator?filterFieldData.current.operator:withPatternCollections[0].key;
+      filterFieldData.current.operator = isValidOperator ? filterFieldData.current.operator : withPatternCollections[0].key;
       setSearchCondition(filterFieldData.current.operator);
       if (
         filterFieldData.current.dataType === "date" ||
@@ -408,8 +410,8 @@ const FilterElement = ({
         );
       }
 
-      setDataSetFilterArray((prevFilters:any) => {
-        return prevFilters.map((filter:any) =>
+      setDataSetFilterArray((prevFilters: any) => {
+        return prevFilters.map((filter: any) =>
           filter.uid === filterFieldData.current.uid
             ? filterFieldData.current
             : filter
@@ -431,14 +433,14 @@ const FilterElement = ({
           ) &&
           filterFieldData.current.relativeCondition
         ) {
-          filterFieldData.current.userSelection[0] =filter.relativeCondition?.anchorDate;
+          filterFieldData.current.userSelection[0] = filter.relativeCondition?.anchorDate;
           filterFieldData.current.relativeCondition.anchorDate = "specificDate";
         }
         getFormatedDate();
         setConditionValue(new Date(filterFieldData.current.userSelection[0]))
       }
-      setDataSetFilterArray((prevFilters:any) => {
-        return prevFilters.map((filter:any) =>
+      setDataSetFilterArray((prevFilters: any) => {
+        return prevFilters.map((filter: any) =>
           filter.uid === filterFieldData.current.uid
             ? filterFieldData.current
             : filter
@@ -465,8 +467,8 @@ const FilterElement = ({
    *
    */
   const handleDelete = (filterId: string) => {
-    setDataSetFilterArray((prevArray:any) =>
-      prevArray.filter((item:any) => item.uid !== filterId)
+    setDataSetFilterArray((prevArray: any) =>
+      prevArray.filter((item: any) => item.uid !== filterId)
     );
   };
   /**
@@ -481,21 +483,23 @@ const FilterElement = ({
       // await GetPickListItems();
       filterFieldData.current.timeGrain = event.target.value;
 
-      const res:any = await fetchFieldData("");
+      const res: any = await fetchFieldData("");
       if (res && res.status) {
+        const key = Object.keys(res.data)[0];
+        const values = res.data[key] || [];
         const data = [
           "(All)",
-          ...res.data
-            .map((item: any) => item[Object.keys(res.data[0])[0]])
-            .map((item: any) => item !== null && item.toString()),
+          ...Array.isArray(values)
+            ? values.map((item) => (item !== null ? item.toString() : "Null"))
+            : [],
         ];
 
         filterFieldData.current = {
           ...filterFieldData.current,
           userSelection: data.slice(1),
         };
-        setDataSetFilterArray((prevFilters:any) =>
-          prevFilters.map((filter:any) =>
+        setDataSetFilterArray((prevFilters: any) =>
+          prevFilters.map((filter: any) =>
             filter.uid === filterFieldData.current.uid
               ? filterFieldData.current
               : filter
@@ -509,8 +513,8 @@ const FilterElement = ({
       }
     } else if (filterFieldData.current.filterType === "searchCondition") {
       filterFieldData.current.timeGrain = event.target.value;
-      setDataSetFilterArray((prevFilters:any) =>
-        prevFilters.map((filter:any) =>
+      setDataSetFilterArray((prevFilters: any) =>
+        prevFilters.map((filter: any) =>
           filter.uid === filterFieldData.current.uid
             ? filterFieldData.current
             : filter
@@ -642,16 +646,16 @@ const FilterElement = ({
    * pickList section  
    */
   const SelecPickListCard = () => {
-    if(loading) return(
+    if (loading) return (
       <Stack spacing={1} sx={{
-        display:"flex",
-        justifyContent:"center",
-        alignItems:"center"
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
       }}>
-        <Skeleton variant='text' sx={{fontSize:"1rem"}}  width="90%"/>
-        <Skeleton variant='text' sx={{fontSize:"1rem"}}  width="90%"/>
-        <Skeleton variant='text' sx={{fontSize:"1rem"}}  width="90%"/>
-        
+        <Skeleton variant='text' sx={{ fontSize: "1rem" }} width="90%" />
+        <Skeleton variant='text' sx={{ fontSize: "1rem" }} width="90%" />
+        <Skeleton variant='text' sx={{ fontSize: "1rem" }} width="90%" />
+
       </Stack>
     );
     if (!picklist || picklist === null) return null;
@@ -659,7 +663,7 @@ const FilterElement = ({
       <div className="SelectionMembersCheckBoxArea">
         {picklist.allOptions?.map((item: any, index: number) => {
           return (
-            <label className="UserFilterCheckboxes" key={index}>
+            <label className="UserFilterCheckboxes" key={index} style={{ marginLeft: "0.6rem", gap: "0.4rem" }}>
               <Checkbox
                 checked={picklist.userSelection?.includes(item.toString())}
                 name={item}
@@ -684,7 +688,7 @@ const FilterElement = ({
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   ...(filterFieldData.current.shouldExclude &&
-                  picklist.userSelection?.includes(item)
+                    picklist.userSelection?.includes(item)
                     ? { textDecoration: "line-through" }
                     : {}),
                 }}
@@ -699,7 +703,7 @@ const FilterElement = ({
   };
 
 
- const handleCustomRequiredValueOnBlur = async (
+  const handleCustomRequiredValueOnBlur = async (
     val: number | string | Date | null,
     type: string,
     valType?: string
@@ -741,8 +745,8 @@ const FilterElement = ({
           : [temp_val];
         setConditionValue(val);
       }
-      if (valType && valType === "date" ) {
-        if ((filterFieldData.current.userSelection[0]!==null && filterFieldData.current.userSelection[1]!==null) &&
+      if (valType && valType === "date") {
+        if ((filterFieldData.current.userSelection[0] !== null && filterFieldData.current.userSelection[1] !== null) &&
           new Date(filterFieldData.current.userSelection[0]) >
           new Date(filterFieldData.current.userSelection[1])
         ) {
@@ -750,7 +754,7 @@ const FilterElement = ({
           return;
         }
       } else if (
-        (filterFieldData.current.userSelection[0]!==null && filterFieldData.current.userSelection[1]!==null) &&
+        (filterFieldData.current.userSelection[0] !== null && filterFieldData.current.userSelection[1] !== null) &&
         filterFieldData.current.userSelection[0] >
         filterFieldData.current.userSelection[1]
       ) {
@@ -776,30 +780,40 @@ const FilterElement = ({
           InputProps={
             filterFieldData.current.shouldExclude
               ? {
-                  style: {
-                    height: "26px",
-                    width: "100%",
-                    fontSize: "13px",
-                    marginRight: "30px",
-                    textDecoration: "line-through",
-                    color: "#ffb74d",
-                  },
-                }
+                style: {
+                  height: "26px",
+                  width: "100%",
+                  fontSize: "13px",
+                  marginRight: "30px",
+                  textDecoration: "line-through",
+                  color: "#ffb74d",
+                },
+              }
               : {
-                  style: {
-                    height: "26px",
-                    width: "100%",
-                    fontSize: "13px",
-                    marginRight: "30px",
-                  },
-                }
+                style: {
+                  height: "26px",
+                  width: "100%",
+                  fontSize: "13px",
+                  marginRight: "30px",
+                },
+              }
           }
           className="CustomInputValue"
           sx={{
             paddingBottom: "8px",
+            "& .MuiOutlinedInput-input": {
+              padding: "16.5px 14px", // Consistent padding for all browsers
+            },
+            // Firefox-specific styling
+            "@supports (-moz-appearance: none)": {
+              "& .MuiOutlinedInput-input": {
+                padding: "16.5px 2px 16.5px 14px",
+              }
+            }
           }}
           defaultValue={conditionValue}
           // defaultValue={filterFieldData.current.userSelection[0]}
+          onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => handleKeyDown(event)}
           onBlur={(e) => {
             handleCustomRequiredValueOnBlur(e.target.value, "lower_limit");
           }}
@@ -809,34 +823,48 @@ const FilterElement = ({
           InputProps={
             filterFieldData.current.shouldExclude
               ? {
-                  style: {
-                    height: "26px",
-                    width: "100%",
-                    fontSize: "13px",
-                    marginRight: "30px",
-                    textDecoration: "line-through",
-                    color: "#ffb74d",
-                  },
-                }
+                style: {
+                  height: "26px",
+                  width: "100%",
+                  fontSize: "13px",
+                  marginRight: "30px",
+                  textDecoration: "line-through",
+                  color: "#ffb74d",
+                },
+              }
               : {
-                  style: {
-                    height: "26px",
-                    width: "100%",
-                    fontSize: "13px",
-                    marginRight: "30px",
-                  },
-                }
+                style: {
+                  height: "26px",
+                  width: "100%",
+                  fontSize: "13px",
+                  marginRight: "30px",
+                },
+              }
           }
           className="CustomInputValue"
           sx={{
             paddingBottom: "8px",
+            "& .MuiOutlinedInput-input": {
+              padding: "16.5px 14px", // Consistent padding for all browsers
+            },
+            // Firefox-specific styling
+            "@supports (-moz-appearance: none)": {
+              "& .MuiOutlinedInput-input": {
+                padding: "16.5px 2px 16.5px 14px",
+              }
+            }
           }}
           // defaultValue={conditionValue2}
           defaultValue={filterFieldData.current.userSelection[1]}
+          onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => handleKeyDown(event)}
           onBlur={(e) => {
             handleCustomRequiredValueOnBlur(e.target.value, "upper_limit");
           }}
         />
+
+        {inValidValueError ? (
+          <span className="ErrorText">Please enter valid data.</span>
+        ) : null}
       </>
     );
   };
@@ -878,37 +906,52 @@ const FilterElement = ({
           InputProps={
             filterFieldData.current.shouldExclude
               ? {
-                  style: {
-                    height: "25px",
-                    width: "100%",
-                    fontSize: "13px",
-                    marginRight: "30px",
-                    textDecoration: "line-through",
-                    color: "#ffb74d",
-                  },
-                }
+                style: {
+                  height: "25px",
+                  width: "100%",
+                  fontSize: "13px",
+                  marginRight: "30px",
+                  textDecoration: "line-through",
+                  color: "#ffb74d",
+                },
+              }
               : {
-                  style: {
-                    height: "25px",
-                    width: "100%",
-                    fontSize: "13px",
-                    marginRight: "30px",
-                  },
-                }
+                style: {
+                  height: "25px",
+                  width: "100%",
+                  fontSize: "13px",
+                  marginRight: "30px",
+                },
+              }
           }
           placeholder="Value"
           sx={{
             paddingBottom: "8px",
+            "& .MuiOutlinedInput-input": {
+              padding: "16.5px 14px", // Consistent padding for all browsers
+            },
+            // Firefox-specific styling
+            "@supports (-moz-appearance: none)": {
+              "& .MuiOutlinedInput-input": {
+                padding: "16.5px 2px 16.5px 14px",
+              }
+            }
           }}
+          onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+            if (type === "number") {
+              handleKeyDown(event)
+            }
+          }
+          }
           defaultValue={conditionValue}
           onChange={(e) =>
             handleCustomRequiredValueOnBlur(e.target.value, "lower_limit")
           }
         />
 
-        {/* {filterFieldData.isInValidData ? (
+        {inValidValueError ? (
           <span className="ErrorText">Please enter valid data.</span>
-        ) : null} */}
+        ) : null}
       </>
     );
   };
@@ -930,10 +973,10 @@ const FilterElement = ({
                   sx={
                     filterFieldData.current.shouldExclude
                       ? {
-                          paddingBottom: "5px",
-                          color: "#ffb74d",
-                          textDecoration: "line-through",
-                        }
+                        paddingBottom: "5px",
+                        color: "#ffb74d",
+                        textDecoration: "line-through",
+                      }
                       : { paddingBottom: "8px" }
                   }
                   InputProps={{
@@ -984,6 +1027,9 @@ const FilterElement = ({
             }}
           />
         </LocalizationProvider>
+        {inValidValueError ? (
+          <span className="ErrorText">Please enter valid data.</span>
+        ) : null}
       </div>
     );
   };
@@ -1023,6 +1069,17 @@ const FilterElement = ({
               marginRight: "30px",
             },
           }}
+          sx={{
+            "& .MuiOutlinedInput-input": {
+              padding: "16.5px 14px", // Consistent padding for all browsers
+            },
+            // Firefox-specific styling
+            "@supports (-moz-appearance: none)": {
+              "& .MuiOutlinedInput-input": {
+                padding: "16.5px 2px 16.5px 14px",
+              }
+            }
+          }}
           placeholder="Value"
           defaultValue={
             exprType === "value_from"
@@ -1030,12 +1087,13 @@ const FilterElement = ({
               : filterFieldData.current.relativeCondition?.to[1]
           }
           type={type}
+          onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => handleKeyDown(event)}
           onBlur={(e) => handleRelativeValueOnBlur(e.target.value, exprType)}
         />
 
-        {/* {filterFieldData.isInValidData ? (
+        {inValidValueError ? (
           <span className="ErrorText">Please enter valid data.</span>
-        ) : null} */}
+        ) : null}
       </>
     );
   };
@@ -1048,7 +1106,7 @@ const FilterElement = ({
         exprType={exprType}
       ></RelativeFilterValueInputControl>
     );
-    return <div style={{width: "60px"}}>{members}</div>;
+    return <div style={{ width: "60px" }}>{members}</div>;
   };
 
   const SelecRelativeFilterCard = () => {
@@ -1089,9 +1147,9 @@ const FilterElement = ({
             }}
           />
         </LocalizationProvider>
-        {/* {filterFieldData.isInValidData ? (
+        {inValidValueError ? (
           <span className="ErrorText">Please enter valid data.</span>
-        ) : null} */}
+        ) : null}
       </div>
     );
     return (
@@ -1132,7 +1190,7 @@ const FilterElement = ({
         Based on Date
         {membersAnchordate}
         {filterFieldData.current.relativeCondition?.anchorDate ===
-        "specificDate"
+          "specificDate"
           ? datemember
           : null}
       </div>
@@ -1193,9 +1251,9 @@ const FilterElement = ({
                             sx={
                               filterFieldData.current.shouldExclude
                                 ? {
-                                    textDecoration: "line-through",
-                                    color: "#ffb74d",
-                                  }
+                                  textDecoration: "line-through",
+                                  color: "#ffb74d",
+                                }
                                 : {}
                             }
                             InputProps={{
@@ -1214,9 +1272,9 @@ const FilterElement = ({
                       format="MM/dd/yyyy"
                     />
                   </LocalizationProvider>
-                  {/* {filterFieldData.isInValidData ? (
-                      <span className="ErrorText">Please enter valid data.</span>
-                    ) : null} */}
+                  {inValidValueError ? (
+                    <span className="ErrorText">Please enter valid data.</span>
+                  ) : null}
                 </div>
               );
             }
@@ -1290,21 +1348,21 @@ const FilterElement = ({
     setSearchCondition(event.target.value);
     setConditionValue("");
     setConditionValue2("");
-    setDataSetFilterArray((prevFilters:any) =>
-      prevFilters.map((filter:any) =>
+    setDataSetFilterArray((prevFilters: any) =>
+      prevFilters.map((filter: any) =>
         filter.uid === filterFieldData.current.uid
           ? filterFieldData.current
           : filter
       )
     );
   };
-/**
- * 
- * @param event 
- * @param type 
- * 
- * for relative fi;ter this method modifies the filter values of filter.field.current and datasetFilterArray
- */
+  /**
+   * 
+   * @param event 
+   * @param type 
+   * 
+   * for relative fi;ter this method modifies the filter values of filter.field.current and datasetFilterArray
+   */
   const handleDropDownForRelativePatternOnChange = (
     event: any,
     type: string
@@ -1343,8 +1401,8 @@ const FilterElement = ({
     }
     setAnchorDate(filterFieldData.current.relativeCondition?.anchorDate || "");
     getFormatedDate();
-    setDataSetFilterArray((prevFilters:any) =>
-      prevFilters.map((filter:any) =>
+    setDataSetFilterArray((prevFilters: any) =>
+      prevFilters.map((filter: any) =>
         filter.uid === filterFieldData.current.uid
           ? filterFieldData.current
           : filter
@@ -1445,7 +1503,7 @@ const FilterElement = ({
       }
       return false;
     };
-    const getValue = (type: string): string => {
+    const getValue = (type: string) => {
       if (filterFieldData.current.relativeCondition) {
         if (type === "from") {
           return filterFieldData.current.relativeCondition.from[2];
@@ -1630,8 +1688,8 @@ const FilterElement = ({
         });
       }
     }
-    setDataSetFilterArray((prevFilters:any) =>
-      prevFilters.map((filter:any) =>
+    setDataSetFilterArray((prevFilters: any) =>
+      prevFilters.map((filter: any) =>
         filter.uid === filterFieldData.current.uid
           ? filterFieldData.current
           : filter
@@ -1640,16 +1698,9 @@ const FilterElement = ({
   };
   const SelecTillDate = () => {
     let labelTillDate;
-    if (filterFieldData.current.filterType === "searchCondition") {
-      labelTillDate = datePatternSearchConditionCollections.find(
-        (item) => item.key === filterFieldData.current.timeGrain
-      );
-    }
-    // if (filterFieldData.current.filterType === "relativeFilter") {
-    //   labelTillDate = datePatternRelativeFilterCollections.find(
-    //     (item) => item.key === filterFieldData.current.timeGrain
-    //   );
-    // }
+    labelTillDate = datePatternCollections.find(
+      (item) => item.key === filterFieldData.current.timeGrain
+    );
 
     let labelName = labelTillDate ? labelTillDate.value : null;
     if (labelName === "Year Quarter") {
@@ -1680,16 +1731,16 @@ const FilterElement = ({
             <Typography
               sx={
                 filterFieldData.current.isTillDate &&
-                filterFieldData.current.shouldExclude
+                  filterFieldData.current.shouldExclude
                   ? {
-                      fontSize: "13px",
-                      paddingRight: "15px",
-                      textDecoration: "line-through",
-                    }
+                    fontSize: "13px",
+                    paddingRight: "15px",
+                    textDecoration: "line-through",
+                  }
                   : {
-                      fontSize: "13px",
-                      paddingRight: "15px",
-                    }
+                    fontSize: "13px",
+                    paddingRight: "15px",
+                  }
               }
             >
               {labelName} Till Date
@@ -1709,8 +1760,8 @@ const FilterElement = ({
       filterFieldData.current.isTillDate = false;
       setIsTillDate(false)
     }
-    setDataSetFilterArray((prevFilters:any) =>
-      prevFilters.map((filter:any) =>
+    setDataSetFilterArray((prevFilters: any) =>
+      prevFilters.map((filter: any) =>
         filter.uid === filterFieldData.current.uid
           ? filterFieldData.current
           : filter
@@ -1868,7 +1919,7 @@ const FilterElement = ({
           }
         >
           {filterFieldData.current.dataType === "timestamp" ||
-          filterFieldData.current.dataType === "date" ? (
+            filterFieldData.current.dataType === "date" ? (
             <div
               className="CustomRequiredField"
               style={{
@@ -1895,14 +1946,14 @@ const FilterElement = ({
             <>
               <SelecPickListCard />
               {filterFieldData.current.dataType === "timestamp" ||
-          filterFieldData.current.dataType === "date" ?(<SelecTillDate/>):null}
+                filterFieldData.current.dataType === "date" ? (<SelecTillDate />) : null}
             </>
           ) : filterFieldData.current.filterType === "searchCondition" ? (
             <>
               <CustomCard />
               {(filterFieldData.current.dataType === "timestamp" ||
                 filterFieldData.current.dataType === "date") &&
-              filterFieldData.current.operator === "between" ? (
+                filterFieldData.current.operator === "between" ? (
                 <SelecTillDate />
               ) : null}
             </>

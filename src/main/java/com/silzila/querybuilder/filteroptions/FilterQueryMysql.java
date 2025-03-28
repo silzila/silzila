@@ -25,19 +25,15 @@ public class FilterQueryMysql {
         //if table is null getting information from column filter request directly
         if(table==null) {
             fromClause = " FROM " + req.getDBName() + "." + req.getTableName()+ " AS " + req.getTableId() + " ";
-        }  else if(req.getIsCalculatedField()){
-            fromClause =" FROM " + req.getTableId() + " ";
+        }  
+        else if (table.isCustomQuery()) { 
+            fromClause = " FROM (" + table.getCustomQuery() + ") AS " + table.getId() + " ";
+        } else {
+            fromClause = " FROM " + req.getFromClause() + " ";
         }
-        else{
-        if(!table.isCustomQuery()) {
-            fromClause = " FROM " + table.getDatabase() + "." + table.getTable() + " AS " + table.getId() + " ";
-        }else{
-            fromClause =" FROM (" + table.getCustomQuery() +") AS "+ table.getId() + " ";
-        }
-        }
-
+        
         if (req.getWhereClause() != null) {
-            fromClause = fromClause + " " + req.getWhereClause() ;
+            fromClause += " " + req.getWhereClause();
         }
         
         String selectField = req.getIsCalculatedField()?req.getFieldName():req.getTableId()+ "."  + req.getFieldName();

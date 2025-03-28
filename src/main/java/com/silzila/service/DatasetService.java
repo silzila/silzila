@@ -465,7 +465,7 @@ public class DatasetService {
         }
         /* DB based Dataset */
         if (ds.getIsFlatFileData() == false) {
-            String query = queryComposer.composeQuery(queries, ds, vendorName,isOverride);
+            String query = queryComposer.composeQuery(queries, ds, vendorName,isOverride,null);
 
             // for totals & subtotals only
             for (Query req : queries) {
@@ -490,7 +490,6 @@ public class DatasetService {
         /* Flat file based dataset, create DFs for necessary files used in query */
         // get table Id -> file Id -> file name
         else {
-
             // get all the table ids used in query
             List<String> tableIds = new ArrayList<String>();
             for (Query req : queries) {
@@ -509,11 +508,18 @@ public class DatasetService {
                     }
                 }
             }
+            if(ds.getDataSchema().getFilterPanels()!=null){
+                for (int i = 0; i < ds.getDataSchema().getFilterPanels().size(); i++) {
+                    for (int j = 0; j < ds.getDataSchema().getFilterPanels().get(i).getFilters().size(); j++) {
+                        tableIds.add(ds.getDataSchema().getFilterPanels().get(i).getFilters().get(j).getTableId());
+                    }
+                }
+            }
+
             // get distinct table ids
             final List<String> uniqueTableIds = tableIds.stream().distinct().collect(Collectors.toList());
             // get all file Ids (which is inside table obj)
             List<Table> tableObjList = ds.getDataSchema().getTables().stream()
-                    .filter(table -> uniqueTableIds.contains(table.getId()))
                     .collect(Collectors.toList());
 
             logger.info("unique table id =======\n" + uniqueTableIds.toString() +
@@ -526,7 +532,7 @@ public class DatasetService {
             // get files names from file ids and load the files as Views
             fileDataService.getFileNameFromFileId(userId, tableObjList, workspaceId);
             // come here
-            String query = queryComposer.composeQuery(queries, ds, "duckdb",isOverride);
+            String query = queryComposer.composeQuery(queries, ds, "duckdb",isOverride,null);
 
             // for totals & subtotals only
             for (Query req : queries) {
@@ -618,36 +624,29 @@ public class DatasetService {
             throws RecordNotFoundException, SQLException, JsonProcessingException,
             BadRequestException, ClassNotFoundException {
         // checking for datasetId to perform filter options for dataset filter
-        if (datasetId == null || datasetId.isEmpty()) {
-            String vendorName = "";
-            String query = "";
-            JSONArray jsonArray = null;
-            if (dBConnectionId == null || dBConnectionId.isEmpty()) {
-                query = filterOptionsQueryComposer.composeQuery(columnFilter, null, "duckdb");
-                logger.info("\n******* QUERY **********\n" + query);
-                // creating table object to send it to create a view with the fileId
-                Table table = new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null,
-                        columnFilter.getTableId(), null, null, false, null);
-                List<Table> tableObjects = new ArrayList<>();
-                tableObjects.add(table);
-                // calling this to crete a view to run on top of that
+        String query = "";
+        String vendorName = "";
+        JSONObject jsonObject = null;
+    if (datasetId == null || datasetId.isEmpty()) {
+            vendorName = (dBConnectionId == null || dBConnectionId.isEmpty()) ? "duckdb"
+                    : connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId, workspaceId);
+            query = filterOptionsQueryComposer.composeQuery(columnFilter, null, vendorName);
+            logger.info("\n******* QUERY **********\n" + query);
+            if ("duckdb".equals(vendorName)) {
+                List<Table> tableObjects = Collections.singletonList(
+                        new Table(columnFilter.getTableId(), columnFilter.getFlatFileId(), null, null, null,
+                                columnFilter.getTableId(), null, null, false, null));
                 fileDataService.getFileNameFromFileId(userId, tableObjects, workspaceId);
-                jsonArray = duckDbService.runQuery(query);
+                jsonObject = duckDbService.runQueryObject(query);
             } else {
-                vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId, workspaceId);
-                query = filterOptionsQueryComposer.composeQuery(columnFilter, null, vendorName);
-                logger.info("\n******* QUERY **********\n" + query);
-                jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
+                jsonObject = connectionPoolService.runQueryObject(dBConnectionId, userId, query);
             }
-            return jsonArray;
-
-        }
-
-        else {
-            String vendorName = "";
+            return jsonObject;
+        } else {
             DatasetDTO ds = loadDatasetInBuffer(workspaceId, dBConnectionId, datasetId, userId);
+            DataSchema dataSchema = ds.getDataSchema();
             // for DB based datasets, connection id is must
-            if (ds.getIsFlatFileData() == false) {
+            if (!ds.getIsFlatFileData()) {
                 if (dBConnectionId == null || dBConnectionId.isEmpty()) {
                     throw new BadRequestException("Error: DB Connection Id can't be empty!");
                 }
@@ -656,41 +655,43 @@ public class DatasetService {
                  * create connection pool (if not) and then get vendor name.
                  * SQL Dialect will be different based on vendor name
                  */
-                vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId, workspaceId);
-                String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, vendorName);
+                vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId,
+                        workspaceId);
+                query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, vendorName);
                 logger.info("\n******* QUERY **********\n" + query);
-                JSONArray jsonArray = connectionPoolService.runQuery(dBConnectionId, userId, query);
-                return jsonArray;
-            }
+              
+                return connectionPoolService.runQueryObject(dBConnectionId, userId, query);
 
+                
+            }
             /* Flat file based dataset, create DFs for necessary files used in query */
             // get table Id -> file Id -> file name
             else {
-
-                String tableId = columnFilter.getTableId();
-
+                List<String> tableIds = ColumnListFromClause.getColumnListFromCalculatedFieldAndFilterPanels(
+                        Collections.singletonList(columnFilter.getCalculatedField()),
+                        dataSchema.getFilterPanels(),
+                        columnFilter.getTableId());
                 // get all file Ids (which is inside table obj)
-                List<Table> tableObjList = ds.getDataSchema().getTables().stream()
-                        .filter(table -> table.getId().equals(tableId))
+                List<Table> tableObjList = dataSchema.getTables().stream()
+                        .filter(table -> tableIds.contains(table.getId()))
                         .collect(Collectors.toList());
-
                 // throw error when requested table id is not in dataset
-                if (tableObjList.size() != 1) {
-                    throw new BadRequestException("Error: table id is not present in Dataset!");
+                if (tableObjList.isEmpty()) {
+                    throw new BadRequestException("Error: Table ID is not present in Dataset!");
                 }
 
                 // get files names from file ids and load the files as Views
+
                 fileDataService.getFileNameFromFileId(userId, tableObjList, workspaceId);
-                // build query
-                String query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, "duckdb");
+
+                query = filterOptionsQueryComposer.composeQuery(columnFilter, ds, "duckdb");
                 logger.info("\n******* QUERY **********\n" + query);
-                // List<JsonNode> jsonNodes = sparkService.runQuery(query);
-                // return jsonNodes;
-                JSONArray jsonArray = duckDbService.runQuery(query);
-                return jsonArray.toString();
+
+                return duckDbService.runQueryObject(query);
+                
             }
         }
-
+    
     }
 
     public JSONArray relativeFilter(String userId, String dBConnectionId, String datasetId, String workspaceId,
@@ -702,27 +703,21 @@ public class DatasetService {
 
     }
 
-    public JSONObject syncFilterOption(String userId, List<Filter> filters, String dBConnectionId, String datasetId,
-            String workspaceId)
-            throws RecordNotFoundException, SQLException, JsonProcessingException, BadRequestException,
-            ClassNotFoundException {
+    public JSONObject syncFilterOption(String userId, List<Filter> filters, String dBConnectionId, String datasetId, String workspaceId)
+            throws RecordNotFoundException, SQLException, JsonProcessingException, BadRequestException, ClassNotFoundException {
 
         // Check if the userId is null or empty, and throw an exception if it is invalid
         if (userId == null || userId.isEmpty()) {
             throw new BadRequestException("User ID must not be null or empty");
         }
 
-
         // Load the dataset into memory using provided connection and dataset IDs
         DatasetDTO ds = loadDatasetInBuffer(workspaceId, dBConnectionId, datasetId, userId);
         
-
-
-        // if we have relative filter so we have to preprocess it
-        for (Filter filter : filters) {
-            if (filter.getRelativeCondition() != null) {
-                relativeFilterProcessor.processFilter(filter, userId, dBConnectionId, datasetId, workspaceId,
-                        this::relativeFilter);
+//        if we have relative filter so we have to preprocess it
+        for (Filter filter: filters) {
+            if(filter.getRelativeCondition()!=null)  {
+                relativeFilterProcessor.processFilter(filter,userId, dBConnectionId, datasetId, workspaceId ,this::relativeFilter);
             }
         }
 
@@ -733,25 +728,18 @@ public class DatasetService {
                 throw new BadRequestException("Error: DB Connection Id can't be empty!");
             }
 
-            // Retrieve the vendor name from the connection pool based on the DB connection
-            // ID and user ID
-            String vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId,
-                    workspaceId);
+            // Retrieve the vendor name from the connection pool based on the DB connection ID and user ID
+            String vendorName = connectionPoolService.getVendorNameFromConnectionPool(dBConnectionId, userId,workspaceId);
 
-            // Compose the SQL query specific to the database based on column filters,
-            // dataset, and vendor name
+            // Compose the SQL query specific to the database based on column filters, dataset, and vendor name
             String query = SyncFilterOptionsQueryComposer.composeQuery(filters, ds, vendorName, userId);
-
-            // Validate that the query is not empty or null, and throw an exception if it is
-            // invalid
             if ( query == null) {
-               return null;
-            }
+                return null;
+             }
 
             logger.info("\n******* QUERY **********\n" + query);
 
-            // Execute the query on the database using the connection pool service and
-            // return the result as a JSON object
+            // Execute the query on the database using the connection pool service and return the result as a JSON object
             JSONObject jsonObject = connectionPoolService.runQueryObject(dBConnectionId, userId, query);
             return jsonObject;
 
@@ -770,29 +758,24 @@ public class DatasetService {
                 throw new BadRequestException("Error: No table ids found in column filters!");
             }
 
-            // Retrieve table objects from the dataset schema that match the provided table
-            // IDs
+            // Retrieve table objects from the dataset schema that match the provided table IDs
             List<Table> tableObjList = ds.getDataSchema().getTables().stream()
                     .filter(table -> tableIds.contains(table.getId()))
                     .collect(Collectors.toList());
 
-            // Check that at least one matching table object is found in the dataset, else
-            // throw an exception
+            // Check that at least one matching table object is found in the dataset, else throw an exception
             if (tableObjList.size() < 1) {
                 throw new BadRequestException("Error: table id is not present in Dataset!");
             }
 
             // Load flat files as database views in DuckDB using the file service
-            fileDataService.getFileNameFromFileId(userId, tableObjList, workspaceId);
+            fileDataService.getFileNameFromFileId(userId ,tableObjList,workspaceId);
 
-            // Build the query for DuckDB based on the column filters, dataset, and
-            // specified 'duckdb' vendor type
+            // Build the query for DuckDB based on the column filters, dataset, and specified 'duckdb' vendor type
             String query = SyncFilterOptionsQueryComposer.composeQuery(filters, ds, "duckdb", userId);
 
-            // Ensure the DuckDB query is not empty or null, and throw an exception if
-            // invalid
             if ( query == null) {
-                return null;
+               return null;
             }
 
             logger.info("\n******* QUERY **********\n" + query);
@@ -800,9 +783,7 @@ public class DatasetService {
             // Execute the DuckDB query
             return duckDbService.runSyncQuery(query);
         }
-
     }
-
     public JSONArray testCalculateField(String userId, String dbConnectionId, String datasetId,
             String workspaceId, List<CalculatedFieldRequest> calculatedFieldRequests, Integer recordCount)
             throws RecordNotFoundException, SQLException, JsonMappingException, JsonProcessingException,
@@ -817,7 +798,7 @@ public class DatasetService {
 
         DatasetDTO ds = loadDatasetInBuffer(workspaceId, dbConnectionId, datasetId, userId);
 
-        String query = CalculatedFieldQueryComposer.composeSampleRecordQuery(ds.getDataSchema(), vendorName, calculatedFieldRequests,
+        String query = CalculatedFieldQueryComposer.composeSampleRecordQuery( vendorName, calculatedFieldRequests,
                 ds.getDataSchema(), recordCount);
 
         logger.info("\n******* QUERY **********\n" + query);
@@ -854,7 +835,7 @@ public class DatasetService {
 
         DatasetDTO ds = loadDatasetInBuffer(workspaceId, dbConnectionId, datasetId, userId);
 
-        String query = calculatedFieldQueryComposer.composeFilterOptionsQuery(ds.getDataSchema(), vendorName, calculatedFieldRequest,
+        String query = calculatedFieldQueryComposer.composeFilterOptionsQuery( vendorName, calculatedFieldRequest,
                 ds.getDataSchema());
 
         logger.info("\n******* QUERY **********\n" + query);

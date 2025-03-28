@@ -46,6 +46,27 @@ export const DeleteAllCookies = () => {
 
 };
 
+export const getCalculationByUid = (uid: string, savedCalculations?: any[]) => {
+  if (!uid || !savedCalculations) return {};
+  const calc = savedCalculations.find((calculation) => calculation.uuid === uid);
+  if (!calc) return {};
+  return {
+    calculatedField: [calc.calculationInfo],
+    isCalculatedField: true,
+  }
+};
+
+export const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  if (event.key === 'Backspace' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+    return;
+  }
+  const regexForIntegerNumbers = /^[0-9]$/
+
+  if (!regexForIntegerNumbers.test(event.key)) {
+    event.preventDefault();
+  }
+};
+
 export const ConvertListOfListToRichTreeViewList = (list: any) => {
   let treeView: any = [];
 
@@ -354,7 +375,7 @@ export const getLabelValues = async (
     chartProperties.properties[propKey].chartAxes[1].fields.forEach(
       async (el: any) => {
         //if (el.dataType === "date") {
-        
+
         // if (columnName.includes(el.fieldname)) {
         if (columnName === el.displayname) {
           //formattedColumnName = `${el.timeGrain} of ${el.fieldname}`;
@@ -538,16 +559,16 @@ const fetchFieldData = (
   });
 };
 
-export const modifyFilter = (filter: any,savedCalculations?:any[]): IFilter => {
-  const getCalculationByUid = (uid: string,savedCalculations?:any[]) => {
-    if(!uid||!savedCalculations) return null;
+export const modifyFilter = (filter: any, savedCalculations?: any[]): IFilter => {
+  const getCalculationByUid = (uid: string, savedCalculations?: any[]) => {
+    if (!uid || !savedCalculations) return null;
     return savedCalculations.find((calculation) => calculation.uuid === uid);
 
   }
-  const calculation = getCalculationByUid(filter.SavedCalculationUUID,savedCalculations);
-  const calculationDetails={
-    calculatedField:[calculation?.calculationInfo],
-    isCalculatedField:true
+  const calculation = getCalculationByUid(filter.SavedCalculationUUID, savedCalculations);
+  const calculationDetails = {
+    calculatedField: [calculation?.calculationInfo],
+    isCalculatedField: true
   }
   if (filter.fieldtypeoption === "Pick List") {
     return {
@@ -565,7 +586,7 @@ export const modifyFilter = (filter: any,savedCalculations?:any[]): IFilter => {
       ...(filter.dataType === "date" || filter.dataType === "timestamp"
         ? { timeGrain: filter.prefix }
         : {}),
-      ...((filter.isCalculatedField &&calculation)? {...calculationDetails} : {})
+      ...((filter.isCalculatedField && calculation) ? { ...calculationDetails } : {})
     };
   } else if (filter.fieldtypeoption === "Search Condition") {
     return {
@@ -586,7 +607,7 @@ export const modifyFilter = (filter: any,savedCalculations?:any[]): IFilter => {
       ...(filter.dataType === "date" || filter.dataType === "timestamp"
         ? { timeGrain: filter.prefix }
         : {}),
-        ...((filter.isCalculatedField &&calculation)? {...calculationDetails} : {})
+      ...((filter.isCalculatedField && calculation) ? { ...calculationDetails } : {})
     };
   } else {
     // return {}
@@ -619,7 +640,7 @@ export const modifyFilter = (filter: any,savedCalculations?:any[]): IFilter => {
             ? filter.expTypeAnchorDate
             : filter.expTypeAnchorDate,
       },
-      ...((filter.isCalculatedField &&calculation)?{...calculationDetails} : {})
+      ...((filter.isCalculatedField && calculation) ? { ...calculationDetails } : {})
     };
   }
 };
@@ -700,7 +721,7 @@ export function areNestedObjectsEqual(obj1Str: string, obj2Str: string): boolean
     // Parse the JSON strings into objects
     const obj1 = JSON.parse(obj1Str);
     const obj2 = JSON.parse(obj2Str);
-    
+
     function deepCompare(obj1: any, obj2: any): boolean {
       if (typeof obj1 !== typeof obj2) return false;
 
@@ -731,8 +752,8 @@ export function deletePlaybookDetailsFromSessionStorage() {
   for (let i = 0; i < sessionStorage.length; i++) {
     const key = sessionStorage.key(i);
     if (key && key.startsWith("pb_id_")) {
-      sessionStorage.removeItem(key); 
-      i--; 
+      sessionStorage.removeItem(key);
+      i--;
     }
   }
 }

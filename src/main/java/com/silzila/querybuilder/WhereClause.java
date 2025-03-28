@@ -76,7 +76,7 @@ public class WhereClause {
             CalculatedFieldQueryComposer calculatedFieldQueryComposer = new CalculatedFieldQueryComposer();
             String field = filter.getIsCalculatedField() 
                             ? calculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds,filter.getCalculatedField()) 
-                            : (filter.getIsField()
+                            : ("field".equals(filter.getConditionType().getLeftOperandType())
                                 ? filter.getTableId() + "." + filter.getFieldName() 
                                 : filter.getFieldName());
 
@@ -154,6 +154,10 @@ public class WhereClause {
                             + filter.getUserSelection().get(0);
 
                 }
+                else if (filter.getOperator().name().equals("NOT_EQUAL_TO")) {
+                    where = field + excludeSymbol + "= "
+                            + filter.getUserSelection().get(0);
+                }
                 // multiple values (any one value) exact match
                 else if (filter.getOperator().name().equals("IN")) {
                     String options = "";
@@ -213,7 +217,7 @@ public class WhereClause {
 
                 // Calling Dialect specific methods
                 if (filter.getFilterType().equals("tillDate")) {
-                    where = TillDate.tillDate(vendorName, filter);
+                    where = TillDate.tillDate(vendorName, filter,field);
                 } else {
                     if(filter.getIsCalculatedField()){
                         filter.setFieldName(field);

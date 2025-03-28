@@ -20,6 +20,7 @@ import com.silzila.querybuilder.CalculatedField.MathFlow.SnowflakeMathFlow;
 import com.silzila.querybuilder.CalculatedField.TextFlow.SnowflakeTextFlow;
 
 public class SnowflakeQueryBuilder implements QueryBuilder{
+    static final String vendor = "snowflake";
     
     @Override
    public void processConditionalFlow(List<Flow> flows,
@@ -30,7 +31,7 @@ public class SnowflakeQueryBuilder implements QueryBuilder{
                                         Map<String, Field> fields,
                                         String flowKey,Map<String,CalculatedFieldDTO> calculatedFieldMap,DataSchema ds) throws BadRequestException {
 
-            ConditionFlow.processConditionalFlow("snowflake", flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
+            ConditionFlow.processConditionalFlow(vendor, flows, flowMap, flowStringMap, conditionFilterMap, conditionFilterStringMap, fields, flowKey, calculatedFieldMap,ds);
     }
 
     @Override
@@ -64,7 +65,7 @@ public class SnowflakeQueryBuilder implements QueryBuilder{
         
         if(((!allColumnList.isEmpty()&&allColumnList.size()!=0))) {
                                     
-        String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,"snowflake");
+        String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,vendor);
 
         query.append("\nFROM ").append(fromClause);
         }

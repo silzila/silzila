@@ -3,6 +3,7 @@ package com.silzila.querybuilder;
 import com.silzila.dto.DatasetDTO;
 import com.silzila.exception.BadRequestException;
 import com.silzila.helper.AilasMaker;
+import com.silzila.helper.TypeCastingUtil;
 import com.silzila.payload.internals.QueryClauseFieldListMap;
 import com.silzila.payload.request.Dimension;
 import com.silzila.payload.request.Measure;
@@ -13,16 +14,20 @@ import com.silzila.querybuilder.CalculatedField.helper.DataTypeProvider;
 import java.util.*;
 
 public class SelectClauseDB2 {
+
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, DatasetDTO ds) throws BadRequestException {
+        
+        return buildSelectClause(req, vendorName, ds, null);
+    }
+
     /* SELECT clause for DB2 dialect */
-    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName, DatasetDTO ds,
-            Map<String, Integer>... aliasnumber) throws BadRequestException {
+    public static QueryClauseFieldListMap buildSelectClause(Query req, String vendorName,DatasetDTO ds, Map<String,Integer> aliasNumber) throws BadRequestException {
 
         Map<String, Integer> aliasNumbering = new HashMap<>();
-        // aliasing for only measure override
-        Map<String, Integer> aliasNumberingM = new HashMap<>();
+        // aliasing for only measure  override
+        Map<String,Integer> aliasNumberingM = new HashMap<>();
 
-        if (aliasnumber != null && aliasnumber.length > 0) {
-            Map<String, Integer> aliasNumber = aliasnumber[0];
+        if (aliasNumber != null ) {
             aliasNumber.forEach((key, value) -> aliasNumberingM.put(key, value));
         }
 
@@ -47,16 +52,15 @@ public class SelectClauseDB2 {
          */
         for (int i = 0; i < req.getDimensions().size(); i++) {
             Dimension dim = req.getDimensions().get(i);
-            // If the base dimension goes up to order_date_2 and the measure is order_date,
-            // it should be order_date_3.
-            // If the overridden dimension includes additional order_date values, we want to
-            // keep the measure as order_date_3.
-            if (aliasnumber != null && aliasnumber.length > 0) {
+            // If the base dimension goes up to order_date_2 and the measure is order_date, it should be order_date_3.
+            // If the overridden dimension includes additional order_date values, we want to keep the measure as order_date_3.
+            if(aliasNumber != null ){
 
-                for (String key : aliasNumberingM.keySet()) {
+                for(String key : aliasNumberingM.keySet()){
 
-                    for (String key1 : aliasNumbering.keySet()) {
-                        if (aliasNumbering.containsKey(key) && aliasNumberingM.containsKey(key1)) {
+                    for(String key1 : aliasNumbering.keySet()){
+                         // Ensure that both keys exist in their respective maps before accessing
+                         if (aliasNumbering.containsKey(key) && aliasNumberingM.containsKey(key1)) {
                             if (key.equals(req.getMeasures().get(0).getFieldName())
                                     && key.equals(key1)
                                     && aliasNumbering.get(key).equals(aliasNumberingM.get(key1))) {
@@ -71,14 +75,15 @@ public class SelectClauseDB2 {
 
             }
             String field = "";
-            String selectField = (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null)
-                    ? CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName, ds.getDataSchema(), dim.getCalculatedField())
-                    : dim.getTableId() + "." + dim.getFieldName();
-
-            if (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) {
-                dim.setDataType(Dimension.DataType.fromValue(
-                        DataTypeProvider.getCalculatedFieldDataTypes(dim.getCalculatedField())));
-            }
+            String selectField = (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) 
+            ? CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName, ds.getDataSchema(), dim.getCalculatedField()) 
+            : dim.getTableId() + "." + dim.getFieldName();
+        
+        if (Boolean.TRUE.equals(dim.getIsCalculatedField()) && dim.getCalculatedField() != null) {
+            dim.setDataType(Dimension.DataType.fromValue(
+                DataTypeProvider.getCalculatedFieldDataTypes(dim.getCalculatedField())
+            ));
+        }
             // for non Date fields, Keep column as is
             if (List.of("TEXT", "BOOLEAN", "INTEGER", "DECIMAL").contains(dim.getDataType().name())) {
                 field = selectField;
@@ -125,9 +130,7 @@ public class SelectClauseDB2 {
                 }
                 // yearmonth name -> 2015-08
                 else if (dim.getTimeGrain().name().equals("YEARMONTH")) {
-                    field = "TO_CHAR(YEAR(" + selectField
-                            + ")) || '-' || LPAD(TO_CHAR(MONTH(" + selectField
-                            + ")),2,0)";
+                    field = "TO_CHAR(YEAR(" + selectField+")) || '-' || LPAD(TO_CHAR(MONTH(" + selectField + ")),2,0)";
                     groupByDimList.add(field);
                     orderByDimList.add(field);
                 }
@@ -183,6 +186,7 @@ public class SelectClauseDB2 {
             // checking ('count', 'countnn', 'countn', 'countu')
             String field = "";
             String windowFn = "";
+            
             String selectField = meas.getIsCalculatedField()?CalculatedFieldQueryComposer.calculatedFieldComposed(vendorName,ds.getDataSchema(),meas.getCalculatedField()): meas.getTableId() + "." + meas.getFieldName();
             if (meas.getIsCalculatedField()) {
                 meas.setDataType(Measure.DataType.fromValue(
@@ -289,6 +293,7 @@ public class SelectClauseDB2 {
             }
             // for number fields, do aggregation
             else if (List.of("INTEGER", "DECIMAL").contains(meas.getDataType().name())) {
+                selectField = TypeCastingUtil.castDatatype(selectField, vendorName,"BIGINT");
                 List<String> aggrList = List.of("SUM", "AVG", "MIN", "MAX");
                 if (aggrList.contains(meas.getAggr().name())) {
                     field = meas.getAggr().name() + "(" + selectField + ")";
@@ -307,20 +312,20 @@ public class SelectClauseDB2 {
                 }
             }
             // if windowFn not null it will execute window function for postgresql
-            if (meas.getWindowFn()[0] != null) {
-                windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName, ds);
+            if(meas.getWindowFn()[0] != null){
+                windowFn = SelectClauseWindowFunction.windowFunction(meas, req, field, vendorName,ds);
+                // if aliasNumber is not null, to maintain alias sequence for measure field
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-                // if aliasnumber is not null, to maintain alias sequence for measure field
-                if (aliasnumber != null && aliasnumber.length > 0) {
-                    alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
+                if(aliasNumber != null ){
+                    alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
                 }
-                // selectMeasureList.add(field + " AS " + alias);
+                //selectMeasureList.add(field + " AS _*" + alias);
                 selectMeasureList.add(windowFn + " AS " + alias);
             } else {
                 String alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumbering);
-                // if aliasnumber is not null, to maintain alias sequence for measure field
-                if (aliasnumber != null && aliasnumber.length > 0) {
-                    alias = AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
+                // if aliasNumber is not null, to maintain alias sequence for measure field
+                if(aliasNumber != null ){
+                    alias= AilasMaker.aliasing(meas.getFieldName(), aliasNumberingM);
                 }
                 selectMeasureList.add(field + " AS " + alias);
             }
