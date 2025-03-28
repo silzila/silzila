@@ -1414,13 +1414,13 @@ const UserFilterCard = ({
       }
 
       if (sortOptions.includes("Remove Blank")) {
-        tempResult = tempResult.filter((val: string) => val !== "(blank)");
+        tempResult = tempResult.filter((val: string) => val !== "(Blank)");
       }
 
       if (sortOptions.includes("Blank at Bottom")) {
-        const blanks = tempResult.filter((val: string) => val === "(blank)");
+        const blanks = tempResult.filter((val: string) => val === "(Blank)");
         tempResult = tempResult
-          .filter((val: string) => val !== "(blank)")
+          .filter((val: string) => val !== "(Blank)")
           .concat(blanks);
       }
 

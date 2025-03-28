@@ -380,7 +380,7 @@ const ChartFilterGroupCard = ({
 
       // Start with (All) and raw result list
       let tempResult = ["(All)", ...result];
-
+      filterFieldData.rawselectmembersOriginal = ["(All)", ...result];
       // Apply multiple sortOptions
       if (sortOptions.includes("Sort Desc")) {
         tempResult = ["(All)", ...result.sort().reverse()];
@@ -1003,21 +1003,21 @@ const ChartFilterGroupCard = ({
       const sortOptions = selectedSortOptions.includes(sortOpt)
         ? selectedSortOptions.filter((opt: any) => opt !== sortOpt) // Deselect if already selected
         : [...selectedSortOptions, sortOpt];
-      let tempResult = ["(All)", filterFieldData["rawselectmembers"]];
+      let tempResult = filterFieldData["rawselectmembersOriginal"];
       // Apply multiple sortOptions
       if (sortOptions.includes("Sort Desc")) {
-        tempResult = ["(All)", ...filterFieldData["rawselectmembers"].filter((item: any) => item !== "(All)").sort().reverse()];
+        tempResult = ["(All)", ...tempResult.filter((item: any) => item !== "(All)").sort().reverse()];
       } else {
-        tempResult = ["(All)", ...filterFieldData["rawselectmembers"].filter((item: any) => item !== "(All)").sort()]; // Default to ascending if no "Sort Desc"
+        tempResult = ["(All)", ...(tempResult.filter((item: any) => item !== "(All)").sort()),]; // Default to ascending if no "Sort Desc"
       }
 
       if (sortOptions.includes("Remove Blank")) {
-        tempResult = tempResult.filter((val: string) => val !== "(blank)");
+        tempResult = tempResult.filter((val: string) => val !== "(Blank)");
       }
 
       if (sortOptions.includes("Blank at Bottom")) {
-        const blanks = tempResult.filter((val: string) => val === "(blank)");
-        tempResult = tempResult.filter((val: string) => val !== "(blank)").concat(blanks);
+        const blanks = tempResult.filter((val: string) => val === "(Blank)");
+        tempResult = tempResult.filter((val: string) => val !== "(Blank)").concat(blanks);
       }
 
       // Store sorted data in filterFieldData

@@ -169,6 +169,32 @@ const FlowList = ({
 
     }
 
+    const tableDetailsResponse = await FetchData({
+      requestType: "noData",
+      method: "GET",
+      url: `dataset/${datasetId}?workspaceId=${workSpaceId}`,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    let tableDetails;
+    let tableSchema;
+
+    if (tableDetailsResponse.status === true) {
+      tableDetails = await tableDetailsResponse.data;
+      tableSchema = tableDetails.dataSchema.tables;
+    } else {
+      if (alert) {
+        setAlert(null)
+        setAlert({ severity: 'warning', message: "Something went wrong." })
+      }
+      return;
+    }
+
+    const tableInfo = tableSchema.find((table: any) => table.id === tableIdToPushInto);
+
     const uuid = new ShortUniqueId({ length: 4 }).randomUUID();
 
     const allPreviousSavedNonAggregatedCalculations = [...(calculations?.savedCalculations?.filter((calculation: any) => (!calculation.isAggregated && calculation.tableId === tableIdToPushInto && calculation.datasetId === selectedDataset?.id)).map((calculation: any) => {
@@ -244,12 +270,12 @@ const FlowList = ({
                 propKeysToUpdate[eachPropKey] = {
                   binIndex: axId,
                   fieldIndex: fieldId,
-                  fieldName: currentCalculationSession.calculationInfo.calculatedFieldName,
+                  fieldName: calculationInfo.calculatedFieldName,
                   displayName: calculationInfo.calculatedFieldName,
                   dataType: currentCalculationSession.calculationInfo.fields[Object.keys(currentCalculationSession.calculationInfo.fields)[0]].dataType,
                   tableId: tableInfo?.id,
                   uId: field.uId,
-                  agg: 'agg', // keep it to any random thing it doesn't matter,
+                  agg: field.agg, // keep it to any random thing it doesn't matter,
                   SavedCalculationUUID: currentCalculationSession.uuid,
                   isTextRenamed: false
                 }
@@ -319,31 +345,7 @@ const FlowList = ({
 
     // TODO: the variables in request params need to be fetched dynamically
 
-    const tableDetailsResponse = await FetchData({
-      requestType: "noData",
-      method: "GET",
-      url: `dataset/${datasetId}?workspaceId=${workSpaceId}`,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
 
-    let tableDetails;
-    let tableSchema;
-
-    if (tableDetailsResponse.status === true) {
-      tableDetails = await tableDetailsResponse.data;
-      tableSchema = tableDetails.dataSchema.tables;
-    } else {
-      if (alert) {
-        setAlert(null)
-        setAlert({ severity: 'warning', message: "Something went wrong." })
-      }
-      return;
-    }
-
-    const tableInfo = tableSchema.find((table: any) => table.id === tableIdToPushInto);
 
     // Assuming that if flatfileId is present, then it is a flatfile otherwise it is a db
 
@@ -402,7 +404,6 @@ const FlowList = ({
       } = {}
 
       const flowsInCurrentCalculation = Object.keys(currentCalculationSession.calculationInfo.flows);
-      const isCurrentCalculationAggregated = currentCalculationSession.calculationInfo.flows[flowsInCurrentCalculation[flowsInCurrentCalculation.length - 1]][0].isAggregation
 
       for (const eachPropKey of allPropKeys) {
         chartProperties?.properties[eachPropKey]?.chartAxes?.forEach((ax: any, axId: number) => {
@@ -416,7 +417,7 @@ const FlowList = ({
                 dataType: calculationInfo.fields[Object.keys(currentCalculationSession.calculationInfo.fields)[0]].dataType,
                 tableId: tableInfo.id,
                 uId: field.uId,
-                agg: isCurrentCalculationAggregated ? field.agg : "",
+                agg: field.agg,
                 SavedCalculationUUID: currentCalculationSession.uuid,
                 isTextRenamed: false
               }
