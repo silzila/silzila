@@ -74,7 +74,7 @@ const CalculationCanvas = ({
         return true
     }
     const handleNewFlowCreation = (item: any, x: number, y: number) => {
-        addInitialCalculationFlow(propKey, { uid: `f${Object.keys(flows).length + 1}`, flow: item.flowName ?? item.name, isAggregation: getIsAggregation(item.name) }, `flt${conditionsLength + 1}`, item.name==='IfElse'?'If Else':item.name);
+        addInitialCalculationFlow(propKey, { uid: `f${Object.keys(flows).length + 1}`, flow: item.flowName ?? item.name, isAggregation: getIsAggregation(item.name) }, `flt${conditionsLength + 1}`, item.name === 'IfElse' ? 'If Else' : item.name);
         setFlowPositions(propKey, `f${Object.keys(flows).length}`, x.toString(), y.toString());
         if (item.name === "IfElse") {
             setResultTypeForIfElse(propKey, `f${Object.keys(flows).length}`, null)
@@ -201,6 +201,58 @@ const CalculationCanvas = ({
 
     const activeCondition = currentCalculationSession?.activeCondition;
 
+    const adjustSourceLength = (flowUID: string) => {
+
+        const flowName = flows[flowUID][0].flow
+
+        switch (flowName) {
+
+            case 'log': {
+                const sourceLength = currentCalculationSession.calculationInfo.flows[flowUID][0].sourceType.filter((src: any) => (src === 'field' || src === 'decimal' || src === 'integer' || src === 'flow')).length
+                if (sourceLength === 1) {
+                    return 0
+                } else if (sourceLength === 2) {
+                    return 1
+                }
+                break;
+            }
+
+            case 'substringleft': {
+                const sourceLength = currentCalculationSession.calculationInfo.flows[flowUID][0].sourceType.filter((src: any) => (src === 'field' || src === 'decimal' || src === 'integer' || src === 'text' || src === 'flow')).length
+                if (sourceLength === 3) {
+                    return 1
+                } else if (sourceLength < 3) {
+                    return 0
+                }
+                break;
+            }
+
+            case 'substringright': {
+                const sourceLength = currentCalculationSession.calculationInfo.flows[flowUID][0].sourceType.filter((src: any) => (src === 'field' || src === 'decimal' || src === 'integer' || src === 'text' || src === 'flow')).length
+                if (sourceLength === 3) {
+                    return 1
+                } else if (sourceLength < 3) {
+                    return 0
+                }
+                break;
+            }
+
+            case 'split': {
+                const sourceLength = currentCalculationSession.calculationInfo.flows[flowUID][0].sourceType.filter((src: any) => (src === 'field' || src === 'decimal' || src === 'integer' || src === 'text' || src === 'flow')).length
+                if (sourceLength === 4) {
+                    return 1
+                } else if (sourceLength < 4) {
+                    return 0
+                }
+                break;
+            }
+
+            default:
+                return currentCalculationSession.calculationInfo.flows[flowUID][0].sourceType.filter((src: any) => (src === 'field' || src === 'decimal' || src === 'integer' || src === 'flow')).length
+        }
+
+    }
+
     return (
         <div onClick={(e) => {
             setActiveFlow(propKey, null)
@@ -235,11 +287,8 @@ const CalculationCanvas = ({
                             const minimumSourcesForThisFlow = minMax[flowType][flowName].min
                             const sourceTypes = currentCalculationSession.calculationInfo.flows[flowUID][0].sourceType
                             // const minimumSourcesForThisFlow = categorizedOperations.minimumSingleSource.includes(flowName) ? 1 : 2
-                            const lengthBeforeAdjustment = currentCalculationSession.calculationInfo.flows[flowUID][0].sourceType.filter((src: any) => (src === 'field' || src === 'decimal' || src === 'integer')).length
-                            const lengthOfSourcesForThisFlow = flowName === 'log' ?
-                                lengthBeforeAdjustment === 1 ? 0 : lengthBeforeAdjustment
-                                :
-                                currentCalculationSession.calculationInfo.flows[flowUID][0].sourceType.filter((src: any) => (src === 'field' || src === 'decimal' || src === 'integer')).length
+                            const lengthOfSourcesForThisFlow = adjustSourceLength(flowUID)
+
                             {
                                 return flowName !== 'IfElse' ? <DraggableCalculationFunctionItem
                                     sourceTypes={sourceTypes}
@@ -277,7 +326,7 @@ const CalculationCanvas = ({
 
                         })
                     }
-                </div> : <Typography variant="h6" style={{ textAlign: 'center', position:'absolute',top:'50%', color: "#999999", fontSize: fontSize.medium,left:'50%',transform:'translate(-50%,-50%)' }}>Please drag a function from left to here build a formula </Typography>
+                </div> : <Typography variant="h6" style={{ textAlign: 'center', position: 'absolute', top: '50%', color: "#999999", fontSize: fontSize.medium, left: '50%', transform: 'translate(-50%,-50%)' }}>Please drag a function from left to here build a formula </Typography>
             }
             {
                 calculations.properties[propKey]?.currentCalculationSession && <FlowList />
