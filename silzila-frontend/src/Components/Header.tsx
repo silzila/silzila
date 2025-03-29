@@ -259,7 +259,7 @@ const Header = (props:any) => {
               )}
             </div>
               
-            <MenuItem  onClick={() => { handleMenuClose(); navigate('/update-profile'); }} style={{height: "50px"}}>
+            {/* <MenuItem  onClick={() => { handleMenuClose(); navigate('/update-profile'); }} style={{height: "50px"}}>
               <Link to="/update-profile" className="menuLink"  onClick={() => { handleMenuClose(); }}  
                 style={{ 
                   textDecoration: 'none', 
@@ -276,7 +276,7 @@ const Header = (props:any) => {
                 />
                 <span>Update Profile</span>
               </Link>
-            </MenuItem>
+            </MenuItem> */}
 
             <MenuItem 
             onClick={() => { 

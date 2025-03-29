@@ -84,6 +84,7 @@ import {
 } from "../CommonFunctions/aliases";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import { log } from "console";
 
 const MenuBar = ({
   // props
@@ -118,7 +119,7 @@ const MenuBar = ({
   const state = location.state;
 
   // Check if the current state of playbook is the same as old state or not
-  if (from === fromRoute.dataViewer && playBookState.oldContent) {
+  if (from === "dataViewer" && playBookState.oldContent) {
     if (
       _.isEqual(tabState, playBookState.oldContent.tabState) &&
       _.isEqual(tileState, playBookState.oldContent.tileState) &&
@@ -208,21 +209,21 @@ const MenuBar = ({
   useEffect(() => {
     setPlayBookName(playBookState?.playBookName);
 
-    // const getPrivilegeforPlayBook = async () => {
-    //   const permissionRes = await FetchData({
-    //     requestType: "noData",
-    //     method: "GET",
-    //     url: `privilege?workspaceId=${state?.parentId}&contentTypeId=${contentTypes.Playbook}&contentId=${playBookState.playBookUid}`,
-    //     headers: { Authorization: `Bearer ${token}` },
-    //   });
-    //   if (permissionRes.status) {
-    //     setDisableEdit(
-    //       !permissionRes.data.levelId || permissionRes.data.levelId === 3
-    //     );
-    //   } else return;
-    // };
+    const getPrivilegeforPlayBook = async () => {
+      const permissionRes = await FetchData({
+        requestType: "noData",
+        method: "GET",
+        url: `privilege?workspaceId=${state?.parentId}&contentTypeId=${contentTypes.Playbook}&contentId=${playBookState.playBookUid}`,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (permissionRes.status) {
+        setDisableEdit(
+          !permissionRes.data.levelId || permissionRes.data.levelId === 3
+        );
+      } else return;
+    };
 
-    // if (from === "dataViewer") getPrivilegeforPlayBook();
+    if (from === "dataViewer") getPrivilegeforPlayBook();
   }, [playBookState]);
 
   // useEffect(() => {
@@ -369,11 +370,13 @@ const MenuBar = ({
   //		3. Logout clicked
   function logout() {
     // setTimeout(() => {
+    sessionStorage.setItem("isLoggingOut", "true");
     let authToken: any = Cookies.get("authToken");
     if (window.location.protocol === "https:") {
       let decodedToken: any = null;
       if (authToken) {
         decodedToken = jwtDecode(authToken);
+        sessionStorage.setItem("accessType", decodedToken?.access); // To store the access type of the user for navigation to login page
       }
       DeleteAllCookies();
       Cookies.remove("authToken");
@@ -384,15 +387,15 @@ const MenuBar = ({
       localStorage.clear();
 
       if (authToken && decodedToken?.access === "community") {
-        localStorage.setItem("isLoggingOut", "true");
+        localStorage.setItem("isLoggingOut", "true"); // to prevent default popup coming on navigation
         window.history.pushState(null, "", "/");
         window.location.href = `${localEndPoint}auth/community/signin`;
-        // window.location.reload();
+        window.location.reload(); // Reload the page for running the useEffect hook
       } else {
-        localStorage.setItem("isLoggingOut", "true");
+        localStorage.setItem("isLoggingOut", "true"); // to prevent default popup coming on navigation
         window.history.pushState(null, "", "/");
         window.location.href = `${localEndPoint}auth/business/signin`;
-        // window.location.reload();
+        window.location.reload(); // Reload the page for running the useEffect hook
       }
     } else {
       DeleteAllCookies();
@@ -402,13 +405,10 @@ const MenuBar = ({
         domain: new URL(localEndPoint || "").hostname,
       });
       localStorage.clear();
-      localStorage.setItem("isLoggingOut", "true");
+      localStorage.setItem("isLoggingOut", "true"); // to prevent default popup coming on navigation
       window.history.pushState(null, "", "/");
-      resetUser();
-      setTimeout(() => {
-        navigate("/login");
-      }, 1000);
-      // window.location.reload();
+      window.location.href = `${localEndPoint}auth/business/signin`;
+      window.location.reload(); // Reload the page for running the useEffect hook
     }
     // resetUser();
     DeleteAllCookies();
@@ -419,8 +419,6 @@ const MenuBar = ({
     });
     localStorage.clear();
     // }, 2000);
-
-    // localStorage.clear();
   }
   const handleSave = async (saveFromHome?: boolean) => {
     setOpenFileMenu(false);
@@ -490,7 +488,6 @@ const MenuBar = ({
             resetAllStates();
           }
         }, 2000);
-
       }
     } else {
       setSaveModal(true);
@@ -552,7 +549,7 @@ const MenuBar = ({
         return;
       }
       setLoading(true);
-      var result= await FetchData({
+      var result: any = await FetchData({
         requestType: "withData",
         method: "POST",
         url: `playbook?workspaceId=${workSpaceId}`,
@@ -565,7 +562,7 @@ const MenuBar = ({
           result.data.name,
           result.data.id,
           result.data.description,
-          result.data.content
+          JSON.parse(result.data.content)
         );
         if (
           !saveFromHomeIcon &&
@@ -1275,7 +1272,7 @@ const MenuBar = ({
       </div>} */}
       <div style={{ borderBottom: "none" }}>
         <Header
-          from={from}
+          from={fromRoute.dataViewer}
           saveAndNavigateTo={saveAndNavigateTo}
         />
       </div>

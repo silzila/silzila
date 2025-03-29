@@ -123,7 +123,7 @@ const AddUser = (props: any) => {
         const response = await FetchData({
           requestType: "noData",
           method: "GET",
-          url: "users/user-details",
+          url: "user-details",
           headers: {
             Authorization: `Bearer ${token}`,
           },
