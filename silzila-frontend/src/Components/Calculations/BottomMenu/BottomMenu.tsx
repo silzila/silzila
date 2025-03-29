@@ -297,7 +297,9 @@ const FlowList = ({
               uId: propKeysToUpdate[propKey].uId,
               agg: propKeysToUpdate[propKey].agg,
               SavedCalculationUUID: propKeysToUpdate[propKey].SavedCalculationUUID,
-              isTextRenamed: propKeysToUpdate[propKey].isTextRenamed
+              isTextRenamed: propKeysToUpdate[propKey].isTextRenamed,
+              isCalculatedField: true,
+              isAggregated: true
             },
             'chartAxes'
           )
