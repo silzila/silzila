@@ -1882,9 +1882,10 @@ const UserFilterCardForDm = ({
         style={
           !filterFieldData.isCollapsed
             ? {
-                border: "1px #af99db solid",
+                border: "1px #af99db solid",                
                 color: "#af99db",
-                fontWeight: "bold",
+                fontWeight: "100",                
+                
               }
             : {}
         }

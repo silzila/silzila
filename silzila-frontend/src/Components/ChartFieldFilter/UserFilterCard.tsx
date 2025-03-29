@@ -2672,6 +2672,8 @@ const UserFilterCard = ({
                 color: "#af99db",
                 // fontWeight: "bold",
                 height: "1.5rem",
+                marginLeft: "0",
+                
               }
             : { height: "1.5rem" }
         }
@@ -2706,7 +2708,8 @@ const UserFilterCard = ({
             flexGrow: 1,
             overflow: "hidden",
             textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
+            whiteSpace: "nowrap",            
+            paddingTop: "2.5px",
             // fontWeight: "600",
             color: palette.primary.contrastText,
             fontSize: fontSize.medium,
@@ -2718,7 +2721,7 @@ const UserFilterCard = ({
         <button
           type="button"
           className="buttonCommon"
-          style={{ backgroundColor: "transparent", padding: "1px 3px" }}
+          style={{ backgroundColor: "transparent", padding: "1px 4px" }}
           title="More Options"
           onClick={handleClick}
         >
@@ -2737,7 +2740,7 @@ const UserFilterCard = ({
           type="button"
           className="buttonCommon columnDown"
           title={filterFieldData.isCollapsed ? "Expand" : "Collapse"}
-          style={{ paddingInline: "4px" }}
+          style={{ marginRight: "1px" }}
         >
           <ExpandCollaseIconSwitch />
         </button>

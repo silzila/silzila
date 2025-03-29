@@ -483,7 +483,7 @@ const ChartAxes = ({
   };
 
   return (
-    <div className="charAxesArea" style={{width:"15.625rem", paddingRight: "0.5rem"}}>
+    <div className="charAxesArea" style={{width:"15.625rem", paddingRight: "0.5rem", paddingLeft: "6px"}}>
       {!uID && 
         (chartProp.properties[propKey].chartType === "filledMap" ||
           chartProp.properties[propKey].chartType === "bubbleMap") ? (

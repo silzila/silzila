@@ -269,7 +269,7 @@ const ChartFilterGroupsContainer = ({
     );
   };
   return (
-    <div className="chartFilterGroupContainer">
+    <div className="chartFilterGroupContainer" style={{ marginLeft: "6px", paddingRight: "6px" }}>
       <div
         style={{
           color: " #404040",
