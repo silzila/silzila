@@ -61,10 +61,10 @@ public class DuckDbQueryBuilder implements QueryBuilder {
 
         StringBuilder query = new StringBuilder("SELECT \n\t");
         query.append(selectField);
-        
+
         if(((!allColumnList.isEmpty()&&allColumnList.size()!=0))) {
                                     
-        String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,vendor);
+        String fromClause = RelationshipClauseGeneric.buildRelationship(new ArrayList<>(allColumnList),dataSchema,"duckdb");
 
         query.append("\nFROM ").append(fromClause);
         }

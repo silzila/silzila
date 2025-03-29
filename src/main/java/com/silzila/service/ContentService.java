@@ -803,12 +803,15 @@ public class ContentService {
 
         List<WorkspaceResponse> subFolders = new ArrayList<>();
         List<Workspace> allsubWorkspaces = workspaceRepository.findByUserIdAndParentWorkspaceId(email, workspaceId);
+        Workspace workspace=workspaceRepository.findWorkspaceById(workspaceId);
         for (Workspace w : allsubWorkspaces) {
 
             WorkspaceResponse wResponse = WorkspaceResponse.builder()
                     .id(w.getId())
                     .createdAt(w.getCreatedAt())
                     .createdBy(w.getCreatedBy())
+                    .parentWorkspaceId(workspace.getId())
+                    .parentWorkspaceName(workspace.getName())
                     .name(w.getName())
                     .contentType(1L)
                     .updatedAt(w.getUpdatedAt())
@@ -829,6 +832,8 @@ public class ContentService {
                     .createdAt(db.getCreatedAt())
                     .createdBy(db.getCreatedBy())
                     .name(db.getConnectionName())
+                      .parentWorkspaceId(workspace.getId())
+                    .parentWorkspaceName(workspace.getName())
                     .contentType(2L)
                     .updatedAt(db.getUpdatedAt())
                     .updatedBy(db.getUpdatedBy())
@@ -843,15 +848,17 @@ public class ContentService {
     private List<WorkspaceResponse> datasetList(String email, String workspaceId) {
         List<WorkspaceResponse> dbconnections = new ArrayList<>();
         Workspace workspace = workspaceRepository.findWorkspaceById(workspaceId);
-        for (Dataset db : workspace.getDataSets()) {
+        for (Dataset ds : workspace.getDataSets()) {
             WorkspaceResponse wr = WorkspaceResponse.builder()
-                    .id(db.getId())
-                    .createdAt(db.getCreatedAt())
-                    .createdBy(db.getCreatedBy())
-                    .name(db.getDatasetName())
+                    .id(ds.getId())
+                    .createdAt(ds.getCreatedAt())
+                    .createdBy(ds.getCreatedBy())
+                    .name(ds.getDatasetName())
+                    .parentWorkspaceId(workspace.getId())
+                    .parentWorkspaceName(workspace.getName())
                     .contentType(3L)
-                    .updatedAt(db.getUpdatedAt())
-                    .updatedBy(db.getUpdatedBy())
+                    .updatedAt(ds.getUpdatedAt())
+                    .updatedBy(ds.getUpdatedBy())
                     .build();
             dbconnections.add(wr);
 
@@ -863,15 +870,17 @@ public class ContentService {
     private List<WorkspaceResponse> flatfileList(String email, String workspaceId) {
         List<WorkspaceResponse> dbconnections = new ArrayList<>();
         Workspace workspace = workspaceRepository.findWorkspaceById(workspaceId);
-        for (FileData db : workspace.getFlatFiles()) {
+        for (FileData fd : workspace.getFlatFiles()) {
             WorkspaceResponse wr = WorkspaceResponse.builder()
-                    .id(db.getId())
-                    .createdAt(db.getCreatedAt())
-                    .createdBy(db.getCreatedBy())
-                    .name(db.getName())
+                    .id(fd.getId())
+                    .createdAt(fd.getCreatedAt())
+                    .createdBy(fd.getCreatedBy())
+                    .name(fd.getName())
+                    .parentWorkspaceId(workspace.getId())
+                    .parentWorkspaceName(workspace.getName())
                     .contentType(4L)
-                    .updatedAt(db.getUpdatedAt())
-                    .updatedBy(db.getUpdatedBy())
+                    .updatedAt(fd.getUpdatedAt())
+                    .updatedBy(fd.getUpdatedBy())
                     .build();
             dbconnections.add(wr);
         }

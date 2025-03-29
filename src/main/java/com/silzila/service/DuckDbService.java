@@ -244,8 +244,6 @@ public class DuckDbService {
         return jsonArray;
 
     }
-    
-
     // creating a map from column and dtype list to send as a columns parameter to
     // read_csv_auto query
     public static Map<String, String> convertToMap(ArrayList<String> keys, ArrayList<String> values) {
