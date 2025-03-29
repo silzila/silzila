@@ -23,8 +23,9 @@
 }
 
 .axisFilterField {
-  width: 94%;
-  margin: 6px;
+  width: 100%;
+  height: 1.5rem;  
+  margin-left: 0;
   /* margin: 4px 5px; */
   align-content: center;
   font-size: 12px;
@@ -35,6 +36,7 @@
   background-color: white;
   border: 1px solid rgb(211, 211, 211);
   color: rgb(51, 51, 51);
+  
 }
 
 .radioButton {
@@ -163,6 +165,7 @@ input[type="number"]::-ms-inner-spin-button {
 .MuiPickersYear-yearButton.Mui-selected:hover {
   background-color: rgba(43, 185, 187, 0.1) !important;
 }
+
 
 /* .customNumberInput input[type="number"] {
   padding-right: 0px;

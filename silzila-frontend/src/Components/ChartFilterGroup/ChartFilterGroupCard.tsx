@@ -528,7 +528,7 @@ const ChartFilterGroupCard = ({
       _selectionMembers = filterFieldData.rawselectmembers.map(
         (item: any, index: number) => {
           return (
-            <label className="UserFilterCheckboxes" key={index}>
+            <label className="UserFilterCheckboxes" style={{ lineHeight: "10px" }} key={index}>
               {filterFieldData.includeexclude === "Include" ? (
                 <Checkbox
                   checked={
@@ -551,7 +551,7 @@ const ChartFilterGroupCard = ({
                   // }
                   name={item}
                   style={{
-                    transform: "scale(0.6)",
+                    transform: "scale(0.8)",
                     // marginLeft: "10px",
                     paddingRight: "0px",
                   }}
@@ -1482,10 +1482,22 @@ const ChartFilterGroupCard = ({
               width: "100%",
               fontSize: "13px",
               marginRight: "30px",
+              
             },
           }}
-          className={dropDownStyles().customSelect}
+          className={dropDownStyles().customSelect}                      
           placeholder="Value"
+          sx={{
+            "& .MuiOutlinedInput-input": {
+              padding: "16.5px 14px", // Consistent padding for all browsers
+            },
+            // Firefox-specific styling
+            "@supports (-moz-appearance: none)": {
+              "& .MuiOutlinedInput-input": {
+                padding: "16.5px 2px 16.5px 14px",
+              },
+            },
+          }}
           defaultValue={filterFieldData[exprType]}
           type={type}
           onBlur={(e) =>
@@ -1545,14 +1557,24 @@ const ChartFilterGroupCard = ({
                   height: "25px",
                   width: "100%",
                   fontSize: "13px",
-                  marginRight: "30px",
+                  marginRight: "30px",                                   
                 },
               }
           }
           className={dropDownStyles().customSelect}
           placeholder="Value"
           sx={{
-            paddingBottom: "8px",
+            paddingBottom: "16px", 
+            width: "100%",
+            "& .MuiOutlinedInput-input": {
+              padding: "16.5px 14px", // Consistent padding for all browsers
+            },
+            // Firefox-specific styling
+            "@supports (-moz-appearance: none)": {
+              "& .MuiOutlinedInput-input": {
+                padding: "16.5px 2px 16.5px 14px",
+              },
+            },           
           }}
           defaultValue={filterFieldData.exprInput}
           type={type}
@@ -1589,13 +1611,23 @@ const ChartFilterGroupCard = ({
                   height: "26px",
                   width: "100%",
                   fontSize: "13px",
-                  marginRight: "30px",
+                  marginRight: "30px",                                    
                 },
               }
           }
           className={`CustomInputValue ${dropDownStyles().customSelect}`}
           sx={{
             paddingBottom: "8px",
+            minWidth: "100%",
+            "& .MuiOutlinedInput-input": {
+              padding: "16.5px 14px", // Consistent padding for all browsers
+            },
+            // Firefox-specific styling
+            "@supports (-moz-appearance: none)": {
+              "& .MuiOutlinedInput-input": {
+                padding: "16.5px 2px 16.5px 14px",
+              },
+            },
           }}
           defaultValue={filterFieldData.greaterThanOrEqualTo}
           onBlur={(e) => {
@@ -1631,6 +1663,16 @@ const ChartFilterGroupCard = ({
           className={`CustomInputValue ${dropDownStyles().customSelect}`}
           sx={{
             paddingBottom: "8px",
+            minWidth: "100%",
+            "& .MuiOutlinedInput-input": {
+              padding: "16.5px 14px", // Consistent padding for all browsers
+            },
+            // Firefox-specific styling
+            "@supports (-moz-appearance: none)": {
+              "& .MuiOutlinedInput-input": {
+                padding: "16.5px 2px 16.5px 14px",
+              },
+            },
           }}
           defaultValue={filterFieldData.lessThanOrEqualTo}
           onBlur={(e) => {
@@ -1997,7 +2039,7 @@ const ChartFilterGroupCard = ({
   const ExpandCollaseIconSwitch = () => {
     return filterFieldData.isCollapsed ? (
       <ChevronRightIcon
-        style={{ height: "18px", width: "18px", color: "#999999" }}
+        style={{ height: "18px", width: "18px", color: "rgb(72,72,72)" }}
         onClick={(e) => {
           filterFieldData.isCollapsed = false;
           updateChartFilterRightGroupsFilters(
@@ -2008,7 +2050,7 @@ const ChartFilterGroupCard = ({
       />
     ) : (
       <KeyboardArrowDownIcon
-        style={{ height: "18px", width: "18px", color: "#999999" }}
+        style={{ height: "18px", width: "18px", color: "rgb(72,72,72)" }}
         onClick={(e) => {
           filterFieldData.isCollapsed = true;
           updateChartFilterRightGroupsFilters(
@@ -2042,9 +2084,9 @@ const ChartFilterGroupCard = ({
         style={
           !filterFieldData.isCollapsed
             ? {
-              border: "1px #af99db solid",
-              color: "#af99db",
-              fontWeight: "bold",
+              border: "1px #af99db solid",             
+              marginLeft: "0",
+              height: "1.5rem",              
             }
             : {}
         }
@@ -2073,11 +2115,11 @@ const ChartFilterGroupCard = ({
         <button
           type="button"
           className="buttonCommon"
-          style={{ backgroundColor: "transparent" }}
+          style={{ backgroundColor: "transparent", paddingTop: "3px" }}
           title="More Options"
           onClick={handleClick}
         >
-          <MoreVertIcon style={{ fontSize: "16px", color: "#999999" }} />
+          <MoreVertIcon style={{ fontSize: "13px", color: "rgb(72,72,72)", marginRight: "3px", marginTop: "2px" }} />
         </button>
 
         {/* expand colapse icon */}
@@ -2085,6 +2127,9 @@ const ChartFilterGroupCard = ({
           type="button"
           className="buttonCommon columnDown"
           title={filterFieldData.isCollapsed ? "Expand" : "Collapse"}
+          style={{ 
+            color: "rgb(72,72,72)"
+          }}          
         >
           <ExpandCollaseIconSwitch />
         </button>
@@ -2096,11 +2141,12 @@ const ChartFilterGroupCard = ({
         <>
           <div
             className="UserSelectionDiv"
-            style={
-              filterFieldData.isInValidData
+            style={{
+              marginTop: "8px", // Adjust the value as needed
+              ...(filterFieldData.isInValidData
                 ? { border: "2px red solid", backgroundColor: "lightpink" }
-                : {}
-            }
+                : {}),
+            }}
           >
 
             {filterFieldData.dataType === "timestamp" ||

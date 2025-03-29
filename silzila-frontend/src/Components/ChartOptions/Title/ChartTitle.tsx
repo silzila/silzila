@@ -132,7 +132,7 @@ const ChartTitle = ({
 						<div className="optionDescription" style={{ marginLeft: "-10px", marginTop: "3px" }}>
 							<InputPositiveNumber
 								value={chartProperties.properties[propKey].titleOptions.fontSize}
-								updateValue={(value: number) => setTitleSize(propKey, value)}
+								updateValue={(value: number) => setTitleSize(propKey, value)}								
 							/>
 						</div>
 					</div>
