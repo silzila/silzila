@@ -1,6 +1,6 @@
 import React from "react";
 import { connect, } from "react-redux";
-import { BrowserRouter as Router, Route, Routes,Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 
 // Import your components
 import Login from "./LoginSignUp/Login";
@@ -16,7 +16,7 @@ import SubWork from "../pages/SubWork";
 import SubWorkDetails from "../pages/SubWorkDetails";
 import UserProf from "../pages/UserProf";
 import { isLoggedProps, LoggedDetailsType } from "../redux/UserInfo/IsLoggedInterfaces";
-
+import BackButtonHandler from "./BackButtonHandler";
 
 const Home = (props: LoggedDetailsType) => {
 
@@ -24,30 +24,31 @@ const Home = (props: LoggedDetailsType) => {
 
   return (
     <Router>
-    <Routes>
-      {isUserLogged ? (
-        <>
-          <Route path="/newdataset/:parentId" element={<NewDataSet />} />
-          <Route path="/editdataset/:parentId" element={<EditDataSet />} />
-          <Route path="/dataviewer/:parentId" element={<DataViewer />} />
-          <Route path="/flatfileupload/:parentId" element={<FlatFileUpload />} />
-          <Route path="/editflatfile/:parentId" element={<EditFlatFileData />} />
-          <Route path="/workspace" element={<Workspace />} />
-          <Route path="/" element={<Navigate to="/workspace" />} />
-          <Route path="/workspace/:parentId" element={<SubWork />} />
-          <Route path="/SubWorkspaceDetails/:parentId" element={<SubWorkDetails />} />
-          <Route path="/newdataconnection/:parentId" element={<NewDataConnection />} />
-          <Route path="/update-profile" element={<UserProf />} />
-          <Route path="/*" element={<Navigate to="/workspace" />} />
-        </>
-      ) : (
-        <>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/*" element={<Navigate to="/login" />} />
-        </>
-      )}
-    </Routes>
+      <BackButtonHandler />
+      <Routes>
+        {isUserLogged ? (
+          <>
+            <Route path="/newdataset/:parentId" element={<NewDataSet />} />
+            <Route path="/editdataset/:parentId" element={<EditDataSet />} />
+            <Route path="/dataviewer/:parentId" element={<DataViewer />} />
+            <Route path="/flatfileupload/:parentId" element={<FlatFileUpload />} />
+            <Route path="/editflatfile/:parentId" element={<EditFlatFileData />} />
+            <Route path="/workspace" element={<Workspace />} />
+            <Route path="/" element={<Navigate to="/workspace" />} />
+            <Route path="/workspace/:parentId" element={<SubWork />} />
+            <Route path="/SubWorkspaceDetails/:parentId" element={<SubWorkDetails />} />
+            <Route path="/newdataconnection/:parentId" element={<NewDataConnection />} />
+            <Route path="/update-profile" element={<UserProf />} />
+            <Route path="/*" element={<Navigate to="/workspace" />} />
+          </>
+        ) : (
+          <>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/*" element={<Navigate to="/login" />} />
+          </>
+        )}
+      </Routes>
     </Router>
   );
 };
