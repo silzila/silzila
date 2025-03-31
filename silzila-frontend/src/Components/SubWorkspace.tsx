@@ -1983,17 +1983,23 @@ const SubWorkspace = () => {
           <div className={styles.subworkspaceModal}>
             <div className={styles.subworkspaceModalContent}>
               <h3>Rename</h3>
-              <div className={styles.subworkspaceModalContentInput}>
+              <div className={styles.subworkspaceModalContentInput}
+                style={{ height: errorMessage ? '30px' : '40px' }}
+              >
                 <input
                   type="text"
                   value={workspaceName}
                   onChange={(e) => setWorkspaceName(e.target.value)}
                   placeholder="Workspace Name"
                 />
-                {errorMessage && (
-                  <div className={styles.errorMessage}>{errorMessage}</div>
-                )}
               </div>
+              <div className={styles.errorMessageContainer}>
+                  {errorMessage && (
+                    <p style={{ color: "red", fontSize: fontSize.small }}>
+                      {errorMessage}
+                    </p>
+                  )}
+              </div>  
 
               <div className={styles.subworkspaceModalButtons}>
                 <button
