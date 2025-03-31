@@ -43,7 +43,7 @@ const TreeMapStyles = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="optionDescription">Leaf Depth</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Leaf Depth</div>
 
 			<FormControl fullWidth size="small" style={{ fontSize: "12px", borderRadius: "4px" }}>
 				<Select
@@ -94,7 +94,7 @@ const TreeMapStyles = ({
 				</Select>
 			</FormControl>
 
-			<div className="optionDescription">Border Width</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Border Width</div>
 			<SliderWithInput
 				pointNumbers={true}
 				sliderValue={treemapStyle.borderWidth}
@@ -102,7 +102,7 @@ const TreeMapStyles = ({
 				percent={true}
 				changeValue={value => updateTreeMapStyleOptions(propKey, "borderWidth", value)}
 			/>
-			<div className="optionDescription">Gap Width</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Gap Width</div>
 			<SliderWithInput
 				pointNumbers={true}
 				sliderValue={treemapStyle.gapWidth}

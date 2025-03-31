@@ -199,16 +199,16 @@ const ChartLegend = ({
 							/>
 						</div>
 					) : null}
-					<div className="optionDescription" style={{ marginTop: "3px" }}>Orientation:</div>
+					<div className="optionDescription" style={{ marginTop: "3px", paddingLeft: "0.5rem"}}>Orientation:</div>
 					<div className="radioButtons">{renderOrientation()}</div>
 					<Divider style={{ margin: "10px 0" }} />
-					<div className="optionDescription">RESIZE:</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>RESIZE:</div>
 					{chartProperties.properties[propKey].chartType === "calendar" ||
 					chartProperties.properties[propKey].chartType === "heatmap" ? (
 						<>
 							{chartControls.properties[propKey].calendarStyleOptions.pieceWise ? (
 								<>
-									<div className="optionDescription">Item Gap</div>
+									<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Item Gap</div>
 									<SliderWithInput
 										sliderValue={
 											chartControls.properties[propKey].legendOptions.itemGap
@@ -225,7 +225,7 @@ const ChartLegend = ({
 						</>
 					) : (
 						<>
-							<div className="optionDescription">Item Gap</div>
+							<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Item Gap</div>
 							<SliderWithInput
 								sliderValue={
 									chartControls.properties[propKey].legendOptions.itemGap
@@ -240,7 +240,7 @@ const ChartLegend = ({
 					{chartProperties.properties[propKey].chartType === "calendar" ||
 					chartProperties.properties[propKey].chartType === "heatmap" ? (
 						<>
-							<div className="optionDescription">Width</div>
+							<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Width</div>
 							<SliderWithInput
 								sliderValue={
 									chartControls.properties[propKey].calendarStyleOptions.width
@@ -251,7 +251,7 @@ const ChartLegend = ({
 									updateCalendarStyleOptions(propKey, "width", value)
 								}
 							/>
-							<div className="optionDescription">Height</div>
+							<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Height</div>
 							<SliderWithInput
 								sliderValue={
 									chartControls.properties[propKey].calendarStyleOptions.height
@@ -265,7 +265,7 @@ const ChartLegend = ({
 						</>
 					) : (
 						<>
-							<div className="optionDescription">Width</div>
+							<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Width</div>
 							<SliderWithInput
 								sliderValue={
 									chartControls.properties[propKey].legendOptions.symbolWidth
@@ -276,7 +276,7 @@ const ChartLegend = ({
 									updateLegendOption(propKey, "symbolWidth", value)
 								}
 							/>
-							<div className="optionDescription">Height</div>
+							<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Height</div>
 							<SliderWithInput
 								sliderValue={
 									chartControls.properties[propKey].legendOptions.symbolHeight

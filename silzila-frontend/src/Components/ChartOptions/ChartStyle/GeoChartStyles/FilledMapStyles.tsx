@@ -60,7 +60,7 @@ const FilledMapStyles = ({
 
   return (
     <div className="optionsInfo">
-      <div className="optionDescription">Map Zoom</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Map Zoom</div>
       <SliderWithInput
         percent={true}
         sliderValue={geoStyle.mapZoom}
@@ -70,7 +70,7 @@ const FilledMapStyles = ({
         }
       />
 
-      <div className="optionDescription">Aspect Scale</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Aspect Scale</div>
       <SliderWithInput
         percent={true}
         sliderValue={geoStyle.aspectScale}
@@ -80,7 +80,7 @@ const FilledMapStyles = ({
         }
       />
 
-      <div className="optionDescription">Border Width</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Border Width</div>
       <SliderWithInput
         percent={true}
         sliderValue={geoStyle.boderWidth}
@@ -91,7 +91,7 @@ const FilledMapStyles = ({
       />
 
       <div className="optionDescription">
-        <div style={{ width: "50%" }}>Border Color</div>
+        <div style={{ width: "50%", paddingLeft: "0.5rem" }}>Border Color</div>
         <div
           style={{
             height: "1.25rem",
@@ -114,7 +114,7 @@ const FilledMapStyles = ({
       </div>
 
       <div className="optionDescription">
-        <div style={{ width: "50%" }}>Area Color</div>
+        <div style={{ width: "50%", paddingLeft: "0.5rem" }}>Area Color</div>
         <div
           style={{
             height: "1.25rem",
@@ -136,9 +136,9 @@ const FilledMapStyles = ({
         </div>
       </div>
 
-      <div className="optionDescription">EMPHASIS ON MOUSEOVER:</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>EMPHASIS ON MOUSEOVER:</div>
       <div className="optionDescription">
-        <div style={{ width: "50%" }}>Area Color</div>
+        <div style={{ width: "50%", paddingLeft: "0.5rem" }}>Area Color</div>
 
         <div
           style={{
@@ -161,7 +161,7 @@ const FilledMapStyles = ({
         </div>
       </div>
       <div className="optionDescription">
-        <div style={{ width: "50%", height: "1.25rem" }}>Blur Others</div>
+        <div style={{ width: "50%", height: "1.25rem", paddingLeft: "0.5rem" }}>Blur Others</div>
         <div style={{ width: "50%", height: "1.25rem", marginTop: "-8px" }}>
           <SwitchWithInput
             isChecked={geoStyle.enableSelfEmphasis}
@@ -176,9 +176,9 @@ const FilledMapStyles = ({
         </div>
       </div>
 
-      <div className="optionDescription">Visual Scale:</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Visual Scale:</div>
       <div className="optionDescription">
-        <div style={{ width: "50%", height: "1.25rem" }}>Show Scale</div>
+        <div style={{ width: "50%", height: "1.25rem", paddingLeft: "0.5rem" }}>Show Scale</div>
         <div style={{ width: "50%", height: "1.25rem", marginTop: "-8px" }}>
           <SwitchWithInput
             isChecked={geoStyle.showVisualScale}
@@ -193,7 +193,7 @@ const FilledMapStyles = ({
         </div>
       </div>
 
-      <div className="optionDescription">Min</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Min</div>
       <div className="optionDescription">
         <InputBase
           style={{ height: "1.25rem", minWidth: "35%", width: "50%" }}
@@ -224,7 +224,7 @@ const FilledMapStyles = ({
           {"  "}
         </div>
       </div>
-      <div className="optionDescription">Max</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Max</div>
       <div className="optionDescription">
         <InputBase
           style={{ height: "1.25rem", minWidth: "35%", width: "50%" }}

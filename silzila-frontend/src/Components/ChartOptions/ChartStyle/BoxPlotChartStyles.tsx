@@ -68,7 +68,7 @@ const BoxPlotChartStyles = ({
 				/>
 			</div>
 			<div>
-				<div className="optionDescription">Box Width</div>
+				<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Box Width</div>
 				<div className="inputFieldContainer">
 					<TextField
 						type="number"
@@ -95,7 +95,7 @@ const BoxPlotChartStyles = ({
 				</div>
 			</div>
 
-			<div className="optionDescription">Border Width</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Border Width</div>
 			<SliderWithInput
 				percent={true}
 				sliderValue={boxStyle.boxborderWidth}

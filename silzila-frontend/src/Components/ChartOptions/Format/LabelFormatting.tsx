@@ -291,7 +291,7 @@ const LabelFormatting = ({
   return (
     <React.Fragment>
       {chartControls.properties[propKey].sortedValue ? null : (
-        <div className="optionDescription">MEASURES</div>
+        <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>MEASURES</div>
       )}
 
       <FormControl fullWidth sx={{ margin: "0 5px" }}>
@@ -349,7 +349,7 @@ const LabelFormatting = ({
           }
         </Select>
       </FormControl>
-      <div className="optionDescription" style={{ marginTop: "10px" }}>
+      <div className="optionDescription" style={{ marginTop: "10px", paddingLeft: "0.5rem" }}>
         FORMAT VALUE
       </div>
       <div className="radioButtons" style={{ padding: "0" }}>
@@ -504,14 +504,14 @@ const LabelFormatting = ({
       ></div>
       {chartProperties.properties[propKey].chartType === "crossTab" ||
       chartProperties.properties[propKey].chartType === "richText" ? (
-        <div className="optionDescription">FORMAT</div>
+        <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>FORMAT</div>
       ) : (
-        <div className="optionDescription">LABEL FORMAT</div>
+        <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>LABEL FORMAT</div>
       )}
 
       <div className="optionDescription" style={{  }}>
         <label htmlFor="enableDisable" className="enableDisableLabel" style={{
-            paddingLeft: "0px"
+            paddingLeft: "0.5rem"
           }}>
           Separator
         </label>
@@ -525,7 +525,7 @@ const LabelFormatting = ({
 
       <div className="optionDescription" style={{ }}>
         <label htmlFor="enableDisable" className="enableDisableLabel" style={{
-            paddingLeft: "0px"
+            paddingLeft: "0.5rem"
           }}>
           Round Off
         </label>

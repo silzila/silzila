@@ -60,7 +60,7 @@ const BubbleMapStyles = ({
 
   return (
     <div className="optionsInfo">
-      <div className="optionDescription">Map Zoom</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Map Zoom</div>
       <SliderWithInput
         percent={true}
         sliderValue={geoStyle.mapZoom}
@@ -70,7 +70,7 @@ const BubbleMapStyles = ({
         }
       />
 
-      <div className="optionDescription">Aspect Scale</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Aspect Scale</div>
       <SliderWithInput
         percent={true}
         sliderValue={geoStyle.aspectScale}
@@ -80,7 +80,7 @@ const BubbleMapStyles = ({
         }
       />
 
-      <div className="optionDescription">Border Width</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Border Width</div>
       <SliderWithInput
         percent={true}
         sliderValue={geoStyle.boderWidth}
@@ -90,7 +90,7 @@ const BubbleMapStyles = ({
         }
       />
 
-      <div className="optionDescription">Max Bubble Size</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Max Bubble Size</div>
       <SliderWithInput
         percent={true}
         sliderValue={geoStyle.maxBubbleSize}
@@ -103,7 +103,7 @@ const BubbleMapStyles = ({
         }}
       />
 
-      <div className="optionDescription">Min Bubble Size</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Min Bubble Size</div>
       <SliderWithInput
         percent={true}
         sliderValue={geoStyle.minBubbleSize}
@@ -114,7 +114,7 @@ const BubbleMapStyles = ({
       />
 
       <div className="optionDescription">
-        <div style={{ width: "50%" }}>Border Color</div>
+        <div style={{ width: "50%", paddingLeft: "0.5rem" }}>Border Color</div>
         <div
           style={{
             height: "1.25rem",
@@ -137,7 +137,7 @@ const BubbleMapStyles = ({
       </div>
 
       <div className="optionDescription">
-        <div style={{ width: "50%" }}>Area Color</div>
+        <div style={{ width: "50%", paddingLeft: "0.5rem" }}>Area Color</div>
         <div
           style={{
             height: "1.25rem",
@@ -159,9 +159,9 @@ const BubbleMapStyles = ({
         </div>
       </div>
 
-      <div className="optionDescription">EMPHASIS ON MOUSEOVER:</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>EMPHASIS ON MOUSEOVER:</div>
       <div className="optionDescription">
-        <div style={{ width: "50%" }}>Area Color</div>
+        <div style={{ width: "50%", paddingLeft: "0.5rem" }}>Area Color</div>
 
         <div
           style={{
@@ -184,7 +184,7 @@ const BubbleMapStyles = ({
         </div>
       </div>
       <div className="optionDescription">
-        <div style={{ width: "50%", height: "1.25rem" }}>Blur Others</div>
+        <div style={{ width: "50%", height: "1.25rem", paddingLeft: "0.5rem" }}>Blur Others</div>
         <div style={{ width: "50%", height: "1.25rem", marginTop: "-8px" }}>
           <SwitchWithInput
             isChecked={geoStyle.enableSelfEmphasis}
@@ -199,9 +199,9 @@ const BubbleMapStyles = ({
         </div>
       </div>
 
-      <div className="optionDescription">Visual Scale:</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Visual Scale:</div>
       <div className="optionDescription">
-        <div style={{ width: "50%", height: "1.25rem" }}>Show Scale</div>
+        <div style={{ width: "50%", height: "1.25rem", paddingLeft: "0.5rem" }}>Show Scale</div>
         <div style={{ width: "50%", height: "1.25rem", marginTop: "-8px" }}>
           <SwitchWithInput
             isChecked={geoStyle.showVisualScale}

@@ -83,7 +83,7 @@ const ChartLabels = ({
 						{chartProperties.properties[propKey].chartType === "pie" ||
 						chartProperties.properties[propKey].chartType === "donut" ? (
 							<React.Fragment>
-								<div className="optionDescription">Label Position</div>
+								<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Label Position</div>
 								<FormControl
 									fullWidth
 									size="small"
@@ -138,7 +138,7 @@ const ChartLabels = ({
 								</FormControl>
 								{labelOptions.pieLabel.labelPosition === "outside" ? (
 									<>
-										<div className="optionDescription">Label Padding</div>
+										<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Label Padding</div>
 										<SliderWithInput
 											percent={true}
 											sliderValue={labelOptions.pieLabel.labelPadding}
@@ -153,7 +153,7 @@ const ChartLabels = ({
 						) : null}
 
 						<div>
-							<div className="optionDescription">Label Size</div>
+							<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Label Size</div>
 							<SliderWithInput
 								percent={true}
 								sliderValue={
@@ -164,13 +164,13 @@ const ChartLabels = ({
 									updateLabelOption(propKey, "fontSize", value);
 								}}
 							/>
-							<div className="optionDescription" style={{ marginTop: "20px", marginBottom: "-10px" }}>Label Color</div>
+							<div className="optionDescription" style={{ marginTop: "20px", marginBottom: "-10px", paddingLeft: "0.5rem" }}>Label Color</div>
 
 							<div className="optionDescription">
 								<label
 									htmlFor="enableDisable"
 									className="enableDisableLabel"
-									style={{ marginRight: "10px", marginLeft: "-5px" }}
+									style={{ marginRight: "10px", marginLeft: "2px" }}
 								>
 									Manual
 								</label>

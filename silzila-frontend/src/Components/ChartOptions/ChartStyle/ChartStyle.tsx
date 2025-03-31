@@ -71,7 +71,7 @@ const ChartStyle = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="optionDescription">Border Width</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem" }}>Border Width</div>
 			<SliderWithInput
 				percent={true}
 				sliderValue={chartControls.properties[propKey].crossTabStyleOptions.borderWidth}
@@ -81,7 +81,7 @@ const ChartStyle = ({
 				}}
 			/>
 
-			<div className="optionDescription">Line Height</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem" }}>Line Height</div>
 			<SliderWithInput
 				percent={true}
 				sliderValue={chartControls.properties[propKey].crossTabStyleOptions.lineHeight}
@@ -97,12 +97,12 @@ const ChartStyle = ({
 			<React.Fragment>
 				<div style={{ display: "flex", paddingBottom: "8px", flexDirection: "column" }}>
 					<div>
-						<div className="optionDescription">Label Color</div>
+						<div className="optionDescription" style={{ paddingLeft: "0.5rem", paddingTop: "10px", paddingBottom: "3px" }}>Label Color</div>
 
-						<div className="optionDescription">
+						<div className="optionDescription" style={{ paddingBottom: "0px"}}>
 							<input
 								type="checkbox"
-								style={{width: "16px", height: "16px"}}
+								style={{width: "16px", height: "16px", marginLeft: "12px", marginTop: "15px"}}
 								id="enableDisable"
 								checked={options.labelColorManual}
 								onChange={() => {
@@ -133,6 +133,7 @@ const ChartStyle = ({
 										color: options.labelColor,
 										border: "2px solid darkgray",
 										margin: "auto",
+										
 									}}
 									onClick={() => {
 										setColorPopOverOpen(!isColorPopoverOpen);
@@ -144,7 +145,7 @@ const ChartStyle = ({
 							) : null}
 						</div>
 					</div>
-					<div className="optionDescription">Font Size</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem", paddingTop: "2px" }}>Font Size</div>
 					<SliderWithInput
 						
 						sliderValue={options.fontSize}
@@ -158,7 +159,7 @@ const ChartStyle = ({
 						}}
 					/>
 
-					<div className="optionDescription">Font Weight</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem" }}>Font Weight</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={options.fontWeight}

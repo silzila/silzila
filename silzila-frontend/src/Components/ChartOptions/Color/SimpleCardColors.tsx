@@ -36,7 +36,7 @@ const SimpleCardColors = ({
   return (
     <div className="optionsInfo">
       <div className="optionDescription">
-        <label style={{ width: "40%" }}>Value Color</label>
+        <label style={{ width: "40%", paddingLeft: "0.5rem" }}>Value Color</label>
         <div
           style={{
             height: "1.25rem",
@@ -58,7 +58,7 @@ const SimpleCardColors = ({
         ></div>
       </div>
       <div className="optionDescription">
-        <label style={{ width: "40%" }}>Label Color</label>
+        <label style={{ width: "40%", paddingLeft: "0.5rem" }}>Label Color</label>
         <div
           style={{
             height: "1.25rem",
@@ -80,7 +80,7 @@ const SimpleCardColors = ({
         ></div>
       </div>
       <div className="optionDescription">
-        <label style={{ width: "40%" }}>Background Color</label>
+        <label style={{ width: "40%", paddingLeft: "0.5rem" }}>Background Color</label>
         <div
           style={{
             height: "1.25rem",

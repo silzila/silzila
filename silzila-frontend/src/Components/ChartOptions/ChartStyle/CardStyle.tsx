@@ -48,7 +48,7 @@ const CardStyle = ({
         <label
           htmlFor="enableDisable"
           className="enableDisableLabel"
-          style={{ marginRight: "10px", paddingLeft: "0" }}
+          style={{ marginRight: "10px", paddingLeft: "0.5rem" }}
         >
           Custom Font Style
         </label>
@@ -67,7 +67,7 @@ const CardStyle = ({
 
       {cardStyleOptions.customStyle ? (
         <>
-          <div className="optionDescription">Font Size</div>
+          <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Font Size</div>
           <SliderWithInput
             percent={false}
             sliderValue={cardStyleOptions.fontSize}
@@ -76,7 +76,7 @@ const CardStyle = ({
               updateCardControls(propKey, "fontSize", value);
             }}
           />
-          <div className="optionDescription">Label Font Size</div>
+          <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Label Font Size</div>
           <SliderWithInput
             percent={false}
             sliderValue={cardStyleOptions.subtextFontSize}
@@ -87,7 +87,7 @@ const CardStyle = ({
           />
         </>
       ) : null}
-      <div className="optionDescription">Border Tickness</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Border Tickness</div>
       <SliderWithInput
         percent={true}
         sliderValue={cardStyleOptions.borderTickness}
@@ -96,7 +96,7 @@ const CardStyle = ({
           updateCardControls(propKey, "borderTickness", value);
         }}
       />
-      <div className="optionDescription">Border Radius</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Border Radius</div>
       <SliderWithInput
         percent={true}
         sliderValue={cardStyleOptions.borderRadius}
@@ -105,7 +105,7 @@ const CardStyle = ({
           updateCardControls(propKey, "borderRadius", value);
         }}
       />
-      <div className="optionDescription">Border Style</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Border Style</div>
 
       <FormControl
         fullWidth
@@ -141,7 +141,7 @@ const CardStyle = ({
           })}
         </Select>
       </FormControl>
-      <div className="optionDescription">Font Style</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Font Style</div>
 
       <FormControl
         fullWidth
@@ -177,7 +177,7 @@ const CardStyle = ({
           })}
         </Select>
       </FormControl>
-      <div className="optionDescription">
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>
         Border Color
         <div
           style={{
