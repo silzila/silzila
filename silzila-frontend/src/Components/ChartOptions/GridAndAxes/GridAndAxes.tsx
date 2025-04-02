@@ -202,13 +202,13 @@ const GridAndAxes = ({
 							onChange={() => {
 								setAxisMinMax(propKey, "enableMax", !property.axisMinMax.enableMax);
 							}}
-						/>
+						/>						
 						<InputNumber
 							value={property.axisMinMax.maxValue}
 							updateValue={(value: number) =>
 								setAxisMinMax(propKey, "maxValue", value)
 							}
-							disabled={property.axisMinMax.enableMax ? false : true}
+							disabled={property.axisMinMax.enableMax ? false : true}							
 						/>
 					</div>
 				</>

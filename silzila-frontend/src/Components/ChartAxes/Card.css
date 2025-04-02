@@ -50,10 +50,10 @@
 }
 
 .columnDown {
-	color: #999999;
+	color: rgb(72,72,72);
 	background-color: transparent;
 	border-radius: 0 4px 4px 0;
-
+	margin-right: 5.5px;
 	cursor: pointer;
 	display: flex;
 	justify-content: center;
@@ -67,14 +67,14 @@
 
 .columnName {
 	flex: 1;
-	font-size: 13px;
-	padding: 5px 4px 2px 2px;
+	padding-top: 3.5px;
+	font-size: 12px;	
 	margin: 0;
 	
 	/* margin-right: 5px; */
 	/* margin-left: 2px; */
 	border: none;
-	font-weight: 600;
+	
 
 	overflow: hidden;
 	text-overflow: ellipsis;
