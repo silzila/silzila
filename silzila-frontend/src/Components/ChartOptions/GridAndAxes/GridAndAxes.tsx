@@ -173,11 +173,11 @@ const GridAndAxes = ({
 							}}
 						/>
 					</div>
-					<div className="optionDescription">Min Value</div>
-					<div className="optionDescription" style={{ marginTop: "2px" }}>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Min Value</div>
+					<div className="optionDescription" style={{ marginTop: "2px", marginLeft: "0.6rem" }}>
 						<input
 							type="checkbox"
-							style={{width: "16px", height: "16px"}}
+							style={{width: "16px", height: "16px", marginLeft: "0.6rem"}}
 							id="enableDisable"
 							checked={property.axisMinMax.enableMin}
 							onChange={() => {
@@ -192,11 +192,11 @@ const GridAndAxes = ({
 							disabled={property.axisMinMax.enableMin ? false : true}
 						/>
 					</div>
-					<div className="optionDescription">Max Value</div>
-					<div className="optionDescription" style={{ marginTop: "2px" }}>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Max Value</div>
+					<div className="optionDescription" style={{ marginTop: "2px", marginLeft: "0.6rem" }}>
 						<input
 							type="checkbox"
-							style={{width: "16px", height: "16px"}}
+							style={{width: "16px", height: "16px", marginLeft: "0.6rem"}}
 							id="enableDisable"
 							checked={property.axisMinMax.enableMax}
 							onChange={() => {
@@ -225,7 +225,7 @@ const GridAndAxes = ({
 			<div
 				style={{ borderTop: "1px solid rgb(211,211,211)", margin: "0.5rem 6% 1rem" }}
 			></div>
-			<div className="optionDescription">DIMENSION-AXIS</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>DIMENSION-AXIS</div>
 			{chartProperties.properties[propKey].chartType === "multibar" ||
 			chartProperties.properties[propKey].chartType === "stackedBar" ||
 			chartProperties.properties[propKey].chartType === "horizontalBar" ||
@@ -268,11 +268,11 @@ const GridAndAxes = ({
 				<React.Fragment>
 					{chartProperties.properties[propKey].chartType === "scatterPlot" ? (
 						<React.Fragment>
-							<div className="optionDescription">Min Value</div>
+							<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Min Value</div>
 							<div className="optionDescription" style={{ marginTop: "2px" }}>
 								<input
 									type="checkbox"
-									style={{width: "16px", height: "16px"}}
+									style={{width: "16px", height: "16px", marginLeft: "0.6rem"}}
 									id="enableDisable"
 									checked={property.scatterChartMinMax.x_enableMin}
 									onChange={() => {
@@ -293,11 +293,11 @@ const GridAndAxes = ({
 									}
 								/>
 							</div>
-							<div className="optionDescription">Max Value</div>
+							<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Max Value</div>
 							<div className="optionDescription" style={{ marginTop: "2px" }}>
 								<input
 									type="checkbox"
-									style={{width: "16px", height: "16px"}}
+									style={{width: "16px", height: "16px", marginLeft: "0.6rem"}}
 									id="enableDisable"
 									checked={property.scatterChartMinMax.x_enableMax}
 									onChange={() => {
@@ -410,7 +410,7 @@ const GridAndAxes = ({
 							},
 						}}
 					/>
-					<div className="optionDescription">Name FontSize</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Name FontSize</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={xAxisProps.nameSize}
@@ -420,7 +420,7 @@ const GridAndAxes = ({
 						}}
 					/>
 					<div style={{ display: "flex", marginTop: "2px", marginBottom: "2px", marginRight: "2px" }}>
-						<div className="optionDescription">Name Color</div>
+						<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Name Color</div>
 						<div
 							style={{
 								width: "90%",
@@ -430,8 +430,8 @@ const GridAndAxes = ({
 								border: "1px solid lightgray",
 								borderRadius: "3px",
 								padding: "0 5px",
-								marginTop: "10px",
-								marginBottom: "0.2rem",
+								marginTop: "8px",
+								marginBottom: "0.5rem",
 								backgroundColor: yAxisProps.nameColor,
 								alignSelf: "end"
 							}}
@@ -441,7 +441,7 @@ const GridAndAxes = ({
 						></div>
 					</div>
 
-					<div className="optionDescription">Tick Size</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Tick Size</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={
@@ -460,7 +460,7 @@ const GridAndAxes = ({
 							}
 						}}
 					/>
-					<div className="optionDescription">Tick Padding</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Tick Padding</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={
@@ -479,7 +479,7 @@ const GridAndAxes = ({
 							}
 						}}
 					/>
-					<div className="optionDescription">Tick Rotation</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Tick Rotation</div>
 					<SliderWithInput
 						degree={true}
 						sliderValue={
@@ -508,7 +508,7 @@ const GridAndAxes = ({
 			<div
 				style={{ borderTop: "1px solid rgb(211,211,211)", margin: "0.5rem 6% 1rem" }}
 			></div>
-			<div className="optionDescription">MEASURE-AXIS</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>MEASURE-AXIS</div>
 
 			{chartProperties.properties[propKey].chartType === "multibar" ||
 			chartProperties.properties[propKey].chartType === "stackedBar" ||
@@ -551,11 +551,11 @@ const GridAndAxes = ({
 				<React.Fragment>
 					{chartProperties.properties[propKey].chartType === "scatterPlot" ? (
 						<>
-							<div className="optionDescription">Min Value</div>
+							<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Min Value</div>
 							<div className="optionDescription" style={{ marginTop: "2px" }}>
 								<input
 									type="checkbox"
-									style={{width: "16px", height: "16px"}}
+									style={{width: "16px", height: "16px", marginLeft: "0.6rem"}}
 									id="enableDisable"
 									checked={property.scatterChartMinMax.y_enableMin}
 									onChange={() => {
@@ -576,11 +576,11 @@ const GridAndAxes = ({
 									}
 								/>
 							</div>
-							<div className="optionDescription">Max Value</div>
+							<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Max Value</div>
 							<div className="optionDescription" style={{ marginTop: "2px" }}>
 								<input
 									type="checkbox"
-									style={{width: "16px", height: "16px"}}
+									style={{width: "16px", height: "16px", marginLeft: "0.6rem"}}
 									id="enableDisable"
 									checked={property.scatterChartMinMax.y_enableMax}
 									onChange={() => {
@@ -693,7 +693,7 @@ const GridAndAxes = ({
 							},
 						 }}
 					/>
-					<div className="optionDescription">Name FontSize</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Name FontSize</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={yAxisProps.nameSize}
@@ -703,7 +703,7 @@ const GridAndAxes = ({
 						}}
 					/>
 					<div style={{ display: "flex", marginTop: "2px", marginBottom: "2px", marginRight: "2px" }}>
-						<div className="optionDescription">Name Color</div>
+						<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Name Color</div>
 						<div
 							style={{
 								width: "90%",
@@ -714,7 +714,7 @@ const GridAndAxes = ({
 								borderRadius: "3px",
 								padding: "0 5px",
 								marginTop: "10px",
-								marginBottom: "0.2rem",
+								marginBottom: "0.5rem",
 								backgroundColor: yAxisProps.nameColor,
 								alignSelf: "end"
 							}}
@@ -724,7 +724,7 @@ const GridAndAxes = ({
 						></div>
 					</div>
 
-					<div className="optionDescription">Tick Size</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Tick Size</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={
@@ -744,7 +744,7 @@ const GridAndAxes = ({
 						}}
 					/>
 
-					<div className="optionDescription">Tick Padding</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Tick Padding</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={
@@ -763,7 +763,7 @@ const GridAndAxes = ({
 							}
 						}}
 					/>
-					<div className="optionDescription">Tick Rotation</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Tick Rotation</div>
 					<SliderWithInput
 						degree={true}
 						sliderValue={

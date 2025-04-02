@@ -26,7 +26,7 @@ const CalendarLabels = ({
 
 	return (
 		<div className="optionsInfo">
-			<div className="optionDescription">YEAR LABEL</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>YEAR LABEL</div>
 			<div className="optionDescription" style={{ padding: "0 6% 5px 4%", marginTop: "2px" }}>
 				<label
 					htmlFor="enableDisable"
@@ -48,7 +48,7 @@ const CalendarLabels = ({
 			</div>
 			{calStyle.showYearLabel ? (
 				<>
-					<div className="optionDescription" style={{ marginTop: "2px" }}>Label Margin</div>
+					<div className="optionDescription" style={{ marginTop: "2px", paddingLeft: "0.5rem" }}>Label Margin</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={calStyle.yearLabelMargin}
@@ -57,7 +57,7 @@ const CalendarLabels = ({
 							updateCalendarStyleOptions(propKey, "yearLabelMargin", value)
 						}
 					/>
-					<div className="optionDescription">Label Position</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Label Position</div>
 					<FormControl
 						fullWidth
 						size="small"
@@ -111,7 +111,7 @@ const CalendarLabels = ({
 							</MenuItem>
 						</Select>
 					</FormControl>
-					<div className="optionDescription">
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>
 						Color
 						<div
 							style={{
@@ -132,7 +132,7 @@ const CalendarLabels = ({
 						</div>
 					</div>
 
-					<div className="optionDescription">Label Font Size</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Label Font Size</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={calStyle.yearLabelFontSize}
@@ -146,7 +146,7 @@ const CalendarLabels = ({
 			<div
 				style={{ borderTop: "1px solid rgb(211,211,211)", margin: "0.5rem 6% 0.5rem" }}
 			></div>
-			<div className="optionDescription">MONTH LABEL</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>MONTH LABEL</div>
 
 			<div className="optionDescription" style={{ padding: "0 6% 5px 4%", marginTop: "2px" }}>
 				<label
@@ -170,7 +170,7 @@ const CalendarLabels = ({
 
 			{calStyle.showMonthLabel ? (
 				<>
-					<div className="optionDescription" style={{ marginTop: "2px" }}>Label Margin</div>
+					<div className="optionDescription" style={{ marginTop: "2px", paddingLeft: "0.5rem" }}>Label Margin</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={calStyle.monthLabelMargin}
@@ -179,7 +179,7 @@ const CalendarLabels = ({
 							updateCalendarStyleOptions(propKey, "monthLabelMargin", value)
 						}
 					/>
-					<div className="optionDescription">Label Position</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Label Position</div>
 					<FormControl
 						fullWidth
 						size="small"
@@ -227,7 +227,7 @@ const CalendarLabels = ({
 							</MenuItem>
 						</Select>
 					</FormControl>
-					<div className="optionDescription">
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>
 						Color
 						<div
 							style={{
@@ -248,7 +248,7 @@ const CalendarLabels = ({
 						</div>
 					</div>
 
-					<div className="optionDescription">Label Font Size</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Label Font Size</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={calStyle.monthLabelFontSize}
@@ -262,7 +262,7 @@ const CalendarLabels = ({
 			<div
 				style={{ borderTop: "1px solid rgb(211,211,211)", margin: "0.5rem 6% 0.5rem" }}
 			></div>
-			<div className="optionDescription">DAY LABEL</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>DAY LABEL</div>
 
 			<div className="optionDescription" style={{ padding: "0 6% 5px 4%", marginTop: "2px" }}>
 				<label
@@ -281,7 +281,7 @@ const CalendarLabels = ({
 			</div>
 			{calStyle.showDayLabel ? (
 				<>
-					<div className="optionDescription" style={{ marginTop: "2px" }}>Label Margin</div>
+					<div className="optionDescription" style={{ marginTop: "2px", paddingLeft: "0.5rem" }}>Label Margin</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={calStyle.dayLabelMargin}
@@ -290,7 +290,7 @@ const CalendarLabels = ({
 							updateCalendarStyleOptions(propKey, "dayLabelMargin", value)
 						}
 					/>
-					<div className="optionDescription">Label Position</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Label Position</div>
 					<FormControl
 						fullWidth
 						size="small"
@@ -339,7 +339,7 @@ const CalendarLabels = ({
 						</Select>
 					</FormControl>
 
-					<div className="optionDescription">
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>
 						Color
 						<div
 							style={{
@@ -360,7 +360,7 @@ const CalendarLabels = ({
 						</div>
 					</div>
 
-					<div className="optionDescription">Label Font Size</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Label Font Size</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={calStyle.dayLabelFontSize}

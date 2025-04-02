@@ -114,7 +114,7 @@ const SankeyColorControls = ({
     <div className="optionsInfo">
       <div>{renderNodesAndColors()}</div>
       <div className="optionDescription">
-        <label style={{ width: "40%" }}>Link Color</label>
+        <label style={{ width: "40%", paddingLeft: "0.5rem" }}>Link Color</label>
         <div
           style={{
             height: "1.25rem",

@@ -51,7 +51,7 @@ const GridControls = ({
 			{chartProperties.properties[propKey].chartType === "gauge" ? (
 				<React.Fragment>
 					<div className="optionDescription" style={{
-						paddingLeft: "0.3rem"
+						paddingLeft: "0.5rem"
 					}}>Start Angle</div>
 					<TextField
 						value={property.gaugeAxisOptions.startAngle}
@@ -81,7 +81,7 @@ const GridControls = ({
 					chartProperties.properties[propKey].chartType === "rose" ? (
 						<React.Fragment>
 							<div className="optionDescription" style={{
-								paddingLeft: "0.3rem"
+								paddingLeft: "0.5rem"
 							}}>Start Angle</div>
 							<TextField
 								value={property.pieAxisOptions.pieStartAngle}
@@ -130,7 +130,7 @@ const GridControls = ({
 
 			{chartProperties.properties[propKey].chartType === "gauge" ? (
 				<React.Fragment>
-					<div className="optionDescription" style={{paddingLeft: "0.3rem"}}>End Angle</div>
+					<div className="optionDescription" style={{paddingLeft: "0.5rem"}}>End Angle</div>
 
 					<TextField
 						value={property.gaugeAxisOptions.endAngle}
@@ -152,7 +152,7 @@ const GridControls = ({
 						<div className="optionDescription" style={{ marginLeft: "-3px" }}>
 						<input
 							type="checkbox"
-							style={{width: "16px", height: "16px"}}
+							style={{width: "16px", height: "16px", marginLeft: "0.6rem"}}
 							id="enableDisable"
 							checked={property.gaugeAxisOptions.showTick}
 							onChange={() => {
@@ -163,13 +163,13 @@ const GridControls = ({
 								);
 							}}
 						/>
-						<label htmlFor="enableDisable" className="enableDisableLabel">
+						<label htmlFor="enableDisable" className="enableDisableLabel" style={{ marginTop: "-13px"}}>
 							Show Tick
 						</label>
 					</div>
 					{property.gaugeAxisOptions.showTick ? (
 						<>
-							<div className="optionDescription">Tick Size</div>
+							<div className="optionDescription" style={{paddingLeft: "0.5rem"}}>Tick Size</div>
 							<SliderWithInput
 								percent={true}
 								sliderValue={property.gaugeAxisOptions.tickSize}
@@ -178,7 +178,7 @@ const GridControls = ({
 									updateGaugeAxisOptions(propKey, "tickSize", value);
 								}}
 							/>
-							<div className="optionDescription">Tick Padding</div>
+							<div className="optionDescription" style={{paddingLeft: "0.5rem"}}>Tick Padding</div>
 							<SliderWithInput
 								percent={true}
 								sliderValue={property.gaugeAxisOptions.tickPadding}
@@ -193,7 +193,7 @@ const GridControls = ({
 						<div className="optionDescription" style={{ marginLeft: "-3px" }}>
 						<input
 							type="checkbox"
-							style={{width: "16px", height: "16px"}}
+							style={{width: "16px", height: "16px", marginLeft: "0.6rem"}}
 							id="enableDisable"
 							checked={property.gaugeAxisOptions.showAxisLabel}
 							onChange={() => {
@@ -204,13 +204,13 @@ const GridControls = ({
 								);
 							}}
 						/>
-						<label htmlFor="enableDisable" className="enableDisableLabel">
+						<label htmlFor="enableDisable" className="enableDisableLabel" style={{ marginTop: "-13px"}}>
 							Show Axis Label
 						</label>
 					</div>
 					{property.gaugeAxisOptions.showAxisLabel ? (
 						<>
-							<div className="optionDescription">Label Padding</div>
+							<div className="optionDescription" style={{paddingLeft: "0.5rem"}}>Label Padding</div>
 							<SliderWithInput
 								percent={true}
 								sliderValue={property.gaugeAxisOptions.labelPadding}

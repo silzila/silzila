@@ -46,7 +46,7 @@ const CalendarChartStyles = ({
 			</div>
 			{calStyle.showSplitLine ? (
 				<>
-					<div className="optionDescription">
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>
 						Color
 						<div
 							style={{
@@ -65,7 +65,7 @@ const CalendarChartStyles = ({
 							{"  "}
 						</div>
 					</div>
-					<div className="optionDescription">Width</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Width</div>
 					<SliderWithInput
 						percent={true}
 						sliderValue={calStyle.splitLineWidth}
@@ -75,7 +75,7 @@ const CalendarChartStyles = ({
 						}
 					/>
 
-					<div className="optionDescription">Line Type</div>
+					<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Line Type</div>
 					<FormControl
 						fullWidth
 						size="small"

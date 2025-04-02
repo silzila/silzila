@@ -26,7 +26,7 @@ const SankeyStyles = ({
 				<label
 					htmlFor="enableDisable"
 					className="enableDisableLabel"
-					style={{ marginRight: "10px", marginLeft: "0px" }}
+					style={{ marginRight: "10px", marginLeft: "0.5rem" }}
 				>
 					Draggable Node
 				</label>
@@ -37,7 +37,7 @@ const SankeyStyles = ({
 					}}
 				/>
 			</div>
-			<div className="optionDescription">Node Align</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Node Align</div>
 
 			<FormControl fullWidth size="small" style={{ fontSize: "12px", borderRadius: "4px" }}>
 				<Select
@@ -82,7 +82,7 @@ const SankeyStyles = ({
 				</Select>
 			</FormControl>
 
-			<div className="optionDescription">Orient</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Orient</div>
 
 			<FormControl fullWidth size="small" style={{ fontSize: "12px", borderRadius: "4px" }}>
 				<Select
@@ -124,7 +124,7 @@ const SankeyStyles = ({
 				</Select>
 			</FormControl>
 
-			<div className="optionDescription">Node Width</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Node Width</div>
 			<SliderWithInput
 				pointNumbers={true}
 				sliderValue={sankeyStyle.nodeWidth}
@@ -132,7 +132,7 @@ const SankeyStyles = ({
 				percent={true}
 				changeValue={value => updateSankeyStyleOptions(propKey, "nodeWidth", value)}
 			/>
-			<div className="optionDescription">Node Gap</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Node Gap</div>
 			<SliderWithInput
 				pointNumbers={true}
 				sliderValue={sankeyStyle.nodeGap}
@@ -140,7 +140,7 @@ const SankeyStyles = ({
 				percent={true}
 				changeValue={value => updateSankeyStyleOptions(propKey, "nodeGap", value)}
 			/>
-			<div className="optionDescription">Link Opacity</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Link Opacity</div>
 			<SliderWithInput
 				pointNumbers={true}
 				sliderValue={sankeyStyle.opacity}
@@ -148,7 +148,7 @@ const SankeyStyles = ({
 				percent={true}
 				changeValue={value => updateSankeyStyleOptions(propKey, "opacity", value)}
 			/>
-			<div className="optionDescription">Link Curveness</div>
+			<div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>Link Curveness</div>
 			<SliderWithInput
 				pointNumbers={true}
 				sliderValue={sankeyStyle.curveness}

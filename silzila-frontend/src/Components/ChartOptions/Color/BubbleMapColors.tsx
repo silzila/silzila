@@ -155,7 +155,7 @@ const BubbleMapColors = ({
   if (!chartProperties.properties[propKey].chartAxes[1].fields[0]) {
     return (
       <>
-         <div className="optionDescription" style={{ fontSize: "14px" }}>Min</div>
+         <div className="optionDescription" style={{ fontSize: "14px", paddingLeft: "0.5rem" }}>Min</div>
          <div className="optionDescription" style={{ marginTop: "2px"}}>
           <InputBase
             style={{ height: "1.25rem", minWidth: "35%", width: "50%" }}
@@ -186,7 +186,7 @@ const BubbleMapColors = ({
             {"  "}
           </div>
         </div>
-        <div className="optionDescription" style={{ fontSize: "14px" }}>Max</div>
+        <div className="optionDescription" style={{ fontSize: "14px", paddingLeft: "0.5rem" }}>Max</div>
         <div className="optionDescription" style={{ marginTop: "2px"}}>
           <InputBase
             style={{ height: "1.25rem", minWidth: "35%", width: "50%" }}
@@ -240,7 +240,7 @@ const BubbleMapColors = ({
   } else {
     return (
       <div className="optionsInfo">
-        <div className="optionDescription">COLOR SCHEME:</div>
+        <div className="optionDescription" style={{ paddingLeft: "0.5rem"}}>COLOR SCHEME:</div>
         <FormControl
           fullWidth
           size="small"

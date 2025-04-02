@@ -121,15 +121,15 @@ const ChartTitle = ({
 						</div>
 					</div>
 					<div className="optionsInfo">
-						<div className="optionDescription">Title Align</div>
+						<div className="optionDescription" style={{ paddingLeft: "0.5rem" }}>Title Align</div>
 						<div className="radioButtons">
 							<RenderTitleAlignOptions
 								titleAlignment={titleAlignment}
 								changeTitleAlignment={changeTitleAlignment}
 							/>
 						</div>
-						<div className="optionDescription">Title Font Size</div>
-						<div className="optionDescription" style={{ marginLeft: "-10px", marginTop: "3px" }}>
+						<div className="optionDescription" style={{ paddingLeft: "0.5rem" }}>Title Font Size</div>
+						<div className="optionDescription" style={{ marginLeft: "-3px", marginTop: "3px", borderRadius: "1px" }}>
 							<InputPositiveNumber
 								value={chartProperties.properties[propKey].titleOptions.fontSize}
 								updateValue={(value: number) => setTitleSize(propKey, value)}								

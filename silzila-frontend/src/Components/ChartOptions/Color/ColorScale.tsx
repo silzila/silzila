@@ -96,7 +96,7 @@ const ColorScale = ({
 
   return (
     <div className="optionsInfo">
-      <div className="optionDescription">Set Color Scale:</div>
+      <div className="optionDescription" style={{ paddingLeft: "0.5rem" }}>Set Color Scale:</div>
 
       <div
         className="optionDescription"
@@ -105,7 +105,7 @@ const ColorScale = ({
         <label
           htmlFor="enableDisable"
           className="enableDisableLabel"
-          style={{ marginRight: "5px", paddingLeft: "0" }}
+          style={{ marginRight: "5px", paddingLeft: "0.2rem" }}
         >
           Min Color
         </label>
@@ -138,7 +138,7 @@ const ColorScale = ({
         <label
           htmlFor="enableDisable"
           className="enableDisableLabel"
-          style={{ marginRight: "5px", paddingLeft: "0" }}
+          style={{ marginRight: "5px", paddingLeft: "0.2" }}
         >
           Max Color
         </label>
@@ -165,7 +165,7 @@ const ColorScale = ({
           {"  "}
         </div>
       </div>
-      <div className="optionDescription" style={{paddingBottom: "0"}}>Set Min Max Values</div>
+      <div className="optionDescription" style={{paddingBottom: "0", paddingLeft: "0.5rem"}}>Set Min Max Values</div>
 
       <div className="colorScaleContainer">
         <RadioGroup
