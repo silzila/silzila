@@ -1614,7 +1614,9 @@ const SubWorkspaceDetails = () => {
               >
                 Rename
               </h3>
-              <div className={styles.subworkspaceModalContentInput}>
+              <div className={styles.subworkspaceModalContentInput}
+                style={{ height: errorMessage ? '30px' : '40px' }}
+              >
                 <input
                   type="text"
                   style={{
@@ -1624,9 +1626,12 @@ const SubWorkspaceDetails = () => {
                   value={workspaceName}
                   onChange={(e) => setWorkspaceName(e.target.value)}
                   placeholder="Workspace Name"
-                />
+                /></div>
+                <div className={styles.errorMessageContainer}>
                 {errorMessage && (
-                  <div className={styles.errorMessage}>{errorMessage}</div>
+                  <p style={{ color: "red", fontSize: fontSize.small }}>
+                  {errorMessage}
+                </p>
                 )}
               </div>
 

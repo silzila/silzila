@@ -261,6 +261,10 @@
   text-align: left;
 } */
 
+.errorMessageContainer {
+  margin-top: 8px; 
+}
+
 .errorMessage {
   display: flex;
   justify-self: center;

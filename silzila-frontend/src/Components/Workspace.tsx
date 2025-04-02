@@ -976,7 +976,9 @@ const WorkspaceList = () => {
             >
               Rename
             </h3>
-            <div className={styles.workspaceModalContentInput}>
+            <div className={styles.workspaceModalContentInput}
+              style={{ height: errorMessage ? '30px' : '40px' }}
+            >
               <input
                 type="text"
                 style={{
@@ -987,6 +989,8 @@ const WorkspaceList = () => {
                 onChange={(e) => setWorkspaceName(e.target.value)}
                 placeholder="Workspace Name"
               />
+              </div>
+              <div className={styles.errorMessageContainer}>
               {errorMessage && (
                 <p style={{ color: "red", fontSize: fontSize.small }}>
                   {errorMessage}
