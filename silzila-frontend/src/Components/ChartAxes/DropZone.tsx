@@ -86,7 +86,7 @@ const DropZone = ({
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [testMessage, setTestMessage] = useState<string>("Testing alert");
   const [isFilterCollapsed, setIsFilterCollapsed] = useState<boolean>(false);
-;
+  ;
   const [showPopup, setShowPopup] = useState<boolean>(false);
 
   const theme = useTheme();
@@ -99,12 +99,12 @@ const DropZone = ({
 
   var selectedDynamicMeasureProps =
     dynamicMeasureState?.dynamicMeasureProps?.[
-      dynamicMeasureState.selectedTabId
+    dynamicMeasureState.selectedTabId
     ]?.[dynamicMeasureState.selectedTileId]?.[
-      `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
+    `${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`
     ];
 
-  
+
   const [, drop] = useDrop({
     accept: ["card", "calculation"],
     drop: (item) => {
@@ -216,7 +216,7 @@ const DropZone = ({
     function updateField(binIndex: number, index: number, enable: boolean) {
       let _field =
         chartProp.properties[propKey][currentChartAxesName][binIndex].fields[
-          index
+        index
         ];
 
       if (_field) {
@@ -256,7 +256,7 @@ const DropZone = ({
       return;
     }
 
-    
+
     var allowedNumbers = ChartsInfo[chartType].dropZones[bIndex].allowedNumbers;
     //let newFieldData = {};
     // when column dragged from table i.e from Box.tsx 
@@ -265,7 +265,10 @@ const DropZone = ({
       /**
        * Column or row level saved calculation dragged from table dropped in area other than measure or chart filter
        */
-      if (![Area.CHART_FILTER, Area.MEASURE].includes(name)) {
+      if (
+        !["scatterPlot"].includes(chartType) &&
+        ![Area.CHART_FILTER, Area.MEASURE].includes(name)
+      ) {
         /**
          * DELETE all  window functions as there is a change in dimension  so all window function must be removed
          */
@@ -284,13 +287,11 @@ const DropZone = ({
             newFields.forEach((field: any) => {
               if (field.windowfn) {
                 field.windowfn = null;
-                field.displayname = fieldName(field)
+                field.displayname = fieldName(field);
               }
             });
-  
+
             dispatch(setMeasureAxisFields(propKey, newFields));
-            
-  
           }
         }
       }
@@ -397,7 +398,7 @@ const DropZone = ({
       /**
        * if drop item into row. col.dimension, x, y,  from any other chart axis or (drop in measure but  item is not dragged from chart filter) or(drop in chart filter but item is not dragged from measure)
        */
-      if([DropTo.COLUMN,DropTo.DIMENSION,DropTo.ROW,DropTo.X,DropTo.Y].includes(name) ||(name===AxisType.Measure && item.dragFrom!==Area.CHART_FILTER) ||(DropTo.CHART_FILTER===name && item.dragFrom!==Area.MEASURE)){
+      if ([DropTo.COLUMN, DropTo.DIMENSION, DropTo.ROW, DropTo.X, DropTo.Y].includes(name) || (name === AxisType.Measure && item.dragFrom !== Area.CHART_FILTER) || (DropTo.CHART_FILTER === name && item.dragFrom !== Area.MEASURE)) {
         const chartAxis = chartProp.properties[propKey]?.chartAxes;
         if (!chartAxis) return;
         const measures = chartAxis.find(
@@ -416,11 +417,11 @@ const DropZone = ({
                 field.displayname = fieldName(field)
               }
             });
-  
+
             dispatch(setMeasureAxisFields(propKey, newFields));
-            
-            
-  
+
+
+
           }
         }
       }
@@ -529,7 +530,7 @@ const DropZone = ({
     if (name === "Filter") {
       //setModalData(newFieldData);
     }
-    if(showSnackBar){
+    if (showSnackBar) {
       setShowPopup(true);
     }
   };
@@ -636,120 +637,120 @@ const DropZone = ({
       >
         {options.length > 0
           ? options.map((opt, index) => {
-              return (
-                <div
+            return (
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  width: "auto",
+                  padding: "0.2rem 0.5rem 0.2rem 0",
+                }}
+                onClick={() => handleClose("opt1", opt)}
+              >
+                <span style={{ width: "2rem" }}></span>
+                <MenuItem
+                  style={{ flex: 1, padding: 0, fontSize: "14px" }}
                   key={index}
-                  style={{
-                    display: "flex",
-                    width: "auto",
-                    padding: "0.2rem 0.5rem 0.2rem 0",
-                  }}
-                  onClick={() => handleClose("opt1", opt)}
                 >
-                  <span style={{ width: "2rem" }}></span>
-                  <MenuItem
-                    style={{ flex: 1, padding: 0, fontSize: "14px" }}
-                    key={index}
-                  >
-                    {opt + " " + name}
-                  </MenuItem>
-                </div>
-              );
-            })
+                  {opt + " " + name}
+                </MenuItem>
+              </div>
+            );
+          })
           : null}
         <Divider />
         {bIndex === 0 && options1.length > 0
           ? options1.map((opt, index) => {
-              return (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    width: "auto",
-                    padding: "0.2rem 0.5rem 0.2rem 0",
-                  }}
-                  onClick={() => {
-                    setAnchorEl(null);
-                    updateFilterAnyContidionMatchPropLeft(
-                      propKey,
-                      0,
-                      !currentChartAxes[0].any_condition_match,
-                      currentChartAxesName
-                    );
-                  }}
-                >
-                  <span style={{ width: "2rem", paddingLeft: "5px" }}>
-                    {opt ===
+            return (
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  width: "auto",
+                  padding: "0.2rem 0.5rem 0.2rem 0",
+                }}
+                onClick={() => {
+                  setAnchorEl(null);
+                  updateFilterAnyContidionMatchPropLeft(
+                    propKey,
+                    0,
+                    !currentChartAxes[0].any_condition_match,
+                    currentChartAxesName
+                  );
+                }}
+              >
+                <span style={{ width: "2rem", paddingLeft: "5px" }}>
+                  {opt ===
                     (currentChartAxes[0].any_condition_match
                       ? "Any Condition Met"
                       : "All Conditions Met") ? (
-                      <Tooltip title="Selected">
-                        <DoneIcon
-                          style={{
-                            height: fontSize.extraLarge,
-                            width: fontSize.extraLarge,
-                            fontWeight: "10px",
-                          }}
-                        />
-                      </Tooltip>
-                    ) : null}
-                  </span>
-                  <MenuItem
-                    style={{ flex: 1, padding: 0, fontSize: "14px" }}
-                    key={index}
-                  >
-                    {opt}
-                  </MenuItem>
-                </div>
-              );
-            })
+                    <Tooltip title="Selected">
+                      <DoneIcon
+                        style={{
+                          height: fontSize.extraLarge,
+                          width: fontSize.extraLarge,
+                          fontWeight: "10px",
+                        }}
+                      />
+                    </Tooltip>
+                  ) : null}
+                </span>
+                <MenuItem
+                  style={{ flex: 1, padding: 0, fontSize: "14px" }}
+                  key={index}
+                >
+                  {opt}
+                </MenuItem>
+              </div>
+            );
+          })
           : null}
         <Divider />
         {bIndex === 0 && options2.length > 0
           ? options2.map((opt, index) => {
-              return (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    width: "auto",
-                    padding: "0.2rem 0.5rem 0.2rem 0",
-                  }}
-                  onClick={() => {
-                    setAnchorEl(null);
-                    updateIsAutoFilterEnabledPropLeft(
-                      propKey,
-                      0,
-                      !currentChartAxes[0].is_auto_filter_enabled,
-                      currentChartAxesName
-                    );
-                  }}
-                >
-                  <span style={{ width: "2rem", paddingLeft: "5px" }}>
-                    {opt ===
+            return (
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  width: "auto",
+                  padding: "0.2rem 0.5rem 0.2rem 0",
+                }}
+                onClick={() => {
+                  setAnchorEl(null);
+                  updateIsAutoFilterEnabledPropLeft(
+                    propKey,
+                    0,
+                    !currentChartAxes[0].is_auto_filter_enabled,
+                    currentChartAxesName
+                  );
+                }}
+              >
+                <span style={{ width: "2rem", paddingLeft: "5px" }}>
+                  {opt ===
                     (currentChartAxes[0].is_auto_filter_enabled
                       ? "Auto Refresh"
                       : "Manual Run") ? (
-                      <Tooltip title="Selected">
-                        <DoneIcon
-                          style={{
-                            height: fontSize.extraLarge,
-                            width: fontSize.extraLarge,
-                            fontWeight: "10px",
-                          }}
-                        />
-                      </Tooltip>
-                    ) : null}
-                  </span>
-                  <MenuItem
-                    style={{ flex: 1, padding: 0, fontSize: "14px" }}
-                    key={index}
-                  >
-                    {opt}
-                  </MenuItem>
-                </div>
-              );
-            })
+                    <Tooltip title="Selected">
+                      <DoneIcon
+                        style={{
+                          height: fontSize.extraLarge,
+                          width: fontSize.extraLarge,
+                          fontWeight: "10px",
+                        }}
+                      />
+                    </Tooltip>
+                  ) : null}
+                </span>
+                <MenuItem
+                  style={{ flex: 1, padding: 0, fontSize: "14px" }}
+                  key={index}
+                >
+                  {opt}
+                </MenuItem>
+              </div>
+            );
+          })
           : null}
       </Menu>
     );
@@ -783,24 +784,24 @@ const DropZone = ({
             style={
               name === "Filter" && chartType !== "geoChart"
                 ? {
-                    flex: 1,
-                    paddingBottom: "2px",
-                    alignItems: "center",
-                    width: "100%",
-                    display: "flex",
-                    color: theme.palette.primary.contrastText,
-                    fontSize: fontSize.large,
-                  }
+                  flex: 1,
+                  paddingBottom: "2px",
+                  alignItems: "center",
+                  width: "100%",
+                  display: "flex",
+                  color: theme.palette.primary.contrastText,
+                  fontSize: fontSize.large,
+                }
                 : {
-                    display: "flex",
-                    borderTop: "2px solid rgba(224, 224, 224, 1)",
-                    flex: 1,
-                    padding: "10px 0 2px 0",
-                    alignItems: "center",
-                    width: "100%",
-                    color: theme.palette.primary.contrastText,
-                    fontSize: fontSize.large,
-                  }
+                  display: "flex",
+                  borderTop: "2px solid rgba(224, 224, 224, 1)",
+                  flex: 1,
+                  padding: "10px 0 2px 0",
+                  alignItems: "center",
+                  width: "100%",
+                  color: theme.palette.primary.contrastText,
+                  fontSize: fontSize.large,
+                }
             }
           >
             {name === "Filter"
@@ -808,8 +809,8 @@ const DropZone = ({
                 ? "Filter Override"
                 : "Chart Filter"
               : uID
-              ? name + " Override"
-              : name}
+                ? name + " Override"
+                : name}
             {chartType === "richText" ? (
               <span style={{ marginLeft: "5px" }} className="axisInfo">
                 (
@@ -873,7 +874,7 @@ const DropZone = ({
                 )}
 
                 {bIndex === 0 &&
-                currentChartAxes[0].is_auto_filter_enabled === false ? (
+                  currentChartAxes[0].is_auto_filter_enabled === false ? (
                   <button
                     onClick={(e) =>
                       toggleFilterRunState(
@@ -905,61 +906,61 @@ const DropZone = ({
             <>
               {chartType === "richText"
                 ? selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.map(
-                    (field: any, index: number) => (
-                      <UserFilterCardForDm
-                        field={field}
-                        uID={uID}
-                        bIndex={bIndex}
-                        axisTitle={name}
-                        key={index}
-                        itemIndex={index}
-                        propKey={`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`}
-                      />
-                    )
+                  (field: any, index: number) => (
+                    <UserFilterCardForDm
+                      field={field}
+                      uID={uID}
+                      bIndex={bIndex}
+                      axisTitle={name}
+                      key={index}
+                      itemIndex={index}
+                      propKey={`${dynamicMeasureState.selectedTileId}.${dynamicMeasureState.selectedDynamicMeasureId}`}
+                    />
                   )
+                )
                 : currentChartAxes[bIndex]?.fields?.map(
-                    (field: any, index: number) => (
-                      <UserFilterCard
-                        field={field}
-                        uID={uID}
-                        bIndex={bIndex}
-                        axisTitle={name}
-                        key={index}
-                        itemIndex={index}
-                        propKey={propKey}
-                      />
-                    )
-                  )}
+                  (field: any, index: number) => (
+                    <UserFilterCard
+                      field={field}
+                      uID={uID}
+                      bIndex={bIndex}
+                      axisTitle={name}
+                      key={index}
+                      itemIndex={index}
+                      propKey={propKey}
+                    />
+                  )
+                )}
             </>
           ) : (
             <>
               {chartType === "richText"
                 ? selectedDynamicMeasureProps?.chartAxes[bIndex]?.fields?.map(
-                    (field: any, index: number) => (
-                      <Card
-                        field={field}
-                        uID={uID}
-                        bIndex={bIndex}
-                        axisTitle={name}
-                        key={index}
-                        itemIndex={index}
-                        propKey={`${dynamicMeasureState.selectedDynamicMeasureId}.${dynamicMeasureState.selectedTileId}`}
-                      />
-                    )
+                  (field: any, index: number) => (
+                    <Card
+                      field={field}
+                      uID={uID}
+                      bIndex={bIndex}
+                      axisTitle={name}
+                      key={index}
+                      itemIndex={index}
+                      propKey={`${dynamicMeasureState.selectedDynamicMeasureId}.${dynamicMeasureState.selectedTileId}`}
+                    />
                   )
+                )
                 : currentChartAxes[bIndex]?.fields?.map(
-                    (field: any, index: number) => (
-                      <Card
-                        field={field}
-                        uID={uID}
-                        bIndex={bIndex}
-                        axisTitle={name}
-                        key={index}
-                        itemIndex={index}
-                        propKey={propKey}
-                      />
-                    )
-                  )}
+                  (field: any, index: number) => (
+                    <Card
+                      field={field}
+                      uID={uID}
+                      bIndex={bIndex}
+                      axisTitle={name}
+                      key={index}
+                      itemIndex={index}
+                      propKey={propKey}
+                    />
+                  )
+                )}
             </>
           )}
         </div>
@@ -975,7 +976,7 @@ const DropZone = ({
       />
 
       <RenderMenu name={ChartsInfo[chartType].dropZones[bIndex]?.name} />
-      <SnackBar show={showPopup} message={messages.playbook.WindowFunctionRemoved} onClose={()=>setShowPopup(false)}/>
+      <SnackBar show={showPopup} message={messages.playbook.WindowFunctionRemoved} onClose={() => setShowPopup(false)} />
     </div>
   );
 };
