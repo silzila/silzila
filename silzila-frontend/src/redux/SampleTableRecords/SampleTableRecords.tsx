@@ -3,13 +3,14 @@ import {
 	AddTableRecords,
 	LoadSampleRecords,
 	ResetSampleRecords,
+	DeleteTableRecords
 } from "./SampleTableRecordsInterfaces";
 
 const initialRecords = { recordsColumnType: {} };
 
 const SampleRecordsReducer = (
 	state: any = initialRecords,
-	action: AddTableRecords | ResetSampleRecords | LoadSampleRecords
+	action: AddTableRecords | ResetSampleRecords | LoadSampleRecords | DeleteTableRecords 
 ) => {
 	switch (action.type) {
 		case "ADD_TABLE_RECORDS":
@@ -49,6 +50,21 @@ const SampleRecordsReducer = (
 
 		case "RESET_SAMPLE_RECORDS":
 			return initialRecords;
+
+		case "DELETE_TABLE_RECORDS":
+			if (state[action.payload.ds_uid] === undefined ||
+				state[action.payload.ds_uid][action.payload.tableId] === undefined) {
+				// If dataset or table doesn't exist, return state unchanged
+				return state;
+			}
+
+			// Create a copy of the state
+			let newState = { ...state };
+
+			// Delete the table records
+			delete newState[action.payload.ds_uid][action.payload.tableId];
+
+			return newState;
 
 		default:
 			return state;

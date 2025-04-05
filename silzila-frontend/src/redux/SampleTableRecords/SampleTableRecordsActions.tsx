@@ -19,3 +19,8 @@ export const resetSampleRecords = () => {
 export const loadSampleRecords = (sampleRecords: any) => {
 	return { type: "LOAD_SAMPLE_RECORDS_FROM_PLAYBOOK", payload: sampleRecords };
 };
+
+
+export const deleteTableRecords = (ds_uid: string, tableId: string) => {
+	return { type: "DELETE_TABLE_RECORDS", payload: { ds_uid, tableId } };
+}

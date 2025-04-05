@@ -1,11 +1,12 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { DataViewerMiddleStateProps } from "../../DataViewer/DataViewerMiddleInterfaces";
 import "./bottomMenu.css";
 import { connect } from "react-redux";
 import { Button, Dialog, DialogContent, Tooltip, unstable_useId } from "@mui/material";
 import DialogPreviewContent from "./DialogPreviewContent";
-import { addTableRecords } from "../../../redux/SampleTableRecords/SampleTableRecordsActions";
+import { addTableRecords, deleteTableRecords } from "../../../redux/SampleTableRecords/SampleTableRecordsActions";
 import { SampleRecordesColumnType } from "../../../redux/SampleTableRecords/SampleTableRecordsInterfaces";
+import { update } from 'lodash';
 import {
   addTableIdToCurrentCalculationSession,
   resetCurrentCalculationSession,
@@ -21,6 +22,7 @@ import { editChartPropItem, setSelectedTableInTile, toggleAxesEdited } from "../
 import { set } from "lodash";
 import { fonts, fontSize, palette } from "../../..";
 import { isNameAllowed } from "../../CommonFunctions/CommonFunctions";
+import deepCopy from 'lodash/cloneDeep';
 
 const FlowList = ({
   tabTileProps,
@@ -37,7 +39,8 @@ const FlowList = ({
   setTable,
   updateQueryParam,
   chartProperties,
-  toggleAxesEdit
+  toggleAxesEdit,
+  deleteTableRecords,
 }: any) => {
   const propKey = useMemo(
     () => `${tabTileProps?.selectedTabId}.${tabTileProps?.selectedTileId}`,
@@ -45,7 +48,7 @@ const FlowList = ({
   );
   const [lastTestSuccess, setLastTestSuccess] = useState<boolean>(false);
   let calculationInfo = calculations.properties[propKey]?.currentCalculationSession?.calculationInfo;
-  const currentCalculationSession = calculations.properties[propKey]?.currentCalculationSession;
+  const currentCalculationSession = deepCopy(calculations.properties[propKey]?.currentCalculationSession);
   const calculationName = currentCalculationSession.name;
   const totalSavedCalculations = calculations?.savedCalculations?.length
   const activeFlowId = currentCalculationSession?.activeFlow
@@ -56,7 +59,6 @@ const FlowList = ({
       relationship: string,
       isDirect: boolean
     }[]>(null)
-
   const selectedDataset = chartProp?.properties[propKey]?.selectedDs
   const selectedTable = chartProp?.properties[propKey]?.selectedTable[selectedDataset?.id]
   const datasetId = selectedDataset?.id
@@ -129,12 +131,14 @@ const FlowList = ({
       const tableMetaDataForSelectedDataset = sampleRecords.recordsColumnType[datasetId];
 
       if (tableMetaDataForSelectedDataset[tableIdToPushInto].find((el: any) => el['columnName'].toLowerCase().split(" ").join("_").split("-").join("_") === calculationLocalName.toLowerCase().split(" ").join("_").split("-").join("_")) && !currentCalculationSession.uuid) {
-        if (alert) {
-          setAlert(null)
-        }
         setAlert({ severity: 'warning', message: "There is already a column with this name. Please choose a different name." })
         return
       }
+
+      if (currentCalculationSession?.tableId) {
+        deleteTableRecords(datasetId, currentCalculationSession.tableId);
+      }
+      currentCalculationSession.tableId = tableIdToPushInto;
 
       addTableIdToCurrentCalculationSessionFunction(tableIdToPushInto, propKey)
     } else {
@@ -151,14 +155,26 @@ const FlowList = ({
 
           tableIdToPushInto = table2
           addTableIdToCurrentCalculationSessionFunction(tableIdToPushInto, propKey)
+          if (currentCalculationSession?.tableId) {
+            deleteTableRecords(datasetId, currentCalculationSession.tableId);
+          }
+          currentCalculationSession.tableId = tableIdToPushInto;
 
         } else if (relationship === "many to one" && isDirect) {
           tableIdToPushInto = table1
           addTableIdToCurrentCalculationSessionFunction(tableIdToPushInto, propKey)
+          if (currentCalculationSession?.tableId) {
+            deleteTableRecords(datasetId, currentCalculationSession.tableId);
+          }
+          currentCalculationSession.tableId = tableIdToPushInto;
         }
         else if (relationship === "one to one" && isDirect) {
           tableIdToPushInto = table1
           addTableIdToCurrentCalculationSessionFunction(tableIdToPushInto, propKey)
+          if (currentCalculationSession?.tableId) {
+            deleteTableRecords(datasetId, currentCalculationSession.tableId);
+          }
+          currentCalculationSession.tableId = tableIdToPushInto;
         }
         else {
           setLastTestSuccess(false)
@@ -197,9 +213,10 @@ const FlowList = ({
 
     const uuid = new ShortUniqueId({ length: 4 }).randomUUID();
 
-    const allPreviousSavedNonAggregatedCalculations = [...(calculations?.savedCalculations?.filter((calculation: any) => (!calculation.isAggregated && calculation.tableId === tableIdToPushInto && calculation.datasetId === selectedDataset?.id)).map((calculation: any) => {
+    const allPreviousSavedNonAggregatedCalculations = [...(calculations?.savedCalculations?.filter((calculation: any) => (!calculation.isAggregated && calculation.datasetId === selectedDataset?.id)).map((calculation: any) => {
       return {
         uuid: calculation.uuid,
+        tableId: calculation.tableId,
         ...(calculation.calculationInfo)
       }
     }))]
@@ -221,11 +238,7 @@ const FlowList = ({
       if (calculations.savedCalculations.find((calc: any) => {
         const calculationNameCharactersSync = calc.name.split(" ").join("_").split("-").join("_")
         return calculationNameCharactersSync === calculationLocalName.split(" ").join("_").split("-").join("_")
-      })) {
-
-        if (alert) {
-          setAlert(null)
-        }
+      }) && !currentCalculationSession.uuid) {
 
         setAlert({ severity: 'warning', message: "There is already a calculation with this name. Please choose a different name." })
 
@@ -1024,6 +1037,8 @@ const mapDispatchToProps = (dispatch: any) => {
       ),
     toggleAxesEdit: (propKey: string, didEdit: boolean) =>
       dispatch(toggleAxesEdited(propKey, didEdit)),
+    deleteTableRecords: (ds_uid: string, tableId: string) =>
+      dispatch(deleteTableRecords(ds_uid, tableId)),
   };
 };
 
