@@ -38,3 +38,11 @@ export interface LoadSampleRecords {
 	type: "LOAD_SAMPLE_RECORDS_FROM_PLAYBOOK";
 	payload: any;
 }
+
+export interface DeleteTableRecords {
+	type: "DELETE_TABLE_RECORDS";
+	payload: {
+		ds_uid: string;
+		tableId: string;
+	};
+}

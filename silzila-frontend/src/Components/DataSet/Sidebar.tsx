@@ -83,7 +83,7 @@ const Sidebar = ({
   editMode,
   _loading = false,
   _id = "sidebar",
-  
+
   // state
   dsId,
   token,
@@ -136,14 +136,14 @@ const Sidebar = ({
   const [RenameInputValueCustomQueryname, setRenameInputValueCustomQueryname] =
     useState<string>("");
   const location = useLocation();
-  const state:TLocationStateDS = location.state;
+  const state: TLocationStateDS = location.state;
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(_loading);
   const [RenameNameQuery, setRenameNameQuery] = useState<string>("");
   const [RenameID, setRenameID] = useState<any>(0);
   const [EditCustomQuery, setEditCustomQuery] = useState<any>(0);
   const [RenameToCanvasProps, setRenameToCanvasProps] = useState<string>("");
-  const [viewerRestriction,setViewerRestriction]=useState<boolean>(false);
+  const [viewerRestriction, setViewerRestriction] = useState<boolean>(false);
   useEffect(() => {
     setLoading(_loading);
   }, [_loading]);
@@ -187,7 +187,7 @@ const Sidebar = ({
     setRenameToCanvasProps,
   };
   useEffect(() => {
-    if(!editMode||!dsId)return;
+    if (!editMode || !dsId) return;
 
     // const allContents=[...workspaceContents,...SubWorkspaceContents];
     // const selectedDs=allContents.find((item:any)=>item.id===dsId);
@@ -199,7 +199,7 @@ const Sidebar = ({
     // else setViewerRestriction(false);
 
 
-  },[ dsId, editMode]);
+  }, [dsId, editMode]);
 
   const handleProceedButtonClick = (id: string) => {
     let tree = JSON.parse(JSON.stringify(dataConnectionTree));
@@ -229,9 +229,8 @@ const Sidebar = ({
       var result: any = await FetchData({
         requestType: "noData",
         method: "GET",
-        url: `database-connection/${
-          selectedDataConnection.id || connectionValue
-        }?workspaceId=${selectedDataConnection.workSpaceId || state?.parentId}`,
+        url: `database-connection/${selectedDataConnection.id || connectionValue
+          }?workspaceId=${selectedDataConnection.workSpaceId || state?.parentId}`,
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -253,10 +252,10 @@ const Sidebar = ({
   };
 
   useEffect(() => {
-      if(!state){
-        navigate("/")
-      }
-    }, [state, navigate])
+    if (!state) {
+      navigate("/")
+    }
+  }, [state, navigate])
 
   useEffect(() => {
     if (state?.mode === "New") {
@@ -383,9 +382,8 @@ const Sidebar = ({
     var res: any = await FetchData({
       requestType: "noData",
       method: "GET",
-      url: `metadata-databases/${connectionValue}?workspaceId=${
-        selectedDataConnection.workSpaceId || state?.parentId
-      }`,
+      url: `metadata-databases/${connectionValue}?workspaceId=${selectedDataConnection.workSpaceId || state?.parentId
+        }`,
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -408,9 +406,8 @@ const Sidebar = ({
     var res: any = await FetchData({
       requestType: "noData",
       method: "GET",
-      url: `metadata-schemas/${connectionValue}?database=${db}&workspaceId=${
-        selectedDataConnection.workSpaceId || state?.parentId
-      }`,
+      url: `metadata-schemas/${connectionValue}?database=${db}&workspaceId=${selectedDataConnection.workSpaceId || state?.parentId
+        }`,
       headers: { Authorization: `Bearer ${token}` },
       token: token,
     });
@@ -434,14 +431,12 @@ const Sidebar = ({
     var schema: string = "";
 
     if (serverName === "mysql") {
-      url = `metadata-tables/${connectionValue}?workspaceId=${
-        selectedDataConnection.workSpaceId || state?.parentId
-      }&database=${e}`;
+      url = `metadata-tables/${connectionValue}?workspaceId=${selectedDataConnection.workSpaceId || state?.parentId
+        }&database=${e}`;
     } else {
       schema = e.target.value;
-      url = `metadata-tables/${connectionValue}?workspaceId=${
-        selectedDataConnection.workSpaceId || state?.parentId
-      }&database=${selectedDb}&schema=${schema}`;
+      url = `metadata-tables/${connectionValue}?workspaceId=${selectedDataConnection.workSpaceId || state?.parentId
+        }&database=${selectedDb}&schema=${schema}`;
     }
 
     setSelectedSchema(schema);
@@ -499,7 +494,7 @@ const Sidebar = ({
             isView: true,
             tableName: el,
             isSelected: false,
-            table_uid: schema.length>0?schema[0].concat(el):schema.concat(el),
+            table_uid: schema.length > 0 ? schema[0].concat(el) : schema.concat(el),
             id: uid(),
             isNewTable: true,
             isCustomQuery: false,
@@ -601,9 +596,8 @@ const Sidebar = ({
     };
 
     try {
-      const url = `sample-records-customquery/${connectionValue}/${num}?workspaceId=${
-        selectedDataConnection.workSpaceId || state?.parentId
-      }`;
+      const url = `sample-records-customquery/${connectionValue}/${num}?workspaceId=${selectedDataConnection.workSpaceId || state?.parentId
+        }`;
       const res: any = await FetchData({
         requestType: "withData",
         method: "POST",
@@ -684,9 +678,8 @@ const Sidebar = ({
     var res: any = await FetchData({
       requestType: "noData",
       method: "GET",
-      url: `dataset/${dsId}?workspaceId=${
-        selectedDataConnection.workSpaceId || state?.parentId
-      }`,
+      url: `dataset/${dsId}?workspaceId=${selectedDataConnection.workSpaceId || state?.parentId
+        }`,
       headers: { Authorization: `Bearer ${token}` },
       token: token,
     });
@@ -700,7 +693,7 @@ const Sidebar = ({
       }));
     setCustomQuerysArray(updatedCustomQueryArray);
   };
-  useEffect(() => {}, [CustomQuerysArray]);
+  useEffect(() => { }, [CustomQuerysArray]);
   // remove the selected query option after click anywhere the screen
   const handleClickOutside = (event: MouseEvent) => {
     if (
@@ -726,7 +719,7 @@ const Sidebar = ({
     }
   }, [SelectQueryoption, RenameID]);
 
-  if(!state){
+  if (!state) {
     return null;
   }
 
@@ -757,63 +750,63 @@ const Sidebar = ({
       ) : null}
 
       {isFlatFile ? (
-        <div style={{display: "flex", flexDirection: "column", height:"100%"}}>
+        <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
           {tableList && tableList.length > 0 ? (
             <>
-            <Typography
-              style={{
-                display: "flex",
-                borderRadius: "5px",
-                marginBottom: "0.5rem",
-                textAlign: "left",
-                fontSize: fontSize.large,
-                fontWeight: "bold",
-              }}
-            >
-              Flat File Tables
-            </Typography>
+              <Typography
+                style={{
+                  display: "flex",
+                  borderRadius: "5px",
+                  marginBottom: "0.5rem",
+                  textAlign: "left",
+                  fontSize: fontSize.large,
+                  fontWeight: "bold",
+                }}
+              >
+                Flat File Tables
+              </Typography>
 
-          {loading ? (
-            <Stack
-              spacing={1}
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Skeleton variant="text" sx={{ fontSize: "1rem" }} width="90%" />
-              <Skeleton variant="text" sx={{ fontSize: "1rem" }} width="90%" />
-              <Skeleton variant="text" sx={{ fontSize: "1rem" }} width="90%" />
-            </Stack>
-          ) :  (
-            tableList.map((tab: UserTableProps) =>  (
-                <SelectListItem
-                  key={tab.tableName}
-                  render={(xprops: any) => (
-                    <div
-                      className="tableListStyle"
-                      onMouseOver={() => xprops.setOpen(true)}
-                      onMouseLeave={() => xprops.setOpen(false)}
-                    >
-                      <TableList
-                        key={tab.tableName}
-                        className="tableListElement"
-                        table={tab}
-                        tableId={tab.table_uid}
-                        xprops={xprops}
-                        selectedWorkSpace={
-                          selectedDataConnection.workSpaceId || state?.parentId
-                        }
-                        isFlatFile={isFlatFile}
-                        applyRestriction={viewerRestriction}
-                      />
-                    </div>
-                  )}
-                />
-              ))
-            )}
-          </>
+              {loading ? (
+                <Stack
+                  spacing={1}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Skeleton variant="text" sx={{ fontSize: "1rem" }} width="90%" />
+                  <Skeleton variant="text" sx={{ fontSize: "1rem" }} width="90%" />
+                  <Skeleton variant="text" sx={{ fontSize: "1rem" }} width="90%" />
+                </Stack>
+              ) : (
+                tableList.map((tab: UserTableProps) => (
+                  <SelectListItem
+                    key={tab.tableName}
+                    render={(xprops: any) => (
+                      <div
+                        className="tableListStyle"
+                        onMouseOver={() => xprops.setOpen(true)}
+                        onMouseLeave={() => xprops.setOpen(false)}
+                      >
+                        <TableList
+                          key={tab.tableName}
+                          className="tableListElement"
+                          table={tab}
+                          tableId={tab.table_uid}
+                          xprops={xprops}
+                          selectedWorkSpace={
+                            selectedDataConnection.workSpaceId || state?.parentId
+                          }
+                          isFlatFile={isFlatFile}
+                          applyRestriction={viewerRestriction}
+                        />
+                      </div>
+                    )}
+                  />
+                ))
+              )}
+            </>
           ) : (
             <div style={{
               display: "flex",
@@ -822,21 +815,21 @@ const Sidebar = ({
               alignItems: "center",
               height: "100%", // Adjust height to match container
             }}>
-      <Typography
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          textAlign: "center",
-          fontSize: fontSize.large,
-          paddingBottom: "3.5rem"
-        }}
-      >
-        No flatfiles in the current workspace
-      </Typography>
-      </div>
-    )}
+              <Typography
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
+                  textAlign: "center",
+                  fontSize: fontSize.large,
+                  paddingBottom: "3.5rem"
+                }}
+              >
+                No flatfiles in the current workspace
+              </Typography>
+            </div>
+          )}
         </div>
       ) : (
         <div>
@@ -881,7 +874,7 @@ const Sidebar = ({
           </div>
 
           {selectedDataConnection.label &&
-          selectedDataConnection.label !== "" ? (
+            selectedDataConnection.label !== "" ? (
             <div>
               <FormControl fullWidth size="small">
                 <InputLabel
@@ -909,7 +902,7 @@ const Sidebar = ({
                       fill: "#2bb9bb !important",
                     },
                     ".MuiSelect-select .MuiTypography-root": {
-                      fontSize: fontSize.medium, 
+                      fontSize: fontSize.medium,
                     },
                   }}
                   inputProps={{
@@ -922,7 +915,7 @@ const Sidebar = ({
                   onChange={(e: any) => {
                     onConnectionChange(e.target.value);
                   }}
-                  disabled={(serverName !== "mysql" && viewerRestriction)||disableDb}
+                  disabled={(serverName !== "mysql" && viewerRestriction) || disableDb}
                   value={selectedDb}
                   label="Connection"
                   MenuProps={{
@@ -987,9 +980,9 @@ const Sidebar = ({
             </div>
           ) : null}
 
-          {isSchemaAvailable &&
-          selectedDataConnection.label &&
-          selectedDataConnection.label !== "" ? (
+          {isSchemaAvailable && schemaList.length > 0 &&
+            selectedDataConnection.label &&
+            selectedDataConnection.label !== "" ? (
             // <div style={{ padding: "0 1rem 0 1rem" }}>
             <FormControl fullWidth size="small">
               <InputLabel
@@ -1016,8 +1009,8 @@ const Sidebar = ({
                     fill: "#2bb9bb !important",
                   },
                   ".MuiSelect-select .MuiTypography-root": {
-                      fontSize: fontSize.medium,
-                    },
+                    fontSize: fontSize.medium,
+                  },
                 }}
                 labelId="schemaSelect"
                 className="selectBar"
@@ -1084,10 +1077,10 @@ const Sidebar = ({
               </Select>
             </FormControl>
           ) : // </div>
-          null}
+            null}
 
           {selectedDataConnection.label &&
-          selectedDataConnection.label !== "" ? (
+            selectedDataConnection.label !== "" ? (
             <>
               <div
                 style={{
@@ -1163,12 +1156,12 @@ const Sidebar = ({
                               className="tableListStyle"
                               onMouseOver={() => xprops.setOpen(true)}
                               onMouseLeave={() => xprops.setOpen(false)}
-                              // style={{
-                              //   marginLeft: "2px",
-                              //   width: "97%",
-                              //   alignItems: "center",
-                              //   marginTop: idx === 0 ? "5px" : "0px",
-                              // }}\
+                            // style={{
+                            //   marginLeft: "2px",
+                            //   width: "97%",
+                            //   alignItems: "center",
+                            //   marginTop: idx === 0 ? "5px" : "0px",
+                            // }}\
                             >
                               <TableList
                                 key={tab.tableName}
@@ -1199,7 +1192,7 @@ const Sidebar = ({
           ) : null}
 
           {selectedDataConnection.label &&
-          selectedDataConnection.label !== "" ? (
+            selectedDataConnection.label !== "" ? (
             <>
               <div
                 style={{
@@ -1275,7 +1268,7 @@ const Sidebar = ({
                               className="tableListStyle"
                               onMouseOver={() => xprops.setOpen(true)}
                               onMouseLeave={() => xprops.setOpen(false)}
-                              
+
                             >
                               <TableList
                                 key={tab.tableName}
@@ -1317,8 +1310,8 @@ const Sidebar = ({
       )}
 
       {!isFlatFile &&
-      selectedDataConnection.label &&
-      selectedDataConnection.label !== "" ? (
+        selectedDataConnection.label &&
+        selectedDataConnection.label !== "" ? (
         <div
           style={{
             display: "flex",
@@ -1347,9 +1340,9 @@ const Sidebar = ({
         </div>
       ) : null}
       {customQueryExpand &&
-      !isFlatFile &&
-      selectedDataConnection.label &&
-      selectedDataConnection.label !== "" ? (
+        !isFlatFile &&
+        selectedDataConnection.label &&
+        selectedDataConnection.label !== "" ? (
         <div>
           {CustomQuerysArray.length > 0 ? (
             <div style={{ margin: "0 0 10% 0" }}>
@@ -1387,12 +1380,12 @@ const Sidebar = ({
                             <li
                               style={{
                                 fontSize: fontSize.medium,
-                                color: viewerRestriction?"rgba(0, 0, 0, 0.26)": palette.primary.contrastText,
-                                pointerEvents: viewerRestriction? "auto" : "all",
-                                cursor: viewerRestriction? "not-allowed" : "pointer",
+                                color: viewerRestriction ? "rgba(0, 0, 0, 0.26)" : palette.primary.contrastText,
+                                pointerEvents: viewerRestriction ? "auto" : "all",
+                                cursor: viewerRestriction ? "not-allowed" : "pointer",
                               }}
                               onClick={() => {
-                                if(viewerRestriction)return
+                                if (viewerRestriction) return
                                 setRenameID(item.id);
                                 setSelectQueryoption(item.id);
                                 setRenameInputValueCustomQueryname(item.name);
@@ -1406,12 +1399,12 @@ const Sidebar = ({
                             <li
                               style={{
                                 fontSize: fontSize.medium,
-                                color: viewerRestriction?"rgba(0, 0, 0, 0.26)": palette.primary.contrastText,
-                                pointerEvents: viewerRestriction? "auto" : "all",
-                                cursor: viewerRestriction? "not-allowed" : "pointer",
+                                color: viewerRestriction ? "rgba(0, 0, 0, 0.26)" : palette.primary.contrastText,
+                                pointerEvents: viewerRestriction ? "auto" : "all",
+                                cursor: viewerRestriction ? "not-allowed" : "pointer",
                               }}
                               onClick={() => {
-                                if(viewerRestriction)return
+                                if (viewerRestriction) return
                                 DeleteNameCustomQuery(item.id);
                                 setIsvisibleOption(false);
                               }}
@@ -1421,12 +1414,12 @@ const Sidebar = ({
                             <li
                               style={{
                                 fontSize: fontSize.medium,
-                                color: viewerRestriction?"rgba(0, 0, 0, 0.26)": palette.primary.contrastText,
-                                pointerEvents: viewerRestriction? "none" : "all",
-                                cursor: viewerRestriction? "not-allowed" : "pointer",
+                                color: viewerRestriction ? "rgba(0, 0, 0, 0.26)" : palette.primary.contrastText,
+                                pointerEvents: viewerRestriction ? "none" : "all",
+                                cursor: viewerRestriction ? "not-allowed" : "pointer",
                               }}
                               onClick={() => {
-                                if(viewerRestriction)return
+                                if (viewerRestriction) return
                                 setEditCustomQuery(item.id);
                                 handleEditCustomQuery(item.id);
                                 setRenameNameQuery(item.name);
@@ -1476,7 +1469,7 @@ const Sidebar = ({
               outline: `1px solid ${palette.primary.main}`,
               border: "none",
               borderRadius: "0.5rem",
-              cursor:viewerRestriction ? "not-allowed" : "pointer",
+              cursor: viewerRestriction ? "not-allowed" : "pointer",
 
             }}
           >
