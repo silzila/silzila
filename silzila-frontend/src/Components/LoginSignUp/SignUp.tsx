@@ -36,6 +36,9 @@ const SignUp = () => {
 
   const isPasswordValid = () => password.trim().length >= 6;
 
+	const isFirstNameValid = () => /^[a-zA-Z\s]*$/.test(firstName);
+  const islastNameValid = () => /^[a-zA-Z\s]*$/.test(lastName);
+
   const handleSubmit = async (e: React.FormEvent) => {
 	Logger("info","form submitted")
     e.preventDefault();
@@ -48,7 +51,19 @@ const SignUp = () => {
 
     if (!isPasswordValid()) {
 		Logger("info","password not valid")
-      setError("*Password should have at least 6 characters");
+		setError("*Password should have at least 6 characters");
+		return;
+	}
+	
+		if (!isFirstNameValid()) {
+			Logger("info","password not valid")
+      setError("*First Name should only contain alphabets");
+      return;
+    }
+		
+    if (!islastNameValid()) {
+			Logger("info","password not valid")
+      setError("*Last Name should only contain alphabets");
       return;
     }
 
