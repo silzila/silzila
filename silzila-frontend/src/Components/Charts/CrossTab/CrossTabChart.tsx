@@ -504,8 +504,24 @@ const CrossTabChart = ({
                 tempColumnObj.columnSpan = 1;
               } else if (dustbinValues.length === 1) {
                 for (let i = 0; i < dustbinRows.length; i++) {
-                  compareObj[CrossTab.getKeyWithPrefix(dustbinRows[i], "row")] =
-                    rowValues[i];
+                  if (
+                    !compareObj[
+                      CrossTab.getKeyWithPrefix(dustbinRows[i], "row")
+                    ]
+                  )
+                    compareObj[
+                      CrossTab.getKeyWithPrefix(dustbinRows[i], "row")
+                    ] = rowValues[i];
+                  else {
+                    if (
+                      compareObj[
+                        CrossTab.getKeyWithPrefix(dustbinRows[i], "row")
+                      ] !== rowValues[i]
+                    )
+                      compareObj[
+                        CrossTab.getKeyWithPrefix(dustbinRows[i], " row")
+                      ] = "";
+                  }
                 }
 
                 let _filteredData =
