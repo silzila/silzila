@@ -5,32 +5,33 @@ import Header from '../Components/Header';
 import SubWorkspace from '../Components/SubWorkspace';
 import "./pages.css";
 
-const SubWork = () => {
-    const Breadcrumb = () => {
-        const location = useLocation();
-        const parentWorkspaceName = location.state?.wname || localStorage.getItem("workspaceName") || "SubWorkspace";
-       
-        useEffect(() => {
-            if (location.state?.wname) localStorage.setItem("workspaceName", location.state.wname);
-        }, [location.state]);
+const Breadcrumb = () => {
+    const location = useLocation();
+    const parentWorkspaceName = location.state?.wname || localStorage.getItem("workspaceName") || "SubWorkspace";
 
-        return (
-            <div className="breadcrumb">
-                <div className="breadcrumb-header">
-                   
-                    <Link to="/workspace" className="breadcrumb-link">
-                       <a>Home</a>
-                    </Link>
-                   
-                    <Link to="/workspace" className="breadcrumb-link">
-                        <a>Workspace</a>
-                    </Link>
+    useEffect(() => {
+        if (location.state?.wname) localStorage.setItem("workspaceName", location.state.wname);
+    }, [location.state]);
 
-                    <span className="breadcrumb-current">{parentWorkspaceName}</span>
-                </div>
+    return (
+        <div className="breadcrumb">
+            <div className="breadcrumb-header">
+
+                <Link to="/workspace" className="breadcrumb-link">
+                    <a>Home</a>
+                </Link>
+
+                <Link to="/workspace" className="breadcrumb-link">
+                    <a>Workspace</a>
+                </Link>
+
+                <span className="breadcrumb-current">{parentWorkspaceName}</span>
             </div>
-        );
-    };
+        </div>
+    );
+};
+
+const SubWork = () => {
 
     const [isCollapsed, setIsCollapsed] = useState(() => {
         const storedState = typeof window !== 'undefined' ? localStorage.getItem('navbarCollapsed') : null;
@@ -54,8 +55,8 @@ const SubWork = () => {
 
     return (
         <>
-            <div className="" style={{padding:'0.5rem'}}>
-            <Header />
+            <div className="" style={{ padding: '0.5rem' }}>
+                <Header />
             </div>
             <div className="layout-container">
                 <div className={`navbar-container ${isCollapsed ? 'collapsed' : ''}`}>
@@ -65,7 +66,7 @@ const SubWork = () => {
                     <Breadcrumb />
                     <SubWorkspace />
                 </div>
-            </div>         
+            </div>
         </>
     );
 }
