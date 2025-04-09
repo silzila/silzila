@@ -832,7 +832,7 @@ const SubWorkspace = () => {
   };
 
   const handleCreateItem = async () => {
-    
+
     let url;
     let data;
 
@@ -1175,16 +1175,16 @@ const SubWorkspace = () => {
           sortConfig.key === "modified" ||
           sortConfig.key === "createdAt"
         ) {
-          const aDate = a.modified
-            ? parseISO(a.modified)
+          const aDate = a.updatedAt
+            ? parseISO(a.updatedAt)
             : a.createdAt
-            ? parseISO(a.createdAt)
-            : new Date(0);
-          const bDate = b.modified
-            ? parseISO(b.modified)
+              ? parseISO(a.createdAt)
+              : new Date(0);
+          const bDate = b.updatedAt
+            ? parseISO(b.updatedAt)
             : b.createdAt
-            ? parseISO(b.createdAt)
-            : new Date(0);
+              ? parseISO(b.createdAt)
+              : new Date(0);
 
           aValue = aDate.getTime();
           bValue = bDate.getTime();
@@ -1733,125 +1733,125 @@ const SubWorkspace = () => {
                             color: palette.primary.contrastText,
                           }}
                         >
-                          {workspace.modified || workspace.createdAt
+                          {workspace.updatedAt || workspace.createdAt
                             ? formatDistanceToNow(
-                                parseISO(
-                                  workspace.modified || workspace.createdAt
-                                ),
-                                { addSuffix: true }
-                              )
+                              parseISO(
+                                workspace.updatedAt || workspace.createdAt
+                              ),
+                              { addSuffix: true }
+                            )
                             : "No date available"}
                         </td>
                         <td>
-                            <div className="subworkspace-img-icon">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
+                          <div className="subworkspace-img-icon">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
 
-                                  if (workspace.contentType === 1) {
-                                    handleSubWorkspaceClick(
-                                      workspace.id,
-                                      workspace.name,
-                                      parentId
-                                    );
-                                  } else {
-                                    navigateToEditPages(workspace);
-                                  }
-                                }}
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  marginLeft: "5px",
-                                  marginRight: "5px",
-                                }}
-                              >
-                                <Tooltip title="View / Edit">
-                                  <img
-                                    src={
-                                      hoveredRowId === workspace.id
-                                        ? "/eye_purple.png"
-                                        : "/eye_white.png"
-                                    }
-                                    alt="Change"
-                                    style={{
-                                      marginTop: "5px",
-                                      width: "17px",
-                                      height: "17px",
-                                    }}
-                                  />
-                                </Tooltip>
-                              </button>
-
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  openEditModal(
+                                if (workspace.contentType === 1) {
+                                  handleSubWorkspaceClick(
                                     workspace.id,
                                     workspace.name,
-                                    workspace.parentId,
-                                    workspace
+                                    parentId
                                   );
-                                }}
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  marginLeft: "5px",
-                                  marginRight: "5px",
-                                }}
-                              >
-                                <Tooltip title="Rename">
-                                  <img
-                                    src={
-                                      hoveredRowId === workspace.id
-                                        ? "/edit.png"
-                                        : "/edit_white.png"
-                                    }
-                                    alt="Edit"
-                                    style={{
-                                      marginTop: "1px",
-                                      width: "16px",
-                                      height: "16px",
-                                    }}
-                                  />
-                                </Tooltip>
-                              </button>
+                                } else {
+                                  navigateToEditPages(workspace);
+                                }
+                              }}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                marginLeft: "5px",
+                                marginRight: "5px",
+                              }}
+                            >
+                              <Tooltip title="View / Edit">
+                                <img
+                                  src={
+                                    hoveredRowId === workspace.id
+                                      ? "/eye_purple.png"
+                                      : "/eye_white.png"
+                                  }
+                                  alt="Change"
+                                  style={{
+                                    marginTop: "5px",
+                                    width: "17px",
+                                    height: "17px",
+                                  }}
+                                />
+                              </Tooltip>
+                            </button>
 
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (workspace.contentType === 1) {
-                                        deleteWorkspace(
-                                          workspace.id,
-                                          workspace.name
-                                        );
-                                      } else {
-                                        deleteContent(workspace);
-                                      }
-                                    }}
-                                    style={{
-                                      background: "none",
-                                      border: "none",
-                                      marginLeft: "5px",
-                                      marginRight: "5px",
-                                    }}
-                                  >
-                                    <Tooltip title="Delete">
-                                      <img
-                                        src={
-                                          hoveredRowId === workspace.id
-                                            ? "/delete_red.png"
-                                            : "/delete_white.png"
-                                        }
-                                        alt="Delete"
-                                        style={{
-                                          marginTop: "1px",
-                                          width: "17px",
-                                          height: "17px",
-                                        }}
-                                      />
-                                    </Tooltip>
-                                  </button>
-                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openEditModal(
+                                  workspace.id,
+                                  workspace.name,
+                                  workspace.parentId,
+                                  workspace
+                                );
+                              }}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                marginLeft: "5px",
+                                marginRight: "5px",
+                              }}
+                            >
+                              <Tooltip title="Rename">
+                                <img
+                                  src={
+                                    hoveredRowId === workspace.id
+                                      ? "/edit.png"
+                                      : "/edit_white.png"
+                                  }
+                                  alt="Edit"
+                                  style={{
+                                    marginTop: "1px",
+                                    width: "16px",
+                                    height: "16px",
+                                  }}
+                                />
+                              </Tooltip>
+                            </button>
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (workspace.contentType === 1) {
+                                  deleteWorkspace(
+                                    workspace.id,
+                                    workspace.name
+                                  );
+                                } else {
+                                  deleteContent(workspace);
+                                }
+                              }}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                marginLeft: "5px",
+                                marginRight: "5px",
+                              }}
+                            >
+                              <Tooltip title="Delete">
+                                <img
+                                  src={
+                                    hoveredRowId === workspace.id
+                                      ? "/delete_red.png"
+                                      : "/delete_white.png"
+                                  }
+                                  alt="Delete"
+                                  style={{
+                                    marginTop: "1px",
+                                    width: "17px",
+                                    height: "17px",
+                                  }}
+                                />
+                              </Tooltip>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     )
@@ -1994,12 +1994,12 @@ const SubWorkspace = () => {
                 />
               </div>
               <div className={styles.errorMessageContainer}>
-                  {errorMessage && (
-                    <p style={{ color: "red", fontSize: fontSize.small }}>
-                      {errorMessage}
-                    </p>
-                  )}
-              </div>  
+                {errorMessage && (
+                  <p style={{ color: "red", fontSize: fontSize.small }}>
+                    {errorMessage}
+                  </p>
+                )}
+              </div>
 
               <div className={styles.subworkspaceModalButtons}>
                 <button
@@ -2033,7 +2033,7 @@ const SubWorkspace = () => {
                   // value={workspaceName}
                   onChange={(e) => setWorkspaceName(e.target.value)}
                   placeholder={`Enter ${modalType} name`}
-                  // className={styles.workspaceInput}
+                // className={styles.workspaceInput}
                 />
               </div>
               {/* Error message section */}
