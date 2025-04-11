@@ -87,7 +87,7 @@ form {
   width: 48%;
 }
 
-input {
+.input-style {
   margin-bottom: 15px;
   padding: 10px;
   border: 1px solid #ddd;
