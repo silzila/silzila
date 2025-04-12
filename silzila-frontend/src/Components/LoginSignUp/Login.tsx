@@ -184,7 +184,7 @@ const Login = (props: DispatchProps) => {
           <form onSubmit={handleSubmit} className="form">
             <h3>Personal Login</h3>
             <input
-              className="input-style"
+              className="loginform-input-style"
               type="email"
               id="login-email"
               name="login-email"
@@ -208,7 +208,7 @@ const Login = (props: DispatchProps) => {
               }}
             >
               <input
-                className="input-style"
+                className="loginform-input-style"
                 type={showPassword ? "text" : "password"}
                 id="login-password"
                 name="login-password"
